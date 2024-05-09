@@ -140,37 +140,42 @@ const Input = ({
             </HStack>
           </FormLabel>
         )}
-        {typeof subLabel !== 'string' ? (
-          subLabel
-        ) : (
-          <Text size='sm' variant='light'>
-            {subLabel}
-          </Text>
-        )}
-        {addressButtons && (
-          <Flex justify='flex-end'>
-            <HStack>
-              <Button
-                size='xs'
-                variant='outline'
-                colorScheme='blue.500'
-                onClick={resetFallback}
-              >
-                Null
-              </Button>
-              {address && (
+        {/* ADDRESS BUTTONS PRIMARILY FOR ADDRESS INPUT */}
+        <Flex align='end' gap={10} justify='space-between'>
+          <Box>
+            {typeof subLabel !== 'string' ? (
+              subLabel
+            ) : (
+              <Text size='sm' variant='light'>
+                {subLabel}
+              </Text>
+            )}
+          </Box>
+          {addressButtons && (
+            <Flex justify='flex-end'>
+              <HStack>
                 <Button
                   size='xs'
                   variant='outline'
                   colorScheme='blue.500'
-                  onClick={resetMe}
+                  onClick={resetFallback}
                 >
-                  Me
+                  Null
                 </Button>
-              )}
-            </HStack>
-          </Flex>
-        )}
+                {address && (
+                  <Button
+                    size='xs'
+                    variant='outline'
+                    colorScheme='blue.500'
+                    onClick={resetMe}
+                  >
+                    Me
+                  </Button>
+                )}
+              </HStack>
+            </Flex>
+          )}
+        </Flex>
 
         <InputGroup {...props}>
           {leftElement && <InputLeftElement>{leftElement}</InputLeftElement>}
@@ -184,7 +189,9 @@ const Input = ({
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
-          <InputRightElement w={`${rightElementWidth}px`}>
+          <InputRightElement
+            w={rightElementWidth ? `${rightElementWidth}px` : undefined}
+          >
             <Flex w='100%' align='center' justify='space-between' pr={4}>
               {rightElement && <Box>{rightElement}</Box>}
               {isDirty && (

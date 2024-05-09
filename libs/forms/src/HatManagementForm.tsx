@@ -66,8 +66,7 @@ const HatManagementForm = ({
 }: HatManagementFormProps) => {
   const { chainId, editMode } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const { localForm, eligibilityResolvedAddress, toggleResolvedAddress } =
-    useHatForm();
+  const { localForm } = useHatForm();
   const { watch, control, setValue, getValues } = _.pick(localForm, [
     'watch',
     'control',
@@ -88,15 +87,8 @@ const HatManagementForm = ({
     'extendedEligibility',
     'extendedToggle',
   ]);
-  const actionResolvedAddress =
-    title === MODULE_TYPES.eligibility
-      ? eligibilityResolvedAddress
-      : toggleResolvedAddress;
   const extendedController =
     title === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
-
-  const showActionResolvedAddress =
-    actionResolvedAddress && actionResolvedAddress !== extendedController?.id;
 
   const { details: moduleDetails } = useModuleDetails({
     address: controllerInput,
@@ -172,7 +164,7 @@ const HatManagementForm = ({
           <Icon as={BsShieldLock} boxSize={4} mt='2px' />
           <Stack>
             <AddressInput
-              name={`${_.toLower(title)}Input`}
+              name={`${_.toLower(title)}`}
               label={`${inputConfig.label} ${
                 isActionManual === TRIGGER_OPTIONS.MANUALLY
                   ? 'ADDRESS'
@@ -184,9 +176,7 @@ const HatManagementForm = ({
                   : inputConfig.description[1]
               }
               localForm={localForm}
-              showResolvedAddress={Boolean(showActionResolvedAddress)}
               isDisabled={!isMutable(selectedHat)}
-              resolvedAddress={String(actionResolvedAddress)}
             />
             <HStack spacing={8}>
               {(moduleDetails || contractData) && (

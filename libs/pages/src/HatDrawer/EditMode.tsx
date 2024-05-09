@@ -163,7 +163,7 @@ const EditMode = () => {
                 formName='authorities'
                 title='PERMISSIONS'
                 subtitle={
-                  <Text>
+                  <Text size='sm' variant='light'>
                     Actions this hat enables its wearer to take. More details in
                     the{' '}
                     <ChakraNextLink
@@ -201,7 +201,7 @@ const EditMode = () => {
                 inputConfig={{
                   label: 'ACCOUNTABILITY',
                   description: [
-                    <Text key='manual'>
+                    <Text key='manual' size='sm' variant='light'>
                       The address of the person or group that can manually
                       revoke this hat from specific wearers. More details in the{' '}
                       <ChakraNextLink
@@ -213,7 +213,7 @@ const EditMode = () => {
                       </ChakraNextLink>
                       .
                     </Text>,
-                    <Text key='automatic'>
+                    <Text key='automatic' size='sm' variant='light'>
                       The address of the smart contract containing the logic
                       about when a wearer should have this hat. More details in
                       the{' '}
