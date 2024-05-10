@@ -22,7 +22,9 @@ interface ContractInteractionProps {
 
 // ! DEPRECATED. TO BE REMOVED WITH HATS COMMUNITY HAT MIGRATION WITH SEASON 3
 
-const useAgreementClaimsHatterContractWrite = ({
+// workaround for https://github.com/microsoft/TypeScript/issues/48212
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const useAgreementClaimsHatterContractWrite: any = ({
   functionName,
   address,
   chainId,

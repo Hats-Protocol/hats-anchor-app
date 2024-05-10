@@ -5,9 +5,9 @@ import { Hex } from 'viem';
 
 /**
  * Custom hook to manage the disclosure of the selected hat
- * @returns isOpen - boolean value to determine if the hat is open
- * @returns onOpen - function to open the hat, passing the hatId
- * @returns onClose - function to close the hat
+ * @returns `isOpen` - boolean value to determine if the hat is open
+ * @returns `onOpen` - function to open the hat, passing the hatId
+ * @returns `onClose` - function to close the hat
  */
 const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

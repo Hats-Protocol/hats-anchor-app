@@ -16,7 +16,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
+import { AUTHORITY_TYPES, CONFIG } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
@@ -36,8 +36,6 @@ import { formatImageUrl, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
-
-const AUTHORITY_NAME_LENGTH = 60;
 
 interface AuthoritiesFormListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,7 +174,7 @@ const AuthoritiesForm = ({
                 options={{
                   required: 'Authority name is required',
                   maxLength: {
-                    value: AUTHORITY_NAME_LENGTH,
+                    value: CONFIG.SHADE_HEADING_LENGTH,
                     message: 'Authority name is too long',
                   },
                 }}

@@ -104,7 +104,7 @@ const Input = ({
 
   // allow override onChange handler
   const defaultHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setValue(name, e.target.value, { shouldDirty: true });
+    setValue(name, e.target.value, { shouldDirty: true, shouldValidate: true });
   };
   const handleChange = onChange || defaultHandleChange;
 
