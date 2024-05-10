@@ -10,9 +10,7 @@ import { checkAddressIsContract } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useHatStatusCheck: any = ({
+const useHatStatusCheck = ({
   hatData,
   chainId,
   handlePendingTx,

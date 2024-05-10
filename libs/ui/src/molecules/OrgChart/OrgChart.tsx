@@ -55,6 +55,7 @@ const OrgChartComponent: React.FC = () => {
     chainId,
     editMode,
     treeToDisplay,
+    orgChartTree,
     showInactiveHats,
     selectedOption,
     handleFlipChart,
@@ -123,7 +124,7 @@ const OrgChartComponent: React.FC = () => {
 
       setChartNodes(newChartNodes);
     }
-  }, [chartNodes, treeToDisplay]);
+  }, [chartNodes, treeToDisplay, orgChartTree]);
 
   useEffect(() => {
     // encode the collapsed nodes in the tree to display, used for custom manipulation of expanded/collapsed nodes
@@ -170,12 +171,12 @@ const OrgChartComponent: React.FC = () => {
         .nodeWidth(() => 220)
         // eslint-disable-next-line func-names
         .nodeUpdate(function (this: any) {
-          if (!chainId) return;
+          if (!chainId || !orgChartTree) return;
           d3.select(this).on('click.node-update', (event: any, data: any) => {
             if (checkParentElementForClass(event, `click-${data.data.name}`)) {
               const nextChildId = calculateNextChildId(
                 data.data.id,
-                chartNodes,
+                orgChartTree,
               );
               const newId = ipToHatId(nextChildId);
 
@@ -756,6 +757,7 @@ const OrgChartComponent: React.FC = () => {
     showInactiveHats,
     selectedOption,
     editMode,
+    orgChartTree,
     toast,
     addHat,
     userChain,

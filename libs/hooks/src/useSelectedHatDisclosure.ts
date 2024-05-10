@@ -40,9 +40,11 @@ const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
   useEffect(() => {
     if (hatId && hatId !== '0x') {
       onOpen(hatId);
-    } else {
+    }
+    if (isOpen && !hatId) {
       onClose();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hatId]);
 

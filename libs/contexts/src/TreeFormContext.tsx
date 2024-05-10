@@ -469,7 +469,7 @@ export const TreeFormContextProvider = ({
     [router, setStoredConfig, storedConfig],
   );
 
-  /* Update the query params and local storage.
+  /** Update the query params and local storage.
    * If query params are not empty, then they will take precedence over the local storage state, meaning that the local storage
    * will be updated according to the query params. If query params are empty but local storage is not, then the local storage will
    * take precedence.
