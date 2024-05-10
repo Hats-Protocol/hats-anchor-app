@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { prettyIdToIp } from 'shared';
 import { AppHat } from 'types';
 import {
-  fetchTreeDetails,
+  fetchTreeDetailsMesh,
   fetchTreesById,
   removeInactiveHatsAndDescendants,
 } from 'utils';
@@ -22,7 +22,7 @@ const useFeaturedTreesData = (featuredTrees: any) => {
         return fetchTreesById(_.map(trees, 'id'), chainId);
       }
 
-      return fetchTreeDetails(_.first(trees).id, chainId);
+      return fetchTreeDetailsMesh(_.first(trees).id, chainId);
     });
 
     const result = await Promise.all(_.flatten(promises));

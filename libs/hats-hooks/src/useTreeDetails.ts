@@ -1,6 +1,6 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { fetchTreeDetails } from 'utils';
+import { fetchTreeDetailsMesh } from 'utils';
 import { numberToHex } from 'viem';
 
 const useTreeDetails = ({
@@ -13,7 +13,7 @@ const useTreeDetails = ({
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['treeDetails', localTreeId, chainId],
-    queryFn: () => fetchTreeDetails(localTreeId, chainId),
+    queryFn: () => fetchTreeDetailsMesh(localTreeId, chainId),
     enabled: !!localTreeId,
     initialData,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
