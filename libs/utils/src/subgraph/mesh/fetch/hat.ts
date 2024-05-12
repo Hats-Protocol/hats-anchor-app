@@ -11,7 +11,7 @@ export const fetchHatDetailsMesh = async (
   if (!hatId || hatId === '0x' || !chainId) return null;
 
   const client = new GraphQLClient(process.env.NEXT_PUBLIC_HATS_API as string);
-  const query = getHatDetailsQuery(chainId, hatId);
+  const query = getHatDetailsQuery(chainId);
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

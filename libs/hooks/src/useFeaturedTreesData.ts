@@ -5,7 +5,7 @@ import { prettyIdToIp } from 'shared';
 import { AppHat } from 'types';
 import {
   fetchTreeDetailsMesh,
-  fetchTreesById,
+  fetchTreesByIdMesh,
   removeInactiveHatsAndDescendants,
 } from 'utils';
 
@@ -19,7 +19,7 @@ const useFeaturedTreesData = (featuredTrees: any) => {
     const promises = _.map(chainIds, (chainId: number) => {
       const trees = _.filter(featuredTrees, { chainId });
       if (_.size(trees) > 1) {
-        return fetchTreesById(_.map(trees, 'id'), chainId);
+        return fetchTreesByIdMesh(_.map(trees, 'id'), chainId);
       }
 
       return fetchTreeDetailsMesh(_.first(trees).id, chainId);

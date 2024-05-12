@@ -112,7 +112,50 @@ export function getTreesPaginatedQuery(chaindId: number): string {
   `;
 }
 
-export function getHatDetailsQuery(chainId: number, hatId: string): string {
+export function getTreesByIdQuery(chainId: number): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  return gql`
+    query getTreesById($ids: [ID!]!) {
+      ${networkPrefix}_trees(where: { id_in: $ids }) {
+        id
+        hats {
+          id
+          details
+          imageUri
+          prettyId
+          currentSupply
+          admin {
+            id
+            prettyId
+          }
+          wearers(first: 5) {
+            id
+          }
+          status
+        }
+        childOfTree {
+          id
+        }
+        parentOfTrees {
+          id
+          linkedToHat {
+            id
+            prettyId
+          }
+        }
+        linkedToHat {
+          id
+          prettyId
+          tree {
+            id
+          }
+        }
+      }
+    }
+  `;
+}
+
+export function getHatDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
     query getHat($id: ID!) {
@@ -149,6 +192,64 @@ export function getHatDetailsQuery(chainId: number, hatId: string): string {
           id
           timestamp
           transactionID
+        }
+      }
+    }
+  `;
+}
+
+export function getWearerDetailsQuery(chainId: number): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  return gql`
+    query getCurrentHatsForWearer($id: ID!) {
+      ${networkPrefix}_wearer(id: $id) {
+        id
+        currentHats(first: 100) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+          events {
+            id
+            timestamp
+            transactionID
+          }
+        }
+      }
+    }
+  `;
+}
+
+export function getPaginatedWearersForHatQuery(chainId: number): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  return gql`
+    query getPaginatedWearersForHat($hatId: ID!, $first: Int!, $skip: Int!) {
+      ${networkPrefix}_hat(id: $hatId) {
+        wearers(skip: $skip, first: $first) {
+          id
         }
       }
     }

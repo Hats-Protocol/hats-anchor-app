@@ -5,6 +5,7 @@ import { mapWithChainId } from 'shared';
 
 import {
   getTreeQuery,
+  getTreesByIdQuery,
   getTreesPaginatedQuery,
   NETWORKS_PREFIX,
 } from '../queries';
@@ -57,42 +58,23 @@ export const fetchPaginatedTreesMesh = async (
   return mapWithChainId(trees, chainId) as Tree[];
 };
 
-/*
-export const fetchTreesById = async (treeIds: string[], chainId: number) => {
-  const subgraphClient = createSubgraphClient();
+export const fetchTreesByIdMesh = async (
+  treeIds: string[],
+  chainId: number,
+) => {
+  const client = new GraphQLClient(process.env.NEXT_PUBLIC_HATS_API as string);
+  const query = getTreesByIdQuery(chainId);
 
-  const res = await subgraphClient.getTreesByIds({
-    chainId,
-    treeIds: treeIds.map((id) => +id),
-    props: {
-      hats: {
-        props: {
-          details: true,
-          imageUri: true,
-          prettyId: true,
-          currentSupply: true,
-          admin: {
-            prettyId: true,
-          },
-          wearers: { props: {}, filters: { first: 5 } },
-          status: true,
-        },
-      },
-      childOfTree: {},
-      parentOfTrees: {
-        props: {
-          linkedToHat: {
-            prettyId: true,
-          },
-        },
-      },
-      linkedToHat: {
-        prettyId: true,
-        tree: {},
-      },
-    },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const res: any = await client.request(query, {
+    ids: treeIds,
   });
 
-  return res as unknown as Tree[];
+  const trees: Tree[] = res[`${NETWORKS_PREFIX[chainId]}_trees`];
+
+  if (!trees) {
+    throw new Error('Unexpected error');
+  }
+
+  return trees;
 };
-*/
