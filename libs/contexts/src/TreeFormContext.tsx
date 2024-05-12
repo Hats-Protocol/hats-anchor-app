@@ -1,13 +1,8 @@
 import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
-import {
-  useManyHatsDetails,
-  useManyHatsDetailsField,
-  useTreeDetails,
-  useTreeWearers,
-} from 'hats-hooks';
-import { translateDrafts } from 'hats-utils';
+import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
+import { DetailsData, translateDrafts } from 'hats-utils';
 import {
   useImageURIs,
   useLocalStorage,
@@ -264,12 +259,21 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const { data: onchainDetailsFields, isLoading: onchainDetailsFieldsLoading } =
-    useManyHatsDetailsField({
-      hats: onchainHatDetails,
-      editMode,
-      onchain: true,
-    });
+  const onchainDetailsFields: { id: string; detailsObject: DetailsData }[] =
+    _.map(
+      _.filter(onchainHatDetails, (hat) => {
+        return (
+          _.startsWith(_.get(hat, 'details'), 'ipfs://') &&
+          _.get(hat, 'detailsMetadata') !== null
+        );
+      }),
+      (hat) => {
+        return {
+          id: _.get(hat, 'details') as string,
+          detailsObject: JSON.parse(_.get(hat, 'detailsMetadata') as string),
+        };
+      },
+    );
 
   const { data: onchainWearers } = useTreeWearers({
     hats: onchainHatDetails,
@@ -294,7 +298,7 @@ export const TreeFormContextProvider = ({
     draftHats,
     orgChartWearers: onchainWearers,
     imagesLoaded: !onchainImagesLoading,
-    detailsLoaded: !onchainDetailsFieldsLoading,
+    detailsLoaded: true,
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
     onchain: true,
@@ -313,12 +317,20 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const { data: detailsFields, isLoading: detailsFieldsLoading } =
-    useManyHatsDetailsField({
-      hats: hatDetails,
-      onchainHats,
-      editMode,
-    });
+  const detailsFields: { id: string; detailsObject: DetailsData }[] = _.map(
+    _.filter(hatDetails, (hat) => {
+      return (
+        _.startsWith(_.get(hat, 'details'), 'ipfs://') &&
+        _.get(hat, 'detailsMetadata') !== null
+      );
+    }),
+    (hat) => {
+      return {
+        id: _.get(hat, 'details') as string,
+        detailsObject: JSON.parse(_.get(hat, 'detailsMetadata') as string),
+      };
+    },
+  );
 
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
@@ -340,7 +352,7 @@ export const TreeFormContextProvider = ({
     imagesData,
     draftHats,
     imagesLoaded: !imagesLoading,
-    detailsLoaded: !detailsFieldsLoading,
+    detailsLoaded: true,
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
   });
@@ -659,7 +671,7 @@ export const TreeFormContextProvider = ({
       onchainTree: onchainTree || undefined,
       onchainHats,
       treeEvents,
-      isLoading: imagesLoading || detailsFieldsLoading || orgChartTreeLoading,
+      isLoading: imagesLoading || orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       orgChartWearers,
@@ -708,7 +720,6 @@ export const TreeFormContextProvider = ({
       onchainHats,
       treeEvents,
       imagesLoading,
-      detailsFieldsLoading,
       orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,

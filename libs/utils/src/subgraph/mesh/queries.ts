@@ -111,3 +111,46 @@ export function getTreesPaginatedQuery(chaindId: number): string {
     }
   `;
 }
+
+export function getHatDetailsQuery(chainId: number, hatId: string): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  return gql`
+    query getHat($id: ID!) {
+      ${networkPrefix}_hat(id: $id) {
+        id
+        prettyId
+        status
+        createdAt
+        details
+        detailsMetadata
+        maxSupply
+        eligibility
+        toggle
+        mutable
+        imageUri
+        levelAtLocalTree
+        claimableBy {
+          id
+        }
+        claimableForBy {
+          id
+        }
+        currentSupply
+        tree {
+          id
+        }
+        wearers(first: 5) {
+          id
+        }
+        admin {
+          id
+        }
+        events {
+          id
+          timestamp
+          transactionID
+        }
+      }
+    }
+  `;
+}

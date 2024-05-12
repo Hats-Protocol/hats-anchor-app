@@ -1,7 +1,7 @@
 import { ZERO_ID } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { AppHat, SupportedChains } from 'types';
-import { fetchHatDetails } from 'utils';
+import { fetchHatDetailsMesh } from 'utils';
 
 const useHatDetails = ({
   hatId,
@@ -16,7 +16,7 @@ const useHatDetails = ({
 }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', { id: hatId, chainId }],
-    queryFn: () => fetchHatDetails(hatId, chainId),
+    queryFn: () => fetchHatDetailsMesh(hatId, chainId),
     enabled:
       !!hatId &&
       hatId !== ZERO_ID &&
