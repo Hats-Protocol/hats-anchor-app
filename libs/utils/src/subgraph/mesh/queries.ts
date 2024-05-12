@@ -46,7 +46,7 @@ export function getTreeQuery(chaindId: number): string {
             id
           }
         }
-        events(first: 100) {
+        events(orderBy: timestamp, orderDirection: desc, first: 100) {
           id
           timestamp
           transactionID
@@ -54,6 +54,61 @@ export function getTreeQuery(chaindId: number): string {
             id
             prettyId
           }
+          __typename 
+          ... on ${networkPrefix}_HatCreatedEvent { 
+            hatDetails 
+            hatMaxSupply 
+            hatEligibility 
+            hatToggle 
+            hatMutable 
+            hatImageUri 
+          } 
+          ... on ${networkPrefix}_HatMintedEvent { 
+            wearer { 
+              id 
+            } 
+            operator 
+          } 
+          ... on ${networkPrefix}_HatBurnedEvent { 
+            wearer { 
+              id 
+            } 
+            operator 
+          } 
+          ... on ${networkPrefix}_HatStatusChangedEvent { 
+            hatNewStatus 
+          } 
+          ... on ${networkPrefix}_HatDetailsChangedEvent { 
+            hatNewDetails 
+          } 
+          ... on ${networkPrefix}_HatEligibilityChangedEvent { 
+            hatNewEligibility 
+          } 
+          ... on ${networkPrefix}_HatToggleChangedEvent { 
+            hatNewToggle 
+          } 
+          ... on ${networkPrefix}_HatMaxSupplyChangedEvent { 
+            hatNewMaxSupply 
+          } 
+          ... on ${networkPrefix}_HatImageURIChangedEvent { 
+            hatNewImageURI 
+          } 
+          ... on ${networkPrefix}_TopHatLinkRequestedEvent { 
+            newAdmin {
+              id
+            }
+          } 
+          ... on ${networkPrefix}_TopHatLinkedEvent { 
+            newAdmin {
+              id
+            }
+          } 
+          ... on ${networkPrefix}_WearerStandingChangedEvent { 
+            wearer { 
+              id 
+              } 
+            wearerStanding 
+          } 
         }
         linkRequestFromTree {
           id
@@ -188,10 +243,65 @@ export function getHatDetailsQuery(chainId: number): string {
         admin {
           id
         }
-        events {
+        events(orderBy: timestamp, orderDirection: desc) {
           id
           timestamp
           transactionID
+          __typename 
+          ... on ${networkPrefix}_HatCreatedEvent { 
+            hatDetails 
+            hatMaxSupply 
+            hatEligibility 
+            hatToggle 
+            hatMutable 
+            hatImageUri 
+          } 
+          ... on ${networkPrefix}_HatMintedEvent { 
+            wearer { 
+              id 
+            } 
+            operator 
+          } 
+          ... on ${networkPrefix}_HatBurnedEvent { 
+            wearer { 
+              id 
+            } 
+            operator 
+          } 
+          ... on ${networkPrefix}_HatStatusChangedEvent { 
+            hatNewStatus 
+          } 
+          ... on ${networkPrefix}_HatDetailsChangedEvent { 
+            hatNewDetails 
+          } 
+          ... on ${networkPrefix}_HatEligibilityChangedEvent { 
+            hatNewEligibility 
+          } 
+          ... on ${networkPrefix}_HatToggleChangedEvent { 
+            hatNewToggle 
+          } 
+          ... on ${networkPrefix}_HatMaxSupplyChangedEvent { 
+            hatNewMaxSupply 
+          } 
+          ... on ${networkPrefix}_HatImageURIChangedEvent { 
+            hatNewImageURI 
+          } 
+          ... on ${networkPrefix}_TopHatLinkRequestedEvent { 
+            newAdmin {
+              id
+            }
+          } 
+          ... on ${networkPrefix}_TopHatLinkedEvent { 
+            newAdmin {
+              id
+            }
+          } 
+          ... on ${networkPrefix}_WearerStandingChangedEvent { 
+            wearer { 
+              id 
+              } 
+            wearerStanding 
+          } 
         }
       }
     }
@@ -232,10 +342,65 @@ export function getWearerDetailsQuery(chainId: number): string {
           admin {
             id
           }
-          events {
+          events(orderBy: timestamp, orderDirection: desc) {
             id
             timestamp
             transactionID
+            __typename 
+            ... on ${networkPrefix}_HatCreatedEvent { 
+              hatDetails 
+              hatMaxSupply 
+              hatEligibility 
+              hatToggle 
+              hatMutable 
+              hatImageUri 
+            } 
+            ... on ${networkPrefix}_HatMintedEvent { 
+              wearer { 
+                id 
+              } 
+              operator 
+            } 
+            ... on ${networkPrefix}_HatBurnedEvent { 
+              wearer { 
+                id 
+              } 
+              operator 
+            } 
+            ... on ${networkPrefix}_HatStatusChangedEvent { 
+              hatNewStatus 
+            } 
+            ... on ${networkPrefix}_HatDetailsChangedEvent { 
+              hatNewDetails 
+            } 
+            ... on ${networkPrefix}_HatEligibilityChangedEvent { 
+              hatNewEligibility 
+            } 
+            ... on ${networkPrefix}_HatToggleChangedEvent { 
+              hatNewToggle 
+            } 
+            ... on ${networkPrefix}_HatMaxSupplyChangedEvent { 
+              hatNewMaxSupply 
+            } 
+            ... on ${networkPrefix}_HatImageURIChangedEvent { 
+              hatNewImageURI 
+            } 
+            ... on ${networkPrefix}_TopHatLinkRequestedEvent { 
+              newAdmin {
+                id
+              }
+            } 
+            ... on ${networkPrefix}_TopHatLinkedEvent { 
+              newAdmin {
+                id
+              }
+            } 
+            ... on ${networkPrefix}_WearerStandingChangedEvent { 
+              wearer { 
+                id 
+                } 
+              wearerStanding 
+            } 
           }
         }
       }
