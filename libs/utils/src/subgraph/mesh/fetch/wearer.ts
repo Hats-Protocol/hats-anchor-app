@@ -21,7 +21,7 @@ export const fetchWearerDetailsMesh = async (
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const res: any = await client.request(query, {
-      id: address,
+      id: address.toLowerCase(),
     });
 
     wearer = res[`${NETWORKS_PREFIX[chainId]}_wearer`] as Wearer;
