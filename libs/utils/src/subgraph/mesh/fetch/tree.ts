@@ -67,7 +67,7 @@ export const fetchTreesByIdMesh = async (
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = await client.request(query, {
-    ids: treeIds,
+    ids: treeIds.map((treeId) => treeIdDecimalToHex(Number(treeId))),
   });
 
   const trees: Tree[] = res[`${NETWORKS_PREFIX[chainId]}_trees`];
