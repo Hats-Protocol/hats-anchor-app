@@ -11,6 +11,7 @@ import { fetchEnsName } from 'wagmi/actions';
 
 import { checkAddressIsContract } from '../contract';
 import { chainsList, createSubgraphClient } from '../web3';
+import { fetchWearerDetailsMesh } from './mesh/fetch/wearer';
 
 const chains = _.keys(chainsList);
 
@@ -102,7 +103,7 @@ export const fetchWearerDetailsForChain = async (
   chainId: number,
 ) => {
   if (!address) return [];
-  const data = await fetchWearerDetails(address, chainId);
+  const data = await fetchWearerDetailsMesh(address, chainId);
   if (!data) return [];
 
   return data.currentHats;
@@ -113,7 +114,7 @@ export const fetchWearerDetailsForAllChains = async (
 ) => {
   if (!address) return [];
   const promises = _.map(chains, (cId: string) =>
-    fetchWearerDetails(address, Number(cId)),
+    fetchWearerDetailsMesh(address, Number(cId)),
   );
 
   // * let errors fall through here

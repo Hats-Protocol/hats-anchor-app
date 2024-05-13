@@ -314,7 +314,7 @@ export function getWearerDetailsQuery(chainId: number): string {
     query getCurrentHatsForWearer($id: ID!) {
       ${networkPrefix}_wearer(id: $id) {
         id
-        currentHats(first: 100) {
+        currentHats(first: 1000) {
           id
           prettyId
           status
