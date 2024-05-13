@@ -1,7 +1,7 @@
 import {
   CONFIG,
+  CONTROLLER_TYPES,
   DEPLOYMENT_TYPES,
-  MODULE_TYPES,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -161,9 +161,9 @@ const useModuleDeploy = ({
           );
 
           if (moduleAddress && selectedModuleDetails) {
-            let type = MODULE_TYPES.eligibility;
+            let type = CONTROLLER_TYPES.eligibility;
             if (selectedModuleDetails.type.toggle) {
-              type = MODULE_TYPES.toggle;
+              type = CONTROLLER_TYPES.toggle;
             }
             const moduleHats = processModule({
               moduleAddress,
@@ -195,7 +195,7 @@ const useModuleDeploy = ({
               moduleAddress,
               storedData,
               selectedHat,
-              type: MODULE_TYPES.eligibility,
+              type: CONTROLLER_TYPES.eligibility,
             });
             const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,

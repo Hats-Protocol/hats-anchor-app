@@ -1,13 +1,18 @@
 import { Icon, Stack, Text } from '@chakra-ui/react';
+import { useModuleDetails } from 'hats-hooks';
+import { useContractData } from 'hooks';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import React, { ReactNode, useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
-// import { FaCheck } from 'react-icons/fa';
+import { SupportedChains } from 'types';
 import { isAddress } from 'viem';
 import { useEnsAddress, useEnsName } from 'wagmi';
 
 import Input from './Input';
+
+const CodeIcon = dynamic(() => import('icons').then((mod) => mod.CodeIcon));
 
 // const defaultOptions = {
 //   validate: {
@@ -31,6 +36,8 @@ type AddressInputProps = {
   placeholder?: string;
   options?: RegisterOptions;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  chainId: SupportedChains | undefined;
+  originalValue?: string;
 };
 
 // TODO handle resolving address here
@@ -45,6 +52,8 @@ const AddressInput: React.FC<AddressInputProps> = ({
   placeholder = 'Enter Wallet Address (0x…) or ENS (.eth)',
   options = {}, // { ...defaultOptions },
   onChange,
+  chainId,
+  originalValue,
 }) => {
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
   const inputValue = watch(`${name}-input`);
@@ -91,6 +100,20 @@ const AddressInput: React.FC<AddressInputProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, ensName, name]);
 
+  const { data: contractData } = useContractData({
+    address: formValue,
+    chainId,
+    editMode: true,
+  });
+
+  const { details: moduleDetails } = useModuleDetails({
+    address: formValue,
+    chainId,
+  });
+  const isContract =
+    (contractData && contractData?.contractName !== 'MetaMultiSigWallet') ||
+    moduleDetails;
+
   return (
     <Stack spacing='2px' w='100%'>
       <Input
@@ -98,11 +121,19 @@ const AddressInput: React.FC<AddressInputProps> = ({
         label={label}
         subLabel={subLabel}
         placeholder={placeholder}
-        leftElement={<Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />}
+        leftElement={
+          <Icon
+            as={isContract ? CodeIcon : BsPersonBadge}
+            w={4}
+            h={4}
+            color='gray.500'
+          />
+        }
         localForm={localForm}
         isDisabled={isDisabled}
         options={options}
         addressButtons={!hideAddressButtons}
+        resetValue={originalValue}
         onChange={onChange}
       />
       {showResolvedAddress && resolvedAddress && (

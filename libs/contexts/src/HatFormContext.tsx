@@ -196,7 +196,9 @@ export const HatFormContextProvider = ({
       id: selectedHat?.id || '0x',
       maxSupply,
       eligibility,
+      'eligibility-input': eligibility,
       toggle,
+      'toggle-input': toggle,
       mutable: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
       imageUrl: imageUrl ?? '',
       isEligibilityManual:

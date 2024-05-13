@@ -100,6 +100,7 @@ const HatTransferForm = ({
           label='New Wearer Address'
           name='newWearer'
           localForm={localForm}
+          chainId={chainId}
         />
         <Flex justify='flex-end'>
           <Tooltip label={prepareErrorMessage} isDisabled={!isDisabled}>

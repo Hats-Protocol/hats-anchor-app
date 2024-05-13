@@ -25,6 +25,8 @@ export type FormData = FormDataDetails & {
   wearers: FormWearer[];
   parentId?: Hex;
   adminId?: Hex;
+  'eligibility-input'?: string;
+  'toggle-input'?: string;
 };
 
 export type FormDataDetails = {

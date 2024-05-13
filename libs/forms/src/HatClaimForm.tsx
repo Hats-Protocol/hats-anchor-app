@@ -52,6 +52,7 @@ const HatClaimForForm = () => {
               return true;
             },
           }}
+          chainId={chainId}
         />
 
         <Flex justify='flex-end'>

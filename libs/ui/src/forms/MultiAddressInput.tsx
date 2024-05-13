@@ -403,6 +403,7 @@ const MultiAddressInput = ({
         placeholder={placeholder}
         subLabel={subLabel}
         isDisabled={wouldExceedMaxSupply}
+        chainId={chainId}
       />
       {selectedHat && chainId && (
         <>

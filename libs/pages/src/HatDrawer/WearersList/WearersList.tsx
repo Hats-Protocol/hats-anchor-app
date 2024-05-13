@@ -237,7 +237,7 @@ const WearersList = () => {
         </Stack>
         {!_.isEmpty(ineligibleWearers) && (
           <Collapse startingHeight={25} in={ineligibleWearersExpanded}>
-            <Stack px={10}>
+            <Stack px={{ base: 4, md: 16 }}>
               <Flex justify='space-between'>
                 <HStack spacing={1} color='Functional-LinkSecondary'>
                   <Icon as={RemovedWearer} />

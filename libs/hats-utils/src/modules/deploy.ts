@@ -1,4 +1,4 @@
-import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { AppHat, FormData, FormValues, ModuleDetails } from 'types';
@@ -135,7 +135,7 @@ export const processModule = ({
   moduleAddress: Hex;
   storedData?: Partial<FormData>[];
   selectedHat?: AppHat;
-  type: string; // ValueOf<MODULE_TYPES>;
+  type: string; // ValueOf<CONTROLLER_TYPES>;
 }) => {
   if (!selectedHat?.id || !moduleAddress) return storedData || [];
   const eligibilityValues = {
@@ -151,8 +151,8 @@ export const processModule = ({
   const updatedHat = {
     id: _.get(selectedHat, 'id'),
     ...hatHasChanges,
-    ...(type === MODULE_TYPES.eligibility && eligibilityValues),
-    ...(type === MODULE_TYPES.toggle && toggleValues),
+    ...(type === CONTROLLER_TYPES.eligibility && eligibilityValues),
+    ...(type === CONTROLLER_TYPES.toggle && toggleValues),
   };
   // remove current hat from stared data
   const updateStoredData = _.reject(storedData, {

@@ -80,9 +80,11 @@ const Input = ({
     await trigger(name);
   };
 
-  const onReset = () => {
+  const onReset = async () => {
     if (resetValue) {
-      setValue(name, resetValue, { shouldDirty: true });
+      setValue(name, resetValue, { shouldDirty: false });
+
+      await trigger(name);
     } else {
       resetField(name, { keepDirty: false });
     }
@@ -94,11 +96,11 @@ const Input = ({
   };
   const isError = !!getErrorMessage();
 
-  const resetFallback = () => {
+  const setFallback = async () => {
     setValue(name, FALLBACK_ADDRESS, { shouldDirty: true });
   };
 
-  const resetMe = () => {
+  const setMe = async () => {
     setValue(name, address, { shouldDirty: true });
   };
 
@@ -158,7 +160,7 @@ const Input = ({
                   size='xs'
                   variant='outline'
                   colorScheme='blue.500'
-                  onClick={resetFallback}
+                  onClick={setFallback}
                 >
                   Null
                 </Button>
@@ -167,7 +169,7 @@ const Input = ({
                     size='xs'
                     variant='outline'
                     colorScheme='blue.500'
-                    onClick={resetMe}
+                    onClick={setMe}
                   >
                     Me
                   </Button>

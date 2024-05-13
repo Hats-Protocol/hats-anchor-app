@@ -122,6 +122,7 @@ const ModuleAddressInput = ({
         }}
         localForm={localForm}
         onChange={(e) => handleChangeAddress(e, arg.name)}
+        chainId={chainId}
       />
     </Stack>
   );

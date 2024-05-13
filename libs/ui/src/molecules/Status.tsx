@@ -9,7 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { FALLBACK_ADDRESS, MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import {
@@ -53,7 +53,8 @@ const StatusCard = ({ status, label }: { status: string; label: string }) => {
     'eligibility',
     'toggle',
   ]);
-  const controller = status === MODULE_TYPES.eligibility ? eligibility : toggle;
+  const controller =
+    status === CONTROLLER_TYPES.eligibility ? eligibility : toggle;
   const extendedController: HatWearer | undefined = _.find(hatWearers, {
     id: controller,
   });
@@ -101,9 +102,9 @@ const StatusCard = ({ status, label }: { status: string; label: string }) => {
   const toast = useToast();
 
   let statusCheck = true;
-  if (status === MODULE_TYPES.eligibility) {
+  if (status === CONTROLLER_TYPES.eligibility) {
     statusCheck = isEligible;
-  } else if (status === MODULE_TYPES.toggle) {
+  } else if (status === CONTROLLER_TYPES.toggle) {
     if (extendedController?.isContract) {
       statusCheck = isActive;
     } else {
@@ -183,7 +184,7 @@ const StatusCard = ({ status, label }: { status: string; label: string }) => {
         </HStack>
       </Flex>
       {moduleDetails &&
-        status === MODULE_TYPES.eligibility &&
+        status === CONTROLLER_TYPES.eligibility &&
         _.gt(selectedHat?.levelAtLocalTree, 1) &&
         (!instanceAddress ? (
           <Flex justify='space-between'>

@@ -1,4 +1,4 @@
-import { MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
@@ -87,7 +87,7 @@ const fetchEligibilityRuleDetails = async ({
     wearer,
     selectedHat,
     isWearer,
-    moduleType: MODULE_TYPES.eligibility,
+    moduleType: CONTROLLER_TYPES.eligibility,
   });
 };
 

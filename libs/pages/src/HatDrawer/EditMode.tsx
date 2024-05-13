@@ -8,7 +8,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { CONFIG, FORM_FIELDS, MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONFIG, CONTROLLER_TYPES, FORM_FIELDS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
@@ -191,7 +191,7 @@ const EditMode = () => {
           >
             <Stack spacing={4} w='100%'>
               <HatManagementForm
-                title={MODULE_TYPES.eligibility}
+                title={CONTROLLER_TYPES.eligibility}
                 formName='revocationsCriteria'
                 radioBoxConfig={{
                   name: 'isEligibilityManual',
@@ -250,7 +250,7 @@ const EditMode = () => {
           >
             <Stack spacing={4} w='100%'>
               <HatManagementForm
-                title={MODULE_TYPES.toggle}
+                title={CONTROLLER_TYPES.toggle}
                 formName='deactivationsCriteria'
                 radioBoxConfig={{
                   name: 'isToggleManual',
