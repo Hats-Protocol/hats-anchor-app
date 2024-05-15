@@ -725,10 +725,8 @@ const OrgChartComponent: React.FC = () => {
             }
           });
         }
-        chart.render();
+        chart.expandAll();
         recreateNodesCollapse(chart, collapsedNodes);
-      } else {
-        chart.render();
       }
 
       if (!initialLoad.current) return;
@@ -797,7 +795,7 @@ const OrgChartComponent: React.FC = () => {
     );
   }
 
-  if (isLoading)
+  if (isLoading && !editMode)
     return (
       <Flex
         h='calc(100% - 200px)'
