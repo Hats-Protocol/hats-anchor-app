@@ -29,11 +29,11 @@ const ResponsibilitiesListCard = ({
 }: {
   responsibility?: DetailsItem;
 }) => {
-  const { label, description, link, imageUri } = _.pick(responsibility, [
+  const { label, description, link, imageUrl } = _.pick(responsibility, [
     'label',
     'description',
     'link',
-    'imageUri',
+    'imageUrl',
   ]);
   const { isMobile } = useMediaStyles();
   const hostname = getHostnameFromURL(link);
@@ -51,7 +51,7 @@ const ResponsibilitiesListCard = ({
   if (!link && !description)
     return (
       <Flex py={2} px={{ base: 4, md: 0 }}>
-        <ResponsibilityHeader label={label} link={link} imageUrl={imageUri} />
+        <ResponsibilityHeader label={label} link={link} imageUrl={imageUrl} />
       </Flex>
     );
 
@@ -95,7 +95,7 @@ const ResponsibilitiesListCard = ({
               <Box flex='1' textAlign='left'>
                 <ResponsibilityHeader
                   label={label}
-                  imageUrl={imageUri}
+                  imageUrl={imageUrl}
                   link={link}
                   isExpanded={isExpanded}
                 />
