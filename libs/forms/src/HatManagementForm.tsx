@@ -73,6 +73,7 @@ const HatManagementForm = ({
     'setValue',
     'getValues',
   ]);
+  console.log(watch?.());
 
   const { fields, append, remove } = useFieldArray({
     control,

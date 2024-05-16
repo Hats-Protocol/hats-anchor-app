@@ -72,22 +72,28 @@ export const removeAndHandleSiblingsOrgChart = (hats: AppHat[], hatId: Hex) => {
 };
 
 // TODO move to consts
-const EXCLUDE_KEYS = [
-  'id',
-  'parentId',
-  'adminId',
-  'imageUri',
-  'eligibilityInput',
-  'toggleInput',
-];
+const EXCLUDE_KEYS = ['id', 'parentId', 'adminId', 'imageUri'];
+const EXCLUDE_ADDRESS_INPUT_KEYS = ['eligibility-input', 'toggle-input'];
+
+export const getExcludedFields = (includeInputs = false) => {
+  let localKeys = EXCLUDE_KEYS;
+  if (includeInputs) {
+    localKeys = _.concat(EXCLUDE_KEYS, EXCLUDE_ADDRESS_INPUT_KEYS);
+  }
+
+  return localKeys;
+};
 
 // get dirty fields
 export const getDirtyFields = (
   formValues: Partial<FormData>,
   defaultFormValues: Partial<FormData>,
+  includeInputs = false,
 ): string[] => {
+  const localKeys = getExcludedFields(includeInputs);
+
   return _.filter(_.keys(formValues), (key: FormFieldKeys) => {
-    if (_.includes(EXCLUDE_KEYS, key)) return false;
+    if (_.includes(localKeys, key)) return false;
     if (key === 'imageUrl') {
       return (
         formValues.imageUrl !== defaultFormValues.imageUrl &&

@@ -33,6 +33,20 @@ import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
 import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWrite';
 
+interface UseModuleDeployArgs {
+  localForm: UseFormReturn;
+  selectedHat?: AppHat;
+  chainId: SupportedChains;
+  storedData: Partial<FormData>[];
+  setStoredData?: Dispatch<SetStateAction<Partial<FormData>[]>>;
+  onchainHats: AppHat[];
+  editMode?: boolean;
+  selectedModuleDetails?: ModuleDetails;
+  onCloseModuleDrawer: () => void;
+  deploymentType: DeploymentType;
+  handlePendingTx?: HandlePendingTx;
+}
+
 const useModuleDeploy = ({
   localForm,
   selectedHat,
@@ -45,19 +59,7 @@ const useModuleDeploy = ({
   onCloseModuleDrawer,
   deploymentType,
   handlePendingTx,
-}: {
-  localForm: UseFormReturn;
-  selectedHat?: AppHat;
-  chainId: SupportedChains;
-  storedData: Partial<FormData>[];
-  setStoredData?: Dispatch<SetStateAction<Partial<FormData>[]>>;
-  onchainHats: AppHat[];
-  editMode?: boolean;
-  selectedModuleDetails?: ModuleDetails;
-  onCloseModuleDrawer: () => void;
-  deploymentType: DeploymentType;
-  handlePendingTx?: HandlePendingTx;
-}) => {
+}: UseModuleDeployArgs) => {
   const { watch } = localForm;
   const originalValues = watch();
   const tokenAddress = originalValues['Token Address'];

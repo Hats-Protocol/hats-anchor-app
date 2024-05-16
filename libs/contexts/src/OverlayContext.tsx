@@ -47,7 +47,13 @@ export const OverlayContext = createContext<OverlayContextProps>({
   clearAllTransactions: () => {},
   recentlyVisitedTrees: undefined,
   updateRecentlyVisitedTrees: () => {},
+  txPending: false,
 });
+
+interface SavedTree {
+  treeId: number;
+  chainId: number;
+}
 
 export const OverlayContextProvider = ({
   children,
@@ -70,13 +76,7 @@ export const OverlayContextProvider = ({
   >('recently-visited-trees', undefined);
 
   const updateRecentlyVisitedTrees = useCallback(
-    ({
-      treeId: localTreeId,
-      chainId: cId,
-    }: {
-      treeId: number;
-      chainId: number;
-    }) => {
+    ({ treeId: localTreeId, chainId: cId }: SavedTree) => {
       if (!localTreeId || !cId) return;
       const localRecentTrees = _.compact(
         _.concat([{ treeId: localTreeId, chainId: cId }], recentlyVisitedTrees),
@@ -84,7 +84,7 @@ export const OverlayContextProvider = ({
 
       const uniqueTrees = _.uniqWith(
         localRecentTrees,
-        (treeA: any, treeB: any) =>
+        (treeA: SavedTree, treeB: SavedTree) =>
           treeA.treeId === treeB.treeId && treeA.chainId === treeB.chainId,
       );
 
@@ -139,10 +139,10 @@ export const OverlayContextProvider = ({
    * @param {object} toastData
    * @param {string} toastData.title
    * @param {string} toastData.description
-   * @param {string} onSuccess
    * @param {string} redirect
    * @param {boolean} clearModals
-   * @param {boolean} sendToast
+   * @param {boolean} sendToast defaults to true
+   * @param {string} onSuccess
    * @returns {Promise<void>}
    * @example
    * handlePendingTx({
@@ -220,6 +220,9 @@ export const OverlayContextProvider = ({
   //     setInitialLoad(false);
   //   }
   // }, [hatId, onOpenHatDrawer, isHatDrawerOpen, initialLoad]);
+  const txPending = useMemo(() => {
+    return !_.isEmpty(_.filter(transactions, { status: 'pending' }));
+  }, [transactions]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -257,6 +260,7 @@ export const OverlayContextProvider = ({
       clearAllTransactions,
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
+      txPending,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -272,6 +276,7 @@ export const OverlayContextProvider = ({
       clearAllTransactions,
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
+      txPending,
     ],
   );
 

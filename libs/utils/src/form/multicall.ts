@@ -142,7 +142,7 @@ const createNewHatData = async ({
 
   if (!hatId) return undefined;
   let localEligibility = eligibility;
-  const localToggle = toggle;
+  let localToggle = toggle;
   if (eligibility?.includes('.eth')) {
     localEligibility =
       (await publicClient({ chainId: 1 }).getEnsAddress({
@@ -150,7 +150,7 @@ const createNewHatData = async ({
       })) || undefined;
   }
   if (toggle?.includes('.eth')) {
-    localEligibility =
+    localToggle =
       (await publicClient({ chainId: 1 }).getEnsAddress({
         name: toggle,
       })) || undefined;
@@ -569,6 +569,7 @@ const processImageChangeCallForHat = async ({
   };
 };
 
+// eslint-disable-next-line import/prefer-default-export
 export const processHatForCalls = async (
   hat: Partial<FormData>,
   onchainHats?: AppHat[],

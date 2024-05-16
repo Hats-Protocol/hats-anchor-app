@@ -36,6 +36,7 @@ export interface OverlayContextProps {
   clearAllTransactions: () => void;
   recentlyVisitedTrees: TreeRecord[] | undefined;
   updateRecentlyVisitedTrees: (tree: TreeRecord) => void;
+  txPending: boolean;
 }
 
 export interface StandaloneOverlayContextProps {

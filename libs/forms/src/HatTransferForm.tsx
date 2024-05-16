@@ -16,7 +16,7 @@ import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';
 import { AddressInput } from 'ui';
-import { formatAddress } from 'utils';
+import { fetchHatDetails, formatAddress } from 'utils';
 import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
@@ -71,6 +71,11 @@ const HatTransferForm = ({
       isAddress(newWearerResolvedAddress ?? newWearer) &&
       isAddress(currentWearerAddress) &&
       chainId === currentNetworkId,
+    waitForSubgraph: async () => {
+      const hat = await fetchHatDetails(hatId, chainId);
+      console.log(hat);
+      return _.includes(_.map(hat?.wearers, 'id'), newWearerResolvedAddress);
+    },
   });
 
   const onSubmit = async () => {

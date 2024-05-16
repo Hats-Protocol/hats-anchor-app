@@ -100,9 +100,11 @@ export const HatFormContextProvider = ({
   const formEligibility = useDebounce<Hex | undefined>(
     watch('eligibility', FALLBACK_ADDRESS),
   );
+  const formEligibilityInput = watch('eligibility-input', '');
   const formToggle = useDebounce<Hex | undefined>(
     watch('toggle', FALLBACK_ADDRESS),
   );
+  const formToggleInput = watch('toggle-input', '');
   const formResponsibilities = watch?.('responsibilities', []);
   const formAuthorities = watch?.('authorities', []);
   const formMaxSupply = watch?.('maxSupply', '1');
@@ -122,7 +124,9 @@ export const HatFormContextProvider = ({
       guilds: formGuilds,
       spaces: formSpaces,
       eligibility: formEligibility,
+      'eligibility-input': formEligibilityInput,
       toggle: formToggle,
+      'toggle-input': formToggleInput,
       responsibilities: formResponsibilities,
       authorities: formAuthorities,
       maxSupply: formMaxSupply,
@@ -141,7 +145,9 @@ export const HatFormContextProvider = ({
       formGuilds,
       formSpaces,
       formEligibility,
+      formEligibilityInput,
       formToggle,
+      formToggleInput,
       formResponsibilities,
       formAuthorities,
       formMaxSupply,
@@ -247,7 +253,7 @@ export const HatFormContextProvider = ({
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
-      const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
+      const matchingHat = _.find(storedData, { id: selectedHat?.id });
 
       if (
         matchingHat &&
@@ -272,7 +278,7 @@ export const HatFormContextProvider = ({
     }
   }, [chainId, defaultFormValues, storedData, selectedHat?.id, reset]);
 
-  // get dirty fields
+  // get dirty fields, doesn't include address inputs
   const dirtyFields = getDirtyFields(debouncedFormValues, defaultFormValues);
   const getDirtyFieldsForAccordion = useCallback(
     (fieldsArray: FieldItem[]) => fieldsAreDirty(fieldsArray, dirtyFields),
@@ -287,6 +293,7 @@ export const HatFormContextProvider = ({
       const dirtyValues = getDirtyFields(
         debouncedFormValues,
         defaultFormValues,
+        false, // include address inputs when storing data so it's resurfaced in the form
       );
       const dirtyFormValues = _.pickBy(
         debouncedFormValues,

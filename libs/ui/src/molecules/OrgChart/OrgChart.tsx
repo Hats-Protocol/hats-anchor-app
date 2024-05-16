@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import { useTreeForm } from 'contexts';
+import { useOverlay, useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
@@ -51,6 +51,7 @@ const OrgChartComponent: React.FC = () => {
   const userChain = useChainId();
   const toast = useToast();
   const { address } = useAccount();
+  const { txPending } = useOverlay();
   const {
     chainId,
     editMode,
@@ -795,7 +796,7 @@ const OrgChartComponent: React.FC = () => {
     );
   }
 
-  if (isLoading && !editMode)
+  if ((isLoading || txPending) && !editMode)
     return (
       <Flex
         h='calc(100% - 200px)'
