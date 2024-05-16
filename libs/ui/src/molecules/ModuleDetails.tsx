@@ -14,7 +14,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { MODULE_TYPES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { WriteFunction } from '@hatsprotocol/hsg-sdk';
 import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
@@ -258,7 +258,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                 {detail}
               </Text>
             ))}
-            {type === MODULE_TYPES.eligibility && !isMobile && (
+            {type === CONTROLLER_TYPES.eligibility && !isMobile && (
               <Flex justify='space-between'>
                 <Text size='sm'>Claimability Type</Text>
 

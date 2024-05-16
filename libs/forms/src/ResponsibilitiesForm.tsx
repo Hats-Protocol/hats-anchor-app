@@ -16,6 +16,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { CONFIG } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { id } from 'date-fns/locale';
 import { usePinImageIpfs } from 'hooks';
@@ -38,8 +39,6 @@ interface ItemDetailsFormProps {
   Icon: IconType;
   label: string;
 }
-
-const RESPONSIBILITY_NAME_LENGTH = 40;
 
 const ResponsibilitiesForm = ({
   formName,
@@ -206,7 +205,7 @@ const ResponsibilitiesForm = ({
                 options={{
                   required: 'Responsibility name is required',
                   maxLength: {
-                    value: RESPONSIBILITY_NAME_LENGTH,
+                    value: CONFIG.SHADE_HEADING_LENGTH,
                     message: 'Responsibility name is too long',
                   },
                 }}

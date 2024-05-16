@@ -68,8 +68,9 @@ export interface TreeFormContext {
   orgChartTree: AppHat[] | undefined;
   guildData: Guild[] | undefined;
   snapshotData: SnapshotSpace[] | undefined;
+  treeError: Error | undefined;
   // local storage
-  storedConfig: { flipped?: boolean; compact?: boolean };
+  storedConfig: { flipped?: boolean; compact?: boolean; collapsed?: string[] };
   storedData: Partial<FormData>[] | undefined;
   setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
   // controls
@@ -84,6 +85,10 @@ export interface TreeFormContext {
   addHat: ((hat: AppHat, parentId: Hex) => void) | undefined;
   handleFlipChart: ((isFlipped: boolean) => void) | undefined;
   handleSetCompact: ((isCompact: boolean) => void) | undefined;
+  handleNodeCollapsedOrExpanded:
+    | ((nodeIdIp: string, expanded: boolean) => void)
+    | undefined;
+  handleExpandAll: (() => void) | undefined;
   removeHat: ((hatId: Hex) => void) | undefined;
   resetTree: (() => void) | undefined;
   importHats: ((hats: Partial<FormData>[]) => void) | undefined;
@@ -108,7 +113,6 @@ export const TreeFormContext = createContext<TreeFormContext>({
   treeToDisplayWithInactiveHats: undefined,
   onchainTree: undefined,
   onchainHats: undefined,
-
   treeEvents: undefined,
   isLoading: true,
   linkRequestFromTree: undefined,
@@ -122,6 +126,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
   orgChartTree: undefined,
   guildData: undefined,
   snapshotData: undefined,
+  treeError: undefined,
   // controls
   editMode: false,
   setEditMode: undefined,
@@ -133,6 +138,8 @@ export const TreeFormContext = createContext<TreeFormContext>({
   // actions
   handleFlipChart: undefined,
   handleSetCompact: undefined,
+  handleNodeCollapsedOrExpanded: undefined,
+  handleExpandAll: undefined,
   addHat: undefined,
   removeHat: undefined,
   resetTree: undefined,
@@ -183,10 +190,11 @@ export const TreeFormContextProvider = ({
     localStorageKey,
     [],
   );
-  const [storedConfig, setStoredConfig] = useLocalStorage(
-    `${localStorageKey}-config`,
-    {},
-  );
+  const [storedConfig, setStoredConfig] = useLocalStorage<{
+    flipped?: boolean;
+    compact?: boolean;
+    collapsed?: string[];
+  }>(`${localStorageKey}-config`, {});
 
   const treeDisclosure = useDisclosure();
   const hatDisclosure = useSelectedHatDisclosure(hatId);
@@ -202,7 +210,11 @@ export const TreeFormContextProvider = ({
   } = _.pick(hatDisclosure, ['isOpen', 'onOpen', 'onClose']);
 
   // existing tree
-  const { data: treeData } = useTreeDetails({
+  const {
+    data: treeData,
+    isLoading: treeLoading,
+    error: treeError,
+  } = useTreeDetails({
     treeId,
     chainId,
     editMode,
@@ -457,6 +469,123 @@ export const TreeFormContextProvider = ({
     [router, setStoredConfig, storedConfig],
   );
 
+  /** Update the query params and local storage.
+   * If query params are not empty, then they will take precedence over the local storage state, meaning that the local storage
+   * will be updated according to the query params. If query params are empty but local storage is not, then the local storage will
+   * take precedence.
+   */
+  const handleNodeCollapsedOrExpanded = useCallback(
+    (nodeIdIp: string, expanded: boolean) => {
+      let updatedQuery = {
+        ...router.query,
+      };
+
+      const { collapsed } = updatedQuery;
+
+      let updatedLocalStorage: string[] = [];
+
+      if (Array.isArray(collapsed)) {
+        // existing query params is an array
+        const newCollapsedQueryParams = [...collapsed];
+        if (!expanded) {
+          // add the new collapsed node if it's not already in the query params
+          if (newCollapsedQueryParams.includes(nodeIdIp)) {
+            return;
+          }
+          newCollapsedQueryParams.push(nodeIdIp);
+        } else {
+          // remove the expanded node
+          const index = newCollapsedQueryParams.indexOf(nodeIdIp);
+          if (index > -1) {
+            newCollapsedQueryParams.splice(index, 1);
+          }
+        }
+
+        updatedQuery = {
+          ...updatedQuery,
+          collapsed: newCollapsedQueryParams,
+        };
+        updatedLocalStorage = newCollapsedQueryParams; // update local storage with the query params state
+      } else if (typeof collapsed === 'string') {
+        // single collapsed node in query params
+        if (!expanded) {
+          // add the new collapsed node if it's not already in the query params
+          if (collapsed === nodeIdIp) {
+            return;
+          }
+          updatedQuery = {
+            ...updatedQuery,
+            collapsed: [collapsed, nodeIdIp],
+          };
+          updatedLocalStorage = [collapsed, nodeIdIp]; // update local storage with the query params state
+        } else {
+          // remove the expanded node
+          delete updatedQuery.collapsed;
+        }
+      } else if (
+        storedConfig.collapsed !== undefined &&
+        storedConfig.collapsed.length > 0
+      ) {
+        // no query params but there are collapsed nodes in local storage
+        if (!expanded) {
+          if (!storedConfig.collapsed.includes(nodeIdIp)) {
+            updatedLocalStorage = [...storedConfig.collapsed, nodeIdIp];
+          } else {
+            updatedLocalStorage = [...storedConfig.collapsed];
+          }
+        } else if (storedConfig.collapsed.includes(nodeIdIp)) {
+          updatedLocalStorage = [...storedConfig.collapsed];
+          const index = storedConfig.collapsed.indexOf(nodeIdIp);
+          updatedLocalStorage.splice(index, 1);
+        }
+
+        // update the query params with the including collapsed nodes from local storage
+        updatedQuery = {
+          ...updatedQuery,
+          collapsed: updatedLocalStorage,
+        };
+      } else {
+        // no query params and no local storage, a node was collapsed
+        updatedQuery = {
+          ...updatedQuery,
+          collapsed: nodeIdIp,
+        };
+        updatedLocalStorage = [nodeIdIp];
+      }
+
+      setStoredConfig({
+        ...storedConfig,
+        collapsed: updatedLocalStorage,
+      });
+
+      const updatedUrl = {
+        pathname: router.pathname,
+        query: updatedQuery,
+      };
+
+      router.push(updatedUrl, undefined, { shallow: true });
+    },
+    [router, setStoredConfig, storedConfig],
+  );
+
+  const handleExpandAll = useCallback(() => {
+    const updatedQuery = {
+      ...router.query,
+      collapsed: [],
+    };
+    const updatedUrl = {
+      pathname: router.pathname,
+      query: updatedQuery,
+    };
+
+    router.push(updatedUrl, undefined, { shallow: true });
+
+    setStoredConfig({
+      ...storedConfig,
+      collapsed: [],
+    });
+  }, [router, setStoredConfig, storedConfig]);
+
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
       let updatedQuery = {
@@ -513,6 +642,7 @@ export const TreeFormContextProvider = ({
       shallow: true,
     });
     setSelectedOption?.('wearers');
+    handleExpandAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainHats, editMode, storedData, chainId, treeId]);
 
@@ -538,14 +668,6 @@ export const TreeFormContextProvider = ({
       };
       const removeCurrentId = _.reject(storedData, ['id', newHat.id]);
       setStoredData?.(_.concat(removeCurrentId, onlyNeededKeys as FormData));
-      // const updatedQuery = {
-      //   ...router.query,
-      //   hatId: hatIdDecimalToIp(BigInt(hat.id)),
-      // };
-      // const updatedUrl = {
-      //   pathname: router.pathname,
-      //   query: updatedQuery,
-      // };
 
       // any way to get this to stick? always reverts to parent
       // router.push(updatedUrl, undefined, { shallow: true });
@@ -616,12 +738,14 @@ export const TreeFormContextProvider = ({
     onCloseHatDrawer?.();
     setSelectedOption?.('wearers');
     onCloseTreeDrawer?.();
+    handleExpandAll();
   }, [
     onchainHats,
     setStoredData,
     onCloseHatDrawer,
     setSelectedOption,
     onCloseTreeDrawer,
+    handleExpandAll,
   ]);
 
   const patchTree = useCallback((proposedHats: AppHat[]) => {
@@ -659,7 +783,11 @@ export const TreeFormContextProvider = ({
       onchainTree: onchainTree || undefined,
       onchainHats,
       treeEvents,
-      isLoading: imagesLoading || detailsFieldsLoading || orgChartTreeLoading,
+      isLoading:
+        treeLoading ||
+        imagesLoading ||
+        detailsFieldsLoading ||
+        orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       orgChartWearers,
@@ -667,6 +795,7 @@ export const TreeFormContextProvider = ({
       orgChartTree: orgChartTree || undefined,
       guildData,
       snapshotData,
+      treeError,
       // LOCAL STORAGE
       storedConfig,
       storedData,
@@ -682,6 +811,8 @@ export const TreeFormContextProvider = ({
       // ACTIONS
       handleFlipChart,
       handleSetCompact,
+      handleNodeCollapsedOrExpanded,
+      handleExpandAll,
       addHat,
       removeHat,
       resetTree,
@@ -707,6 +838,7 @@ export const TreeFormContextProvider = ({
       onchainTree,
       onchainHats,
       treeEvents,
+      treeLoading,
       imagesLoading,
       detailsFieldsLoading,
       orgChartTreeLoading,
@@ -717,6 +849,7 @@ export const TreeFormContextProvider = ({
       orgChartTree,
       guildData,
       snapshotData,
+      treeError,
       // LOCAL STORAGE
       storedData,
       storedConfig,
@@ -732,6 +865,8 @@ export const TreeFormContextProvider = ({
       // ACTIONS
       handleFlipChart,
       handleSetCompact,
+      handleNodeCollapsedOrExpanded,
+      handleExpandAll,
       addHat,
       removeHat,
       resetTree,

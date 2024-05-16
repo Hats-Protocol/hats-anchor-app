@@ -13,13 +13,12 @@ import {
   Stack,
   Text,
   Tooltip,
-  useClipboard,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
-import { useToast } from 'hooks';
+import { useClipboard, useToast } from 'hooks';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';

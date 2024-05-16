@@ -1,8 +1,6 @@
 import { Stack } from '@chakra-ui/react';
-// import { MODULE_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat } from 'contexts';
 import { useScrollPosition } from 'hooks';
-// import _ from 'lodash';
 import dynamic from 'next/dynamic';
 
 import WearersList from '../WearersList';

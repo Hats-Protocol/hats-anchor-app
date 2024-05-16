@@ -1,7 +1,7 @@
 import {
   CONFIG,
+  CONTROLLER_TYPES,
   DEPLOYMENT_TYPES,
-  MODULE_TYPES,
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -94,7 +94,7 @@ const useModuleDeploy = ({
       selectedHat?.detailsObject?.data?.name
     })`;
 
-  const { instanceAddress, hatterIsAdmin } = useMultiClaimsHatterCheck({
+  const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId,
     selectedHat,
     onchainHats,
@@ -159,23 +159,11 @@ const useModuleDeploy = ({
             'newInstance',
             _.get(localData, 'newInstances[0]'),
           );
+
           if (moduleAddress && selectedModuleDetails) {
-            let hatterHats: Partial<FormData>[] = [];
-            if (
-              instanceAddress &&
-              isPermissionlesslyClaimable === 'Yes' &&
-              !hatterIsAdmin
-            ) {
-              hatterHats = processClaimsHatter({
-                claimsHatterAddress: instanceAddress,
-                storedData,
-                adminHat: adminHatData,
-                incrementWearers,
-              });
-            }
-            let type = MODULE_TYPES.eligibility;
+            let type = CONTROLLER_TYPES.eligibility;
             if (selectedModuleDetails.type.toggle) {
-              type = MODULE_TYPES.toggle;
+              type = CONTROLLER_TYPES.toggle;
             }
             const moduleHats = processModule({
               moduleAddress,
@@ -183,17 +171,11 @@ const useModuleDeploy = ({
               selectedHat,
               type,
             });
-            const hatIds = _.uniq(
-              _.map(_.concat(moduleHats, hatterHats), 'id'),
-            );
+            const hatIds = _.uniq(_.map(moduleHats, 'id'));
             const updatedHats: any[] = _.map(
               hatIds,
               (id: Hex) =>
-                _.merge(
-                  {},
-                  _.find(hatterHats, { id }),
-                  _.find(moduleHats, { id }),
-                ) as Partial<FormData>,
+                _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
             );
             setStoredData?.(updatedHats);
             toast.success({
@@ -213,7 +195,7 @@ const useModuleDeploy = ({
               moduleAddress,
               storedData,
               selectedHat,
-              type: MODULE_TYPES.eligibility,
+              type: CONTROLLER_TYPES.eligibility,
             });
             const updatedHatsWithClaimsHatter = processClaimsHatter({
               claimsHatterAddress,
@@ -294,8 +276,6 @@ const useModuleDeploy = ({
       instanceAddress,
       hatTitle,
       queryClient,
-      hatterIsAdmin,
-      isPermissionlesslyClaimable,
     ],
   );
 

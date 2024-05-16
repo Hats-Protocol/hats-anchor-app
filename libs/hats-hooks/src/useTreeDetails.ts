@@ -14,12 +14,12 @@ const useTreeDetails = ({
   const { data, isLoading, error } = useQuery({
     queryKey: ['treeDetails', localTreeId, chainId],
     queryFn: () => fetchTreeDetails(localTreeId, chainId),
-    enabled: !!localTreeId,
+    enabled: !!treeId && !!chainId,
     initialData,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  return { data, isLoading, error };
+  return { data, isLoading, error: error as Error };
 };
 
 export default useTreeDetails;

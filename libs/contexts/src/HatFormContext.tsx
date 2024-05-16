@@ -25,7 +25,6 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import { FieldItem, FormData, FormFieldKeys } from 'types';
 import { fieldsAreDirty, getDirtyFields } from 'utils';
 import { Hex } from 'viem';
-import { useEnsAddress } from 'wagmi';
 
 import { useSelectedHat } from './SelectedHatContext';
 import { useTreeForm } from './TreeFormContext';
@@ -34,29 +33,23 @@ export interface IHatFormContext {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any> | null;
   formValues: Partial<FormData> | undefined;
-  isLoading: boolean;
   formLoading: boolean;
   setFormLoading: (loading: boolean) => void;
   handleSave: (sendToast?: boolean) => void;
   handleRemoveHat: () => void;
   handleClearChanges: () => void;
   getDirtyFieldsForAccordion: (fieldsArray: FieldItem[]) => string[];
-  eligibilityResolvedAddress: Hex | undefined;
-  toggleResolvedAddress: Hex | undefined;
 }
 
 export const HatFormContext = createContext<IHatFormContext>({
   localForm: null,
   formValues: undefined,
-  isLoading: false,
   formLoading: false,
   setFormLoading: () => {},
   handleSave: () => {},
   handleRemoveHat: () => {},
   handleClearChanges: () => {},
   getDirtyFieldsForAccordion: () => [],
-  eligibilityResolvedAddress: undefined,
-  toggleResolvedAddress: undefined,
 });
 
 export const HatFormContextProvider = ({
@@ -84,11 +77,7 @@ export const HatFormContextProvider = ({
   const localForm = useForm({
     mode: 'onChange',
   });
-  const { watch, reset, setValue } = _.pick(localForm, [
-    'watch',
-    'reset',
-    'setValue',
-  ]);
+  const { watch, reset } = _.pick(localForm, ['watch', 'reset', 'setValue']);
 
   const { data: guildRoles } = useHatGuildRoles({
     hatId: selectedHat?.id,
@@ -111,11 +100,9 @@ export const HatFormContextProvider = ({
   const formEligibility = useDebounce<Hex | undefined>(
     watch('eligibility', FALLBACK_ADDRESS),
   );
-  const formEligibilityInput = watch('eligibilityInput');
   const formToggle = useDebounce<Hex | undefined>(
     watch('toggle', FALLBACK_ADDRESS),
   );
-  const formToggleInput = watch('toggleInput');
   const formResponsibilities = watch?.('responsibilities', []);
   const formAuthorities = watch?.('authorities', []);
   const formMaxSupply = watch?.('maxSupply', '1');
@@ -135,9 +122,7 @@ export const HatFormContextProvider = ({
       guilds: formGuilds,
       spaces: formSpaces,
       eligibility: formEligibility,
-      eligibilityInput: formEligibilityInput,
       toggle: formToggle,
-      toggleInput: formToggleInput,
       responsibilities: formResponsibilities,
       authorities: formAuthorities,
       maxSupply: formMaxSupply,
@@ -156,9 +141,7 @@ export const HatFormContextProvider = ({
       formGuilds,
       formSpaces,
       formEligibility,
-      formEligibilityInput,
       formToggle,
-      formToggleInput,
       formResponsibilities,
       formAuthorities,
       formMaxSupply,
@@ -213,7 +196,9 @@ export const HatFormContextProvider = ({
       id: selectedHat?.id || '0x',
       maxSupply,
       eligibility,
+      'eligibility-input': eligibility,
       toggle,
+      'toggle-input': toggle,
       mutable: mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
       imageUrl: imageUrl ?? '',
       isEligibilityManual:
@@ -294,28 +279,6 @@ export const HatFormContextProvider = ({
     [dirtyFields],
   );
 
-  // resolve controller addresses, could this be done in the input instead?
-  const {
-    data: eligibilityResolvedAddress,
-    isLoading: isLoadingEligibilityResolvedAddress,
-  } = useEnsAddress({
-    name: debouncedFormValues?.eligibilityInput,
-    chainId: 1,
-    enabled:
-      !!debouncedFormValues?.eligibilityInput &&
-      debouncedFormValues?.eligibilityInput?.includes('.eth'),
-  });
-  const {
-    data: toggleResolvedAddress,
-    isLoading: isLoadingToggleResolvedAddress,
-  } = useEnsAddress({
-    name: debouncedFormValues?.toggleInput,
-    chainId: 1,
-    enabled:
-      !!debouncedFormValues?.toggleInput &&
-      debouncedFormValues?.toggleInput?.includes('.eth'),
-  });
-
   // form actions
   const handleSave = useCallback(
     (sendToast: boolean = true) => {
@@ -390,34 +353,16 @@ export const HatFormContextProvider = ({
     storedData,
   ]);
 
-  useEffect(() => {
-    if (eligibilityResolvedAddress) {
-      setValue?.('eligibility', eligibilityResolvedAddress);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligibilityResolvedAddress]);
-
-  useEffect(() => {
-    if (toggleResolvedAddress) {
-      setValue?.('toggle', toggleResolvedAddress);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toggleResolvedAddress]);
-
   const returnValue = useMemo(
     () => ({
       // form state
       localForm,
       formValues: debouncedFormValues,
-      isLoading:
-        isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress,
       formLoading,
       setFormLoading,
 
       // helpers
       getDirtyFieldsForAccordion,
-      eligibilityResolvedAddress: eligibilityResolvedAddress || undefined,
-      toggleResolvedAddress: toggleResolvedAddress || undefined,
 
       // actions
       handleSave,
@@ -428,15 +373,11 @@ export const HatFormContextProvider = ({
       // form state
       localForm,
       debouncedFormValues,
-      isLoadingEligibilityResolvedAddress,
-      isLoadingToggleResolvedAddress,
       formLoading,
       setFormLoading,
 
       // helpers
       getDirtyFieldsForAccordion,
-      eligibilityResolvedAddress,
-      toggleResolvedAddress,
 
       // actions
       handleSave,

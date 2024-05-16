@@ -20,9 +20,7 @@ export const explorerUrl = (chainId?: number) =>
     _.get(chainsMap(chainId), 'blockExplorers.default.url'),
   );
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const configuredChains: any = configureChains(
+const configuredChains = configureChains(
   _.map(orderedChains, (c: SupportedChains) => chainsMap(c)),
   [alchemyProvider({ apiKey: ALCHEMY_ID || '' }), publicProvider()],
 );

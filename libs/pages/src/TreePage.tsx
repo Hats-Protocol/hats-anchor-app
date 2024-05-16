@@ -1,14 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import {
-  Button,
-  Flex,
-  Heading,
-  Icon,
-  Image,
-  Slide,
-  Spinner,
-  Stack,
-} from '@chakra-ui/react';
+import { Slide } from '@chakra-ui/react';
 import {
   Modal,
   SelectedHatContextProvider,
@@ -16,18 +7,13 @@ import {
   useOverlay,
   useTreeForm,
 } from 'contexts';
-import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { NextSeo } from 'next-seo';
-import { BsArrowRight } from 'react-icons/bs';
 import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 
 import HatDrawer from './HatDrawer';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 const EventHistory = dynamic(() =>
   import('ui').then((mod) => mod.EventHistory),
 );
@@ -115,35 +101,9 @@ const TreePage = ({
       </Slide>
 
       <Layout editMode={editMode} hatData={topHat}>
-        {exists ? (
-          <>
-            <TreeMenu />
-            {_.isEmpty(treeToDisplay) ? (
-              <Flex justify='center' align='center' w='full' h='full'>
-                <Spinner />
-              </Flex>
-            ) : (
-              <OrgChart />
-            )}
-          </>
-        ) : (
-          <Flex justify='center' align='center' w='full' h='full' pt={20}>
-            <Stack spacing={8} align='center'>
-              <Heading size='md'>Tree not found!</Heading>
-              <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
-              <Flex>
-                <ChakraNextLink href='/'>
-                  <Button
-                    variant='outline'
-                    rightIcon={<Icon as={BsArrowRight} />}
-                  >
-                    🧢 Head home
-                  </Button>
-                </ChakraNextLink>
-              </Flex>
-            </Stack>
-          </Flex>
-        )}
+        <TreeMenu />
+
+        <OrgChart />
       </Layout>
 
       <Modal

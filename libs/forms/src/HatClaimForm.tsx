@@ -37,8 +37,6 @@ const HatClaimForForm = () => {
     wearer: resolvedAddress || (address as Hex),
   });
 
-  const showResolvedAddress = resolvedAddress && address !== resolvedAddress;
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
@@ -47,8 +45,6 @@ const HatClaimForForm = () => {
           label='Hat Wearer Address'
           subLabel='Claim this hat for an eligible wearer'
           localForm={localForm}
-          showResolvedAddress={showResolvedAddress as boolean}
-          resolvedAddress={resolvedAddress as Hex}
           options={{
             validate: () => {
               if ((resolvedAddress || address) && !canClaimForAccount)
@@ -56,6 +52,7 @@ const HatClaimForForm = () => {
               return true;
             },
           }}
+          chainId={chainId}
         />
 
         <Flex justify='flex-end'>

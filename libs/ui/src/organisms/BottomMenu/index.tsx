@@ -1,16 +1,14 @@
 import { Box, Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useSelectedHat } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
-import { getQueryRoute } from 'utils';
 
 import MobileBottomMenu from './mobile';
 
 const BoxArrowDown = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareRight),
+  import('react-icons/pi').then((i) => i.PiArrowSquareDown),
 );
 const BoxArrowLeft = dynamic(() =>
   import('react-icons/pi').then((i) => i.PiArrowSquareLeft),
@@ -23,10 +21,8 @@ const BoxArrowUp = dynamic(() =>
 );
 
 const BottomMenu = ({ show }: { show?: boolean }) => {
-  const { treeId } = useTreeForm();
-  const { hierarchy } = useSelectedHat();
+  const { hierarchy, handleSelectHat } = useSelectedHat();
   const { isMobile } = useMediaStyles();
-  const router = useRouter();
 
   if (isMobile) {
     return <MobileBottomMenu show={show} />;
@@ -34,13 +30,7 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
 
   const selectHat = (name: string) => {
     const newHatId = _.get(hierarchy, name);
-    const updatedUrl = getQueryRoute({
-      query: router.query,
-      pathname: router.pathname,
-      hat: newHatId,
-      treeId,
-    });
-    router.push(updatedUrl, undefined, { shallow: true });
+    handleSelectHat?.(newHatId);
   };
 
   return (

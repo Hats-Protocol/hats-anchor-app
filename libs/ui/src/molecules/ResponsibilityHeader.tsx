@@ -43,7 +43,7 @@ const ResponsibilityHeader = ({
       {localImageUrl ? (
         <Image
           src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
-          boxSize='24px'
+          boxSize='21px'
           border='1px solid'
           borderColor='blackAlpha.300'
           borderRadius='full'
@@ -52,7 +52,7 @@ const ResponsibilityHeader = ({
       ) : (
         <Flex
           borderRadius='full'
-          boxSize='24px'
+          boxSize='21px'
           alignItems='center'
           justifyContent='center'
           bg='gray.200'

@@ -35,6 +35,5 @@
       "utils": ["./libs/utils/src/index"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "tmp", "dist", ".nx"]
 }

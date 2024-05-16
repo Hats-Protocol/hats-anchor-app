@@ -1,4 +1,4 @@
-import { MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import {
   useAncillaryElection,
@@ -69,7 +69,7 @@ export const EligibilityContextProvider = ({
 
   const controllerAddress = _.get(
     selectedHat,
-    _.toLower(MODULE_TYPES.eligibility),
+    _.toLower(CONTROLLER_TYPES.eligibility),
   );
 
   const { data: selectedHatWithImageUrl } = useImageURIs({
