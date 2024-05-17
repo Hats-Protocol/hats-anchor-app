@@ -28,7 +28,7 @@ export const processGuildRolesForHat = ({
   hatId: Hex | undefined;
 }): Authority[] | undefined => {
   if (!guildData || _.isEmpty(guildData) || !hatId) return [];
-  console.log('processGuildRolesForHat', guildData, hatId);
+  // console.log('processGuildRolesForHat', guildData, hatId);
 
   return _.flatMap(guildData, (guild: Guild) => {
     return _.flatMap(
