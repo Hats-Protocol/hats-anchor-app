@@ -47,6 +47,7 @@ const useHatBurn = ({
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', hatIdToTreeId(BigInt(hatId || '')), chainId || ''],
       ['orgChartTree'],
+      ['wearerDetails'],
     ],
     enabled:
       Boolean(hatId) && chainId === currentNetworkId && !!currentlyWearing,

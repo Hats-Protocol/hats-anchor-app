@@ -213,15 +213,14 @@ export const OverlayContextProvider = ({
     return Promise.resolve(data);
   };
 
-  // useEffect(() => {
-  //   if (initialLoad && hatId && !isHatDrawerOpen) {
-  //     onOpenHatDrawer?.(hatId);
-  //     console.log('drawer should open');
-  //     setInitialLoad(false);
-  //   }
-  // }, [hatId, onOpenHatDrawer, isHatDrawerOpen, initialLoad]);
   const txPending = useMemo(() => {
-    return !_.isEmpty(_.filter(transactions, { status: 'pending' }));
+    const multicallTx = _.filter(
+      transactions,
+      (tx) =>
+        tx.txDescription.includes('Updated') ||
+        tx.txDescription.includes('Created'),
+    );
+    return !_.isEmpty(_.filter(multicallTx, { status: 'pending' }));
   }, [transactions]);
 
   useEffect(() => {
