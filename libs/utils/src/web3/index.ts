@@ -58,12 +58,13 @@ export function createHatsClient(
   const chain = chainsMap(chainId);
 
   const localPublicClient = viemPublicClient(chainId);
-
-  const localWalletClient = createWalletClient({
-    chain,
-    transport: custom(window.ethereum),
-  });
-
+  let localWalletClient;
+  if (window.ethereum) {
+    localWalletClient = createWalletClient({
+      chain,
+      transport: custom(window.ethereum),
+    });
+  }
   const hatsClient = new HatsClient({
     chainId,
     publicClient: localPublicClient,

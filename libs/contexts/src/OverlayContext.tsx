@@ -217,8 +217,8 @@ export const OverlayContextProvider = ({
     const multicallTx = _.filter(
       transactions,
       (tx) =>
-        tx.txDescription.includes('Updated') ||
-        tx.txDescription.includes('Created'),
+        tx.txDescription?.includes('Updated') ||
+        tx.txDescription?.includes('Created'),
     );
     return !_.isEmpty(_.filter(multicallTx, { status: 'pending' }));
   }, [transactions]);
