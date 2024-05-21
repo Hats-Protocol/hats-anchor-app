@@ -91,8 +91,8 @@ export const generateLocalStorageKey = (
   treeId: string | undefined,
 ) => {
   if (!chainId || !treeId) return 'not found';
-  const decimalTreeId = treeIdHexToDecimal(treeId);
-  return `treeData-${chainId}-${decimalTreeId}`;
+  // const decimalTreeId = treeIdHexToDecimal(treeId);
+  return `treeData-${chainId}-${treeId}`;
 };
 
 /**
@@ -108,7 +108,9 @@ export async function isImageUrl(url: string | unknown) {
             console.log(res);
             return false;
           }
-          return res.headers?.get('Content-Type')?.startsWith('image') || false;
+          return res.status === 200 || false;
+          // headers are coming back empty as of late, is there another way to detect this?
+          // return res.headers?.get('Content-Type')?.startsWith('image') || false;
         })
         .catch((error) => {
           // eslint-disable-next-line no-console

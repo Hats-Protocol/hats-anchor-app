@@ -135,14 +135,24 @@ const Header = () => {
         <HStack>
           {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
           <Badge
-            colorScheme={mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'}
+            colorScheme={
+              mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0
+                ? 'blue'
+                : 'red'
+            }
           >
-            {mutableStatus}
+            {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
           </Badge>
-          <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>
-            {activeStatus}
-          </Badge>
-          <Badge>Level {levelAtLocalTree}</Badge>
+          {levelAtLocalTree > 0 && (
+            <>
+              <Badge
+                colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+              >
+                {activeStatus}
+              </Badge>
+              <Badge>Level {levelAtLocalTree}</Badge>
+            </>
+          )}
         </HStack>
       </Flex>
     </Stack>
