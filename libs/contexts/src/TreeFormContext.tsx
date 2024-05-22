@@ -636,13 +636,11 @@ export const TreeFormContextProvider = ({
     }
     setEditMode(!editMode);
     // TODO need to reset selectedHatId? query update handles?
-    // setSelectedHatId?.(undefined);
     const updatedQuery = _.omit(router.query, 'hatId');
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
     });
     setSelectedOption?.('wearers');
-    handleExpandAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainHats, editMode, storedData, chainId, treeId]);
 
@@ -783,11 +781,7 @@ export const TreeFormContextProvider = ({
       onchainTree: onchainTree || undefined,
       onchainHats,
       treeEvents,
-      isLoading:
-        treeLoading ||
-        imagesLoading ||
-        detailsFieldsLoading ||
-        orgChartTreeLoading,
+      isLoading: treeLoading, //  || imagesLoading || detailsFieldsLoading, // orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       orgChartWearers,
