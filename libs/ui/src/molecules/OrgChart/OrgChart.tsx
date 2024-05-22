@@ -140,7 +140,6 @@ const OrgChartComponent: React.FC = () => {
     if (_.isEmpty(chartNodes)) return;
 
     if (chart && chartNodes && d3Container.current) {
-      // TODO check for missing parents to avoid crashing
       chart
         .container(d3Container.current)
         .data(chartNodes ?? [])

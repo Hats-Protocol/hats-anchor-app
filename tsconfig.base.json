@@ -20,19 +20,19 @@
     "target": "ES2018",
     "types": ["node", "jest"],
     "paths": {
-      "@hatsprotocol/constants": ["./libs/constants/src/index"],
-      "contexts": ["./libs/contexts/src/index"],
-      "forms": ["./libs/forms/src/index"],
-      "hats-hooks": ["./libs/hats-hooks/src/index"],
-      "hats-utils": ["./libs/hats-utils/src/index"],
-      "hooks": ["./libs/hooks/src/index"],
-      "icons": ["./libs/icons/src/index"],
-      "modules-ui": ["./libs/modules-ui/src/index"],
-      "pages": ["./libs/pages/src/index"],
-      "shared": ["./libs/shared/src/index"],
-      "types": ["./libs/types/src/index"],
-      "ui": ["./libs/ui/src/index"],
-      "utils": ["./libs/utils/src/index"]
+      "@hatsprotocol/constants": ["./libs/constants/src/index.ts"],
+      "contexts": ["./libs/contexts/src/index.ts"],
+      "forms": ["./libs/forms/src/index.ts"],
+      "hats-hooks": ["./libs/hats-hooks/src/index.ts"],
+      "hats-utils": ["./libs/hats-utils/src/index.ts"],
+      "hooks": ["./libs/hooks/src/index.ts"],
+      "icons": ["./libs/icons/src/index.ts"],
+      "modules-ui": ["./libs/modules-ui/src/index.ts"],
+      "pages": ["./libs/pages/src/index.ts"],
+      "shared": ["./libs/shared/src/index.ts"],
+      "types": ["./libs/types/src/index.ts"],
+      "ui": ["./libs/ui/src/index.ts"],
+      "utils": ["./libs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp", "dist", ".nx"]

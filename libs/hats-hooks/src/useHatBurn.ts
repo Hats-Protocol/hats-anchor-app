@@ -16,7 +16,7 @@ const useHatBurn = ({
   selectedHat: AppHat;
   chainId: SupportedChains;
   handlePendingTx?: HandlePendingTx;
-  waitForSubgraph?: () => void | undefined;
+  waitForSubgraph?: () => Promise<unknown>;
 }) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();

@@ -2,7 +2,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import { useState } from 'react';
-import { HandlePendingTx } from 'types';
+import { HandlePendingTx, ToastProps } from 'types';
 import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
 import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
@@ -11,21 +11,23 @@ interface ContractInteractionProps {
   functionName: string;
   args: unknown[];
   chainId?: number;
-  onSuccessToastData?: { title: string; description?: string };
+  waitForSubgraphToastData?: ToastProps;
+  onSuccessToastData?: ToastProps;
   txDescription?: string;
-  onErrorToastData?: { title: string; description?: string };
+  onErrorToastData?: ToastProps;
   queryKeys?: (object | string | number)[][];
   transactionTimeout?: number;
   enabled: boolean;
   handlePendingTx?: HandlePendingTx; // pass both handlePendingTx and handleSuccess to useHatContractWrite
   handleSuccess?: (data?: TransactionReceipt) => void; // passed with handlePendingTx
-  waitForSubgraph?: (data?: TransactionReceipt) => void; // passed with handleSuccess
+  waitForSubgraph?: (data?: TransactionReceipt) => Promise<unknown>; // passed with handleSuccess
 }
 
 const useHatContractWrite = ({
   functionName,
   args,
   chainId,
+  waitForSubgraphToastData,
   onSuccessToastData,
   txDescription,
   onErrorToastData,
@@ -61,17 +63,25 @@ const useHatContractWrite = ({
       toast.info({
         title: 'Transaction submitted',
         description: 'Waiting for your transaction to be accepted...',
-        duration: 5000,
+        duration: 4000,
       });
 
       await handlePendingTx?.({
         hash: data.hash,
         txChainId: chainId,
         txDescription: txDescription || formatFunctionName(functionName),
-        toastData: onSuccessToastData,
+        toastData: waitForSubgraphToastData,
         onSuccess: async (d?: TransactionReceipt) => {
           handleSuccess?.(d);
+
           await waitForSubgraph?.(d);
+
+          if (onSuccessToastData) {
+            toast[onSuccessToastData.status || 'success']({
+              ...onSuccessToastData,
+              title: onSuccessToastData.title ?? 'Transaction successful',
+            });
+          }
 
           // we can remove the timeout after we add waitForSubgraph everywhere
           setTimeout(() => {

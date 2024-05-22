@@ -469,6 +469,26 @@ export const TreeFormContextProvider = ({
     [router, setStoredConfig, storedConfig],
   );
 
+  const updateQueryParams = useCallback(
+    (
+      updatedQuery: { [key: string]: string | string[] | undefined },
+      updatedLocalStorage: any,
+    ) => {
+      setStoredConfig({
+        ...storedConfig,
+        collapsed: updatedLocalStorage,
+      });
+
+      const updatedUrl = {
+        pathname: router.pathname,
+        query: updatedQuery,
+      };
+
+      router.push(updatedUrl, undefined, { shallow: true });
+    },
+    [router, storedConfig, setStoredConfig],
+  );
+
   /** Update the query params and local storage.
    * If query params are not empty, then they will take precedence over the local storage state, meaning that the local storage
    * will be updated according to the query params. If query params are empty but local storage is not, then the local storage will
@@ -481,6 +501,7 @@ export const TreeFormContextProvider = ({
       };
 
       const { collapsed } = updatedQuery;
+      console.log(updatedQuery, collapsed);
 
       let updatedLocalStorage: string[] = [];
 
@@ -506,7 +527,10 @@ export const TreeFormContextProvider = ({
           collapsed: newCollapsedQueryParams,
         };
         updatedLocalStorage = newCollapsedQueryParams; // update local storage with the query params state
-      } else if (typeof collapsed === 'string') {
+        updateQueryParams(updatedQuery, updatedLocalStorage);
+        return;
+      }
+      if (typeof collapsed === 'string') {
         // single collapsed node in query params
         if (!expanded) {
           // add the new collapsed node if it's not already in the query params
@@ -522,17 +546,13 @@ export const TreeFormContextProvider = ({
           // remove the expanded node
           delete updatedQuery.collapsed;
         }
-      } else if (
-        storedConfig.collapsed !== undefined &&
-        storedConfig.collapsed.length > 0
-      ) {
+        updateQueryParams(updatedQuery, updatedLocalStorage);
+        return;
+      }
+      if (storedConfig.collapsed && !_.isEmpty(storedConfig.collapsed)) {
         // no query params but there are collapsed nodes in local storage
         if (!expanded) {
-          if (!storedConfig.collapsed.includes(nodeIdIp)) {
-            updatedLocalStorage = [...storedConfig.collapsed, nodeIdIp];
-          } else {
-            updatedLocalStorage = [...storedConfig.collapsed];
-          }
+          updatedLocalStorage = _.uniq([...storedConfig.collapsed, nodeIdIp]);
         } else if (storedConfig.collapsed.includes(nodeIdIp)) {
           updatedLocalStorage = [...storedConfig.collapsed];
           const index = storedConfig.collapsed.indexOf(nodeIdIp);
@@ -544,28 +564,20 @@ export const TreeFormContextProvider = ({
           ...updatedQuery,
           collapsed: updatedLocalStorage,
         };
-      } else {
-        // no query params and no local storage, a node was collapsed
-        updatedQuery = {
-          ...updatedQuery,
-          collapsed: nodeIdIp,
-        };
-        updatedLocalStorage = [nodeIdIp];
+        updateQueryParams(updatedQuery, updatedLocalStorage);
+        return;
       }
 
-      setStoredConfig({
-        ...storedConfig,
-        collapsed: updatedLocalStorage,
-      });
-
-      const updatedUrl = {
-        pathname: router.pathname,
-        query: updatedQuery,
+      // no query params and no local storage, a node was collapsed
+      updatedQuery = {
+        ...updatedQuery,
+        collapsed: nodeIdIp,
       };
+      updatedLocalStorage = [nodeIdIp];
 
-      router.push(updatedUrl, undefined, { shallow: true });
+      updateQueryParams(updatedQuery, updatedLocalStorage);
     },
-    [router, setStoredConfig, storedConfig],
+    [router, storedConfig, updateQueryParams],
   );
 
   const handleExpandAll = useCallback(() => {

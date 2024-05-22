@@ -189,10 +189,11 @@ export const OverlayContextProvider = ({
     }
 
     if (sendToast && toastData) {
-      toast.success({
+      // this toast is specifically the one that shows when the transaction is successful
+      // we still need to wait for the subgraph to show true "success"
+      toast[toastData.status || 'info']({
+        ...toastData,
         title: _.get(toastData, 'title', 'Transaction successful'),
-        description: _.get(toastData, 'description'),
-        duration: _.get(toastData, 'duration', 3000),
       });
     }
 
