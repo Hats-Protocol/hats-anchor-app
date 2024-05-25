@@ -1,5 +1,6 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -128,6 +129,12 @@ const useMultiClaimsHatterCheck = ({
   const storedDataClaimableHats = _.compact(
     _.map(modulesDetails, (data: ModuleDetails, index: number) => {
       if (data) {
+        const hat = _.get(storedData, `[${index}].id`);
+        const parentId = _.get(hat, 'parentId');
+        if (!parentId) return null;
+        const parentIpId = hatIdDecimalToIp(BigInt(parentId));
+        // if parent is top hat then hat cannot be permissionlessly claimed
+        if (!parentIpId.includes('.')) return null;
         return _.get(storedData, `[${index}].id`);
       }
       return null;

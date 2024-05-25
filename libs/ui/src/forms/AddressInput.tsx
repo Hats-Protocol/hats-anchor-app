@@ -75,7 +75,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
   const showResolvedEnsName = !!ensName && ensName !== inputValue;
 
   useEffect(() => {
-    if (inputValue || !formValue) return;
+    if (inputValue || inputValue === '' || !formValue) return;
     setValue(`${name}-input`, formValue);
     // intentionally exclude `setValue` from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,7 +83,9 @@ const AddressInput: React.FC<AddressInputProps> = ({
 
   useEffect(() => {
     if (_.endsWith(inputValue, '.eth')) {
-      setValue(`${name}`, resolvedAddress);
+      setValue(`${name}`, resolvedAddress, { shouldValidate: true });
+    } else if (inputValue === '') {
+      setValue(`${name}`, '');
     }
     // intentionally exclude `setValue` from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,7 +96,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
       if (ensName) {
         setValue(`${name}-name`, ensName);
       }
-      setValue(`${name}`, inputValue);
+      setValue(`${name}`, inputValue, { shouldValidate: true });
     }
     // intentionally exclude `setValue` from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps

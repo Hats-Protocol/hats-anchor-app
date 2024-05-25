@@ -648,7 +648,9 @@ export const TreeFormContextProvider = ({
     }
     setEditMode(!editMode);
     // TODO need to reset selectedHatId? query update handles?
-    const updatedQuery = _.omit(router.query, 'hatId');
+    const updatedQuery = editMode
+      ? _.omit(router.query, 'hatId')
+      : router.query;
     router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
       shallow: true,
     });

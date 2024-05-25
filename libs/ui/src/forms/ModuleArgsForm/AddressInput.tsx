@@ -115,10 +115,6 @@ const ModuleAddressInput = ({
         }
         options={{
           required: !arg.optional,
-          // validate: (value) => {
-          //   if (!isAddress(value)) return 'Invalid address';
-          //   return true;
-          // },
         }}
         localForm={localForm}
         onChange={(e) => handleChangeAddress(e, arg.name)}

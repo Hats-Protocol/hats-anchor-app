@@ -141,10 +141,12 @@ export const processModule = ({
   const eligibilityValues = {
     isEligibilityManual: TRIGGER_OPTIONS.AUTOMATICALLY,
     eligibility: moduleAddress as Hex,
+    'eligibility-input': moduleAddress as Hex,
   };
   const toggleValues = {
     isToggleManual: TRIGGER_OPTIONS.AUTOMATICALLY,
     toggle: moduleAddress as Hex,
+    'toggle-input': moduleAddress as Hex,
   };
   const hatHasChanges = _.find(storedData, { id: _.get(selectedHat, 'id') });
   // combine updated hat values, select module values by type

@@ -75,7 +75,10 @@ export const handleHatWearingEligibility = async ({
     rule: (
       <Text noOfLines={1} size={{ base: 'sm', md: 'md' }}>
         Wear the {hatName} Hat (
-        <ChakraNextLink href='/' decoration>
+        <ChakraNextLink
+          href={hatLink({ chainId, hatId: hatDetails.id })}
+          decoration
+        >
           ID: {hatIdDecimalToIp(BigInt(hatDetails.id))}
         </ChakraNextLink>
         )

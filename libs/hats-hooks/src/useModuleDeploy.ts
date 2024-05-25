@@ -358,6 +358,7 @@ const useModuleDeploy = ({
   return {
     deploy: mutateAsync,
     isLoading: isLoading || isLoadingMultiClaimsHatter,
+    isBlocked: isPermissionlesslyClaimable === 'Yes' && !adminHat,
   };
 };
 
