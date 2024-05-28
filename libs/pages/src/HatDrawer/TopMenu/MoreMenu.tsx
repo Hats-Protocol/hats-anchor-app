@@ -17,7 +17,6 @@ import {
   ModalOverlay,
   Text,
   Tooltip,
-  useClipboard,
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
@@ -29,7 +28,7 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
-import { useToast } from 'hooks';
+import { useClipboard, useToast } from 'hooks';
 import _ from 'lodash';
 import {
   FaCopy,

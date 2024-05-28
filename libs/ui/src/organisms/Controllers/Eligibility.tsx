@@ -175,9 +175,8 @@ const Eligibility = () => {
                 name='wearer'
                 label='Wearer'
                 localForm={localForm}
-                resolvedAddress={resolvedAddress || undefined}
-                showResolvedAddress
                 hideAddressButtons
+                chainId={chainId}
               />
 
               <Flex justify='end'>

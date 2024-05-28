@@ -49,7 +49,7 @@ const ControllerWearer = ({
       >
         <HStack
           color={
-            !isContract || name === 'Safe Multisig'
+            !isContract || name?.includes('Safe')
               ? 'Informative-Human'
               : 'Informative-Code'
           }

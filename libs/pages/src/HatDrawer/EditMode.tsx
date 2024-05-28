@@ -8,7 +8,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { CONFIG, FORM_FIELDS, MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONFIG, CONTROLLER_TYPES, FORM_FIELDS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
@@ -163,7 +163,7 @@ const EditMode = () => {
                 formName='authorities'
                 title='PERMISSIONS'
                 subtitle={
-                  <Text>
+                  <Text size='sm' variant='light'>
                     Actions this hat enables its wearer to take. More details in
                     the{' '}
                     <ChakraNextLink
@@ -191,7 +191,7 @@ const EditMode = () => {
           >
             <Stack spacing={4} w='100%'>
               <HatManagementForm
-                title={MODULE_TYPES.eligibility}
+                title={CONTROLLER_TYPES.eligibility}
                 formName='revocationsCriteria'
                 radioBoxConfig={{
                   name: 'isEligibilityManual',
@@ -201,7 +201,7 @@ const EditMode = () => {
                 inputConfig={{
                   label: 'ACCOUNTABILITY',
                   description: [
-                    <Text key='manual'>
+                    <Text key='manual' size='sm' variant='light'>
                       The address of the person or group that can manually
                       revoke this hat from specific wearers. More details in the{' '}
                       <ChakraNextLink
@@ -213,7 +213,7 @@ const EditMode = () => {
                       </ChakraNextLink>
                       .
                     </Text>,
-                    <Text key='automatic'>
+                    <Text key='automatic' size='sm' variant='light'>
                       The address of the smart contract containing the logic
                       about when a wearer should have this hat. More details in
                       the{' '}
@@ -250,7 +250,7 @@ const EditMode = () => {
           >
             <Stack spacing={4} w='100%'>
               <HatManagementForm
-                title={MODULE_TYPES.toggle}
+                title={CONTROLLER_TYPES.toggle}
                 formName='deactivationsCriteria'
                 radioBoxConfig={{
                   name: 'isToggleManual',

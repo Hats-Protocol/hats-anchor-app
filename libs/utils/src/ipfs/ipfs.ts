@@ -200,44 +200,50 @@ export const authorityImageHandler = ({
 
   if (!authority) return checkIfIpfs('');
 
+  // HANDLE CURRENTLY EDITING ITEM
   if (editingItem?.imageUrl) return checkIfIpfs(currentImageUrl);
 
+  // HANDLE GUILD PLATFORM MATCH
   if (type === AUTHORITY_TYPES.gate) {
-    // HANDLE GUILD PLATFORM MATCH
     const platformById = GUILD_PLATFORMS[id as keyof typeof GUILD_PLATFORMS];
     const platformInfo = AUTHORITY_PLATFORMS[platformById];
-    if (platformInfo)
+    if (platformInfo) {
       return {
         icon: platformInfo.icon as ReactNode,
         isIpfs: false,
         imageUrl: '',
       };
-
-    // HANDLE GENERIC PLATFORM MATCH
-    const matchingPlatform = _.find(
-      _.keys(AUTHORITY_PLATFORMS),
-      (k: string) =>
-        authority.gate?.includes(_.toLower(k)) ||
-        authority.link?.includes(_.toLower(k)) ||
-        _.toLower(authority.label)?.includes(_.toLower(k)),
-    );
-    const matchingPlatformInfo =
-      AUTHORITY_PLATFORMS[matchingPlatform as string];
-    if (matchingPlatformInfo)
-      return {
-        icon: matchingPlatformInfo.icon as ReactNode,
-        isIpfs: false,
-        imageUrl: '',
-      };
-    if (authority.link?.includes('docs.google')) {
-      return {
-        // doesn't recognize nested fetch
-        icon: _.get(AUTHORITY_PLATFORMS, 'docs.icon') as unknown as ReactNode,
-        isIpfs: false,
-        imageUrl: '',
-      };
     }
   }
+
+  // HANDLE GENERIC PLATFORM MATCH
+  const matchingPlatform = _.find(
+    _.keys(AUTHORITY_PLATFORMS),
+    (k: string) =>
+      authority.gate?.includes(_.toLower(k)) ||
+      authority.link?.includes(_.toLower(k)) ||
+      _.toLower(authority.label)?.includes(_.toLower(k)),
+  );
+  const matchingPlatformInfo = AUTHORITY_PLATFORMS[matchingPlatform as string];
+  if (matchingPlatformInfo) {
+    return {
+      icon: matchingPlatformInfo.icon as ReactNode,
+      isIpfs: false,
+      imageUrl: '',
+    };
+  }
+
+  // TODO why are we needing this extra fallback? can we extend AUTHORITY_PLATFORMS for this?
+  if (authority.link?.includes('docs.google')) {
+    return {
+      // doesn't recognize nested fetch
+      icon: _.get(AUTHORITY_PLATFORMS, 'docs.icon') as unknown as ReactNode,
+      isIpfs: false,
+      imageUrl: '',
+    };
+  }
+
+  // HANDLE IMAGE URI
   if (authority && typeof authorityEnforcement.imageUri === 'string') {
     return checkIfIpfs(authorityEnforcement.imageUri);
   }

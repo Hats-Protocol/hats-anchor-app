@@ -1,5 +1,5 @@
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
-import { MODULE_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useModuleDetails } from 'hats-hooks';
 import { isMutable } from 'hats-utils';
@@ -66,9 +66,8 @@ const HatManagementForm = ({
 }: HatManagementFormProps) => {
   const { chainId, editMode } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const { localForm, eligibilityResolvedAddress, toggleResolvedAddress } =
-    useHatForm();
-  const { watch, control, setValue, getValues } = _.pick(localForm, [
+  const { localForm: hatForm } = useHatForm();
+  const { watch, control, setValue, getValues } = _.pick(hatForm, [
     'watch',
     'control',
     'setValue',
@@ -82,21 +81,19 @@ const HatManagementForm = ({
 
   const items = watch?.(formName);
   const isActionManual = watch?.(radioBoxConfig.name);
-  const controllerInput = getValues?.(`${_.toLower(title)}Input`);
+  const controllerInput = getValues?.(`${_.toLower(title)}-input`);
 
-  const { extendedEligibility, extendedToggle } = _.pick(selectedHat, [
-    'extendedEligibility',
-    'extendedToggle',
-  ]);
-  const actionResolvedAddress =
-    title === MODULE_TYPES.eligibility
-      ? eligibilityResolvedAddress
-      : toggleResolvedAddress;
+  // TODO is extended controller working here? was removed in above context I think
+  const { eligibility, extendedEligibility, extendedToggle, toggle } = _.pick(
+    selectedHat,
+    ['eligibility', 'extendedEligibility', 'extendedToggle', 'toggle'],
+  );
   const extendedController =
-    title === MODULE_TYPES.eligibility ? extendedEligibility : extendedToggle;
-
-  const showActionResolvedAddress =
-    actionResolvedAddress && actionResolvedAddress !== extendedController?.id;
+    title === CONTROLLER_TYPES.eligibility
+      ? extendedEligibility
+      : extendedToggle;
+  const controller =
+    title === CONTROLLER_TYPES.eligibility ? eligibility : toggle;
 
   const { details: moduleDetails } = useModuleDetails({
     address: controllerInput,
@@ -135,16 +132,16 @@ const HatManagementForm = ({
     });
   };
 
-  const newAddress = watch?.(title);
+  const newAddress = watch?.(title) || controllerInput;
 
   // ? better way to handle checking "manual/automatic" radio box?
   useEffect(() => {
-    if (moduleDetails && title === MODULE_TYPES.eligibility) {
+    if (moduleDetails && title === CONTROLLER_TYPES.eligibility) {
       setValue?.('isEligibilityManual', TRIGGER_OPTIONS.AUTOMATICALLY, {
         shouldDirty: true,
       });
     }
-    if (moduleDetails && title === MODULE_TYPES.toggle) {
+    if (moduleDetails && title === CONTROLLER_TYPES.toggle) {
       setValue?.('isToggleManual', TRIGGER_OPTIONS.AUTOMATICALLY, {
         shouldDirty: true,
       });
@@ -152,7 +149,7 @@ const HatManagementForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleDetails]);
 
-  if (!localForm) return null;
+  if (!hatForm) return null;
 
   return (
     <form>
@@ -164,7 +161,7 @@ const HatManagementForm = ({
             label={radioBoxConfig.label}
             subLabel={radioBoxConfig.subLabel}
             // defaultValue={moduleDetails && TRIGGER_OPTIONS.AUTOMATICALLY}
-            localForm={localForm}
+            localForm={hatForm}
             options={options}
           />
         </FormRowWrapper>
@@ -172,7 +169,7 @@ const HatManagementForm = ({
           <Icon as={BsShieldLock} boxSize={4} mt='2px' />
           <Stack>
             <AddressInput
-              name={`${_.toLower(title)}Input`}
+              name={`${_.toLower(title)}`}
               label={`${inputConfig.label} ${
                 isActionManual === TRIGGER_OPTIONS.MANUALLY
                   ? 'ADDRESS'
@@ -183,10 +180,10 @@ const HatManagementForm = ({
                   ? inputConfig.description[0]
                   : inputConfig.description[1]
               }
-              localForm={localForm}
-              showResolvedAddress={Boolean(showActionResolvedAddress)}
+              localForm={hatForm}
               isDisabled={!isMutable(selectedHat)}
-              resolvedAddress={String(actionResolvedAddress)}
+              chainId={chainId}
+              originalValue={extendedController?.id || controller}
             />
             <HStack spacing={8}>
               {(moduleDetails || contractData) && (
@@ -221,11 +218,11 @@ const HatManagementForm = ({
             </HStack>
           </Stack>
         </FormRowWrapper>
-        {title === MODULE_TYPES.eligibility &&
+        {title === CONTROLLER_TYPES.eligibility &&
           extendedController?.isContract &&
           isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
             <ClaimsHandler
-              localForm={localForm}
+              localForm={hatForm}
               onOpenModuleDrawer={onOpenModuleDrawer}
               setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
             />
@@ -241,7 +238,7 @@ const HatManagementForm = ({
             {fields.map((field, index) => (
               <LabelWithLink
                 key={field.id}
-                localForm={localForm}
+                localForm={hatForm}
                 title={title}
                 handleRemoveItem={() => remove(index)}
                 handleEdit={() => handleEdit(index)}

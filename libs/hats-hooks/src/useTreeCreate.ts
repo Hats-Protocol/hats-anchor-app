@@ -12,9 +12,7 @@ import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useTreeCreate: any = ({
+const useTreeCreate = ({
   chainId,
   details,
   receiver,
@@ -73,7 +71,7 @@ const useTreeCreate: any = ({
     onSuccessToastData: {
       title: 'Tree created!',
       description: 'Waiting on the subgraph to index your tree...', // 'Successfully created tree',
-      duration: 6000,
+      // duration: 6000, // TODO did we remove this param?
     },
     queryKeys: [['treeList', chainId]],
     enabled:

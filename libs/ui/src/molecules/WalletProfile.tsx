@@ -50,7 +50,7 @@ const WalletProfile = ({
   const { openChainModal } = useChainModal();
   const { disconnect } = useDisconnect();
 
-  const { handleCopy } = useClipboard(address, {
+  const { onCopy } = useClipboard(address, {
     toastData: { title: 'Address copied' },
   });
 
@@ -83,7 +83,7 @@ const WalletProfile = ({
               variant='ghost'
               rightIcon={<Icon as={CopyAddress} />}
               color='blue.500'
-              onClick={handleCopy}
+              onClick={onCopy}
             >
               {formatAddress(address)}
             </Button>

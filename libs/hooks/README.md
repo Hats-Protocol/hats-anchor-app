@@ -15,7 +15,6 @@ App Hooks is a set of React hooks for managing specific interactions and UX in t
 - `usePendHatterMint` - updates stored data for a tree to include a hat being minted to an existing Claims Hatter
 - `usePinImageIpfs` - uploads an image to IPFS via [Pinata](https://pinata.cloud)
 - `useProposalDetails` - fetches details about a specific proposal from Snapshot
-- `useRudderStackAnalytics` - initializes RudderStack analytics tooling
 - `useSafeDetails` - fetches details about a specific Safe from the Safe API
 - `useSearchResults` - processes a search query and prepares the results for displaying in the [Command Palette](../../apps/frontend/components/CommandPalette.tsx)
 - `useToast` - wrapper around Chakra's default `useToast` hook. Leverages the custom [Toast](./src/components/Toast.tsx) component also.

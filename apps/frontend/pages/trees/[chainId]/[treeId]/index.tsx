@@ -6,7 +6,7 @@ import {
 import { TreeFormContextProvider, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import { GetServerSidePropsContext } from 'next';
+// import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { TreePage, TreePageMobile } from 'pages';
 import { useEffect } from 'react';
@@ -54,10 +54,10 @@ const TreeDetails = () => {
   );
 };
 
-const defaultProps = {
-  treeId: null,
-  chainId: null,
-};
+// const defaultProps = {
+//   treeId: null,
+//   chainId: null,
+// };
 
 type QueryParam = string | string[] | undefined;
 
@@ -67,26 +67,26 @@ type HatQueryParams = {
   hatId: QueryParam;
 };
 
-const getQueryParams = (query: HatQueryParams) => {
-  const {
-    treeId: treeIdParam,
-    chainId: chainIdParam,
-    hatId: hatIdParam,
-  } = _.pick(query, ['treeId', 'chainId', 'hatId']);
-  const localTreeId = _.isArray(treeIdParam)
-    ? _.first(treeIdParam)
-    : treeIdParam;
-  const treeId = localTreeId ? _.toNumber(localTreeId) : null;
-  const chainId = _.isArray(chainIdParam)
-    ? _.toNumber(_.first(chainIdParam))
-    : _.toNumber(chainIdParam) || null;
-  const localHatId = _.isArray(hatIdParam) ? _.first(hatIdParam) : hatIdParam;
-  const hatId = localHatId
-    ? hatIdDecimalToHex(hatIdIpToDecimal(localHatId))
-    : null;
+// const getQueryParams = (query: HatQueryParams) => {
+//   const {
+//     treeId: treeIdParam,
+//     chainId: chainIdParam,
+//     hatId: hatIdParam,
+//   } = _.pick(query, ['treeId', 'chainId', 'hatId']);
+//   const localTreeId = _.isArray(treeIdParam)
+//     ? _.first(treeIdParam)
+//     : treeIdParam;
+//   const treeId = localTreeId ? _.toNumber(localTreeId) : null;
+//   const chainId = _.isArray(chainIdParam)
+//     ? _.toNumber(_.first(chainIdParam))
+//     : _.toNumber(chainIdParam) || null;
+//   const localHatId = _.isArray(hatIdParam) ? _.first(hatIdParam) : hatIdParam;
+//   const hatId = localHatId
+//     ? hatIdDecimalToHex(hatIdIpToDecimal(localHatId))
+//     : null;
 
-  return { treeId, chainId, hatId };
-};
+//   return { treeId, chainId, hatId };
+// };
 
 // REVERTED TO SERVER SIDE RENDERING HERE TO CATCH HAT ID PARAM
 // export const getServerSideProps = async (
@@ -108,9 +108,9 @@ const getQueryParams = (query: HatQueryParams) => {
 
 export default TreeDetails;
 
-interface TreeDetailsProps {
-  treeId: number;
-  chainId: SupportedChains;
-  hatId: Hex;
-  exists: boolean;
-}
+// interface TreeDetailsProps {
+//   treeId: number;
+//   chainId: SupportedChains;
+//   hatId: Hex;
+//   exists: boolean;
+// }

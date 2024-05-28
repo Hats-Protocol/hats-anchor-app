@@ -8,9 +8,7 @@ import { useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useHatMakeImmutable: any = ({
+const useHatMakeImmutable = ({
   selectedHat,
   onchainHats,
   chainId,

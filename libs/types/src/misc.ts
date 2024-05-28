@@ -89,11 +89,13 @@ export interface ToastBaseProps {
   isClosable?: boolean;
 }
 
+type ToastStatus = 'success' | 'error' | 'loading' | 'warning' | 'info';
+
 export interface ToastProps {
   title: string;
   description?: string;
   // icon: React.ReactNode;
-  status?: 'success' | 'error' | 'warning' | 'loading' | 'info';
+  status?: ToastStatus;
   closeToast?: () => void;
   duration?: number;
   isClosable?: boolean;

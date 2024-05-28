@@ -21,35 +21,68 @@ export const getControllerNameAndLink = ({
   moduleDetails?: Module | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  // fallback values: formatted address and explorer link
-  let name = formatAddress(extendedController?.id);
-  let link = `${explorerUrl(chainId)}/address/${_.get(
+  // default values
+  const icon = extendedController?.isContract ? CodeIcon : WearerIcon;
+  const link = `${explorerUrl(chainId)}/address/${_.get(
     extendedController,
     'id',
   )}`;
-  let icon = extendedController?.isContract ? CodeIcon : WearerIcon;
-  // if known module, use module name
-  if (moduleDetails) name = moduleDetails.name;
-  if (moduleDetails?.name === CONFIG.claimsHatterModuleName) {
-    name = 'Autonomous Admin';
-  }
-  // prioritize ens
-  else if (extendedController?.ensName) name = extendedController?.ensName;
-  else if (extendedController?.contractName === 'GnosisSafeProxy') {
-    // override for safe
-    name = 'Safe Multisig';
-    link = safeUrl(chainId as SupportedChains, _.get(extendedController, 'id'));
-    icon = Group;
-  } else if (extendedController?.contractName === 'Baal') {
-    // override for baal
-    name = extendedController?.contractName;
-    link = daohausUrl(
-      chainId as SupportedChains,
-      _.get(extendedController, 'id'),
-    );
-  } else if (extendedController?.contractName)
-    // contract (etherscan) name, if verified
-    name = extendedController?.contractName;
 
-  return { name, link, icon };
+  // override for safe
+  if (extendedController?.contractName === 'GnosisSafeProxy') {
+    return {
+      name: `Safe (${formatAddress(extendedController?.id)})`,
+      link: safeUrl(
+        chainId as SupportedChains,
+        _.get(extendedController, 'id'),
+      ),
+      icon: Group,
+    };
+  }
+
+  // override for baal
+  if (extendedController?.contractName === 'Baal') {
+    return {
+      name: extendedController?.contractName,
+      link: daohausUrl(
+        chainId as SupportedChains,
+        _.get(extendedController, 'id'),
+      ),
+      icon,
+    };
+  }
+
+  // override for claims hatter
+  if (moduleDetails?.name === CONFIG.claimsHatterModuleName) {
+    return {
+      name: 'Autonomous Admin',
+      icon,
+      link,
+    };
+  }
+
+  // if known module, use module name
+  if (moduleDetails) {
+    return { name: moduleDetails.name, icon, link };
+  }
+
+  // prioritize ens
+  if (extendedController?.ensName) {
+    return {
+      name: extendedController?.ensName,
+      icon,
+      link,
+    };
+  }
+
+  if (extendedController?.contractName) {
+    // contract (etherscan) name, if verified
+    return {
+      name: extendedController?.contractName,
+      icon,
+      link,
+    };
+  }
+
+  return { name: formatAddress(extendedController?.id), link, icon };
 };

@@ -23,6 +23,7 @@ import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
+import { catchEnterKey } from 'utils';
 import { useAccount } from 'wagmi';
 
 // TODO errors aren't being bubbled up to formState for some reason
@@ -79,9 +80,11 @@ const Input = ({
     await trigger(name);
   };
 
-  const onReset = () => {
+  const onReset = async () => {
     if (resetValue) {
-      setValue(name, resetValue, { shouldDirty: true });
+      setValue(name, resetValue, { shouldDirty: false });
+
+      await trigger(name);
     } else {
       resetField(name, { keepDirty: false });
     }
@@ -93,17 +96,17 @@ const Input = ({
   };
   const isError = !!getErrorMessage();
 
-  const resetFallback = () => {
+  const setFallback = async () => {
     setValue(name, FALLBACK_ADDRESS, { shouldDirty: true });
   };
 
-  const resetMe = () => {
+  const setMe = async () => {
     setValue(name, address, { shouldDirty: true });
   };
 
   // allow override onChange handler
   const defaultHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setValue(name, e.target.value, { shouldDirty: true });
+    setValue(name, e.target.value, { shouldDirty: true, shouldValidate: true });
   };
   const handleChange = onChange || defaultHandleChange;
 
@@ -139,37 +142,42 @@ const Input = ({
             </HStack>
           </FormLabel>
         )}
-        {typeof subLabel !== 'string' ? (
-          subLabel
-        ) : (
-          <Text size='sm' variant='light'>
-            {subLabel}
-          </Text>
-        )}
-        {addressButtons && (
-          <Flex justify='flex-end'>
-            <HStack>
-              <Button
-                size='xs'
-                variant='outline'
-                colorScheme='blue.500'
-                onClick={resetFallback}
-              >
-                Null
-              </Button>
-              {address && (
+        {/* ADDRESS BUTTONS PRIMARILY FOR ADDRESS INPUT */}
+        <Flex align='end' gap={10} justify='space-between'>
+          <Box>
+            {typeof subLabel !== 'string' ? (
+              subLabel
+            ) : (
+              <Text size='sm' variant='light'>
+                {subLabel}
+              </Text>
+            )}
+          </Box>
+          {addressButtons && (
+            <Flex justify='flex-end'>
+              <HStack>
                 <Button
                   size='xs'
                   variant='outline'
                   colorScheme='blue.500'
-                  onClick={resetMe}
+                  onClick={setFallback}
                 >
-                  Me
+                  Null
                 </Button>
-              )}
-            </HStack>
-          </Flex>
-        )}
+                {address && (
+                  <Button
+                    size='xs'
+                    variant='outline'
+                    colorScheme='blue.500'
+                    onClick={setMe}
+                  >
+                    Me
+                  </Button>
+                )}
+              </HStack>
+            </Flex>
+          )}
+        </Flex>
 
         <InputGroup {...props}>
           {leftElement && <InputLeftElement>{leftElement}</InputLeftElement>}
@@ -178,11 +186,14 @@ const Input = ({
             {...register(name, options)}
             onChange={handleChange}
             onPaste={handlePaste}
+            onKeyDown={catchEnterKey} // prevent form submission on enter
             {...props}
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='filled'
           />
-          <InputRightElement w={`${rightElementWidth}px`}>
+          <InputRightElement
+            w={rightElementWidth ? `${rightElementWidth}px` : undefined}
+          >
             <Flex w='100%' align='center' justify='space-between' pr={4}>
               {rightElement && <Box>{rightElement}</Box>}
               {isDirty && (

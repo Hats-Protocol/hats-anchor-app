@@ -30,7 +30,6 @@ import { FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { AppHat, FormWearer, HatWearer } from 'types';
 import { viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
-import { fetchEnsAddress } from 'wagmi/actions';
 
 import { DropZone } from '../atoms';
 import AddressInput from './AddressInput';
@@ -46,11 +45,12 @@ const defaultFieldOptions = {
 interface MultiAddressInputProps {
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any> | undefined;
+  localForm: UseFormReturn<any>;
   label?: string;
   subLabel?: string;
   placeholder?: string;
   holdOnAdd?: boolean;
+  overrideMaxSupply?: boolean;
 }
 
 const MultiAddressInput = ({
@@ -60,6 +60,7 @@ const MultiAddressInput = ({
   subLabel,
   placeholder,
   holdOnAdd,
+  overrideMaxSupply,
 }: MultiAddressInputProps) => {
   const { setValue, watch, control, setError, formState, clearErrors } = _.pick(
     localForm,
@@ -67,8 +68,9 @@ const MultiAddressInput = ({
   );
   const currentWearerList = useRef([] as Hex[]);
   const { errors } = _.pick(formState, ['errors']);
-  const currentInput = watch?.(`${name}-currentAddress`) as Hex | string;
-  const currentResolvedAddress = watch?.(`${name}-currentAddress-resolved`);
+  const currentInput = watch?.(`${name}-currentAddress-input`) as Hex | string;
+  const currentResolvedAddress = watch?.(`${name}-currentAddress`);
+  const currentResolvedName = watch?.(`${name}-currentAddress-name`);
   const currentMaxSupply = watch?.('maxSupply');
   const isCancelled = useRef(false);
   const { selectedHat, chainId } = useSelectedHat();
@@ -95,13 +97,14 @@ const MultiAddressInput = ({
         _.toLower(h.id),
       ) as unknown as Hex[],
     [selectedHat],
-  ); // TODO handle more than 100 wearers
+  ); // TODO handle more than N wearers
 
   currentWearerList.current = _.map(fields, ({ address }: { address: Hex }) =>
     _.toLower(address),
   ) as unknown as Hex[];
-  const wouldExceedMaxSupply =
-    _.size(currentWearerList) + 1 + currentSupply > maxSupply;
+  const wouldExceedMaxSupply = overrideMaxSupply
+    ? false
+    : _.size(currentWearerList.current) + 1 + currentSupply > maxSupply;
 
   // use callback to ensure `append` function is only called once
   const updateWearerList = useCallback(
@@ -112,7 +115,12 @@ const MultiAddressInput = ({
       } else {
         append({ address: currentInput, ens: '' });
       }
-      setValue?.(`${name}-currentAddress`, undefined, defaultFieldOptions);
+      setValue?.(
+        `${name}-currentAddress-input`,
+        undefined,
+        defaultFieldOptions,
+      );
+      setValue(`${name}-currentAddress`, undefined, defaultFieldOptions);
       clearErrors?.(`${name}-currentAddress`);
       isCancelled.current = true;
     },
@@ -121,16 +129,9 @@ const MultiAddressInput = ({
 
   useEffect(() => {
     const checkAddressEligibility = async () => {
-      let ensAddress;
-      if (_.endsWith(currentInput, '.eth')) {
-        ensAddress = (await fetchEnsAddress({
-          chainId: 1,
-          name: currentInput,
-        })) as string;
-      }
+      if (!isAddress(currentInput) && !currentResolvedAddress) return;
 
-      if (!isAddress(currentInput) && !ensAddress) return;
-      const localAddress = (_.toLower(ensAddress) ||
+      const localAddress = (_.toLower(currentResolvedAddress) ||
         _.toLower(currentInput)) as Hex;
 
       // check if address is already in current wearer list
@@ -200,7 +201,8 @@ const MultiAddressInput = ({
 
       if (holdOnAdd) {
         // don't add to list if used in standalone form(s)
-        setValue?.(`${name}-currentAddress-resolved`, localAddress);
+        setValue?.(`${name}-currentAddress`, localAddress);
+        isCancelled.current = true;
         return;
       }
 
@@ -210,14 +212,16 @@ const MultiAddressInput = ({
         return;
       }
 
-      // fallback to address only
-      updateWearerList({ address: localAddress });
+      // fallback to address only (inject ENS, if available)
+      updateWearerList({
+        address: localAddress,
+        ens: currentResolvedName || '',
+      });
     };
 
     if (
       (!isAddress(currentInput) && !_.endsWith(currentInput, '.eth')) ||
       errors?.[`${name}-currentAddress`] ||
-      currentResolvedAddress ||
       !currentWearerList ||
       !currentWearerIds ||
       _.isNaN(currentSupply) ||
@@ -225,21 +229,26 @@ const MultiAddressInput = ({
     ) {
       isCancelled.current = false;
 
-      return undefined;
+      return;
+      // return undefined;
     }
 
     checkAddressEligibility();
 
-    return () => {
-      isCancelled.current = true;
-    };
+    // ! giving an issue with appending to wearer list
+    // return () => {
+    //   isCancelled.current = true;
+    // };
 
-    // intentionally omitting 'append' and 'setValue' from dependencies
+    // intentionally omitting 'setError', 'setValue', and 'updateWearerList' from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentInput,
-    currentWearerList.current,
     currentSupply,
+    chainId,
+    selectedHat,
+    currentResolvedAddress,
+    currentResolvedName,
     currentWearerIds,
     maxSupply,
     holdOnAdd,
@@ -253,7 +262,7 @@ const MultiAddressInput = ({
       isCancelled.current = false;
     }
     if (currentResolvedAddress) {
-      setValue?.(`${name}-currentAddress-resolved`, undefined);
+      setValue?.(`${name}-currentAddress`, undefined);
       isCancelled.current = false;
     }
     // intentionally omitting 'errors' and 'setError' from dependencies
@@ -267,14 +276,14 @@ const MultiAddressInput = ({
     } else {
       append({ address: currentResolvedAddress, ens: currentInput });
     }
+    setValue?.(`${name}-currentAddress-input`, undefined);
     setValue?.(`${name}-currentAddress`, undefined);
-    setValue?.(`${name}-currentAddress-resolved`, undefined);
   };
 
   const handleRemoveWearer = (index: number) => {
     remove(index);
+    setValue?.(`${name}-currentAddress-input`, undefined);
     setValue?.(`${name}-currentAddress`, undefined);
-    setValue?.(`${name}-currentAddress-resolved`, undefined);
   };
 
   const handleWearerImport = useCallback(
@@ -371,7 +380,7 @@ const MultiAddressInput = ({
                 </InputLeftElement>
 
                 <ChakraInput
-                  value={ens || address}
+                  value={address}
                   bg='whiteAlpha.600'
                   readOnly
                   w='calc(100% - 2rem)'
@@ -379,7 +388,7 @@ const MultiAddressInput = ({
               </InputGroup>
               {ens && (
                 <Text size='sm' color='blackAlpha.600'>
-                  {address}
+                  {ens}
                 </Text>
               )}
             </Stack>
@@ -398,11 +407,10 @@ const MultiAddressInput = ({
       <AddressInput
         name={`${name}-currentAddress`}
         localForm={localForm}
-        showResolvedAddress={!!currentResolvedAddress}
-        resolvedAddress={currentResolvedAddress}
         placeholder={placeholder}
         subLabel={subLabel}
         isDisabled={wouldExceedMaxSupply}
+        chainId={chainId}
       />
       {selectedHat && chainId && (
         <>

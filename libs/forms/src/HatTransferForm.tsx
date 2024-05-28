@@ -9,25 +9,22 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { useDebounce } from 'hooks';
+import { useDebounce, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';
 import { AddressInput } from 'ui';
-import { formatAddress } from 'utils';
-import { Hex, isAddress } from 'viem';
+import { fetchWearerDetails, formatAddress } from 'utils';
+import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-const HatTransferForm = ({
-  currentWearerAddress,
-}: {
-  currentWearerAddress: string;
-}) => {
+const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
   const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
+  const { txPending, handlePendingTx } = useOverlay();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
 
@@ -42,6 +39,18 @@ const HatTransferForm = ({
     chainId: 1,
   });
 
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: async () => {
+      const result = await fetchWearerDetails(
+        newWearerResolvedAddress || undefined,
+        chainId,
+      );
+      return result;
+    },
+    checkResult: (result) =>
+      _.includes(_.map(result?.currentHats, 'id'), hatId),
+  });
+
   const newWearerAddress = newWearerResolvedAddress ?? newWearer;
 
   const isTopHat = hatId && !_.includes(hatIdDecimalToIp(BigInt(hatId)), '.');
@@ -50,19 +59,28 @@ const HatTransferForm = ({
     functionName: 'transferHat',
     args: [hatId, currentWearerAddress, newWearerAddress],
     chainId,
+    waitForSubgraphToastData: {
+      title: 'Transaction confirmed. Waiting for indexing...',
+      description: "We're waiting for the data to be indexed. Stay tuned.",
+      duration: 8000,
+    },
     onSuccessToastData: {
       title: `${isTopHat ? 'Top ' : ''}Hat Transferred!`,
       description:
         hatId &&
         `Successfully transferred ${
           isTopHat ? 'top ' : ''
-        }hat #${hatIdDecimalToIp(BigInt(hatId))} from ${formatAddress(
+        }Hat #${hatIdDecimalToIp(BigInt(hatId))} from ${formatAddress(
           currentWearerAddress,
-        )} to ${formatAddress(newWearerResolvedAddress)}`,
+        )} to ${formatAddress(newWearerAddress)}`,
     },
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
+      ['wearerDetails'],
+      ['orgChartTree'],
+      ['hatWearers'],
+      ['treeWearers'],
     ],
     enabled:
       Boolean(newWearerResolvedAddress ?? newWearer) &&
@@ -71,6 +89,8 @@ const HatTransferForm = ({
       isAddress(newWearerResolvedAddress ?? newWearer) &&
       isAddress(currentWearerAddress) &&
       chainId === currentNetworkId,
+    waitForSubgraph,
+    handlePendingTx,
   });
 
   const onSubmit = async () => {
@@ -79,9 +99,6 @@ const HatTransferForm = ({
 
   const isDisabled =
     !writeAsync || isLoading || isLoadingNewWearerResolvedAddress;
-
-  const showNewResolvedAddress =
-    newWearerResolvedAddress && newWearer !== newWearerResolvedAddress;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -103,12 +120,11 @@ const HatTransferForm = ({
           label='New Wearer Address'
           name='newWearer'
           localForm={localForm}
-          showResolvedAddress={showNewResolvedAddress as boolean}
-          resolvedAddress={newWearerResolvedAddress as Hex}
+          chainId={chainId}
         />
         <Flex justify='flex-end'>
           <Tooltip label={prepareErrorMessage} isDisabled={!isDisabled}>
-            <Button type='submit' isDisabled={isDisabled}>
+            <Button type='submit' isDisabled={isDisabled} isLoading={txPending}>
               Transfer
             </Button>
           </Tooltip>
@@ -117,5 +133,9 @@ const HatTransferForm = ({
     </form>
   );
 };
+
+interface HatTransferFormProps {
+  currentWearerAddress: string;
+}
 
 export default HatTransferForm;

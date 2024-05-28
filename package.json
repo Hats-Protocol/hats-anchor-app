@@ -19,12 +19,11 @@
     "@emotion/styled": "^11.11.0",
     "@hatsprotocol/hats-account-sdk": "^0.0.5",
     "@hatsprotocol/hsg-sdk": "^0.0.13",
-    "@hatsprotocol/modules-sdk": "^0.15.2",
+    "@hatsprotocol/modules-sdk": "^1.1.0",
     "@hatsprotocol/sdk-v1-core": "^0.8.1",
     "@hatsprotocol/sdk-v1-subgraph": "^1.0.0",
     "@nx/next": "18.0.5",
     "@rainbow-me/rainbowkit": "^1.3.1",
-    "@rudderstack/analytics-js": "3.0.0-beta.23",
     "@swc/helpers": "~0.5.2",
     "@tanstack/react-query": "^4.32.0",
     "@tanstack/react-query-devtools": "^4.32.0",
@@ -73,7 +72,7 @@
     "@svgr/rollup": "^8.0.1",
     "@swc-node/register": "~1.8.0",
     "@swc/cli": "~0.1.62",
-    "@swc/core": "~1.3.85",
+    "@swc/core": "^1.4.13",
     "@tanstack/eslint-plugin-query": "^4.32.5",
     "@testing-library/react": "14.0.0",
     "@types/d3": "^7.4.3",
@@ -81,6 +80,7 @@
     "@types/jest": "^29.4.0",
     "@types/lodash": "^4.17.0",
     "@types/node": "18.19.18",
+    "@types/papaparse": "^5.3.14",
     "@types/react": "18.2.33",
     "@types/react-datepicker": "^4.15.0",
     "@types/react-dom": "18.2.14",
@@ -107,6 +107,6 @@
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.0-beta"
   }
 }

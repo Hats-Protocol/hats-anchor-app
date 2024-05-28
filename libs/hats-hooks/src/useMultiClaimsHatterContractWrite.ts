@@ -21,9 +21,7 @@ interface ContractInteractionProps {
   hatId?: Hex;
 }
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useMultiClaimsHatterContractWrite: any = ({
+const useMultiClaimsHatterContractWrite = ({
   functionName,
   chainId,
   enabled,

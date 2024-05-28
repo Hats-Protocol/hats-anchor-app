@@ -41,6 +41,8 @@ import EventHistory from './EventHistory';
 
 const History = dynamic(() => import('icons').then((mod) => mod.History));
 
+// TODO check for more specific error
+
 const TreeMenu = () => {
   const { setModals } = useOverlay();
   const {
@@ -54,6 +56,7 @@ const TreeMenu = () => {
     setShowInactiveHats,
     toggleEditMode,
     onOpenTreeDrawer,
+    treeError,
   } = useTreeForm();
   const { onOpen, onClose, isOpen } = useDisclosure();
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
@@ -106,7 +109,7 @@ const TreeMenu = () => {
                 <Icon as={BsPencil} color='#065666' />
               )
             }
-            isDisabled={!treeToDisplay}
+            isDisabled={!treeToDisplay || !!treeError}
             onClick={toggleEditMode}
           >
             {editMode ? 'Leave Edit Mode' : 'Edit Tree'}
@@ -118,7 +121,7 @@ const TreeMenu = () => {
             <PopoverTrigger>
               <Button
                 leftIcon={<Icon as={BsToggles} />}
-                isDisabled={editMode}
+                isDisabled={editMode || !!treeError}
                 variant='filled'
                 rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                 fontWeight='medium'
@@ -215,55 +218,60 @@ const TreeMenu = () => {
                 </Flex>
               </Skeleton>
               <Skeleton
-                isLoaded={isClient && !!localLastTimestamp}
+                isLoaded={(isClient && !!localLastTimestamp) || !!treeError}
                 minW='235px'
                 display='flex'
                 justifyContent='flex-end'
               >
-                <Popover trigger='hover'>
-                  <PopoverTrigger>
-                    <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
-                      <Text>Last event: </Text>
-                      <Skeleton isLoaded={!!localLastTimestamp}>
+                {!treeError && (
+                  <Popover trigger='hover'>
+                    <PopoverTrigger>
+                      <Flex
+                        align='center'
+                        gap={1}
+                        fontSize='sm'
+                        cursor='pointer'
+                      >
+                        <Text>Last event: </Text>
                         <Text mr={2} variant='medium'>
                           {localLastTimestamp || '-'}
                         </Text>
-                      </Skeleton>
-                      <Icon as={History} boxSize={4} />
-                    </Flex>
-                  </PopoverTrigger>
-                  <PopoverContent width='400px' mr={4}>
-                    <PopoverArrow />
-                    <PopoverCloseButton />
-                    <PopoverBody>
-                      <Stack>
-                        <Box>
-                          <Heading
-                            size='sm'
-                            variant='medium'
-                            textTransform='uppercase'
-                            mb={1}
-                          >
-                            Event history
-                          </Heading>
-                          <EventHistory type='tree' count={6} />
-                          {_.gt(_.size(treeEvents), 4) && (
-                            <>
-                              <Divider my={2} />
-                              <Button
-                                onClick={() => setModals?.({ events: true })}
-                                variant='link'
-                                colorScheme='blue'
-                              >
-                                View Full History
-                              </Button>
-                            </>
-                          )}
-                        </Box>
-                      </Stack>
-                    </PopoverBody>
-                  </PopoverContent>
-                </Popover>
+                        <Icon as={History} boxSize={4} />
+                      </Flex>
+                    </PopoverTrigger>
+                    <PopoverContent width='400px' mr={4}>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverBody>
+                        <Stack>
+                          <Box>
+                            <Heading
+                              size='sm'
+                              variant='medium'
+                              textTransform='uppercase'
+                              mb={1}
+                            >
+                              Event history
+                            </Heading>
+                            <EventHistory type='tree' count={6} />
+                            {_.gt(_.size(treeEvents), 4) && (
+                              <>
+                                <Divider my={2} />
+                                <Button
+                                  onClick={() => setModals?.({ events: true })}
+                                  variant='link'
+                                  colorScheme='blue'
+                                >
+                                  View Full History
+                                </Button>
+                              </>
+                            )}
+                          </Box>
+                        </Stack>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </Skeleton>
             </Stack>
           </HStack>

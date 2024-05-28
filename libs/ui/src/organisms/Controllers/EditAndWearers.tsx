@@ -8,10 +8,12 @@ import {
 } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatAdminWearers } from 'hats-hooks';
+import { getControllerNameAndLink } from 'hats-utils';
+import { useContractData } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { explorerUrl } from 'utils';
+import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 import { ChakraNextLink } from '../../atoms';
@@ -23,11 +25,47 @@ const AdminWearers = () => {
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
 
-  const { adminCount } = useHatAdminWearers(
+  const { data: admins, adminCount } = useHatAdminWearers(
     selectedHat,
     treeToDisplay,
     chainId,
   );
+
+  const admin = _.first(admins);
+
+  const { data: contractData } = useContractData({
+    address: admin?.id,
+    chainId,
+  });
+
+  if (!admin) return null;
+  const { name, link, icon } = getControllerNameAndLink({
+    extendedController: { ...admin, ...contractData },
+    chainId,
+  });
+
+  if (_.size(admins) === 1) {
+    return (
+      <ChakraNextLink href={link}>
+        <HStack
+          color={
+            admin?.isContract && !name.includes('Safe')
+              ? 'Informative-Code'
+              : 'Informative-Human'
+          }
+          spacing={1}
+        >
+          <Text fontSize={{ base: 'sm', md: 'md' }}>
+            {name || formatAddress(admin?.id)}
+          </Text>
+          <Icon
+            as={icon ?? (admin?.isContract ? CodeIcon : WearerIcon)}
+            boxSize={{ base: '14px', md: 4 }}
+          />
+        </HStack>
+      </ChakraNextLink>
+    );
+  }
 
   return (
     <HStack spacing='2px'>
