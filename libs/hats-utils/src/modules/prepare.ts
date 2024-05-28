@@ -10,6 +10,7 @@ import { FormValues, ModuleDetails } from 'types';
 import { getDefaultValue, transformInput } from 'utils';
 import { parseUnits } from 'viem';
 
+// TODO is `-parsed` still being used. Was previous handling for parsing ENS names
 export const prepareArgs = (
   values: FormValues,
   selectedModuleDetails?: ModuleDetails,

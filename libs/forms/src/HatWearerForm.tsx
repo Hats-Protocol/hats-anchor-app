@@ -76,8 +76,8 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
 
   const currentWearerList = _.map(currentWearers, 'id');
   const localWearers = watch?.('wearers', []);
-  const currentInput = watch?.('wearers-currentAddress');
-  const currentResolvedAddress = watch?.('wearers-currentAddress-resolved');
+  const currentInput = watch?.('wearers-currentAddress-input');
+  const currentResolvedAddress = watch?.('wearers-currentAddress');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const batchMintArgs: any[] = [

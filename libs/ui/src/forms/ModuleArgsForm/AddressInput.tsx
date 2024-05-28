@@ -14,6 +14,8 @@ import { AddressInput, Input } from '..';
 
 const TOKEN_TYPES = ['erc20', 'token'];
 
+// !!!!! CURRENTLY UNUSED !!!!!!
+
 const ModuleAddressInput = ({
   arg,
   localForm,

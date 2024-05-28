@@ -259,12 +259,6 @@ const ModuleAuthorityToolbar = ({
   );
 
   if (!authority) return null;
-  console.log({
-    isModuleLoading,
-    isHsgLoading,
-    formValid: formState.isValid,
-    errors: formState.errors,
-  });
 
   return (
     <HStack wrap='wrap'>

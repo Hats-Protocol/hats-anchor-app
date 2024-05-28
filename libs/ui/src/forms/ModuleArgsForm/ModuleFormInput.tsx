@@ -55,6 +55,7 @@ const ModuleFormInput = ({
             : (arg.example as string) || FALLBACK_ARG_EXAMPLES.address
         }
         localForm={localForm}
+        overrideMaxSupply
       />
     );
   }

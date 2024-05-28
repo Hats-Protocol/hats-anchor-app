@@ -50,6 +50,7 @@ interface MultiAddressInputProps {
   subLabel?: string;
   placeholder?: string;
   holdOnAdd?: boolean;
+  overrideMaxSupply?: boolean;
 }
 
 const MultiAddressInput = ({
@@ -59,6 +60,7 @@ const MultiAddressInput = ({
   subLabel,
   placeholder,
   holdOnAdd,
+  overrideMaxSupply,
 }: MultiAddressInputProps) => {
   const { setValue, watch, control, setError, formState, clearErrors } = _.pick(
     localForm,
@@ -100,8 +102,9 @@ const MultiAddressInput = ({
   currentWearerList.current = _.map(fields, ({ address }: { address: Hex }) =>
     _.toLower(address),
   ) as unknown as Hex[];
-  const wouldExceedMaxSupply =
-    _.size(currentWearerList.current) + 1 + currentSupply > maxSupply;
+  const wouldExceedMaxSupply = overrideMaxSupply
+    ? false
+    : _.size(currentWearerList.current) + 1 + currentSupply > maxSupply;
 
   // use callback to ensure `append` function is only called once
   const updateWearerList = useCallback(
@@ -199,6 +202,7 @@ const MultiAddressInput = ({
       if (holdOnAdd) {
         // don't add to list if used in standalone form(s)
         setValue?.(`${name}-currentAddress`, localAddress);
+        isCancelled.current = true;
         return;
       }
 
@@ -236,12 +240,15 @@ const MultiAddressInput = ({
     //   isCancelled.current = true;
     // };
 
-    // intentionally omitting 'append' and 'setValue' from dependencies
+    // intentionally omitting 'setError', 'setValue', and 'updateWearerList' from dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentInput,
-    currentWearerList.current,
     currentSupply,
+    chainId,
+    selectedHat,
+    currentResolvedAddress,
+    currentResolvedName,
     currentWearerIds,
     maxSupply,
     holdOnAdd,

@@ -214,6 +214,13 @@ export const transformInput = (
         .map((num) => convertToBigInt(num.trim()));
     case 'string[]':
       if (solidityType === 'address[]') {
+        if (_.isObject(_.first(input as any[]))) {
+          return _.compact(
+            _.map(input as any[], (obj) =>
+              isAddress(obj.address) ? obj.address : undefined,
+            ),
+          );
+        }
         return Array.isArray(input) ? _.compact(input) : [];
       }
       return String(input).split(',');
