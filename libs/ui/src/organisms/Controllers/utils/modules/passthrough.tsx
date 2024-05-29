@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { Text } from '@chakra-ui/react';
-import { MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -62,7 +62,7 @@ export const handlePassthroughModule = ({
   wearer,
   moduleType,
 }: ModuleDetailsHandler): Promise<ToggleRuleDetails> => {
-  if (_.eq(moduleType, MODULE_TYPES.eligibility)) {
+  if (_.eq(moduleType, CONTROLLER_TYPES.eligibility)) {
     return handlePassthroughEligibility({
       moduleParameters,
       chainId,

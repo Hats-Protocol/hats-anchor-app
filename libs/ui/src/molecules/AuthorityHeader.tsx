@@ -9,7 +9,11 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { AUTHORITY_ENFORCEMENT, AuthorityInfo } from '@hatsprotocol/constants';
+import {
+  AUTHORITY_ENFORCEMENT,
+  AUTHORITY_PLATFORMS,
+  AuthorityInfo,
+} from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles, useSafeDetails } from 'hooks';
 import _ from 'lodash';
@@ -60,7 +64,7 @@ const IconHandler = ({
   isExpanded,
 }: {
   icon: ReactNode | undefined;
-  authorityEnforcement: AuthorityInfo;
+  authorityEnforcement: Partial<AuthorityInfo>;
   imageUrl: string | undefined;
   isIpfs: boolean;
   isExpanded: boolean;
@@ -129,6 +133,14 @@ const AuthorityHeader = ({
   const authorityEnforcement = type
     ? AUTHORITY_ENFORCEMENT[type as keyof typeof AUTHORITY_ENFORCEMENT]
     : AUTHORITY_ENFORCEMENT.manual;
+  const authorityEnforcementLabel = _.find(
+    _.keys(AUTHORITY_PLATFORMS),
+    (k: string) =>
+      localLink?.includes(_.toLower(k)) || localLink?.includes(_.toLower(k)),
+  );
+  const currentAuthorityEnforcement = authorityEnforcementLabel
+    ? AUTHORITY_PLATFORMS[authorityEnforcementLabel as string]
+    : undefined;
 
   // set current image
   const { icon, isIpfs, imageUrl } = authorityImageHandler({
@@ -197,7 +209,9 @@ const AuthorityHeader = ({
 
           <IconHandler
             icon={icon}
-            authorityEnforcement={authorityEnforcement}
+            authorityEnforcement={
+              currentAuthorityEnforcement || authorityEnforcement
+            }
             imageUrl={imageUrl}
             isIpfs={isIpfs}
             isExpanded={isExpanded || false}

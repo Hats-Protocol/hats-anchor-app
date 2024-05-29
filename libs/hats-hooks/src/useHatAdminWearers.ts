@@ -11,11 +11,12 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const fetchAdminWearers = async (
   wearers: HatWearer[],
   chainId: number | undefined,
-) => {
+): Promise<HatWearer[] | undefined> => {
   const extendedWearers = _.map(wearers, (w: HatWearer) =>
     extendWearerDetails(w.id, chainId),
   );
 
+  // TODO better way to get this from the Hats API
   const extendedWearersPromises = extendedWearers.map(
     async (promise: Promise<unknown>, index: number) => {
       if (index % 2 === 0 && index !== 0) {
@@ -26,10 +27,11 @@ const fetchAdminWearers = async (
   );
 
   return Promise.allSettled(extendedWearersPromises)
-    .then((results) =>
-      results.map((result) =>
-        result.status === 'fulfilled' ? result.value : null,
-      ),
+    .then(
+      (results) =>
+        results.map((result) =>
+          result.status === 'fulfilled' ? result.value : null,
+        ) as HatWearer[],
     )
     .catch((err) => {
       // eslint-disable-next-line no-console

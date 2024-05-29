@@ -1,4 +1,4 @@
-import { MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { AppHat, ModuleDetails, ValueOf } from 'types';
@@ -13,7 +13,7 @@ export type ModuleDetailsHandler = {
   chainId: number | undefined;
   wearer: Hex | undefined;
   selectedHat?: AppHat;
-  moduleType?: ValueOf<typeof MODULE_TYPES>;
+  moduleType?: ValueOf<typeof CONTROLLER_TYPES>;
   isWearer?: boolean;
 };
 

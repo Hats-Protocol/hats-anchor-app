@@ -20,6 +20,6 @@
     { "path": "../ui/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }
   ],
-  "include": ["./**/*.ts", "./**/*.tsx", "../types/src/*.d.ts", "./**/*.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }

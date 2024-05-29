@@ -62,8 +62,9 @@ const CONFIG: Config = {
   },
 
   // tech values
-  DEFAULT_PADDING: 2,
-  CHAKRA_SPACING: 4,
+  DEFAULT_PADDING: 2, // padding value used in mobile vertical dividers on the mobile tree page
+  CHAKRA_SPACING: 4, // spacing value overlapping with mobile tree page and ^ default padding
+  SHADE_HEADING_LENGTH: 60, // length of the heading in authority/responsibility cards before it is truncated
 };
 
 export default CONFIG;
@@ -128,4 +129,5 @@ type Config = {
   // tech values
   DEFAULT_PADDING: number;
   CHAKRA_SPACING: number;
+  SHADE_HEADING_LENGTH: number;
 };

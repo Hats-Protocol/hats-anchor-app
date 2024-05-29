@@ -1,4 +1,4 @@
-import { MODULE_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
@@ -58,7 +58,7 @@ const fetchToggleRuleDetails = async ({
     wearer,
     chainId,
     selectedHat,
-    moduleType: MODULE_TYPES.toggle,
+    moduleType: CONTROLLER_TYPES.toggle,
   });
 };
 

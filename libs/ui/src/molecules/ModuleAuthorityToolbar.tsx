@@ -18,7 +18,7 @@ import {
 } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useCallHsgFunction,
@@ -106,9 +106,9 @@ const ModuleAuthorityToolbar = ({
         });
       }
     }
-    if (authority.type === AUTHORITY_TYPES.modules) {
-      const hatId = hatIdDecimalToIp(BigInt(authority.hatId || '0'));
-      const treeId = _.first(hatId.split('.'));
+    if (authority.type === AUTHORITY_TYPES.modules && authority.hatId) {
+      const hatId = hatIdDecimalToIp(BigInt(authority.hatId));
+      const treeId = hatIdToTreeId(BigInt(authority.hatId));
       links.push({
         link: `/trees/${chainId}/${treeId}?hatId=${hatId}`,
         label: `Go to Hat #${hatId}`,
@@ -332,7 +332,7 @@ const ModuleAuthorityToolbar = ({
             </Button>
           </ChakraNextLink>
         )}
-        {!_.isEmpty(otherFunctions) && (
+        {(!_.isEmpty(otherFunctions) || !_.isEmpty(otherLinks)) && (
           <Menu>
             <MenuButton
               as={IconButton}

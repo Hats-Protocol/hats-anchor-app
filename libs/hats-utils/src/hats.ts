@@ -22,7 +22,7 @@ import {
   HatWearer,
   SupportedChains,
 } from 'types';
-import { formatImageUrl, ipfsUrl, isImageUrl } from 'utils';
+import { formatImageUrl, getExcludedFields, ipfsUrl, isImageUrl } from 'utils';
 import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
@@ -138,28 +138,26 @@ export const checkPermissionsResponsibilities = (
   return controls;
 };
 
-const unchangedKeys = ['id', 'parentId'];
-
 export const editHasUpdates = (storedData: Partial<FormData>[] | undefined) =>
   !_.isEmpty(
-    _.reject(storedData, (data: any) =>
-      _.isEmpty(_.keys(_.omit(data, unchangedKeys))),
+    _.reject(storedData, (data: Partial<FormData>) =>
+      _.isEmpty(_.keys(_.omit(data, getExcludedFields(false)))),
     ),
   );
 
 export function getProposedChangesCount(
-  hatId: string,
+  hatId: Hex,
   data: Partial<FormData>[] | undefined,
 ): number {
   if (!data) return 0;
-  const matchingHat = _.find(data, ['id', hatId]);
+  const matchingHat = _.find(data, {
+    id: hatId,
+  });
 
-  if (matchingHat) {
-    // Subtracting omit keys that aren't changed/counted in changes
-    return _.size(_.keys(_.omit(matchingHat, unchangedKeys))) || 0;
-  }
+  if (!matchingHat) return 0;
 
-  return 0;
+  // Subtracting omit keys that aren't changed/counted in changes
+  return _.size(_.keys(_.omit(matchingHat, getExcludedFields(true)))) || 0;
 }
 
 export const getAllParents = (hatId?: Hex, tree?: AppHat[]): AppHat[] => {
@@ -294,6 +292,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
         data: {
           name: hat.name,
           description: hat.description,
+          // TODO should convert the imageUrl here to imageUri to not be confusing
           responsibilities: hat.responsibilities,
           authorities: hat.authorities,
           guilds: hat.guilds,

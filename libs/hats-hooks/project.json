@@ -22,11 +22,7 @@
       "options": {
         "command": "node tools/scripts/publish.mjs hats-hooks {args.ver} {args.tag}"
       },
-      "dependsOn": [
-        {
-          "target": "build"
-        }
-      ]
+      "dependsOn": [{ "target": "build" }]
     },
     "lint": {
       "executor": "@nx/eslint:lint",

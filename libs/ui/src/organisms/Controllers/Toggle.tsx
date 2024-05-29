@@ -2,7 +2,7 @@ import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useModuleDetails } from 'hats-hooks';
+import { useHatWearers, useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { Hex } from 'viem';
@@ -18,13 +18,22 @@ const Toggle = () => {
   const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
 
+  const { data: hatWearers } = useHatWearers({
+    hat: selectedHat,
+    chainId,
+  });
+
   const { toggle } = _.pick(selectedHat, ['toggle']);
-  const orgChartToggle = _.find(orgChartWearers, { id: toggle });
+  const hatWearerToggle = _.find(hatWearers, { id: toggle });
+  const toggleData = hatWearerToggle ||
+    _.find(orgChartWearers, { id: toggle }) || {
+      id: toggle as Hex,
+    };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const { details: moduleDetails, parameters } = useModuleDetails({
     address: toggle,
     chainId,
-    enabled: orgChartToggle?.isContract, // ? is this reliable enough?
+    enabled: toggleData?.isContract, // ? is this reliable enough?
   });
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
@@ -115,9 +124,7 @@ const Toggle = () => {
           can deactivate this Hat
         </Text>
 
-        <ControllerWearer
-          controllerData={orgChartToggle || { id: toggle as Hex }}
-        />
+        <ControllerWearer controllerData={toggleData} />
       </Flex>
     </Skeleton>
   );

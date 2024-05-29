@@ -12,6 +12,7 @@ export type DetailsItem = {
   label: string;
   description?: string;
   imageUri?: string;
+  imageUrl?: string; // old field, prefer `imageUri`
 };
 
 export interface HatWearer {

@@ -43,10 +43,9 @@ const PermissionlessClaimingForm = ({
     useTreeForm();
   const { selectedHat } = useSelectedHat();
 
-  const adminHat = localForm.watch('adminHat');
-  const isPermissionlesslyClaimable = localForm.watch(
-    'isPermissionlesslyClaimable',
-  );
+  const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
+  const adminHat = watch('adminHat');
+  const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
 
   const { multiClaimsHatter, instanceAddress, claimableHats } =
     useMultiClaimsHatterCheck({
@@ -80,8 +79,9 @@ const PermissionlessClaimingForm = ({
   useEffect(() => {
     if (isPermissionlesslyClaimable === 'Yes') {
       scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
+      setValue('adminHat', _.get(_.first(parentHats), 'id'));
     } else {
-      localForm.setValue('adminHat', undefined);
+      setValue('adminHat', undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPermissionlesslyClaimable]);
@@ -161,11 +161,6 @@ const PermissionlessClaimingForm = ({
                   subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
                   localForm={localForm}
                   placeholder='Select a hat in this tree'
-                  defaultValue={
-                    _.size(parentHats) === 1
-                      ? _.get(_.first(parentHats), 'id')
-                      : undefined
-                  }
                   options={{
                     required: isPermissionlesslyClaimable === 'Yes',
                   }}
@@ -216,36 +211,37 @@ const PermissionlessClaimingForm = ({
       )}
 
       {wearingHatDetails?.wearers?.length ===
-        Number(wearingHatDetails?.maxSupply) && (
-        <FormRowWrapper>
-          <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
-          <Stack>
-            <RadioBox
-              name='incrementWearers'
-              label='Increment Max Wearers by 1'
-              subLabel={`The admin hat you selected (${hatIdDecimalToIp(
-                BigInt(wearingHatDetails?.id),
-              )} — ${
-                wearingHatDetailsObject?.data.name
-              }) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?`}
-              localForm={localForm}
-              options={[
-                {
-                  label: `Yes — increase max wearers from ${
-                    wearingHatDetails?.maxSupply
-                  } to ${Number(wearingHatDetails?.maxSupply) + 1}`,
-                  value: 'Yes',
-                },
-                {
-                  label: 'No (cancel deployment)',
-                  value: 'No',
-                },
-              ]}
-              maxW='50%'
-            />
-          </Stack>
-        </FormRowWrapper>
-      )}
+        Number(wearingHatDetails?.maxSupply) &&
+        !instanceAddress && (
+          <FormRowWrapper>
+            <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
+            <Stack>
+              <RadioBox
+                name='incrementWearers'
+                label='Increment Max Wearers by 1'
+                subLabel={`The admin hat you selected (${hatIdDecimalToIp(
+                  BigInt(wearingHatDetails?.id),
+                )} — ${
+                  wearingHatDetailsObject?.data.name
+                }) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?`}
+                localForm={localForm}
+                options={[
+                  {
+                    label: `Yes — increase max wearers from ${
+                      wearingHatDetails?.maxSupply
+                    } to ${Number(wearingHatDetails?.maxSupply) + 1}`,
+                    value: 'Yes',
+                  },
+                  {
+                    label: 'No (cancel deployment)',
+                    value: 'No',
+                  },
+                ]}
+                maxW='50%'
+              />
+            </Stack>
+          </FormRowWrapper>
+        )}
     </Stack>
   );
 };

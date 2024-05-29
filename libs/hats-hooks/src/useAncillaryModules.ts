@@ -135,6 +135,7 @@ const useAncillaryModules = ({
   //   _.toString(chainId),
   // );
 
+  // TODO can we cache this result better?
   return {
     modulesAuthorities: _.compact([
       ...modulesAuthorities,

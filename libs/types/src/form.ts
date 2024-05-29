@@ -8,6 +8,7 @@ export type FormFieldKeys = Exclude<
   'id' | 'parentId' | 'adminId'
 >;
 export type FieldItem = { name: FormFieldKeys; label: string };
+export type FormValues = { [key: string]: unknown };
 
 export interface FormWearer {
   address: Hex;
@@ -24,6 +25,8 @@ export type FormData = FormDataDetails & {
   wearers: FormWearer[];
   parentId?: Hex;
   adminId?: Hex;
+  'eligibility-input'?: string;
+  'toggle-input'?: string;
 };
 
 export type FormDataDetails = {

@@ -7,9 +7,7 @@ import { useAccount, useChainId } from 'wagmi';
 import useHatContractWrite from './useHatContractWrite';
 import useWearerDetails from './useWearerDetails';
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useHatBurn: any = ({
+const useHatBurn = ({
   selectedHat,
   chainId,
   handlePendingTx,
@@ -18,7 +16,7 @@ const useHatBurn: any = ({
   selectedHat: AppHat;
   chainId: SupportedChains;
   handlePendingTx?: HandlePendingTx;
-  waitForSubgraph?: () => void | undefined;
+  waitForSubgraph?: () => Promise<unknown>;
 }) => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
@@ -49,6 +47,7 @@ const useHatBurn: any = ({
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', hatIdToTreeId(BigInt(hatId || '')), chainId || ''],
       ['orgChartTree'],
+      ['wearerDetails'],
     ],
     enabled:
       Boolean(hatId) && chainId === currentNetworkId && !!currentlyWearing,

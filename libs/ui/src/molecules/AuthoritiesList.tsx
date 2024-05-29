@@ -30,6 +30,7 @@ const AuthoritiesList = () => {
       editMode: false,
       tree: orgChartTree,
     });
+
   const { data: guildRoles, isLoading: guildsLoading } = useHatGuildRoles({
     hatId: selectedHat?.id,
     guildData,
@@ -44,7 +45,9 @@ const AuthoritiesList = () => {
     authorities: _.get(selectedHatDetails, 'authorities'),
     guildRoles,
     spaces,
-    modulesAuthorities,
+    modulesAuthorities: ancillaryModulesLoading
+      ? undefined
+      : modulesAuthorities,
   });
   const localAuthorities =
     !hatLoading && !ancillaryModulesLoading && !guildsLoading && !spacesLoading

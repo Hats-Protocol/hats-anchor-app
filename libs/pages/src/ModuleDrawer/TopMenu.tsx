@@ -70,7 +70,11 @@ const TopMenu = ({
     instanceAddress,
   ]);
 
-  const { deploy, isLoading } = useModuleDeploy({
+  const {
+    deploy,
+    isLoading,
+    isBlocked: moduleDeployIsBlocked,
+  } = useModuleDeploy({
     localForm,
     selectedHat,
     chainId,
@@ -110,7 +114,8 @@ const TopMenu = ({
     !localForm?.formState.isValid ||
     !isChainCorrect ||
     (requiresModuleTypeCheck && !moduleType) ||
-    cannotDeployWithoutIncrement;
+    cannotDeployWithoutIncrement ||
+    moduleDeployIsBlocked;
 
   return (
     <Flex

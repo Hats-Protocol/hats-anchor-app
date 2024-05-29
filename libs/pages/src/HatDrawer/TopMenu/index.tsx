@@ -34,7 +34,6 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const {
-    isLoading,
     handleRemoveHat,
     handleClearChanges,
     handleSave: onSave,
@@ -158,7 +157,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
               colorScheme='twitter'
               variant='solid'
               onClick={handleSave}
-              isLoading={isLoading || formLoading}
+              isLoading={formLoading}
             >
               Save
             </Button>
