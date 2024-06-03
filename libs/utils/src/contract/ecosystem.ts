@@ -13,5 +13,7 @@ export const jokeRaceUrl = ({
   if (!chainId || !address) return '';
   const chain = chainsMap(chainId);
   if (!chain) return '';
-  return `https://jokerace.xyz/contest/${_.toLower(chain.name)}/${address}`;
+  return `https://jokerace.xyz/contest/${_.toLower(chain.name)}/${_.toLower(
+    address,
+  )}`;
 };
