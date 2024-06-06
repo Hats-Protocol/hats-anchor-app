@@ -27,8 +27,8 @@ importers:
         specifier: ^0.0.14
         version: 0.0.14(viem@1.21.4)
       '@hatsprotocol/modules-sdk':
-        specifier: ^1.1.0
-        version: 1.1.0(viem@1.21.4)
+        specifier: ^1.1.1
+        version: 1.1.1(viem@1.21.4)
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.8.1
         version: 0.8.1(viem@1.21.4)
@@ -2844,8 +2844,8 @@ packages:
       zod: 3.23.8
     dev: false
 
-  /@hatsprotocol/modules-sdk@1.1.0(viem@1.21.4):
-    resolution: {integrity: sha512-ddUqSrakr2Pm3VmQQ2scFfmj5gIEndj6A+tueZ5s4GTjqDU1I39Z3C4LeJcT2ybLipQvbfNxJpVOuEea7jsqfQ==}
+  /@hatsprotocol/modules-sdk@1.1.1(viem@1.21.4):
+    resolution: {integrity: sha512-F7y7OfJ068301/4ftzgK4T/U3wjzNfUdtT3g13nN5IWod3QlmeHDq6w5TTaQNKyHb2TwPw/pKwZS470bHjfxCg==}
     peerDependencies:
       viem: ^1.11.0 || ^2.0.0
     dependencies:
