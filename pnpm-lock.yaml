@@ -24,8 +24,8 @@ importers:
         specifier: ^0.0.5
         version: 0.0.5(viem@1.21.4)
       '@hatsprotocol/hsg-sdk':
-        specifier: ^0.0.13
-        version: 0.0.13(viem@1.21.4)
+        specifier: ^0.0.14
+        version: 0.0.14(viem@1.21.4)
       '@hatsprotocol/modules-sdk':
         specifier: ^1.1.0
         version: 1.1.0(viem@1.21.4)
@@ -2835,13 +2835,13 @@ packages:
       viem: 1.21.4(typescript@5.5.0-dev.20240512)
     dev: false
 
-  /@hatsprotocol/hsg-sdk@0.0.13(viem@1.21.4):
-    resolution: {integrity: sha512-BZcx5Sx7tJcJb3rKQNryweMmQNvQe7sanAxfJhEB1eiGWnKsfHe1ZyEvxHXVRE2u5glVsQnvgbK+7c1c8gFw2Q==}
+  /@hatsprotocol/hsg-sdk@0.0.14(viem@1.21.4):
+    resolution: {integrity: sha512-L3huO7vHVJEnyJ5wXZliPMvj9C5oKwiEnHjta0XS9zAZPNrIDV2bLWW07+LQRjChY/qGAwY6eDzeBQpqerBO5g==}
     peerDependencies:
       viem: ^2.0.0 || ^1.11.0
     dependencies:
       viem: 1.21.4(typescript@5.5.0-dev.20240512)
-      zod: 3.23.7
+      zod: 3.23.8
     dev: false
 
   /@hatsprotocol/modules-sdk@1.1.0(viem@1.21.4):
@@ -2874,7 +2874,7 @@ packages:
     dependencies:
       graphql: 16.8.1
       graphql-request: 6.1.0(graphql@16.8.1)
-      zod: 3.23.7
+      zod: 3.23.8
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -3485,6 +3485,22 @@ packages:
       - verdaccio
     dev: true
 
+  /@nrwl/js@18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.3.3):
+    resolution: {integrity: sha512-EhdflJ1K7+MUnRHbj+v88SrhmEOjFBsdgNxzkmx0cxnRDFqH9B8dzUiRGLJmdW7cK4r0TY0C8U+1VHldSnm4FA==}
+    dependencies:
+      '@nx/js': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.3.3)
+    transitivePeerDependencies:
+      - '@babel/traverse'
+      - '@swc-node/register'
+      - '@swc/core'
+      - '@swc/wasm'
+      - '@types/node'
+      - debug
+      - nx
+      - supports-color
+      - typescript
+      - verdaccio
+
   /@nrwl/js@18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.5.0-dev.20240512):
     resolution: {integrity: sha512-EhdflJ1K7+MUnRHbj+v88SrhmEOjFBsdgNxzkmx0cxnRDFqH9B8dzUiRGLJmdW7cK4r0TY0C8U+1VHldSnm4FA==}
     dependencies:
@@ -3768,7 +3784,7 @@ packages:
       '@babel/preset-env': 7.24.4(@babel/core@7.24.4)
       '@babel/preset-typescript': 7.24.1(@babel/core@7.24.4)
       '@babel/runtime': 7.24.4
-      '@nrwl/js': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.5.0-dev.20240512)
+      '@nrwl/js': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.3.3)
       '@nx/devkit': 18.0.5(nx@18.0.5)
       '@nx/workspace': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)
       '@phenomnomnominal/tsquery': 5.0.1(typescript@5.3.3)
@@ -17070,10 +17086,6 @@ packages:
 
   /zod@3.23.4:
     resolution: {integrity: sha512-/AtWOKbBgjzEYYQRNfoGKHObgfAZag6qUJX1VbHo2PRBgS+wfWagEY2mizjfyAPcGesrJOcx/wcl0L9WnVrHFw==}
-    dev: false
-
-  /zod@3.23.7:
-    resolution: {integrity: sha512-NBeIoqbtOiUMomACV/y+V3Qfs9+Okr18vR5c/5pHClPpufWOrsx8TENboDPe265lFdfewX2yBtNTLPvnmCxwog==}
     dev: false
 
   /zod@3.23.8:
