@@ -27,8 +27,8 @@ importers:
         specifier: ^0.0.13
         version: 0.0.13(viem@1.21.4)
       '@hatsprotocol/modules-sdk':
-        specifier: ^1.1.0
-        version: 1.1.0(viem@1.21.4)
+        specifier: ^1.1.1
+        version: 1.1.1(viem@1.21.4)
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.8.1
         version: 0.8.1(viem@1.21.4)
@@ -2844,8 +2844,8 @@ packages:
       zod: 3.23.7
     dev: false
 
-  /@hatsprotocol/modules-sdk@1.1.0(viem@1.21.4):
-    resolution: {integrity: sha512-ddUqSrakr2Pm3VmQQ2scFfmj5gIEndj6A+tueZ5s4GTjqDU1I39Z3C4LeJcT2ybLipQvbfNxJpVOuEea7jsqfQ==}
+  /@hatsprotocol/modules-sdk@1.1.1(viem@1.21.4):
+    resolution: {integrity: sha512-F7y7OfJ068301/4ftzgK4T/U3wjzNfUdtT3g13nN5IWod3QlmeHDq6w5TTaQNKyHb2TwPw/pKwZS470bHjfxCg==}
     peerDependencies:
       viem: ^1.11.0 || ^2.0.0
     dependencies:
@@ -3485,6 +3485,22 @@ packages:
       - verdaccio
     dev: true
 
+  /@nrwl/js@18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.3.3):
+    resolution: {integrity: sha512-EhdflJ1K7+MUnRHbj+v88SrhmEOjFBsdgNxzkmx0cxnRDFqH9B8dzUiRGLJmdW7cK4r0TY0C8U+1VHldSnm4FA==}
+    dependencies:
+      '@nx/js': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.3.3)
+    transitivePeerDependencies:
+      - '@babel/traverse'
+      - '@swc-node/register'
+      - '@swc/core'
+      - '@swc/wasm'
+      - '@types/node'
+      - debug
+      - nx
+      - supports-color
+      - typescript
+      - verdaccio
+
   /@nrwl/js@18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.5.0-dev.20240512):
     resolution: {integrity: sha512-EhdflJ1K7+MUnRHbj+v88SrhmEOjFBsdgNxzkmx0cxnRDFqH9B8dzUiRGLJmdW7cK4r0TY0C8U+1VHldSnm4FA==}
     dependencies:
@@ -3768,7 +3784,7 @@ packages:
       '@babel/preset-env': 7.24.4(@babel/core@7.24.4)
       '@babel/preset-typescript': 7.24.1(@babel/core@7.24.4)
       '@babel/runtime': 7.24.4
-      '@nrwl/js': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.5.0-dev.20240512)
+      '@nrwl/js': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)(@types/node@18.19.18)(nx@18.0.5)(typescript@5.3.3)
       '@nx/devkit': 18.0.5(nx@18.0.5)
       '@nx/workspace': 18.0.5(@swc-node/register@1.8.0)(@swc/core@1.5.5)
       '@phenomnomnominal/tsquery': 5.0.1(typescript@5.3.3)

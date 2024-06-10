@@ -39,7 +39,7 @@ const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, isDraft } = useSelectedHat();
-  const { getDirtyFieldsForAccordion } = useHatForm();
+  const { getDirtyFieldsForAccordion, handleSave: onSave } = useHatForm();
   const toast = useToast();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
@@ -57,6 +57,11 @@ const EditMode = () => {
   );
 
   if (!selectedHat) return null;
+
+  const openModuleDrawer = (type: string) => {
+    onSave(false);
+    setDrawers({ [_.toLower(type) || 'eligibility']: true });
+  };
 
   return (
     <>
@@ -233,7 +238,9 @@ const EditMode = () => {
                   description:
                     'A written description of the logic in the Accountability Contract',
                 }}
-                onOpenModuleDrawer={() => setDrawers({ eligibility: true })}
+                onOpenModuleDrawer={() =>
+                  openModuleDrawer(CONTROLLER_TYPES.eligibility)
+                }
                 setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
               />
             </Stack>
@@ -292,7 +299,9 @@ const EditMode = () => {
                   description:
                     'List any criteria that should be considered in the process of deactivating or reactivating this hat',
                 }}
-                onOpenModuleDrawer={() => setDrawers({ toggle: true })}
+                onOpenModuleDrawer={() =>
+                  openModuleDrawer(CONTROLLER_TYPES.toggle)
+                }
                 setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
               />
             </Stack>

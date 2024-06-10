@@ -148,6 +148,14 @@ const WearersList = () => {
   const currentWearerDetails = _.find(orgChartWearers, {
     id: _.toLower(address),
   }) as ControllerData;
+  const currentUserInList = _.includes(
+    _.map(filteredWearers, 'id'),
+    _.toLower(address),
+  );
+  const currentUserIsIneligible = _.includes(
+    _.map(ineligibleWearers, 'id'),
+    _.toLower(address),
+  );
 
   return (
     <>
@@ -204,7 +212,8 @@ const WearersList = () => {
           {/* Wearers list */}
 
           {currentUserIsWearing &&
-            !_.includes(_.map(filteredWearers, 'id'), _.toLower(address)) && (
+            !currentUserInList &&
+            !currentUserIsIneligible && (
               <WearerRow
                 wearer={currentWearerDetails || { id: address }}
                 setChangeStatusWearer={setChangeStatusWearer}

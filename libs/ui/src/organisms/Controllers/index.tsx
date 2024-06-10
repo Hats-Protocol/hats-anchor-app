@@ -1,6 +1,7 @@
 import { Flex, Heading } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
 
+import CheckEligibilityForm from './CheckEligibilityForm';
 import EditAndWearers from './EditAndWearers';
 import Eligibility from './Eligibility';
 import Toggle from './Toggle';
@@ -21,6 +22,7 @@ const Controllers = () => {
       <EditAndWearers />
       <Eligibility />
       <Toggle />
+      <CheckEligibilityForm />
     </Flex>
   );
 };

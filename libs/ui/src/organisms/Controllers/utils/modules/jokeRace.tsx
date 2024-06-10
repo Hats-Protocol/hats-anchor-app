@@ -46,7 +46,7 @@ export const handleJokeRaceEligibility = async ({
   return Promise.resolve({
     rule: (
       <Text size={{ base: 'sm', md: 'md' }}>
-        Finish top {topK} in the{' '}
+        {_.toNumber(topK) > 1 ? `Finish top ${topK}` : 'Finish first'} in the{' '}
         <ChakraNextLink
           href={jokeRaceUrl({ chainId, address: contestAddress })}
           decoration
