@@ -71,6 +71,7 @@ const fetchEligibilityRuleDetails = async ({
   isWearer,
 }: ModuleDetailsHandler) => {
   if (!moduleDetails || !moduleParameters) {
+    // TODO check dynamic eligibility status
     return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS);
   }
 

@@ -358,17 +358,19 @@ const OrgChartComponent: React.FC = () => {
                   </div>
                 </div>
                 ${
+                  // eslint-disable-next-line no-nested-ternary
                   !editMode
-                    ? selectedOption !== 'title' &&
-                      selectedOptionContent({
-                        selectedOption,
-                        currentSupply,
-                        maxSupply,
-                        hatChartWearers,
-                        extendedEligibility,
-                        extendedToggle,
-                        levelAtLocalTree,
-                      })
+                    ? selectedOption !== 'title'
+                      ? selectedOptionContent({
+                          selectedOption,
+                          currentSupply,
+                          maxSupply,
+                          hatChartWearers,
+                          extendedEligibility,
+                          extendedToggle,
+                          levelAtLocalTree,
+                        })
+                      : ''
                     : `<div style="
                     margin-top: 68px;
                     width: 100%;

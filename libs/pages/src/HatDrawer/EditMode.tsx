@@ -159,14 +159,14 @@ const EditMode = () => {
 
         {isTopHatOrMutable(selectedHat) && (
           <Accordion
-            title='Powers'
-            subtitle='Permissions and rights that are controlled by wearers of this hat.'
+            title='Authorities'
+            subtitle='Authorities and rights that are controlled by wearers of this hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
           >
             <Stack spacing={4} w='100%'>
               <AuthoritiesForm
                 formName='authorities'
-                title='PERMISSIONS'
+                title='AUTHORITIES'
                 subtitle={
                   <Text size='sm' variant='light'>
                     Actions this hat enables its wearer to take. More details in
@@ -181,7 +181,7 @@ const EditMode = () => {
                     .
                   </Text>
                 }
-                label='Permission'
+                label='Authority'
                 Icon={BsKey}
               />
             </Stack>

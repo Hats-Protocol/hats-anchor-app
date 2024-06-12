@@ -33,6 +33,8 @@ export const selectedOptionContent = ({
   let toggleText = extendedToggle && formatAddress(extendedToggle?.id);
   if (levelAtLocalTree === 0) {
     toggleText = 'None - Top Hat';
+  } else if (!extendedToggle) {
+    toggleText = 'None Set';
   } else if (extendedToggle?.ensName && extendedToggle?.ensName !== '') {
     toggleText = extendedToggle?.ensName;
   }
@@ -41,6 +43,8 @@ export const selectedOptionContent = ({
     extendedEligibility && formatAddress(extendedEligibility?.id);
   if (levelAtLocalTree === 0) {
     eligibilityText = 'None - Top Hat';
+  } else if (!extendedEligibility) {
+    eligibilityText = 'None Set';
   } else if (
     extendedEligibility?.ensName &&
     extendedEligibility?.ensName !== ''
