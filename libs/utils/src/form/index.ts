@@ -177,7 +177,7 @@ export function summarizeActions(data: HatsCalls[]) {
     return message;
   }
 
-  const actionParts = [];
+  const actionParts: string[] = [];
   if (updateCount > 0)
     actionParts.push(
       `Updated ${updateCount} ${updateCount === 1 ? 'hat' : 'hats'}`,

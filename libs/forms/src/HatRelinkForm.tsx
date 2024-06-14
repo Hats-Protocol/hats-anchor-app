@@ -4,7 +4,6 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Spinner,
   Stack,
   Switch,
   Text,
@@ -82,7 +81,7 @@ const HatRelinkForm = ({
   const toggle = useDebounce(watch('toggle', zeroAddress));
   const imageUrl = useDebounce(watch('imageUrl', ''));
 
-  const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: newImage,
     metadata: {
@@ -273,13 +272,12 @@ const HatRelinkForm = ({
             type='submit'
             isDisabled={
               !writeAsync ||
-              imagePinLoading ||
               isLoading ||
               isLoadingEligibilityResolvedAddress ||
               isLoadingToggleResolvedAddress
             }
           >
-            {imagePinLoading ? <Spinner /> : 'Relink'}
+            Relink
           </Button>
         </Flex>
       </Stack>

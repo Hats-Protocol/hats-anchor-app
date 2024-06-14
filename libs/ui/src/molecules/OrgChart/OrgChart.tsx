@@ -39,7 +39,7 @@ import {
   recreateNodesCollapse,
 } from './utils';
 
-const OrgChartComponent: React.FC = () => {
+function OrgChartComponent() {
   const userChain = useChainId();
   const { address } = useAccount();
   const {
@@ -600,6 +600,6 @@ const OrgChartComponent: React.FC = () => {
       </HStack>
     </Box>
   );
-};
+}
 
 export default OrgChartComponent;

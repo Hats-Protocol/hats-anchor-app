@@ -15,8 +15,8 @@ import {
   StandaloneOverlayContextProps,
   Transaction,
 } from 'types';
+import { viemPublicClient } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import { waitForTransaction } from 'wagmi/actions';
 
 const defaults: ClaimsModals = {
   newWearer: false,
@@ -110,6 +110,7 @@ export const StandaloneOverlayContextProvider = ({
    * */
   const handlePendingTx = async ({
     hash,
+    txChainId,
     toastData,
     redirect = null,
     clearModals = true,
@@ -125,7 +126,11 @@ export const StandaloneOverlayContextProvider = ({
     sendToast?: boolean;
     onSuccess?: (data?: TransactionReceipt) => void;
   }): Promise<TransactionReceipt | undefined> => {
-    const data = await waitForTransaction({ hash });
+    const data = await viemPublicClient(
+      txChainId || 1,
+    ).waitForTransactionReceipt({
+      hash,
+    });
 
     if (!data) {
       return Promise.resolve(undefined);

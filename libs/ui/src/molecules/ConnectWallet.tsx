@@ -17,9 +17,8 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
   const { isMobile } = useMediaStyles();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
-    name: ensName,
+    name: ensName as string,
     chainId: 1,
-    cacheTime: 60,
   });
 
   const fallbackAvatar = useMemo(() => {

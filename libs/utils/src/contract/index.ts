@@ -41,6 +41,7 @@ export const checkTransactionStatus = async (transactions: Transaction[]) => {
   // handle the client with tx so chain is relative to tx
   const transactionPromises = pendingTransactions.map(
     async (tx: Transaction) => {
+      if (!tx.hash || !tx.txChainId) return null;
       const publicClient = viemPublicClient(tx.txChainId);
       try {
         const transactionData = await publicClient.getTransaction({

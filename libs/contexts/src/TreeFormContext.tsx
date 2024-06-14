@@ -368,6 +368,7 @@ export const TreeFormContextProvider = ({
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
   });
+  // console.log(orgChartTree);
 
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)

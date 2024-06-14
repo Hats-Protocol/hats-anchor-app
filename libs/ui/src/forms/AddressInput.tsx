@@ -61,12 +61,10 @@ const AddressInput: React.FC<AddressInputProps> = ({
 
   const { data: ensName } = useEnsName({
     address: inputValue,
-    enabled: isAddress(inputValue),
     chainId: 1,
   });
   const { data: resolvedAddress } = useEnsAddress({
     name: inputValue,
-    enabled: _.endsWith(inputValue, '.eth'),
     chainId: 1,
   });
 

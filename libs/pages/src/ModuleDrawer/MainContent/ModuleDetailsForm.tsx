@@ -118,7 +118,7 @@ const ModuleDetailsForm = ({
 
       <Stack spacing={6}>
         <ModuleArgsForm
-          selectedModuleArgs={selectedModuleArgs}
+          selectedModuleArgs={selectedModuleArgs || undefined}
           localForm={localForm}
           tokenAddress={tokenAddress}
         />

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { SupportedChains } from 'types';
 import { createHatsClient } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -9,7 +10,7 @@ const useAdminOfHats = ({
   chainId,
 }: {
   hatIds: Hex[];
-  chainId: number;
+  chainId: SupportedChains | undefined;
 }) => {
   const { address: user } = useAccount();
 

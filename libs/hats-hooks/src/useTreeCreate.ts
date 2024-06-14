@@ -53,8 +53,8 @@ const useTreeCreate = ({
 
     await waitForSubgraph();
 
-    queryClient.invalidateQueries(['treeList', chainId]);
-    queryClient.invalidateQueries(['wearerDetails']);
+    queryClient.invalidateQueries({ queryKey: ['treeList', chainId] });
+    queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
     setStillLoading(false);
     toast.info({ title: 'Redirecting you to your new tree' });
     router.push(`/trees/${chainId}/${newTreeId}`);
@@ -98,5 +98,5 @@ interface UseTreeCreateProps {
   receiver: string;
   overrideReceiver: boolean;
   imageUrl?: string;
-  handlePendingTx: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
 }

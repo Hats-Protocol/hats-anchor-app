@@ -5,10 +5,10 @@ import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import _ from 'lodash';
 import { FiExternalLink } from 'react-icons/fi';
-import { TokenData } from 'types';
 import { explorerUrl, formatAddress, formatDate, jokeRaceUrl } from 'utils';
-import { formatUnits, Hex } from 'viem';
-import { useToken } from 'wagmi';
+import { erc20Abi, formatUnits, Hex } from 'viem';
+import { useReadContracts } from 'wagmi';
+import { GetTokenReturnType } from 'wagmi/actions';
 
 import { ChakraNextLink } from '../atoms';
 
@@ -59,7 +59,7 @@ const ModuleParameter = ({
 }: {
   param: SdkModuleParameter;
   chainId: number;
-  tokenData: TokenData | undefined;
+  tokenData: GetTokenReturnType | undefined;
 }) => {
   const {
     decimals: tokenDecimals,
@@ -171,10 +171,27 @@ const ModuleParameters = ({
     _.includes(TOKEN_ARG_TYPES, a.displayType),
   );
 
-  const { data: tokenData } = useToken({
-    address: _.get(tokenParameter, 'value') as Hex,
+  const tokenFields = ['symbol', 'name', 'decimals'];
+  const tokenFieldContracts = _.map(tokenFields, (field) => ({
+    address: tokenParameter?.value as Hex,
+    abi: erc20Abi,
     chainId,
+    functionName: field,
+  }));
+  const result = useReadContracts({
+    contracts: tokenFieldContracts,
   });
+  const tokenData = _.reduce(
+    result.data,
+    (acc, val, idx) => {
+      // TODO fix and see if this is even working
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      acc[tokenFields[idx]] = val.result;
+      return acc;
+    },
+    {} as GetTokenReturnType,
+  );
 
   return (
     <Stack>

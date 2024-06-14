@@ -6,48 +6,117 @@ import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
-import { getDefaultWallets } from '@rainbow-me/rainbowkit';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import {
+  argentWallet,
+  braveWallet,
+  coinbaseWallet,
+  dawnWallet,
+  frameWallet,
+  injectedWallet,
+  ledgerWallet,
+  metaMaskWallet,
+  rabbyWallet,
+  rainbowWallet,
+  safeWallet,
+  uniswapWallet,
+  walletConnectWallet,
+  zerionWallet,
+} from '@rainbow-me/rainbowkit/wallets';
 import _ from 'lodash';
-import { createPublicClient, createWalletClient, custom, http } from 'viem';
+import {
+  Chain,
+  createPublicClient,
+  createWalletClient,
+  custom,
+  http,
+  Transport,
+} from 'viem';
 import { createConfig } from 'wagmi';
 
-import { chains, chainsMap, explorerUrl, publicClient } from './chains';
+import { chainsMap } from './chains';
 
-export { chains, chainsList, chainsMap, explorerUrl, publicClient };
-
+const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
+if (!WC_PROJECT_ID) {
+  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
+}
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
+if (!ALCHEMY_ID) {
+  throw new Error('NEXT_PUBLIC_ALCHEMY_ID is not set');
+}
+
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [rainbowWallet, walletConnectWallet],
+    },
+    {
+      groupName: 'All',
+      wallets: [
+        injectedWallet,
+        safeWallet,
+        argentWallet,
+        braveWallet,
+        coinbaseWallet,
+        dawnWallet,
+        frameWallet,
+        ledgerWallet,
+        metaMaskWallet,
+        rabbyWallet,
+        uniswapWallet,
+        zerionWallet,
+      ],
+    },
+  ],
+  {
+    appName: 'Hats App',
+    projectId: WC_PROJECT_ID,
+  },
+);
 
 declare global {
   interface Window {
+    // @ts-expect-error - overlapping with definition from Coinbase wallet for some reason
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ethereum: any;
   }
 }
 
-const { connectors } = getDefaultWallets({
-  appName: 'Hats',
-  chains,
-  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
-});
-
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const wagmiConfig: any = createConfig({
-  connectors,
-  publicClient,
-});
-
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const viemPublicClient: any = (chainId: number) => {
+const getRpcUrl = (chainId: number) => {
   const chain = chainsMap(chainId);
   let transportUrl = _.first(_.get(chain, 'rpcUrls.default.http'));
   const alchemyUrl = _.get(chain, 'rpcUrls.alchemy.http');
   if (alchemyUrl) transportUrl = `${alchemyUrl}/${ALCHEMY_ID}`;
 
+  return transportUrl as string;
+};
+
+const transports = () => {
+  const localTransports: { [key: string]: Transport } = {};
+  _.each(chainsList, (chain, chainId) => {
+    localTransports[chainId as keyof typeof localTransports] = http(
+      getRpcUrl(_.toNumber(chainId)),
+    );
+  });
+
+  return localTransports;
+};
+
+export const wagmiConfig = createConfig({
+  connectors: _.concat(connectors),
+  chains: _.map(
+    _.keys(chainsList),
+    (c) => chainsList[_.toNumber(c) as keyof typeof chainsList],
+  ) as unknown as readonly [Chain, ...Chain[]], // TODO any better way to do this?
+  transports: transports(),
+  ssr: true,
+});
+
+export const viemPublicClient = (chainId: number) => {
   return createPublicClient({
-    chain,
-    transport: http(transportUrl, { batch: true }),
+    chain: chainsMap(chainId),
+    transport: http(getRpcUrl(chainId), { batch: true }),
   });
 };
 
@@ -146,3 +215,6 @@ export async function createHatsAccountClient(
 
   return hatsAccountClient as HatsAccount1ofNClient;
 }
+
+export { chainsList };
+export * from './chains';

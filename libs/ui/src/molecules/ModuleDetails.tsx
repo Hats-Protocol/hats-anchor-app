@@ -91,10 +91,9 @@ const ModuleDetails = ({ type }: { type: string }) => {
     _.size(a.label),
   );
 
-  const { mutate: callModuleFunction, isLoading: isModuleLoading } =
-    useCallModuleFunction({
-      chainId,
-    });
+  const { mutate: callModuleFunction } = useCallModuleFunction({
+    chainId,
+  });
   const handleFunctionCall = (func: any) => {
     console.log('func', func);
     if (func.args && func.args.length > 0) {
@@ -206,7 +205,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                     colorScheme='blue'
                     type='submit'
                     isDisabled={!formState.isValid}
-                    isLoading={isModuleLoading}
+                    // isLoading={isModuleLoading}
                   >
                     {_.get(selectedFunction, 'label')}
                   </Button>

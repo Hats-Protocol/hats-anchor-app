@@ -45,9 +45,9 @@ const ModuleAddressInput = ({
   const { data: tokenDetails } = useToken({
     address: localTokenAddress || tokenAddress,
     chainId,
-    enabled:
-      (!!tokenAddress && isAddress(tokenAddress)) ||
-      (!!localTokenAddress && isAddress(localTokenAddress)),
+    // enabled:
+    //   (!!tokenAddress && isAddress(tokenAddress)) ||
+    //   (!!localTokenAddress && isAddress(localTokenAddress)),
   });
   const tokenLabel = `${tokenDetails?.name} ($${tokenDetails?.symbol})`;
 

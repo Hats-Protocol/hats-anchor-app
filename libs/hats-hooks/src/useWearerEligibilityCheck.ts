@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat } from 'types';
-import { Hex, isAddress } from 'viem';
-import { useContractRead } from 'wagmi';
+import { Hex } from 'viem';
+import { useReadContract } from 'wagmi';
 
 /**
  * *** DEPRECATED use `useWearersEligibilityCheck` ***
@@ -13,17 +13,12 @@ const useWearerEligibilityCheck = ({
 }: useWearerEligibilityCheckProps) => {
   const hatId = selectedHat?.id || 'none';
 
-  const { data, isLoading } = useContractRead({
+  const { data, isLoading } = useReadContract({
     address: CONFIG.hatsAddress,
     abi: CONFIG.hatsAbi,
     chainId,
     functionName: 'isEligible',
     args: [wearer, hatId],
-    enabled:
-      Boolean(wearer) &&
-      isAddress(wearer || '0x') &&
-      Boolean(hatId) &&
-      Boolean(chainId),
   });
 
   return { data: data as unknown as boolean, isLoading };

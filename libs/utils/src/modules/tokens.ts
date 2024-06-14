@@ -2,7 +2,8 @@ import { ERC721_ABI, ERC1155_ABI } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { ModuleDetails } from 'types';
 import { Abi, Hex } from 'viem';
-import { readContract, readContracts } from 'wagmi/actions';
+
+import { viemPublicClient } from '../web3';
 
 const defaultTokenId = BigInt(0);
 
@@ -17,22 +18,23 @@ export const fetchErc1155Details = async ({
   chainId: number | undefined;
 }): Promise<object | undefined> => {
   if (!address || !chainId || !tokenId) return Promise.resolve(undefined);
-  return readContract({
-    address,
-    chainId,
-    abi: ERC1155_ABI,
-    functionName: 'uri',
-    args: [tokenId],
-  }).then(async (uri: unknown) => {
-    const localUri = uri as string;
-    return fetch(localUri)
-      .then((data) => Promise.resolve(data.json()))
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error('Error fetching ERC1155 details', error);
-        return Promise.resolve(undefined);
-      });
-  });
+  return viemPublicClient(chainId)
+    .readContract({
+      address,
+      abi: ERC1155_ABI,
+      functionName: 'uri',
+      args: [tokenId],
+    })
+    .then(async (uri: unknown) => {
+      const localUri = uri as string;
+      return fetch(localUri)
+        .then((data) => Promise.resolve(data.json()))
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.error('Error fetching ERC1155 details', error);
+          return Promise.resolve(undefined);
+        });
+    });
 };
 
 export const fetch1155BalanceWithId = async ({
@@ -48,13 +50,13 @@ export const fetch1155BalanceWithId = async ({
 }): Promise<bigint | undefined> => {
   if (!address || !token || !chainId || !tokenId)
     return Promise.resolve(undefined);
-  return readContract({
-    address: token,
-    chainId,
-    abi: ERC1155_ABI,
-    functionName: 'balanceOf',
-    args: [address, tokenId],
-  })
+  return viemPublicClient(chainId)
+    .readContract({
+      address: token,
+      abi: ERC1155_ABI,
+      functionName: 'balanceOf',
+      args: [address, tokenId],
+    })
     .then((balance: unknown) => {
       return Promise.resolve(balance as bigint);
     })
@@ -66,10 +68,10 @@ export const fetch1155BalanceWithId = async ({
 };
 
 export type Fetch721MetadataResult = {
-  name: string;
-  symbol: string;
-  totalSupply: bigint;
-  tokenUri: string;
+  name: string | undefined;
+  symbol: string | undefined;
+  totalSupply: bigint | undefined;
+  tokenUri: string | undefined;
 };
 
 export const fetch721Metadata = async ({
@@ -91,7 +93,7 @@ export const fetch721Metadata = async ({
       args: [defaultTokenId],
     },
   ];
-  const data = await readContracts({
+  const data = await viemPublicClient(chainId).multicall({
     contracts,
   });
 
@@ -115,9 +117,8 @@ export const fetch721Balance = ({
 }) => {
   if (!token || !chainId || !address) return Promise.resolve(undefined);
 
-  return readContract({
+  return viemPublicClient(chainId).readContract({
     address: token,
-    chainId,
     abi: ERC721_ABI,
     functionName: 'balanceOf',
     args: [address],

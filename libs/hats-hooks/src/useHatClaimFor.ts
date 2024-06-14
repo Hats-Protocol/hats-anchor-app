@@ -6,7 +6,7 @@ import { idToIp } from 'shared';
 import { AppHat, SupportedChains } from 'types';
 import { createHatsClient, formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
-import { useAccount, useContractRead } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
 
@@ -56,17 +56,12 @@ const useHatClaimFor = ({
   });
 
   const { data: isClaimableFor, isLoading: isLoadingClaimableFor } =
-    useContractRead({
+    useReadContract({
       address: claimableForAddress,
       abi: claimsHatter?.abi,
       chainId,
       functionName: 'isClaimableFor',
       args: [wearer || '0x', selectedHat?.id || '0x'],
-      enabled:
-        !!claimsHatter &&
-        // userChain === chainId &&
-        !!selectedHat &&
-        (!!address || !!wearer),
     });
 
   const {
@@ -96,7 +91,7 @@ const useHatClaimFor = ({
       .catch((error) => error);
   };
 
-  const { mutateAsync, isLoading } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationKey: ['claimHatFor', selectedHat?.id],
     mutationFn: claimHatFor,
     onSuccess: (result) => {
@@ -125,7 +120,7 @@ const useHatClaimFor = ({
     isClaimableFor,
     canClaimForAccount,
     canClaimForAccountError,
-    isLoading: isLoading || canClaimForAccountLoading || isLoadingClaimableFor,
+    isLoading: canClaimForAccountLoading || isLoadingClaimableFor,
   };
 };
 

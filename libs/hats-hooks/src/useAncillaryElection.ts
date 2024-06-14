@@ -52,7 +52,7 @@ const useAncillaryElection = ({
     [hatsDetails, address],
   );
 
-  const userRoles = [];
+  const userRoles: any[] = [];
   if (isWearingAdminHat) userRoles.push('electionsAdmin');
   if (isWearingBallotBoxHat) userRoles.push('electionsBallotBox');
 

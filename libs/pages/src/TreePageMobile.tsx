@@ -53,7 +53,9 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
 
   let title = '';
   if (_.isFinite(_.toNumber(treeId))) {
-    title = `Tree #${hatIdToTreeId(BigInt(treeId))} on ${chain.name}`;
+    title = treeId
+      ? `Tree #${hatIdToTreeId(BigInt(treeId))} on ${chain.name}`
+      : '';
   } else {
     title = 'Invalid Tree ID';
   }

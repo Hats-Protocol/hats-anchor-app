@@ -12,10 +12,10 @@ import { HatPinDetails } from './useMulticallManyHats';
 
 type useMulticallCallDataProps = {
   chainId: SupportedChains | undefined;
-  treeId: number; // ! can be removed?
-  storedData: Partial<FormData>[];
-  onchainHats: AppHat[];
-  treeToDisplay: AppHat[];
+  treeId: number | undefined; // ! can be removed?
+  storedData: Partial<FormData>[] | undefined;
+  onchainHats: AppHat[] | undefined;
+  treeToDisplay: AppHat[] | undefined;
   isExpanded: boolean;
 };
 

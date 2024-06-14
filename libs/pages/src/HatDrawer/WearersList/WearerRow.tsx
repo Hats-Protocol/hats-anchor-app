@@ -50,11 +50,10 @@ const WearerRow = ({
 
   const { data: ensAvatar } = useEnsAvatar({
     chainId: 1,
-    name: wearer?.ensName,
-    enabled: !!wearer?.ensName,
+    name: wearer?.ensName || undefined,
   });
 
-  const hatId = selectedHat?.id;
+  const hatId = selectedHat?.id || '0x';
   const isSameChain = chainId === currentNetworkId;
   const currentUserIsEligibility =
     selectedHat?.eligibility === _.toLower(address);
@@ -72,7 +71,7 @@ const WearerRow = ({
     enabled:
       Boolean(hatId) &&
       Boolean(wearer) &&
-      extendedEligibility?.isContract &&
+      !!extendedEligibility?.isContract &&
       chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],

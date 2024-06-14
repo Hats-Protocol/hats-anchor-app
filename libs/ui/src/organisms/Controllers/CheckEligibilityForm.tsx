@@ -24,7 +24,7 @@ const CheckEligibilityForm = () => {
 
   const { data: resolvedAddress } = useEnsAddress({
     name: watch('wearer'),
-    enabled: _.includes(localWearer, '.eth'),
+    // enabled: _.includes(localWearer, '.eth'),
   });
 
   const { data: wearerEligible } = useWearerEligibilityCheck({

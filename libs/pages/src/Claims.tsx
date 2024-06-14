@@ -26,7 +26,7 @@ const Claims = () => {
 
   if (!isClient) return null;
 
-  if (isHatDetailsLoading || isModuleDetailsLoading) {
+  if (isHatDetailsLoading || isModuleDetailsLoading || !selectedHat?.id) {
     return (
       <Layout title='Claims'>
         <Flex justify='center' pt='120px'>

@@ -87,7 +87,6 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
   const { data: ensName } = useEnsName({
     address,
     chainId: 1,
-    enabled: !!address,
   });
 
   const { instanceAddress, currentHatIsClaimable } = useMultiClaimsHatterCheck({
@@ -108,8 +107,8 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
       setIsClaiming(false);
 
       // should implement useWaitForSubgraph when merged
-      queryClient.invalidateQueries(['wearerDetails']);
-      queryClient.invalidateQueries(['hatDetails']);
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
     },
     onDecline: () => {
       setIsClaiming(false);

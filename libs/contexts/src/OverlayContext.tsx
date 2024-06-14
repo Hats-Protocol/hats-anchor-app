@@ -11,9 +11,8 @@ import {
   useState,
 } from 'react';
 import { AppModals, OverlayContextProps, ToastProps, Transaction } from 'types';
-import { checkTransactionStatus } from 'utils';
+import { checkTransactionStatus, viemPublicClient } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import { waitForTransaction } from 'wagmi/actions';
 
 const defaultModals: AppModals = {
   createTree: false,
@@ -182,7 +181,11 @@ export const OverlayContextProvider = ({
       });
     }
 
-    const data = await waitForTransaction({ hash });
+    const data = await viemPublicClient(
+      txChainId || 1,
+    ).waitForTransactionReceipt({
+      hash,
+    });
 
     if (!data) {
       return Promise.resolve(undefined);

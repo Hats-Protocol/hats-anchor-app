@@ -4,7 +4,6 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Spinner,
   Stack,
   Switch,
   Text,
@@ -89,7 +88,7 @@ const HatLinkRequestApproveForm = ({
 
   const decimalAdmin = topHatDomain;
 
-  const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: newImage && customImage,
     metadata: { name: `image_${_.toString(chainId)}_${decimalAdmin}` },
@@ -106,7 +105,6 @@ const HatLinkRequestApproveForm = ({
   } = useEnsAddress({
     name: eligibility || '0x',
     chainId: 1,
-    enabled: !!eligibility,
   });
 
   const {
@@ -115,7 +113,6 @@ const HatLinkRequestApproveForm = ({
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
-    enabled: !!toggle,
   });
 
   const eligibilityAddress =
@@ -338,13 +335,12 @@ const HatLinkRequestApproveForm = ({
             isDisabled={!writeAsync}
             isLoading={
               detailsCidLoading ||
-              imagePinLoading ||
               isLoading ||
               isLoadingEligibilityResolvedAddress ||
               isLoadingToggleResolvedAddress
             }
           >
-            {imagePinLoading ? <Spinner /> : 'Approve'}
+            Approve
           </Button>
         </Flex>
       </Stack>

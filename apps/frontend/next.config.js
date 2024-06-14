@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
-// @ts-check
 
+// eslint-disable-next-line import/no-extraneous-dependencies
 const { composePlugins, withNx } = require('@nx/next');
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -35,10 +35,6 @@ const nextConfig = {
     ],
   },
   transpilePackages: ['d3-org-chart'],
-  webpack: (config) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false };
-    return config;
-  },
   async redirects() {
     return [
       {
@@ -63,25 +59,22 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: [
       // external pkgs
-      '@chakra-ui/react',
-      '@rainbow-me/rainbowkit',
-      '@tanstack/react-query',
-      'd3-org-chart',
-      'react-datepicker',
-      'viem',
+      // '@chakra-ui/react',
+      // 'd3-org-chart',
+      // 'react-datepicker',
       // internal packages
-      '@hatsprotocol/constants',
-      'contexts',
-      'forms',
-      'hats-hooks',
-      'hats-utils',
-      'hooks',
-      'modules-ui',
-      'pages',
-      'shared',
-      'types',
-      'ui',
-      'utils',
+      // '@hatsprotocol/constants',
+      // 'contexts',
+      // 'forms',
+      // 'hats-hooks',
+      // 'hats-utils',
+      // 'hooks',
+      // 'modules-ui',
+      // 'pages',
+      // 'shared',
+      // 'types',
+      // 'ui',
+      // 'utils',
     ],
   },
 };

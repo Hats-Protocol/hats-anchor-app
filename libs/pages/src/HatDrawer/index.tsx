@@ -24,7 +24,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   );
   const { isMobile } = useMediaStyles();
 
-  if (!selectedHat) return null;
+  if (!selectedHat || !returnToList) return null;
 
   if (isMobile) {
     // TODO are we hitting this case?

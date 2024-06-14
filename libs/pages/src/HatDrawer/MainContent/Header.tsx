@@ -27,7 +27,7 @@ const Header = () => {
   const { chainId, editMode, treeToDisplay } = useTreeForm();
   const { selectedHat, selectedHatDetails } = useSelectedHat();
 
-  const { onCopy } = useClipboard(selectedHat?.id, {
+  const { onCopy } = useClipboard(selectedHat?.id || '', {
     toastData: {
       title: 'Successfully copied hat ID to clipboard',
       status: 'info',

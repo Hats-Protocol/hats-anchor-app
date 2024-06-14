@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { HandlePendingTx, ToastProps } from 'types';
 import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
-import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useChainId, useWriteContract } from 'wagmi';
 
 interface ContractInteractionProps {
   functionName: string;
@@ -43,96 +43,76 @@ const useHatContractWrite = ({
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: CONFIG.hatsAddress,
-    chainId: Number(chainId),
-    abi: CONFIG.hatsAbi,
-    functionName,
-    args,
-    enabled: enabled && !!chainId && userChainId === chainId,
-  });
+  const { writeContractAsync } = useWriteContract();
 
-  const {
-    writeAsync,
-    error: writeError,
-    isLoading: writeLoading,
-  } = useContractWrite({
-    ...config,
-    onSuccess: async (data) => {
-      setIsLoading(true);
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-        duration: 4000,
-      });
+  const handleHatWrite = async () => {
+    if (!enabled || !chainId || userChainId !== chainId) return null;
 
-      await handlePendingTx?.({
-        hash: data.hash,
-        txChainId: chainId,
-        txDescription: txDescription || formatFunctionName(functionName),
-        toastData: waitForSubgraphToastData,
-        onSuccess: async (d?: TransactionReceipt) => {
-          handleSuccess?.(d);
-
-          await waitForSubgraph?.(d);
-
-          if (onSuccessToastData) {
-            toast[onSuccessToastData.status || 'success']({
-              ...onSuccessToastData,
-              title: onSuccessToastData.title ?? 'Transaction successful',
-            });
-          }
-
-          // we can remove the timeout after we add waitForSubgraph everywhere
-          setTimeout(() => {
-            queryKeys.forEach((key) =>
-              queryClient.invalidateQueries({
-                queryKey: key,
-              }),
-            );
-          }, transactionTimeout);
-        },
-      });
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      if (
-        error.name === 'TransactionExecutionError' &&
-        error.message.includes('User rejected the request')
-      ) {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
+    return writeContractAsync({
+      address: CONFIG.hatsAddress,
+      chainId: Number(chainId),
+      abi: CONFIG.hatsAbi,
+      functionName,
+      args,
+    })
+      .then((hash) => {
+        setIsLoading(true);
+        toast.info({
+          title: 'Transaction submitted',
+          description: 'Waiting for your transaction to be accepted...',
+          duration: 4000,
         });
-      } else {
-        toast.error({
-          title: 'Error occurred!',
-          description:
-            onErrorToastData?.description ??
-            'An error occurred while processing the transaction.',
+
+        handlePendingTx?.({
+          hash,
+          txChainId: chainId,
+          txDescription: txDescription || formatFunctionName(functionName),
+          toastData: waitForSubgraphToastData,
+          onSuccess: async (d?: TransactionReceipt) => {
+            handleSuccess?.(d);
+
+            await waitForSubgraph?.(d);
+
+            if (onSuccessToastData) {
+              toast[onSuccessToastData.status || 'success']({
+                ...onSuccessToastData,
+                title: onSuccessToastData.title ?? 'Transaction successful',
+              });
+            }
+
+            // we can remove the timeout after we add waitForSubgraph everywhere
+            setTimeout(() => {
+              queryKeys.forEach((key) =>
+                queryClient.invalidateQueries({
+                  queryKey: key,
+                }),
+              );
+            }, transactionTimeout);
+          },
         });
-      }
-    },
-  });
-
-  const extractErrorMessage = (error: Error | null) => {
-    if (!error) return '';
-
-    let errorMessage = error.message || '';
-    const errorMatch = errorMessage.match(/Error:\s*(.*)/);
-    const [, errorMessageMatch] = errorMatch || [];
-    errorMessage = errorMessageMatch || errorMessage;
-    errorMessage = errorMessage.replace(/\(.*\)/, '').trim();
-
-    return errorMessage || 'An unknown error occurred';
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        if (
+          error.name === 'TransactionExecutionError' &&
+          error.message.includes('User rejected the request')
+        ) {
+          toast.error({
+            title: 'Signature rejected!',
+            description: 'Please accept the transaction in your wallet',
+          });
+        } else {
+          toast.error({
+            title: 'Transaction failed',
+            description: 'Please try again later',
+          });
+        }
+      });
   };
 
   return {
-    writeAsync,
-    isLoading: isLoading || writeLoading,
-    prepareError,
-    prepareErrorMessage: extractErrorMessage(prepareError),
-    writeError,
+    writeAsync: handleHatWrite,
+    isLoading,
   };
 };
 

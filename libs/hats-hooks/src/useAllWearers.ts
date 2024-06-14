@@ -31,8 +31,8 @@ const useAllWearers = ({
   chainId,
   enabled = true,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   enabled?: boolean;
 }) => {
   const supply = _.toNumber(selectedHat?.currentSupply);

@@ -1,9 +1,9 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { chainsList, fetchTreesByIdMesh } from 'utils';
+import { AppHat } from 'types';
 
 const chains = _.keys(chainsList);
 

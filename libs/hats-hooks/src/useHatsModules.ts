@@ -1,7 +1,7 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { ModuleDetails, SupportedChains } from 'types';
 import _ from 'lodash';
+import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 
 const useHatsModules = ({

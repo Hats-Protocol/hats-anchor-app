@@ -58,9 +58,9 @@ export const SelectedHatContextProvider = ({
   hatId,
   children,
 }: {
-  treeId: number;
+  treeId: number | undefined;
   chainId: SupportedChains;
-  hatId?: Hex | undefined;
+  hatId: Hex | undefined;
   children: ReactNode;
 }) => {
   const router = useRouter();

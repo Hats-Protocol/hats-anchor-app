@@ -4,16 +4,10 @@ import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsCheckSquareFill } from 'react-icons/bs';
-import { ModuleDetailsHandler } from 'utils';
-import { formatUnits, Hex } from 'viem';
-import {
-  fetchBalance,
-  FetchBalanceResult,
-  fetchToken,
-  FetchTokenResult,
-} from 'wagmi/actions';
+import { ModuleDetailsHandler, viemPublicClient } from 'utils';
+import { erc20Abi, formatUnits, Hex } from 'viem';
 
-import { ELIGIBILITY_STATUS } from '../general';
+import { DEFAULT_ELIGIBILITY_DETAILS, ELIGIBILITY_STATUS } from '../general';
 
 const RemovedWearer = dynamic(() =>
   import('icons').then((i) => i.RemovedWearer),
@@ -28,26 +22,33 @@ export const handleErc20Eligibility = async ({
     moduleParameters,
     (p: ModuleParameter) => p.displayType === 'erc20',
   );
+  const tokenFields = ['symbol', 'name', 'decimals'];
+  const tokenFieldContracts = _.map(tokenFields, (field) => ({
+    address: tokenParam?.value as Hex,
+    abi: erc20Abi,
+    chainId,
+    functionName: field,
+  }));
+  // TODO better default
+  if (!tokenParam || !chainId) return DEFAULT_ELIGIBILITY_DETAILS;
   const promises: Promise<unknown>[] = [
-    fetchToken({
-      address: tokenParam?.value as Hex,
-      chainId,
+    viemPublicClient(chainId).multicall({
+      contracts: tokenFieldContracts,
     }),
   ];
   if (wearer) {
     promises.push(
-      fetchBalance({
-        address: wearer,
-        token: tokenParam?.value as Hex,
-        chainId,
+      viemPublicClient(chainId).readContract({
+        address: tokenParam.value as Hex,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [wearer],
       }),
     );
   }
   const result = await Promise.all(promises);
-  const [tokenDetails, userBalance] = result as [
-    FetchTokenResult,
-    FetchBalanceResult,
-  ];
+  const [tokenDetails, userBalance] = result as [any, any];
+  console.log({ tokenDetails, userBalance });
 
   const amountParameter = _.find(moduleParameters, [
     'displayType',

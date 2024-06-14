@@ -114,7 +114,7 @@ const ResponsibilitiesForm = ({
     accept: { 'image/*': [] },
   });
 
-  const { data: imagePinData, isLoading } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: {
@@ -249,7 +249,6 @@ const ResponsibilitiesForm = ({
                 <Button
                   colorScheme='blue'
                   leftIcon={<BsSave />}
-                  isLoading={isLoading}
                   isDisabled={_.some(errors) || !isDirty}
                   type='submit'
                 >

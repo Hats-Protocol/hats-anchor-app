@@ -7,7 +7,6 @@ import {
   Heading,
   HStack,
   Icon,
-  Spinner,
   Stack,
   Switch,
   Text,
@@ -65,7 +64,6 @@ const NewTree = () => {
 
   const {
     data: imagePinData,
-    isLoading: imagePinLoading,
     // error: imagePinError,
   } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
@@ -197,9 +195,9 @@ const NewTree = () => {
                 type='submit'
                 colorScheme='blue'
                 isDisabled={!writeAsync}
-                isLoading={isLoading || detailsCidLoading || imagePinLoading}
+                isLoading={isLoading || detailsCidLoading}
               >
-                {imagePinLoading ? <Spinner /> : 'Create'}
+                Create
               </Button>
             </Flex>
           </Stack>

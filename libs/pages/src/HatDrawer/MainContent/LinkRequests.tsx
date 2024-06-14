@@ -25,7 +25,7 @@ const LinkRequests = () => {
   if (
     !_.some(
       linkRequestFromTree,
-      (linkRequest) => linkRequest.requestedLinkToHat?.id === selectedHat?.id,
+      (linkRequest) => linkRequest?.requestedLinkToHat?.id === selectedHat?.id,
     )
   )
     return null;
@@ -42,12 +42,15 @@ const LinkRequests = () => {
               variant='outlineMatch'
               size='sm'
               colorScheme='blue.500'
-              onClick={() =>
+              onClick={() => {
+                if (!linkRequest.id || !linkRequest.requestedLinkToHat?.id)
+                  return;
+
                 handleOpenLinkRequestApproveModal(
                   linkRequest.id,
                   linkRequest.requestedLinkToHat.id,
-                )
-              }
+                );
+              }}
               key={linkRequest.id}
             >
               Link Request to {prettyIdToIp(linkRequest.id)}

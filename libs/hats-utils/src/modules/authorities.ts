@@ -98,7 +98,7 @@ const mapModuleAuthority = ({
   // check the passthrough module for which type
   if (moduleInfo.name === 'Passthrough Module') {
     const { toggle, eligibility } = _.pick(hatInfo, ['toggle', 'eligibility']);
-    const authorities = [];
+    const authorities: any[] = [];
 
     if (moduleInfo.id === toggle) {
       const localFunctions = _.map(

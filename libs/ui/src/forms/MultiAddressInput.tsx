@@ -165,14 +165,12 @@ const MultiAddressInput = ({
           viemClient.readContract({
             address: CONFIG.hatsAddress,
             abi: CONFIG.hatsAbi,
-            chainId,
             functionName: 'isInGoodStanding',
             args: [localAddress, selectedHat?.id],
           }),
           viemClient.readContract({
             address: CONFIG.hatsAddress,
             abi: CONFIG.hatsAbi,
-            chainId,
             functionName: 'isEligible',
             args: [localAddress, selectedHat?.id],
           }),
@@ -299,7 +297,7 @@ const MultiAddressInput = ({
           _.size(currentWearerList) -
           _.size(currentWearerIds),
       );
-      const publicClient = viemPublicClient(chainId);
+      const publicClient = viemPublicClient(chainId || 1);
       // TODO update to use multicall
       const promises = _.map(csvAddresses, (a: Hex) =>
         publicClient.readContract({

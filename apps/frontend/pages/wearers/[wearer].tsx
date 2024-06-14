@@ -81,7 +81,7 @@ const WearerDetail = ({
     chainId: 1,
   });
   const { data: ensAvatar } = useEnsAvatar({
-    name: ensName,
+    name: ensName as string,
     chainId: 1,
   });
 

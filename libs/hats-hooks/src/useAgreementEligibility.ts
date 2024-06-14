@@ -45,10 +45,9 @@ const useAgreementEligibility = ({
     (fn: AppWriteFunction) => fn.functionName === 'signAgreementAndClaimHat',
   );
 
-  const { mutate: callModuleFunction, isLoading: isSignAgreementLoading } =
-    useCallModuleFunction({
-      chainId,
-    });
+  const { mutate: callModuleFunction } = useCallModuleFunction({
+    chainId,
+  });
 
   const handleSignAndClaim = async () => {
     callModuleFunction({
@@ -68,7 +67,6 @@ const useAgreementEligibility = ({
     isLoading,
     error,
     signAndClaim: handleSignAndClaim,
-    isSignAgreementLoading,
   };
 };
 

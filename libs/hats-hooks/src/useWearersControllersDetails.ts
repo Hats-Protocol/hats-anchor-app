@@ -2,9 +2,8 @@ import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';
 import { AppHat, HatWearer } from 'types';
-import { checkAddressIsContract } from 'utils';
+import { checkAddressIsContract, viemPublicClient } from 'utils';
 import { Hex, isAddress, zeroAddress } from 'viem';
-import { fetchEnsName } from 'wagmi/actions';
 
 // !! LIKELY DEPRECATED
 
@@ -24,9 +23,8 @@ const fetchWearerAndControllerDetails = async (
 
   const data = await Promise.all([
     checkAddressIsContract(wearer, chainId),
-    fetchEnsName({
+    viemPublicClient(1).getEnsName({
       address: wearer,
-      chainId: 1,
     }),
   ]).catch((err) => {
     // eslint-disable-next-line no-console

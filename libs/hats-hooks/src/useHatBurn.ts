@@ -13,8 +13,8 @@ const useHatBurn = ({
   handlePendingTx,
   waitForSubgraph,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   handlePendingTx?: HandlePendingTx;
   waitForSubgraph?: () => Promise<unknown>;
 }) => {

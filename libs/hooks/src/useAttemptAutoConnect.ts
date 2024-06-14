@@ -4,6 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useAccount, useConfig, useConnect } from 'wagmi';
 
+// ? DEPRECATE WITH WAGMI v2?
+
 const useAttemptAutoConnect = () => {
   const [isAutoConnecting, setIsAutoConnecting] = useState(false);
   const { address } = useAccount();

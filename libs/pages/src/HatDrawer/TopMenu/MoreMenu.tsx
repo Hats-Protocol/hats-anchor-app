@@ -117,7 +117,7 @@ const MoreMenu = () => {
     hatData: selectedHat,
   });
 
-  const { onCopy: copyHatId } = useClipboard(selectedHat?.id);
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '');
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   const handleExport = () =>

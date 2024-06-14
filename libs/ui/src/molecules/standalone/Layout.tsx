@@ -1,11 +1,11 @@
 import { Box } from '@chakra-ui/react';
-import { useAttemptAutoConnect } from 'hooks';
+// import { useAttemptAutoConnect } from 'hooks';
 import { ReactNode } from 'react';
 
 import Navbar from './Navbar';
 
 const StandaloneLayout = ({ children, title }: StandaloneLayoutProps) => {
-  useAttemptAutoConnect();
+  // useAttemptAutoConnect();
 
   return (
     <Box h='100%' w='100%' position='relative'>

@@ -8,7 +8,7 @@ import { idToIp, toTreeId } from 'shared';
 import { AppHat, HandlePendingTx } from 'types';
 import { checkAddressIsContract } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import { useChainId, useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useChainId, useWriteContract } from 'wagmi';
 
 const useHatStatusCheck = ({
   hatData,
@@ -41,95 +41,96 @@ const useHatStatusCheck = ({
     testToggle();
   }, [hatData, chainId]);
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: CONFIG.hatsAddress,
-    chainId,
-    abi: CONFIG.hatsAbi,
-    functionName: 'checkHatStatus',
-    args: [hatDecimalId],
-    enabled:
-      Boolean(hatDecimalId) && toggleIsContract && currentNetworkId === chainId,
-  });
+  const { writeContractAsync } = useWriteContract();
 
-  const {
-    writeAsync,
-    error: writeError,
-    isLoading: writeLoading,
-  } = useContractWrite({
-    ...config,
-    onSuccess: async (data) => {
-      setIsLoading(true);
+  const writeAsync = async () => {
+    if (!hatDecimalId || !toggleIsContract || currentNetworkId !== chainId)
+      return null;
 
-      const txDescription = `Check Hat Status for ${idToIp(
-        _.get(hatData, 'id'),
-      )}`;
+    return writeContractAsync({
+      address: CONFIG.hatsAddress,
+      chainId,
+      abi: CONFIG.hatsAbi,
+      functionName: 'checkHatStatus',
+      args: [hatDecimalId],
+    })
+      .then((hash) => {
+        setIsLoading(true);
 
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+        const txDescription = `Check Hat Status for ${idToIp(
+          _.get(hatData, 'id'),
+        )}`;
 
-      await handlePendingTx?.({
-        hash: _.get(data, 'hash'),
-        txChainId: chainId,
-        txDescription,
-        toastData: {
-          title: 'Transaction Confirmed',
-          description: 'Checking Hat Status...',
-        },
-        onSuccess: (d?: TransactionReceipt) => {
-          const logs = _.get(d, 'logs');
-          if (logs?.length === 0) {
-            toast.success({
-              title: txDescription,
-              description: `No change: Hat Status remains ${
-                hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
-              }`,
-            });
-          } else {
-            const logData = _.get(_.first(logs), 'data');
-            toast.success({
-              title: txDescription,
-              description: `Hat Status Changed to ${
-                _.first(_.slice(logData, -1, _.size(logData))) === '1'
-                  ? STATUS.ACTIVE
-                  : STATUS.INACTIVE
-              }`,
-            });
-
-            setTimeout(() => {
-              queryClient.invalidateQueries({
-                queryKey: ['hatDetails', { id: _.get(hatData, 'id'), chainId }],
-              });
-              queryClient.invalidateQueries({
-                queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
-              });
-            }, 4000);
-          }
-        },
-      });
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      if (error.name === 'UserRejectedRequestError') {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
+        toast.info({
+          title: 'Transaction submitted',
+          description: 'Waiting for your transaction to be accepted...',
         });
-      } else {
-        toast.error({
-          title: 'Error occurred!',
-          // description: 'Please accept the transaction in your wallet',
+
+        handlePendingTx?.({
+          hash,
+          txChainId: chainId,
+          txDescription,
+          toastData: {
+            title: 'Transaction Confirmed',
+            description: 'Checking Hat Status...',
+          },
+          onSuccess: (d?: TransactionReceipt) => {
+            const logs = _.get(d, 'logs');
+            if (logs?.length === 0) {
+              toast.success({
+                title: txDescription,
+                description: `No change: Hat Status remains ${
+                  hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
+                }`,
+              });
+            } else {
+              const logData = _.get(_.first(logs), 'data');
+              toast.success({
+                title: txDescription,
+                description: `Hat Status Changed to ${
+                  _.first(_.slice(logData, -1, _.size(logData))) === '1'
+                    ? STATUS.ACTIVE
+                    : STATUS.INACTIVE
+                }`,
+              });
+
+              setTimeout(() => {
+                queryClient.invalidateQueries({
+                  queryKey: [
+                    'hatDetails',
+                    { id: _.get(hatData, 'id'), chainId },
+                  ],
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
+                });
+              }, 4000);
+            }
+          },
         });
-      }
-    },
-  });
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        if (
+          error.name === 'TransactionExecutionError' &&
+          error.message.includes('User rejected the request')
+        ) {
+          toast.error({
+            title: 'Signature rejected!',
+            description: 'Please accept the transaction in your wallet',
+          });
+        } else {
+          toast.error({
+            title: 'Error occurred!',
+            description: 'An error occurred while processing the transaction.',
+          });
+        }
+      });
+  };
 
   return {
     writeAsync,
-    prepareError,
-    writeError,
-    isLoading: isLoading || testingToggle || writeLoading,
+    isLoading: isLoading || testingToggle,
     toggleIsContract,
   };
 };

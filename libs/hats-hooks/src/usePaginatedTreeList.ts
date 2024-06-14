@@ -24,9 +24,9 @@ UsePaginatedTreeListProps) => {
     ) => {
       return _.eq(_.size(returnData), perPage) ? _.size(allPages) : undefined;
     },
-    queryFn: ({ pageParam = 0 }) =>
+    queryFn: ({ pageParam }) =>
       fetchPaginatedTrees(chainId, pageParam, perPage),
-    // initialData: { pages: [initialData], pageParams: [0] },
+    initialPageParam: 0,
   });
 
   return {

@@ -98,8 +98,9 @@ const UpcomingSeason = () => {
     currentTermEndDate,
   ]);
 
-  const { mutateAsync: callModuleFunction, isLoading: isModuleLoading } =
-    useCallModuleFunction({ chainId });
+  const { mutateAsync: callModuleFunction } = useCallModuleFunction({
+    chainId,
+  });
 
   if (!moduleDetails || !moduleParameters || !controllerAddress) return null;
 
@@ -191,7 +192,6 @@ const UpcomingSeason = () => {
                   colorScheme='blue'
                   type='submit'
                   isDisabled={!formState.isValid}
-                  isLoading={isModuleLoading}
                 >
                   {_.capitalize(_.get(selectedFunction, 'label'))}
                 </Button>

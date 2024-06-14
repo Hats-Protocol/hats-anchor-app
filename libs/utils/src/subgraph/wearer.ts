@@ -7,10 +7,9 @@ import _ from 'lodash';
 import { mapWithChainId } from 'shared';
 import { AppHat, HatWearer } from 'types';
 import { Hex } from 'viem';
-import { fetchEnsName } from 'wagmi/actions';
 
 import { checkAddressIsContract } from '../contract';
-import { chainsList, createSubgraphClient } from '../web3';
+import { chainsList, createSubgraphClient, viemPublicClient } from '../web3';
 import { fetchWearerDetailsMesh } from './mesh/fetch/wearer';
 
 const chains = _.keys(chainsList);
@@ -25,9 +24,8 @@ export const fetchManyWearerDetails = async (
   const promises = wearerIds.map((wearerId: Hex) => {
     return [
       checkAddressIsContract(wearerId, chainId),
-      fetchEnsName({
+      viemPublicClient(1).getEnsName({
         address: wearerId,
-        chainId: 1,
       }),
     ];
   });

@@ -60,7 +60,7 @@ const EditMode = () => {
 
   const openModuleDrawer = (type: string) => {
     onSave(false);
-    setDrawers({ [_.toLower(type) || 'eligibility']: true });
+    setDrawers?.({ [_.toLower(type) || 'eligibility']: true });
   };
 
   return (
@@ -339,7 +339,7 @@ const EditMode = () => {
       >
         {(drawers?.eligibility || drawers?.toggle) && (
           <ModuleDrawer
-            onCloseModuleDrawer={() => setDrawers({})}
+            onCloseModuleDrawer={() => setDrawers?.({})}
             isStandaloneHatterDeploy={isStandaloneHatterDeploy}
             title={
               // eslint-disable-next-line no-nested-ternary

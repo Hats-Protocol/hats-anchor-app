@@ -42,7 +42,7 @@ const addWearerTooltip = (sameChain, maxWearersReached) => {
 };
 
 const WearerButtons = () => {
-  const { setModals } = useOverlay();
+  const { setModals, handlePendingTx } = useOverlay();
   const { isMobile } = useMediaStyles();
   const { chainId, onchainHats, storedData } = useTreeForm();
   const { selectedHat } = useSelectedHat();
@@ -78,7 +78,7 @@ const WearerButtons = () => {
     selectedHat,
     chainId,
     wearer: address,
-    handlePendingTx: () => undefined,
+    handlePendingTx,
   });
 
   const { currentHatIsClaimable } = useMultiClaimsHatterCheck({
