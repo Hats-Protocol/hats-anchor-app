@@ -1,3 +1,5 @@
+'use client';
+
 import { As, Box, Card, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { IntegrationCard as IntegrationCardType } from '@hatsprotocol/constants';
 import _ from 'lodash';

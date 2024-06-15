@@ -1,3 +1,5 @@
+'use client';
+
 import { Icon, Stack, Text } from '@chakra-ui/react';
 import { useModuleDetails } from 'hats-hooks';
 import { useContractData } from 'hooks';

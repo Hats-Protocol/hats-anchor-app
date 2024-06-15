@@ -1,3 +1,5 @@
+'use client';
+
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { treeCreateEventIdToTreeId } from 'hats-utils';

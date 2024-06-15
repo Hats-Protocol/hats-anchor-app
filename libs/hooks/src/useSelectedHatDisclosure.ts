@@ -1,3 +1,5 @@
+'use client';
+
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { getQueryRoute } from 'utils';

@@ -21,7 +21,7 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { ImageFile } from 'types';
-import { DropZone, Input, Layout, Textarea } from 'ui';
+import { DropZone, Input, Textarea } from 'ui';
 import { chainsMap, fetchToken, pinJson } from 'utils';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
@@ -104,7 +104,7 @@ const NewTree = () => {
   };
 
   return (
-    <Layout>
+    <>
       <Box
         w='100%'
         h='100%'
@@ -203,7 +203,7 @@ const NewTree = () => {
           </Stack>
         </Box>
       </Flex>
-    </Layout>
+    </>
   );
 };
 

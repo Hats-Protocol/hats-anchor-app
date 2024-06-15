@@ -1,3 +1,5 @@
+'use client';
+
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueries, useQuery } from '@tanstack/react-query';

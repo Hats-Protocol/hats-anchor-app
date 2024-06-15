@@ -1,8 +1,10 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
 // is this old?
 
-const People: any = createIcon({
+const People = createIcon({
   displayName: 'People',
   viewBox: '0 0 32 32',
   path: [

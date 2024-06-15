@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Guild: any = createIcon({
+const Guild = createIcon({
   displayName: 'Guild',
   viewBox: '0 0 16 16',
   path: [

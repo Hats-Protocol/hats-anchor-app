@@ -1,3 +1,5 @@
+'use client';
+
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTreeDetailsMesh } from 'utils';

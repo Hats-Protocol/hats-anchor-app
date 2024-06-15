@@ -1,3 +1,5 @@
+'use client';
+
 import { Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
 import { useScrollPosition } from 'hooks';

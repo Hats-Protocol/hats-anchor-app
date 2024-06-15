@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Flex, Heading, Spinner } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat } from 'contexts';
 import { useAllWearers, useHatPaginatedWearers } from 'hats-hooks';
@@ -41,7 +43,6 @@ const FullWearersListModal = ({
   return (
     <Modal
       name='hatWearers'
-      localOverlay={localOverlay}
       customHeader={
         <Flex justify='space-between' alignItems='center' mt={8} px={6} pb={4}>
           <Heading size='2xl'>Hat Wearers</Heading>

@@ -35,6 +35,12 @@ const nextConfig = {
     ],
   },
   transpilePackages: ['d3-org-chart'],
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.externals.push('pino-pretty', 'lokijs', 'encoding'); // Rainbowkit polyfills
+
+    return config;
+  },
   async redirects() {
     return [
       {
@@ -55,27 +61,6 @@ const nextConfig = {
         destination: 'https://us.i.posthog.com/:path*',
       },
     ];
-  },
-  experimental: {
-    optimizePackageImports: [
-      // external pkgs
-      // '@chakra-ui/react',
-      // 'd3-org-chart',
-      // 'react-datepicker',
-      // internal packages
-      // '@hatsprotocol/constants',
-      // 'contexts',
-      // 'forms',
-      // 'hats-hooks',
-      // 'hats-utils',
-      // 'hooks',
-      // 'modules-ui',
-      // 'pages',
-      // 'shared',
-      // 'types',
-      // 'ui',
-      // 'utils',
-    ],
   },
 };
 

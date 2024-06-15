@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Discord: any = createIcon({
+const Discord = createIcon({
   displayName: 'Discord',
   viewBox: '0 0 16 16',
   path: [

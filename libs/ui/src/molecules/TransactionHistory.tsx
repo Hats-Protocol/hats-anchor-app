@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -83,12 +85,12 @@ const TransactionHistory = ({
   showClear = false,
 }: {
   count?: number;
-  transactions: Transaction[];
+  transactions?: Transaction[];
   hideHash?: boolean;
   showClear?: boolean;
 }) => {
-  const { clearAllTransactions } = useOverlay();
-  let events = transactions;
+  const { clearAllTransactions, transactions: allTransactions } = useOverlay();
+  let events = transactions || allTransactions;
 
   if (count) {
     events = _.take(transactions, count);

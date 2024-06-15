@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Accordion,
   AccordionButton,
@@ -179,7 +181,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
             title={`Interact with ${moduleDetails?.name} (${formatAddress(
               controllerAddress,
             )})`}
-            localOverlay={localOverlay}
           >
             <Box as='form' onSubmit={handleSubmit(onSubmit)}>
               {_.get(selectedFunction, 'description') && (

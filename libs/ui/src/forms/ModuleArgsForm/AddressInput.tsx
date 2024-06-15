@@ -1,3 +1,5 @@
+'use client';
+
 import { Stack, Text } from '@chakra-ui/react';
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';

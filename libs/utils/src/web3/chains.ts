@@ -1,3 +1,5 @@
+'use client';
+
 import { chainsList } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { SupportedChains } from 'types';

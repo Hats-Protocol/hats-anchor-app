@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { AppHat, SupportedChains } from 'types';

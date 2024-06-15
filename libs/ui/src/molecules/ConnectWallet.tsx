@@ -1,19 +1,20 @@
+'use client';
+
 import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
-import { Modal } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
-import { OverlayContextProps, StandaloneOverlayContextProps } from 'types';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
 
 import WalletProfile from './WalletProfile';
 
-const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
+const ConnectWallet = () => {
   const { address } = useAccount();
-  const { setModals } = _.pick(overlay, ['setModals']);
+  const { setModals } = useOverlay();
   const { isMobile } = useMediaStyles();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
@@ -139,18 +140,12 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
           );
         }}
       </RainbowConnectButton.Custom>
-      <Modal
-        name='account'
-        localOverlay={overlay}
-        onClose={() => setModals?.({})}
-        size='md'
-      >
+      <Modal name='account' onClose={() => setModals?.({})} size='md'>
         {address && (
           <WalletProfile
             address={address}
             name={ensName || formatAddress(address)}
             avatar={ensAvatar || fallbackAvatar}
-            localOverlay={overlay}
           />
         )}
       </Modal>
@@ -159,7 +154,3 @@ const ConnectWallet = ({ overlay }: ConnectWalletProps) => {
 };
 
 export default ConnectWallet;
-
-interface ConnectWalletProps {
-  overlay: StandaloneOverlayContextProps | OverlayContextProps;
-}

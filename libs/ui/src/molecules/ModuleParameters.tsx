@@ -1,3 +1,5 @@
+'use client';
+
 import { Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { numberTypes, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter as SdkModuleParameter } from '@hatsprotocol/modules-sdk';

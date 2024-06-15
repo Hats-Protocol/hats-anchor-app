@@ -1,3 +1,5 @@
+'use client';
+
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';

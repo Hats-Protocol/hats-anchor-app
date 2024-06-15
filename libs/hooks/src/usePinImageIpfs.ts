@@ -1,3 +1,5 @@
+'use client';
+
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { fetchToken, pinImage, unpinImage } from 'utils';

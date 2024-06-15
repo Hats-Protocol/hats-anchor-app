@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat } from 'contexts';
 import { useWearerEligibilityCheck } from 'hats-hooks';
@@ -64,7 +66,6 @@ const CheckEligibilityForm = () => {
     <Modal
       name='checkEligibility'
       title='Check Wearer Eligibility'
-      localOverlay={localOverlay}
       onClose={closeModal}
     >
       <Stack spacing={4}>

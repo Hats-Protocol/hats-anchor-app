@@ -1,3 +1,5 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat, SupportedChains } from 'types';
 import { useReadContract } from 'wagmi';

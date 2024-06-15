@@ -1,3 +1,5 @@
+'use client';
+
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';

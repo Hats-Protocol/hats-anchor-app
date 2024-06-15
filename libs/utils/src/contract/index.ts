@@ -18,7 +18,7 @@ export const checkAddressIsContract = async (
   if (!publicClient) return Promise.resolve(false);
 
   return publicClient
-    .getBytecode({
+    .getCode({
       address,
     })
     .then((bytecode: string | undefined) => {

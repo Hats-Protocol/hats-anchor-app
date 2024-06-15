@@ -168,7 +168,7 @@ export const FEATURED_TREES = ({
 
 export type IntegrationCard = {
   label: string;
-  icons: string[];
+  icons: any[];
 };
 
 export const INTEGRATION_CARDS: IntegrationCard[] = [

@@ -17,7 +17,7 @@ import { useHatsModules } from 'hats-hooks';
 import _ from 'lodash';
 import React from 'react';
 import { ModuleDetails, SupportedChains } from 'types';
-import { ChakraNextLink, Layout } from 'ui';
+import { ChakraNextLink } from 'ui';
 import { chainsMap, explorerUrl, formatAddress } from 'utils';
 
 const ModulesForChain = ({ chainId }: { chainId: SupportedChains }) => {
@@ -50,45 +50,43 @@ const ModulesForChain = ({ chainId }: { chainId: SupportedChains }) => {
 const LONG_NAMES = [10, 42161];
 
 const Modules = () => (
-  <Layout>
-    <Stack pt='100px' align='center' spacing={6}>
-      <Heading>Modules by Chain</Heading>
-      <Card maxW='600px'>
-        <CardBody>
-          <Tabs colorScheme='blue'>
-            <TabList overflow='scroll'>
-              {_.map(orderedChains, (chainId: SupportedChains) => (
-                <Tab
-                  key={chainId}
-                  minW={_.includes(LONG_NAMES, chainId) ? '140px' : 'auto'}
-                  _selected={{
-                    color: 'blue.500',
-                    fontWeight: 'bold',
-                    bg: 'blue.50',
-                  }}
-                >
-                  {chainsMap(chainId)?.name}
-                </Tab>
-              ))}
-            </TabList>
-            {/* indicator not working with overflow: scroll on tablist */}
-            {/* <TabIndicator
+  <Stack pt='100px' align='center' spacing={6}>
+    <Heading>Modules by Chain</Heading>
+    <Card maxW='600px'>
+      <CardBody>
+        <Tabs colorScheme='blue'>
+          <TabList overflow='scroll'>
+            {_.map(orderedChains, (chainId: SupportedChains) => (
+              <Tab
+                key={chainId}
+                minW={_.includes(LONG_NAMES, chainId) ? '140px' : 'auto'}
+                _selected={{
+                  color: 'blue.500',
+                  fontWeight: 'bold',
+                  bg: 'blue.50',
+                }}
+              >
+                {chainsMap(chainId)?.name}
+              </Tab>
+            ))}
+          </TabList>
+          {/* indicator not working with overflow: scroll on tablist */}
+          {/* <TabIndicator
                 mt='-1.5px'
                 height='2px'
                 bg='blue.500'
                 borderRadius='1px'
               /> */}
 
-            <TabPanels>
-              {_.map(orderedChains, (chainId: SupportedChains) => (
-                <ModulesForChain key={chainId} chainId={chainId} />
-              ))}
-            </TabPanels>
-          </Tabs>
-        </CardBody>
-      </Card>
-    </Stack>
-  </Layout>
+          <TabPanels>
+            {_.map(orderedChains, (chainId: SupportedChains) => (
+              <ModulesForChain key={chainId} chainId={chainId} />
+            ))}
+          </TabPanels>
+        </Tabs>
+      </CardBody>
+    </Card>
+  </Stack>
 );
 
 export default Modules;

@@ -1,3 +1,5 @@
+'use client';
+
 import { Icon, Stack } from '@chakra-ui/react';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';

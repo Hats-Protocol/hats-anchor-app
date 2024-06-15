@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Button, FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';

@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const HatIcon: any = createIcon({
+const HatIcon = createIcon({
   displayName: 'HatIcon',
   viewBox: '0 0 24 24',
   path: [

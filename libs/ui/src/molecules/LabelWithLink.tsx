@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
 import { UseFormReturn } from 'react-hook-form';
@@ -63,7 +65,6 @@ const LabelWithLink = ({
         <Modal
           name={`editLabel-${title}`}
           title={`Edit ${title.toLowerCase()} Link`}
-          localOverlay={localOverlay}
         >
           <LinkInput
             inputLink={inputLink}

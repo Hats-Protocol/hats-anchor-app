@@ -1,3 +1,5 @@
+'use client';
+
 import { Box } from '@chakra-ui/react';
 // import { useAttemptAutoConnect } from 'hooks';
 import { ReactNode } from 'react';

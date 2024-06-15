@@ -1,3 +1,5 @@
+'use client';
+
 import { Accordion, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';

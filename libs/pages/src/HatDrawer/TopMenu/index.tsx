@@ -1,6 +1,8 @@
+'use client';
+
 import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { isTopHat } from 'hats-utils';
@@ -23,7 +25,6 @@ const MainAction = dynamic(() => import('ui').then((mod) => mod.MainAction));
 // );
 
 const TopMenu = ({ returnToList }: TopMenuProps) => {
-  const localOverlay = useOverlay();
   const {
     chainId,
     editMode,
@@ -165,11 +166,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
         )}
       </HStack>
 
-      <Modal
-        name='requestLink'
-        title='Request to Link'
-        localOverlay={localOverlay}
-      >
+      <Modal name='requestLink' title='Request to Link'>
         <HatLinkRequestCreateForm
           newAdmin={selectedHat.id}
           wearerTopHats={_.filter(

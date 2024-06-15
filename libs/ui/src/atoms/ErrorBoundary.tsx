@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable no-console */
 import { ReactNode } from 'react';
 import { ErrorBoundary as EB } from 'react-error-boundary';

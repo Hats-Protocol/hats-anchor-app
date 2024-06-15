@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -10,16 +12,13 @@ import {
 } from '@chakra-ui/react';
 import { networkImages } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
+import { useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
-import {
-  OverlayContextProps,
-  StandaloneOverlayContextProps,
-  SupportedChains,
-} from 'types';
+import { SupportedChains } from 'types';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
@@ -34,18 +33,13 @@ const WalletProfile = ({
   address,
   name,
   avatar,
-  localOverlay,
 }: {
   address: Hex;
   name: string;
   avatar: string | undefined;
-  localOverlay: StandaloneOverlayContextProps | OverlayContextProps | undefined;
 }) => {
   const chainId = useChainId();
-  const { transactions, setModals } = _.pick(localOverlay, [
-    'transactions',
-    'setModals',
-  ]);
+  const { transactions, setModals } = useOverlay();
   const { data: balance } = useBalance({ address, chainId });
   const { openChainModal } = useChainModal();
   const { disconnect } = useDisconnect();

@@ -27,14 +27,6 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/forms"],
-      "options": {
-        "jestConfig": "libs/forms/jest.config.ts",
-        "passWithNoTests": true
-      }
     }
   }
 }

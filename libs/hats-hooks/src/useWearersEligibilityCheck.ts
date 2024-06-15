@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { fetchWearersEligibilities } from 'hats-utils';
 import _ from 'lodash';

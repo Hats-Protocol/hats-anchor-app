@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const RemovedWearer: any = createIcon({
+const RemovedWearer = createIcon({
   displayName: 'RemovedWearer',
   viewBox: '0 0 16 16',
   path: [

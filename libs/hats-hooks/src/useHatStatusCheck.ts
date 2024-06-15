@@ -1,3 +1,5 @@
+'use client';
+
 import { CONFIG, STATUS } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';

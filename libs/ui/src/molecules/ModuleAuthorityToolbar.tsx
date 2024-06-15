@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -390,7 +392,6 @@ const ModuleAuthorityToolbar = ({
         title={`${_.capitalize(
           _.get(selectedFunction, 'label'),
         )} for Hat #${authorityHatId}`}
-        localOverlay={localOverlay}
       >
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>

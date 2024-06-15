@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
@@ -52,7 +54,7 @@ const MainAction = () => {
   );
 
   if (!isConnected) {
-    return <ConnectWallet overlay={localOverlay} />;
+    return <ConnectWallet />;
   }
 
   if (chainId !== currentChainId) return <NetworkSwitcher />;

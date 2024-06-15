@@ -1,3 +1,5 @@
+'use client';
+
 import { Tooltip } from '@chakra-ui/react';
 
 // TooltipWrapper component

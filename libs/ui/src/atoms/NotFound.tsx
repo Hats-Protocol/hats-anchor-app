@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Flex, Heading, Icon, Stack, Text } from '@chakra-ui/react';
 import { FaArrowRight } from 'react-icons/fa';
 

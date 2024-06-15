@@ -1,6 +1,8 @@
+'use client';
+
 import { Box } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
-import { useAttemptAutoConnect, useMediaStyles } from 'hooks';
+import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { AppHat } from 'types';
@@ -11,12 +13,12 @@ import TransactionHistory from './TransactionHistory';
 
 const Navbar = dynamic(() => import('./Navbar'));
 
+// ! ded?
+
 const Layout = ({ editMode, hatData, hideBackLink, children }: LayoutProps) => {
   const localOverlay = useOverlay();
   const { transactions } = localOverlay;
   const { isMobile } = useMediaStyles();
-
-  useAttemptAutoConnect();
 
   return (
     <>
@@ -35,18 +37,13 @@ const Layout = ({ editMode, hatData, hideBackLink, children }: LayoutProps) => {
         {isMobile ? (
           <StandaloneNavbar hatData={hatData} showLink={!hideBackLink} />
         ) : (
-          <Navbar hatData={hatData} />
+          <Navbar tabName='test' chainId={10} />
         )}
         <Box h='100vh' w='100vw'>
           {children}
         </Box>
       </Box>
-      <Modal
-        name='transactions'
-        title='Transactions'
-        size='xl'
-        localOverlay={localOverlay}
-      >
+      <Modal name='transactions' title='Transactions' size='xl'>
         <TransactionHistory transactions={transactions} showClear />
       </Modal>
     </>

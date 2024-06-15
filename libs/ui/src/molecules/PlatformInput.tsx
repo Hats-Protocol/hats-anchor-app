@@ -1,3 +1,5 @@
+'use client';
+
 import { HStack, IconButton, Spinner } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useHatForm } from 'contexts';

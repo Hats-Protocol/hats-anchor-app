@@ -1,3 +1,5 @@
+'use client';
+
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';

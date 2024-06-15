@@ -1,3 +1,5 @@
+'use client';
+
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from 'hooks';

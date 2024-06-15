@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestApproveForm } from 'forms';
@@ -59,11 +61,7 @@ const LinkRequests = () => {
         </HStack>
       </Flex>
 
-      <Modal
-        name='linkResponse'
-        title='Approve Link Request'
-        localOverlay={localOverlay}
-      >
+      <Modal name='linkResponse' title='Approve Link Request'>
         <HatLinkRequestApproveForm topHatDomain={linkFrom} newAdmin={linkTo} />
       </Modal>
     </Stack>

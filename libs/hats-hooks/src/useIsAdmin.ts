@@ -1,3 +1,5 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
 import { Hex } from 'viem';
 import { useReadContract } from 'wagmi';

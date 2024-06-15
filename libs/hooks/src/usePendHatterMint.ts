@@ -1,3 +1,5 @@
+'use client';
+
 import _ from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { AppHat, FormData } from 'types';

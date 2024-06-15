@@ -1,3 +1,5 @@
+'use client';
+
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';

@@ -1,4 +1,19 @@
-import '@rainbow-me/rainbowkit/styles.css';
+// import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import // argentWallet,
+// braveWallet,
+// coinbaseWallet,
+// dawnWallet,
+// frameWallet,
+// injectedWallet,
+// ledgerWallet,
+// metaMaskWallet,
+// rabbyWallet,
+// rainbowWallet,
+// safeWallet,
+// uniswapWallet,
+// walletConnectWallet,
+// zerionWallet,
+'@rainbow-me/rainbowkit/wallets';
 
 import { chainsList, NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
 import { HatsAccount1ofNClient } from '@hatsprotocol/hats-account-sdk';
@@ -6,33 +21,8 @@ import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
-import { connectorsForWallets } from '@rainbow-me/rainbowkit';
-import {
-  argentWallet,
-  braveWallet,
-  coinbaseWallet,
-  dawnWallet,
-  frameWallet,
-  injectedWallet,
-  ledgerWallet,
-  metaMaskWallet,
-  rabbyWallet,
-  rainbowWallet,
-  safeWallet,
-  uniswapWallet,
-  walletConnectWallet,
-  zerionWallet,
-} from '@rainbow-me/rainbowkit/wallets';
 import _ from 'lodash';
-import {
-  Chain,
-  createPublicClient,
-  createWalletClient,
-  custom,
-  http,
-  Transport,
-} from 'viem';
-import { createConfig } from 'wagmi';
+import { createPublicClient, createWalletClient, custom, http } from 'viem';
 
 import { chainsMap } from './chains';
 
@@ -44,36 +34,6 @@ const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 if (!ALCHEMY_ID) {
   throw new Error('NEXT_PUBLIC_ALCHEMY_ID is not set');
 }
-
-const connectors = connectorsForWallets(
-  [
-    {
-      groupName: 'Recommended',
-      wallets: [rainbowWallet, walletConnectWallet],
-    },
-    {
-      groupName: 'All',
-      wallets: [
-        injectedWallet,
-        safeWallet,
-        argentWallet,
-        braveWallet,
-        coinbaseWallet,
-        dawnWallet,
-        frameWallet,
-        ledgerWallet,
-        metaMaskWallet,
-        rabbyWallet,
-        uniswapWallet,
-        zerionWallet,
-      ],
-    },
-  ],
-  {
-    appName: 'Hats App',
-    projectId: WC_PROJECT_ID,
-  },
-);
 
 declare global {
   interface Window {
@@ -91,27 +51,6 @@ const getRpcUrl = (chainId: number) => {
 
   return transportUrl as string;
 };
-
-const transports = () => {
-  const localTransports: { [key: string]: Transport } = {};
-  _.each(chainsList, (chain, chainId) => {
-    localTransports[chainId as keyof typeof localTransports] = http(
-      getRpcUrl(_.toNumber(chainId)),
-    );
-  });
-
-  return localTransports;
-};
-
-export const wagmiConfig = createConfig({
-  connectors: _.concat(connectors),
-  chains: _.map(
-    _.keys(chainsList),
-    (c) => chainsList[_.toNumber(c) as keyof typeof chainsList],
-  ) as unknown as readonly [Chain, ...Chain[]], // TODO any better way to do this?
-  transports: transports(),
-  ssr: true,
-});
 
 export const viemPublicClient = (chainId: number) => {
   return createPublicClient({
@@ -216,5 +155,5 @@ export async function createHatsAccountClient(
   return hatsAccountClient as HatsAccount1ofNClient;
 }
 
-export { chainsList };
+export { chainsList, getRpcUrl };
 export * from './chains';

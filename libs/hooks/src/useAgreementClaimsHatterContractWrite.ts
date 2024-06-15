@@ -1,3 +1,5 @@
+'use client';
+
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { useState } from 'react';
 import { Hex } from 'viem';

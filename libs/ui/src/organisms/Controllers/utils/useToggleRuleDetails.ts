@@ -1,3 +1,5 @@
+'use client';
+
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';

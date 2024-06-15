@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Flex, Stack } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import dynamic from 'next/dynamic';

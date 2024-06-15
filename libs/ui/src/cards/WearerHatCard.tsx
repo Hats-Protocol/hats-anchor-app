@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Card, Flex, Heading, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';

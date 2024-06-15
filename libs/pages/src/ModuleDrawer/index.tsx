@@ -1,3 +1,5 @@
+'use client';
+
 import { Box } from '@chakra-ui/react';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';

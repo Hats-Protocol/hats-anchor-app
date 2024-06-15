@@ -1,3 +1,5 @@
+'use client';
+
 import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';

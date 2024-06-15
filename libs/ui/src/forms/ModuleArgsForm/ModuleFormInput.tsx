@@ -1,3 +1,5 @@
+'use client';
+
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';

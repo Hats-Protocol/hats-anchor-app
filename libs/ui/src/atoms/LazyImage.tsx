@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable react/jsx-props-no-spreading */
 import { Image as ChakraImage, ImageProps, Skeleton } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';

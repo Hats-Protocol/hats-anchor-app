@@ -1,3 +1,5 @@
+'use client';
+
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/router';

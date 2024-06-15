@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Flex, Stack } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatClaimFor } from 'hats-hooks';

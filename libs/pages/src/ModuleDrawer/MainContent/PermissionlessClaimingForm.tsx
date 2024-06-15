@@ -1,3 +1,5 @@
+'use client';
+
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';

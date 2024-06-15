@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Button, Center, Stack, Text } from '@chakra-ui/react';
 import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import React, { useEffect, useRef, useState } from 'react';

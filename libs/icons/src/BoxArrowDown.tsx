@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const BoxArrowDown: any = createIcon({
+const BoxArrowDown = createIcon({
   displayName: 'BoxArrowDown',
   viewBox: '0 0 17 16',
   path: [

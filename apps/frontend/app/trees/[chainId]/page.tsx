@@ -13,18 +13,12 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
 import _ from 'lodash';
-import { GetStaticPropsContext } from 'next';
 import { useMemo } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
 import { AppHat } from 'types';
-import {
-  ChakraNextLink,
-  Layout,
-  NetworkFilter,
-  TreeListCard as TreeCard,
-} from 'ui';
+import { ChakraNextLink, NetworkFilter, TreeListCard as TreeCard } from 'ui';
 
 const Trees = ({ chainId }: { chainId: number }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
@@ -45,7 +39,7 @@ const Trees = ({ chainId }: { chainId: number }) => {
     useImageURIs({ hats: topHats });
 
   return (
-    <Layout>
+    <>
       <Box w='100%' h='100%' bg='blue' position='fixed' opacity={0.05} />
       <Box
         py={{
@@ -146,26 +140,19 @@ const Trees = ({ chainId }: { chainId: number }) => {
             </Flex>
           )}
       </Box>
-    </Layout>
+    </>
   );
 };
 
-export const getStaticProps = async (context: GetStaticPropsContext) => {
-  const chainId = _.toNumber(_.get(context, 'params.chainId'));
+// export const getStaticProps = async (context: GetStaticPropsContext) => {
+//   const chainId = _.toNumber(_.get(context, 'params.chainId'));
 
-  return {
-    props: {
-      chainId,
-    },
-    revalidate: 30,
-  };
-};
-
-export const getStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
+//   return {
+//     props: {
+//       chainId,
+//     },
+//     revalidate: 30,
+//   };
+// };
 
 export default Trees;

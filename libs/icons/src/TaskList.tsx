@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const TaskList: any = createIcon({
+const TaskList = createIcon({
   displayName: 'TaskList',
   viewBox: '0 0 16 16',
   path: [

@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Tally: any = createIcon({
+const Tally = createIcon({
   displayName: 'Tally',
   viewBox: '0 0 16 16',
   path: [

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -168,7 +170,6 @@ const UpcomingSeason = () => {
         title={`Interact with ${moduleDetails?.name} (${formatAddress(
           controllerAddress,
         )})`}
-        localOverlay={localOverlay}
       >
         <Box as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={4}>

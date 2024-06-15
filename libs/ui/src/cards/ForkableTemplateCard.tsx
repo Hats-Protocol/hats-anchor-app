@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Heading, HStack, Image, Stack, Text } from '@chakra-ui/react';
 
 import { ChakraNextLink } from '../atoms';

@@ -1,3 +1,5 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat } from 'types';
 import { Hex } from 'viem';

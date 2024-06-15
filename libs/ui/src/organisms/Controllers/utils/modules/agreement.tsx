@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable import/prefer-default-export */
 import { Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';

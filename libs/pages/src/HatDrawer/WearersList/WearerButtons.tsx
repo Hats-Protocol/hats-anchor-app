@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Flex, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {

@@ -25,15 +25,12 @@ import {
 } from 'hats-hooks';
 import { useClipboard, useImageURIs, useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import { GetServerSidePropsContext } from 'next';
-import { NextSeo } from 'next-seo';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import { AppHat, SupportedChains } from 'types';
 import {
   ChakraNextLink,
-  Layout,
   MobileHatCard,
   // OblongAvatar,
   WearerHatCard as CoreHat,
@@ -138,9 +135,7 @@ const WearerDetail = ({
   );
 
   return (
-    <Layout hideBackLink>
-      <NextSeo title={`${name || formatAddress(wearerAddress)}'s Hats`} />
-
+    <>
       <Box
         w='100%'
         h='100%'
@@ -286,46 +281,39 @@ const WearerDetail = ({
           )}
         </Stack>
       </Stack>
-    </Layout>
+    </>
   );
 };
 
-export const getStaticProps = async (context: GetServerSidePropsContext) => {
-  const wearerParam = _.get(context, 'params.wearer');
-  const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
+// export const getStaticProps = async (context: GetServerSidePropsContext) => {
+//   const wearerParam = _.get(context, 'params.wearer');
+//   const wearer = _.isArray(wearerParam) ? _.first(wearerParam) : wearerParam;
 
-  // const publicClient = viemPublicClient(1);
+//   // const publicClient = viemPublicClient(1);
 
-  try {
-    // const initialEnsName = await publicClient.getEnsName({
-    //   address: wearer as Hex,
-    // });
+//   try {
+//     // const initialEnsName = await publicClient.getEnsName({
+//     //   address: wearer as Hex,
+//     // });
 
-    return {
-      props: {
-        wearerAddress: wearer,
-        initialEnsName: null,
-        // initialData:  || undefined,
-      },
-      revalidate: 60,
-    };
-  } catch (e) {
-    return {
-      props: {
-        wearerAddress: wearer,
-        initialEnsName: null,
-        // initialData:  || undefined,
-      },
-      revalidate: 60,
-    };
-  }
-};
-
-export const getStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
+//     return {
+//       props: {
+//         wearerAddress: wearer,
+//         initialEnsName: null,
+//         // initialData:  || undefined,
+//       },
+//       revalidate: 60,
+//     };
+//   } catch (e) {
+//     return {
+//       props: {
+//         wearerAddress: wearer,
+//         initialEnsName: null,
+//         // initialData:  || undefined,
+//       },
+//       revalidate: 60,
+//     };
+//   }
+// };
 
 export default WearerDetail;

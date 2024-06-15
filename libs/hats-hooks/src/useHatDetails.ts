@@ -1,3 +1,5 @@
+'use client';
+
 import { ZERO_ID } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { AppHat, SupportedChains } from 'types';

@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Sablier: any = createIcon({
+const Sablier = createIcon({
   displayName: 'Sablier',
   viewBox: '0 0 16 16',
   path: [

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   HStack,
   Icon,
@@ -10,11 +12,11 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { networkImages, orderedChains } from '@hatsprotocol/constants';
-import { chainsMap } from 'utils';
-import { SupportedChains } from 'types';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
 import { FaFilter } from 'react-icons/fa';
+import { SupportedChains } from 'types';
+import { chainsMap } from 'utils';
 
 const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
   const router = useRouter();

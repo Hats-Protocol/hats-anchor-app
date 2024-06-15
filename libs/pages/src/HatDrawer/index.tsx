@@ -1,3 +1,5 @@
+'use client';
+
 import { Box } from '@chakra-ui/react';
 import { HatFormContextProvider, useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';

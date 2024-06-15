@@ -1,3 +1,5 @@
+'use client';
+
 import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useEligibility, useOverlay } from 'contexts';
 import { useHatClaimBy } from 'hats-hooks';

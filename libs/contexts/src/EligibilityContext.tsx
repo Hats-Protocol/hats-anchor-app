@@ -1,3 +1,5 @@
+'use client';
+
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import {

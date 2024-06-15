@@ -1,4 +1,5 @@
 export { default as Accordion } from './Accordion';
+export * from './Card';
 export { default as ChakraNextLink } from './ChakraNextLink';
 export { default as DropZone } from './DropZone';
 export { default as ErrorBoundary } from './ErrorBoundary';

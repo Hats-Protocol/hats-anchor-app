@@ -1,3 +1,5 @@
+'use client';
+
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQueries } from '@tanstack/react-query';
 import _ from 'lodash';

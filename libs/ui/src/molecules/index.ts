@@ -9,6 +9,7 @@ export { default as LabelWithLink } from './LabelWithLink';
 export { default as Layout } from './Layout';
 export { default as ModuleDetails } from './ModuleDetails';
 export { default as ModuleParameters } from './ModuleParameters';
+export { default as MyHats } from './MyHats';
 export { default as Navbar } from './Navbar';
 export { default as NetworkFilter } from './NetworkFilter';
 export { default as NetworkSwitcher } from './NetworkSwitcher';

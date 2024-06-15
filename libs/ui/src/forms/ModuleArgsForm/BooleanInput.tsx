@@ -1,3 +1,5 @@
+'use client';
+
 import { HStack, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import {
   FALLBACK_ARG_EXAMPLES,
