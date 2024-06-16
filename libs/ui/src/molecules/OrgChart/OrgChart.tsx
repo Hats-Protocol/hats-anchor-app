@@ -17,14 +17,15 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
-import { useHatParams } from 'hooks';
 import _ from 'lodash';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
@@ -42,6 +43,11 @@ import {
 } from './utils';
 
 function OrgChartComponent() {
+  const params = useSearchParams();
+  const hatId = params.get('hatId');
+  const selectedHatId = hatId
+    ? hatIdDecimalToHex(hatIdIpToDecimal(hatId || ''))
+    : undefined;
   const userChain = useChainId();
   const { address } = useAccount();
   const {
@@ -63,7 +69,6 @@ function OrgChartComponent() {
     onCloseTreeDrawer,
     treeError,
   } = useTreeForm();
-  const { selectedHatId } = useHatParams();
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());

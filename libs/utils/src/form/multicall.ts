@@ -16,7 +16,7 @@ import {
 } from 'types';
 import { Hex } from 'viem';
 
-import { calculateCid, ipfsUrl, urlToIpfsUri } from '../ipfs';
+import { calculateCid, ipfsUrl, urlToIpfsUri } from '../image';
 import { createHatsClient, viemPublicClient } from '../web3';
 
 const hasDetailsChanged = (

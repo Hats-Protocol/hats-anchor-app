@@ -2,6 +2,7 @@
 
 import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
+// import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
 import { DetailsData, translateDrafts } from 'hats-utils';
@@ -15,7 +16,8 @@ import {
   useTreeSnapshotSpaces,
 } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
+import router from 'next/router';
 import {
   createContext,
   ReactNode,
@@ -38,6 +40,7 @@ import {
 import {
   generateLocalStorageKey,
   getInactiveIds,
+  getPathParams,
   Guild,
   ipfsUrl,
   removeAndHandleSiblings,
@@ -162,19 +165,18 @@ export const TreeFormContext = createContext<TreeFormContext>({
 //          -> useOrgChartTree (all pass to)
 
 export const TreeFormContextProvider = ({
-  treeId,
-  chainId,
-  hatId,
-  // linkedHatIds,
   children,
 }: {
-  treeId: number;
-  chainId: SupportedChains;
-  hatId?: Hex;
-  // linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
-  const router = useRouter();
+  const pathname = usePathname();
+  const { chainId, treeId, hatId: hatParam } = getPathParams(pathname);
+
+  const params = useSearchParams();
+  const hatIdParam = params.get('hatId');
+  const hatId = hatIdParam || hatParam;
+  // console.log({ chainId, treeId, hatId });
+
   const [editMode, setEditMode] = useState(false);
   const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -194,7 +196,7 @@ export const TreeFormContextProvider = ({
   }>(`${localStorageKey}-config`, {});
 
   const treeDisclosure = useDisclosure();
-  const hatDisclosure = useSelectedHatDisclosure(hatId);
+  const hatDisclosure = useSelectedHatDisclosure({ treeId, chainId });
   const {
     isOpen: isTreeDrawerOpen,
     onOpen: onOpenTreeDrawer,
@@ -357,7 +359,7 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const { orgChartTree, isLoading: orgChartTreeLoading } = useOrgChartTree({
+  const { orgChartTree } = useOrgChartTree({
     treeData,
     chainId,
     hatsData: hatDetails,
@@ -459,29 +461,29 @@ export const TreeFormContextProvider = ({
 
   const handleFlipChart = useCallback(
     (isFlipped: boolean) => {
-      let updatedQuery = {
-        ...router.query,
-      };
+      // let updatedQuery = {
+      //   // ...router.query,
+      // };
 
-      if (isFlipped) {
-        updatedQuery = { ...updatedQuery, flipped: 'true' };
-      } else {
-        delete updatedQuery.flipped;
-      }
+      // if (isFlipped) {
+      //   updatedQuery = { ...updatedQuery, flipped: 'true' };
+      // } else {
+      //   // delete updatedQuery.flipped;
+      // }
 
-      const updatedUrl = {
-        pathname: router.pathname,
-        query: updatedQuery,
-      };
+      // const updatedUrl = {
+      //   // pathname: router.pathname,
+      //   query: updatedQuery,
+      // };
 
-      router.push(updatedUrl, undefined, { shallow: true });
+      // window.history.pushState({}, '', updatedUrl.pathname);
 
       setStoredConfig({
         ...storedConfig,
         flipped: isFlipped,
       });
     },
-    [router, setStoredConfig, storedConfig],
+    [pathname, setStoredConfig, storedConfig],
   );
 
   const updateQueryParams = useCallback(
@@ -494,14 +496,14 @@ export const TreeFormContextProvider = ({
         collapsed: updatedLocalStorage,
       });
 
-      const updatedUrl = {
-        pathname: router.pathname,
-        query: updatedQuery,
-      };
+      // const updatedUrl = {
+      //   // pathname: router.pathname,
+      //   query: updatedQuery,
+      // };
 
-      router.push(updatedUrl, undefined, { shallow: true });
+      // router.push(updatedUrl, undefined, { shallow: true });
     },
-    [router, storedConfig, setStoredConfig],
+    [pathname, storedConfig, setStoredConfig],
   );
 
   /** Update the query params and local storage.
@@ -511,133 +513,126 @@ export const TreeFormContextProvider = ({
    */
   const handleNodeCollapsedOrExpanded = useCallback(
     (nodeIdIp: string, expanded: boolean) => {
-      let updatedQuery = {
-        ...router.query,
-      };
-
-      const { collapsed } = updatedQuery;
-      console.log(updatedQuery, collapsed);
-
-      let updatedLocalStorage: string[] = [];
-
-      if (Array.isArray(collapsed)) {
-        // existing query params is an array
-        const newCollapsedQueryParams = [...collapsed];
-        if (!expanded) {
-          // add the new collapsed node if it's not already in the query params
-          if (newCollapsedQueryParams.includes(nodeIdIp)) {
-            return;
-          }
-          newCollapsedQueryParams.push(nodeIdIp);
-        } else {
-          // remove the expanded node
-          const index = newCollapsedQueryParams.indexOf(nodeIdIp);
-          if (index > -1) {
-            newCollapsedQueryParams.splice(index, 1);
-          }
-        }
-
-        updatedQuery = {
-          ...updatedQuery,
-          collapsed: newCollapsedQueryParams,
-        };
-        updatedLocalStorage = newCollapsedQueryParams; // update local storage with the query params state
-        updateQueryParams(updatedQuery, updatedLocalStorage);
-        return;
-      }
-      if (typeof collapsed === 'string') {
-        // single collapsed node in query params
-        if (!expanded) {
-          // add the new collapsed node if it's not already in the query params
-          if (collapsed === nodeIdIp) {
-            return;
-          }
-          updatedQuery = {
-            ...updatedQuery,
-            collapsed: [collapsed, nodeIdIp],
-          };
-          updatedLocalStorage = [collapsed, nodeIdIp]; // update local storage with the query params state
-        } else {
-          // remove the expanded node
-          delete updatedQuery.collapsed;
-        }
-        updateQueryParams(updatedQuery, updatedLocalStorage);
-        return;
-      }
-      if (storedConfig.collapsed && !_.isEmpty(storedConfig.collapsed)) {
-        // no query params but there are collapsed nodes in local storage
-        if (!expanded) {
-          updatedLocalStorage = _.uniq([...storedConfig.collapsed, nodeIdIp]);
-        } else if (storedConfig.collapsed.includes(nodeIdIp)) {
-          updatedLocalStorage = [...storedConfig.collapsed];
-          const index = storedConfig.collapsed.indexOf(nodeIdIp);
-          updatedLocalStorage.splice(index, 1);
-        }
-
-        // update the query params with the including collapsed nodes from local storage
-        updatedQuery = {
-          ...updatedQuery,
-          collapsed: updatedLocalStorage,
-        };
-        updateQueryParams(updatedQuery, updatedLocalStorage);
-        return;
-      }
-
-      // no query params and no local storage, a node was collapsed
-      updatedQuery = {
-        ...updatedQuery,
-        collapsed: nodeIdIp,
-      };
-      updatedLocalStorage = [nodeIdIp];
-
-      updateQueryParams(updatedQuery, updatedLocalStorage);
+      // let updatedQuery = {
+      //   // ...router.query,
+      // };
+      // const { collapsed } = updatedQuery;
+      // console.log(updatedQuery, collapsed);
+      // let updatedLocalStorage: string[] = [];
+      // if (Array.isArray(collapsed)) {
+      //   // existing query params is an array
+      //   const newCollapsedQueryParams = [...collapsed];
+      //   if (!expanded) {
+      //     // add the new collapsed node if it's not already in the query params
+      //     if (newCollapsedQueryParams.includes(nodeIdIp)) {
+      //       return;
+      //     }
+      //     newCollapsedQueryParams.push(nodeIdIp);
+      //   } else {
+      //     // remove the expanded node
+      //     const index = newCollapsedQueryParams.indexOf(nodeIdIp);
+      //     if (index > -1) {
+      //       newCollapsedQueryParams.splice(index, 1);
+      //     }
+      //   }
+      //   updatedQuery = {
+      //     ...updatedQuery,
+      //     collapsed: newCollapsedQueryParams,
+      //   };
+      //   updatedLocalStorage = newCollapsedQueryParams; // update local storage with the query params state
+      //   updateQueryParams(updatedQuery, updatedLocalStorage);
+      //   return;
+      // }
+      // if (typeof collapsed === 'string') {
+      //   // single collapsed node in query params
+      //   if (!expanded) {
+      //     // add the new collapsed node if it's not already in the query params
+      //     if (collapsed === nodeIdIp) {
+      //       return;
+      //     }
+      //     updatedQuery = {
+      //       ...updatedQuery,
+      //       collapsed: [collapsed, nodeIdIp],
+      //     };
+      //     updatedLocalStorage = [collapsed, nodeIdIp]; // update local storage with the query params state
+      //   } else {
+      //     // remove the expanded node
+      //     delete updatedQuery.collapsed;
+      //   }
+      //   updateQueryParams(updatedQuery, updatedLocalStorage);
+      //   return;
+      // }
+      // if (storedConfig.collapsed && !_.isEmpty(storedConfig.collapsed)) {
+      //   // no query params but there are collapsed nodes in local storage
+      //   if (!expanded) {
+      //     updatedLocalStorage = _.uniq([...storedConfig.collapsed, nodeIdIp]);
+      //   } else if (storedConfig.collapsed.includes(nodeIdIp)) {
+      //     updatedLocalStorage = [...storedConfig.collapsed];
+      //     const index = storedConfig.collapsed.indexOf(nodeIdIp);
+      //     updatedLocalStorage.splice(index, 1);
+      //   }
+      //   // update the query params with the including collapsed nodes from local storage
+      //   updatedQuery = {
+      //     ...updatedQuery,
+      //     collapsed: updatedLocalStorage,
+      //   };
+      //   updateQueryParams(updatedQuery, updatedLocalStorage);
+      //   return;
+      // }
+      // // no query params and no local storage, a node was collapsed
+      // updatedQuery = {
+      //   ...updatedQuery,
+      //   collapsed: nodeIdIp,
+      // };
+      // updatedLocalStorage = [nodeIdIp];
+      // updateQueryParams(updatedQuery, updatedLocalStorage);
     },
     [router, storedConfig, updateQueryParams],
   );
 
   const handleExpandAll = useCallback(() => {
-    const updatedQuery = {
-      ...router.query,
-      collapsed: [],
-    };
-    const updatedUrl = {
-      pathname: router.pathname,
-      query: updatedQuery,
-    };
+    // const updatedQuery = {
+    //   // ...router.query,
+    //   collapsed: [],
+    // };
+    // const updatedUrl = {
+    //   // pathname: router.pathname,
+    //   query: updatedQuery,
+    // };
 
-    router.push(updatedUrl, undefined, { shallow: true });
+    // router.push(updatedUrl, undefined, { shallow: true });
 
     setStoredConfig({
       ...storedConfig,
       collapsed: [],
     });
-  }, [router, setStoredConfig, storedConfig]);
+  }, [pathname, setStoredConfig, storedConfig]);
 
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
-      let updatedQuery = {
-        ...router.query,
-      };
+      // let updatedQuery = {
+      //   // ...router.query,
+      // };
 
-      if (isCompact) {
-        updatedQuery = { ...updatedQuery, compact: 'true' };
-      } else {
-        delete updatedQuery.compact;
-      }
+      // if (isCompact) {
+      //   updatedQuery = { ...updatedQuery, compact: 'true' };
+      // } else {
+      //   // delete updatedQuery.compact;
+      // }
 
-      const updatedUrl = {
-        pathname: router.pathname,
-        query: updatedQuery,
-      };
+      // const updatedUrl = {
+      //   // pathname: router.pathname,
+      //   query: updatedQuery,
+      // };
 
-      router.push(updatedUrl, undefined, { shallow: true });
+      // window.history.pushState({}, '', updatedUrl.pathname);
 
       setStoredConfig({
         ...storedConfig,
         compact: isCompact,
       });
     },
-    [router, setStoredConfig, storedConfig],
+    [pathname, setStoredConfig, storedConfig],
   );
 
   const toggleEditMode = useCallback(() => {
@@ -663,12 +658,13 @@ export const TreeFormContextProvider = ({
     }
     setEditMode(!editMode);
     // TODO need to reset selectedHatId? query update handles?
-    const updatedQuery = editMode
-      ? _.omit(router.query, 'hatId')
-      : router.query;
-    router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
-      shallow: true,
-    });
+    // const updatedQuery = editMode
+    //   ? _.omit(router.query, 'hatId')
+    //   : router.query;
+    // router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
+    //   shallow: true,
+    // });
+
     setSelectedOption?.('wearers');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainHats, editMode, storedData, chainId, treeId]);
@@ -862,8 +858,6 @@ export const TreeFormContextProvider = ({
       onchainHats,
       treeEvents,
       treeLoading,
-      imagesLoading,
-      orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       orgChartWearers,

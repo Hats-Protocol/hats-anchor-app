@@ -2,7 +2,6 @@
 
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
 import {
   createContext,
   ReactNode,
@@ -57,7 +56,6 @@ export const StandaloneOverlayContextProvider = ({
   const [transactions] = useState<Transaction[]>([]);
   const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
-  const router = useRouter();
 
   const [recentlyVisitedHats, setRecentlyVisitedHats] = useLocalStorage<
     { hatId: Hex; chainId: number }[] | undefined
@@ -154,7 +152,7 @@ export const StandaloneOverlayContextProvider = ({
     }
 
     if (redirect) {
-      router.push(redirect);
+      window.history.pushState({}, '', redirect);
     }
 
     return Promise.resolve(data);

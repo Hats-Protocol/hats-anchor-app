@@ -18,7 +18,7 @@ const Navbar = ({
   // }, []);
 
   return (
-    <div className='flex w-full justify-between bg-white fixed z-[10] h-20 px-6'>
+    <div className='flex w-full justify-between bg-white fixed z-[10] h-[75px] px-6 shadow-md border-b-1 border-gray-500'>
       <div className='flex gap-6 py-1'>
         <ChakraNextLink href='/'>
           <img src='/icon.jpeg' className='h-full' alt='Hats Logo' />

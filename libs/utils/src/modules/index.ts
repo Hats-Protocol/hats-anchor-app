@@ -6,6 +6,7 @@ import { Hex } from 'viem';
 
 import { viemPublicClient } from '../web3';
 
+export * from './input';
 export * from './tokens';
 
 export type ModuleDetailsHandler = {

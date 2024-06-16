@@ -4,7 +4,6 @@
   "plugins": [
     "@typescript-eslint",
     "prettier",
-    "babel",
     "import",
     "simple-import-sort",
     "@tanstack/query",

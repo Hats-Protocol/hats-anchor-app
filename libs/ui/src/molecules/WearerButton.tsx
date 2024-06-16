@@ -3,14 +3,13 @@
 import { Button } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import _ from 'lodash';
-// import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAccount } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 
 const WearerButton = () => {
-  // const router = useRouter();
-  // const path = router.asPath.split('/').slice(1);
+  const pathname = usePathname();
   const { address } = useAccount();
 
   if (!address) return null;
@@ -24,7 +23,7 @@ const WearerButton = () => {
         borderRadius={0}
         fontSize='lg'
         _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-        // isActive={_.includes(path, address)}
+        isActive={_.includes(_.toLower(pathname), _.toLower(address))}
       >
         {`My ${_.capitalize(CONFIG.hats)}`}
       </Button>

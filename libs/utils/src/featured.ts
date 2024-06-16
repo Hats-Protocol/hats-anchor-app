@@ -6,8 +6,8 @@ import { prettyIdToIp } from 'shared';
 import { AppHat } from 'types';
 
 import { removeInactiveHatsAndDescendants } from './hats';
-import { ipfsUrl } from './ipfs';
-import { fetchTreeDetails, fetchTreesById } from './subgraph';
+import { ipfsUrl } from './image';
+import { fetchTreeDetailsMesh, fetchTreesByIdMesh } from './subgraph';
 
 export const fetchFeaturedTreesData = async ({
   featuredTrees,
@@ -19,10 +19,10 @@ export const fetchFeaturedTreesData = async ({
   const promises = _.map(chainIds, (chainId: number) => {
     const trees = _.filter(featuredTrees, { chainId });
     if (_.size(trees) > 1) {
-      return fetchTreesById(_.map(trees, 'id'), chainId);
+      return fetchTreesByIdMesh(_.map(trees, 'id'), chainId);
     }
 
-    return fetchTreeDetails(_.first(trees).id, chainId);
+    return fetchTreeDetailsMesh(_.first(trees).id, chainId);
   });
 
   const result = await Promise.all(_.flatten(promises));

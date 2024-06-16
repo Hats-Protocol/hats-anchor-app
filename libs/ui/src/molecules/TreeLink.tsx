@@ -3,7 +3,7 @@
 import { Button, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import _ from 'lodash';
-// import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { containsUpperCase } from 'utils';
 
 import { ChakraNextLink } from '../atoms';
@@ -15,9 +15,7 @@ const TreeLink = ({
   tabName: string;
   chainId?: number;
 }) => {
-  // const router = useRouter();
-  const path = '/trees';
-  // const path = router.asPath.split('/').slice(1);
+  const pathname = usePathname();
 
   return (
     <ChakraNextLink href={`/${CONFIG.trees}/${chainId || 1}`}>
@@ -28,7 +26,7 @@ const TreeLink = ({
         variant='ghost'
         borderRadius={0}
         _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-        isActive={_.includes(path, CONFIG.trees)}
+        isActive={_.includes(pathname, CONFIG.trees)}
       >
         {!tabName ? (
           <Text size='lg'>{_.capitalize(CONFIG.trees)}</Text>

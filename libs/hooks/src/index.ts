@@ -5,7 +5,6 @@ export { default as useContractData } from './useContractData';
 export { default as useDebounce } from './useDebounce';
 export { default as useDeepCompareEffect } from './useDeepCompareEffect';
 export { default as useHatGuildRoles } from './useHatGuildRoles';
-export { default as useHatParams } from './useHatParams';
 export { default as useHatSnapshotRoles } from './useHatSnapshotRoles';
 export { default as useImageURIs } from './useImageURIs';
 export { default as useLocalStorage } from './useLocalStorage';

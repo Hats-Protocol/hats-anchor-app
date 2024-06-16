@@ -23,4 +23,6 @@ export { default as StatusCard } from './Status';
 export { default as TooltipWrapper } from './TooltipWrapper';
 export { default as TransactionHistory } from './TransactionHistory';
 export { default as TreeMenu } from './TreeMenu';
+export { default as TxHistoryModal } from './TxHistoryModal';
 export { default as VerticalDividers } from './VerticalDividers';
+export * from './Wearer';

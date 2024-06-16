@@ -6,6 +6,7 @@ export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as ErrorPage } from './ErrorPage';
 export { default as FullWidthStack } from './FullWidthStack';
 export { default as LazyImage } from './LazyImage';
+export { default as LinkButton } from './LinkButton';
 export { default as Markdown } from './Markdown';
 export { default as NotFound } from './NotFound';
 export { default as OblongAvatar } from './OblongAvatar';

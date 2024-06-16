@@ -12,7 +12,7 @@ const IntegrationCard = ({
   const { label, icons } = _.pick(integration, ['label', 'icons']);
 
   return (
-    <Card border='1px solid' w={{ base: '100%', md: '25%' }} maxW='300px'>
+    <Card border='1px solid' w={{ base: '100%', md: '23%' }} maxW='300px'>
       <Flex
         h='100px'
         justify='center'

@@ -12,5 +12,6 @@ export { default as HatUnlinkForm } from './HatUnlinkForm';
 export { default as HatWearerForm } from './HatWearerForm';
 export { default as HatWearerStatusForm } from './HatWearerStatusForm';
 export { default as ImportTreeForm } from './ImportTreeForm';
+export { default as NewTreeForm } from './NewTreeForm';
 export { default as ResponsibilitiesForm } from './ResponsibilitiesForm';
 export { default as ResponsibilitiesFormItem } from './ResponsibilitiesFormItem';

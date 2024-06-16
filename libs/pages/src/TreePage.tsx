@@ -9,9 +9,9 @@ import {
   useTreeForm,
 } from 'contexts';
 import dynamic from 'next/dynamic';
-import { chainsMap } from 'utils';
-import { Hex } from 'viem';
+import { twJoin } from 'tailwind-merge';
 
+// import { chainsMap } from 'utils';
 import HatDrawer from './HatDrawer';
 
 const EventHistory = dynamic(() =>
@@ -26,37 +26,32 @@ const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
 });
 const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 
-const TreePage = ({
-  hatId,
-  exists = true,
-}: {
-  hatId?: Hex;
-  exists: boolean;
-}) => {
+const TreePage = () => {
   const {
     chainId,
-    treeId,
+    // treeId,
     treeToDisplay,
-    topHatDetails,
+    // topHatDetails,
+    editMode,
     isTreeDrawerOpen,
     returnToTreeList,
     isHatDrawerOpen,
   } = useTreeForm();
 
   if (!chainId) return null;
-  const chain = chainsMap(chainId);
+  // const chain = chainsMap(chainId);
 
-  let title = '';
-  if (treeId) {
-    title = `Tree #${treeId} on ${chain.name}`;
-  } else {
-    title = 'Invalid Tree ID';
-  }
-  // TODO finish
-  if (topHatDetails) {
-    title = `${topHatDetails.name} on ${chain.name}`;
-  }
-  console.log('title', title);
+  // let title = '';
+  // if (treeId) {
+  //   title = `Tree #${treeId} on ${chain.name}`;
+  // } else {
+  //   title = 'Invalid Tree ID';
+  // }
+  // // TODO finish
+  // if (topHatDetails) {
+  //   title = `${topHatDetails.name} on ${chain.name}`;
+  // }
+  // console.log('title', title);
   // } else if (selectedHat) {
   //   if (selectedHatDetails) {
   //     title = `${selectedHatDetails.name} on ${chain.name}`;
@@ -69,11 +64,7 @@ const TreePage = ({
 
   return (
     <>
-      <SelectedHatContextProvider
-        treeId={treeId}
-        chainId={chainId}
-        hatId={hatId}
-      >
+      <SelectedHatContextProvider>
         <Slide
           direction='right'
           in={!!treeToDisplay && !!isHatDrawerOpen}
@@ -99,6 +90,13 @@ const TreePage = ({
       <TreeMenu />
 
       <OrgChart />
+
+      <div
+        className={twJoin(
+          'fixed w-full h-full z-[-10] top-0 left-0',
+          editMode ? 'bg-blue-100' : 'bg-gray-100',
+        )}
+      />
 
       <Modal name='events' title='Events' size='2xl'>
         <EventHistory type='tree' />

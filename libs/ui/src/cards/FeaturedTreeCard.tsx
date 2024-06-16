@@ -36,7 +36,7 @@ const FeaturedTreeCard = ({
     <ChakraNextLink href={`/trees/${chainId}/${id}`} h='207px' _hover={{}}>
       <Stack
         bg='white'
-        maxW='400px'
+        maxW='320px'
         borderRadius={6}
         border='1px'
         borderColor='gray.600'

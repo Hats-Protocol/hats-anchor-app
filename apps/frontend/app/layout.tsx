@@ -2,49 +2,33 @@ import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
 import { ReactNode } from 'react';
-import { AppHat } from 'types';
-import { Navbar } from 'ui';
+import { CommandPalette, Navbar, TxHistoryModal } from 'ui';
 
 import Providers from './providers';
-import TxHistoryModal from './TxHistoryModal';
 
-const RootLayout = ({
-  editMode,
-  hatData,
-  hideBackLink,
-  children,
-}: RootLayoutProps) => {
-  return (
-    <html lang='en'>
-      <head />
-      <body>
-        <div className='relative'>
-          <div
-            className='fixed h-full w-full -z-1 bg-[url("/bg-topography.svg")]'
-            // bgColor={editMode ? 'cyan.100' : 'gray.100'}
-          />
+const RootLayout = ({ children }: RootLayoutProps) => (
+  <html lang='en'>
+    <head />
+    <body>
+      <div className='relative'>
+        <Providers>
+          <Navbar tabName='test' chainId={10} />
 
-          {/* <CommandPalette /> */}
-          {/* {isMobile ? (
-          <StandaloneNavbar hatData={hatData} showLink={!hideBackLink} />
-        ) : ( */}
-          <Providers>
-            <Navbar tabName='test' chainId={10} />
+          <div className='w-screen'>{children}</div>
 
-            <div className='h-screen w-screen'>{children}</div>
-            <TxHistoryModal />
-          </Providers>
-        </div>
-      </body>
-    </html>
-  );
-};
+          <TxHistoryModal />
+
+          <CommandPalette />
+        </Providers>
+
+        <div className='fixed h-full w-full z-[-5] bg-[url("/bg-topography.svg")] top-0 left-0' />
+      </div>
+    </body>
+  </html>
+);
 
 export default RootLayout;
 
 interface RootLayoutProps {
-  editMode?: boolean;
-  hatData?: AppHat;
-  hideBackLink?: boolean;
   children: ReactNode;
 }

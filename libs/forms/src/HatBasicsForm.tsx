@@ -121,7 +121,7 @@ const HatBasicsForm = () => {
             </Stack>
           </FormRowWrapper>
           <FormRowWrapper>
-            <Icon as={HatIcon} alt='Hat' boxSize={4} mt='2px' />
+            <Icon as={HatIcon} boxSize={4} mt='2px' />
             <Input
               localForm={localForm}
               name='name'

@@ -35,7 +35,7 @@ import {
 } from 'hats-hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { useState } from 'react';
 import { BsArrowRight, BsThreeDotsVertical } from 'react-icons/bs';
 import { idToIp } from 'shared';
@@ -67,7 +67,6 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { address } = useAccount();
-  const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
   const { handlePendingTx } = useOverlay();
   const [isClaiming, setIsClaiming] = useState(false);
@@ -139,12 +138,11 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
       >
         {isWearing ? (
           <Button
+            as={Link}
+            href={hatUrl}
             colorScheme='green'
             leftIcon={<Icon as={HatIcon} color='white' />}
             rightIcon={<Icon as={BsArrowRight} color='white' />}
-            onClick={() => {
-              router.push(hatUrl);
-            }}
           >
             View your hat
           </Button>
@@ -237,13 +235,14 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
             )}
             {!isLoading && !isClaiming && isSuccess && (
               <Button
+                as={Link}
+                href={hatUrl}
                 colorScheme='green'
                 leftIcon={<Icon as={HatIcon} color='white' />}
                 rightIcon={<Icon as={BsArrowRight} color='white' />}
                 w='full'
                 onClick={() => {
                   onClose();
-                  router.push(hatUrl);
                 }}
               >
                 View your hat

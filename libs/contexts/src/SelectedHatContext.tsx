@@ -1,12 +1,14 @@
 'use client';
 
 import {
+  hatIdDecimalToHex,
   hatIdDecimalToIp,
+  hatIdIpToDecimal,
   treeIdDecimalToHex,
 } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   createContext,
   ReactNode,
@@ -16,6 +18,7 @@ import {
 } from 'react';
 import { createHierarchy } from 'shared';
 import { AppHat, HatDetails, Hierarchy, SupportedChains } from 'types';
+import { getPathParams } from 'utils';
 import { Hex } from 'viem';
 
 import { useTreeForm } from './TreeFormContext';
@@ -37,6 +40,8 @@ export interface SelectedHatContext {
   hierarchy: Hierarchy | undefined;
 }
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 export const SelectedHatContext = createContext<SelectedHatContext>({
   // SELECTED HAT
   selectedHat: undefined,
@@ -55,18 +60,23 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
 });
 
 export const SelectedHatContextProvider = ({
-  treeId,
-  chainId,
-  hatId,
   children,
 }: {
-  treeId: number | undefined;
-  chainId: SupportedChains;
-  hatId: Hex | undefined;
   children: ReactNode;
 }) => {
-  const router = useRouter();
-  const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
+  const params = useSearchParams();
+  const pathname = usePathname();
+  const { hatId: hatIdPathParam, treeId, chainId } = getPathParams(pathname);
+
+  const hatIdQueryParam = params.get('hatId');
+  const localParam = hatIdPathParam || hatIdQueryParam;
+  const hatId = localParam
+    ? hatIdDecimalToHex(hatIdIpToDecimal(localParam))
+    : undefined; // shouldn't have both at once
+  console.log({ hatId });
+
+  const flipped = params.get('flipped');
+  const compact = params.get('compact');
   const {
     onchainHats,
     onchainTree,
@@ -75,6 +85,7 @@ export const SelectedHatContextProvider = ({
     onOpenHatDrawer,
   } = useTreeForm();
   const { isMobile } = useMediaStyles();
+  console.log(orgChartTree);
 
   // *********************
   // * SELECTED HAT
@@ -135,10 +146,9 @@ export const SelectedHatContextProvider = ({
       // if it's linked
       if (hat.treeId && treeId && hat.treeId !== treeIdDecimalToHex(treeId)) {
         const hatIdParam = hatIdDecimalToIp(BigInt(hat.id));
-        const basePath = router.basePath ? `${router.basePath}` : '';
 
         const urlToOpen = new URL(
-          `${basePath}${hat.url}`,
+          `${BASE_PATH}${hat.url}`,
           window.location.origin,
         );
         urlToOpen.searchParams.append('hatId', hatIdParam);

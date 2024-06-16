@@ -25,19 +25,15 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Analytics } from '@vercel/analytics/react';
 import { OverlayContextProvider } from 'contexts';
 import _ from 'lodash';
-import { useRouter } from 'next/navigation';
-import { DefaultSeo } from 'next-seo';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
-import { ReactNode, useEffect, useState } from 'react';
-import { ErrorBoundary, theme } from 'ui';
+import { ReactNode, useState } from 'react';
+import { theme } from 'ui';
 import { getRpcUrl } from 'utils';
 import { Transport } from 'viem';
 import { createConfig, http, WagmiProvider } from 'wagmi';
-import { reconnect } from 'wagmi/actions';
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 if (!WC_PROJECT_ID) {
@@ -139,7 +135,6 @@ const queryClientOptions = {
 };
 
 const Providers = ({ children }: Props) => {
-  // const router = useRouter();
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
   // useEffect(() => {
   //   // setTimeout(() => {
@@ -147,35 +142,19 @@ const Providers = ({ children }: Props) => {
   //   // });
   // }, []);
 
-  // useEffect(() => {
-  //   // Track page views
-  //   const handleRouteChange = () => posthog?.capture('$pageview');
-  //   router.events.on('routeChangeComplete', handleRouteChange);
-
-  //   return () => {
-  //     router.events.off('routeChangeComplete', handleRouteChange);
-  //   };
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
   return (
-    <>
-      {/* <DefaultSeo {...SEO} /> */}
-
-      <ChakraBaseProvider theme={theme}>
-        <WagmiProvider config={wagmiConfig}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider>
-              <ReactQueryDevtools initialIsOpen={false} />
-              {/* <PostHogProvider client={posthog}> */}
-              {/* <Analytics /> */}
+    <ChakraBaseProvider theme={theme}>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <PostHogProvider client={posthog}>
               <OverlayContextProvider>{children}</OverlayContextProvider>
-              {/* </PostHogProvider> */}
-            </RainbowKitProvider>
-          </QueryClientProvider>
-        </WagmiProvider>
-      </ChakraBaseProvider>
-    </>
+            </PostHogProvider>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </ChakraBaseProvider>
   );
 };
 
