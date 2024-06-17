@@ -24,8 +24,8 @@ importers:
         specifier: ^0.0.5
         version: 0.0.5(viem@2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8))
       '@hatsprotocol/hsg-sdk':
-        specifier: ^0.0.13
-        version: 0.0.13(viem@2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8))
+        specifier: ^0.0.14
+        version: 0.0.14(viem@2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8))
       '@hatsprotocol/modules-sdk':
         specifier: ^1.1.1
         version: 1.1.1(viem@2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8))
@@ -1661,8 +1661,8 @@ packages:
     peerDependencies:
       viem: ^2.14.0
 
-  '@hatsprotocol/hsg-sdk@0.0.13':
-    resolution: {integrity: sha512-BZcx5Sx7tJcJb3rKQNryweMmQNvQe7sanAxfJhEB1eiGWnKsfHe1ZyEvxHXVRE2u5glVsQnvgbK+7c1c8gFw2Q==}
+  '@hatsprotocol/hsg-sdk@0.0.14':
+    resolution: {integrity: sha512-L3huO7vHVJEnyJ5wXZliPMvj9C5oKwiEnHjta0XS9zAZPNrIDV2bLWW07+LQRjChY/qGAwY6eDzeBQpqerBO5g==}
     peerDependencies:
       viem: ^2.14.0
 
@@ -11468,7 +11468,7 @@ snapshots:
     dependencies:
       viem: 2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8)
 
-  '@hatsprotocol/hsg-sdk@0.0.13(viem@2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8))':
+  '@hatsprotocol/hsg-sdk@0.0.14(viem@2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8))':
     dependencies:
       viem: 2.14.2(bufferutil@4.0.8)(typescript@5.5.1-rc)(zod@3.23.8)
       zod: 3.23.8
