@@ -12,11 +12,11 @@ export async function POST(request: Request) {
 
   try {
     const apiKey = await generateApiKey(keyRestrictions);
-    Response.json({ apiKey }, { status: 200 });
+    return Response.json({ apiKey }, { status: 200 });
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(e);
-    Response.json({ error: 'Server Error' }, { status: 500 });
+    return Response.json({ error: 'Server Error' }, { status: 500 });
   }
 }
 

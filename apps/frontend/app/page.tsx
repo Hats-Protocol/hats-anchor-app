@@ -4,6 +4,7 @@ import {
   TemplateData,
 } from '@hatsprotocol/constants';
 import _ from 'lodash';
+import { Suspense } from 'react';
 import { DocsLink } from 'types';
 import {
   Card,

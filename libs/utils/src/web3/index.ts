@@ -43,13 +43,24 @@ declare global {
   }
 }
 
-const getRpcUrl = (chainId: number) => {
-  const chain = chainsMap(chainId);
-  let transportUrl = _.first(_.get(chain, 'rpcUrls.default.http'));
-  const alchemyUrl = _.get(chain, 'rpcUrls.alchemy.http');
-  if (alchemyUrl) transportUrl = `${alchemyUrl}/${ALCHEMY_ID}`;
+const RPC_URLS: { [key: number]: string } = {
+  1: `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  10: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  100: `https://rpc.gnosischain.com`,
+  137: `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  8453: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  42220: 'https://forno.celo.org', // `https://celo-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  42161: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  11155111: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_ID}`,
+};
 
-  return transportUrl as string;
+const getRpcUrl = (chainId: number) => {
+  if (!_.has(RPC_URLS, chainId)) {
+    const chain = chainsMap(chainId);
+    return _.first(_.get(chain, 'rpcUrls.default.http'));
+  }
+
+  return _.get(RPC_URLS, chainId);
 };
 
 export const viemPublicClient = (chainId: number) => {

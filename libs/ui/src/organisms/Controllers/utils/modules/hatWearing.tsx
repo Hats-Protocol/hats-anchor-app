@@ -50,7 +50,11 @@ export const handleHatWearingEligibility = async ({
   }
 
   if (!hatDetails) {
-    return DEFAULT_ELIGIBILITY_DETAILS;
+    if (!wearer || !chainId) {
+      return DEFAULT_ELIGIBILITY_DETAILS({});
+    }
+
+    return DEFAULT_ELIGIBILITY_DETAILS({ wearer, chainId });
   }
 
   if (isWearing) {

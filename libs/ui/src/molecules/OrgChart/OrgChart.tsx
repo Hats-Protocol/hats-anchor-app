@@ -521,7 +521,10 @@ function OrgChartComponent() {
                 bg='white'
                 rightIcon={<Icon as={BsArrowRight} />}
               >
-                🧢 Head home
+                <span role='img' aria-label='Hats ball cap'>
+                  🧢
+                </span>{' '}
+                Head home
               </Button>
             </ChakraNextLink>
           </Flex>
@@ -567,7 +570,9 @@ function OrgChartComponent() {
         </Button>
         <Button
           onClick={() => {
+            console.log('toggleCompact', toggleCompact, 'compact', compact);
             toggleCompact();
+            console.log(handleSetCompact, 'compact', compact);
             handleSetCompact?.(!compact);
           }}
           variant='outline'

@@ -11,13 +11,12 @@ import EditMode from './EditMode';
 import TopMenu from './TopMenu';
 
 const BottomMenu = dynamic(() => import('ui').then((mod) => mod.BottomMenu));
-const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
 const MainContent = dynamic(() => import('./MainContent'));
 const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
-  const { topHat, editMode, treeToDisplay } = useTreeForm();
+  const { editMode, treeToDisplay } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const selectedHatId = selectedHat?.id;
   const imageUrl = _.get(
@@ -25,25 +24,22 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     'imageUrl',
   );
   const { isMobile } = useMediaStyles();
-  console.log({ selectedHat });
 
   if (!selectedHat || !returnToList) return null;
 
   if (isMobile) {
     // TODO are we hitting this case?
     return (
-      <Layout hatData={topHat}>
-        <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
-          <TopMenu returnToList={returnToList} />
+      <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
+        <TopMenu returnToList={returnToList} />
 
-          <MainContent
-            showBottomMenu={showBottomMenu}
-            setShowBottomMenu={setShowBottomMenu}
-          />
+        <MainContent
+          showBottomMenu={showBottomMenu}
+          setShowBottomMenu={setShowBottomMenu}
+        />
 
-          <BottomMenu show={showBottomMenu} />
-        </Box>
-      </Layout>
+        <BottomMenu show={showBottomMenu} />
+      </Box>
     );
   }
 

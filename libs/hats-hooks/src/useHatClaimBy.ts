@@ -10,14 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { createHatsModulesClient, fetchHatDetails } from 'utils';
 import { Hex } from 'viem';
-import {
-  useAccount,
-  // useChainId,
-  useReadContracts,
-  useWriteContract,
-} from 'wagmi';
-
-// import useWearerDetails from './useWearerDetails';
+import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
 
 const useHatClaimBy = ({
   selectedHat,
@@ -34,7 +27,6 @@ const useHatClaimBy = ({
 }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
-  // const userChain = useChainId();
   const toast = useToast();
   const isCurrentWearer = address === wearer;
   const queryClient = useQueryClient();
@@ -47,16 +39,6 @@ const useHatClaimBy = ({
         (w: { id: Hex }) => _.toLower(w.id) === _.toLower(address),
       ),
   });
-
-  // const { data: wearerData } = useWearerDetails({
-  //   wearerAddress: wearer,
-  //   chainId,
-  // });
-
-  // const isWearing = useMemo(
-  //   () => _.includes(_.map(wearerData, 'id'), selectedHat?.id),
-  //   [selectedHat, wearerData],
-  // );
 
   const claimsHatterAddress: Hex | undefined = useMemo(
     () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id') as Hex,

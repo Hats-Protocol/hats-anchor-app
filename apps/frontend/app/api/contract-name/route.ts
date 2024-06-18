@@ -26,6 +26,7 @@ const fetchContractData = async (chainId: number, address: Hex) =>
       throw new Error(error);
     });
 
+// can this be a GET request? would auto cache this result
 export async function POST(request: Request) {
   const { chainId, address } = await request.json();
 
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     if (_.get(data, 'result[0].ABI') === 'Contract source code not verified') {
       return Response.json(
         { error: 'Contract not verified', address },
-        { status: 400 },
+        { status: 404 },
       );
     }
     const returnData = _.mapKeys(

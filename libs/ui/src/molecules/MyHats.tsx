@@ -16,6 +16,7 @@ import { CONFIG, orderedChains } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
 import { useImageURIs, useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import { ReactNode } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat } from 'types';
@@ -25,8 +26,56 @@ import { useAccount, useEnsName } from 'wagmi';
 import { ChakraNextLink } from '../atoms';
 import { DashboardHatCard } from '../cards';
 
-const HATS_TO_SHOW = 8;
-const MOBILE_HATS_TO_SHOW = 4;
+const HATS_TO_SHOW = 6;
+const MOBILE_HATS_TO_SHOW = 3;
+
+const MyHatsCard = ({
+  name,
+  hasHats,
+  children,
+}: {
+  name: string;
+  hasHats?: boolean;
+  children: ReactNode;
+}) => {
+  const { isMobile } = useMediaStyles();
+
+  return (
+    <>
+      <Flex
+        direction={{ base: 'column', md: 'row' }}
+        justifyContent='space-between'
+        gap={10}
+      >
+        <Stack>
+          <Heading variant='medium'>gm {name} 👋</Heading>
+          {hasHats && (
+            <Text size='lg'>
+              Here&apos;s what&apos;s happening with your hats
+            </Text>
+          )}
+        </Stack>
+
+        {!isMobile && (
+          <Box>
+            <ChakraNextLink href='/trees/new'>
+              <Button colorScheme='blue' py={6} px={8}>
+                <HStack gap={3}>
+                  <BsDiagram3 />
+                  <Text size='lg' variant='medium' noOfLines={1}>
+                    Create a new {CONFIG.tree}
+                  </Text>
+                </HStack>
+              </Button>
+            </ChakraNextLink>
+          </Box>
+        )}
+      </Flex>
+
+      {children}
+    </>
+  );
+};
 
 const MyHats = () => {
   const { address: currentUser } = useAccount();
@@ -57,46 +106,52 @@ const MyHats = () => {
 
   if (!currentUser) {
     <Stack>
-      <Heading variant='medium'>Welcome to Hats Protocol! 🧢</Heading>
+      <Heading variant='medium'>
+        Welcome to Hats Protocol!{' '}
+        <span role='img' aria-label='Hats ball cap'>
+          🧢
+        </span>
+      </Heading>
       <Text size='lg'>Please connect your wallet to get started.</Text>
     </Stack>;
   }
 
-  return (
-    <>
-      <Flex
-        direction={{ base: 'column', md: 'row' }}
-        justifyContent='space-between'
-        gap={10}
-      >
-        <Stack>
-          <Heading variant='medium'>
-            gm {ensName || formatAddress(currentUser)} 👋
-          </Heading>
-          {!_.isEmpty(sortedHats) && (
-            <Text size='lg'>
-              Here&apos;s what&apos;s happening with your hats
-            </Text>
-          )}
-        </Stack>
+  console.log({
+    currentHatsWithImagesData,
+    imagesLoading,
+    wearerDetailsLoading,
+  });
+  if (
+    _.isEmpty(currentHatsWithImagesData) ||
+    imagesLoading ||
+    wearerDetailsLoading
+  ) {
+    return (
+      <MyHatsCard name={ensName || formatAddress(currentUser)}>
+        <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
+          <Skeleton height='40px' />
+          <SimpleGrid
+            columns={{
+              base: 1,
+              sm: 2,
+              md: 3,
+            }}
+            spacing={6}
+          >
+            {Array(isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
+              .fill(0)
+              .map((_, i) => (
+                <Skeleton key={i} borderRadius='md' height='100px' />
+              ))}
+          </SimpleGrid>
+        </Card>
+      </MyHatsCard>
+    );
+  }
 
-        {!isMobile && (
-          <Box>
-            <ChakraNextLink href='/trees/new'>
-              <Button colorScheme='blue' py={6} px={8}>
-                <HStack gap={3}>
-                  <BsDiagram3 />
-                  <Text size='lg' variant='medium' noOfLines={1}>
-                    Create a new {CONFIG.tree}
-                  </Text>
-                </HStack>
-              </Button>
-            </ChakraNextLink>
-          </Box>
-        )}
-      </Flex>
-
-      {!_.isEmpty(sortedHats) || imagesLoading || wearerDetailsLoading ? (
+  if (!_.isEmpty(sortedHats)) {
+    return (
+      <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
           <Flex justifyContent='space-between' alignItems='center'>
             <Heading>Your hats</Heading>
@@ -118,7 +173,6 @@ const MyHats = () => {
               base: 1,
               sm: 2,
               md: 3,
-              lg: 4,
             }}
             spacing={6}
           >
@@ -133,23 +187,26 @@ const MyHats = () => {
             ))}
           </SimpleGrid>
         </Card>
-      ) : (
-        <Card
-          py={8}
-          px={9}
-          background='whiteAlpha.600'
-          gap={4}
-          minH='300px'
-          justify='center'
-          align='center'
-        >
-          <Stack align='center'>
-            <Heading size='lg'>Your hats will appear here!</Heading>
-            <Text>Create a tree or check out one of the featured trees.</Text>
-          </Stack>
-        </Card>
-      )}
-    </>
+      </MyHatsCard>
+    );
+  }
+
+  return (
+    <MyHatsCard name={ensName || formatAddress(currentUser)}>
+      <Card
+        py={8}
+        px={9}
+        background='whiteAlpha.600'
+        gap={4}
+        justifyContent='center'
+        alignItems='center'
+      >
+        <Stack align='center'>
+          <Heading size='lg'>Your hats will appear here!</Heading>
+          <Text>Create a tree or check out one of the featured trees.</Text>
+        </Stack>
+      </Card>
+    </MyHatsCard>
   );
 };
 

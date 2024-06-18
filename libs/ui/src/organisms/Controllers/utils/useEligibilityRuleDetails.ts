@@ -74,13 +74,13 @@ const fetchEligibilityRuleDetails = async ({
 }: ModuleDetailsHandler) => {
   if (!moduleDetails || !moduleParameters) {
     // TODO check dynamic eligibility status
-    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS);
+    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS({}));
   }
 
   if (!_.has(ELIGIBILITY_HANDLERS, moduleDetails.name)) {
     // eslint-disable-next-line no-console
     console.error('Unknown eligibility module', moduleDetails);
-    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS);
+    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS({}));
   }
 
   return ELIGIBILITY_HANDLERS[moduleDetails.name]({

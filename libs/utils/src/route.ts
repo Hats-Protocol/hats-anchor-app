@@ -5,9 +5,10 @@ import {
   // treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
+import { ReadonlyURLSearchParams } from 'next/navigation';
 // import { ParsedUrlQuery } from 'querystring';
 import { SupportedChains } from 'types';
-// import { Hex, hexToString } from 'viem';
+import { Hex } from 'viem';
 
 export const getPathParams = (pathname: string) => {
   const pathArray = pathname.split('/');
@@ -17,6 +18,41 @@ export const getPathParams = (pathname: string) => {
     treeId: _.toNumber(_.nth(pathArray, 3)),
     hatId: ipId ? hatIdDecimalToHex(hatIdIpToDecimal(ipId)) : undefined,
   };
+};
+
+export const getQueryParams = (params: ReadonlyURLSearchParams) => {
+  const values = _.fromPairs(Array.from(params.entries()));
+
+  return {
+    chainId: _.toNumber(_.get(values, 'chainId')) as
+      | SupportedChains
+      | undefined,
+    treeId: _.toNumber(_.get(values, 'treeId')),
+    hatId: _.get(values, 'hatId') as Hex,
+    flipped: _.get(values, 'flipped') === 'true',
+    compact: _.get(values, 'compact') === 'true',
+    collapsed: _.get(values, 'collapsed'),
+  };
+};
+
+export const urlFromQueryParams = ({
+  pathname,
+  params,
+  add,
+  drop,
+}: {
+  pathname: string;
+  params: any;
+  add: object;
+  drop: string[];
+}) => {
+  let query = params;
+
+  if (!_.isEmpty(add)) {
+    query = { ...query, ...add };
+  }
+
+  return `${pathname}?${new URLSearchParams(_.omit(query, drop))}`;
 };
 
 // export const getQueryRoute = ({

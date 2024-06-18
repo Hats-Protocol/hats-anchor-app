@@ -140,6 +140,7 @@ const ConnectWallet = () => {
           );
         }}
       </RainbowConnectButton.Custom>
+
       <Modal name='account' onClose={() => setModals?.({})} size='md'>
         {address && (
           <WalletProfile

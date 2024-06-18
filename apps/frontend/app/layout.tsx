@@ -12,7 +12,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     <body>
       <div className='relative'>
         <Providers>
-          <Navbar tabName='test' chainId={10} />
+          <Navbar />
 
           <div className='w-screen'>{children}</div>
 

@@ -169,7 +169,8 @@ export const fetchToken = async (count: number = 0) => {
     },
     method: 'POST',
     body: JSON.stringify({ count }),
-  }).then((res) => res.text());
+    // return only the token
+  }).then((res) => res.json().then((data) => data.apiKey));
 
   return token;
 };

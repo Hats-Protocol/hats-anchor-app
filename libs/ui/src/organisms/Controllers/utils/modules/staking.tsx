@@ -33,7 +33,7 @@ export const handleStakingEligibility = async ({
   const amountParam = _.find(moduleParameters, { label: 'Minimum Stake' });
   const abi = _.get(moduleDetails, 'abi');
   if (!tokenParam || !amountParam || !abi || !chainId)
-    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS);
+    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS({ wearer, chainId }));
   const tokenFields = ['symbol', 'name', 'decimals'];
   const tokenFieldContracts = _.map(tokenFields, (field) => ({
     address: tokenParam?.value as Hex,

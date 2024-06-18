@@ -5,7 +5,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { treeCreateEventIdToTreeId } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
-import router from 'next/router';
 import { useState } from 'react';
 import { HandlePendingTx } from 'types';
 import { fetchTreeDetails } from 'utils';
@@ -59,7 +58,8 @@ const useTreeCreate = ({
     queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
     setStillLoading(false);
     toast.info({ title: 'Redirecting you to your new tree' });
-    router.push(`/trees/${chainId}/${newTreeId}`);
+
+    window.history.pushState({}, '', `/trees/${chainId}/${newTreeId}`);
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({

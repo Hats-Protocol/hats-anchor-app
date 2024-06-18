@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable no-nested-ternary */
 import { Slide } from '@chakra-ui/react';
 import {
   Modal,
@@ -11,7 +10,6 @@ import {
 import dynamic from 'next/dynamic';
 import { twJoin } from 'tailwind-merge';
 
-// import { chainsMap } from 'utils';
 import HatDrawer from './HatDrawer';
 
 const EventHistory = dynamic(() =>

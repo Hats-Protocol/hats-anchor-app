@@ -42,8 +42,8 @@ const NetworkFilter = () => {
         {_.map(orderedChains, (localChainId: number) => (
           <MenuItem
             as={Link}
-            key={chainId}
-            href={`/trees/${chainId}`}
+            key={localChainId}
+            href={`/trees/${localChainId}`}
             isDisabled={localChainId === chainId}
             color={localChainId === chainId ? 'blue' : 'black'}
             opacity='1 !important'

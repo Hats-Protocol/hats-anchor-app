@@ -73,7 +73,6 @@ export const SelectedHatContextProvider = ({
   const hatId = localParam
     ? hatIdDecimalToHex(hatIdIpToDecimal(localParam))
     : undefined; // shouldn't have both at once
-  console.log({ hatId });
 
   const flipped = params.get('flipped');
   const compact = params.get('compact');
@@ -85,7 +84,6 @@ export const SelectedHatContextProvider = ({
     onOpenHatDrawer,
   } = useTreeForm();
   const { isMobile } = useMediaStyles();
-  console.log(orgChartTree);
 
   // *********************
   // * SELECTED HAT

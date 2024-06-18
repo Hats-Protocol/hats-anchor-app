@@ -41,10 +41,12 @@ import {
   generateLocalStorageKey,
   getInactiveIds,
   getPathParams,
+  getQueryParams,
   Guild,
   ipfsUrl,
   removeAndHandleSiblings,
   removeAndHandleSiblingsOrgChart,
+  urlFromQueryParams,
 } from 'utils';
 import { Hex } from 'viem';
 
@@ -170,11 +172,13 @@ export const TreeFormContextProvider = ({
   children: ReactNode;
 }) => {
   const pathname = usePathname();
-  const { chainId, treeId, hatId: hatParam } = getPathParams(pathname);
+  const { chainId, treeId, hatId: hatPathParam } = getPathParams(pathname);
 
   const params = useSearchParams();
-  const hatIdParam = params.get('hatId');
-  const hatId = hatIdParam || hatParam;
+  const queryParams = getQueryParams(params);
+  const { hatId: hatQueryParam } = queryParams;
+
+  const hatId = hatQueryParam || hatPathParam;
   // console.log({ chainId, treeId, hatId });
 
   const [editMode, setEditMode] = useState(false);
@@ -591,16 +595,17 @@ export const TreeFormContextProvider = ({
   );
 
   const handleExpandAll = useCallback(() => {
-    // const updatedQuery = {
-    //   // ...router.query,
-    //   collapsed: [],
-    // };
-    // const updatedUrl = {
-    //   // pathname: router.pathname,
-    //   query: updatedQuery,
-    // };
+    const updatedQuery = {
+      // ...router.query,
+      collapsed: [],
+    };
+    const updatedUrl = {
+      // pathname: router.pathname,
+      query: updatedQuery,
+    };
+    console.log(updatedUrl);
 
-    // router.push(updatedUrl, undefined, { shallow: true });
+    // window.history.pushState({}, '', updatedUrl);
 
     setStoredConfig({
       ...storedConfig,
@@ -610,29 +615,21 @@ export const TreeFormContextProvider = ({
 
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
-      // let updatedQuery = {
-      //   // ...router.query,
-      // };
-
-      // if (isCompact) {
-      //   updatedQuery = { ...updatedQuery, compact: 'true' };
-      // } else {
-      //   // delete updatedQuery.compact;
-      // }
-
-      // const updatedUrl = {
-      //   // pathname: router.pathname,
-      //   query: updatedQuery,
-      // };
-
-      // window.history.pushState({}, '', updatedUrl.pathname);
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        add: !isCompact ? { compact: true } : {},
+        drop: isCompact ? ['compact'] : [],
+      });
+      console.log({ url });
+      window.history.pushState({}, '', url);
 
       setStoredConfig({
         ...storedConfig,
         compact: isCompact,
       });
     },
-    [pathname, setStoredConfig, storedConfig],
+    [queryParams, pathname, setStoredConfig, storedConfig],
   );
 
   const toggleEditMode = useCallback(() => {

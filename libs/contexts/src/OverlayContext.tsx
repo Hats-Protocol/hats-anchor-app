@@ -68,10 +68,13 @@ export const OverlayContextProvider = ({
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
   const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
   const [commandPalette, setCommandPalette] = useState(false);
+  // TODO don't need to have these hooked probably, use getter/setters individually when needed
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     'transactions',
     [],
   );
+
+  // TODO move to command palette
   const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
     { treeId: number; chainId: number }[] | undefined
   >('recently-visited-trees', undefined);
@@ -135,6 +138,7 @@ export const OverlayContextProvider = ({
     setTransactions([]);
   }, [setTransactions]);
 
+  // TODO consider removing `sendToast` here as it's giving confusing results. Consumer should handle in `onSuccess`
   /**
    * @param {hex} hash
    * @param {object} toastData
