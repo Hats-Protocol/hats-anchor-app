@@ -1,11 +1,12 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { LinkButton, NetworkFilter, TreesList as TreesListCards } from 'ui';
 
-const TreesList = ({
+const TreesList = async ({
   params: { chainId },
 }: {
   params: { chainId: string };
 }) => {
+  // TODO fetch initial trees list
   console.log(chainId);
   return (
     <>

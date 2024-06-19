@@ -1,6 +1,14 @@
 'use client';
 
-import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Image,
+  Skeleton,
+  Text,
+} from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { Modal, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
@@ -52,92 +60,87 @@ const ConnectWallet = () => {
             chain &&
             (!authenticationStatus || authenticationStatus === 'authenticated');
 
-          return !ready ? (
-            <Box
-              display='none'
-              opacity={0}
-              pointerEvents='none'
-              userSelect='none'
-            />
-          ) : (
-            (() => {
-              if (!connected) {
-                return (
-                  <Button onClick={openConnectModal} variant='whiteFilled'>
-                    Connect Wallet
-                  </Button>
-                );
-              }
+          if (!ready) {
+            return <Skeleton w='200px' h='40px' borderRadius='md' />;
+          }
 
-              if (chain.unsupported) {
-                return (
-                  <Button
-                    onClick={openChainModal}
-                    type='button'
-                    variant='whiteFilled'
-                  >
-                    Wrong network
-                  </Button>
-                );
-              }
-
+          return (() => {
+            if (!connected) {
               return (
-                <Flex gap={2}>
-                  <Button
-                    onClick={openChainModal}
-                    display='flex'
-                    alignItems='center'
-                    px={2}
-                    variant='whiteFilled'
-                  >
-                    {chain.hasIcon && chain.iconUrl && (
-                      <Image
-                        alt={chain.name ?? 'Chain icon'}
-                        src={chain.iconUrl}
+                <Button onClick={openConnectModal} variant='whiteFilled'>
+                  Connect Wallet
+                </Button>
+              );
+            }
+
+            if (chain.unsupported) {
+              return (
+                <Button
+                  onClick={openChainModal}
+                  type='button'
+                  variant='whiteFilled'
+                >
+                  Wrong network
+                </Button>
+              );
+            }
+
+            return (
+              <Flex gap={2}>
+                <Button
+                  onClick={openChainModal}
+                  display='flex'
+                  alignItems='center'
+                  px={2}
+                  variant='whiteFilled'
+                >
+                  {chain.hasIcon && chain.iconUrl && (
+                    <Image
+                      alt={chain.name ?? 'Chain icon'}
+                      src={chain.iconUrl}
+                      borderRadius='50%'
+                      width={25}
+                      height={25}
+                    />
+                  )}
+                </Button>
+
+                <Button
+                  variant='whiteFilled'
+                  onClick={openAccountModal}
+                  px={{ base: 2, md: 4 }}
+                >
+                  <HStack spacing={2} align='center'>
+                    {ensAvatar || fallbackAvatar ? (
+                      <Box
+                        height='26px'
+                        width='16px'
+                        overflow='hidden'
+                        backgroundImage={ensAvatar || fallbackAvatar}
+                        backgroundSize='cover'
+                        backgroundClip='content-box'
+                        backgroundPosition='center'
+                        borderRadius='sm'
+                      />
+                    ) : (
+                      <Box
+                        height='14px'
+                        width='14px'
                         borderRadius='50%'
-                        width={25}
-                        height={25}
+                        bg='green.700'
                       />
                     )}
-                  </Button>
 
-                  <Button
-                    variant='whiteFilled'
-                    onClick={openAccountModal}
-                    px={{ base: 2, md: 4 }}
-                  >
-                    <HStack spacing={2} align='center'>
-                      {ensAvatar || fallbackAvatar ? (
-                        <Box
-                          height='26px'
-                          width='16px'
-                          overflow='hidden'
-                          backgroundImage={ensAvatar || fallbackAvatar}
-                          backgroundSize='cover'
-                          backgroundClip='content-box'
-                          backgroundPosition='center'
-                          borderRadius='sm'
-                        />
-                      ) : (
-                        <Box
-                          height='14px'
-                          width='14px'
-                          borderRadius='50%'
-                          bg='green.700'
-                        />
-                      )}
-
-                      {!isMobile && (
-                        <Text variant='medium' noOfLines={1}>
-                          {ensName || account.displayName}
-                        </Text>
-                      )}
-                    </HStack>
-                  </Button>
-                </Flex>
-              );
-            })()
-          );
+                    {!isMobile && (
+                      <Text variant='medium' noOfLines={1}>
+                        {ensName || account.displayName}
+                      </Text>
+                    )}
+                  </HStack>
+                </Button>
+              </Flex>
+            );
+          })();
         }}
       </RainbowConnectButton.Custom>
 

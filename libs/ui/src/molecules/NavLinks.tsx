@@ -2,23 +2,36 @@
 
 import { Button, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
+import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { useHatDetails } from 'hats-hooks';
 import _ from 'lodash';
 import { usePathname } from 'next/navigation';
-import { containsUpperCase } from 'utils';
+import { containsUpperCase, getPathParams } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { ChakraNextLink } from '../atoms';
 
 const NavLinks = () => {
   const pathname = usePathname();
-  const chainId = useChainId();
-  const tabName = 'Test';
-
+  const currentChainId = useChainId();
   const { address } = useAccount();
+  const { chainId, treeId } = getPathParams(pathname);
+
+  // Get the top hat name
+  const { data: topHat, details } = useHatDetails({
+    hatId: treeId ? hatIdDecimalToHex(treeIdToTopHatId(treeId)) : undefined,
+    chainId,
+  });
+  const textDetails = !_.startsWith(_.get(topHat, 'details'), 'ipfs://')
+    ? _.get(topHat, 'details')
+    : undefined;
+  const tabName = _.get(details, 'name', textDetails);
 
   return (
     <>
-      <ChakraNextLink href={`/${CONFIG.trees}/${chainId || 1}`}>
+      <ChakraNextLink
+        href={`/${CONFIG.trees}/${chainId || currentChainId || 1}`}
+      >
         <Button
           h='75px'
           minW='125px'

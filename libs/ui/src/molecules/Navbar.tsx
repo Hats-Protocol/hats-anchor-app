@@ -1,7 +1,5 @@
 import Link from 'next/link';
-import { Suspense } from 'react';
 
-import { Skeleton } from '../atoms';
 import CmdkButton from './CmdkButton';
 import ConnectWallet from './ConnectWallet';
 import NavLinks from './NavLinks';
@@ -20,9 +18,7 @@ const Navbar = () => (
     <div className='flex gap-2 items-center'>
       <CmdkButton />
 
-      <Suspense fallback={<Skeleton className='h-10 w-[250px]' />}>
-        <ConnectWallet />
-      </Suspense>
+      <ConnectWallet />
     </div>
   </div>
 );

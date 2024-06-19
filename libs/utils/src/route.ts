@@ -1,21 +1,24 @@
-import {
-  hatIdDecimalToHex,
-  // hatIdDecimalToIp,
-  hatIdIpToDecimal,
-  // treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { ReadonlyURLSearchParams } from 'next/navigation';
-// import { ParsedUrlQuery } from 'querystring';
 import { SupportedChains } from 'types';
 import { Hex } from 'viem';
 
+const EXCLUDE_ROUTES = ['_next', 'api'];
+
 export const getPathParams = (pathname: string) => {
   const pathArray = pathname.split('/');
+
+  // TODO fix if want to use on API routes
+  const firstPath = _.nth(pathArray, 1);
+  if (_.includes(EXCLUDE_ROUTES, firstPath))
+    // being run on all routes so exclude some
+    return { chainId: 1 as SupportedChains };
+
   const ipId = _.nth(pathArray, 4);
   return {
-    chainId: _.toNumber(_.nth(pathArray, 2)) as SupportedChains,
-    treeId: _.toNumber(_.nth(pathArray, 3)),
+    chainId: (_.toNumber(_.nth(pathArray, 2)) || 1) as SupportedChains,
+    treeId: _.nth(pathArray, 3) ? _.toNumber(_.nth(pathArray, 3)) : undefined,
     hatId: ipId ? hatIdDecimalToHex(hatIdIpToDecimal(ipId)) : undefined,
   };
 };
@@ -24,10 +27,12 @@ export const getQueryParams = (params: ReadonlyURLSearchParams) => {
   const values = _.fromPairs(Array.from(params.entries()));
 
   return {
-    chainId: _.toNumber(_.get(values, 'chainId')) as
-      | SupportedChains
-      | undefined,
-    treeId: _.toNumber(_.get(values, 'treeId')),
+    chainId: (_.get(values, 'chainId')
+      ? _.toNumber(_.get(values, 'chainId'))
+      : undefined) as SupportedChains | undefined,
+    treeId: _.get(values, 'treeId')
+      ? _.toNumber(_.get(values, 'treeId'))
+      : undefined,
     hatId: _.get(values, 'hatId') as Hex,
     flipped: _.get(values, 'flipped') === 'true',
     compact: _.get(values, 'compact') === 'true',
@@ -38,80 +43,33 @@ export const getQueryParams = (params: ReadonlyURLSearchParams) => {
 export const urlFromQueryParams = ({
   pathname,
   params,
-  add,
-  drop,
+  add = {},
+  drop = [],
 }: {
   pathname: string;
-  params: any;
-  add: object;
-  drop: string[];
+  params: object;
+  add?: object;
+  drop?: string[];
 }) => {
   let query = params;
+  console.log(pathname, params);
 
   if (!_.isEmpty(add)) {
     query = { ...query, ...add };
   }
 
-  return `${pathname}?${new URLSearchParams(_.omit(query, drop))}`;
+  // remove keys where the value is undefined or false
+  query = _.omitBy(query, _.isUndefined);
+  query = _.omitBy(query, (value) => value === false);
+
+  // always drop these keys, being used elsewhere in the app here
+  query = _.omit(query, _.concat(drop, ['treeId', 'chainId']));
+
+  // don't leave the trailing `?` if no query params
+  if (_.isEmpty(_.keys(query))) return pathname;
+
+  // convert query object to array of key value pairs that is compatible with URLSearchParams
+  const queryArray = _.toPairs(query);
+
+  return `${pathname}?${new URLSearchParams(queryArray)}`;
 };
-
-// export const getQueryRoute = ({
-//   query,
-//   pathname,
-//   hat,
-//   hatId,
-//   treeId,
-//   drop,
-// }: {
-//   query: ParsedUrlQuery;
-//   pathname: string;
-//   hat?: AppHat;
-//   hatId?: Hex;
-//   treeId?: Hex | number; // ? HEX? Should be a number?
-//   drop?: { tree?: boolean; hat?: boolean };
-// }) => {
-//   let updatedQuery = query;
-
-//   // maintain flipped or compact if set by user
-//   const { flipped, compact } = _.pick(query, ['flipped', 'compact']);
-//   if (compact === 'true') {
-//     updatedQuery = { ...updatedQuery, compact: 'true' };
-//   }
-//   if (flipped === 'true') {
-//     updatedQuery = { ...updatedQuery, flipped: 'true' };
-//   }
-
-//   // handle tree Id
-//   if (hat?.treeId) {
-//     updatedQuery = {
-//       ...updatedQuery,
-//       treeId: _.toString(treeIdHexToDecimal(hat.treeId)),
-//     };
-//   } else if (treeId) {
-//     if (_.isNumber(treeId)) {
-//       updatedQuery = { ...updatedQuery, treeId: _.toString(treeId) };
-//     } else {
-//       updatedQuery = { ...updatedQuery, treeId: hexToString(treeId as Hex) };
-//     }
-//   }
-
-//   // handle hat Id
-//   if (hat?.id) {
-//     updatedQuery = {
-//       ...updatedQuery,
-//       hatId: hatIdDecimalToIp(BigInt(hat.id)),
-//     };
-//   } else if (hatId && hatId !== '0x') {
-//     updatedQuery = { ...updatedQuery, hatId: hatIdDecimalToIp(BigInt(hatId)) };
-//   }
-
-//   // handle dropping values
-//   if (drop?.hat) {
-//     updatedQuery = _.omit(updatedQuery, 'hatId');
-//   }
-//   if (drop?.tree) {
-//     updatedQuery = _.omit(updatedQuery, 'treeId');
-//   }
-
-//   return { pathname, query: updatedQuery };
-// };

@@ -34,7 +34,7 @@ const MyHatsCard = ({
   hasHats,
   children,
 }: {
-  name: string;
+  name: string | undefined;
   hasHats?: boolean;
   children: ReactNode;
 }) => {
@@ -48,7 +48,10 @@ const MyHatsCard = ({
         gap={10}
       >
         <Stack>
-          <Heading variant='medium'>gm {name} 👋</Heading>
+          <Skeleton isLoaded={!!name} minH='60px' minW='200px'>
+            <Heading variant='medium'>gm {name} 👋</Heading>
+          </Skeleton>
+
           {hasHats && (
             <Text size='lg'>
               Here&apos;s what&apos;s happening with your hats

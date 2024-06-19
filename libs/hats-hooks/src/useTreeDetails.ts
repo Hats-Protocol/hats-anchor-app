@@ -15,7 +15,8 @@ const useTreeDetails = ({
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['treeDetails', localTreeId, chainId],
-    queryFn: () => fetchTreeDetailsMesh(localTreeId, chainId),
+    queryFn: () =>
+      chainId ? fetchTreeDetailsMesh(localTreeId, chainId) : undefined,
     enabled: !!treeId && !!chainId,
     initialData,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
@@ -27,8 +28,8 @@ const useTreeDetails = ({
 export default useTreeDetails;
 
 interface UseTreeDetailsProps {
-  treeId: number;
-  chainId: number;
+  treeId: number | undefined;
+  chainId: number | undefined;
   initialData?: Tree | null;
   editMode?: boolean;
 }

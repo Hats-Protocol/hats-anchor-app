@@ -570,10 +570,8 @@ function OrgChartComponent() {
         </Button>
         <Button
           onClick={() => {
-            console.log('toggleCompact', toggleCompact, 'compact', compact);
             toggleCompact();
-            console.log(handleSetCompact, 'compact', compact);
-            handleSetCompact?.(!compact);
+            handleSetCompact?.(compact);
           }}
           variant='outline'
           bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
@@ -583,7 +581,7 @@ function OrgChartComponent() {
         <Button
           onClick={() => {
             toggleFlip();
-            handleFlipChart?.(!flipped);
+            handleFlipChart?.(flipped);
             setTimeout(() => {
               chart?.fit();
             }, 50);

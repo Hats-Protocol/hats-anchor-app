@@ -241,7 +241,7 @@ export const TreeFormContextProvider = ({
   const { data: onchainLinkedHats } = useManyHatsDetails({
     hats: mapWithChainId(
       _.map(linkedHatIds, (id: Hex) => ({ id })),
-      chainId,
+      chainId || 1,
     ),
     initialHats: _.map(linkedHatIds, (id: Hex) => ({ id })),
   });
@@ -463,31 +463,29 @@ export const TreeFormContextProvider = ({
   // * CHART ACTIONS
   // *********************
 
+  /**
+   * **Flip the Org Chart**
+   *
+   * Update the query params and local storage to reflect the flipped state of the Org Chart.
+   * @param isFlipped - The current state of `flipped` param in the Org Chart
+   */
   const handleFlipChart = useCallback(
     (isFlipped: boolean) => {
-      // let updatedQuery = {
-      //   // ...router.query,
-      // };
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        add: !isFlipped ? { flipped: true } : {},
+        drop: isFlipped ? ['flipped'] : [],
+      });
 
-      // if (isFlipped) {
-      //   updatedQuery = { ...updatedQuery, flipped: 'true' };
-      // } else {
-      //   // delete updatedQuery.flipped;
-      // }
-
-      // const updatedUrl = {
-      //   // pathname: router.pathname,
-      //   query: updatedQuery,
-      // };
-
-      // window.history.pushState({}, '', updatedUrl.pathname);
+      window.history.pushState({}, '', url);
 
       setStoredConfig({
         ...storedConfig,
         flipped: isFlipped,
       });
     },
-    [pathname, setStoredConfig, storedConfig],
+    [pathname, queryParams, setStoredConfig, storedConfig],
   );
 
   const updateQueryParams = useCallback(
@@ -594,25 +592,32 @@ export const TreeFormContextProvider = ({
     [router, storedConfig, updateQueryParams],
   );
 
+  /**
+   * Expand all nodes in the Org Chart
+   *
+   * Remove the `collapsed` query param and update the local storage
+   * to reflect the expanded state of the Org Chart.
+   */
   const handleExpandAll = useCallback(() => {
-    const updatedQuery = {
-      // ...router.query,
-      collapsed: [],
-    };
-    const updatedUrl = {
-      // pathname: router.pathname,
-      query: updatedQuery,
-    };
-    console.log(updatedUrl);
+    const url = urlFromQueryParams({
+      pathname,
+      params: queryParams,
+      drop: ['collapsed'],
+    });
 
-    // window.history.pushState({}, '', updatedUrl);
+    window.history.pushState({}, '', url);
 
     setStoredConfig({
       ...storedConfig,
       collapsed: [],
     });
-  }, [pathname, setStoredConfig, storedConfig]);
+  }, [pathname, queryParams, setStoredConfig, storedConfig]);
 
+  /**
+   * Update the query params and local storage to reflect the current state of the Org Chart.
+   *
+   * @param isCompact - The current state compact param for the Org Chart
+   */
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
       const url = urlFromQueryParams({
@@ -621,7 +626,7 @@ export const TreeFormContextProvider = ({
         add: !isCompact ? { compact: true } : {},
         drop: isCompact ? ['compact'] : [],
       });
-      console.log({ url });
+
       window.history.pushState({}, '', url);
 
       setStoredConfig({
@@ -640,7 +645,7 @@ export const TreeFormContextProvider = ({
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
-      if (!_.isEmpty(localDraftHats)) {
+      if (!_.isEmpty(localDraftHats) && chainId && treeId) {
         const drafts = translateDrafts({
           chainId,
           treeId,
@@ -739,7 +744,7 @@ export const TreeFormContextProvider = ({
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
-      if (!_.isEmpty(localDraftHats)) {
+      if (!_.isEmpty(localDraftHats) && chainId && treeId) {
         const drafts = translateDrafts({
           chainId,
           treeId,

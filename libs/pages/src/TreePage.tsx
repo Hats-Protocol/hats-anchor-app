@@ -24,9 +24,13 @@ const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
 });
 const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 
-const TreePage = () => {
+const TreePage = ({
+  params: { chainId, treeId },
+}: {
+  params: { chainId: string; treeId: string };
+}) => {
   const {
-    chainId,
+    // chainId,
     // treeId,
     treeToDisplay,
     // topHatDetails,

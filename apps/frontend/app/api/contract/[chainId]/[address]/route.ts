@@ -26,9 +26,16 @@ const fetchContractData = async (chainId: number, address: Hex) =>
       throw new Error(error);
     });
 
-// can this be a GET request? would auto cache this result
-export async function POST(request: Request) {
-  const { chainId, address } = await request.json();
+// Using GET request so automatically cached via Next
+export async function GET(
+  request: Request,
+  { params }: { params: { chainId: string; address: Hex } },
+) {
+  const { chainId: initialChainId, address } = _.pick(params, [
+    'chainId',
+    'address',
+  ]);
+  const chainId = _.toNumber(initialChainId);
 
   if (!chainId || !address) {
     return Response.json(
