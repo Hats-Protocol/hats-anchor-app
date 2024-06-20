@@ -48,7 +48,7 @@ const MyHatsCard = ({
         gap={10}
       >
         <Stack>
-          <Skeleton isLoaded={!!name} minH='60px' minW='200px'>
+          <Skeleton isLoaded={!!name} minH='45px' minW='300px'>
             <Heading variant='medium'>gm {name} 👋</Heading>
           </Skeleton>
 
@@ -119,11 +119,6 @@ const MyHats = () => {
     </Stack>;
   }
 
-  console.log({
-    currentHatsWithImagesData,
-    imagesLoading,
-    wearerDetailsLoading,
-  });
   if (
     _.isEmpty(currentHatsWithImagesData) ||
     imagesLoading ||

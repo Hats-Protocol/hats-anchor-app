@@ -36,8 +36,30 @@ export const getQueryParams = (params: ReadonlyURLSearchParams) => {
     hatId: _.get(values, 'hatId') as Hex,
     flipped: _.get(values, 'flipped') === 'true',
     compact: _.get(values, 'compact') === 'true',
-    collapsed: _.get(values, 'collapsed'),
+    collapsed: params.getAll('collapsed'),
   };
+};
+
+const handleCollapsedAdded = (
+  pathname: string,
+  query: object,
+  collapsed: string | Array<string>,
+) => {
+  if (_.isEmpty(collapsed) || collapsed === '')
+    return `${pathname}?${new URLSearchParams(_.toPairs(query))}`;
+
+  if (_.isString(collapsed)) {
+    return `${pathname}?${new URLSearchParams(
+      _.concat(_.toPairs(query), [['collapsed', collapsed]]),
+    )}`;
+  }
+
+  const localQuery = _.concat(
+    _.toPairs(_.omit(query, 'collapsed')) as [string, string][],
+    _.map(collapsed, (v) => ['collapsed', v]) as [string, string][],
+  );
+
+  return `${pathname}?${new URLSearchParams(localQuery)}`;
 };
 
 export const urlFromQueryParams = ({
@@ -54,10 +76,6 @@ export const urlFromQueryParams = ({
   let query = params;
   console.log(pathname, params);
 
-  if (!_.isEmpty(add)) {
-    query = { ...query, ...add };
-  }
-
   // remove keys where the value is undefined or false
   query = _.omitBy(query, _.isUndefined);
   query = _.omitBy(query, (value) => value === false);
@@ -65,11 +83,32 @@ export const urlFromQueryParams = ({
   // always drop these keys, being used elsewhere in the app here
   query = _.omit(query, _.concat(drop, ['treeId', 'chainId']));
 
+  // handle collapsed separately since incompatible with object keys
+  const restAdd = _.omit(add, 'collapsed');
+  const queryWithoutCollapsed = _.omit(query, 'collapsed');
+  if (!_.isEmpty(restAdd)) {
+    query = { ...queryWithoutCollapsed, ...restAdd };
+  }
+
+  const collapsed = _.get(add, 'collapsed');
+  console.log(
+    query,
+    collapsed,
+    (_.isString(collapsed) && collapsed !== '') ||
+      (_.isArray(collapsed) && !_.isEmpty(collapsed)),
+  );
+  if (
+    (_.isString(collapsed) && !_.isUndefined(collapsed)) ||
+    (_.isArray(collapsed) && !_.isEmpty(collapsed))
+  ) {
+    return handleCollapsedAdded(pathname, queryWithoutCollapsed, collapsed);
+  }
+
   // don't leave the trailing `?` if no query params
-  if (_.isEmpty(_.keys(query))) return pathname;
+  if (_.isEmpty(query)) return pathname;
 
   // convert query object to array of key value pairs that is compatible with URLSearchParams
-  const queryArray = _.toPairs(query);
+  console.log('here', query);
 
-  return `${pathname}?${new URLSearchParams(queryArray)}`;
+  return `${pathname}?${new URLSearchParams(_.toPairs(query))}`;
 };

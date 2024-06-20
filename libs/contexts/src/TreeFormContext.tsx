@@ -2,7 +2,6 @@
 
 import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
-// import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
 import { DetailsData, translateDrafts } from 'hats-utils';
@@ -17,7 +16,6 @@ import {
 } from 'hooks';
 import _ from 'lodash';
 import { usePathname, useSearchParams } from 'next/navigation';
-import router from 'next/router';
 import {
   createContext,
   ReactNode,
@@ -466,7 +464,8 @@ export const TreeFormContextProvider = ({
   /**
    * **Flip the Org Chart**
    *
-   * Update the query params and local storage to reflect the flipped state of the Org Chart.
+   * After handling the disclosure, update the query params and local storage
+   * to reflect the flipped state of the Org Chart.
    * @param isFlipped - The current state of `flipped` param in the Org Chart
    */
   const handleFlipChart = useCallback(
@@ -488,108 +487,86 @@ export const TreeFormContextProvider = ({
     [pathname, queryParams, setStoredConfig, storedConfig],
   );
 
-  const updateQueryParams = useCallback(
-    (
-      updatedQuery: { [key: string]: string | string[] | undefined },
-      updatedLocalStorage: any,
-    ) => {
-      setStoredConfig({
-        ...storedConfig,
-        collapsed: updatedLocalStorage,
+  const updateCollapsedQueryParams = useCallback(
+    (collapsed: any[]) => {
+      console.log(collapsed);
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        add: !_.isEmpty(collapsed) ? { collapsed } : {},
+        drop: _.isEmpty(collapsed) ? ['collapsed'] : [],
       });
 
-      // const updatedUrl = {
-      //   // pathname: router.pathname,
-      //   query: updatedQuery,
-      // };
+      window.history.pushState({}, '', url);
 
-      // router.push(updatedUrl, undefined, { shallow: true });
+      setStoredConfig({
+        ...storedConfig,
+        collapsed: _.isArray(collapsed) ? collapsed : [collapsed],
+      });
     },
-    [pathname, storedConfig, setStoredConfig],
+    [pathname, queryParams, storedConfig, setStoredConfig],
   );
 
-  /** Update the query params and local storage.
+  /**
+   * Update the `collapsed` query params and local storage.
+   *
    * If query params are not empty, then they will take precedence over the local storage state, meaning that the local storage
-   * will be updated according to the query params. If query params are empty but local storage is not, then the local storage will
+   * will be updated according to the query params.
+   *
+   * If query params are empty but local storage is not, then the local storage will
    * take precedence.
+   * @param nodeIdIp - The node ID of the collapsed or expanded node
+   * @param expanded - The state of the node, expanded or collapsed
    */
   const handleNodeCollapsedOrExpanded = useCallback(
     (nodeIdIp: string, expanded: boolean) => {
-      // let updatedQuery = {
-      //   // ...router.query,
-      // };
-      // const { collapsed } = updatedQuery;
-      // console.log(updatedQuery, collapsed);
-      // let updatedLocalStorage: string[] = [];
-      // if (Array.isArray(collapsed)) {
-      //   // existing query params is an array
-      //   const newCollapsedQueryParams = [...collapsed];
-      //   if (!expanded) {
-      //     // add the new collapsed node if it's not already in the query params
-      //     if (newCollapsedQueryParams.includes(nodeIdIp)) {
-      //       return;
-      //     }
-      //     newCollapsedQueryParams.push(nodeIdIp);
-      //   } else {
-      //     // remove the expanded node
-      //     const index = newCollapsedQueryParams.indexOf(nodeIdIp);
-      //     if (index > -1) {
-      //       newCollapsedQueryParams.splice(index, 1);
-      //     }
-      //   }
-      //   updatedQuery = {
-      //     ...updatedQuery,
-      //     collapsed: newCollapsedQueryParams,
-      //   };
-      //   updatedLocalStorage = newCollapsedQueryParams; // update local storage with the query params state
-      //   updateQueryParams(updatedQuery, updatedLocalStorage);
-      //   return;
-      // }
-      // if (typeof collapsed === 'string') {
-      //   // single collapsed node in query params
-      //   if (!expanded) {
-      //     // add the new collapsed node if it's not already in the query params
-      //     if (collapsed === nodeIdIp) {
-      //       return;
-      //     }
-      //     updatedQuery = {
-      //       ...updatedQuery,
-      //       collapsed: [collapsed, nodeIdIp],
-      //     };
-      //     updatedLocalStorage = [collapsed, nodeIdIp]; // update local storage with the query params state
-      //   } else {
-      //     // remove the expanded node
-      //     delete updatedQuery.collapsed;
-      //   }
-      //   updateQueryParams(updatedQuery, updatedLocalStorage);
-      //   return;
-      // }
-      // if (storedConfig.collapsed && !_.isEmpty(storedConfig.collapsed)) {
-      //   // no query params but there are collapsed nodes in local storage
-      //   if (!expanded) {
-      //     updatedLocalStorage = _.uniq([...storedConfig.collapsed, nodeIdIp]);
-      //   } else if (storedConfig.collapsed.includes(nodeIdIp)) {
-      //     updatedLocalStorage = [...storedConfig.collapsed];
-      //     const index = storedConfig.collapsed.indexOf(nodeIdIp);
-      //     updatedLocalStorage.splice(index, 1);
-      //   }
-      //   // update the query params with the including collapsed nodes from local storage
-      //   updatedQuery = {
-      //     ...updatedQuery,
-      //     collapsed: updatedLocalStorage,
-      //   };
-      //   updateQueryParams(updatedQuery, updatedLocalStorage);
-      //   return;
-      // }
-      // // no query params and no local storage, a node was collapsed
-      // updatedQuery = {
-      //   ...updatedQuery,
-      //   collapsed: nodeIdIp,
-      // };
-      // updatedLocalStorage = [nodeIdIp];
-      // updateQueryParams(updatedQuery, updatedLocalStorage);
+      const { collapsed } = queryParams;
+      console.log({ nodeIdIp, expanded, collapsed });
+
+      if (Array.isArray(collapsed)) {
+        console.log('collapsed is array');
+        // existing query params is an array
+        updateCollapsedQueryParams(
+          expanded
+            ? _.reject(collapsed, (id) => id === nodeIdIp)
+            : _.uniq(_.concat(collapsed, nodeIdIp)),
+        );
+        return;
+      }
+      if (typeof collapsed === 'string') {
+        // single collapsed node in query params
+        console.log('collapsed is string');
+
+        updateCollapsedQueryParams(
+          expanded
+            ? _.reject(collapsed, nodeIdIp)
+            : _.uniq(_.concat(collapsed, nodeIdIp)),
+        );
+        return;
+      }
+      if (storedConfig.collapsed && !_.isEmpty(storedConfig.collapsed)) {
+        console.log('collapsed in local storage');
+        // no query params but there are collapsed nodes in local storage
+
+        if (expanded) {
+          updateCollapsedQueryParams(
+            _.uniq(_.concat(storedConfig.collapsed, nodeIdIp)),
+          );
+          return;
+        }
+
+        if (_.includes(storedConfig.collapsed, nodeIdIp)) {
+          updateCollapsedQueryParams(
+            _.reject(storedConfig.collapsed, (id) => id === nodeIdIp),
+          );
+          return;
+        }
+        // update the query params with the including collapsed nodes from local storage
+      }
+      // no query params and no local storage, a node was collapsed
+      updateCollapsedQueryParams([nodeIdIp]);
     },
-    [router, storedConfig, updateQueryParams],
+    [queryParams, storedConfig, updateCollapsedQueryParams],
   );
 
   /**

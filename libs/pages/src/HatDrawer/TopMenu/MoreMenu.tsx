@@ -8,6 +8,7 @@ import {
   Link,
   Menu,
   MenuButton,
+  MenuGroup,
   MenuItem,
   MenuList,
   Modal,
@@ -145,78 +146,85 @@ const MoreMenu = () => {
         </MenuButton>
         <MenuList gap={5}>
           {/* OFF-CHAIN ACTIONS */}
-          <MenuItem onClick={handleExport}>
-            <HStack>
-              <TbChartDots3 />
-              <Text>Export branch {idToIp(selectedHat?.id)}</Text>
-            </HStack>
-          </MenuItem>
-          <MenuItem
-            gap={2}
-            onClick={() => {
-              copyHatId();
-              toast.info({
-                title: 'Successfully copied hat ID to clipboard',
-              });
-            }}
-          >
-            <FaCopy />
-            Copy hat ID
-          </MenuItem>
-          <MenuItem
-            gap={2}
-            onClick={() => {
-              copyContractAddress();
-              toast.info({
-                title: 'Successfully copied contract address to clipboard',
-              });
-            }}
-          >
-            <FaCopy />
-            Copy contract ID
-          </MenuItem>
+          <MenuGroup title='Off-chain Actions'>
+            <MenuItem icon={<TbChartDots3 />} onClick={handleExport}>
+              Export branch {idToIp(selectedHat?.id)}
+            </MenuItem>
+
+            <MenuItem
+              icon={<FaCopy />}
+              onClick={() => {
+                copyHatId();
+                toast.info({
+                  title: 'Successfully copied hat ID to clipboard',
+                });
+              }}
+            >
+              Copy Hat Hex ID
+            </MenuItem>
+
+            <MenuItem
+              icon={<FaCopy />}
+              onClick={() => {
+                copyHatId();
+                toast.info({
+                  title: 'Successfully copied hat ID to clipboard',
+                });
+              }}
+            >
+              Copy Hat Decimal ID
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => {
+                copyContractAddress();
+                toast.info({
+                  title: 'Successfully copied contract address to clipboard',
+                });
+              }}
+              icon={<FaCopy />}
+            >
+              Copy Hats Contract
+            </MenuItem>
+          </MenuGroup>
+
           <Divider />
+
           {/* ONCHAIN ACTIONS */}
-          {address && isClaimable?.by && !isClaimable?.for && (
-            <MenuItem onClick={() => setModals?.({ checkEligibility: true })}>
-              <HStack>
-                <Icon as={FaExclamationCircle} />
-                <Text>Check Eligibility</Text>
-              </HStack>
-            </MenuItem>
-          )}
-          <Tooltip
-            label={!toggleIsContract ? 'The toggle is "humanistic"' : ''}
-            shouldWrapChildren
-          >
-            <MenuItem
-              gap={2}
-              onClick={() => checkHatStatus?.()}
-              isDisabled={
-                isLoadingCheckHatStatus || !checkHatStatus || !toggleIsContract
-              }
-            >
-              <Tooltip
-                label={
-                  chainId !== currentNetworkId
-                    ? "You can't test status of a hat on a different chain"
-                    : ''
-                }
-                shouldWrapChildren
+          <MenuGroup title='On-chain Actions'>
+            {address && isClaimable?.by && !isClaimable?.for && (
+              <MenuItem
+                onClick={() => setModals?.({ checkEligibility: true })}
+                icon={<Icon as={FaExclamationCircle} />}
               >
-                <HStack>
-                  <FaDoorOpen />
-                  <Text>Test hat status</Text>
-                </HStack>
-              </Tooltip>
-            </MenuItem>
-          </Tooltip>
-          {address && (
-            <MenuItem
-              gap={2}
-              onClick={() => setModals?.({ requestLink: true })}
-              isDisabled={chainId !== currentNetworkId}
+                Check Eligibility
+              </MenuItem>
+            )}
+
+            <Tooltip
+              label={
+                !toggleIsContract
+                  ? 'The toggle is "humanistic"'
+                  : chainId !== currentNetworkId
+                  ? "You can't test status of a hat on a different chain"
+                  : ''
+              }
+              shouldWrapChildren
             >
+              <MenuItem
+                onClick={() => checkHatStatus?.()}
+                isDisabled={
+                  isLoadingCheckHatStatus ||
+                  !checkHatStatus ||
+                  !toggleIsContract
+                }
+                icon={<FaDoorOpen />}
+              >
+                Test hat status
+              </MenuItem>
+            </Tooltip>
+
+            {address && (
               <Tooltip
                 label={
                   chainId !== currentNetworkId
@@ -225,24 +233,17 @@ const MoreMenu = () => {
                 }
                 shouldWrapChildren
               >
-                <HStack>
-                  <FaLink />
-
-                  <Text>Request to link tree here</Text>
-                </HStack>
+                <MenuItem
+                  onClick={() => setModals?.({ requestLink: true })}
+                  isDisabled={chainId !== currentNetworkId}
+                  icon={<FaLink />}
+                >
+                  Request to link tree here
+                </MenuItem>
               </Tooltip>
-            </MenuItem>
-          )}
-          {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
-            <MenuItem
-              gap={2}
-              onClick={() => toggleHat?.()}
-              isDisabled={
-                !isSameAddress(selectedHat?.toggle, address) ||
-                isLoadingToggleHat ||
-                !toggleHat
-              }
-            >
+            )}
+
+            {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
               <Tooltip
                 label={
                   !isSameAddress(selectedHat?.toggle, address)
@@ -251,25 +252,21 @@ const MoreMenu = () => {
                 }
                 shouldWrapChildren
               >
-                <HStack>
-                  <FaPowerOff />
-                  <Text>
-                    {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
-                  </Text>
-                </HStack>
+                <MenuItem
+                  onClick={() => toggleHat?.()}
+                  isDisabled={
+                    !isSameAddress(selectedHat?.toggle, address) ||
+                    isLoadingToggleHat ||
+                    !toggleHat
+                  }
+                  icon={<FaPowerOff />}
+                >
+                  {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
+                </MenuItem>
               </Tooltip>
-            </MenuItem>
-          )}
-          {isAdminUser && (
-            <MenuItem
-              gap={2}
-              onClick={onOpen}
-              isDisabled={
-                mutableStatus === MUTABILITY.IMMUTABLE ||
-                !updateImmutability ||
-                isLoadingUpdateImmutability
-              }
-            >
+            )}
+
+            {isAdminUser && (
               <Tooltip
                 label={
                   !updateImmutability
@@ -278,15 +275,23 @@ const MoreMenu = () => {
                 }
                 shouldWrapChildren
               >
-                <HStack>
-                  <FaLock />
-                  <Text>Make immutable</Text>
-                </HStack>
+                <MenuItem
+                  onClick={onOpen}
+                  isDisabled={
+                    mutableStatus === MUTABILITY.IMMUTABLE ||
+                    !updateImmutability ||
+                    isLoadingUpdateImmutability
+                  }
+                  icon={<FaLock />}
+                >
+                  Make immutable
+                </MenuItem>
               </Tooltip>
-            </MenuItem>
-          )}
+            )}
+          </MenuGroup>
 
           <Divider />
+
           {/* REPORT */}
           <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
             <FaExclamationCircle />
