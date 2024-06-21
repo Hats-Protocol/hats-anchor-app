@@ -1,9 +1,10 @@
+'use client';
+
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { treeCreateEventIdToTreeId } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
-import router from 'next/router';
 import { useState } from 'react';
 import { HandlePendingTx } from 'types';
 import { fetchTreeDetails } from 'utils';
@@ -53,11 +54,12 @@ const useTreeCreate = ({
 
     await waitForSubgraph();
 
-    queryClient.invalidateQueries(['treeList', chainId]);
-    queryClient.invalidateQueries(['wearerDetails']);
+    queryClient.invalidateQueries({ queryKey: ['treeList', chainId] });
+    queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
     setStillLoading(false);
     toast.info({ title: 'Redirecting you to your new tree' });
-    router.push(`/trees/${chainId}/${newTreeId}`);
+
+    window.history.pushState({}, '', `/trees/${chainId}/${newTreeId}`);
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({
@@ -98,5 +100,5 @@ interface UseTreeCreateProps {
   receiver: string;
   overrideReceiver: boolean;
   imageUrl?: string;
-  handlePendingTx: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
 }

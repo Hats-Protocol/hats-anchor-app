@@ -1,3 +1,5 @@
+'use client';
+
 import { HStack } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 

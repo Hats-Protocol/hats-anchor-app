@@ -1,3 +1,5 @@
+'use client';
+
 import { Stack } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
 import _ from 'lodash';

@@ -1,15 +1,10 @@
 export { default as useAgreementClaimsHatterContractWrite } from './useAgreementClaimsHatterContractWrite';
-export { default as useAttemptAutoConnect } from './useAttemptAutoConnect';
 export { default as useCid } from './useCid';
 export { default as useClipboard } from './useClipboard';
 export { default as useContractData } from './useContractData';
 export { default as useDebounce } from './useDebounce';
 export { default as useDeepCompareEffect } from './useDeepCompareEffect';
-export { default as useFeaturedTemplates } from './useFeaturedTemplates';
-export { default as useFeaturedTrees } from './useFeaturedTrees';
-export { default as useFeaturedTreesData } from './useFeaturedTreesData';
 export { default as useHatGuildRoles } from './useHatGuildRoles';
-export { default as useHatParams } from './useHatParams';
 export { default as useHatSnapshotRoles } from './useHatSnapshotRoles';
 export { default as useImageURIs } from './useImageURIs';
 export { default as useLocalStorage } from './useLocalStorage';

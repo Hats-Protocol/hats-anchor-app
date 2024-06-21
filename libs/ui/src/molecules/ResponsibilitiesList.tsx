@@ -1,3 +1,5 @@
+'use client';
+
 import { Accordion, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
 import _ from 'lodash';

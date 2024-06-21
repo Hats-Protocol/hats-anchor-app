@@ -1,7 +1,10 @@
+'use client';
+
 import { ZERO_ID } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
+import _ from 'lodash';
 import { AppHat, SupportedChains } from 'types';
-import { fetchHatDetails } from 'utils';
+import { fetchHatDetailsMesh } from 'utils';
 
 const useHatDetails = ({
   hatId,
@@ -16,7 +19,7 @@ const useHatDetails = ({
 }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['hatDetails', { id: hatId, chainId }],
-    queryFn: () => fetchHatDetails(hatId, chainId),
+    queryFn: () => fetchHatDetailsMesh(hatId, chainId),
     enabled:
       !!hatId &&
       hatId !== ZERO_ID &&
@@ -27,7 +30,11 @@ const useHatDetails = ({
     initialData,
   });
 
-  return { data, isLoading, error };
+  const metadata = _.get(data, 'detailsMetadata');
+  const fullDetails = metadata ? JSON.parse(metadata) : {};
+  const details = _.get(fullDetails, 'data');
+
+  return { data, details, isLoading, error };
 };
 
 export default useHatDetails;

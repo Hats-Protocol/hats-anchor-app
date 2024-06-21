@@ -1,3 +1,5 @@
+'use client';
+
 import {
   CONFIG,
   CONTROLLER_TYPES,
@@ -36,10 +38,10 @@ import useMultiClaimsHatterContractWrite from './useMultiClaimsHatterContractWri
 interface UseModuleDeployArgs {
   localForm: UseFormReturn;
   selectedHat?: AppHat;
-  chainId: SupportedChains;
-  storedData: Partial<FormData>[];
+  chainId: SupportedChains | undefined;
+  storedData: Partial<FormData>[] | undefined;
   setStoredData?: Dispatch<SetStateAction<Partial<FormData>[]>>;
-  onchainHats: AppHat[];
+  onchainHats: AppHat[] | undefined;
   editMode?: boolean;
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
@@ -262,7 +264,7 @@ const useModuleDeploy = ({
           console.error('Invalid deployment type');
           break;
       }
-      queryClient.invalidateQueries(['claimsHatter']);
+      queryClient.invalidateQueries({ queryKey: ['claimsHatter'] });
       onCloseModuleDrawer();
     },
     [
@@ -281,7 +283,7 @@ const useModuleDeploy = ({
     ],
   );
 
-  const { isLoading, mutateAsync } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: async () => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
@@ -357,7 +359,7 @@ const useModuleDeploy = ({
 
   return {
     deploy: mutateAsync,
-    isLoading: isLoading || isLoadingMultiClaimsHatter,
+    isLoading: isLoadingMultiClaimsHatter,
     isBlocked: isPermissionlesslyClaimable === 'Yes' && !adminHat,
   };
 };

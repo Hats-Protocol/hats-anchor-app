@@ -1,3 +1,5 @@
+'use client';
+
 import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat } from 'contexts';

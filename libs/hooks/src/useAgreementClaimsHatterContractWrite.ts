@@ -1,7 +1,9 @@
+'use client';
+
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { useState } from 'react';
 import { Hex } from 'viem';
-import { useContractWrite, usePrepareContractWrite } from 'wagmi';
+import { useWriteContract } from 'wagmi';
 
 import useToast from './useToast';
 
@@ -37,56 +39,52 @@ const useAgreementClaimsHatterContractWrite: any = ({
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address,
-    chainId: Number(chainId),
-    abi: AGREEMENT_CLAIMS_HATTER_ABI,
-    functionName,
-    enabled: localEnabled,
-  });
+  const { writeContractAsync } = useWriteContract();
 
-  const {
-    writeAsync,
-    error: writeError,
-    isLoading: isWriteLoading,
-  } = useContractWrite({
-    ...config,
-    onSuccess: async (data) => {
-      setIsLoading(true);
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+  const handleContractWrite = async () => {
+    if (!localEnabled) return null;
 
-      await handlePendingTx?.({
-        hash: data.hash,
-        toastData: onSuccessToastData,
+    return writeContractAsync({
+      address: address as Hex,
+      chainId: Number(chainId),
+      abi: AGREEMENT_CLAIMS_HATTER_ABI,
+      functionName,
+    })
+      .then((hash) => {
+        setIsLoading(true);
+        toast.info({
+          title: 'Transaction submitted',
+          description: 'Waiting for your transaction to be accepted...',
+        });
+
+        handlePendingTx?.({
+          hash,
+          toastData: onSuccessToastData,
+        });
+        setIsLoading(false);
+      })
+
+      .catch((error) => {
+        if (
+          error.name === 'TransactionExecutionError' &&
+          error.message.includes('User rejected the request')
+        ) {
+          toast.error({
+            title: 'Signature rejected!',
+            description: 'Please accept the transaction in your wallet',
+          });
+        } else {
+          toast.error({
+            title: 'Transaction failed',
+            description: 'Please try again later',
+          });
+        }
       });
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      if (
-        error.name === 'TransactionExecutionError' &&
-        error.message.includes('User rejected the request')
-      ) {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
-        });
-      } else {
-        toast.error({
-          title: 'Transaction failed',
-          description: 'Please try again later',
-        });
-      }
-    },
-  });
+  };
 
   return {
-    writeAsync,
-    isLoading: isLoading || isWriteLoading,
-    prepareError,
-    writeError,
+    writeAsync: handleContractWrite,
+    isLoading,
   };
 };
 

@@ -1,6 +1,7 @@
+'use client';
+
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
 import {
   createContext,
   ReactNode,
@@ -15,8 +16,8 @@ import {
   StandaloneOverlayContextProps,
   Transaction,
 } from 'types';
+import { viemPublicClient } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import { waitForTransaction } from 'wagmi/actions';
 
 const defaults: ClaimsModals = {
   newWearer: false,
@@ -55,7 +56,6 @@ export const StandaloneOverlayContextProvider = ({
   const [transactions] = useState<Transaction[]>([]);
   const [commandPalette, setCommandPalette] = useState(false);
   const toast = useToast();
-  const router = useRouter();
 
   const [recentlyVisitedHats, setRecentlyVisitedHats] = useLocalStorage<
     { hatId: Hex; chainId: number }[] | undefined
@@ -110,6 +110,7 @@ export const StandaloneOverlayContextProvider = ({
    * */
   const handlePendingTx = async ({
     hash,
+    txChainId,
     toastData,
     redirect = null,
     clearModals = true,
@@ -125,7 +126,11 @@ export const StandaloneOverlayContextProvider = ({
     sendToast?: boolean;
     onSuccess?: (data?: TransactionReceipt) => void;
   }): Promise<TransactionReceipt | undefined> => {
-    const data = await waitForTransaction({ hash });
+    const data = await viemPublicClient(
+      txChainId || 1,
+    ).waitForTransactionReceipt({
+      hash,
+    });
 
     if (!data) {
       return Promise.resolve(undefined);
@@ -147,7 +152,7 @@ export const StandaloneOverlayContextProvider = ({
     }
 
     if (redirect) {
-      router.push(redirect);
+      window.history.pushState({}, '', redirect);
     }
 
     return Promise.resolve(data);

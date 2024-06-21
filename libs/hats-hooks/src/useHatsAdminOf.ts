@@ -1,9 +1,11 @@
+'use client';
+
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { AppHat } from 'types';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
-import { chainsList, fetchTreesById } from 'utils';
+import { chainsList, fetchTreesByIdMesh } from 'utils';
+import { AppHat } from 'types';
 
 const chains = _.keys(chainsList);
 
@@ -34,7 +36,7 @@ const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
 
     // fetch the trees for each network
     const promises = _.map(networksWithTrees, (v: NetworkTrees, k: string) => {
-      return fetchTreesById(_.compact(v.trees), _.toNumber(k));
+      return fetchTreesByIdMesh(_.compact(v.trees), _.toNumber(k));
     });
     const data: unknown[] = await Promise.all(promises);
 

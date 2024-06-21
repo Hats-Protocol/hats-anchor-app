@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Badge,
   Box,
@@ -244,11 +246,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         })}
       </Box>
 
-      <Modal
-        name='importFile'
-        title='Import Draft Tree Changes'
-        localOverlay={localOverlay}
-      >
+      <Modal name='importFile' title='Import Draft Tree Changes'>
         <ImportTreeForm />
       </Modal>
     </Stack>

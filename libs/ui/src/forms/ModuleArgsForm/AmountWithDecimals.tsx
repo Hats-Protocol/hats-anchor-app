@@ -1,3 +1,5 @@
+'use client';
+
 import { Stack, Text } from '@chakra-ui/react';
 import {
   FALLBACK_ARG_EXAMPLES,
@@ -8,7 +10,7 @@ import { useTreeForm } from 'contexts';
 import _ from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { transformAndVerify } from 'utils';
-import { Hex, isAddress, parseUnits } from 'viem';
+import { Hex, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
 
 import NumberInput from '../NumberInput';
@@ -38,9 +40,9 @@ const AmountWithDecimals = ({
   const { data: tokenDetails } = useToken({
     address: tokenAddress || localTokenAddress,
     chainId,
-    enabled:
-      (!!tokenAddress && isAddress(tokenAddress)) ||
-      (!!localTokenAddress && isAddress(localTokenAddress)),
+    // enabled:
+    //   (!!tokenAddress && isAddress(tokenAddress)) ||
+    //   (!!localTokenAddress && isAddress(localTokenAddress)),
   });
   const tokenDecimals = tokenDetails?.decimals;
 

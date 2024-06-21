@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -98,8 +100,9 @@ const UpcomingSeason = () => {
     currentTermEndDate,
   ]);
 
-  const { mutateAsync: callModuleFunction, isLoading: isModuleLoading } =
-    useCallModuleFunction({ chainId });
+  const { mutateAsync: callModuleFunction } = useCallModuleFunction({
+    chainId,
+  });
 
   if (!moduleDetails || !moduleParameters || !controllerAddress) return null;
 
@@ -167,7 +170,6 @@ const UpcomingSeason = () => {
         title={`Interact with ${moduleDetails?.name} (${formatAddress(
           controllerAddress,
         )})`}
-        localOverlay={localOverlay}
       >
         <Box as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={4}>
@@ -191,7 +193,6 @@ const UpcomingSeason = () => {
                   colorScheme='blue'
                   type='submit'
                   isDisabled={!formState.isValid}
-                  isLoading={isModuleLoading}
                 >
                   {_.capitalize(_.get(selectedFunction, 'label'))}
                 </Button>

@@ -1,6 +1,8 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
 import { Hex } from 'viem';
-import { useContractRead } from 'wagmi';
+import { useReadContract } from 'wagmi';
 
 const useIsAdmin = ({
   address,
@@ -13,14 +15,12 @@ const useIsAdmin = ({
   chainId: number | undefined;
   editMode?: boolean;
 }) => {
-  const { data: isAdmin } = useContractRead({
+  const { data: isAdmin } = useReadContract({
     address: CONFIG.hatsAddress,
     abi: CONFIG.hatsAbi,
     chainId,
     functionName: 'isAdminOfHat',
     args: [address, hatId],
-    enabled: !!address && !!hatId && !!chainId,
-    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return isAdmin as boolean | undefined;

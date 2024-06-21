@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -117,15 +119,13 @@ const ModuleAuthorityToolbar = ({
     return links;
   }, [authority, chainId]);
 
-  const { mutate: callModuleFunction, isLoading: isModuleLoading } =
-    useCallModuleFunction({
-      chainId,
-    });
+  const { mutate: callModuleFunction } = useCallModuleFunction({
+    chainId,
+  });
 
-  const { mutate: callHsgFunction, isLoading: isHsgLoading } =
-    useCallHsgFunction({
-      chainId,
-    });
+  const { mutate: callHsgFunction } = useCallHsgFunction({
+    chainId,
+  });
 
   const handleFunctionCall = (func: any) => {
     if (!authority) return;
@@ -392,7 +392,6 @@ const ModuleAuthorityToolbar = ({
         title={`${_.capitalize(
           _.get(selectedFunction, 'label'),
         )} for Hat #${authorityHatId}`}
-        localOverlay={localOverlay}
       >
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={1}>
@@ -420,7 +419,8 @@ const ModuleAuthorityToolbar = ({
                 colorScheme='blue'
                 type='submit'
                 isDisabled={!formState.isValid}
-                isLoading={isModuleLoading || isHsgLoading}
+                // TODO alternative for loading here?
+                // isLoading={isModuleLoading || isHsgLoading}
               >
                 {_.capitalize(_.get(selectedFunction, 'label'))}
               </Button>

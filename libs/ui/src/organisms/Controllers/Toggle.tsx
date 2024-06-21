@@ -1,3 +1,5 @@
+'use client';
+
 import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';

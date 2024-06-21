@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Daohaus: any = createIcon({
+const Daohaus = createIcon({
   displayName: 'Daohaus',
   viewBox: '0 0 56 28',
   path: [

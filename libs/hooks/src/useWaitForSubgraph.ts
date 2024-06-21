@@ -1,3 +1,5 @@
+'use client';
+
 import useToast from './useToast';
 
 const useWaitForSubgraph = ({
@@ -22,11 +24,12 @@ const useWaitForSubgraph = ({
 
           if (result && checkResult(result)) {
             clearInterval(intervalId);
-
-            toast.success({
-              title: 'Subgraph updated!',
-            });
-            resolve(result);
+            setTimeout(() => {
+              toast.success({
+                title: 'Subgraph updated!',
+              });
+              resolve(result);
+            }, 5000);
           }
         } catch (e) {
           toast.error({

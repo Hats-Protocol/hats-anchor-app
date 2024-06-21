@@ -1,3 +1,5 @@
+'use client';
+
 import { Heading, Stack } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 

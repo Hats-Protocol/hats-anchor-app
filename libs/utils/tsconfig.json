@@ -6,7 +6,8 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
-    "strict": true
+    "strict": true,
+    "skipLibCheck": true
   },
   "references": [
     { "path": "../constants/tsconfig.lib.json" },

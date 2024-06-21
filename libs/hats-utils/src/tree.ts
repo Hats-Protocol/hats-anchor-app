@@ -241,7 +241,10 @@ const compareHatIds = (a: AppHat, b: AppHat): number => {
   return 0;
 };
 
-export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
+export function prepareMobileTreeHats(
+  tree: AppHat[] | undefined,
+): HatWithDepth[] {
+  if (!tree) return [];
   let newIdList = tree
     ? // start with the top hat
       [_.get(_.first(tree), 'id')]

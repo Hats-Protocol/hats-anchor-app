@@ -16,8 +16,8 @@ import {
 } from 'types';
 import { Hex } from 'viem';
 
-import { calculateCid, ipfsUrl, urlToIpfsUri } from '../ipfs';
-import { createHatsClient, publicClient } from '../web3';
+import { calculateCid, ipfsUrl, urlToIpfsUri } from '../image';
+import { createHatsClient, viemPublicClient } from '../web3';
 
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
@@ -145,13 +145,13 @@ const createNewHatData = async ({
   let localToggle = toggle;
   if (eligibility?.includes('.eth')) {
     localEligibility =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      (await viemPublicClient(1).getEnsAddress({
         name: eligibility,
       })) || undefined;
   }
   if (toggle?.includes('.eth')) {
     localToggle =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      (await viemPublicClient(1).getEnsAddress({
         name: toggle,
       })) || undefined;
   }
@@ -435,7 +435,7 @@ const processEligibilityChangeCallForHat = async ({
 
   if (eligibility.includes('.eth')) {
     localEligibility =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      (await viemPublicClient(1).getEnsAddress({
         name: eligibility,
       })) || undefined;
   }
@@ -474,7 +474,7 @@ const processToggleChangeCallForHat = async ({
 
   if (toggle.includes('.eth')) {
     localToggle =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      (await viemPublicClient(1).getEnsAddress({
         name: toggle,
       })) || undefined;
   }

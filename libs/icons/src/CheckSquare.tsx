@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const CheckSquare: any = createIcon({
+const CheckSquare = createIcon({
   displayName: 'CheckSquare',
   viewBox: '0 0 32 32',
   path: [

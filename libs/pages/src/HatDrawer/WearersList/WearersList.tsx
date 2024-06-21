@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -15,7 +17,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import {
   HatClaimForm,
   HatTransferForm,
@@ -60,7 +62,6 @@ const DEFAULT_WEARERS = {
 };
 
 const WearersList = () => {
-  const localOverlay = useOverlay();
   const { isMobile } = useMediaStyles();
   const { address } = useAccount();
   const { editMode, orgChartWearers } = useTreeForm();
@@ -290,19 +291,13 @@ const WearersList = () => {
 
       {!isMobile && (
         <>
-          <Modal
-            name='claimFor'
-            title='Claim hat for wearer'
-            size='2xl'
-            localOverlay={localOverlay}
-          >
+          <Modal name='claimFor' title='Claim hat for wearer' size='2xl'>
             <HatClaimForm />
           </Modal>
 
           <Modal
             name='hatWearerStatus'
             title='Remove a Wearer by revoking their Hat token'
-            localOverlay={localOverlay}
             size='3xl'
           >
             <HatWearerStatusForm
@@ -311,19 +306,11 @@ const WearersList = () => {
             />
           </Modal>
 
-          <Modal
-            name='transferHat'
-            title='Transfer Hat to New Address'
-            localOverlay={localOverlay}
-          >
+          <Modal name='transferHat' title='Transfer Hat to New Address'>
             <HatTransferForm currentWearerAddress={wearerToTransferFrom} />
           </Modal>
 
-          <Modal
-            name='newWearer'
-            title='Add a Wearer by minting a Hat token'
-            localOverlay={localOverlay}
-          >
+          <Modal name='newWearer' title='Add a Wearer by minting a Hat token'>
             <HatWearerForm localForm={localForm} />
           </Modal>
         </>

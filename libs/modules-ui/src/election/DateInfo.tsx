@@ -1,3 +1,5 @@
+'use client';
+
 import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { format, formatDistanceToNow } from 'date-fns';
 

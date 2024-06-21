@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -7,6 +9,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import {
   useAgreementEligibility,
@@ -22,7 +25,7 @@ import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
 import { Authority } from 'types';
 import { fetchWearerDetails, hatLink } from 'utils';
-import { useAccount, useChainId, useQueryClient } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 import Conditions from './Conditions';
@@ -120,8 +123,8 @@ const ClaimHat = ({
     mchAddress: instanceAddress,
     onSuccessfulSign: async () => {
       await waitForClaim();
-      queryClient.invalidateQueries(['wearerDetails']);
-      queryClient.invalidateQueries(['hatDetails']);
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
     },
   });
 

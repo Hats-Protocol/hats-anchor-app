@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -247,9 +249,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
                 isLoadingBatchMintHats ||
                 !!errors?.[`wearers-currentAddress`]
               }
-              leftIcon={
-                <Icon as={BoxArrowUpRightIn} boxSize={4} alt='Mint' mr={2} />
-              }
+              leftIcon={<Icon as={BoxArrowUpRightIn} boxSize={4} mr={2} />}
             >
               Mint Hat{_.size(localWearers) > 0 && 's'}
             </Button>

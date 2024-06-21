@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Accordion,
   AccordionButton,
@@ -91,10 +93,9 @@ const ModuleDetails = ({ type }: { type: string }) => {
     _.size(a.label),
   );
 
-  const { mutate: callModuleFunction, isLoading: isModuleLoading } =
-    useCallModuleFunction({
-      chainId,
-    });
+  const { mutate: callModuleFunction } = useCallModuleFunction({
+    chainId,
+  });
   const handleFunctionCall = (func: any) => {
     console.log('func', func);
     if (func.args && func.args.length > 0) {
@@ -180,7 +181,6 @@ const ModuleDetails = ({ type }: { type: string }) => {
             title={`Interact with ${moduleDetails?.name} (${formatAddress(
               controllerAddress,
             )})`}
-            localOverlay={localOverlay}
           >
             <Box as='form' onSubmit={handleSubmit(onSubmit)}>
               {_.get(selectedFunction, 'description') && (
@@ -206,7 +206,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                     colorScheme='blue'
                     type='submit'
                     isDisabled={!formState.isValid}
-                    isLoading={isModuleLoading}
+                    // isLoading={isModuleLoading}
                   >
                     {_.get(selectedFunction, 'label')}
                   </Button>

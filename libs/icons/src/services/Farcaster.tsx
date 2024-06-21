@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Farcaster: any = createIcon({
+const Farcaster = createIcon({
   displayName: 'Farcaster',
   viewBox: '0 0 16 16',
   path: [

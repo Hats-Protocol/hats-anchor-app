@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable import/no-unresolved */
 import _ from 'lodash';
 import { useEffect, useState } from 'react';

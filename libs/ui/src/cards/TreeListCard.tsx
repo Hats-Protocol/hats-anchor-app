@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Card,
@@ -22,6 +24,8 @@ import { removeInactiveHatsAndDescendants } from 'utils';
 import { ChakraNextLink } from '../atoms';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
+
+// TODO migrate Top Hat image to LazyImage
 
 const TreeStats = ({ tree }: { tree: Tree }) => {
   const activeHats = removeInactiveHatsAndDescendants(tree?.hats);

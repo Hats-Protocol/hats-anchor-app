@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';

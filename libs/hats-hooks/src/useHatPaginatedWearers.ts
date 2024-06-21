@@ -1,7 +1,9 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
-import { HatWearer, SupportedChains } from 'types';
 import { sortWearers } from 'hats-utils';
 import { useState } from 'react';
+import { HatWearer, SupportedChains } from 'types';
 import { fetchPaginatedWearersForHat } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -14,7 +16,7 @@ const useHatPaginatedWearers = ({
   const [page, setPage] = useState(initialPage);
   const { address } = useAccount();
 
-  const { data, isLoading, isFetching, isPreviousData } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['wearersList', hatId, chainId, page],
     queryFn: () => {
       if (!hatId || !chainId) return [];
@@ -24,9 +26,7 @@ const useHatPaginatedWearers = ({
   });
 
   const nextPage = () => {
-    if (!isPreviousData) {
-      setPage((prev) => prev + 1);
-    }
+    setPage((prev) => prev + 1);
   };
 
   const prevPage = () => {

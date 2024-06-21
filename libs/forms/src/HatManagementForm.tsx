@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';

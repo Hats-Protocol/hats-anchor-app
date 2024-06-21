@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { AppHat, HatWearer, SupportedChains } from 'types';
@@ -31,8 +33,8 @@ const useAllWearers = ({
   chainId,
   enabled = true,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   enabled?: boolean;
 }) => {
   const supply = _.toNumber(selectedHat?.currentSupply);

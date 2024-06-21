@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-nested-ternary */
 import 'react-cmdk/dist/cmdk.css';

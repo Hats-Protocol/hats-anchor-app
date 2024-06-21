@@ -1,7 +1,9 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { fetchWearersEligibilities } from 'hats-utils';
 import _ from 'lodash';
-import { AppHat } from 'types';
+import { AppHat, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 /** `useWearersEligibilityCheck` is a hook that checks the eligibility of wearers for a given hat.
@@ -22,7 +24,10 @@ const useWearersEligibilityCheck = ({
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['wearerEligibility', localWearerIds, hatId, chainId],
-    queryFn: () => fetchWearersEligibilities(localWearerIds, hatId, chainId),
+    queryFn: () =>
+      hatId &&
+      chainId &&
+      fetchWearersEligibilities(localWearerIds, hatId, chainId),
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
     enabled: !!hatId && !!chainId,
   });
@@ -33,8 +38,8 @@ const useWearersEligibilityCheck = ({
 export default useWearersEligibilityCheck;
 
 interface useWearersEligibilityCheckProps {
-  selectedHat: AppHat;
+  selectedHat: AppHat | undefined;
   wearerIds?: Hex[];
-  chainId: number;
+  chainId: SupportedChains | undefined;
   editMode?: boolean;
 }

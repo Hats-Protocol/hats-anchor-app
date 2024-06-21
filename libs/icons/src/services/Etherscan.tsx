@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Etherscan: any = createIcon({
+const Etherscan = createIcon({
   displayName: 'Etherscan',
   viewBox: '0 0 16 16',
   path: [

@@ -1,7 +1,13 @@
+'use client';
+
 import { Text } from '@chakra-ui/react';
+import { HATS_ABI } from '@hatsprotocol/constants';
+// import { HATS } from '@hatsprotocol/hats-account-sdk/dist/constants';
 import dynamic from 'next/dynamic';
 import { ComponentType } from 'react';
 import { ValueOf } from 'types';
+import { viemPublicClient } from 'utils';
+import { Hex } from 'viem';
 
 const RemovedWearer = dynamic(() =>
   import('icons').then((i) => i.RemovedWearer),
@@ -39,18 +45,48 @@ export type ToggleRuleDetails = {
   icon: ComponentType<object>;
 };
 
-// should we be using better defaults than these?
-export const DEFAULT_ELIGIBILITY_DETAILS: EligibilityRuleDetails = {
-  rule: (
-    <Text size={{ base: 'sm', md: 'md' }}>
-      Comply with 1 rule to keep this Hat
-    </Text>
-  ),
-  status: ELIGIBILITY_STATUS.ineligible,
-  displayStatus: 'Ineligible',
-  icon: RemovedWearer,
+export const DEFAULT_ELIGIBILITY_DETAILS = async ({
+  wearer,
+  chainId,
+}: {
+  wearer?: Hex;
+  chainId?: number;
+}) => {
+  if (!wearer || !chainId) {
+    return Promise.resolve({
+      rule: (
+        <Text size={{ base: 'sm', md: 'md' }}>
+          Comply with 1 rule to keep this Hat
+        </Text>
+      ),
+      status: ELIGIBILITY_STATUS.ineligible,
+      displayStatus: 'Ineligible',
+      icon: RemovedWearer,
+    });
+  }
+
+  const isEligible = await viemPublicClient(chainId).readContract({
+    address: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // HATS,
+    abi: HATS_ABI,
+    functionName: 'isEligible',
+    args: [wearer],
+  });
+
+  return Promise.resolve({
+    rule: (
+      <Text size={{ base: 'sm', md: 'md' }}>
+        Comply with 1 rule to keep this Hat
+      </Text>
+    ),
+    status: isEligible
+      ? ELIGIBILITY_STATUS.eligible
+      : ELIGIBILITY_STATUS.ineligible,
+    displayStatus: isEligible ? 'Eligible' : 'Ineligible',
+    icon: RemovedWearer,
+  });
 };
 
+// TODO add dynamic check to fallback
 export const DEFAULT_TOGGLE_RULE_DETAILS: ToggleRuleDetails = {
   rule: (
     <Text size={{ base: 'sm', md: 'md' }}>

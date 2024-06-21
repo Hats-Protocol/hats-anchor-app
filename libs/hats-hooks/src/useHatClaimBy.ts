@@ -1,22 +1,16 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { createHatsModulesClient, fetchHatDetails } from 'utils';
 import { Hex } from 'viem';
-import {
-  useAccount,
-  useChainId,
-  useContractReads,
-  useContractWrite,
-  usePrepareContractWrite,
-  useQueryClient,
-} from 'wagmi';
-
-import useWearerDetails from './useWearerDetails';
+import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
 
 const useHatClaimBy = ({
   selectedHat,
@@ -33,7 +27,6 @@ const useHatClaimBy = ({
 }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
-  const userChain = useChainId();
   const toast = useToast();
   const isCurrentWearer = address === wearer;
   const queryClient = useQueryClient();
@@ -47,16 +40,6 @@ const useHatClaimBy = ({
       ),
   });
 
-  const { data: wearerData } = useWearerDetails({
-    wearerAddress: wearer,
-    chainId,
-  });
-
-  const isWearing = useMemo(
-    () => _.includes(_.map(wearerData, 'id'), selectedHat?.id),
-    [selectedHat, wearerData],
-  );
-
   const claimsHatterAddress: Hex | undefined = useMemo(
     () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id') as Hex,
     [selectedHat],
@@ -68,7 +51,7 @@ const useHatClaimBy = ({
     chainId,
   };
 
-  const { data: isClaimableData } = useContractReads({
+  const { data: isClaimableData } = useReadContracts({
     contracts: [
       {
         ...hatter,
@@ -81,12 +64,6 @@ const useHatClaimBy = ({
         args: [selectedHat?.id || '0x'],
       },
     ],
-    enabled:
-      !!claimsHatter &&
-      !!claimsHatterAddress &&
-      // userChain === chainId &&
-      !!selectedHat &&
-      (!!address || !!wearer),
   });
 
   const [isClaimable, isClaimableAdmin] = useMemo(
@@ -109,91 +86,75 @@ const useHatClaimBy = ({
     getHatter();
   }, [chainId]);
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: claimsHatterAddress,
-    chainId,
-    abi: claimsHatter?.abi,
-    functionName: isCurrentWearer ? 'claimHat' : 'claimHatFor',
-    args: isCurrentWearer ? [selectedHat?.id] : [selectedHat?.id, address],
-    enabled:
-      (isCurrentWearer || !!wearer) &&
-      !!isClaimable &&
-      !isWearing &&
-      !!isClaimableAdmin &&
-      !!claimsHatter &&
-      !!claimsHatterAddress &&
-      userChain === chainId,
-  });
+  const { writeContractAsync } = useWriteContract();
 
-  const {
-    write,
-    error: writeError,
-    isLoading,
-  } = useContractWrite({
-    ...config,
-    onSuccess: async (data) => {
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
+  const writeAsync = async () => {
+    if (!claimsHatterAddress || !chainId || !claimsHatter?.abi) return null;
 
-      const txDescription = `You've claimed ${
-        selectedHat?.id
-          ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
-          : 'this hat'
-      }.`;
-
-      await handlePendingTx?.({
-        hash: data.hash,
-        txChainId: chainId,
-        txDescription,
-        toastData: {
-          title: 'Hat claimed!',
-          description: txDescription,
-        },
-        onSuccess: async () => {
-          onSuccess?.();
-          await waitForSubgraph();
-
-          queryClient.invalidateQueries({
-            queryKey: ['hatDetails', { id: selectedHat?.id, chainId }],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ['wearerDetails', { wearerAddress: address, chainId }],
-          });
-        },
-      });
-
-      // TODO Handle clearing/updating hat/wearer data
-    },
-    onError: (error) => {
-      if (
-        error.name === 'TransactionExecutionError' &&
-        error.message.includes('User rejected the request')
-      ) {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
+    return writeContractAsync({
+      address: claimsHatterAddress,
+      chainId,
+      abi: claimsHatter?.abi,
+      functionName: isCurrentWearer ? 'claimHat' : 'claimHatFor',
+      args: isCurrentWearer ? [selectedHat?.id] : [selectedHat?.id, address],
+    })
+      .then((hash) => {
+        toast.info({
+          title: 'Transaction submitted',
+          description: 'Waiting for your transaction to be accepted...',
         });
-      } else {
-        toast.error({
-          title: 'Error occurred!',
-          description: 'An error occurred while processing the transaction.',
+
+        const txDescription = `You've claimed ${
+          selectedHat?.id
+            ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
+            : 'this hat'
+        }.`;
+
+        handlePendingTx?.({
+          hash,
+          txChainId: chainId,
+          txDescription,
+          toastData: {
+            title: 'Hat claimed!',
+            description: txDescription,
+          },
+          onSuccess: async () => {
+            onSuccess?.();
+            await waitForSubgraph();
+
+            queryClient.invalidateQueries({
+              queryKey: ['hatDetails', { id: selectedHat?.id, chainId }],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ['wearerDetails', { wearerAddress: address, chainId }],
+            });
+          },
         });
-      }
-    },
-  });
+      })
+      .catch((error) => {
+        if (
+          error.name === 'TransactionExecutionError' &&
+          error.message.includes('User rejected the request')
+        ) {
+          toast.error({
+            title: 'Signature rejected!',
+            description: 'Please accept the transaction in your wallet',
+          });
+        } else {
+          toast.error({
+            title: 'Error occurred!',
+            description: 'An error occurred while processing the transaction.',
+          });
+        }
+      });
+  };
 
   return {
-    claimHat: write,
+    claimHat: writeAsync,
     isClaimable,
     hatterAddress: claimsHatterAddress,
     hatterIsAdmin: isClaimableAdmin,
-    prepareError,
-    writeError,
-    canClaimFor: isClaimable && write,
-    error: prepareError || writeError,
-    isLoading,
+    canClaimFor: isClaimable,
   };
 };
 

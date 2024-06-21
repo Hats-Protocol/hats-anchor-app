@@ -1,9 +1,8 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { HatWearer } from 'types';
-import { isSameAddress } from 'utils';
+import { isSameAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
-import { multicall } from 'wagmi/actions';
 
 export const filterWearers = (
   searchTerm: string,
@@ -30,12 +29,10 @@ export const fetchWearersEligibilities = async (
     abi: CONFIG.hatsAbi,
     functionName: 'isEligible',
     args: [wearer, hatId],
-    chainId,
   }));
 
-  const eligibilityData = await multicall({
+  const eligibilityData = await viemPublicClient(chainId).multicall({
     contracts: eligibilityQueries,
-    chainId,
   });
 
   const eligibleWearers = _.filter(wearerIds, (__: unknown, index: number) => {

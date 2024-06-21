@@ -1,23 +1,20 @@
-/* eslint-disable no-nested-ternary */
+'use client';
+
 import { Slide } from '@chakra-ui/react';
 import {
   Modal,
   SelectedHatContextProvider,
   Suspender,
-  useOverlay,
   useTreeForm,
 } from 'contexts';
 import dynamic from 'next/dynamic';
-import { NextSeo } from 'next-seo';
-import { chainsMap } from 'utils';
-import { Hex } from 'viem';
+import { twJoin } from 'tailwind-merge';
 
 import HatDrawer from './HatDrawer';
 
 const EventHistory = dynamic(() =>
   import('ui').then((mod) => mod.EventHistory),
 );
-const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
 const OrgChart = dynamic(() => import('ui').then((mod) => mod.OrgChart), {
   ssr: false,
 });
@@ -28,38 +25,35 @@ const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
 const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
 
 const TreePage = ({
-  hatId,
-  exists = true,
+  params: { chainId, treeId },
 }: {
-  hatId?: Hex;
-  exists: boolean;
+  params: { chainId: string; treeId: string };
 }) => {
-  const localOverlay = useOverlay();
   const {
-    chainId,
-    treeId,
+    // chainId,
+    // treeId,
     treeToDisplay,
-    topHatDetails,
+    // topHatDetails,
     editMode,
-    topHat,
     isTreeDrawerOpen,
     returnToTreeList,
     isHatDrawerOpen,
   } = useTreeForm();
 
   if (!chainId) return null;
-  const chain = chainsMap(chainId);
+  // const chain = chainsMap(chainId);
 
-  let title = '';
-  if (treeId) {
-    title = `Tree #${treeId} on ${chain.name}`;
-  } else {
-    title = 'Invalid Tree ID';
-  }
-  // TODO finish
-  if (topHatDetails) {
-    title = `${topHatDetails.name} on ${chain.name}`;
-  }
+  // let title = '';
+  // if (treeId) {
+  //   title = `Tree #${treeId} on ${chain.name}`;
+  // } else {
+  //   title = 'Invalid Tree ID';
+  // }
+  // // TODO finish
+  // if (topHatDetails) {
+  //   title = `${topHatDetails.name} on ${chain.name}`;
+  // }
+  // console.log('title', title);
   // } else if (selectedHat) {
   //   if (selectedHatDetails) {
   //     title = `${selectedHatDetails.name} on ${chain.name}`;
@@ -72,12 +66,7 @@ const TreePage = ({
 
   return (
     <>
-      <NextSeo title={title} />
-      <SelectedHatContextProvider
-        treeId={treeId}
-        chainId={chainId}
-        hatId={hatId}
-      >
+      <SelectedHatContextProvider>
         <Slide
           direction='right'
           in={!!treeToDisplay && !!isHatDrawerOpen}
@@ -100,18 +89,18 @@ const TreePage = ({
         <TreeDrawer />
       </Slide>
 
-      <Layout editMode={editMode} hatData={topHat}>
-        <TreeMenu />
+      <TreeMenu />
 
-        <OrgChart />
-      </Layout>
+      <OrgChart />
 
-      <Modal
-        name='events'
-        title='Events'
-        size='2xl'
-        localOverlay={localOverlay}
-      >
+      <div
+        className={twJoin(
+          'fixed w-full h-full z-[-10] top-0 left-0',
+          editMode ? 'bg-edit-bg' : 'bg-gray-100',
+        )}
+      />
+
+      <Modal name='events' title='Events' size='2xl'>
         <EventHistory type='tree' />
       </Modal>
     </>

@@ -1,4 +1,19 @@
-import '@rainbow-me/rainbowkit/styles.css';
+// import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import // argentWallet,
+// braveWallet,
+// coinbaseWallet,
+// dawnWallet,
+// frameWallet,
+// injectedWallet,
+// ledgerWallet,
+// metaMaskWallet,
+// rabbyWallet,
+// rainbowWallet,
+// safeWallet,
+// uniswapWallet,
+// walletConnectWallet,
+// zerionWallet,
+'@rainbow-me/rainbowkit/wallets';
 
 import { chainsList, NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
 import { HatsAccount1ofNClient } from '@hatsprotocol/hats-account-sdk';
@@ -6,48 +21,52 @@ import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
-import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import _ from 'lodash';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
-import { createConfig } from 'wagmi';
 
-import { chains, chainsMap, explorerUrl, publicClient } from './chains';
+import { chainsMap } from './chains';
 
-export { chains, chainsList, chainsMap, explorerUrl, publicClient };
-
+const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
+if (!WC_PROJECT_ID) {
+  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
+}
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
+if (!ALCHEMY_ID) {
+  throw new Error('NEXT_PUBLIC_ALCHEMY_ID is not set');
+}
 
 declare global {
   interface Window {
+    // @ts-expect-error - overlapping with definition from Coinbase wallet for some reason
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ethereum: any;
   }
 }
 
-const { connectors } = getDefaultWallets({
-  appName: 'Hats',
-  chains,
-  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
-});
+const RPC_URLS: { [key: number]: string } = {
+  1: `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  10: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  100: `https://rpc.gnosischain.com`,
+  137: `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  8453: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  42220: 'https://forno.celo.org', // `https://celo-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  42161: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  11155111: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_ID}`,
+};
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const wagmiConfig: any = createConfig({
-  connectors,
-  publicClient,
-});
+const getRpcUrl = (chainId: number) => {
+  if (!_.has(RPC_URLS, chainId)) {
+    const chain = chainsMap(chainId);
+    return _.first(_.get(chain, 'rpcUrls.default.http'));
+  }
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const viemPublicClient: any = (chainId: number) => {
-  const chain = chainsMap(chainId);
-  let transportUrl = _.first(_.get(chain, 'rpcUrls.default.http'));
-  const alchemyUrl = _.get(chain, 'rpcUrls.alchemy.http');
-  if (alchemyUrl) transportUrl = `${alchemyUrl}/${ALCHEMY_ID}`;
+  return _.get(RPC_URLS, chainId);
+};
 
+export const viemPublicClient = (chainId: number) => {
   return createPublicClient({
-    chain,
-    transport: http(transportUrl, { batch: true }),
+    chain: chainsMap(chainId),
+    transport: http(getRpcUrl(chainId), { batch: true }),
   });
 };
 
@@ -146,3 +165,6 @@ export async function createHatsAccountClient(
 
   return hatsAccountClient as HatsAccount1ofNClient;
 }
+
+export { chainsList, getRpcUrl };
+export * from './chains';

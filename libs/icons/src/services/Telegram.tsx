@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Telegram: any = createIcon({
+const Telegram = createIcon({
   displayName: 'Telegram',
   viewBox: '0 0 16 16',
   path: [

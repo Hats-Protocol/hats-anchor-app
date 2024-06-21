@@ -1,13 +1,10 @@
+'use client';
+
 import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
-import {
-  useManyHatsDetails,
-  useManyHatsDetailsField,
-  useTreeDetails,
-  useTreeWearers,
-} from 'hats-hooks';
-import { translateDrafts } from 'hats-utils';
+import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
+import { DetailsData, translateDrafts } from 'hats-utils';
 import {
   useImageURIs,
   useLocalStorage,
@@ -18,7 +15,7 @@ import {
   useTreeSnapshotSpaces,
 } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   createContext,
   ReactNode,
@@ -41,10 +38,13 @@ import {
 import {
   generateLocalStorageKey,
   getInactiveIds,
+  getPathParams,
+  getQueryParams,
   Guild,
   ipfsUrl,
   removeAndHandleSiblings,
   removeAndHandleSiblingsOrgChart,
+  urlFromQueryParams,
 } from 'utils';
 import { Hex } from 'viem';
 
@@ -165,19 +165,20 @@ export const TreeFormContext = createContext<TreeFormContext>({
 //          -> useOrgChartTree (all pass to)
 
 export const TreeFormContextProvider = ({
-  treeId,
-  chainId,
-  hatId,
-  // linkedHatIds,
   children,
 }: {
-  treeId: number;
-  chainId: SupportedChains;
-  hatId?: Hex;
-  // linkedHatIds: Hex[] | undefined;
   children: ReactNode;
 }) => {
-  const router = useRouter();
+  const pathname = usePathname();
+  const { chainId, treeId, hatId: hatPathParam } = getPathParams(pathname);
+
+  const params = useSearchParams();
+  const queryParams = getQueryParams(params);
+  const { hatId: hatQueryParam } = queryParams;
+
+  const hatId = hatQueryParam || hatPathParam;
+  // console.log({ chainId, treeId, hatId });
+
   const [editMode, setEditMode] = useState(false);
   const [showInactiveHats, setShowInactiveHats] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
@@ -197,7 +198,7 @@ export const TreeFormContextProvider = ({
   }>(`${localStorageKey}-config`, {});
 
   const treeDisclosure = useDisclosure();
-  const hatDisclosure = useSelectedHatDisclosure(hatId);
+  const hatDisclosure = useSelectedHatDisclosure({ treeId, chainId });
   const {
     isOpen: isTreeDrawerOpen,
     onOpen: onOpenTreeDrawer,
@@ -238,7 +239,7 @@ export const TreeFormContextProvider = ({
   const { data: onchainLinkedHats } = useManyHatsDetails({
     hats: mapWithChainId(
       _.map(linkedHatIds, (id: Hex) => ({ id })),
-      chainId,
+      chainId || 1,
     ),
     initialHats: _.map(linkedHatIds, (id: Hex) => ({ id })),
   });
@@ -276,12 +277,21 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const { data: onchainDetailsFields, isLoading: onchainDetailsFieldsLoading } =
-    useManyHatsDetailsField({
-      hats: onchainHatDetails,
-      editMode,
-      onchain: true,
-    });
+  const onchainDetailsFields: { id: string; detailsObject: DetailsData }[] =
+    _.map(
+      _.filter(onchainHatDetails, (hat) => {
+        return (
+          _.startsWith(_.get(hat, 'details'), 'ipfs://') &&
+          _.get(hat, 'detailsMetadata') !== null
+        );
+      }),
+      (hat) => {
+        return {
+          id: _.get(hat, 'details') as string,
+          detailsObject: JSON.parse(_.get(hat, 'detailsMetadata') as string),
+        };
+      },
+    );
 
   const { data: onchainWearers } = useTreeWearers({
     hats: onchainHatDetails,
@@ -306,7 +316,7 @@ export const TreeFormContextProvider = ({
     draftHats,
     orgChartWearers: onchainWearers,
     imagesLoaded: !onchainImagesLoading,
-    detailsLoaded: !onchainDetailsFieldsLoading,
+    detailsLoaded: true,
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
     onchain: true,
@@ -325,12 +335,20 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const { data: detailsFields, isLoading: detailsFieldsLoading } =
-    useManyHatsDetailsField({
-      hats: hatDetails,
-      onchainHats,
-      editMode,
-    });
+  const detailsFields: { id: string; detailsObject: DetailsData }[] = _.map(
+    _.filter(hatDetails, (hat) => {
+      return (
+        _.startsWith(_.get(hat, 'details'), 'ipfs://') &&
+        _.get(hat, 'detailsMetadata') !== null
+      );
+    }),
+    (hat) => {
+      return {
+        id: _.get(hat, 'details') as string,
+        detailsObject: JSON.parse(_.get(hat, 'detailsMetadata') as string),
+      };
+    },
+  );
 
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
@@ -343,7 +361,7 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const { orgChartTree, isLoading: orgChartTreeLoading } = useOrgChartTree({
+  const { orgChartTree } = useOrgChartTree({
     treeData,
     chainId,
     hatsData: hatDetails,
@@ -352,7 +370,7 @@ export const TreeFormContextProvider = ({
     imagesData,
     draftHats,
     imagesLoaded: !imagesLoading,
-    detailsLoaded: !detailsFieldsLoading,
+    detailsLoaded: true,
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
   });
@@ -442,187 +460,152 @@ export const TreeFormContextProvider = ({
   // * CHART ACTIONS
   // *********************
 
+  /**
+   * **Flip the Org Chart**
+   *
+   * After handling the disclosure, update the query params and local storage
+   * to reflect the flipped state of the Org Chart.
+   * @param isFlipped - The current state of `flipped` param in the Org Chart
+   */
   const handleFlipChart = useCallback(
     (isFlipped: boolean) => {
-      let updatedQuery = {
-        ...router.query,
-      };
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        add: !isFlipped ? { flipped: true } : {},
+        drop: isFlipped ? ['flipped'] : [],
+      });
 
-      if (isFlipped) {
-        updatedQuery = { ...updatedQuery, flipped: 'true' };
-      } else {
-        delete updatedQuery.flipped;
-      }
-
-      const updatedUrl = {
-        pathname: router.pathname,
-        query: updatedQuery,
-      };
-
-      router.push(updatedUrl, undefined, { shallow: true });
+      window.history.pushState({}, '', url);
 
       setStoredConfig({
         ...storedConfig,
         flipped: isFlipped,
       });
     },
-    [router, setStoredConfig, storedConfig],
+    [pathname, queryParams, setStoredConfig, storedConfig],
   );
 
-  const updateQueryParams = useCallback(
-    (
-      updatedQuery: { [key: string]: string | string[] | undefined },
-      updatedLocalStorage: any,
-    ) => {
-      setStoredConfig({
-        ...storedConfig,
-        collapsed: updatedLocalStorage,
+  const updateCollapsedQueryParams = useCallback(
+    (collapsed: any[]) => {
+      console.log(collapsed);
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        add: !_.isEmpty(collapsed) ? { collapsed } : {},
+        drop: _.isEmpty(collapsed) ? ['collapsed'] : [],
       });
 
-      const updatedUrl = {
-        pathname: router.pathname,
-        query: updatedQuery,
-      };
+      window.history.pushState({}, '', url);
 
-      router.push(updatedUrl, undefined, { shallow: true });
+      setStoredConfig({
+        ...storedConfig,
+        collapsed: _.isArray(collapsed) ? collapsed : [collapsed],
+      });
     },
-    [router, storedConfig, setStoredConfig],
+    [pathname, queryParams, storedConfig, setStoredConfig],
   );
 
-  /** Update the query params and local storage.
+  /**
+   * Update the `collapsed` query params and local storage.
+   *
    * If query params are not empty, then they will take precedence over the local storage state, meaning that the local storage
-   * will be updated according to the query params. If query params are empty but local storage is not, then the local storage will
+   * will be updated according to the query params.
+   *
+   * If query params are empty but local storage is not, then the local storage will
    * take precedence.
+   * @param nodeIdIp - The node ID of the collapsed or expanded node
+   * @param expanded - The state of the node, expanded or collapsed
    */
   const handleNodeCollapsedOrExpanded = useCallback(
     (nodeIdIp: string, expanded: boolean) => {
-      let updatedQuery = {
-        ...router.query,
-      };
-
-      const { collapsed } = updatedQuery;
-      console.log(updatedQuery, collapsed);
-
-      let updatedLocalStorage: string[] = [];
+      const { collapsed } = queryParams;
 
       if (Array.isArray(collapsed)) {
         // existing query params is an array
-        const newCollapsedQueryParams = [...collapsed];
-        if (!expanded) {
-          // add the new collapsed node if it's not already in the query params
-          if (newCollapsedQueryParams.includes(nodeIdIp)) {
-            return;
-          }
-          newCollapsedQueryParams.push(nodeIdIp);
-        } else {
-          // remove the expanded node
-          const index = newCollapsedQueryParams.indexOf(nodeIdIp);
-          if (index > -1) {
-            newCollapsedQueryParams.splice(index, 1);
-          }
-        }
-
-        updatedQuery = {
-          ...updatedQuery,
-          collapsed: newCollapsedQueryParams,
-        };
-        updatedLocalStorage = newCollapsedQueryParams; // update local storage with the query params state
-        updateQueryParams(updatedQuery, updatedLocalStorage);
+        updateCollapsedQueryParams(
+          expanded
+            ? _.reject(collapsed, (id) => id === nodeIdIp)
+            : _.uniq(_.concat(collapsed, nodeIdIp)),
+        );
         return;
       }
       if (typeof collapsed === 'string') {
-        // single collapsed node in query params
-        if (!expanded) {
-          // add the new collapsed node if it's not already in the query params
-          if (collapsed === nodeIdIp) {
-            return;
-          }
-          updatedQuery = {
-            ...updatedQuery,
-            collapsed: [collapsed, nodeIdIp],
-          };
-          updatedLocalStorage = [collapsed, nodeIdIp]; // update local storage with the query params state
-        } else {
-          // remove the expanded node
-          delete updatedQuery.collapsed;
-        }
-        updateQueryParams(updatedQuery, updatedLocalStorage);
+        // existing query param is a single collapsed node
+        updateCollapsedQueryParams(
+          expanded
+            ? _.reject(collapsed, nodeIdIp)
+            : _.uniq(_.concat(collapsed, nodeIdIp)),
+        );
         return;
       }
       if (storedConfig.collapsed && !_.isEmpty(storedConfig.collapsed)) {
         // no query params but there are collapsed nodes in local storage
-        if (!expanded) {
-          updatedLocalStorage = _.uniq([...storedConfig.collapsed, nodeIdIp]);
-        } else if (storedConfig.collapsed.includes(nodeIdIp)) {
-          updatedLocalStorage = [...storedConfig.collapsed];
-          const index = storedConfig.collapsed.indexOf(nodeIdIp);
-          updatedLocalStorage.splice(index, 1);
+        if (expanded) {
+          updateCollapsedQueryParams(
+            _.uniq(_.concat(storedConfig.collapsed, nodeIdIp)),
+          );
+          return;
         }
 
-        // update the query params with the including collapsed nodes from local storage
-        updatedQuery = {
-          ...updatedQuery,
-          collapsed: updatedLocalStorage,
-        };
-        updateQueryParams(updatedQuery, updatedLocalStorage);
-        return;
+        // update the query params including the collapsed nodes from local storage
+        if (_.includes(storedConfig.collapsed, nodeIdIp)) {
+          updateCollapsedQueryParams(
+            _.reject(storedConfig.collapsed, (id) => id === nodeIdIp),
+          );
+          return;
+        }
       }
-
       // no query params and no local storage, a node was collapsed
-      updatedQuery = {
-        ...updatedQuery,
-        collapsed: nodeIdIp,
-      };
-      updatedLocalStorage = [nodeIdIp];
-
-      updateQueryParams(updatedQuery, updatedLocalStorage);
+      updateCollapsedQueryParams([nodeIdIp]);
     },
-    [router, storedConfig, updateQueryParams],
+    [queryParams, storedConfig, updateCollapsedQueryParams],
   );
 
+  /**
+   * Expand all nodes in the Org Chart
+   *
+   * Remove the `collapsed` query param and update the local storage
+   * to reflect the expanded state of the Org Chart.
+   */
   const handleExpandAll = useCallback(() => {
-    const updatedQuery = {
-      ...router.query,
-      collapsed: [],
-    };
-    const updatedUrl = {
-      pathname: router.pathname,
-      query: updatedQuery,
-    };
+    const url = urlFromQueryParams({
+      pathname,
+      params: queryParams,
+      drop: ['collapsed'],
+    });
 
-    router.push(updatedUrl, undefined, { shallow: true });
+    window.history.pushState({}, '', url);
 
     setStoredConfig({
       ...storedConfig,
       collapsed: [],
     });
-  }, [router, setStoredConfig, storedConfig]);
+  }, [pathname, queryParams, setStoredConfig, storedConfig]);
 
+  /**
+   * Update the query params and local storage to reflect the current state of the Org Chart.
+   *
+   * @param isCompact - The current state compact param for the Org Chart
+   */
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
-      let updatedQuery = {
-        ...router.query,
-      };
+      console.log(isCompact, queryParams);
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        add: !isCompact ? { compact: true } : {},
+        drop: isCompact ? ['compact'] : [],
+      });
 
-      if (isCompact) {
-        updatedQuery = { ...updatedQuery, compact: 'true' };
-      } else {
-        delete updatedQuery.compact;
-      }
-
-      const updatedUrl = {
-        pathname: router.pathname,
-        query: updatedQuery,
-      };
-
-      router.push(updatedUrl, undefined, { shallow: true });
+      window.history.pushState({}, '', url);
 
       setStoredConfig({
         ...storedConfig,
         compact: isCompact,
       });
     },
-    [router, setStoredConfig, storedConfig],
+    [queryParams, pathname, setStoredConfig, storedConfig],
   );
 
   const toggleEditMode = useCallback(() => {
@@ -633,7 +616,7 @@ export const TreeFormContextProvider = ({
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
-      if (!_.isEmpty(localDraftHats)) {
+      if (!_.isEmpty(localDraftHats) && chainId && treeId) {
         const drafts = translateDrafts({
           chainId,
           treeId,
@@ -648,12 +631,13 @@ export const TreeFormContextProvider = ({
     }
     setEditMode(!editMode);
     // TODO need to reset selectedHatId? query update handles?
-    const updatedQuery = editMode
-      ? _.omit(router.query, 'hatId')
-      : router.query;
-    router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
-      shallow: true,
-    });
+    // const updatedQuery = editMode
+    //   ? _.omit(router.query, 'hatId')
+    //   : router.query;
+    // router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
+    //   shallow: true,
+    // });
+
     setSelectedOption?.('wearers');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onchainHats, editMode, storedData, chainId, treeId]);
@@ -731,7 +715,7 @@ export const TreeFormContextProvider = ({
           _.includes(_.map(onchainHats, 'id'), hat.id) ||
           _.isEmpty(_.reject(hat, ['id', 'parentId'])),
       );
-      if (!_.isEmpty(localDraftHats)) {
+      if (!_.isEmpty(localDraftHats) && chainId && treeId) {
         const drafts = translateDrafts({
           chainId,
           treeId,
@@ -847,9 +831,6 @@ export const TreeFormContextProvider = ({
       onchainHats,
       treeEvents,
       treeLoading,
-      imagesLoading,
-      detailsFieldsLoading,
-      orgChartTreeLoading,
       linkRequestFromTree,
       linkedHatIds,
       orgChartWearers,

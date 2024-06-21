@@ -1,3 +1,5 @@
+'use client';
+
 import { Icon, Stack } from '@chakra-ui/react';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
@@ -19,11 +21,13 @@ const ModuleArgsForm = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   tokenAddress?: Hex;
-  selectedModuleArgs: ModuleCreationArg[];
+  selectedModuleArgs: ModuleCreationArg[] | undefined;
   hideIcon?: boolean;
   noMargin?: boolean;
   isDeploy?: boolean;
 }) => {
+  if (!selectedModuleArgs) return null;
+
   return (
     <Stack spacing={3}>
       {_.map(selectedModuleArgs, (arg: ModuleCreationArg) => (

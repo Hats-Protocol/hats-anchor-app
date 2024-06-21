@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { useMemo } from 'react';
@@ -52,7 +54,7 @@ const useAncillaryElection = ({
     [hatsDetails, address],
   );
 
-  const userRoles = [];
+  const userRoles: any[] = [];
   if (isWearingAdminHat) userRoles.push('electionsAdmin');
   if (isWearingBallotBoxHat) userRoles.push('electionsBallotBox');
 

@@ -9,7 +9,7 @@ import {
   Snapshot,
   Telegram,
 } from 'icons';
-import { ReactNode } from 'react';
+// import { ReactNode } from 'react';
 import { AuthorityType } from 'types';
 
 export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
@@ -27,7 +27,7 @@ export type AuthorityInfo = {
   info: string;
   color: string;
   name?: string;
-  icon?: ReactNode; // name of an icon to be used for fallback
+  icon?: any; // ReactNode; // name of an icon to be used for fallback
   imageUri?: string; // used for fallback if icon is not available
   enforcementIcon: string; // actually an SVG imported currently, could migrate to Icon
 };
@@ -92,7 +92,7 @@ export const AUTHORITY_ENFORCEMENT: {
 
 export type AuthorityPlatform = {
   label: string;
-  icon?: ReactNode;
+  icon?: any; // ReactNode;
 };
 
 // map guild's platforms to AUTHORITY_PLATFORMS

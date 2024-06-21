@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const History: any = createIcon({
+const History = createIcon({
   displayName: 'History',
   viewBox: '0 0 14 14',
   path: [

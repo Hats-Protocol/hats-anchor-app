@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestApproveForm } from 'forms';
@@ -25,7 +27,7 @@ const LinkRequests = () => {
   if (
     !_.some(
       linkRequestFromTree,
-      (linkRequest) => linkRequest.requestedLinkToHat?.id === selectedHat?.id,
+      (linkRequest) => linkRequest?.requestedLinkToHat?.id === selectedHat?.id,
     )
   )
     return null;
@@ -42,12 +44,15 @@ const LinkRequests = () => {
               variant='outlineMatch'
               size='sm'
               colorScheme='blue.500'
-              onClick={() =>
+              onClick={() => {
+                if (!linkRequest.id || !linkRequest.requestedLinkToHat?.id)
+                  return;
+
                 handleOpenLinkRequestApproveModal(
                   linkRequest.id,
                   linkRequest.requestedLinkToHat.id,
-                )
-              }
+                );
+              }}
               key={linkRequest.id}
             >
               Link Request to {prettyIdToIp(linkRequest.id)}
@@ -56,11 +61,7 @@ const LinkRequests = () => {
         </HStack>
       </Flex>
 
-      <Modal
-        name='linkResponse'
-        title='Approve Link Request'
-        localOverlay={localOverlay}
-      >
+      <Modal name='linkResponse' title='Approve Link Request'>
         <HatLinkRequestApproveForm topHatDomain={linkFrom} newAdmin={linkTo} />
       </Modal>
     </Stack>

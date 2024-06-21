@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
-// @ts-check
 
+// eslint-disable-next-line import/no-extraneous-dependencies
 const { composePlugins, withNx } = require('@nx/next');
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -19,6 +19,8 @@ const nextConfig = {
     svgr: false,
   },
   reactStrictMode: true,
+  // This is required to support PostHog trailing slash API requests
+  skipTrailingSlashRedirect: true,
   eslint: {
     dirs: [
       'pages',
@@ -37,6 +39,8 @@ const nextConfig = {
   transpilePackages: ['d3-org-chart'],
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.externals.push('pino-pretty', 'lokijs', 'encoding'); // Rainbowkit polyfills
+
     return config;
   },
   async redirects() {
@@ -47,42 +51,6 @@ const nextConfig = {
         permanent: true,
       },
     ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/ingest/static/:path*',
-        destination: 'https://us-assets.i.posthog.com/static/:path*',
-      },
-      {
-        source: '/ingest/:path*',
-        destination: 'https://us.i.posthog.com/:path*',
-      },
-    ];
-  },
-  experimental: {
-    optimizePackageImports: [
-      // external pkgs
-      '@chakra-ui/react',
-      '@rainbow-me/rainbowkit',
-      '@tanstack/react-query',
-      'd3-org-chart',
-      'react-datepicker',
-      'viem',
-      // internal packages
-      '@hatsprotocol/constants',
-      'contexts',
-      'forms',
-      'hats-hooks',
-      'hats-utils',
-      'hooks',
-      'modules-ui',
-      'pages',
-      'shared',
-      'types',
-      'ui',
-      'utils',
-    ],
   },
 };
 

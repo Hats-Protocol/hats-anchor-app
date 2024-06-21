@@ -1,3 +1,5 @@
+'use client';
+
 import { Divider } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import _ from 'lodash';

@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable import/prefer-default-export */
 import { Text } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -48,7 +50,11 @@ export const handleHatWearingEligibility = async ({
   }
 
   if (!hatDetails) {
-    return DEFAULT_ELIGIBILITY_DETAILS;
+    if (!wearer || !chainId) {
+      return DEFAULT_ELIGIBILITY_DETAILS({});
+    }
+
+    return DEFAULT_ELIGIBILITY_DETAILS({ wearer, chainId });
   }
 
   if (isWearing) {

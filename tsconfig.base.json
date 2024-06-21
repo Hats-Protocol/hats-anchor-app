@@ -17,8 +17,8 @@
     "skipDefaultLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "ES2018",
-    "types": ["node", "jest"],
+    "target": "ES6",
+    "types": ["node"],
     "paths": {
       "@hatsprotocol/constants": ["./libs/constants/src/index.ts"],
       "contexts": ["./libs/contexts/src/index.ts"],

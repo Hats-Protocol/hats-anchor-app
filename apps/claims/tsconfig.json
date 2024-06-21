@@ -29,5 +29,5 @@
     { "path": "../../libs/utils/tsconfig.lib.json" }
   ],
   "include": ["**/*.ts", "**/*.tsx", "../../libs/types/src/*.d.ts"],
-  "exclude": ["jest.config.ts", ".next"]
+  "exclude": [".next"]
 }

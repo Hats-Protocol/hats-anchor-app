@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTACT_URL, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
@@ -118,7 +120,7 @@ const ModuleDetailsForm = ({
 
       <Stack spacing={6}>
         <ModuleArgsForm
-          selectedModuleArgs={selectedModuleArgs}
+          selectedModuleArgs={selectedModuleArgs || undefined}
           localForm={localForm}
           tokenAddress={tokenAddress}
         />

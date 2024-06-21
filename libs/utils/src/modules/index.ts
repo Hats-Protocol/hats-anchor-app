@@ -3,8 +3,10 @@ import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { AppHat, ModuleDetails, ValueOf } from 'types';
 import { Hex } from 'viem';
-import { readContract } from 'wagmi/actions';
 
+import { viemPublicClient } from '../web3';
+
+export * from './input';
 export * from './tokens';
 
 export type ModuleDetailsHandler = {
@@ -32,17 +34,18 @@ export const fallbackModuleCheck = async ({
     !moduleDetails?.abi ||
     !wearer ||
     !selectedHat?.id ||
-    !selectedHat?.eligibility
+    !selectedHat?.eligibility ||
+    !chainId
   ) {
     return Promise.resolve(undefined);
   }
-  return readContract({
-    address: selectedHat.eligibility,
-    abi: moduleDetails?.abi,
-    chainId,
-    functionName: 'getWearerStatus',
-    args: [wearer, selectedHat.id],
-  })
+  return viemPublicClient(chainId)
+    .readContract({
+      address: selectedHat.eligibility,
+      abi: moduleDetails?.abi,
+      functionName: 'getWearerStatus',
+      args: [wearer, selectedHat.id],
+    })
     .then(async (result: unknown) => {
       const localResult = result as [boolean, boolean];
       const eligible = _.first(localResult) || false;

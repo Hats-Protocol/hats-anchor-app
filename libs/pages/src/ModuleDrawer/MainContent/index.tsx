@@ -1,3 +1,5 @@
+'use client';
+
 import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMultiClaimsHatterCheck } from 'hats-hooks';

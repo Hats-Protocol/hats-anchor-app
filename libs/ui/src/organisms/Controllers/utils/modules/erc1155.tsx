@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable import/prefer-default-export */
 import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';

@@ -1,3 +1,5 @@
+'use client';
+
 import { Heading, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
 import { DocsLink } from 'types';
 

@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const JokeRace: any = createIcon({
+const JokeRace = createIcon({
   displayName: 'JokeRace',
   viewBox: '0 0 64 48',
   path: [

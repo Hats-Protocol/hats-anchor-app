@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { ContractData, HatWearer, SupportedChains, Transaction } from 'types';
+import { HatWearer, SupportedChains, Transaction } from 'types';
 import { Hex, zeroAddress } from 'viem';
 
 import { viemPublicClient } from '../web3';
@@ -18,7 +18,7 @@ export const checkAddressIsContract = async (
   if (!publicClient) return Promise.resolve(false);
 
   return publicClient
-    .getBytecode({
+    .getCode({
       address,
     })
     .then((bytecode: string | undefined) => {
@@ -41,6 +41,7 @@ export const checkTransactionStatus = async (transactions: Transaction[]) => {
   // handle the client with tx so chain is relative to tx
   const transactionPromises = pendingTransactions.map(
     async (tx: Transaction) => {
+      if (!tx.hash || !tx.txChainId) return null;
       const publicClient = viemPublicClient(tx.txChainId);
       try {
         const transactionData = await publicClient.getTransaction({
@@ -86,26 +87,19 @@ export const extendControllers = (
 export const fetchContractData = async (
   chainId: SupportedChains | undefined,
   address: Hex | undefined,
-) => {
-  try {
-    const result = await fetch('/api/contract-name', {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, *cors, same-origin
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chainId,
-        address,
-      }),
+) =>
+  fetch(`/api/contract/${chainId}/${address}`, {
+    method: 'GET',
+    mode: 'cors', // no-cors, *cors, same-origin
+    credentials: 'same-origin', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => data)
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      return undefined;
     });
-
-    const data = await result.json();
-    return data as ContractData;
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(err);
-    return undefined;
-  }
-};

@@ -1,14 +1,15 @@
+'use client';
+
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { fetchPaginatedTrees } from 'utils';
 
-// hats-hooks
 const usePaginatedTreeList = ({
   chainId,
   perPage = 40,
-}: // initialData,
-UsePaginatedTreeListProps) => {
+  initialData,
+}: UsePaginatedTreeListProps) => {
   const {
     data,
     fetchNextPage,
@@ -24,9 +25,12 @@ UsePaginatedTreeListProps) => {
     ) => {
       return _.eq(_.size(returnData), perPage) ? _.size(allPages) : undefined;
     },
-    queryFn: ({ pageParam = 0 }) =>
+    queryFn: ({ pageParam }) =>
       fetchPaginatedTrees(chainId, pageParam, perPage),
-    // initialData: { pages: [initialData], pageParams: [0] },
+    initialPageParam: 0,
+    initialData: initialData
+      ? { pages: [initialData], pageParams: [0] }
+      : undefined,
   });
 
   return {
@@ -44,5 +48,5 @@ export default usePaginatedTreeList;
 interface UsePaginatedTreeListProps {
   chainId: number;
   perPage?: number;
-  // initialData?: Tree[];
+  initialData?: Tree[];
 }

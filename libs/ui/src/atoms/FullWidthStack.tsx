@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable react/jsx-props-no-spreading */
 import { Stack, StackProps } from '@chakra-ui/react';
 

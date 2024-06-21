@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
 import { useHatForm } from 'contexts';
 import _ from 'lodash';

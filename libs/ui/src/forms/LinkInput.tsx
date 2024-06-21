@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, HStack, Input as ChakraInput, Stack } from '@chakra-ui/react';
 import { validateURL } from 'utils';
 

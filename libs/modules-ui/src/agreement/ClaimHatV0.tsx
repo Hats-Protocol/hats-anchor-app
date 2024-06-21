@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -107,8 +109,8 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
     // trigger refetch if hasClaimed
     await waitForClaim();
 
-    queryClient.invalidateQueries(['wearerDetails']);
-    queryClient.invalidateQueries(['hatDetails']);
+    queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
   };
 
   return (

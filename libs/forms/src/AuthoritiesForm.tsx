@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -19,7 +21,9 @@ import {
 import { AUTHORITY_TYPES, CONFIG } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { usePinImageIpfs } from 'hooks';
+import { Safe } from 'icons';
 import _ from 'lodash';
+import Link from 'next/link';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -98,7 +102,7 @@ const AuthoritiesForm = ({
     accept: { 'image/*': [] },
   });
 
-  const { data: imagePinData, isLoading } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: {
@@ -230,7 +234,6 @@ const AuthoritiesForm = ({
                   <Button
                     colorScheme='blue'
                     leftIcon={<BsSave />}
-                    isLoading={isLoading}
                     isDisabled={_.some(errors) || !isValid}
                     type='submit'
                   >
@@ -337,26 +340,36 @@ const AuthoritiesFormList = ({
         ))}
 
         <Box my={2}>
-          <Button
-            onClick={() => {
-              append({
-                label: '',
-                description: '',
-                link: '',
-                gate: '',
-                imageUrl: '',
-              });
-              setEditingIndex(fields.length);
-              onOpen();
-            }}
-            isDisabled={_.some(items, ['label', ''])}
-            gap={2}
-            variant='outline'
-            borderColor='blackAlpha.300'
-          >
-            <BsPlusCircle />
-            Add {items?.length ? 'another' : 'a'} {label}
-          </Button>
+          <HStack>
+            <Button
+              onClick={() => {
+                append({
+                  label: '',
+                  description: '',
+                  link: '',
+                  gate: '',
+                  imageUrl: '',
+                });
+                setEditingIndex(fields.length);
+                onOpen();
+              }}
+              isDisabled={_.some(items, ['label', ''])}
+              variant='outline'
+              borderColor='blackAlpha.300'
+              leftIcon={<IconWrapper as={BsPlusCircle} />}
+            >
+              Add {items?.length ? 'another' : 'an'} {label}
+            </Button>
+            {/* temporary button until interim form and edit mode v2 */}
+            <Link
+              href='https://hats-signer-gate-portal.vercel.app/deploy'
+              passHref
+            >
+              <Button variant='outline' leftIcon={<IconWrapper as={Safe} />}>
+                Add a Safe
+              </Button>
+            </Link>
+          </HStack>
         </Box>
       </Stack>
 

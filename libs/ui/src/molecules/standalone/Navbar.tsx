@@ -1,9 +1,11 @@
+'use client';
+
 import { Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useStandaloneOverlay, useTreeForm } from 'contexts';
+import { useTreeForm } from 'contexts';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+// import { usePathname } from 'next/navigation';
 import { BsArrowLeft, BsDiagram3Fill } from 'react-icons/bs';
 import { AppHat } from 'types';
 import { useChainId } from 'wagmi';
@@ -17,13 +19,10 @@ const StandaloneNavbar = ({
 }: StandaloneNavbarProps) => {
   const currentChainId = useChainId();
   const { chainId } = useTreeForm();
-  const standaloneOverlay = useStandaloneOverlay();
-  const stdOverlay = useOverlay();
-  const localOverlay = stdOverlay || standaloneOverlay;
   const treeId = hatIdToTreeId(BigInt(hatData?.id || 0));
-  const router = useRouter();
-  const pathSegments = _.split(router.pathname, '/').filter(Boolean);
-  const isTreesRoute = pathSegments.length === 2 && pathSegments[0] === 'trees';
+  // const pathname = usePathname();
+  // const pathSegments = _.split(router.pathname, '/').filter(Boolean);
+  const isTreesRoute = true; // pathSegments.length === 2 && pathSegments[0] === 'trees';
   const topHatName = _.get(
     hatData,
     'detailsObject.data.name',
@@ -73,7 +72,7 @@ const StandaloneNavbar = ({
           ))}
       </HStack>
 
-      <ConnectWallet overlay={localOverlay} />
+      <ConnectWallet />
     </Flex>
   );
 };

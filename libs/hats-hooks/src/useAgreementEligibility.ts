@@ -1,3 +1,5 @@
+'use client';
+
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
@@ -45,10 +47,9 @@ const useAgreementEligibility = ({
     (fn: AppWriteFunction) => fn.functionName === 'signAgreementAndClaimHat',
   );
 
-  const { mutate: callModuleFunction, isLoading: isSignAgreementLoading } =
-    useCallModuleFunction({
-      chainId,
-    });
+  const { mutate: callModuleFunction } = useCallModuleFunction({
+    chainId,
+  });
 
   const handleSignAndClaim = async () => {
     callModuleFunction({
@@ -68,7 +69,6 @@ const useAgreementEligibility = ({
     isLoading,
     error,
     signAndClaim: handleSignAndClaim,
-    isSignAgreementLoading,
   };
 };
 

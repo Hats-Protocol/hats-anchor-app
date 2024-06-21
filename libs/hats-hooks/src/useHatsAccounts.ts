@@ -1,6 +1,7 @@
+'use client';
+
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { id } from 'date-fns/locale';
+import { useQuery } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { SupportedChains } from 'types';
@@ -46,7 +47,7 @@ const useHatsAccounts = ({
   hatId?: Hex;
   chainId: SupportedChains | undefined;
 }) => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const toast = useToast();
   const { address } = useAccount();
 
@@ -83,7 +84,7 @@ const useHatsAccounts = ({
         description: 'The hats wallet account has been successfully deployed',
       });
 
-      queryClient.invalidateQueries(['hatDetails', { id, chainId }]);
+      // queryClient.invalidateQueries(['hatDetails', { id, chainId }]);
       return true;
     } catch (e) {
       // eslint-disable-next-line no-console

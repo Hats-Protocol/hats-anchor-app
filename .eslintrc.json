@@ -4,14 +4,12 @@
   "plugins": [
     "@typescript-eslint",
     "prettier",
-    "babel",
     "import",
     "simple-import-sort",
     "@tanstack/query",
     "@nx"
   ],
   "extends": [
-    "airbnb",
     "plugin:@tanstack/eslint-plugin-query/recommended",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended"

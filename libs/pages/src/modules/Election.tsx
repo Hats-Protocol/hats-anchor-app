@@ -1,11 +1,13 @@
+'use client';
+
 import { Box, Card, CardBody, Flex, Stack } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+// import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+// import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { NextSeo } from 'next-seo';
-import { chainsMap } from 'utils';
+// import { NextSeo } from 'next-seo';
+// import { chainsMap } from 'utils';
 
 const ProposalView = dynamic(() =>
   import('modules-ui').then((mod) => mod.ProposalView),
@@ -28,31 +30,30 @@ const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
 const Election = () => {
   const {
     chainId,
-    selectedHat,
-    selectedHatDetails,
+    // selectedHat,
+    // selectedHatDetails,
     isHatDetailsLoading,
     isModuleDetailsLoading,
   } = useEligibility();
   const { isClient, isMobile } = useMediaStyles();
 
   if (!chainId) return null;
-  const chain = chainsMap(chainId);
+  // const chain = chainsMap(chainId);
 
-  let title = '';
-  if (selectedHat && selectedHatDetails) {
-    title = `${selectedHatDetails.name} on ${chain.name}`;
-  } else if (selectedHat) {
-    title = `Hat #${hatIdDecimalToIp(BigInt(_.get(selectedHat, 'id')))} on ${
-      chain.name
-    }`;
-  }
+  // let title = '';
+  // if (selectedHat && selectedHatDetails) {
+  //   title = `${selectedHatDetails.name} on ${chain.name}`;
+  // } else if (selectedHat) {
+  //   title = `Hat #${hatIdDecimalToIp(BigInt(_.get(selectedHat, 'id')))} on ${
+  //     chain.name
+  //   }`;
+  // }
 
   // should be loaded and know if it's election eligibility
   if (!isClient || isHatDetailsLoading || isModuleDetailsLoading) return null;
 
   return (
     <Layout title='Claims'>
-      <NextSeo title={title} />
       <Stack
         position='relative'
         px={{ base: 6, md: 10, lg: 32 }}

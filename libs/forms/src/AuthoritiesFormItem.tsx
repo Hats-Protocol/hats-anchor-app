@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, HStack, IconButton, Link, Stack, Text } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useHatForm } from 'contexts';

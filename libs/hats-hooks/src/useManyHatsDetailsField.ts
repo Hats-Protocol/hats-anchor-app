@@ -1,3 +1,5 @@
+'use client';
+
 import { useQueries } from '@tanstack/react-query';
 import { handleNestedDetails } from 'hats-utils';
 import _ from 'lodash';

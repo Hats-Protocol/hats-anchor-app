@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, Button, FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
@@ -119,7 +121,7 @@ const HatBasicsForm = () => {
             </Stack>
           </FormRowWrapper>
           <FormRowWrapper>
-            <Icon as={HatIcon} alt='Hat' boxSize={4} mt='2px' />
+            <Icon as={HatIcon} boxSize={4} mt='2px' />
             <Input
               localForm={localForm}
               name='name'

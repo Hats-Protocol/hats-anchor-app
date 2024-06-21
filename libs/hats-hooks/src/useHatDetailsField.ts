@@ -1,6 +1,8 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
-import { HatDetails } from 'types';
 import { handleNestedDetails } from 'hats-utils';
+import { HatDetails } from 'types';
 import { fetchDetailsIpfs } from 'utils';
 
 // * should keep fetching strategy inline with `useManyHatsDetailsField.ts`

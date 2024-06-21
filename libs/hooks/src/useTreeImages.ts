@@ -1,10 +1,12 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
 import { AppHat } from 'types';
 
 const getAncestors = (hat: AppHat, hats: AppHat[]) => {
-  const ancestors = [];
+  const ancestors: AppHat[] = [];
   let currentHat = hat;
   while (currentHat.admin?.id) {
     if (currentHat.admin?.id === currentHat.id) break;

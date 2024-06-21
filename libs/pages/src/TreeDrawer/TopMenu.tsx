@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -66,7 +68,7 @@ const TopMenu = () => {
     return hasAdminOverAnyHat;
   }, [storedData, adminHatIds]);
 
-  const { writeAsync, isLoading } = useMulticallManyHats({
+  const { writeAsync } = useMulticallManyHats({
     isAdminOfAnyHatWithChanges,
     storedData,
     setStoredData,
@@ -77,11 +79,12 @@ const TopMenu = () => {
   });
 
   const handleDeploy = async () => {
-    const result = await writeAsync?.();
-    if (result) {
-      setEditMode?.(false);
-      onCloseTreeDrawer?.();
-    }
+    await writeAsync?.();
+    // TODO handle result and close drawer
+    // if (result) {
+    //   setEditMode?.(false);
+    //   onCloseTreeDrawer?.();
+    // }
   };
 
   const promptForReset = () => {
@@ -118,10 +121,9 @@ const TopMenu = () => {
   const isDeployDisabled = useMemo(
     () =>
       !editHasUpdates(storedData) ||
-      isLoading ||
       currentChain !== chainId ||
       !isAdminOfAnyHatWithChanges,
-    [storedData, isLoading, currentChain, chainId, isAdminOfAnyHatWithChanges],
+    [storedData, currentChain, chainId, isAdminOfAnyHatWithChanges],
   );
 
   return (

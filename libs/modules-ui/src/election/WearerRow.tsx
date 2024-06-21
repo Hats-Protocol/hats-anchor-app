@@ -1,3 +1,5 @@
+'use client';
+
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';

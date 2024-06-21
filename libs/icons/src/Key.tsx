@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Key: any = createIcon({
+const Key = createIcon({
   displayName: 'Key',
   viewBox: '0 0 16 16',
   path: [

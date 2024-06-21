@@ -1,3 +1,5 @@
+'use client';
+
 import {
   HStack,
   Icon,
@@ -10,14 +12,16 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { networkImages, orderedChains } from '@hatsprotocol/constants';
-import { chainsMap } from 'utils';
-import { SupportedChains } from 'types';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { FaFilter } from 'react-icons/fa';
+import { SupportedChains } from 'types';
+import { chainsMap, getPathParams } from 'utils';
 
-const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
-  const router = useRouter();
+const NetworkFilter = () => {
+  const pathname = usePathname();
+  const { chainId } = getPathParams(pathname);
 
   return (
     <Menu isLazy>
@@ -30,40 +34,36 @@ const NetworkFilter = ({ selectedNetwork }: { selectedNetwork: number }) => {
         p={2}
       >
         <HStack spacing={4}>
-          <Image
-            src={networkImages[selectedNetwork as SupportedChains]}
-            alt='chain'
-            w={6}
-            h={6}
-          />
+          <Image src={networkImages[chainId]} alt='chain' w={6} h={6} />
           <Icon as={FaFilter} />
         </HStack>
       </MenuButton>
       <MenuList>
-        {_.map(orderedChains, (chainId: number) => (
+        {_.map(orderedChains, (localChainId: number) => (
           <MenuItem
-            key={chainId}
-            onClick={() => router.push(`/trees/${chainId}`)}
-            isDisabled={selectedNetwork === chainId}
-            color={selectedNetwork === chainId ? 'blue' : 'black'}
+            as={Link}
+            key={localChainId}
+            href={`/trees/${localChainId}`}
+            isDisabled={localChainId === chainId}
+            color={localChainId === chainId ? 'blue' : 'black'}
             opacity='1 !important'
-            bg={selectedNetwork === chainId ? 'blackAlpha.100' : undefined}
+            bg={localChainId === chainId ? 'blackAlpha.100' : undefined}
             my={1}
             justifyContent='space-between'
-            fontWeight={selectedNetwork === chainId ? 600 : 'normal'}
+            fontWeight={localChainId === chainId ? 600 : 'normal'}
           >
             <HStack spacing={1}>
               <Image
                 loading='lazy'
-                src={networkImages[chainId as SupportedChains]}
+                src={networkImages[localChainId as SupportedChains]}
                 alt='chain'
                 w={6}
                 h={6}
                 mr={4}
               />
-              <Text>{chainsMap(chainId)?.name}</Text>
+              <Text>{chainsMap(localChainId)?.name}</Text>
             </HStack>
-            <Text>{selectedNetwork === chainId ? ' ✓' : ''}</Text>
+            <Text>{localChainId === chainId ? ' ✓' : ''}</Text>
           </MenuItem>
         ))}
       </MenuList>

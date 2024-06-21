@@ -1,3 +1,5 @@
+'use client';
+
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';

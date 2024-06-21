@@ -1,3 +1,5 @@
+'use client';
+
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { idToIp } from 'shared';
@@ -13,8 +15,8 @@ const useHatBurn = ({
   handlePendingTx,
   waitForSubgraph,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   handlePendingTx?: HandlePendingTx;
   waitForSubgraph?: () => Promise<unknown>;
 }) => {

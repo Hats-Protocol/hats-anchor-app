@@ -1,3 +1,5 @@
+'use client';
+
 import { As, Box, Card, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { IntegrationCard as IntegrationCardType } from '@hatsprotocol/constants';
 import _ from 'lodash';
@@ -10,7 +12,11 @@ const IntegrationCard = ({
   const { label, icons } = _.pick(integration, ['label', 'icons']);
 
   return (
-    <Card border='1px solid' w={{ base: '100%', md: '25%' }} maxW='300px'>
+    <Card
+      border='1px solid'
+      w={{ base: '100%', md: '48%', xl: '23%' }}
+      minW='200px'
+    >
       <Flex
         h='100px'
         justify='center'
@@ -28,7 +34,7 @@ const IntegrationCard = ({
           bgRepeat='repeat'
           bgClip='border-box'
         />
-        <HStack spacing={{ base: 8, sm: 4, '2xl': 8 }}>
+        <HStack spacing={8}>
           {_.map(icons, (icon: As, i: number) => (
             <Icon
               as={icon}

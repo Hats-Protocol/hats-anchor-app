@@ -1,3 +1,5 @@
+'use client';
+
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { fetchToken, pinImage, unpinImage } from 'utils';
@@ -25,7 +27,7 @@ const usePinImageIpfs = ({
   const [currentImageFile, setCurrentImageFile] = useState<File>();
   const [currentImageCid, setCurrentImageCid] = useState();
 
-  const { data, isLoading, error, mutateAsync } = useMutation({
+  const { data, error, mutateAsync } = useMutation({
     mutationFn: pinImage,
   });
 
@@ -53,7 +55,6 @@ const usePinImageIpfs = ({
 
   return {
     data,
-    isLoading,
     error,
   };
 };

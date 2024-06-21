@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
@@ -8,14 +10,14 @@ import {
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { useMemo } from 'react';
-import { useAccount, useChainId, useNetwork } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { ConnectWallet, NetworkSwitcher } from '../molecules';
 
 const MainAction = () => {
   const currentNetworkId = useChainId();
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  const currentChainId = useChainId();
   const localOverlay = useOverlay();
   const { setModals, handlePendingTx } = localOverlay;
   const { chainId, editMode } = useTreeForm();
@@ -52,10 +54,10 @@ const MainAction = () => {
   );
 
   if (!isConnected) {
-    return <ConnectWallet overlay={localOverlay} />;
+    return <ConnectWallet />;
   }
 
-  if (chainId !== chain?.id) return <NetworkSwitcher />;
+  if (chainId !== currentChainId) return <NetworkSwitcher />;
 
   // PRIORITIZE ADMIN ACTIONS (INCLUDES BULK OPTIONS)
   if (isAdminUser) {

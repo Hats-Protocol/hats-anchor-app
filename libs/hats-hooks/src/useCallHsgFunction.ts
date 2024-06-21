@@ -1,3 +1,5 @@
+'use client';
+
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
@@ -9,6 +11,14 @@ import { createHatsSignerGateClient, transformInput } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
+interface HsgFunctionCallProps {
+  type: HsgType;
+  instance?: Hex;
+  func?: WriteFunction;
+  args: any;
+  onSuccess?: () => void;
+}
+
 const useCallHsgFunction = ({
   chainId,
 }: {
@@ -18,19 +28,7 @@ const useCallHsgFunction = ({
   const toast = useToast();
 
   const callFunction = useCallback(
-    async ({
-      type,
-      instance,
-      func,
-      onSuccess,
-      args,
-    }: {
-      type: HsgType;
-      instance?: Hex;
-      func?: WriteFunction;
-      args: any;
-      onSuccess?: () => void;
-    }) => {
+    async ({ type, instance, func, onSuccess, args }: HsgFunctionCallProps) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
       if (!instance) throw new Error('Instance is undefined');

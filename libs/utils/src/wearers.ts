@@ -2,9 +2,9 @@ import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Hex, zeroAddress } from 'viem';
-import { fetchEnsName } from 'wagmi/actions';
 
 import { checkAddressIsContract } from './contract';
+import { viemPublicClient } from './web3';
 
 export const extendWearerDetails = async (
   wearer: Hex,
@@ -16,13 +16,12 @@ export const extendWearerDetails = async (
   if (wearer === FALLBACK_ADDRESS || wearer === zeroAddress) {
     return Promise.resolve(defaultWearer);
   }
+  // override to use mainnet for ENS
+  const client = viemPublicClient(1);
 
   return Promise.all([
     checkAddressIsContract(wearer, chainId),
-    fetchEnsName({
-      address: wearer,
-      chainId: 1, // override to use mainnet
-    }),
+    client.getEnsName({ address: wearer }),
   ])
     .then((data) => {
       if (!data) return defaultWearer;

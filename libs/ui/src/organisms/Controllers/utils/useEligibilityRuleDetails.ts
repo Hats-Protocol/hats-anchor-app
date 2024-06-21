@@ -1,3 +1,5 @@
+'use client';
+
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
@@ -71,13 +73,14 @@ const fetchEligibilityRuleDetails = async ({
   isWearer,
 }: ModuleDetailsHandler) => {
   if (!moduleDetails || !moduleParameters) {
-    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS);
+    // TODO check dynamic eligibility status
+    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS({}));
   }
 
   if (!_.has(ELIGIBILITY_HANDLERS, moduleDetails.name)) {
     // eslint-disable-next-line no-console
     console.error('Unknown eligibility module', moduleDetails);
-    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS);
+    return Promise.resolve(DEFAULT_ELIGIBILITY_DETAILS({}));
   }
 
   return ELIGIBILITY_HANDLERS[moduleDetails.name]({

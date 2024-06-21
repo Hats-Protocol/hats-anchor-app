@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
@@ -15,14 +17,15 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
-import { useHatParams } from 'hooks';
 import _ from 'lodash';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
@@ -39,7 +42,12 @@ import {
   recreateNodesCollapse,
 } from './utils';
 
-const OrgChartComponent: React.FC = () => {
+function OrgChartComponent() {
+  const params = useSearchParams();
+  const hatId = params.get('hatId');
+  const selectedHatId = hatId
+    ? hatIdDecimalToHex(hatIdIpToDecimal(hatId || ''))
+    : undefined;
   const userChain = useChainId();
   const { address } = useAccount();
   const {
@@ -61,7 +69,6 @@ const OrgChartComponent: React.FC = () => {
     onCloseTreeDrawer,
     treeError,
   } = useTreeForm();
-  const { selectedHatId } = useHatParams();
 
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
@@ -358,17 +365,19 @@ const OrgChartComponent: React.FC = () => {
                   </div>
                 </div>
                 ${
+                  // eslint-disable-next-line no-nested-ternary
                   !editMode
-                    ? selectedOption !== 'title' &&
-                      selectedOptionContent({
-                        selectedOption,
-                        currentSupply,
-                        maxSupply,
-                        hatChartWearers,
-                        extendedEligibility,
-                        extendedToggle,
-                        levelAtLocalTree,
-                      })
+                    ? selectedOption !== 'title'
+                      ? selectedOptionContent({
+                          selectedOption,
+                          currentSupply,
+                          maxSupply,
+                          hatChartWearers,
+                          extendedEligibility,
+                          extendedToggle,
+                          levelAtLocalTree,
+                        })
+                      : ''
                     : `<div style="
                     margin-top: 68px;
                     width: 100%;
@@ -512,7 +521,10 @@ const OrgChartComponent: React.FC = () => {
                 bg='white'
                 rightIcon={<Icon as={BsArrowRight} />}
               >
-                🧢 Head home
+                <span role='img' aria-label='Hats ball cap'>
+                  🧢
+                </span>{' '}
+                Head home
               </Button>
             </ChakraNextLink>
           </Flex>
@@ -559,7 +571,7 @@ const OrgChartComponent: React.FC = () => {
         <Button
           onClick={() => {
             toggleCompact();
-            handleSetCompact?.(!compact);
+            handleSetCompact?.(compact);
           }}
           variant='outline'
           bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
@@ -569,7 +581,7 @@ const OrgChartComponent: React.FC = () => {
         <Button
           onClick={() => {
             toggleFlip();
-            handleFlipChart?.(!flipped);
+            handleFlipChart?.(flipped);
             setTimeout(() => {
               chart?.fit();
             }, 50);
@@ -598,6 +610,6 @@ const OrgChartComponent: React.FC = () => {
       </HStack>
     </Box>
   );
-};
+}
 
 export default OrgChartComponent;

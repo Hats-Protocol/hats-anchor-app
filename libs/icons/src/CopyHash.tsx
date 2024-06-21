@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const CopyHash: any = createIcon({
+const CopyHash = createIcon({
   displayName: 'CopyHash',
   viewBox: '0 0 16 16',
   path: [

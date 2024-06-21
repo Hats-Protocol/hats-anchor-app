@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { AppHat, FormData, SupportedChains } from 'types';
@@ -12,10 +14,10 @@ import { HatPinDetails } from './useMulticallManyHats';
 
 type useMulticallCallDataProps = {
   chainId: SupportedChains | undefined;
-  treeId: number; // ! can be removed?
-  storedData: Partial<FormData>[];
-  onchainHats: AppHat[];
-  treeToDisplay: AppHat[];
+  treeId: number | undefined; // ! can be removed?
+  storedData: Partial<FormData>[] | undefined;
+  onchainHats: AppHat[] | undefined;
+  treeToDisplay: AppHat[] | undefined;
   isExpanded: boolean;
 };
 

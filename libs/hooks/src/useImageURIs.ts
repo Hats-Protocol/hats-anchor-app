@@ -1,3 +1,5 @@
+'use client';
+
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQueries, useQuery } from '@tanstack/react-query';
@@ -96,7 +98,7 @@ const useImageURIs = ({
         return {
           id: hat?.id || hat,
           chainId: hat?.chainId,
-          result: _.get(_.get(imagesForChain, j), 'result'),
+          result: _.trim(_.get(_.get(imagesForChain, j), 'result')),
         };
       });
     });
@@ -111,13 +113,13 @@ const useImageURIs = ({
     );
   }, [hatImageUris]);
 
-  const enabled = !_.isEmpty(hats) && !!imagesData && !imagesLoading;
+  const processImages = !_.isEmpty(hats) && !!imagesData && !imagesLoading;
 
   const imageQueries = useQueries({
     queries: _.map(uniqueImageUris, (img: string | undefined) => ({
       queryKey: ['imageUrl', img],
       queryFn: () => checkImageIsValid(img),
-      enabled: enabled && !!img && img !== '',
+      enabled: processImages && !!img && img !== '',
       timeout: 2000,
       refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
     })),
@@ -149,10 +151,11 @@ const useImageURIs = ({
     isLoaded,
     initialHatsData,
   ]);
+  console.log({ hats, processImages, isLoaded, imagesLoading, mergedWithHats });
 
   return {
     data: mergedWithHats || undefined,
-    isLoading: enabled && (!isLoaded || imagesLoading || !mergedWithHats),
+    isLoading: !_.isEmpty(hats) ? !isLoaded || imagesLoading : true,
   };
 };
 

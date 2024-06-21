@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Accordion,
   AccordionButton,
@@ -16,16 +18,16 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
+  // Spinner,
   useDisclosure,
 } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useAgreementEligibility } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
-import { useQueryClient } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 
@@ -53,17 +55,16 @@ const Conditions = ({
   const { isMobile } = useMediaStyles();
   const queryClient = useQueryClient();
 
-  const { agreement, isSignAgreementLoading } = useAgreementEligibility({
+  const { agreement } = useAgreementEligibility({
     moduleParameters,
     moduleDetails,
     controllerAddress,
     chainId,
     onSuccessfulSign: () => {
       setIsReviewed?.(true);
-      queryClient.invalidateQueries([
-        'hatDetails',
-        { chainId, id: selectedHat?.id },
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: ['hatDetails', { chainId, id: selectedHat?.id }],
+      });
     },
   });
 
@@ -99,14 +100,14 @@ const Conditions = ({
           >
             <Box fontSize='sm'>Comply with all Rules to claim this Hat</Box>
             <AccordionIcon />
-            {isSignAgreementLoading ? (
+            {/* {isSignAgreementLoading ? (
               <Spinner size='sm' color='blue.500' />
-            ) : (
-              <Icon
-                as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
-                color={allConditionsMet ? 'green.500' : 'red.500'}
-              />
-            )}
+            ) : ( */}
+            <Icon
+              as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
+              color={allConditionsMet ? 'green.500' : 'red.500'}
+            />
+            {/* )} */}
           </AccordionButton>
           <AccordionPanel>
             <HStack w='full' justifyContent='space-between'>
@@ -125,14 +126,14 @@ const Conditions = ({
                   'Agreement'
                 )}
               </Box>
-              {isSignAgreementLoading ? (
+              {/* {isSignAgreementLoading ? (
                 <Spinner size='sm' color='blue.500' />
-              ) : (
-                <Icon
-                  as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
-                  color={isReviewed ? 'green.500' : 'red.500'}
-                />
-              )}
+              ) : ( */}
+              <Icon
+                as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
+                color={isReviewed ? 'green.500' : 'red.500'}
+              />
+              {/* )} */}
             </HStack>
           </AccordionPanel>
         </AccordionItem>

@@ -1,3 +1,5 @@
+'use client';
+
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { SupportedChains } from 'types';

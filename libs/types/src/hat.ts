@@ -41,7 +41,11 @@ export type HatDetails = {
   };
 };
 
-export interface AppHat extends Hat {
+export interface HatWithMetadata extends Hat {
+  detailsMetadata?: string;
+}
+
+export interface AppHat extends HatWithMetadata {
   id: Hex; // Confirm `Hat` ID is Hex instead of string
   chainId?: SupportedChains;
   imageUrl?: string;

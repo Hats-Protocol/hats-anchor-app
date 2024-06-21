@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';

@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Superfluid: any = createIcon({
+const Superfluid = createIcon({
   displayName: 'Superfluid',
   viewBox: '0 0 16 16',
   path: [

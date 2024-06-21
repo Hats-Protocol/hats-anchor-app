@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -157,7 +159,7 @@ const Agreement = () => {
               <Stack align='center' spacing={8} mb={100}>
                 <Heading size='md'>This hat has no remaining supply!</Heading>
 
-                {selectedHat.mutable && (
+                {selectedHat?.mutable && (
                   <Text maxW='80%' textAlign='center'>
                     Since this hat is mutable, an admin can adjust the max
                     supply.

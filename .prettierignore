@@ -6,3 +6,4 @@
 /apps/frontend/.next
 /apps/election/.next
 /.nx/cache
+/.nx/workspace-data

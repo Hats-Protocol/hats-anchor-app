@@ -1,3 +1,5 @@
+'use client';
+
 import { useChainId } from 'wagmi';
 
 const useIsSameChain = (chainId: number | undefined) => {

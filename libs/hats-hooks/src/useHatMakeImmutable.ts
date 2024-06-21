@@ -1,3 +1,5 @@
+'use client';
+
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
@@ -20,13 +22,13 @@ const useHatMakeImmutable = ({
   const selectedHatId = selectedHat?.id;
 
   const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(selectedHat.id, chainId),
+    fetchHelper: () => selectedHat && fetchHatDetails(selectedHat.id, chainId),
     checkResult: (hatDetails) => !hatDetails?.mutable,
   });
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'makeHatImmutable',
-    args: [hatIdHexToDecimal(selectedHatId)],
+    args: [hatIdHexToDecimal(selectedHatId || '0x')],
     chainId: Number(chainId),
     handlePendingTx,
     waitForSubgraph,
@@ -59,8 +61,8 @@ const useHatMakeImmutable = ({
 export default useHatMakeImmutable;
 
 interface UseHatMakeImmutableProps {
-  selectedHat: AppHat;
-  onchainHats: AppHat[];
+  selectedHat: AppHat | undefined;
+  onchainHats: AppHat[] | undefined;
   chainId: SupportedChains | undefined;
   isAdminUser?: boolean;
   mutable?: boolean;
