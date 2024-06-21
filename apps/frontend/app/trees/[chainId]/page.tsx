@@ -1,13 +1,9 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { LinkButton, NetworkFilter, TreesList as TreesListCards } from 'ui';
 
-const TreesList = async ({
-  params: { chainId },
-}: {
-  params: { chainId: string };
-}) => {
+const TreesList = async ({ params }: { params: { chainId: string } }) => {
   // TODO fetch initial trees list
-  console.log(chainId);
+  // console.log(chainId);
   return (
     <>
       <div className='py-4 lg:py-[100px] px-4 md:px-20 lg:px-[100px]'>
@@ -21,7 +17,7 @@ const TreesList = async ({
           </div>
         </div>
 
-        <TreesListCards initialTrees={[]} />
+        <TreesListCards params={params} initialTrees={[]} />
       </div>
 
       <div className='fixed w-full h-full bg-blue-100 opacity-[0.7] z-[-5] mt-[70px] top-0 left-0' />

@@ -5,19 +5,32 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
 import _ from 'lodash';
-import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mapWithChainId } from 'shared';
 import { AppHat } from 'types';
 
+import { Skeleton } from '../atoms';
 import TreeCard from '../cards/TreeListCard';
 
-const TreesList = ({ initialTrees }: { initialTrees: any[] }) => {
-  const pathname = usePathname();
-  const chainId = _.toNumber(_.nth(pathname.split('/'), 2));
+const LOADING_TREES = Array(20).fill({});
 
-  const { data, fetchNextPage, hasNextPage } = usePaginatedTreeList({
+const TreesList = ({
+  params,
+  initialTrees,
+}: {
+  params: { chainId: string };
+  initialTrees: any[];
+}) => {
+  const { chainId: chainIdParam } = params;
+  const chainId = _.toNumber(chainIdParam);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isLoading: treesLoading,
+  } = usePaginatedTreeList({
     chainId,
   });
 
@@ -30,13 +43,25 @@ const TreesList = ({ initialTrees }: { initialTrees: any[] }) => {
     ) as AppHat[];
   }, [data, chainId]);
 
-  const { data: topHatsWithImagesData } = useImageURIs({ hats: topHats });
+  const { data: topHatsWithImagesData } = useImageURIs({
+    hats: topHats,
+  });
 
-  if (_.isEmpty(trees)) {
+  if (_.isEmpty(trees) && !treesLoading) {
     return (
-      <Flex justify='center' align='center'>
-        <Heading size='md'>No Trees Found</Heading>
+      <Flex justify='center' align='center' h='100vh'>
+        <Heading>No trees found</Heading>
       </Flex>
+    );
+  }
+
+  if (treesLoading) {
+    return (
+      <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 justify-center mx-auto max-w-[1200px] gap-4 sm:gap-6'>
+        {_.map(LOADING_TREES, (tree: Tree, i) => {
+          return <Skeleton key={i} className='w-100 h-[132px] rounded-md' />;
+        })}
+      </div>
     );
   }
 

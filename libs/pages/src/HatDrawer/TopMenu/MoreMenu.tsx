@@ -19,7 +19,6 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
-  Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
@@ -201,7 +200,7 @@ const MoreMenu = () => {
               </MenuItem>
             )}
 
-            <Tooltip
+            {/* <Tooltip
               label={
                 !toggleIsContract
                   ? 'The toggle is "humanistic"'
@@ -210,83 +209,86 @@ const MoreMenu = () => {
                   : ''
               }
               shouldWrapChildren
+            > */}
+            <MenuItem
+              onClick={() => checkHatStatus?.()}
+              isDisabled={
+                isLoadingCheckHatStatus ||
+                !checkHatStatus ||
+                !toggleIsContract ||
+                chainId !== currentNetworkId
+              }
+              icon={<FaDoorOpen />}
             >
-              <MenuItem
-                onClick={() => checkHatStatus?.()}
-                isDisabled={
-                  isLoadingCheckHatStatus ||
-                  !checkHatStatus ||
-                  !toggleIsContract
-                }
-                icon={<FaDoorOpen />}
-              >
-                Test hat status
-              </MenuItem>
-            </Tooltip>
+              Test hat status
+            </MenuItem>
+            {/* </Tooltip> */}
 
             {address && (
-              <Tooltip
-                label={
-                  chainId !== currentNetworkId
-                    ? "You can't request to link a hat on a different chain"
-                    : ''
-                }
-                shouldWrapChildren
+              // <Tooltip
+              //   label={
+              //     chainId !== currentNetworkId
+              //       ? "You can't request to link a hat on a different chain"
+              //       : ''
+              //   }
+              //   shouldWrapChildren
+              // >
+              <MenuItem
+                onClick={() => setModals?.({ requestLink: true })}
+                isDisabled={chainId !== currentNetworkId}
+                icon={<FaLink />}
               >
-                <MenuItem
-                  onClick={() => setModals?.({ requestLink: true })}
-                  isDisabled={chainId !== currentNetworkId}
-                  icon={<FaLink />}
-                >
-                  Request to link tree here
-                </MenuItem>
-              </Tooltip>
+                Request to link tree here
+              </MenuItem>
+              // </Tooltip>
             )}
 
             {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
-              <Tooltip
-                label={
-                  !isSameAddress(selectedHat?.toggle, address)
-                    ? "Your address doesn't match the hat's toggle address"
-                    : ''
+              // <Tooltip
+              //   label={
+              //     !isSameAddress(selectedHat?.toggle, address)
+              //       ? "Your address doesn't match the hat's toggle address"
+              //       : ''
+              //   }
+              //   shouldWrapChildren
+              // >
+              <MenuItem
+                onClick={() => toggleHat?.()}
+                isDisabled={
+                  !isSameAddress(selectedHat?.toggle, address) ||
+                  isLoadingToggleHat ||
+                  chainId !== currentNetworkId ||
+                  !toggleHat
                 }
-                shouldWrapChildren
+                icon={<FaPowerOff />}
               >
-                <MenuItem
-                  onClick={() => toggleHat?.()}
-                  isDisabled={
-                    !isSameAddress(selectedHat?.toggle, address) ||
-                    isLoadingToggleHat ||
-                    !toggleHat
-                  }
-                  icon={<FaPowerOff />}
-                >
-                  {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
-                </MenuItem>
-              </Tooltip>
+                {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
+              </MenuItem>
+              // </Tooltip>
             )}
 
             {isAdminUser && (
-              <Tooltip
-                label={
-                  !updateImmutability
-                    ? "You don't have permission to make this hat immutable"
-                    : ''
+              // <Tooltip
+              //   label={
+              //     !updateImmutability
+              //       ? "You don't have permission to make this hat immutable"
+              //       : ''
+              //   }
+              //   shouldWrapChildren
+              // >
+              <MenuItem
+                onClick={onOpen}
+                isDisabled={
+                  mutableStatus === MUTABILITY.IMMUTABLE ||
+                  !updateImmutability ||
+                  chainId !== currentNetworkId ||
+                  isLoadingUpdateImmutability
                 }
-                shouldWrapChildren
+                icon={<FaLock />}
               >
-                <MenuItem
-                  onClick={onOpen}
-                  isDisabled={
-                    mutableStatus === MUTABILITY.IMMUTABLE ||
-                    !updateImmutability ||
-                    isLoadingUpdateImmutability
-                  }
-                  icon={<FaLock />}
-                >
-                  Make immutable
-                </MenuItem>
-              </Tooltip>
+                Make immutable
+              </MenuItem>
+              // </Tooltip>
             )}
           </MenuGroup>
 

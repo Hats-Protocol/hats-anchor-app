@@ -25,7 +25,7 @@ const RootPage = async () => {
     <>
       <div className='w-full h-full bg-blue-100 fixed opacity-[0.7] z-[-5] mt-[70px]' />
 
-      <div className='flex flex-col gap-10 px-5 md:px-20 py-[100px] md:py-[120px] z-2'>
+      <div className='flex flex-col gap-10 px-5 md:px-20 py-[100px] md:py-[120px] z-2 max-w-[1400px] mx-auto'>
         <MyHats />
 
         <div className='flex flex-col items-start gap-10 w-full'>
@@ -36,7 +36,7 @@ const RootPage = async () => {
                   Explore featured trees
                 </h2>
 
-                <div className='flex column md:row flex-wrap gap-8 justify-between lg:justify-around'>
+                <div className='grid grid-cols-3 flex-wrap gap-6 justify-between'>
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                     <FeaturedTreeCard
                       treeData={tree}
@@ -63,7 +63,7 @@ const RootPage = async () => {
                   New Integrations
                 </h2>
 
-                <div className='flex flex-col md:flex-row gap-4 flex-wrap justify-between lg:justify-around'>
+                <div className='flex flex-col md:flex-row gap-6 flex-wrap justify-between'>
                   {_.map(INTEGRATION_CARDS, (integration) => (
                     <IntegrationCard
                       integration={integration}

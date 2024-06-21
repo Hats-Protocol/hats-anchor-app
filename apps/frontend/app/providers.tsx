@@ -29,7 +29,7 @@ import { OverlayContextProvider } from 'contexts';
 import _ from 'lodash';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { theme } from 'ui';
 import { getRpcUrl } from 'utils';
 import { Transport } from 'viem';
@@ -58,7 +58,7 @@ const connectors = connectorsForWallets(
   [
     {
       groupName: 'Recommended',
-      wallets: [rainbowWallet, walletConnectWallet],
+      wallets: [coinbaseWallet, rainbowWallet],
     },
     {
       groupName: 'All',
@@ -67,7 +67,7 @@ const connectors = connectorsForWallets(
         safeWallet,
         argentWallet,
         braveWallet,
-        coinbaseWallet,
+        walletConnectWallet,
         dawnWallet,
         frameWallet,
         ledgerWallet,
@@ -115,13 +115,6 @@ if (typeof window !== 'undefined') {
     },
     ui_host: 'https://app.posthog.com',
   });
-
-  // if (INTERCOM_APP_ID) {
-  //   window.Intercom('boot', {
-  //     app_id: INTERCOM_APP_ID,
-  //     // user_id: hatData?.user?.id,
-  //   });
-  // }
 }
 
 const queryClientOptions = {
@@ -136,11 +129,11 @@ const queryClientOptions = {
 
 const Providers = ({ children }: Props) => {
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
-  // useEffect(() => {
-  //   // setTimeout(() => {
-  //   //   reconnect(wagmiConfig);
-  //   // });
-  // }, []);
+  useEffect(() => {
+    if (INTERCOM_APP_ID) {
+      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    }
+  }, []);
 
   return (
     <ChakraBaseProvider theme={theme}>

@@ -25,6 +25,8 @@ import { ChakraNextLink } from '../atoms';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
+// TODO migrate Top Hat image to LazyImage
+
 const TreeStats = ({ tree }: { tree: Tree }) => {
   const activeHats = removeInactiveHatsAndDescendants(tree?.hats);
   // const activeWearers = _.size(_.uniq(_.flatten(_.map(activeHats, 'wearers'))));

@@ -11,9 +11,18 @@ export const getPathParams = (pathname: string) => {
 
   // TODO fix if want to use on API routes
   const firstPath = _.nth(pathArray, 1);
-  if (_.includes(EXCLUDE_ROUTES, firstPath))
+  if (_.includes(EXCLUDE_ROUTES, firstPath)) {
     // being run on all routes so exclude some
     return { chainId: 1 as SupportedChains };
+  }
+
+  if (firstPath === 'wearers') {
+    return {
+      chainId: 10 as SupportedChains,
+      wearer: _.nth(pathArray, 2) as Hex,
+    };
+  }
+  // works for /trees/1/1/1
 
   const ipId = _.nth(pathArray, 4);
   return {
@@ -74,7 +83,6 @@ export const urlFromQueryParams = ({
   drop?: string[];
 }) => {
   let query = params;
-  console.log(pathname, params);
 
   // remove keys where the value is undefined or false
   query = _.omitBy(query, _.isUndefined);
@@ -84,19 +92,17 @@ export const urlFromQueryParams = ({
   query = _.omit(query, _.concat(drop, ['treeId', 'chainId']));
 
   // handle collapsed separately since incompatible with object keys
-  const restAdd = _.omit(add, 'collapsed');
+  const restAdd = _.omit(add, 'collapsed') || {};
   const queryWithoutCollapsed = _.omit(query, 'collapsed');
-  if (!_.isEmpty(restAdd)) {
-    query = { ...queryWithoutCollapsed, ...restAdd };
-  }
+  query = { ...queryWithoutCollapsed, ...restAdd };
 
-  const collapsed = _.get(add, 'collapsed');
-  console.log(
-    query,
-    collapsed,
-    (_.isString(collapsed) && collapsed !== '') ||
-      (_.isArray(collapsed) && !_.isEmpty(collapsed)),
-  );
+  // handle collapsed, concatenate with existing collapsed if present
+  const collapsed = _.compact(
+    _.concat(
+      _.get(params, 'collapsed', []),
+      _.flatten([_.get(add, 'collapsed')]),
+    ),
+  ) as unknown as string[];
   if (
     (_.isString(collapsed) && !_.isUndefined(collapsed)) ||
     (_.isArray(collapsed) && !_.isEmpty(collapsed))
@@ -106,9 +112,6 @@ export const urlFromQueryParams = ({
 
   // don't leave the trailing `?` if no query params
   if (_.isEmpty(query)) return pathname;
-
-  // convert query object to array of key value pairs that is compatible with URLSearchParams
-  console.log('here', query);
 
   return `${pathname}?${new URLSearchParams(_.toPairs(query))}`;
 };

@@ -33,16 +33,20 @@ const FeaturedTreeCard = ({
   }, [image]);
 
   return (
-    <ChakraNextLink href={`/trees/${chainId}/${id}`} h='207px' _hover={{}}>
+    <ChakraNextLink
+      href={`/trees/${chainId}/${id}`}
+      h='100%'
+      minH='207px'
+      _hover={{}}
+    >
       <Stack
         bg='white'
-        maxW='320px'
         borderRadius={6}
         border='1px'
         borderColor='gray.600'
-        h='207px'
         justify='space-between'
         spacing={0}
+        height='100%'
       >
         <Box bg='gray.100' borderTopRadius={6} flex='1' height='150px'>
           <Skeleton height='100%' borderTopRadius={6} isLoaded={imageLoaded}>

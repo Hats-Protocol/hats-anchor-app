@@ -96,7 +96,7 @@ const TreePage = ({
       <div
         className={twJoin(
           'fixed w-full h-full z-[-10] top-0 left-0',
-          editMode ? 'bg-blue-100' : 'bg-gray-100',
+          editMode ? 'bg-edit-bg' : 'bg-gray-100',
         )}
       />
 

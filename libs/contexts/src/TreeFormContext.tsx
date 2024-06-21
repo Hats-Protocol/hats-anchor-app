@@ -374,7 +374,6 @@ export const TreeFormContextProvider = ({
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
   });
-  // console.log(orgChartTree);
 
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
@@ -521,10 +520,8 @@ export const TreeFormContextProvider = ({
   const handleNodeCollapsedOrExpanded = useCallback(
     (nodeIdIp: string, expanded: boolean) => {
       const { collapsed } = queryParams;
-      console.log({ nodeIdIp, expanded, collapsed });
 
       if (Array.isArray(collapsed)) {
-        console.log('collapsed is array');
         // existing query params is an array
         updateCollapsedQueryParams(
           expanded
@@ -534,9 +531,7 @@ export const TreeFormContextProvider = ({
         return;
       }
       if (typeof collapsed === 'string') {
-        // single collapsed node in query params
-        console.log('collapsed is string');
-
+        // existing query param is a single collapsed node
         updateCollapsedQueryParams(
           expanded
             ? _.reject(collapsed, nodeIdIp)
@@ -545,9 +540,7 @@ export const TreeFormContextProvider = ({
         return;
       }
       if (storedConfig.collapsed && !_.isEmpty(storedConfig.collapsed)) {
-        console.log('collapsed in local storage');
         // no query params but there are collapsed nodes in local storage
-
         if (expanded) {
           updateCollapsedQueryParams(
             _.uniq(_.concat(storedConfig.collapsed, nodeIdIp)),
@@ -555,13 +548,13 @@ export const TreeFormContextProvider = ({
           return;
         }
 
+        // update the query params including the collapsed nodes from local storage
         if (_.includes(storedConfig.collapsed, nodeIdIp)) {
           updateCollapsedQueryParams(
             _.reject(storedConfig.collapsed, (id) => id === nodeIdIp),
           );
           return;
         }
-        // update the query params with the including collapsed nodes from local storage
       }
       // no query params and no local storage, a node was collapsed
       updateCollapsedQueryParams([nodeIdIp]);
@@ -597,6 +590,7 @@ export const TreeFormContextProvider = ({
    */
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
+      console.log(isCompact, queryParams);
       const url = urlFromQueryParams({
         pathname,
         params: queryParams,

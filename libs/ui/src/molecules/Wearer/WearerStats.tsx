@@ -30,7 +30,6 @@ const WearerStats = () => {
     parsedPathname,
     _.subtract(_.size(parsedPathname), 1),
   ) as Hex;
-  console.log(pathname, wearerAddress);
 
   const { data: currentHats } = useWearerDetails({
     wearerAddress,
