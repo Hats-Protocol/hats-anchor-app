@@ -179,7 +179,9 @@ const useMulticallManyHats = ({
   });
 
   const onSuccess = async (d: TransactionReceipt | undefined) => {
+    console.log(`start waiting: ${new Date().toISOString()}`);
     await waitForSubgraphUpdate();
+    console.log(`end waiting: ${new Date().toISOString()}`);
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });

@@ -21,6 +21,9 @@ export const fetchTreeDetailsMesh = async (
   const client = new GraphQLClient(process.env.NEXT_PUBLIC_HATS_API as string);
   const query = getTreeQuery(chainId);
 
+  console.log(
+    `fetching tree deteils for ${treeId}, at ${new Date().toISOString()}`,
+  );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = await client.request(query, {
     id: treeIdDecimalToHex(Number(treeId)),
