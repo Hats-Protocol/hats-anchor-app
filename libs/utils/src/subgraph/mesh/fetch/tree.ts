@@ -22,7 +22,7 @@ export const fetchTreeDetailsMesh = async (
   const query = getTreeQuery(chainId);
 
   console.log(
-    `fetching tree deteils for ${treeId}, at ${new Date().toISOString()}`,
+    `fetching tree deteils for ${treeId}, at ${new Date().toUTCString()}`,
   );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const res: any = await client.request(query, {

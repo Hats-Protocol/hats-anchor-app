@@ -179,9 +179,9 @@ const useMulticallManyHats = ({
   });
 
   const onSuccess = async (d: TransactionReceipt | undefined) => {
-    console.log(`start waiting: ${new Date().toISOString()}`);
+    console.log(`start waiting: ${new Date().toUTCString()}`);
     await waitForSubgraphUpdate();
-    console.log(`end waiting: ${new Date().toISOString()}`);
+    console.log(`end waiting: ${new Date().toUTCString()}`);
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
@@ -193,6 +193,9 @@ const useMulticallManyHats = ({
       storedData,
       (hat: Partial<FormData>) => !_.includes(adminHatIds, hat.id),
     );
+
+    console.log(`stored data: ${JSON.stringify(storedData)}`);
+    console.log(`new stored data: ${JSON.stringify(newStoredData)}`);
 
     setStoredData?.(newStoredData);
   };
