@@ -1,11 +1,12 @@
 'use client';
 
+import { chainsList } from '@hatsprotocol/constants';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
-import { chainsList, fetchTreesByIdMesh } from 'utils';
 import { AppHat } from 'types';
+import { fetchTreesByIdMesh } from 'utils';
 
 const chains = _.keys(chainsList);
 

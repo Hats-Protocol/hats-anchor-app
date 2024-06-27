@@ -112,6 +112,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
     address: formValue,
     chainId,
   });
+  // TODO bring this up to actual contract lookup
   const isContract =
     (contractData && contractData?.contractName !== 'MetaMultiSigWallet') ||
     moduleDetails;

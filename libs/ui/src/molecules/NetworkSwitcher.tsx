@@ -1,9 +1,9 @@
 'use client';
 
 import { Button } from '@chakra-ui/react';
+import { chainsList } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { SupportedChains } from 'types';
-import { chainsList } from 'utils';
 import { useChainId, useSwitchChain } from 'wagmi';
 
 const NetworkSwitcher = ({ chainId, colorScheme }: NetworkSwitcherProps) => {

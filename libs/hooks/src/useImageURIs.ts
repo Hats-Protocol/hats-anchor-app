@@ -151,7 +151,6 @@ const useImageURIs = ({
     isLoaded,
     initialHatsData,
   ]);
-  console.log({ hats, processImages, isLoaded, imagesLoading, mergedWithHats });
 
   return {
     data: mergedWithHats || undefined,
