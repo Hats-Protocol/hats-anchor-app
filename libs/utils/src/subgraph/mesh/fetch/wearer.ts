@@ -15,7 +15,7 @@ export const fetchWearerDetailsMesh = async (
 
   try {
     const client = new GraphQLClient(
-      process.env.NEXT_PUBLIC_HATS_API as string,
+      `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
     );
     const query = getWearerDetailsQuery(chainId);
 

@@ -5,7 +5,7 @@ export const invalidateAfterTransaction = async (
   transactionId: `0x${string}`,
 ) => {
   try {
-    await axios.post(`${process.env.NEXT_PUBLIC_HATS_API}/invalidate`, {
+    await axios.post(`${process.env.NEXT_PUBLIC_MESH_API}/invalidate`, {
       transactionId,
       networkId,
     });
