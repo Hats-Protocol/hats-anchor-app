@@ -7,7 +7,7 @@ export const invalidateAfterTransaction = async (
   try {
     await axios.post(`${process.env.NEXT_PUBLIC_MESH_API}/invalidate`, {
       transactionId,
-      networkId,
+      networkId: networkId.toString(),
     });
   } catch (e) {
     console.error('Error invalidating transaction', e);
