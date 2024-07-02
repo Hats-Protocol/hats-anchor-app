@@ -2,6 +2,7 @@
 
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { useState } from 'react';
+import { invalidateAfterTransaction } from 'utils';
 import { Hex } from 'viem';
 import { useWriteContract } from 'wagmi';
 
@@ -56,6 +57,8 @@ const useAgreementClaimsHatterContractWrite: any = ({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
         });
+
+        invalidateAfterTransaction(chainId, hash);
 
         handlePendingTx?.({
           hash,

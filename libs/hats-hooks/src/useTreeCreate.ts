@@ -7,7 +7,7 @@ import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { HandlePendingTx } from 'types';
-import { fetchTreeDetails } from 'utils';
+import { fetchTreeDetails, invalidateAfterTransaction } from 'utils';
 import { isAddress, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
@@ -53,6 +53,7 @@ const useTreeCreate = ({
     setTreeId(newTreeId);
 
     await waitForSubgraph();
+    await invalidateAfterTransaction(chainId, transactionData.transactionHash);
 
     queryClient.invalidateQueries({ queryKey: ['treeList', chainId] });
     queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });

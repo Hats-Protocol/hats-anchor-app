@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import { useState } from 'react';
 import { HandlePendingTx, ToastProps } from 'types';
-import { formatFunctionName } from 'utils';
+import { formatFunctionName, invalidateAfterTransaction } from 'utils';
 import { TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
@@ -74,6 +74,7 @@ const useHatContractWrite = ({
             handleSuccess?.(d);
 
             await waitForSubgraph?.(d);
+            await invalidateAfterTransaction(chainId, hash);
 
             if (onSuccessToastData) {
               toast[onSuccessToastData.status || 'success']({

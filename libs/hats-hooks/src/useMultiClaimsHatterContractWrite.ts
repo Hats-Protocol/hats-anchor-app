@@ -7,8 +7,8 @@ import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useState } from 'react';
 import { HandlePendingTx, SupportedChains } from 'types';
-import { viemPublicClient } from 'utils';
-import { Hex } from 'viem';
+import { invalidateAfterTransaction, viemPublicClient } from 'utils';
+import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
 import useHatsModules from './useHatsModules';
@@ -84,6 +84,11 @@ const useMultiClaimsHatterContractWrite = ({
           toastData: {
             title: 'Transaction successful',
             description: 'Your transaction has been confirmed.',
+          },
+          onSuccess: async (d: TransactionReceipt | undefined) => {
+            if (d !== undefined) {
+              await invalidateAfterTransaction(chainId, d?.transactionHash);
+            }
           },
         });
 

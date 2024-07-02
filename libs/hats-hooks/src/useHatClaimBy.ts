@@ -8,7 +8,11 @@ import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
-import { createHatsModulesClient, fetchHatDetails } from 'utils';
+import {
+  createHatsModulesClient,
+  fetchHatDetails,
+  invalidateAfterTransaction,
+} from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
 
@@ -121,6 +125,7 @@ const useHatClaimBy = ({
           onSuccess: async () => {
             onSuccess?.();
             await waitForSubgraph();
+            await invalidateAfterTransaction(chainId, hash);
 
             queryClient.invalidateQueries({
               queryKey: ['hatDetails', { id: selectedHat?.id, chainId }],
