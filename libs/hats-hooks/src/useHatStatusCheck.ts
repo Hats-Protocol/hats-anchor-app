@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { idToIp, toTreeId } from 'shared';
 import { AppHat, HandlePendingTx } from 'types';
-import { checkAddressIsContract } from 'utils';
+import { checkAddressIsContract, invalidateAfterTransaction } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
@@ -76,7 +76,7 @@ const useHatStatusCheck = ({
             title: 'Transaction Confirmed',
             description: 'Checking Hat Status...',
           },
-          onSuccess: (d?: TransactionReceipt) => {
+          onSuccess: async (d?: TransactionReceipt) => {
             const logs = _.get(d, 'logs');
             if (logs?.length === 0) {
               toast.success({
@@ -95,6 +95,7 @@ const useHatStatusCheck = ({
                     : STATUS.INACTIVE
                 }`,
               });
+              await invalidateAfterTransaction(chainId, hash);
 
               setTimeout(() => {
                 queryClient.invalidateQueries({

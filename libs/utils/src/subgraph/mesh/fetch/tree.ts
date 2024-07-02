@@ -18,7 +18,9 @@ export const fetchTreeDetailsMesh = async (
     return null;
   }
 
-  const client = new GraphQLClient(process.env.NEXT_PUBLIC_HATS_API as string);
+  const client = new GraphQLClient(
+    `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
+  );
   const query = getTreeQuery(chainId);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +42,9 @@ export const fetchPaginatedTreesMesh = async (
   page: number = 0,
   perPage: number = 40,
 ) => {
-  const client = new GraphQLClient(process.env.NEXT_PUBLIC_HATS_API as string);
+  const client = new GraphQLClient(
+    `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
+  );
   const query = getTreesPaginatedQuery(chainId);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,7 +66,9 @@ export const fetchTreesByIdMesh = async (
   treeIds: string[],
   chainId: number,
 ) => {
-  const client = new GraphQLClient(process.env.NEXT_PUBLIC_HATS_API as string);
+  const client = new GraphQLClient(
+    `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
+  );
   const query = getTreesByIdQuery(chainId);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

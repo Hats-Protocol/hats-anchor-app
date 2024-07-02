@@ -5,7 +5,11 @@ import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';
 import { AppWriteFunction, SupportedChains, UseCustomToastReturn } from 'types';
-import { createHatsModulesClient, transformInput } from 'utils';
+import {
+  createHatsModulesClient,
+  invalidateAfterTransaction,
+  transformInput,
+} from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -63,6 +67,8 @@ const useCallModuleFunction = ({
           func,
           args: preparedArgs,
         });
+
+        await invalidateAfterTransaction(chainId, result.transactionHash);
 
         if (result?.status === 'success') {
           toast.success({

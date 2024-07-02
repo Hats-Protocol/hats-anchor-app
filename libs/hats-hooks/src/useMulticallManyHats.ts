@@ -18,6 +18,7 @@ import {
   fetchHatDetails,
   fetchToken,
   handleDetailsPin,
+  invalidateAfterTransaction,
   processHatForCalls,
   summarizeActions,
 } from 'utils';
@@ -180,6 +181,9 @@ const useMulticallManyHats = ({
 
   const onSuccess = async (d: TransactionReceipt | undefined) => {
     await waitForSubgraphUpdate();
+    if (d !== undefined) {
+      await invalidateAfterTransaction(Number(chainId), d.transactionHash);
+    }
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
