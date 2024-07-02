@@ -1,44 +1,17 @@
 'use client';
 
-/* eslint-disable react/jsx-props-no-spreading */
 import { ChakraBaseProvider } from '@chakra-ui/react';
-import { chainsList } from '@hatsprotocol/constants';
-import {
-  Chain,
-  connectorsForWallets,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
-import {
-  argentWallet,
-  braveWallet,
-  coinbaseWallet,
-  dawnWallet,
-  frameWallet,
-  injectedWallet,
-  ledgerWallet,
-  rabbyWallet,
-  rainbowWallet,
-  safeWallet,
-  uniswapWallet,
-  walletConnectWallet,
-  zerionWallet,
-} from '@rainbow-me/rainbowkit/wallets';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
-import _ from 'lodash';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { theme } from 'ui';
-import { getRpcUrl } from 'utils';
-import { Transport } from 'viem';
-import { createConfig, http, WagmiProvider } from 'wagmi';
+import { wagmiConfig } from 'utils';
+import { WagmiProvider } from 'wagmi';
 
-const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
-if (!WC_PROJECT_ID) {
-  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
-}
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 if (!POSTHOG_KEY) {
   throw new Error('POSTHOG_KEY is required');
@@ -53,57 +26,6 @@ declare global {
     Intercom: (action: string, options: object) => void;
   }
 }
-
-const connectors = connectorsForWallets(
-  [
-    {
-      groupName: 'Recommended',
-      wallets: [coinbaseWallet, rainbowWallet],
-    },
-    {
-      groupName: 'All',
-      wallets: [
-        injectedWallet,
-        safeWallet,
-        argentWallet,
-        braveWallet,
-        walletConnectWallet,
-        dawnWallet,
-        frameWallet,
-        ledgerWallet,
-        // metaMaskWallet,
-        rabbyWallet,
-        uniswapWallet,
-        zerionWallet,
-      ],
-    },
-  ],
-  {
-    appName: 'Hats App',
-    projectId: WC_PROJECT_ID,
-  },
-);
-
-const transports = () => {
-  const localTransports: { [key: string]: Transport } = {};
-  _.each(chainsList, (chain, chainId) => {
-    localTransports[chainId as keyof typeof localTransports] = http(
-      getRpcUrl(_.toNumber(chainId)),
-    );
-  });
-
-  return localTransports;
-};
-
-export const wagmiConfig = createConfig({
-  connectors: _.concat(connectors),
-  chains: _.map(
-    _.keys(chainsList),
-    (c) => chainsList[_.toNumber(c) as keyof typeof chainsList],
-  ) as unknown as readonly [Chain, ...Chain[]], // TODO any better way to do this?
-  transports: transports(),
-  ssr: true,
-});
 
 // Check that PostHog is client-side (used to handle Next.js SSR)
 if (typeof window !== 'undefined') {

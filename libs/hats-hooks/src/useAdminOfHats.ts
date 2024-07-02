@@ -17,7 +17,7 @@ const useAdminOfHats = ({
   const { address: user } = useAccount();
 
   const fetchAdminStatus = async () => {
-    const hatsClient = createHatsClient(chainId);
+    const hatsClient = await createHatsClient(chainId);
     if (!hatsClient) {
       throw new Error('Unable to initialize hatsClient');
     }

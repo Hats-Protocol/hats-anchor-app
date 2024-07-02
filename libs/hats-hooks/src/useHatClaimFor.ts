@@ -21,7 +21,7 @@ const checkCanClaimForWearer = async ({
   hatId: Hex | undefined;
   wearer: Hex | undefined;
 }) => {
-  const hatsClient = createHatsClient(chainId);
+  const hatsClient = await createHatsClient(chainId);
   if (!hatsClient || !wearer || !hatId || !isAddress(wearer)) return false;
 
   const canClaimFor = await hatsClient.canClaimForAccount({
@@ -78,7 +78,7 @@ const useHatClaimFor = ({
   });
 
   const claimHatFor = async (account: Hex) => {
-    const hatsClient = createHatsClient(chainId);
+    const hatsClient = await createHatsClient(chainId);
     if (!hatsClient || !address) return undefined;
 
     return hatsClient

@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export */
+import { chainsList } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
@@ -7,7 +8,7 @@ import { idToIp } from 'shared';
 import { AppHat, AppTree } from 'types';
 import { hexToNumber } from 'viem';
 
-import { chainsList, createSubgraphClient } from '../web3';
+import { createSubgraphClient } from '../web3';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',

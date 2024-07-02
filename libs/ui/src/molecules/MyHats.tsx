@@ -83,6 +83,7 @@ const MyHatsCard = ({
 const MyHats = () => {
   const { address: currentUser } = useAccount();
   const { isMobile } = useMediaStyles();
+  console.log(currentUser);
 
   const { data: currentHats, isLoading: wearerDetailsLoading } =
     useWearerDetails({
@@ -108,15 +109,17 @@ const MyHats = () => {
   const { data: ensName } = useEnsName({ address: currentUser, chainId: 1 });
 
   if (!currentUser) {
-    <Stack>
-      <Heading variant='medium'>
-        Welcome to Hats Protocol!{' '}
-        <span role='img' aria-label='Hats ball cap'>
-          🧢
-        </span>
-      </Heading>
-      <Text size='lg'>Please connect your wallet to get started.</Text>
-    </Stack>;
+    return (
+      <Stack>
+        <Heading variant='medium'>
+          Welcome to Hats Protocol!{' '}
+          <span role='img' aria-label='Hats ball cap'>
+            🧢
+          </span>
+        </Heading>
+        <Text size='lg'>Please connect your wallet to get started.</Text>
+      </Stack>
+    );
   }
 
   if (

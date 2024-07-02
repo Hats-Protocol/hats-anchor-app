@@ -32,7 +32,7 @@ const useMulticallCallData = ({
 }: useMulticallCallDataProps) => {
   const computeMulticallData = async () => {
     if (!chainId || !treeId || !storedData) return undefined;
-    const hatsClient = createHatsClient(chainId);
+    const hatsClient = await createHatsClient(chainId);
 
     const onlyOnchainHats = _.filter(treeToDisplay, (hat: AppHat) =>
       _.includes(_.map(onchainHats, 'id'), hat.id),

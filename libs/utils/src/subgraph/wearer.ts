@@ -1,3 +1,4 @@
+import { chainsList } from '@hatsprotocol/constants';
 import {
   DEFAULT_ENDPOINTS_CONFIG,
   Wearer,
@@ -9,7 +10,7 @@ import { AppHat, HatWearer } from 'types';
 import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '../contract';
-import { chainsList, createSubgraphClient, viemPublicClient } from '../web3';
+import { createSubgraphClient, viemPublicClient } from '../web3';
 import { fetchWearerDetailsMesh } from './mesh/fetch/wearer';
 
 const chains = _.keys(chainsList);
