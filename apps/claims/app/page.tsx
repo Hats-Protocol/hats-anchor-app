@@ -1,3 +1,5 @@
+'use client';
+
 import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
 import { ChakraNextLink, StandaloneLayout as Layout } from 'ui';
@@ -32,7 +34,6 @@ const Home = () => {
   const { data: ensName } = useEnsName({
     address: wearerAddress,
     chainId: 1,
-    enabled: !!wearerAddress && isClient,
   });
 
   if (!isClient || !wearerAddress) {

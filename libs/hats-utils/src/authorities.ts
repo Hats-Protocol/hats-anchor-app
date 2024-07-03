@@ -16,7 +16,7 @@ import { Hex } from 'viem';
  * @param guildRoles - authorities found for the hat at Guild
  * @param spaces - authorities found for the hat at Snapshot
  * @param modulesAuthorities - authorities found for the hat's modules
- * @returns object with data key containing the combined authorities
+ * @returns object with `data` property containing the combined authorities
  */
 export const combineAuthorities = ({
   authorities,
@@ -97,6 +97,12 @@ export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
     : null;
 };
 
+/**
+ * Creates a URL for the Safe app. Generally used for controllers and wearers.
+ * @param chainId the chainId of the Safe
+ * @param address the address of the Safe
+ * @returns a string URL for the Safe app
+ */
 export const safeUrl = (
   chainId: SupportedChains | undefined,
   address: Hex | undefined,
@@ -105,6 +111,12 @@ export const safeUrl = (
   return `${SAFE_URL}/home?safe=${SAFE_CHAIN_MAP[chainId]}:${address}`;
 };
 
+/**
+ * Creates a URL for the DaoHaus app. Generally used for DAOs.
+ * @param chainId the chainId of the DAO
+ * @param address the address of the DAO
+ * @returns a string URL for the DaoHaus app
+ */
 export const daohausUrl = (
   chainId: SupportedChains,
   address: Hex | undefined,

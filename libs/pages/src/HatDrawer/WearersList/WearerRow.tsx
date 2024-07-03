@@ -282,5 +282,5 @@ interface WearerRowProps {
   isIneligible?: boolean;
   currentUserIsAdmin?: boolean;
   setChangeStatusWearer: (w: Hex) => void;
-  setWearerToTransferFrom: (w: string) => void;
+  setWearerToTransferFrom: (w: Hex) => void;
 }

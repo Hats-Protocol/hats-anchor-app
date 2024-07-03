@@ -32,8 +32,7 @@ const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
-  const { chainId, selectedHat, selectedHatDetails, isHatDetailsLoading } =
-    useEligibility();
+  const { chainId, selectedHat, selectedHatDetails } = useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string);
   const { isMobile } = useMediaStyles();
 
@@ -63,34 +62,34 @@ const Header = () => {
         pb={2}
       >
         <Box width='100%'>
-          <Skeleton minH='450px' isLoaded={!isHatDetailsLoading}>
-            <Image
-              src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
-              alt='Hat image'
-              background='white'
-              objectFit='cover'
-              width='100%'
-              height='auto'
-            />
-          </Skeleton>
-          <Skeleton isLoaded={!isHatDetailsLoading}>
-            <HStack mt={-2} pl={4}>
-              {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-              <Badge
-                colorScheme={
-                  mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
-                }
-              >
-                {mutableStatus}
-              </Badge>
-              <Badge
-                colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
-              >
-                {activeStatus}
-              </Badge>
-              <Badge>Level {levelAtLocalTree}</Badge>
-            </HStack>
-          </Skeleton>
+          {/* <Skeleton minH='450px' isLoaded={!isHatDetailsLoading}> */}
+          <Image
+            src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+            alt='Hat image'
+            background='white'
+            objectFit='cover'
+            width='100%'
+            height='auto'
+          />
+          {/* </Skeleton> */}
+          {/* <Skeleton isLoaded={!isHatDetailsLoading}> */}
+          <HStack mt={-2} pl={4}>
+            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+              }
+            >
+              {mutableStatus}
+            </Badge>
+            <Badge
+              colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+            >
+              {activeStatus}
+            </Badge>
+            <Badge>Level {levelAtLocalTree}</Badge>
+          </HStack>
+          {/* </Skeleton> */}
         </Box>
         <Stack w='full' px={4}>
           <HStack

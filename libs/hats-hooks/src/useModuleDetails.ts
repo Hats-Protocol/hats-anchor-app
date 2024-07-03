@@ -7,6 +7,34 @@ import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 
+const getModuleData = async ({
+  address,
+  chainId,
+}: {
+  address: Hex | undefined;
+  chainId: SupportedChains | undefined;
+}) => {
+  console.log({ address, chainId });
+  if (!chainId || !address) return null;
+
+  const moduleClient = await createHatsModulesClient(chainId);
+  console.log({ moduleClient });
+  if (!moduleClient) return null;
+
+  const promises = [
+    moduleClient.getModuleByInstance(address),
+    moduleClient.getInstanceParameters(address),
+  ];
+  const [moduleData, localModuleParameters] = await Promise.all(promises);
+  console.log({ moduleData, localModuleParameters });
+  if (!moduleData) return null;
+
+  return {
+    details: moduleData as ModuleDetails,
+    parameters: localModuleParameters as ModuleParameter[],
+  };
+};
+
 const useModuleDetails = ({
   address,
   chainId,
@@ -18,35 +46,21 @@ const useModuleDetails = ({
   enabled?: boolean;
   editMode?: boolean;
 }) => {
-  const getModuleData = async () => {
-    if (!chainId || !address) return null;
-
-    const moduleClient = await createHatsModulesClient(chainId);
-    if (!moduleClient) return null;
-
-    const promises = [
-      moduleClient.getModuleByInstance(address),
-      moduleClient.getInstanceParameters(address),
-    ];
-    const [moduleData, localModuleParameters] = await Promise.all(promises);
-    if (!moduleData) return null;
-
-    return {
-      details: moduleData as ModuleDetails,
-      parameters: localModuleParameters as ModuleParameter[],
-    };
-  };
+  // console.log({ address, chainId, enabled, editMode });
+  // console.log({ address, enabled });
 
   const { data, isLoading, fetchStatus } = useQuery({
-    queryKey: ['moduleDetails', address],
-    queryFn: getModuleData,
+    queryKey: ['moduleDetails', { address, chainId }],
+    queryFn: () => getModuleData({ address, chainId }),
     enabled:
       !!address &&
+      !!chainId &&
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&
       enabled,
-    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
+    // staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
+  console.log({ data, isLoading, fetchStatus });
 
   return {
     details: data?.details,

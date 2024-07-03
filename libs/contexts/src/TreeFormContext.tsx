@@ -18,7 +18,9 @@ import _ from 'lodash';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
   createContext,
+  Dispatch,
   ReactNode,
+  SetStateAction,
   useCallback,
   useContext,
   useEffect,
@@ -72,13 +74,13 @@ export interface TreeFormContext {
   // local storage
   storedConfig: { flipped?: boolean; compact?: boolean; collapsed?: string[] };
   storedData: Partial<FormData>[] | undefined;
-  setStoredData: ((v: Partial<FormData>[]) => void) | undefined;
+  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>> | undefined;
   // controls
   editMode: boolean;
-  setEditMode: ((v: boolean) => void) | undefined;
+  setEditMode: Dispatch<SetStateAction<boolean>> | undefined;
   toggleEditMode: (() => void) | undefined;
   selectedOption: string | undefined;
-  setSelectedOption: ((v: string) => void) | undefined;
+  setSelectedOption: Dispatch<SetStateAction<string | undefined>> | undefined;
   showInactiveHats: boolean;
   setShowInactiveHats: ((v: boolean) => void) | undefined;
   // actions

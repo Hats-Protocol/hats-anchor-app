@@ -62,7 +62,7 @@ const Agreement = () => {
     [selectedHat],
   );
 
-  const handleScroll = (e) => {
+  const handleScroll = (e: any) => {
     const bottom =
       Math.floor(e.target.scrollHeight - e.target.scrollTop) ===
       e.target.clientHeight;

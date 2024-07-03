@@ -18,17 +18,12 @@ const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
 
 const Claims = () => {
   const { isClient } = useMediaStyles();
-  const {
-    chainId,
-    selectedHat,
-    moduleDetails,
-    isHatDetailsLoading,
-    isModuleDetailsLoading,
-  } = useEligibility();
+  const { chainId, selectedHat, moduleDetails, isModuleDetailsLoading } =
+    useEligibility();
 
   if (!isClient) return null;
 
-  if (isHatDetailsLoading || isModuleDetailsLoading || !selectedHat?.id) {
+  if (isModuleDetailsLoading || !selectedHat?.id) {
     return (
       <Layout title='Claims'>
         <Flex justify='center' pt='120px'>
@@ -53,7 +48,7 @@ const Claims = () => {
   // handle specific modules found
   // TODO migrate to ID and CONSTs
   if (moduleDetails?.name === 'Hats Election Eligibility') return <Election />;
-  if (moduleDetails?.name === 'Agreement Eligibility') return <Agreement />;
+  if (moduleDetails?.name.includes('Agreement')) return <Agreement />;
 
   // fallback for other known modules
   if (moduleDetails) return <KnownModule />;

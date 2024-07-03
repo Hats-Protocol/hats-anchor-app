@@ -28,6 +28,7 @@ const nextConfig = {
   transpilePackages: ['d3-org-chart'],
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.externals.push('pino-pretty', 'lokijs', 'encoding'); // Rainbowkit polyfills
     return config;
   },
 

@@ -32,7 +32,6 @@ const Election = () => {
     chainId,
     // selectedHat,
     // selectedHatDetails,
-    isHatDetailsLoading,
     isModuleDetailsLoading,
   } = useEligibility();
   const { isClient, isMobile } = useMediaStyles();
@@ -50,7 +49,7 @@ const Election = () => {
   // }
 
   // should be loaded and know if it's election eligibility
-  if (!isClient || isHatDetailsLoading || isModuleDetailsLoading) return null;
+  if (!isClient || isModuleDetailsLoading) return null;
 
   return (
     <Layout title='Claims'>

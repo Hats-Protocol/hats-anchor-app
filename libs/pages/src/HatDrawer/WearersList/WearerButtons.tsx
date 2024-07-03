@@ -36,7 +36,7 @@ const claimTooltip = ({
   return undefined;
 };
 
-const addWearerTooltip = (sameChain, maxWearersReached) => {
+const addWearerTooltip = (sameChain: any, maxWearersReached: any) => {
   if (!sameChain) return "You can't add a wearer from a different chain.";
   if (maxWearersReached) return 'Maximum number of wearers reached.';
 

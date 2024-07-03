@@ -5,7 +5,6 @@ import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import {
   useAncillaryElection,
   useHatDetails,
-  useHatDetailsField,
   useModuleDetails,
   useWearersControllersDetails,
 } from 'hats-hooks';
@@ -20,11 +19,9 @@ export interface EligibilityContextProps {
   selectedHat: AppHat | null | undefined;
   selectedHatDetails: HatDetails | undefined;
   wearersAndControllers: HatWearer[] | undefined;
-  treeId: Hex | undefined;
   moduleDetails: Module | undefined;
   moduleParameters: ModuleParameter[] | undefined;
   controllerAddress: Hex | undefined;
-  isHatDetailsLoading: boolean | undefined;
   isModuleDetailsLoading: boolean | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   electionsAuthority: any | undefined;
@@ -36,11 +33,9 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   selectedHat: undefined,
   selectedHatDetails: undefined,
   wearersAndControllers: undefined,
-  treeId: undefined,
   moduleDetails: undefined,
   moduleParameters: undefined,
   controllerAddress: undefined,
-  isHatDetailsLoading: false,
   isModuleDetailsLoading: false,
   electionsAuthority: undefined,
   isElectionsAuthorityLoading: false,
@@ -48,22 +43,20 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
 
 export const EligibilityContextProvider = ({
   hatId,
-  treeId,
   chainId,
   children,
 }: {
   hatId: Hex;
-  treeId: Hex;
   chainId: SupportedChains;
   children: React.ReactNode;
 }) => {
-  const { data: selectedHat } = useHatDetails({
+  const { data: selectedHat, details: hatDetails } = useHatDetails({
     chainId,
     hatId,
   });
 
-  const { data: hatDetails, isLoading: isHatDetailsLoading } =
-    useHatDetailsField(selectedHat?.details);
+  // const { data: hatDetails, isLoading: isHatDetailsLoading } =
+  //   useHatDetailsField(selectedHat?.details);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: selectedHat ? [selectedHat] : [],
@@ -79,8 +72,8 @@ export const EligibilityContextProvider = ({
   });
 
   const {
-    details,
-    parameters,
+    details: moduleDetails,
+    parameters: moduleParameters,
     isLoading: isModuleDetailsLoading,
   } = useModuleDetails({
     address: controllerAddress,
@@ -97,13 +90,11 @@ export const EligibilityContextProvider = ({
     () => ({
       chainId,
       selectedHat: _.first(selectedHatWithImageUrl) || selectedHat,
-      selectedHatDetails: hatDetails?.data,
+      selectedHatDetails: hatDetails,
       wearersAndControllers,
-      treeId,
-      moduleDetails: details,
-      moduleParameters: parameters,
+      moduleDetails,
+      moduleParameters,
       controllerAddress,
-      isHatDetailsLoading,
       isModuleDetailsLoading,
       electionsAuthority,
       isElectionsAuthorityLoading,
@@ -113,12 +104,10 @@ export const EligibilityContextProvider = ({
       hatDetails,
       selectedHatWithImageUrl,
       selectedHat,
-      treeId,
       wearersAndControllers,
-      details,
-      parameters,
+      moduleDetails,
+      moduleParameters,
       controllerAddress,
-      isHatDetailsLoading,
       isModuleDetailsLoading,
       electionsAuthority,
       isElectionsAuthorityLoading,

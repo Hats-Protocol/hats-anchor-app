@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import _ from 'lodash';
 import { HatDetails } from 'types';
 
