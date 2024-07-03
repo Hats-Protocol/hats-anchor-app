@@ -30,7 +30,6 @@ export const handleErc20Eligibility = async ({
   ]);
 
   const tokenFields = ['symbol', 'name', 'decimals'];
-  console.log(chainId, wearer, tokenParam, amountParameter);
   const tokenFieldContracts = _.map(tokenFields, (field) => ({
     address: tokenParam?.value as Hex,
     abi: erc20Abi,
@@ -65,7 +64,6 @@ export const handleErc20Eligibility = async ({
     number,
     bigint,
   ];
-  console.log({ symbol, name, decimals, userBalance });
 
   const amountValueDisplay = formatUnits(
     (amountParameter?.value as bigint) || BigInt(0),

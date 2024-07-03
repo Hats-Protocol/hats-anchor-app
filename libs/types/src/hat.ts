@@ -65,7 +65,7 @@ export interface AppHat extends HatWithMetadata {
   extendedEligibility?: HatWearer;
   extendedToggle?: HatWearer;
   // object assembled to be used in the org chart wearers section
-  orgChartWearers?: {
+  hatChartWearers?: {
     color: string;
     accent: string;
     icon: string;

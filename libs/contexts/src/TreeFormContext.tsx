@@ -620,14 +620,21 @@ export const TreeFormContextProvider = ({
         const drafts = translateDrafts({
           chainId,
           treeId,
+          onchainHats: orgChartTree || undefined,
           drafts: localDraftHats,
         });
         setOrgChartHats(_.concat(onchainHats, drafts));
       }
       if (!hatId) onOpenTreeDrawer?.();
     } else {
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        drop: ['hatId'],
+      });
       onCloseTreeDrawer?.();
       setOrgChartHats(onchainHats);
+      window.history.pushState({}, '', url);
     }
     setEditMode(!editMode);
     // TODO need to reset selectedHatId? query update handles?

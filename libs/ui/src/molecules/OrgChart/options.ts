@@ -1,3 +1,4 @@
+import { ORG_CHART_COLORS, ORG_CHART_ICONS } from 'hats-utils';
 import _ from 'lodash';
 import { HatWearer } from 'types';
 import { formatAddress } from 'utils';
@@ -12,7 +13,6 @@ interface OrgChartWearer {
   icon: string;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const selectedOptionContent = ({
   selectedOption,
   currentSupply,
@@ -63,7 +63,7 @@ export const selectedOptionContent = ({
               height: 40px;
               border-top: 1px solid #4A5568;
               padding: 10px;
-              background: rgba(196, 241, 249, 0.2);
+              background: ${ORG_CHART_COLORS.group};
               display: flex;
               flex-direction: row;
               align-items: center;
@@ -74,16 +74,24 @@ export const selectedOptionContent = ({
                 flex-direction: row;
                 gap: 2px;
               ">
-                <div style="min-width: 16px;" />
+                ${ORG_CHART_ICONS.group}
                 <div style="
                   display: -webkit-box;
                   font-size: 15px;
-                  font-style: italic;
                   font-weight: 400;
                   opacity: 0.6;
                 ">
                   Group
                 </div>
+              </div>
+
+              <div style="
+                display: inline-block;
+                fit-content: contain;
+                text-align: right;
+                opacity: 0.6;
+              ">
+                No Supply
               </div>
             </div>
           `;
@@ -104,7 +112,8 @@ export const selectedOptionContent = ({
             <div style="
               display: flex;
               flex-direction: row;
-              gap: 2px;
+              gap: 4px;
+              color: #323131;
             ">
               <div style="min-width: 16px;">
                 ${hatChartWearers?.icon || ''}
@@ -112,9 +121,7 @@ export const selectedOptionContent = ({
               <div style="
                 display: -webkit-box;
                 font-size: 15px;
-                font-weight: ${
-                  _.toNumber(currentSupply) > 0 ? 'bold' : 'medium'
-                };
+                font-weight: ${_.toNumber(maxSupply) > 0 ? 600 : 'normal'};
                 opacity: 0.8;
                 overflow: hidden;
                 width: ${hatChartWearers?.contentWidth};

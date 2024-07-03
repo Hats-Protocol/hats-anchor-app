@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { DEFAULT_HAT, MUTABILITY } from '@hatsprotocol/constants';
 import {
   hatIdDecimalToIp,
@@ -25,13 +24,17 @@ const calculateParentId = (hatId: Hex) => {
 export const translateDrafts = ({
   chainId,
   treeId,
+  onchainHats,
   drafts,
 }: {
   chainId: number;
   treeId: number;
+  onchainHats?: AppHat[];
   drafts: Partial<FormData>[];
 }): AppHat[] => {
   const extendDrafts = _.map(drafts, (hat: any) => {
+    const admin = _.find(onchainHats, { id: calculateParentId(hat.id) });
+    const imageUrl = admin ? { imageUrl: admin.imageUrl } : {}; // don't include when translating for export
     if (!hat.id) return undefined;
     return {
       id: hat.id,
@@ -42,10 +45,11 @@ export const translateDrafts = ({
       detailsObject: {
         type: '1.0',
         data: {
-          name: hat.name || 'New AppHat',
+          name: hat.name,
         },
       },
       imageUri: '',
+      ...imageUrl,
       parentId: calculateParentId(hat.id),
       mutable: _.has(hat, 'mutable')
         ? hat.mutable === MUTABILITY.MUTABLE

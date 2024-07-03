@@ -223,7 +223,7 @@ function OrgChartComponent() {
             isLinked,
             maxSupply,
             currentSupply,
-            orgChartWearers: hatChartWearers,
+            hatChartWearers,
             eligibility,
             toggle,
             levelAtLocalTree,
