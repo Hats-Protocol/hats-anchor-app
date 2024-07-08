@@ -26,13 +26,14 @@ import {
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import posthog from 'posthog-js';
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
 import { getHostnameFromURL, validateURL } from 'utils';
 
-import { ChakraNextLink, Markdown } from '../atoms';
+import { ChakraNextLink, Markdown } from '../../atoms';
 import AuthorityHeader from './AuthorityHeader';
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 
@@ -80,7 +81,7 @@ const AuthoritiesListCard = ({
   const displayModulesToolbar =
     type === AUTHORITY_TYPES.modules ||
     type === AUTHORITY_TYPES.hsg ||
-    type === AUTHORITY_TYPES.wallet;
+    type === AUTHORITY_TYPES.account;
 
   const authorityEnforcement = type
     ? AUTHORITY_ENFORCEMENT[type]
@@ -97,6 +98,14 @@ const AuthoritiesListCard = ({
   if (type === AUTHORITY_TYPES.modules && hatId) {
     tooltipInfo = `Connected onchain via the ${label}`; //  module for Hat #${hatIdDecimalToIp(BigInt(hatId))}
   }
+
+  const handleToggle = () => {
+    posthog.capture('Toggled Authority', {
+      label,
+      is_open: expanded,
+    });
+    setExpanded(!expanded);
+  };
 
   useEffect(() => {
     isMounted.current = true;
@@ -129,7 +138,9 @@ const AuthoritiesListCard = ({
         borderRadius={{ md: 'md' }}
       >
         {({ isExpanded }) => {
-          if (isMounted.current) startTransition(() => setExpanded(isExpanded));
+          if (isMounted.current && expanded !== isExpanded) {
+            startTransition(() => handleToggle());
+          }
 
           return (
             <>
@@ -224,6 +235,14 @@ const AuthoritiesListCard = ({
                               rightIcon={
                                 <Icon as={BoxArrowUpRightOut} boxSize={3} />
                               }
+                              onClick={() => {
+                                posthog.capture('Clicked Authority Link', {
+                                  authority: label,
+                                  link,
+                                  link_name: linkName || linkHostName,
+                                  is_gate: false,
+                                });
+                              }}
                               colorScheme='blue'
                               size='sm'
                               fontWeight='normal'
@@ -236,6 +255,14 @@ const AuthoritiesListCard = ({
                               icon={
                                 <Icon as={BoxArrowUpRightOut} boxSize={3} />
                               }
+                              onClick={() => {
+                                posthog.capture('Clicked Authority Link', {
+                                  authority: label,
+                                  link,
+                                  link_name: linkName || linkHostName,
+                                  is_gate: false,
+                                });
+                              }}
                               colorScheme='blue'
                               aria-label='Authority Link'
                               size='sm'
@@ -252,6 +279,14 @@ const AuthoritiesListCard = ({
                             borderColor='blue.500'
                             variant='outlineMatch'
                             size='sm'
+                            onClick={() => {
+                              posthog.capture('Clicked Authority Link', {
+                                authority: label,
+                                link,
+                                link_name: linkName || linkHostName,
+                                is_gate: true,
+                              });
+                            }}
                           >
                             {gateHostName}
                           </Button>

@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { FEATURED_TREES } from '@hatsprotocol/constants';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';

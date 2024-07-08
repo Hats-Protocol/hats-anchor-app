@@ -11,7 +11,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
@@ -24,6 +24,7 @@ import {
 import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import posthog from 'posthog-js';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { AppHat } from 'types';
@@ -48,6 +49,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     linkedHatIds,
     onCloseTreeDrawer,
     onOpenHatDrawer,
+    editMode,
   } = useTreeForm();
   const { isClient } = useMediaStyles();
   const toast = useToast();
@@ -163,11 +165,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           const changes = getProposedChangesCount(hat.id, storedData);
           // console.log(changes);
 
-          const handleHatClick = () => {
-            onCloseTreeDrawer?.();
-            onOpenHatDrawer?.(hat.id);
-          };
-
           const hatId = hatIdDecimalToIp(BigInt(hat.id));
           // get hat name for list display, default to details name
           let displayName = _.get(hat, 'detailsObject.data.name') || hat.name;
@@ -178,6 +175,19 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           if (localDisplayName !== '') {
             displayName = localDisplayName;
           }
+
+          const handleHatClick = () => {
+            posthog.capture('Opened Hat Drawer', {
+              chain_id: chainId,
+              hat_id: hatIdDecimalToIp(hatIdHexToDecimal(hatId)),
+              hat_name: displayName,
+              draft,
+              edit_mode: editMode,
+              from: 'Tree Drawer',
+            });
+            onCloseTreeDrawer?.();
+            onOpenHatDrawer?.(hat.id);
+          };
 
           const isAdmin = _.includes(adminHatIds, hat.id);
 

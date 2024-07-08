@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import posthog from 'posthog-js';
 import React, { useState } from 'react';
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
 
@@ -29,6 +30,11 @@ const Accordion = ({
   const [isOpen, setIsOpen] = useState(open);
 
   const handleToggle = () => {
+    posthog.capture('Toggled Hat Form', {
+      title,
+      dirty_fields: dirtyFieldsList,
+      is_open: !isOpen,
+    });
     setIsOpen(!isOpen);
   };
 

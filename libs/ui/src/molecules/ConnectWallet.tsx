@@ -12,17 +12,19 @@ import {
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { Modal, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import _, { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
-import { useMemo } from 'react';
+import posthog from 'posthog-js';
+import { useEffect, useMemo } from 'react';
 import { formatAddress } from 'utils';
-import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
+import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 import WalletProfile from './WalletProfile';
 
 const ConnectWallet = () => {
   const { address } = useAccount();
   const { setModals } = useOverlay();
+  const chainId = useChainId();
   const { isMobile } = useMediaStyles();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
@@ -39,8 +41,17 @@ const ConnectWallet = () => {
   }, [address]);
 
   const openAccountModal = () => {
+    posthog.capture('Opened Account Modal', { chain_id: chainId });
     setModals?.({ account: true });
   };
+
+  useEffect(() => {
+    if (!address || !chainId) return;
+
+    posthog.identify(toLower(address), {
+      alias: ensName,
+    });
+  }, [address, ensName, chainId]);
 
   return (
     <>
@@ -60,6 +71,21 @@ const ConnectWallet = () => {
             chain &&
             (!authenticationStatus || authenticationStatus === 'authenticated');
 
+          const trackedOpenConnectModal = () => {
+            posthog.capture('Opened Wallet Modal', {
+              is_connected: false,
+            });
+            openConnectModal();
+          };
+
+          const trackedOpenChainModal = () => {
+            posthog.capture('Opened Chain Modal', {
+              is_connected: connected,
+              chain_id: chain?.id,
+            });
+            openChainModal();
+          };
+
           if (!ready) {
             return <Skeleton w='200px' h='40px' borderRadius='md' />;
           }
@@ -67,7 +93,7 @@ const ConnectWallet = () => {
           return (() => {
             if (!connected) {
               return (
-                <Button onClick={openConnectModal} variant='whiteFilled'>
+                <Button onClick={trackedOpenConnectModal} variant='whiteFilled'>
                   Connect Wallet
                 </Button>
               );
@@ -76,7 +102,7 @@ const ConnectWallet = () => {
             if (chain.unsupported) {
               return (
                 <Button
-                  onClick={openChainModal}
+                  onClick={trackedOpenChainModal}
                   type='button'
                   variant='whiteFilled'
                 >

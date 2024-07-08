@@ -1,12 +1,11 @@
-import { HsgType } from '@hatsprotocol/hsg-sdk';
+import { HsgType, WriteFunction } from '@hatsprotocol/hsg-sdk';
+import { ReactNode } from 'react';
 import { Hex } from 'viem';
-
-import { AppWriteFunction } from './hat';
 
 export type AuthorityType =
   | 'protocol'
   | 'modules'
-  | 'wallet'
+  | 'account'
   | 'hsg'
   | 'onchain'
   | 'gate'
@@ -41,6 +40,78 @@ export type Authority = {
     maxSigners: string;
   };
 };
+
+export interface HatAuthorityResponse {
+  hatAuthority: HatAuthority;
+}
+
+export interface HatElectionResponse {
+  hatsElectionEligibility: ElectionsAuthority;
+}
+
+export interface HatSignerGate {
+  id: Hex;
+  hatId: Hex;
+  type: string;
+  safe: Hex;
+  minThreshold: string;
+  targetThreshold: string;
+  maxSigners: string;
+  ownerHat?: {
+    id: Hex;
+  };
+  signerHats?: {
+    id: Hex;
+  }[];
+}
+
+export interface HatAuthority {
+  allowListOwner: { id: Hex; hatId: Hex }[];
+  allowListArbitrator: { id: Hex; hatId: Hex }[];
+  electionsAdmin: { id: Hex; hatId: Hex }[];
+  electionsBallotBox: { id: Hex; hatId: Hex }[];
+  eligibilityTogglePassthrough: { id: Hex; hatId: Hex }[];
+  hsgOwner: HatSignerGate[];
+  hsgSigner: HatSignerGate[];
+  jokeraceAdmin: { id: Hex; hatId: Hex }[];
+  stakingJudge: { id: Hex; hatId: Hex }[];
+  stakingRecipient: { id: Hex; hatId: Hex }[];
+  agreementOwner: { id: Hex; hatId: Hex }[];
+  agreementArbitrator: { id: Hex; hatId: Hex }[];
+  hatsAccount1ofN: HatsAccount1ofN[];
+}
+
+export interface ElectionsAuthority {
+  adminHat: { id: Hex }[];
+  ballotBoxHat: { id: Hex };
+  hatId: Hex;
+  id: Hex;
+  userRoles: string[];
+}
+
+export type HatsAccount1ofN = {
+  id: string;
+  accountOfHat: {
+    id: string;
+  };
+  operations: HatsAccount1ofNOperation[];
+};
+
+type HatsAccount1ofNOperation = {
+  id: string;
+  hatsAccount: HatsAccount1ofN;
+  signer: string;
+  to: string;
+  value: bigint;
+  callData: Uint8Array;
+  operationType: string;
+};
+
+export interface AppWriteFunction extends WriteFunction {
+  isCustom?: boolean;
+  onClick?: () => void;
+  icon?: ReactNode;
+}
 
 export interface SnapshotStrategy {
   name: string;

@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 const TOAST_TYPES = {
   claimHat: 'claimHat',
   claimHatWithAgreement: 'claimHatWithAgreement',

@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { treeCreateEventIdToTreeId } from 'hats-utils';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { HandlePendingTx } from 'types';
 import { fetchTreeDetails, invalidateAfterTransaction } from 'utils';
@@ -51,6 +52,7 @@ const useTreeCreate = ({
     const newTreeId = treeCreateEventIdToTreeId(eventData);
     if (!newTreeId) return;
     setTreeId(newTreeId);
+    posthog.capture('Created New Tree', { chainId, tree_id: newTreeId });
 
     await waitForSubgraph();
     await invalidateAfterTransaction(chainId, transactionData.transactionHash);

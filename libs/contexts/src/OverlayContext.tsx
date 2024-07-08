@@ -3,6 +3,7 @@
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import router from 'next/router';
+import posthog from 'posthog-js';
 import {
   createContext,
   ReactNode,
@@ -134,6 +135,11 @@ export const OverlayContextProvider = ({
     });
   };
 
+  const trackOpenCommandPalette = useCallback(() => {
+    posthog.capture('Toggled Command Palette', { is_open: commandPalette });
+    setCommandPalette(!commandPalette);
+  }, [commandPalette]);
+
   const clearAllTransactions = useCallback(() => {
     setTransactions([]);
   }, [setTransactions]);
@@ -263,7 +269,7 @@ export const OverlayContextProvider = ({
       setDrawers,
       closeModals,
       commandPalette,
-      setCommandPalette,
+      setCommandPalette: trackOpenCommandPalette,
       handlePendingTx,
       transactions,
       clearAllTransactions,
@@ -280,6 +286,7 @@ export const OverlayContextProvider = ({
       // closeModals,
       commandPalette,
       setCommandPalette,
+      trackOpenCommandPalette,
       // handlePendingTx,
       transactions,
       clearAllTransactions,

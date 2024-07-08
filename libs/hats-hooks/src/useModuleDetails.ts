@@ -14,11 +14,9 @@ const getModuleData = async ({
   address: Hex | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  console.log({ address, chainId });
   if (!chainId || !address) return null;
 
   const moduleClient = await createHatsModulesClient(chainId);
-  console.log({ moduleClient });
   if (!moduleClient) return null;
 
   const promises = [
@@ -26,7 +24,6 @@ const getModuleData = async ({
     moduleClient.getInstanceParameters(address),
   ];
   const [moduleData, localModuleParameters] = await Promise.all(promises);
-  console.log({ moduleData, localModuleParameters });
   if (!moduleData) return null;
 
   return {
@@ -46,9 +43,6 @@ const useModuleDetails = ({
   enabled?: boolean;
   editMode?: boolean;
 }) => {
-  // console.log({ address, chainId, enabled, editMode });
-  // console.log({ address, enabled });
-
   const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['moduleDetails', { address, chainId }],
     queryFn: () => getModuleData({ address, chainId }),
@@ -60,7 +54,6 @@ const useModuleDetails = ({
       enabled,
     // staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
-  console.log({ data, isLoading, fetchStatus });
 
   return {
     details: data?.details,

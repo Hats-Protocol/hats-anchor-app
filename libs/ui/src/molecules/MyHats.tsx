@@ -83,7 +83,6 @@ const MyHatsCard = ({
 const MyHats = () => {
   const { address: currentUser } = useAccount();
   const { isMobile } = useMediaStyles();
-  console.log(currentUser);
 
   const { data: currentHats, isLoading: wearerDetailsLoading } =
     useWearerDetails({

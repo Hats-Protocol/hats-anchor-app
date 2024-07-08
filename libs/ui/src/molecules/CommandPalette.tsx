@@ -1,14 +1,19 @@
 'use client';
 
-/* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable no-nested-ternary */
 import 'react-cmdk/dist/cmdk.css';
 
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useSearchResults } from 'hooks';
 import _ from 'lodash';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import CmdkCommandPalette, {
   filterItems,
   getItemIndex,
@@ -101,7 +106,8 @@ const CommandPalette = () => {
     }
   };
 
-  useHandleOpenCommandPalette(setOpen);
+  // masking this to handle tracking
+  useHandleOpenCommandPalette(setOpen as Dispatch<SetStateAction<boolean>>);
 
   const searchResults = filterItems(
     [

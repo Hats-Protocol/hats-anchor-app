@@ -15,7 +15,7 @@ import { AuthorityType } from 'types';
 export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   protocol: 'protocol',
   modules: 'modules',
-  wallet: 'wallet',
+  account: 'account',
   hsg: 'hsg',
   onchain: 'onchain',
   gate: 'gate',
@@ -52,7 +52,7 @@ export const AUTHORITY_ENFORCEMENT: {
     icon: HatIcon,
     enforcementIcon: '/icons/onchain.svg',
   },
-  wallet: {
+  account: {
     label: 'Onchain Authority',
     info: 'Connected onchain via HatsAccount',
     color: 'green.300',

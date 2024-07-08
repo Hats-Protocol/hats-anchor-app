@@ -14,7 +14,12 @@ import {
   invalidateAfterTransaction,
 } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useChainId,
+  useReadContracts,
+  useWriteContract,
+} from 'wagmi';
 
 const useHatClaimBy = ({
   selectedHat,
@@ -31,6 +36,7 @@ const useHatClaimBy = ({
 }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
+  const currentChainId = useChainId();
   const toast = useToast();
   const isCurrentWearer = address === wearer;
   const queryClient = useQueryClient();
@@ -77,7 +83,8 @@ const useHatClaimBy = ({
 
   useEffect(() => {
     const getHatter = async () => {
-      const moduleClient = await createHatsModulesClient(chainId);
+      if (chainId !== currentChainId) return; // This is due to an error thrown based on the 'current chain' in wagmi config
+      const moduleClient = await createHatsModulesClient(chainId); // used to create the module client here
       if (!moduleClient) return;
       const modules = moduleClient?.getModules();
       if (!modules) return;
@@ -88,7 +95,7 @@ const useHatClaimBy = ({
       setClaimsHatter(moduleData);
     };
     getHatter();
-  }, [chainId]);
+  }, [chainId, currentChainId]);
 
   const { writeContractAsync } = useWriteContract();
 

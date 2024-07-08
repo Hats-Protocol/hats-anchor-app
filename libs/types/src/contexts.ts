@@ -30,7 +30,7 @@ export interface OverlayContextProps {
   drawers?: Partial<AppModals>;
   setDrawers?: Dispatch<SetStateAction<Partial<AppModals>>>;
   commandPalette: boolean;
-  setCommandPalette: Dispatch<SetStateAction<boolean>>;
+  setCommandPalette: (val: boolean) => void;
   handlePendingTx?: HandlePendingTx;
   transactions: Transaction[];
   clearAllTransactions: () => void;

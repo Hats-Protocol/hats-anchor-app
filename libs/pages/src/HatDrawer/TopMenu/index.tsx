@@ -9,6 +9,7 @@ import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
@@ -57,19 +58,6 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     'id',
   );
 
-  const closeHatDrawer = () => {
-    onCloseHatDrawer?.();
-  };
-
-  const handleReturnToList = () => {
-    onSave(false);
-    returnToList();
-  };
-
-  const handleSave = () => {
-    onSave();
-  };
-
   const onchainHat = _.find(onchainHats, { id: selectedHat?.id });
   const hatHasChanges = !_.isEmpty(
     _.keys(_.omit(_.find(storedData, { id: selectedHat?.id }), 'id')),
@@ -80,6 +68,30 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     !_.isEmpty(_.filter(treeToDisplay, { parentId: selectedHat?.id }));
 
   if (!selectedHat || isMobile) return null;
+
+  const closeHatDrawer = () => {
+    posthog.capture('Closed Hat Drawer', {
+      chain_id: chainId,
+      hat_id: selectedHat?.id,
+      edit_mode: false,
+    });
+    onCloseHatDrawer?.();
+  };
+
+  const handleReturnToList = () => {
+    posthog.capture('Closed Hat Drawer', {
+      chain_id: chainId,
+      hat_id: selectedHat.id,
+      edit_mode: true,
+      has_changes: hatHasChanges,
+    });
+    onSave(false);
+    returnToList();
+  };
+
+  const handleSave = () => {
+    onSave();
+  };
 
   return (
     <Flex

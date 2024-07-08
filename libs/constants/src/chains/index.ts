@@ -50,13 +50,13 @@ const extendIcon = (chain: Chain) => ({
 export const chainsList: { [key in SupportedChains]: Chain } = {
   1: mainnet,
   10: optimism,
-  42161: arbitrum,
-  137: polygon,
   100: extendIcon(gnosis),
+  137: polygon,
   8453: base,
+  42161: arbitrum,
   42220: extendIcon(celo),
 
   // TESTNETS
-  11155111: extendIcon(sepolia),
   // 84532: baseSepolia,
+  11155111: extendIcon(sepolia),
 };

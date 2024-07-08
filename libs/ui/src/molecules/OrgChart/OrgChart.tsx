@@ -25,6 +25,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
 import _ from 'lodash';
 import { useSearchParams } from 'next/navigation';
+import posthog from 'posthog-js';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { FaMinus, FaPlus } from 'react-icons/fa';
@@ -201,6 +202,15 @@ function OrgChartComponent() {
               // always node not found or parent node
             } else {
               // don't center here
+              posthog.capture('Opened Hat Drawer', {
+                chain_id: chainId,
+                hat_id: data.data.id,
+                tree_id: '',
+                hat_name: '',
+                draft: false,
+                edit_mode: editMode,
+                from: 'Org Chart',
+              });
               onOpenHatDrawer?.(data.data.id);
               onCloseTreeDrawer?.();
             }
@@ -257,19 +267,19 @@ function OrgChartComponent() {
                 align-items: center;
                 background-color: white;
                 border: 
-                  ${isSelected ? '2px' : '1px'} 
+                  ${isSelected ? '3px' : '1px'} 
                   ${isLinked ? 'dotted' : 'solid'} #4A5568;
                 border-radius: 4px;
                 width: ${d.width}px;
                 height: ${d.height}px;
                 overflow: hidden;
                 box-shadow: ${
+                  // TODO use image instead of box shadow
                   isSelected
                     ? '0px 25px 50px -12px rgba(0, 0, 0, 0.25)'
                     : '0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
                 };
-                "
-              >
+              ">
                 <div style="
                   width: 100%;
                   display: flex;
@@ -278,13 +288,11 @@ function OrgChartComponent() {
                 ">
                   <div style="
                     position: fixed;
-                    width: ${isSelected ? '78.5px' : '70px'};
-                    height: ${isSelected ? '78.5px' : '70px'};
-                    border: 
-                      ${isSelected ? '2px' : '1px'} 
-                      ${isLinked ? 'dotted' : 'solid'} #4A5568;
-                    left: ${isSelected ? -4 : 1}px;
-                    top: ${isSelected ? -4 : 0}px;
+                    width: ${isSelected ? '88px' : '70px'};
+                    height: ${isSelected ? '88px' : '70px'};
+                    border: ${isSelected ? '3px' : '1px'} solid #4A5568;
+                    left: ${isSelected ? -12 : 1}px;
+                    top: ${isSelected ? -12 : 0}px;
                     border-radius: 4px;
                     overflow: hidden;
                     ${isSelected && 'background: white;'}
@@ -298,7 +306,7 @@ function OrgChartComponent() {
                       }"
                       style="
                         background: white;
-                        height: 100%;
+                        height: ${isSelected ? '102%' : '100%'};
                         object-fit: cover;
                         left: ${isSelected ? -4 : -1}px;
                         top: ${isSelected ? -4 : -1}px;
@@ -324,8 +332,9 @@ function OrgChartComponent() {
                       <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
                         <div style="
                           font-size: 12px;
-                          color: #08011E;"
-                        >
+                          color: #08011E;
+                          font-weight: ${isSelected ? 800 : 500};
+                        ">
                           ${name}
                         </div>
                         ${
@@ -339,9 +348,9 @@ function OrgChartComponent() {
                       <div style="
                         display: -webkit-box;
                         font-size: 16px;
+                        font-weight: ${isSelected ? 800 : 500};
                         overflow: hidden;
                         color: #08011E;
-                        font-weight: 500;
                         width: 120px;
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;"
@@ -365,19 +374,16 @@ function OrgChartComponent() {
                   </div>
                 </div>
                 ${
-                  // eslint-disable-next-line no-nested-ternary
                   !editMode
-                    ? selectedOption !== 'title'
-                      ? selectedOptionContent({
-                          selectedOption,
-                          currentSupply,
-                          maxSupply,
-                          hatChartWearers,
-                          extendedEligibility,
-                          extendedToggle,
-                          levelAtLocalTree,
-                        })
-                      : ''
+                    ? selectedOptionContent({
+                        selectedOption,
+                        currentSupply,
+                        maxSupply,
+                        hatChartWearers,
+                        extendedEligibility,
+                        extendedToggle,
+                        levelAtLocalTree,
+                      })
                     : `<div style="
                     margin-top: 68px;
                     width: 100%;
@@ -570,6 +576,10 @@ function OrgChartComponent() {
         </Button>
         <Button
           onClick={() => {
+            posthog.capture('Toggled Compact View', {
+              compact,
+            });
+
             toggleCompact();
             handleSetCompact?.(compact);
           }}
@@ -580,6 +590,9 @@ function OrgChartComponent() {
         </Button>
         <Button
           onClick={() => {
+            posthog.capture('Toggled Flip View', {
+              flipped,
+            });
             toggleFlip();
             handleFlipChart?.(flipped);
             setTimeout(() => {

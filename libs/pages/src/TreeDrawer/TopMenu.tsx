@@ -21,6 +21,7 @@ import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
@@ -39,6 +40,7 @@ const TopMenu = () => {
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const {
     chainId,
+    treeId,
     editMode,
     setEditMode,
     storedData,
@@ -98,6 +100,10 @@ const TopMenu = () => {
   };
 
   const confirmReset = () => {
+    posthog.capture('Reset Tree Changes', {
+      tree_id: treeId,
+      chain_id: chainId,
+    });
     resetTree?.();
     closeModal();
   };

@@ -344,7 +344,6 @@ const EditMode = () => {
             onCloseModuleDrawer={() => setDrawers?.({})}
             isStandaloneHatterDeploy={isStandaloneHatterDeploy}
             title={
-              // eslint-disable-next-line no-nested-ternary
               drawers?.eligibility
                 ? 'eligibility'
                 : drawers?.toggle

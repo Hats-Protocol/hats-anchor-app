@@ -16,6 +16,7 @@ import {
 } from 'hooks';
 import _ from 'lodash';
 import { usePathname, useSearchParams } from 'next/navigation';
+import posthog from 'posthog-js';
 import {
   createContext,
   Dispatch,
@@ -627,7 +628,14 @@ export const TreeFormContextProvider = ({
         });
         setOrgChartHats(_.concat(onchainHats, drafts));
       }
-      if (!hatId) onOpenTreeDrawer?.();
+      if (!hatId) {
+        posthog.capture('Opened Tree Drawer', {
+          chain_id: chainId,
+          tree_id: treeId,
+          edit_mode: true,
+        });
+        onOpenTreeDrawer?.();
+      }
     } else {
       const url = urlFromQueryParams({
         pathname,

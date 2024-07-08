@@ -13,6 +13,13 @@ interface OrgChartWearer {
   icon: string;
 }
 
+const CONTROL_OPTIONS = {
+  title: 'title',
+  wearers: 'wearers',
+  toggle: 'toggle',
+  eligibility: 'eligibility',
+};
+
 export const selectedOptionContent = ({
   selectedOption,
   currentSupply,
@@ -53,7 +60,7 @@ export const selectedOptionContent = ({
   }
 
   switch (selectedOption) {
-    case 'wearers':
+    case CONTROL_OPTIONS.wearers:
       // handle "group" hats
       if (_.isEqual(_.toNumber(maxSupply), 0)) {
         return `
@@ -145,31 +152,8 @@ export const selectedOptionContent = ({
                 : ''
             }
           </div>`;
-    case 'permissions':
-      return `
-          <div style="
-          margin-top: 68px;
-          width: 100%;
-          height: 40px;
-          border-top: 1px solid #4A5568;
-          padding: 10px;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-        ">
-          <div style="
-            display: flex;
-            flex-direction: row;
-            gap: 4px;
-          ">
-            Test
-          </div>
-        </div>`;
-    case 'authorities':
-      return ``;
 
-    case 'toggle':
+    case CONTROL_OPTIONS.toggle:
       return `
           <div style="
             margin-top: 68px;
@@ -201,7 +185,7 @@ export const selectedOptionContent = ({
             </div>
           </div>`;
 
-    case 'eligibility':
+    case CONTROL_OPTIONS.eligibility:
       return `
           <div style="
             margin-top: 68px;

@@ -1,11 +1,12 @@
+import { ComponentWithAs, IconProps } from '@chakra-ui/react';
 import {
   Allo,
-  Aragon,
   CheckSquare,
   CodeIcon,
   Discord,
   Farcaster,
   HatIcon,
+  JokeRaceShort,
   PeopleIcon,
   Sablier,
   Safe,
@@ -168,13 +169,13 @@ export const FEATURED_TREES = ({
 
 export type IntegrationCard = {
   label: string;
-  icons: any[];
+  icons: ComponentWithAs<'svg', IconProps>[];
 };
 
 export const INTEGRATION_CARDS: IntegrationCard[] = [
   {
     label: 'Award Hats via DAO vote or onchain elections',
-    icons: [Snapshot, Aragon, Tally], // TODO replace Aragon with JokeRace
+    icons: [Snapshot, JokeRaceShort, Tally], // TODO replace Aragon with JokeRace
   },
   {
     label: 'Automatically pay active contributors onchain',

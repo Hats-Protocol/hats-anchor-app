@@ -8,15 +8,37 @@
 
 To install the dependencies, use `pnpm install` in the root of the project.
 
-## Start the app
+## Get environment variables
+
+To run the app, you need to have a `.env` file in the root of the project. You can copy the `.env.example` file and fill in the values.
+
+```bash
+cp .env.example .env.local
+cp apps/frontend/.env.example apps/frontend/.env.local
+# claims app doesn't have any additional variables yet
+``` 
+
+## Start the apps
 
 To start the development server run `pnpm dev`. The server will be running on http://localhost:4200/.
+
+```bash
+pnpm dev # to start the Anchor app
+
+pnpm claims:dev # to start the Claims app
+```
 
 ## Build production application
 
 To test your local instance for a production build run `pnpm build`.
 
 The build artifacts will be stored in the `dist/` directory, ready to be deployed. Build cache for libraries is also stored in `tmp/` so they don't need to rebuilt each time without changes.
+
+```bash
+pnpm build # to build the Anchor app
+
+pnpm claims:build # to build the Claims app
+```
 
 ## Workspace Projects
 

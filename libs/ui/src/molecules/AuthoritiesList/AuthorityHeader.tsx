@@ -1,8 +1,6 @@
 'use client';
 
-/* eslint-disable no-nested-ternary */
 import {
-  As,
   Box,
   Flex,
   HStack,
@@ -14,28 +12,23 @@ import {
 import {
   AUTHORITY_ENFORCEMENT,
   AUTHORITY_PLATFORMS,
-  AuthorityInfo,
 } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
+import { currentHsgThreshold } from 'hats-utils';
 import { useMediaStyles, useSafeDetails } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
-import { ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
-import {
-  authorityImageHandler,
-  getHostnameFromURL,
-  ipfsUrl,
-  validateURL,
-} from 'utils';
+import { authorityImageHandler, getHostnameFromURL, validateURL } from 'utils';
 import { Hex } from 'viem';
 
-import { ChakraNextLink } from '../atoms';
+import { ChakraNextLink } from '../../atoms';
+import IconHandler from './IconHandler';
 
 const BoxArrowUpRightOut = dynamic(() =>
   import('icons').then((i) => i.BoxArrowUpRightOut),
 );
-const Key = dynamic(() => import('icons').then((i) => i.Key));
 
 const HOSTNAME_LABELS = {
   'charmverse.io': 'Charmverse',
@@ -56,57 +49,6 @@ const getHostnameLabel = (hostname: string) => {
   );
   if (!hostnameLabel) return undefined;
   return HOSTNAME_LABELS[hostnameLabel as keyof typeof HOSTNAME_LABELS];
-};
-
-const IconHandler = ({
-  icon,
-  authorityEnforcement,
-  imageUrl,
-  isIpfs,
-  isExpanded,
-}: {
-  icon: ReactNode | undefined;
-  authorityEnforcement: Partial<AuthorityInfo>;
-  imageUrl: string | undefined;
-  isIpfs: boolean;
-  isExpanded: boolean;
-}) => {
-  if (icon) {
-    return (
-      <Icon as={icon as As} boxSize='14px' color='blackAlpha.800' zIndex={5} />
-    );
-  }
-
-  if (authorityEnforcement?.icon) {
-    return (
-      <Icon
-        as={authorityEnforcement?.icon as As}
-        boxSize='14px'
-        color={isExpanded ? 'blackAlpha.900' : 'blackAlpha.800'}
-        zIndex={5}
-      />
-    );
-  }
-
-  if (imageUrl || authorityEnforcement.imageUri) {
-    return (
-      <Image
-        src={
-          isIpfs
-            ? ipfsUrl(imageUrl?.slice(7)) || ''
-            : imageUrl || authorityEnforcement.imageUri
-        }
-        boxSize='18px'
-        border='1px solid'
-        borderColor='blackAlpha.300'
-        borderRadius='full'
-        alt='authority image'
-        zIndex={5}
-      />
-    );
-  }
-
-  return <Icon as={Key} boxSize='14px' color='blackAlpha.700' zIndex={5} />;
 };
 
 const AuthorityHeader = ({
@@ -171,24 +113,11 @@ const AuthorityHeader = ({
       (owner: Hex) => !_.includes(wearersLowercased, _.toLower(owner)),
     );
   }, [safeOwners, selectedHat?.wearers]);
-
-  const currentThresholdConfig = useMemo(() => {
-    if (authority?.label === 'HSG Owner' || !hsgConfig) return undefined;
-    const minThreshold = _.toNumber(hsgConfig?.minThreshold);
-    const maxThreshold = _.toNumber(hsgConfig?.targetThreshold);
-    const currentSigners = _.size(eligibleSigners);
-    if (currentSigners < minThreshold) {
-      return `needs ${minThreshold} signer${minThreshold > 1 ? 's' : ''}`;
-    }
-    if (currentSigners > maxThreshold) {
-      return `${maxThreshold}/${currentSigners} signer${
-        currentSigners > 1 ? 's' : ''
-      }`;
-    }
-    return `${currentSigners}/${currentSigners} signer${
-      currentSigners > 1 ? 's' : ''
-    }`;
-  }, [hsgConfig, eligibleSigners, authority?.label]);
+  const hsgThresholdText = currentHsgThreshold({
+    authority,
+    hsgConfig,
+    eligibleSigners,
+  });
 
   const enforcementIcon =
     authority?.type &&
@@ -234,7 +163,7 @@ const AuthorityHeader = ({
                 noOfLines={2}
               >
                 {currentLabel || label || 'New Authority'}
-                {currentThresholdConfig && ` (${currentThresholdConfig})`}
+                {hsgThresholdText && ` (${hsgThresholdText})`}
               </Text>
             )}
 

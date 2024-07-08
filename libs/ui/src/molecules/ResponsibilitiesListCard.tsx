@@ -18,7 +18,8 @@ import {
 } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import { useEffect, useRef, useState } from 'react';
+import posthog from 'posthog-js';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { BsBoxArrowUpRight } from 'react-icons/bs';
 import { DetailsItem } from 'types';
 import { getHostnameFromURL } from 'utils';
@@ -50,12 +51,24 @@ const ResponsibilitiesListCard = ({
     };
   }, []);
 
-  if (!link && !description)
+  if (!link && !description) {
     return (
       <Flex py={2} px={{ base: 4, md: 0 }}>
         <ResponsibilityHeader label={label} link={link} imageUrl={imageUrl} />
       </Flex>
     );
+  }
+
+  const handleToggle = () => {
+    posthog.capture('Toggled Responsibility', {
+      label,
+      description,
+      link,
+      image_url: imageUrl,
+      is_open: expanded,
+    });
+    setExpanded(!expanded);
+  };
 
   return (
     <AccordionItem
@@ -66,7 +79,10 @@ const ResponsibilitiesListCard = ({
       ml={{ md: -4 }}
     >
       {({ isExpanded }) => {
-        if (isMounted) setExpanded(isExpanded);
+        if (isMounted.current && isExpanded !== expanded) {
+          startTransition(() => handleToggle());
+        }
+
         return (
           <>
             <AccordionButton

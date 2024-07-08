@@ -1,6 +1,4 @@
-export { default as AuthoritiesList } from './AuthoritiesList';
-export { default as AuthoritiesListCard } from './AuthoritiesListCard';
-export { default as AuthorityHeader } from './AuthorityHeader';
+export * from './AuthoritiesList';
 export { default as CmdkButton } from './CmdkButton';
 export { default as CommandPalette } from './CommandPalette';
 export { default as ConnectWallet } from './ConnectWallet';
