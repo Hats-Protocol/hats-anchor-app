@@ -21,10 +21,12 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { ImageFile } from 'types';
-import { DropZone, Input, Textarea } from 'ui';
+import { DropZone } from 'ui';
 import { chainsMap, fetchToken, pinJson } from 'utils';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
+
+import { Input, Textarea } from './components';
 
 const NewTreeForm = () => {
   const [image, setImage] = useState<ImageFile>();

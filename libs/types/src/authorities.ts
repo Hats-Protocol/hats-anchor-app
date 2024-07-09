@@ -17,7 +17,7 @@ export type Authority = {
   subLabel?: string;
   link?: string;
   gate?: string | undefined;
-  description?: string;
+  description?: ReactNode;
   imageUrl?: string;
   type?: string | AuthorityType | HsgType | undefined;
   id?: string | number;

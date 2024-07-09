@@ -11,10 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import { useHatBurn, useHatContractWrite, useModuleDetails } from 'hats-hooks';
+import { useHatBurn, useHatContractWrite } from 'hats-hooks';
 import { getControllerNameAndLink, isTopHat } from 'hats-utils';
 import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
+import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { idToIp, toTreeId } from 'shared';
 import { ControllerData } from 'types';
@@ -28,7 +29,7 @@ const CopyAddress = dynamic(() =>
 );
 const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
 const TooltipWrapper = dynamic(() =>
-  import('ui').then((mod) => mod.TooltipWrapper),
+  import('molecules').then((mod) => mod.TooltipWrapper),
 );
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),

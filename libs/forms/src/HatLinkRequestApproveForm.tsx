@@ -22,10 +22,12 @@ import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { prettyIdToIp, toTreeId } from 'shared';
 import { ImageFile } from 'types';
-import { DropZone, Input, Textarea } from 'ui';
+import { DropZone } from 'ui';
 import { fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
+
+import { Input, Textarea } from './components';
 
 // ! update links to use new docs links constants
 

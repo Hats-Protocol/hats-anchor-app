@@ -13,16 +13,19 @@ import { twJoin } from 'tailwind-merge';
 import HatDrawer from './HatDrawer';
 
 const EventHistory = dynamic(() =>
-  import('ui').then((mod) => mod.EventHistory),
+  import('molecules').then((mod) => mod.EventHistory),
 );
-const OrgChart = dynamic(() => import('ui').then((mod) => mod.OrgChart), {
-  ssr: false,
-});
+const OrgChart = dynamic(
+  () => import('molecules').then((mod) => mod.OrgChart),
+  {
+    ssr: false,
+  },
+);
 const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
   loading: () => <Suspender />,
   ssr: false,
 });
-const TreeMenu = dynamic(() => import('ui').then((mod) => mod.TreeMenu));
+const TreeMenu = dynamic(() => import('molecules').then((mod) => mod.TreeMenu));
 
 const TreePage = ({
   params: { chainId, treeId },

@@ -1,6 +1,7 @@
 export { default as AuthoritiesForm } from './AuthoritiesForm';
 export { default as AuthoritiesFormItem } from './AuthoritiesFormItem';
 export { default as ClaimsHandler } from './ClaimsHandler';
+export * from './components';
 export { default as HatBasicsForm } from './HatBasicsForm';
 export { default as HatClaimForm } from './HatClaimForm';
 export { default as HatLinkRequestApproveForm } from './HatLinkRequestApproveForm';
@@ -12,6 +13,7 @@ export { default as HatUnlinkForm } from './HatUnlinkForm';
 export { default as HatWearerForm } from './HatWearerForm';
 export { default as HatWearerStatusForm } from './HatWearerStatusForm';
 export { default as ImportTreeForm } from './ImportTreeForm';
+export { default as ModuleAuthorityModal } from './ModuleAuthorityModal';
 export { default as NewTreeForm } from './NewTreeForm';
 export { default as ResponsibilitiesForm } from './ResponsibilitiesForm';
 export { default as ResponsibilitiesFormItem } from './ResponsibilitiesFormItem';

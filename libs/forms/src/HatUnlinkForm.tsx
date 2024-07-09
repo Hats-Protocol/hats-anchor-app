@@ -6,8 +6,8 @@ import { useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import { useDebounce } from 'hooks';
 import _ from 'lodash';
+import { Select } from './components';
 import { useForm } from 'react-hook-form';
-import { Select } from 'ui';
 import { Hex, isAddress } from 'viem';
 
 const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {

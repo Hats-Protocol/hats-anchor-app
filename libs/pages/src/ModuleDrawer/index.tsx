@@ -3,8 +3,8 @@
 import { Box } from '@chakra-ui/react';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatsModules } from 'hats-hooks';
 import _ from 'lodash';
+import { useHatsModules } from 'modules-hooks';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { ModuleDetails } from 'types';

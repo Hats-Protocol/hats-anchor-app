@@ -2,14 +2,10 @@
 
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
-import {
-  useAncillaryElection,
-  useHatDetails,
-  useModuleDetails,
-  useWearersControllersDetails,
-} from 'hats-hooks';
+import { useHatDetails, useWearersControllersDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
 import _ from 'lodash';
+import { useAncillaryElection, useModuleDetails } from 'modules-hooks';
 import { createContext, useContext, useMemo } from 'react';
 import { AppHat, HatDetails, HatWearer, SupportedChains } from 'types';
 import { Hex } from 'viem';

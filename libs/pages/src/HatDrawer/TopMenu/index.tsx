@@ -2,7 +2,7 @@
 
 import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
+import { Modal, useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { isTopHat } from 'hats-utils';
@@ -17,8 +17,9 @@ import { useAccount } from 'wagmi';
 
 import MoreMenu from './MoreMenu';
 
-const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
-const MainAction = dynamic(() => import('ui').then((mod) => mod.MainAction));
+const MainAction = dynamic(() =>
+  import('organisms').then((mod) => mod.MainAction),
+);
 
 // const HatLinkRequestCreateForm = dynamic(
 //   () => import('../../../forms'),

@@ -16,10 +16,11 @@ import { useDebounce, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';
-import { AddressInput } from 'ui';
 import { fetchWearerDetails, formatAddress } from 'utils';
 import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
+
+import { AddressInput } from './components';
 
 const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
   const currentNetworkId = useChainId();

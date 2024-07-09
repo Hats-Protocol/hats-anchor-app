@@ -4,7 +4,7 @@ import { Heading, Stack } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 
 const EventHistory = dynamic(() =>
-  import('ui').then((mod) => mod.EventHistory),
+  import('molecules').then((mod) => mod.EventHistory),
 );
 
 const HatHistory = () => {

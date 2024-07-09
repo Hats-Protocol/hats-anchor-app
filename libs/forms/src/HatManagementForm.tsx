@@ -3,10 +3,10 @@
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import { useModuleDetails } from 'hats-hooks';
 import { isMutable } from 'hats-utils';
 import { useContractData } from 'hooks';
 import _ from 'lodash';
+import { useModuleDetails } from 'modules-hooks';
 import { ReactNode, useEffect, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import {
@@ -19,16 +19,16 @@ import {
 import { FaCode } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { DetailsItem } from 'types';
-import {
-  AddressInput,
-  ChakraNextLink,
-  FormRowWrapper,
-  LabelWithLink,
-  RadioBox,
-} from 'ui';
+import { ChakraNextLink } from 'ui';
 import { explorerUrl } from 'utils';
 
 import ClaimsHandler from './ClaimsHandler';
+import {
+  AddressInput,
+  FormRowWrapper,
+  LabelWithLink,
+  RadioBox,
+} from './components';
 
 const options = [
   { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },

@@ -5,13 +5,13 @@ import { HatFormContextProvider, useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { BottomMenu } from 'organisms';
 import { useState } from 'react';
 
 import EditMode from './EditMode';
+import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
-const BottomMenu = dynamic(() => import('ui').then((mod) => mod.BottomMenu));
-const MainContent = dynamic(() => import('./MainContent'));
 const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
@@ -24,11 +24,13 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     'imageUrl',
   );
   const { isMobile } = useMediaStyles();
+  // console.log(selectedHat);
 
   if (!selectedHat || !returnToList) return null;
 
   if (isMobile) {
     // TODO are we hitting this case?
+    console.log('here in mobile view');
     return (
       <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
         <TopMenu returnToList={returnToList} />

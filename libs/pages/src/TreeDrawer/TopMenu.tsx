@@ -30,7 +30,7 @@ import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 
 const TopMenu = () => {

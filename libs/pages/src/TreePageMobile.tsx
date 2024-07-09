@@ -27,10 +27,10 @@ const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
 const MobileHatCard = dynamic(() =>
-  import('ui').then((mod) => mod.MobileHatCard),
+  import('molecules').then((mod) => mod.MobileHatCard),
 );
 const VerticalDividers = dynamic(() =>
-  import('ui').then((mod) => mod.VerticalDividers),
+  import('molecules').then((mod) => mod.VerticalDividers),
 );
 
 const DEFAULT_LOADING_CARDS = 8;

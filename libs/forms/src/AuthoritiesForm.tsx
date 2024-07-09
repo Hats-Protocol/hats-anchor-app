@@ -21,8 +21,9 @@ import {
 import { AUTHORITY_TYPES, CONFIG } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { usePinImageIpfs } from 'hooks';
-import { Safe } from 'icons';
 import _ from 'lodash';
+import { AuthorityHeader } from 'molecules';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -35,11 +36,14 @@ import {
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 import { Authority } from 'types';
-import { AuthorityHeader, DropZone, Input, Textarea } from 'ui';
+import { DropZone } from 'ui';
 import { formatImageUrl, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
+import { Input, Textarea } from './components';
+
+const Safe = dynamic(() => import('icons').then((mod) => mod.Safe));
 
 interface AuthoritiesFormListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

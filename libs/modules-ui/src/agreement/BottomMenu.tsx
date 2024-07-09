@@ -27,13 +27,13 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
+import { useWearerDetails } from 'hats-hooks';
+import _ from 'lodash';
 import {
   useAgreementEligibility,
   useHatClaimBy,
   useMultiClaimsHatterCheck,
-  useWearerDetails,
-} from 'hats-hooks';
-import _ from 'lodash';
+} from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -45,13 +45,13 @@ import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const MobileHatCard = dynamic(() =>
-  import('ui').then((mod) => mod.MobileHatCard),
+  import('molecules').then((mod) => mod.MobileHatCard),
 );
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 
 const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {

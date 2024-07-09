@@ -4,9 +4,11 @@ import { Box, Card, CardBody, Stack } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 
 const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
-const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
+const Layout = dynamic(() =>
+  import('molecules').then((mod) => mod.StandaloneLayout),
+);
 const SlimModuleDetails = dynamic(() =>
-  import('ui').then((mod) => mod.SlimModuleDetails),
+  import('modules-ui').then((mod) => mod.SlimModuleDetails),
 );
 
 const KnownModule = () => {

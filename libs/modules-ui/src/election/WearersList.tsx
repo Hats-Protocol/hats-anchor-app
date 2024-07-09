@@ -2,8 +2,8 @@
 
 import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useEligibility, useOverlay } from 'contexts';
-import { useHatClaimBy } from 'hats-hooks';
 import _ from 'lodash';
+import { useHatClaimBy } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';

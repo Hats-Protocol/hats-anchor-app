@@ -4,16 +4,15 @@ import {
   TemplateData,
 } from '@hatsprotocol/constants';
 import _ from 'lodash';
-import { Suspense } from 'react';
-import { DocsLink } from 'types';
 import {
-  Card,
   FeaturedTreeCard,
   IntegrationCard,
   LearnMoreCard,
-  LinkButton,
   MyHats,
-} from 'ui';
+} from 'molecules';
+import { Suspense } from 'react';
+import { DocsLink } from 'types';
+import { Card, LinkButton } from 'ui';
 import { fetchFeaturedTrees, fetchFeaturedTreesData } from 'utils';
 
 const RootPage = async () => {

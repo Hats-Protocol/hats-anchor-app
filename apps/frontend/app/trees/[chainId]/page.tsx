@@ -1,5 +1,7 @@
 import { CONFIG } from '@hatsprotocol/constants';
-import { LinkButton, NetworkFilter, TreesList as TreesListCards } from 'ui';
+import { NetworkFilter } from 'molecules';
+import { TreesList as TreesListCards } from 'organisms';
+import { LinkButton } from 'ui';
 
 const TreesList = async ({ params }: { params: { chainId: string } }) => {
   // TODO fetch initial trees list

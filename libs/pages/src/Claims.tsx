@@ -10,7 +10,9 @@ import { chainsMap } from 'utils';
 
 import { Agreement, AgreementV0, Election, KnownModule } from './modules';
 
-const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
+const Layout = dynamic(() =>
+  import('molecules').then((mod) => mod.StandaloneLayout),
+);
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );

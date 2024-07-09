@@ -23,8 +23,8 @@ import {
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
-import { useAgreementEligibility } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
+import { useAgreementEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';

@@ -35,10 +35,10 @@ const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 const HatCreateCard = dynamic(() =>
-  import('ui').then((mod) => mod.HatCreateCard),
+  import('molecules').then((mod) => mod.HatCreateCard),
 );
 
 const ClaimHat = ({ agreement }: { agreement: string }) => {

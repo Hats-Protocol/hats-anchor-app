@@ -14,17 +14,22 @@ import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { isMutable, maxSupplyText } from 'hats-utils';
 import { useWaitForSubgraph } from 'hooks';
-import { BoxArrowUpRightIn } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart } from 'react-icons/bs';
 import { idToIp, toTreeId } from 'shared';
 import { AppHat, HatWearer } from 'types';
-import { FormRowWrapper, MultiAddressInput, NumberInput } from 'ui';
 import { chainsMap, fetchHatDetails, formatAddress } from 'utils';
 import { isAddress } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
+
+import { FormRowWrapper, MultiAddressInput, NumberInput } from './components';
+
+const BoxArrowUpRightIn = dynamic(() =>
+  import('icons').then((i) => i.BoxArrowUpRightIn),
+);
 
 type HatWearerFormProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

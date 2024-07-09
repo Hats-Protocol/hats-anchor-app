@@ -1,10 +1,10 @@
 import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
+import { StandaloneNavbar as Navbar } from 'molecules';
 import { Metadata } from 'next';
 import Script from 'next/script';
 import { ReactNode } from 'react';
-import { StandaloneNavbar as Navbar } from 'ui';
 
 import Providers from './providers';
 

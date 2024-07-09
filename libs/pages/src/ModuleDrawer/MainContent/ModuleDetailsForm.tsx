@@ -3,8 +3,9 @@
 import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTACT_URL, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
-import { useHatsModules } from 'hats-hooks';
+import { FormRowWrapper, ModuleArgsForm, Select } from 'forms';
 import _ from 'lodash';
+import { useHatsModules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -14,13 +15,6 @@ import { ModuleDetails } from 'types';
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
-const FormRowWrapper = dynamic(() =>
-  import('ui').then((mod) => mod.FormRowWrapper),
-);
-const ModuleArgsForm = dynamic(() =>
-  import('ui').then((mod) => mod.ModuleArgsForm),
-);
-const Select = dynamic(() => import('ui').then((mod) => mod.Select));
 
 const ModuleDetailsForm = ({
   localForm,

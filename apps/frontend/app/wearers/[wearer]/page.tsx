@@ -1,4 +1,4 @@
-import { WearerHats, WearerInfo, WearerStats } from 'ui';
+import { WearerHats, WearerInfo, WearerStats } from 'molecules';
 
 // TODO use new tree list cards on mobile
 // TODO switch Avatar back to `OblongAvatar`, something about undefined component/default export mixup

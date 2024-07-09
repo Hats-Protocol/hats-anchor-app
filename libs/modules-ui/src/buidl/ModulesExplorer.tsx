@@ -13,8 +13,8 @@ import {
   Text,
   UnorderedList,
 } from '@chakra-ui/react';
-import { useHatsModules } from 'hats-hooks';
 import _ from 'lodash';
+import { useHatsModules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { ModuleDetails, SupportedChains } from 'types';
 import { chainsMap, explorerUrl, formatAddress } from 'utils';

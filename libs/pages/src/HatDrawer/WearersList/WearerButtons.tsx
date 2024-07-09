@@ -3,8 +3,6 @@
 import { Button, Flex, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
-  useHatClaimBy,
-  useMultiClaimsHatterCheck,
   useWearerDetails,
   useWearerEligibilityCheck,
   useWearersEligibilityCheck,
@@ -12,6 +10,7 @@ import {
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import { useHatClaimBy, useMultiClaimsHatterCheck } from 'modules-hooks';
 import { useMemo } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useAccount, useChainId } from 'wagmi';

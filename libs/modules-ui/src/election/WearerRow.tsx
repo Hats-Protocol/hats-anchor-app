@@ -3,8 +3,8 @@
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
-import { useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
+import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';

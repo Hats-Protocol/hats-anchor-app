@@ -1,9 +1,9 @@
 import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
+import { CommandPalette, Navbar, TxHistoryModal } from 'molecules';
 import Script from 'next/script';
 import { ReactNode } from 'react';
-import { CommandPalette, Navbar, TxHistoryModal } from 'ui';
 
 import Providers from './providers';
 

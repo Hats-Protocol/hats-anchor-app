@@ -11,14 +11,14 @@ import {
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
+import { useWearerDetails } from 'hats-hooks';
+import { useWaitForSubgraph } from 'hooks';
+import _ from 'lodash';
 import {
   useAgreementEligibility,
   useHatClaimBy,
   useMultiClaimsHatterCheck,
-  useWearerDetails,
-} from 'hats-hooks';
-import { useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+} from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
@@ -31,7 +31,7 @@ import AgreementContent from './AgreementContent';
 import Conditions from './Conditions';
 
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),

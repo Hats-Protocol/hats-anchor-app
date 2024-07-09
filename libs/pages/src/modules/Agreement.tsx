@@ -13,9 +13,9 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { useAgreementEligibility } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import { useAgreementEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { hatLink } from 'utils';
@@ -23,7 +23,9 @@ import { useAccount } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
-const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
+const Layout = dynamic(() =>
+  import('molecules').then((mod) => mod.StandaloneLayout),
+);
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );

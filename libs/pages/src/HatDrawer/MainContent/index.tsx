@@ -11,11 +11,13 @@ import Header from './Header';
 import LinkRequests from './LinkRequests';
 
 const AuthoritiesList = dynamic(() =>
-  import('ui').then((mod) => mod.AuthoritiesList),
+  import('organisms').then((mod) => mod.AuthoritiesList),
 );
-const Controllers = dynamic(() => import('ui').then((mod) => mod.Controllers));
+const Controllers = dynamic(() =>
+  import('organisms').then((mod) => mod.Controllers),
+);
 const ResponsibilitiesList = dynamic(() =>
-  import('ui').then((mod) => mod.ResponsibilitiesList),
+  import('molecules').then((mod) => mod.ResponsibilitiesList),
 );
 
 const MainContent = ({

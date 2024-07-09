@@ -7,9 +7,10 @@ import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
-import { Select } from 'ui';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
+
+import { Select } from './components';
 
 const HatLinkRequestCreateForm = ({
   newAdmin,

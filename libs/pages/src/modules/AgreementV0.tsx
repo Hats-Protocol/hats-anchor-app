@@ -6,7 +6,9 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { fetchIpfs } from 'utils';
 
-const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
+const Layout = dynamic(() =>
+  import('molecules').then((mod) => mod.StandaloneLayout),
+);
 const ClaimHat = dynamic(() =>
   import('modules-ui').then((mod) => mod.ClaimHatV0),
 );

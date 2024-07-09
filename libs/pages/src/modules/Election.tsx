@@ -25,7 +25,9 @@ const WearersList = dynamic(() =>
   import('modules-ui').then((mod) => mod.WearersList),
 );
 const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
-const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
+const Layout = dynamic(() =>
+  import('molecules').then((mod) => mod.StandaloneLayout),
+);
 
 const Election = () => {
   const {

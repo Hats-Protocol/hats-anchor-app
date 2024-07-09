@@ -13,18 +13,19 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { usePendHatterMint } from 'hooks';
+import _ from 'lodash';
 import {
   useMultiClaimsHatterCheck,
   useMultiClaimsHatterContractWrite,
-} from 'hats-hooks';
-import { usePendHatterMint } from 'hooks';
-import _ from 'lodash';
+} from 'modules-hooks';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 import { AppHat } from 'types';
-import { FormRowWrapper, Select } from 'ui';
 import { formatAddress } from 'utils';
+
+import { FormRowWrapper, Select } from './components';
 
 const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
   <FormRowWrapper>

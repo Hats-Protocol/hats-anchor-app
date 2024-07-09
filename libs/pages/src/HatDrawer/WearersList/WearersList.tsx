@@ -17,7 +17,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { Modal, useSelectedHat, useTreeForm } from 'contexts';
 import {
   HatClaimForm,
   HatTransferForm,
@@ -51,7 +51,6 @@ import WearerButtons from './WearerButtons';
 import WearerRow from './WearerRow';
 import FullWearersListModal from './WearersModal';
 
-const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 const RemovedWearer = dynamic(() =>
   import('icons').then((i) => i.RemovedWearer),
 );

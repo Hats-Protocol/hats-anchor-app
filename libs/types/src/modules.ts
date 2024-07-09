@@ -1,4 +1,5 @@
-import { Module } from '@hatsprotocol/modules-sdk';
+import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ReactNode } from 'react';
 import { Hex } from 'viem';
 
 export type DeploymentType =
@@ -22,4 +23,9 @@ export type ModuleCreationArgs = {
 
 export interface ModuleDetails extends Module {
   id: Hex;
+  liveParameters: ModuleParameter[] | undefined;
 }
+
+export type ModuleDetailsComponent = (
+  m: ModuleDetails,
+) => ReactNode | undefined;

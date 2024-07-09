@@ -5,8 +5,8 @@ import { MUTABILITY } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { isMutable, isTopHat } from 'hats-utils';
 import { usePinImageIpfs } from 'hooks';
-import { HatIcon } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray } from 'react-hook-form';
@@ -14,15 +14,18 @@ import { BsImage, BsTextParagraph } from 'react-icons/bs';
 import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { ImageFile } from 'types';
+import { DropZone } from 'ui';
+import { formatImageUrl } from 'utils';
+
 import {
-  DropZone,
   FormRowWrapper,
   Input,
   PlatformInput,
   RadioBox,
   Textarea,
-} from 'ui';
-import { formatImageUrl } from 'utils';
+} from './components';
+
+const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },

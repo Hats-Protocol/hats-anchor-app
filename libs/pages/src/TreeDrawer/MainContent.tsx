@@ -12,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useTreeForm } from 'contexts';
+import { Modal, useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
 import { useAdminOfHats } from 'hats-hooks';
@@ -31,7 +31,6 @@ import { AppHat } from 'types';
 import { Hex } from 'viem';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
-const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);

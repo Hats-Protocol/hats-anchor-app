@@ -16,8 +16,8 @@ import {
   useEligibility,
   useStandaloneOverlay as useOverlay,
 } from 'contexts';
-import { useCallModuleFunction } from 'hats-hooks';
 import _ from 'lodash';
+import { useCallModuleFunction } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,7 +27,7 @@ import { useChainId } from 'wagmi';
 import DateInfo from './DateInfo';
 
 const ModuleArgsForm = dynamic(() =>
-  import('ui').then((mod) => mod.ModuleArgsForm),
+  import('forms').then((mod) => mod.ModuleArgsForm),
 );
 
 const UpcomingSeason = () => {
