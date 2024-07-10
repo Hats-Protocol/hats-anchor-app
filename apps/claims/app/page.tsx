@@ -2,7 +2,8 @@
 
 import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
-import { ChakraNextLink, StandaloneLayout as Layout } from 'ui';
+import { StandaloneLayout as Layout } from 'molecules';
+import { ChakraNextLink } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
 
@@ -12,16 +13,16 @@ const LookingForHat = () => (
       This app is here to help you claim hats based on their eligibility
       module(s).
     </Text>
-    <Text>
+    <Text maxW='60%'>
       You&apos;re probably looking for a specific hat. Look out for a link here
-      with a specific hat ID on it:{' '}
+      with a specific hat ID on it, like the Hats Protocol Community Hat:{' '}
       <ChakraNextLink
-        href='/1/22.1.2'
+        href='/10/1.2.1.1'
         decoration
         fontFamily='monospace'
         display='inline-block'
       >
-        /1/22.1.2
+        /10/1.2.1.1
       </ChakraNextLink>
     </Text>
   </Stack>

@@ -34,6 +34,12 @@ export type ModuleDetailsComponent = (
   chainId: SupportedChains,
 ) => ReactNode | undefined;
 
+export interface ModuleDetailRole {
+  param: string;
+  label: string;
+  tooltip: string;
+}
+
 export interface ModuleRole extends Role {
   label: string;
 }

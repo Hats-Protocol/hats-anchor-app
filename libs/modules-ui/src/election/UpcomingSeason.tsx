@@ -16,19 +16,15 @@ import {
   useEligibility,
   useStandaloneOverlay as useOverlay,
 } from 'contexts';
+import { ModuleArgsForm } from 'forms';
 import _ from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { formatAddress, parsedSeconds } from 'utils';
 import { useChainId } from 'wagmi';
 
 import DateInfo from './DateInfo';
-
-const ModuleArgsForm = dynamic(() =>
-  import('forms').then((mod) => mod.ModuleArgsForm),
-);
 
 const UpcomingSeason = () => {
   const {

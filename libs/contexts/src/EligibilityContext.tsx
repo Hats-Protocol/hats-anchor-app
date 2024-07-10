@@ -19,7 +19,6 @@ export interface EligibilityContextProps {
   moduleParameters: ModuleParameter[] | undefined;
   controllerAddress: Hex | undefined;
   isModuleDetailsLoading: boolean | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   electionsAuthority: any | undefined;
   isElectionsAuthorityLoading: boolean;
 }
@@ -50,9 +49,6 @@ export const EligibilityContextProvider = ({
     chainId,
     hatId,
   });
-
-  // const { data: hatDetails, isLoading: isHatDetailsLoading } =
-  //   useHatDetailsField(selectedHat?.details);
 
   const wearersAndControllers = useWearersControllersDetails({
     hats: selectedHat ? [selectedHat] : [],

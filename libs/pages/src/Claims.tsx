@@ -5,6 +5,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
+import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { chainsMap } from 'utils';
 
@@ -39,10 +40,8 @@ const Claims = () => {
   }
 
   if (
-    selectedHat?.id &&
     chainId === 10 &&
-    hatIdDecimalToIp(BigInt(selectedHat.id)) ===
-      CONFIG.agreementV0.communityHatId
+    get(selectedHat, 'id') === CONFIG.agreementV0.communityHatId
   ) {
     return <AgreementV0 />;
   }

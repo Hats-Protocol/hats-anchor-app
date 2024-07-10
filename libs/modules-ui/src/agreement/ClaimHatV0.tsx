@@ -123,7 +123,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
       alignItems='left'
       px={{
         base: 0,
-        xl: 10,
+        '2xl': 10,
       }}
       mx={{ base: 'auto', md: 0 }}
     >
@@ -131,7 +131,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
         Join the Hats Community!{' '}
       </Heading>
       <Text fontSize='md' color='blackAlpha.700'>
-        Sign to claim your Community Member Hat
+        Sign the agreement to claim your Community Member Hat
       </Text>
       <Flex w='full' justifyContent='center' py={4}>
         <NextLink

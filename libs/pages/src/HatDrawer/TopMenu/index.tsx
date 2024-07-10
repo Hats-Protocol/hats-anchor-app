@@ -8,7 +8,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
+import { MainAction } from 'organisms';
 import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
@@ -16,10 +16,6 @@ import { AppHat } from 'types';
 import { useAccount } from 'wagmi';
 
 import MoreMenu from './MoreMenu';
-
-const MainAction = dynamic(() =>
-  import('organisms').then((mod) => mod.MainAction),
-);
 
 // const HatLinkRequestCreateForm = dynamic(
 //   () => import('../../../forms'),

@@ -1,3 +1,4 @@
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { Abi, Hex } from 'viem';
 
 import { CONTACT_URL, DOCS_URL } from './content';
@@ -6,7 +7,7 @@ import { MINI_CONFIG } from './next-seo.config';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
 const TELEGRAM_KEY = 'VFBDI1RFTCNDT01NIy0xMDAxODUxMjg4MjQy';
-const COMMUNITY_HAT_ID = '1.2.1.1';
+const COMMUNITY_HAT_ID = hatIdDecimalToHex(hatIdIpToDecimal('1.2.1.1'));
 
 const CONFIG: Config = {
   ...MINI_CONFIG,
@@ -88,7 +89,7 @@ type Config = {
   agreementV0: {
     hatterAddress: string;
     ipfsHash: string;
-    communityHatId: string;
+    communityHatId: Hex;
     telegramLink: string;
     hatsAppLink: string;
   };

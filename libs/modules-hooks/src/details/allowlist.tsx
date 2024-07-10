@@ -1,13 +1,9 @@
+import { Box, Icon, Tooltip } from '@chakra-ui/react';
 import { find, get, keys, map } from 'lodash';
-import { ModuleDetails, SupportedChains } from 'types';
+import { BsInfoCircle } from 'react-icons/bs';
+import { ModuleDetailRole, ModuleDetails, SupportedChains } from 'types';
 
 import { InlineHatCard } from '../components';
-
-interface ModuleDetailRole {
-  param: string;
-  label: string;
-  tooltip: string;
-}
 
 const ALLOWLIST_ROLES: { [key: string]: ModuleDetailRole } = {
   owner: {
@@ -38,7 +34,16 @@ export const AllowlistEligibilityDetails = (
         ) as bigint;
         return (
           <div className='flex justify-between' key={role}>
-            <div>{ALLOWLIST_ROLES[role].label}</div>
+            <div className='flex gap-2 items-center'>
+              <div>{ALLOWLIST_ROLES[role].label}</div>
+
+              <Tooltip label={ALLOWLIST_ROLES[role].tooltip} placement='top'>
+                <Box as='span' boxSize={4} position='relative'>
+                  <Icon as={BsInfoCircle} position='absolute' />
+                </Box>
+              </Tooltip>
+            </div>
+
             <InlineHatCard hatId={value} chainId={chainId} />
           </div>
         );

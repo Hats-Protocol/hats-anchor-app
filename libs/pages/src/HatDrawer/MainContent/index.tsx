@@ -4,18 +4,13 @@ import { Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
 import { useScrollPosition } from 'hooks';
 import dynamic from 'next/dynamic';
+import { AuthoritiesList, Controllers } from 'organisms';
 
 import WearersList from '../WearersList';
 import HatHistory from './HatHistory';
 import Header from './Header';
 import LinkRequests from './LinkRequests';
 
-const AuthoritiesList = dynamic(() =>
-  import('organisms').then((mod) => mod.AuthoritiesList),
-);
-const Controllers = dynamic(() =>
-  import('organisms').then((mod) => mod.Controllers),
-);
 const ResponsibilitiesList = dynamic(() =>
   import('molecules').then((mod) => mod.ResponsibilitiesList),
 );

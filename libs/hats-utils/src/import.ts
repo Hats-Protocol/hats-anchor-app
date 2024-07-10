@@ -102,12 +102,10 @@ function patchHatIds(hats: HatExport[], newMainID?: Hex) {
     const specificPortionOfAdminId = _.slice(hat?.adminId, 10).join('');
 
     // Update id
-     
     if (hat?.id) hat.id = (mainPortion + specificPortionOfId) as Hex;
 
     // Update adminId in similar fashion
     if (hat?.adminId)
-       
       hat.adminId = (mainPortion + specificPortionOfAdminId) as Hex;
 
     return hat;
