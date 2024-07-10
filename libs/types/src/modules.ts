@@ -1,4 +1,9 @@
-import { Module, ModuleParameter, Role } from '@hatsprotocol/modules-sdk';
+import {
+  Module,
+  ModuleParameter,
+  Role,
+  WriteFunction,
+} from '@hatsprotocol/modules-sdk';
 import { ReactNode } from 'react';
 import { Hex } from 'viem';
 
@@ -42,4 +47,10 @@ export interface ModuleDetailRole {
 
 export interface ModuleRole extends Role {
   label: string;
+}
+
+export interface ModuleFunction extends WriteFunction {
+  isCustom?: boolean;
+  onClick: (args?: unknown) => void;
+  icon?: ReactNode;
 }

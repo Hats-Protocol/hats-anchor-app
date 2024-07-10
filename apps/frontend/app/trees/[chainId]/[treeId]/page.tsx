@@ -1,5 +1,5 @@
 import { TreeFormContextProvider } from 'contexts';
-import { TreePage } from 'pages';
+import { TreePage, TreePageMobile } from 'pages';
 
 const TreeDetails = ({
   params,
@@ -8,7 +8,12 @@ const TreeDetails = ({
 }) => {
   return (
     <TreeFormContextProvider>
-      <TreePage params={params} />
+      <div className='hidden md:block'>
+        <TreePage params={params} />
+      </div>
+      <div className='md:hidden'>
+        <TreePageMobile exists />
+      </div>
     </TreeFormContextProvider>
   );
 };

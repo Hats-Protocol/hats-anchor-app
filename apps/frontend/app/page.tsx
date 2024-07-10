@@ -10,7 +10,6 @@ import {
   LearnMoreCard,
   MyHats,
 } from 'molecules';
-import { Suspense } from 'react';
 import { DocsLink } from 'types';
 import { Card, LinkButton } from 'ui';
 import { fetchFeaturedTrees, fetchFeaturedTreesData } from 'utils';
@@ -22,7 +21,7 @@ const RootPage = async () => {
 
   return (
     <>
-      <div className='w-full h-full bg-blue-100 fixed opacity-[0.7] z-[-5] mt-[70px]' />
+      <div className='w-full h-full bg-blue-100 fixed opacity-[0.7] z-[-5] mt-[58px] md:mt-[70px]' />
 
       <div className='flex flex-col gap-10 px-5 md:px-20 py-[100px] md:py-[120px] z-2 max-w-[1400px] mx-auto'>
         <MyHats />
@@ -35,7 +34,7 @@ const RootPage = async () => {
                   Explore featured trees
                 </h2>
 
-                <div className='grid grid-cols-3 flex-wrap gap-6 justify-between'>
+                <div className='grid grid-cols-1 md:grid-cols-3 flex-wrap gap-6 justify-between'>
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                     <FeaturedTreeCard
                       treeData={tree}

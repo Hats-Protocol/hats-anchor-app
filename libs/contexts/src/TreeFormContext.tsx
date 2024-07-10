@@ -491,7 +491,6 @@ export const TreeFormContextProvider = ({
 
   const updateCollapsedQueryParams = useCallback(
     (collapsed: any[]) => {
-      console.log(collapsed);
       const url = urlFromQueryParams({
         pathname,
         params: queryParams,

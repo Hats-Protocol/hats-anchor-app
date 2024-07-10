@@ -22,8 +22,10 @@ import {
   AUTHORITY_ENFORCEMENT,
   AUTHORITY_TYPES,
 } from '@hatsprotocol/constants';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import _, { get } from 'lodash';
+import { HSGDetails, ModuleCardDetails } from 'modules-ui';
 import { AuthorityHeader } from 'molecules';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
@@ -57,9 +59,12 @@ const AuthoritiesListCard = ({
     authority,
     ['label', 'description', 'link', 'gate', 'strategies', 'hatId'],
   );
+
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
   const { isMobile } = useMediaStyles();
+  const { chainId } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
   const [expanded, setExpanded] = useState(false);
   const isMounted = useRef(false);
 
@@ -113,7 +118,12 @@ const AuthoritiesListCard = ({
     };
   }, []);
 
-  if (!gate && !description) {
+  if (
+    !gate &&
+    !description &&
+    type !== AUTHORITY_TYPES.modules &&
+    type !== AUTHORITY_TYPES.hsg
+  ) {
     return (
       <Skeleton
         isLoaded={authority?.label !== 'Loading...'}
@@ -291,6 +301,24 @@ const AuthoritiesListCard = ({
                         </ChakraNextLink>
                       )}
                     </HStack>
+                  )}
+                  {type === AUTHORITY_TYPES.hsg && authority?.hsgConfig && (
+                    <Box pt={2} pb={3}>
+                      <HSGDetails
+                        hsgConfig={authority.hsgConfig}
+                        selectedHat={selectedHat}
+                        chainId={chainId}
+                      />
+                    </Box>
+                  )}
+                  {type === AUTHORITY_TYPES.modules && (
+                    <Box pt={2} pb={3}>
+                      <ModuleCardDetails
+                        hat={selectedHat}
+                        moduleInfo={get(authority, 'moduleInfo')}
+                        chainId={chainId}
+                      />
+                    </Box>
                   )}
                   {description && (
                     <Box pt={link || gate ? 2 : 0} pb={3}>

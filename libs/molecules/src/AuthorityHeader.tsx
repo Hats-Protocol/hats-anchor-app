@@ -13,10 +13,12 @@ import {
   AUTHORITY_ENFORCEMENT,
   AUTHORITY_PLATFORMS,
 } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
+import { useHatDetails } from 'hats-hooks';
 import { currentHsgThreshold } from 'hats-utils';
 import { useMediaStyles, useSafeDetails } from 'hooks';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
@@ -55,13 +57,11 @@ const AuthorityHeader = ({
   editingItem,
   isExpanded,
 }: AuthorityHeaderProps) => {
-  const { label, subLabel, link, type, hsgConfig, safe } = _.pick(authority, [
+  const { label, link, type, hsgConfig } = _.pick(authority, [
     'label',
-    'subLabel',
     'link',
     'type',
     'hsgConfig',
-    'safe',
   ]);
   const {
     label: currentLabel,
@@ -94,14 +94,13 @@ const AuthorityHeader = ({
   });
 
   const { data: safeOwners } = useSafeDetails({
-    safeAddress: safe,
+    safeAddress: get(hsgConfig, 'safe'),
     chainId,
-    enabled: !!safe,
     editMode,
   });
 
   const eligibleSigners = useMemo(() => {
-    if (!safeOwners || !selectedHat?.wearers) return [];
+    if (!safeOwners || !selectedHat?.wearers) return undefined;
 
     const wearersLowercased = _.map(selectedHat.wearers, (wearer: HatWearer) =>
       _.toLower(wearer.id),
@@ -117,6 +116,17 @@ const AuthorityHeader = ({
     hsgConfig,
     eligibleSigners,
   });
+  const firstSignerHatId = get(hsgConfig, 'signerHats[0].id');
+  const { data: signerHatDetails } = useHatDetails({
+    hatId: firstSignerHatId,
+    chainId,
+  });
+  const signerHatName = useMemo(() => {
+    const detailsMetadata = get(signerHatDetails, 'detailsMetadata');
+    if (!detailsMetadata) return undefined;
+    const details = JSON.parse(detailsMetadata);
+    return get(details, 'data.name');
+  }, [signerHatDetails]);
 
   const enforcementIcon =
     authority?.type &&
@@ -161,14 +171,12 @@ const AuthorityHeader = ({
                 }
                 noOfLines={2}
               >
-                {currentLabel || label || 'New Authority'}
-                {hsgThresholdText && ` (${hsgThresholdText})`}
-              </Text>
-            )}
-
-            {subLabel && (
-              <Text size='xs' fontFamily='monospace' color='gray.700'>
-                {subLabel}
+                {hsgThresholdText || currentLabel || label || 'New Authority'}
+                {signerHatName &&
+                  firstSignerHatId &&
+                  ` for ${signerHatName} (${hatIdDecimalToIp(
+                    hatIdHexToDecimal(firstSignerHatId),
+                  )})`}
               </Text>
             )}
           </HStack>

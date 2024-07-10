@@ -6,6 +6,7 @@ import { AppHat, HatWearer, SupportedChains } from 'types';
 import { createSubgraphClient } from 'utils';
 import { Hex } from 'viem';
 
+// move to utils
 const fetchHatWearersPage = async ({
   hatId,
   chainId,

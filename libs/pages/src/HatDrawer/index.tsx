@@ -18,6 +18,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
   const { editMode, treeToDisplay } = useTreeForm();
   const { selectedHat } = useSelectedHat();
+  console.log(selectedHat);
   const selectedHatId = selectedHat?.id;
   const imageUrl = _.get(
     _.find(treeToDisplay, { id: selectedHatId }),
@@ -26,7 +27,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const { isMobile } = useMediaStyles();
   // console.log(selectedHat);
 
-  if (!selectedHat || !returnToList) return null;
+  if (!selectedHat) return null;
 
   if (isMobile) {
     // TODO are we hitting this case?

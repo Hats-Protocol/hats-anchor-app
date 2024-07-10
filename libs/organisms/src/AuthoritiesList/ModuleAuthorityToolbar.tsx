@@ -35,7 +35,7 @@ import { useMemo, useState } from 'react';
 import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
-import { Authority, LinkObject } from 'types';
+import { Authority, LinkObject, ModuleFunction } from 'types';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl, getHostnameFromURL } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
@@ -81,7 +81,7 @@ const ModuleAuthorityToolbar = ({
   const { setModals } = localOverlay;
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const [selectedFunction, setSelectedFunction] = useState();
+  const [selectedFunction, setSelectedFunction] = useState<ModuleFunction>();
 
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
@@ -111,8 +111,8 @@ const ModuleAuthorityToolbar = ({
         label: 'Go to HatsSignerGate',
       });
 
-      if (authority.signerHats) {
-        _.forEach(authority.signerHats, (h: any) => {
+      if (authority.hsgConfig?.signerHats) {
+        _.forEach(authority.hsgConfig.signerHats, (h: any) => {
           links.push({
             link: formHatUrl({ hatId: h.id, chainId }),
             label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,
@@ -120,11 +120,11 @@ const ModuleAuthorityToolbar = ({
           });
         });
       }
-      if (authority.ownerHat) {
+      if (authority.hsgConfig?.ownerHat) {
         links.push({
-          link: formHatUrl({ hatId: authority.ownerHat.id, chainId }),
+          link: formHatUrl({ hatId: authority.hsgConfig.ownerHat.id, chainId }),
           label: `Go to Owner Hat (#${hatIdDecimalToIp(
-            BigInt(authority.ownerHat.id),
+            BigInt(authority.hsgConfig.ownerHat.id),
           )})`,
           icon: FaExternalLinkAlt,
         });
@@ -149,7 +149,7 @@ const ModuleAuthorityToolbar = ({
     chainId,
   });
 
-  const handleFunctionCall = (func: any) => {
+  const handleFunctionCall = (func: ModuleFunction) => {
     if (!authority) return;
     if (func.isCustom) {
       // prioritize custom functions
@@ -228,7 +228,7 @@ const ModuleAuthorityToolbar = ({
   const trackSafeClick = () => {
     posthog.capture('Viewed Safe', {
       chain_id: chainId,
-      safe: authority.safe,
+      safe: authority.hsgConfig?.safe,
     });
   };
 
@@ -246,6 +246,7 @@ const ModuleAuthorityToolbar = ({
                 function: primaryFunction.label,
                 authority: authority.label,
               });
+              console.log(primaryFunction);
               handleFunctionCall(primaryFunction);
             }}
             rightIcon={<Icon as={FiPlusSquare} />}
@@ -312,7 +313,7 @@ const ModuleAuthorityToolbar = ({
         )}
         {authority.type === AUTHORITY_TYPES.hsg && (
           <ChakraNextLink
-            href={safeUrl(chainId, authority.safe)}
+            href={safeUrl(chainId, authority.hsgConfig?.safe)}
             onClick={trackSafeClick}
             isExternal
           >
@@ -387,6 +388,7 @@ const ModuleAuthorityToolbar = ({
       <ModuleAuthorityModal
         authority={authority}
         selectedFunction={selectedFunction}
+        index={index}
       />
     </HStack>
   );
