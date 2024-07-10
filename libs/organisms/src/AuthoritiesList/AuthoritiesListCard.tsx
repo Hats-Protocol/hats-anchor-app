@@ -305,6 +305,7 @@ const AuthoritiesListCard = ({
                     color='green.600'
                     px={4}
                     py={1}
+                    mt={2}
                     borderBottomRadius='md'
                   >
                     <HStack>

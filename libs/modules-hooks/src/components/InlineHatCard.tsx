@@ -1,19 +1,49 @@
 'use client';
 
+import {
+  Button,
+  Icon,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+} from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import dynamic from 'next/dynamic';
+import { SupportedChains } from 'types';
 
 import HatCreateCard from './HatCreateCard';
 
-const InlineHatCard = ({ hatId }: { hatId: bigint }) => {
-  console.log('hatId', hatId);
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
-  return (
-    <div className='flex gap-2 relative'>
-      <HatCreateCard id={hatIdDecimalToHex(hatId)} />
-
-      <div>{hatIdDecimalToIp(hatId)}</div>
-    </div>
-  );
-};
+const InlineHatCard = ({
+  hatId,
+  chainId,
+}: {
+  hatId: bigint;
+  chainId: SupportedChains;
+}) => (
+  <div className='flex gap-2 relative'>
+    <Popover placement='left'>
+      <PopoverTrigger>
+        <Button
+          size='xs'
+          variant='ghost'
+          py={0}
+          rightIcon={<Icon as={HatIcon} />}
+        >
+          {hatIdDecimalToIp(hatId)}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent zIndex='20' w='270px'>
+        <PopoverArrow />
+        <PopoverBody>
+          <HatCreateCard id={hatIdDecimalToHex(hatId)} chainId={chainId} />
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  </div>
+);
 
 export default InlineHatCard;

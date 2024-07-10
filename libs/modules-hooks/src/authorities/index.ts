@@ -22,6 +22,8 @@ import {
   HatAuthority,
   ModuleDetails,
   ModuleDetailsComponent,
+  ModuleRole,
+  SupportedChains,
 } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
@@ -35,19 +37,22 @@ import { MODULE_DETAILS } from '../details';
  * @param hatInfo hat associated with the role
  * @returns string representing the role for the hat's eligibility or toggle module
  */
-const moduleRoleString = (role: Partial<Role>, hatInfo: AppHat) => {
-  return `${role?.name} for ${
+const moduleRoleString = (role: Partial<ModuleRole>, hatInfo: AppHat) => {
+  return `${role?.label || role?.name} for ${
     hatInfo?.detailsObject?.data.name || hatInfo?.details
   } (${hatIdDecimalToIp(BigInt(hatInfo?.id))})`;
 };
 
-const getModuleCardDetails = (moduleInfo: ModuleDetails) => {
+const getModuleCardDetails = (
+  moduleInfo: ModuleDetails,
+  chainId: SupportedChains | undefined,
+) => {
   if (has(MODULE_DETAILS, toLower(moduleInfo?.implementationAddress))) {
     const moduleDetailsFn = MODULE_DETAILS[
       toLower(moduleInfo?.implementationAddress)
     ] as ModuleDetailsComponent;
-    if (!moduleDetailsFn) return undefined;
-    return moduleDetailsFn(moduleInfo);
+    if (!moduleDetailsFn || !chainId) return undefined;
+    return moduleDetailsFn(moduleInfo, chainId);
   }
   return undefined;
 };
@@ -105,7 +110,7 @@ const mapModuleAuthority = ({
   ) as AppWriteFunction[];
 
   let description: ReactNode = '';
-  const moduleCardDetails = getModuleCardDetails(moduleInfo);
+  const moduleCardDetails = getModuleCardDetails(moduleInfo, hatInfo.chainId);
   if (moduleCardDetails) {
     description = moduleCardDetails;
   } else if (isArray(moduleInfo?.details)) {

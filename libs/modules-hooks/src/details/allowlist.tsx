@@ -1,5 +1,5 @@
 import { find, get, keys, map } from 'lodash';
-import { ModuleDetails } from 'types';
+import { ModuleDetails, SupportedChains } from 'types';
 
 import { InlineHatCard } from '../components';
 
@@ -22,7 +22,10 @@ const ALLOWLIST_ROLES: { [key: string]: ModuleDetailRole } = {
   },
 };
 
-export const AllowlistEligibilityDetails = (moduleInfo: ModuleDetails) => {
+export const AllowlistEligibilityDetails = (
+  moduleInfo: ModuleDetails,
+  chainId: SupportedChains,
+) => {
   const params = get(moduleInfo, 'liveParameters');
   if (!params) return undefined;
 
@@ -36,11 +39,10 @@ export const AllowlistEligibilityDetails = (moduleInfo: ModuleDetails) => {
         return (
           <div className='flex justify-between' key={role}>
             <div>{ALLOWLIST_ROLES[role].label}</div>
-            <InlineHatCard hatId={value} />
+            <InlineHatCard hatId={value} chainId={chainId} />
           </div>
         );
       })}
-      {/* TODO add allowlist counts */}
     </div>
   );
 };
