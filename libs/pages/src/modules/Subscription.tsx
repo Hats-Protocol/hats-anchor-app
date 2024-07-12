@@ -14,17 +14,16 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react';
-import { useEligibility } from 'contexts';
-import { useReadContracts } from 'wagmi';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
+import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useAgreementEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { hatLink } from 'utils';
-import { useAccount } from 'wagmi';
 import { erc20Abi } from 'viem';
+import { useAccount, useReadContracts } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
@@ -51,7 +50,8 @@ const Conditions = dynamic(() =>
 const Subscription = () => {
   const { address } = useAccount();
   const { isMobile } = useMediaStyles();
-  // const { moduleParameters, selectedHat, chainId } = useEligibility();
+  const { instanceParameters, selectedHat, chainId } = useEligibility();
+  console.log(instanceParameters);
   // We should be getteing these values from the instance (.selectedHat.elligibility)
   // "0x1981d8e78ba34f5953a997cfa4d0abb9f88789d0"
   const moduleParameters = [
@@ -71,6 +71,7 @@ const Subscription = () => {
         address: '0xb5552210fA9f572De938F4F0F518F868e6a6e597',
         abi: PublicLockV14.abi,
         functionName: 'tokenAddress',
+        args: [],
       },
       {
         address: '0xb5552210fA9f572De938F4F0F518F868e6a6e597',
@@ -82,6 +83,7 @@ const Subscription = () => {
         address: '0xb5552210fA9f572De938F4F0F518F868e6a6e597',
         abi: PublicLockV14.abi,
         functionName: 'expirationDuration',
+        args: [],
       },
     ],
   });
@@ -89,16 +91,16 @@ const Subscription = () => {
   console.log(lockPropertiesRequests.data);
 
   // Now get the token properties, if applicable.
-  let decimals = 18; // get the chain defaults
-  let symbol = 'ETH'; // get the chain defaults
+  const decimals = 18; // get the chain defaults
+  const symbol = 'ETH'; // get the chain defaults
   let approval;
 
   const contractAddress =
-    lockPropertiesRequests.data?[0].status === 'success'
-      ? lockPropertiesRequests.data?[0].result
-      : '';
+    lockPropertiesRequests.data?.[0].status === 'success'
+      ? lockPropertiesRequests.data?.[0].result
+      : null;
 
-      console.log(contractAddress)
+  console.log(contractAddress);
 
   const tokenPropertiesRequests = useReadContracts({
     contracts: contractAddress

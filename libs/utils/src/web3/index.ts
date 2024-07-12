@@ -90,12 +90,12 @@ export async function createHatsModulesClient(
         parameters: [
           {
             label: 'Referrer',
-            functionName: 'REFERRER',
+            functionName: 'FEE_SPLIT_RECIPIENT',
             displayType: 'address',
           },
           {
             label: 'Referrer Fee Percentage',
-            functionName: 'REFERRER_FEE_PERCENTAGE',
+            functionName: 'FEE_SPLIT_PERCENTAGE',
             displayType: 'uint256',
           },
           {
@@ -105,24 +105,24 @@ export async function createHatsModulesClient(
           },
           {
             label: 'Price',
-            functionName: 'keyPurchasePrice',
+            functionName: 'keyPrice',
             displayType: 'amountWithDecimals',
           },
-          {
-            label: 'Token',
-            functionName: 'keyPurchaseToken',
-            displayType: 'token',
-          },
-          {
-            label: 'Renewal Period',
-            functionName: 'expirationDuration',
-            displayType: 'seconds',
-          },
-          {
-            label: 'Max Purchasers',
-            functionName: 'maxNumberOfKeys',
-            displayType: 'default',
-          },
+          // {
+          //   label: 'Token',
+          //   functionName: 'keyPurchaseToken',
+          //   displayType: 'token',
+          // },
+          // {
+          //   label: 'Renewal Period',
+          //   functionName: 'expirationDuration',
+          //   displayType: 'seconds',
+          // },
+          // {
+          //   label: 'Max Purchasers',
+          //   functionName: 'maxNumberOfKeys',
+          //   displayType: 'default',
+          // },
         ],
         type: {
           eligibility: true,
@@ -138,7 +138,7 @@ export async function createHatsModulesClient(
           },
           {
             chainId: '11155111',
-            block: '0',
+            block: '6228828',
           },
           {
             chainId: '10',
@@ -218,7 +218,178 @@ export async function createHatsModulesClient(
         },
         customRoles: [],
         writeFunctions: [],
-        abi: [],
+        abi: [
+          {
+            inputs: [
+              { internalType: 'string', name: '_version', type: 'string' },
+              {
+                internalType: 'address',
+                name: '_feeSplitRecipient',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: '_feeSplitPercentage',
+                type: 'uint256',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'constructor',
+          },
+          { inputs: [], name: 'NotLock', type: 'error' },
+          { inputs: [], name: 'UnsupportedNetwork', type: 'error' },
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: false,
+                internalType: 'uint8',
+                name: 'version',
+                type: 'uint8',
+              },
+            ],
+            name: 'Initialized',
+            type: 'event',
+          },
+          {
+            inputs: [],
+            name: 'DEFAULT_LOCK_VERSION',
+            outputs: [{ internalType: 'uint16', name: '', type: 'uint16' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'FEE_SPLIT_PERCENTAGE',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'FEE_SPLIT_RECIPIENT',
+            outputs: [{ internalType: 'address', name: '', type: 'address' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'HATS',
+            outputs: [
+              { internalType: 'contract IHats', name: '', type: 'address' },
+            ],
+            stateMutability: 'pure',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'IMPLEMENTATION',
+            outputs: [{ internalType: 'address', name: '', type: 'address' }],
+            stateMutability: 'pure',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'getUnlockContract',
+            outputs: [
+              { internalType: 'contract IUnlock', name: '', type: 'address' },
+            ],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [
+              { internalType: 'address', name: '_wearer', type: 'address' },
+              { internalType: 'uint256', name: '', type: 'uint256' },
+            ],
+            name: 'getWearerStatus',
+            outputs: [
+              { internalType: 'bool', name: 'eligible', type: 'bool' },
+              { internalType: 'bool', name: 'standing', type: 'bool' },
+            ],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'hatId',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'pure',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'keyPrice',
+            outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [
+              { internalType: 'address', name: '', type: 'address' },
+              { internalType: 'address', name: '', type: 'address' },
+              { internalType: 'address', name: '', type: 'address' },
+              { internalType: 'bytes', name: '', type: 'bytes' },
+            ],
+            name: 'keyPurchasePrice',
+            outputs: [
+              { internalType: 'uint256', name: 'minKeyPrice', type: 'uint256' },
+            ],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'lock',
+            outputs: [
+              {
+                internalType: 'contract IPublicLock',
+                name: '',
+                type: 'address',
+              },
+            ],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [
+              { internalType: 'uint256', name: '', type: 'uint256' },
+              { internalType: 'address', name: '', type: 'address' },
+              { internalType: 'address', name: 'recipient', type: 'address' },
+              { internalType: 'address', name: '', type: 'address' },
+              { internalType: 'bytes', name: '', type: 'bytes' },
+              { internalType: 'uint256', name: '', type: 'uint256' },
+              { internalType: 'uint256', name: '', type: 'uint256' },
+            ],
+            name: 'onKeyPurchase',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+          {
+            inputs: [
+              { internalType: 'bytes', name: '_initData', type: 'bytes' },
+            ],
+            name: 'setUp',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'version',
+            outputs: [{ internalType: 'string', name: '', type: 'string' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+          {
+            inputs: [],
+            name: 'version_',
+            outputs: [{ internalType: 'string', name: '', type: 'string' }],
+            stateMutability: 'view',
+            type: 'function',
+          },
+        ],
       },
     ],
   });
