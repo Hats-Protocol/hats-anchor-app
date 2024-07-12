@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { chainsMap } from 'utils';
 
 import { Agreement, AgreementV0, Election, KnownModule } from './modules';
+import Subscription from './modules/Subscription';
 
 const Layout = dynamic(() =>
   import('molecules').then((mod) => mod.StandaloneLayout),
@@ -50,6 +51,7 @@ const Claims = () => {
   // TODO migrate to ID and CONSTs
   if (moduleDetails?.name === 'Hats Election Eligibility') return <Election />;
   if (moduleDetails?.name.includes('Agreement')) return <Agreement />;
+  if (moduleDetails?.name.includes('PublicLock')) return <Subscription />;
 
   // fallback for other known modules
   if (moduleDetails) return <KnownModule />;

@@ -2,12 +2,14 @@
 
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { useQuery } from '@tanstack/react-query';
 import { useHatDetails, useWearersControllersDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
 import _ from 'lodash';
 import { useAncillaryElection, useModuleDetails } from 'modules-hooks';
 import { createContext, useContext, useMemo } from 'react';
 import { AppHat, HatDetails, HatWearer, SupportedChains } from 'types';
+import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 
 export interface EligibilityContextProps {
@@ -72,6 +74,16 @@ export const EligibilityContextProvider = ({
     chainId,
   });
 
+  // Get instance parameters
+  const { data: instanceParameters } = useQuery({
+    queryKey: ['moduleDetails', controllerAddress, chainId],
+    queryFn: async () => {
+      const modulesClient = await createHatsModulesClient(chainId);
+      return modulesClient?.getInstanceParameters(controllerAddress);
+    },
+    enabled: !!controllerAddress && !!chainId,
+  });
+
   const { data: electionsAuthority, isLoading: isElectionsAuthorityLoading } =
     useAncillaryElection({
       id: controllerAddress,
@@ -90,6 +102,7 @@ export const EligibilityContextProvider = ({
       isModuleDetailsLoading,
       electionsAuthority,
       isElectionsAuthorityLoading,
+      instanceParameters,
     }),
     [
       chainId,
@@ -103,6 +116,7 @@ export const EligibilityContextProvider = ({
       isModuleDetailsLoading,
       electionsAuthority,
       isElectionsAuthorityLoading,
+      instanceParameters,
     ],
   );
 
