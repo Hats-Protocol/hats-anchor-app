@@ -15,7 +15,7 @@ import {
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { prepareMobileTreeHats } from 'hats-utils';
-import _ from 'lodash';
+import { first, get, map, maxBy, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
@@ -36,7 +36,7 @@ const DEFAULT_LOADING_CARDS = 8;
 const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   const {
     chainId,
-    treeId,
+    // treeId,
     treeToDisplay,
     isLoading: treeIsLoading,
   } = useTreeForm();
@@ -71,7 +71,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   //     )} on ${chain.name}`;
   //   }
   // }
-  const maxDepth = _.maxBy(sortedTree, 'depth')?.depth || 0;
+  const maxDepth = maxBy(sortedTree, 'depth')?.depth || 0;
   // console.log(maxDepth);
 
   if (!exists) {
@@ -93,7 +93,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
     );
   }
 
-  if (!treeIsLoading && _.size(sortedTree) === 1) {
+  if (!treeIsLoading && size(sortedTree) === 1) {
     return (
       <Flex direction='column' w='full' h='full' pt={16}>
         <Box
@@ -102,8 +102,8 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
           pb={2}
           boxShadow='0px 2px 4px 0px rgba(0,0,0,0.75);'
         >
-          <Skeleton isLoaded={_.get(_.first(sortedTree), 'id')} minH='72px'>
-            <MobileHatCard hat={_.first(sortedTree)} maxDepth={maxDepth} />
+          <Skeleton isLoaded={get(first(sortedTree), 'id')} minH='72px'>
+            <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} />
           </Skeleton>
         </Box>
 
@@ -136,11 +136,15 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
         bg='white'
       >
         <Skeleton
-          isLoaded={_.get(_.first(sortedTree), 'id')}
+          isLoaded={get(first(sortedTree), 'id')}
           minH='72px'
           borderRadius={6}
         >
-          <MobileHatCard hat={_.first(sortedTree)} maxDepth={maxDepth} />
+          <MobileHatCard
+            hat={first(sortedTree)}
+            maxDepth={maxDepth}
+            key={get(first(sortedTree), 'id')}
+          />
         </Skeleton>
       </Box>
 
@@ -151,7 +155,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
         bg='white'
         position='relative'
       >
-        {(_.size(sortedTree) > 1 || !sortedTree) && (
+        {(size(sortedTree) > 1 || !sortedTree) && (
           <VerticalDividers count={maxDepth + 2} />
         )}
         <VStack
@@ -163,7 +167,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
           mt='80px'
           spacing={2}
         >
-          {_.map(sortedTree.slice(1), (hat: HatWithDepth) => (
+          {map(sortedTree.slice(1), (hat: HatWithDepth) => (
             <Skeleton
               display='flex'
               justifyContent='end'

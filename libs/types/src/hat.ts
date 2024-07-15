@@ -1,5 +1,5 @@
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
-import { Chain, Hex } from 'viem';
+import { Hex } from 'viem';
 
 import { Authority } from './authorities';
 import { SupportedChains } from './chains';
@@ -71,7 +71,8 @@ export interface AppHat extends HatWithMetadata {
     contentWidth: string;
     accentWidth: string;
   };
-  network?: Chain;
+  metadata?: HatDetails;
+  metadataType?: string;
 }
 
 export interface HatWithDepth extends AppHat {

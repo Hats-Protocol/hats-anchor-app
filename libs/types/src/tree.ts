@@ -17,5 +17,5 @@ export interface FeaturedTree {
 }
 
 export interface AppTree extends Tree {
-  network?: Chain;
+  chainId?: Chain;
 }

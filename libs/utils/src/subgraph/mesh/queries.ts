@@ -149,14 +149,12 @@ export function getTreesPaginatedQuery(chaindId: number): string {
     query getPaginatedTrees($skip: Int!, $first: Int!) {
       ${networkPrefix}_trees(skip: $skip, first: $first) {
         id
-        hats {
+        hats(first: 1) {
           id
           details
           imageUri
+          detailsMetadata
           prettyId
-          wearers(first: 5) {
-            id
-          }
           admin {
             id
             prettyId

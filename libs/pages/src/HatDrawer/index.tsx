@@ -18,14 +18,12 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
   const { editMode, treeToDisplay } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  console.log(selectedHat);
   const selectedHatId = selectedHat?.id;
   const imageUrl = _.get(
     _.find(treeToDisplay, { id: selectedHatId }),
     'imageUrl',
   );
   const { isMobile } = useMediaStyles();
-  // console.log(selectedHat);
 
   if (!selectedHat) return null;
 

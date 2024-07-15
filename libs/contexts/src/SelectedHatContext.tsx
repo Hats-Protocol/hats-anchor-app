@@ -67,7 +67,6 @@ export const SelectedHatContextProvider = ({
   const params = useSearchParams();
   const pathname = usePathname();
   const { hatId: hatIdPathParam, treeId, chainId } = getPathParams(pathname);
-  console.log('hatIdPathParam', hatIdPathParam);
 
   const hatIdQueryParam = params.get('hatId');
   const hatId =
@@ -75,7 +74,6 @@ export const SelectedHatContextProvider = ({
     (hatIdQueryParam
       ? hatIdDecimalToHex(hatIdIpToDecimal(hatIdQueryParam))
       : undefined);
-  console.log({ hatId });
 
   const flipped = params.get('flipped');
   const compact = params.get('compact');

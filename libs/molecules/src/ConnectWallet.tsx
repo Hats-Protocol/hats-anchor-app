@@ -50,6 +50,8 @@ const ConnectWallet = () => {
 
     posthog.identify(toLower(address), {
       alias: ensName,
+      // check community hat wearer
+      // check is HL team member
     });
   }, [address, ensName, chainId]);
 
