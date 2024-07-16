@@ -23,12 +23,13 @@ export const calculateCid = async (data: object): Promise<string> => {
   return `ipfs://${localCid.toString()}`;
 };
 
-export const ipfsUrl = (hash: string | undefined) => {
+export const ipfsUrl = (hash: string | undefined, publicGateway?: boolean) => {
   let localHash = hash;
   if (_.startsWith(localHash, 'ipfs://')) {
     localHash = localHash?.slice(7);
   }
   if (!localHash) return '#';
+  if (publicGateway) return `https://ipfs.io/ipfs/${localHash}`;
   return `${GATEWAY_URL}${localHash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
 

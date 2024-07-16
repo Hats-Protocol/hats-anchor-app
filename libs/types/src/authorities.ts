@@ -1,6 +1,8 @@
-import { HsgType, WriteFunction } from '@hatsprotocol/hsg-sdk';
+import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { ReactNode } from 'react';
 import { Hex } from 'viem';
+
+import { ModuleFunction } from './modules';
 
 export type AuthorityType =
   | 'protocol'
@@ -10,6 +12,20 @@ export type AuthorityType =
   | 'onchain'
   | 'gate'
   | 'manual';
+
+export type HSGConfig = {
+  type: HsgType;
+  minThreshold: string;
+  targetThreshold: string;
+  maxSigners: string;
+  ownerHat?: {
+    id: Hex;
+  };
+  signerHats?: {
+    id: Hex;
+  }[];
+  safe?: Hex;
+};
 
 // might be worth splitting this into multiple types
 export type Authority = {
@@ -23,22 +39,11 @@ export type Authority = {
   id?: string | number;
   hatId?: Hex;
   strategies?: SnapshotStrategy[];
-  functions?: AppWriteFunction[];
+  functions?: ModuleFunction[];
   instanceAddress?: Hex;
   moduleAddress?: Hex;
   moduleLabel?: string;
-  ownerHat?: {
-    id: Hex;
-  };
-  signerHats?: {
-    id: Hex;
-  }[];
-  safe?: Hex;
-  hsgConfig?: {
-    minThreshold: string;
-    targetThreshold: string;
-    maxSigners: string;
-  };
+  hsgConfig?: HSGConfig;
 };
 
 export interface HatAuthorityResponse {
@@ -106,12 +111,6 @@ type HatsAccount1ofNOperation = {
   callData: Uint8Array;
   operationType: string;
 };
-
-export interface AppWriteFunction extends WriteFunction {
-  isCustom?: boolean;
-  onClick?: () => void;
-  icon?: ReactNode;
-}
 
 export interface SnapshotStrategy {
   name: string;

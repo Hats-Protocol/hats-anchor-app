@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable no-nested-ternary */
 import {
   Box,
   Button,
@@ -14,14 +13,12 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
-// import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { prepareMobileTreeHats } from 'hats-utils';
-import _ from 'lodash';
+import { first, get, map, maxBy, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
-// import { chainsMap } from 'utils';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
@@ -35,8 +32,19 @@ const VerticalDividers = dynamic(() =>
 
 const DEFAULT_LOADING_CARDS = 8;
 
+// TODO fix exists lookup
 const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
-  const { chainId, treeToDisplay, isLoading: treeIsLoading } = useTreeForm();
+  const {
+    chainId,
+    // treeId,
+    treeToDisplay,
+    isLoading: treeIsLoading,
+  } = useTreeForm();
+  // const params = useSearchParams();
+  // const hatParam = params.get('hatId');
+  // if (hatParam && typeof window !== 'undefined') {
+  //   window.history.pushState({}, '', `/trees/${chainId}/${treeId}/${hatParam}`);
+  // }
 
   const sortedTree = treeIsLoading
     ? Array(DEFAULT_LOADING_CARDS).fill(DEFAULT_HAT)
@@ -63,7 +71,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   //     )} on ${chain.name}`;
   //   }
   // }
-  const maxDepth = _.maxBy(sortedTree, 'depth')?.depth || 0;
+  const maxDepth = maxBy(sortedTree, 'depth')?.depth || 0;
   // console.log(maxDepth);
 
   if (!exists) {
@@ -74,7 +82,10 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
           <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
           <ChakraNextLink href='/'>
             <Button variant='outline' rightIcon={<Icon as={BsArrowRight} />}>
-              🧢 Head home
+              <span aria-label='Ball cap' role='img'>
+                🧢
+              </span>{' '}
+              Head home
             </Button>
           </ChakraNextLink>
         </Stack>
@@ -82,7 +93,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
     );
   }
 
-  if (!treeIsLoading && _.size(sortedTree) === 1) {
+  if (!treeIsLoading && size(sortedTree) === 1) {
     return (
       <Flex direction='column' w='full' h='full' pt={16}>
         <Box
@@ -91,14 +102,19 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
           pb={2}
           boxShadow='0px 2px 4px 0px rgba(0,0,0,0.75);'
         >
-          <Skeleton isLoaded={_.get(_.first(sortedTree), 'id')} minH='72px'>
-            <MobileHatCard hat={_.first(sortedTree)} maxDepth={maxDepth} />
+          <Skeleton isLoaded={get(first(sortedTree), 'id')} minH='72px'>
+            <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} />
           </Skeleton>
         </Box>
 
         <Flex boxSize='100%' justify='center' align='center' bg='white'>
           <Stack align='center' spacing={6} maxW='60%'>
-            <Heading size='lg'>No hats found 🎩</Heading>
+            <Heading size='lg'>
+              No hats found
+              <span aria-label='Top hat' role='img'>
+                🎩
+              </span>
+            </Heading>
             <Text textAlign='center'>
               Get started creating hats for your tree on a desktop.
             </Text>
@@ -111,17 +127,24 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   return (
     <Flex direction='column' w='full' h='full' pt={16}>
       <Box
-        px={2}
-        zIndex='sticky'
-        pb={2}
+        p={2}
+        zIndex={5}
+        mt={-2}
+        position='fixed'
+        w='100%'
         boxShadow='0px 2px 4px 0px rgba(0,0,0,0.75);'
+        bg='white'
       >
         <Skeleton
-          isLoaded={_.get(_.first(sortedTree), 'id')}
+          isLoaded={get(first(sortedTree), 'id')}
           minH='72px'
           borderRadius={6}
         >
-          <MobileHatCard hat={_.first(sortedTree)} maxDepth={maxDepth} />
+          <MobileHatCard
+            hat={first(sortedTree)}
+            maxDepth={maxDepth}
+            key={get(first(sortedTree), 'id')}
+          />
         </Skeleton>
       </Box>
 
@@ -132,11 +155,19 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
         bg='white'
         position='relative'
       >
-        {(_.size(sortedTree) > 1 || !sortedTree) && (
+        {(size(sortedTree) > 1 || !sortedTree) && (
           <VerticalDividers count={maxDepth + 2} />
         )}
-        <VStack w='full' maxW='100%' h='100%' px={2} py={2} spacing={2}>
-          {_.map(sortedTree.slice(1), (hat: HatWithDepth) => (
+        <VStack
+          w='full'
+          maxW='100%'
+          h='100%'
+          px={2}
+          py={2}
+          mt='80px'
+          spacing={2}
+        >
+          {map(sortedTree.slice(1), (hat: HatWithDepth) => (
             <Skeleton
               display='flex'
               justifyContent='end'
@@ -150,7 +181,17 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
             </Skeleton>
           ))}
           <Flex minH='150px' justify='center' align='center'>
-            <Text size='sm'>🧢🎩👒</Text>
+            <Text size='sm'>
+              <span aria-label='Ball cap' role='img'>
+                🧢
+              </span>
+              <span aria-label='Top hat' role='img'>
+                🎩
+              </span>
+              <span aria-label='Hat with bow' role='img'>
+                👒
+              </span>
+            </Text>
             {/* <Button variant='outlineMatch' size='sm' colorScheme='blue.500'>
                   Return to top
                 </Button> */}

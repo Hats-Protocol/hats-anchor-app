@@ -7,6 +7,7 @@ export { default as useDeepCompareEffect } from './useDeepCompareEffect';
 export { default as useHatGuildRoles } from './useHatGuildRoles';
 export { default as useHatSnapshotRoles } from './useHatSnapshotRoles';
 export { default as useImageURIs } from './useImageURIs';
+export { default as useIpfsData } from './useIpfsData';
 export { default as useIsSameChain } from './useIsSameChain';
 export { default as useLocalStorage } from './useLocalStorage';
 export { default as useMediaStyles } from './useMediaStyles';

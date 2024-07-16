@@ -3,7 +3,7 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { fetchPaginatedTrees } from 'utils';
+import { fetchPaginatedTreesMesh } from 'utils';
 
 const usePaginatedTreeList = ({
   chainId,
@@ -26,7 +26,7 @@ const usePaginatedTreeList = ({
       return _.eq(_.size(returnData), perPage) ? _.size(allPages) : undefined;
     },
     queryFn: ({ pageParam }) =>
-      fetchPaginatedTrees(chainId, pageParam, perPage),
+      fetchPaginatedTreesMesh(chainId, pageParam, perPage),
     initialPageParam: 0,
     initialData: initialData
       ? { pages: [initialData], pageParams: [0] }

@@ -3,22 +3,24 @@
 import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
+import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Modal, useOverlay, useTreeForm } from 'contexts';
-import { index } from 'd3';
 import _ from 'lodash';
 import { useCallHsgFunction, useCallModuleFunction } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
-import { Authority } from 'types';
+import { Authority, ModuleFunction } from 'types';
 
 import { ModuleArgsForm } from './components';
 
 const ModuleAuthorityModal = ({
   authority,
   selectedFunction,
+  index,
 }: {
   authority: Authority;
-  selectedFunction: any;
+  selectedFunction: ModuleFunction | undefined;
+  index: number;
 }) => {
   const { setModals } = useOverlay();
   const { chainId } = useTreeForm();
@@ -82,7 +84,9 @@ const ModuleAuthorityModal = ({
 
         <Stack>
           <ModuleArgsForm
-            selectedModuleArgs={_.get(selectedFunction, 'args', [])}
+            selectedModuleArgs={
+              _.get(selectedFunction, 'args', []) as ModuleCreationArg[]
+            }
             localForm={localForm}
             hideIcon
             noMargin

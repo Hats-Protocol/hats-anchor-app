@@ -1,10 +1,20 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import {
+  filter,
+  find,
+  flatten,
+  get,
+  isEmpty,
+  map,
+  reject,
+  size,
+  uniqBy,
+} from 'lodash';
 import { useMemo } from 'react';
-import { AppHat, HatWearer } from 'types';
-import { extendWearerDetails } from 'utils';
+import { AppHat, HatWearer, SupportedChains } from 'types';
+import { batchFetchContractData, extendWearerDetails } from 'utils';
 
 // eslint-disable-next-line no-promise-executor-return
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -12,9 +22,9 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // TODO move to utils/wearers
 const fetchAdminWearers = async (
   wearers: HatWearer[],
-  chainId: number | undefined,
+  chainId: SupportedChains | undefined,
 ): Promise<HatWearer[] | undefined> => {
-  const extendedWearers = _.map(wearers, (w: HatWearer) =>
+  const extendedWearers = map(wearers, (w: HatWearer) =>
     extendWearerDetails(w.id, chainId),
   );
 
@@ -28,13 +38,27 @@ const fetchAdminWearers = async (
     },
   );
 
+  if (!chainId) return [];
+
   return Promise.allSettled(extendedWearersPromises)
-    .then(
-      (results) =>
-        results.map((result) =>
-          result.status === 'fulfilled' ? result.value : null,
-        ) as HatWearer[],
-    )
+    .then(async (results) => {
+      const adminWearers = results.map((result) =>
+        result.status === 'fulfilled' ? result.value : null,
+      ) as HatWearer[];
+
+      const contractWearers = filter(adminWearers, 'isContract');
+
+      return batchFetchContractData(map(contractWearers, 'id'), chainId).then(
+        (contractData) => {
+          return adminWearers.map((wearer) => {
+            const contractWearer = find(contractData, { id: wearer.id });
+            if (get(contractWearer, 'error')) return wearer;
+
+            return { ...wearer, ...contractWearer };
+          });
+        },
+      );
+    })
     .catch((err) => {
       // eslint-disable-next-line no-console
       console.error(err);
@@ -45,38 +69,45 @@ const fetchAdminWearers = async (
 const useHatAdminWearers = (
   selectedHat: AppHat | undefined,
   treeToDisplay: AppHat[] | undefined,
-  chainId: number | undefined,
+  chainId: SupportedChains | undefined,
 ) => {
   const adminHats = useMemo(() => {
     if (!selectedHat?.id || !selectedHat?.prettyId) return [];
 
-    const filteredList = _.filter(
+    const filteredList = filter(
       treeToDisplay,
       (h: AppHat) => h.prettyId && selectedHat.prettyId?.includes(h.prettyId),
     );
     // exclude current hat
-    return _.reject(filteredList, { id: selectedHat.id });
+    return reject(filteredList, { id: selectedHat.id });
   }, [treeToDisplay, selectedHat?.prettyId, selectedHat?.id]);
   const adminWearers = useMemo(() => {
-    return _.uniqBy(_.flatten(_.map(adminHats, 'wearers')), 'id');
+    return uniqBy(flatten(map(adminHats, 'wearers')), 'id');
   }, [adminHats]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['adminWearers', adminWearers, chainId],
     queryFn: () => fetchAdminWearers(adminWearers, chainId),
-    enabled: !_.isEmpty(adminWearers) && !!chainId,
+    enabled: !isEmpty(adminWearers) && !!chainId,
   });
 
   const adminCount = useMemo(() => {
-    if (!data) return { code: 0, human: 0 };
+    if (!data) return { code: 0, groups: 0, human: 0 };
+    console.log('data', data);
+
+    const contracts = filter(data, 'isContract');
+    const groups = filter(contracts, (w: HatWearer) =>
+      w?.contractName?.includes('GnosisSafeProxy'),
+    );
 
     return {
-      code: _.size(_.filter(data, 'isContract')) || 0,
-      human: _.size(_.reject(data, 'isContract')) || 0,
+      code: size(contracts) - size(groups) || 0,
+      groups: size(groups) || 0,
+      human: size(reject(data, 'isContract')) || 0,
     };
   }, [data]);
 
-  return { data, adminCount, isLoading, error };
+  return { data, adminHats, adminCount, isLoading, error };
 };
 
 export default useHatAdminWearers;

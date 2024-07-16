@@ -1,9 +1,15 @@
+'use client';
+
 import { Box, Icon, Tooltip } from '@chakra-ui/react';
+import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { find, get, keys, map } from 'lodash';
+import dynamic from 'next/dynamic';
 import { BsInfoCircle } from 'react-icons/bs';
 import { ModuleDetailRole, ModuleDetails, SupportedChains } from 'types';
 
-import { InlineHatCard } from '../components';
+const InlineHatCard = dynamic(() =>
+  import('molecules').then((mod) => mod.InlineHatCard),
+);
 
 const ALLOWLIST_ROLES: { [key: string]: ModuleDetailRole } = {
   owner: {
@@ -17,6 +23,8 @@ const ALLOWLIST_ROLES: { [key: string]: ModuleDetailRole } = {
     tooltip: 'The hat that can remove addresses from the allowlist',
   },
 };
+
+// TODO [2.9] handle indexed addresses
 
 export const AllowlistEligibilityDetails = (
   moduleInfo: ModuleDetails,
@@ -44,7 +52,7 @@ export const AllowlistEligibilityDetails = (
               </Tooltip>
             </div>
 
-            <InlineHatCard hatId={value} chainId={chainId} />
+            <InlineHatCard hatId={hatIdDecimalToHex(value)} chainId={chainId} />
           </div>
         );
       })}

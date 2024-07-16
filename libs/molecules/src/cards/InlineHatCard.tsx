@@ -9,9 +9,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@chakra-ui/react';
-import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import dynamic from 'next/dynamic';
 import { SupportedChains } from 'types';
+import { Hex } from 'viem';
 
 import HatCreateCard from './HatCreateCard';
 
@@ -21,7 +22,7 @@ const InlineHatCard = ({
   hatId,
   chainId,
 }: {
-  hatId: bigint;
+  hatId: Hex;
   chainId: SupportedChains;
 }) => (
   <div className='flex gap-2 relative'>
@@ -33,13 +34,13 @@ const InlineHatCard = ({
           py={0}
           rightIcon={<Icon as={HatIcon} />}
         >
-          {hatIdDecimalToIp(hatId)}
+          {hatIdDecimalToIp(hatIdHexToDecimal(hatId))}
         </Button>
       </PopoverTrigger>
       <PopoverContent zIndex='20' w='270px'>
         <PopoverArrow />
         <PopoverBody>
-          <HatCreateCard id={hatIdDecimalToHex(hatId)} chainId={chainId} />
+          <HatCreateCard id={hatId} chainId={chainId} />
         </PopoverBody>
       </PopoverContent>
     </Popover>

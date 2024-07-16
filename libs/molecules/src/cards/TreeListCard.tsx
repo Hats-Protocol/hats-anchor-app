@@ -12,13 +12,11 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { useHatDetailsField } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { get, size } from 'lodash';
 import dynamic from 'next/dynamic';
 // import { BsPeopleFill } from 'react-icons/bs';
-import { AppHat } from 'types';
+import { AppHat, AppTree } from 'types';
 import { ChakraNextLink } from 'ui';
 import { removeInactiveHatsAndDescendants } from 'utils';
 
@@ -26,7 +24,7 @@ const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 // TODO migrate Top Hat image to LazyImage
 
-const TreeStats = ({ tree }: { tree: Tree }) => {
+const TreeStats = ({ tree }: { tree: AppTree }) => {
   const activeHats = removeInactiveHatsAndDescendants(tree?.hats);
   // const activeWearers = _.size(_.uniq(_.flatten(_.map(activeHats, 'wearers'))));
 
@@ -35,7 +33,7 @@ const TreeStats = ({ tree }: { tree: Tree }) => {
       <HStack spacing={1} color='blue.700'>
         <Icon as={HatIcon} boxSize={3} />
         <Text size='xs' fontWeight='medium'>
-          {_.size(activeHats)}
+          {size(activeHats)}
         </Text>
       </HStack>
       {/* <HStack spacing={1} color='blue.700'>
@@ -53,24 +51,17 @@ const TreeListCard = ({
   topHat,
   topHatImage,
 }: {
-  tree: Tree;
+  tree: AppTree;
   topHat: AppHat;
   topHatImage: AppHat | undefined;
 }) => {
-  const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
   const { isMobile } = useMediaStyles();
-
-  const hatName =
-    hatDetails?.type === '1.0'
-      ? _.get(hatDetails, 'data.name')
-      : _.get(topHat, 'details');
+  const hatName = get(topHat, 'metadata.name', get(topHat, 'details'));
 
   return (
     <ChakraNextLink
-      href={`/trees/${_.get(tree, 'chainId')}/${treeIdHexToDecimal(
-        _.get(tree, 'id'),
-      )}`}
-      key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
+      href={`/trees/${tree?.chainId}/${treeIdHexToDecimal(tree?.id)}`}
+      key={`${get(tree, 'chainId')}-${get(tree, 'id')}`}
     >
       <Card overflow='hidden'>
         <CardBody
@@ -102,8 +93,8 @@ const TreeListCard = ({
               {/* TOP HAT IMAGE */}
               <Box
                 bgImage={
-                  _.get(topHatImage, 'imageUrl')
-                    ? `url('${_.get(topHatImage, 'imageUrl')}')`
+                  get(topHatImage, 'imageUrl')
+                    ? `url('${get(topHatImage, 'imageUrl')}')`
                     : `url('/icon.jpeg')`
                 }
                 bgSize='cover'
@@ -138,7 +129,7 @@ const TreeListCard = ({
                     </Heading>
                     <Flex justify='space-between' w='100%'>
                       <Text size='xs'>
-                        #{treeIdHexToDecimal(_.get(tree, 'id'))}
+                        #{treeIdHexToDecimal(get(tree, 'id'))}
                       </Text>
                       <TreeStats tree={tree} />
                     </Flex>
@@ -146,7 +137,7 @@ const TreeListCard = ({
                 ) : (
                   <Stack spacing={1} pt={0}>
                     <Text size='xs'>
-                      #{treeIdHexToDecimal(_.get(tree, 'id'))}
+                      #{treeIdHexToDecimal(get(tree, 'id'))}
                     </Text>
                     <Heading size='sm' noOfLines={2}>
                       {hatName}

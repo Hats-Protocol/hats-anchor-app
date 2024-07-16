@@ -6,29 +6,21 @@ import {
   filter,
   find,
   flatten,
-  has,
   includes,
-  isArray,
   map,
   omit,
   pick,
-  toLower,
 } from 'lodash';
-import { ReactNode } from 'react';
 import {
   AppHat,
   AppWriteFunction,
   Authority,
   HatAuthority,
   ModuleDetails,
-  ModuleDetailsComponent,
   ModuleRole,
-  SupportedChains,
 } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
-
-import { MODULE_DETAILS } from '../details';
 
 // TODO convert to ReactNode w/ TW so can hide part on mobile
 /**
@@ -43,41 +35,25 @@ const moduleRoleString = (role: Partial<ModuleRole>, hatInfo: AppHat) => {
   } (${hatIdDecimalToIp(BigInt(hatInfo?.id))})`;
 };
 
-const getModuleCardDetails = (
-  moduleInfo: ModuleDetails,
-  chainId: SupportedChains | undefined,
-) => {
-  if (has(MODULE_DETAILS, toLower(moduleInfo?.implementationAddress))) {
-    const moduleDetailsFn = MODULE_DETAILS[
-      toLower(moduleInfo?.implementationAddress)
-    ] as ModuleDetailsComponent;
-    if (!moduleDetailsFn || !chainId) return undefined;
-    return moduleDetailsFn(moduleInfo, chainId);
-  }
-  return undefined;
-};
-
 const populateModuleAuthority = ({
   role,
   hat,
   functions,
   moduleInfo,
   label,
-  description,
 }: {
   role: Role;
   hat: AppHat;
   functions: AppWriteFunction[];
   moduleInfo: ModuleDetails;
   label?: string;
-  description: ReactNode;
 }) => ({
   label: label || moduleRoleString(role, hat),
   link: role?.id,
-  description,
   type: AUTHORITY_TYPES.modules,
   id: role?.id,
   functions: functions as AppWriteFunction[],
+  moduleInfo,
   instanceAddress: moduleInfo?.id,
   moduleAddress: moduleInfo?.implementationAddress as Hex,
   moduleLabel: `${moduleInfo?.name} (${formatAddress(moduleInfo?.id as Hex)})`,
@@ -109,16 +85,6 @@ const mapModuleAuthority = ({
     (func: AppWriteFunction) => includes(func.roles, matchingRole?.id),
   ) as AppWriteFunction[];
 
-  let description: ReactNode = '';
-  const moduleCardDetails = getModuleCardDetails(moduleInfo, hatInfo.chainId);
-  if (moduleCardDetails) {
-    description = moduleCardDetails;
-  } else if (isArray(moduleInfo?.details)) {
-    description = moduleInfo.details.join('\n');
-  } else if (typeof moduleInfo?.details === 'string') {
-    description = moduleInfo.details as string;
-  }
-
   // check the passthrough module for which type
   if (moduleInfo.name === 'Passthrough Module') {
     const { toggle, eligibility } = pick(hatInfo, ['toggle', 'eligibility']);
@@ -141,7 +107,6 @@ const mapModuleAuthority = ({
           hat: hatInfo,
           functions: localFunctions,
           moduleInfo,
-          description,
           label: moduleRoleString({ name: 'Toggle Passthrough' }, hatInfo),
         }),
       );
@@ -155,7 +120,6 @@ const mapModuleAuthority = ({
             functionName: 'setHatWearerStatus',
           }),
           moduleInfo,
-          description,
           label: moduleRoleString({ name: 'Eligibility Passthrough' }, hatInfo),
         }),
       );
@@ -169,7 +133,6 @@ const mapModuleAuthority = ({
     hat: hatInfo,
     functions: matchingFunctions,
     moduleInfo,
-    description,
   });
 };
 

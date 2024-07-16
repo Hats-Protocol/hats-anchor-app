@@ -145,7 +145,7 @@ const WearerRow = ({
   } else if (isSameAddress(wearer.id, address)) {
     bgColor = 'green.100';
     color = 'green.800';
-  } else if (wearer.isContract && controllerName !== 'Safe Multisig') {
+  } else if (wearer.isContract && !controllerName.includes('Safe')) {
     color = 'Informative-Code';
   }
 

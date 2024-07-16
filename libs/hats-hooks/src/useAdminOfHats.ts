@@ -24,6 +24,7 @@ const useAdminOfHats = ({
 
     if (!user) return [];
 
+    // TODO convert to promise batch to multicall rpc
     const results: (Hex | null)[] = await Promise.all(
       _.map(hatIds, async (hatId: Hex) => {
         try {
