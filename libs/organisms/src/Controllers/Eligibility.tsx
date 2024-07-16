@@ -39,6 +39,7 @@ const Eligibility = () => {
   const {
     details: moduleDetails,
     parameters,
+    ruleSets,
     isLoading: loadingModuleDetails,
   } = useModuleDetails({
     address: eligibility,
@@ -47,6 +48,7 @@ const Eligibility = () => {
   });
   const multipleModules = false; // TODO enable with multiple modules (~2.8)
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
+  console.log({ moduleDetails, parameters, ruleSets });
 
   const { data: eligibilityRuleDetails, isLoading: loadingEligibilityRules } =
     useEligibilityRuleDetails({

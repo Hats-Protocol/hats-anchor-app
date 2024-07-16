@@ -93,7 +93,6 @@ const useHatAdminWearers = (
 
   const adminCount = useMemo(() => {
     if (!data) return { code: 0, groups: 0, human: 0 };
-    console.log('data', data);
 
     const contracts = filter(data, 'isContract');
     const groups = filter(contracts, (w: HatWearer) =>
