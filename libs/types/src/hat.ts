@@ -13,7 +13,25 @@ export type DetailsItem = {
   imageUrl?: string; // old field, prefer `imageUri`
 };
 
-export interface HatWearer {
+// Contract Details returned from Etherscan
+interface ContractDetails {
+  contractName: string;
+  // abi: string; // omitted in API route fetch
+  // sourceCode: string; // omitted in API route fetch
+  compilerVersion: string;
+  constructorArguments: string;
+  evmVersion: string;
+  id: string;
+  implementation: string;
+  library: string;
+  licenseType: string;
+  optimizationUsed: string;
+  proxy: string;
+  runs: string;
+  swarmSource: string;
+}
+
+export interface HatWearer extends Partial<ContractDetails> {
   id: Hex;
   isContract?: boolean;
   ensName?: string | null;

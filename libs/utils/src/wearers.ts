@@ -1,9 +1,9 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import _, { map } from 'lodash';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Hex, zeroAddress } from 'viem';
 
-import { checkAddressIsContract } from './contract';
+import { checkAddressIsContract, fetchContractData } from './contract';
 import { viemPublicClient } from './web3';
 
 export const extendWearerDetails = async (
@@ -82,4 +82,19 @@ export const fetchHatWearerDetails = async (
       console.error(err);
       return [];
     });
+};
+
+export const batchFetchContractData = async (
+  addresses: Hex[],
+  chainId: SupportedChains | undefined,
+) => {
+  const promises = map(addresses, (address: Hex) =>
+    fetchContractData(chainId, address),
+  );
+  const data = await Promise.all(promises);
+
+  return map(addresses, (address: Hex, index: number) => ({
+    id: address,
+    ...data[index],
+  }));
 };
