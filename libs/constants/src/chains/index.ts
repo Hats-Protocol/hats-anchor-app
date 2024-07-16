@@ -60,3 +60,17 @@ export const chainsList: { [key in SupportedChains]: Chain } = {
   // 84532: baseSepolia,
   11155111: extendIcon(sepolia),
 };
+
+export const NETWORK_CURRENCY: { [key: number]: string } = {
+  1: 'ETH',
+  10: 'ETH',
+  100: 'xDai',
+  137: 'MATIC',
+  8453: 'ETH',
+  42161: 'ETH',
+  42220: 'CELO',
+
+  // TESTNETS
+  // 84532: 'ETH',
+  11155111: 'ETH',
+};

@@ -15,3 +15,4 @@ export { default as useModuleDetails } from './useModuleDetails';
 export { default as useModulesDetails } from './useModulesDetails';
 export { default as useMultiClaimsHatterCheck } from './useMultiClaimsHatterCheck';
 export { default as useMultiClaimsHatterContractWrite } from './useMultiClaimsHatterContractWrite';
+export { default as useSignerSafes } from './useSignerSafes';
