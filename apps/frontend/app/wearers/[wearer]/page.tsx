@@ -1,4 +1,7 @@
 import { WearerHats, WearerInfo, WearerStats } from 'molecules';
+import type { Metadata } from 'next';
+import { SearchParamsProps } from 'types';
+import { fetchWearerDetailsMesh, formatAddress } from 'utils';
 
 // TODO use new tree list cards on mobile
 // TODO switch Avatar back to `OblongAvatar`, something about undefined component/default export mixup
@@ -25,5 +28,33 @@ const WearerDetail = () => (
     </div>
   </>
 );
+
+interface MetadataProps extends SearchParamsProps {
+  params: { wearer: string };
+}
+
+export async function generateMetadata({
+  params,
+}: MetadataProps): Promise<Metadata> {
+  // read route params
+  const wearer = params.wearer;
+
+  // fetch data
+  // TODO handle ens
+  return fetchWearerDetailsMesh(wearer, 10)
+    .then((fetchedWearer) => {
+      return {
+        title: `${formatAddress(wearer)}'s Hats`,
+        // openGraph: {
+        //   images: ['/some-specific-page-image.jpg', ...previousImages],
+        // },
+      };
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log(err);
+      return {};
+    });
+}
 
 export default WearerDetail;

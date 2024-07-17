@@ -1,9 +1,12 @@
-import { CONFIG } from '@hatsprotocol/constants';
+import { chainsList, CONFIG } from '@hatsprotocol/constants';
+import { pick, toNumber } from 'lodash';
 import { NetworkFilter } from 'molecules';
+import { Metadata } from 'next';
 import { TreesList as TreesListCards } from 'organisms';
+import { SearchParamsProps } from 'types';
 import { LinkButton } from 'ui';
 
-const TreesList = async ({ params }: { params: { chainId: string } }) => {
+const TreesList = async ({ params }: TreeListProps) => {
   // TODO fetch initial trees list
   // console.log(chainId);
   return (
@@ -26,5 +29,22 @@ const TreesList = async ({ params }: { params: { chainId: string } }) => {
     </>
   );
 };
+
+interface TreeListProps extends SearchParamsProps {
+  params: { chainId: string };
+}
+
+export async function generateMetadata({
+  params,
+}: TreeListProps): Promise<Metadata> {
+  // read route params
+  const { chainId } = pick(params, ['chainId']);
+
+  const chain = chainsList[toNumber(chainId)];
+
+  return {
+    title: `${chain.name} Trees`,
+  };
+}
 
 export default TreesList;

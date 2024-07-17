@@ -1,6 +1,6 @@
 import { Hex, TransactionReceipt } from 'viem';
 
-import { ToastProps } from './misc';
+import { ToastProps } from './toast';
 
 export type HandlePendingTx = ({
   hash,

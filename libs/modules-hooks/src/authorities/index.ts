@@ -6,6 +6,7 @@ import {
   filter,
   find,
   flatten,
+  get,
   includes,
   map,
   omit,
@@ -30,8 +31,11 @@ import { Hex } from 'viem';
  * @returns string representing the role for the hat's eligibility or toggle module
  */
 const moduleRoleString = (role: Partial<ModuleRole>, hatInfo: AppHat) => {
-  return `${role?.label || role?.name} for ${hatInfo?.detailsObject?.data.name || hatInfo?.details
-    } (${hatIdDecimalToIp(BigInt(hatInfo?.id))})`;
+  return `${role?.label || role?.name} for ${get(
+    hatInfo,
+    'detailsObject.data.name',
+    get(hatInfo, 'details'),
+  )} (${hatIdDecimalToIp(BigInt(hatInfo?.id))})`;
 };
 
 const populateModuleAuthority = ({
