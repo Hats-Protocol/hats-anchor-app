@@ -17,7 +17,7 @@ import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useAgreementEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { hatLink } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -52,6 +52,8 @@ const Agreement = () => {
   const { address } = useAccount();
   const [isReviewed, setIsReviewed] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const contentRef = useRef(null);
+
   const isWearing = useMemo(
     () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
     [selectedHat, address],
@@ -70,6 +72,14 @@ const Agreement = () => {
       e.target.clientHeight;
     if (bottom) setIsButtonEnabled(true);
   };
+
+  useEffect(() => {
+    const contentHeight = contentRef.current?.scrollHeight;
+    const containerHeight = contentRef.current?.clientHeight;
+    if (contentHeight <= containerHeight) {
+      setIsButtonEnabled(true);
+    }
+  }, [agreement]);
 
   return (
     <Layout title='Claims'>
@@ -113,6 +123,7 @@ const Agreement = () => {
                 backgroundColor='white'
                 border='1px solid #cbcbcb'
                 onScroll={handleScroll}
+                ref={contentRef}
               >
                 <AgreementContent agreement={agreement} />
               </Box>
