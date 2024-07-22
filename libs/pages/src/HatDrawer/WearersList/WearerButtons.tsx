@@ -2,11 +2,7 @@
 
 import { Button, Flex, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import {
-  useWearerDetails,
-  useWearerEligibilityCheck,
-  useWearersEligibilityCheck,
-} from 'hats-hooks';
+import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
@@ -50,7 +46,7 @@ const WearerButtons = () => {
   const { address } = useAccount();
   const currentNetworkId = useChainId();
 
-  const { data: wearersEligibility } = useWearersEligibilityCheck({
+  const { data: wearersEligibility } = useWearersEligibilityStatus({
     selectedHat,
     chainId,
   });
@@ -69,11 +65,16 @@ const WearerButtons = () => {
     [selectedHat?.id, wearer],
   );
 
-  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
-    wearer: address,
+  const wearerIds = address ? [address] : [];
+  const { data: currentUserEligibility } = useWearersEligibilityStatus({
+    wearerIds,
     selectedHat,
     chainId,
   });
+  const currentUserIsEligible = _.includes(
+    _.get(currentUserEligibility, 'eligibleWearers'),
+    address,
+  );
 
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,

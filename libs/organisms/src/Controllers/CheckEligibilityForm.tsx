@@ -3,12 +3,13 @@
 import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat } from 'contexts';
 import { AddressInput } from 'forms';
-import { useWearerEligibilityCheck } from 'hats-hooks';
+import { useWearersEligibilityStatus } from 'hats-hooks';
 import _ from 'lodash';
+import { includes, pick, toLower } from 'lodash';
 import { ReactNode, useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { formatAddress } from 'utils';
-import { isAddress } from 'viem';
+import { Hex, isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
 const CheckEligibilityForm = () => {
@@ -28,11 +29,15 @@ const CheckEligibilityForm = () => {
     // enabled: _.includes(localWearer, '.eth'),
   });
 
-  const { data: wearerEligible } = useWearerEligibilityCheck({
-    wearer: resolvedAddress || localWearer,
+  const wearerAddress = (toLower(resolvedAddress || undefined) ||
+    toLower(localWearer)) as Hex;
+  const { data: wearersEligible } = useWearersEligibilityStatus({
+    wearerIds: [wearerAddress],
     selectedHat,
     chainId,
   });
+  const { eligibleWearers } = pick(wearersEligible, ['eligibleWearers']);
+  const isEligible = includes(eligibleWearers, wearerAddress);
 
   const checkWearerEligibility = useCallback(
     async (data: object) => {
@@ -43,7 +48,7 @@ const CheckEligibilityForm = () => {
           {w || formatAddress(resolvedAddress)} is not eligible
         </Text>
       );
-      if (wearerEligible) {
+      if (isEligible) {
         eligibleStatus = (
           <Text color='green.500' size={{ base: 'sm', md: 'md' }}>
             {w || formatAddress(resolvedAddress)} is eligible
@@ -52,7 +57,7 @@ const CheckEligibilityForm = () => {
       }
       setWearerDisplay(eligibleStatus);
     },
-    [resolvedAddress, wearerEligible],
+    [resolvedAddress, isEligible],
   );
 
   const closeModal = () => {

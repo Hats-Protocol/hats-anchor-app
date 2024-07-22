@@ -15,7 +15,7 @@ import {
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useWearerDetails } from 'hats-hooks';
+import { useHatStatus, useWearerDetails } from 'hats-hooks';
 import { useClipboard, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -57,7 +57,13 @@ const Header = () => {
   const mutableStatus = selectedHat?.mutable
     ? MUTABILITY.MUTABLE
     : MUTABILITY.IMMUTABLE;
-  const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
+
+  const { data: hatStatus } = useHatStatus({
+    selectedHat,
+    chainId,
+  });
+  const activeStatus =
+    selectedHat?.status && hatStatus ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   if (!selectedHat) return null;
 

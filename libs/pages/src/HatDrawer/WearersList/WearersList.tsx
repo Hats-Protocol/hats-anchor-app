@@ -27,7 +27,7 @@ import {
 import {
   useHatWearers,
   useWearerDetails,
-  useWearersEligibilityCheck,
+  useWearersEligibilityStatus,
 } from 'hats-hooks';
 import {
   filterWearers,
@@ -76,7 +76,7 @@ const WearersList = () => {
     editMode: false,
   });
   const { data: wearersEligibility, isLoading: wearerEligibilityLoading } =
-    useWearersEligibilityCheck({
+    useWearersEligibilityStatus({
       selectedHat,
       chainId,
       editMode,

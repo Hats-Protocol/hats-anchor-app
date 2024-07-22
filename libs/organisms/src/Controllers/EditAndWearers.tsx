@@ -122,6 +122,7 @@ const AdminWearersPanel = () => {
               <AccordionButton
                 p={0}
                 border={isExpanded ? '1px solid' : undefined}
+                borderBottom={!isExpanded ? '1px solid' : undefined}
                 _hover={{
                   background: !isExpanded ? 'white' : undefined,
                   borderRadius: !isExpanded ? 'md' : undefined,
@@ -178,7 +179,7 @@ const WearerBreakdown = ({
   chainId,
 }: {
   wearers: HatWearer[] | undefined;
-  wearerCount: any;
+  wearerCount: { code: number; groups: number; human: number };
   chainId: SupportedChains | undefined;
 }) => {
   const wearer = first(wearers);

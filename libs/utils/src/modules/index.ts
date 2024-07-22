@@ -12,7 +12,7 @@ export * from './tokens';
 export type ModuleDetailsHandler = {
   moduleDetails?: ModuleDetails;
   moduleParameters?: ModuleParameter[];
-  ruleSets: Ruleset[] | undefined;
+  ruleSets?: Ruleset[] | undefined;
   chainId: number | undefined;
   wearer: Hex | undefined;
   selectedHat?: AppHat;

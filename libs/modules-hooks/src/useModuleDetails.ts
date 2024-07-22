@@ -27,7 +27,6 @@ const getModuleData = async ({
   return Promise.all(promises)
     .then((data) => {
       const [moduleData, localModuleParameters, ruleSets] = data;
-      console.log({ moduleData, localModuleParameters, ruleSets });
 
       if (!moduleData) return null;
 
