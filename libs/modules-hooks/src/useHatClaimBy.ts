@@ -89,7 +89,7 @@ const useHatClaimBy = ({
       const modules = moduleClient?.getModules();
       if (!modules) return;
       const moduleData = _.find(modules, {
-        name: CONFIG.claimsHatterModuleName,
+        name: CONFIG.modules.claimsHatter,
       });
       if (!moduleData) return;
       setClaimsHatter(moduleData);
@@ -115,11 +115,10 @@ const useHatClaimBy = ({
           description: 'Waiting for your transaction to be accepted...',
         });
 
-        const txDescription = `You've claimed ${
-          selectedHat?.id
+        const txDescription = `You've claimed ${selectedHat?.id
             ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
             : 'this hat'
-        }.`;
+          }.`;
 
         handlePendingTx?.({
           hash,

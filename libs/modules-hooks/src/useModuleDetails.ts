@@ -27,7 +27,7 @@ const getModuleData = async ({
   return Promise.all(promises)
     .then((data) => {
       const [moduleData, localModuleParameters, ruleSets] = data;
-      console.log(data);
+      console.log({ moduleData, localModuleParameters, ruleSets });
 
       if (!moduleData) return null;
 
@@ -38,6 +38,7 @@ const getModuleData = async ({
       };
     })
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       return null;
     });
@@ -54,7 +55,6 @@ const useModuleDetails = ({
   enabled?: boolean;
   editMode?: boolean;
 }) => {
-  console.log({ address, chainId, enabled });
   const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['moduleDetails', { address, chainId }],
     queryFn: () => getModuleData({ address, chainId }),

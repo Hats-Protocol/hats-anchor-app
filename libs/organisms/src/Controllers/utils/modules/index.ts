@@ -1,5 +1,6 @@
 export * from './agreement';
 export * from './allowlist';
+export * from './chain';
 export * from './election';
 export * from './erc20';
 export * from './erc721';

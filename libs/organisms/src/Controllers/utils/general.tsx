@@ -1,7 +1,7 @@
 'use client';
 
 import { Text } from '@chakra-ui/react';
-import { HATS_ABI } from '@hatsprotocol/constants';
+import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
 // import { HATS } from '@hatsprotocol/hats-account-sdk/dist/constants';
 import dynamic from 'next/dynamic';
 import { ComponentType } from 'react';
@@ -66,7 +66,7 @@ export const DEFAULT_ELIGIBILITY_DETAILS = async ({
   }
 
   const isEligible = await viemPublicClient(chainId).readContract({
-    address: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // HATS,
+    address: CONFIG.hatsAddress,
     abi: HATS_ABI,
     functionName: 'isEligible',
     args: [wearer],

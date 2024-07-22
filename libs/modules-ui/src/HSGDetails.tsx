@@ -52,7 +52,7 @@ const SignatureThreshold = ({
       <div className='flex gap-1 items-center'>
         <div>{size(activeOwners)}</div>
 
-        <div className='flex gap-1'>
+        <div className='flex gap-1 items-center'>
           <div>({minThreshold}</div>
           <Icon as={FiArrowRight} />
           <div>{targetThreshold})</div>

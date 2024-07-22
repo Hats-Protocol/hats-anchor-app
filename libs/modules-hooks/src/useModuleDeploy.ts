@@ -90,12 +90,11 @@ const useModuleDeploy = ({
     | number
     | undefined;
   const claimsHatterModule = _.find(modules, {
-    name: CONFIG.claimsHatterModuleName,
+    name: CONFIG.modules.claimsHatter,
   });
   const hatTitle =
     selectedHat?.id &&
-    `${hatIdDecimalToIp(BigInt(selectedHat?.id))} (${
-      selectedHat?.detailsObject?.data?.name
+    `${hatIdDecimalToIp(BigInt(selectedHat?.id))} (${selectedHat?.detailsObject?.data?.name
     })`;
 
   const { instanceAddress } = useMultiClaimsHatterCheck({

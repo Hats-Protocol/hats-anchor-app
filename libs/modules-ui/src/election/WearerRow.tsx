@@ -33,7 +33,7 @@ const WearerRow = ({ wearer }: WearerRowProps) => {
 
   // could look up by Id to be more resilient?
   let moduleName = _.get(moduleDetails, 'name');
-  if (moduleName === CONFIG.claimsHatterModuleName) {
+  if (moduleName === CONFIG.modules.claimsHatter) {
     moduleName = 'Autonomous Admin';
   }
 

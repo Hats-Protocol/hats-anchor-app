@@ -112,6 +112,7 @@ const AdminWearersPanel = () => {
             ? '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)'
             : undefined
         }
+        borderRadius={expandedBackground ? 'md' : undefined}
       >
         {({ isExpanded }: { isExpanded: boolean }) => {
           setExpandedBackground(isExpanded);
@@ -120,7 +121,7 @@ const AdminWearersPanel = () => {
             <>
               <AccordionButton
                 p={0}
-                borderBottom='1px solid'
+                border={isExpanded ? '1px solid' : undefined}
                 _hover={{
                   background: !isExpanded ? 'white' : undefined,
                   borderRadius: !isExpanded ? 'md' : undefined,
@@ -131,7 +132,9 @@ const AdminWearersPanel = () => {
                     ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)'
                     : undefined
                 }
-                borderColor={isExpanded ? 'gray.400' : 'transparent'}
+                borderTopRadius={isExpanded ? 'md' : undefined}
+                borderColor={isExpanded ? 'gray.100' : 'transparent'}
+                borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
                 <Flex justify='space-between' py={2} px={4} width='100%'>
                   <Text fontSize={{ base: 'sm', md: 'md' }}>
@@ -150,8 +153,10 @@ const AdminWearersPanel = () => {
               <AccordionPanel
                 p={0}
                 overflow='visible'
-                borderBottomRadius='md'
+                borderBottomRadius='lg'
                 pb={1}
+                bg='white'
+                border='gray'
               >
                 <Stack px={4}>
                   {map(adminHats, (adminHat: AppHat) => (

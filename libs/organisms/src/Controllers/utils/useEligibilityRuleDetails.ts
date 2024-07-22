@@ -1,7 +1,7 @@
 'use client';
 
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
@@ -14,6 +14,7 @@ import { DEFAULT_ELIGIBILITY_DETAILS, EligibilityRuleDetails } from './general';
 import {
   handleAgreementEligibility,
   handleAllowlistEligibility,
+  handleChainModule,
   handleElectionEligibility,
   handleErc20Eligibility,
   handleErc721Eligibility,
@@ -38,6 +39,8 @@ const ELIGIBILITY_MODULES = {
   jokerace: eligibilityModule('JokeRace'),
   passthrough: 'Passthrough Module',
   staking: eligibilityModule('Staking'),
+  // meta modules
+  eligibilityChain: 'Eligibilities Chain',
 };
 
 const ELIGIBILITY_HANDLERS: {
@@ -60,6 +63,8 @@ const ELIGIBILITY_HANDLERS: {
   [ELIGIBILITY_MODULES.jokerace]: handleJokeRaceEligibility,
   [ELIGIBILITY_MODULES.passthrough]: handlePassthroughModule,
   [ELIGIBILITY_MODULES.staking]: handleStakingEligibility,
+  // meta modules
+  [ELIGIBILITY_MODULES.eligibilityChain]: handleChainModule,
 };
 
 // TODO identifying modules based on ID would likely be more reliable
@@ -67,6 +72,7 @@ const ELIGIBILITY_HANDLERS: {
 const fetchEligibilityRuleDetails = async ({
   moduleDetails,
   moduleParameters,
+  ruleSets,
   wearer,
   chainId,
   selectedHat,
@@ -86,6 +92,7 @@ const fetchEligibilityRuleDetails = async ({
   return ELIGIBILITY_HANDLERS[moduleDetails.name]({
     moduleDetails,
     moduleParameters,
+    ruleSets,
     chainId,
     wearer,
     selectedHat,
@@ -98,11 +105,13 @@ const useEligibilityRuleDetails = ({
   selectedHat,
   moduleDetails,
   parameters,
+  ruleSets,
   chainId,
 }: {
   selectedHat: AppHat | undefined;
   moduleDetails: ModuleDetails | undefined;
   parameters: ModuleParameter[] | undefined;
+  ruleSets: Ruleset[] | undefined;
   chainId: number | undefined;
 }) => {
   const { address, status } = useAccount();
@@ -124,6 +133,7 @@ const useEligibilityRuleDetails = ({
       'eligibilityRuleDetails',
       moduleDetails,
       _.map(parameters, (p: ModuleParameter) => _.omit(p, ['value'])),
+      ruleSets,
       selectedHat,
       { address, chainId, isWearer },
     ],
@@ -131,6 +141,7 @@ const useEligibilityRuleDetails = ({
       fetchEligibilityRuleDetails({
         moduleDetails,
         moduleParameters: parameters,
+        ruleSets,
         wearer: address,
         chainId,
         selectedHat,

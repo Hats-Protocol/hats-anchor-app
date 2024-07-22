@@ -55,6 +55,7 @@ const Eligibility = () => {
       selectedHat,
       moduleDetails,
       parameters,
+      ruleSets,
       chainId,
     });
 

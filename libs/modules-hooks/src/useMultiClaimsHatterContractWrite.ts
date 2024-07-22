@@ -39,7 +39,7 @@ const useMultiClaimsHatterContractWrite = ({
   const queryClient = useQueryClient();
 
   const { modules } = useHatsModules({ chainId });
-  const mch = _.find(modules, { name: CONFIG.claimsHatterModuleName });
+  const mch = _.find(modules, { name: CONFIG.modules.claimsHatter });
 
   const { writeContractAsync } = useWriteContract();
 

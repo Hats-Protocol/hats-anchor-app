@@ -1,5 +1,5 @@
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
 import { AppHat, ModuleDetails, ValueOf } from 'types';
 import { Hex } from 'viem';
@@ -12,6 +12,7 @@ export * from './tokens';
 export type ModuleDetailsHandler = {
   moduleDetails?: ModuleDetails;
   moduleParameters?: ModuleParameter[];
+  ruleSets: Ruleset[] | undefined;
   chainId: number | undefined;
   wearer: Hex | undefined;
   selectedHat?: AppHat;
