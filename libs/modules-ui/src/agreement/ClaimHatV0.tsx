@@ -26,6 +26,7 @@ import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
+import { SupportedChains } from 'types';
 import { fetchWearerDetails, hatLink } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -139,7 +140,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
           passHref
           target='_blank'
         >
-          <HatCreateCard id={hatId} />
+          <HatCreateCard id={hatId} chainId={chainId as SupportedChains} />
         </NextLink>
       </Flex>
 

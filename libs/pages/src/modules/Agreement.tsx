@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import _, { lte } from 'lodash';
 import { useAgreementEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -52,7 +52,7 @@ const Agreement = () => {
   const { address } = useAccount();
   const [isReviewed, setIsReviewed] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const contentRef = useRef(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const isWearing = useMemo(
     () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
@@ -76,7 +76,7 @@ const Agreement = () => {
   useEffect(() => {
     const contentHeight = contentRef.current?.scrollHeight;
     const containerHeight = contentRef.current?.clientHeight;
-    if (contentHeight <= containerHeight) {
+    if (lte(contentHeight, containerHeight)) {
       setIsButtonEnabled(true);
     }
   }, [agreement]);

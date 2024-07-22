@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useCallback } from 'react';
-import { AppWriteFunction, SupportedChains, UseCustomToastReturn } from 'types';
+import { ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
 import {
   createHatsModulesClient,
   invalidateAfterTransaction,
@@ -34,7 +34,7 @@ const useCallModuleFunction = ({
     }: {
       moduleId?: string;
       instance?: Hex;
-      func?: AppWriteFunction;
+      func?: ModuleFunction;
       args: any;
       onSuccess?: () => void;
       onDecline?: () => void;

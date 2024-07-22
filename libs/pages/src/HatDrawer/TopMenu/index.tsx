@@ -83,7 +83,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
       has_changes: hatHasChanges,
     });
     onSave(false);
-    returnToList();
+    returnToList?.();
   };
 
   const handleSave = () => {
@@ -194,6 +194,6 @@ interface TopMenuProps {
   // onSave: (v?: boolean) => void;
   // handleRemoveHat: () => void;
   // handleClearChanges: () => void;
-  returnToList: () => void;
+  returnToList: (() => void) | undefined;
   // isLoading: boolean;
 }
