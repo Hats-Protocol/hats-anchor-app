@@ -21,6 +21,7 @@ import {
 } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
+import { Dispatch, SetStateAction } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
 import { Authority } from 'types';
@@ -45,7 +46,7 @@ const ClaimHat = ({
 }: {
   agreement: string;
   isReviewed: boolean;
-  setIsReviewed: (signed: boolean) => void;
+  setIsReviewed: Dispatch<SetStateAction<boolean>>;
   hasSupply: boolean;
 }) => {
   const { address } = useAccount();
