@@ -24,7 +24,7 @@ import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { ModuleAuthorityModal } from 'forms';
 import { formHatUrl, safeUrl } from 'hats-utils';
-import _, { get } from 'lodash';
+import _, { get, includes } from 'lodash';
 import {
   useCallHsgFunction,
   useCallModuleFunction,
@@ -38,38 +38,13 @@ import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
 import { ChakraNextLink } from 'ui';
-import { explorerUrl, getHostnameFromURL } from 'utils';
+import { explorerUrl, getDisabledReason, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const BoxArrowUpRightOut = dynamic(() =>
   import('icons').then((i) => i.BoxArrowUpRightOut),
 );
-
-const getDisabledReason = (
-  isNotConnected: boolean,
-  isOnWrongNetwork: boolean,
-  isNotWearer: boolean,
-  isClaimed: boolean,
-  isCustom: boolean,
-) => {
-  if (isNotConnected) {
-    return 'You are not connected';
-  }
-  if (isOnWrongNetwork) {
-    return 'You are on the wrong network';
-  }
-  if (isNotWearer) {
-    return 'You are not a wearer of the current hat';
-  }
-  if (isCustom) {
-    return ''; // TODO is there a better message we can show for this?
-  }
-  if (isClaimed) {
-    return 'You are already a signer';
-  }
-  return '';
-};
 
 const ModuleAuthorityToolbar = ({
   authority,
@@ -210,20 +185,13 @@ const ModuleAuthorityToolbar = ({
     (primaryFunction?.functionName === 'claimSigner' &&
       claimed &&
       !primaryFunction?.isCustom);
-  const primaryDisabledReason = getDisabledReason(
-    !address,
-    !isSameChain,
-    !isWearer,
-    primaryFunction?.functionName === 'claimSigner' && !!claimed,
-    primaryFunction?.isCustom || false,
-  );
-  const otherDisabledReason = getDisabledReason(
-    !address,
-    !isSameChain,
-    !isWearer,
-    false,
-    false,
-  );
+  const primaryDisabledReason = getDisabledReason({
+    isNotConnected: !address,
+    isOnWrongNetwork: !isSameChain,
+    isNotWearer: !isWearer,
+    isClaimed: primaryFunction?.functionName === 'claimSigner' && !!claimed,
+    isCustom: primaryFunction?.isCustom || false,
+  });
 
   if (!authority) return null;
 
@@ -336,35 +304,50 @@ const ModuleAuthorityToolbar = ({
               size='sm'
             />
             <MenuList>
-              {_.map(otherFunctions, (func: ModuleFunction, i: number) => (
-                <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
-                  <MenuItem
-                    onClick={() => {
-                      posthog.capture('Called Module Function', {
-                        type: 'Other',
-                        function: func.label,
-                        authority: authority.label,
-                      });
-                      if (func.isCustom) func.onClick();
-                      else handleFunctionCall(func);
-                    }}
-                    isDisabled={false} // ={isDisabled && !func.isCustom}
+              {_.map(otherFunctions, (func: ModuleFunction, i: number) => {
+                const publicFunction = includes(func.roles, 'public');
+                const localDisabledReason = getDisabledReason({
+                  isNotConnected: !address,
+                  isOnWrongNetwork: !isSameChain,
+                  isNotWearer: !isWearer,
+                  publicFunction,
+                });
+
+                return (
+                  <Tooltip
+                    label={localDisabledReason}
+                    key={`${func.label}-${i}`}
                   >
-                    <Flex
-                      justify='space-between'
-                      align='center'
-                      w='100%'
-                      gap={1}
+                    <MenuItem
+                      onClick={() => {
+                        posthog.capture('Called Module Function', {
+                          type: 'Other',
+                          function: func.label,
+                          authority: authority.label,
+                        });
+                        if (func.isCustom) func.onClick();
+                        else handleFunctionCall(func);
+                      }}
+                      isDisabled={
+                        isDisabled && !func.isCustom && !publicFunction
+                      }
                     >
-                      <Text>{func.label}</Text>
-                      <Icon
-                        as={(func.icon || FiPlusSquare) as As}
-                        boxSize={4}
-                      />
-                    </Flex>
-                  </MenuItem>
-                </Tooltip>
-              ))}
+                      <Flex
+                        justify='space-between'
+                        align='center'
+                        w='100%'
+                        gap={1}
+                      >
+                        <Text>{func.label}</Text>
+                        <Icon
+                          as={(func.icon || FiPlusSquare) as As}
+                          boxSize={4}
+                        />
+                      </Flex>
+                    </MenuItem>
+                  </Tooltip>
+                );
+              })}
               {_.map(otherLinks, (link: LinkObject) => (
                 <ChakraNextLink
                   href={link.link}

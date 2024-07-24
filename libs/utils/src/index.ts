@@ -6,6 +6,7 @@ export * from './form';
 export * from './format';
 export * from './hats';
 export * from './image';
+export * from './layout';
 export * from './mobile';
 export * from './modules';
 export * from './platform';

@@ -14,7 +14,7 @@ import {
   useTreeImages,
   useTreeSnapshotSpaces,
 } from 'hooks';
-import _ from 'lodash';
+import _, { toNumber } from 'lodash';
 import { usePathname, useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import {
@@ -50,6 +50,8 @@ import {
   urlFromQueryParams,
 } from 'utils';
 import { Hex } from 'viem';
+
+import { useOverlay } from './OverlayContext';
 
 export interface TreeFormContext {
   chainId: SupportedChains | undefined;
@@ -178,6 +180,7 @@ export const TreeFormContextProvider = ({
   const params = useSearchParams();
   const queryParams = getQueryParams(params);
   const { hatId: hatQueryParam } = queryParams;
+  const { updateRecentlyVisitedTrees } = useOverlay();
 
   const hatId = hatQueryParam || hatPathParam;
   // console.log({ chainId, treeId, hatId });
@@ -234,8 +237,12 @@ export const TreeFormContextProvider = ({
   }, [treeData]);
 
   useEffect(() => {
+    if (!treeData) return;
     setOrgChartHats(treeData?.hats as AppHat[]);
-  }, [treeData?.hats]);
+    updateRecentlyVisitedTrees({ treeId: toNumber(treeId), chainId });
+    // intentionally exclude `updateRecentlyVisitedTrees` from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [treeData, treeId, chainId]);
 
   const treeEvents = _.get(treeData, 'events');
 
@@ -592,7 +599,7 @@ export const TreeFormContextProvider = ({
    */
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
-      console.log(isCompact, queryParams);
+      // console.log(isCompact, queryParams);
       const url = urlFromQueryParams({
         pathname,
         params: queryParams,

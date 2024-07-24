@@ -23,6 +23,7 @@ export function getTreeQuery(chaindId: number): string {
           status
           createdAt
           details
+          detailsMetadata
           maxSupply
           eligibility
           toggle
