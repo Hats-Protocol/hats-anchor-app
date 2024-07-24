@@ -13,7 +13,7 @@ import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite } from 'hats-hooks';
 import { getControllerNameAndLink, isTopHat } from 'hats-utils';
-import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
+import { useClipboard, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -42,14 +42,18 @@ const WearerRow = ({
   setChangeStatusWearer,
   setWearerToTransferFrom,
 }: WearerRowProps) => {
-  const toast = useToast();
   const currentNetworkId = useChainId();
   const { setModals, handlePendingTx } = useOverlay();
   const { address } = useAccount();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   // const { isMobile } = useMediaStyles();
-  const { onCopy } = useClipboard(wearer.id);
+  const { onCopy } = useClipboard(wearer.id, {
+    toastData: {
+      title: 'Copied address',
+      description: 'Successfully copied address to clipboard',
+    },
+  });
 
   const { data: ensAvatar } = useEnsAvatar({
     chainId: 1,
@@ -65,17 +69,13 @@ const WearerRow = ({
   const txDescription = `Revoked hat #${idToIp(hatId)} from ${formatAddress(
     wearer.id,
   )}`;
-  const { extendedEligibility } = _.pick(selectedHat, ['extendedEligibility']);
 
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [hatIdHexToDecimal(hatId), wearer.id],
     chainId,
-    enabled:
-      Boolean(hatId) &&
-      Boolean(wearer) &&
-      !!extendedEligibility?.isContract &&
-      chainId === currentNetworkId,
+    // TODO re-add check for isContract
+    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
@@ -115,14 +115,6 @@ const WearerRow = ({
     renounceHat?.().catch((e) => {
       // eslint-disable-next-line no-console
       console.error(e);
-    });
-  };
-
-  const copyAddress = () => {
-    onCopy();
-    toast.info({
-      title: 'Copied address',
-      description: 'Successfully copied address to clipboard',
     });
   };
 
@@ -248,7 +240,7 @@ const WearerRow = ({
             size='xs'
             variant='ghost'
             aria-label='Copy wearer address'
-            onClick={copyAddress}
+            onClick={onCopy}
           />
         ) : (
           !isTopHat(selectedHat) && // don't allow top hats to renounce

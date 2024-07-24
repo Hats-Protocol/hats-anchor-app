@@ -2,7 +2,7 @@
 
 import { Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
-import { useScrollPosition } from 'hooks';
+// import { useScrollPosition } from 'hooks';
 import dynamic from 'next/dynamic';
 import { AuthoritiesList, Controllers } from 'organisms';
 
@@ -24,15 +24,15 @@ const MainContent = ({
 }) => {
   const { selectedHat } = useSelectedHat();
 
-  useScrollPosition(
-    ({ prevPos, currPos }) => {
-      const isShow = currPos.y > prevPos.y;
-      // eslint-disable-next-line no-console
-      console.debug('prevPos', prevPos, 'currPos', currPos, 'isShow', isShow);
-      if (isShow !== showBottomMenu) setShowBottomMenu?.(isShow);
-    },
-    [showBottomMenu],
-  );
+  // useScrollPosition(
+  //   ({ prevPos, currPos }) => {
+  //     const isShow = currPos.y > prevPos.y;
+  //     // eslint-disable-next-line no-console
+  //     console.debug('prevPos', prevPos, 'currPos', currPos, 'isShow', isShow);
+  //     if (isShow !== showBottomMenu) setShowBottomMenu?.(isShow);
+  //   },
+  //   [showBottomMenu],
+  // );
 
   if (!selectedHat) return null;
 
