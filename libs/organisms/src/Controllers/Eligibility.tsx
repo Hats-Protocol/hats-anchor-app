@@ -1,20 +1,18 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatWearers } from 'hats-hooks';
-import _ from 'lodash';
+import { find, flatten, gt, includes, pick, size } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
+import ChainPanel from './ChainPanel';
 import ControllerWearer from './ControllerWearer';
-import { ELIGIBILITY_STATUS } from './utils/general';
-import useEligibilityRuleDetails from './utils/useEligibilityRuleDetails';
+import KnownModule from './modules/KnownEligibilityModule';
 
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
@@ -22,121 +20,56 @@ const Eligibility = () => {
   const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
   const { address } = useAccount();
-  const localOverlay = useOverlay();
 
   const { data: hatWearers, isLoading: hatWearersLoading } = useHatWearers({
     hat: selectedHat,
     chainId,
   });
 
-  const { setModals } = localOverlay;
-  const { eligibility } = _.pick(selectedHat, ['eligibility']);
-  const orgChartEligibility = _.find(orgChartWearers, { id: eligibility });
-  const hatWearerEligibility = _.find(hatWearers, { id: eligibility });
+  const { eligibility } = pick(selectedHat, ['eligibility']);
+  const orgChartEligibility = find(orgChartWearers, { id: eligibility });
+  const hatWearerEligibility = find(hatWearers, { id: eligibility });
   const eligibilityData = hatWearerEligibility ||
     orgChartEligibility || { id: eligibility as Hex };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const {
     details: moduleDetails,
     parameters,
+    ruleSets,
     isLoading: loadingModuleDetails,
   } = useModuleDetails({
     address: eligibility,
     chainId,
     enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
   });
-  const multipleModules = false; // TODO enable with multiple modules (~2.8)
+  const multipleModules = gt(size(flatten(ruleSets)), 1);
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
-  const { data: eligibilityRuleDetails, isLoading: loadingEligibilityRules } =
-    useEligibilityRuleDetails({
-      selectedHat,
-      moduleDetails,
-      parameters,
-      chainId,
-    });
-
   if (multipleModules) {
-    // * shouldn't be hitting this flow
     return (
-      <Flex justify='space-between' py={1}>
-        <Text fontSize={{ base: 'sm', md: 'md' }}>
-          Comply with 2 rules to keep this Hat
-        </Text>
-      </Flex>
+      <ChainPanel
+        ruleSets={ruleSets}
+        chainId={chainId}
+        selectedHat={selectedHat}
+      />
     );
   }
 
   if (moduleDetails) {
-    if (eligibilityRuleDetails?.status === ELIGIBILITY_STATUS.hat) {
-      const moduleHat = _.get(
-        _.find(parameters, { displayType: 'hat' }),
-        'value',
-      ) as bigint | undefined;
-      if (!moduleHat) return null; // TODO something better here? unlikely occurrence
-      return (
-        <Flex justify='space-between' py={1}>
-          {eligibilityRuleDetails.rule}
-
-          <ChakraNextLink
-            href={`/trees/${chainId}/${hatIdToTreeId(
-              moduleHat,
-            )}?hatId=${hatIdDecimalToIp(moduleHat)}`}
-          >
-            <HStack spacing={1}>
-              <Text fontSize={{ base: 'sm', md: 'md' }}>
-                {eligibilityRuleDetails.displayStatus}
-              </Text>
-              <Icon
-                as={eligibilityRuleDetails.icon}
-                boxSize={{ base: '14px', md: 4 }}
-              />
-            </HStack>
-          </ChakraNextLink>
-        </Flex>
-      );
-    }
-
     return (
-      <Skeleton isLoaded={!loadingModuleDetails && !loadingEligibilityRules}>
-        <Flex justify='space-between' py={1}>
-          {eligibilityRuleDetails?.rule}
-
-          {address ? (
-            <HStack
-              spacing={1}
-              color={
-                eligibilityRuleDetails?.status === 'eligible'
-                  ? 'green.600'
-                  : 'gray.600'
-              }
-            >
-              <Text fontSize={{ base: 'sm', md: 'md' }}>
-                {eligibilityRuleDetails?.displayStatus}
-              </Text>
-              <Icon
-                as={eligibilityRuleDetails?.icon}
-                boxSize={{ base: '14px', md: 4 }}
-              />
-            </HStack>
-          ) : (
-            <Button
-              size='xs'
-              fontWeight='medium'
-              color='blue.500'
-              variant='ghost'
-              onClick={() => setModals?.({ checkEligibility: true })}
-            >
-              Check Eligibility
-            </Button>
-          )}
-        </Flex>
-      </Skeleton>
+      <KnownModule
+        moduleDetails={moduleDetails}
+        parameters={parameters}
+        ruleSets={ruleSets}
+        selectedHat={selectedHat}
+        wearer={address}
+        chainId={chainId}
+      />
     );
   }
 
   if (isHatsAccount) {
-    // * shouldn't be hitting this flow
+    // * shouldn't be hitting this flow yet
     return (
       <Flex justify='space-between' py={1}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
@@ -155,13 +88,12 @@ const Eligibility = () => {
     <Skeleton
       isLoaded={
         !hatWearersLoading &&
-        (!loadingEligibilityRules || !moduleDetails) &&
         (!loadingModuleDetails || orgChartEligibility?.isContract)
       }
     >
       <Flex justify='space-between' py={2}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
-          {_.includes(NULL_ADDRESSES, eligibility)
+          {includes(NULL_ADDRESSES, eligibility)
             ? 'No addresses'
             : 'One address'}{' '}
           can remove Wearers

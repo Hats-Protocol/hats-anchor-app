@@ -59,7 +59,7 @@ export const getControllerNameAndLink = ({
   }
 
   // override for claims hatter
-  if (moduleDetails?.name === CONFIG.claimsHatterModuleName) {
+  if (moduleDetails?.name === CONFIG.modules.claimsHatter) {
     return {
       name: 'Autonomous Admin',
       icon,

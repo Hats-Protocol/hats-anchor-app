@@ -2,32 +2,32 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchWearersEligibilities } from 'hats-utils';
-import _ from 'lodash';
+import { map } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
-/** `useWearersEligibilityCheck` is a hook that checks the eligibility of wearers for a given hat.
+/** `useWearersEligibilityStatus` is a hook that checks the eligibility status of wearers for a given hat.
  * @param selectedHat - The selected hat
  * @param wearerIds - An optional list of wearer ids (will use the selected hat's wearers if not provided)
  * @param chainId - The chain id for the hat, generally
  * @param editMode - Whether the hook is being used in edit mode (turn off refetch)
  */
-const useWearersEligibilityCheck = ({
+const useWearersEligibilityStatus = ({
   selectedHat,
   wearerIds,
   chainId,
   editMode = false,
-}: useWearersEligibilityCheckProps) => {
+}: useWearersEligibilityStatusProps) => {
   const hatId = selectedHat?.id;
   const wearers = selectedHat?.wearers;
-  const localWearerIds = wearerIds || _.map(wearers, 'id');
+  const localWearerIds = wearerIds || map(wearers, 'id');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['wearerEligibility', localWearerIds, hatId, chainId],
     queryFn: () =>
-      hatId &&
-      chainId &&
-      fetchWearersEligibilities(localWearerIds, hatId, chainId),
+      hatId && chainId
+        ? fetchWearersEligibilities(localWearerIds, hatId, chainId)
+        : null,
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
     enabled: !!hatId && !!chainId,
   });
@@ -35,9 +35,9 @@ const useWearersEligibilityCheck = ({
   return { data, isLoading, error };
 };
 
-export default useWearersEligibilityCheck;
+export default useWearersEligibilityStatus;
 
-interface useWearersEligibilityCheckProps {
+interface useWearersEligibilityStatusProps {
   selectedHat: AppHat | undefined;
   wearerIds?: Hex[];
   chainId: SupportedChains | undefined;

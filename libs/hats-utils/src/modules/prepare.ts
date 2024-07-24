@@ -84,7 +84,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   }
 
   return [
-    CONFIG.modulesRegistryFactory,
+    CONFIG.modules.factory,
     selectedModuleDetails?.implementationAddress,
     hatId,
     encodedImmutableArgs,

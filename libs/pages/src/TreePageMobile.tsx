@@ -47,7 +47,11 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   // }
 
   const sortedTree = treeIsLoading
-    ? Array(DEFAULT_LOADING_CARDS).fill(DEFAULT_HAT)
+    ? map(
+        Array(DEFAULT_LOADING_CARDS).fill(DEFAULT_HAT),
+        // HatWithDepth
+        (h: any, i: number) => ({ ...h, id: i }),
+      )
     : prepareMobileTreeHats(treeToDisplay);
   if (!chainId) return null;
   // const chain = chainsMap(chainId);

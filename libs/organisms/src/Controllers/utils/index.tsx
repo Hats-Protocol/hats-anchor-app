@@ -1,7 +1,7 @@
 'use client';
 
 import { Text } from '@chakra-ui/react';
-import { HATS_ABI } from '@hatsprotocol/constants';
+import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
 // import { HATS } from '@hatsprotocol/hats-account-sdk/dist/constants';
 import dynamic from 'next/dynamic';
 import { ComponentType } from 'react';
@@ -45,6 +45,27 @@ export type ToggleRuleDetails = {
   icon: ComponentType<object>;
 };
 
+const eligibilityModule = (name: string) => `${name} Eligibility`;
+export const ELIGIBILITY_MODULES = {
+  agreement: eligibilityModule('Agreement'),
+  allowlist: eligibilityModule('Allowlist'),
+  election: eligibilityModule('Hats Election'),
+  erc20: eligibilityModule('ERC20'),
+  erc721: eligibilityModule('ERC721'),
+  erc1155: eligibilityModule('ERC1155'),
+  hatWearing: eligibilityModule('Hat Wearing'),
+  jokerace: eligibilityModule('JokeRace'),
+  passthrough: 'Passthrough Module',
+  staking: eligibilityModule('Staking'),
+  // meta modules
+  eligibilityChain: 'Eligibilities Chain',
+};
+
+export const TOGGLE_MODULES = {
+  passthrough: 'Passthrough Module',
+  season: 'Season Toggle',
+};
+
 export const DEFAULT_ELIGIBILITY_DETAILS = async ({
   wearer,
   chainId,
@@ -66,7 +87,7 @@ export const DEFAULT_ELIGIBILITY_DETAILS = async ({
   }
 
   const isEligible = await viemPublicClient(chainId).readContract({
-    address: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // HATS,
+    address: CONFIG.hatsAddress,
     abi: HATS_ABI,
     functionName: 'isEligible',
     args: [wearer],

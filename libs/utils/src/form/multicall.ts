@@ -48,19 +48,19 @@ const hasDetailsChanged = (
   const hasResponsibilitiesChanged =
     _.gt(_.size(responsibilities), 0) &&
     JSON.stringify(responsibilities) !==
-      JSON.stringify(originalHatDetails?.responsibilities);
+    JSON.stringify(originalHatDetails?.responsibilities);
   const hasAuthoritiesChanged =
     _.gt(_.size(authorities), 0) &&
     JSON.stringify(authorities) !==
-      JSON.stringify(originalHatDetails?.authorities);
+    JSON.stringify(originalHatDetails?.authorities);
   const hasRevocationsCriteriaChanged =
     _.gt(_.size(revocationsCriteria), 0) ||
     _.size(revocationsCriteria) !==
-      _.size(originalHatDetails?.eligibility?.criteria);
+    _.size(originalHatDetails?.eligibility?.criteria);
   const hasDeactivationsCriteriaChanged =
     _.gt(_.size(deactivationsCriteria), 0) ||
     _.size(deactivationsCriteria) !==
-      _.size(originalHatDetails?.toggle?.criteria);
+    _.size(originalHatDetails?.toggle?.criteria);
 
   return (
     !!name ||
@@ -211,12 +211,12 @@ const processNewDetailsCallForHat = async ({
 }: ProcessCallForHatProps): Promise<ProcessCallForHatReturnProps> => {
   const { calls } = returnData;
   let newHatChanges = {} as Partial<AppHat>;
-  const { id, imageUrl } = hat;
+  const { id, imageUrl, adminId } = hat;
 
   const detailsData = createDetailsData({ hat });
   const details = await calculateCid({ type: '1.0', data: detailsData });
 
-  if (!id || !details || !chainId) return returnData;
+  if (!id || !details || !chainId || !adminId) return returnData;
   const newHat = await createNewHatData({ hat, details });
   if (!newHat) return returnData;
   const newHatData = hatsClient.createHatCallData(newHat);

@@ -1,3 +1,4 @@
+export * from './modules';
 export { default as useAgreementEligibility } from './useAgreementEligibility';
 export { default as useAncillaryElection } from './useAncillaryElection';
 export { default as useAncillaryModules } from './useAncillaryModules';

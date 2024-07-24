@@ -51,7 +51,8 @@ const getHatterHat = async (
 
   const claimsHatterIndex = _.findIndex(
     storedModuleDetails,
-    (result: Module) => _.get(result, 'name') === CONFIG.claimsHatterModuleName,
+    // TODO migrate to instance address
+    (result: Module) => _.get(result, 'name') === CONFIG.modules.claimsHatter,
   );
   const storedDataHatId = _.get(storedData, `[${claimsHatterIndex}].id`);
 

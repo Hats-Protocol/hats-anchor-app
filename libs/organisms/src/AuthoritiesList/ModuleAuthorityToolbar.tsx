@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  As,
   Button,
   Flex,
   HStack,
@@ -38,6 +39,7 @@ import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl, getHostnameFromURL } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const BoxArrowUpRightOut = dynamic(() =>
@@ -112,7 +114,7 @@ const ModuleAuthorityToolbar = ({
       });
 
       if (authority.hsgConfig?.signerHats) {
-        _.forEach(authority.hsgConfig.signerHats, (h: any) => {
+        _.forEach(authority.hsgConfig.signerHats, (h: { id: Hex }) => {
           links.push({
             link: formHatUrl({ hatId: h.id, chainId }),
             label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,
@@ -246,7 +248,6 @@ const ModuleAuthorityToolbar = ({
                 function: primaryFunction.label,
                 authority: authority.label,
               });
-              console.log(primaryFunction);
               handleFunctionCall(primaryFunction);
             }}
             rightIcon={<Icon as={FiPlusSquare} />}
@@ -335,7 +336,7 @@ const ModuleAuthorityToolbar = ({
               size='sm'
             />
             <MenuList>
-              {_.map(otherFunctions, (func: any, i: number) => (
+              {_.map(otherFunctions, (func: ModuleFunction, i: number) => (
                 <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
                   <MenuItem
                     onClick={() => {
@@ -347,7 +348,7 @@ const ModuleAuthorityToolbar = ({
                       if (func.isCustom) func.onClick();
                       else handleFunctionCall(func);
                     }}
-                    isDisabled={isDisabled && !func.isCustom}
+                    isDisabled={false} // ={isDisabled && !func.isCustom}
                   >
                     <Flex
                       justify='space-between'
@@ -356,7 +357,10 @@ const ModuleAuthorityToolbar = ({
                       gap={1}
                     >
                       <Text>{func.label}</Text>
-                      <Icon as={func.icon || FiPlusSquare} boxSize={4} />
+                      <Icon
+                        as={(func.icon || FiPlusSquare) as As}
+                        boxSize={4}
+                      />
                     </Flex>
                   </MenuItem>
                 </Tooltip>

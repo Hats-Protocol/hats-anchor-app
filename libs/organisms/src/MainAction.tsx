@@ -2,7 +2,7 @@
 
 import { Button, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import { useWearerDetails, useWearerEligibilityCheck } from 'hats-hooks';
+import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
@@ -39,11 +39,16 @@ const MainAction = () => {
     handlePendingTx,
   });
 
-  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
-    wearer: address,
+  const wearerIds = address ? [address] : [];
+  const { data: currentUserEligibility } = useWearersEligibilityStatus({
+    wearerIds,
     selectedHat,
     chainId,
   });
+  const currentUserIsEligible = _.includes(
+    _.get(currentUserEligibility, 'eligibleWearers'),
+    address,
+  );
   const maxWearersReached = _.gte(
     _.toNumber(_.get(selectedHat, 'currentSupply')),
     _.toNumber(maxSupply),

@@ -1,7 +1,7 @@
 'use client';
 
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
@@ -16,20 +16,31 @@ const getModuleData = async ({
 }) => {
   if (!chainId || !address) return null;
 
-  const moduleClient = await createHatsModulesClient(chainId);
-  if (!moduleClient) return null;
+  const modulesClient = await createHatsModulesClient(chainId);
+  if (!modulesClient) return null;
 
   const promises = [
-    moduleClient.getModuleByInstance(address),
-    moduleClient.getInstanceParameters(address),
+    modulesClient.getModuleByInstance(address),
+    modulesClient.getInstanceParameters(address),
+    modulesClient.getRulesets(address),
   ];
-  const [moduleData, localModuleParameters] = await Promise.all(promises);
-  if (!moduleData) return null;
+  return Promise.all(promises)
+    .then((data) => {
+      const [moduleData, localModuleParameters, ruleSets] = data;
 
-  return {
-    details: moduleData as ModuleDetails,
-    parameters: localModuleParameters as ModuleParameter[],
-  };
+      if (!moduleData) return null;
+
+      return {
+        details: moduleData as ModuleDetails,
+        parameters: localModuleParameters as ModuleParameter[],
+        ruleSets: ruleSets as Ruleset[],
+      };
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      return null;
+    });
 };
 
 const useModuleDetails = ({
@@ -58,6 +69,7 @@ const useModuleDetails = ({
   return {
     details: data?.details,
     parameters: data?.parameters,
+    ruleSets: data?.ruleSets,
     isLoading: isLoading && fetchStatus !== 'idle',
   };
 };

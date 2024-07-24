@@ -19,8 +19,12 @@ const CONFIG: Config = {
   ipfsGateway: process.env.NEXT_PUBLIC_GATEWAY_URL || 'https://ipfs.io/ipfs/',
   debounce: 350,
   banner: false,
-  claimsHatterModuleName: 'Multi Claims Hatter',
-  modulesRegistryFactory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
+  // modules
+  modules: {
+    factory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
+    claimsHatter: 'Multi Claims Hatter', // move to implementation address
+  },
+  // Hats Protocol Community Hat Agreement v0
   agreementV0: {
     hatterAddress: '0xD0929e6Ae5406cBee08604De99F83CF2Ce52d903',
     ipfsHash: 'QmPK856cK97JH74S3VCo8v2UNPdE6TAzHcizzG3mpCJdpp',
@@ -73,7 +77,6 @@ export default CONFIG;
 type Config = {
   hatsAbi: Abi;
   hatsAddress: Hex;
-  modulesRegistryFactory: Hex;
   emojis: string;
   appName: string;
   protocolVersion: string;
@@ -83,7 +86,6 @@ type Config = {
   ipfsGateway: string;
   debounce: number;
   banner: boolean;
-  claimsHatterModuleName: string;
 
   // agreement v0
   agreementV0: {
@@ -92,6 +94,11 @@ type Config = {
     communityHatId: Hex;
     telegramLink: string;
     hatsAppLink: string;
+  };
+
+  modules: {
+    factory: Hex;
+    claimsHatter: string;
   };
 
   // terminology
