@@ -3,7 +3,7 @@ import { Abi, Hex } from 'viem';
 
 import { CONTACT_URL, DOCS_URL } from './content';
 import { HATS_ABI } from './contracts';
-import { MINI_CONFIG } from './next-seo.config';
+import { MINI_CONFIG } from './metadata';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
 const TELEGRAM_KEY = 'VFBDI1RFTCNDT01NIy0xMDAxODUxMjg4MjQy';

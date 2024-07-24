@@ -52,7 +52,7 @@ const useModuleDetails = ({
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&
       enabled,
-    // staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return {
