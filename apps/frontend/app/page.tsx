@@ -38,10 +38,13 @@ const RootPage = async () => {
                   {_.map(featuredTrees, (tree: TemplateData, i: number) => (
                     <FeaturedTreeCard
                       treeData={tree}
-                      hatsAndWearers={_.find(
-                        hatsAndWearers,
-                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
-                      )}
+                      hatsAndWearers={
+                        _.find(
+                          hatsAndWearers,
+                          (h: { treeId: string }) =>
+                            Number(h.treeId) === tree.id,
+                        ) as any
+                      }
                       key={i}
                     />
                   ))}

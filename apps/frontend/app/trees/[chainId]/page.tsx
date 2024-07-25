@@ -40,10 +40,11 @@ export async function generateMetadata({
   // read route params
   const { chainId } = pick(params, ['chainId']);
 
-  const chain = chainsList[toNumber(chainId)];
+  const chainIdNumber = toNumber(chainId);
+  const chain = chainsList[chainIdNumber as keyof typeof chainsList];
 
   return {
-    title: `${chain.name} Trees`,
+    title: chain ? `${chain.name} Trees` : 'Trees',
   };
 }
 

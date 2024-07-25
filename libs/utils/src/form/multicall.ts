@@ -211,12 +211,12 @@ const processNewDetailsCallForHat = async ({
 }: ProcessCallForHatProps): Promise<ProcessCallForHatReturnProps> => {
   const { calls } = returnData;
   let newHatChanges = {} as Partial<AppHat>;
-  const { id, imageUrl, adminId } = hat;
+  const { id, imageUrl } = hat;
 
   const detailsData = createDetailsData({ hat });
   const details = await calculateCid({ type: '1.0', data: detailsData });
 
-  if (!id || !details || !chainId || !adminId) return returnData;
+  if (!id || !details || !chainId) return returnData;
   const newHat = await createNewHatData({ hat, details });
   if (!newHat) return returnData;
   const newHatData = hatsClient.createHatCallData(newHat);

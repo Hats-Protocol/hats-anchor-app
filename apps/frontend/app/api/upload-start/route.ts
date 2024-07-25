@@ -7,6 +7,7 @@ export async function POST(request: Request) {
   const { count } = await request.json();
 
   if (_.gt(_.toNumber(count), 0)) {
+    // TODO check on this maximum value
     keyRestrictions.maxUses = _.gt(count, 20) ? 20 : count;
   }
 

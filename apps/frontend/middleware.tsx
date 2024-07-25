@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+export function middleware(request: any) {
   const url = request.nextUrl.clone();
   const hostname = url.pathname.startsWith('/ingest/static/')
     ? 'us-assets.i.posthog.com'
