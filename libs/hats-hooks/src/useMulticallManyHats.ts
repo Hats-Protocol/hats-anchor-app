@@ -97,6 +97,7 @@ const useMulticallManyHats = ({
   const { writeContractAsync } = useWriteContract();
 
   const multicallTx = () => {
+    console.log(calls, isAdminOfAnyHatWithChanges);
     if (
       _.isEmpty(calls) ||
       !chainId ||
