@@ -11,9 +11,9 @@ import {
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
-import { useWearerDetails } from 'hats-hooks';
+import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import _, { get, includes, toLower } from 'lodash';
 import {
   useAgreementEligibility,
   useHatClaimBy,
@@ -26,6 +26,7 @@ import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
 import { Authority } from 'types';
 import { fetchWearerDetails, hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
@@ -70,10 +71,19 @@ const ClaimHat = ({
   );
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);
+  const { data: eligibilityStatus } = useWearersEligibilityStatus({
+    selectedHat: selectedHat || undefined,
+    wearerIds: [toLower(address) as Hex],
+    chainId,
+  });
+  const isEligible = includes(
+    get(eligibilityStatus, 'eligibleWearers'),
+    toLower(address),
+  );
 
   const printDocumentAsPDF = () => {
     const newWindow = window.open('', '_blank');
@@ -95,7 +105,7 @@ const ClaimHat = ({
   const { hatterIsAdmin } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     handlePendingTx,
   });
 
@@ -105,6 +115,7 @@ const ClaimHat = ({
     onchainHats: selectedHat ? [selectedHat] : [],
   });
 
+  // TODO maybe check `isEligible` here instead
   const waitForClaim = useWaitForSubgraph({
     fetchHelper: () => fetchWearerDetails(address, chainId),
     checkResult: (result) => {
@@ -116,7 +127,7 @@ const ClaimHat = ({
     },
   });
 
-  const { signAndClaim } = useAgreementEligibility({
+  const { signAndClaim, signAgreement } = useAgreementEligibility({
     moduleParameters,
     moduleDetails,
     chainId,
@@ -158,7 +169,7 @@ const ClaimHat = ({
     );
   }
 
-  if (isWearing) {
+  if (isEligible && isWearing) {
     return (
       <Stack w='40%' justifyContent='center' alignItems='left'>
         <Conditions isReviewed setIsReviewed={() => undefined} />
@@ -209,11 +220,11 @@ const ClaimHat = ({
                 !isReviewed ||
                 !hatterIsAdmin ||
                 !currentHatIsClaimable?.for ||
-                isWearing
+                (isWearing && isEligible)
               }
               colorScheme='blue'
               leftIcon={<BsPen />}
-              onClick={signAndClaim}
+              onClick={isWearing ? signAgreement : signAndClaim}
             >
               Claim with Signature
             </Button>

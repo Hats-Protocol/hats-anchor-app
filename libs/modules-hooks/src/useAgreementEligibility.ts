@@ -47,6 +47,11 @@ const useAgreementEligibility = ({
     (fn: ModuleFunction) => fn.functionName === 'signAgreementAndClaimHat',
   );
 
+  const signFn = _.find(
+    _.get(moduleDetails, 'writeFunctions'),
+    (fn: ModuleFunction) => fn.functionName === 'signAgreement',
+  );
+
   const { mutate: callModuleFunction } = useCallModuleFunction({
     chainId,
   });
@@ -64,11 +69,23 @@ const useAgreementEligibility = ({
     });
   };
 
+  const handleSign = async () => {
+    callModuleFunction({
+      moduleId: moduleDetails?.implementationAddress,
+      instance: controllerAddress as Hex,
+      func: signFn as ModuleFunction,
+      args: {},
+      onSuccess: onSuccessfulSign,
+      onDecline,
+    });
+  };
+
   return {
     agreement,
     isLoading,
     error,
     signAndClaim: handleSignAndClaim,
+    signAgreement: handleSign,
   };
 };
 
