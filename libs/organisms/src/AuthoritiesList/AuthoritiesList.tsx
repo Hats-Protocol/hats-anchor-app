@@ -96,7 +96,7 @@ const AuthoritiesList = () => {
           </Heading>
         </Skeleton>
 
-        <Stack spacing={!_.isEmpty(combinedAuthorities) ? 1 : 2}>
+        <Stack spacing={!_.isEmpty(localAuthorities) ? 1 : 2}>
           {_.map(localAuthorities, (authority: Authority, index: number) => (
             <AuthoritiesListCard
               index={index}

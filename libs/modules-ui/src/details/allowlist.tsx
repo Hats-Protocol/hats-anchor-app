@@ -43,10 +43,12 @@ export const AllowlistEligibilityDetails = (
         return (
           <div className='flex justify-between' key={role}>
             <div className='flex gap-2 items-center'>
-              <div>{ALLOWLIST_ROLES[role].label}</div>
+              <div className='text-sm md:text-md'>
+                {ALLOWLIST_ROLES[role].label}
+              </div>
 
               <Tooltip label={ALLOWLIST_ROLES[role].tooltip} placement='top'>
-                <Box as='span' boxSize={4} position='relative'>
+                <Box as='span' boxSize={{ base: 3, md: 4 }} position='relative'>
                   <Icon as={BsInfoCircle} position='absolute' />
                 </Box>
               </Tooltip>

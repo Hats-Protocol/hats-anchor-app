@@ -41,6 +41,7 @@ export async function generateMetadata({
   const { chainId } = pick(params, ['chainId']);
 
   const chainIdNumber = toNumber(chainId);
+  if (isNaN(chainIdNumber)) return {};
   const chain = chainsList[chainIdNumber as keyof typeof chainsList];
 
   return {

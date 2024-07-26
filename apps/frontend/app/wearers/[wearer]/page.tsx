@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import { WearerHats, WearerInfo, WearerStats } from 'molecules';
 import type { Metadata } from 'next';
 import { SearchParamsProps } from 'types';
@@ -37,7 +38,7 @@ export async function generateMetadata({
   params,
 }: MetadataProps): Promise<Metadata> {
   // read route params
-  const wearer = params.wearer;
+  const { wearer } = pick(params, ['wearer']);
 
   // fetch data
   // TODO handle ens

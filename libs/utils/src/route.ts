@@ -1,5 +1,5 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import _, { first, isNaN, split, toNumber } from 'lodash';
 import { ReadonlyURLSearchParams } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -23,10 +23,18 @@ export const getPathParams = (pathname: string) => {
     };
   }
   // works for /trees/1/1/1
+  const chainId = (_.toNumber(_.nth(pathArray, 2)) || 1) as SupportedChains;
 
   const ipId = _.nth(pathArray, 4);
+  if (isNaN(toNumber(first(split(ipId, '.'))))) {
+    return {
+      chainId,
+      treeId: undefined,
+      hatId: undefined,
+    };
+  }
   return {
-    chainId: (_.toNumber(_.nth(pathArray, 2)) || 1) as SupportedChains,
+    chainId,
     treeId: _.nth(pathArray, 3) ? _.toNumber(_.nth(pathArray, 3)) : undefined,
     hatId: ipId ? hatIdDecimalToHex(hatIdIpToDecimal(ipId)) : undefined,
   };

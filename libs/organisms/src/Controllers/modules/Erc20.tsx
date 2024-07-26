@@ -36,10 +36,12 @@ const Erc20Eligibility = ({
     'userBalanceDisplay',
     'tokenDetails',
   ]);
-  const amountValueDisplay = formatUnits(
-    amountParameter?.value as bigint,
-    tokenDetails?.decimals || 18,
-  );
+  const amountValueDisplay = amountParameter?.value
+    ? formatUnits(
+        amountParameter?.value as bigint,
+        tokenDetails?.decimals || 18,
+      )
+    : undefined;
 
   // calculate eligibility
   if (userBalance && userBalance >= (amountParameter?.value as bigint)) {

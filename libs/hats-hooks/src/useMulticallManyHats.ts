@@ -66,7 +66,6 @@ const useMulticallManyHats = ({
         storedData,
         (hat: Partial<FormData>) => _.includes(adminHatIds, hat.id),
       );
-      console.log(deployableHatChanges);
       const allCallsPromises = _.map(
         deployableHatChanges,
         (hat: Partial<FormData>) =>
@@ -96,10 +95,10 @@ const useMulticallManyHats = ({
   ]);
 
   const { writeContractAsync } = useWriteContract();
-  console.log(calls, detailsToPin);
 
   const multicallTx = () => {
-    console.log(calls, isAdminOfAnyHatWithChanges);
+    // eslint-disable-next-line no-console
+    console.log(calls, detailsToPin, isAdminOfAnyHatWithChanges);
     if (
       _.isEmpty(calls) ||
       !chainId ||

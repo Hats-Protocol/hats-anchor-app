@@ -55,7 +55,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
     <div className='flex justify-between py-1'>
       <div className='flex gap-2 items-center'>
         <Icon as={HatIcon} />
-        <h2>
+        <h2 className='text-sm md:text-md'>
           {hatIdDecimalToIp(hatIdHexToDecimal(hatId))} {details?.name}
         </h2>
       </div>
@@ -84,7 +84,7 @@ const AdminWearersPanel = () => {
 
   if (size(admins) === 1) {
     return (
-      <Flex justify='space-between' py={1}>
+      <Flex justify='space-between' py={1} px={4}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           Admins can edit this Hat
           {!isClaimable?.for ? ' and choose Wearers' : ''}
@@ -112,7 +112,9 @@ const AdminWearersPanel = () => {
             ? '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)'
             : undefined
         }
-        borderRadius={expandedBackground ? 'md' : undefined}
+        borderRadius={
+          expandedBackground ? { base: 'none', md: 'md' } : { base: 'none' }
+        }
       >
         {({ isExpanded }: { isExpanded: boolean }) => {
           setExpandedBackground(isExpanded);
@@ -293,8 +295,8 @@ const EditAndWearers = () => {
 
   if (!selectedHat?.mutable) {
     return (
-      <Stack spacing='2px'>
-        <Flex justify='space-between' py={1}>
+      <Stack py={1} px={4}>
+        <Flex justify='space-between'>
           <Text fontSize={{ base: 'sm', md: 'md' }}>
             This Hat cannot be edited
           </Text>
@@ -310,7 +312,7 @@ const EditAndWearers = () => {
           </HStack>
         </Flex>
 
-        <Flex justify='space-between' py={1}>
+        <Flex justify='space-between'>
           <Text fontSize={{ base: 'sm', md: 'md' }}>
             Admins can add Wearers
           </Text>
@@ -326,12 +328,12 @@ const EditAndWearers = () => {
   }
 
   return (
-    <Stack spacing='2px'>
+    <Stack spacing={0}>
       <AdminWearersPanel />
 
       {(isClaimable?.for || isClaimable?.by) &&
         (isClaimable?.for ? (
-          <Flex justify='space-between' py={1}>
+          <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
             <Text fontSize={{ base: 'sm', md: 'md' }}>{canAddWearers}</Text>
 
             <Claimable
@@ -341,7 +343,7 @@ const EditAndWearers = () => {
             />
           </Flex>
         ) : (
-          <Flex justify='space-between' py={1}>
+          <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
             <Text fontSize={{ base: 'sm', md: 'md' }}>
               Eligible addresses can claim a Hat
             </Text>

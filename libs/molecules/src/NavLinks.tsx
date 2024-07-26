@@ -4,7 +4,7 @@ import { Button, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
-import _ from 'lodash';
+import { capitalize, get, includes, isNaN, startsWith, toLower } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { ChakraNextLink } from 'ui';
 import { containsUpperCase, getPathParams } from 'utils';
@@ -19,13 +19,16 @@ const NavLinks = () => {
 
   // Get the top hat name
   const { data: topHat, details } = useHatDetails({
-    hatId: treeId ? hatIdDecimalToHex(treeIdToTopHatId(treeId)) : undefined,
+    hatId:
+      treeId && !isNaN(treeId)
+        ? hatIdDecimalToHex(treeIdToTopHatId(treeId))
+        : undefined,
     chainId,
   });
-  const textDetails = !_.startsWith(_.get(topHat, 'details'), 'ipfs://')
-    ? _.get(topHat, 'details')
+  const textDetails = !startsWith(get(topHat, 'details'), 'ipfs://')
+    ? get(topHat, 'details')
     : undefined;
-  const tabName = _.get(details, 'name', textDetails);
+  const tabName = get(details, 'name', textDetails);
 
   return (
     <>
@@ -41,17 +44,17 @@ const NavLinks = () => {
           variant='ghost'
           borderRadius={0}
           _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-          isActive={_.includes(pathname, CONFIG.trees)}
+          isActive={includes(pathname, CONFIG.trees)}
         >
           {!tabName ? (
-            <Text size='lg'>{_.capitalize(CONFIG.trees)}</Text>
+            <Text size='lg'>{capitalize(CONFIG.trees)}</Text>
           ) : (
             <Stack align='start' w='90%' mx={2}>
               <Text size='sm' textTransform='uppercase'>
                 {CONFIG.trees}
               </Text>
               <Text size='lg' variant='gray' maxW='170px' isTruncated>
-                {containsUpperCase(tabName) ? tabName : _.capitalize(tabName)}
+                {containsUpperCase(tabName) ? tabName : capitalize(tabName)}
               </Text>
             </Stack>
           )}
@@ -67,9 +70,9 @@ const NavLinks = () => {
             borderRadius={0}
             fontSize='lg'
             _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-            isActive={_.includes(_.toLower(pathname), _.toLower(address))}
+            isActive={includes(toLower(pathname), toLower(address))}
           >
-            {`My ${_.capitalize(CONFIG.hats)}`}
+            {`My ${capitalize(CONFIG.hats)}`}
           </Button>
         </ChakraNextLink>
       )}

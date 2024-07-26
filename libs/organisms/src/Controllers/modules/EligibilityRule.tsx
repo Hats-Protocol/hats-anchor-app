@@ -23,8 +23,8 @@ const EligibilityRuleWrapper = ({
   children: ReactNode;
 }) => {
   return (
-    <Skeleton isLoaded={!!rule}>
-      <Flex justify='space-between' py={1}>
+    <Skeleton isLoaded={!!rule} py={2} px={{ base: 4, md: 0 }}>
+      <Flex justify='space-between'>
         {rule}
 
         {children}

@@ -1,6 +1,6 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { SelectedHatContextProvider, TreeFormContextProvider } from 'contexts';
-import { get, pick, toNumber } from 'lodash';
+import { first, get, pick, split, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { HatDrawer } from 'pages';
 import { SearchParamsProps } from 'types';
@@ -23,7 +23,10 @@ export async function generateMetadata({
 }: MetadataProps): Promise<Metadata> {
   // read route params
   const { chainId, hatId } = pick(params, ['chainId', 'hatId']);
+  if (!chainId || !hatId || isNaN(toNumber(first(split(hatId, '.')))))
+    return {};
   const hatIdHex = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
+  if (!hatIdHex) return {};
 
   // fetch data
   return fetchHatDetailsMesh(hatIdHex, toNumber(chainId))
