@@ -120,11 +120,28 @@ const MoreMenu = () => {
     hatData: selectedHat,
   });
 
-  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '');
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
+    toastData: {
+      title: 'Copied Hat Hex ID',
+      description: `Copied ${selectedHat?.id?.slice(0, 25)}`,
+    },
+  });
   const { onCopy: copyHatDecimalId } = useClipboard(
-    selectedHat?.id ? hatIdHexToDecimal(selectedHat?.id).toString() : '',
+    selectedHat?.id ? hatIdHexToDecimal(selectedHat.id).toString() : '',
+    {
+      toastData: {
+        title: 'Copied Hat Decimal ID',
+        description: selectedHat?.id
+          ? `Copied ${hatIdHexToDecimal(selectedHat.id)
+              .toString()
+              .slice(0, 25)}...`
+          : '',
+      },
+    },
   );
-  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress, {
+    toastData: { title: 'Successfully copied contract address to clipboard' },
+  });
 
   const handleExport = () =>
     handleExportBranch({
@@ -162,15 +179,7 @@ const MoreMenu = () => {
               Copy Hat Decimal ID
             </MenuItem>
 
-            <MenuItem
-              onClick={() => {
-                copyContractAddress();
-                toast.info({
-                  title: 'Successfully copied contract address to clipboard',
-                });
-              }}
-              icon={<FaCopy />}
-            >
+            <MenuItem onClick={copyContractAddress} icon={<FaCopy />}>
               Copy Hats Contract
             </MenuItem>
           </MenuGroup>
