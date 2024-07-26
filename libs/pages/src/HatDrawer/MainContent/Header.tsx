@@ -119,17 +119,19 @@ const Header = () => {
               </Heading>
             </Tooltip>
 
-            <Button
-              size='xs'
-              variant='ghost'
-              colorScheme='blue'
-              onClick={onCopy}
-              rightIcon={
-                <Icon as={CopyHash} color='blue.500' cursor='pointer' />
-              }
-            >
-              #{hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
-            </Button>
+            <Box>
+              <Button
+                size='xs'
+                variant='ghost'
+                colorScheme='blue'
+                onClick={onCopy}
+                rightIcon={
+                  <Icon as={CopyHash} color='blue.500' cursor='pointer' />
+                }
+              >
+                #{hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
+              </Button>
+            </Box>
           </Flex>
         </HStack>
         {description && (

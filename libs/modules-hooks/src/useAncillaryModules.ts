@@ -65,10 +65,8 @@ const useAncillaryModules = ({
     enabled: !!id && id !== '0x' && !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
-  console.log(ancillaryModules);
 
   const { gates } = useHatsSignerGatesMetadata({ chainId, editMode });
-  console.log(gates);
 
   const moduleIds = useMemo(
     () =>
@@ -84,7 +82,6 @@ const useAncillaryModules = ({
       chainId,
       editMode,
     });
-  console.log(modulesDetails);
 
   const activeModules = useMemo(() => {
     if (!modulesDetails) return [];

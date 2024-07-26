@@ -1,6 +1,6 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { EligibilityContextProvider } from 'contexts';
-import { get, pick, toNumber } from 'lodash';
+import { first, get, pick, split, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { Claims } from 'pages';
 import { SupportedChains } from 'types';
@@ -34,6 +34,8 @@ export async function generateMetadata({
 }: TreeDetailsProps): Promise<Metadata> {
   // read route params
   const { hatId, chainId } = pick(params, ['hatId', 'chainId']);
+  // hatId is in IP format
+  if (!chainId || !hatId || isNaN(toNumber(first(split(hatId))))) return {};
   const hatIdHex = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
   // fetch data

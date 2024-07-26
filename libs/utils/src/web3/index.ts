@@ -64,16 +64,27 @@ export async function createHatsModulesClient(
   if (!chainId) return undefined;
 
   const publicClient = viemPublicClient(chainId);
-  const walletClient = await getWalletClient(wagmiConfig);
+  try {
+    const walletClient = await getWalletClient(wagmiConfig);
 
-  const hatsModulesClient = new HatsModulesClient({
-    publicClient,
-    walletClient,
-  });
+    const hatsModulesClient = new HatsModulesClient({
+      publicClient,
+      walletClient,
+    });
 
-  await hatsModulesClient.prepare();
+    await hatsModulesClient.prepare();
 
-  return hatsModulesClient as HatsModulesClient;
+    return hatsModulesClient as HatsModulesClient;
+  } catch (e) {
+    // expect an error when not connected to a wallet
+    const modulesClient = new HatsModulesClient({
+      publicClient,
+    });
+
+    await modulesClient.prepare();
+
+    return modulesClient as HatsModulesClient;
+  }
 }
 
 export async function createHatsSignerGateClient(
@@ -82,14 +93,21 @@ export async function createHatsSignerGateClient(
   if (!chainId) return undefined;
 
   const publicClient = viemPublicClient(chainId);
-  const walletClient = await getWalletClient(wagmiConfig);
+  try {
+    const walletClient = await getWalletClient(wagmiConfig);
 
-  const hatsModulesClient = new HatsSignerGateClient({
-    publicClient,
-    walletClient,
-  });
+    const hatsModulesClient = new HatsSignerGateClient({
+      publicClient,
+      walletClient,
+    });
 
-  return hatsModulesClient as HatsSignerGateClient;
+    return hatsModulesClient as HatsSignerGateClient;
+  } catch (e) {
+    // expect an error when not connected to a wallet
+    return new HatsSignerGateClient({
+      publicClient,
+    });
+  }
 }
 
 export async function createHatsAccountClient(
@@ -98,14 +116,23 @@ export async function createHatsAccountClient(
   if (!chainId) return undefined;
 
   const publicClient = viemPublicClient(chainId);
-  const walletClient = await getWalletClient(wagmiConfig);
+  try {
+    const walletClient = await getWalletClient(wagmiConfig);
 
-  const hatsAccountClient = new HatsAccount1ofNClient({
-    publicClient,
-    walletClient,
-  });
+    const hatsAccountClient = new HatsAccount1ofNClient({
+      publicClient,
+      walletClient,
+    });
 
-  return hatsAccountClient as HatsAccount1ofNClient;
+    return hatsAccountClient as HatsAccount1ofNClient;
+  } catch (e) {
+    // expect an error when not connected to a wallet
+    return new HatsAccount1ofNClient({
+      publicClient,
+      // @ts-expect-error - walletClient should not be required // TODO fix
+      walletClient: undefined,
+    });
+  }
 }
 
 export * from './chains';

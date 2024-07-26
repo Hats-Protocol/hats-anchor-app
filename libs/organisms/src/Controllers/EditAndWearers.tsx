@@ -328,12 +328,12 @@ const EditAndWearers = () => {
   }
 
   return (
-    <Stack spacing={0} px={{ base: 4, md: 0 }}>
+    <Stack spacing={0}>
       <AdminWearersPanel />
 
       {(isClaimable?.for || isClaimable?.by) &&
         (isClaimable?.for ? (
-          <Flex justify='space-between' py={2}>
+          <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
             <Text fontSize={{ base: 'sm', md: 'md' }}>{canAddWearers}</Text>
 
             <Claimable
@@ -343,7 +343,7 @@ const EditAndWearers = () => {
             />
           </Flex>
         ) : (
-          <Flex justify='space-between' py={2}>
+          <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
             <Text fontSize={{ base: 'sm', md: 'md' }}>
               Eligible addresses can claim a Hat
             </Text>

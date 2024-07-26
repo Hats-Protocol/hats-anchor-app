@@ -53,9 +53,9 @@ const queryClientOptions = {
 const Providers = ({ children }: Props) => {
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
   useEffect(() => {
-    // if (INTERCOM_APP_ID) {
-    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    // }
+    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    }
   }, []);
 
   return (

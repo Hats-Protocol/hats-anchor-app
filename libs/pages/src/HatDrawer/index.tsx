@@ -28,8 +28,6 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   if (!selectedHat) return null;
 
   if (isMobile) {
-    // TODO are we hitting this case?
-    console.log('here in mobile view');
     return (
       <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
         <TopMenu returnToList={returnToList} />

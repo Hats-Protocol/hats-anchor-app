@@ -28,7 +28,9 @@ export async function generateMetadata({
 }: TreeDetailsProps): Promise<Metadata> {
   // read route params
   const { chainId, treeId } = pick(params, ['chainId', 'treeId']);
-  const hatId = hatIdDecimalToHex(treeIdToTopHatId(toNumber(treeId)));
+  const treeIdNum = toNumber(treeId);
+  if (!chainId || !treeId || isNaN(treeIdNum)) return {};
+  const hatId = hatIdDecimalToHex(treeIdToTopHatId(treeIdNum));
 
   // fetch data
   return fetchHatDetailsMesh(hatId, toNumber(chainId))

@@ -43,7 +43,6 @@ const AuthoritiesList = () => {
     hatId: selectedHat?.id,
     chainId,
   });
-  console.log(modulesAuthorities, guildRoles, spaces);
   const { data: combinedAuthorities } = combineAuthorities({
     authorities: _.get(selectedHatDetails, 'authorities'),
     guildRoles,
@@ -74,7 +73,6 @@ const AuthoritiesList = () => {
     //   </Flex>
     // );
   }
-  console.log(combinedAuthorities);
 
   return (
     <Accordion px={{ base: 0, md: 16 }} allowMultiple>

@@ -97,6 +97,8 @@ const useMulticallManyHats = ({
   const { writeContractAsync } = useWriteContract();
 
   const multicallTx = () => {
+    // eslint-disable-next-line no-console
+    console.log(calls, detailsToPin, isAdminOfAnyHatWithChanges);
     if (
       _.isEmpty(calls) ||
       !chainId ||
