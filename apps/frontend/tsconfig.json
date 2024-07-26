@@ -10,7 +10,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": [],
-    "lib": ["ES2021"],
+    "lib": [
+      "ES2021"
+    ],
     "incremental": true,
     "plugins": [
       {
@@ -61,7 +63,8 @@
     "**/*.tsx",
     "../../libs/types/src/*.d.ts",
     "next-env.d.ts",
-    "../../dist/apps/frontend/.next/types/**/*.ts"
+    "../../dist/apps/frontend/.next/types/**/*.ts",
+    ".next/types/**/*.ts"
   ],
   "extends": "../../tsconfig.base.json"
 }

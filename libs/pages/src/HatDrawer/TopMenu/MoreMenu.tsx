@@ -22,6 +22,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
+import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
   useHatContractWrite,
@@ -120,6 +121,9 @@ const MoreMenu = () => {
   });
 
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '');
+  const { onCopy: copyHatDecimalId } = useClipboard(
+    selectedHat?.id ? hatIdHexToDecimal(selectedHat?.id).toString() : '',
+  );
   const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
 
   const handleExport = () =>
@@ -150,27 +154,11 @@ const MoreMenu = () => {
               Export branch {idToIp(selectedHat?.id)}
             </MenuItem>
 
-            <MenuItem
-              icon={<FaCopy />}
-              onClick={() => {
-                copyHatId();
-                toast.info({
-                  title: 'Successfully copied hat ID to clipboard',
-                });
-              }}
-            >
+            <MenuItem icon={<FaCopy />} onClick={copyHatId}>
               Copy Hat Hex ID
             </MenuItem>
 
-            <MenuItem
-              icon={<FaCopy />}
-              onClick={() => {
-                copyHatId();
-                toast.info({
-                  title: 'Successfully copied hat ID to clipboard',
-                });
-              }}
-            >
+            <MenuItem icon={<FaCopy />} onClick={copyHatDecimalId}>
               Copy Hat Decimal ID
             </MenuItem>
 
@@ -253,7 +241,7 @@ const MoreMenu = () => {
               //   shouldWrapChildren
               // >
               <MenuItem
-                onClick={() => toggleHat?.()}
+                onClick={toggleHat}
                 isDisabled={
                   !isSameAddress(selectedHat?.toggle, address) ||
                   isLoadingToggleHat ||
