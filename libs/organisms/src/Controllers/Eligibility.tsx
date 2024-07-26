@@ -71,7 +71,7 @@ const Eligibility = () => {
   if (isHatsAccount) {
     // * shouldn't be hitting this flow yet
     return (
-      <Flex justify='space-between' py={1}>
+      <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           Another Hat can remove wearers
         </Text>
@@ -90,8 +90,10 @@ const Eligibility = () => {
         !hatWearersLoading &&
         (!loadingModuleDetails || orgChartEligibility?.isContract)
       }
+      py={2}
+      px={{ base: 4, md: 0 }}
     >
-      <Flex justify='space-between' py={2}>
+      <Flex justify='space-between'>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           {includes(NULL_ADDRESSES, eligibility)
             ? 'No addresses'

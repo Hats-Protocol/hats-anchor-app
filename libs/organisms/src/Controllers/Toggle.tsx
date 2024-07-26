@@ -58,7 +58,7 @@ const Toggle = () => {
   if (isHatsAccount) {
     // * shouldn't be hitting this flow yet
     return (
-      <Flex justify='space-between' py={1}>
+      <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           Another Hat can remove wearers
         </Text>
@@ -71,8 +71,8 @@ const Toggle = () => {
   }
 
   return (
-    <Skeleton isLoaded={!moduleDetailsLoading}>
-      <Flex justify='space-between' py={1}>
+    <Skeleton isLoaded={!moduleDetailsLoading} py={2} px={{ base: 4, md: 0 }}>
+      <Flex justify='space-between'>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           {_.includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'}{' '}
           can deactivate this Hat

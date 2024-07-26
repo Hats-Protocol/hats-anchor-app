@@ -1,4 +1,5 @@
 'use client';
+import '@fontsource-variable/inter';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -52,9 +53,9 @@ const queryClientOptions = {
 const Providers = ({ children }: Props) => {
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
   useEffect(() => {
-    if (INTERCOM_APP_ID) {
-      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    }
+    // if (INTERCOM_APP_ID) {
+    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    // }
   }, []);
 
   return (
@@ -62,7 +63,7 @@ const Providers = ({ children }: Props) => {
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
             <PostHogProvider client={posthog}>
               <OverlayContextProvider>{children}</OverlayContextProvider>
             </PostHogProvider>
