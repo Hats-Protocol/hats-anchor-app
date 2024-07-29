@@ -540,6 +540,7 @@ function OrgChartComponent() {
   }
 
   if (isLoading) {
+    // hitting this flow?
     return (
       <Flex
         h='calc(100% - 200px)'
@@ -547,21 +548,28 @@ function OrgChartComponent() {
         alignItems='center'
         justifyContent='center'
       >
-        <Spinner />
+        <Spinner size='xl' />
       </Flex>
     );
   }
 
   return (
-    <Box position='relative' pt='145px' h='calc(100% + 5px)'>
-      <div
-        style={{
-          overflow: 'hidden',
-          height: '100%',
-        }}
-        ref={d3Container}
-        id='d3Container'
-      />
+    <Box position='relative' pt='145px' minH='100vh' h='calc(100% + 5px)'>
+      {orgChartTree ? (
+        <div
+          style={{
+            overflow: 'hidden',
+            height: '100%',
+          }}
+          ref={d3Container}
+          id='d3Container'
+        />
+      ) : (
+        <Flex w='full' h='full' justify='center' align='center'>
+          <Spinner size='xl' mt='20%' />
+        </Flex>
+      )}
+
       <HStack position='absolute' bottom={4} left={85}>
         <Button
           variant='outline'

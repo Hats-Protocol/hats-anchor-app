@@ -6,7 +6,7 @@ import { HatDrawer } from 'pages';
 import { SearchParamsProps } from 'types';
 import { fetchHatDetailsMesh } from 'utils';
 
-const HatDetails = () => (
+const HatDetails = ({}: HatDetailsProps) => (
   <TreeFormContextProvider>
     <SelectedHatContextProvider>
       <HatDrawer />
@@ -14,13 +14,13 @@ const HatDetails = () => (
   </TreeFormContextProvider>
 );
 
-interface MetadataProps extends SearchParamsProps {
+interface HatDetailsProps extends SearchParamsProps {
   params: { chainId: string; treeId: string; hatId: string };
 }
 
 export async function generateMetadata({
   params,
-}: MetadataProps): Promise<Metadata> {
+}: HatDetailsProps): Promise<Metadata> {
   // read route params
   const { chainId, hatId } = pick(params, ['chainId', 'hatId']);
   if (!chainId || !hatId || isNaN(toNumber(first(split(hatId, '.')))))
