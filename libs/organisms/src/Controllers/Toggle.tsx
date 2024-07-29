@@ -5,7 +5,7 @@ import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatWearers } from 'hats-hooks';
 import _ from 'lodash';
-import { useModuleDetails } from 'modules-hooks';
+import { useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { Hex } from 'viem';
 
@@ -30,23 +30,17 @@ const Toggle = () => {
       id: toggle as Hex,
     };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
-  const {
-    details: moduleDetails,
-    parameters,
-    ruleSets,
-    isLoading: moduleDetailsLoading,
-  } = useModuleDetails({
-    address: toggle,
-    chainId,
-    enabled: toggleData?.isContract, // ? is this reliable enough?
-  });
+  const { data: ruleSets, isLoading: moduleDetailsLoading } =
+    useEligibilityRules({
+      address: toggle,
+      chainId,
+      enabled: toggleData?.isContract, // ? is this reliable enough?
+    });
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
-  if (moduleDetails) {
+  if (ruleSets) {
     return (
       <KnownModule
-        moduleDetails={moduleDetails}
-        parameters={parameters}
         ruleSets={ruleSets}
         chainId={chainId}
         wearer={toggle}

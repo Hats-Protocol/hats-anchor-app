@@ -15,6 +15,8 @@ import { IconType } from 'react-icons';
 import { ChakraNextLink } from 'ui';
 import { useAccount } from 'wagmi';
 
+import { ELIGIBILITY_STATUS, TOGGLE_STATUS } from '../utils';
+
 const EligibilityRuleWrapper = ({
   rule,
   children,
@@ -61,7 +63,12 @@ const EligibilityRule = ({
       <EligibilityRuleWrapper rule={rule}>
         <HStack
           spacing={1}
-          color={status === 'eligible' ? 'green.600' : 'gray.600'}
+          color={
+            status === ELIGIBILITY_STATUS.eligible ||
+            status === TOGGLE_STATUS.active
+              ? 'green.600'
+              : 'gray.600'
+          }
         >
           <Text fontSize={{ base: 'sm', md: 'md' }}>{displayStatus}</Text>
           <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />

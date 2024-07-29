@@ -63,7 +63,7 @@ const Providers = ({ children }: Props) => {
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider>
-            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+            <ReactQueryDevtools initialIsOpen={false} />
             <PostHogProvider client={posthog}>
               <OverlayContextProvider>{children}</OverlayContextProvider>
             </PostHogProvider>

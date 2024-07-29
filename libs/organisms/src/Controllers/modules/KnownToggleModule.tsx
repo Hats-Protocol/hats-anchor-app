@@ -2,7 +2,7 @@
 
 import { Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
-import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
+import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { first, pick } from 'lodash';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -13,27 +13,22 @@ import PassthroughModule from './Passthrough';
 import SeasonToggle from './Season';
 
 const KnownModule = ({
-  moduleDetails: localModuleDetails,
-  parameters: localParameters,
   ruleSets,
   chainId,
   wearer,
   selectedHat,
 }: KnownModuleParameters) => {
-  const localRuleSets = [
-    [{ module: localModuleDetails, parameters: localParameters }],
-  ];
-  const localModule = first(first(localRuleSets));
-  const { module: moduleDetails, parameters } = pick(localModule, [
+  const localModule = first(first(ruleSets));
+  const { module: moduleDetails, liveParams: parameters } = pick(localModule, [
     'module',
-    'parameters',
+    'liveParams',
   ]);
 
   switch (moduleDetails?.name) {
     case TOGGLE_MODULES.season:
       return (
         <SeasonToggle
-          moduleDetails={moduleDetails}
+          moduleDetails={moduleDetails as ModuleDetails}
           moduleParameters={parameters}
           chainId={chainId}
           wearer={wearer}
@@ -43,7 +38,7 @@ const KnownModule = ({
     case TOGGLE_MODULES.passthrough:
       return (
         <PassthroughModule
-          moduleDetails={moduleDetails}
+          moduleDetails={moduleDetails as ModuleDetails}
           moduleParameters={parameters}
           chainId={chainId}
           wearer={wearer}
@@ -64,8 +59,6 @@ const KnownModule = ({
 };
 
 interface KnownModuleParameters {
-  moduleDetails: ModuleDetails | undefined;
-  parameters: ModuleParameter[] | undefined;
   ruleSets: Ruleset[] | undefined;
   selectedHat: AppHat | undefined;
   wearer: Hex | undefined;
