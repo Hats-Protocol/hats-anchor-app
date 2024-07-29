@@ -1,5 +1,7 @@
 'use client';
+import '../public/styles/style.css';
 import '@fontsource-variable/inter';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
