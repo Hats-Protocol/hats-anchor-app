@@ -5,7 +5,7 @@ import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatWearers } from 'hats-hooks';
 import { find, flatten, gt, includes, pick, size } from 'lodash';
-import { useModuleDetails } from 'modules-hooks';
+import { useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -32,34 +32,28 @@ const Eligibility = () => {
   const eligibilityData = hatWearerEligibility ||
     orgChartEligibility || { id: eligibility as Hex };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
-  const {
-    details: moduleDetails,
-    parameters,
-    ruleSets,
-    isLoading: loadingModuleDetails,
-  } = useModuleDetails({
-    address: eligibility,
-    chainId,
-    enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
-  });
+  const { data: ruleSets, isLoading: loadingModuleDetails } =
+    useEligibilityRules({
+      address: eligibility,
+      chainId,
+      enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
+    });
   const multipleModules = gt(size(flatten(ruleSets)), 1);
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
   if (multipleModules) {
     return (
       <ChainPanel
-        ruleSets={ruleSets}
+        ruleSets={ruleSets || undefined}
         chainId={chainId}
         selectedHat={selectedHat}
       />
     );
   }
 
-  if (moduleDetails) {
+  if (ruleSets) {
     return (
       <KnownModule
-        moduleDetails={moduleDetails}
-        parameters={parameters}
         ruleSets={ruleSets}
         selectedHat={selectedHat}
         wearer={address}

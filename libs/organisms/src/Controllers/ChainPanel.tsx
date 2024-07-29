@@ -9,22 +9,13 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
+import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
-import {
-  first,
-  flatten,
-  get,
-  includes,
-  map,
-  pick,
-  size,
-  toLower,
-} from 'lodash';
+import { flatten, get, includes, map, size, toLower } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { BsCheckSquareFill } from 'react-icons/bs';
-import { AppHat, ModuleDetails, SupportedChains } from 'types';
+import { AppHat, SupportedChains } from 'types';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -120,16 +111,9 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
               >
                 <Stack mx={4} pb={2} spacing={1}>
                   {map(ruleSets, (ruleSet: Ruleset, index: number) => {
-                    const { module: moduleDetails } = pick(first(ruleSet), [
-                      'module',
-                    ]);
-                    const localParameters: ModuleParameter[] = [];
-
                     return (
                       <KnownModule
                         key={index}
-                        moduleDetails={moduleDetails as ModuleDetails}
-                        parameters={localParameters}
                         ruleSets={[ruleSet]}
                         selectedHat={selectedHat}
                         chainId={chainId}

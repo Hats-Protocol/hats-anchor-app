@@ -1,13 +1,12 @@
 'use client';
 
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { ModuleDetails, SupportedChains } from 'types';
+import { SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 
-const getModuleData = async ({
+const getEligibilityRules = async ({
   address,
   chainId,
 }: {
@@ -19,20 +18,10 @@ const getModuleData = async ({
   const modulesClient = await createHatsModulesClient(chainId);
   if (!modulesClient) return null;
 
-  const promises = [
-    modulesClient.getModuleByInstance(address),
-    modulesClient.getInstanceParameters(address),
-  ];
-  return Promise.all(promises)
-    .then((data) => {
-      const [moduleData, localModuleParameters] = data;
-
-      if (!moduleData) return null;
-
-      return {
-        details: moduleData as ModuleDetails,
-        parameters: localModuleParameters as ModuleParameter[],
-      };
+  return modulesClient
+    .getRulesets(address, { includeLiveParams: true })
+    .then((ruleSets) => {
+      return ruleSets;
     })
     .catch((err) => {
       // eslint-disable-next-line no-console
@@ -54,7 +43,7 @@ const useModuleDetails = ({
 }) => {
   const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['moduleDetails', { address, chainId }],
-    queryFn: () => getModuleData({ address, chainId }),
+    queryFn: () => getEligibilityRules({ address, chainId }),
     enabled:
       !!address &&
       !!chainId &&
@@ -65,8 +54,7 @@ const useModuleDetails = ({
   });
 
   return {
-    details: data?.details,
-    parameters: data?.parameters,
+    data,
     isLoading: isLoading && fetchStatus !== 'idle',
   };
 };
