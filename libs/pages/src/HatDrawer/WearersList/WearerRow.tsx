@@ -48,7 +48,7 @@ const WearerRow = ({
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   // const { isMobile } = useMediaStyles();
-  const { onCopy } = useClipboard(wearer.id, {
+  const { onCopy: copyAddress } = useClipboard(wearer.id, {
     toastData: {
       title: 'Copied address',
       description: 'Successfully copied address to clipboard',
@@ -240,7 +240,7 @@ const WearerRow = ({
             size='xs'
             variant='ghost'
             aria-label='Copy wearer address'
-            onClick={onCopy}
+            onClick={copyAddress}
           />
         ) : (
           !isTopHat(selectedHat) && // don't allow top hats to renounce

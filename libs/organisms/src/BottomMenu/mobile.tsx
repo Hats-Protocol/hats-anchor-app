@@ -13,7 +13,7 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { useClipboard, useToast } from 'hooks';
+import { useClipboard } from 'hooks';
 import _ from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -27,9 +27,12 @@ const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '');
-  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
-  const toast = useToast();
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
+    toastData: { title: 'Successfully copied hat ID to clipboard' },
+  });
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress, {
+    toastData: { title: 'Successfully copied contract address to clipboard' },
+  });
   const { address } = useAccount();
 
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
@@ -86,27 +89,11 @@ const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
               More
             </MenuButton>
             <MenuList>
-              <MenuItem
-                gap={2}
-                onClick={() => {
-                  copyHatId();
-                  toast.info({
-                    title: 'Successfully copied hat ID to clipboard',
-                  });
-                }}
-              >
+              <MenuItem gap={2} onClick={copyHatId}>
                 <FaCopy />
                 Copy hat ID
               </MenuItem>
-              <MenuItem
-                gap={2}
-                onClick={() => {
-                  copyContractAddress();
-                  toast.info({
-                    title: 'Successfully copied contract address to clipboard',
-                  });
-                }}
-              >
+              <MenuItem gap={2} onClick={copyContractAddress}>
                 <FaCopy />
                 Copy contract ID
               </MenuItem>
