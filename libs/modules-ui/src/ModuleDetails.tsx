@@ -23,7 +23,18 @@ import { ModuleArgsForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import {
+  filter,
+  find,
+  get,
+  includes,
+  isEmpty,
+  map,
+  pick,
+  size,
+  sortBy,
+  toLower,
+} from 'lodash';
 import {
   useCallModuleFunction,
   useModuleDetails,
@@ -67,7 +78,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
 
   const sameChain = chainId === currentChainId;
   const controllerAddress = useMemo(
-    () => _.get(selectedHat, _.toLower(type)),
+    () => get(selectedHat, toLower(type)),
     [selectedHat, type],
   );
 
@@ -81,21 +92,20 @@ const ModuleDetails = ({ type }: { type: string }) => {
   });
 
   const { formState, handleSubmit } = formMethods;
+  const { isValid } = pick(formState, ['isValid']);
 
-  const tokenAddress = _.get(
-    _.find(parameters, (param: any) =>
-      _.includes(TOKEN_ARG_TYPES, param.displayType),
+  const tokenAddress = get(
+    find(parameters, (param: any) =>
+      includes(TOKEN_ARG_TYPES, param.displayType),
     ),
     'value',
   );
 
-  const moduleActions = _.filter(
-    _.get(moduleDetails, 'writeFunctions'),
-    (fn: ModuleFunction) => _.includes(fn.roles, 'public'),
+  const moduleActions = filter(
+    get(moduleDetails, 'writeFunctions'),
+    (fn: ModuleFunction) => includes(fn.roles, 'public'),
   );
-  const sortedModuleActions = _.sortBy(moduleActions, (a: any) =>
-    _.size(a.label),
-  );
+  const sortedModuleActions = sortBy(moduleActions, (a: any) => size(a.label));
 
   const { mutate: callModuleFunction } = useCallModuleFunction({
     chainId,
@@ -121,7 +131,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
     chainId,
     editMode,
   });
-  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
+  const isAdminUser = isWearingAdminHat(map(wearer, 'id'), selectedHat?.id);
 
   const { instanceAddress, claimableHats } = useMultiClaimsHatterCheck({
     chainId,
@@ -157,8 +167,8 @@ const ModuleDetails = ({ type }: { type: string }) => {
 
   const isClaimable = useMemo(
     () => ({
-      by: !_.isEmpty(selectedHat?.claimableBy),
-      for: !_.isEmpty(selectedHat?.claimableForBy),
+      by: !isEmpty(selectedHat?.claimableBy),
+      for: !isEmpty(selectedHat?.claimableForBy),
     }),
     [selectedHat],
   );
@@ -178,7 +188,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
 
   return (
     <Accordion px={{ base: 4, md: 10 }} allowMultiple>
-      {!_.isEmpty(moduleActions) && (
+      {!isEmpty(moduleActions) && (
         <>
           <Modal
             name='functionCall-module'
@@ -187,13 +197,13 @@ const ModuleDetails = ({ type }: { type: string }) => {
             )})`}
           >
             <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-              {_.get(selectedFunction, 'description') && (
-                <Text mb={3}>{_.get(selectedFunction, 'description')}</Text>
+              {get(selectedFunction, 'description') && (
+                <Text mb={3}>{get(selectedFunction, 'description')}</Text>
               )}
               <Stack>
-                {_.get(selectedFunction, 'args') && (
+                {get(selectedFunction, 'args') && (
                   <ModuleArgsForm
-                    selectedModuleArgs={_.get(selectedFunction, 'args', [])}
+                    selectedModuleArgs={get(selectedFunction, 'args', [])}
                     tokenAddress={tokenAddress as Hex}
                     localForm={formMethods}
                     hideIcon
@@ -209,10 +219,10 @@ const ModuleDetails = ({ type }: { type: string }) => {
                   <Button
                     colorScheme='blue'
                     type='submit'
-                    isDisabled={!formState.isValid}
+                    isDisabled={!isValid}
                     // isLoading={isModuleLoading}
                   >
-                    {_.get(selectedFunction, 'label')}
+                    {get(selectedFunction, 'label')}
                   </Button>
                 </HStack>
               </Flex>
@@ -229,7 +239,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
             </AccordionButton>
             <AccordionPanel px={0}>
               <Flex gap={2} wrap='wrap'>
-                {_.map(sortedModuleActions, (action: WriteFunction) => (
+                {map(sortedModuleActions, (action: WriteFunction) => (
                   <Tooltip label={action.description} key={action.label}>
                     <Button
                       variant='outlineMatch'
@@ -257,7 +267,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
         </AccordionButton>
         <AccordionPanel px={0}>
           <Stack>
-            {_.map(moduleDetails.details, (detail: string) => (
+            {map(moduleDetails.details, (detail: string) => (
               <Text key={detail} size='sm'>
                 {detail}
               </Text>
@@ -282,7 +292,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
                           : setHatClaimableFor?.()
                       }
                     >
-                      {_.includes(claimableHats, selectedHat?.id) &&
+                      {includes(claimableHats, selectedHat?.id) &&
                       !isClaimable.for
                         ? 'Make claimable for'
                         : 'Make claimable'}
@@ -297,7 +307,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
           </Stack>
         </AccordionPanel>
       </AccordionItem>
-      {!_.isEmpty(parameters) && (
+      {!isEmpty(parameters) && (
         <AccordionItem border='0'>
           <AccordionButton px={0}>
             <HStack>
@@ -324,7 +334,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
         </AccordionButton>
         <AccordionPanel px={0}>
           <Stack>
-            {_.map(moduleDetails.links, (link: LinkObject) => (
+            {map(moduleDetails.links, (link: LinkObject) => (
               <ChakraNextLink
                 href={link.link || '#'}
                 key={link.link}

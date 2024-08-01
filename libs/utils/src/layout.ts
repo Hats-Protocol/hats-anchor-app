@@ -10,7 +10,7 @@ export const getDisabledReason = ({
   action?: string;
   isNotConnected: boolean;
   isOnWrongNetwork: boolean;
-  isNotWearer: boolean;
+  isNotWearer?: boolean;
   isClaimed?: boolean;
   isCustom?: boolean;
   publicFunction?: boolean;
@@ -30,5 +30,5 @@ export const getDisabledReason = ({
   if (isClaimed) {
     return 'You are already a signer';
   }
-  return '';
+  return action;
 };

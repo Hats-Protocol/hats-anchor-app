@@ -96,7 +96,7 @@ const AuthoritiesForm = ({
     'formState',
   ]);
   const item = watch();
-  const { errors, isValid } = pick(formState, ['errors', 'isValid']);
+  const { errors } = pick(formState, ['errors']);
 
   const {
     acceptedFiles,
@@ -145,8 +145,6 @@ const AuthoritiesForm = ({
       getHostnameFromURL(link) === 'snapshot.org'
     );
   }, [gate, link]);
-
-  console.log(errors, isValid);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
