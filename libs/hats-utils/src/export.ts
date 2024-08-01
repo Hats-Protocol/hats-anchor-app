@@ -257,15 +257,7 @@ const mergeHatsWithStoredData = (
   });
 };
 
-export const handleExportBranch = ({
-  targetHatId,
-  treeToDisplayWithInactiveHats,
-  linkedHatIds,
-  storedData,
-  chainId,
-  toast,
-}: // shouldPatchIds = false,
-{
+interface ExportBranchProps {
   targetHatId?: Hex;
   treeToDisplayWithInactiveHats?: AppHat[];
   linkedHatIds?: Hex[];
@@ -274,7 +266,16 @@ export const handleExportBranch = ({
   chainId?: number;
   toast: any;
   // shouldPatchIds?: boolean;
-}) => {
+}
+
+export const handleExportBranch = ({
+  targetHatId,
+  treeToDisplayWithInactiveHats,
+  linkedHatIds,
+  storedData,
+  chainId,
+  toast,
+}: ExportBranchProps) => {
   if (
     !targetHatId ||
     !treeToDisplayWithInactiveHats ||
@@ -340,46 +341,46 @@ export const flattenHatData = (data: any[]): FormData[] =>
   _.map(
     data || [],
     (hat: any) =>
-      ({
-        id: hat.id,
-        status: hat.status,
-        createdAt: _.toNumber(hat.createdAt),
-        // details: hat.details,
-        maxSupply: _.toString(hat.maxSupply),
-        eligibility: hat.eligibility,
-        isEligibilityManual:
-          hat.detailsObject?.data?.eligibility?.manual !== false
-            ? TRIGGER_OPTIONS.MANUALLY
-            : TRIGGER_OPTIONS.AUTOMATICALLY,
-        revocationsCriteria:
-          hat.detailsObject?.data?.eligibility?.criteria || [],
-        toggle: hat.toggle,
-        isToggleManual:
-          hat.detailsObject?.data?.toggle?.manual !== false
-            ? TRIGGER_OPTIONS.MANUALLY
-            : TRIGGER_OPTIONS.AUTOMATICALLY,
-        deactivationsCriteria: _.get(
-          hat,
-          'detailsObject.data.toggle.criteria',
-          [],
-        ),
-        mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-        // imageUri: hat.imageUri,
-        currentSupply: _.toNumber(hat.currentSupply),
-        wearers: extractWearers(hat.wearers),
-        adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
-        // imported as imageUri from export data, likely imageUrl from `storedData`
-        imageUrl: hat.imageUrl || ipfsUrl(hat.imageUri.slice(7)),
-        imageUri: hat.imageUri,
-        name: _.get(hat, 'detailsObject.data.name', 'New Hat'),
-        description: _.get(
-          hat,
-          'detailsObject.data.description',
-          'No description',
-        ),
-        responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
-        authorities: _.get(hat, 'detailsObject.data.authorities', []),
-        guilds: _.get(hat, 'detailsObject.data.guilds', []),
-        spaces: _.get(hat, 'detailsObject.data.spaces', []),
-      } as FormData),
+    ({
+      id: hat.id,
+      status: hat.status,
+      createdAt: _.toNumber(hat.createdAt),
+      // details: hat.details,
+      maxSupply: _.toString(hat.maxSupply),
+      eligibility: hat.eligibility,
+      isEligibilityManual:
+        hat.detailsObject?.data?.eligibility?.manual !== false
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
+      revocationsCriteria:
+        hat.detailsObject?.data?.eligibility?.criteria || [],
+      toggle: hat.toggle,
+      isToggleManual:
+        hat.detailsObject?.data?.toggle?.manual !== false
+          ? TRIGGER_OPTIONS.MANUALLY
+          : TRIGGER_OPTIONS.AUTOMATICALLY,
+      deactivationsCriteria: _.get(
+        hat,
+        'detailsObject.data.toggle.criteria',
+        [],
+      ),
+      mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+      // imageUri: hat.imageUri,
+      currentSupply: _.toNumber(hat.currentSupply),
+      wearers: extractWearers(hat.wearers),
+      adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
+      // imported as imageUri from export data, likely imageUrl from `storedData`
+      imageUrl: hat.imageUrl || ipfsUrl(hat.imageUri.slice(7)),
+      imageUri: hat.imageUri,
+      name: _.get(hat, 'detailsObject.data.name', 'New Hat'),
+      description: _.get(
+        hat,
+        'detailsObject.data.description',
+        '', // was there a reason for override string vs empty
+      ),
+      responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
+      authorities: _.get(hat, 'detailsObject.data.authorities', []),
+      guilds: _.get(hat, 'detailsObject.data.guilds', []),
+      spaces: _.get(hat, 'detailsObject.data.spaces', []),
+    } as FormData),
   );

@@ -15,8 +15,10 @@ import {
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { prepareMobileTreeHats } from 'hats-utils';
-import { first, get, map, maxBy, size } from 'lodash';
+import { useMediaStyles } from 'hooks';
+import { first, get, isBoolean, map, maxBy, size } from 'lodash';
 import dynamic from 'next/dynamic';
+import { redirect, useSearchParams } from 'next/navigation';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
 
@@ -36,15 +38,21 @@ const DEFAULT_LOADING_CARDS = 8;
 const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   const {
     chainId,
-    // treeId,
+    treeId,
     treeToDisplay,
     isLoading: treeIsLoading,
   } = useTreeForm();
-  // const params = useSearchParams();
-  // const hatParam = params.get('hatId');
-  // if (hatParam && typeof window !== 'undefined') {
-  //   window.history.pushState({}, '', `/trees/${chainId}/${treeId}/${hatParam}`);
-  // }
+  const params = useSearchParams();
+  const { isMobile } = useMediaStyles();
+  const hatParam = params.get('hatId');
+  if (
+    hatParam &&
+    typeof window !== 'undefined' &&
+    isBoolean(isMobile) &&
+    isMobile
+  ) {
+    redirect(`/trees/${chainId}/${treeId}/${hatParam}`);
+  }
 
   const sortedTree = treeIsLoading
     ? map(
@@ -54,29 +62,8 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
       )
     : prepareMobileTreeHats(treeToDisplay);
   if (!chainId) return null;
-  // const chain = chainsMap(chainId);
 
-  // let title = '';
-  // if (_.isFinite(_.toNumber(treeId))) {
-  //   title = treeId
-  //     ? `Tree #${hatIdToTreeId(BigInt(treeId))} on ${chain.name}`
-  //     : '';
-  // } else {
-  //   title = 'Invalid Tree ID';
-  // }
-  // if (!selectedHat && topHatDetails) {
-  //   title = `${topHatDetails.name} on ${chain.name}`;
-  // } else if (selectedHat) {
-  //   if (selectedHatDetails) {
-  //     title = `${selectedHatDetails.name} on ${chain.name}`;
-  //   } else {
-  //     title = `${isTopHat(selectedHat) ? 'Top ' : ''}Hat #${hatIdDecimalToIp(
-  //       BigInt(_.get(selectedHat, 'id')),
-  //     )} on ${chain.name}`;
-  //   }
-  // }
   const maxDepth = maxBy(sortedTree, 'depth')?.depth || 0;
-  // console.log(maxDepth);
 
   if (!exists) {
     return (

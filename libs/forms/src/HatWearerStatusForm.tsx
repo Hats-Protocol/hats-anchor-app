@@ -86,7 +86,7 @@ const HatWearerStatusForm = ({
     txDescription,
     handlePendingTx,
     waitForSubgraph,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Wearer Status Updated',
       description: txDescription,
     },

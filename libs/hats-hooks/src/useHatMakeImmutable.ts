@@ -32,7 +32,7 @@ const useHatMakeImmutable = ({
     chainId: Number(chainId),
     handlePendingTx,
     waitForSubgraph,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Hat Updated!',
       description:
         selectedHatId &&

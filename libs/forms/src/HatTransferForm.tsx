@@ -66,7 +66,7 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
       description: "We're waiting for the data to be indexed. Stay tuned.",
       duration: 8000,
     },
-    onSuccessToastData: {
+    successToastData: {
       title: `${isTopHat ? 'Top ' : ''}Hat Transferred!`,
       description:
         hatId &&

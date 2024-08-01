@@ -116,15 +116,15 @@ const useHatClaimBy = ({
         });
 
         const txDescription = `You've claimed ${selectedHat?.id
-            ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
-            : 'this hat'
+          ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
+          : 'this hat'
           }.`;
 
         handlePendingTx?.({
           hash,
           txChainId: chainId,
           txDescription,
-          toastData: {
+          successToastData: {
             title: 'Hat claimed!',
             description: txDescription,
           },

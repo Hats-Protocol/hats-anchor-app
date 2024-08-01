@@ -8,12 +8,10 @@ const useIsAdmin = ({
   address,
   hatId,
   chainId,
-  editMode,
 }: {
   address: Hex | undefined;
   hatId?: Hex;
   chainId: number | undefined;
-  editMode?: boolean;
 }) => {
   const { data: isAdmin } = useReadContract({
     address: CONFIG.hatsAddress,

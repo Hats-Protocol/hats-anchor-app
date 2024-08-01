@@ -21,7 +21,7 @@ import {
   ResponsibilitiesForm,
 } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
-import { useClipboard, useToast } from 'hooks';
+import { useClipboard } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
@@ -42,16 +42,12 @@ const EditMode = () => {
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, isDraft } = useSelectedHat();
   const { getDirtyFieldsForAccordion, handleSave: onSave } = useHatForm();
-  const toast = useToast();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
 
-  const { onCopy } = useClipboard(selectedHat?.id || '');
-
-  const copyHatId = () => {
-    onCopy();
-    toast.success({ title: 'Copied Hat ID to clipboard' });
-  };
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
+    toastData: { title: 'Copied Hat ID to clipboard' },
+  });
 
   const name = _.get(
     _.find(treeToDisplay, ['id', selectedHat?.id]),

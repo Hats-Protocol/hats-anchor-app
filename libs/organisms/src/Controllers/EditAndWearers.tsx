@@ -84,7 +84,7 @@ const AdminWearersPanel = () => {
 
   if (size(admins) === 1) {
     return (
-      <Flex justify='space-between' py={1} px={4}>
+      <Flex justify='space-between' py={1} px={{ base: 4, md: 0 }}>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
           Admins can edit this Hat
           {!isClaimable?.for ? ' and choose Wearers' : ''}
@@ -295,7 +295,7 @@ const EditAndWearers = () => {
 
   if (!selectedHat?.mutable) {
     return (
-      <Stack py={1} px={4}>
+      <Stack py={1} px={{ base: 4, md: 0 }}>
         <Flex justify='space-between'>
           <Text fontSize={{ base: 'sm', md: 'md' }}>
             This Hat cannot be edited

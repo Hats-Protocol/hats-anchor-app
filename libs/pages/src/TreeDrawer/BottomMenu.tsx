@@ -20,7 +20,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
-import { useClipboard, useToast } from 'hooks';
+import { useClipboard } from 'hooks';
 import posthog from 'posthog-js';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
@@ -46,12 +46,18 @@ const BottomMenu = ({
     isExpanded,
   });
   const callData = data ? data?.callData : null;
-  const toast = useToast();
 
   const hasUpdates = editHasUpdates(storedData);
 
-  const { onCopy: copyCallData } = useClipboard(callData || '');
-  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
+  const { onCopy: copyCallData } = useClipboard(callData || '', {
+    toastData: { title: 'Successfully copied hex code to clipboard' },
+  });
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress, {
+    toastData: {
+      title: 'Successfully copied contract address to clipboard',
+      status: 'info',
+    },
+  });
 
   const openCalldataMenu = () => {
     posthog.capture('Opened Transaction Calldata Menu');
@@ -88,13 +94,7 @@ const BottomMenu = ({
                   />
                   <Button
                     leftIcon={<FiCopy />}
-                    onClick={() => {
-                      copyContractAddress();
-                      toast.info({
-                        title:
-                          'Successfully copied contract address to clipboard',
-                      });
-                    }}
+                    onClick={copyContractAddress}
                     variant='outline'
                     borderColor='gray.300'
                   >
@@ -126,12 +126,7 @@ const BottomMenu = ({
                     />
                     <Button
                       leftIcon={<FiCopy />}
-                      onClick={() => {
-                        copyCallData();
-                        toast.info({
-                          title: 'Successfully copied hex code to clipboard',
-                        });
-                      }}
+                      onClick={copyCallData}
                       isDisabled={!callData}
                       variant='outline'
                       borderColor='gray.300'

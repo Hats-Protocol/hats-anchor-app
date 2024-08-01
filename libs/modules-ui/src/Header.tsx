@@ -33,7 +33,9 @@ const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
   const { chainId, selectedHat, selectedHatDetails } = useEligibility();
-  const { onCopy } = useClipboard(selectedHat?.id as string);
+  const { onCopy } = useClipboard(selectedHat?.id as string, {
+    toastData: { title: 'Successfully copied hat ID to clipboard' },
+  });
   const { isMobile } = useMediaStyles();
 
   const { name, description } = _.pick(selectedHatDetails, [
@@ -185,13 +187,7 @@ const Header = () => {
                   as={HStack}
                   isLoaded={!!selectedHat?.id}
                   cursor={selectedHat ? 'pointer' : 'default'}
-                  onClick={() => {
-                    if (!selectedHat) return;
-                    onCopy();
-                    toast.info({
-                      title: 'Successfully copied hat ID to clipboard',
-                    });
-                  }}
+                  onClick={onCopy}
                 >
                   <Text color='blue.500'>
                     {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}

@@ -81,7 +81,7 @@ const useMultiClaimsHatterContractWrite = ({
           hash,
           txChainId: chainId,
           txDescription: functionName,
-          toastData: {
+          successToastData: {
             title: 'Transaction successful',
             description: 'Your transaction has been confirmed.',
           },

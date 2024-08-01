@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import _ from 'lodash';
+import { first, get } from 'lodash';
 import { useMemo } from 'react';
 import { idToIp } from 'shared';
 import { AppHat, SupportedChains } from 'types';
@@ -47,7 +47,7 @@ const useHatClaimFor = ({
   const toast = useToast();
 
   const claimableForAddress: Hex | undefined = useMemo(
-    () => _.get(_.first(_.get(selectedHat, 'claimableForBy')), 'id') as Hex,
+    () => get(first(get(selectedHat, 'claimableForBy')), 'id') as Hex,
     [selectedHat],
   );
 
@@ -90,7 +90,10 @@ const useHatClaimFor = ({
       .then((result) => {
         return result;
       })
-      .catch((error) => error);
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      });
   };
 
   const { mutateAsync } = useMutation({
@@ -107,6 +110,8 @@ const useHatClaimFor = ({
       }
     },
     onError: (error) => {
+      // eslint-disable-next-line no-console
+      console.log(error);
       const err = error as Error;
       toast.error({
         title: 'Transaction failed',

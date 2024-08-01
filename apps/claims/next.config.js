@@ -39,7 +39,6 @@ const nextConfig = {
       '@rainbow-me/rainbowkit',
       '@tanstack/react-query',
       'd3-org-chart',
-      'react-datepicker',
       'viem',
       // internal packages
       // '@hatsprotocol/constants',
