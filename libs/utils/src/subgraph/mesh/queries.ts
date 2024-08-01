@@ -407,6 +407,52 @@ export function getWearerDetailsQuery(chainId: number): string {
   `;
 }
 
+export function getWearerTreesQuery(chainId: number): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  return gql`
+    query getWearerTrees($id: ID!) {
+      ${networkPrefix}_wearer(id: $id) {
+        id
+        currentHats {
+          id
+          tree {
+            id
+            hats(first: 1) {
+              id
+              prettyId
+              status
+              createdAt
+              details
+              detailsMetadata
+              maxSupply
+              eligibility
+              toggle
+              mutable
+              imageUri
+              nearestImage
+              levelAtLocalTree
+              claimableBy {
+                id
+              }
+              claimableForBy {
+                id
+              }
+              currentSupply
+              wearers {
+                id
+              }
+              admin {
+                id
+              }
+            }
+          }
+        }
+      
+      }
+    }
+  `;
+}
+
 export function getPaginatedWearersForHatQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`

@@ -1,52 +1,51 @@
 'use client';
 
 import { Flex, Heading, SimpleGrid, Spinner } from '@chakra-ui/react';
+import { SHOW_KEY } from '@hatsprotocol/constants';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
-import { useImageURIs } from 'hooks';
-import _ from 'lodash';
+import { useWearerTrees } from 'hooks';
+import { flatten, get, isEmpty, map, size, toNumber } from 'lodash';
 import { TreeListCard as TreeCard } from 'molecules';
-import { useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { mapWithChainId } from 'shared';
-import { AppHat } from 'types';
 import { Skeleton } from 'ui';
+import { useAccount } from 'wagmi';
 
 const LOADING_TREES = Array(20).fill({});
 
-const TreesList = ({
-  params,
-  initialTrees,
-}: {
-  params: { chainId: string };
-  initialTrees: any[];
-}) => {
+const TreesList = ({ params }: TreeListProps) => {
   const { chainId: chainIdParam } = params;
-  const chainId = _.toNumber(chainIdParam);
+  const chainId = toNumber(chainIdParam);
+  const queryParams = useSearchParams();
+  const { address } = useAccount();
+
+  const showKey = queryParams.get('show');
+
+  const { data: wearerTrees, isLoading: wearerTreesLoading } = useWearerTrees({
+    chainId,
+    wearer: address,
+    enabled: !!address && !!chainId,
+  });
 
   const {
-    data,
+    data: paginatedTrees,
     fetchNextPage,
     hasNextPage,
     isLoading: treesLoading,
   } = usePaginatedTreeList({
     chainId,
+    enabled: showKey === SHOW_KEY.all,
   });
 
-  const trees = _.flatten(_.get(data, 'pages'));
+  const trees = flatten(get(paginatedTrees, 'pages'));
 
-  const topHats = useMemo(() => {
-    return mapWithChainId(
-      _.map(_.flatten(_.get(data, 'pages')), 'hats[0]'),
-      chainId,
-    ) as AppHat[];
-  }, [data, chainId]);
-
-  const { data: topHatsWithImagesData } = useImageURIs({
-    hats: topHats,
-  });
-
-  if (_.isEmpty(trees) && !treesLoading) {
+  if (
+    isEmpty(trees) &&
+    isEmpty(wearerTrees) &&
+    !treesLoading &&
+    !wearerTreesLoading
+  ) {
     return (
       <Flex justify='center' align='center' h='100vh'>
         <Heading>No trees found</Heading>
@@ -54,10 +53,10 @@ const TreesList = ({
     );
   }
 
-  if (treesLoading) {
+  if (treesLoading || wearerTreesLoading) {
     return (
       <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 justify-center mx-auto max-w-[1200px] gap-4 sm:gap-6'>
-        {_.map(LOADING_TREES, (tree: Tree, i) => {
+        {map(LOADING_TREES, (_, i) => {
           return <Skeleton key={i} className='w-100 h-[132px] rounded-md' />;
         })}
       </div>
@@ -66,10 +65,10 @@ const TreesList = ({
 
   return (
     <InfiniteScroll
-      hasChildren={!_.isEmpty(trees)}
-      dataLength={_.size(trees)}
+      hasChildren={!isEmpty(trees)}
+      dataLength={size(trees)}
       next={fetchNextPage}
-      hasMore={hasNextPage || false}
+      hasMore={(showKey === SHOW_KEY.all && hasNextPage) || false}
       loader={
         <Flex justify='center' align='center' pt={10}>
           <Spinner />
@@ -90,32 +89,22 @@ const TreesList = ({
         maxW='1200px'
         mx='auto'
       >
-        {_.map(trees, (tree: Tree) => {
-          const topHat = _.find(
-            topHats,
-            (h: AppHat) =>
-              _.get(h, 'id') === _.get(_.first(_.get(tree, 'hats')), 'id'),
-          );
-          const topHatImage = _.find(
-            topHatsWithImagesData,
-            (h: AppHat) =>
-              _.get(h, 'id') === _.get(_.first(_.get(tree, 'hats')), 'id'),
-          );
-
-          if (!topHat || !tree) return null;
-
-          return (
-            <TreeCard
-              key={tree.id}
-              tree={tree}
-              topHat={topHat}
-              topHatImage={topHatImage}
-            />
-          );
-        })}
+        {trees || wearerTrees
+          ? map(
+              showKey !== SHOW_KEY.all && address ? wearerTrees : trees,
+              (tree: Tree) => (
+                <TreeCard key={tree.id} tree={tree} chainId={chainId} />
+              ),
+            )
+          : null}
       </SimpleGrid>
     </InfiniteScroll>
   );
 };
+
+interface TreeListProps {
+  params: { chainId: string };
+  // initialTrees: any[];
+}
 
 export default TreesList;

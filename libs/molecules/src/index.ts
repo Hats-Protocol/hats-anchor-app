@@ -13,6 +13,7 @@ export { default as OrgChart } from './OrgChart';
 export { default as ResponsibilitiesList } from './ResponsibilitiesList';
 export { default as ResponsibilitiesListCard } from './ResponsibilitiesListCard';
 export { default as ResponsibilityHeader } from './ResponsibilityHeader';
+export { default as ShowTreesButton } from './ShowTreesButton';
 export * from './standalone';
 export { default as TooltipWrapper } from './TooltipWrapper';
 export { default as TransactionHistory } from './TransactionHistory';

@@ -10,15 +10,17 @@ import ChakraNextLink from './ChakraNextLink';
 const LinkButton = ({
   href,
   icon,
+  variant,
   children,
 }: {
   href: string;
   icon?: ReactNode;
+  variant?: string;
   children?: ReactNode;
 }) => {
   return (
     <ChakraNextLink href={href}>
-      <Button colorScheme='blue.500' variant='outlineMatch'>
+      <Button colorScheme='blue.500' variant={variant || 'outlineMatch'}>
         <HStack gap={3}>
           {icon}
           <Text variant='medium' noOfLines={1}>
