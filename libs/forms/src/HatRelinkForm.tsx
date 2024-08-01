@@ -12,19 +12,21 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useOverlay } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { useDebounce, usePinImageIpfs } from 'hooks';
-import _ from 'lodash';
-import { Input, Select, Textarea } from './components';
+import { useDebounce, usePinImageIpfs, useWaitForSubgraph } from 'hooks';
+import { first, get, map } from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { AppHat, ImageFile } from 'types';
 import { DropZone } from 'ui';
-import { fetchToken, pinJson } from 'utils';
+import { fetchHatDetails, fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
+
+import { Input, Select, Textarea } from './components';
 
 // TODO [low] update links to use new docs links constants
 
@@ -38,11 +40,12 @@ const HatRelinkForm = ({
   parentTreeHats: AppHat[];
 }) => {
   const currentNetworkId = useChainId();
+  const { handlePendingTx } = useOverlay();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
       topHatDomain: hatData.prettyId,
-      newAdmin: _.get(_.first(parentTreeHats), 'id') as Hex,
+      newAdmin: get(first(parentTreeHats), 'id') as Hex,
       description: '',
       eligibility: zeroAddress as Hex,
       toggle: zeroAddress as Hex,
@@ -77,7 +80,7 @@ const HatRelinkForm = ({
     },
   });
 
-  const newParentId = _.get(_.first(parentTreeHats), 'id') as Hex;
+  const newParentId = get(first(parentTreeHats), 'id') as Hex;
   const newAdmin = useDebounce<Hex>(watch('newAdmin', newParentId));
   const description = useDebounce<string>(watch('description', ''));
   const eligibility = useDebounce(watch('eligibility', zeroAddress));
@@ -104,6 +107,11 @@ const HatRelinkForm = ({
   const eligibilityAddress = eligibilityResolvedAddress || FALLBACK_ADDRESS;
   const toggleAddress = toggleResolvedAddress || FALLBACK_ADDRESS;
 
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(hatData.id, chainId),
+    checkResult: (hatDetails) => hatDetails?.admin === newAdmin,
+  });
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'relinkTopHatWithinTree',
     args: [
@@ -120,12 +128,14 @@ const HatRelinkForm = ({
         : imageUrl,
     ],
     chainId,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Top Hat Relinked!',
       description: `Successfully relinked top hat ${hatIdDecimalToIp(
         BigInt(hatData.id),
       )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
+    handlePendingTx,
+    waitForSubgraph,
     enabled: !!hatData.prettyId && !!newAdmin && chainId === currentNetworkId,
   });
 
@@ -168,7 +178,7 @@ const HatRelinkForm = ({
           name='newAdmin'
           localForm={localForm}
         >
-          {_.map(parentTreeHats, (hat: AppHat) => (
+          {map(parentTreeHats, (hat: AppHat) => (
             <option value={hat.id} key={hat.id}>
               {hatIdDecimalToIp(BigInt(hat.id))}
             </option>

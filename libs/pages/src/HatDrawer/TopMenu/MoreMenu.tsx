@@ -31,7 +31,7 @@ import {
   useWearerDetails,
 } from 'hats-hooks';
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
-import { useClipboard, useToast } from 'hooks';
+import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import {
   FaCopy,
@@ -44,7 +44,7 @@ import {
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
 import { idToIp, toTreeId } from 'shared';
-import { isSameAddress } from 'utils';
+import { fetchHatDetails, isSameAddress } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 const MoreMenu = () => {
@@ -91,13 +91,18 @@ const MoreMenu = () => {
     selectedHat?.status ? 'Deactivated' : 'Activated'
   } hat ${idToIp(selectedHat?.id)}`;
 
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => selectedHat && fetchHatDetails(selectedHat.id, chainId),
+    checkResult: (hatDetails) => !hatDetails?.mutable,
+  });
+
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({
       functionName: 'setHatStatus',
       args: [selectedHat?.id, !selectedHat?.status],
       chainId,
       txDescription,
-      onSuccessToastData: {
+      successToastData: {
         title: 'Hat Status Updated!',
         description: txDescription,
       },
@@ -105,6 +110,8 @@ const MoreMenu = () => {
         ['hatDetails', { id: selectedHat?.id, chainId }],
         ['treeDetails', toTreeId(selectedHat?.id)],
       ],
+      handlePendingTx,
+      waitForSubgraph,
       enabled:
         Boolean(selectedHat) &&
         isSameAddress(address, selectedHat?.toggle) &&

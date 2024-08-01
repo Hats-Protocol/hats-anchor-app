@@ -2,16 +2,18 @@ import { Hex, TransactionReceipt } from 'viem';
 
 import { ToastProps } from './toast';
 
-export type HandlePendingTx = ({
-  hash,
-  txChainId,
-  txDescription,
-  toastData,
-  onSuccess,
-}: {
+export type HandlePendingTxProps = {
   hash: Hex;
-  txChainId: number | undefined;
+  txChainId?: number | undefined;
   txDescription: string;
-  toastData: ToastProps | undefined;
-  onSuccess?: (d?: TransactionReceipt) => void;
-}) => Promise<TransactionReceipt | undefined>;
+  waitForSubgraphToastData?: ToastProps;
+  successToastData?: ToastProps | undefined;
+  redirect?: string | null;
+  clearModals?: boolean;
+  sendToast?: boolean;
+  waitForSubgraph?: (data?: TransactionReceipt) => Promise<unknown>;
+  onSuccess?: (data?: TransactionReceipt) => void;
+}
+
+export type HandlePendingTx = (props: HandlePendingTxProps) => Promise<TransactionReceipt | undefined>;
+

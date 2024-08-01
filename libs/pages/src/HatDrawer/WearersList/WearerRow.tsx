@@ -14,7 +14,7 @@ import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite } from 'hats-hooks';
 import { getControllerNameAndLink, isTopHat } from 'hats-utils';
 import { useClipboard, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { filter, get, isEmpty, toLower } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { idToIp, toTreeId } from 'shared';
@@ -63,12 +63,20 @@ const WearerRow = ({
   const hatId = selectedHat?.id || '0x';
   const isSameChain = chainId === currentNetworkId;
   const currentUserIsEligibility =
-    selectedHat?.eligibility === _.toLower(address);
+    selectedHat?.eligibility === toLower(address);
 
   // TODO should be able to say "Removed hat for wearer", add uses claim for
   const txDescription = `Revoked hat #${idToIp(hatId)} from ${formatAddress(
     wearer.id,
   )}`;
+
+  const checkEligibilityWaitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(hatId, chainId),
+    checkResult: (hatDetails) =>
+      isEmpty(
+        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(address)),
+      ),
+  });
 
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
@@ -81,8 +89,9 @@ const WearerRow = ({
       ['treeDetails', toTreeId(hatId)],
     ],
     handlePendingTx,
+    waitForSubgraph: checkEligibilityWaitForSubgraph,
     txDescription,
-    onSuccessToastData: {
+    successToastData: {
       title: txDescription,
     },
   });
@@ -93,14 +102,11 @@ const WearerRow = ({
     enabled: wearer.isContract,
   });
 
-  const waitForSubgraph = useWaitForSubgraph({
+  const renounceWaitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(hatId, chainId),
     checkResult: (hatDetails) =>
-      _.isEmpty(
-        _.filter(
-          hatDetails?.wearers,
-          (w) => _.toLower(w.id) === _.toLower(address),
-        ),
+      isEmpty(
+        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(address)),
       ),
   });
 
@@ -108,7 +114,7 @@ const WearerRow = ({
     selectedHat,
     chainId,
     handlePendingTx,
-    waitForSubgraph,
+    waitForSubgraph: renounceWaitForSubgraph,
   });
 
   const handleRenounceHat = async () => {
@@ -142,9 +148,9 @@ const WearerRow = ({
   }
 
   const displayName =
-    _.get(wearer, 'ensName') ||
+    get(wearer, 'ensName') ||
     controllerName ||
-    formatAddress(_.get(wearer, 'id'));
+    formatAddress(get(wearer, 'id'));
   const wearerNameIsAddress = displayName === formatAddress(wearer.id);
 
   return (
@@ -180,7 +186,7 @@ const WearerRow = ({
       <Flex alignItems='center' gap={1}>
         {!isIneligible && // don't transfer when you can revoke
           currentUserIsAdmin && // admins can transfer
-          (wearer.id !== _.toLower(address) || isTopHat(selectedHat)) && ( // prefer to renounce if wearer, unless top hat
+          (wearer.id !== toLower(address) || isTopHat(selectedHat)) && ( // prefer to renounce if wearer, unless top hat
             <TooltipWrapper
               isSameChain={isSameChain}
               label="You can't transfer a hat on a different chain"

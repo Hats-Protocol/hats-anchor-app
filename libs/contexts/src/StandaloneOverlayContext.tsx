@@ -12,6 +12,7 @@ import {
 } from 'react';
 import {
   ClaimsModals,
+  HandlePendingTxProps,
   HatRecord,
   StandaloneOverlayContextProps,
   Transaction,
@@ -111,21 +112,12 @@ export const StandaloneOverlayContextProvider = ({
   const handlePendingTx = async ({
     hash,
     txChainId,
-    toastData,
+    successToastData,
     redirect = null,
     clearModals = true,
     sendToast = true,
     onSuccess,
-  }: {
-    hash: Hex;
-    txChainId?: number | undefined;
-    txDescription: string;
-    toastData: object | undefined;
-    redirect?: string | null;
-    clearModals?: boolean;
-    sendToast?: boolean;
-    onSuccess?: (data?: TransactionReceipt) => void;
-  }): Promise<TransactionReceipt | undefined> => {
+  }: HandlePendingTxProps): Promise<TransactionReceipt | undefined> => {
     const data = await viemPublicClient(
       txChainId || 1,
     ).waitForTransactionReceipt({
@@ -136,10 +128,10 @@ export const StandaloneOverlayContextProvider = ({
       return Promise.resolve(undefined);
     }
 
-    if (sendToast && toastData) {
+    if (sendToast && successToastData) {
       toast.success({
-        title: _.get(toastData, 'title', 'Transaction successful'),
-        description: _.get(toastData, 'description'),
+        title: _.get(successToastData, 'title', 'Transaction successful'),
+        description: _.get(successToastData, 'description'),
       });
     }
 

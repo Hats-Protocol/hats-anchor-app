@@ -39,7 +39,7 @@ const useHatBurn = ({
     args: [hatId],
     chainId,
     txDescription,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Hat removed!',
       description: txDescription,
     },

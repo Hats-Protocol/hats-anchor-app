@@ -27,7 +27,6 @@ import {
   useAccount,
   useChainId,
   useWriteContract,
-  // useSimulateContract,
 } from 'wagmi';
 
 import useAdminOfHats from './useAdminOfHats';
@@ -124,7 +123,7 @@ const useMulticallManyHats = ({
           hash: data as Hex,
           txChainId: chainId,
           txDescription,
-          toastData: {
+          successToastData: {
             title: 'Transaction successful',
             description: txDescription,
             duration: 7000,

@@ -54,7 +54,6 @@ const PermissionlessClaimingForm = ({
     address: instanceAddress,
     hatId: selectedHat?.id,
     chainId,
-    editMode,
   });
 
   const isClaimable = _.includes(claimableHats, selectedHat?.id);

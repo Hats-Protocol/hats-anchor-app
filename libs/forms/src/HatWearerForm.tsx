@@ -119,7 +119,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
     args: batchMintArgs,
     chainId,
     txDescription: txDescriptionBatch,
-    onSuccessToastData: {
+    successToastData: {
       title: `Hats Minted!`,
       description: txDescriptionBatch,
     },
@@ -155,11 +155,12 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
       args: [hatIdDecimal, currentResolvedAddress || currentInput],
       chainId,
       txDescription: txDescriptionSingle,
-      onSuccessToastData: {
+      successToastData: {
         title: `Hat Minted!`,
         description: txDescriptionSingle,
       },
       handlePendingTx,
+      waitForSubgraph,
       handleSuccess: () => {
         onCloseHatDrawer?.();
       },

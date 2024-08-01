@@ -12,6 +12,8 @@ import { checkAddressIsContract, invalidateAfterTransaction } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
+// TODO should wrap useHatContractWrite
+
 const useHatStatusCheck = ({
   hatData,
   chainId,
@@ -72,28 +74,23 @@ const useHatStatusCheck = ({
           hash,
           txChainId: chainId,
           txDescription,
-          toastData: {
-            title: 'Transaction Confirmed',
-            description: 'Checking Hat Status...',
-          },
+          sendToast: false,
           onSuccess: async (d?: TransactionReceipt) => {
             const logs = _.get(d, 'logs');
             if (logs?.length === 0) {
               toast.success({
                 title: txDescription,
-                description: `No change: Hat Status remains ${
-                  hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
-                }`,
+                description: `No change: Hat Status remains ${hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
+                  }`,
               });
             } else {
               const logData = _.get(_.first(logs), 'data');
               toast.success({
                 title: txDescription,
-                description: `Hat Status Changed to ${
-                  _.first(_.slice(logData, -1, _.size(logData))) === '1'
-                    ? STATUS.ACTIVE
-                    : STATUS.INACTIVE
-                }`,
+                description: `Hat Status Changed to ${_.first(_.slice(logData, -1, _.size(logData))) === '1'
+                  ? STATUS.ACTIVE
+                  : STATUS.INACTIVE
+                  }`,
               });
               await invalidateAfterTransaction(chainId, hash);
 
