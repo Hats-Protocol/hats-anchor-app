@@ -14,3 +14,4 @@ export * from './modules';
 export { default as PROPOSALS } from './snapshotElections';
 export { ANCILLARY_API_URL, default as NETWORK_ENDPOINTS } from './subgraph';
 export * from './treeControls';
+export * from './trees';

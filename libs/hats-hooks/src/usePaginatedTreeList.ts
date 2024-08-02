@@ -8,6 +8,7 @@ import { fetchPaginatedTreesMesh } from 'utils';
 const usePaginatedTreeList = ({
   chainId,
   perPage = 40,
+  enabled = true,
   initialData,
 }: UsePaginatedTreeListProps) => {
   const {
@@ -31,6 +32,7 @@ const usePaginatedTreeList = ({
     initialData: initialData
       ? { pages: [initialData], pageParams: [0] }
       : undefined,
+    enabled,
   });
 
   return {
@@ -48,5 +50,6 @@ export default usePaginatedTreeList;
 interface UsePaginatedTreeListProps {
   chainId: number;
   perPage?: number;
+  enabled?: boolean;
   initialData?: Tree[];
 }

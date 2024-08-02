@@ -22,6 +22,13 @@ const Button = {
         background: props.hoverBackground || props.hoverBg || 'blue.700',
       },
     }),
+    ghost: (props: StyleFunctionProps) => ({
+      background: 'blackAlpha.50',
+      color: props.color || props.colorScheme || 'gray.700',
+      _hover: {
+        background: props.hoverBackground || props.hoverBg || 'blackAlpha.200',
+      },
+    }),
     outline: (props: StyleFunctionProps) => ({
       color: props.color || 'gray.700',
       borderColor: props.borderColor || 'gray.300',

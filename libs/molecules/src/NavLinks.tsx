@@ -41,8 +41,8 @@ const NavLinks = () => {
           h='75px'
           minW='125px'
           maxW='200px'
-          variant='ghost'
           borderRadius={0}
+          background='transparent'
           _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
           isActive={includes(pathname, CONFIG.trees)}
         >
@@ -66,9 +66,9 @@ const NavLinks = () => {
           <Button
             h='75px'
             minW='125px'
-            variant='ghost'
             borderRadius={0}
             fontSize='lg'
+            background='transparent'
             _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
             isActive={includes(toLower(pathname), toLower(address))}
           >

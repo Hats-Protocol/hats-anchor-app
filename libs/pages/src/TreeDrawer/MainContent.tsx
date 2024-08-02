@@ -201,8 +201,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 w='full'
                 justifyContent='space-between'
                 h={10}
+                bg='transparent'
                 alignItems='center'
-                variant='ghost'
                 borderRadius={0}
                 onClick={handleHatClick}
               >

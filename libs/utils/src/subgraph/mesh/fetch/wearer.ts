@@ -1,9 +1,11 @@
 import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import { GraphQLClient } from 'graphql-request';
+import { get, map } from 'lodash';
 import { mapWithChainId } from 'shared';
+import { AppTree } from 'types';
 import { Hex } from 'viem';
 
-import { getWearerDetailsQuery, NETWORKS_PREFIX } from '../queries';
+import { getWearerDetailsQuery, getWearerTreesQuery, NETWORKS_PREFIX } from '../queries';
 
 // eslint-disable-next-line import/prefer-default-export
 export const fetchWearerDetailsMesh = async (
@@ -34,3 +36,33 @@ export const fetchWearerDetailsMesh = async (
     currentHats: mapWithChainId(wearer.currentHats, chainId),
   };
 };
+
+
+export const fetchWearerTrees = async ({
+  chainId,
+  wearer,
+}: {
+  chainId: number | undefined;
+  wearer: Hex | undefined;
+}) => {
+  if (!chainId || !wearer) return [];
+
+  try {
+    const client = new GraphQLClient(
+      `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
+    );
+
+    const query = getWearerTreesQuery(chainId);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const res: unknown = await client.request(query, {
+      id: wearer.toLowerCase(),
+    });
+
+    return map(get(res, `${NETWORKS_PREFIX[chainId]}_wearer.currentHats`), 'tree') as AppTree[];
+  } catch (err) {
+
+    return undefined;
+  }
+}
+

@@ -24,3 +24,4 @@ export { default as useTreeGuilds } from './useTreeGuilds';
 export { default as useTreeImages } from './useTreeImages';
 export { default as useTreeSnapshotSpaces } from './useTreeSnapshotSpaces';
 export { default as useWaitForSubgraph } from './useWaitForSubgraph';
+export { default as useWearerTrees } from './useWearerTrees';

@@ -16,9 +16,9 @@ import { useMediaStyles } from 'hooks';
 import { get, size } from 'lodash';
 import dynamic from 'next/dynamic';
 // import { BsPeopleFill } from 'react-icons/bs';
-import { AppHat, AppTree } from 'types';
+import { AppTree } from 'types';
 import { ChakraNextLink } from 'ui';
-import { removeInactiveHatsAndDescendants } from 'utils';
+import { ipfsUrl, removeInactiveHatsAndDescendants } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
@@ -48,20 +48,26 @@ const TreeStats = ({ tree }: { tree: AppTree }) => {
 
 const TreeListCard = ({
   tree,
-  topHat,
-  topHatImage,
+  chainId,
 }: {
   tree: AppTree;
-  topHat: AppHat;
-  topHatImage: AppHat | undefined;
+  chainId: number;
 }) => {
   const { isMobile } = useMediaStyles();
-  const hatName = get(topHat, 'metadata.name', get(topHat, 'details'));
+  const topHat = get(tree, 'hats[0]');
+  const rawMetadata = get(topHat, 'detailsMetadata');
+  const topHatDetails = rawMetadata
+    ? get(JSON.parse(rawMetadata), 'data')
+    : undefined;
+
+  const hatName = get(topHatDetails, 'name', get(topHat, 'details'));
+  const nearestImageRaw = get(topHat, 'nearestImage');
+  const nearestImage = nearestImageRaw ? ipfsUrl(nearestImageRaw) : undefined;
 
   return (
     <ChakraNextLink
-      href={`/trees/${tree?.chainId}/${treeIdHexToDecimal(tree?.id)}`}
-      key={`${get(tree, 'chainId')}-${get(tree, 'id')}`}
+      href={`/trees/${chainId}/${treeIdHexToDecimal(tree?.id)}`}
+      key={`${chainId}-${get(tree, 'id')}`}
     >
       <Card overflow='hidden'>
         <CardBody
@@ -93,9 +99,7 @@ const TreeListCard = ({
               {/* TOP HAT IMAGE */}
               <Box
                 bgImage={
-                  get(topHatImage, 'imageUrl')
-                    ? `url('${get(topHatImage, 'imageUrl')}')`
-                    : `url('/icon.jpeg')`
+                  nearestImage ? `url(${nearestImage})` : `url('/icon.jpeg')`
                 }
                 bgSize='cover'
                 bgPosition='center'
