@@ -23,8 +23,20 @@ import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { ModuleAuthorityModal } from 'forms';
+import { useWearerDetails } from 'hats-hooks';
 import { formHatUrl, safeUrl } from 'hats-utils';
-import _, { get, includes } from 'lodash';
+import {
+  capitalize,
+  filter,
+  find,
+  forEach,
+  get,
+  includes,
+  isEmpty,
+  map,
+  size,
+  toLower,
+} from 'lodash';
 import {
   useCallHsgFunction,
   useCallModuleFunction,
@@ -63,18 +75,19 @@ const ModuleAuthorityToolbar = ({
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
 
+  const { data: wearerDetails } = useWearerDetails({
+    wearerAddress: toLower(address) as Hex,
+    chainId,
+  });
   const isWearer = useMemo(
-    () =>
-      _.includes(
-        _.map(selectedHat?.wearers, 'id'),
-        address?.toLocaleLowerCase(),
-      ),
-    [selectedHat, address],
+    // TODO handle wearers of many hats
+    () => includes(map(wearerDetails, 'id'), selectedHat?.id),
+    [wearerDetails, selectedHat?.id],
   );
-  const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
+  const primaryFunction = find(get(authority, 'functions'), 'primary');
 
-  const otherFunctions = _.filter(
-    _.get(authority, 'functions', []),
+  const otherFunctions = filter(
+    get(authority, 'functions', []),
     (func: WriteFunction) => !func.primary,
   );
 
@@ -89,7 +102,7 @@ const ModuleAuthorityToolbar = ({
       });
 
       if (authority.hsgConfig?.signerHats) {
-        _.forEach(authority.hsgConfig.signerHats, (h: { id: Hex }) => {
+        forEach(authority.hsgConfig.signerHats, (h: { id: Hex }) => {
           links.push({
             link: formHatUrl({ hatId: h.id, chainId }),
             label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,
@@ -136,8 +149,8 @@ const ModuleAuthorityToolbar = ({
     if (func.args && func.args.length > 0) {
       // handle special case for claimSigner on MHSG, might be a better way to handle this to match modules
       if (
-        _.size(func.args) === 1 &&
-        _.get(func, 'args[0].name') === 'Signer Hat' // TODO can we make this assumption in other cases?
+        size(func.args) === 1 &&
+        get(func, 'args[0].name') === 'Signer Hat' // TODO can we make this assumption in other cases?
       ) {
         const args = { 'Signer Hat': selectedHat?.id };
         callHsgFunction({
@@ -220,7 +233,7 @@ const ModuleAuthorityToolbar = ({
             }}
             rightIcon={<Icon as={FiPlusSquare} />}
           >
-            {_.capitalize(primaryFunction.label)}
+            {capitalize(primaryFunction.label)}
           </Button>
         </Tooltip>
       )}
@@ -294,7 +307,7 @@ const ModuleAuthorityToolbar = ({
             </Button>
           </ChakraNextLink>
         )}
-        {(!_.isEmpty(otherFunctions) || !_.isEmpty(otherLinks)) && (
+        {(!isEmpty(otherFunctions) || !isEmpty(otherLinks)) && (
           <Menu>
             <MenuButton
               as={IconButton}
@@ -304,7 +317,7 @@ const ModuleAuthorityToolbar = ({
               size='sm'
             />
             <MenuList>
-              {_.map(otherFunctions, (func: ModuleFunction, i: number) => {
+              {map(otherFunctions, (func: ModuleFunction, i: number) => {
                 const publicFunction = includes(func.roles, 'public');
                 const localDisabledReason = getDisabledReason({
                   isNotConnected: !address,
@@ -348,7 +361,7 @@ const ModuleAuthorityToolbar = ({
                   </Tooltip>
                 );
               })}
-              {_.map(otherLinks, (link: LinkObject) => (
+              {map(otherLinks, (link: LinkObject) => (
                 <ChakraNextLink
                   href={link.link}
                   isExternal={!!getHostnameFromURL(link.link)}

@@ -20,7 +20,7 @@ const ShowTreesButton = ({ chainId }: { chainId: number }) => {
           ? `/trees/${chainId}?show=all`
           : `/trees/${chainId}?show=me`
       }
-      variant='ghost'
+      variant='ghostBg'
     >
       Show {showKey === SHOW_KEY.all && address ? 'my' : 'all'} {CONFIG.trees}
     </LinkButton>

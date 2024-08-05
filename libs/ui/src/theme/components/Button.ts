@@ -22,7 +22,7 @@ const Button = {
         background: props.hoverBackground || props.hoverBg || 'blue.700',
       },
     }),
-    ghost: (props: StyleFunctionProps) => ({
+    ghostBg: (props: StyleFunctionProps) => ({
       background: 'blackAlpha.50',
       color: props.color || props.colorScheme || 'gray.700',
       _hover: {
