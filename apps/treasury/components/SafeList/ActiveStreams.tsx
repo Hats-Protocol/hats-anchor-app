@@ -14,7 +14,7 @@ const ActiveStreams = ({ streams }: { streams: any[] | null | undefined }) => {
   return (
     <Stack>
       {map(streams, (stream: any) => (
-        <Flex align='center' justify='space-around' gap={2}>
+        <Flex align='center' justify='space-between' gap={2}>
           <Text maxW='60px' size='sm'>
             Inbound Stream
           </Text>
@@ -32,7 +32,7 @@ const ActiveStreams = ({ streams }: { streams: any[] | null | undefined }) => {
           </Stack>
 
           <Stack spacing={0} align='center' maxW='100px'>
-            <Text size='xs'>From</Text>
+            <Text size='xs'>from</Text>
             <Text size='sm' variant='medium' textAlign='center'>
               {CUSTOM_NAMES[toLower(stream.sender.id)] ||
                 formatAddress(stream.sender.id)}

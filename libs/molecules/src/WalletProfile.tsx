@@ -7,6 +7,7 @@ import {
   HStack,
   Icon,
   Image,
+  Skeleton,
   Stack,
   Text,
 } from '@chakra-ui/react';
@@ -69,9 +70,11 @@ const WalletProfile = ({
         <Stack>
           <Heading size='xl'>{name}</Heading>
           <HStack gap={4}>
-            <Text size='sm'>
-              {toNumber(balance?.value).toFixed(2)} {balance?.symbol}
-            </Text>
+            <Skeleton isLoaded={!!balance?.value}>
+              <Text size='sm'>
+                {toNumber(balance?.value)?.toFixed(2)} {balance?.symbol}
+              </Text>
+            </Skeleton>
             <Button
               size='xs'
               variant='ghost'

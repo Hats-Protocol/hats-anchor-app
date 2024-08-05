@@ -59,7 +59,7 @@ const LastTransaction = ({
         )}`}
       >
         <Stack align='center' spacing={0}>
-          <Heading size='xl'>
+          <Heading size='lg'>
             {formatRoundedDecimals({
               value: BigInt(
                 get(first(get(transaction, 'transfers')), 'value', '0'),

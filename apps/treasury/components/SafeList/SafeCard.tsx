@@ -124,10 +124,6 @@ const SafeCard = ({
     addresses: [safeAddress],
     chainId,
   });
-  const { data: parentHat } = useHatDetails({
-    hatId: firstHat?.admin?.id,
-    chainId: chainId as SupportedChains,
-  });
   const { data: ensName } = useEnsName({
     address: safeAddress,
     chainId: 1,
@@ -136,11 +132,6 @@ const SafeCard = ({
     name: ensName as string,
     chainId: 1,
   });
-  const parentHatDetails = get(parentHat, 'detailsMetadata');
-  const parentHatName = parentHatDetails
-    ? get(JSON.parse(parentHatDetails), 'data.name')
-    : get(parentHat, 'details');
-  const parentImageUrl = ipfsUrl(get(parentHat, 'nearestImage'));
 
   const safeAvatar: string | undefined = useMemo(() => {
     if (!safeAddress) return undefined;
@@ -151,7 +142,6 @@ const SafeCard = ({
   }, [safeAddress]);
 
   if (!firstHat || !chainId) return null;
-  console.log(streams);
 
   return (
     <Skeleton isLoaded={!!get(signerSafe, 'safe')}>
@@ -159,7 +149,7 @@ const SafeCard = ({
         <CardBody>
           <Stack spacing={4}>
             <Flex justify='space-between' gap={4}>
-              <HStack maxW='80%'>
+              <HStack>
                 <Box
                   boxSize='50px'
                   backgroundImage={imageUrl !== '#' ? imageUrl : '/icon.jpeg'}
@@ -171,23 +161,6 @@ const SafeCard = ({
                   {firstHatName}
                 </Heading>
               </HStack>
-
-              <Stack align='center' spacing='1px' maxW='70px'>
-                <Text fontSize='10px' lineHeight='11px'>
-                  Admin
-                </Text>
-
-                <Image
-                  src={parentImageUrl}
-                  boxSize={8}
-                  borderRadius='md'
-                  alt={`${parentHat} image url`}
-                />
-
-                <Text size='xs' noOfLines={1} textAlign='center'>
-                  {parentHatName}
-                </Text>
-              </Stack>
             </Flex>
 
             <Flex>
@@ -206,7 +179,7 @@ const SafeCard = ({
 
                   return (
                     <HStack key={token.address}>
-                      <Heading size='lg'>
+                      <Heading size='xl'>
                         {formatRoundedDecimals({
                           value: token.balance,
                           decimals: get(token, 'token.decimals'),
@@ -238,7 +211,7 @@ const SafeCard = ({
 
             <ActiveStreams streams={streams} />
 
-            <Flex justify='space-around'>
+            <Flex justify='space-between'>
               <LastTransaction type={'inbound'} transaction={lastInbound} />
 
               <LastTransaction type={'outbound'} transaction={lastOutbound} />
