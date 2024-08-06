@@ -226,6 +226,7 @@ export function getHatDetailsQuery(chainId: number): string {
         toggle
         mutable
         imageUri
+        nearestImage
         levelAtLocalTree
         claimableBy {
           id

@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { useHatClaimBy, useMultiClaimsHatterCheck } from 'modules-hooks';
 import { useMemo } from 'react';
 import { FaPlus } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const claimTooltip = ({
@@ -56,7 +57,7 @@ const WearerButtons = () => {
   );
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode: false, // change if used in edit mode
   });
@@ -65,7 +66,7 @@ const WearerButtons = () => {
     [selectedHat?.id, wearer],
   );
 
-  const wearerIds = address ? [address] : [];
+  const wearerIds = address ? ([address] as Hex[]) : [];
   const { data: currentUserEligibility } = useWearersEligibilityStatus({
     wearerIds,
     selectedHat,
@@ -79,7 +80,7 @@ const WearerButtons = () => {
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     handlePendingTx,
   });
 

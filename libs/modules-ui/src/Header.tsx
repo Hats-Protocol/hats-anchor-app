@@ -21,6 +21,7 @@ import { useClipboard, useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
@@ -44,7 +45,7 @@ const Header = () => {
   ]);
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const isCurrentWearer = _.includes(_.map(wearer, 'id'), selectedHat?.id);

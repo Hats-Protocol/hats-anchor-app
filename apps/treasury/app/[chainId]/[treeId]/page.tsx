@@ -1,6 +1,7 @@
 import { TreasuryContextProvider } from 'contexts';
 import { toNumber } from 'lodash';
 import { SupportedChains } from 'types';
+import { HatDeco } from 'ui';
 import { Hex } from 'viem';
 
 import { SafeList, StreamsOverview, TreeOverview } from '../../../components';
@@ -15,12 +16,14 @@ const TreeDetails = ({ params: { treeId, chainId } }: TreeDetailsProps) => {
       treeId={toNumber(treeId)}
       chainId={toNumber(chainId) as SupportedChains}
     >
-      <div className='flex flex-col pt-16 gap-6'>
+      <div className='flex flex-col gap-6'>
         <TreeOverview />
 
-        <StreamsOverview />
+        {/* <StreamsOverview /> */}
 
         <SafeList />
+
+        <HatDeco />
       </div>
     </TreasuryContextProvider>
   );

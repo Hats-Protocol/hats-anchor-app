@@ -10,6 +10,7 @@ import { TreeListCard as TreeCard } from 'molecules';
 import { useSearchParams } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Skeleton } from 'ui';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const LOADING_TREES = Array(20).fill({});
@@ -24,7 +25,7 @@ const TreesList = ({ params }: TreeListProps) => {
 
   const { data: wearerTrees, isLoading: wearerTreesLoading } = useWearerTrees({
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     enabled: !!address && !!chainId,
   });
 

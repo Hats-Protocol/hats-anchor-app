@@ -1,23 +1,35 @@
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
+  // Accordion,
+  // AccordionButton,
+  // AccordionIcon,
+  // AccordionItem,
+  // AccordionPanel,
   Box,
+  Button,
   Card,
   CardBody,
+  Divider,
   Flex,
   Heading,
   HStack,
+  Image,
   Skeleton,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { NETWORK_CURRENCY } from '@hatsprotocol/constants';
+import {
+  NETWORK_CURRENCY,
+  NETWORK_CURRENCY_IMAGE,
+} from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { SafeInfoResponse } from '@safe-global/api-kit';
-import { useSafeTokens, useSafeTransactions } from 'hooks';
+import { useHatDetails } from 'hats-hooks';
+import { formHatUrl, safeUrl } from 'hats-utils';
+import {
+  useSafeTokens,
+  useSafeTransactions,
+  useSuperfluidStreams,
+} from 'hooks';
 import {
   every,
   filter,
@@ -25,15 +37,22 @@ import {
   get,
   includes,
   map,
-  round,
   some,
-  toNumber,
+  toLower,
 } from 'lodash';
-import { AppHat, HatSignerGate } from 'types';
-import { chainsMap, formatAddress, ipfsUrl } from 'utils';
-import { formatUnits, getAddress, Hex } from 'viem';
+import Link from 'next/link';
+import { createIcon } from 'opepen-standard';
+import { useMemo } from 'react';
+import { AppHat, HatSignerGate, SupportedChains } from 'types';
+import { formatAddress, formatRoundedDecimals, ipfsUrl } from 'utils';
+import { getAddress, Hex } from 'viem';
+import { useEnsAvatar, useEnsName } from 'wagmi';
+
+import ActiveStreams from './ActiveStreams';
+import LastTransaction from './LastTransaction';
 
 const EXCLUDE_TOKENS = ['0xB1c37407dC5f996fAbfC4Be599c966aD6DE50C68'];
+const OVERRIDE_TOKEN_IMAGE = ['0x59988e47A3503AaFaA0368b9deF095c818Fdca01'];
 
 const inboundTransactions = (transactions: any, safeAddress: Hex) => {
   return filter(
@@ -100,18 +119,47 @@ const SafeCard = ({
     safeTransactions,
     safeAddress,
   );
-  // console.log(safeTransactions);
 
-  if (!firstHat) return null;
-  console.log(firstHat);
+  const { data: streams } = useSuperfluidStreams({
+    addresses: [safeAddress],
+    chainId,
+  });
+  const { data: parentHat } = useHatDetails({
+    hatId: firstHat?.admin?.id,
+    chainId: chainId as SupportedChains,
+  });
+  const { data: ensName } = useEnsName({
+    address: safeAddress,
+    chainId: 1,
+  });
+  const { data: ensAvatar } = useEnsAvatar({
+    name: ensName as string,
+    chainId: 1,
+  });
+  const parentHatDetails = get(parentHat, 'detailsMetadata');
+  const parentHatName = parentHatDetails
+    ? get(JSON.parse(parentHatDetails), 'data.name')
+    : get(parentHat, 'details');
+  const parentImageUrl = ipfsUrl(get(parentHat, 'nearestImage'));
+
+  const safeAvatar: string | undefined = useMemo(() => {
+    if (!safeAddress) return undefined;
+    return createIcon({
+      seed: toLower(safeAddress),
+      size: 64,
+    }).toDataURL();
+  }, [safeAddress]);
+
+  if (!firstHat || !chainId) return null;
+  console.log(streams);
 
   return (
     <Skeleton isLoaded={!!get(signerSafe, 'safe')}>
       <Card w='100%'>
         <CardBody>
-          <Stack spacing={6}>
-            <Flex justify='space-between'>
-              <HStack spacing={4}>
+          <Stack spacing={4}>
+            <Flex justify='space-between' gap={4}>
+              <HStack maxW='80%'>
                 <Box
                   boxSize='50px'
                   backgroundImage={imageUrl !== '#' ? imageUrl : '/icon.jpeg'}
@@ -119,100 +167,124 @@ const SafeCard = ({
                   border='1px gray.400'
                   borderRadius='md'
                 />
-                <Heading size='lg'>{firstHatName}</Heading>
+                <Heading variant='medium' size='lg'>
+                  {firstHatName}
+                </Heading>
               </HStack>
-              <Stack spacing={1} align='end'>
-                <Text size='sm'>
-                  {hatIdDecimalToIp(hatIdHexToDecimal(firstHat.id))} on{' '}
-                  {chainsMap(chainId)?.name}
+
+              <Stack align='center' spacing='1px' maxW='70px'>
+                <Text fontSize='10px' lineHeight='11px'>
+                  Admin
                 </Text>
-                <Text size='sm'>{formatAddress(get(signerSafe, 'safe'))}</Text>
-              </Stack>
-            </Flex>
 
-            <Flex justify='space-between'>
-              <Stack w='48%'>
-                <Heading size='md'>Balances</Heading>
+                <Image
+                  src={parentImageUrl}
+                  boxSize={8}
+                  borderRadius='md'
+                  alt={`${parentHat} image url`}
+                />
 
-                {map(filteredSafeTokens, (token: any) => (
-                  <Text key={token.address}>
-                    {round(
-                      // add formatRoundedUnits util
-                      toNumber(
-                        formatUnits(
-                          token.balance,
-                          get(token, 'token.decimals') || 18,
-                        ),
-                      ),
-                      2,
-                    )}{' '}
-                    {get(
-                      token,
-                      'token.symbol',
-                      get(NETWORK_CURRENCY, chainId || 1),
-                    )}
-                  </Text>
-                ))}
-              </Stack>
-
-              <Stack w='48%'>
-                <Flex justify='space-between' h='2rem'>
-                  <Heading size='sm'>Last In</Heading>
-                  {lastInbound ? (
-                    <Text>
-                      {formatUnits(
-                        BigInt(
-                          get(
-                            first(get(lastInbound, 'transfers')),
-                            'value',
-                            '0',
-                          ),
-                        ),
-                        get(
-                          first(get(lastInbound, 'transfers')),
-                          'tokenInfo.decimals',
-                        ) || 18,
-                      )}{' '}
-                      {get(
-                        first(get(lastInbound, 'transfers')),
-                        'tokenInfo.symbol',
-                      ) || NETWORK_CURRENCY[chainId || 1]}
-                    </Text>
-                  ) : (
-                    <Text>No inbound transactions</Text>
-                  )}
-                </Flex>
-
-                <Flex justify='space-between' h='2rem'>
-                  <Heading size='sm'>Last Out</Heading>
-                  {lastOutbound ? (
-                    <Text>
-                      {formatUnits(
-                        BigInt(
-                          get(
-                            first(get(lastOutbound, 'transfers')),
-                            'value',
-                            '0',
-                          ),
-                        ),
-                        get(
-                          first(get(lastOutbound, 'transfers')),
-                          'tokenInfo.decimals',
-                        ) || 18,
-                      )}{' '}
-                      {get(
-                        first(get(lastOutbound, 'transfers')),
-                        'tokenInfo.symbol',
-                      ) || NETWORK_CURRENCY[chainId || 1]}
-                    </Text>
-                  ) : (
-                    <Text>No outbound transactions</Text>
-                  )}
-                </Flex>
+                <Text size='xs' noOfLines={1} textAlign='center'>
+                  {parentHatName}
+                </Text>
               </Stack>
             </Flex>
 
             <Flex>
+              <Stack>
+                <Heading variant='medium' size='sm'>
+                  Assets
+                </Heading>
+
+                {map(filteredSafeTokens, (token: any) => {
+                  const localTokenImage = !includes(
+                    OVERRIDE_TOKEN_IMAGE,
+                    get(token, 'tokenAddress'),
+                  )
+                    ? get(token, 'token.logoUri')
+                    : undefined;
+
+                  return (
+                    <HStack key={token.address}>
+                      <Heading size='lg'>
+                        {formatRoundedDecimals({
+                          value: token.balance,
+                          decimals: get(token, 'token.decimals'),
+                        })}
+                      </Heading>
+                      <HStack spacing={1}>
+                        <Image
+                          src={
+                            localTokenImage || NETWORK_CURRENCY_IMAGE[chainId]
+                          }
+                          boxSize={4}
+                          alt='token image'
+                        />
+                        <Text size='sm'>
+                          {get(
+                            token,
+                            'token.symbol',
+                            get(NETWORK_CURRENCY, chainId || 1),
+                          )}
+                        </Text>
+                      </HStack>
+                    </HStack>
+                  );
+                })}
+              </Stack>
+            </Flex>
+
+            <Divider w='70%' mx='auto' />
+
+            <ActiveStreams streams={streams} />
+
+            <Flex justify='space-around'>
+              <LastTransaction type={'inbound'} transaction={lastInbound} />
+
+              <LastTransaction type={'outbound'} transaction={lastOutbound} />
+            </Flex>
+
+            <Flex justify='space-between' align='center'>
+              <Link
+                href={safeUrl(
+                  chainId as SupportedChains,
+                  get(signerSafe, 'safe'),
+                )}
+              >
+                <Button variant='ghost' p={0} m={0}>
+                  <HStack>
+                    <Box
+                      height='26px'
+                      width='16px'
+                      overflow='hidden'
+                      backgroundImage={ensAvatar || safeAvatar}
+                      backgroundSize='cover'
+                      backgroundClip='content-box'
+                      backgroundPosition='center'
+                      borderRadius='sm'
+                    />
+                    <Text size='sm' fontWeight={400}>
+                      {ensName || formatAddress(get(signerSafe, 'safe'))}
+                    </Text>
+                  </HStack>
+                </Button>
+              </Link>
+
+              <Link
+                href={formHatUrl({
+                  chainId: chainId as SupportedChains,
+                  hatId: firstHat.id,
+                })}
+              >
+                <Button variant='ghost' p={0} m={0}>
+                  <Text size='sm' fontWeight={400}>
+                    #{hatIdDecimalToIp(hatIdHexToDecimal(firstHat.id))}
+                  </Text>
+                </Button>
+              </Link>
+            </Flex>
+
+            {/* <Flex>
               <Accordion w='full' allowToggle>
                 <AccordionItem border='none'>
                   <AccordionButton>
@@ -224,7 +296,7 @@ const SafeCard = ({
                   </AccordionPanel>
                 </AccordionItem>
               </Accordion>
-            </Flex>
+            </Flex> */}
           </Stack>
         </CardBody>
       </Card>

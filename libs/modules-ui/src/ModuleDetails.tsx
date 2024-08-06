@@ -127,7 +127,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
   };
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: currentUser,
+    wearerAddress: currentUser as Hex,
     chainId,
     editMode,
   });

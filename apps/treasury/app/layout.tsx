@@ -32,12 +32,12 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     <body>
       <div className='relative'>
         <Providers>
-          <Navbar />
+          <Navbar heading='Budgets' />
 
           <div className='w-screen'>{children}</div>
         </Providers>
 
-        <div className='fixed left-0 top-0 z-[-5] size-full bg-[url("/bg-topography.svg")]' />
+        {/* <div className='fixed left-0 top-0 z-[-5] size-full bg-[url("/bg-topography.svg")]' /> */}
       </div>
     </body>
   </html>

@@ -12,7 +12,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { networkImages } from '@hatsprotocol/constants';
+import { NETWORK_IMAGES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
@@ -84,7 +84,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
                   bg='blackAlpha.100'
                   borderRadius='md'
                 >
-                  <ChakraImage src={networkImages[hat.chainId || 1]} />
+                  <ChakraImage src={NETWORK_IMAGES[hat.chainId || 1]} />
                 </Flex>
                 <Text size='md' variant='medium' noOfLines={1}>
                   #{Number(hatIdToTreeId(BigInt(hat.id)))}

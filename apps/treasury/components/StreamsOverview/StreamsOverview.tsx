@@ -1,19 +1,10 @@
 'use client';
 
-import {
-  Box,
-  Card,
-  CardBody,
-  Flex,
-  Heading,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Card, CardBody, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreasury } from 'contexts';
 import { useSuperfluidStreams } from 'hooks';
 import { isEmpty, map } from 'lodash';
-import { formatAddress } from 'utils';
-import { formatUnits } from 'viem';
+import { formatAddress, formatRoundedDecimals } from 'utils';
 
 const SECONDS_IN_DAY = 86400;
 
@@ -29,7 +20,7 @@ const StreamsOverview = () => {
 
   return (
     <Flex justify='center'>
-      <Card minW='500px'>
+      <Card w={{ base: '80%', md: '60%' }} minW={{ md: '500px' }}>
         <CardBody>
           <Stack justify='center'>
             <Heading size='lg' textAlign='center'>
@@ -38,14 +29,18 @@ const StreamsOverview = () => {
 
             {map(streams, (stream: any) => {
               return (
-                <Flex justify='space-between' key={stream.id}>
+                <Flex
+                  justify='space-between'
+                  key={`${stream.currentFlowRate}-${stream.receiver.id}`}
+                >
                   <Text>to {formatAddress(stream.receiver.id)}</Text>
 
                   <Text>
-                    {formatUnits(
-                      BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_DAY),
-                      stream.token.decimals || 18,
-                    )}{' '}
+                    {formatRoundedDecimals({
+                      value:
+                        BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_DAY),
+                      decimals: stream.token.decimals,
+                    })}{' '}
                     {stream.token.symbol} per day
                   </Text>
                 </Flex>

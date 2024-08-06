@@ -94,7 +94,8 @@ const useModuleDeploy = ({
   });
   const hatTitle =
     selectedHat?.id &&
-    `${hatIdDecimalToIp(BigInt(selectedHat?.id))} (${selectedHat?.detailsObject?.data?.name
+    `${hatIdDecimalToIp(BigInt(selectedHat?.id))} (${
+      selectedHat?.detailsObject?.data?.name
     })`;
 
   const { instanceAddress } = useMultiClaimsHatterCheck({
@@ -297,7 +298,7 @@ const useModuleDeploy = ({
           return deployModule({
             selectedModuleDetails,
             selectedHat,
-            address,
+            address: address as Hex,
             values,
             chainId,
             hatId,
@@ -311,7 +312,7 @@ const useModuleDeploy = ({
             selectedModuleDetails,
             claimsHatterId: claimsHatterModule?.id,
             selectedHat,
-            address,
+            address: address as Hex,
             values,
             chainId,
             hatId,
@@ -324,7 +325,7 @@ const useModuleDeploy = ({
           return deployClaimsHatter({
             claimsHatterModule,
             selectedHat,
-            address,
+            address: address as Hex,
             values,
             chainId,
             adminHatId: BigInt(adminHat),

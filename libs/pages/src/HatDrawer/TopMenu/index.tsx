@@ -13,6 +13,7 @@ import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import MoreMenu from './MoreMenu';
@@ -42,7 +43,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   const { isMobile } = useMediaStyles();
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });

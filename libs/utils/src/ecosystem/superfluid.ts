@@ -17,6 +17,9 @@ const INBOUND_STREAMS_QUERY = `
       receiver {
         id
       }
+      sender {
+        id
+      }
       streamedUntilUpdatedAt
       currentFlowRate
       token {

@@ -18,7 +18,7 @@ const SafeList = () => {
   const { hatsWithSafesInfo, chainId } = useTreasury();
 
   return (
-    <Stack w='60%' mx='auto' spacing={4} pb='150px'>
+    <Stack w={{ base: '90%', md: '60%' }} mx='auto' spacing={4}>
       {map(hatsWithSafesInfo || LOADING_SAFES, (h: any) => (
         <SafeCard
           key={get(h, 'hats.[0].id')}

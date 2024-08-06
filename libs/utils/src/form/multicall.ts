@@ -48,19 +48,19 @@ const hasDetailsChanged = (
   const hasResponsibilitiesChanged =
     _.gt(_.size(responsibilities), 0) &&
     JSON.stringify(responsibilities) !==
-    JSON.stringify(originalHatDetails?.responsibilities);
+      JSON.stringify(originalHatDetails?.responsibilities);
   const hasAuthoritiesChanged =
     _.gt(_.size(authorities), 0) &&
     JSON.stringify(authorities) !==
-    JSON.stringify(originalHatDetails?.authorities);
+      JSON.stringify(originalHatDetails?.authorities);
   const hasRevocationsCriteriaChanged =
     _.gt(_.size(revocationsCriteria), 0) ||
     _.size(revocationsCriteria) !==
-    _.size(originalHatDetails?.eligibility?.criteria);
+      _.size(originalHatDetails?.eligibility?.criteria);
   const hasDeactivationsCriteriaChanged =
     _.gt(_.size(deactivationsCriteria), 0) ||
     _.size(deactivationsCriteria) !==
-    _.size(originalHatDetails?.toggle?.criteria);
+      _.size(originalHatDetails?.toggle?.criteria);
 
   return (
     !!name ||
@@ -145,15 +145,15 @@ const createNewHatData = async ({
   let localToggle = toggle;
   if (eligibility?.includes('.eth')) {
     localEligibility =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: eligibility,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
   if (toggle?.includes('.eth')) {
     localToggle =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: toggle,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   const admin = getDefaultAdminId(hatId);
@@ -435,9 +435,9 @@ const processEligibilityChangeCallForHat = async ({
 
   if (eligibility.includes('.eth')) {
     localEligibility =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: eligibility,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   if (!localEligibility) return returnData;
@@ -474,9 +474,9 @@ const processToggleChangeCallForHat = async ({
 
   if (toggle.includes('.eth')) {
     localToggle =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: toggle,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   if (!localToggle) return returnData;

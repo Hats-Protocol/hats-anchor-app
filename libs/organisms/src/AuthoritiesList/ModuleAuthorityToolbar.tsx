@@ -187,7 +187,7 @@ const ModuleAuthorityToolbar = ({
 
   const { data: claimed } = useHsgSigner({
     instance: authority?.instanceAddress,
-    signer: address,
+    signer: address as Hex,
     chainId,
     enabled: authority?.type === AUTHORITY_TYPES.hsg,
   });
