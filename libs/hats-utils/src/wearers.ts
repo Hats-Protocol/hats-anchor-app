@@ -1,17 +1,5 @@
 import { CONFIG } from '@hatsprotocol/constants';
-import _ from 'lodash';
-import {
-  filter,
-  findIndex,
-  flatten,
-  get,
-  isEmpty,
-  map,
-  round,
-  toLower,
-  toNumber,
-  toString,
-} from 'lodash';
+import { filter, flatten, get, isEmpty, map, toLower } from 'lodash';
 import { HatWearer } from 'types';
 import { isSameAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
@@ -119,18 +107,4 @@ export const sortWearers = ({
   });
 
   return [...currentUser, ...otherUsers];
-};
-
-export const maxSupplyText = (maxSupply: number): string => {
-  if (_.toNumber(maxSupply) > 999) {
-    const rounds = [1_000_000_000, 1_000_000, 1_000];
-    const formatString = [`e9`, `e6`, `k`];
-    const supplyRounded = map(rounds, (r: number) =>
-      round(toNumber(maxSupply) / r, 0),
-    );
-    const index = findIndex(supplyRounded, (v: number) => v > 0);
-
-    return `${supplyRounded[index]}${formatString[index]}`;
-  }
-  return toString(maxSupply);
 };

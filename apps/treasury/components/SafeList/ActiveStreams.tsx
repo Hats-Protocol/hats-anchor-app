@@ -1,6 +1,11 @@
+'use client';
+
 import { Divider, Flex, Stack, Text } from '@chakra-ui/react';
+import { useTreasury } from 'contexts';
+import { useSuperfluidStreams } from 'hooks';
 import { isEmpty, map, toLower } from 'lodash';
 import { formatAddress, formatRoundedDecimals } from 'utils';
+import { Hex } from 'viem';
 
 const SECONDS_IN_MONTH = 86_400 * 30;
 
@@ -8,7 +13,13 @@ const CUSTOM_NAMES: { [key: string]: string } = {
   '0x181ebdb03cb4b54f4020622f1b0eacd67a8c63ac': 'Raid Guild DAO',
 };
 
-const ActiveStreams = ({ streams }: { streams: any[] | null | undefined }) => {
+const ActiveStreams = ({ safeAddress }: { safeAddress: Hex }) => {
+  const { chainId } = useTreasury();
+  const { data: streams } = useSuperfluidStreams({
+    addresses: [safeAddress],
+    chainId,
+  });
+
   if (isEmpty(streams)) return null;
 
   return (

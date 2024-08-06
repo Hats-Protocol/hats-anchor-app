@@ -33,7 +33,6 @@ import {
   filterWearers,
   isTopHat,
   isWearingAdminHat,
-  maxSupplyText,
   sortWearers,
 } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
@@ -43,7 +42,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 // import { FaSearch } from 'react-icons/fa';
 import { ControllerData, HatWearer } from 'types';
-import { commify } from 'utils';
+import { commify, formatScientificWhole } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -178,14 +177,14 @@ const WearersList = () => {
               <Tooltip
                 label={
                   maxSupply &&
-                  maxSupplyText(maxSupply) !== _.toString(maxSupply) &&
+                  formatScientificWhole(maxSupply) !== _.toString(maxSupply) &&
                   commify(maxSupply)
                 }
                 placement='left'
                 hasArrow
               >
                 <Text size='sm' color='blackAlpha.500'>
-                  of {maxSupplyText(maxSupply)} max
+                  of {formatScientificWhole(maxSupply)} max
                 </Text>
               </Tooltip>
             </HStack>

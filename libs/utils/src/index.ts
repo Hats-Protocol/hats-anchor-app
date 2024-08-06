@@ -13,6 +13,7 @@ export * from './modules';
 export * from './platform';
 export * from './route';
 export * from './subgraph';
+export * from './tokens';
 export * from './trees';
 export * from './wearers';
 export * from './web3';

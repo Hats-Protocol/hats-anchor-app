@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Heading,
   HStack,
@@ -12,31 +14,106 @@ import {
   NETWORK_CURRENCY_IMAGE,
 } from '@hatsprotocol/constants';
 import { useTreasury } from 'contexts';
-import { first, get } from 'lodash';
+import { useSafeTransactions, useTokenDetails, useTokenPrices } from 'hooks';
+import {
+  every,
+  filter,
+  find,
+  first,
+  get,
+  some,
+  toLower,
+  toUpper,
+} from 'lodash';
 import {
   BsFillArrowDownRightCircleFill,
   BsFillArrowUpRightCircleFill,
 } from 'react-icons/bs';
-import { explorerUrl, formatRoundedDecimals, shortDateFormatter } from 'utils';
+import {
+  explorerUrl,
+  formatBalanceValue,
+  formatRoundedDecimals,
+  shortDateFormatter,
+} from 'utils';
+import { getAddress, Hex } from 'viem';
 
 const TRANSACTION_TYPE = {
   inbound: 'inbound',
   outbound: 'outbound',
 };
 
+const inboundTransactions = (transactions: any, safeAddress: Hex) => {
+  return filter(
+    transactions,
+    (tx) =>
+      some(
+        tx.transfers,
+        (transfer) => transfer.to === getAddress(safeAddress),
+      ) &&
+      every(tx.transfers, (transfer) => transfer.type !== 'ERC721_TRANSFER'),
+  );
+};
+
+const outboundTransactions = (transactions: any, safeAddress: Hex) => {
+  return filter(transactions, (tx) =>
+    some(tx.transfers, (transfer) => transfer.from === getAddress(safeAddress)),
+  );
+};
+
+const findLastInboundTransaction = (transactions: any, safeAddress: Hex) => {
+  const inboundTx = inboundTransactions(transactions, safeAddress);
+  return first(inboundTx);
+};
+
+const findLastOutboundTransaction = (transactions: any, safeAddress: Hex) => {
+  const outboundTx = outboundTransactions(transactions, safeAddress);
+  return first(outboundTx);
+};
+
 const LastTransaction = ({
+  safeAddress,
   type,
-  transaction,
 }: {
+  safeAddress: Hex;
   type: string;
-  transaction: any;
 }) => {
   const { chainId } = useTreasury();
+
+  const { data: safeTransactions } = useSafeTransactions({
+    safeAddress,
+    chainId,
+  });
+  const { data: prices } = useTokenPrices();
+
+  const lastInbound = findLastInboundTransaction(safeTransactions, safeAddress);
+  const lastOutbound = findLastOutboundTransaction(
+    safeTransactions,
+    safeAddress,
+  );
+  const transaction =
+    type === TRANSACTION_TYPE.inbound ? lastInbound : lastOutbound;
+  const firstTransfer = first(get(transaction, 'transfers'));
+
+  const priceDetails = find(prices, {
+    symbol: toUpper(
+      get(first(get(transaction, 'transfers')), 'tokenInfo.symbol'),
+    ),
+  });
+  const { data: tokenData } = useTokenDetails({
+    symbol: toLower(
+      get(first(get(transaction, 'transfers')), 'tokenInfo.symbol'),
+    ),
+  });
+
   if (!transaction) return null;
 
   return (
     <HStack spacing={4}>
-      <Stack align='center'>
+      <Stack align='center' spacing={1}>
+        <Heading variant='medium' size='xs'>
+          {type === TRANSACTION_TYPE.inbound ? 'Last In' : 'Last Out'}
+        </Heading>
+
         {type === TRANSACTION_TYPE.inbound ? (
           <Icon
             as={BsFillArrowDownRightCircleFill}
@@ -47,9 +124,9 @@ const LastTransaction = ({
           <Icon as={BsFillArrowUpRightCircleFill} boxSize={6} color='red.200' />
         )}
 
-        <Heading variant='medium' size='xs'>
-          {type === TRANSACTION_TYPE.inbound ? 'Last In' : 'Last Out'}
-        </Heading>
+        <Text size='xs'>
+          {shortDateFormatter(new Date(get(transaction, 'executionDate')))}
+        </Text>
       </Stack>
 
       <Link
@@ -59,40 +136,42 @@ const LastTransaction = ({
         )}`}
       >
         <Stack align='center' spacing={0}>
-          <Heading size='lg'>
-            {formatRoundedDecimals({
-              value: BigInt(
-                get(first(get(transaction, 'transfers')), 'value', '0'),
-              ),
-              decimals: get(
-                first(get(transaction, 'transfers')),
-                'tokenInfo.decimals',
-              ),
+          <Heading size='lg' variant='medium'>
+            $
+            {formatBalanceValue({
+              price: get(priceDetails, 'priceUsd'),
+              balance: BigInt(get(firstTransfer, 'value', '0')),
+              decimals: get(firstTransfer, 'tokenInfo.decimals', 18),
+              startScientific: 3,
+              dropDecimals: true,
             })}
           </Heading>
+
+          <Text size='sm'>
+            {formatRoundedDecimals({
+              value: BigInt(get(firstTransfer, 'value', '0')),
+              decimals: get(firstTransfer, 'tokenInfo.decimals'),
+            })}
+          </Text>
 
           <HStack spacing={1}>
             <Image
               boxSize={4}
-              src={get(
-                first(get(transaction, 'transfers')),
-                'tokenInfo.logoUri',
-                NETWORK_CURRENCY_IMAGE[chainId || 1],
-              )}
-              alt={`${get(
-                first(get(transaction, 'transfers')),
-                'tokenInfo.symbol',
-              )} logo`}
+              src={
+                get(tokenData, 'avatar') ||
+                get(
+                  firstTransfer,
+                  'tokenInfo.logoUri',
+                  NETWORK_CURRENCY_IMAGE[chainId || 1],
+                )
+              }
+              alt={`${get(firstTransfer, 'tokenInfo.symbol')} logo`}
             />
             <Text size='sm'>
-              {get(first(get(transaction, 'transfers')), 'tokenInfo.symbol') ||
+              {get(firstTransfer, 'tokenInfo.symbol') ||
                 NETWORK_CURRENCY[chainId || 1]}
             </Text>
           </HStack>
-
-          <Text size='xs'>
-            {shortDateFormatter(new Date(get(transaction, 'executionDate')))}
-          </Text>
         </Stack>
       </Link>
     </HStack>
