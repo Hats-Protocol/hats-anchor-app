@@ -122,7 +122,7 @@ const WearersList = () => {
   const filteredWearers = useMemo(() => {
     const sortedWearers = sortWearers({
       wearers: eligibleWearers,
-      address,
+      address: address as Hex,
     });
     return _.slice(
       filterWearers(searchTerm, sortedWearers),
@@ -133,7 +133,7 @@ const WearersList = () => {
   const loadingWearers = Array(4).fill({});
 
   const { data: wearerDetails } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const currentUserIsAdmin = isWearingAdminHat(
@@ -215,7 +215,7 @@ const WearersList = () => {
             !currentUserInList &&
             !currentUserIsIneligible && (
               <WearerRow
-                wearer={currentWearerDetails || { id: address }}
+                wearer={currentWearerDetails || { id: address as Hex }}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
               />

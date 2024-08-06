@@ -1,12 +1,12 @@
 'use client';
 
-import { Flex, Image } from '@chakra-ui/react';
+import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
 import { AppHat } from 'types';
 import { ChakraNextLink } from 'ui';
 
 import ConnectWallet from '../ConnectWallet';
 
-const StandaloneNavbar = ({ hatData }: StandaloneNavbarProps) => {
+const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
   return (
     <Flex
       w='100%'
@@ -18,9 +18,16 @@ const StandaloneNavbar = ({ hatData }: StandaloneNavbarProps) => {
       minH='56px'
       bg={hatData ? 'whiteAlpha.900' : 'transparent'}
     >
-      <ChakraNextLink href='/'>
-        <Image src='/hats.png' h='40px' w='40px' alt='Hats Logo' />
-      </ChakraNextLink>
+      <HStack>
+        <ChakraNextLink href='/'>
+          <Image src='/hats.png' h='40px' w='40px' alt='Hats Logo' />
+        </ChakraNextLink>
+        {heading && (
+          <Heading size='lg' variant='medium'>
+            {heading}
+          </Heading>
+        )}
+      </HStack>
 
       <ConnectWallet />
     </Flex>
@@ -30,5 +37,6 @@ const StandaloneNavbar = ({ hatData }: StandaloneNavbarProps) => {
 export default StandaloneNavbar;
 
 interface StandaloneNavbarProps {
+  heading?: string;
   hatData?: AppHat;
 }

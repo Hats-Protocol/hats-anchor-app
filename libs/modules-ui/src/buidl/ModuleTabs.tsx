@@ -11,8 +11,8 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { orderedChains } from '@hatsprotocol/constants';
-import _ from 'lodash';
+import { ORDERED_CHAINS } from '@hatsprotocol/constants';
+import { includes, map, size } from 'lodash';
 import { useHatsModules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { ModuleDetails, SupportedChains } from 'types';
@@ -28,7 +28,7 @@ const ModulesForChain = ({ chainId }: { chainId: SupportedChains }) => {
   return (
     <TabPanel minH='450px' as={Flex} direction='column' justify='space-between'>
       <Stack spacing={3}>
-        {_.map(modules, (m: ModuleDetails) => (
+        {map(modules, (m: ModuleDetails) => (
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${m.implementationAddress}`}
             isExternal
@@ -43,7 +43,7 @@ const ModulesForChain = ({ chainId }: { chainId: SupportedChains }) => {
         ))}
       </Stack>
       <Flex justify='end'>
-        <Text>Total Modules: {_.size(modules)}</Text>
+        <Text>Total Modules: {size(modules)}</Text>
       </Flex>
     </TabPanel>
   );
@@ -55,10 +55,10 @@ const ModuleTabs = () => {
   return (
     <Tabs colorScheme='blue'>
       <TabList overflow='scroll'>
-        {_.map(orderedChains, (chainId: SupportedChains) => (
+        {map(ORDERED_CHAINS, (chainId: SupportedChains) => (
           <Tab
             key={chainId}
-            minW={_.includes(LONG_NAMES, chainId) ? '140px' : 'auto'}
+            minW={includes(LONG_NAMES, chainId) ? '140px' : 'auto'}
             _selected={{
               color: 'blue.500',
               fontWeight: 'bold',
@@ -78,7 +78,7 @@ const ModuleTabs = () => {
               /> */}
 
       <TabPanels>
-        {_.map(orderedChains, (chainId: SupportedChains) => (
+        {map(ORDERED_CHAINS, (chainId: SupportedChains) => (
           <ModulesForChain key={chainId} chainId={chainId} />
         ))}
       </TabPanels>

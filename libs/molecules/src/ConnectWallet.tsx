@@ -12,11 +12,12 @@ import {
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { Modal, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _, { toLower } from 'lodash';
+import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import posthog from 'posthog-js';
 import { useEffect, useMemo } from 'react';
 import { formatAddress } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 import WalletProfile from './WalletProfile';
@@ -35,7 +36,7 @@ const ConnectWallet = () => {
   const fallbackAvatar = useMemo(() => {
     if (!address) return undefined;
     return createIcon({
-      seed: _.toLower(address),
+      seed: toLower(address),
       size: 64,
     }).toDataURL();
   }, [address]);
@@ -175,7 +176,7 @@ const ConnectWallet = () => {
       <Modal name='account' onClose={() => setModals?.({})} size='md'>
         {address && (
           <WalletProfile
-            address={address}
+            address={address as Hex}
             name={ensName || formatAddress(address)}
             avatar={ensAvatar || fallbackAvatar}
           />

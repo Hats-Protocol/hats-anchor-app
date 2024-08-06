@@ -117,7 +117,7 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
                         ruleSets={[ruleSet]}
                         selectedHat={selectedHat}
                         chainId={chainId}
-                        wearer={address}
+                        wearer={address as Hex}
                       />
                     );
                   })}

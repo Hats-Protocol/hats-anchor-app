@@ -56,7 +56,7 @@ const Eligibility = () => {
       <KnownModule
         ruleSets={ruleSets}
         selectedHat={selectedHat}
-        wearer={address}
+        wearer={address as Hex}
         chainId={chainId}
       />
     );

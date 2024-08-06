@@ -46,6 +46,7 @@ import {
 import { TbChartDots3 } from 'react-icons/tb';
 import { idToIp, toTreeId } from 'shared';
 import { fetchHatDetails, getDisabledReason, isSameAddress } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const MoreMenu = () => {
@@ -68,7 +69,7 @@ const MoreMenu = () => {
   const { handlePendingTx } = useOverlay();
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
 

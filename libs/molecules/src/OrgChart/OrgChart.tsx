@@ -32,6 +32,7 @@ import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import type { AppHat } from 'types';
 import { ChakraNextLink } from 'ui';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { buttonContent } from './buttons';
@@ -76,7 +77,7 @@ function OrgChartComponent() {
   const initialLoad = useRef<boolean>(true);
   const [chartNodes, setChartNodes] = useState<AppHat[] | undefined>(undefined);
   const { data: wearerHats } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });

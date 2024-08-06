@@ -1,5 +1,6 @@
 export * from './authorities';
 export * from './contract';
+export * from './ecosystem';
 export * from './events';
 export * from './featured';
 export * from './form';

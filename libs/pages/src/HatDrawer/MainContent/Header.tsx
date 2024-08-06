@@ -19,6 +19,7 @@ import { useHatStatus, useWearerDetails } from 'hats-hooks';
 import { useClipboard, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
@@ -47,7 +48,7 @@ const Header = () => {
   );
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });

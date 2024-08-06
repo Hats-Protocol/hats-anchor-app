@@ -28,6 +28,7 @@ import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { fetchWearerDetails, hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
@@ -52,7 +53,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
   const { isMobile } = useMediaStyles();
 
   const { data: wearerDetails, isLoading: wearerLoading } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const wearing = !!_.find(wearerDetails, ['id', hatId]);

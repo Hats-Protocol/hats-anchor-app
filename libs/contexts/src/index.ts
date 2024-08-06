@@ -6,4 +6,5 @@ export * from './HatFormContext';
 export * from './OverlayContext';
 export * from './SelectedHatContext';
 export * from './StandaloneOverlayContext';
+export * from './TreasuryContext';
 export * from './TreeFormContext';

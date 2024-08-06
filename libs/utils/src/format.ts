@@ -2,7 +2,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { format } from 'date-fns';
 import _ from 'lodash';
-import { Hex } from 'viem';
+import { formatUnits, Hex } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
@@ -16,6 +16,9 @@ export const isSameAddress = (a?: string, b?: string) => {
 
 const dateFormatter = (date: Date | number) =>
   format(date, 'yyyy-MM-dd HH:mm:ss');
+
+export const shortDateFormatter = (date: Date | number) =>
+  format(date, 'yyyy-MM-dd');
 
 const offsetString = (date: Date) => {
   const utcOffset = -date.getTimezoneOffset() / 60;
@@ -56,9 +59,8 @@ export const hatLink = ({
 }) => {
   if (!chainId || !hatId) return '#';
   const treeId = hatIdToTreeId(BigInt(hatId));
-  return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}${
-    isMobile ? '/' : '?hatId='
-  }${hatIdDecimalToIp(BigInt(hatId))}`;
+  return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}${isMobile ? '/' : '?hatId='
+    }${hatIdDecimalToIp(BigInt(hatId))}`;
 };
 
 export const generateLocalStorageKey = (
@@ -108,4 +110,13 @@ export function getHostnameFromURL(urlString?: string) {
   } catch (error) {
     return '';
   }
+}
+
+export const formatRoundedDecimals = ({ value, decimals = 18, rounded = 2 }: { value: bigint; decimals?: number; rounded?: number }): string => {
+  const formattedValue = formatUnits(value, decimals);
+  const [whole, fraction] = formattedValue.split('.');
+  const roundedFraction = fraction ? fraction.slice(0, rounded) : undefined;
+
+  if (!roundedFraction) return whole;
+  return `${whole}.${roundedFraction}`;
 }

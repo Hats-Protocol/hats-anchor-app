@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
 import { ConnectWallet, NetworkSwitcher } from 'molecules';
 import { useMemo } from 'react';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const MainAction = () => {
@@ -21,7 +22,7 @@ const MainAction = () => {
   const isConnected = Boolean(address);
   const maxSupply = _.get(selectedHat, 'maxSupply', 0);
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });
@@ -35,11 +36,11 @@ const MainAction = () => {
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     handlePendingTx,
   });
 
-  const wearerIds = address ? [address] : [];
+  const wearerIds = address ? ([address] as Hex[]) : [];
   const { data: currentUserEligibility } = useWearersEligibilityStatus({
     wearerIds,
     selectedHat,

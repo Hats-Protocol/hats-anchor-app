@@ -31,6 +31,7 @@ const MobileHatCard = dynamic(() =>
 const VerticalDividers = dynamic(() =>
   import('molecules').then((mod) => mod.VerticalDividers),
 );
+const HatDeco = dynamic(() => import('ui').then((mod) => mod.HatDeco));
 
 const DEFAULT_LOADING_CARDS = 8;
 
@@ -171,22 +172,8 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
               <MobileHatCard hat={hat} maxDepth={maxDepth} />
             </Skeleton>
           ))}
-          <Flex minH='150px' justify='center' align='center'>
-            <Text size='sm'>
-              <span aria-label='Ball cap' role='img'>
-                🧢
-              </span>
-              <span aria-label='Top hat' role='img'>
-                🎩
-              </span>
-              <span aria-label='Hat with bow' role='img'>
-                👒
-              </span>
-            </Text>
-            {/* <Button variant='outlineMatch' size='sm' colorScheme='blue.500'>
-                  Return to top
-                </Button> */}
-          </Flex>
+
+          <HatDeco />
         </VStack>
       </Flex>
     </Flex>
