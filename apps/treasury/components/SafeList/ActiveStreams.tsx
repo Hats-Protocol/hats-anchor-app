@@ -36,7 +36,8 @@ const ActiveStreams = ({ safeAddress }: { safeAddress: Hex }) => {
                 value:
                   BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_MONTH),
                 decimals: stream.token.decimals,
-              })}
+              })}{' '}
+              {stream.token.symbol}
             </Text>
 
             <Text size='xs'>per month</Text>

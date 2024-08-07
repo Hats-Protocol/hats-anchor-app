@@ -1,10 +1,11 @@
+import { MANUAL_APPROVED_TOKENS } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { keys } from 'lodash';
+import { concat, keys } from 'lodash';
 
 const fetchApprovedSymbols = async () => {
   return fetch('https://registry.tkn.eth.limo/')
     .then((response) => response.json())
-    .then((data) => keys(data));
+    .then((data) => concat(keys(data), MANUAL_APPROVED_TOKENS));
 };
 
 const useApprovedTokens = () => {

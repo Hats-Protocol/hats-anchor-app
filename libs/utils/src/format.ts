@@ -133,11 +133,12 @@ export const formatRound = ({
   startScientific = 7,
   dropDecimals = false,
 }: {
-  value: string;
+  value: string | undefined;
   rounded?: number;
   startScientific?: number;
   dropDecimals?: boolean;
 }) => {
+  if (!value) return '-';
   const [whole, fraction] = value.split('.');
   const roundedFraction = fraction ? fraction.slice(0, rounded) : undefined;
 
@@ -161,10 +162,11 @@ export const formatRoundedDecimals = ({
   decimals = 18,
   rounded = 2,
 }: {
-  value: bigint;
+  value: bigint | undefined;
   decimals?: number;
   rounded?: number;
 }): string => {
+  if (!value || !decimals) return '-';
   const formattedValue = formatUnits(value, decimals);
   return formatRound({ value: formattedValue, rounded });
 };

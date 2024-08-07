@@ -9,7 +9,6 @@ import {
 } from '@chakra-ui/react';
 import {
   NETWORK_CURRENCY,
-  NETWORK_CURRENCY_IMAGE,
   OVERRIDE_TOKEN_IMAGE,
 } from '@hatsprotocol/constants';
 import { useTreasury } from 'contexts';
@@ -19,8 +18,14 @@ import {
   useTokenDetails,
   useTokenPrices,
 } from 'hooks';
-import { filter, find, get, includes, map, toLower, toUpper } from 'lodash';
-import { formatBalanceValue, formatRoundedDecimals } from 'utils';
+import { find, get, includes, map, toLower, toUpper } from 'lodash';
+import {
+  filterTokenList,
+  formatBalanceValue,
+  formatRoundedDecimals,
+  symbolPriceHandler,
+  tokenImageHandler,
+} from 'utils';
 import { Hex } from 'viem';
 
 const SafeAssetRow = ({ token }: { token: any }) => {
@@ -33,28 +38,41 @@ const SafeAssetRow = ({ token }: { token: any }) => {
   )
     ? get(token, 'token.logoUri')
     : undefined;
+  const localTokenSymbol =
+    (get(token, 'token.symbol')
+      ? symbolPriceHandler(get(token, 'token.symbol'))
+      : undefined) ||
+    (chainId && symbolPriceHandler(NETWORK_CURRENCY[chainId]));
   const priceDetails = find(prices, {
-    symbol: toUpper(get(token, 'token.symbol')),
+    symbol: toUpper(localTokenSymbol),
   });
   const { data: tokenData } = useTokenDetails({
-    symbol: toLower(get(token, 'token.symbol')),
+    symbol: toLower(localTokenSymbol),
   });
+  console.log({ localTokenSymbol, priceDetails, tokenData });
 
   if (!chainId) return null;
+
+  const tokenImage = tokenImageHandler({
+    symbol: get(token, 'token.symbol'),
+    primaryImage: get(tokenData, 'avatar'),
+    backupImage: localTokenImage,
+    chainId,
+  });
 
   return (
     <Flex justify='space-between'>
       {formatBalanceValue({
         price: get(priceDetails, 'priceUsd'),
         balance: token.balance,
-        decimals: get(token, 'token.decimals'),
+        decimals: get(token, 'token.decimals', 18),
       }) ? (
         <Heading size='xl'>
           $
           {formatBalanceValue({
             price: get(priceDetails, 'priceUsd'),
             balance: token.balance,
-            decimals: get(token, 'token.decimals'),
+            decimals: get(token, 'token.decimals', 18),
           })}
         </Heading>
       ) : (
@@ -69,15 +87,7 @@ const SafeAssetRow = ({ token }: { token: any }) => {
           })}
         </Heading>
         <HStack spacing={1}>
-          <Image
-            src={
-              get(tokenData, 'avatar') ||
-              localTokenImage ||
-              NETWORK_CURRENCY_IMAGE[chainId]
-            }
-            boxSize={4}
-            alt='token image'
-          />
+          <Image src={tokenImage} boxSize={4} alt='token image' />
           <Text size='sm'>
             {get(token, 'token.symbol', get(NETWORK_CURRENCY, chainId || 1))}
           </Text>
@@ -96,13 +106,10 @@ const SafeAssets = ({ safeAddress }: { safeAddress: Hex }) => {
     chainId,
   });
 
-  const filteredSafeTokens = filter(
-    safeTokens,
-    (token: any) =>
-      token.balance > 0 &&
-      (includes(approvedTokens, get(token, 'token.symbol')) ||
-        !token.tokenAddress),
-  );
+  const filteredSafeTokens = filterTokenList({
+    tokenList: safeTokens,
+    approvedTokens,
+  });
 
   if (!chainId) return null;
 

@@ -34,6 +34,8 @@ import {
   formatBalanceValue,
   formatRoundedDecimals,
   shortDateFormatter,
+  symbolPriceHandler,
+  tokenImageHandler,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
 
@@ -93,19 +95,33 @@ const LastTransaction = ({
   const transaction =
     type === TRANSACTION_TYPE.inbound ? lastInbound : lastOutbound;
   const firstTransfer = first(get(transaction, 'transfers'));
+  const firstTransferSymbol = get(firstTransfer, 'tokenInfo.symbol');
 
   const priceDetails = find(prices, {
     symbol: toUpper(
-      get(first(get(transaction, 'transfers')), 'tokenInfo.symbol'),
+      (firstTransferSymbol
+        ? symbolPriceHandler(firstTransferSymbol)
+        : undefined) ||
+        (chainId && symbolPriceHandler(NETWORK_CURRENCY[chainId])),
     ),
   });
   const { data: tokenData } = useTokenDetails({
     symbol: toLower(
-      get(first(get(transaction, 'transfers')), 'tokenInfo.symbol'),
+      (firstTransferSymbol
+        ? symbolPriceHandler(firstTransferSymbol)
+        : undefined) ||
+        (chainId && symbolPriceHandler(NETWORK_CURRENCY[chainId])),
     ),
   });
 
   if (!transaction) return null;
+
+  const tokenImage = tokenImageHandler({
+    symbol: firstTransferSymbol,
+    primaryImage: get(tokenData, 'avatar'),
+    backupImage: get(firstTransfer, 'tokenInfo.logoUri'),
+    chainId,
+  });
 
   return (
     <HStack spacing={4}>
@@ -150,21 +166,14 @@ const LastTransaction = ({
           <Text size='sm'>
             {formatRoundedDecimals({
               value: BigInt(get(firstTransfer, 'value', '0')),
-              decimals: get(firstTransfer, 'tokenInfo.decimals'),
+              decimals: get(firstTransfer, 'tokenInfo.decimals', 18),
             })}
           </Text>
 
           <HStack spacing={1}>
             <Image
               boxSize={4}
-              src={
-                get(tokenData, 'avatar') ||
-                get(
-                  firstTransfer,
-                  'tokenInfo.logoUri',
-                  NETWORK_CURRENCY_IMAGE[chainId || 1],
-                )
-              }
+              src={tokenImage}
               alt={`${get(firstTransfer, 'tokenInfo.symbol')} logo`}
             />
             <Text size='sm'>

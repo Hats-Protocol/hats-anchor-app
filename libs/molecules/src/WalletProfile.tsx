@@ -15,13 +15,13 @@ import { NETWORK_IMAGES } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
-import { isEmpty, size, toNumber } from 'lodash';
+import { isEmpty, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { ChakraNextLink, OblongAvatar } from 'ui';
-import { chainsMap, formatAddress } from 'utils';
+import { chainsMap, formatAddress, formatRoundedDecimals } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
@@ -72,7 +72,12 @@ const WalletProfile = ({
           <HStack gap={4}>
             <Skeleton isLoaded={!!balance?.value}>
               <Text size='sm'>
-                {toNumber(balance?.value)?.toFixed(2)} {balance?.symbol}
+                {formatRoundedDecimals({
+                  value: balance?.value,
+                  decimals: balance?.decimals || 18,
+                  rounded: 2,
+                })}{' '}
+                {balance?.symbol}
               </Text>
             </Skeleton>
             <Button

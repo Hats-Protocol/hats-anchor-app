@@ -1,11 +1,12 @@
 'use client';
 
 import { Heading, Stack, Text } from '@chakra-ui/react';
+import { NETWORK_CURRENCY } from '@hatsprotocol/constants';
 import { useTreasury } from 'contexts';
 import { useApprovedTokens, useSafeTokens, useTokenPrices } from 'hooks';
-import { filter, find, get, includes, toNumber, toString } from 'lodash';
+import { find, get, isEmpty, toNumber, toString, toUpper } from 'lodash';
 import { useMemo } from 'react';
-import { formatRound } from 'utils';
+import { filterTokenList, formatRound, symbolPriceHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
 
 const SafeTotal = ({ safeAddress }: { safeAddress: Hex }) => {
@@ -18,32 +19,31 @@ const SafeTotal = ({ safeAddress }: { safeAddress: Hex }) => {
   });
   const { data: prices } = useTokenPrices();
 
-  const filteredSafeTokens = useMemo(
-    () =>
-      filter(
-        safeTokens,
-        (token: any) =>
-          token.balance > 0 &&
-          (includes(approvedTokens, get(token, 'token.symbol')) ||
-            !token.tokenAddress),
-      ),
-    [approvedTokens, safeTokens],
-  );
+  const filteredSafeTokens = filterTokenList({
+    tokenList: safeTokens,
+    approvedTokens,
+  });
 
   const total = useMemo(() => {
+    if (isEmpty(filteredSafeTokens) || isEmpty(prices) || !chainId) return 0;
+
     return filteredSafeTokens.reduce((usdBal, token) => {
-      const price = find(prices, { symbol: get(token, 'token.symbol') });
+      const price = find(prices, {
+        symbol:
+          toUpper(symbolPriceHandler(get(token, 'token.symbol'))) ||
+          symbolPriceHandler(NETWORK_CURRENCY[chainId]),
+      });
       if (!price) return usdBal;
 
       return (
         usdBal +
         toNumber(
-          formatUnits(BigInt(token.balance), get(token, 'token.decimals')),
+          formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18)),
         ) *
           toNumber(price.priceUsd)
       );
     }, 0);
-  }, [filteredSafeTokens, prices]);
+  }, [filteredSafeTokens, prices, chainId]);
 
   return (
     <Stack align='center' spacing={0}>

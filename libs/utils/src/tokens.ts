@@ -1,4 +1,6 @@
-import { TKN_ABI } from '@hatsprotocol/constants';
+import { NETWORK_CURRENCY_IMAGE, TKN_ABI } from '@hatsprotocol/constants';
+import { MANUAL_EXCLUDE_TOKENS } from '@hatsprotocol/constants';
+import { eq, filter, get, includes, reject, toLower } from 'lodash';
 
 import { viemPublicClient } from './web3';
 
@@ -21,4 +23,63 @@ export const fetchTokenData = async ({
   });
 
   return tokenData;
+};
+
+export const symbolPriceHandler = (symbol: string) => {
+  if (!symbol) return undefined;
+  if (
+    eq(toLower(symbol), toLower('xDai')) ||
+    eq(toLower(symbol), toLower('WXDAI'))
+  )
+    return 'DAI';
+  return symbol;
+};
+
+export const tokenImageHandler = ({
+  symbol,
+  primaryImage,
+  backupImage,
+  chainId,
+}: {
+  symbol: string | null | undefined;
+  primaryImage: string | undefined;
+  backupImage: string | undefined;
+  chainId: number | undefined;
+}) => {
+  let localImage = primaryImage;
+  const networkTokenImage = NETWORK_CURRENCY_IMAGE[chainId || 1];
+  if ((!localImage && !backupImage) || (chainId === 100 && !symbol)) {
+    localImage = networkTokenImage;
+  }
+  if (chainId === 100 && toLower(symbol || undefined) === toLower('WXDAI')) {
+    localImage = networkTokenImage;
+  }
+  return localImage;
+};
+
+export const filterTokenList = ({
+  tokenList,
+  approvedTokens,
+}: {
+  tokenList: any[];
+  approvedTokens: string[] | undefined;
+}) => {
+  if (!tokenList) return [];
+  const manuallyRemove = reject(tokenList, (token) =>
+    includes(MANUAL_EXCLUDE_TOKENS, get(token, 'tokenAddress')),
+  );
+
+  if (!approvedTokens)
+    return filter(manuallyRemove, (token) => token.balance > 0);
+
+  return filter(
+    manuallyRemove,
+    (token: any) =>
+      token.balance > 0 &&
+      (includes(
+        approvedTokens,
+        symbolPriceHandler(get(token, 'token.symbol')),
+      ) ||
+        !token.tokenAddress),
+  );
 };
