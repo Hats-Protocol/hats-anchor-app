@@ -3,7 +3,7 @@
 import { Card, CardBody, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useTreasury } from 'contexts';
 import { useSuperfluidStreams } from 'hooks';
-import { isEmpty, map } from 'lodash';
+import { get, isEmpty, map } from 'lodash';
 import { formatAddress, formatRoundedDecimals } from 'utils';
 
 const SECONDS_IN_DAY = 86400;
@@ -41,7 +41,7 @@ const StreamsOverview = () => {
                         BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_DAY),
                       decimals: stream.token.decimals,
                     })}{' '}
-                    {stream.token.symbol} per day
+                    {get(stream, 'token.symbol')} per day
                   </Text>
                 </Flex>
               );

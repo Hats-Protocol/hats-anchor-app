@@ -24,7 +24,8 @@ const SafeTotal = ({ safeAddress }: { safeAddress: Hex }) => {
         safeTokens,
         (token: any) =>
           token.balance > 0 &&
-          (includes(approvedTokens, token.token.symbol) || !token.tokenAddress),
+          (includes(approvedTokens, get(token, 'token.symbol')) ||
+            !token.tokenAddress),
       ),
     [approvedTokens, safeTokens],
   );
@@ -36,7 +37,9 @@ const SafeTotal = ({ safeAddress }: { safeAddress: Hex }) => {
 
       return (
         usdBal +
-        toNumber(formatUnits(BigInt(token.balance), token.token.decimals)) *
+        toNumber(
+          formatUnits(BigInt(token.balance), get(token, 'token.decimals')),
+        ) *
           toNumber(price.priceUsd)
       );
     }, 0);

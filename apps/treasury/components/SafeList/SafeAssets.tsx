@@ -100,7 +100,8 @@ const SafeAssets = ({ safeAddress }: { safeAddress: Hex }) => {
     safeTokens,
     (token: any) =>
       token.balance > 0 &&
-      (includes(approvedTokens, token.token.symbol) || !token.tokenAddress),
+      (includes(approvedTokens, get(token, 'token.symbol')) ||
+        !token.tokenAddress),
   );
 
   if (!chainId) return null;
