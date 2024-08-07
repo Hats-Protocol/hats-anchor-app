@@ -13,7 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { useWaitForSubgraph } from 'hooks';
-import _, { get, includes, toLower } from 'lodash';
+import { find, get, includes, map, toLower } from 'lodash';
 import {
   useAgreementEligibility,
   useHatClaimBy,
@@ -37,6 +37,9 @@ const NetworkSwitcher = dynamic(() =>
 );
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
+);
+const ConnectWallet = dynamic(() =>
+  import('molecules').then((mod) => mod.ConnectWallet),
 );
 
 const ClaimHat = ({
@@ -64,17 +67,16 @@ const ClaimHat = ({
     selectedHatDetails,
   } = useEligibility();
 
-  const telegramAuthority = _.find(
-    _.get(selectedHatDetails, 'authorities'),
-    (a: Authority) =>
-      _.includes(a.link, 'telegram') || _.includes(a.link, 't.me'),
+  const telegramAuthority = find(
+    get(selectedHatDetails, 'authorities'),
+    (a: Authority) => includes(a.link, 'telegram') || includes(a.link, 't.me'),
   );
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
   });
-  const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);
+  const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
   const { data: eligibilityStatus } = useWearersEligibilityStatus({
     selectedHat: selectedHat || undefined,
     wearerIds: [toLower(address) as Hex],
@@ -119,8 +121,8 @@ const ClaimHat = ({
   const waitForClaim = useWaitForSubgraph({
     fetchHelper: () => fetchWearerDetails(address, chainId),
     checkResult: (result) => {
-      const hasClaimed = _.includes(
-        _.map(_.get(result, 'currentHats'), 'id'),
+      const hasClaimed = includes(
+        map(get(result, 'currentHats'), 'id'),
         selectedHat?.id,
       );
       return hasClaimed;
@@ -192,7 +194,7 @@ const ClaimHat = ({
             </NextLink>
             {telegramAuthority && (
               <NextLink
-                href={_.get(telegramAuthority, 'link', '#')}
+                href={get(telegramAuthority, 'link', '#')}
                 passHref
                 target='_blank'
               >
@@ -207,29 +209,47 @@ const ClaimHat = ({
     );
   }
 
+  if (!address) {
+    return (
+      <Stack w='40%' justifyContent='center' alignItems='left'>
+        <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
+        <Stack w='full' justifyContent='center' gap={3}>
+          <ConnectWallet />
+        </Stack>
+      </Stack>
+    );
+  }
+
+  if (chainId !== currentNetworkId) {
+    return (
+      <Stack w='40%' justifyContent='center' alignItems='left'>
+        <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
+        <Stack w='full' justifyContent='center' gap={3}>
+          <NetworkSwitcher chainId={chainId} colorScheme='blue.500' />
+        </Stack>
+      </Stack>
+    );
+  }
+
   return (
     <Stack w='40%' justifyContent='center' alignItems='left'>
       <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
       <Stack w='full' justifyContent='center' gap={3}>
-        {chainId !== currentNetworkId ? (
-          <NetworkSwitcher chainId={chainId} colorScheme='blue.500' />
-        ) : (
-          <Tooltip label={claimTooltipText} placement='top'>
-            <Button
-              isDisabled={
-                !isReviewed ||
-                !hatterIsAdmin ||
-                !currentHatIsClaimable?.for ||
-                (isWearing && isEligible)
-              }
-              colorScheme='blue'
-              leftIcon={<BsPen />}
-              onClick={isWearing ? signAgreement : signAndClaim}
-            >
-              Claim with Signature
-            </Button>
-          </Tooltip>
-        )}
+        <Tooltip label={claimTooltipText} placement='top'>
+          <Button
+            isDisabled={
+              !isReviewed ||
+              !hatterIsAdmin ||
+              !currentHatIsClaimable?.for ||
+              (isWearing && isEligible)
+            }
+            colorScheme='blue'
+            leftIcon={<BsPen />}
+            onClick={isWearing ? signAgreement : signAndClaim}
+          >
+            Claim with Signature
+          </Button>
+        </Tooltip>
       </Stack>
 
       <Flex w='full' justifyContent='center'>

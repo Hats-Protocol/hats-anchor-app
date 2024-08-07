@@ -8,6 +8,7 @@ import { fetchHatDetailsMesh } from 'utils';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
+  if (!hatId) return null;
   const hexHatId = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
   // TODO handle unexpected chainIds that won't produce valid numbers
@@ -35,7 +36,9 @@ export async function generateMetadata({
   // read route params
   const { hatId, chainId } = pick(params, ['hatId', 'chainId']);
   // hatId is in IP format
-  if (!chainId || !hatId || isNaN(toNumber(first(split(hatId))))) return {};
+  if (!chainId || !hatId || isNaN(toNumber(first(split(hatId, '.'))))) {
+    return {};
+  }
   const hatIdHex = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
   // fetch data

@@ -9,10 +9,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import {
-  NETWORK_CURRENCY,
-  NETWORK_CURRENCY_IMAGE,
-} from '@hatsprotocol/constants';
+import { NETWORK_CURRENCY } from '@hatsprotocol/constants';
 import { useTreasury } from 'contexts';
 import { useSafeTransactions, useTokenDetails, useTokenPrices } from 'hooks';
 import {
