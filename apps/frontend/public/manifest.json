@@ -1,0 +1,16 @@
+{
+  "short_name": "Hats",
+  "name": "Hats Protocol",
+  "description": "Hats Protocol - The Organizational Graph Protocol",
+  "icons": [
+    {
+      "src": "hats.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

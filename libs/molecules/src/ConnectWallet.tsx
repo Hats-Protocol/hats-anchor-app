@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { Modal, useOverlay } from 'contexts';
-import { useMediaStyles } from 'hooks';
+import { useAutoConnect, useMediaStyles } from 'hooks';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import posthog from 'posthog-js';
@@ -55,6 +55,8 @@ const ConnectWallet = () => {
       // check is HL team member
     });
   }, [address, ensName, chainId]);
+
+  useAutoConnect();
 
   return (
     <>
