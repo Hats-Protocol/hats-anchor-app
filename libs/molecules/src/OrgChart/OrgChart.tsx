@@ -62,7 +62,7 @@ function OrgChartComponent() {
     handleSetCompact,
     handleNodeCollapsedOrExpanded,
     handleExpandAll,
-    isLoading,
+    // isLoading,
     storedConfig,
     storedData,
     addHat,
@@ -540,36 +540,30 @@ function OrgChartComponent() {
     );
   }
 
-  if (isLoading) {
-    // hitting this flow?
-    return (
-      <Flex
-        h='calc(100% - 200px)'
-        w='100%'
-        alignItems='center'
-        justifyContent='center'
-      >
-        <Spinner size='xl' />
-      </Flex>
-    );
-  }
+  // if (isLoading) {
+  //   // hitting this flow?
+  //   return (
+  //     <Flex
+  //       h='calc(100% - 200px)'
+  //       w='100%'
+  //       alignItems='center'
+  //       justifyContent='center'
+  //     >
+  //       <Spinner size='xl' />
+  //     </Flex>
+  //   );
+  // }
 
   return (
     <Box position='relative' pt='145px' minH='100vh' h='calc(100% + 5px)'>
-      {orgChartTree ? (
-        <div
-          style={{
-            overflow: 'hidden',
-            height: '100%',
-          }}
-          ref={d3Container}
-          id='d3Container'
-        />
-      ) : (
-        <Flex w='full' h='full' justify='center' align='center'>
-          <Spinner size='xl' mt='20%' />
-        </Flex>
-      )}
+      <div
+        style={{
+          overflow: 'hidden',
+          height: '100%',
+        }}
+        ref={d3Container}
+        id='d3Container'
+      />
 
       <HStack position='absolute' bottom={4} left={85}>
         <Button

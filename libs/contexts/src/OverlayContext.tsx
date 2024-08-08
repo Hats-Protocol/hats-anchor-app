@@ -2,7 +2,7 @@
 
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-import router from 'next/router';
+import { redirect as nextRedirect } from 'next/navigation';
 import posthog from 'posthog-js';
 import {
   createContext,
@@ -239,7 +239,7 @@ export const OverlayContextProvider = ({
     }
 
     if (redirect) {
-      router.push(redirect);
+      nextRedirect(redirect);
     }
 
     return Promise.resolve(txReceipt);

@@ -4,7 +4,7 @@ import { SupportedChains } from 'types';
 import { HatDeco } from 'ui';
 import { Hex } from 'viem';
 
-import { SafeList, StreamsOverview, TreeOverview } from '../../../components';
+import { SafeList, TreeOverview } from '../../../components';
 
 const TreeDetails = ({ params: { treeId, chainId } }: TreeDetailsProps) => {
   // const hexHatId = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
