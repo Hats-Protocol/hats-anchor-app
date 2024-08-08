@@ -41,17 +41,6 @@ const useSelectedHatDisclosure = ({
     window.history.pushState({}, '', `/trees/${chainId}/${treeId}`);
   }, [chainId, treeId]);
 
-  // useEffect(() => {
-  //   if (hatId && hatId !== '0x') {
-  //     onOpen(hatId);
-  //   }
-  //   if (isOpen && !hatId) {
-  //     onClose();
-  //   }
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [hatId]);
-
   return { isOpen, onOpen, onClose };
 };
 

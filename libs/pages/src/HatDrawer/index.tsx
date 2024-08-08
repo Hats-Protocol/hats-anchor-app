@@ -6,7 +6,8 @@ import { HatFormContextProvider, useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { find, get } from 'lodash';
 import dynamic from 'next/dynamic';
-import { redirect, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { BottomMenu } from 'organisms';
 import { useState } from 'react';
 
@@ -19,6 +20,7 @@ const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
   const params = useSearchParams();
+  const router = useRouter();
   const hatId = params.get('hatId');
   const { editMode, treeToDisplay, treeId, chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
@@ -29,7 +31,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   if (!selectedHat) return null;
 
   if (treeId && chainId && selectedHat && !hatId && !isMobile) {
-    redirect(
+    router.push(
       `/trees/${chainId}/${treeId}?hatId=${hatIdDecimalToIp(
         hatIdHexToDecimal(selectedHat.id),
       )}`,

@@ -2,7 +2,7 @@
 
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-import { redirect as nextRedirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import {
   createContext,
@@ -73,6 +73,7 @@ export const OverlayContextProvider = ({
 }) => {
   // HOOKS
   const toast = useToast();
+  const router = useRouter();
 
   // LOCAL STATE
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
@@ -239,7 +240,7 @@ export const OverlayContextProvider = ({
     }
 
     if (redirect) {
-      nextRedirect(redirect);
+      router.push(redirect);
     }
 
     return Promise.resolve(txReceipt);

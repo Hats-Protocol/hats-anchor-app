@@ -12,7 +12,7 @@ import {
   Icon,
   IconButton,
   Image,
-  Spinner,
+  // Spinner,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -540,6 +540,7 @@ function OrgChartComponent() {
     );
   }
 
+  // TODO re-enable
   // if (isLoading) {
   //   // hitting this flow?
   //   return (

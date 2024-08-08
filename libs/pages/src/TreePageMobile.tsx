@@ -18,7 +18,7 @@ import { prepareMobileTreeHats } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import { first, get, isBoolean, map, maxBy, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import { redirect, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
 
@@ -43,6 +43,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
     treeToDisplay,
     isLoading: treeIsLoading,
   } = useTreeForm();
+  const router = useRouter();
   const params = useSearchParams();
   const { isMobile } = useMediaStyles();
   const hatParam = params.get('hatId');
@@ -52,7 +53,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
     isBoolean(isMobile) &&
     isMobile
   ) {
-    redirect(`/trees/${chainId}/${treeId}/${hatParam}`);
+    router.push(`/trees/${chainId}/${treeId}/${hatParam}`);
   }
 
   const sortedTree = treeIsLoading
