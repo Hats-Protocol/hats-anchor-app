@@ -35,7 +35,6 @@ import {
   isEmpty,
   map,
   size,
-  toLower,
 } from 'lodash';
 import {
   useCallHsgFunction,
@@ -76,14 +75,21 @@ const ModuleAuthorityToolbar = ({
   const isSameChain = chainId === currentNetworkId;
 
   const { data: wearerDetails } = useWearerDetails({
-    wearerAddress: toLower(address) as Hex,
+    wearerAddress: address as Hex,
     chainId,
   });
+  console.log(
+    wearerDetails,
+    map(wearerDetails, 'id'),
+    selectedHat?.id,
+    includes(map(wearerDetails, 'id'), selectedHat?.id),
+  );
   const isWearer = useMemo(
     // TODO handle wearers of many hats
     () => includes(map(wearerDetails, 'id'), selectedHat?.id),
     [wearerDetails, selectedHat?.id],
   );
+  console.log({ isWearer });
   const primaryFunction = find(get(authority, 'functions'), 'primary');
 
   const otherFunctions = filter(

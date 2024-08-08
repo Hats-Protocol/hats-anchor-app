@@ -17,11 +17,11 @@ import {
   walletConnectWallet,
   zerionWallet,
 } from '@rainbow-me/rainbowkit/wallets';
-import _ from 'lodash';
-import { concat, first, get, has, keys, map, toNumber, values } from 'lodash';
+import { concat, each, first, get, has, keys, map, toNumber, values } from 'lodash';
 import { SupportedChains } from 'types';
 import { Chain, http, Transport } from 'viem';
 import { createConfig } from 'wagmi';
+import { safe } from 'wagmi/connectors';
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 if (!WC_PROJECT_ID) {
@@ -84,9 +84,9 @@ const connectors = connectorsForWallets(
 
 const transports = () => {
   const localTransports: { [key: string]: Transport } = {};
-  _.each(chainsList, (chain, chainId) => {
+  each(chainsList, (chain, chainId) => {
     localTransports[chainId as keyof typeof localTransports] = http(
-      getRpcUrl(_.toNumber(chainId)),
+      getRpcUrl(toNumber(chainId)),
     );
   });
 
@@ -94,7 +94,7 @@ const transports = () => {
 };
 
 export const wagmiConfig = createConfig({
-  connectors: concat(connectors),
+  connectors: concat(connectors, safe()),
   chains: map(
     keys(chainsList),
     (c) => chainsList[toNumber(c) as keyof typeof chainsList],

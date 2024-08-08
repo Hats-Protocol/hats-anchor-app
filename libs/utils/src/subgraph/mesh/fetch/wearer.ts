@@ -33,7 +33,7 @@ export const fetchWearerDetailsMesh = async (
 
   return {
     ...wearer,
-    currentHats: mapWithChainId(wearer.currentHats, chainId),
+    currentHats: mapWithChainId(get(wearer, 'currentHats'), chainId),
   };
 };
 

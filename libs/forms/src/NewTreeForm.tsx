@@ -170,9 +170,7 @@ const NewTreeForm = () => {
           <Text variant='medium' size='sm'>
             {_.toUpper('Network')}
           </Text>
-          <Text>
-            This Tree will be minted on {_.capitalize(chainsMap(chainId).name)}
-          </Text>
+          <Text>This Tree will be minted on {chainsMap(chainId)?.name}</Text>
         </Stack>
 
         <Flex justify='flex-end'>
