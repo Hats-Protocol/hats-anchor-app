@@ -68,7 +68,7 @@ const Agreement = () => {
 
   const handleScroll = (e: any) => {
     const bottom =
-      Math.floor(e.target.scrollHeight - e.target.scrollTop) ===
+      Math.floor(e.target.scrollHeight - e.target.scrollTop) >
       e.target.clientHeight * 0.9;
     if (bottom) setIsButtonEnabled(true);
   };
