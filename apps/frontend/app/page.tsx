@@ -3,7 +3,7 @@ import {
   LEARN_MORE,
   TemplateData,
 } from '@hatsprotocol/constants';
-import _ from 'lodash';
+import { find, get, map } from 'lodash';
 import {
   FeaturedTreeCard,
   IntegrationCard,
@@ -35,11 +35,11 @@ const RootPage = async () => {
                 </h2>
 
                 <div className='grid grid-cols-1 md:grid-cols-3 flex-wrap gap-6 justify-between'>
-                  {_.map(featuredTrees, (tree: TemplateData, i: number) => (
+                  {map(featuredTrees, (tree: TemplateData, i: number) => (
                     <FeaturedTreeCard
                       treeData={tree}
                       hatsAndWearers={
-                        _.find(
+                        find(
                           hatsAndWearers,
                           (h: { treeId: string }) =>
                             Number(h.treeId) === tree.id,
@@ -65,10 +65,10 @@ const RootPage = async () => {
                 </h2>
 
                 <div className='flex flex-col md:flex-row gap-6 flex-wrap justify-between'>
-                  {_.map(INTEGRATION_CARDS, (integration) => (
+                  {map(INTEGRATION_CARDS, (integration) => (
                     <IntegrationCard
                       integration={integration}
-                      key={_.get(integration, 'label')}
+                      key={get(integration, 'label')}
                     />
                   ))}
                 </div>
@@ -83,7 +83,7 @@ const RootPage = async () => {
               </h2>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full'>
-                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
+                {map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </div>

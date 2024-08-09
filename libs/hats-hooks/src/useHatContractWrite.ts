@@ -26,7 +26,6 @@ interface ContractInteractionProps {
   queryKeys?: (object | string | number)[][];
   redirect?: string | null;
   enabled: boolean;
-
 }
 
 const useHatContractWrite = ({
@@ -46,7 +45,6 @@ const useHatContractWrite = ({
   queryKeys = [],
   redirect,
   enabled,
-
 }: ContractInteractionProps) => {
   const toast = useToast();
   const userChainId = useChainId();

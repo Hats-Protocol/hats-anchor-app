@@ -101,15 +101,12 @@ export const fetchWearerDetailsForChain = async (
   address: string | undefined,
   chainId: number,
 ) => {
-  console.log('fetching wearer details for chain')
   if (!address) return Promise.resolve([]);
   return fetchWearerDetailsMesh(toLower(address), chainId).then((data) => {
     if (!data) return Promise.resolve([]);
-    console.log(data)
 
     return Promise.resolve(get(data, 'currentHats'));
   }).catch((err) => {
-    console.log(err)
     return Promise.resolve([]);
   });
 };

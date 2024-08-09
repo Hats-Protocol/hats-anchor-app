@@ -321,6 +321,7 @@ export function getWearerDetailsQuery(chainId: number): string {
           status
           createdAt
           details
+          detailsMetadata
           maxSupply
           eligibility
           toggle

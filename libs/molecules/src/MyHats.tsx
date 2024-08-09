@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
-import { useImageURIs, useMediaStyles } from 'hooks';
+import { useMediaStyles } from 'hooks';
 import { compact, filter, indexOf, isEmpty, map, size, sortBy } from 'lodash';
 import { ReactNode } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
@@ -96,15 +96,9 @@ const MyHats = () => {
   });
   const activeHats = filter(sortedHats, ['status', true]);
 
-  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs({
-      hats: activeHats
-        ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
-        : [],
-    });
-  const overrideEmptyCurrentHats = isEmpty(currentHatsWithImagesData)
+  const overrideEmptyCurrentHats = isEmpty(activeHats)
     ? Array(isMobile ? 4 : 8).fill({ id: '123' })
-    : currentHatsWithImagesData;
+    : activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW);
 
   const { data: ensName } = useEnsName({ address: currentUser, chainId: 1 });
 
@@ -122,11 +116,7 @@ const MyHats = () => {
     );
   }
 
-  if (
-    isEmpty(currentHatsWithImagesData) ||
-    imagesLoading ||
-    wearerDetailsLoading
-  ) {
+  if (isEmpty(activeHats) || wearerDetailsLoading) {
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
@@ -179,7 +169,7 @@ const MyHats = () => {
           >
             {map(overrideEmptyCurrentHats, (hat: AppHat, i: number) => (
               <Skeleton
-                isLoaded={!!hat.id && !imagesLoading && !wearerDetailsLoading}
+                isLoaded={!!hat.id && !wearerDetailsLoading}
                 borderRadius='md'
                 key={i}
               >
