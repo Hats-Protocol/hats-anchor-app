@@ -155,6 +155,7 @@ export function getTreesPaginatedQuery(chaindId: number): string {
           id
           details
           imageUri
+          nearestImage
           detailsMetadata
           prettyId
           admin {

@@ -253,13 +253,15 @@ export const authorityImageHandler = ({
   return checkIfIpfs(imageUrl);
 };
 
-const checkIfIpfs = (url: string | undefined) => {
-  if (!url || typeof url !== 'string')
+export const checkIfIpfs = (url: string | undefined) => {
+  if (!url || typeof url !== 'string' || url === '-')
     return { isIpfs: false, imageUrl: '', icon: undefined };
 
+  const isIpfs = url.startsWith('ipfs://');
+
   return {
-    isIpfs: url.startsWith('ipfs://'),
-    imageUrl: url,
+    isIpfs,
+    imageUrl: isIpfs ? ipfsUrl(url) : url,
     icon: undefined,
   };
 };

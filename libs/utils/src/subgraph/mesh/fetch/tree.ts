@@ -1,7 +1,7 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
-import { Hat, Tree } from '@hatsprotocol/sdk-v1-subgraph';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { GraphQLClient } from 'graphql-request';
-import { get, map } from 'lodash';
+import { map } from 'lodash';
 import { mapWithChainId } from 'shared';
 
 import {
@@ -10,6 +10,7 @@ import {
   getTreesPaginatedQuery,
   NETWORKS_PREFIX,
 } from '../queries';
+import { parseMetadata } from './utils';
 
 export const fetchTreeDetailsMesh = async (
   treeId: string | null | undefined,
@@ -38,15 +39,6 @@ export const fetchTreeDetailsMesh = async (
   return tree;
 };
 
-const parseMetadata = (hat: Hat) => {
-  const detailsMetadata = get(hat, 'detailsMetadata');
-  if (!detailsMetadata) return { ...hat, metadata: null, metadataType: null };
-  return {
-    ...hat,
-    metadata: get(JSON.parse(detailsMetadata), 'data'),
-    metadataType: get(JSON.parse(detailsMetadata), 'type'),
-  };
-};
 
 export const fetchPaginatedTreesMesh = async (
   chainId: number,

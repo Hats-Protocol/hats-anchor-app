@@ -18,7 +18,7 @@ import dynamic from 'next/dynamic';
 // import { BsPeopleFill } from 'react-icons/bs';
 import { AppTree } from 'types';
 import { ChakraNextLink } from 'ui';
-import { ipfsUrl, removeInactiveHatsAndDescendants } from 'utils';
+import { checkIfIpfs, removeInactiveHatsAndDescendants } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
@@ -55,14 +55,11 @@ const TreeListCard = ({
 }) => {
   const { isMobile } = useMediaStyles();
   const topHat = get(tree, 'hats[0]');
-  const rawMetadata = get(topHat, 'detailsMetadata');
-  const topHatDetails = rawMetadata
-    ? get(JSON.parse(rawMetadata), 'data')
-    : undefined;
+  const metadata = get(topHat, 'metadata');
 
-  const hatName = get(topHatDetails, 'name', get(topHat, 'details'));
-  const nearestImageRaw = get(topHat, 'nearestImage');
-  const nearestImage = nearestImageRaw ? ipfsUrl(nearestImageRaw) : undefined;
+  const hatName = get(metadata, 'name', get(topHat, 'details'));
+  const nearestImageRaw = checkIfIpfs(get(topHat, 'nearestImage'));
+  const nearestImage = nearestImageRaw ? nearestImageRaw.imageUrl : undefined;
 
   return (
     <ChakraNextLink

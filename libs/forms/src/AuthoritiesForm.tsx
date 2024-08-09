@@ -374,6 +374,8 @@ const AuthoritiesFormList = ({
             {/* temporary button until interim form and edit mode v2 */}
             <Link
               href='https://hats-signer-gate-portal.vercel.app/deploy'
+              target='_blank'
+              rel='noreferrer noopener'
               passHref
             >
               <Button variant='outline' leftIcon={<IconWrapper as={Safe} />}>

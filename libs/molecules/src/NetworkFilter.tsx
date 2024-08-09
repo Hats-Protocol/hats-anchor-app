@@ -11,10 +11,14 @@ import {
   MenuList,
   Text,
 } from '@chakra-ui/react';
-import { NETWORK_IMAGES, ORDERED_CHAINS } from '@hatsprotocol/constants';
+import {
+  NETWORK_IMAGES,
+  ORDERED_CHAINS,
+  SHOW_KEY,
+} from '@hatsprotocol/constants';
 import { map } from 'lodash';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { FaFilter } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { chainsMap, getPathParams } from 'utils';
@@ -22,6 +26,10 @@ import { chainsMap, getPathParams } from 'utils';
 const NetworkFilter = () => {
   const pathname = usePathname();
   const { chainId } = getPathParams(pathname);
+  const params = useSearchParams();
+  const showParam = params.get('show');
+
+  const showKey = showParam === SHOW_KEY.all ? '?show=all' : '';
 
   return (
     <Menu isLazy>
@@ -43,7 +51,7 @@ const NetworkFilter = () => {
           <MenuItem
             as={Link}
             key={localChainId}
-            href={`/trees/${localChainId}`}
+            href={`/trees/${localChainId}${showKey}`}
             isDisabled={localChainId === chainId}
             color={localChainId === chainId ? 'blue' : 'black'}
             opacity='1 !important'

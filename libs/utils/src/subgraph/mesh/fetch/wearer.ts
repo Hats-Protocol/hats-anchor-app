@@ -6,6 +6,7 @@ import { AppTree } from 'types';
 import { Hex } from 'viem';
 
 import { getWearerDetailsQuery, getWearerTreesQuery, NETWORKS_PREFIX } from '../queries';
+import { parseMetadata } from './utils';
 
 // eslint-disable-next-line import/prefer-default-export
 export const fetchWearerDetailsMesh = async (
@@ -59,7 +60,18 @@ export const fetchWearerTrees = async ({
       id: wearer.toLowerCase(),
     });
 
-    return map(get(res, `${NETWORKS_PREFIX[chainId]}_wearer.currentHats`), 'tree') as AppTree[];
+    const wearerTrees = map(get(res, `${NETWORKS_PREFIX[chainId]}_wearer.currentHats`), 'tree') as AppTree[]
+
+    const wearerTreesProcessHatMetadata = map(wearerTrees, (tree) => {
+      const hats = get(tree, 'hats')
+      const processedHats = map(hats, parseMetadata);
+      return {
+        ...tree,
+        hats: processedHats,
+      }
+    })
+
+    return wearerTreesProcessHatMetadata;
   } catch (err) {
 
     return undefined;

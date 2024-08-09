@@ -11,6 +11,7 @@ import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '../contract';
 import { createSubgraphClient, viemPublicClient } from '../web3';
+import { parseMetadata } from './mesh/fetch/utils';
 import { fetchWearerDetailsMesh } from './mesh/fetch/wearer';
 
 const chains = keys(chainsList);
@@ -105,7 +106,11 @@ export const fetchWearerDetailsForChain = async (
   return fetchWearerDetailsMesh(toLower(address), chainId).then((data) => {
     if (!data) return Promise.resolve([]);
 
-    return Promise.resolve(get(data, 'currentHats'));
+    const currentHats = get(data, 'currentHats');
+    const withProcessedMetadata = map(currentHats, parseMetadata);
+    console.log(withProcessedMetadata)
+
+    return Promise.resolve(withProcessedMetadata);
   }).catch((err) => {
     return Promise.resolve([]);
   });

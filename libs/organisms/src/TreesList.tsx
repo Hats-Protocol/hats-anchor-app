@@ -36,21 +36,29 @@ const TreesList = ({ params }: TreeListProps) => {
     isLoading: treesLoading,
   } = usePaginatedTreeList({
     chainId,
-    enabled: showKey === SHOW_KEY.all,
+    enabled: !address || showKey === SHOW_KEY.all,
   });
 
   const trees = flatten(get(paginatedTrees, 'pages'));
+  const currentTrees =
+    showKey !== SHOW_KEY.all && address ? wearerTrees : trees;
 
   if (
     (showKey === SHOW_KEY.all && isEmpty(trees) && !treesLoading) ||
-    ((!showKey || showKey === SHOW_KEY.me) &&
+    (address &&
+      (!showKey || showKey === SHOW_KEY.me) &&
       isEmpty(wearerTrees) &&
       !wearerTreesLoading)
   ) {
     return (
       <Flex justify='center' align='center' h='full' minH='600px'>
         <Stack spacing={10} align='center'>
-          <Heading>No trees found</Heading>
+          <Heading>
+            {!showKey || showKey === SHOW_KEY.me
+              ? "You're not wearing any hats on this network"
+              : 'No trees found'}
+          </Heading>
+
           {(!showKey || showKey === SHOW_KEY.me) && (
             <LinkButton href={`/trees/${chainId}?show=all`} variant='primary'>
               Show all trees
@@ -97,14 +105,9 @@ const TreesList = ({ params }: TreeListProps) => {
         maxW='1200px'
         mx='auto'
       >
-        {trees || wearerTrees
-          ? map(
-              showKey !== SHOW_KEY.all && address ? wearerTrees : trees,
-              (tree: Tree) => (
-                <TreeCard key={tree.id} tree={tree} chainId={chainId} />
-              ),
-            )
-          : null}
+        {map(currentTrees, (tree: Tree) => (
+          <TreeCard key={tree.id} tree={tree} chainId={chainId} />
+        ))}
       </SimpleGrid>
     </InfiniteScroll>
   );

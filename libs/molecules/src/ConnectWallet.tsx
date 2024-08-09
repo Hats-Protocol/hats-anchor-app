@@ -92,7 +92,13 @@ const ConnectWallet = () => {
           };
 
           if (!ready) {
-            return <Skeleton w='200px' h='40px' borderRadius='md' />;
+            return (
+              <Skeleton
+                w={{ base: '100px', md: '200px' }}
+                h='40px'
+                borderRadius='md'
+              />
+            );
           }
 
           return (() => {

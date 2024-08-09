@@ -5,7 +5,7 @@ import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { combineAuthorities } from 'hats-utils';
 import { useHatGuildRoles, useHatSnapshotRoles } from 'hooks';
-import _ from 'lodash';
+import { get, isEmpty, map, size } from 'lodash';
 import { useAncillaryModules } from 'modules-hooks';
 import { Authority, AuthorityType } from 'types';
 
@@ -44,7 +44,7 @@ const AuthoritiesList = () => {
     chainId,
   });
   const { data: combinedAuthorities } = combineAuthorities({
-    authorities: _.get(selectedHatDetails, 'authorities'),
+    authorities: get(selectedHatDetails, 'authorities'),
     guildRoles,
     spaces,
     modulesAuthorities: ancillaryModulesLoading
@@ -61,7 +61,7 @@ const AuthoritiesList = () => {
       !ancillaryModulesLoading &&
       !guildsLoading &&
       !spacesLoading &&
-      _.isEmpty(combinedAuthorities)) ||
+      isEmpty(combinedAuthorities)) ||
     !selectedHatDetails
   ) {
     return null;
@@ -90,14 +90,14 @@ const AuthoritiesList = () => {
             mx={{ base: 4, md: 0 }}
             variant={{ base: 'medium', md: 'default' }}
           >
-            {_.size(combinedAuthorities)}{' '}
-            {_.size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'}{' '}
+            {size(combinedAuthorities)}{' '}
+            {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'}{' '}
             granted by this Hat
           </Heading>
         </Skeleton>
 
-        <Stack spacing={!_.isEmpty(localAuthorities) ? 1 : 2}>
-          {_.map(localAuthorities, (authority: Authority, index: number) => (
+        <Stack spacing={!isEmpty(localAuthorities) ? 1 : 2}>
+          {map(localAuthorities, (authority: Authority, index: number) => (
             <AuthoritiesListCard
               index={index}
               key={`${authority.label}-${index}`}

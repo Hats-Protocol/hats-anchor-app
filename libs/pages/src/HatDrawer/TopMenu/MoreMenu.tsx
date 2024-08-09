@@ -18,6 +18,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Stack,
   Text,
   Tooltip,
   useDisclosure,
@@ -197,110 +198,112 @@ const MoreMenu = () => {
 
           {/* ONCHAIN ACTIONS */}
           <MenuGroup title='On-chain Actions'>
-            {address && isClaimable?.by && !isClaimable?.for && (
-              <Tooltip
-                label={getDisabledReason({
-                  isNotConnected: !address,
-                  isOnWrongNetwork: chainId !== currentNetworkId,
-                })}
-              >
-                <MenuItem
-                  onClick={() => setModals?.({ checkEligibility: true })}
-                  icon={<Icon as={FaExclamationCircle} />}
-                  isDisabled={chainId !== currentNetworkId}
+            <Stack spacing={0}>
+              {address && isClaimable?.by && !isClaimable?.for && (
+                <Tooltip
+                  label={getDisabledReason({
+                    isNotConnected: !address,
+                    isOnWrongNetwork: chainId !== currentNetworkId,
+                  })}
                 >
-                  Check Eligibility
-                </MenuItem>
-              </Tooltip>
-            )}
+                  <MenuItem
+                    onClick={() => setModals?.({ checkEligibility: true })}
+                    icon={<Icon as={FaExclamationCircle} />}
+                    isDisabled={chainId !== currentNetworkId}
+                  >
+                    Check Eligibility
+                  </MenuItem>
+                </Tooltip>
+              )}
 
-            <Tooltip
-              label={
-                !toggleIsContract
-                  ? 'The toggle is "humanistic"'
-                  : chainId !== currentNetworkId
-                  ? "You can't test status of a hat on a different chain"
-                  : ''
-              }
-              shouldWrapChildren
-            >
-              <MenuItem
-                onClick={() => checkHatStatus?.()}
-                isDisabled={
-                  isLoadingCheckHatStatus ||
-                  !checkHatStatus ||
-                  !toggleIsContract ||
-                  chainId !== currentNetworkId
+              <Tooltip
+                label={
+                  !toggleIsContract
+                    ? 'The toggle is "humanistic"'
+                    : chainId !== currentNetworkId
+                    ? "You can't test status of a hat on a different chain"
+                    : ''
                 }
-                icon={<FaDoorOpen />}
-              >
-                Test hat status
-              </MenuItem>
-            </Tooltip>
-
-            {address && (
-              <Tooltip
-                label={getDisabledReason({
-                  isNotConnected: !address,
-                  isOnWrongNetwork: chainId !== currentNetworkId,
-                })}
                 shouldWrapChildren
               >
                 <MenuItem
-                  onClick={() => setModals?.({ requestLink: true })}
-                  isDisabled={chainId !== currentNetworkId}
-                  icon={<FaLink />}
-                >
-                  Request to link tree here
-                </MenuItem>
-              </Tooltip>
-            )}
-
-            {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
-              <Tooltip
-                label={getDisabledReason({
-                  isNotConnected: !address,
-                  isOnWrongNetwork: chainId !== currentNetworkId,
-                })}
-                shouldWrapChildren
-              >
-                <MenuItem
-                  onClick={toggleHat}
+                  onClick={() => checkHatStatus?.()}
                   isDisabled={
-                    !isSameAddress(selectedHat?.toggle, address) ||
-                    isLoadingToggleHat ||
-                    chainId !== currentNetworkId ||
-                    !toggleHat
+                    isLoadingCheckHatStatus ||
+                    !checkHatStatus ||
+                    !toggleIsContract ||
+                    chainId !== currentNetworkId
                   }
-                  icon={<FaPowerOff />}
+                  icon={<FaDoorOpen />}
                 >
-                  {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
+                  Test hat status
                 </MenuItem>
               </Tooltip>
-            )}
 
-            {isAdminUser && (
-              <Tooltip
-                label={getDisabledReason({
-                  isNotConnected: !address,
-                  isOnWrongNetwork: chainId !== currentNetworkId,
-                })}
-                shouldWrapChildren
-              >
-                <MenuItem
-                  onClick={onOpen}
-                  isDisabled={
-                    mutableStatus === MUTABILITY.IMMUTABLE ||
-                    !updateImmutability ||
-                    chainId !== currentNetworkId ||
-                    isLoadingUpdateImmutability
-                  }
-                  icon={<FaLock />}
+              {address && (
+                <Tooltip
+                  label={getDisabledReason({
+                    isNotConnected: !address,
+                    isOnWrongNetwork: chainId !== currentNetworkId,
+                  })}
+                  shouldWrapChildren
                 >
-                  Make immutable
-                </MenuItem>
-              </Tooltip>
-            )}
+                  <MenuItem
+                    onClick={() => setModals?.({ requestLink: true })}
+                    isDisabled={chainId !== currentNetworkId}
+                    icon={<FaLink />}
+                  >
+                    Request to link tree here
+                  </MenuItem>
+                </Tooltip>
+              )}
+
+              {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
+                <Tooltip
+                  label={getDisabledReason({
+                    isNotConnected: !address,
+                    isOnWrongNetwork: chainId !== currentNetworkId,
+                  })}
+                  shouldWrapChildren
+                >
+                  <MenuItem
+                    onClick={toggleHat}
+                    isDisabled={
+                      !isSameAddress(selectedHat?.toggle, address) ||
+                      isLoadingToggleHat ||
+                      chainId !== currentNetworkId ||
+                      !toggleHat
+                    }
+                    icon={<FaPowerOff />}
+                  >
+                    {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
+                  </MenuItem>
+                </Tooltip>
+              )}
+
+              {isAdminUser && (
+                <Tooltip
+                  label={getDisabledReason({
+                    isNotConnected: !address,
+                    isOnWrongNetwork: chainId !== currentNetworkId,
+                  })}
+                  shouldWrapChildren
+                >
+                  <MenuItem
+                    onClick={onOpen}
+                    isDisabled={
+                      mutableStatus === MUTABILITY.IMMUTABLE ||
+                      !updateImmutability ||
+                      chainId !== currentNetworkId ||
+                      isLoadingUpdateImmutability
+                    }
+                    icon={<FaLock />}
+                  >
+                    Make immutable
+                  </MenuItem>
+                </Tooltip>
+              )}
+            </Stack>
           </MenuGroup>
 
           <Divider />
