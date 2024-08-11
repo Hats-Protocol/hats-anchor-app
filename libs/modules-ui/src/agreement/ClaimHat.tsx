@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -7,31 +9,37 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
+import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
+import { useWaitForSubgraph } from 'hooks';
+import { find, get, includes, map, toLower } from 'lodash';
 import {
   useAgreementEligibility,
   useHatClaimBy,
   useMultiClaimsHatterCheck,
-  useWearerDetails,
-} from 'hats-hooks';
-import { useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+} from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
+import { Dispatch, SetStateAction } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
 import { Authority } from 'types';
 import { fetchWearerDetails, hatLink } from 'utils';
-import { useAccount, useChainId, useQueryClient } from 'wagmi';
+import { Hex } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
 import Conditions from './Conditions';
 
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
+);
+const ConnectWallet = dynamic(() =>
+  import('molecules').then((mod) => mod.ConnectWallet),
 );
 
 const ClaimHat = ({
@@ -42,7 +50,7 @@ const ClaimHat = ({
 }: {
   agreement: string;
   isReviewed: boolean;
-  setIsReviewed: (signed: boolean) => void;
+  setIsReviewed: Dispatch<SetStateAction<boolean>>;
   hasSupply: boolean;
 }) => {
   const { address } = useAccount();
@@ -59,17 +67,25 @@ const ClaimHat = ({
     selectedHatDetails,
   } = useEligibility();
 
-  const telegramAuthority = _.find(
-    _.get(selectedHatDetails, 'authorities'),
-    (a: Authority) =>
-      _.includes(a.link, 'telegram') || _.includes(a.link, 't.me'),
+  const telegramAuthority = find(
+    get(selectedHatDetails, 'authorities'),
+    (a: Authority) => includes(a.link, 'telegram') || includes(a.link, 't.me'),
   );
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
-  const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);
+  const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
+  const { data: eligibilityStatus } = useWearersEligibilityStatus({
+    selectedHat: selectedHat || undefined,
+    wearerIds: [toLower(address) as Hex],
+    chainId,
+  });
+  const isEligible = includes(
+    get(eligibilityStatus, 'eligibleWearers'),
+    toLower(address),
+  );
 
   const printDocumentAsPDF = () => {
     const newWindow = window.open('', '_blank');
@@ -91,7 +107,7 @@ const ClaimHat = ({
   const { hatterIsAdmin } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     handlePendingTx,
   });
 
@@ -101,18 +117,19 @@ const ClaimHat = ({
     onchainHats: selectedHat ? [selectedHat] : [],
   });
 
+  // TODO maybe check `isEligible` here instead
   const waitForClaim = useWaitForSubgraph({
     fetchHelper: () => fetchWearerDetails(address, chainId),
     checkResult: (result) => {
-      const hasClaimed = _.includes(
-        _.map(_.get(result, 'currentHats'), 'id'),
+      const hasClaimed = includes(
+        map(get(result, 'currentHats'), 'id'),
         selectedHat?.id,
       );
       return hasClaimed;
     },
   });
 
-  const { signAndClaim } = useAgreementEligibility({
+  const { signAndClaim, signAgreement } = useAgreementEligibility({
     moduleParameters,
     moduleDetails,
     chainId,
@@ -120,8 +137,8 @@ const ClaimHat = ({
     mchAddress: instanceAddress,
     onSuccessfulSign: async () => {
       await waitForClaim();
-      queryClient.invalidateQueries(['wearerDetails']);
-      queryClient.invalidateQueries(['hatDetails']);
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
     },
   });
 
@@ -154,7 +171,7 @@ const ClaimHat = ({
     );
   }
 
-  if (isWearing) {
+  if (isEligible && isWearing) {
     return (
       <Stack w='40%' justifyContent='center' alignItems='left'>
         <Conditions isReviewed setIsReviewed={() => undefined} />
@@ -177,7 +194,7 @@ const ClaimHat = ({
             </NextLink>
             {telegramAuthority && (
               <NextLink
-                href={_.get(telegramAuthority, 'link', '#')}
+                href={get(telegramAuthority, 'link', '#')}
                 passHref
                 target='_blank'
               >
@@ -192,29 +209,47 @@ const ClaimHat = ({
     );
   }
 
+  if (!address) {
+    return (
+      <Stack w='40%' justifyContent='center' alignItems='left'>
+        <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
+        <Stack w='full' justifyContent='center' gap={3}>
+          <ConnectWallet />
+        </Stack>
+      </Stack>
+    );
+  }
+
+  if (chainId !== currentNetworkId) {
+    return (
+      <Stack w='40%' justifyContent='center' alignItems='left'>
+        <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
+        <Stack w='full' justifyContent='center' gap={3}>
+          <NetworkSwitcher chainId={chainId} colorScheme='blue.500' />
+        </Stack>
+      </Stack>
+    );
+  }
+
   return (
     <Stack w='40%' justifyContent='center' alignItems='left'>
       <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
       <Stack w='full' justifyContent='center' gap={3}>
-        {chainId !== currentNetworkId ? (
-          <NetworkSwitcher chainId={chainId} colorScheme='blue.500' />
-        ) : (
-          <Tooltip label={claimTooltipText} placement='top'>
-            <Button
-              isDisabled={
-                !isReviewed ||
-                !hatterIsAdmin ||
-                !currentHatIsClaimable?.for ||
-                isWearing
-              }
-              colorScheme='blue'
-              leftIcon={<BsPen />}
-              onClick={signAndClaim}
-            >
-              Claim with Signature
-            </Button>
-          </Tooltip>
-        )}
+        <Tooltip label={claimTooltipText} placement='top'>
+          <Button
+            isDisabled={
+              !isReviewed ||
+              !hatterIsAdmin ||
+              !currentHatIsClaimable?.for ||
+              (isWearing && isEligible)
+            }
+            colorScheme='blue'
+            leftIcon={<BsPen />}
+            onClick={isWearing ? signAgreement : signAndClaim}
+          >
+            Claim with Signature
+          </Button>
+        </Tooltip>
       </Stack>
 
       <Flex w='full' justifyContent='center'>

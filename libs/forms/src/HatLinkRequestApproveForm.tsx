@@ -1,30 +1,38 @@
+'use client';
+
 import {
   Button,
   Flex,
   FormControl,
   FormLabel,
   HStack,
-  Spinner,
   Stack,
   Switch,
   Text,
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
-import _ from 'lodash';
+import {
+  useCid,
+  useDebounce,
+  usePinImageIpfs,
+  useWaitForSubgraph,
+} from 'hooks';
+import _, { filter, isEmpty, toLower } from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { prettyIdToIp, toTreeId } from 'shared';
 import { ImageFile } from 'types';
-import { DropZone, Input, Textarea } from 'ui';
-import { fetchToken, pinJson } from 'utils';
+import { DropZone } from 'ui';
+import { fetchHatDetails, fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
+
+import { Input, Textarea } from './components';
 
 // ! update links to use new docs links constants
 
@@ -36,6 +44,7 @@ const HatLinkRequestApproveForm = ({
   newAdmin: string;
 }) => {
   const currentNetworkId = useChainId();
+  const { handlePendingTx } = useOverlay();
   const { selectedHat } = useSelectedHat();
   const { chainId } = useTreeForm();
 
@@ -89,7 +98,7 @@ const HatLinkRequestApproveForm = ({
 
   const decimalAdmin = topHatDomain;
 
-  const { data: imagePinData, isLoading: imagePinLoading } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: newImage && customImage,
     metadata: { name: `image_${_.toString(chainId)}_${decimalAdmin}` },
@@ -106,7 +115,6 @@ const HatLinkRequestApproveForm = ({
   } = useEnsAddress({
     name: eligibility || '0x',
     chainId: 1,
-    enabled: !!eligibility,
   });
 
   const {
@@ -115,7 +123,14 @@ const HatLinkRequestApproveForm = ({
   } = useEnsAddress({
     name: toggle,
     chainId: 1,
-    enabled: !!toggle,
+  });
+
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(topHatDomain, chainId),
+    checkResult: (hatDetails) =>
+      !isEmpty(
+        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(newAdmin)),
+      ),
   });
 
   const eligibilityAddress =
@@ -137,12 +152,14 @@ const HatLinkRequestApproveForm = ({
         : imageUrl,
     ],
     chainId,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Link Request Approved!',
       description: `Successfully linked top hat ${BigInt(
         topHatDomain,
       ).toString()} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
+    handlePendingTx,
+    waitForSubgraph,
     queryKeys: [
       ['hatDetails', { id: newAdmin, chainId }],
       ['hatDetails', { id: topHatDomain, chainId }],
@@ -338,13 +355,12 @@ const HatLinkRequestApproveForm = ({
             isDisabled={!writeAsync}
             isLoading={
               detailsCidLoading ||
-              imagePinLoading ||
               isLoading ||
               isLoadingEligibilityResolvedAddress ||
               isLoadingToggleResolvedAddress
             }
           >
-            {imagePinLoading ? <Spinner /> : 'Approve'}
+            Approve
           </Button>
         </Flex>
       </Stack>

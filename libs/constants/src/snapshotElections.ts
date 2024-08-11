@@ -1,5 +1,3 @@
-// import { SupportedChains } from 'types';
-
 type HatProposals = {
   [hatId: string]: {
     [proposalId: number]: {

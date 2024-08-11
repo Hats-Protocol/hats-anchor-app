@@ -1,23 +1,24 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
+import { get } from 'lodash';
 import { AppHat } from 'types';
-import { Hex, isAddress } from 'viem';
-import { useContractRead } from 'wagmi';
+import { Hex } from 'viem';
+import { useReadContract } from 'wagmi';
 
 const useWearerIsInGoodStanding = ({
   wearer,
   selectedHat,
   chainId,
 }: UseWearerIsInGoodStanding) => {
-  const hatId = selectedHat?.id || 'none';
+  const hatId: string = get(selectedHat, 'id', 'none');
 
-  const { data, isLoading } = useContractRead({
+  const { data, isLoading } = useReadContract({
     address: CONFIG.hatsAddress,
     abi: CONFIG.hatsAbi,
     chainId,
     functionName: 'isInGoodStanding',
     args: [wearer, hatId],
-    enabled:
-      !!wearer && isAddress(wearer) && !!chainId && Boolean(selectedHat?.id),
   });
 
   return { data, isLoading };
@@ -27,6 +28,6 @@ export default useWearerIsInGoodStanding;
 
 interface UseWearerIsInGoodStanding {
   wearer: Hex | undefined;
-  selectedHat: AppHat | undefined;
+  selectedHat?: AppHat;
   chainId: number | undefined;
 }

@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import { Hierarchy, InputObject } from 'types';
+import { filter, find, findIndex, first, get, last, map, slice, sortBy } from 'lodash';
+import { AppHat, Hierarchy, InputObject } from 'types';
 import { Hex } from 'viem';
 
 /**
@@ -11,7 +11,7 @@ import { Hex } from 'viem';
 export const mapWithChainId = (
   array: object[] | undefined,
   chainId: number,
-): object[] => _.map(array, (obj: object) => ({ ...obj, chainId }));
+): object[] => map(array, (obj: object) => ({ ...obj, chainId }));
 
 // TODO need to handle inactive hats in hierarchy, e.g. don't link to them
 /**
@@ -26,7 +26,7 @@ export function createHierarchy(
 ): Hierarchy {
   if (!currentHatId) return {} as Hierarchy;
 
-  const currentHat = _.find(data, { id: currentHatId });
+  const currentHat = find(data, { id: currentHatId });
   if (!currentHat) return {} as Hierarchy;
 
   const currentHierarchy: Hierarchy = {
@@ -38,33 +38,33 @@ export function createHierarchy(
 
   const siblings =
     currentHat.parentId !== currentHat.id
-      ? _.filter(
-          data,
-          (hat: any) =>
-            hat.parentId === currentHat.parentId && hat.id !== hat.parentId,
-        )
+      ? filter(
+        data,
+        (hat: Partial<AppHat>) =>
+          hat.parentId === currentHat.parentId && hat.id !== hat.parentId,
+      )
       : [];
 
-  const sortedSiblings = _.sortBy(siblings, (sibling: any) =>
+  const sortedSiblings = sortBy(siblings, (sibling: AppHat) =>
     BigInt(sibling.id),
   );
-  const currentHatIndex = _.findIndex(sortedSiblings, { id: currentHat.id });
-  const leftSiblings = _.slice(sortedSiblings, 0, currentHatIndex);
-  const rightSiblings = _.slice(sortedSiblings, currentHatIndex + 1);
-  currentHierarchy.leftSiblings = _.map(leftSiblings, 'id');
-  currentHierarchy.rightSiblings = _.map(rightSiblings, 'id');
-  currentHierarchy.leftSibling = _.get(_.last(leftSiblings), 'id') as Hex;
-  currentHierarchy.rightSibling = _.get(_.first(rightSiblings), 'id') as Hex;
+  const currentHatIndex = findIndex(sortedSiblings, { id: currentHat.id });
+  const leftSiblings = slice(sortedSiblings, 0, currentHatIndex);
+  const rightSiblings = slice(sortedSiblings, currentHatIndex + 1);
+  currentHierarchy.leftSiblings = map(leftSiblings, 'id');
+  currentHierarchy.rightSiblings = map(rightSiblings, 'id');
+  currentHierarchy.leftSibling = get(last(leftSiblings), 'id') as Hex;
+  currentHierarchy.rightSibling = get(first(rightSiblings), 'id') as Hex;
 
-  const children = _.sortBy(
-    _.filter(
+  const children = sortBy(
+    filter(
       data,
-      (item: any) => item.parentId === currentHatId && item.id !== currentHatId,
+      (h: AppHat) => h.parentId === currentHatId && h.id !== currentHatId,
     ),
     'id',
   );
 
-  currentHierarchy.firstChild = _.first(children)?.id as Hex;
+  currentHierarchy.firstChild = get(first(children), 'id') as Hex;
 
   return currentHierarchy;
 }

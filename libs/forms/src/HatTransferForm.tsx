@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Code,
@@ -6,7 +8,6 @@ import {
   HStack,
   Stack,
   Text,
-  Tooltip,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
@@ -15,10 +16,11 @@ import { useDebounce, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';
-import { AddressInput } from 'ui';
 import { fetchWearerDetails, formatAddress } from 'utils';
 import { isAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
+
+import { AddressInput } from './components';
 
 const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
   const currentNetworkId = useChainId();
@@ -55,7 +57,7 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
 
   const isTopHat = hatId && !_.includes(hatIdDecimalToIp(BigInt(hatId)), '.');
 
-  const { writeAsync, isLoading, prepareErrorMessage } = useHatContractWrite({
+  const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'transferHat',
     args: [hatId, currentWearerAddress, newWearerAddress],
     chainId,
@@ -64,7 +66,7 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
       description: "We're waiting for the data to be indexed. Stay tuned.",
       duration: 8000,
     },
-    onSuccessToastData: {
+    successToastData: {
       title: `${isTopHat ? 'Top ' : ''}Hat Transferred!`,
       description:
         hatId &&
@@ -123,11 +125,9 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
           chainId={chainId}
         />
         <Flex justify='flex-end'>
-          <Tooltip label={prepareErrorMessage} isDisabled={!isDisabled}>
-            <Button type='submit' isDisabled={isDisabled} isLoading={txPending}>
-              Transfer
-            </Button>
-          </Tooltip>
+          <Button type='submit' isDisabled={isDisabled} isLoading={txPending}>
+            Transfer
+          </Button>
         </Flex>
       </Stack>
     </form>

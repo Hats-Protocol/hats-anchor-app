@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const CopyAddress: any = createIcon({
+const CopyAddress = createIcon({
   displayName: 'CopyAddress',
   viewBox: '0 0 16 16',
   path: [

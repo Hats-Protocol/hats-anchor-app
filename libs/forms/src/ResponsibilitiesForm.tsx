@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -21,15 +23,17 @@ import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { id } from 'date-fns/locale';
 import { usePinImageIpfs } from 'hooks';
 import _ from 'lodash';
+import { ResponsibilityHeader } from 'molecules';
 import { ReactNode, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 import { Authority } from 'types';
-import { DropZone, Input, ResponsibilityHeader, Textarea } from 'ui';
+import { DropZone } from 'ui';
 import { formatImageUrl } from 'utils';
 
+import { Input, Textarea } from './components';
 import ResponsibilitiesFormItem from './ResponsibilitiesFormItem';
 
 interface ItemDetailsFormProps {
@@ -114,7 +118,7 @@ const ResponsibilitiesForm = ({
     accept: { 'image/*': [] },
   });
 
-  const { data: imagePinData, isLoading } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: {
@@ -249,7 +253,6 @@ const ResponsibilitiesForm = ({
                 <Button
                   colorScheme='blue'
                   leftIcon={<BsSave />}
-                  isLoading={isLoading}
                   isDisabled={_.some(errors) || !isDirty}
                   type='submit'
                 >

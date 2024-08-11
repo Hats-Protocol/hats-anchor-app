@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -19,7 +21,10 @@ import {
 import { AUTHORITY_TYPES, CONFIG } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { usePinImageIpfs } from 'hooks';
-import _ from 'lodash';
+import { pick, some } from 'lodash';
+import { AuthorityHeader } from 'molecules';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -31,11 +36,14 @@ import {
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 import { Authority } from 'types';
-import { AuthorityHeader, DropZone, Input, Textarea } from 'ui';
+import { DropZone } from 'ui';
 import { formatImageUrl, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 
 import AuthoritiesFormItem from './AuthoritiesFormItem';
+import { Input, Textarea } from './components';
+
+const Safe = dynamic(() => import('icons').then((mod) => mod.Safe));
 
 interface AuthoritiesFormListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,7 +77,7 @@ const AuthoritiesForm = ({
   chainId,
   hatId,
 }: AuthoritiesFormProps) => {
-  const { getValues: hatGetValues, setValue: hatSetValue } = _.pick(hatForm, [
+  const { getValues: hatGetValues, setValue: hatSetValue } = pick(hatForm, [
     'getValues',
     'setValue',
   ]);
@@ -80,12 +88,15 @@ const AuthoritiesForm = ({
     label: authorityLabel,
     imageUrl,
   } = hatGetValues?.(`${formName}.${index}`) ?? {};
-  const { setValue, reset, handleSubmit, watch, formState } = _.pick(
-    localForm,
-    ['setValue', 'reset', 'handleSubmit', 'watch', 'formState'],
-  );
+  const { setValue, reset, handleSubmit, watch, formState } = pick(localForm, [
+    'setValue',
+    'reset',
+    'handleSubmit',
+    'watch',
+    'formState',
+  ]);
   const item = watch();
-  const { errors, isValid } = _.pick(formState, ['errors', 'isValid']);
+  const { errors } = pick(formState, ['errors']);
 
   const {
     acceptedFiles,
@@ -98,13 +109,11 @@ const AuthoritiesForm = ({
     accept: { 'image/*': [] },
   });
 
-  const { data: imagePinData, isLoading } = usePinImageIpfs({
+  const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: {
-      name: `image_${_.toString(chainId)}_hat_${hatId}_authorities_${
-        item.name
-      }`,
+      name: `image_${chainId}_hat_${hatId}_authorities_${item.name}`,
     },
   });
 
@@ -187,7 +196,13 @@ const AuthoritiesForm = ({
                 placeholder='https://example.com'
                 localForm={localForm}
                 isDisabled={guildOrSnapshot}
-                options={{ required: 'Authority link is required' }}
+                options={{
+                  required: false,
+                  validate: (v) =>
+                    !v
+                      ? true
+                      : v?.match(/^https?:\/\/.+/) || 'Link must be a URL',
+                }}
               />
 
               <Input
@@ -230,8 +245,7 @@ const AuthoritiesForm = ({
                   <Button
                     colorScheme='blue'
                     leftIcon={<BsSave />}
-                    isLoading={isLoading}
-                    isDisabled={_.some(errors) || !isValid}
+                    isDisabled={some(errors)}
                     type='submit'
                   >
                     Save
@@ -274,9 +288,9 @@ const AuthoritiesFormList = ({
     getValues: hatGetValues,
     watch: hatWatch,
     control: hatControl,
-  } = _.pick(hatForm, ['getValues', 'watch', 'control']);
+  } = pick(hatForm, ['getValues', 'watch', 'control']);
   const localForm = useForm();
-  const { setValue, reset, watch } = _.pick(localForm, [
+  const { setValue, reset, watch } = pick(localForm, [
     'setValue',
     'reset',
     'handleSubmit',
@@ -337,26 +351,38 @@ const AuthoritiesFormList = ({
         ))}
 
         <Box my={2}>
-          <Button
-            onClick={() => {
-              append({
-                label: '',
-                description: '',
-                link: '',
-                gate: '',
-                imageUrl: '',
-              });
-              setEditingIndex(fields.length);
-              onOpen();
-            }}
-            isDisabled={_.some(items, ['label', ''])}
-            gap={2}
-            variant='outline'
-            borderColor='blackAlpha.300'
-          >
-            <BsPlusCircle />
-            Add {items?.length ? 'another' : 'a'} {label}
-          </Button>
+          <HStack>
+            <Button
+              onClick={() => {
+                append({
+                  label: '',
+                  description: '',
+                  link: '',
+                  gate: '',
+                  imageUrl: '',
+                });
+                setEditingIndex(fields.length);
+                onOpen();
+              }}
+              isDisabled={some(items, ['label', ''])}
+              variant='outline'
+              borderColor='blackAlpha.300'
+              leftIcon={<IconWrapper as={BsPlusCircle} />}
+            >
+              Add {items?.length ? 'another' : 'an'} {label}
+            </Button>
+            {/* temporary button until interim form and edit mode v2 */}
+            <Link
+              href='https://hats-signer-gate-portal.vercel.app/deploy'
+              target='_blank'
+              rel='noreferrer noopener'
+              passHref
+            >
+              <Button variant='outline' leftIcon={<IconWrapper as={Safe} />}>
+                Add a Safe
+              </Button>
+            </Link>
+          </HStack>
         </Box>
       </Stack>
 

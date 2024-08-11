@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Badge,
   Box,
@@ -10,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useTreeForm } from 'contexts';
+import { Modal, useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
 import { useAdminOfHats } from 'hats-hooks';
@@ -22,13 +24,13 @@ import {
 import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import posthog from 'posthog-js';
 import { BsChevronRight } from 'react-icons/bs';
 import { FiSave, FiShare2 } from 'react-icons/fi';
 import { AppHat } from 'types';
 import { Hex } from 'viem';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
-const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
 
 const isDraft = (hatId: string, onchainHats: AppHat[]) =>
   !_.includes(_.map(onchainHats, 'id'), hatId);
@@ -46,6 +48,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     linkedHatIds,
     onCloseTreeDrawer,
     onOpenHatDrawer,
+    editMode,
   } = useTreeForm();
   const { isClient } = useMediaStyles();
   const toast = useToast();
@@ -161,11 +164,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           const changes = getProposedChangesCount(hat.id, storedData);
           // console.log(changes);
 
-          const handleHatClick = () => {
-            onCloseTreeDrawer?.();
-            onOpenHatDrawer?.(hat.id);
-          };
-
           const hatId = hatIdDecimalToIp(BigInt(hat.id));
           // get hat name for list display, default to details name
           let displayName = _.get(hat, 'detailsObject.data.name') || hat.name;
@@ -176,6 +174,19 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           if (localDisplayName !== '') {
             displayName = localDisplayName;
           }
+
+          const handleHatClick = () => {
+            posthog.capture('Opened Hat Drawer', {
+              chain_id: chainId,
+              hat_id: hatId,
+              hat_name: displayName,
+              draft,
+              edit_mode: editMode,
+              from: 'Tree Drawer',
+            });
+            onCloseTreeDrawer?.();
+            onOpenHatDrawer?.(hat.id);
+          };
 
           const isAdmin = _.includes(adminHatIds, hat.id);
 
@@ -190,8 +201,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 w='full'
                 justifyContent='space-between'
                 h={10}
-                alignItems='center'
                 variant='ghost'
+                alignItems='center'
                 borderRadius={0}
                 onClick={handleHatClick}
               >
@@ -244,11 +255,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         })}
       </Box>
 
-      <Modal
-        name='importFile'
-        title='Import Draft Tree Changes'
-        localOverlay={localOverlay}
-      >
+      <Modal name='importFile' title='Import Draft Tree Changes'>
         <ImportTreeForm />
       </Modal>
     </Stack>

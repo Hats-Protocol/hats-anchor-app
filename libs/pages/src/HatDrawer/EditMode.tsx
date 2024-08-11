@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Flex,
   HStack,
@@ -19,7 +21,7 @@ import {
   ResponsibilitiesForm,
 } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
-import { useClipboard, useToast } from 'hooks';
+import { useClipboard } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
@@ -40,16 +42,12 @@ const EditMode = () => {
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, isDraft } = useSelectedHat();
   const { getDirtyFieldsForAccordion, handleSave: onSave } = useHatForm();
-  const toast = useToast();
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] =
     useState(false);
 
-  const { onCopy } = useClipboard(selectedHat?.id || '');
-
-  const copyHatId = () => {
-    onCopy();
-    toast.success({ title: 'Copied Hat ID to clipboard' });
-  };
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
+    toastData: { title: 'Copied Hat ID to clipboard' },
+  });
 
   const name = _.get(
     _.find(treeToDisplay, ['id', selectedHat?.id]),
@@ -60,7 +58,7 @@ const EditMode = () => {
 
   const openModuleDrawer = (type: string) => {
     onSave(false);
-    setDrawers({ [_.toLower(type) || 'eligibility']: true });
+    setDrawers?.({ [_.toLower(type) || 'eligibility']: true });
   };
 
   return (
@@ -159,14 +157,14 @@ const EditMode = () => {
 
         {isTopHatOrMutable(selectedHat) && (
           <Accordion
-            title='Powers'
-            subtitle='Permissions and rights that are controlled by wearers of this hat.'
+            title='Authorities'
+            subtitle='Authorities and rights that are controlled by wearers of this hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
           >
             <Stack spacing={4} w='100%'>
               <AuthoritiesForm
                 formName='authorities'
-                title='PERMISSIONS'
+                title='AUTHORITIES'
                 subtitle={
                   <Text size='sm' variant='light'>
                     Actions this hat enables its wearer to take. More details in
@@ -181,7 +179,7 @@ const EditMode = () => {
                     .
                   </Text>
                 }
-                label='Permission'
+                label='Authority'
                 Icon={BsKey}
               />
             </Stack>
@@ -339,10 +337,9 @@ const EditMode = () => {
       >
         {(drawers?.eligibility || drawers?.toggle) && (
           <ModuleDrawer
-            onCloseModuleDrawer={() => setDrawers({})}
+            onCloseModuleDrawer={() => setDrawers?.({})}
             isStandaloneHatterDeploy={isStandaloneHatterDeploy}
             title={
-              // eslint-disable-next-line no-nested-ternary
               drawers?.eligibility
                 ? 'eligibility'
                 : drawers?.toggle

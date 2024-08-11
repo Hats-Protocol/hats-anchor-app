@@ -1,14 +1,19 @@
+'use client';
+
 import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
+import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { chainsMap } from 'utils';
 
 import { Agreement, AgreementV0, Election, KnownModule } from './modules';
 
-const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
+const Layout = dynamic(() =>
+  import('molecules').then((mod) => mod.StandaloneLayout),
+);
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
@@ -16,17 +21,12 @@ const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
 
 const Claims = () => {
   const { isClient } = useMediaStyles();
-  const {
-    chainId,
-    selectedHat,
-    moduleDetails,
-    isHatDetailsLoading,
-    isModuleDetailsLoading,
-  } = useEligibility();
+  const { chainId, selectedHat, moduleDetails, isModuleDetailsLoading } =
+    useEligibility();
 
   if (!isClient) return null;
 
-  if (isHatDetailsLoading || isModuleDetailsLoading) {
+  if (isModuleDetailsLoading || !selectedHat?.id) {
     return (
       <Layout title='Claims'>
         <Flex justify='center' pt='120px'>
@@ -40,10 +40,8 @@ const Claims = () => {
   }
 
   if (
-    selectedHat?.id &&
     chainId === 10 &&
-    hatIdDecimalToIp(BigInt(selectedHat.id)) ===
-      CONFIG.agreementV0.communityHatId
+    get(selectedHat, 'id') === CONFIG.agreementV0.communityHatId
   ) {
     return <AgreementV0 />;
   }
@@ -51,7 +49,7 @@ const Claims = () => {
   // handle specific modules found
   // TODO migrate to ID and CONSTs
   if (moduleDetails?.name === 'Hats Election Eligibility') return <Election />;
-  if (moduleDetails?.name === 'Agreement Eligibility') return <Agreement />;
+  if (moduleDetails?.name.includes('Agreement')) return <Agreement />;
 
   // fallback for other known modules
   if (moduleDetails) return <KnownModule />;

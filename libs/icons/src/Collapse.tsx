@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Collapse: any = createIcon({
+const Collapse = createIcon({
   displayName: 'Collapse',
   viewBox: '0 0 14 18',
   path: [

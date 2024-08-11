@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Splits: any = createIcon({
+const Splits = createIcon({
   displayName: 'Splits',
   viewBox: '0 0 16 16',
   path: [

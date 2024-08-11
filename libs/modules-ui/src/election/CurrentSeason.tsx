@@ -1,3 +1,5 @@
+'use client';
+
 import { Heading, Stack } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Accordion,
   AccordionButton,
@@ -18,12 +20,13 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
-import { useClipboard, useToast } from 'hooks';
+import { useClipboard } from 'hooks';
+import posthog from 'posthog-js';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
-// ! use Input component
+// TODO use ui/Input component
 
 const BottomMenu = ({
   isExpanded,
@@ -43,12 +46,23 @@ const BottomMenu = ({
     isExpanded,
   });
   const callData = data ? data?.callData : null;
-  const toast = useToast();
 
   const hasUpdates = editHasUpdates(storedData);
 
-  const { onCopy: copyCallData } = useClipboard(callData || '');
-  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress);
+  const { onCopy: copyCallData } = useClipboard(callData || '', {
+    toastData: { title: 'Successfully copied hex code to clipboard' },
+  });
+  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress, {
+    toastData: {
+      title: 'Successfully copied contract address to clipboard',
+      status: 'info',
+    },
+  });
+
+  const openCalldataMenu = () => {
+    posthog.capture('Opened Transaction Calldata Menu');
+    setAccordionIndex(isExpanded ? [] : [0]);
+  };
 
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>
@@ -60,11 +74,7 @@ const BottomMenu = ({
       >
         <Accordion allowToggle w='full' mt='-1px' index={isExpanded ? [0] : []}>
           <AccordionItem isDisabled={!hasUpdates}>
-            <AccordionButton
-              px={8}
-              py={4}
-              onClick={() => setAccordionIndex(isExpanded ? [] : [0])}
-            >
+            <AccordionButton px={8} py={4} onClick={openCalldataMenu}>
               <Box flex='1' textAlign='left'>
                 Transaction Call Data
               </Box>
@@ -84,13 +94,7 @@ const BottomMenu = ({
                   />
                   <Button
                     leftIcon={<FiCopy />}
-                    onClick={() => {
-                      copyContractAddress();
-                      toast.info({
-                        title:
-                          'Successfully copied contract address to clipboard',
-                      });
-                    }}
+                    onClick={copyContractAddress}
                     variant='outline'
                     borderColor='gray.300'
                   >
@@ -122,12 +126,7 @@ const BottomMenu = ({
                     />
                     <Button
                       leftIcon={<FiCopy />}
-                      onClick={() => {
-                        copyCallData();
-                        toast.info({
-                          title: 'Successfully copied hex code to clipboard',
-                        });
-                      }}
+                      onClick={copyCallData}
                       isDisabled={!callData}
                       variant='outline'
                       borderColor='gray.300'

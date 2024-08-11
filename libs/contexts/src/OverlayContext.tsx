@@ -1,6 +1,9 @@
+'use client';
+
 import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import {
   createContext,
   ReactNode,
@@ -10,10 +13,18 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { AppModals, OverlayContextProps, ToastProps, Transaction } from 'types';
-import { checkTransactionStatus } from 'utils';
+import {
+  AppModals,
+  HandlePendingTxProps,
+  OverlayContextProps,
+  Transaction,
+} from 'types';
+import {
+  checkTransactionStatus,
+  invalidateAfterTransaction,
+  viemPublicClient,
+} from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import { waitForTransaction } from 'wagmi/actions';
 
 const defaultModals: AppModals = {
   createTree: false,
@@ -62,15 +73,19 @@ export const OverlayContextProvider = ({
 }) => {
   // HOOKS
   const toast = useToast();
+  const router = useRouter();
 
   // LOCAL STATE
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
   const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
   const [commandPalette, setCommandPalette] = useState(false);
+  // TODO don't need to have these hooked probably, use getter/setters individually when needed
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
     'transactions',
     [],
   );
+
+  // TODO move to command palette
   const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
     { treeId: number; chainId: number }[] | undefined
   >('recently-visited-trees', undefined);
@@ -130,19 +145,25 @@ export const OverlayContextProvider = ({
     });
   };
 
+  const trackOpenCommandPalette = useCallback(() => {
+    posthog.capture('Toggled Command Palette', { is_open: commandPalette });
+    setCommandPalette(!commandPalette);
+  }, [commandPalette]);
+
   const clearAllTransactions = useCallback(() => {
     setTransactions([]);
   }, [setTransactions]);
 
+  // TODO consider removing `sendToast` here as it's giving confusing results. Consumer should handle in `onSuccess`
   /**
    * @param {hex} hash
-   * @param {object} toastData
-   * @param {string} toastData.title
-   * @param {string} toastData.description
-   * @param {string} redirect
-   * @param {boolean} clearModals
-   * @param {boolean} sendToast defaults to true
-   * @param {string} onSuccess
+   * @param {number} txChainId
+   * @param {string} txDescription
+   * @param {string} successToastData Toast props
+   * @param {string} redirect URL to redirect the user to after the transaction is successful
+   * @param {boolean} clearModals defaults to true
+   * @param {boolean} sendToast defaults to true, override to false if you want to handle the toast in the onSuccess callback
+   * @param {string} onSuccess after the tx is successful, subgraph is synced and mesh is invalidated
    * @returns {Promise<void>}
    * @example
    * handlePendingTx({
@@ -157,21 +178,21 @@ export const OverlayContextProvider = ({
     hash,
     txChainId,
     txDescription,
-    toastData,
+    // toasts
+    waitForSubgraphToastData,
+    successToastData,
+    // tx handling
+    waitForSubgraph,
+    onSuccess,
+    // after success
     redirect = null,
     clearModals = true,
     sendToast = true,
-    onSuccess,
-  }: {
-    hash: Hex;
-    txChainId?: number | undefined;
-    txDescription: string;
-    toastData: ToastProps | undefined;
-    redirect?: string | null;
-    clearModals?: boolean;
-    sendToast?: boolean;
-    onSuccess?: (data?: TransactionReceipt) => void;
-  }): Promise<TransactionReceipt | undefined> => {
+  }: HandlePendingTxProps): Promise<TransactionReceipt | undefined> => {
+    if (!hash || !txChainId) {
+      return Promise.resolve(undefined);
+    }
+
     if (hash && hash !== '0x') {
       addTransaction({
         hash,
@@ -182,26 +203,37 @@ export const OverlayContextProvider = ({
       });
     }
 
-    const data = await waitForTransaction({ hash });
+    const txReceipt = await viemPublicClient(
+      txChainId || 1,
+    ).waitForTransactionReceipt({
+      hash,
+    });
 
-    if (!data) {
+    toast.info({
+      title: 'Transaction accepted',
+      description: 'Waiting for the updated state to be indexed...',
+      ...waitForSubgraphToastData,
+    });
+
+    if (!txReceipt) {
       return Promise.resolve(undefined);
-    }
-
-    if (sendToast && toastData) {
-      // this toast is specifically the one that shows when the transaction is successful
-      // we still need to wait for the subgraph to show true "success"
-      toast[toastData.status || 'info']({
-        ...toastData,
-        title: _.get(toastData, 'title', 'Transaction successful'),
-      });
     }
 
     updateTransactionStatus(hash, 'completed');
 
-    if (onSuccess) {
-      onSuccess(data);
+    await waitForSubgraph?.(txReceipt);
+    await invalidateAfterTransaction(txChainId, hash);
+
+    if (sendToast && successToastData) {
+      // this toast is specifically the one that shows when the transaction is successful
+      // we still need to wait for the subgraph to show true "success"
+      toast[(successToastData.status as keyof typeof toast) || 'info']({
+        ...successToastData,
+        title: _.get(successToastData, 'title', 'Transaction successful'),
+      });
     }
+
+    onSuccess?.(txReceipt);
 
     if (clearModals) {
       setModals(defaultModals);
@@ -211,7 +243,7 @@ export const OverlayContextProvider = ({
       router.push(redirect);
     }
 
-    return Promise.resolve(data);
+    return Promise.resolve(txReceipt);
   };
 
   const txPending = useMemo(() => {
@@ -254,7 +286,7 @@ export const OverlayContextProvider = ({
       setDrawers,
       closeModals,
       commandPalette,
-      setCommandPalette,
+      setCommandPalette: trackOpenCommandPalette,
       handlePendingTx,
       transactions,
       clearAllTransactions,
@@ -271,6 +303,7 @@ export const OverlayContextProvider = ({
       // closeModals,
       commandPalette,
       setCommandPalette,
+      trackOpenCommandPalette,
       // handlePendingTx,
       transactions,
       clearAllTransactions,

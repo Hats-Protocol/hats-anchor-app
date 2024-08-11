@@ -1,3 +1,5 @@
+'use client';
+
 import { Spinner, Stack, Text } from '@chakra-ui/react';
 import { PROPOSALS } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';

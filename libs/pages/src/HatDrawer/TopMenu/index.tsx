@@ -1,21 +1,22 @@
+'use client';
+
 import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { Modal, useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
+import { MainAction } from 'organisms';
+import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import MoreMenu from './MoreMenu';
-
-const Modal = dynamic(() => import('ui').then((mod) => mod.Modal));
-const MainAction = dynamic(() => import('ui').then((mod) => mod.MainAction));
 
 // const HatLinkRequestCreateForm = dynamic(
 //   () => import('../../../forms'),
@@ -23,7 +24,6 @@ const MainAction = dynamic(() => import('ui').then((mod) => mod.MainAction));
 // );
 
 const TopMenu = ({ returnToList }: TopMenuProps) => {
-  const localOverlay = useOverlay();
   const {
     chainId,
     editMode,
@@ -43,7 +43,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   const { isMobile } = useMediaStyles();
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });
@@ -56,19 +56,6 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     'id',
   );
 
-  const closeHatDrawer = () => {
-    onCloseHatDrawer?.();
-  };
-
-  const handleReturnToList = () => {
-    onSave(false);
-    returnToList();
-  };
-
-  const handleSave = () => {
-    onSave();
-  };
-
   const onchainHat = _.find(onchainHats, { id: selectedHat?.id });
   const hatHasChanges = !_.isEmpty(
     _.keys(_.omit(_.find(storedData, { id: selectedHat?.id }), 'id')),
@@ -79,6 +66,30 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     !_.isEmpty(_.filter(treeToDisplay, { parentId: selectedHat?.id }));
 
   if (!selectedHat || isMobile) return null;
+
+  const closeHatDrawer = () => {
+    posthog.capture('Closed Hat Drawer', {
+      chain_id: chainId,
+      hat_id: selectedHat?.id,
+      edit_mode: false,
+    });
+    onCloseHatDrawer?.();
+  };
+
+  const handleReturnToList = () => {
+    posthog.capture('Closed Hat Drawer', {
+      chain_id: chainId,
+      hat_id: selectedHat.id,
+      edit_mode: true,
+      has_changes: hatHasChanges,
+    });
+    onSave(false);
+    returnToList?.();
+  };
+
+  const handleSave = () => {
+    onSave();
+  };
 
   return (
     <Flex
@@ -165,11 +176,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
         )}
       </HStack>
 
-      <Modal
-        name='requestLink'
-        title='Request to Link'
-        localOverlay={localOverlay}
-      >
+      <Modal name='requestLink' title='Request to Link'>
         <HatLinkRequestCreateForm
           newAdmin={selectedHat.id}
           wearerTopHats={_.filter(
@@ -188,6 +195,6 @@ interface TopMenuProps {
   // onSave: (v?: boolean) => void;
   // handleRemoveHat: () => void;
   // handleClearChanges: () => void;
-  returnToList: () => void;
+  returnToList: (() => void) | undefined;
   // isLoading: boolean;
 }

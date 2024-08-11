@@ -11,25 +11,33 @@ import {
   HatWithDepth,
   SupportedChains,
 } from 'types';
-import { formatAddress } from 'utils';
+import { formatAddress, formatScientificWhole } from 'utils';
 import { Hex } from 'viem';
 
 import { getTreeId } from './hats';
-import { maxSupplyText } from './wearers';
 
-// TODO move these to org-chart
-const ORG_CHART_ICONS = {
-  contract: `<img src="/icons/contract.svg" alt="wearer" />`,
-  group: `<img src="/icons/group.svg" alt="group" />`,
+type OrgChartTypes =
+  | 'contract' // has bytecode and we get name back from etherscan
+  | 'wearer' // has a single wearer that appears to not be
+  | 'many' // has many wearers that may or may not be contracts
+  | 'noWearer' // has no wearers, but still has supply
+  | 'group'; // has 0 supply
+
+// TODO move these to app-utils
+export const ORG_CHART_ICONS: Record<OrgChartTypes, string> = {
+  contract: `<img src="/icons/contract.svg" alt="contract wearer" />`,
   wearer: `<img src="/icons/wearer.svg" alt="wearer" />`,
+  many: `<img src="/icons/many.svg" alt="many" />`,
   noWearer: `<img src="/icons/no-wearers.svg" alt="no supply" style="height: 16px; margin-left: -2px;" />`,
+  group: `<img src="/icons/no-wearers.svg" alt="no supply" style="height: 16px; margin-left: -2px;" />`, // `<img src="/icons/group.svg" alt="group" />`,
 };
 
-const ORG_CHART_COLORS = {
-  contract: '#F0FFF4',
-  wearer: '#FFFAF0',
-  noWearers: '#FFFFFF',
-  group: '#F0F0FF',
+export const ORG_CHART_COLORS = {
+  contract: '#B2F5EA', // teal.100
+  wearer: '#FED7E2', // pink.100
+  many: '#FFF5F7', // pink.50
+  noWearers: '#EDF2F7', // gray.100
+  group: '#F7FAFC', // gray.50
 };
 
 const handleOrgChartWearers = (
@@ -41,21 +49,21 @@ const handleOrgChartWearers = (
     'maxSupply',
     'currentSupply',
   ]);
-  const localMaxSupplyText = maxSupplyText(_.toNumber(maxSupply) || 1);
+  const maxSupplyText = formatScientificWhole(_.toNumber(maxSupply) || 1);
 
-  // FALLBACK/INITIALIZE WITH NO WEARERS
-  let color = ORG_CHART_COLORS.noWearers;
+  // INITIALIZE WITH NO WEARERS
+  let bgColor = ORG_CHART_COLORS.noWearers;
   const wearer = _.first(wearers);
   const extendedWearer = _.find(orgChartWearers, { id: wearer?.id });
-  let content = 'No Wearers';
-  let accent = `0 of ${localMaxSupplyText}`;
+  let content = '0 Wearers';
+  let accent = `of ${maxSupplyText}`;
   let icon = ORG_CHART_ICONS.noWearer;
 
-  // HANDLE GROUPS
+  // HANDLE HATS WITH MANY WEARERS. GROUPS (0 SUPPLY) ARE HANDLED IN THE ORG CHART DIRECTLY
   if (_.toNumber(currentSupply) > 1) {
-    color = '#FFFFF0';
+    bgColor = ORG_CHART_COLORS.many;
     content = `${currentSupply} Wearers`;
-    accent = `out of ${localMaxSupplyText}`;
+    accent = `of ${maxSupplyText}`;
     icon = ORG_CHART_ICONS.wearer; // ORG_CHART_ICONS.group;
   }
 
@@ -65,13 +73,13 @@ const handleOrgChartWearers = (
       !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
         ? extendedWearer?.ensName
         : formatAddress(_.get(wearer, 'id'));
-    accent = `1 of ${localMaxSupplyText}`;
+    accent = `1 of ${maxSupplyText}`;
     icon = ORG_CHART_ICONS.wearer;
     if (extendedWearer?.isContract) {
-      color = ORG_CHART_COLORS.contract;
+      bgColor = ORG_CHART_COLORS.contract;
       icon = ORG_CHART_ICONS.contract;
     } else {
-      color = ORG_CHART_COLORS.wearer;
+      bgColor = ORG_CHART_COLORS.wearer;
     }
   }
 
@@ -85,7 +93,7 @@ const handleOrgChartWearers = (
     dims = { contentWidth: '130px', accentWidth: '38px' };
   }
 
-  return { color, accent, icon, content, ...dims };
+  return { color: bgColor, accent, icon, content, ...dims };
 };
 
 const mapHat = (
@@ -105,7 +113,7 @@ const mapHat = (
     url: `/trees/${chainId}/${treeIdHexToDecimal(
       hat.tree?.id || hat.treeId || '0x',
     )}`,
-    orgChartWearers: handleOrgChartWearers(hat, orgChartWearers),
+    hatChartWearers: handleOrgChartWearers(hat, orgChartWearers),
   };
 };
 
@@ -140,9 +148,9 @@ export async function toTreeStructure({
   );
 
   const mergedHatsData = _.map(onlyOnchainHats, (hat: AppHat) => {
-    const fullHat = _.find(hatsData, ['id', hat.id]);
-    const details = _.find(detailsData, ['id', hat.details]);
-    const image = _.find(imagesData, ['id', hat.id]);
+    const fullHat = _.find(hatsData, { id: hat.id });
+    const details = _.find(detailsData, { id: hat.details });
+    const image = _.find(imagesData, { id: hat.id });
 
     if (!fullHat) return undefined;
 
@@ -241,7 +249,10 @@ const compareHatIds = (a: AppHat, b: AppHat): number => {
   return 0;
 };
 
-export function prepareMobileTreeHats(tree: AppHat[]): HatWithDepth[] {
+export function prepareMobileTreeHats(
+  tree: AppHat[] | undefined,
+): HatWithDepth[] {
+  if (!tree) return [];
   let newIdList = tree
     ? // start with the top hat
       [_.get(_.first(tree), 'id')]

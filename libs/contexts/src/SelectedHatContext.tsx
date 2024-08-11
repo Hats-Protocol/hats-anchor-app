@@ -1,10 +1,14 @@
+'use client';
+
 import {
+  hatIdDecimalToHex,
   hatIdDecimalToIp,
+  hatIdIpToDecimal,
   treeIdDecimalToHex,
 } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import { useRouter } from 'next/router';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   createContext,
   ReactNode,
@@ -14,6 +18,7 @@ import {
 } from 'react';
 import { createHierarchy } from 'shared';
 import { AppHat, HatDetails, Hierarchy, SupportedChains } from 'types';
+import { getPathParams } from 'utils';
 import { Hex } from 'viem';
 
 import { useTreeForm } from './TreeFormContext';
@@ -35,6 +40,8 @@ export interface SelectedHatContext {
   hierarchy: Hierarchy | undefined;
 }
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 export const SelectedHatContext = createContext<SelectedHatContext>({
   // SELECTED HAT
   selectedHat: undefined,
@@ -53,18 +60,23 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
 });
 
 export const SelectedHatContextProvider = ({
-  treeId,
-  chainId,
-  hatId,
   children,
 }: {
-  treeId: number;
-  chainId: SupportedChains;
-  hatId?: Hex | undefined;
   children: ReactNode;
 }) => {
-  const router = useRouter();
-  const { flipped, compact } = _.pick(router.query, ['flipped', 'compact']);
+  const params = useSearchParams();
+  const pathname = usePathname();
+  const { hatId: hatIdPathParam, treeId, chainId } = getPathParams(pathname);
+
+  const hatIdQueryParam = params.get('hatId');
+  const hatId =
+    hatIdPathParam ||
+    (hatIdQueryParam
+      ? hatIdDecimalToHex(hatIdIpToDecimal(hatIdQueryParam))
+      : undefined);
+
+  const flipped = params.get('flipped');
+  const compact = params.get('compact');
   const {
     onchainHats,
     onchainTree,
@@ -79,7 +91,7 @@ export const SelectedHatContextProvider = ({
   // *********************
   const selectedHat = useMemo(() => {
     return _.find(orgChartTree, { id: hatId });
-  }, [orgChartTree, hatId]);
+  }, [orgChartTree, hatId]) as AppHat | undefined;
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
@@ -95,7 +107,7 @@ export const SelectedHatContextProvider = ({
   const selectedOnchainHat = useMemo(
     () => _.find(onchainTree, { id: hatId }),
     [onchainTree, hatId],
-  );
+  ) as AppHat | undefined;
   const selectedOnchainHatDetails = useMemo(
     () => _.get(selectedOnchainHat, 'detailsObject.data'),
     [selectedOnchainHat],
@@ -133,10 +145,9 @@ export const SelectedHatContextProvider = ({
       // if it's linked
       if (hat.treeId && treeId && hat.treeId !== treeIdDecimalToHex(treeId)) {
         const hatIdParam = hatIdDecimalToIp(BigInt(hat.id));
-        const basePath = router.basePath ? `${router.basePath}` : '';
 
         const urlToOpen = new URL(
-          `${basePath}${hat.url}`,
+          `${BASE_PATH}${hat.url}`,
           window.location.origin,
         );
         urlToOpen.searchParams.append('hatId', hatIdParam);

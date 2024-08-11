@@ -1,18 +1,20 @@
+import { chainsList } from '@hatsprotocol/constants';
 import {
   DEFAULT_ENDPOINTS_CONFIG,
   Wearer,
 } from '@hatsprotocol/sdk-v1-subgraph';
 import { gql, GraphQLClient } from 'graphql-request';
-import _ from 'lodash';
+import { compact, flatten, get, keys, map, toLower, toNumber } from 'lodash';
 import { mapWithChainId } from 'shared';
 import { AppHat, HatWearer } from 'types';
 import { Hex } from 'viem';
-import { fetchEnsName } from 'wagmi/actions';
 
 import { checkAddressIsContract } from '../contract';
-import { chainsList, createSubgraphClient } from '../web3';
+import { createSubgraphClient, viemPublicClient } from '../web3';
+import { parseMetadata } from './mesh/fetch/utils';
+import { fetchWearerDetailsMesh } from './mesh/fetch/wearer';
 
-const chains = _.keys(chainsList);
+const chains = keys(chainsList);
 
 export const wearersPerPage = 100;
 
@@ -24,20 +26,19 @@ export const fetchManyWearerDetails = async (
   const promises = wearerIds.map((wearerId: Hex) => {
     return [
       checkAddressIsContract(wearerId, chainId),
-      fetchEnsName({
+      viemPublicClient(1).getEnsName({
         address: wearerId,
-        chainId: 1,
       }),
     ];
   });
-  const data = await Promise.all(_.flatten(promises)).catch((err) => {
+  const data = await Promise.all(flatten(promises)).catch((err) => {
     // eslint-disable-next-line no-console
     console.log(err);
     return [];
   });
 
   // map with ID so can be looked up later
-  return _.map(wearerIds, (wearerId: Hex, index: number) => {
+  return map(wearerIds, (wearerId: Hex, index: number) => {
     return {
       id: wearerId,
       isContract: data[index * 2] as boolean,
@@ -101,27 +102,33 @@ export const fetchWearerDetailsForChain = async (
   address: string | undefined,
   chainId: number,
 ) => {
-  if (!address) return [];
-  const data = await fetchWearerDetails(address, chainId);
-  if (!data) return [];
+  if (!address) return Promise.resolve([]);
+  return fetchWearerDetailsMesh(toLower(address), chainId).then((data) => {
+    if (!data) return Promise.resolve([]);
 
-  return data.currentHats;
+    const currentHats = get(data, 'currentHats');
+    const withProcessedMetadata = map(currentHats, parseMetadata);
+
+    return Promise.resolve(withProcessedMetadata);
+  }).catch((err) => {
+    return Promise.resolve([]);
+  });
 };
 
 export const fetchWearerDetailsForAllChains = async (
   address: string | undefined,
 ) => {
   if (!address) return [];
-  const promises = _.map(chains, (cId: string) =>
-    fetchWearerDetails(address, Number(cId)),
+  const promises = map(chains, (cId: string) =>
+    fetchWearerDetailsMesh(address, Number(cId)),
   );
 
   // * let errors fall through here
   return Promise.all(
-    _.map(promises, (p: Promise<() => void>) => p.catch(() => undefined)),
+    map(promises, (p: Promise<() => void>) => p.catch(() => undefined)),
   ).then((data) => {
     // TODO [low] handle errors on subgraph(s) with the user
-    return Promise.resolve(_.flatten(_.map(_.compact(data), 'currentHats')));
+    return Promise.resolve(flatten(map(compact(data), 'currentHats')));
   });
 };
 
@@ -141,7 +148,7 @@ export const fetchPaginatedWearersForHat = async (
   });
 
   const wearersWithDetails = await fetchManyWearerDetails(
-    _.map(res, 'id') as Hex[],
+    map(res, 'id') as Hex[],
     chainId,
   );
 
@@ -210,13 +217,13 @@ export const GET_CONTROLLERS_FOR_USER = gql`
 
 // TODO use subgraph client directly
 export const fetchControllersForUser = async (a: string) => {
-  const promises = _.map(chains, (cId: number) => {
+  const promises = map(chains, (cId: number) => {
     const subgraphClient = new GraphQLClient(
       DEFAULT_ENDPOINTS_CONFIG[cId].endpoint,
     );
     if (subgraphClient !== undefined) {
       return subgraphClient.request(GET_CONTROLLERS_FOR_USER, {
-        address: _.toLower(a),
+        address: toLower(a),
       });
     }
     return undefined;
@@ -224,14 +231,14 @@ export const fetchControllersForUser = async (a: string) => {
 
   const data: unknown[] = await Promise.all(promises);
 
-  const mapWithChains = _.map(data, (d: { hats: AppHat[] }, i: number) => {
-    const hats = _.map(d.hats, (h: AppHat) => ({
+  const mapWithChains = map(data, (d: { hats: AppHat[] }, i: number) => {
+    const hats = map(d.hats, (h: AppHat) => ({
       ...h,
-      chainId: _.toNumber(chains[i]),
+      chainId: toNumber(chains[i]),
     }));
 
     return { hats };
   });
 
-  return _.flatten(_.map(mapWithChains, 'hats'));
+  return flatten(map(mapWithChains, 'hats'));
 };

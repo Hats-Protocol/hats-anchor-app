@@ -1,8 +1,10 @@
+'use client';
+
 import { Box } from '@chakra-ui/react';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatsModules } from 'hats-hooks';
 import _ from 'lodash';
+import { useHatsModules } from 'modules-hooks';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { ModuleDetails } from 'types';
@@ -28,7 +30,8 @@ const ModuleDrawer = ({
     defaultValues: {
       moduleType: '',
       isPermissionlesslyClaimable: 'No',
-      initialClaimableHats: hatIdHexToDecimal(selectedHat?.id),
+      initialClaimableHats:
+        selectedHat?.id && hatIdHexToDecimal(selectedHat?.id),
       initialClaimabilityType: '1', // 1 for "claimable", 2 for "claimable for"
     },
   });
@@ -39,6 +42,8 @@ const ModuleDrawer = ({
   const selectedModuleDetails: ModuleDetails | undefined = useMemo(() => {
     return _.find(modules, { id: selectedModuleField }) as ModuleDetails;
   }, [modules, selectedModuleField]);
+
+  if (!title) return null;
 
   return (
     <Box

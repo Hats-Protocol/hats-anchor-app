@@ -1,3 +1,5 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,6 +18,7 @@ import {
   fetchHatDetails,
   fetchToken,
   handleDetailsPin,
+  invalidateAfterTransaction,
   processHatForCalls,
   summarizeActions,
 } from 'utils';
@@ -23,8 +26,7 @@ import { Hex, TransactionReceipt } from 'viem';
 import {
   useAccount,
   useChainId,
-  useContractWrite,
-  usePrepareContractWrite,
+  useWriteContract,
 } from 'wagmi';
 
 import useAdminOfHats from './useAdminOfHats';
@@ -91,18 +93,61 @@ const useMulticallManyHats = ({
     adminHatIds,
   ]);
 
-  const { config, error: prepareError } = usePrepareContractWrite({
-    address: CONFIG.hatsAddress,
-    chainId: Number(chainId),
-    abi: CONFIG.hatsAbi,
-    functionName: 'multicall',
-    args: [_.map(calls, 'callData')],
-    enabled:
-      !_.isEmpty(calls) &&
-      !!chainId &&
-      chainId === currentChain &&
-      isAdminOfAnyHatWithChanges,
-  });
+  const { writeContractAsync } = useWriteContract();
+
+  const multicallTx = () => {
+    // eslint-disable-next-line no-console
+    console.log(calls, detailsToPin, isAdminOfAnyHatWithChanges);
+    if (
+      _.isEmpty(calls) ||
+      !chainId ||
+      chainId !== currentChain ||
+      !isAdminOfAnyHatWithChanges
+    )
+      return undefined;
+
+    return writeContractAsync({
+      address: CONFIG.hatsAddress,
+      chainId: Number(chainId),
+      abi: CONFIG.hatsAbi,
+      functionName: 'multicall',
+      args: [_.map(calls, 'callData')],
+    })
+      .then((data) => {
+        toast.info({
+          title: 'Transaction submitted',
+          description: 'Waiting for your transaction to be accepted...',
+        });
+
+        handlePendingTx?.({
+          hash: data as Hex,
+          txChainId: chainId,
+          txDescription,
+          successToastData: {
+            title: 'Transaction successful',
+            description: txDescription,
+            duration: 7000,
+          },
+          onSuccess,
+        });
+      })
+      .catch((error) => {
+        if (
+          error.name === 'TransactionExecutionError' &&
+          error.message.includes('User rejected the request')
+        ) {
+          toast.error({
+            title: 'Signature rejected!',
+            description: 'Please accept the transaction in your wallet',
+          });
+        } else {
+          toast.error({
+            title: 'Error occurred!',
+            description: 'An error occurred while processing the transaction.',
+          });
+        }
+      });
+  };
 
   const firstProposedChangeKey = useMemo<keyof Hat | undefined>(() => {
     if (proposedChanges.length === 0 || !proposedChanges[0]) {
@@ -137,6 +182,9 @@ const useMulticallManyHats = ({
 
   const onSuccess = async (d: TransactionReceipt | undefined) => {
     await waitForSubgraphUpdate();
+    if (d !== undefined) {
+      await invalidateAfterTransaction(Number(chainId), d.transactionHash);
+    }
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
@@ -153,48 +201,6 @@ const useMulticallManyHats = ({
   };
 
   const txDescription = summarizeActions(allCallsData as HatsCalls[]);
-
-  const {
-    writeAsync,
-    isLoading,
-    error: writeError,
-  } = useContractWrite({
-    ...config,
-    onSuccess: async (data) => {
-      toast.info({
-        title: 'Transaction submitted',
-        description: 'Waiting for your transaction to be accepted...',
-      });
-
-      await handlePendingTx?.({
-        hash: data.hash,
-        txChainId: chainId,
-        txDescription,
-        toastData: {
-          title: 'Transaction successful',
-          description: txDescription,
-          duration: 7000,
-        },
-        onSuccess,
-      });
-    },
-    onError: (error) => {
-      if (
-        error.name === 'TransactionExecutionError' &&
-        error.message.includes('User rejected the request')
-      ) {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
-        });
-      } else {
-        toast.error({
-          title: 'Error occurred!',
-          description: 'An error occurred while processing the transaction.',
-        });
-      }
-    },
-  });
 
   const handleWrite = async () => {
     if (!_.isEmpty(detailsToPin)) {
@@ -214,26 +220,26 @@ const useMulticallManyHats = ({
 
       await Promise.all(promises);
     }
-    const result = await writeAsync?.();
+    const result = await multicallTx?.();
     return result;
   };
 
   return {
     writeAsync: handleWrite,
-    prepareError,
-    writeError,
-    isLoading,
+    // prepareError,
+    // writeError,
+    // isLoading,
     proposedChanges,
   };
 };
 
 interface UseMulticallManyHatsProps {
   isAdminOfAnyHatWithChanges: boolean;
-  storedData: Partial<FormData>[];
-  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>>;
-  treeToDisplay: AppHat[];
-  onchainHats: AppHat[];
-  chainId: SupportedChains;
+  storedData: Partial<FormData>[] | undefined;
+  setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>> | undefined;
+  treeToDisplay: AppHat[] | undefined;
+  onchainHats: AppHat[] | undefined;
+  chainId: SupportedChains | undefined;
   handlePendingTx?: HandlePendingTx;
 }
 

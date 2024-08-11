@@ -1,6 +1,8 @@
+'use client';
+
 import { CONFIG } from '@hatsprotocol/constants';
 import { AppHat, SupportedChains } from 'types';
-import { useContractRead } from 'wagmi';
+import { useReadContract } from 'wagmi';
 
 const useHatStatus = ({
   selectedHat,
@@ -11,13 +13,12 @@ const useHatStatus = ({
 }) => {
   const hatId = selectedHat?.id || 'none';
 
-  const { data, isLoading } = useContractRead({
+  const { data, isLoading } = useReadContract({
     address: CONFIG.hatsAddress,
     abi: CONFIG.hatsAbi,
     chainId,
     functionName: 'isActive',
     args: [hatId],
-    enabled: Boolean(hatId) && Boolean(chainId),
   });
 
   return { data: data as unknown as boolean, isLoading };

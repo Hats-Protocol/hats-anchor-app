@@ -1,10 +1,10 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import _, { map } from 'lodash';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Hex, zeroAddress } from 'viem';
-import { fetchEnsName } from 'wagmi/actions';
 
-import { checkAddressIsContract } from './contract';
+import { checkAddressIsContract, fetchContractData } from './contract';
+import { viemPublicClient } from './web3';
 
 export const extendWearerDetails = async (
   wearer: Hex,
@@ -16,13 +16,12 @@ export const extendWearerDetails = async (
   if (wearer === FALLBACK_ADDRESS || wearer === zeroAddress) {
     return Promise.resolve(defaultWearer);
   }
+  // override to use mainnet for ENS
+  const client = viemPublicClient(1);
 
   return Promise.all([
     checkAddressIsContract(wearer, chainId),
-    fetchEnsName({
-      address: wearer,
-      chainId: 1, // override to use mainnet
-    }),
+    client.getEnsName({ address: wearer }),
   ])
     .then((data) => {
       if (!data) return defaultWearer;
@@ -83,4 +82,19 @@ export const fetchHatWearerDetails = async (
       console.error(err);
       return [];
     });
+};
+
+export const batchFetchContractData = async (
+  addresses: Hex[],
+  chainId: SupportedChains | undefined,
+) => {
+  const promises = map(addresses, (address: Hex) =>
+    fetchContractData(chainId, address),
+  );
+  const data = await Promise.all(promises);
+
+  return map(addresses, (address: Hex, index: number) => ({
+    id: address,
+    ...data[index],
+  }));
 };

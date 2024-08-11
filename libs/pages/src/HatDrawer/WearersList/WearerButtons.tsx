@@ -1,17 +1,15 @@
+'use client';
+
 import { Button, Flex, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import {
-  useHatClaimBy,
-  useMultiClaimsHatterCheck,
-  useWearerDetails,
-  useWearerEligibilityCheck,
-  useWearersEligibilityCheck,
-} from 'hats-hooks';
+import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
+import { useHatClaimBy, useMultiClaimsHatterCheck } from 'modules-hooks';
 import { useMemo } from 'react';
 import { FaPlus } from 'react-icons/fa';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const claimTooltip = ({
@@ -34,7 +32,7 @@ const claimTooltip = ({
   return undefined;
 };
 
-const addWearerTooltip = (sameChain, maxWearersReached) => {
+const addWearerTooltip = (sameChain: any, maxWearersReached: any) => {
   if (!sameChain) return "You can't add a wearer from a different chain.";
   if (maxWearersReached) return 'Maximum number of wearers reached.';
 
@@ -42,14 +40,14 @@ const addWearerTooltip = (sameChain, maxWearersReached) => {
 };
 
 const WearerButtons = () => {
-  const { setModals } = useOverlay();
+  const { setModals, handlePendingTx } = useOverlay();
   const { isMobile } = useMediaStyles();
   const { chainId, onchainHats, storedData } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const { address } = useAccount();
   const currentNetworkId = useChainId();
 
-  const { data: wearersEligibility } = useWearersEligibilityCheck({
+  const { data: wearersEligibility } = useWearersEligibilityStatus({
     selectedHat,
     chainId,
   });
@@ -59,7 +57,7 @@ const WearerButtons = () => {
   );
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode: false, // change if used in edit mode
   });
@@ -68,17 +66,22 @@ const WearerButtons = () => {
     [selectedHat?.id, wearer],
   );
 
-  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
-    wearer: address,
+  const wearerIds = address ? ([address] as Hex[]) : [];
+  const { data: currentUserEligibility } = useWearersEligibilityStatus({
+    wearerIds,
     selectedHat,
     chainId,
   });
+  const currentUserIsEligible = _.includes(
+    _.get(currentUserEligibility, 'eligibleWearers'),
+    address,
+  );
 
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
-    handlePendingTx: () => undefined,
+    wearer: address as Hex,
+    handlePendingTx,
   });
 
   const { currentHatIsClaimable } = useMultiClaimsHatterCheck({

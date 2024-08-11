@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -24,7 +26,9 @@ import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload, BsPen, BsTelegram } from 'react-icons/bs';
+import { SupportedChains } from 'types';
 import { fetchWearerDetails, hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import AgreementContent from './AgreementContent';
@@ -33,10 +37,10 @@ const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 const HatCreateCard = dynamic(() =>
-  import('ui').then((mod) => mod.HatCreateCard),
+  import('molecules').then((mod) => mod.HatCreateCard),
 );
 
 const ClaimHat = ({ agreement }: { agreement: string }) => {
@@ -49,7 +53,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
   const { isMobile } = useMediaStyles();
 
   const { data: wearerDetails, isLoading: wearerLoading } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const wearing = !!_.find(wearerDetails, ['id', hatId]);
@@ -107,8 +111,8 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
     // trigger refetch if hasClaimed
     await waitForClaim();
 
-    queryClient.invalidateQueries(['wearerDetails']);
-    queryClient.invalidateQueries(['hatDetails']);
+    queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
   };
 
   return (
@@ -121,7 +125,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
       alignItems='left'
       px={{
         base: 0,
-        xl: 10,
+        '2xl': 10,
       }}
       mx={{ base: 'auto', md: 0 }}
     >
@@ -129,7 +133,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
         Join the Hats Community!{' '}
       </Heading>
       <Text fontSize='md' color='blackAlpha.700'>
-        Sign to claim your Community Member Hat
+        Sign the agreement to claim your Community Member Hat
       </Text>
       <Flex w='full' justifyContent='center' py={4}>
         <NextLink
@@ -137,7 +141,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
           passHref
           target='_blank'
         >
-          <HatCreateCard id={hatId} />
+          <HatCreateCard id={hatId} chainId={chainId as SupportedChains} />
         </NextLink>
       </Flex>
 

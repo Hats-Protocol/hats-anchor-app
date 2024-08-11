@@ -27,7 +27,6 @@ App Hooks is a set of React hooks for managing specific interactions and UX in t
 
 ### Hat Hooks
 - `useHatGuildRoles` - filter Guild roles for a specific hat
-- `useHatParams` - handles query params for hats, trees, and chain ID
 - `useHatSnapshotRoles` - filter snapshot spaces and their potential roles for a given hat
 
 ### Tree Hooks

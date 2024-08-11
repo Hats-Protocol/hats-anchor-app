@@ -32,9 +32,14 @@ const theme = extendTheme({
     Text,
     Textarea,
   },
+  fonts: {
+    inter: 'Inter Variable',
+    body: 'inter, sans-serif',
+    heading: 'inter, sans-serif',
+  },
   global: {
     body: {
-      fontFamily: 'Inter',
+      fontFamily: 'inter, sans-serif',
     },
   },
 });

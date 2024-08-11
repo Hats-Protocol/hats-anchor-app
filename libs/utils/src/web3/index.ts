@@ -1,74 +1,50 @@
-import '@rainbow-me/rainbowkit/styles.css';
-
-import { chainsList, NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
+import { NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
 import { HatsAccount1ofNClient } from '@hatsprotocol/hats-account-sdk';
 import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
-import { getDefaultWallets } from '@rainbow-me/rainbowkit';
-import _ from 'lodash';
-import { createPublicClient, createWalletClient, custom, http } from 'viem';
-import { createConfig } from 'wagmi';
+import { createPublicClient, http } from 'viem';
+import { getWalletClient } from 'wagmi/actions';
 
-import { chains, chainsMap, explorerUrl, publicClient } from './chains';
+import { chainsMap, getRpcUrl, wagmiConfig } from './chains';
 
-export { chains, chainsList, chainsMap, explorerUrl, publicClient };
-
+const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
+if (!WC_PROJECT_ID) {
+  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
+}
 const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
+if (!ALCHEMY_ID) {
+  throw new Error('NEXT_PUBLIC_ALCHEMY_ID is not set');
+}
 
 declare global {
   interface Window {
+    // @ts-expect-error - overlapping with definition from Coinbase wallet for some reason
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ethereum: any;
   }
 }
 
-const { connectors } = getDefaultWallets({
-  appName: 'Hats',
-  chains,
-  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
-});
-
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const wagmiConfig: any = createConfig({
-  connectors,
-  publicClient,
-});
-
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const viemPublicClient: any = (chainId: number) => {
-  const chain = chainsMap(chainId);
-  let transportUrl = _.first(_.get(chain, 'rpcUrls.default.http'));
-  const alchemyUrl = _.get(chain, 'rpcUrls.alchemy.http');
-  if (alchemyUrl) transportUrl = `${alchemyUrl}/${ALCHEMY_ID}`;
-
+export const viemPublicClient = (chainId: number) => {
   return createPublicClient({
-    chain,
-    transport: http(transportUrl, { batch: true }),
+    chain: chainsMap(chainId),
+    transport: http(getRpcUrl(chainId), { batch: true }),
   });
 };
 
-export function createHatsClient(
+export async function createHatsClient(
   chainId: number | undefined,
-): HatsClient | undefined {
+): Promise<HatsClient | undefined> {
   if (!chainId) return undefined;
-  const chain = chainsMap(chainId);
 
-  const localPublicClient = viemPublicClient(chainId);
-  let localWalletClient;
-  if (window.ethereum) {
-    localWalletClient = createWalletClient({
-      chain,
-      transport: custom(window.ethereum),
-    });
-  }
+  const publicClient = viemPublicClient(chainId);
+  const walletClient = await getWalletClient(wagmiConfig);
+
   const hatsClient = new HatsClient({
     chainId,
-    publicClient: localPublicClient,
-    walletClient: localWalletClient,
+    publicClient,
+    walletClient,
   });
 
   return hatsClient;
@@ -86,63 +62,77 @@ export async function createHatsModulesClient(
   chainId: number | undefined,
 ): Promise<HatsModulesClient | undefined> {
   if (!chainId) return undefined;
-  const chain = chainsMap(chainId);
 
-  const localWalletClient = createWalletClient({
-    chain,
-    transport: custom(window.ethereum),
-  });
+  const publicClient = viemPublicClient(chainId);
+  try {
+    const walletClient = await getWalletClient(wagmiConfig);
 
-  const localPublicClient = viemPublicClient(chainId);
+    const hatsModulesClient = new HatsModulesClient({
+      publicClient,
+      walletClient,
+    });
 
-  const hatsModulesClient = new HatsModulesClient({
-    publicClient: localPublicClient,
-    walletClient: localWalletClient,
-  });
+    await hatsModulesClient.prepare();
 
-  await hatsModulesClient.prepare();
+    return hatsModulesClient as HatsModulesClient;
+  } catch (e) {
+    // expect an error when not connected to a wallet
+    const modulesClient = new HatsModulesClient({
+      publicClient,
+    });
 
-  return hatsModulesClient as HatsModulesClient;
+    await modulesClient.prepare();
+
+    return modulesClient as HatsModulesClient;
+  }
 }
 
 export async function createHatsSignerGateClient(
   chainId: number | undefined,
 ): Promise<HatsSignerGateClient | undefined> {
   if (!chainId) return undefined;
-  const chain = chainsMap(chainId);
 
-  const localWalletClient = createWalletClient({
-    chain,
-    transport: custom(window.ethereum),
-  });
+  const publicClient = viemPublicClient(chainId);
+  try {
+    const walletClient = await getWalletClient(wagmiConfig);
 
-  const localPublicClient = viemPublicClient(chainId);
+    const hatsModulesClient = new HatsSignerGateClient({
+      publicClient,
+      walletClient,
+    });
 
-  const hatsModulesClient = new HatsSignerGateClient({
-    publicClient: localPublicClient,
-    walletClient: localWalletClient,
-  });
-
-  return hatsModulesClient as HatsSignerGateClient;
+    return hatsModulesClient as HatsSignerGateClient;
+  } catch (e) {
+    // expect an error when not connected to a wallet
+    return new HatsSignerGateClient({
+      publicClient,
+    });
+  }
 }
 
 export async function createHatsAccountClient(
   chainId: number | undefined,
 ): Promise<HatsAccount1ofNClient | undefined> {
   if (!chainId) return undefined;
-  const chain = chainsMap(chainId);
 
-  const localWalletClient = createWalletClient({
-    chain,
-    transport: custom(window.ethereum),
-  });
+  const publicClient = viemPublicClient(chainId);
+  try {
+    const walletClient = await getWalletClient(wagmiConfig);
 
-  const localPublicClient = viemPublicClient(chainId);
+    const hatsAccountClient = new HatsAccount1ofNClient({
+      publicClient,
+      walletClient,
+    });
 
-  const hatsAccountClient = new HatsAccount1ofNClient({
-    publicClient: localPublicClient,
-    walletClient: localWalletClient,
-  });
-
-  return hatsAccountClient as HatsAccount1ofNClient;
+    return hatsAccountClient as HatsAccount1ofNClient;
+  } catch (e) {
+    // expect an error when not connected to a wallet
+    return new HatsAccount1ofNClient({
+      publicClient,
+      // @ts-expect-error - walletClient should not be required // TODO fix
+      walletClient: undefined,
+    });
+  }
 }
+
+export * from './chains';

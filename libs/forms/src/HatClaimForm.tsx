@@ -1,11 +1,14 @@
+'use client';
+
 import { Button, Flex, Stack } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatClaimFor } from 'hats-hooks';
 import { useDebounce } from 'hooks';
+import { useHatClaimFor } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
-import { AddressInput } from 'ui';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
+
+import { AddressInput } from './components';
 
 // TODO not handling hat at max supply (don't show button?)
 
@@ -34,7 +37,7 @@ const HatClaimForForm = () => {
   const { claimHatFor, canClaimForAccount, isLoading } = useHatClaimFor({
     selectedHat,
     chainId,
-    wearer: resolvedAddress || (address as Hex),
+    wearer: (resolvedAddress as Hex) || (address as Hex),
   });
 
   return (

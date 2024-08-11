@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Button,
@@ -11,17 +13,19 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { useAgreementEligibility } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import _, { lte } from 'lodash';
+import { useAgreementEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { hatLink } from 'utils';
 import { useAccount } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
-const Layout = dynamic(() => import('ui').then((mod) => mod.StandaloneLayout));
+const Layout = dynamic(() =>
+  import('molecules').then((mod) => mod.StandaloneLayout),
+);
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
@@ -48,6 +52,8 @@ const Agreement = () => {
   const { address } = useAccount();
   const [isReviewed, setIsReviewed] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
   const isWearing = useMemo(
     () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
     [selectedHat, address],
@@ -60,12 +66,20 @@ const Agreement = () => {
     [selectedHat],
   );
 
-  const handleScroll = (e) => {
+  const handleScroll = (e: any) => {
     const bottom =
-      Math.floor(e.target.scrollHeight - e.target.scrollTop) ===
-      e.target.clientHeight;
+      Math.floor(e.target.scrollHeight - e.target.scrollTop) >
+      e.target.clientHeight * 0.9;
     if (bottom) setIsButtonEnabled(true);
   };
+
+  useEffect(() => {
+    const contentHeight = contentRef.current?.scrollHeight;
+    const containerHeight = contentRef.current?.clientHeight;
+    if (lte(contentHeight, containerHeight)) {
+      setIsButtonEnabled(true);
+    }
+  }, [agreement]);
 
   return (
     <Layout title='Claims'>
@@ -109,6 +123,7 @@ const Agreement = () => {
                 backgroundColor='white'
                 border='1px solid #cbcbcb'
                 onScroll={handleScroll}
+                ref={contentRef}
               >
                 <AgreementContent agreement={agreement} />
               </Box>
@@ -157,7 +172,7 @@ const Agreement = () => {
               <Stack align='center' spacing={8} mb={100}>
                 <Heading size='md'>This hat has no remaining supply!</Heading>
 
-                {selectedHat.mutable && (
+                {selectedHat?.mutable && (
                   <Text maxW='80%' textAlign='center'>
                     Since this hat is mutable, an admin can adjust the max
                     supply.

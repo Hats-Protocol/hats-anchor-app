@@ -1,12 +1,11 @@
+'use client';
+
 import { Button, Flex, HStack, Icon, Tooltip } from '@chakra-ui/react';
 import { DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import {
-  useHatDetails,
-  useModuleDeploy,
-  useMultiClaimsHatterCheck,
-} from 'hats-hooks';
+import { useHatDetails } from 'hats-hooks';
 import _ from 'lodash';
+import { useModuleDeploy, useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -15,7 +14,7 @@ import { ModuleDetails } from 'types';
 import { useChainId } from 'wagmi';
 
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 
 const TopMenu = ({

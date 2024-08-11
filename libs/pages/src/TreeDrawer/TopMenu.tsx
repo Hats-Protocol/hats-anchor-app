@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -19,6 +21,7 @@ import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
@@ -27,7 +30,7 @@ import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 
 const TopMenu = () => {
@@ -37,6 +40,7 @@ const TopMenu = () => {
   const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
   const {
     chainId,
+    treeId,
     editMode,
     setEditMode,
     storedData,
@@ -66,7 +70,7 @@ const TopMenu = () => {
     return hasAdminOverAnyHat;
   }, [storedData, adminHatIds]);
 
-  const { writeAsync, isLoading } = useMulticallManyHats({
+  const { writeAsync } = useMulticallManyHats({
     isAdminOfAnyHatWithChanges,
     storedData,
     setStoredData,
@@ -77,11 +81,12 @@ const TopMenu = () => {
   });
 
   const handleDeploy = async () => {
-    const result = await writeAsync?.();
-    if (result) {
-      setEditMode?.(false);
-      onCloseTreeDrawer?.();
-    }
+    await writeAsync?.();
+    // TODO handle result and close drawer
+    // if (result) {
+    //   setEditMode?.(false);
+    //   onCloseTreeDrawer?.();
+    // }
   };
 
   const promptForReset = () => {
@@ -95,6 +100,10 @@ const TopMenu = () => {
   };
 
   const confirmReset = () => {
+    posthog.capture('Reset Tree Changes', {
+      tree_id: treeId,
+      chain_id: chainId,
+    });
     resetTree?.();
     closeModal();
   };
@@ -118,10 +127,9 @@ const TopMenu = () => {
   const isDeployDisabled = useMemo(
     () =>
       !editHasUpdates(storedData) ||
-      isLoading ||
       currentChain !== chainId ||
       !isAdminOfAnyHatWithChanges,
-    [storedData, isLoading, currentChain, chainId, isAdminOfAnyHatWithChanges],
+    [storedData, currentChain, chainId, isAdminOfAnyHatWithChanges],
   );
 
   return (

@@ -1,8 +1,10 @@
+'use client';
+
 import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useMultiClaimsHatterCheck } from 'hats-hooks';
 import { getAllParents } from 'hats-utils';
 import _ from 'lodash';
+import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';

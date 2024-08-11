@@ -1,19 +1,18 @@
+'use client';
+
 import { Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
-import { useScrollPosition } from 'hooks';
+// import { useScrollPosition } from 'hooks';
 import dynamic from 'next/dynamic';
+import { AuthoritiesList, Controllers } from 'organisms';
 
 import WearersList from '../WearersList';
 import HatHistory from './HatHistory';
 import Header from './Header';
 import LinkRequests from './LinkRequests';
 
-const AuthoritiesList = dynamic(() =>
-  import('ui').then((mod) => mod.AuthoritiesList),
-);
-const Controllers = dynamic(() => import('ui').then((mod) => mod.Controllers));
 const ResponsibilitiesList = dynamic(() =>
-  import('ui').then((mod) => mod.ResponsibilitiesList),
+  import('molecules').then((mod) => mod.ResponsibilitiesList),
 );
 
 const MainContent = ({
@@ -25,15 +24,15 @@ const MainContent = ({
 }) => {
   const { selectedHat } = useSelectedHat();
 
-  useScrollPosition(
-    ({ prevPos, currPos }) => {
-      const isShow = currPos.y > prevPos.y;
-      // eslint-disable-next-line no-console
-      console.debug('prevPos', prevPos, 'currPos', currPos, 'isShow', isShow);
-      if (isShow !== showBottomMenu) setShowBottomMenu?.(isShow);
-    },
-    [showBottomMenu],
-  );
+  // useScrollPosition(
+  //   ({ prevPos, currPos }) => {
+  //     const isShow = currPos.y > prevPos.y;
+  //     // eslint-disable-next-line no-console
+  //     console.debug('prevPos', prevPos, 'currPos', currPos, 'isShow', isShow);
+  //     if (isShow !== showBottomMenu) setShowBottomMenu?.(isShow);
+  //   },
+  //   [showBottomMenu],
+  // );
 
   if (!selectedHat) return null;
 

@@ -1,3 +1,5 @@
+'use client';
+
 import _ from 'lodash';
 import { EffectCallback, useEffect, useRef } from 'react';
 

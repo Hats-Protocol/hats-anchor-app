@@ -1,46 +1,55 @@
+'use client';
+
 import { Box } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { HatFormContextProvider, useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { find, get } from 'lodash';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { BottomMenu } from 'organisms';
 import { useState } from 'react';
 
 import EditMode from './EditMode';
+import MainContent from './MainContent';
 import TopMenu from './TopMenu';
 
-const BottomMenu = dynamic(() => import('ui').then((mod) => mod.BottomMenu));
-const Layout = dynamic(() => import('ui').then((mod) => mod.Layout));
-const MainContent = dynamic(() => import('./MainContent'));
 const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
-  const { topHat, editMode, treeToDisplay } = useTreeForm();
+  const params = useSearchParams();
+  const router = useRouter();
+  const hatId = params.get('hatId');
+  const { editMode, treeToDisplay, treeId, chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const selectedHatId = selectedHat?.id;
-  const imageUrl = _.get(
-    _.find(treeToDisplay, { id: selectedHatId }),
-    'imageUrl',
-  );
+  const imageUrl = get(find(treeToDisplay, { id: selectedHatId }), 'imageUrl');
   const { isMobile } = useMediaStyles();
 
   if (!selectedHat) return null;
 
+  if (treeId && chainId && selectedHat && !hatId && !isMobile) {
+    router.push(
+      `/trees/${chainId}/${treeId}?hatId=${hatIdDecimalToIp(
+        hatIdHexToDecimal(selectedHat.id),
+      )}`,
+    ); // redirect to desktop view
+  }
+
   if (isMobile) {
-    // TODO are we hitting this case?
     return (
-      <Layout hatData={topHat}>
-        <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
-          <TopMenu returnToList={returnToList} />
+      <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
+        <TopMenu returnToList={returnToList} />
 
-          <MainContent
-            showBottomMenu={showBottomMenu}
-            setShowBottomMenu={setShowBottomMenu}
-          />
+        <MainContent
+          showBottomMenu={showBottomMenu}
+          setShowBottomMenu={setShowBottomMenu}
+        />
 
-          <BottomMenu show={showBottomMenu} />
-        </Box>
-      </Layout>
+        <BottomMenu show={showBottomMenu} />
+      </Box>
     );
   }
 
@@ -74,7 +83,7 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           <LazyImage
             src={
               (editMode && imageUrl) ||
-              _.get(selectedHat, 'imageUrl') ||
+              get(selectedHat, 'imageUrl') ||
               '/icon.jpeg'
             }
             alt='hat image'

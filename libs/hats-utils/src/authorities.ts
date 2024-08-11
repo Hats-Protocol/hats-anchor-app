@@ -10,6 +10,14 @@ import _ from 'lodash';
 import { Authority, AuthorityType, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
+/**
+ * Combines authorities from different sources into single source
+ * @param authorities - authorities returned from the details object
+ * @param guildRoles - authorities found for the hat at Guild
+ * @param spaces - authorities found for the hat at Snapshot
+ * @param modulesAuthorities - authorities found for the hat's modules
+ * @returns object with `data` property containing the combined authorities
+ */
 export const combineAuthorities = ({
   authorities,
   guildRoles,
@@ -73,6 +81,12 @@ export const combineAuthorities = ({
   return { data: _.compact(combined) as Authority[] };
 };
 
+// TODO this was used in election eligibility, currently unused
+/**
+ * Finds the current term end value from the provided module parameters
+ * @param parameters - module parameters for the attached module
+ * @returns the current term end value or null if not found
+ */
 export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
   if (!parameters) return null;
   const currentTermEndObj = parameters.find(
@@ -83,6 +97,12 @@ export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
     : null;
 };
 
+/**
+ * Creates a URL for the Safe app. Generally used for controllers and wearers.
+ * @param chainId the chainId of the Safe
+ * @param address the address of the Safe
+ * @returns a string URL for the Safe app
+ */
 export const safeUrl = (
   chainId: SupportedChains | undefined,
   address: Hex | undefined,
@@ -91,6 +111,12 @@ export const safeUrl = (
   return `${SAFE_URL}/home?safe=${SAFE_CHAIN_MAP[chainId]}:${address}`;
 };
 
+/**
+ * Creates a URL for the DaoHaus app. Generally used for DAOs.
+ * @param chainId the chainId of the DAO
+ * @param address the address of the DAO
+ * @returns a string URL for the DaoHaus app
+ */
 export const daohausUrl = (
   chainId: SupportedChains,
   address: Hex | undefined,

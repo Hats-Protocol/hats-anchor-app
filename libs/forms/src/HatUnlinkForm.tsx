@@ -1,15 +1,20 @@
+'use client';
+
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
-import { useDebounce } from 'hooks';
-import _ from 'lodash';
+import { useDebounce, useWaitForSubgraph } from 'hooks';
+import { map } from 'lodash';
 import { useForm } from 'react-hook-form';
-import { Select } from 'ui';
+import { fetchHatDetails } from 'utils';
 import { Hex, isAddress } from 'viem';
+
+import { Select } from './components';
 
 const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
   const { chainId } = useTreeForm();
+  const { handlePendingTx } = useOverlay();
   const localForm = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -29,11 +34,20 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
 
   const wearer = topHatData?.wearers?.[0]?.id || '0x';
 
+  // TODO check this check logic
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () =>
+      topHatPrettyId && fetchHatDetails(topHatPrettyId, chainId),
+    checkResult: (hatDetails) => !hatDetails?.wearers?.length,
+  });
+
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'unlinkTopHatFromTree',
     args: [topHatPrettyId, wearer],
     chainId,
-    onSuccessToastData: {
+    handlePendingTx,
+    waitForSubgraph,
+    successToastData: {
       title: `Top Hat Unlinked!`,
       description: `Successfully unlinked top hat #${hatIdDecimalToIp(
         BigInt(topHatPrettyId),
@@ -60,7 +74,7 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
           name='topHatPrettyId'
           localForm={localForm}
         >
-          {_.map(parentOfTrees, (hat: Hex) => (
+          {map(parentOfTrees, (hat: Hex) => (
             <option value={hat} key={hat}>
               {hatIdDecimalToIp(BigInt(hat))}
             </option>

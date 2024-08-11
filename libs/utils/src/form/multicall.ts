@@ -16,8 +16,8 @@ import {
 } from 'types';
 import { Hex } from 'viem';
 
-import { calculateCid, ipfsUrl, urlToIpfsUri } from '../ipfs';
-import { createHatsClient, publicClient } from '../web3';
+import { calculateCid, ipfsUrl, urlToIpfsUri } from '../image';
+import { createHatsClient, viemPublicClient } from '../web3';
 
 const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
@@ -145,15 +145,15 @@ const createNewHatData = async ({
   let localToggle = toggle;
   if (eligibility?.includes('.eth')) {
     localEligibility =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: eligibility,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
   if (toggle?.includes('.eth')) {
     localToggle =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: toggle,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   const admin = getDefaultAdminId(hatId);
@@ -435,9 +435,9 @@ const processEligibilityChangeCallForHat = async ({
 
   if (eligibility.includes('.eth')) {
     localEligibility =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: eligibility,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   if (!localEligibility) return returnData;
@@ -474,9 +474,9 @@ const processToggleChangeCallForHat = async ({
 
   if (toggle.includes('.eth')) {
     localToggle =
-      (await publicClient({ chainId: 1 }).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: toggle,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   if (!localToggle) return returnData;
@@ -575,7 +575,7 @@ export const processHatForCalls = async (
   onchainHats?: AppHat[],
   chainId?: SupportedChains,
 ) => {
-  const hatsClient = createHatsClient(chainId);
+  const hatsClient = await createHatsClient(chainId);
   if (!hat || !hatsClient || !chainId) return emptyReturnData;
 
   if (!_.includes(_.map(onchainHats, 'id'), _.get(hat, 'id'))) {

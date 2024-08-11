@@ -1,6 +1,8 @@
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
-import { getQueryRoute } from 'utils';
+'use client';
+
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { useCallback, useState } from 'react';
+import { SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 /**
@@ -9,44 +11,35 @@ import { Hex } from 'viem';
  * @returns `onOpen` - function to open the hat, passing the hatId
  * @returns `onClose` - function to close the hat
  */
-const useSelectedHatDisclosure = (hatId: Hex | undefined) => {
+const useSelectedHatDisclosure = ({
+  chainId,
+  treeId,
+}: {
+  chainId: SupportedChains | undefined;
+  treeId: number | undefined;
+}) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const router = useRouter();
 
   const onOpen = useCallback(
     (localHatId: Hex) => {
       setIsOpen(true);
 
-      const updatedUrl = getQueryRoute({
-        query: router.query,
-        pathname: router.pathname,
-        hatId: localHatId,
-      });
-      router.push(updatedUrl);
+      window.history.pushState(
+        {},
+        '',
+        `/trees/${chainId}/${treeId}?hatId=${hatIdDecimalToIp(
+          hatIdHexToDecimal(localHatId),
+        )}`,
+      );
     },
-    [router],
+    [chainId, treeId],
   );
 
   const onClose = useCallback(() => {
     setIsOpen(false);
-    const updatedUrl = getQueryRoute({
-      query: router.query,
-      pathname: router.pathname,
-      drop: { hat: true },
-    });
-    router.push(updatedUrl);
-  }, [router]);
 
-  useEffect(() => {
-    if (hatId && hatId !== '0x') {
-      onOpen(hatId);
-    }
-    if (isOpen && !hatId) {
-      onClose();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hatId]);
+    window.history.pushState({}, '', `/trees/${chainId}/${treeId}`);
+  }, [chainId, treeId]);
 
   return { isOpen, onOpen, onClose };
 };

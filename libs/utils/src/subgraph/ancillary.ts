@@ -4,8 +4,10 @@ import {
   ElectionsAuthority,
   HatAuthorityResponse,
   HatElectionResponse,
+  HatSignerGate,
   SupportedChains,
 } from 'types';
+import { Hex } from 'viem';
 
 const MODULES_QUERY = gql`
   query GetModuleAuthorities($id: ID!) {
@@ -91,6 +93,25 @@ const MODULES_QUERY = gql`
   }
 `;
 
+export const HSG_SIGNER_QUERY = gql`
+  query GetHsgSigner($ids: [ID]!) {
+    hatsSignerGates(where: { signerHats_: { id_in: $ids } }) {
+      id
+      type
+      safe
+      minThreshold
+      targetThreshold
+      maxSigners
+      signerHats {
+        id
+      }
+      ownerHat {
+        id
+      }
+    }
+  }
+`;
+
 const ELECTION_QUERY = gql`
   query GetElectionAuthorities($id: ID!) {
     hatsElectionEligibility(id: $id) {
@@ -163,6 +184,30 @@ export const fetchElectionData = async (
     });
 
     return response?.hatsElectionEligibility || null;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching ancillary modules:', error);
+    return null;
+  }
+};
+
+export const fetchHsgSigners = async ({
+  hatIds,
+  chainId,
+}: {
+  hatIds: Hex[] | undefined;
+  chainId: SupportedChains | undefined;
+}) => {
+  if (!hatIds || !chainId) return null;
+
+  try {
+    const client = ancillarySubgraphClient(chainId);
+    if (!client) return null;
+    const response: any = await client.request(HSG_SIGNER_QUERY, {
+      ids: hatIds,
+    });
+
+    return (response?.hatsSignerGates as HatSignerGate[]) || null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);

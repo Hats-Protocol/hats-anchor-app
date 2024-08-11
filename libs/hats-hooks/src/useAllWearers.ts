@@ -1,9 +1,12 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { createSubgraphClient } from 'utils';
 import { Hex } from 'viem';
 
+// move to utils
 const fetchHatWearersPage = async ({
   hatId,
   chainId,
@@ -31,8 +34,8 @@ const useAllWearers = ({
   chainId,
   enabled = true,
 }: {
-  selectedHat: AppHat;
-  chainId: SupportedChains;
+  selectedHat: AppHat | undefined;
+  chainId: SupportedChains | undefined;
   enabled?: boolean;
 }) => {
   const supply = _.toNumber(selectedHat?.currentSupply);

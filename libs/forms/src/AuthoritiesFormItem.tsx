@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, HStack, IconButton, Link, Stack, Text } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useHatForm } from 'contexts';
@@ -58,15 +60,15 @@ const AuthoritiesFormItem = ({
           icon={<FaRegEdit />}
           aria-label='Edit'
           variant='ghost'
-          borderColor='blackAlpha.300'
+          color='blackAlpha.900'
         />
         <IconButton
           onClick={() => remove(index)}
           icon={<FaRegTrashAlt />}
           aria-label='Remove'
           variant='ghost'
-          borderColor='blackAlpha.300'
           isDisabled={isGate}
+          color='blackAlpha.900'
         />
       </HStack>
     </Box>

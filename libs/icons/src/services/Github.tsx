@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Github: any = createIcon({
+const Github = createIcon({
   displayName: 'Github',
   viewBox: '0 0 16 16',
   path: [

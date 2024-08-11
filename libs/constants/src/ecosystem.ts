@@ -28,3 +28,16 @@ export const SNAPSHOT_API_URLS: SnapshotApiUrls = {
   // testnet
   11155111: 'https://testnet.hub.snapshot.org/graphql',
 };
+
+export const SAFE_API_URL: {
+  [chainId in SupportedChains]: string | undefined;
+} = {
+  1: 'https://safe-transaction-mainnet.safe.global',
+  10: 'https://safe-transaction-optimism.safe.global',
+  100: 'https://safe-transaction-gnosis-chain.safe.global',
+  137: 'https://safe-transaction-polygon.safe.global',
+  8453: 'https://safe-transaction-base.safe.global',
+  42161: 'https://safe-transaction-arbitrum.safe.global',
+  42220: undefined, // 'https://safe-transaction-celo.safe.global',
+  11155111: 'https://safe-transaction-sepolia.safe.global',
+};

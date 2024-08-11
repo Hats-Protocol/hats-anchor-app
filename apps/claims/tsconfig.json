@@ -5,29 +5,69 @@
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": [],
-    "lib": ["ES2021"],
-    "incremental": true
+    "lib": [
+      "ES2021"
+    ],
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "references": [
-    { "path": "../../libs/constants/tsconfig.lib.json" },
-    { "path": "../../libs/contexts/tsconfig.lib.json" },
-    { "path": "../../libs/hats-hooks/tsconfig.lib.json" },
-    { "path": "../../libs/hats-utils/tsconfig.lib.json" },
-    { "path": "../../libs/hooks/tsconfig.lib.json" },
-    { "path": "../../libs/icons/tsconfig.lib.json" },
-    { "path": "../../libs/modules-ui/tsconfig.lib.json" },
-    { "path": "../../libs/pages/tsconfig.lib.json" },
-    { "path": "../../libs/shared/tsconfig.lib.json" },
-    { "path": "../../libs/types/tsconfig.lib.json" },
-    { "path": "../../libs/ui/tsconfig.lib.json" },
-    { "path": "../../libs/utils/tsconfig.lib.json" }
+    {
+      "path": "../../libs/constants/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/contexts/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/hats-hooks/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/hats-utils/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/hooks/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/icons/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/modules-ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/pages/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/types/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/utils/tsconfig.lib.json"
+    }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "../../libs/types/src/*.d.ts"],
-  "exclude": ["jest.config.ts", ".next"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../../libs/types/src/*.d.ts",
+    ".next/types/**/*.ts",
+    "../../dist/apps/claims/.next/types/**/*.ts"
+  ],
+  "exclude": [
+    ".next"
+  ]
 }

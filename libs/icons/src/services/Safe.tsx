@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Safe: any = createIcon({
+const Safe = createIcon({
   displayName: 'Safe',
   viewBox: '0 0 16 16',
   path: [

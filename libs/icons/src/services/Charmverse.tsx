@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Charmverse: any = createIcon({
+const Charmverse = createIcon({
   displayName: 'Charmverse',
   viewBox: '0 0 16 16',
   path: [

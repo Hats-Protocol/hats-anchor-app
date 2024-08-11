@@ -1,7 +1,5 @@
-import { WriteFunction } from '@hatsprotocol/hsg-sdk';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
-import { ReactNode } from 'react';
-import { Chain, Hex } from 'viem';
+import { Hex } from 'viem';
 
 import { Authority } from './authorities';
 import { SupportedChains } from './chains';
@@ -15,7 +13,25 @@ export type DetailsItem = {
   imageUrl?: string; // old field, prefer `imageUri`
 };
 
-export interface HatWearer {
+// Contract Details returned from Etherscan
+interface ContractDetails {
+  contractName: string;
+  // abi: string; // omitted in API route fetch
+  // sourceCode: string; // omitted in API route fetch
+  compilerVersion: string;
+  constructorArguments: string;
+  evmVersion: string;
+  id: string;
+  implementation: string;
+  library: string;
+  licenseType: string;
+  optimizationUsed: string;
+  proxy: string;
+  runs: string;
+  swarmSource: string;
+}
+
+export interface HatWearer extends Partial<ContractDetails> {
   id: Hex;
   isContract?: boolean;
   ensName?: string | null;
@@ -41,7 +57,11 @@ export type HatDetails = {
   };
 };
 
-export interface AppHat extends Hat {
+export interface HatWithMetadata extends Hat {
+  detailsMetadata?: string;
+}
+
+export interface AppHat extends HatWithMetadata {
   id: Hex; // Confirm `Hat` ID is Hex instead of string
   chainId?: SupportedChains;
   imageUrl?: string;
@@ -61,7 +81,7 @@ export interface AppHat extends Hat {
   extendedEligibility?: HatWearer;
   extendedToggle?: HatWearer;
   // object assembled to be used in the org chart wearers section
-  orgChartWearers?: {
+  hatChartWearers?: {
     color: string;
     accent: string;
     icon: string;
@@ -69,7 +89,8 @@ export interface AppHat extends Hat {
     contentWidth: string;
     accentWidth: string;
   };
-  network?: Chain;
+  metadata?: HatDetails;
+  metadataType?: string;
 }
 
 export interface HatWithDepth extends AppHat {
@@ -95,76 +116,4 @@ export interface HatExport {
     type: string;
     data: HatDetails;
   };
-}
-
-export interface HatAuthorityResponse {
-  hatAuthority: HatAuthority;
-}
-
-export interface HatElectionResponse {
-  hatsElectionEligibility: ElectionsAuthority;
-}
-
-export interface HatSignerGate {
-  id: Hex;
-  hatId: Hex;
-  type: string;
-  safe: Hex;
-  minThreshold: string;
-  targetThreshold: string;
-  maxSigners: string;
-  ownerHat?: {
-    id: Hex;
-  };
-  signerHats?: {
-    id: Hex;
-  }[];
-}
-
-export interface HatAuthority {
-  allowListOwner: { id: Hex; hatId: Hex }[];
-  allowListArbitrator: { id: Hex; hatId: Hex }[];
-  electionsAdmin: { id: Hex; hatId: Hex }[];
-  electionsBallotBox: { id: Hex; hatId: Hex }[];
-  eligibilityTogglePassthrough: { id: Hex; hatId: Hex }[];
-  hsgOwner: HatSignerGate[];
-  hsgSigner: HatSignerGate[];
-  jokeraceAdmin: { id: Hex; hatId: Hex }[];
-  stakingJudge: { id: Hex; hatId: Hex }[];
-  stakingRecipient: { id: Hex; hatId: Hex }[];
-  agreementOwner: { id: Hex; hatId: Hex }[];
-  agreementArbitrator: { id: Hex; hatId: Hex }[];
-  hatsAccount1ofN: HatsAccount1ofN[];
-}
-
-export interface ElectionsAuthority {
-  adminHat: { id: Hex }[];
-  ballotBoxHat: { id: Hex };
-  hatId: Hex;
-  id: Hex;
-  userRoles: string[];
-}
-
-export type HatsAccount1ofN = {
-  id: string;
-  accountOfHat: {
-    id: string;
-  };
-  operations: HatsAccount1ofNOperation[];
-};
-
-type HatsAccount1ofNOperation = {
-  id: string;
-  hatsAccount: HatsAccount1ofN;
-  signer: string;
-  to: string;
-  value: bigint;
-  callData: Uint8Array;
-  operationType: string;
-};
-
-export interface AppWriteFunction extends WriteFunction {
-  isCustom?: boolean;
-  onClick?: () => void;
-  icon?: ReactNode;
 }

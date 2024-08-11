@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Heading,
   Modal as ChakraModal,
@@ -10,12 +12,8 @@ import {
 } from '@chakra-ui/react';
 import _ from 'lodash';
 import { ReactNode } from 'react';
-import {
-  // AppModals,
-  // ClaimsModals,
-  OverlayContextProps,
-  StandaloneOverlayContextProps,
-} from 'types';
+
+import { useOverlay } from '../OverlayContext';
 
 // type ModalName = keyof Partial<ClaimsModals> | keyof Partial<AppModals>;
 
@@ -28,7 +26,6 @@ import {
  * @note Include either `isOpen && onClose` or `localOverlay`
  * @param {boolean} isOpen whether modal is open, fallback to OverlayContext
  * @param {function} onClose function to close modal, fallback to OverlayContext
- * @param {object} localOverlay local OverlayContext from parent
  * @returns Modal component and handlers
  */
 const Modal = ({
@@ -40,13 +37,9 @@ const Modal = ({
   isOpen,
   onClose,
   size = '2xl',
-  localOverlay,
   children,
 }: ModalProps) => {
-  const { modals, closeModals } = _.pick(localOverlay, [
-    'modals',
-    'closeModals',
-  ]);
+  const { modals, closeModals } = useOverlay();
 
   const handleClose = () => {
     if (onClose) {
@@ -98,6 +91,5 @@ interface ModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   size?: string | object;
-  localOverlay: StandaloneOverlayContextProps | OverlayContextProps | undefined;
   children: ReactNode;
 }

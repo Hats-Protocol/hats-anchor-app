@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Flex,
@@ -16,10 +18,9 @@ import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import { formatAddress } from 'utils';
+import { formatAddress, viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
-import { readContract } from 'wagmi/actions';
 
 const HatWearerStatusForm = ({
   wearer,
@@ -57,14 +58,15 @@ const HatWearerStatusForm = ({
   const txDescription = getSuccessToastDescription();
 
   const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () =>
-      readContract({
+    fetchHelper: () => {
+      if (!chainId) return Promise.reject(Error('No chainId'));
+      return viemPublicClient(chainId).readContract({
         address: CONFIG.hatsAddress,
         abi: CONFIG.hatsAbi,
         functionName: 'isEligible',
         args: [wearer, hatId],
-        chainId,
-      }),
+      });
+    },
     checkResult: (isEligible) => !isEligible,
   });
 
@@ -84,7 +86,7 @@ const HatWearerStatusForm = ({
     txDescription,
     handlePendingTx,
     waitForSubgraph,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Wearer Status Updated',
       description: txDescription,
     },

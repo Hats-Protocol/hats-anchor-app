@@ -1,3 +1,5 @@
+'use client';
+
 import { useClipboard as useChakraClipboard } from '@chakra-ui/react';
 import _ from 'lodash';
 import { ToastProps } from 'types';

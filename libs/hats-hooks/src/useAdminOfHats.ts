@@ -1,5 +1,8 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
+import { SupportedChains } from 'types';
 import { createHatsClient } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -9,18 +12,19 @@ const useAdminOfHats = ({
   chainId,
 }: {
   hatIds: Hex[];
-  chainId: number;
+  chainId: SupportedChains | undefined;
 }) => {
   const { address: user } = useAccount();
 
   const fetchAdminStatus = async () => {
-    const hatsClient = createHatsClient(chainId);
+    const hatsClient = await createHatsClient(chainId);
     if (!hatsClient) {
       throw new Error('Unable to initialize hatsClient');
     }
 
     if (!user) return [];
 
+    // TODO convert to promise batch to multicall rpc
     const results: (Hex | null)[] = await Promise.all(
       _.map(hatIds, async (hatId: Hex) => {
         try {

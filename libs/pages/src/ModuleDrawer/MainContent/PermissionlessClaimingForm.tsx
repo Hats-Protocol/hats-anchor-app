@@ -1,13 +1,12 @@
+'use client';
+
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import {
-  useHatDetails,
-  useHatDetailsField,
-  useIsAdmin,
-  useMultiClaimsHatterCheck,
-} from 'hats-hooks';
+import { FormRowWrapper, RadioBox, Select } from 'forms';
+import { useHatDetails, useHatDetailsField, useIsAdmin } from 'hats-hooks';
 import _ from 'lodash';
+import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useEffect, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -26,11 +25,6 @@ import { Hex } from 'viem';
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
-const FormRowWrapper = dynamic(() =>
-  import('ui').then((mod) => mod.FormRowWrapper),
-);
-const RadioBox = dynamic(() => import('ui').then((mod) => mod.RadioBox));
-const Select = dynamic(() => import('ui').then((mod) => mod.Select));
 
 const PermissionlessClaimingForm = ({
   localForm,
@@ -60,7 +54,6 @@ const PermissionlessClaimingForm = ({
     address: instanceAddress,
     hatId: selectedHat?.id,
     chainId,
-    editMode,
   });
 
   const isClaimable = _.includes(claimableHats, selectedHat?.id);

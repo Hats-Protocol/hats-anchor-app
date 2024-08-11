@@ -28,6 +28,7 @@ const nextConfig = {
   transpilePackages: ['d3-org-chart'],
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.externals.push('pino-pretty', 'lokijs', 'encoding'); // Rainbowkit polyfills
     return config;
   },
 
@@ -38,7 +39,6 @@ const nextConfig = {
       '@rainbow-me/rainbowkit',
       '@tanstack/react-query',
       'd3-org-chart',
-      'react-datepicker',
       'viem',
       // internal packages
       // '@hatsprotocol/constants',

@@ -1,10 +1,12 @@
+'use client';
+
 import { Box, Button, FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { isMutable, isTopHat } from 'hats-utils';
 import { usePinImageIpfs } from 'hooks';
-import { HatIcon } from 'icons';
 import _ from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray } from 'react-hook-form';
@@ -12,15 +14,18 @@ import { BsImage, BsTextParagraph } from 'react-icons/bs';
 import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { ImageFile } from 'types';
+import { DropZone } from 'ui';
+import { formatImageUrl } from 'utils';
+
 import {
-  DropZone,
   FormRowWrapper,
   Input,
   PlatformInput,
   RadioBox,
   Textarea,
-} from 'ui';
-import { formatImageUrl } from 'utils';
+} from './components';
+
+const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const MUTABILITY_OPTIONS = [
   { value: MUTABILITY.MUTABLE, label: 'Editable' },
@@ -119,7 +124,7 @@ const HatBasicsForm = () => {
             </Stack>
           </FormRowWrapper>
           <FormRowWrapper>
-            <Icon as={HatIcon} alt='Hat' boxSize={4} mt='2px' />
+            <Icon as={HatIcon} boxSize={4} mt='2px' />
             <Input
               localForm={localForm}
               name='name'

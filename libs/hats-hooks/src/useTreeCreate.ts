@@ -1,16 +1,15 @@
+'use client';
+
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
-import { useQueryClient } from '@tanstack/react-query';
-import { treeCreateEventIdToTreeId } from 'hats-utils';
-import { useToast, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
-import router from 'next/router';
-import { useState } from 'react';
+import { useWaitForSubgraph } from 'hooks';
+import posthog from 'posthog-js';
 import { HandlePendingTx } from 'types';
 import { fetchTreeDetails } from 'utils';
-import { isAddress, TransactionReceipt } from 'viem';
+import { isAddress } from 'viem';
 import { useAccount, useChainId, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
+import useLastTopHatId from './useLastTopHatId';
 
 const useTreeCreate = ({
   chainId,
@@ -22,11 +21,7 @@ const useTreeCreate = ({
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
   const currentNetworkId = useChainId();
-  const queryClient = useQueryClient();
-  const toast = useToast();
-
-  const [treeId, setTreeId] = useState<number | null>(null);
-  const [stillLoading, setStillLoading] = useState(false);
+  const { data: lastTopHatId } = useLastTopHatId({ chainId });
 
   const {
     data: newReceiverResolvedAddress,
@@ -37,27 +32,15 @@ const useTreeCreate = ({
   });
 
   const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: treeId
-      ? () => fetchTreeDetails(treeIdDecimalToHex(treeId), chainId)
+    fetchHelper: lastTopHatId
+      ? () => fetchTreeDetails(treeIdDecimalToHex(lastTopHatId + 1), chainId)
       : () => Promise.resolve(null),
     checkResult: (tree) => !!tree,
   });
 
-  async function handleSuccess(transactionData?: TransactionReceipt) {
-    setStillLoading(true);
-    if (!transactionData) return;
-    const eventData = _.get(transactionData, 'logs[0].data');
-    const newTreeId = treeCreateEventIdToTreeId(eventData);
-    if (!newTreeId) return;
-    setTreeId(newTreeId);
-
-    await waitForSubgraph();
-
-    queryClient.invalidateQueries(['treeList', chainId]);
-    queryClient.invalidateQueries(['wearerDetails']);
-    setStillLoading(false);
-    toast.info({ title: 'Redirecting you to your new tree' });
-    router.push(`/trees/${chainId}/${newTreeId}`);
+  function handleSuccess() {
+    if (!lastTopHatId) return;
+    posthog.capture('Created New Tree', { chainId, tree_id: lastTopHatId + 1 });
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({
@@ -68,12 +51,14 @@ const useTreeCreate = ({
       imageUrl || '',
     ],
     chainId,
-    onSuccessToastData: {
+    waitForSubgraphToastData: {
       title: 'Tree created!',
       description: 'Waiting on the subgraph to index your tree...', // 'Successfully created tree',
       // duration: 6000, // TODO did we remove this param?
     },
-    queryKeys: [['treeList', chainId]],
+    successToastData: { title: 'Redirecting you to your new tree' },
+    queryKeys: [['treeList', chainId], ['wearerDetails']],
+    redirect: lastTopHatId ? `/trees/${chainId}/${lastTopHatId + 1}` : null,
     enabled:
       isAddress(
         overrideReceiver
@@ -82,11 +67,12 @@ const useTreeCreate = ({
       ) && chainId === currentNetworkId,
     handleSuccess,
     handlePendingTx,
+    waitForSubgraph,
   });
 
   return {
     writeAsync,
-    isLoading: isLoading || isLoadingNewReceiverResolvedAddress || stillLoading,
+    isLoading: isLoading || isLoadingNewReceiverResolvedAddress,
   };
 };
 
@@ -98,5 +84,5 @@ interface UseTreeCreateProps {
   receiver: string;
   overrideReceiver: boolean;
   imageUrl?: string;
-  handlePendingTx: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
 }

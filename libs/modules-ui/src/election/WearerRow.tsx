@@ -1,8 +1,10 @@
+'use client';
+
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
-import { useModuleDetails } from 'hats-hooks';
 import _ from 'lodash';
+import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
@@ -31,7 +33,7 @@ const WearerRow = ({ wearer }: WearerRowProps) => {
 
   // could look up by Id to be more resilient?
   let moduleName = _.get(moduleDetails, 'name');
-  if (moduleName === CONFIG.claimsHatterModuleName) {
+  if (moduleName === CONFIG.modules.claimsHatter) {
     moduleName = 'Autonomous Admin';
   }
 

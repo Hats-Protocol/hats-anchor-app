@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import _ from 'lodash';
@@ -12,6 +11,13 @@ const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const Group = dynamic(() => import('icons').then((i) => i.Group));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
+/**
+ * Get the name and link for a controller, with an icon
+ * @param extendedController an extended controller data object with contract name and ens name
+ * @param moduleDetails module details object, if known module
+ * @param chainId the associated chain ID
+ * @returns a name and link for the controller, with an icon
+ */
 export const getControllerNameAndLink = ({
   extendedController,
   moduleDetails,
@@ -53,7 +59,7 @@ export const getControllerNameAndLink = ({
   }
 
   // override for claims hatter
-  if (moduleDetails?.name === CONFIG.claimsHatterModuleName) {
+  if (moduleDetails?.name === CONFIG.modules.claimsHatter) {
     return {
       name: 'Autonomous Admin',
       icon,

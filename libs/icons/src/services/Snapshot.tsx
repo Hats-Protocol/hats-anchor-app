@@ -1,6 +1,8 @@
+'use client';
+
 import { createIcon } from '@chakra-ui/react';
 
-const Snapshot: any = createIcon({
+const Snapshot = createIcon({
   displayName: 'Snapshot',
   viewBox: '0 0 16 16',
   path: [

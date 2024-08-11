@@ -1,3 +1,5 @@
+'use client';
+
 /* eslint-disable no-nested-ternary */
 import {
   Box,
@@ -25,31 +27,32 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
+import { useWearerDetails } from 'hats-hooks';
+import _ from 'lodash';
 import {
   useAgreementEligibility,
   useHatClaimBy,
   useMultiClaimsHatterCheck,
-  useWearerDetails,
-} from 'hats-hooks';
-import _ from 'lodash';
+} from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { useState } from 'react';
 import { BsArrowRight, BsThreeDotsVertical } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const MobileHatCard = dynamic(() =>
-  import('ui').then((mod) => mod.MobileHatCard),
+  import('molecules').then((mod) => mod.MobileHatCard),
 );
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
 const NetworkSwitcher = dynamic(() =>
-  import('ui').then((mod) => mod.NetworkSwitcher),
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 
 const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
@@ -65,7 +68,6 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { address } = useAccount();
-  const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
   const { handlePendingTx } = useOverlay();
   const [isClaiming, setIsClaiming] = useState(false);
@@ -74,12 +76,12 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
   const { hatterIsAdmin } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     handlePendingTx,
   });
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);
@@ -87,7 +89,6 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
   const { data: ensName } = useEnsName({
     address,
     chainId: 1,
-    enabled: !!address,
   });
 
   const { instanceAddress, currentHatIsClaimable } = useMultiClaimsHatterCheck({
@@ -108,8 +109,8 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
       setIsClaiming(false);
 
       // should implement useWaitForSubgraph when merged
-      queryClient.invalidateQueries(['wearerDetails']);
-      queryClient.invalidateQueries(['hatDetails']);
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
     },
     onDecline: () => {
       setIsClaiming(false);
@@ -138,12 +139,11 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
       >
         {isWearing ? (
           <Button
+            as={Link}
+            href={hatUrl}
             colorScheme='green'
             leftIcon={<Icon as={HatIcon} color='white' />}
             rightIcon={<Icon as={BsArrowRight} color='white' />}
-            onClick={() => {
-              router.push(hatUrl);
-            }}
           >
             View your hat
           </Button>
@@ -236,13 +236,14 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
             )}
             {!isLoading && !isClaiming && isSuccess && (
               <Button
+                as={Link}
+                href={hatUrl}
                 colorScheme='green'
                 leftIcon={<Icon as={HatIcon} color='white' />}
                 rightIcon={<Icon as={BsArrowRight} color='white' />}
                 w='full'
                 onClick={() => {
                   onClose();
-                  router.push(hatUrl);
                 }}
               >
                 View your hat

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   AspectRatio,
   Badge,
@@ -19,6 +21,7 @@ import { useClipboard, useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
@@ -30,9 +33,10 @@ const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
-  const { chainId, selectedHat, selectedHatDetails, isHatDetailsLoading } =
-    useEligibility();
-  const { onCopy } = useClipboard(selectedHat?.id as string);
+  const { chainId, selectedHat, selectedHatDetails } = useEligibility();
+  const { onCopy } = useClipboard(selectedHat?.id as string, {
+    toastData: { title: 'Successfully copied hat ID to clipboard' },
+  });
   const { isMobile } = useMediaStyles();
 
   const { name, description } = _.pick(selectedHatDetails, [
@@ -41,7 +45,7 @@ const Header = () => {
   ]);
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const isCurrentWearer = _.includes(_.map(wearer, 'id'), selectedHat?.id);
@@ -61,34 +65,34 @@ const Header = () => {
         pb={2}
       >
         <Box width='100%'>
-          <Skeleton minH='450px' isLoaded={!isHatDetailsLoading}>
-            <Image
-              src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
-              alt='Hat image'
-              background='white'
-              objectFit='cover'
-              width='100%'
-              height='auto'
-            />
-          </Skeleton>
-          <Skeleton isLoaded={!isHatDetailsLoading}>
-            <HStack mt={-2} pl={4}>
-              {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-              <Badge
-                colorScheme={
-                  mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
-                }
-              >
-                {mutableStatus}
-              </Badge>
-              <Badge
-                colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
-              >
-                {activeStatus}
-              </Badge>
-              <Badge>Level {levelAtLocalTree}</Badge>
-            </HStack>
-          </Skeleton>
+          {/* <Skeleton minH='450px' isLoaded={!isHatDetailsLoading}> */}
+          <Image
+            src={_.get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+            alt='Hat image'
+            background='white'
+            objectFit='cover'
+            width='100%'
+            height='auto'
+          />
+          {/* </Skeleton> */}
+          {/* <Skeleton isLoaded={!isHatDetailsLoading}> */}
+          <HStack mt={-2} pl={4}>
+            {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
+              }
+            >
+              {mutableStatus}
+            </Badge>
+            <Badge
+              colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+            >
+              {activeStatus}
+            </Badge>
+            <Badge>Level {levelAtLocalTree}</Badge>
+          </HStack>
+          {/* </Skeleton> */}
         </Box>
         <Stack w='full' px={4}>
           <HStack
@@ -184,13 +188,7 @@ const Header = () => {
                   as={HStack}
                   isLoaded={!!selectedHat?.id}
                   cursor={selectedHat ? 'pointer' : 'default'}
-                  onClick={() => {
-                    if (!selectedHat) return;
-                    onCopy();
-                    toast.info({
-                      title: 'Successfully copied hat ID to clipboard',
-                    });
-                  }}
+                  onClick={onCopy}
                 >
                   <Text color='blue.500'>
                     {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}

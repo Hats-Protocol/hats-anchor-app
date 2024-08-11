@@ -1,3 +1,5 @@
+'use client';
+
 import {
   EMPTY_FORM_VALUES,
   FALLBACK_ADDRESS,
