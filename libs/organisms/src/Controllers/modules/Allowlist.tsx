@@ -15,8 +15,6 @@ import EligibilityRule from './EligibilityRule';
 const EmptyWearer = dynamic(() => import('icons').then((i) => i.EmptyWearer));
 
 const AllowlistEligibility = ({
-  moduleDetails,
-  moduleParameters,
   chainId,
   wearer,
   selectedHat,

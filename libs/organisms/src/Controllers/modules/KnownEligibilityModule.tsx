@@ -2,8 +2,7 @@
 
 import { Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
-import { Ruleset } from '@hatsprotocol/modules-sdk';
-import { first, pick } from 'lodash';
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
@@ -21,17 +20,12 @@ import PassthroughModule from './Passthrough';
 import StakingEligibility from './Staking';
 
 const KnownModule = ({
-  ruleSets,
+  moduleDetails,
+  moduleParameters,
   chainId,
   wearer,
   selectedHat,
 }: KnownModuleParameters) => {
-  const localModule = first(first(ruleSets));
-  const { module: moduleDetails, liveParams: parameters } = pick(localModule, [
-    'module',
-    'liveParams',
-  ]);
-
   switch (moduleDetails?.name) {
     case ELIGIBILITY_MODULES.agreement:
       return (
@@ -45,8 +39,6 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.allowlist:
       return (
         <AllowlistEligibility
-          moduleDetails={moduleDetails as ModuleDetails}
-          ruleSets={ruleSets}
           selectedHat={selectedHat}
           wearer={wearer}
           chainId={chainId}
@@ -66,7 +58,7 @@ const KnownModule = ({
       return (
         <Erc1155Eligibility
           moduleDetails={moduleDetails as ModuleDetails}
-          moduleParameters={parameters}
+          moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -76,7 +68,7 @@ const KnownModule = ({
       return (
         <Erc20Eligibility
           moduleDetails={moduleDetails as ModuleDetails}
-          moduleParameters={parameters}
+          moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -86,7 +78,7 @@ const KnownModule = ({
       return (
         <Erc721Eligibility
           moduleDetails={moduleDetails as ModuleDetails}
-          moduleParameters={parameters}
+          moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -96,7 +88,7 @@ const KnownModule = ({
       return (
         <HatWearingEligibility
           moduleDetails={moduleDetails as ModuleDetails}
-          moduleParameters={parameters}
+          moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -106,7 +98,7 @@ const KnownModule = ({
       return (
         <JokeRaceEligibility
           moduleDetails={moduleDetails as ModuleDetails}
-          moduleParameters={parameters}
+          moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -116,7 +108,7 @@ const KnownModule = ({
       return (
         <PassthroughModule
           moduleDetails={moduleDetails as ModuleDetails}
-          moduleParameters={parameters}
+          moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -127,7 +119,7 @@ const KnownModule = ({
       return (
         <StakingEligibility
           moduleDetails={moduleDetails as ModuleDetails}
-          moduleParameters={parameters}
+          moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -146,7 +138,8 @@ const KnownModule = ({
 };
 
 interface KnownModuleParameters {
-  ruleSets: Ruleset[] | undefined;
+  moduleDetails: ModuleDetails | undefined;
+  moduleParameters: ModuleParameter[] | undefined;
   selectedHat: AppHat | undefined;
   wearer: Hex | undefined;
   chainId: SupportedChains | undefined;

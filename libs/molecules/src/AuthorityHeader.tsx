@@ -15,10 +15,10 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatDetails } from 'hats-hooks';
+import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { currentHsgThreshold } from 'hats-utils';
 import { useMediaStyles, useSafeDetails } from 'hooks';
-import _, { get } from 'lodash';
+import { find, get, includes, keys, map, pick, reject, toLower } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
@@ -45,7 +45,7 @@ const HOSTNAME_LABELS = {
 };
 
 const getHostnameLabel = (hostname: string) => {
-  const hostnameLabel = _.find(_.keys(HOSTNAME_LABELS), (k: string) =>
+  const hostnameLabel = find(keys(HOSTNAME_LABELS), (k: string) =>
     hostname.includes(k),
   );
   if (!hostnameLabel) return undefined;
@@ -57,7 +57,7 @@ const AuthorityHeader = ({
   editingItem,
   isExpanded,
 }: AuthorityHeaderProps) => {
-  const { label, link, type, hsgConfig } = _.pick(authority, [
+  const { label, link, type, hsgConfig } = pick(authority, [
     'label',
     'link',
     'type',
@@ -67,7 +67,7 @@ const AuthorityHeader = ({
     label: currentLabel,
     imageUrl: currentImageUrl,
     link: currentLink,
-  } = _.pick(editingItem, ['label', 'imageUrl', 'link']);
+  } = pick(editingItem, ['label', 'imageUrl', 'link']);
   const { chainId, editMode } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const { isMobile } = useMediaStyles();
@@ -76,10 +76,10 @@ const AuthorityHeader = ({
   const authorityEnforcement = type
     ? AUTHORITY_ENFORCEMENT[type as keyof typeof AUTHORITY_ENFORCEMENT]
     : AUTHORITY_ENFORCEMENT.manual;
-  const authorityEnforcementLabel = _.find(
-    _.keys(AUTHORITY_PLATFORMS),
+  const authorityEnforcementLabel = find(
+    keys(AUTHORITY_PLATFORMS),
     (k: string) =>
-      localLink?.includes(_.toLower(k)) || localLink?.includes(_.toLower(k)),
+      localLink?.includes(toLower(k)) || localLink?.includes(toLower(k)),
   );
   const currentAuthorityEnforcement = authorityEnforcementLabel
     ? AUTHORITY_PLATFORMS[authorityEnforcementLabel as string]
@@ -99,18 +99,22 @@ const AuthorityHeader = ({
     editMode,
   });
 
-  const eligibleSigners = useMemo(() => {
-    if (!safeOwners || !selectedHat?.wearers) return undefined;
+  // TODO check how well this handles lots of wearers, assuming low wearer hats for now
+  const { wearers: allWearers } = useAllWearers({ selectedHat, chainId });
 
-    const wearersLowercased = _.map(selectedHat.wearers, (wearer: HatWearer) =>
-      _.toLower(wearer.id),
+  const eligibleSigners = useMemo(() => {
+    if (!safeOwners || !allWearers) return undefined;
+
+    const wearersLowercased = map(allWearers, (wearer: HatWearer) =>
+      toLower(wearer.id),
     ) as unknown as Hex[];
 
-    return _.reject(
+    return reject(
       safeOwners,
-      (owner: Hex) => !_.includes(wearersLowercased, _.toLower(owner)),
+      (owner: Hex) => !includes(wearersLowercased, toLower(owner)),
     );
-  }, [safeOwners, selectedHat?.wearers]);
+  }, [safeOwners, allWearers]);
+
   const hsgThresholdText = currentHsgThreshold({
     authority,
     hsgConfig,

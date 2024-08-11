@@ -4,9 +4,10 @@ import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatWearers } from 'hats-hooks';
-import { find, flatten, gt, includes, pick, size } from 'lodash';
+import { find, first, flatten, gt, includes, pick, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
+import { ModuleDetails } from 'types';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -52,9 +53,14 @@ const Eligibility = () => {
   }
 
   if (ruleSets) {
+    const { module: moduleDetails, liveParams: parameters } = pick(
+      first(first(ruleSets)),
+      ['module', 'liveParams'],
+    );
     return (
       <KnownModule
-        ruleSets={ruleSets}
+        moduleDetails={moduleDetails as ModuleDetails}
+        moduleParameters={parameters}
         selectedHat={selectedHat}
         wearer={address as Hex}
         chainId={chainId}

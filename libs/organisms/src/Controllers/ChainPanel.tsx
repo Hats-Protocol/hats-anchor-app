@@ -11,11 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
-import { flatten, get, includes, map, size, toLower } from 'lodash';
+import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { BsCheckSquareFill } from 'react-icons/bs';
-import { AppHat, SupportedChains } from 'types';
+import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -40,6 +40,9 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
     get(wearerStatus, 'eligibleWearers'),
     toLower(address),
   );
+  // can assume theres 2+ modules in the ruleSet array already
+  // ! currently only supporting single nested chains TODO support deeper nested chains
+  const isAndChain = size(ruleSets) === 1;
 
   return (
     <Accordion allowToggle>
@@ -79,7 +82,7 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
               >
                 <Flex justify='space-between' py={2} px={4} width='100%'>
                   <Text fontSize={{ base: 'sm', md: 'md' }}>
-                    Comply with {true ? 'any' : 'all'} of{' '}
+                    Comply with {isAndChain ? 'all' : 'any'} of{' '}
                     {size(flatten(ruleSets))} Rules to claim this Hat
                   </Text>
 
@@ -109,18 +112,24 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
                 bg='white'
                 border='gray'
               >
-                <Stack mx={4} pb={2} spacing={1}>
-                  {map(ruleSets, (ruleSet: Ruleset, index: number) => {
-                    return (
-                      <KnownModule
-                        key={index}
-                        ruleSets={[ruleSet]}
-                        selectedHat={selectedHat}
-                        chainId={chainId}
-                        wearer={address as Hex}
-                      />
-                    );
-                  })}
+                <Stack mx={4} pb={2} spacing={0}>
+                  {map(ruleSets, (ruleSet: Ruleset, index: number) =>
+                    map(ruleSet, (knownModule) => {
+                      const { module: moduleDetails, liveParams: parameters } =
+                        pick(knownModule, ['module', 'liveParams']);
+
+                      return (
+                        <KnownModule
+                          key={index}
+                          moduleDetails={moduleDetails as ModuleDetails}
+                          moduleParameters={parameters}
+                          selectedHat={selectedHat}
+                          chainId={chainId}
+                          wearer={address as Hex}
+                        />
+                      );
+                    }),
+                  )}
                 </Stack>
               </AccordionPanel>
             </>
