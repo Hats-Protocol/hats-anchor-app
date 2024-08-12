@@ -115,13 +115,22 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
                 <Stack mx={4} pb={2} spacing={0}>
                   {map(ruleSets, (ruleSet: Ruleset, index: number) =>
                     map(ruleSet, (knownModule) => {
-                      const { module: moduleDetails, liveParams: parameters } =
-                        pick(knownModule, ['module', 'liveParams']);
+                      const {
+                        module: moduleDetails,
+                        address: instance,
+                        liveParams: parameters,
+                      } = pick(knownModule, [
+                        'module',
+                        'address',
+                        'liveParams',
+                      ]);
 
                       return (
                         <KnownModule
                           key={index}
-                          moduleDetails={moduleDetails as ModuleDetails}
+                          moduleDetails={
+                            { ...moduleDetails, id: instance } as ModuleDetails
+                          }
                           moduleParameters={parameters}
                           selectedHat={selectedHat}
                           chainId={chainId}

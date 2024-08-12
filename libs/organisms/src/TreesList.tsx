@@ -8,6 +8,7 @@ import { useWearerTrees } from 'hooks';
 import { flatten, get, isEmpty, map, size, toNumber } from 'lodash';
 import { TreeListCard as TreeCard } from 'molecules';
 import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { LinkButton, Skeleton } from 'ui';
 import { Hex } from 'viem';
@@ -40,8 +41,11 @@ const TreesList = ({ params }: TreeListProps) => {
   });
 
   const trees = flatten(get(paginatedTrees, 'pages'));
-  const currentTrees =
-    showKey !== SHOW_KEY.all && address ? wearerTrees : trees;
+  const currentTrees = useMemo(() => {
+    if (showKey !== SHOW_KEY.all && address) return wearerTrees;
+    return trees;
+  }, [showKey, address, trees, wearerTrees]);
+  console.log(wearerTrees, trees);
 
   if (
     (showKey === SHOW_KEY.all && isEmpty(trees) && !treesLoading) ||

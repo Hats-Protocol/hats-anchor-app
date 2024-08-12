@@ -53,13 +53,15 @@ const Eligibility = () => {
   }
 
   if (ruleSets) {
-    const { module: moduleDetails, liveParams: parameters } = pick(
-      first(first(ruleSets)),
-      ['module', 'liveParams'],
-    );
+    const {
+      module: moduleDetails,
+      address: instance,
+      liveParams: parameters,
+    } = pick(first(first(ruleSets)), ['module', 'address', 'liveParams']);
+
     return (
       <KnownModule
-        moduleDetails={moduleDetails as ModuleDetails}
+        moduleDetails={{ ...moduleDetails, id: instance } as ModuleDetails}
         moduleParameters={parameters}
         selectedHat={selectedHat}
         wearer={address as Hex}

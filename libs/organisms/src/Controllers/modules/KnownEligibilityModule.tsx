@@ -30,7 +30,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.agreement:
       return (
         <AgreementEligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           chainId={chainId}
           wearer={wearer}
           selectedHat={selectedHat}
@@ -47,7 +47,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.election:
       return (
         <ElectionEligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           // parameters={parameters}
           chainId={chainId}
           wearer={wearer}
@@ -57,7 +57,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.erc1155:
       return (
         <Erc1155Eligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
@@ -67,7 +67,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.erc20:
       return (
         <Erc20Eligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
@@ -77,7 +77,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.erc721:
       return (
         <Erc721Eligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
@@ -87,7 +87,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.hatWearing:
       return (
         <HatWearingEligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
@@ -97,7 +97,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.jokerace:
       return (
         <JokeRaceEligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
@@ -107,7 +107,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.passthrough:
       return (
         <PassthroughModule
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}
@@ -118,7 +118,7 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.staking:
       return (
         <StakingEligibility
-          moduleDetails={moduleDetails as ModuleDetails}
+          moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
           chainId={chainId}
           wearer={wearer}

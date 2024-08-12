@@ -1,6 +1,6 @@
 import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import { GraphQLClient } from 'graphql-request';
-import { get, map } from 'lodash';
+import { get, map, uniqBy } from 'lodash';
 import { mapWithChainId } from 'shared';
 import { AppTree } from 'types';
 import { Hex } from 'viem';
@@ -71,7 +71,7 @@ export const fetchWearerTrees = async ({
       }
     })
 
-    return wearerTreesProcessHatMetadata;
+    return uniqBy(wearerTreesProcessHatMetadata, 'id');
   } catch (err) {
 
     return undefined;
