@@ -196,13 +196,13 @@ const AuthoritiesForm = ({
                 placeholder='https://example.com'
                 localForm={localForm}
                 isDisabled={guildOrSnapshot}
-                options={{
-                  required: false,
-                  validate: (v) =>
-                    !v
-                      ? true
-                      : v?.match(/^https?:\/\/.+/) || 'Link must be a URL',
-                }}
+                options={{}}
+                // validate: {
+                //   mustBeUrl: (v) =>
+                //     !v || v === ''
+                //       ? true
+                //       : v?.match(/^https?:\/\/.+/) || 'Link must be a URL',
+                // },
               />
 
               <Input
