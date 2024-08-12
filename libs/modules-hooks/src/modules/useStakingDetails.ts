@@ -1,6 +1,6 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import { find, get, map, reduce } from 'lodash';
+import { find, first, get, last, map, reduce } from 'lodash';
 import { ModuleDetails } from 'types';
 import { viemPublicClient } from 'utils';
 import { erc20Abi, formatUnits, Hex } from 'viem';
@@ -27,6 +27,7 @@ const fetchStakingDetails = async ({
   chainId: number | undefined;
   wearer: Hex | undefined;
 }) => {
+
   const abi = get(moduleDetails, 'abi');
   if (!tokenAddress || !abi || !chainId) return Promise.resolve(undefined);
   const tokenFields = ['symbol', 'name', 'decimals'];
@@ -43,12 +44,12 @@ const fetchStakingDetails = async ({
       contracts: tokenFieldContracts,
     }),
   ];
-  if (wearer) {
+  if (wearer && moduleDetails?.id) {
     // check stakes if wearer is provided
     promises.push(
       viemPublicClient(chainId)
         .readContract({
-          address: tokenAddress,
+          address: moduleDetails.id,
           abi,
           functionName: 'stakes',
           args: [wearer],
@@ -64,9 +65,10 @@ const fetchStakingDetails = async ({
     );
   }
   const result = await Promise.all(promises);
+
   const [tokenDetailsResult, stakeBalance] = result as [
     { result: unknown; status: string }[],
-    Stake,
+    [bigint, boolean], // Stake
   ];
   const tokenDetails: TokenDetails = reduce(
     tokenDetailsResult,
@@ -78,13 +80,15 @@ const fetchStakingDetails = async ({
     },
     { symbol: undefined, name: undefined, decimals: undefined },
   );
-  const stakeBalanceDisplay = stakeBalance?.amount
-    ? formatUnits(stakeBalance?.amount, tokenDetails?.decimals || 18)
+  const stakeBalanceRaw = first(stakeBalance) as bigint;
+  const stakeBalanceDisplay = stakeBalanceRaw
+    ? formatUnits(stakeBalanceRaw, tokenDetails?.decimals || 18)
     : '0';
 
   return Promise.resolve({
     tokenDetails,
-    stakeBalance,
+    stakeBalance: stakeBalanceRaw,
+    isSlashed: last(stakeBalance) || false,
     stakeBalanceDisplay,
   });
 };

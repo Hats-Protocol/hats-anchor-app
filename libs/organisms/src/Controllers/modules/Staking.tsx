@@ -29,10 +29,11 @@ const StakingEligibility = ({
     chainId,
     wearer,
   });
-  const { stakeBalance, tokenDetails } = pick(stakingDetails, [
-    'stakingBalance',
-    'tokenDetails',
-  ]);
+
+  const { stakeBalance, stakeBalanceDisplay, tokenDetails } = pick(
+    stakingDetails,
+    ['stakeBalance', 'stakeBalanceDisplay', 'tokenDetails'],
+  );
 
   const amountParamDisplay =
     ((amountParam?.value &&
@@ -40,13 +41,9 @@ const StakingEligibility = ({
         amountParam.value as bigint,
         tokenDetails?.decimals || 18,
       )) as string) || '0';
-  const stakeBalanceDisplay = stakeBalance?.amount
-    ? formatUnits(stakeBalance?.amount, tokenDetails?.decimals || 18)
-    : '0';
 
   const isEligible =
-    stakeBalance?.amount &&
-    stakeBalance.amount >= (amountParam?.value as bigint);
+    stakeBalance && stakeBalance >= (amountParam?.value as bigint);
 
   return (
     <EligibilityRule
