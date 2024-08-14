@@ -3,16 +3,11 @@
 import { Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { find, toNumber, toString } from 'lodash';
-import dynamic from 'next/dynamic';
-import { BsCheckSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
 import { ModuleDetailsHandler } from 'utils';
 
 import { TOGGLE_STATUS } from '../utils';
 import EligibilityRule from './EligibilityRule';
-
-const RemovedWearer = dynamic(() =>
-  import('icons').then((i) => i.RemovedWearer),
-);
 
 const SeasonToggle = ({
   moduleParameters,
@@ -31,7 +26,7 @@ const SeasonToggle = ({
         status={TOGGLE_STATUS.inactive}
         displayStatus='No season end date'
         displayStatusLink=''
-        icon={RemovedWearer}
+        icon={BsFillOctagonFill}
       />
     );
   }
@@ -59,7 +54,7 @@ const SeasonToggle = ({
       }
       status={TOGGLE_STATUS.inactive}
       displayStatus={`${formatDistanceToNow(seasonEndDate)} ago`}
-      icon={RemovedWearer}
+      icon={BsFillOctagonFill}
     />
   );
 };

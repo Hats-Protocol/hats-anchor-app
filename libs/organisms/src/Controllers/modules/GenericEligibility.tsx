@@ -3,18 +3,13 @@
 import { Text } from '@chakra-ui/react';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
-import dynamic from 'next/dynamic';
-import { BsCheckSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS } from '../utils';
 import EligibilityRule from './EligibilityRule';
-
-const RemovedWearer = dynamic(() =>
-  import('icons').then((i) => i.RemovedWearer),
-);
 
 const GenericEligibility = ({
   chainId,
@@ -43,7 +38,7 @@ const GenericEligibility = ({
         isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
       }
       displayStatus={isEligible ? 'Eligible' : 'Ineligible'}
-      icon={isEligible ? BsCheckSquareFill : RemovedWearer}
+      icon={isEligible ? BsCheckSquareFill : BsFillOctagonFill}
     />
   );
 };
