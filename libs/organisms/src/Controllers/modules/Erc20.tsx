@@ -3,17 +3,12 @@
 import { Text, Tooltip } from '@chakra-ui/react';
 import { find, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
-import dynamic from 'next/dynamic';
-import { BsCheckSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
 import { ModuleDetailsHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS } from '../utils';
 import EligibilityRule from './EligibilityRule';
-
-const RemovedWearer = dynamic(() =>
-  import('icons').then((i) => i.RemovedWearer),
-);
 
 const Erc20Eligibility = ({
   moduleParameters,
@@ -80,7 +75,7 @@ const Erc20Eligibility = ({
       }
       displayStatus={userBalanceDisplay}
       status={ELIGIBILITY_STATUS.ineligible}
-      icon={RemovedWearer}
+      icon={BsFillOctagonFill}
     />
   );
 };

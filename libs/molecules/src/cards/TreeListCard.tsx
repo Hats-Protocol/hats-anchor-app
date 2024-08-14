@@ -146,7 +146,7 @@ const TreeListCard = ({
                   </Stack>
                 )}
                 {/* TREE STATS */}
-                {!isMobile && <TreeStats tree={tree} />}
+                {/* {!isMobile && <TreeStats tree={tree} />} */}
               </Flex>
             </HStack>
           </Flex>

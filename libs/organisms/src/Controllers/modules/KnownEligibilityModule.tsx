@@ -1,6 +1,5 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
@@ -10,10 +9,10 @@ import { ELIGIBILITY_MODULES } from '../utils';
 import AgreementEligibility from './Agreement';
 import AllowlistEligibility from './Allowlist';
 import ElectionEligibility from './Election';
-import EligibilityRule from './EligibilityRule';
 import Erc20Eligibility from './Erc20';
 import Erc721Eligibility from './Erc721';
 import Erc1155Eligibility from './Erc1155';
+import GenericEligibility from './GenericEligibility';
 import HatWearingEligibility from './HatWearing';
 import JokeRaceEligibility from './JokeRace';
 import PassthroughModule from './Passthrough';
@@ -128,11 +127,10 @@ const KnownModule = ({
   }
 
   return (
-    <EligibilityRule
-      rule={<Text>Test</Text>}
-      status=''
-      displayStatus=''
-      icon={undefined}
+    <GenericEligibility
+      chainId={chainId}
+      wearer={wearer}
+      selectedHat={selectedHat}
     />
   );
 };

@@ -3,18 +3,13 @@
 import { Text } from '@chakra-ui/react';
 import { find, pick } from 'lodash';
 import { useErc721Details } from 'modules-hooks';
-import dynamic from 'next/dynamic';
-import { BsCheckSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl, formatAddress, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS } from '../utils';
 import EligibilityRule from './EligibilityRule';
-
-const RemovedWearer = dynamic(() =>
-  import('icons').then((i) => i.RemovedWearer),
-);
 
 const Erc721Eligibility = ({
   moduleParameters,
@@ -61,7 +56,7 @@ const Erc721Eligibility = ({
       icon={
         userBalance && userBalance >= (amountParameter?.value as bigint)
           ? BsCheckSquareFill
-          : RemovedWearer
+          : BsFillOctagonFill
       }
     />
   );

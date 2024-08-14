@@ -1,6 +1,5 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { first, pick } from 'lodash';
@@ -8,7 +7,7 @@ import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 import { TOGGLE_MODULES } from '../utils';
-import EligibilityRule from './EligibilityRule';
+import GenericToggle from './GenericToggle';
 import PassthroughModule from './Passthrough';
 import SeasonToggle from './Season';
 
@@ -49,11 +48,10 @@ const KnownModule = ({
   }
 
   return (
-    <EligibilityRule
-      rule={<Text>Test</Text>}
-      status=''
-      displayStatus=''
-      icon={undefined}
+    <GenericToggle
+      chainId={chainId}
+      wearer={wearer}
+      selectedHat={selectedHat}
     />
   );
 };

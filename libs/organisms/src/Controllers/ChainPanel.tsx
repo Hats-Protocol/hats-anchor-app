@@ -12,18 +12,13 @@ import {
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import { BsCheckSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import KnownModule from './modules/KnownEligibilityModule';
-
-const RemovedWearer = dynamic(() =>
-  import('icons').then((i) => i.RemovedWearer),
-);
 
 const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
   const [expandedBackground, setExpandedBackground] = useState(false);
@@ -93,12 +88,12 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
                       <Icon as={BsCheckSquareFill} boxSize={4} />
                     </HStack>
                   ) : (
-                    <HStack spacing={1} color='gray.600'>
+                    <HStack spacing={1} color='red.600'>
                       <Text fontSize={{ base: 'sm', md: 'md' }}>
                         Ineligible
                       </Text>
 
-                      <Icon as={RemovedWearer} boxSize={4} />
+                      <Icon as={BsFillOctagonFill} boxSize={4} />
                     </HStack>
                   )}
                 </Flex>

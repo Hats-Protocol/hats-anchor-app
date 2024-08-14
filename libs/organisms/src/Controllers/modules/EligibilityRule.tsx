@@ -67,7 +67,7 @@ const EligibilityRule = ({
             status === ELIGIBILITY_STATUS.eligible ||
             status === TOGGLE_STATUS.active
               ? 'green.600'
-              : 'gray.600'
+              : 'red.600'
           }
         >
           <Text fontSize={{ base: 'sm', md: 'md' }}>{displayStatus}</Text>
