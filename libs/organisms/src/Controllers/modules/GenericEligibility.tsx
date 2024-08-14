@@ -16,13 +16,11 @@ const RemovedWearer = dynamic(() =>
   import('icons').then((i) => i.RemovedWearer),
 );
 
-const AllowlistEligibility = ({
+const GenericEligibility = ({
   chainId,
   wearer,
   selectedHat,
 }: ModuleDetailsHandler) => {
-  // TODO subgraph will need to index these allowlists specifically, to show the actual lists
-
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
     selectedHat,
@@ -34,25 +32,20 @@ const AllowlistEligibility = ({
     toLower(wearer),
   );
 
-  if (isEligible) {
-    return (
-      <EligibilityRule
-        rule={<Text size={{ base: 'sm', md: 'md' }}>Be on the Allowlist</Text>}
-        status={ELIGIBILITY_STATUS.eligible}
-        displayStatus='Allowed'
-        icon={BsCheckSquareFill}
-      />
-    );
-  }
-
   return (
     <EligibilityRule
-      rule={<Text size={{ base: 'sm', md: 'md' }}>Be on the Allowlist</Text>}
-      status={ELIGIBILITY_STATUS.ineligible}
-      displayStatus='Not allowed'
-      icon={RemovedWearer} // {EmptyWearer}
+      rule={
+        <Text size={{ base: 'sm', md: 'md' }}>
+          Comply with 1 eligibility rule
+        </Text>
+      }
+      status={
+        isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
+      }
+      displayStatus={isEligible ? 'Eligible' : 'Ineligible'}
+      icon={isEligible ? BsCheckSquareFill : RemovedWearer}
     />
   );
 };
 
-export default AllowlistEligibility;
+export default GenericEligibility;
