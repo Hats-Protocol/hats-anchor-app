@@ -10,7 +10,9 @@ import {
   PopoverTrigger,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { formHatUrl } from 'hats-utils';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { SupportedChains } from 'types';
 import { Hex } from 'viem';
 
@@ -40,7 +42,13 @@ const InlineHatCard = ({
       <PopoverContent zIndex='20' w='270px'>
         <PopoverArrow />
         <PopoverBody>
-          <HatCreateCard id={hatId} chainId={chainId} />
+          <Link
+            href={formHatUrl({ hatId, chainId })}
+            target='blank'
+            rel='noopener noreferrer'
+          >
+            <HatCreateCard id={hatId} chainId={chainId} />
+          </Link>
         </PopoverBody>
       </PopoverContent>
     </Popover>
