@@ -19,12 +19,15 @@ import { get } from 'lodash';
 import { useEffect, useState } from 'react';
 import { AppHat } from 'types';
 import { ChakraNextLink } from 'ui';
+import { ipfsUrl } from 'utils';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const { isMobile } = useMediaStyles();
 
-  const image = get(hat, 'imageUri');
+  const image = get(hat, 'imageUri')
+    ? ipfsUrl(get(hat, 'imageUri'))
+    : undefined;
   const hatRawDetails = get(hat, 'detailsMetadata');
   const hatDetails = hatRawDetails
     ? get(JSON.parse(hatRawDetails), 'data')

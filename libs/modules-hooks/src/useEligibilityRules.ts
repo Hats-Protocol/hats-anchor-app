@@ -42,7 +42,7 @@ const useModuleDetails = ({
   editMode?: boolean;
 }) => {
   const { data, isLoading, fetchStatus } = useQuery({
-    queryKey: ['moduleDetails', { address, chainId }],
+    queryKey: ['eligibilityRules', { address, chainId }],
     queryFn: () => getEligibilityRules({ address, chainId }),
     enabled:
       !!address &&

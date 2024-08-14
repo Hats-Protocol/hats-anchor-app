@@ -86,7 +86,7 @@ const AuthorityHeader = ({
     : undefined;
 
   // set current image
-  const { icon, isIpfs, imageUrl } = authorityImageHandler({
+  const { icon, imageUrl } = authorityImageHandler({
     authority,
     editingItem,
     authorityEnforcement,
@@ -157,7 +157,6 @@ const AuthorityHeader = ({
               currentAuthorityEnforcement || authorityEnforcement
             }
             imageUrl={imageUrl}
-            isIpfs={isIpfs}
             isExpanded={isExpanded || false}
           />
         </Flex>

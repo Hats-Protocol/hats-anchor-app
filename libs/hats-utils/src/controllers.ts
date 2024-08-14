@@ -1,11 +1,13 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
-import _ from 'lodash';
+import { get, includes } from 'lodash';
 import dynamic from 'next/dynamic';
 import { ControllerData, SupportedChains } from 'types';
 import { explorerUrl, formatAddress } from 'utils';
 
 import { daohausUrl, safeUrl } from './authorities';
+
+const EXCLUDE_CONTRACT_NAMES = ['MetaMultiSigWallet']
 
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const Group = dynamic(() => import('icons').then((i) => i.Group));
@@ -29,7 +31,7 @@ export const getControllerNameAndLink = ({
 }) => {
   // default values
   const icon = extendedController?.isContract ? CodeIcon : WearerIcon;
-  const link = `${explorerUrl(chainId)}/address/${_.get(
+  const link = `${explorerUrl(chainId)}/address/${get(
     extendedController,
     'id',
   )}`;
@@ -40,7 +42,7 @@ export const getControllerNameAndLink = ({
       name: `Safe (${formatAddress(extendedController?.id)})`,
       link: safeUrl(
         chainId as SupportedChains,
-        _.get(extendedController, 'id'),
+        get(extendedController, 'id'),
       ),
       icon: Group,
     };
@@ -52,7 +54,7 @@ export const getControllerNameAndLink = ({
       name: extendedController?.contractName,
       link: daohausUrl(
         chainId as SupportedChains,
-        _.get(extendedController, 'id'),
+        get(extendedController, 'id'),
       ),
       icon,
     };
@@ -81,10 +83,10 @@ export const getControllerNameAndLink = ({
     };
   }
 
-  if (extendedController?.contractName) {
+  if (extendedController?.contractName && !includes(EXCLUDE_CONTRACT_NAMES, extendedController.contractName)) {
     // contract (etherscan) name, if verified
     return {
-      name: extendedController?.contractName,
+      name: extendedController.contractName,
       icon,
       link,
     };
