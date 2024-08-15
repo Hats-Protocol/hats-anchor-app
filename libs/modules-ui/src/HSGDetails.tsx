@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { useAllWearers } from 'hats-hooks';
 import { useClipboard, useSafeDetails } from 'hooks';
 import {
   get,
@@ -81,16 +82,13 @@ const HSGDetails = ({ selectedHat, hsgConfig, chainId }: HSGDetailsProps) => {
     safeAddress: get(hsgConfig, 'safe'),
     chainId,
   });
+  const { wearers } = useAllWearers({ selectedHat, chainId });
   const { onCopy } = useClipboard(get(hsgConfig, 'safe') || '', {
     toastData: { title: 'Safe address copied', status: 'info' },
   });
   const activeOwners = reject(
     safeOwners,
-    (owner: Hex) =>
-      !includes(
-        map(selectedHat?.wearers, (w) => toLower(w.id)),
-        toLower(owner),
-      ),
+    (owner: Hex) => !includes(map(wearers, 'id'), toLower(owner)),
   );
   const ownerHatId = get(hsgConfig, 'ownerHat.id');
 

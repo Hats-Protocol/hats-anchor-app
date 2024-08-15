@@ -49,7 +49,6 @@ const SafeAssetRow = ({ token }: { token: any }) => {
   const { data: tokenData } = useTokenDetails({
     symbol: toLower(localTokenSymbol),
   });
-  console.log({ localTokenSymbol, priceDetails, tokenData });
 
   if (!chainId) return null;
 

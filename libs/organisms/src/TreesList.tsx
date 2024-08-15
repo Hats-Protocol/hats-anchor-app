@@ -45,7 +45,6 @@ const TreesList = ({ params }: TreeListProps) => {
     if (showKey !== SHOW_KEY.all && address) return wearerTrees;
     return trees;
   }, [showKey, address, trees, wearerTrees]);
-  console.log(wearerTrees, trees);
 
   if (
     (showKey === SHOW_KEY.all && isEmpty(trees) && !treesLoading) ||

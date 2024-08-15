@@ -116,7 +116,8 @@ const MyHats = () => {
     );
   }
 
-  if (isEmpty(activeHats) || wearerDetailsLoading) {
+  if (isEmpty(activeHats) && wearerDetailsLoading) {
+    // hats loading
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
@@ -140,13 +141,14 @@ const MyHats = () => {
     );
   }
 
-  if (!isEmpty(sortedHats)) {
+  if (!isEmpty(activeHats)) {
+    // some hats loaded
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
           <Flex justifyContent='space-between' alignItems='center'>
             <Heading>Your hats</Heading>
-            {size(sortedHats) >
+            {size(activeHats) >
               (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
               <ChakraNextLink
                 as={ChakraNextLink}
@@ -181,6 +183,8 @@ const MyHats = () => {
       </MyHatsCard>
     );
   }
+
+  // not loading and no hats found
 
   return (
     <MyHatsCard name={ensName || formatAddress(currentUser)}>

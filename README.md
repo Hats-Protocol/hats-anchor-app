@@ -57,13 +57,16 @@ pnpm claims:build # to build the Claims app
 - [`hooks`](./libs/hooks/) - hooks pertinent to the UI state or UX of the apps
 - [`icons`](./libs/icons/) - shared SVG icons
 - [`modules-ui`](./libs/modules-ui/) - shared UI components for modules
+- [`modules-hooks`](./libs/modules-hooks/) - shared hooks for module states
+- [`molecules`](./libs/molecules/) - molecules are UI components that combine other atoms
+- [`organisms`](./libs/organisms/) - organisms are larger UI components that contain molecules and atoms
 - [`pages`](./libs/pages/) - shared page components
 - [`shared`](./libs/shared/) - shared app/hats utilities\*
 - [`types`](./libs/types/) - types extended beyond the subgraph and used in the apps/libs
 - [`ui`](./libs/ui/) - shared UI components and styles
 - [`utils`](./libs/utils/) - utilities for managing UI state and other app specific needs
 
-\* avoids circular imports with other libraries
+\* avoids circular imports with other libraries  
 † coming soon
 
 ## Nx & Code integration
