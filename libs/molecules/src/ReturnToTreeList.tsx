@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Icon } from '@chakra-ui/react';
+import { Button, Icon, Text } from '@chakra-ui/react';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { get } from 'lodash';
@@ -11,7 +11,7 @@ import { getPathParams } from 'utils';
 
 const ReturnToTreeList = () => {
   const pathname = usePathname();
-  const { chainId, treeId } = getPathParams(pathname);
+  const { chainId, treeId, hatId } = getPathParams(pathname);
   const topHatId = treeId
     ? hatIdDecimalToHex(treeIdToTopHatId(treeId))
     : undefined;
@@ -22,10 +22,19 @@ const ReturnToTreeList = () => {
     ? get(JSON.parse(topHatRawDetails), 'data')
     : undefined;
 
+  if (!treeId || !topHat || !hatId) return null;
+
   return (
     <Link href={`/trees/${chainId}/${treeId}`}>
-      <Button leftIcon={<Icon as={BsArrowLeft} />} h='40px' variant='outline'>
-        {get(topHatDetails, 'name', get(topHat, 'details'))}
+      <Button
+        leftIcon={<Icon as={BsArrowLeft} />}
+        h='40px'
+        maxW='180px'
+        variant='outline'
+      >
+        <Text as='span' isTruncated>
+          {get(topHatDetails, 'name', get(topHat, 'details'))}
+        </Text>
       </Button>
     </Link>
   );

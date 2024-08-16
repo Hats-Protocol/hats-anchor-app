@@ -55,9 +55,9 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
     <div className='flex justify-between py-1'>
       <div className='flex gap-2 items-center'>
         <Icon as={HatIcon} />
-        <h2 className='text-sm md:text-md'>
+        <Text>
           {hatIdDecimalToIp(hatIdHexToDecimal(hatId))} {details?.name}
-        </h2>
+        </Text>
       </div>
 
       <div>

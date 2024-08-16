@@ -11,6 +11,7 @@ import {
   Image,
   Stack,
   Tooltip,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -37,6 +38,7 @@ const Header = () => {
     },
   });
   const { isMobile } = useMediaStyles();
+  const smallFont = useBreakpointValue({ base: true, md: false });
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',
@@ -122,22 +124,26 @@ const Header = () => {
 
             <Box>
               <Button
-                size='xs'
-                variant='ghost'
-                colorScheme='blue'
+                size={{ base: 'sm', md: 'md' }}
+                variant='text'
+                colorScheme='Functional-LinkPrimary'
                 onClick={copyHatId}
                 rightIcon={
-                  <Icon as={CopyHash} color='blue.500' cursor='pointer' />
+                  <Icon
+                    as={CopyHash}
+                    color='Functional-LinkPrimary'
+                    cursor='pointer'
+                  />
                 }
               >
-                #{hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
+                {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
               </Button>
             </Box>
           </Flex>
         </HStack>
         {description && (
           <Box opacity={0.6}>
-            <Markdown>{description}</Markdown>
+            <Markdown smallFont={smallFont}>{description}</Markdown>
           </Box>
         )}
       </Stack>
