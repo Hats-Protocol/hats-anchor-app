@@ -19,7 +19,8 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { CONFIG, HATS_ABI } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
 import { useToast } from 'hooks';
 import _ from 'lodash';
@@ -166,15 +167,15 @@ const MultiAddressInput = ({
         const promises = [
           viemClient.readContract({
             address: CONFIG.hatsAddress,
-            abi: CONFIG.hatsAbi,
+            abi: HATS_ABI,
             functionName: 'isInGoodStanding',
-            args: [localAddress, selectedHat?.id],
+            args: [localAddress, selectedHat?.id ? BigInt(selectedHat.id) : 0n],
           }),
           viemClient.readContract({
             address: CONFIG.hatsAddress,
-            abi: CONFIG.hatsAbi,
+            abi: HATS_ABI,
             functionName: 'isEligible',
-            args: [localAddress, selectedHat?.id],
+            args: [localAddress, selectedHat?.id ? BigInt(selectedHat.id) : 0n],
           }),
         ];
         const result = await Promise.all(promises);
@@ -306,7 +307,7 @@ const MultiAddressInput = ({
           abi: HATS_ABI,
           address: CONFIG.hatsAddress,
           functionName: 'isEligible',
-          args: [a, selectedHat?.id],
+          args: [a, selectedHat?.id ? BigInt(selectedHat.id) : 0n],
         }),
       );
       const eligibilityOfAddresses = await Promise.all(promises);

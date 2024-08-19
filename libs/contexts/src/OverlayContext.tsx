@@ -240,6 +240,7 @@ export const OverlayContextProvider = ({
     }
 
     if (redirect) {
+      console.log('redirecting to', redirect);
       router.push(redirect);
     }
 

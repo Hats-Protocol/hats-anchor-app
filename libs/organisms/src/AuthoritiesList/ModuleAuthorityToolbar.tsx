@@ -6,7 +6,6 @@ import {
   Flex,
   HStack,
   Icon,
-  IconButton,
   Menu,
   MenuButton,
   MenuItem,
@@ -14,10 +13,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import {
-  AUTHORITY_ENFORCEMENT,
-  AUTHORITY_TYPES,
-} from '@hatsprotocol/constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
@@ -49,7 +45,12 @@ import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
 import { ChakraNextLink } from 'ui';
-import { explorerUrl, getDisabledReason, getHostnameFromURL } from 'utils';
+import {
+  explorerUrl,
+  getCustomModuleFunction,
+  getDisabledReason,
+  getHostnameFromURL,
+} from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -84,7 +85,9 @@ const ModuleAuthorityToolbar = ({
     () => includes(map(wearerDetails, 'id'), selectedHat?.id),
     [wearerDetails, selectedHat?.id],
   );
+  console.log('authority', authority);
 
+  const customFunction = getCustomModuleFunction(authority);
   const primaryFunction = find(get(authority, 'functions'), 'primary');
   const otherFunctions = filter(
     get(authority, 'functions', []),
@@ -217,7 +220,12 @@ const ModuleAuthorityToolbar = ({
 
   return (
     <HStack wrap='wrap'>
-      {primaryFunction && (
+      {customFunction && (
+        <Tooltip label={primaryDisabledReason}>
+          <Button>Go</Button>
+        </Tooltip>
+      )}
+      {primaryFunction && !customFunction && (
         <Tooltip label={primaryDisabledReason}>
           <Button
             colorScheme='blue'
@@ -238,61 +246,6 @@ const ModuleAuthorityToolbar = ({
         </Tooltip>
       )}
       <HStack>
-        {authority?.type === AUTHORITY_TYPES.modules && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${
-              authority.instanceAddress
-            }`}
-            isExternal
-          >
-            <Button
-              colorScheme='blue.500'
-              size='sm'
-              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-              variant='outline'
-              color='blue.500'
-              onClick={() => {
-                posthog.capture('Viewed Module', {
-                  chain_id: chainId,
-                  address: authority.instanceAddress,
-                  name: authority.moduleLabel,
-                });
-              }}
-            >
-              Go to {get(AUTHORITY_ENFORCEMENT, `${authority.type}.name`)}
-            </Button>
-          </ChakraNextLink>
-        )}
-        {authority?.type === AUTHORITY_TYPES.account && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${
-              authority.instanceAddress
-            }`}
-            isExternal
-          >
-            <Button
-              colorScheme='blue.500'
-              size='sm'
-              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-              variant='outline'
-              color='blue.500'
-              onClick={() => {
-                posthog.capture('Viewed HatsAccount', {
-                  chain_id: chainId,
-                  address: authority.instanceAddress,
-                  account: authority.label,
-                });
-              }}
-            >
-              Go to{' '}
-              {
-                AUTHORITY_ENFORCEMENT[
-                  authority.type as keyof typeof AUTHORITY_ENFORCEMENT
-                ].name
-              }
-            </Button>
-          </ChakraNextLink>
-        )}
         {authority.type === AUTHORITY_TYPES.hsg && (
           <ChakraNextLink
             href={safeUrl(chainId, authority.hsgConfig?.safe)}
@@ -310,12 +263,14 @@ const ModuleAuthorityToolbar = ({
         {(!isEmpty(otherFunctions) || !isEmpty(otherLinks)) && (
           <Menu>
             <MenuButton
-              as={IconButton}
-              icon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
-              borderColor='blue.500'
-              variant='outline'
+              as={Button}
+              rightIcon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
+              colorScheme='blue.500'
+              variant='outlineMatch'
               size='sm'
-            />
+            >
+              More
+            </MenuButton>
             <MenuList>
               {map(otherFunctions, (func: ModuleFunction, i: number) => {
                 const publicFunction = includes(func.roles, 'public');

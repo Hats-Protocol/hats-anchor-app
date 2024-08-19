@@ -331,15 +331,16 @@ const AuthoritiesListCard = ({
                       />
                     </Box>
                   )}
-                  {typeof description === 'string' ? (
-                    <Box>
-                      <Markdown smallFont={smallFont}>{description}</Markdown>
-                    </Box>
-                  ) : (
-                    <Box pt={link || gate ? 2 : 0} pb={3}>
-                      {description}
-                    </Box>
-                  )}
+                  {type !== AUTHORITY_TYPES.modules &&
+                    (typeof description === 'string' ? (
+                      <Box>
+                        <Markdown smallFont={smallFont}>{description}</Markdown>
+                      </Box>
+                    ) : (
+                      <Box pt={link || gate ? 2 : 0} pb={3}>
+                        {description}
+                      </Box>
+                    ))}
                 </Stack>
                 {displayModulesToolbar && (
                   <Flex

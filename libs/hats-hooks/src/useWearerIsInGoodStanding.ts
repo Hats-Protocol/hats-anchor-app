@@ -1,6 +1,7 @@
 'use client';
 
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { get } from 'lodash';
 import { AppHat } from 'types';
 import { Hex } from 'viem';
@@ -15,10 +16,10 @@ const useWearerIsInGoodStanding = ({
 
   const { data, isLoading } = useReadContract({
     address: CONFIG.hatsAddress,
-    abi: CONFIG.hatsAbi,
+    abi: HATS_ABI,
     chainId,
     functionName: 'isInGoodStanding',
-    args: [wearer, hatId],
+    args: [wearer || "0x", hatId ? BigInt(hatId) : 0n],
   });
 
   return { data, isLoading };

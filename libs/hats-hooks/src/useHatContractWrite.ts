@@ -1,6 +1,7 @@
 'use client';
 
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import { useState } from 'react';
@@ -59,9 +60,9 @@ const useHatContractWrite = ({
     return writeContractAsync({
       address: CONFIG.hatsAddress,
       chainId: Number(chainId),
-      abi: CONFIG.hatsAbi,
-      functionName,
-      args,
+      abi: HATS_ABI,
+      functionName: functionName as any,
+      args: args as any,
     })
       .then((hash) => {
         setIsLoading(true);

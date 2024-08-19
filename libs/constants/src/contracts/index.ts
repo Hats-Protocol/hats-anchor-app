@@ -2,7 +2,6 @@
 export * from './AgreementClaimsHatter';
 export * from './ERC721';
 export * from './ERC1155';
-export * from './Hats';
 export * from './MultiClaimsHatter';
 export * from './Safe';
 export * from './Tkn';

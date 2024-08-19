@@ -1,4 +1,5 @@
 import { CONFIG } from "@hatsprotocol/constants";
+import { HATS_ABI } from "@hatsprotocol/sdk-v1-core";
 import { useQuery } from "@tanstack/react-query";
 import { toNumber } from "lodash";
 import { viemPublicClient } from "utils";
@@ -8,7 +9,7 @@ const getLastTopHatId = async (chainId: number | undefined) => {
   const viemClient = viemPublicClient(chainId);
   const lastTopHatId = await viemClient.readContract({
     address: CONFIG.hatsAddress,
-    abi: CONFIG.hatsAbi,
+    abi: HATS_ABI,
     functionName: 'lastTopHatId',
     args: [],
   });
