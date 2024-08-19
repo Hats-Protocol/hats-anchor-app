@@ -54,6 +54,8 @@ import {
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
+import CustomFunction from './CustomFunction';
+
 const BoxArrowUpRightOut = dynamic(() =>
   import('icons').then((i) => i.BoxArrowUpRightOut),
 );
@@ -219,11 +221,8 @@ const ModuleAuthorityToolbar = ({
 
   return (
     <HStack wrap='wrap'>
-      {customFunction && (
-        <Tooltip label={primaryDisabledReason}>
-          <Button>Go</Button>
-        </Tooltip>
-      )}
+      <CustomFunction customFunction={customFunction} />
+
       {primaryFunction && !customFunction && (
         <Tooltip label={primaryDisabledReason}>
           <Button

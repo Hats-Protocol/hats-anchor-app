@@ -2,7 +2,7 @@ import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { ReactNode } from 'react';
 import { Hex } from 'viem';
 
-import { ModuleFunction } from './modules';
+import { ModuleDetails, ModuleFunction } from './modules';
 
 export type AuthorityType =
   | 'protocol'
@@ -44,6 +44,7 @@ export type Authority = {
   moduleAddress?: Hex;
   moduleLabel?: string;
   hsgConfig?: HSGConfig;
+  moduleInfo?: ModuleDetails;
 };
 
 export interface HatAuthorityResponse {
