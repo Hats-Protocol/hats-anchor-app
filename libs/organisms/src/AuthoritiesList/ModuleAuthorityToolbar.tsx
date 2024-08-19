@@ -85,7 +85,6 @@ const ModuleAuthorityToolbar = ({
     () => includes(map(wearerDetails, 'id'), selectedHat?.id),
     [wearerDetails, selectedHat?.id],
   );
-  console.log('authority', authority);
 
   const customFunction = getCustomModuleFunction(authority);
   const primaryFunction = find(get(authority, 'functions'), 'primary');
