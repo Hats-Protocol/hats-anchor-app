@@ -16,7 +16,7 @@ import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { compact, filter, indexOf, isEmpty, map, size, sortBy } from 'lodash';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat } from 'types';
@@ -91,14 +91,18 @@ const MyHats = () => {
       chainId: 'all',
     });
 
-  const sortedHats = sortBy(compact(currentHats), (hat: AppHat) => {
-    return indexOf(ORDERED_CHAINS, hat?.chainId);
-  });
-  const activeHats = filter(sortedHats, ['status', true]);
+  const sortedActiveHats = useMemo(() => {
+    const sortedHats = sortBy(compact(currentHats), (hat: AppHat) => {
+      return indexOf(ORDERED_CHAINS, hat?.chainId);
+    });
+    const filtered = filter(sortedHats, { status: true });
+    const sliced = filtered.slice(
+      0,
+      isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW,
+    );
 
-  const overrideEmptyCurrentHats = isEmpty(activeHats)
-    ? Array(isMobile ? 4 : 8).fill({ id: '123' })
-    : activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW);
+    return sliced;
+  }, [currentHats, isMobile]);
 
   const { data: ensName } = useEnsName({ address: currentUser, chainId: 1 });
 
@@ -116,7 +120,7 @@ const MyHats = () => {
     );
   }
 
-  if (isEmpty(activeHats) && wearerDetailsLoading) {
+  if (isEmpty(sortedActiveHats) && wearerDetailsLoading) {
     // hats loading
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
@@ -141,14 +145,14 @@ const MyHats = () => {
     );
   }
 
-  if (!isEmpty(activeHats)) {
+  if (!isEmpty(sortedActiveHats)) {
     // some hats loaded
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
           <Flex justifyContent='space-between' alignItems='center'>
             <Heading>Your hats</Heading>
-            {size(activeHats) >
+            {size(sortedActiveHats) >
               (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
               <ChakraNextLink
                 as={ChakraNextLink}
@@ -169,7 +173,7 @@ const MyHats = () => {
             }}
             spacing={6}
           >
-            {map(overrideEmptyCurrentHats, (hat: AppHat, i: number) => (
+            {map(sortedActiveHats, (hat: AppHat, i: number) => (
               <Skeleton
                 isLoaded={!!hat.id && !wearerDetailsLoading}
                 borderRadius='md'

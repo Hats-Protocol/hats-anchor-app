@@ -13,20 +13,20 @@ const getEligibilityRules = async ({
   address: Hex | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  if (!chainId || !address) return null;
+  if (!chainId || !address) return Promise.resolve(null);
 
   const modulesClient = await createHatsModulesClient(chainId);
-  if (!modulesClient) return null;
+  if (!modulesClient) return Promise.resolve(null);
 
   return modulesClient
     .getRulesets(address, { includeLiveParams: true })
     .then((ruleSets) => {
-      return ruleSets;
+      return Promise.resolve(ruleSets || null);
     })
     .catch((err) => {
       // eslint-disable-next-line no-console
       console.error(err);
-      return null;
+      return Promise.resolve(null);
     });
 };
 

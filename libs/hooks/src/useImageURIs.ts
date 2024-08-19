@@ -2,6 +2,7 @@
 
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
@@ -61,7 +62,7 @@ const useImageURIs = ({
         return {
           address: CONFIG.hatsAddress,
           chainId: hat?.chainId,
-          abi: CONFIG.hatsAbi,
+          abi: HATS_ABI,
           functionName: 'getImageURIForHat',
           args: [hat?.id],
         };

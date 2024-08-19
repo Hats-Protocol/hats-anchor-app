@@ -163,9 +163,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
 
 // cascade of hats data to get the org chart type
 // orgChartHats
-//    -> useManyHatDetails (initialData: initialTreeData.hats)
-//       -> useManyHatsDetailsField
-//       -> useWearersControllersDetails
+//    -> useManyHatDetails
 //       -> useImageURIs
 //          -> useOrgChartTree (all pass to)
 

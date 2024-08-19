@@ -17,6 +17,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import {
   AUTHORITY_ENFORCEMENT,
@@ -24,7 +25,7 @@ import {
 } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _, { get } from 'lodash';
+import _, { get, pick } from 'lodash';
 import { HSGDetails, ModuleCardDetails } from 'modules-ui';
 import { AuthorityHeader } from 'molecules';
 import dynamic from 'next/dynamic';
@@ -33,7 +34,7 @@ import { startTransition, useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
-import { ChakraNextLink } from 'ui';
+import { ChakraNextLink, Markdown } from 'ui';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
@@ -55,7 +56,7 @@ const AuthoritiesListCard = ({
   type: AuthorityType;
   index: number;
 }) => {
-  const { label, description, link, gate, strategies, hatId } = _.pick(
+  const { label, description, link, gate, strategies, hatId } = pick(
     authority,
     ['label', 'description', 'link', 'gate', 'strategies', 'hatId'],
   );
@@ -67,6 +68,7 @@ const AuthoritiesListCard = ({
   const { selectedHat } = useSelectedHat();
   const [expanded, setExpanded] = useState(false);
   const isMounted = useRef(false);
+  const smallFont = useBreakpointValue({ base: true, md: false });
 
   // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
@@ -136,6 +138,8 @@ const AuthoritiesListCard = ({
     );
   }
 
+  // TODO make enforcement tooltip work as a popover on mobile
+
   return (
     <Accordion allowToggle>
       <AccordionItem
@@ -180,7 +184,12 @@ const AuthoritiesListCard = ({
                   authority={authority}
                   isExpanded={isExpanded}
                 />
-                {isMobile && <AccordionIcon />}
+                {isMobile && (
+                  <AccordionIcon
+                    mr={isExpanded ? 1 : 0}
+                    color='blackAlpha.600'
+                  />
+                )}
                 {isExpanded && !isMobile && (
                   <Icon
                     as={Collapse}
@@ -204,7 +213,7 @@ const AuthoritiesListCard = ({
               >
                 <Stack px={4}>
                   <Box>
-                    <HStack mb={2}>
+                    <HStack>
                       <Image
                         src={authorityEnforcement.enforcementIcon}
                         alt='Hat'
@@ -214,17 +223,19 @@ const AuthoritiesListCard = ({
                         <Text size={{ base: 'sm', md: 'md' }}>
                           {authorityEnforcement.label}
                         </Text>
-                        <Tooltip
-                          label={tooltipInfo}
-                          shouldWrapChildren
-                          placement='top'
-                        >
-                          <Icon
-                            as={BsInfoCircle}
-                            boxSize={{ base: 3, md: '14px' }}
-                            cursor='pointer'
-                          />
-                        </Tooltip>
+                        {!isMobile && (
+                          <Tooltip
+                            label={tooltipInfo}
+                            shouldWrapChildren
+                            placement='top'
+                          >
+                            <Icon
+                              as={BsInfoCircle}
+                              boxSize={{ base: 3, md: '14px' }}
+                              cursor='pointer'
+                            />
+                          </Tooltip>
+                        )}
                       </HStack>
                     </HStack>
                   </Box>
@@ -251,10 +262,10 @@ const AuthoritiesListCard = ({
                                   is_gate: false,
                                 });
                               }}
-                              colorScheme='blue'
+                              colorScheme='Functional-LinkPrimary'
                               size='sm'
                               fontWeight='normal'
-                              variant='solid'
+                              variant='filled'
                             >
                               {linkName || linkHostName}
                             </Button>
@@ -271,10 +282,10 @@ const AuthoritiesListCard = ({
                                   is_gate: false,
                                 });
                               }}
-                              colorScheme='blue'
+                              colorScheme='Functional-LinkPrimary'
                               aria-label='Authority Link'
                               size='sm'
-                              variant='solid'
+                              variant='filled'
                             />
                           )}
                         </ChakraNextLink>
@@ -283,8 +294,8 @@ const AuthoritiesListCard = ({
                         <ChakraNextLink isExternal href={gate} display='block'>
                           <Button
                             rightIcon={<Icon as={FaExternalLinkAlt} />}
-                            color='blue.500'
-                            borderColor='blue.500'
+                            color='Functional-LinkPrimary'
+                            borderColor='Functional-LinkPrimary'
                             variant='outlineMatch'
                             size='sm'
                             onClick={() => {
@@ -320,11 +331,16 @@ const AuthoritiesListCard = ({
                       />
                     </Box>
                   )}
-                  {description && (
-                    <Box pt={link || gate ? 2 : 0} pb={3}>
-                      {description}
-                    </Box>
-                  )}
+                  {type !== AUTHORITY_TYPES.modules &&
+                    (typeof description === 'string' ? (
+                      <Box>
+                        <Markdown smallFont={smallFont}>{description}</Markdown>
+                      </Box>
+                    ) : (
+                      <Box pt={link || gate ? 2 : 0} pb={3}>
+                        {description}
+                      </Box>
+                    ))}
                 </Stack>
                 {displayModulesToolbar && (
                   <Flex

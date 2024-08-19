@@ -1,7 +1,7 @@
 'use client';
 
 import { CONFIG, STATUS } from '@hatsprotocol/constants';
-import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdHexToDecimal, HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';
@@ -54,7 +54,7 @@ const useHatStatusCheck = ({
     return writeContractAsync({
       address: CONFIG.hatsAddress,
       chainId,
-      abi: CONFIG.hatsAbi,
+      abi: HATS_ABI,
       functionName: 'checkHatStatus',
       args: [hatDecimalId],
     })

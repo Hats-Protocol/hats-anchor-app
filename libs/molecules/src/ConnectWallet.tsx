@@ -105,7 +105,7 @@ const ConnectWallet = () => {
             if (!connected) {
               return (
                 <Button onClick={trackedOpenConnectModal} variant='whiteFilled'>
-                  Connect Wallet
+                  Connect{!isMobile && ' Wallet'}
                 </Button>
               );
             }

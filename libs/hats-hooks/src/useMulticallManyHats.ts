@@ -1,6 +1,7 @@
 'use client';
 
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
@@ -109,7 +110,7 @@ const useMulticallManyHats = ({
     return writeContractAsync({
       address: CONFIG.hatsAddress,
       chainId: Number(chainId),
-      abi: CONFIG.hatsAbi,
+      abi: HATS_ABI,
       functionName: 'multicall',
       args: [_.map(calls, 'callData')],
     })

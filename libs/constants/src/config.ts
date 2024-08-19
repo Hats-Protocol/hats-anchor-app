@@ -1,8 +1,7 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { Abi, Hex } from 'viem';
+import { Hex } from 'viem';
 
 import { CONTACT_URL, DOCS_URL } from './content';
-import { HATS_ABI } from './contracts';
 import { MINI_CONFIG } from './metadata';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
@@ -12,7 +11,6 @@ const COMMUNITY_HAT_ID = hatIdDecimalToHex(hatIdIpToDecimal('1.2.1.1'));
 const CONFIG: Config = {
   ...MINI_CONFIG,
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
-  hatsAbi: HATS_ABI as Abi,
   emojis: '🧢🎩👒',
   protocolVersion: 'v1',
   shortName: 'Hats',
@@ -75,7 +73,6 @@ const CONFIG: Config = {
 export default CONFIG;
 
 type Config = {
-  hatsAbi: Abi;
   hatsAddress: Hex;
   emojis: string;
   appName: string;

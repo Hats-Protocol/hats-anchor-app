@@ -1,4 +1,5 @@
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { filter, flatten, get, isEmpty, map, toLower } from 'lodash';
 import { HatWearer } from 'types';
 import { isSameAddress, viemPublicClient } from 'utils';
@@ -28,19 +29,20 @@ export const fetchWearersEligibilities = async (
     map(wearerIds, (wearer: Hex) => [
       {
         address: CONFIG.hatsAddress,
-        abi: CONFIG.hatsAbi,
+        abi: HATS_ABI,
         functionName: 'isEligible',
         args: [wearer, hatId],
       },
       {
         address: CONFIG.hatsAddress,
-        abi: CONFIG.hatsAbi,
+        abi: HATS_ABI,
         functionName: 'isInGoodStanding',
         args: [wearer, hatId],
       },
     ]),
   );
 
+  // @ts-expect-error viem is seeing a type mismatch
   const localEligibilityData = await viemPublicClient(chainId).multicall({
     contracts: eligibilityQueries,
   });

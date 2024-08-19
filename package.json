@@ -43,7 +43,7 @@
     "i18next": "^23.11.5",
     "lodash": "^4.17.21",
     "multiformats": "^13.0.1",
-    "next": "14.2.4",
+    "next": "^14.2.5",
     "next-seo": "^5.15.0",
     "opepen-standard": "^1.0.1",
     "papaparse": "^5.4.1",
