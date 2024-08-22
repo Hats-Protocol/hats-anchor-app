@@ -72,7 +72,7 @@ export const removeAndHandleSiblingsOrgChart = (hats: AppHat[], hatId: Hex) => {
 };
 
 // TODO move to consts
-const EXCLUDE_KEYS = ['id', 'parentId', 'adminId', 'imageUri'];
+const EXCLUDE_KEYS = ['id', 'parentId', 'adminId', 'imageUri', 'moduleInfo'];
 const EXCLUDE_ADDRESS_INPUT_KEYS = ['eligibility-input', 'toggle-input'];
 
 export const getExcludedFields = (includeInputs = false) => {
@@ -168,11 +168,10 @@ export function summarizeActions(data: HatsCalls[]) {
       message += `Updated details of hat #${idToIp(data[0].hatId)}`;
     }
     if (mintCount > 0) {
-      const wearerS = `${
-        mintCount === 1 ? '1 wearer' : `${mintCount} wearers`
-      }`;
+      const wearers = `${mintCount === 1 ? '1 wearer' : `${mintCount} wearers`
+        }`;
       message +=
-        updateCount > 0 ? `& minted to ${wearerS}` : `Minted to ${wearerS}`;
+        updateCount > 0 ? `& minted to ${wearers}` : `Minted to ${wearers}`;
     }
     return message;
   }
