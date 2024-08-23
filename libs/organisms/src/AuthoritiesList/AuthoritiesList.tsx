@@ -55,15 +55,10 @@ const AuthoritiesList = () => {
     !hatLoading && !ancillaryModulesLoading && !guildsLoading && !spacesLoading
       ? combinedAuthorities
       : LOADING_AUTHORITIES;
+  const allLoaded =
+    !hatLoading && !ancillaryModulesLoading && !guildsLoading && !spacesLoading;
 
-  if (
-    (!hatLoading &&
-      !ancillaryModulesLoading &&
-      !guildsLoading &&
-      !spacesLoading &&
-      isEmpty(combinedAuthorities)) ||
-    !selectedHatDetails
-  ) {
+  if ((allLoaded && isEmpty(combinedAuthorities)) || !selectedHatDetails) {
     return null;
     // return (
     //   <Flex px={{ base: 4, md: 10 }}>
@@ -77,14 +72,7 @@ const AuthoritiesList = () => {
   return (
     <Accordion px={{ base: 0, md: 16 }} allowMultiple>
       <Stack>
-        <Skeleton
-          isLoaded={
-            !hatLoading &&
-            !ancillaryModulesLoading &&
-            !guildsLoading &&
-            !spacesLoading
-          }
-        >
+        <Skeleton isLoaded={allLoaded}>
           <Heading
             size='md'
             mx={{ base: 4, md: 0 }}
@@ -96,7 +84,7 @@ const AuthoritiesList = () => {
           </Heading>
         </Skeleton>
 
-        <Stack spacing={!isEmpty(localAuthorities) ? 1 : 2}>
+        <Stack spacing={allLoaded && !isEmpty(localAuthorities) ? 1 : 2}>
           {map(localAuthorities, (authority: Authority, index: number) => (
             <AuthoritiesListCard
               index={index}

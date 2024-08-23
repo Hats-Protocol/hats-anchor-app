@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable no-nested-ternary */
 import {
   Box,
   Button,
@@ -54,6 +53,8 @@ const ChakraNextLink = dynamic(() =>
 const NetworkSwitcher = dynamic(() =>
   import('molecules').then((mod) => mod.NetworkSwitcher),
 );
+
+// TODO this isn't specific to this module, move up
 
 const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
   const currentNetworkId = useChainId();

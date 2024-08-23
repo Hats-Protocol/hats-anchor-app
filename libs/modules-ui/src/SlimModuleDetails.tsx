@@ -29,7 +29,7 @@ import { LinkObject, ModuleFunction } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import ModuleParameters from './ModuleParameters';
+// import ModuleParameters from './ModuleParameters';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
@@ -190,7 +190,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
           </Stack>
         </AccordionPanel>
       </AccordionItem>
-      {!_.isEmpty(parameters) && (
+      {/* {!_.isEmpty(parameters) && (
         <AccordionItem border='0'>
           <AccordionButton px={0}>
             <HStack>
@@ -204,7 +204,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
             <ModuleParameters parameters={parameters} chainId={chainId} />
           </AccordionPanel>
         </AccordionItem>
-      )}
+      )} */}
 
       <AccordionItem border='0'>
         <AccordionButton px={0}>

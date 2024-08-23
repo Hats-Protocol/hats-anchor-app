@@ -73,7 +73,11 @@ const SignatureThreshold = ({
   );
 };
 
-const HSGDetails = ({ selectedHat, hsgConfig, chainId }: HSGDetailsProps) => {
+export const HSGDetails = ({
+  selectedHat,
+  hsgConfig,
+  chainId,
+}: HSGDetailsProps) => {
   const { minThreshold, maxSigners } = pick(hsgConfig, [
     'minThreshold',
     'maxSigners',
@@ -153,5 +157,3 @@ interface HSGDetailsProps {
   selectedHat: AppHat | undefined;
   chainId: SupportedChains | undefined;
 }
-
-export default HSGDetails;

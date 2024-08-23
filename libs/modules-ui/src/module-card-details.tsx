@@ -10,7 +10,7 @@ import { Hex } from 'viem';
 import { AgreementEligibilityDetails } from './agreement';
 import { AllowlistEligibilityDetails } from './allowlist';
 import { ElectionEligibilityDetails } from './election';
-import { JokeRaceEligibilityDetails } from './jokeRace';
+import { JokeRaceEligibilityDetails } from './joke-race';
 import { StakingEligibilityDetails } from './staking';
 
 export const MODULE_DETAILS: { [key: Hex]: ModuleDetailsComponent } = {

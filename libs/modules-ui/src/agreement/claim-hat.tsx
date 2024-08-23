@@ -29,8 +29,8 @@ import { fetchWearerDetails, hatLink } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
-import AgreementContent from './AgreementContent';
-import Conditions from './Conditions';
+import AgreementContent from './agreement-content';
+import { Conditions } from './conditions';
 
 const NetworkSwitcher = dynamic(() =>
   import('molecules').then((mod) => mod.NetworkSwitcher),

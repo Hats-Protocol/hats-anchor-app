@@ -2,15 +2,10 @@ import { Button, Icon } from '@chakra-ui/react';
 import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { includes } from 'lodash';
+import { AllowlistModal } from 'modules-ui';
 import { BsPencil } from 'react-icons/bs';
 
-import AllowlistModal from './AllowlistModal';
-
-const CustomFunction = ({
-  authority,
-}: {
-  authority: any; // CustomFunction;
-}) => {
+const CustomFunction = ({ authority }: { authority: any | undefined }) => {
   const { setModals } = useOverlay();
   if (!authority) return null;
 
@@ -19,6 +14,7 @@ const CustomFunction = ({
   }
 
   if (includes(KNOWN_ELIGIBILITY_MODULES.allowlist, authority.moduleAddress)) {
+    // TODO only show "Edit" if current user is associated role
     return (
       <>
         <Button
@@ -29,7 +25,11 @@ const CustomFunction = ({
         >
           Edit Allowlist
         </Button>
-        <AllowlistModal authority={authority} />
+
+        <AllowlistModal
+          eligibilityHatId={authority.hatId}
+          moduleInfo={authority.moduleInfo}
+        />
       </>
     );
   }

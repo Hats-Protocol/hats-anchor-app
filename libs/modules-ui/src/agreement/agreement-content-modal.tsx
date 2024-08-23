@@ -19,11 +19,11 @@ import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
-import AgreementContent from './AgreementContent';
+import AgreementContent from './agreement-content';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
-const AgreementModal = ({
+export const AgreementContentModal = ({
   setIsReviewed,
   isOpen,
   onClose,
@@ -100,5 +100,3 @@ const AgreementModal = ({
     </Modal>
   );
 };
-
-export default AgreementModal;

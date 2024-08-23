@@ -10,7 +10,7 @@ import {
 import { useOverlay } from 'contexts';
 import { ReactNode } from 'react';
 
-const ModuleModal = ({
+export const ModuleModal = ({
   name,
   title,
   filters,
@@ -83,5 +83,3 @@ const ModuleModal = ({
     </Modal>
   );
 };
-
-export default ModuleModal;

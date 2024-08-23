@@ -20,6 +20,11 @@ export interface HatWearer {
   ensName?: string | null;
 }
 
+export interface ExtendedProfile extends HatWearer {
+  eligible: boolean;
+  badStanding: boolean;
+}
+
 export type HatDetailsKeys = keyof HatDetails;
 
 // details-mgr

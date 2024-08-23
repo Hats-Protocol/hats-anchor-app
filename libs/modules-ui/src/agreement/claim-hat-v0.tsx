@@ -31,7 +31,7 @@ import { fetchWearerDetails, hatLink } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
-import AgreementContent from './AgreementContent';
+import AgreementContent from './agreement-content';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),

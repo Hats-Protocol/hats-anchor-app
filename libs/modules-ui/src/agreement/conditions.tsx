@@ -17,9 +17,9 @@ import { useMediaStyles } from 'hooks';
 import { Dispatch, SetStateAction } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 
-import AgreementModal from './AgreementModal';
+import { AgreementContentModal } from './agreement-content-modal';
 
-const Conditions = ({
+export const Conditions = ({
   isReviewed,
   setIsReviewed,
   agreementIsLink,
@@ -97,7 +97,7 @@ const Conditions = ({
         </AccordionItem>
       </Accordion>
 
-      <AgreementModal
+      <AgreementContentModal
         setIsReviewed={setIsReviewed}
         isOpen={isOpen}
         onClose={onClose}
@@ -105,5 +105,3 @@ const Conditions = ({
     </Box>
   );
 };
-
-export default Conditions;

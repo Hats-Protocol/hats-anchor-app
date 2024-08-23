@@ -11,7 +11,7 @@ import { Hex } from 'viem';
 import { ELIGIBILITY_STATUS } from '../utils';
 import EligibilityRule from './EligibilityRule';
 
-const GenericEligibility = ({
+const UnknownEligibility = ({
   chainId,
   wearer,
   selectedHat,
@@ -39,4 +39,4 @@ const GenericEligibility = ({
   );
 };
 
-export default GenericEligibility;
+export default UnknownEligibility;

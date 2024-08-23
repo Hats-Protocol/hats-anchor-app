@@ -12,11 +12,11 @@ import ElectionEligibility from './Election';
 import Erc20Eligibility from './Erc20';
 import Erc721Eligibility from './Erc721';
 import Erc1155Eligibility from './Erc1155';
-import GenericEligibility from './GenericEligibility';
 import HatWearingEligibility from './HatWearing';
 import JokeRaceEligibility from './JokeRace';
 import PassthroughModule from './Passthrough';
 import StakingEligibility from './Staking';
+import UnknownEligibility from './UnknownEligibility';
 
 const KnownModule = ({
   moduleDetails,
@@ -39,6 +39,8 @@ const KnownModule = ({
       return (
         <AllowlistEligibility
           selectedHat={selectedHat}
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleParameters}
           wearer={wearer}
           chainId={chainId}
         />
@@ -127,7 +129,7 @@ const KnownModule = ({
   }
 
   return (
-    <GenericEligibility
+    <UnknownEligibility
       chainId={chainId}
       wearer={wearer}
       selectedHat={selectedHat}
