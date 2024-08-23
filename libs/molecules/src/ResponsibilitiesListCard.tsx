@@ -118,7 +118,9 @@ const ResponsibilitiesListCard = ({
                   isExpanded={isExpanded}
                 />
               </Box>
-              {isMobile && <AccordionIcon ml={2} />}
+              {isMobile && (
+                <AccordionIcon mr={isExpanded ? 1 : 0} color='blackAlpha.600' />
+              )}
               {isExpanded && !isMobile && (
                 <Icon
                   as={Collapse}
@@ -150,9 +152,10 @@ const ResponsibilitiesListCard = ({
                           rightIcon={
                             <Icon boxSize={3} as={BsBoxArrowUpRight} />
                           }
-                          variant='outlineMatch'
-                          colorScheme='blue.500'
-                          size={{ base: 'xs', md: 'sm' }}
+                          variant='filled'
+                          size='sm'
+                          fontWeight='normal'
+                          colorScheme='blue'
                           onClick={() => {
                             posthog.capture('Clicked Responsibility Link', {
                               authority: label,
@@ -170,7 +173,7 @@ const ResponsibilitiesListCard = ({
 
                 <Flex>
                   {description && (
-                    <Box pb={3}>
+                    <Box>
                       <Markdown smallFont={smallFont}>{description}</Markdown>
                     </Box>
                   )}

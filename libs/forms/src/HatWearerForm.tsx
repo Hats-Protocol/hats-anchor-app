@@ -12,7 +12,7 @@ import {
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { isMutable, maxSupplyText } from 'hats-utils';
+import { isMutable } from 'hats-utils';
 import { useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
@@ -21,7 +21,12 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart } from 'react-icons/bs';
 import { idToIp, toTreeId } from 'shared';
 import { AppHat, HatWearer } from 'types';
-import { chainsMap, fetchHatDetails, formatAddress } from 'utils';
+import {
+  chainsMap,
+  fetchHatDetails,
+  formatAddress,
+  formatScientificWhole,
+} from 'utils';
 import { isAddress } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -119,7 +124,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
     args: batchMintArgs,
     chainId,
     txDescription: txDescriptionBatch,
-    onSuccessToastData: {
+    successToastData: {
       title: `Hats Minted!`,
       description: txDescriptionBatch,
     },
@@ -155,11 +160,12 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
       args: [hatIdDecimal, currentResolvedAddress || currentInput],
       chainId,
       txDescription: txDescriptionSingle,
-      onSuccessToastData: {
+      successToastData: {
         title: `Hat Minted!`,
         description: txDescriptionSingle,
       },
       handlePendingTx,
+      waitForSubgraph,
       handleSuccess: () => {
         onCloseHatDrawer?.();
       },
@@ -230,7 +236,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
           {!editMode && (
             <Text size='sm' variant='light'>
               {_.toNumber(currentSupply) + _.size(localWearers)} of{' '}
-              {maxSupplyText(maxSupply)} wearers
+              {formatScientificWhole(maxSupply)} wearers
             </Text>
           )}
         </Flex>

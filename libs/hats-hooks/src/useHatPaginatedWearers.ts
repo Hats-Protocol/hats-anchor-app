@@ -5,6 +5,7 @@ import { sortWearers } from 'hats-utils';
 import { useState } from 'react';
 import { HatWearer, SupportedChains } from 'types';
 import { fetchPaginatedWearersForHat } from 'utils';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const useHatPaginatedWearers = ({
@@ -36,7 +37,7 @@ const useHatPaginatedWearers = ({
   return {
     paginatedWearers: sortWearers({
       wearers: data,
-      address,
+      address: address as Hex,
     }),
     isLoading,
     isFetching,

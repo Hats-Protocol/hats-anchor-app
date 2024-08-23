@@ -13,8 +13,8 @@ import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite } from 'hats-hooks';
 import { getControllerNameAndLink, isTopHat } from 'hats-utils';
-import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { useClipboard, useWaitForSubgraph } from 'hooks';
+import { filter, get, isEmpty, toLower } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { idToIp, toTreeId } from 'shared';
@@ -42,14 +42,18 @@ const WearerRow = ({
   setChangeStatusWearer,
   setWearerToTransferFrom,
 }: WearerRowProps) => {
-  const toast = useToast();
   const currentNetworkId = useChainId();
   const { setModals, handlePendingTx } = useOverlay();
   const { address } = useAccount();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   // const { isMobile } = useMediaStyles();
-  const { onCopy } = useClipboard(wearer.id);
+  const { onCopy: copyAddress } = useClipboard(wearer.id, {
+    toastData: {
+      title: 'Copied address',
+      description: 'Successfully copied address to clipboard',
+    },
+  });
 
   const { data: ensAvatar } = useEnsAvatar({
     chainId: 1,
@@ -59,30 +63,35 @@ const WearerRow = ({
   const hatId = selectedHat?.id || '0x';
   const isSameChain = chainId === currentNetworkId;
   const currentUserIsEligibility =
-    selectedHat?.eligibility === _.toLower(address);
+    selectedHat?.eligibility === toLower(address);
 
   // TODO should be able to say "Removed hat for wearer", add uses claim for
   const txDescription = `Revoked hat #${idToIp(hatId)} from ${formatAddress(
     wearer.id,
   )}`;
-  const { extendedEligibility } = _.pick(selectedHat, ['extendedEligibility']);
+
+  const checkEligibilityWaitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(hatId, chainId),
+    checkResult: (hatDetails) =>
+      isEmpty(
+        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(address)),
+      ),
+  });
 
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
     args: [hatIdHexToDecimal(hatId), wearer.id],
     chainId,
-    enabled:
-      Boolean(hatId) &&
-      Boolean(wearer) &&
-      !!extendedEligibility?.isContract &&
-      chainId === currentNetworkId,
+    // TODO re-add check for isContract
+    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
     ],
     handlePendingTx,
+    waitForSubgraph: checkEligibilityWaitForSubgraph,
     txDescription,
-    onSuccessToastData: {
+    successToastData: {
       title: txDescription,
     },
   });
@@ -93,14 +102,11 @@ const WearerRow = ({
     enabled: wearer.isContract,
   });
 
-  const waitForSubgraph = useWaitForSubgraph({
+  const renounceWaitForSubgraph = useWaitForSubgraph({
     fetchHelper: () => fetchHatDetails(hatId, chainId),
     checkResult: (hatDetails) =>
-      _.isEmpty(
-        _.filter(
-          hatDetails?.wearers,
-          (w) => _.toLower(w.id) === _.toLower(address),
-        ),
+      isEmpty(
+        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(address)),
       ),
   });
 
@@ -108,21 +114,13 @@ const WearerRow = ({
     selectedHat,
     chainId,
     handlePendingTx,
-    waitForSubgraph,
+    waitForSubgraph: renounceWaitForSubgraph,
   });
 
   const handleRenounceHat = async () => {
     renounceHat?.().catch((e) => {
       // eslint-disable-next-line no-console
       console.error(e);
-    });
-  };
-
-  const copyAddress = () => {
-    onCopy();
-    toast.info({
-      title: 'Copied address',
-      description: 'Successfully copied address to clipboard',
     });
   };
 
@@ -145,14 +143,14 @@ const WearerRow = ({
   } else if (isSameAddress(wearer.id, address)) {
     bgColor = 'green.100';
     color = 'green.800';
-  } else if (wearer.isContract && controllerName !== 'Safe Multisig') {
+  } else if (wearer.isContract && !controllerName.includes('Safe')) {
     color = 'Informative-Code';
   }
 
   const displayName =
-    _.get(wearer, 'ensName') ||
+    get(wearer, 'ensName') ||
     controllerName ||
-    formatAddress(_.get(wearer, 'id'));
+    formatAddress(get(wearer, 'id'));
   const wearerNameIsAddress = displayName === formatAddress(wearer.id);
 
   return (
@@ -188,7 +186,7 @@ const WearerRow = ({
       <Flex alignItems='center' gap={1}>
         {!isIneligible && // don't transfer when you can revoke
           currentUserIsAdmin && // admins can transfer
-          (wearer.id !== _.toLower(address) || isTopHat(selectedHat)) && ( // prefer to renounce if wearer, unless top hat
+          (wearer.id !== toLower(address) || isTopHat(selectedHat)) && ( // prefer to renounce if wearer, unless top hat
             <TooltipWrapper
               isSameChain={isSameChain}
               label="You can't transfer a hat on a different chain"

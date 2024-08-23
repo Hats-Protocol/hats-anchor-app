@@ -17,10 +17,11 @@ import {
   walletConnectWallet,
   zerionWallet,
 } from '@rainbow-me/rainbowkit/wallets';
-import _ from 'lodash';
+import { concat, each, first, get, has, keys, map, toNumber, values } from 'lodash';
 import { SupportedChains } from 'types';
 import { Chain, http, Transport } from 'viem';
 import { createConfig } from 'wagmi';
+import { safe } from 'wagmi/connectors';
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 if (!WC_PROJECT_ID) {
@@ -43,12 +44,12 @@ const RPC_URLS: { [key: number]: string } = {
 };
 
 export const getRpcUrl = (chainId: number) => {
-  if (!_.has(RPC_URLS, chainId)) {
+  if (!has(RPC_URLS, chainId)) {
     const chain = chainsMap(chainId);
-    return _.first(_.get(chain, 'rpcUrls.default.http'));
+    return first(get(chain, 'rpcUrls.default.http'));
   }
 
-  return _.get(RPC_URLS, chainId);
+  return get(RPC_URLS, chainId);
 };
 
 const connectors = connectorsForWallets(
@@ -83,9 +84,9 @@ const connectors = connectorsForWallets(
 
 const transports = () => {
   const localTransports: { [key: string]: Transport } = {};
-  _.each(chainsList, (chain, chainId) => {
+  each(chainsList, (chain, chainId) => {
     localTransports[chainId as keyof typeof localTransports] = http(
-      getRpcUrl(_.toNumber(chainId)),
+      getRpcUrl(toNumber(chainId)),
     );
   });
 
@@ -93,10 +94,10 @@ const transports = () => {
 };
 
 export const wagmiConfig = createConfig({
-  connectors: _.concat(connectors),
-  chains: _.map(
-    _.keys(chainsList),
-    (c) => chainsList[_.toNumber(c) as keyof typeof chainsList],
+  connectors: concat(connectors, safe()),
+  chains: map(
+    keys(chainsList),
+    (c) => chainsList[toNumber(c) as keyof typeof chainsList],
   ) as unknown as readonly [Chain, ...Chain[]], // TODO any better way to do this?
   transports: transports(),
   ssr: true,
@@ -105,12 +106,12 @@ export const wagmiConfig = createConfig({
 export const chainsMap = (chainId?: number) =>
   chainId
     ? chainsList[chainId as SupportedChains]
-    : (_.first(_.values(chainsList)) as Chain);
+    : (first(values(chainsList)) as Chain);
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&
-  _.get(
+  get(
     chainsMap(chainId),
     'blockExplorers.etherscan.url',
-    _.get(chainsMap(chainId), 'blockExplorers.default.url'),
+    get(chainsMap(chainId), 'blockExplorers.default.url'),
   );

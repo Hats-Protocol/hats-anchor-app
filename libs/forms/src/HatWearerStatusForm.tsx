@@ -11,6 +11,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
@@ -62,9 +63,9 @@ const HatWearerStatusForm = ({
       if (!chainId) return Promise.reject(Error('No chainId'));
       return viemPublicClient(chainId).readContract({
         address: CONFIG.hatsAddress,
-        abi: CONFIG.hatsAbi,
+        abi: HATS_ABI,
         functionName: 'isEligible',
-        args: [wearer, hatId],
+        args: [wearer || '0x', hatId ? BigInt(hatId) : 0n],
       });
     },
     checkResult: (isEligible) => !isEligible,
@@ -86,7 +87,7 @@ const HatWearerStatusForm = ({
     txDescription,
     handlePendingTx,
     waitForSubgraph,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Wearer Status Updated',
       description: txDescription,
     },

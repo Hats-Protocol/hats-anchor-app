@@ -3,14 +3,13 @@ import {
   LEARN_MORE,
   TemplateData,
 } from '@hatsprotocol/constants';
-import _ from 'lodash';
+import { find, get, map } from 'lodash';
 import {
   FeaturedTreeCard,
   IntegrationCard,
   LearnMoreCard,
   MyHats,
 } from 'molecules';
-import { Suspense } from 'react';
 import { DocsLink } from 'types';
 import { Card, LinkButton } from 'ui';
 import { fetchFeaturedTrees, fetchFeaturedTreesData } from 'utils';
@@ -22,7 +21,7 @@ const RootPage = async () => {
 
   return (
     <>
-      <div className='w-full h-full bg-blue-100 fixed opacity-[0.7] z-[-5] mt-[70px]' />
+      <div className='w-full h-full bg-blue-100 fixed opacity-[0.7] z-[-5] mt-[58px] md:mt-[70px]' />
 
       <div className='flex flex-col gap-10 px-5 md:px-20 py-[100px] md:py-[120px] z-2 max-w-[1400px] mx-auto'>
         <MyHats />
@@ -35,14 +34,17 @@ const RootPage = async () => {
                   Explore featured trees
                 </h2>
 
-                <div className='grid grid-cols-3 flex-wrap gap-6 justify-between'>
-                  {_.map(featuredTrees, (tree: TemplateData, i: number) => (
+                <div className='grid grid-cols-1 md:grid-cols-3 flex-wrap gap-6 justify-between'>
+                  {map(featuredTrees, (tree: TemplateData, i: number) => (
                     <FeaturedTreeCard
                       treeData={tree}
-                      hatsAndWearers={_.find(
-                        hatsAndWearers,
-                        (h: { treeId: string }) => Number(h.treeId) === tree.id,
-                      )}
+                      hatsAndWearers={
+                        find(
+                          hatsAndWearers,
+                          (h: { treeId: string }) =>
+                            Number(h.treeId) === tree.id,
+                        ) as any
+                      }
                       key={i}
                     />
                   ))}
@@ -63,10 +65,10 @@ const RootPage = async () => {
                 </h2>
 
                 <div className='flex flex-col md:flex-row gap-6 flex-wrap justify-between'>
-                  {_.map(INTEGRATION_CARDS, (integration) => (
+                  {map(INTEGRATION_CARDS, (integration) => (
                     <IntegrationCard
                       integration={integration}
-                      key={_.get(integration, 'label')}
+                      key={get(integration, 'label')}
                     />
                   ))}
                 </div>
@@ -81,7 +83,7 @@ const RootPage = async () => {
               </h2>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full'>
-                {_.map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
+                {map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
                 ))}
               </div>

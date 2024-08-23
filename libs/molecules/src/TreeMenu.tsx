@@ -124,7 +124,7 @@ const TreeMenu = () => {
               <Button
                 leftIcon={<Icon as={BsToggles} />}
                 isDisabled={editMode || !!treeError}
-                variant='filled'
+                variant={isOpen ? 'filled' : 'whiteFilled'}
                 rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
                 fontWeight='medium'
                 colorScheme={isOpen ? 'blue.500' : '#2D3748'}

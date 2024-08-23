@@ -1,20 +1,25 @@
 'use client';
 
-import { Box, HStack, IconButton, Link, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  HStack,
+  IconButton,
+  Link,
+  Stack,
+  Text,
+  Tooltip,
+} from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useHatForm } from 'contexts';
 import _ from 'lodash';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 import { getHostnameFromURL } from 'utils';
 
-interface AuthoritiesFormItemProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formName: string;
-  index: number;
-  remove: (index: number) => void;
-  setIndex: (index: number) => void;
-  onOpen: () => void;
-}
+const NON_EDIT_AUTHORITIES = [
+  AUTHORITY_TYPES.hsg,
+  AUTHORITY_TYPES.modules,
+  AUTHORITY_TYPES.account,
+];
 
 const AuthoritiesFormItem = ({
   index,
@@ -28,6 +33,7 @@ const AuthoritiesFormItem = ({
   const { gate, type, label, link } = getValues?.(`${formName}.${index}`) ?? {};
   const isGate = type === AUTHORITY_TYPES.gate || type === 'token'; // originally set as 'token'/ gate is more general
   const hostname = getHostnameFromURL(gate);
+  const isNonEditAuthority = NON_EDIT_AUTHORITIES.includes(type);
 
   if (!localForm) return null;
 
@@ -52,27 +58,48 @@ const AuthoritiesFormItem = ({
             </Box>
           )}
         </Stack>
-        <IconButton
-          onClick={() => {
-            onOpen();
-            setIndex(index);
-          }}
-          icon={<FaRegEdit />}
-          aria-label='Edit'
-          variant='ghost'
-          borderColor='blackAlpha.300'
-        />
-        <IconButton
-          onClick={() => remove(index)}
-          icon={<FaRegTrashAlt />}
-          aria-label='Remove'
-          variant='ghost'
-          borderColor='blackAlpha.300'
-          isDisabled={isGate}
-        />
+
+        <Tooltip label={isNonEditAuthority ? 'Cannot edit this authority' : ''}>
+          <IconButton
+            onClick={() => {
+              if (isNonEditAuthority) return;
+              onOpen();
+              setIndex(index);
+            }}
+            icon={<FaRegEdit />}
+            isDisabled={isNonEditAuthority}
+            aria-label='Edit'
+            variant='ghost'
+            color='blackAlpha.900'
+          />
+        </Tooltip>
+
+        <Tooltip
+          label={isNonEditAuthority ? 'Cannot remove this authority' : ''}
+        >
+          <IconButton
+            onClick={() => {
+              if (isNonEditAuthority) return;
+              remove(index);
+            }}
+            icon={<FaRegTrashAlt />}
+            aria-label='Remove'
+            variant='ghost'
+            isDisabled={isGate || isNonEditAuthority}
+            color='blackAlpha.900'
+          />
+        </Tooltip>
       </HStack>
     </Box>
   );
 };
+
+interface AuthoritiesFormItemProps {
+  formName: string;
+  index: number;
+  remove: (index: number) => void;
+  setIndex: (index: number) => void;
+  onOpen: () => void;
+}
 
 export default AuthoritiesFormItem;

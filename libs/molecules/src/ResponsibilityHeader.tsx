@@ -46,23 +46,19 @@ const ResponsibilityHeader = ({
       {localImageUrl ? (
         <Image
           src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
-          boxSize='21px'
-          border='1px solid'
-          borderColor='blackAlpha.300'
+          boxSize={6}
           borderRadius='full'
           alt='authority image'
         />
       ) : (
         <Flex
           borderRadius='full'
-          boxSize='21px'
+          boxSize={6}
           alignItems='center'
           justifyContent='center'
-          bg='gray.200'
-          border='1px solid'
-          borderColor='gray.300'
+          bg='white'
         >
-          <Icon as={BsCheck2Square} boxSize={3} color='gray.500' />
+          <Icon as={BsCheck2Square} boxSize={4} color='gray.500' />
         </Flex>
       )}
       <Box flex={1} minW={0} w='full'>
@@ -96,7 +92,7 @@ const ResponsibilityHeader = ({
               icon={<Icon as={BsBoxArrowUpRight} />}
               variant='ghost'
               aria-label='Responsibility Link'
-              color='blue.500'
+              color='Functional-LinkPrimary'
               size='xs'
             />
           </Tooltip>

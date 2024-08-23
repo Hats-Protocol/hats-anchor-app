@@ -13,6 +13,7 @@ import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import MoreMenu from './MoreMenu';
@@ -42,7 +43,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   const { isMobile } = useMediaStyles();
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });
@@ -83,7 +84,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
       has_changes: hatHasChanges,
     });
     onSave(false);
-    returnToList();
+    returnToList?.();
   };
 
   const handleSave = () => {
@@ -194,6 +195,6 @@ interface TopMenuProps {
   // onSave: (v?: boolean) => void;
   // handleRemoveHat: () => void;
   // handleClearChanges: () => void;
-  returnToList: () => void;
+  returnToList: (() => void) | undefined;
   // isLoading: boolean;
 }

@@ -12,20 +12,26 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { networkImages } from '@hatsprotocol/constants';
+import { NETWORK_IMAGES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useHatDetailsField } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { get } from 'lodash';
 import { useEffect, useState } from 'react';
 import { AppHat } from 'types';
 import { ChakraNextLink } from 'ui';
+import { ipfsUrl } from 'utils';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
-  const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
   const [imageLoaded, setImageLoaded] = useState(false);
-  const image = _.get(hat, 'imageUrl');
   const { isMobile } = useMediaStyles();
+
+  const image = get(hat, 'imageUri')
+    ? ipfsUrl(get(hat, 'imageUri'))
+    : undefined;
+  const hatRawDetails = get(hat, 'detailsMetadata');
+  const hatDetails = hatRawDetails
+    ? get(JSON.parse(hatRawDetails), 'data')
+    : undefined;
 
   useEffect(() => {
     const img = new Image();
@@ -34,10 +40,6 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
     img.onload = () => setImageLoaded(true);
   }, [image]);
 
-  const hatName =
-    _.get(hatDetails, 'type') === '1.0'
-      ? _.get(hatDetails, 'data.name')
-      : _.get(hat, 'details');
   const hatLink = isMobile
     ? `trees/${hat.chainId}/${Number(
         hatIdToTreeId(BigInt(hat.id)),
@@ -67,14 +69,17 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
                 borderRadius={4}
                 border='2px solid'
                 borderColor='gray.600'
-                alt={`${hatName} image`}
+                alt={`${get(hatDetails, 'name', get(hat, 'details'))} image`}
                 onLoad={() => setImageLoaded(true)}
               />
             </Skeleton>
             <Stack maxW='calc(100% - 72px - 16px)'>
-              <Tooltip label={hatName} placement='top'>
+              <Tooltip
+                label={get(hatDetails, 'name', get(hat, 'details'))}
+                placement='top'
+              >
                 <Heading as='h1' size='md' variant='medium' noOfLines={1}>
-                  {hatName}
+                  {get(hatDetails, 'name', get(hat, 'details'))}
                 </Heading>
               </Tooltip>
               <HStack spacing={4}>
@@ -84,7 +89,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
                   bg='blackAlpha.100'
                   borderRadius='md'
                 >
-                  <ChakraImage src={networkImages[hat.chainId || 1]} />
+                  <ChakraImage src={NETWORK_IMAGES[hat.chainId || 1]} />
                 </Flex>
                 <Text size='md' variant='medium' noOfLines={1}>
                   #{Number(hatIdToTreeId(BigInt(hat.id)))}

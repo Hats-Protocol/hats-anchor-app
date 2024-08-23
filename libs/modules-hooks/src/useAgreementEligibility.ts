@@ -3,7 +3,7 @@
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
-import { AppWriteFunction, SupportedChains } from 'types';
+import { ModuleFunction, SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 
@@ -44,7 +44,12 @@ const useAgreementEligibility = ({
 
   const signAndClaim = _.find(
     _.get(moduleDetails, 'writeFunctions'),
-    (fn: AppWriteFunction) => fn.functionName === 'signAgreementAndClaimHat',
+    (fn: ModuleFunction) => fn.functionName === 'signAgreementAndClaimHat',
+  );
+
+  const signFn = _.find(
+    _.get(moduleDetails, 'writeFunctions'),
+    (fn: ModuleFunction) => fn.functionName === 'signAgreement',
   );
 
   const { mutate: callModuleFunction } = useCallModuleFunction({
@@ -55,10 +60,21 @@ const useAgreementEligibility = ({
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
       instance: controllerAddress as Hex,
-      func: signAndClaim as AppWriteFunction,
+      func: signAndClaim as ModuleFunction,
       args: {
         'Claims Hatter': mchAddress,
       },
+      onSuccess: onSuccessfulSign,
+      onDecline,
+    });
+  };
+
+  const handleSign = async () => {
+    callModuleFunction({
+      moduleId: moduleDetails?.implementationAddress,
+      instance: controllerAddress as Hex,
+      func: signFn as ModuleFunction,
+      args: {},
       onSuccess: onSuccessfulSign,
       onDecline,
     });
@@ -69,6 +85,7 @@ const useAgreementEligibility = ({
     isLoading,
     error,
     signAndClaim: handleSignAndClaim,
+    signAgreement: handleSign,
   };
 };
 

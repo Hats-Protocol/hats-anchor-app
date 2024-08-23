@@ -21,6 +21,7 @@ import { useClipboard, useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
@@ -33,7 +34,9 @@ const Header = () => {
   const toast = useToast();
   const { address } = useAccount();
   const { chainId, selectedHat, selectedHatDetails } = useEligibility();
-  const { onCopy } = useClipboard(selectedHat?.id as string);
+  const { onCopy } = useClipboard(selectedHat?.id as string, {
+    toastData: { title: 'Successfully copied hat ID to clipboard' },
+  });
   const { isMobile } = useMediaStyles();
 
   const { name, description } = _.pick(selectedHatDetails, [
@@ -42,7 +45,7 @@ const Header = () => {
   ]);
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const isCurrentWearer = _.includes(_.map(wearer, 'id'), selectedHat?.id);
@@ -185,13 +188,7 @@ const Header = () => {
                   as={HStack}
                   isLoaded={!!selectedHat?.id}
                   cursor={selectedHat ? 'pointer' : 'default'}
-                  onClick={() => {
-                    if (!selectedHat) return;
-                    onCopy();
-                    toast.info({
-                      title: 'Successfully copied hat ID to clipboard',
-                    });
-                  }}
+                  onClick={onCopy}
                 >
                   <Text color='blue.500'>
                     {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}

@@ -15,7 +15,7 @@ const keyIcons: { [key: string]: string } = {
   hats: 'UserPlusIcon',
 };
 
-const processForCommandPalette = (key: string, record: AppHat | AppTree) => {
+const processForCommandPalette = (key: string, record: any) => {
   const { id: recordId, network } = _.pick(record, ['id', 'network']);
   const { id: networkId, name: networkName } = network || {};
 
@@ -74,7 +74,7 @@ export const searchQueryResult = async (search: string | undefined) => {
   const result = await Promise.all(promises);
 
   // sort
-  const allNetworkResults: { trees: AppTree[]; hats: AppHat[] } = {
+  const allNetworkResults: { trees: any[]; hats: AppHat[] } = {
     trees: [],
     hats: [],
   };

@@ -11,14 +11,16 @@ import {
   Image,
   Stack,
   Tooltip,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useWearerDetails } from 'hats-hooks';
+import { useHatStatus, useWearerDetails } from 'hats-hooks';
 import { useClipboard, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
@@ -29,13 +31,14 @@ const Header = () => {
   const { chainId, editMode, treeToDisplay } = useTreeForm();
   const { selectedHat, selectedHatDetails } = useSelectedHat();
 
-  const { onCopy } = useClipboard(selectedHat?.id || '', {
+  const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
     toastData: {
       title: 'Successfully copied hat ID to clipboard',
       status: 'info',
     },
   });
   const { isMobile } = useMediaStyles();
+  const smallFont = useBreakpointValue({ base: true, md: false });
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',
@@ -47,7 +50,7 @@ const Header = () => {
   );
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });
@@ -57,7 +60,13 @@ const Header = () => {
   const mutableStatus = selectedHat?.mutable
     ? MUTABILITY.MUTABLE
     : MUTABILITY.IMMUTABLE;
-  const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
+
+  const { data: hatStatus } = useHatStatus({
+    selectedHat,
+    chainId,
+  });
+  const activeStatus =
+    selectedHat?.status && hatStatus ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   if (!selectedHat) return null;
 
@@ -113,22 +122,28 @@ const Header = () => {
               </Heading>
             </Tooltip>
 
-            <Button
-              size='xs'
-              variant='ghost'
-              colorScheme='blue'
-              onClick={onCopy}
-              rightIcon={
-                <Icon as={CopyHash} color='blue.500' cursor='pointer' />
-              }
-            >
-              #{hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
-            </Button>
+            <Box>
+              <Button
+                size={{ base: 'sm', md: 'md' }}
+                variant='text'
+                colorScheme='Functional-LinkPrimary'
+                onClick={copyHatId}
+                rightIcon={
+                  <Icon
+                    as={CopyHash}
+                    color='Functional-LinkPrimary'
+                    cursor='pointer'
+                  />
+                }
+              >
+                {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
+              </Button>
+            </Box>
           </Flex>
         </HStack>
         {description && (
           <Box opacity={0.6}>
-            <Markdown>{description}</Markdown>
+            <Markdown smallFont={smallFont}>{description}</Markdown>
           </Box>
         )}
       </Stack>

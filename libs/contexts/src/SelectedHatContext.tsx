@@ -69,10 +69,11 @@ export const SelectedHatContextProvider = ({
   const { hatId: hatIdPathParam, treeId, chainId } = getPathParams(pathname);
 
   const hatIdQueryParam = params.get('hatId');
-  const localParam = hatIdPathParam || hatIdQueryParam;
-  const hatId = localParam
-    ? hatIdDecimalToHex(hatIdIpToDecimal(localParam))
-    : undefined; // shouldn't have both at once
+  const hatId =
+    hatIdPathParam ||
+    (hatIdQueryParam
+      ? hatIdDecimalToHex(hatIdIpToDecimal(hatIdQueryParam))
+      : undefined);
 
   const flipped = params.get('flipped');
   const compact = params.get('compact');
@@ -90,7 +91,7 @@ export const SelectedHatContextProvider = ({
   // *********************
   const selectedHat = useMemo(() => {
     return _.find(orgChartTree, { id: hatId });
-  }, [orgChartTree, hatId]);
+  }, [orgChartTree, hatId]) as AppHat | undefined;
   const selectedHatDetails = useMemo(
     () => _.get(selectedHat, 'detailsObject.data'),
     [selectedHat],
@@ -106,7 +107,7 @@ export const SelectedHatContextProvider = ({
   const selectedOnchainHat = useMemo(
     () => _.find(onchainTree, { id: hatId }),
     [onchainTree, hatId],
-  );
+  ) as AppHat | undefined;
   const selectedOnchainHatDetails = useMemo(
     () => _.get(selectedOnchainHat, 'detailsObject.data'),
     [selectedOnchainHat],

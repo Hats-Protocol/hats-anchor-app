@@ -145,15 +145,15 @@ const createNewHatData = async ({
   let localToggle = toggle;
   if (eligibility?.includes('.eth')) {
     localEligibility =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: eligibility,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
   if (toggle?.includes('.eth')) {
     localToggle =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: toggle,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   const admin = getDefaultAdminId(hatId);
@@ -435,9 +435,9 @@ const processEligibilityChangeCallForHat = async ({
 
   if (eligibility.includes('.eth')) {
     localEligibility =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: eligibility,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   if (!localEligibility) return returnData;
@@ -474,9 +474,9 @@ const processToggleChangeCallForHat = async ({
 
   if (toggle.includes('.eth')) {
     localToggle =
-      (await viemPublicClient(1).getEnsAddress({
+      ((await viemPublicClient(1).getEnsAddress({
         name: toggle,
-      })) || undefined;
+      })) as Hex) || undefined;
   }
 
   if (!localToggle) return returnData;

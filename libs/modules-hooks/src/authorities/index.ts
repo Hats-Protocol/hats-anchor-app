@@ -6,29 +6,22 @@ import {
   filter,
   find,
   flatten,
-  has,
+  get,
   includes,
-  isArray,
   map,
   omit,
   pick,
-  toLower,
 } from 'lodash';
-import { ReactNode } from 'react';
 import {
   AppHat,
-  AppWriteFunction,
   Authority,
   HatAuthority,
   ModuleDetails,
-  ModuleDetailsComponent,
+  ModuleFunction,
   ModuleRole,
-  SupportedChains,
 } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
-
-import { MODULE_DETAILS } from '../details';
 
 // TODO convert to ReactNode w/ TW so can hide part on mobile
 /**
@@ -38,23 +31,11 @@ import { MODULE_DETAILS } from '../details';
  * @returns string representing the role for the hat's eligibility or toggle module
  */
 const moduleRoleString = (role: Partial<ModuleRole>, hatInfo: AppHat) => {
-  return `${role?.label || role?.name} for ${
-    hatInfo?.detailsObject?.data.name || hatInfo?.details
-  } (${hatIdDecimalToIp(BigInt(hatInfo?.id))})`;
-};
-
-const getModuleCardDetails = (
-  moduleInfo: ModuleDetails,
-  chainId: SupportedChains | undefined,
-) => {
-  if (has(MODULE_DETAILS, toLower(moduleInfo?.implementationAddress))) {
-    const moduleDetailsFn = MODULE_DETAILS[
-      toLower(moduleInfo?.implementationAddress)
-    ] as ModuleDetailsComponent;
-    if (!moduleDetailsFn || !chainId) return undefined;
-    return moduleDetailsFn(moduleInfo, chainId);
-  }
-  return undefined;
+  return `${role?.label || role?.name} for ${get(
+    hatInfo,
+    'detailsObject.data.name',
+    get(hatInfo, 'details'),
+  )} (${hatIdDecimalToIp(BigInt(hatInfo?.id))})`;
 };
 
 const populateModuleAuthority = ({
@@ -63,21 +44,19 @@ const populateModuleAuthority = ({
   functions,
   moduleInfo,
   label,
-  description,
 }: {
   role: Role;
   hat: AppHat;
-  functions: AppWriteFunction[];
+  functions: ModuleFunction[];
   moduleInfo: ModuleDetails;
   label?: string;
-  description: ReactNode;
 }) => ({
   label: label || moduleRoleString(role, hat),
   link: role?.id,
-  description,
   type: AUTHORITY_TYPES.modules,
   id: role?.id,
-  functions: functions as AppWriteFunction[],
+  functions: functions as ModuleFunction[],
+  moduleInfo,
   instanceAddress: moduleInfo?.id,
   moduleAddress: moduleInfo?.implementationAddress as Hex,
   moduleLabel: `${moduleInfo?.name} (${formatAddress(moduleInfo?.id as Hex)})`,
@@ -106,18 +85,8 @@ const mapModuleAuthority = ({
   if (!matchingRole) return [];
   const matchingFunctions = filter(
     moduleInfo?.writeFunctions,
-    (func: AppWriteFunction) => includes(func.roles, matchingRole?.id),
-  ) as AppWriteFunction[];
-
-  let description: ReactNode = '';
-  const moduleCardDetails = getModuleCardDetails(moduleInfo, hatInfo.chainId);
-  if (moduleCardDetails) {
-    description = moduleCardDetails;
-  } else if (isArray(moduleInfo?.details)) {
-    description = moduleInfo.details.join('\n');
-  } else if (typeof moduleInfo?.details === 'string') {
-    description = moduleInfo.details as string;
-  }
+    (func: ModuleFunction) => includes(func.roles, matchingRole?.id),
+  ) as ModuleFunction[];
 
   // check the passthrough module for which type
   if (moduleInfo.name === 'Passthrough Module') {
@@ -134,14 +103,13 @@ const mapModuleAuthority = ({
           ...func,
           primary: true,
         }),
-      ) as unknown as AppWriteFunction[];
+      ) as unknown as ModuleFunction[];
       authorities.push(
         populateModuleAuthority({
           role: matchingRole,
           hat: hatInfo,
           functions: localFunctions,
           moduleInfo,
-          description,
           label: moduleRoleString({ name: 'Toggle Passthrough' }, hatInfo),
         }),
       );
@@ -155,7 +123,6 @@ const mapModuleAuthority = ({
             functionName: 'setHatWearerStatus',
           }),
           moduleInfo,
-          description,
           label: moduleRoleString({ name: 'Eligibility Passthrough' }, hatInfo),
         }),
       );
@@ -169,7 +136,6 @@ const mapModuleAuthority = ({
     hat: hatInfo,
     functions: matchingFunctions,
     moduleInfo,
-    description,
   });
 };
 

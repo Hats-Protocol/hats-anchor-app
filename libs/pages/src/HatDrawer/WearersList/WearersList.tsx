@@ -27,13 +27,12 @@ import {
 import {
   useHatWearers,
   useWearerDetails,
-  useWearersEligibilityCheck,
+  useWearersEligibilityStatus,
 } from 'hats-hooks';
 import {
   filterWearers,
   isTopHat,
   isWearingAdminHat,
-  maxSupplyText,
   sortWearers,
 } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
@@ -43,7 +42,7 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 // import { FaSearch } from 'react-icons/fa';
 import { ControllerData, HatWearer } from 'types';
-import { commify } from 'utils';
+import { commify, formatScientificWhole } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -76,7 +75,7 @@ const WearersList = () => {
     editMode: false,
   });
   const { data: wearersEligibility, isLoading: wearerEligibilityLoading } =
-    useWearersEligibilityCheck({
+    useWearersEligibilityStatus({
       selectedHat,
       chainId,
       editMode,
@@ -122,7 +121,7 @@ const WearersList = () => {
   const filteredWearers = useMemo(() => {
     const sortedWearers = sortWearers({
       wearers: eligibleWearers,
-      address,
+      address: address as Hex,
     });
     return _.slice(
       filterWearers(searchTerm, sortedWearers),
@@ -133,7 +132,7 @@ const WearersList = () => {
   const loadingWearers = Array(4).fill({});
 
   const { data: wearerDetails } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const currentUserIsAdmin = isWearingAdminHat(
@@ -178,14 +177,14 @@ const WearersList = () => {
               <Tooltip
                 label={
                   maxSupply &&
-                  maxSupplyText(maxSupply) !== _.toString(maxSupply) &&
+                  formatScientificWhole(maxSupply) !== _.toString(maxSupply) &&
                   commify(maxSupply)
                 }
                 placement='left'
                 hasArrow
               >
                 <Text size='sm' color='blackAlpha.500'>
-                  of {maxSupplyText(maxSupply)} max
+                  of {formatScientificWhole(maxSupply)} max
                 </Text>
               </Tooltip>
             </HStack>
@@ -215,7 +214,7 @@ const WearersList = () => {
             !currentUserInList &&
             !currentUserIsIneligible && (
               <WearerRow
-                wearer={currentWearerDetails || { id: address }}
+                wearer={currentWearerDetails || { id: address as Hex }}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
               />

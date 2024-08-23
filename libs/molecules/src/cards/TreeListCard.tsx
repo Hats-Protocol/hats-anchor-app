@@ -12,21 +12,19 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { useHatDetailsField } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { get, size } from 'lodash';
 import dynamic from 'next/dynamic';
 // import { BsPeopleFill } from 'react-icons/bs';
-import { AppHat } from 'types';
+import { AppTree } from 'types';
 import { ChakraNextLink } from 'ui';
-import { removeInactiveHatsAndDescendants } from 'utils';
+import { checkIfIpfs, removeInactiveHatsAndDescendants } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 // TODO migrate Top Hat image to LazyImage
 
-const TreeStats = ({ tree }: { tree: Tree }) => {
+const TreeStats = ({ tree }: { tree: AppTree }) => {
   const activeHats = removeInactiveHatsAndDescendants(tree?.hats);
   // const activeWearers = _.size(_.uniq(_.flatten(_.map(activeHats, 'wearers'))));
 
@@ -35,7 +33,7 @@ const TreeStats = ({ tree }: { tree: Tree }) => {
       <HStack spacing={1} color='blue.700'>
         <Icon as={HatIcon} boxSize={3} />
         <Text size='xs' fontWeight='medium'>
-          {_.size(activeHats)}
+          {size(activeHats)}
         </Text>
       </HStack>
       {/* <HStack spacing={1} color='blue.700'>
@@ -50,27 +48,23 @@ const TreeStats = ({ tree }: { tree: Tree }) => {
 
 const TreeListCard = ({
   tree,
-  topHat,
-  topHatImage,
+  chainId,
 }: {
-  tree: Tree;
-  topHat: AppHat;
-  topHatImage: AppHat | undefined;
+  tree: AppTree;
+  chainId: number;
 }) => {
-  const { data: hatDetails } = useHatDetailsField(_.get(topHat, 'details'));
   const { isMobile } = useMediaStyles();
+  const topHat = get(tree, 'hats[0]');
+  const metadata = get(topHat, 'metadata');
 
-  const hatName =
-    hatDetails?.type === '1.0'
-      ? _.get(hatDetails, 'data.name')
-      : _.get(topHat, 'details');
+  const hatName = get(metadata, 'name', get(topHat, 'details'));
+  const nearestImageRaw = checkIfIpfs(get(topHat, 'nearestImage'));
+  const nearestImage = nearestImageRaw ? nearestImageRaw.imageUrl : undefined;
 
   return (
     <ChakraNextLink
-      href={`/trees/${_.get(tree, 'chainId')}/${treeIdHexToDecimal(
-        _.get(tree, 'id'),
-      )}`}
-      key={`${_.get(tree, 'chainId')}-${_.get(tree, 'id')}`}
+      href={`/trees/${chainId}/${treeIdHexToDecimal(tree?.id)}`}
+      key={`${chainId}-${get(tree, 'id')}`}
     >
       <Card overflow='hidden'>
         <CardBody
@@ -102,9 +96,7 @@ const TreeListCard = ({
               {/* TOP HAT IMAGE */}
               <Box
                 bgImage={
-                  _.get(topHatImage, 'imageUrl')
-                    ? `url('${_.get(topHatImage, 'imageUrl')}')`
-                    : `url('/icon.jpeg')`
+                  nearestImage ? `url(${nearestImage})` : `url('/icon.jpeg')`
                 }
                 bgSize='cover'
                 bgPosition='center'
@@ -138,7 +130,7 @@ const TreeListCard = ({
                     </Heading>
                     <Flex justify='space-between' w='100%'>
                       <Text size='xs'>
-                        #{treeIdHexToDecimal(_.get(tree, 'id'))}
+                        #{treeIdHexToDecimal(get(tree, 'id'))}
                       </Text>
                       <TreeStats tree={tree} />
                     </Flex>
@@ -146,7 +138,7 @@ const TreeListCard = ({
                 ) : (
                   <Stack spacing={1} pt={0}>
                     <Text size='xs'>
-                      #{treeIdHexToDecimal(_.get(tree, 'id'))}
+                      #{treeIdHexToDecimal(get(tree, 'id'))}
                     </Text>
                     <Heading size='sm' noOfLines={2}>
                       {hatName}
@@ -154,7 +146,7 @@ const TreeListCard = ({
                   </Stack>
                 )}
                 {/* TREE STATS */}
-                {!isMobile && <TreeStats tree={tree} />}
+                {/* {!isMobile && <TreeStats tree={tree} />} */}
               </Flex>
             </HStack>
           </Flex>

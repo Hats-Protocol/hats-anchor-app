@@ -11,10 +11,14 @@ import {
   MenuList,
   Text,
 } from '@chakra-ui/react';
-import { networkImages, orderedChains } from '@hatsprotocol/constants';
-import _ from 'lodash';
+import {
+  NETWORK_IMAGES,
+  ORDERED_CHAINS,
+  SHOW_KEY,
+} from '@hatsprotocol/constants';
+import { map } from 'lodash';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { FaFilter } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { chainsMap, getPathParams } from 'utils';
@@ -22,6 +26,10 @@ import { chainsMap, getPathParams } from 'utils';
 const NetworkFilter = () => {
   const pathname = usePathname();
   const { chainId } = getPathParams(pathname);
+  const params = useSearchParams();
+  const showParam = params.get('show');
+
+  const showKey = showParam === SHOW_KEY.all ? '?show=all' : '';
 
   return (
     <Menu isLazy>
@@ -34,16 +42,16 @@ const NetworkFilter = () => {
         p={2}
       >
         <HStack spacing={4}>
-          <Image src={networkImages[chainId]} alt='chain' w={6} h={6} />
+          <Image src={NETWORK_IMAGES[chainId]} alt='chain' w={6} h={6} />
           <Icon as={FaFilter} />
         </HStack>
       </MenuButton>
       <MenuList>
-        {_.map(orderedChains, (localChainId: number) => (
+        {map(ORDERED_CHAINS, (localChainId: number) => (
           <MenuItem
             as={Link}
             key={localChainId}
-            href={`/trees/${localChainId}`}
+            href={`/trees/${localChainId}${showKey}`}
             isDisabled={localChainId === chainId}
             color={localChainId === chainId ? 'blue' : 'black'}
             opacity='1 !important'
@@ -55,7 +63,7 @@ const NetworkFilter = () => {
             <HStack spacing={1}>
               <Image
                 loading='lazy'
-                src={networkImages[localChainId as SupportedChains]}
+                src={NETWORK_IMAGES[localChainId as SupportedChains]}
                 alt='chain'
                 w={6}
                 h={6}

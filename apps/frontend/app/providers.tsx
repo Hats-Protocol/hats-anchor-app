@@ -1,4 +1,7 @@
 'use client';
+import '../public/styles/style.css';
+import '@fontsource-variable/inter';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -52,7 +55,7 @@ const queryClientOptions = {
 const Providers = ({ children }: Props) => {
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
   useEffect(() => {
-    if (INTERCOM_APP_ID) {
+    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
       window.Intercom('boot', { app_id: INTERCOM_APP_ID });
     }
   }, []);

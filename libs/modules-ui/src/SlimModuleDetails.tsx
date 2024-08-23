@@ -25,7 +25,7 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
-import { AppWriteFunction, LinkObject } from 'types';
+import { LinkObject, ModuleFunction } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
@@ -66,7 +66,7 @@ const ModuleDetails = ({ type }: { type: string }) => {
 
   const moduleActions = _.filter(
     _.get(moduleDetails, 'writeFunctions'),
-    (fn: AppWriteFunction) => _.includes(fn.roles, 'public'),
+    (fn: ModuleFunction) => _.includes(fn.roles, 'public'),
   );
 
   const { mutate: callModuleFunction } = useCallModuleFunction({

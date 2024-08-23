@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import { Card, HStack, Icon, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
 import _ from 'lodash';
@@ -43,58 +43,60 @@ const MobileHatCard = ({
       // don't adjust top hat (or hat used throughout the app) width
       w={!maxDepth || hat?.depth === 0 ? '100%' : `calc(100% - ${padding}px)`} // subtract left margin from card width
     >
-      <Card
-        overflow='hidden'
-        boxShadow='md'
-        border='1px solid'
-        borderColor='gray.600'
-        borderRadius={6}
-      >
-        <HStack align='start' position='relative'>
-          <LazyImage
-            src={_.get(hat, 'imageUrl')}
-            alt={`${detailsName} image`}
-            objectFit='cover'
-            bgPosition='center'
-            boxSize='72px'
-            borderRight='1px solid'
-            borderColor='gray.600'
-            borderLeftRadius={5}
-          />
-
-          <Stack gap={1} pt={1} w='70%' overflow='hidden'>
-            <Text size='xs' noOfLines={1} fontWeight='medium'>
-              {hatIdDecimalToIp(BigInt(hat.id))}
-            </Text>
-            <Text size='md' variant='medium' noOfLines={2} lineHeight={5}>
-              {detailsName}
-            </Text>
-          </Stack>
-
-          {isWearing && (
-            <Icon
-              as={HatIcon}
-              // alt='Hat'
-              boxSize={4}
-              color='green'
-              position='absolute'
-              top={2}
-              right={2}
+      <Skeleton isLoaded={!!hat.details} w='full' h='100%'>
+        <Card
+          overflow='hidden'
+          boxShadow='md'
+          border='1px solid'
+          borderColor='gray.600'
+          borderRadius={6}
+        >
+          <HStack align='start' position='relative'>
+            <LazyImage
+              src={_.get(hat, 'imageUrl')}
+              alt={`${detailsName} image`}
+              objectFit='cover'
+              bgPosition='center'
+              boxSize='72px'
+              borderRight='1px solid'
+              borderColor='gray.600'
+              borderLeftRadius={5}
             />
-          )}
-        </HStack>
-        {isWearing && (
-          <HStack
-            borderTop='1px solid'
-            borderColor='gray.600'
-            p={1}
-            bg='green.50'
-          >
-            <Icon as={BsPersonBadge} w={4} h={4} />
-            <Text>{ensName || 'You are wearing this hat'}</Text>
+
+            <Stack gap={1} pt={1} w='70%' overflow='hidden'>
+              <Text size='xs' noOfLines={1} fontWeight='medium'>
+                {hatIdDecimalToIp(BigInt(hat.id))}
+              </Text>
+              <Text size='md' variant='medium' noOfLines={2} lineHeight={5}>
+                {detailsName}
+              </Text>
+            </Stack>
+
+            {isWearing && (
+              <Icon
+                as={HatIcon}
+                // alt='Hat'
+                boxSize={4}
+                color='green'
+                position='absolute'
+                top={2}
+                right={2}
+              />
+            )}
           </HStack>
-        )}
-      </Card>
+          {isWearing && (
+            <HStack
+              borderTop='1px solid'
+              borderColor='gray.600'
+              p={1}
+              bg='green.50'
+            >
+              <Icon as={BsPersonBadge} w={4} h={4} />
+              <Text>{ensName || 'You are wearing this hat'}</Text>
+            </HStack>
+          )}
+        </Card>
+      </Skeleton>
     </ChakraNextLink>
   );
 };

@@ -11,7 +11,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Modal, useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { ImportTreeForm } from 'forms';
@@ -178,7 +178,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           const handleHatClick = () => {
             posthog.capture('Opened Hat Drawer', {
               chain_id: chainId,
-              hat_id: hatIdDecimalToIp(hatIdHexToDecimal(hatId)),
+              hat_id: hatId,
               hat_name: displayName,
               draft,
               edit_mode: editMode,
@@ -201,8 +201,8 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 w='full'
                 justifyContent='space-between'
                 h={10}
-                alignItems='center'
                 variant='ghost'
+                alignItems='center'
                 borderRadius={0}
                 onClick={handleHatClick}
               >

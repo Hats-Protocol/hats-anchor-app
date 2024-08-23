@@ -1,0 +1,51 @@
+{
+  "name": "treasury",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/treasury",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/treasury"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/treasury"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "treasury:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "treasury:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "treasury:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "treasury:build:production"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}

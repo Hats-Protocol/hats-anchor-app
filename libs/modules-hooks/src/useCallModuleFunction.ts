@@ -2,9 +2,9 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import _ from 'lodash';
+import { get, map } from 'lodash';
 import { useCallback } from 'react';
-import { AppWriteFunction, SupportedChains, UseCustomToastReturn } from 'types';
+import { ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
 import {
   createHatsModulesClient,
   invalidateAfterTransaction,
@@ -15,6 +15,15 @@ import { useAccount } from 'wagmi';
 
 // TODO update to use `usePollSubgraph`
 
+interface CallModuleFunction {
+  moduleId?: string;
+  instance?: Hex;
+  func?: ModuleFunction;
+  args: any; // unknown[];
+  onSuccess?: () => void;
+  onDecline?: () => void;
+}
+
 const useCallModuleFunction = ({
   chainId,
 }: {
@@ -23,7 +32,7 @@ const useCallModuleFunction = ({
   const { address } = useAccount();
   const toast: UseCustomToastReturn = useToast();
 
-  const callFunction = useCallback(
+  const callModuleFunction = useCallback(
     async ({
       moduleId,
       instance,
@@ -31,21 +40,14 @@ const useCallModuleFunction = ({
       args,
       onSuccess,
       onDecline,
-    }: {
-      moduleId?: string;
-      instance?: Hex;
-      func?: AppWriteFunction;
-      args: any;
-      onSuccess?: () => void;
-      onDecline?: () => void;
-    }) => {
+    }: CallModuleFunction) => {
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
 
       const moduleClient = await createHatsModulesClient(chainId);
       if (!moduleClient) throw new Error('Failed to create module client');
 
-      const preparedArgs = _.map(_.get(func, 'args'), (arg: any) => {
+      const preparedArgs = map(get(func, 'args'), (arg: any) => {
         // strip apostrophes from arg names (react-hook-form, appears to automatically do this)
         const argName = arg.name.replace(/'/g, '');
         const value =
@@ -80,20 +82,20 @@ const useCallModuleFunction = ({
         }
 
         if (!result) onDecline?.();
-      } catch (error) {
+      } catch (error: unknown) {
         const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.log(err);
         toast.error({
           title: 'Transaction failed',
           description: err.message,
         });
-        // eslint-disable-next-line no-console
-        console.log(error);
       }
     },
     [address, chainId, toast],
   );
 
-  return useMutation({ mutationFn: callFunction });
+  return useMutation({ mutationFn: callModuleFunction });
 };
 
 export default useCallModuleFunction;

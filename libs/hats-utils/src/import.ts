@@ -25,7 +25,7 @@ const compareHatObjects = (hatA: any, hatB: any): any => {
       if (!value) {
         return;
       }
-      if (!_.isEqual(String(value), String(hatB[key]))) {
+      if (!_.isEqual(String(value), String(hatB[key])) && value !== '#') {
         diffHat.imageUrl = hatA.imageUrl;
       }
       return;

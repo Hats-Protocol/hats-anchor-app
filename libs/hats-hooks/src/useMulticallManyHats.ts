@@ -1,10 +1,11 @@
 'use client';
 
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { compact, filter, first, flatten, get, includes, isEmpty, isEqual, keys, map, size, sortBy } from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import {
   AppHat,
@@ -27,7 +28,6 @@ import {
   useAccount,
   useChainId,
   useWriteContract,
-  // useSimulateContract,
 } from 'wagmi';
 
 import useAdminOfHats from './useAdminOfHats';
@@ -41,7 +41,6 @@ const useMulticallManyHats = ({
   chainId,
   handlePendingTx,
 }: UseMulticallManyHatsProps) => {
-  const [calls, setCalls] = useState<unknown[]>();
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
   const [detailsToPin, setDetailsToPin] = useState<HatDetails[]>();
@@ -50,23 +49,23 @@ const useMulticallManyHats = ({
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const hatIds = _.filter(
-    _.map(storedData, 'id'),
+  const hatIds = filter(
+    map(storedData, 'id'),
     (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
   useEffect(() => {
     const prepareMulticallData = async () => {
-      const onlyOnchainHats = _.filter(treeToDisplay, (hat: AppHat) =>
-        _.includes(_.map(onchainHats, 'id'), hat.id),
+      const onlyOnchainHats = filter(treeToDisplay, (hat: AppHat) =>
+        includes(map(onchainHats, 'id'), hat.id),
       );
 
-      const deployableHatChanges = _.filter(
+      const deployableHatChanges = filter(
         storedData,
-        (hat: Partial<FormData>) => _.includes(adminHatIds, hat.id),
+        (hat: Partial<FormData>) => includes(adminHatIds, hat.id),
       );
-      const allCallsPromises = _.map(
+      const allCallsPromises = map(
         deployableHatChanges,
         (hat: Partial<FormData>) =>
           processHatForCalls(hat, onlyOnchainHats, chainId),
@@ -74,10 +73,8 @@ const useMulticallManyHats = ({
       const allCalls = await Promise.all(allCallsPromises);
       setAllCallsData(allCalls as HatsCalls[]);
 
-      const localCalls = _.flatten(_.map(allCalls, 'calls'));
-      const localProposedChanges = _.map(allCalls, 'hatChanges');
-      const localDetailsToPin = _.map(allCalls, 'detailsToPin');
-      setCalls(localCalls);
+      const localProposedChanges = map(allCalls, 'hatChanges');
+      const localDetailsToPin = map(allCalls, 'detailsToPin');
       setProposedChanges(localProposedChanges);
       setDetailsToPin(localDetailsToPin);
     };
@@ -97,20 +94,29 @@ const useMulticallManyHats = ({
   const { writeContractAsync } = useWriteContract();
 
   const multicallTx = () => {
+    // eslint-disable-next-line no-console
+    console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
     if (
-      _.isEmpty(calls) ||
+      isEmpty(allCallsData) ||
       !chainId ||
       chainId !== currentChain ||
       !isAdminOfAnyHatWithChanges
-    )
+    ) {
       return undefined;
+    }
+
+    // important that siblings are sent in order
+    const sortedCalls = sortBy(allCallsData, 'hatChanges.id');
+    const onlyCalls = flatten(map(sortedCalls, (localCalls) => {
+      return map(get(localCalls, 'calls'), 'callData')
+    })) as Hex[];
 
     return writeContractAsync({
       address: CONFIG.hatsAddress,
       chainId: Number(chainId),
-      abi: CONFIG.hatsAbi,
+      abi: HATS_ABI,
       functionName: 'multicall',
-      args: [_.map(calls, 'callData')],
+      args: [onlyCalls],
     })
       .then((data) => {
         toast.info({
@@ -122,7 +128,7 @@ const useMulticallManyHats = ({
           hash: data as Hex,
           txChainId: chainId,
           txDescription,
-          toastData: {
+          successToastData: {
             title: 'Transaction successful',
             description: txDescription,
             duration: 7000,
@@ -140,6 +146,8 @@ const useMulticallManyHats = ({
             description: 'Please accept the transaction in your wallet',
           });
         } else {
+          // eslint-disable-next-line no-console
+          console.log(error);
           toast.error({
             title: 'Error occurred!',
             description: 'An error occurred while processing the transaction.',
@@ -153,9 +161,9 @@ const useMulticallManyHats = ({
       return undefined;
     }
 
-    return _.first(
-      _.filter(
-        _.keys(proposedChanges[0]),
+    return first(
+      filter(
+        keys(proposedChanges[0]),
         (k: string) => k !== 'id' && k !== 'imageUrl',
       ),
     ) as keyof Hat | undefined;
@@ -169,12 +177,12 @@ const useMulticallManyHats = ({
       ? proposedChanges[0][firstProposedChangeKey]
       : undefined;
 
-    return _.isEqual(currentPropertyValue, expectedPropertyValue);
+    return isEqual(currentPropertyValue, expectedPropertyValue);
   };
 
   const waitForSubgraphUpdate = useWaitForSubgraph({
     fetchHelper: () =>
-      fetchHatDetails(_.get(_.first(storedData), 'id'), chainId),
+      fetchHatDetails(get(first(storedData), 'id'), chainId),
     checkResult,
     sendToast: true,
   });
@@ -191,9 +199,9 @@ const useMulticallManyHats = ({
     queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
     queryClient.invalidateQueries({ queryKey: ['imageURIs'] });
 
-    const newStoredData = _.filter(
+    const newStoredData = filter(
       storedData,
-      (hat: Partial<FormData>) => !_.includes(adminHatIds, hat.id),
+      (hat: Partial<FormData>) => !includes(adminHatIds, hat.id),
     );
 
     setStoredData?.(newStoredData);
@@ -202,14 +210,14 @@ const useMulticallManyHats = ({
   const txDescription = summarizeActions(allCallsData as HatsCalls[]);
 
   const handleWrite = async () => {
-    if (!_.isEmpty(detailsToPin)) {
+    if (!isEmpty(detailsToPin)) {
       // TODO check to see if any objects are already pinned
 
-      const token = await fetchToken(_.size(detailsToPin));
+      const token = await fetchToken(size(detailsToPin));
       // TODO [low] handle no token/empty string
 
-      const promises = _.map(
-        _.compact(detailsToPin),
+      const promises = map(
+        compact(detailsToPin),
         ({ chainId: cId, hatId, details }: HatPinDetails, index: number) => {
           return setTimeout(() => {
             return handleDetailsPin({ chainId: cId, hatId, details, token });

@@ -12,10 +12,15 @@ import {
 } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { useCid, useDebounce, usePinImageIpfs } from 'hooks';
-import _ from 'lodash';
+import {
+  useCid,
+  useDebounce,
+  usePinImageIpfs,
+  useWaitForSubgraph,
+} from 'hooks';
+import _, { filter, isEmpty, toLower } from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
@@ -23,7 +28,7 @@ import { FaCheck } from 'react-icons/fa';
 import { prettyIdToIp, toTreeId } from 'shared';
 import { ImageFile } from 'types';
 import { DropZone } from 'ui';
-import { fetchToken, pinJson } from 'utils';
+import { fetchHatDetails, fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
@@ -39,6 +44,7 @@ const HatLinkRequestApproveForm = ({
   newAdmin: string;
 }) => {
   const currentNetworkId = useChainId();
+  const { handlePendingTx } = useOverlay();
   const { selectedHat } = useSelectedHat();
   const { chainId } = useTreeForm();
 
@@ -119,6 +125,14 @@ const HatLinkRequestApproveForm = ({
     chainId: 1,
   });
 
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => fetchHatDetails(topHatDomain, chainId),
+    checkResult: (hatDetails) =>
+      !isEmpty(
+        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(newAdmin)),
+      ),
+  });
+
   const eligibilityAddress =
     (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;
   const toggleAddress = (toggleResolvedAddress ?? toggle) || FALLBACK_ADDRESS;
@@ -138,12 +152,14 @@ const HatLinkRequestApproveForm = ({
         : imageUrl,
     ],
     chainId,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Link Request Approved!',
       description: `Successfully linked top hat ${BigInt(
         topHatDomain,
       ).toString()} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
+    handlePendingTx,
+    waitForSubgraph,
     queryKeys: [
       ['hatDetails', { id: newAdmin, chainId }],
       ['hatDetails', { id: topHatDomain, chainId }],

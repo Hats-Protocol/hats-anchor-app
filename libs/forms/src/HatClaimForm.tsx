@@ -37,7 +37,7 @@ const HatClaimForForm = () => {
   const { claimHatFor, canClaimForAccount, isLoading } = useHatClaimFor({
     selectedHat,
     chainId,
-    wearer: resolvedAddress || (address as Hex),
+    wearer: (resolvedAddress as Hex) || (address as Hex),
   });
 
   return (

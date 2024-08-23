@@ -6,7 +6,10 @@ import { SupportedChains } from 'types';
 import { viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 
-const fetchSafeDetails = async (safeAddress: Hex, chainId: SupportedChains) => {
+const fetchSafeDetails = async (
+  safeAddress: Hex,
+  chainId: SupportedChains,
+): Promise<Hex[]> => {
   // COULD USE SAFE SDK/API, BUT PREFERRING CONTRACT READS HERE
   // const response = await fetch(
   //   `https://safe-transaction.mainnet.gnosis.io/api/v1/safes/${safeAddress}/`,
@@ -16,13 +19,13 @@ const fetchSafeDetails = async (safeAddress: Hex, chainId: SupportedChains) => {
 
   const client = viemPublicClient(chainId);
 
-  const result = client.readContract({
+  const result = await client.readContract({
     address: safeAddress,
     abi: SAFE_ABI,
     functionName: 'getOwners',
   });
 
-  return result;
+  return Promise.resolve(result as Hex[]);
 };
 
 const useSafeDetails = ({

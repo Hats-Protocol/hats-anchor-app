@@ -21,6 +21,7 @@ export const fetchFeaturedTreesData = async ({
       return fetchTreesByIdMesh(_.map(trees, 'id'), chainId);
     }
 
+    // TODO combine using id_in
     return fetchTreeDetailsMesh(_.first(trees).id, chainId);
   });
 

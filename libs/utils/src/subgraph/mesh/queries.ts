@@ -23,11 +23,13 @@ export function getTreeQuery(chaindId: number): string {
           status
           createdAt
           details
+          detailsMetadata
           maxSupply
           eligibility
           toggle
           mutable
           imageUri
+          nearestImage
           levelAtLocalTree
           claimableBy {
             id
@@ -149,14 +151,13 @@ export function getTreesPaginatedQuery(chaindId: number): string {
     query getPaginatedTrees($skip: Int!, $first: Int!) {
       ${networkPrefix}_trees(skip: $skip, first: $first) {
         id
-        hats {
+        hats(first: 1) {
           id
           details
           imageUri
+          nearestImage
+          detailsMetadata
           prettyId
-          wearers(first: 5) {
-            id
-          }
           admin {
             id
             prettyId
@@ -226,6 +227,7 @@ export function getHatDetailsQuery(chainId: number): string {
         toggle
         mutable
         imageUri
+        nearestImage
         levelAtLocalTree
         claimableBy {
           id
@@ -320,6 +322,7 @@ export function getWearerDetailsQuery(chainId: number): string {
           status
           createdAt
           details
+          detailsMetadata
           maxSupply
           eligibility
           toggle
@@ -403,6 +406,52 @@ export function getWearerDetailsQuery(chainId: number): string {
             } 
           }
         }
+      }
+    }
+  `;
+}
+
+export function getWearerTreesQuery(chainId: number): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  return gql`
+    query getWearerTrees($id: ID!) {
+      ${networkPrefix}_wearer(id: $id) {
+        id
+        currentHats {
+          id
+          tree {
+            id
+            hats(first: 1) {
+              id
+              prettyId
+              status
+              createdAt
+              details
+              detailsMetadata
+              maxSupply
+              eligibility
+              toggle
+              mutable
+              imageUri
+              nearestImage
+              levelAtLocalTree
+              claimableBy {
+                id
+              }
+              claimableForBy {
+                id
+              }
+              currentSupply
+              wearers {
+                id
+              }
+              admin {
+                id
+              }
+            }
+          }
+        }
+      
       }
     }
   `;

@@ -8,7 +8,7 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import _ from 'lodash';
+import { find, get, keys, pick, startsWith, toLower, toString, trim } from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
@@ -23,12 +23,13 @@ export const calculateCid = async (data: object): Promise<string> => {
   return `ipfs://${localCid.toString()}`;
 };
 
-export const ipfsUrl = (hash: string | undefined) => {
+export const ipfsUrl = (hash: string | undefined, publicGateway?: boolean) => {
   let localHash = hash;
-  if (_.startsWith(localHash, 'ipfs://')) {
+  if (startsWith(localHash, 'ipfs://')) {
     localHash = localHash?.slice(7);
   }
   if (!localHash) return '#';
+  if (publicGateway) return `https://ipfs.io/ipfs/${localHash}`;
   return `${GATEWAY_URL}${localHash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
 
@@ -61,7 +62,7 @@ export const pinJson = async (
 
   const res = await axios(config);
 
-  return _.get(res, 'data.IpfsHash');
+  return get(res, 'data.IpfsHash');
 };
 
 export const pinImage = async ({
@@ -124,7 +125,7 @@ export const handleDetailsPin = async ({
   details,
   token,
 }: handleDetailsPinProps) => {
-  const detailsName = `details_${_.toString(chainId)}_${hatIdDecimalToIp(
+  const detailsName = `details_${toString(chainId)}_${hatIdDecimalToIp(
     BigInt(hatId),
   )}`;
 
@@ -152,7 +153,7 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   return axios
     .get(url, { timeout: 5000 })
     .then((res) =>
-      Promise.resolve({ details: detailsField, data: _.get(res, 'data') }),
+      Promise.resolve({ details: detailsField, data: get(res, 'data') }),
     )
     .catch((err) => {
       // eslint-disable-next-line no-console
@@ -188,7 +189,7 @@ export const fetchIpfs = async (value: string | undefined) => {
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
   const res = await axios.get(url, { timeout: 5000 });
-  return Promise.resolve({ details: hash, data: _.get(res, 'data') });
+  return Promise.resolve({ details: hash, data: get(res, 'data') });
 };
 
 export const authorityImageHandler = ({
@@ -197,7 +198,7 @@ export const authorityImageHandler = ({
   editingItem,
   currentImageUrl,
 }: AuthorityImageHandlerProps) => {
-  const { type, imageUrl, id } = _.pick(authority, ['type', 'imageUrl', 'id']);
+  const { type, imageUrl, id } = pick(authority, ['type', 'imageUrl', 'id']);
 
   if (!authority) return checkIfIpfs('');
 
@@ -218,12 +219,12 @@ export const authorityImageHandler = ({
   }
 
   // HANDLE GENERIC PLATFORM MATCH
-  const matchingPlatform = _.find(
-    _.keys(AUTHORITY_PLATFORMS),
+  const matchingPlatform = find(
+    keys(AUTHORITY_PLATFORMS),
     (k: string) =>
-      authority.gate?.includes(_.toLower(k)) ||
-      authority.link?.includes(_.toLower(k)) ||
-      _.toLower(authority.label)?.includes(_.toLower(k)),
+      authority.gate?.includes(toLower(k)) ||
+      authority.link?.includes(toLower(k)) ||
+      toLower(authority.label)?.includes(toLower(k)),
   );
   const matchingPlatformInfo = AUTHORITY_PLATFORMS[matchingPlatform as string];
   if (matchingPlatformInfo) {
@@ -238,7 +239,7 @@ export const authorityImageHandler = ({
   if (authority.link?.includes('docs.google')) {
     return {
       // doesn't recognize nested fetch
-      icon: _.get(AUTHORITY_PLATFORMS, 'docs.icon') as unknown as ReactNode,
+      icon: get(AUTHORITY_PLATFORMS, 'docs.icon') as unknown as ReactNode,
       isIpfs: false,
       imageUrl: '',
     };
@@ -252,13 +253,15 @@ export const authorityImageHandler = ({
   return checkIfIpfs(imageUrl);
 };
 
-const checkIfIpfs = (url: string | undefined) => {
-  if (!url || typeof url !== 'string')
+export const checkIfIpfs = (url: string | undefined) => {
+  if (!url || typeof url !== 'string' || url === '-')
     return { isIpfs: false, imageUrl: '', icon: undefined };
 
+  const isIpfs = url.startsWith('ipfs://');
+
   return {
-    isIpfs: url.startsWith('ipfs://'),
-    imageUrl: url,
+    isIpfs,
+    imageUrl: isIpfs ? ipfsUrl(url) : trim(url),
     icon: undefined,
   };
 };

@@ -33,9 +33,6 @@ const fetchModulesData = async ({
     } as ModuleDetails;
   }) as unknown as ModuleDetails[];
 
-  // append curation data
-  console.log(mappedModules);
-
   // thinks it's a true[]
   return _.compact(mappedModules);
 };

@@ -1,8 +1,8 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { format } from 'date-fns';
-import _ from 'lodash';
-import { Hex } from 'viem';
+import { eq, findIndex, map, round, toLower, toNumber, toString } from 'lodash';
+import { formatUnits, Hex } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
@@ -11,11 +11,14 @@ export const formatAddress = (address: string | null | undefined) =>
 
 export const isSameAddress = (a?: string, b?: string) => {
   if (!a || !b) return false;
-  return _.eq(_.toLower(a), _.toLower(b));
+  return eq(toLower(a), toLower(b));
 };
 
 const dateFormatter = (date: Date | number) =>
   format(date, 'yyyy-MM-dd HH:mm:ss');
+
+export const shortDateFormatter = (date: Date | number) =>
+  format(date, 'yyyy-MM-dd');
 
 const offsetString = (date: Date) => {
   const utcOffset = -date.getTimezoneOffset() / 60;
@@ -88,7 +91,7 @@ export function formatFunctionName(functionName: string): string {
 }
 
 export function commify(value: number | string) {
-  const match = _.toString(value).match(/^(-?)([0-9]*)(\.?)([0-9]*)$/);
+  const match = toString(value).match(/^(-?)([0-9]*)(\.?)([0-9]*)$/);
   if (!match || (!match[2] && !match[4])) {
     throw new Error(`bad formatted number: ${JSON.stringify(value)}`);
   }
@@ -109,3 +112,89 @@ export function getHostnameFromURL(urlString?: string) {
     return '';
   }
 }
+
+export const formatScientificWhole = (amount: number): string => {
+  if (toNumber(amount) > 999) {
+    const rounds = [1_000_000_000, 1_000_000, 1_000];
+    const formatString = [`e9`, `e6`, `k`];
+    const amountRounded = map(rounds, (r: number) =>
+      round(toNumber(amount) / r, 0),
+    );
+    const index = findIndex(amountRounded, (v: number) => v > 0);
+
+    return `${amountRounded[index]}${formatString[index]}`;
+  }
+  return toString(amount);
+};
+
+export const formatRound = ({
+  value,
+  rounded = 2,
+  startScientific = 7,
+  dropDecimals = false,
+}: {
+  value: string | undefined;
+  rounded?: number;
+  startScientific?: number;
+  dropDecimals?: boolean;
+}) => {
+  if (!value) return '-';
+  const [whole, fraction] = value.split('.');
+  const roundedFraction = fraction ? fraction.slice(0, rounded) : undefined;
+
+  const scientificWhole = formatScientificWhole(toNumber(whole));
+  const formattedWhole = commify(whole);
+
+  if (!roundedFraction || roundedFraction === '00' || dropDecimals) {
+    if (whole.length > startScientific) return scientificWhole;
+    return formattedWhole;
+  }
+
+  if (whole.length > startScientific) {
+    return `${scientificWhole}.${roundedFraction}`;
+  }
+
+  return `${formattedWhole}.${roundedFraction}`;
+};
+
+export const formatRoundedDecimals = ({
+  value,
+  decimals = 18,
+  rounded = 2,
+}: {
+  value: bigint | undefined;
+  decimals?: number;
+  rounded?: number;
+}): string => {
+  if (!value || !decimals) return '-';
+  const formattedValue = formatUnits(value, decimals);
+  return formatRound({ value: formattedValue, rounded });
+};
+
+export const formatBalanceValue = ({
+  price,
+  balance,
+  decimals,
+  rounded,
+  startScientific,
+  dropDecimals,
+}: {
+  price: number;
+  balance: bigint;
+  decimals: number;
+  rounded?: number;
+  startScientific?: number;
+  dropDecimals?: boolean;
+}): string | null => {
+  if (isNaN(toNumber(price)) || !balance || !decimals) return null;
+  const balanceInUsd =
+    toNumber(formatUnits(balance, decimals)) * toNumber(price);
+  if (!balanceInUsd) return null;
+
+  return formatRound({
+    value: toString(balanceInUsd),
+    rounded,
+    startScientific,
+    dropDecimals,
+  });
+};

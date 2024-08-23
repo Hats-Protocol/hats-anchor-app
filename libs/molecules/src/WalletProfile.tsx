@@ -7,20 +7,21 @@ import {
   HStack,
   Icon,
   Image,
+  Skeleton,
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { networkImages } from '@hatsprotocol/constants';
+import { NETWORK_IMAGES } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
-import _ from 'lodash';
+import { isEmpty, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { ChakraNextLink, OblongAvatar } from 'ui';
-import { chainsMap, formatAddress } from 'utils';
+import { chainsMap, formatAddress, formatRoundedDecimals } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
@@ -69,9 +70,16 @@ const WalletProfile = ({
         <Stack>
           <Heading size='xl'>{name}</Heading>
           <HStack gap={4}>
-            <Text size='sm'>
-              {_.toNumber(balance?.formatted).toFixed(2)} {balance?.symbol}
-            </Text>
+            <Skeleton isLoaded={!!balance?.value}>
+              <Text size='sm'>
+                {formatRoundedDecimals({
+                  value: balance?.value,
+                  decimals: balance?.decimals || 18,
+                  rounded: 2,
+                })}{' '}
+                {balance?.symbol}
+              </Text>
+            </Skeleton>
             <Button
               size='xs'
               variant='ghost'
@@ -88,7 +96,7 @@ const WalletProfile = ({
         <Button w='full' variant='outline' onClick={toggleNetworkModal}>
           <HStack>
             <Image
-              src={networkImages[chainId as SupportedChains]}
+              src={NETWORK_IMAGES[chainId as SupportedChains]}
               boxSize={5}
             />
             <Text>{chainsMap(chainId)?.name}</Text>
@@ -107,7 +115,7 @@ const WalletProfile = ({
           </Button>
         </ChakraNextLink>
       </Flex>
-      {!_.isEmpty(transactions) && (
+      {!isEmpty(transactions) && (
         <Stack>
           <Heading size='md'>Transaction History</Heading>
           <TransactionHistory
@@ -115,7 +123,7 @@ const WalletProfile = ({
             transactions={transactions || []}
             hideHash
           />
-          {_.size(transactions) > 2 && (
+          {size(transactions) > 2 && (
             <Flex>
               <Button
                 variant='ghost'

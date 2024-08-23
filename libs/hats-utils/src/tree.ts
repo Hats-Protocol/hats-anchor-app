@@ -11,11 +11,10 @@ import {
   HatWithDepth,
   SupportedChains,
 } from 'types';
-import { formatAddress } from 'utils';
+import { formatAddress, formatScientificWhole } from 'utils';
 import { Hex } from 'viem';
 
 import { getTreeId } from './hats';
-import { maxSupplyText } from './wearers';
 
 type OrgChartTypes =
   | 'contract' // has bytecode and we get name back from etherscan
@@ -50,21 +49,21 @@ const handleOrgChartWearers = (
     'maxSupply',
     'currentSupply',
   ]);
-  const localMaxSupplyText = maxSupplyText(_.toNumber(maxSupply) || 1);
+  const maxSupplyText = formatScientificWhole(_.toNumber(maxSupply) || 1);
 
   // INITIALIZE WITH NO WEARERS
   let bgColor = ORG_CHART_COLORS.noWearers;
   const wearer = _.first(wearers);
   const extendedWearer = _.find(orgChartWearers, { id: wearer?.id });
   let content = '0 Wearers';
-  let accent = `of ${localMaxSupplyText}`;
+  let accent = `of ${maxSupplyText}`;
   let icon = ORG_CHART_ICONS.noWearer;
 
   // HANDLE HATS WITH MANY WEARERS. GROUPS (0 SUPPLY) ARE HANDLED IN THE ORG CHART DIRECTLY
   if (_.toNumber(currentSupply) > 1) {
     bgColor = ORG_CHART_COLORS.many;
     content = `${currentSupply} Wearers`;
-    accent = `of ${localMaxSupplyText}`;
+    accent = `of ${maxSupplyText}`;
     icon = ORG_CHART_ICONS.wearer; // ORG_CHART_ICONS.group;
   }
 
@@ -74,7 +73,7 @@ const handleOrgChartWearers = (
       !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
         ? extendedWearer?.ensName
         : formatAddress(_.get(wearer, 'id'));
-    accent = `1 of ${localMaxSupplyText}`;
+    accent = `1 of ${maxSupplyText}`;
     icon = ORG_CHART_ICONS.wearer;
     if (extendedWearer?.isContract) {
       bgColor = ORG_CHART_COLORS.contract;

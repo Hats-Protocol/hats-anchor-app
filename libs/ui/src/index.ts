@@ -5,6 +5,7 @@ export { default as DropZone } from './DropZone';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as ErrorPage } from './ErrorPage';
 export { default as FullWidthStack } from './FullWidthStack';
+export { default as HatDeco } from './HatDeco';
 export { default as IconHandler } from './IconHandler';
 export { default as LazyImage } from './LazyImage';
 export * from './lib';

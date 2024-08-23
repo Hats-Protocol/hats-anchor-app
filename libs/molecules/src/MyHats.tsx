@@ -12,16 +12,17 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { CONFIG, orderedChains } from '@hatsprotocol/constants';
+import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
-import { useImageURIs, useMediaStyles } from 'hooks';
-import _ from 'lodash';
-import { ReactNode } from 'react';
+import { useMediaStyles } from 'hooks';
+import { compact, filter, indexOf, isEmpty, map, size, sortBy } from 'lodash';
+import { ReactNode, useMemo } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat } from 'types';
 import { ChakraNextLink } from 'ui';
 import { formatAddress } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
 
 import { DashboardHatCard } from './cards';
@@ -86,24 +87,22 @@ const MyHats = () => {
 
   const { data: currentHats, isLoading: wearerDetailsLoading } =
     useWearerDetails({
-      wearerAddress: currentUser,
+      wearerAddress: currentUser as Hex,
       chainId: 'all',
     });
 
-  const sortedHats = _.sortBy(_.compact(currentHats), (hat: AppHat) => {
-    return _.indexOf(orderedChains, hat?.chainId);
-  });
-  const activeHats = _.filter(sortedHats, ['status', true]);
-
-  const { data: currentHatsWithImagesData, isLoading: imagesLoading } =
-    useImageURIs({
-      hats: activeHats
-        ? activeHats.splice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
-        : [],
+  const sortedActiveHats = useMemo(() => {
+    const sortedHats = sortBy(compact(currentHats), (hat: AppHat) => {
+      return indexOf(ORDERED_CHAINS, hat?.chainId);
     });
-  const overrideEmptyCurrentHats = _.isEmpty(currentHatsWithImagesData)
-    ? Array(isMobile ? 4 : 8).fill({ id: '123' })
-    : currentHatsWithImagesData;
+    const filtered = filter(sortedHats, { status: true });
+    const sliced = filtered.slice(
+      0,
+      isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW,
+    );
+
+    return sliced;
+  }, [currentHats, isMobile]);
 
   const { data: ensName } = useEnsName({ address: currentUser, chainId: 1 });
 
@@ -121,11 +120,8 @@ const MyHats = () => {
     );
   }
 
-  if (
-    _.isEmpty(currentHatsWithImagesData) ||
-    imagesLoading ||
-    wearerDetailsLoading
-  ) {
+  if (isEmpty(sortedActiveHats) && wearerDetailsLoading) {
+    // hats loading
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
@@ -149,13 +145,14 @@ const MyHats = () => {
     );
   }
 
-  if (!_.isEmpty(sortedHats)) {
+  if (!isEmpty(sortedActiveHats)) {
+    // some hats loaded
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
           <Flex justifyContent='space-between' alignItems='center'>
             <Heading>Your hats</Heading>
-            {_.size(sortedHats) >
+            {size(sortedActiveHats) >
               (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
               <ChakraNextLink
                 as={ChakraNextLink}
@@ -176,9 +173,9 @@ const MyHats = () => {
             }}
             spacing={6}
           >
-            {_.map(overrideEmptyCurrentHats, (hat: AppHat, i: number) => (
+            {map(sortedActiveHats, (hat: AppHat, i: number) => (
               <Skeleton
-                isLoaded={!!hat.id && !imagesLoading && !wearerDetailsLoading}
+                isLoaded={!!hat.id && !wearerDetailsLoading}
                 borderRadius='md'
                 key={i}
               >
@@ -190,6 +187,8 @@ const MyHats = () => {
       </MyHatsCard>
     );
   }
+
+  // not loading and no hats found
 
   return (
     <MyHatsCard name={ensName || formatAddress(currentUser)}>

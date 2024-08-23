@@ -11,27 +11,13 @@ import {
   Heading,
   HStack,
   Icon,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  // Spinner,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import { useAgreementEligibility } from 'modules-hooks';
-import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 
-import AgreementContent from './AgreementContent';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
+import AgreementModal from './AgreementModal';
 
 const Conditions = ({
   isReviewed,
@@ -39,40 +25,12 @@ const Conditions = ({
   agreementIsLink,
 }: {
   isReviewed: boolean;
-  setIsReviewed: (val: boolean) => void;
+  setIsReviewed: Dispatch<SetStateAction<boolean>>;
   agreementIsLink?: boolean;
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const {
-    moduleParameters,
-    moduleDetails,
-    controllerAddress,
-    chainId,
-    selectedHat,
-  } = useEligibility();
   const allConditionsMet = isReviewed;
   const { isMobile } = useMediaStyles();
-  const queryClient = useQueryClient();
-
-  const { agreement } = useAgreementEligibility({
-    moduleParameters,
-    moduleDetails,
-    controllerAddress,
-    chainId,
-    onSuccessfulSign: () => {
-      setIsReviewed?.(true);
-      queryClient.invalidateQueries({
-        queryKey: ['hatDetails', { chainId, id: selectedHat?.id }],
-      });
-    },
-  });
-
-  const handleScroll = (e: any) => {
-    const bottom =
-      e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
-    if (bottom) setIsButtonEnabled(true);
-  };
 
   return (
     <Box
@@ -139,30 +97,11 @@ const Conditions = ({
         </AccordionItem>
       </Accordion>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent height='calc(100% - 80px)' width='calc(100% - 40px)'>
-          <ModalHeader>Agreement</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody onScroll={handleScroll} overflowY='scroll'>
-            <AgreementContent agreement={agreement} />
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme='blue'
-              onClick={() => {
-                setIsReviewed(true);
-                onClose();
-              }}
-              isDisabled={!isButtonEnabled}
-              leftIcon={<Icon as={HatIcon} color='white' />}
-              w='full'
-            >
-              Reviewed
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AgreementModal
+        setIsReviewed={setIsReviewed}
+        isOpen={isOpen}
+        onClose={onClose}
+      />
     </Box>
   );
 };

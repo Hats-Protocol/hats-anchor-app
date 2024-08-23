@@ -22,7 +22,6 @@ export { default as useTreeCreate } from './useTreeCreate';
 export { default as useTreeDetails } from './useTreeDetails';
 export { default as useTreeWearers } from './useTreeWearers';
 export { default as useWearerDetails } from './useWearerDetails';
-export { default as useWearerEligibilityCheck } from './useWearerEligibilityCheck';
 export { default as useWearerIsInGoodStanding } from './useWearerIsInGoodStanding';
 export { default as useWearersControllersDetails } from './useWearersControllersDetails';
-export { default as useWearersEligibilityCheck } from './useWearersEligibilityCheck';
+export { default as useWearersEligibilityStatus } from './useWearersEligibilityStatus';

@@ -1,0 +1,18 @@
+import { MANUAL_APPROVED_TOKENS } from '@hatsprotocol/constants';
+import { useQuery } from '@tanstack/react-query';
+import { concat, keys } from 'lodash';
+
+const fetchApprovedSymbols = async () => {
+  return fetch('https://registry.tkn.eth.limo/')
+    .then((response) => response.json())
+    .then((data) => concat(keys(data), MANUAL_APPROVED_TOKENS));
+};
+
+const useApprovedTokens = () => {
+  return useQuery({
+    queryKey: ['approvedTokens'],
+    queryFn: fetchApprovedSymbols,
+  });
+};
+
+export default useApprovedTokens;

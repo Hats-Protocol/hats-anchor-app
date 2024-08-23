@@ -9,10 +9,20 @@ import {
   SimpleGrid,
   Stack,
 } from '@chakra-ui/react';
-import { orderedChains } from '@hatsprotocol/constants';
+import { ORDERED_CHAINS } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
 import { useImageURIs, useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import {
+  filter,
+  get,
+  groupBy,
+  includes,
+  isEmpty,
+  keys,
+  map,
+  size,
+  subtract,
+} from 'lodash';
 import { usePathname } from 'next/navigation';
 import { AppHat, SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
@@ -24,9 +34,9 @@ import { MobileHatCard, WearerHatCard as CoreHat } from '../cards';
 const WearerHats = () => {
   const pathname = usePathname();
   const parsedPathname = pathname.split('/');
-  const wearerAddress = _.get(
+  const wearerAddress = get(
     parsedPathname,
-    _.subtract(_.size(parsedPathname), 1),
+    subtract(size(parsedPathname), 1),
   ) as Hex;
 
   const { data: currentHats } = useWearerDetails({
@@ -39,12 +49,12 @@ const WearerHats = () => {
     hats: currentHats,
   });
 
-  const groupedHats = _.groupBy(currentHatsWithImagesData, 'chainId');
-  const localOrderedChains = _.filter(orderedChains, (k: number) =>
-    _.includes(_.keys(groupedHats), String(k)),
+  const groupedHats = groupBy(currentHatsWithImagesData, 'chainId');
+  const localOrderedChains = filter(ORDERED_CHAINS, (k: number) =>
+    includes(keys(groupedHats), String(k)),
   );
 
-  if (_.isEmpty(localOrderedChains)) {
+  if (isEmpty(localOrderedChains)) {
     return (
       <Flex w='100%' justify='center' pt='100px'>
         <Stack align='center' gap={10}>
@@ -66,13 +76,13 @@ const WearerHats = () => {
 
   return (
     <Stack>
-      {_.map(localOrderedChains, (chainId: SupportedChains) => (
+      {map(localOrderedChains, (chainId: SupportedChains) => (
         <Stack mt={4} spacing={4} key={chainId}>
           <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
 
           <SimpleGrid columns={{ base: 1, md: 4 }} gap={5} key={chainId}>
-            {_.map(
-              _.filter(currentHatsWithImagesData, {
+            {map(
+              filter(currentHatsWithImagesData, {
                 chainId: Number(chainId),
               }),
               (hat: AppHat) =>

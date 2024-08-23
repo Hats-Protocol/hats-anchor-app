@@ -13,7 +13,19 @@ import {
   useHatSnapshotRoles,
   useToast,
 } from 'hooks';
-import _ from 'lodash';
+import {
+  filter,
+  find,
+  includes,
+  isEmpty,
+  keys,
+  omit,
+  pick,
+  pickBy,
+  reject,
+  remove,
+} from 'lodash';
+import { useAncillaryModules } from 'modules-hooks';
 import {
   createContext,
   ReactNode,
@@ -61,6 +73,7 @@ export const HatFormContextProvider = ({
 }) => {
   const {
     chainId,
+    orgChartTree,
     storedData,
     setStoredData,
     removeHat,
@@ -79,8 +92,15 @@ export const HatFormContextProvider = ({
   const localForm = useForm({
     mode: 'onChange',
   });
-  const { watch, reset } = _.pick(localForm, ['watch', 'reset', 'setValue']);
+  const { watch, reset } = pick(localForm, ['watch', 'reset', 'setValue']);
 
+  const { modulesAuthorities, isLoading: ancillaryModulesLoading } =
+    useAncillaryModules({
+      id: selectedHat?.id,
+      chainId,
+      editMode: false,
+      tree: orgChartTree,
+    });
   const { data: guildRoles } = useHatGuildRoles({
     hatId: selectedHat?.id,
     guildData,
@@ -171,7 +191,7 @@ export const HatFormContextProvider = ({
     authorities: initialAuthorities,
     eligibility: initialEligibility,
     toggle: initialToggle,
-  } = _.pick(selectedOnchainHatDetails, [
+  } = pick(selectedOnchainHatDetails, [
     'name',
     'description',
     'guilds',
@@ -181,14 +201,14 @@ export const HatFormContextProvider = ({
     'eligibility',
     'toggle',
   ]);
-  const { maxSupply, eligibility, toggle, mutable, imageUrl, details } = _.pick(
+  const { maxSupply, eligibility, toggle, mutable, imageUrl, details } = pick(
     selectedOnchainHat,
     ['maxSupply', 'eligibility', 'toggle', 'mutable', 'imageUrl', 'details'],
   );
 
   // get default form values
   const defaultFormValues = useMemo<FormData>(() => {
-    if (isDraft) {
+    if (isDraft || ancillaryModulesLoading) {
       return EMPTY_FORM_VALUES;
     }
 
@@ -197,7 +217,7 @@ export const HatFormContextProvider = ({
       authorities: initialAuthorities,
       guildRoles,
       spaces: snapshotRoles,
-      modulesAuthorities: undefined,
+      modulesAuthorities,
     });
 
     return {
@@ -255,11 +275,11 @@ export const HatFormContextProvider = ({
     let formValues = defaultFormValues;
 
     const initialFormValues = () => {
-      const matchingHat = _.find(storedData, { id: selectedHat?.id });
+      const matchingHat = find(storedData, { id: selectedHat?.id });
 
       if (
         matchingHat &&
-        !_.isEmpty(_.remove(_.keys(matchingHat), (key: string) => key === 'id'))
+        !isEmpty(remove(keys(matchingHat), (key: string) => key === 'id'))
       ) {
         formValues = {
           ...defaultFormValues,
@@ -290,32 +310,31 @@ export const HatFormContextProvider = ({
   // form actions
   const handleSave = useCallback(
     (sendToast: boolean = true) => {
-      const matchingHat = _.find(storedData, ['id', selectedHat?.id]);
+      const matchingHat = find(storedData, ['id', selectedHat?.id]);
 
       const dirtyValues = getDirtyFields(
         debouncedFormValues,
         defaultFormValues,
         false, // include address inputs when storing data so it's resurfaced in the form
       );
-      const dirtyFormValues = _.pickBy(
+      const dirtyFormValues = pickBy(
         debouncedFormValues,
-        (__: unknown, key: FormFieldKeys) => _.includes(dirtyValues, key),
+        (__: unknown, key: FormFieldKeys) => includes(dirtyValues, key),
       );
 
       // remove storedData values when resetting to default values
-      const resetValues = _.filter(
-        _.keys(matchingHat),
-        (key: string) =>
-          !_.includes(dirtyValues, key) && !_.includes(['id'], key),
+      const resetValues = filter(
+        keys(matchingHat),
+        (key: string) => !includes(dirtyValues, key) && !includes(['id'], key),
       );
 
       const matchingHatWithValues = {
-        ..._.omit(matchingHat, resetValues),
+        ...omit(matchingHat, resetValues),
         ...dirtyFormValues,
         id: selectedHat?.id,
       };
 
-      const updatedHats = _.reject(storedData, {
+      const updatedHats = reject(storedData, {
         id: selectedHat?.id,
       });
 
@@ -350,7 +369,7 @@ export const HatFormContextProvider = ({
 
   const handleClearChanges = useCallback(() => {
     if (!selectedHat) return;
-    const updateData = _.reject(storedData, { id: selectedHat?.id });
+    const updateData = reject(storedData, { id: selectedHat?.id });
     setStoredData?.(updateData);
     onOpenTreeDrawer?.();
     onCloseHatDrawer?.();

@@ -1,11 +1,15 @@
 'use client';
 
 import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import {
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+  hatIdToTreeId,
+} from '@hatsprotocol/sdk-v1-core';
+import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
-import { useDebounce } from 'hooks';
-import _ from 'lodash';
+import { useDebounce, useWaitForSubgraph } from 'hooks';
+import { first, isEmpty, map } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
@@ -20,24 +24,32 @@ const HatLinkRequestCreateForm = ({
   wearerTopHats: Hex[];
 }) => {
   const currentNetworkId = useChainId();
+  const { handlePendingTx } = useOverlay();
   const { chainId } = useTreeForm();
   const localForm = useForm({
     mode: 'all',
     defaultValues: {
       newAdmin: hatIdHexToDecimal(newAdmin),
-      topHatDomain: _.first(wearerTopHats),
+      topHatDomain: first(wearerTopHats),
     },
   });
   const { handleSubmit, watch } = localForm;
 
-  // _.first(wearerTopHats) is the default value for topHatDomain
+  const waitForSubgraph = useWaitForSubgraph({
+    fetchHelper: () => Promise.resolve(true),
+    checkResult: (result) => result,
+  });
+
+  // first(wearerTopHats) is the default value for topHatDomain
   const topHatDomain = useDebounce<Hex | undefined>(watch('topHatDomain'));
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'requestLinkTopHatToTree',
-    args: [topHatDomain, hatIdHexToDecimal(newAdmin)],
+    args: topHatDomain
+      ? [hatIdToTreeId(BigInt(topHatDomain)), hatIdHexToDecimal(newAdmin)]
+      : [],
     chainId,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Successfully Requested to Link!',
       description:
         topHatDomain &&
@@ -52,6 +64,8 @@ const HatLinkRequestCreateForm = ({
       ['treeDetails', topHatDomain || 'none', chainId || 1],
       ['treeDetails', newAdmin, chainId || 1],
     ],
+    handlePendingTx,
+    waitForSubgraph,
     enabled:
       Boolean(topHatDomain) &&
       Boolean(newAdmin) &&
@@ -68,7 +82,7 @@ const HatLinkRequestCreateForm = ({
     }
   };
 
-  if (_.isEmpty(wearerTopHats)) {
+  if (isEmpty(wearerTopHats)) {
     return (
       <Stack spacing={4}>
         <Text>
@@ -98,7 +112,7 @@ const HatLinkRequestCreateForm = ({
           name='topHatDomain'
           localForm={localForm}
         >
-          {_.map(wearerTopHats, (hat: Hex) => (
+          {map(wearerTopHats, (hat: Hex) => (
             <option value={hat} key={hat}>
               {hatIdDecimalToIp(BigInt(hat))}
             </option>

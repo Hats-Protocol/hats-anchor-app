@@ -4,22 +4,19 @@
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": [],
-    "lib": [
-      "ES2021"
-    ],
+    "lib": ["ES2021"],
     "incremental": true,
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "strictNullChecks": true
+    ]
   },
   "references": [
     {
@@ -63,9 +60,9 @@
     "**/*.ts",
     "**/*.tsx",
     "../../libs/types/src/*.d.ts",
-    ".next/types/**/*.ts",
     "next-env.d.ts",
-    "../../dist/apps/frontend/.next/types/**/*.ts"
+    "../../dist/apps/frontend/.next/types/**/*.ts",
+    ".next/types/**/*.ts"
   ],
   "extends": "../../tsconfig.base.json"
 }

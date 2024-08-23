@@ -39,7 +39,7 @@ const useMultiClaimsHatterContractWrite = ({
   const queryClient = useQueryClient();
 
   const { modules } = useHatsModules({ chainId });
-  const mch = _.find(modules, { name: CONFIG.claimsHatterModuleName });
+  const mch = _.find(modules, { name: CONFIG.modules.claimsHatter });
 
   const { writeContractAsync } = useWriteContract();
 
@@ -81,7 +81,7 @@ const useMultiClaimsHatterContractWrite = ({
           hash,
           txChainId: chainId,
           txDescription: functionName,
-          toastData: {
+          successToastData: {
             title: 'Transaction successful',
             description: 'Your transaction has been confirmed.',
           },

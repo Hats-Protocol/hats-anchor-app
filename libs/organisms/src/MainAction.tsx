@@ -2,12 +2,13 @@
 
 import { Button, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import { useWearerDetails, useWearerEligibilityCheck } from 'hats-hooks';
+import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import _ from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
 import { ConnectWallet, NetworkSwitcher } from 'molecules';
 import { useMemo } from 'react';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const MainAction = () => {
@@ -21,7 +22,7 @@ const MainAction = () => {
   const isConnected = Boolean(address);
   const maxSupply = _.get(selectedHat, 'maxSupply', 0);
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });
@@ -35,15 +36,20 @@ const MainAction = () => {
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     handlePendingTx,
   });
 
-  const { data: currentUserIsEligible } = useWearerEligibilityCheck({
-    wearer: address,
+  const wearerIds = address ? ([address] as Hex[]) : [];
+  const { data: currentUserEligibility } = useWearersEligibilityStatus({
+    wearerIds,
     selectedHat,
     chainId,
   });
+  const currentUserIsEligible = _.includes(
+    _.get(currentUserEligibility, 'eligibleWearers'),
+    address,
+  );
   const maxWearersReached = _.gte(
     _.toNumber(_.get(selectedHat, 'currentSupply')),
     _.toNumber(maxSupply),

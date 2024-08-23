@@ -1,11 +1,11 @@
 'use client';
 
 import {
+  As,
   Button,
   Flex,
   HStack,
   Icon,
-  IconButton,
   Menu,
   MenuButton,
   MenuItem,
@@ -13,17 +13,25 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import {
-  AUTHORITY_ENFORCEMENT,
-  AUTHORITY_TYPES,
-} from '@hatsprotocol/constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { ModuleAuthorityModal } from 'forms';
+import { useWearerDetails } from 'hats-hooks';
 import { formHatUrl, safeUrl } from 'hats-utils';
-import _, { get } from 'lodash';
+import {
+  capitalize,
+  filter,
+  find,
+  forEach,
+  get,
+  includes,
+  isEmpty,
+  map,
+  size,
+} from 'lodash';
 import {
   useCallHsgFunction,
   useCallModuleFunction,
@@ -35,39 +43,20 @@ import { useMemo, useState } from 'react';
 import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
-import { Authority, LinkObject } from 'types';
+import { Authority, LinkObject, ModuleFunction } from 'types';
 import { ChakraNextLink } from 'ui';
-import { explorerUrl, getHostnameFromURL } from 'utils';
+import {
+  explorerUrl,
+  getCustomModuleFunction,
+  getDisabledReason,
+  getHostnameFromURL,
+} from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const BoxArrowUpRightOut = dynamic(() =>
   import('icons').then((i) => i.BoxArrowUpRightOut),
 );
-
-const getDisabledReason = (
-  isNotConnected: boolean,
-  isOnWrongNetwork: boolean,
-  isNotWearer: boolean,
-  isClaimed: boolean,
-  isCustom: boolean,
-) => {
-  if (isNotConnected) {
-    return 'You are not connected';
-  }
-  if (isOnWrongNetwork) {
-    return 'You are on the wrong network';
-  }
-  if (isNotWearer) {
-    return 'You are not a wearer of the current hat';
-  }
-  if (isCustom) {
-    return ''; // TODO is there a better message we can show for this?
-  }
-  if (isClaimed) {
-    return 'You are already a signer';
-  }
-  return '';
-};
 
 const ModuleAuthorityToolbar = ({
   authority,
@@ -81,23 +70,26 @@ const ModuleAuthorityToolbar = ({
   const { setModals } = localOverlay;
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const [selectedFunction, setSelectedFunction] = useState();
+  const [selectedFunction, setSelectedFunction] = useState<ModuleFunction>();
 
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
 
-  const isWearer = useMemo(
-    () =>
-      _.includes(
-        _.map(selectedHat?.wearers, 'id'),
-        address?.toLocaleLowerCase(),
-      ),
-    [selectedHat, address],
-  );
-  const primaryFunction = _.find(_.get(authority, 'functions'), 'primary');
+  const { data: wearerDetails } = useWearerDetails({
+    wearerAddress: address as Hex,
+    chainId,
+  });
 
-  const otherFunctions = _.filter(
-    _.get(authority, 'functions', []),
+  const isWearer = useMemo(
+    // TODO handle wearers of many hats
+    () => includes(map(wearerDetails, 'id'), selectedHat?.id),
+    [wearerDetails, selectedHat?.id],
+  );
+
+  const customFunction = getCustomModuleFunction(authority);
+  const primaryFunction = find(get(authority, 'functions'), 'primary');
+  const otherFunctions = filter(
+    get(authority, 'functions', []),
     (func: WriteFunction) => !func.primary,
   );
 
@@ -111,8 +103,8 @@ const ModuleAuthorityToolbar = ({
         label: 'Go to HatsSignerGate',
       });
 
-      if (authority.signerHats) {
-        _.forEach(authority.signerHats, (h: any) => {
+      if (authority.hsgConfig?.signerHats) {
+        forEach(authority.hsgConfig.signerHats, (h: { id: Hex }) => {
           links.push({
             link: formHatUrl({ hatId: h.id, chainId }),
             label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,
@@ -120,11 +112,11 @@ const ModuleAuthorityToolbar = ({
           });
         });
       }
-      if (authority.ownerHat) {
+      if (authority.hsgConfig?.ownerHat) {
         links.push({
-          link: formHatUrl({ hatId: authority.ownerHat.id, chainId }),
+          link: formHatUrl({ hatId: authority.hsgConfig.ownerHat.id, chainId }),
           label: `Go to Owner Hat (#${hatIdDecimalToIp(
-            BigInt(authority.ownerHat.id),
+            BigInt(authority.hsgConfig.ownerHat.id),
           )})`,
           icon: FaExternalLinkAlt,
         });
@@ -149,7 +141,7 @@ const ModuleAuthorityToolbar = ({
     chainId,
   });
 
-  const handleFunctionCall = (func: any) => {
+  const handleFunctionCall = (func: ModuleFunction) => {
     if (!authority) return;
     if (func.isCustom) {
       // prioritize custom functions
@@ -159,8 +151,8 @@ const ModuleAuthorityToolbar = ({
     if (func.args && func.args.length > 0) {
       // handle special case for claimSigner on MHSG, might be a better way to handle this to match modules
       if (
-        _.size(func.args) === 1 &&
-        _.get(func, 'args[0].name') === 'Signer Hat' // TODO can we make this assumption in other cases?
+        size(func.args) === 1 &&
+        get(func, 'args[0].name') === 'Signer Hat' // TODO can we make this assumption in other cases?
       ) {
         const args = { 'Signer Hat': selectedHat?.id };
         callHsgFunction({
@@ -197,7 +189,7 @@ const ModuleAuthorityToolbar = ({
 
   const { data: claimed } = useHsgSigner({
     instance: authority?.instanceAddress,
-    signer: address,
+    signer: address as Hex,
     chainId,
     enabled: authority?.type === AUTHORITY_TYPES.hsg,
   });
@@ -208,33 +200,31 @@ const ModuleAuthorityToolbar = ({
     (primaryFunction?.functionName === 'claimSigner' &&
       claimed &&
       !primaryFunction?.isCustom);
-  const primaryDisabledReason = getDisabledReason(
-    !address,
-    !isSameChain,
-    !isWearer,
-    primaryFunction?.functionName === 'claimSigner' && !!claimed,
-    primaryFunction?.isCustom || false,
-  );
-  const otherDisabledReason = getDisabledReason(
-    !address,
-    !isSameChain,
-    !isWearer,
-    false,
-    false,
-  );
+  const primaryDisabledReason = getDisabledReason({
+    isNotConnected: !address,
+    isOnWrongNetwork: !isSameChain,
+    isNotWearer: !isWearer,
+    isClaimed: primaryFunction?.functionName === 'claimSigner' && !!claimed,
+    isCustom: primaryFunction?.isCustom || false,
+  });
 
   if (!authority) return null;
 
   const trackSafeClick = () => {
     posthog.capture('Viewed Safe', {
       chain_id: chainId,
-      safe: authority.safe,
+      safe: authority.hsgConfig?.safe,
     });
   };
 
   return (
     <HStack wrap='wrap'>
-      {primaryFunction && (
+      {customFunction && (
+        <Tooltip label={primaryDisabledReason}>
+          <Button>Go</Button>
+        </Tooltip>
+      )}
+      {primaryFunction && !customFunction && (
         <Tooltip label={primaryDisabledReason}>
           <Button
             colorScheme='blue'
@@ -250,69 +240,14 @@ const ModuleAuthorityToolbar = ({
             }}
             rightIcon={<Icon as={FiPlusSquare} />}
           >
-            {_.capitalize(primaryFunction.label)}
+            {capitalize(primaryFunction.label)}
           </Button>
         </Tooltip>
       )}
       <HStack>
-        {authority?.type === AUTHORITY_TYPES.modules && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${
-              authority.instanceAddress
-            }`}
-            isExternal
-          >
-            <Button
-              colorScheme='blue.500'
-              size='sm'
-              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-              variant='outline'
-              color='blue.500'
-              onClick={() => {
-                posthog.capture('Viewed Module', {
-                  chain_id: chainId,
-                  address: authority.instanceAddress,
-                  name: authority.moduleLabel,
-                });
-              }}
-            >
-              Go to {get(AUTHORITY_ENFORCEMENT, `${authority.type}.name`)}
-            </Button>
-          </ChakraNextLink>
-        )}
-        {authority?.type === AUTHORITY_TYPES.account && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${
-              authority.instanceAddress
-            }`}
-            isExternal
-          >
-            <Button
-              colorScheme='blue.500'
-              size='sm'
-              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-              variant='outline'
-              color='blue.500'
-              onClick={() => {
-                posthog.capture('Viewed HatsAccount', {
-                  chain_id: chainId,
-                  address: authority.instanceAddress,
-                  account: authority.label,
-                });
-              }}
-            >
-              Go to{' '}
-              {
-                AUTHORITY_ENFORCEMENT[
-                  authority.type as keyof typeof AUTHORITY_ENFORCEMENT
-                ].name
-              }
-            </Button>
-          </ChakraNextLink>
-        )}
         {authority.type === AUTHORITY_TYPES.hsg && (
           <ChakraNextLink
-            href={safeUrl(chainId, authority.safe)}
+            href={safeUrl(chainId, authority.hsgConfig?.safe)}
             onClick={trackSafeClick}
             isExternal
           >
@@ -324,43 +259,63 @@ const ModuleAuthorityToolbar = ({
             </Button>
           </ChakraNextLink>
         )}
-        {(!_.isEmpty(otherFunctions) || !_.isEmpty(otherLinks)) && (
+        {(!isEmpty(otherFunctions) || !isEmpty(otherLinks)) && (
           <Menu>
             <MenuButton
-              as={IconButton}
-              icon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
-              borderColor='blue.500'
-              variant='outline'
+              as={Button}
+              rightIcon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
+              colorScheme='blue.500'
+              variant='outlineMatch'
               size='sm'
-            />
+            >
+              More
+            </MenuButton>
             <MenuList>
-              {_.map(otherFunctions, (func: any, i: number) => (
-                <Tooltip label={otherDisabledReason} key={`${func.label}-${i}`}>
-                  <MenuItem
-                    onClick={() => {
-                      posthog.capture('Called Module Function', {
-                        type: 'Other',
-                        function: func.label,
-                        authority: authority.label,
-                      });
-                      if (func.isCustom) func.onClick();
-                      else handleFunctionCall(func);
-                    }}
-                    isDisabled={isDisabled && !func.isCustom}
+              {map(otherFunctions, (func: ModuleFunction, i: number) => {
+                const publicFunction = includes(func.roles, 'public');
+                const localDisabledReason = getDisabledReason({
+                  isNotConnected: !address,
+                  isOnWrongNetwork: !isSameChain,
+                  isNotWearer: !isWearer,
+                  publicFunction,
+                });
+
+                return (
+                  <Tooltip
+                    label={localDisabledReason}
+                    key={`${func.label}-${i}`}
                   >
-                    <Flex
-                      justify='space-between'
-                      align='center'
-                      w='100%'
-                      gap={1}
+                    <MenuItem
+                      onClick={() => {
+                        posthog.capture('Called Module Function', {
+                          type: 'Other',
+                          function: func.label,
+                          authority: authority.label,
+                        });
+                        if (func.isCustom) func.onClick();
+                        else handleFunctionCall(func);
+                      }}
+                      isDisabled={
+                        isDisabled && !func.isCustom && !publicFunction
+                      }
                     >
-                      <Text>{func.label}</Text>
-                      <Icon as={func.icon || FiPlusSquare} boxSize={4} />
-                    </Flex>
-                  </MenuItem>
-                </Tooltip>
-              ))}
-              {_.map(otherLinks, (link: LinkObject) => (
+                      <Flex
+                        justify='space-between'
+                        align='center'
+                        w='100%'
+                        gap={1}
+                      >
+                        <Text>{func.label}</Text>
+                        <Icon
+                          as={(func.icon || FiPlusSquare) as As}
+                          boxSize={4}
+                        />
+                      </Flex>
+                    </MenuItem>
+                  </Tooltip>
+                );
+              })}
+              {map(otherLinks, (link: LinkObject) => (
                 <ChakraNextLink
                   href={link.link}
                   isExternal={!!getHostnameFromURL(link.link)}
@@ -387,6 +342,7 @@ const ModuleAuthorityToolbar = ({
       <ModuleAuthorityModal
         authority={authority}
         selectedFunction={selectedFunction}
+        index={index}
       />
     </HStack>
   );

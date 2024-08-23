@@ -1,8 +1,8 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { FiCopy } from 'react-icons/fi';
 import {
-  AppWriteFunction,
   HatsAccount1ofN,
+  ModuleFunction,
   SupportedChains,
   UseCustomToastReturn,
 } from 'types';
@@ -59,7 +59,7 @@ export const populateHatsAccountsAuthorities = ({
         },
         icon: FiCopy,
       },
-    ] as unknown as AppWriteFunction[],
+    ] as ModuleFunction[],
     hatId,
     isDeployed: false,
   };
@@ -92,7 +92,7 @@ export const populateHatsAccountsAuthorities = ({
         },
         icon: FiCopy,
       },
-    ] as unknown as AppWriteFunction[],
+    ] as unknown as ModuleFunction[],
     instanceAddress: wallet.id as Hex,
     hatId,
     isDeployed: true,

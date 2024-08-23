@@ -17,12 +17,21 @@ import {
   useStandaloneOverlay as useOverlay,
 } from 'contexts';
 import { ModuleArgsForm } from 'forms';
-import _ from 'lodash';
+import {
+  capitalize,
+  filter,
+  find,
+  includes,
+  isEmpty,
+  map,
+  pick,
+  some,
+} from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { formatAddress, parsedSeconds } from 'utils';
-import { useChainId } from 'wagmi';
+import { get, useForm } from 'react-hook-form';
+import { formatAddress, getDisabledReason, parsedSeconds } from 'utils';
+import { useAccount, useChainId } from 'wagmi';
 
 import DateInfo from './DateInfo';
 
@@ -38,10 +47,10 @@ const UpcomingSeason = () => {
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
 
-  const currentTermEnd = _.find(moduleParameters, {
+  const currentTermEnd = find(moduleParameters, {
     label: 'Current Term End',
   });
-  const nextTermEnd = _.find(moduleParameters, {
+  const nextTermEnd = find(moduleParameters, {
     label: 'Next Term End',
   });
   const currentTermEndDate = parsedSeconds(currentTermEnd?.value as bigint);
@@ -49,16 +58,18 @@ const UpcomingSeason = () => {
 
   const [selectedFunction, setSelectedFunction] = useState(null);
   const localOverlay = useOverlay();
+  const { address } = useAccount();
   const { setModals } = localOverlay;
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
-  const moduleActions: WriteFunction[] | undefined = _.get(
+  const { isValid } = pick(formState, ['isValid']);
+  const moduleActions: WriteFunction[] | undefined = get(
     moduleDetails,
     'writeFunctions',
   );
 
   const accessibleActions = useMemo(() => {
-    return _.filter(moduleActions, (action: WriteFunction) => {
+    return filter(moduleActions, (action: WriteFunction) => {
       if (
         action.functionName === 'setNextTerm' &&
         ((nextTermEnd?.value && nextTermEnd.value === BigInt(0)) ||
@@ -80,10 +91,10 @@ const UpcomingSeason = () => {
         (nextTermEnd.value as bigint) > BigInt(0);
 
       return (
-        _.some(
+        some(
           action.roles,
           (role: string) =>
-            _.includes(electionsAuthority.userRoles, role) ||
+            includes(electionsAuthority.userRoles, role) ||
             (role === 'public' && canStartNextTerm),
         ) || canElect
       );
@@ -135,15 +146,15 @@ const UpcomingSeason = () => {
           <DateInfo date={nextTermEndDate} label='Next Season End' />
         </Box>
       </Flex>
-      {!_.isEmpty(accessibleActions) && (
+      {!isEmpty(accessibleActions) && (
         <Flex gap={2} wrap='wrap' justifyContent='center'>
-          {_.map(accessibleActions, (action: WriteFunction) => (
+          {map(accessibleActions, (action: WriteFunction) => (
             <Tooltip
-              label={
-                !isSameChain
-                  ? 'Please switch to the correct network'
-                  : action.description
-              }
+              label={getDisabledReason({
+                action: action.description,
+                isNotConnected: !address,
+                isOnWrongNetwork: !isSameChain,
+              })}
               key={action.label}
             >
               <Button
@@ -151,10 +162,15 @@ const UpcomingSeason = () => {
                 borderColor='blackAlpha.300'
                 fontWeight='medium'
                 size='sm'
-                isDisabled={!isSameChain}
+                isDisabled={
+                  !!getDisabledReason({
+                    isNotConnected: !address,
+                    isOnWrongNetwork: !isSameChain,
+                  })
+                }
                 onClick={() => handleFunctionCall(action)}
               >
-                {_.capitalize(action.label)}
+                {capitalize(action.label)}
               </Button>
             </Tooltip>
           ))}
@@ -169,12 +185,12 @@ const UpcomingSeason = () => {
       >
         <Box as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={4}>
-            {_.get(selectedFunction, 'description') && (
-              <Text>{_.get(selectedFunction, 'description')}</Text>
+            {get(selectedFunction, 'description') && (
+              <Text>{get(selectedFunction, 'description')}</Text>
             )}
             <Stack>
               <ModuleArgsForm
-                selectedModuleArgs={_.get(selectedFunction, 'args', [])}
+                selectedModuleArgs={get(selectedFunction, 'args', [])}
                 localForm={formMethods}
                 hideIcon
                 noMargin
@@ -185,12 +201,8 @@ const UpcomingSeason = () => {
                 <Button variant='outline' onClick={() => setModals?.({})}>
                   Cancel
                 </Button>
-                <Button
-                  colorScheme='blue'
-                  type='submit'
-                  isDisabled={!formState.isValid}
-                >
-                  {_.capitalize(_.get(selectedFunction, 'label'))}
+                <Button colorScheme='blue' type='submit' isDisabled={!isValid}>
+                  {capitalize(get(selectedFunction, 'label'))}
                 </Button>
               </HStack>
             </Flex>

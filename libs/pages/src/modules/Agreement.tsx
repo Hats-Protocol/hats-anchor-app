@@ -14,10 +14,10 @@ import {
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import _, { lte } from 'lodash';
 import { useAgreementEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { hatLink } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -52,6 +52,8 @@ const Agreement = () => {
   const { address } = useAccount();
   const [isReviewed, setIsReviewed] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
   const isWearing = useMemo(
     () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
     [selectedHat, address],
@@ -66,10 +68,18 @@ const Agreement = () => {
 
   const handleScroll = (e: any) => {
     const bottom =
-      Math.floor(e.target.scrollHeight - e.target.scrollTop) ===
-      e.target.clientHeight;
+      Math.floor(e.target.scrollHeight - e.target.scrollTop) >
+      e.target.clientHeight * 0.9;
     if (bottom) setIsButtonEnabled(true);
   };
+
+  useEffect(() => {
+    const contentHeight = contentRef.current?.scrollHeight;
+    const containerHeight = contentRef.current?.clientHeight;
+    if (lte(contentHeight, containerHeight)) {
+      setIsButtonEnabled(true);
+    }
+  }, [agreement]);
 
   return (
     <Layout title='Claims'>
@@ -113,6 +123,7 @@ const Agreement = () => {
                 backgroundColor='white'
                 border='1px solid #cbcbcb'
                 onScroll={handleScroll}
+                ref={contentRef}
               >
                 <AgreementContent agreement={agreement} />
               </Box>

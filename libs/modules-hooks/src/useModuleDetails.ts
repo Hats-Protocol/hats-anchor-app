@@ -16,20 +16,29 @@ const getModuleData = async ({
 }) => {
   if (!chainId || !address) return null;
 
-  const moduleClient = await createHatsModulesClient(chainId);
-  if (!moduleClient) return null;
+  const modulesClient = await createHatsModulesClient(chainId);
+  if (!modulesClient) return null;
 
   const promises = [
-    moduleClient.getModuleByInstance(address),
-    moduleClient.getInstanceParameters(address),
+    modulesClient.getModuleByInstance(address),
+    modulesClient.getInstanceParameters(address),
   ];
-  const [moduleData, localModuleParameters] = await Promise.all(promises);
-  if (!moduleData) return null;
+  return Promise.all(promises)
+    .then((data) => {
+      const [moduleData, localModuleParameters] = data;
 
-  return {
-    details: moduleData as ModuleDetails,
-    parameters: localModuleParameters as ModuleParameter[],
-  };
+      if (!moduleData) return null;
+
+      return {
+        details: moduleData as ModuleDetails,
+        parameters: localModuleParameters as ModuleParameter[],
+      };
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      return null;
+    });
 };
 
 const useModuleDetails = ({
@@ -52,7 +61,7 @@ const useModuleDetails = ({
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&
       enabled,
-    // staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
+    staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
   return {

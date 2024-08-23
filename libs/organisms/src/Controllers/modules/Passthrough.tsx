@@ -1,0 +1,91 @@
+'use client';
+
+import { Text } from '@chakra-ui/react';
+import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
+import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { eq, find, get } from 'lodash';
+import dynamic from 'next/dynamic';
+import { hatLink, ModuleDetailsHandler } from 'utils';
+
+import { ELIGIBILITY_STATUS, TOGGLE_STATUS } from '../utils';
+import EligibilityRule from './EligibilityRule';
+
+const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
+
+const PassthroughEligibility = ({
+  moduleParameters,
+  chainId,
+}: ModuleDetailsHandler) => {
+  const passthroughHat = find(moduleParameters, { displayType: 'hat' });
+  // TODO fetch hat name from details
+  const passthroughHatDisplay = hatIdDecimalToIp(
+    get(passthroughHat, 'value') as bigint,
+  );
+  const passthroughHatId = hatIdDecimalToHex(
+    get(passthroughHat, 'value') as bigint,
+  );
+
+  return (
+    <EligibilityRule
+      rule={
+        <Text size={{ base: 'sm', md: 'md' }}>
+          One Hat can choose eligible wearers
+        </Text>
+      }
+      status={ELIGIBILITY_STATUS.hat}
+      displayStatus={passthroughHatDisplay}
+      displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
+      icon={HatIcon}
+    />
+  );
+};
+
+const PassthroughToggle = ({
+  moduleParameters,
+  chainId,
+}: ModuleDetailsHandler) => {
+  const passthroughHat = find(moduleParameters, { displayType: 'hat' });
+  const passthroughHatDisplay = hatIdDecimalToIp(
+    get(passthroughHat, 'value') as bigint,
+  );
+  const passthroughHatId = hatIdDecimalToHex(
+    get(passthroughHat, 'value') as bigint,
+  );
+
+  return (
+    <EligibilityRule
+      rule={
+        <Text size={{ base: 'sm', md: 'md' }}>
+          One Hat can deactivate this Hat
+        </Text>
+      }
+      status={TOGGLE_STATUS.hat}
+      displayStatus={passthroughHatDisplay}
+      displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
+      icon={HatIcon}
+    />
+  );
+};
+
+const PassthroughModule = ({
+  moduleParameters,
+  chainId,
+  wearer,
+  moduleType,
+}: ModuleDetailsHandler) => {
+  if (eq(moduleType, CONTROLLER_TYPES.eligibility)) {
+    return PassthroughEligibility({
+      moduleParameters,
+      chainId,
+      wearer,
+    });
+  }
+
+  return PassthroughToggle({
+    moduleParameters,
+    chainId,
+    wearer,
+  });
+};
+
+export default PassthroughModule;

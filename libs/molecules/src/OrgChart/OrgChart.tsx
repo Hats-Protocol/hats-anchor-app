@@ -12,7 +12,7 @@ import {
   Icon,
   IconButton,
   Image,
-  Spinner,
+  // Spinner,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -32,6 +32,7 @@ import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import type { AppHat } from 'types';
 import { ChakraNextLink } from 'ui';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { buttonContent } from './buttons';
@@ -61,7 +62,7 @@ function OrgChartComponent() {
     handleSetCompact,
     handleNodeCollapsedOrExpanded,
     handleExpandAll,
-    isLoading,
+    // isLoading,
     storedConfig,
     storedData,
     addHat,
@@ -76,7 +77,7 @@ function OrgChartComponent() {
   const initialLoad = useRef<boolean>(true);
   const [chartNodes, setChartNodes] = useState<AppHat[] | undefined>(undefined);
   const { data: wearerHats } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
     editMode,
   });
@@ -539,21 +540,23 @@ function OrgChartComponent() {
     );
   }
 
-  if (isLoading) {
-    return (
-      <Flex
-        h='calc(100% - 200px)'
-        w='100%'
-        alignItems='center'
-        justifyContent='center'
-      >
-        <Spinner />
-      </Flex>
-    );
-  }
+  // TODO re-enable
+  // if (isLoading) {
+  //   // hitting this flow?
+  //   return (
+  //     <Flex
+  //       h='calc(100% - 200px)'
+  //       w='100%'
+  //       alignItems='center'
+  //       justifyContent='center'
+  //     >
+  //       <Spinner size='xl' />
+  //     </Flex>
+  //   );
+  // }
 
   return (
-    <Box position='relative' pt='145px' h='calc(100% + 5px)'>
+    <Box position='relative' pt='145px' minH='100vh' h='calc(100% + 5px)'>
       <div
         style={{
           overflow: 'hidden',
@@ -562,6 +565,7 @@ function OrgChartComponent() {
         ref={d3Container}
         id='d3Container'
       />
+
       <HStack position='absolute' bottom={4} left={85}>
         <Button
           variant='outline'

@@ -41,6 +41,7 @@ import { BsArrowRight, BsThreeDotsVertical } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { hatLink } from 'utils';
+import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsName } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
@@ -75,12 +76,12 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
   const { hatterIsAdmin } = useHatClaimBy({
     selectedHat,
     chainId,
-    wearer: address,
+    wearer: address as Hex,
     handlePendingTx,
   });
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
   const isWearing = _.includes(_.map(wearer, 'id'), selectedHat?.id);

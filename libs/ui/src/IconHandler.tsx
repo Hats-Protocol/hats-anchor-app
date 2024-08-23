@@ -2,7 +2,6 @@ import { As, Icon, Image } from '@chakra-ui/react';
 import { AuthorityInfo } from '@hatsprotocol/constants';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
-import { ipfsUrl } from 'utils';
 
 const Key = dynamic(() => import('icons').then((i) => i.Key));
 
@@ -10,13 +9,11 @@ const IconHandler = ({
   icon,
   authorityEnforcement,
   imageUrl,
-  isIpfs,
   isExpanded,
 }: {
   icon: ReactNode | undefined;
   authorityEnforcement: Partial<AuthorityInfo>;
   imageUrl: string | undefined;
-  isIpfs: boolean;
   isExpanded: boolean;
 }) => {
   if (icon) {
@@ -37,13 +34,10 @@ const IconHandler = ({
   }
 
   if (imageUrl || authorityEnforcement.imageUri) {
+    // already handling ipfs url
     return (
       <Image
-        src={
-          isIpfs
-            ? ipfsUrl(imageUrl?.slice(7)) || ''
-            : imageUrl || authorityEnforcement.imageUri
-        }
+        src={imageUrl || authorityEnforcement.imageUri}
         boxSize='18px'
         border='1px solid'
         borderColor='blackAlpha.300'

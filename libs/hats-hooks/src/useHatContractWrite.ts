@@ -1,44 +1,51 @@
 'use client';
 
 import { CONFIG } from '@hatsprotocol/constants';
+import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import { useState } from 'react';
 import { HandlePendingTx, ToastProps } from 'types';
-import { formatFunctionName, invalidateAfterTransaction } from 'utils';
+import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
 interface ContractInteractionProps {
   functionName: string;
   args: unknown[];
-  chainId?: number;
-  waitForSubgraphToastData?: ToastProps;
-  onSuccessToastData?: ToastProps;
+  chainId: number | undefined;
   txDescription?: string;
-  onErrorToastData?: ToastProps;
+  // Transaction handling
+  handlePendingTx: HandlePendingTx | undefined; // pass both handlePendingTx and handleSuccess to useHatContractWrite
+  waitForSubgraph: ((data?: TransactionReceipt) => Promise<unknown>) | undefined; // passed with handleSuccess
+  handleSuccess?: ((data?: TransactionReceipt) => void) | undefined; // passed with handlePendingTx
+  // Toasts
+  waitForSubgraphToastData?: ToastProps;
+  successToastData?: ToastProps;
+  errorToastData?: ToastProps;
+  // After transaction clean up
   queryKeys?: (object | string | number)[][];
-  transactionTimeout?: number;
+  redirect?: string | null;
   enabled: boolean;
-  handlePendingTx?: HandlePendingTx; // pass both handlePendingTx and handleSuccess to useHatContractWrite
-  handleSuccess?: (data?: TransactionReceipt) => void; // passed with handlePendingTx
-  waitForSubgraph?: (data?: TransactionReceipt) => Promise<unknown>; // passed with handleSuccess
 }
 
 const useHatContractWrite = ({
   functionName,
   args,
   chainId,
-  waitForSubgraphToastData,
-  onSuccessToastData,
   txDescription,
-  onErrorToastData,
-  queryKeys = [],
-  transactionTimeout = 500,
-  enabled,
+  // Transaction handling
   handlePendingTx,
-  handleSuccess,
   waitForSubgraph,
+  handleSuccess,
+  // Toasts
+  waitForSubgraphToastData,
+  successToastData,
+  errorToastData,
+  // After transaction clean up
+  queryKeys = [],
+  redirect,
+  enabled,
 }: ContractInteractionProps) => {
   const toast = useToast();
   const userChainId = useChainId();
@@ -53,49 +60,41 @@ const useHatContractWrite = ({
     return writeContractAsync({
       address: CONFIG.hatsAddress,
       chainId: Number(chainId),
-      abi: CONFIG.hatsAbi,
-      functionName,
-      args,
+      abi: HATS_ABI,
+      functionName: functionName as any,
+      args: args as any,
     })
       .then((hash) => {
         setIsLoading(true);
         toast.info({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
-          duration: 4000,
+          duration: 5000,
         });
 
         handlePendingTx?.({
           hash,
           txChainId: chainId,
           txDescription: txDescription || formatFunctionName(functionName),
-          toastData: waitForSubgraphToastData,
+          successToastData,
+          waitForSubgraphToastData,
+          waitForSubgraph,
+          redirect,
           onSuccess: async (d?: TransactionReceipt) => {
             handleSuccess?.(d);
 
-            await waitForSubgraph?.(d);
-            await invalidateAfterTransaction(chainId, hash);
-
-            if (onSuccessToastData) {
-              toast[onSuccessToastData.status || 'success']({
-                ...onSuccessToastData,
-                title: onSuccessToastData.title ?? 'Transaction successful',
-              });
-            }
-
-            // we can remove the timeout after we add waitForSubgraph everywhere
-            setTimeout(() => {
-              queryKeys.forEach((key) =>
-                queryClient.invalidateQueries({
-                  queryKey: key,
-                }),
-              );
-            }, transactionTimeout);
+            queryKeys.forEach((key) =>
+              queryClient.invalidateQueries({
+                queryKey: key,
+              }),
+            );
+            setIsLoading(false);
           },
         });
-        setIsLoading(false);
       })
       .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log(error)
         if (
           error.name === 'TransactionExecutionError' &&
           error.message.includes('User rejected the request')
@@ -108,6 +107,7 @@ const useHatContractWrite = ({
           toast.error({
             title: 'Transaction failed',
             description: 'Please try again later',
+            ...errorToastData,
           });
         }
       });

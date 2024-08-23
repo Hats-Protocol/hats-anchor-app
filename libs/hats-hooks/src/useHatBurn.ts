@@ -1,9 +1,10 @@
 'use client';
 
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import { find } from 'lodash';
 import { idToIp } from 'shared';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
+import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
@@ -26,10 +27,10 @@ const useHatBurn = ({
   const hatId = selectedHat?.id;
 
   const { data: wearer } = useWearerDetails({
-    wearerAddress: address,
+    wearerAddress: address as Hex,
     chainId,
   });
-  const currentlyWearing = _.find(wearer, {
+  const currentlyWearing = find(wearer, {
     id: selectedHat?.id,
   });
   const txDescription = `Renounced hat ${idToIp(hatId)}`;
@@ -39,7 +40,7 @@ const useHatBurn = ({
     args: [hatId],
     chainId,
     txDescription,
-    onSuccessToastData: {
+    successToastData: {
       title: 'Hat removed!',
       description: txDescription,
     },

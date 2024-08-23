@@ -1,6 +1,7 @@
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { GraphQLClient } from 'graphql-request';
+import { map } from 'lodash';
 import { mapWithChainId } from 'shared';
 
 import {
@@ -9,6 +10,7 @@ import {
   getTreesPaginatedQuery,
   NETWORKS_PREFIX,
 } from '../queries';
+import { parseMetadata } from './utils';
 
 export const fetchTreeDetailsMesh = async (
   treeId: string | null | undefined,
@@ -37,6 +39,7 @@ export const fetchTreeDetailsMesh = async (
   return tree;
 };
 
+
 export const fetchPaginatedTreesMesh = async (
   chainId: number,
   page: number = 0,
@@ -59,7 +62,17 @@ export const fetchPaginatedTreesMesh = async (
     throw new Error('Unexpected error');
   }
 
-  return mapWithChainId(trees, chainId) as Tree[];
+  const fullTrees = mapWithChainId(trees, chainId) as Tree[];
+  const withProcessedMetadata = map(fullTrees, (t: Tree) => {
+    const updatedHats = map(t.hats, parseMetadata);
+
+    return {
+      ...t,
+      hats: updatedHats,
+    };
+  });
+
+  return withProcessedMetadata;
 };
 
 export const fetchTreesByIdMesh = async (
