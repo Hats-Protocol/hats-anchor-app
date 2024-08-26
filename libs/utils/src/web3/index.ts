@@ -29,6 +29,7 @@ declare global {
 export const viemPublicClient = (chainId: number) => {
   return createPublicClient({
     chain: chainsMap(chainId),
+    batch: { multicall: true },
     transport: http(getRpcUrl(chainId), { batch: true }),
   });
 };
@@ -60,12 +61,16 @@ export function createSubgraphClient(): HatsSubgraphClient {
 
 export async function createHatsModulesClient(
   chainId: number | undefined,
-): Promise<HatsModulesClient | undefined> {
-  if (!chainId) return undefined;
+): Promise<HatsModulesClient | null> {
+  if (!chainId) return Promise.resolve(null);
+  console.log('chainId', chainId);
 
   const publicClient = viemPublicClient(chainId);
-  try {
-    const walletClient = await getWalletClient(wagmiConfig);
+  console.log('creatingWalletClient', publicClient);
+  return getWalletClient(wagmiConfig).then(async (walletClient) => {
+
+    console.log('walletClient', walletClient);
+
 
     const hatsModulesClient = new HatsModulesClient({
       publicClient,
@@ -398,19 +403,21 @@ export async function createHatsModulesClient(
           ],
         },
       ],
-    });
+    })
 
-    return hatsModulesClient as HatsModulesClient;
-  } catch (e) {
-    // expect an error when not connected to a wallet
+
+    return Promise.resolve(hatsModulesClient);
+  }).catch(async (e) => {
+    console.log('error', e);
+
     const modulesClient = new HatsModulesClient({
       publicClient,
     });
 
     await modulesClient.prepare();
 
-    return modulesClient as HatsModulesClient;
-  }
+    return Promise.resolve(modulesClient);
+  });
 }
 
 export async function createHatsSignerGateClient(

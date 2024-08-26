@@ -1,11 +1,12 @@
 'use client';
 
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { HatsModulesClient, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex, zeroAddress } from 'viem';
+import { useWalletClient } from 'wagmi';
 
 const getModuleData = async ({
   address,
@@ -14,31 +15,37 @@ const getModuleData = async ({
   address: Hex | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  if (!chainId || !address) return null;
+  if (!chainId || !address) return Promise.resolve(null);
 
-  const modulesClient = await createHatsModulesClient(chainId);
-  if (!modulesClient) return null;
+  return createHatsModulesClient(chainId)
+    .then(async (modulesClient: HatsModulesClient | null) => {
+      if (!modulesClient) return Promise.resolve(null);
 
-  const promises = [
-    modulesClient.getModuleByInstance(address),
-    modulesClient.getInstanceParameters(address),
-  ];
-  return Promise.all(promises)
-    .then((data) => {
-      const [moduleData, localModuleParameters] = data;
+      const promises = [
+        modulesClient.getModuleByInstance(address),
+        modulesClient.getInstanceParameters(address),
+      ];
+      return Promise.all(promises)
+        .then((data) => {
+          const [moduleData, moduleParameters] = data;
 
-      if (!moduleData) return null;
+          if (!moduleData) return Promise.resolve(null);
 
-      return {
-        details: moduleData as ModuleDetails,
-        parameters: localModuleParameters as ModuleParameter[],
-      };
-    })
-    .catch((err) => {
+          return Promise.resolve({
+            details: moduleData || null as ModuleDetails | null,
+            parameters: moduleParameters || null as ModuleParameter[] | null,
+          });
+        })
+        .catch((err) => {
+          // eslint-disable-next-line no-console
+          console.error(err);
+          return Promise.resolve(null);
+        });
+    }).catch((error) => {
       // eslint-disable-next-line no-console
-      console.error(err);
-      return null;
-    });
+      console.error(error);
+      return Promise.resolve(null);
+    })
 };
 
 const useModuleDetails = ({
@@ -52,12 +59,16 @@ const useModuleDetails = ({
   enabled?: boolean;
   editMode?: boolean;
 }) => {
+
+  const client = useWalletClient()
+
   const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['moduleDetails', { address, chainId }],
     queryFn: () => getModuleData({ address, chainId }),
     enabled:
       !!address &&
       !!chainId &&
+      !!client &&
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&
       enabled,
