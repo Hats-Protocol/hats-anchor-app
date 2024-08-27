@@ -4,7 +4,7 @@ import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, http, WalletClient } from 'viem';
 import { getWalletClient } from 'wagmi/actions';
 
 import { chainsMap, getRpcUrl, wagmiConfig } from './chains';
@@ -29,6 +29,7 @@ declare global {
 export const viemPublicClient = (chainId: number) => {
   return createPublicClient({
     chain: chainsMap(chainId),
+    batch: { multicall: true },
     transport: http(getRpcUrl(chainId), { batch: true }),
   });
 };
@@ -60,12 +61,25 @@ export function createSubgraphClient(): HatsSubgraphClient {
 
 export async function createHatsModulesClient(
   chainId: number | undefined,
-): Promise<HatsModulesClient | undefined> {
-  if (!chainId) return undefined;
+  walletClient?: WalletClient | undefined,
+): Promise<HatsModulesClient | null> {
+  if (!chainId) return Promise.resolve(null);
+  console.log('chainId', chainId);
 
   const publicClient = viemPublicClient(chainId);
-  try {
-    const walletClient = await getWalletClient(wagmiConfig);
+
+  if (walletClient) {
+    return Promise.resolve(new HatsModulesClient({
+      publicClient,
+      walletClient,
+    }));
+  }
+
+  console.log('creatingWalletClient', publicClient);
+  return getWalletClient(wagmiConfig).then(async (walletClient) => {
+
+    console.log('walletClient', walletClient);
+
 
     const hatsModulesClient = new HatsModulesClient({
       publicClient,
@@ -398,19 +412,21 @@ export async function createHatsModulesClient(
           ],
         },
       ],
-    });
+    })
 
-    return hatsModulesClient as HatsModulesClient;
-  } catch (e) {
-    // expect an error when not connected to a wallet
+
+    return Promise.resolve(hatsModulesClient);
+  }).catch(async (e) => {
+    console.log('error', e);
+
     const modulesClient = new HatsModulesClient({
       publicClient,
     });
 
     await modulesClient.prepare();
 
-    return modulesClient as HatsModulesClient;
-  }
+    return Promise.resolve(modulesClient);
+  });
 }
 
 export async function createHatsSignerGateClient(
