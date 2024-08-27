@@ -5,8 +5,8 @@ import { HatsModulesClient, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
-import { Hex, zeroAddress } from 'viem';
-import { useWalletClient, UseWalletClientReturnType } from 'wagmi';
+import { Hex, WalletClient, zeroAddress } from 'viem';
+import { useWalletClient } from 'wagmi';
 
 const getModuleData = async ({
   address,
@@ -15,11 +15,11 @@ const getModuleData = async ({
 }: {
   address: Hex | undefined;
   chainId: SupportedChains | undefined;
-  walletClient: UseWalletClientReturnType | undefined;
+  walletClient: WalletClient | undefined;
 }) => {
   if (!chainId || !address) return Promise.resolve(null);
 
-  return createHatsModulesClient(chainId)
+  return createHatsModulesClient(chainId, walletClient)
     .then(async (modulesClient: HatsModulesClient | null) => {
       if (!modulesClient) return Promise.resolve(null);
 
@@ -62,15 +62,17 @@ const useModuleDetails = ({
   editMode?: boolean;
 }) => {
 
-  const client = useWalletClient()
+  const { data: walletClient, isLoading: isWalletClientLoading, error } = useWalletClient()
+  console.log('walletClient', walletClient, isWalletClientLoading, error);
 
   const { data, isLoading, fetchStatus } = useQuery({
-    queryKey: ['moduleDetails', { address, chainId, walletClient: client }],
-    queryFn: () => getModuleData({ address, chainId, walletClient: client }),
+    queryKey: ['moduleDetails', { address, chainId, walletClient }],
+    queryFn: () => getModuleData({ address, chainId, walletClient }),
     enabled:
       !!address &&
       !!chainId &&
-      !!client &&
+      !!walletClient &&
+      !isWalletClientLoading &&
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&
       enabled,
