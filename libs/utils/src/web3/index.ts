@@ -139,7 +139,7 @@ export async function createHatsModulesClient(
             },
             {
               chainId: '11155111',
-              block: '6228828',
+              block: '6228821',
             },
             {
               chainId: '10',
