@@ -25,6 +25,12 @@ export const SubscribeActions = ({
 }) => {
   const { writeContract } = useWriteContract();
 
+  console.log({
+    symbol,
+    price,
+    lockAddress,
+    currencyContract,
+  });
   if (currencyContract !== zeroAddress) {
     return <Button>Approve {symbol}</Button>;
   }

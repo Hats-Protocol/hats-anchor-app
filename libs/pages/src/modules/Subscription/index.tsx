@@ -51,6 +51,7 @@ const Conditions = dynamic(() =>
 const Subscription = () => {
   const { instanceParameters, chainId } = useEligibility();
 
+  console.log({ instanceParameters });
   const { price, symbol, duration, currencyContract, lockAddress } =
     useLockFromHat({
       instanceParameters,
@@ -65,19 +66,22 @@ const Subscription = () => {
         </Flex>
         <Flex maxW='100%' justifyContent='center'>
           <Card>
-            <CardBody>
-              <Heading size='md'>Subscribe</Heading>
-              <p>
-                This is a subscription hat. To get it you need to pay {price}{' '}
-                {symbol} every {duration} days.
-              </p>
-              <SubscribeActions
-                symbol={symbol}
-                price={price}
-                lockAddress={lockAddress}
-                currencyContract={currencyContract}
-              />
-            </CardBody>
+            {instanceParameters && (
+              <CardBody>
+                <Heading size='md'>Subscribe</Heading>
+                <p>
+                  This is a subscription hat. To get it you need to pay {price}{' '}
+                  {symbol} every {duration} days.
+                </p>
+                <SubscribeActions
+                  symbol={symbol}
+                  price={price}
+                  lockAddress={lockAddress}
+                  currencyContract={currencyContract}
+                />
+              </CardBody>
+            )}
+            {!instanceParameters && <p>Can't install instance params</p>}
           </Card>
         </Flex>
       </Stack>

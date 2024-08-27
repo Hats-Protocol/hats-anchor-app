@@ -5,7 +5,7 @@ import { useAccount, useReadContracts } from 'wagmi';
 export const useLockFromHat = ({ instanceParameters, chainId }) => {
   const { address } = useAccount();
 
-  const lockAddress = instanceParameters.filter(
+  const lockAddress = instanceParameters?.filter(
     (param) => param.label === 'Lock Contract',
   )[0].value;
 
@@ -63,7 +63,11 @@ export const useLockFromHat = ({ instanceParameters, chainId }) => {
     contracts: tokenProperties,
   });
 
-  if (lockPropertiesRequests.isLoading || tokenPropertiesRequests.isLoading)
+  if (
+    lockPropertiesRequests.isLoading ||
+    tokenPropertiesRequests.isLoading ||
+    !lockPropertiesRequests.data
+  )
     return { isLoading: true };
 
   const durationInSeconds = lockPropertiesRequests.data[2].result;
