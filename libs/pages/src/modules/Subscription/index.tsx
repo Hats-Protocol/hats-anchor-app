@@ -75,6 +75,7 @@ const Subscription = () => {
                 symbol={symbol}
                 price={price}
                 lockAddress={lockAddress}
+                currencyContract={currencyContract}
               />
             </CardBody>
           </Card>
