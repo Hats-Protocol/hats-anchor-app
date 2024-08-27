@@ -2,10 +2,10 @@ import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { erc20Abi, formatUnits, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
-export const useLockFromHat = ({ instanceParameters, chainId }) => {
+export const useLockFromHat = ({ moduleParameters, chainId }) => {
   const { address } = useAccount();
 
-  const lockAddress = instanceParameters?.filter(
+  const lockAddress = moduleParameters?.filter(
     (param) => param.label === 'Lock Contract',
   )[0].value;
 

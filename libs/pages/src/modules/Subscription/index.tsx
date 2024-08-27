@@ -49,12 +49,10 @@ const Conditions = dynamic(() =>
 );
 
 const Subscription = () => {
-  const { instanceParameters, chainId } = useEligibility();
-
-  console.log({ instanceParameters });
+  const { chainId, moduleParameters } = useEligibility();
   const { price, symbol, duration, currencyContract, lockAddress } =
     useLockFromHat({
-      instanceParameters,
+      moduleParameters,
       chainId,
     });
 
@@ -66,7 +64,7 @@ const Subscription = () => {
         </Flex>
         <Flex maxW='100%' justifyContent='center'>
           <Card>
-            {instanceParameters && (
+            {moduleParameters && (
               <CardBody>
                 <Heading size='md'>Subscribe</Heading>
                 <p>
@@ -81,7 +79,7 @@ const Subscription = () => {
                 />
               </CardBody>
             )}
-            {!instanceParameters && <p>Can't install instance params</p>}
+            {!moduleParameters && <p>Can't install instance params</p>}
           </Card>
         </Flex>
       </Stack>
