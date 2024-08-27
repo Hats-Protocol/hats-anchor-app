@@ -23,8 +23,9 @@ import { useMemo, useState } from 'react';
 import { hatLink } from 'utils';
 import { erc20Abi } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
-import { useLockFromHat } from './useLockFromHat';
+
 import { SubscribeActions } from './SubscribeActions';
+import { useLockFromHat } from './useLockFromHat';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
@@ -49,12 +50,12 @@ const Conditions = dynamic(() =>
 );
 
 const Subscription = () => {
-  const { instanceParameters, chainId } = useEligibility();
+  const { moduleParameters, chainId } = useEligibility();
 
-  console.log({ instanceParameters });
+  console.log({ moduleParameters });
   const { price, symbol, duration, currencyContract, lockAddress } =
     useLockFromHat({
-      instanceParameters,
+      instanceParameters: moduleParameters,
       chainId,
     });
 
@@ -66,7 +67,7 @@ const Subscription = () => {
         </Flex>
         <Flex maxW='100%' justifyContent='center'>
           <Card>
-            {instanceParameters && (
+            {moduleParameters && (
               <CardBody>
                 <Heading size='md'>Subscribe</Heading>
                 <p>
@@ -81,7 +82,7 @@ const Subscription = () => {
                 />
               </CardBody>
             )}
-            {!instanceParameters && <p>Can't install instance params</p>}
+            {!moduleParameters && <p>Can't install module params</p>}
           </Card>
         </Flex>
       </Stack>

@@ -9,8 +9,13 @@ import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { chainsMap } from 'utils';
 
-import { Agreement, AgreementV0, Election, KnownModule } from './modules';
-import Subscription from './modules/Subscription';
+import {
+  Agreement,
+  AgreementV0,
+  Election,
+  KnownModule,
+  Subscription,
+} from './modules';
 
 const Layout = dynamic(() =>
   import('molecules').then((mod) => mod.StandaloneLayout),
@@ -46,6 +51,7 @@ const Claims = () => {
   ) {
     return <AgreementV0 />;
   }
+  console.log('moduleDetails', moduleDetails);
 
   // handle specific modules found
   // TODO migrate to ID and CONSTs
