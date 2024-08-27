@@ -6,14 +6,16 @@ import { useQuery } from '@tanstack/react-query';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex, zeroAddress } from 'viem';
-import { useWalletClient } from 'wagmi';
+import { useWalletClient, UseWalletClientReturnType } from 'wagmi';
 
 const getModuleData = async ({
   address,
   chainId,
+  walletClient,
 }: {
   address: Hex | undefined;
   chainId: SupportedChains | undefined;
+  walletClient: UseWalletClientReturnType | undefined;
 }) => {
   if (!chainId || !address) return Promise.resolve(null);
 
@@ -63,8 +65,8 @@ const useModuleDetails = ({
   const client = useWalletClient()
 
   const { data, isLoading, fetchStatus } = useQuery({
-    queryKey: ['moduleDetails', { address, chainId }],
-    queryFn: () => getModuleData({ address, chainId }),
+    queryKey: ['moduleDetails', { address, chainId, walletClient: client }],
+    queryFn: () => getModuleData({ address, chainId, walletClient: client }),
     enabled:
       !!address &&
       !!chainId &&
@@ -76,8 +78,8 @@ const useModuleDetails = ({
   });
 
   return {
-    details: data?.details,
-    parameters: data?.parameters,
+    details: data?.details as ModuleDetails | undefined,
+    parameters: data?.parameters as ModuleParameter[] | undefined,
     isLoading: isLoading && fetchStatus !== 'idle',
   };
 };

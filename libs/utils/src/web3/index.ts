@@ -4,7 +4,7 @@ import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, http, WalletClient } from 'viem';
 import { getWalletClient } from 'wagmi/actions';
 
 import { chainsMap, getRpcUrl, wagmiConfig } from './chains';
@@ -61,11 +61,20 @@ export function createSubgraphClient(): HatsSubgraphClient {
 
 export async function createHatsModulesClient(
   chainId: number | undefined,
+  walletClient?: WalletClient | undefined,
 ): Promise<HatsModulesClient | null> {
   if (!chainId) return Promise.resolve(null);
   console.log('chainId', chainId);
 
   const publicClient = viemPublicClient(chainId);
+
+  if (walletClient) {
+    return Promise.resolve(new HatsModulesClient({
+      publicClient,
+      walletClient,
+    }));
+  }
+
   console.log('creatingWalletClient', publicClient);
   return getWalletClient(wagmiConfig).then(async (walletClient) => {
 
