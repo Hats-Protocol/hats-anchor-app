@@ -1,12 +1,11 @@
 'use client';
 
-import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, TOGGLE_MODULES } from '@hatsprotocol/constants';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { first, pick } from 'lodash';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
-import { TOGGLE_MODULES } from '../utils';
 import GenericToggle from './GenericToggle';
 import PassthroughModule from './Passthrough';
 import SeasonToggle from './Season';

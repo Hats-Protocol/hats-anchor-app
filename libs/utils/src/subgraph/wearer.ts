@@ -107,9 +107,10 @@ export const fetchWearerDetailsForChain = async (
     if (!data) return Promise.resolve([]);
 
     const currentHats = get(data, 'currentHats');
-    const withProcessedMetadata = map(currentHats, parseMetadata);
+    // TODO [low] type issue
+    const withProcessedMetadata = map(currentHats, parseMetadata) as unknown as AppHat[];
 
-    return Promise.resolve(withProcessedMetadata);
+    return Promise.resolve(withProcessedMetadata as AppHat[]);
   }).catch((err) => {
     return Promise.resolve([]);
   });

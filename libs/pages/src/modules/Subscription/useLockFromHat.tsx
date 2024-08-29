@@ -1,6 +1,15 @@
 import { PublicLockV14 } from '@unlock-protocol/contracts';
+import { get } from 'lodash';
 import { erc20Abi, formatUnits, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
+
+interface ContractLookup {
+  address: any;
+  abi: any;
+  functionName: string;
+  args: string[];
+  chainId: any;
+}
 
 export const useLockFromHat = ({ moduleParameters, chainId }) => {
   const { address } = useAccount();
@@ -9,7 +18,7 @@ export const useLockFromHat = ({ moduleParameters, chainId }) => {
     (param) => param.label === 'Lock Contract',
   )[0].value;
 
-  const contractLockProperties = [
+  const contractLockProperties: ContractLookup[] = [
     {
       address: lockAddress,
       abi: PublicLockV14.abi,
@@ -71,7 +80,7 @@ export const useLockFromHat = ({ moduleParameters, chainId }) => {
   )
     return { isLoading: true };
 
-  const durationInSeconds = lockPropertiesRequests.data[2].result;
+  const durationInSeconds = get(lockPropertiesRequests, 'data[2].result');
   let duration;
   if (durationInSeconds < Number.MAX_SAFE_INTEGER) {
     duration = Number(durationInSeconds) / (60 * 60 * 24);
@@ -87,7 +96,9 @@ export const useLockFromHat = ({ moduleParameters, chainId }) => {
     decimals = tokenPropertiesRequests.data[1].result;
   }
   const keyPrice = lockPropertiesRequests.data[1].result;
-  const price = formatUnits(lockPropertiesRequests.data[1].result, decimals);
+  const price = lockPropertiesRequests.data[1].result
+    ? formatUnits(lockPropertiesRequests.data[1].result, decimals)
+    : undefined;
 
   return {
     currencyContract,

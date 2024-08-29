@@ -1,28 +1,12 @@
+import { PublicLockV14 } from '@unlock-protocol/contracts';
+import { erc20Abi, maxUint256, zeroAddress } from 'viem';
 import {
   useAccount,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-  useContractRead,
   useReadContract,
+  // useWaitForTransactionReceipt,
+  useWriteContract,
 } from 'wagmi';
-import { PublicLockV14 } from '@unlock-protocol/contracts';
 
-import {
-  Box,
-  Button,
-  Card,
-  CardBody,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Stack,
-  Text,
-  Tooltip,
-  VStack,
-} from '@chakra-ui/react';
-import { erc20Abi, maxUint256, zeroAddress } from 'viem';
-import { useState } from 'react';
 import { TransactionButton } from './TransactionButton';
 
 export const SubscribeActions = ({
