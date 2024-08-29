@@ -66,7 +66,8 @@ export const useLockFromHat = ({ moduleParameters, chainId }) => {
   if (
     lockPropertiesRequests.isLoading ||
     tokenPropertiesRequests.isLoading ||
-    !lockPropertiesRequests.data
+    !lockPropertiesRequests.data ||
+    !tokenPropertiesRequests.data
   )
     return { isLoading: true };
 

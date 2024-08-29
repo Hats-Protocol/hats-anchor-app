@@ -34,8 +34,8 @@ const getModuleData = async ({
           if (!moduleData) return Promise.resolve(null);
 
           return Promise.resolve({
-            details: moduleData || null as ModuleDetails | null,
-            parameters: moduleParameters || null as ModuleParameter[] | null,
+            details: moduleData || (null as ModuleDetails | null),
+            parameters: moduleParameters || (null as ModuleParameter[] | null),
           });
         })
         .catch((err) => {
@@ -43,11 +43,12 @@ const getModuleData = async ({
           console.error(err);
           return Promise.resolve(null);
         });
-    }).catch((error) => {
+    })
+    .catch((error) => {
       // eslint-disable-next-line no-console
       console.error(error);
       return Promise.resolve(null);
-    })
+    });
 };
 
 const useModuleDetails = ({
@@ -61,9 +62,8 @@ const useModuleDetails = ({
   enabled?: boolean;
   editMode?: boolean;
 }) => {
-
-  const { data: walletClient, isLoading: isWalletClientLoading, error } = useWalletClient()
-  console.log('walletClient', walletClient, isWalletClientLoading, error);
+  const { data: walletClient, isLoading: isWalletClientLoading } =
+    useWalletClient();
 
   const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['moduleDetails', { address, chainId, walletClient }],

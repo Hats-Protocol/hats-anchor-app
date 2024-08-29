@@ -51,7 +51,6 @@ const Claims = () => {
   ) {
     return <AgreementV0 />;
   }
-  console.log('moduleDetails', moduleDetails);
 
   // handle specific modules found
   // TODO migrate to ID and CONSTs

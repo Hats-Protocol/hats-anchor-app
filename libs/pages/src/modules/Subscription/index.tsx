@@ -26,6 +26,7 @@ import { useAccount, useReadContracts } from 'wagmi';
 
 import { SubscribeActions } from './SubscribeActions';
 import { useLockFromHat } from './useLockFromHat';
+import { useWearerDetails } from 'hats-hooks';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
@@ -50,22 +51,24 @@ const Conditions = dynamic(() =>
 );
 
 const Subscription = () => {
-<<<<<<< HEAD
-  const { chainId, moduleParameters } = useEligibility();
-  const { price, symbol, duration, currencyContract, lockAddress } =
+  const { address } = useAccount();
+
+  // rest should contain hats deatils including id than I can compare wuth the result from useWearer
+  const { chainId, moduleParameters, ...rest } = useEligibility();
+  const { keyPrice, price, symbol, duration, currencyContract, lockAddress } =
     useLockFromHat({
       moduleParameters,
-=======
-  const { moduleParameters, chainId } = useEligibility();
-
-  console.log({ moduleParameters });
-  const { price, symbol, duration, currencyContract, lockAddress } =
-    useLockFromHat({
-      instanceParameters: moduleParameters,
->>>>>>> 57777554da352ade7052c1430cbaa024cc289350
       chainId,
     });
 
+  const { data: wearerDetails } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+
+  console.log({ wearerDetails, rest });
+  /// array of hats
+  // maps thru ids and do an find
   return (
     <Layout title='Claims'>
       <Stack pt='80px' alignItems='center' gap={6} mb={6}>
@@ -82,18 +85,16 @@ const Subscription = () => {
                   {symbol} every {duration} days.
                 </p>
                 <SubscribeActions
+                  keyPrice={keyPrice}
                   symbol={symbol}
                   price={price}
                   lockAddress={lockAddress}
                   currencyContract={currencyContract}
+                  chainId={chainId}
                 />
               </CardBody>
             )}
-<<<<<<< HEAD
             {!moduleParameters && <p>Can't install instance params</p>}
-=======
-            {!moduleParameters && <p>Can't install module params</p>}
->>>>>>> 57777554da352ade7052c1430cbaa024cc289350
           </Card>
         </Flex>
       </Stack>

@@ -129,8 +129,7 @@ const MODULES_TO_PREPARE = [
         },
         {
           name: 'Payment Price',
-          description:
-            'The price of a payment for a single renewal period',
+          description: 'The price of a payment for a single renewal period',
           type: 'uint256',
           example: '5000000000000000000',
           displayType: 'amountWithDecimals',
@@ -316,9 +315,7 @@ const MODULES_TO_PREPARE = [
         type: 'function',
       },
       {
-        inputs: [
-          { internalType: 'bytes', name: '_initData', type: 'bytes' },
-        ],
+        inputs: [{ internalType: 'bytes', name: '_initData', type: 'bytes' }],
         name: 'setUp',
         outputs: [],
         stateMutability: 'nonpayable',
@@ -388,7 +385,6 @@ export async function createHatsModulesClient(
   walletClient?: WalletClient | undefined,
 ): Promise<HatsModulesClient | null> {
   if (!chainId) return Promise.resolve(null);
-  console.log('chainId', chainId);
 
   const publicClient = viemPublicClient(chainId);
 
@@ -396,42 +392,41 @@ export async function createHatsModulesClient(
     const client = new HatsModulesClient({
       publicClient,
       walletClient,
-    })
-    await client.prepare({ modules: MODULES_TO_PREPARE })
+    });
+    await client.prepare({ modules: MODULES_TO_PREPARE });
 
     return Promise.resolve(client);
   }
 
   console.log('creatingWalletClient', publicClient);
-  return getWalletClient(wagmiConfig).then(async (walletClient) => {
+  return getWalletClient(wagmiConfig)
+    .then(async (walletClient) => {
+      console.log('walletClient', walletClient);
 
-    console.log('walletClient', walletClient);
+      const hatsModulesClient = new HatsModulesClient({
+        publicClient,
+        walletClient,
+      });
 
+      // Will look up all modules in registry but can be configired to
+      // handle a specific module if passed as argument
+      await hatsModulesClient.prepare({
+        modules: MODULES_TO_PREPARE,
+      });
 
-    const hatsModulesClient = new HatsModulesClient({
-      publicClient,
-      walletClient,
-    });
-
-    // Will look up all modules in registry but can be configired to
-    // handle a specific module if passed as argument
-    await hatsModulesClient.prepare({
-      modules: MODULES_TO_PREPARE
+      return Promise.resolve(hatsModulesClient);
     })
+    .catch(async (e) => {
+      console.log('error', e);
 
+      const modulesClient = new HatsModulesClient({
+        publicClient,
+      });
 
-    return Promise.resolve(hatsModulesClient);
-  }).catch(async (e) => {
-    console.log('error', e);
+      await modulesClient.prepare({ modules: MODULES_TO_PREPARE });
 
-    const modulesClient = new HatsModulesClient({
-      publicClient,
+      return Promise.resolve(modulesClient);
     });
-
-    await modulesClient.prepare({ modules: MODULES_TO_PREPARE });
-
-    return Promise.resolve(modulesClient);
-  });
 }
 
 export async function createHatsSignerGateClient(
