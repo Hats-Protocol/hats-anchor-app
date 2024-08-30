@@ -425,7 +425,7 @@ function OrgChartComponent() {
                         -webkit-line-clamp: 1;
                         -webkit-box-orient: vertical;
                       ">
-                        Create Hat ${nextChildId}
+                        Add Hat ${nextChildId}
                       </div>
                       <div style="
                         display: block;

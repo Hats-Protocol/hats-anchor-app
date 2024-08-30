@@ -8,6 +8,9 @@ const NumberInput = {
       },
     },
   },
+  defaultProps: {
+    variant: 'outline',
+  },
 };
 
 export default NumberInput;
