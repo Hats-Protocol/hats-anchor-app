@@ -3,7 +3,7 @@
 import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { getAllParents } from 'hats-utils';
-import _ from 'lodash';
+import { filter, toNumber } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
@@ -40,13 +40,13 @@ const MainContent = ({
   const eligibleParentHats = useMemo(() => {
     const parents = getAllParents(selectedHat?.id, treeToDisplay);
     // not top hat and (immutable with supply or mutable)
-    return _.filter(
+    return filter(
       parents,
       (parent: AppHat) =>
         parent.id !== topHat?.id &&
         parent.id !== selectedHat?.id && // not top hat or selected hat
         (parent.mutable ||
-          _.toNumber(parent.maxSupply) > _.toNumber(parent.currentSupply)),
+          toNumber(parent.maxSupply) > toNumber(parent.currentSupply)),
     ) as AppHat[];
   }, [selectedHat, treeToDisplay, topHat]);
 
@@ -102,7 +102,7 @@ const MainContent = ({
         <Accordion
           title='Permissionless Claiming'
           subtitle='Make this hat claimable by deploying a new hatter contract.'
-          open={_.includes(claimableHats, selectedHat?.id)}
+          open
         >
           <PermissionlessClaimingForm
             localForm={localForm}

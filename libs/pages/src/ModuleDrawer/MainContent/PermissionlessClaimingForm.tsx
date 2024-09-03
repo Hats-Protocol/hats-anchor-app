@@ -5,10 +5,10 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { FormRowWrapper, RadioBox, Select } from 'forms';
 import { useHatDetails, useHatDetailsField, useIsAdmin } from 'hats-hooks';
-import _ from 'lodash';
+import { includes, map, pick, sortBy } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import {
   BsBarChartLine,
@@ -37,7 +37,7 @@ const PermissionlessClaimingForm = ({
     useTreeForm();
   const { selectedHat } = useSelectedHat();
 
-  const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
+  const { watch } = pick(localForm, ['watch']);
   const adminHat = watch('adminHat');
   const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
 
@@ -56,7 +56,7 @@ const PermissionlessClaimingForm = ({
     chainId,
   });
 
-  const isClaimable = _.includes(claimableHats, selectedHat?.id);
+  const isClaimable = includes(claimableHats, selectedHat?.id);
   const { data: wearingHatDetails } = useHatDetails({
     hatId: String(adminHat),
     chainId: selectedHat?.chainId,
@@ -69,15 +69,15 @@ const PermissionlessClaimingForm = ({
 
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isPermissionlesslyClaimable === 'Yes') {
-      scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
-      setValue('adminHat', _.get(_.first(parentHats), 'id'));
-    } else {
-      setValue('adminHat', undefined);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPermissionlesslyClaimable]);
+  // useEffect(() => {
+  //   if (isPermissionlesslyClaimable === 'Yes') {
+  //     scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
+  //     setValue('adminHat', _.get(_.first(parentHats), 'id'));
+  //   } else {
+  //     setValue('adminHat', undefined);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isPermissionlesslyClaimable]);
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -158,7 +158,7 @@ const PermissionlessClaimingForm = ({
                     required: isPermissionlesslyClaimable === 'Yes',
                   }}
                 >
-                  {_.map(_.sortBy(parentHats, 'id'), (h: AppHat) => {
+                  {map(sortBy(parentHats, 'id'), (h: AppHat) => {
                     let displayName = h.details;
                     if (h.detailsObject?.data?.name)
                       displayName = h.detailsObject?.data?.name;
