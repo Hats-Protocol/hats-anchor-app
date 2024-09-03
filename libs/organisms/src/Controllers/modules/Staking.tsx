@@ -3,7 +3,7 @@
 import { Text } from '@chakra-ui/react';
 import { find, pick } from 'lodash';
 import { useStakingDetails } from 'modules-hooks';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { ModuleDetailsHandler } from 'utils';
 import { formatUnits } from 'viem';
 
@@ -51,7 +51,7 @@ const StakingEligibility = ({
         isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
       }
       displayStatus={`${stakeBalanceDisplay} ${tokenDetails?.symbol}`}
-      icon={isEligible ? BsCheckSquareFill : BsFillOctagonFill}
+      icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
     />
   );
 };

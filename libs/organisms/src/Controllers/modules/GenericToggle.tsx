@@ -2,7 +2,7 @@
 
 import { Text } from '@chakra-ui/react';
 import { useHatStatus } from 'hats-hooks';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 
@@ -28,7 +28,7 @@ const GenericToggle = ({
       }
       status={isActive ? TOGGLE_STATUS.active : TOGGLE_STATUS.inactive}
       displayStatus={isActive ? 'Active' : 'Inactive'}
-      icon={isActive ? BsCheckSquareFill : BsFillOctagonFill}
+      icon={isActive ? BsCheckSquareFill : BsFillXOctagonFill}
     />
   );
 };

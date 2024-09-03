@@ -3,7 +3,7 @@
 import { Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { find, toNumber, toString } from 'lodash';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { ModuleDetailsHandler } from 'utils';
 
 import { TOGGLE_STATUS } from '../utils';
@@ -26,7 +26,7 @@ const SeasonToggle = ({
         status={TOGGLE_STATUS.inactive}
         displayStatus='No season end date'
         displayStatusLink=''
-        icon={BsFillOctagonFill}
+        icon={BsFillXOctagonFill}
       />
     );
   }
@@ -54,7 +54,7 @@ const SeasonToggle = ({
       }
       status={TOGGLE_STATUS.inactive}
       displayStatus={`${formatDistanceToNow(seasonEndDate)} ago`}
-      icon={BsFillOctagonFill}
+      icon={BsFillXOctagonFill}
     />
   );
 };

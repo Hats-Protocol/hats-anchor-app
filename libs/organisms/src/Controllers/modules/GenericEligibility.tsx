@@ -3,7 +3,7 @@
 import { Text } from '@chakra-ui/react';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
@@ -38,7 +38,7 @@ const GenericEligibility = ({
         isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
       }
       displayStatus={isEligible ? 'Eligible' : 'Ineligible'}
-      icon={isEligible ? BsCheckSquareFill : BsFillOctagonFill}
+      icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
     />
   );
 };

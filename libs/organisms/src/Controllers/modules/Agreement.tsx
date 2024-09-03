@@ -5,7 +5,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
@@ -53,7 +53,7 @@ const AgreementEligibility = ({
         isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
       }
       displayStatus={isEligible ? 'Signed' : 'Not Signed'}
-      icon={isEligible ? BsCheckSquareFill : BsFillOctagonFill}
+      icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
     />
   );
 };
