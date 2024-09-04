@@ -31,9 +31,10 @@ const InlineHatCard = ({
     <Popover placement='left'>
       <PopoverTrigger>
         <Button
-          size='xs'
-          variant='ghost'
-          py={0}
+          variant='link'
+          fontFamily='inter'
+          fontSize='sm'
+          color='black'
           rightIcon={<Icon as={HatIcon} />}
         >
           {hatIdDecimalToIp(hatIdHexToDecimal(hatId))}

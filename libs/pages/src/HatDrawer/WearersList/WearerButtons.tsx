@@ -106,7 +106,12 @@ const WearerButtons = () => {
   // 3. claim hat
 
   return (
-    <Flex justify='space-between' align='center' px={{ base: 4, md: 16 }}>
+    <Flex
+      justify='space-between'
+      align='center'
+      px={{ base: 4, md: 16 }}
+      pt={2}
+    >
       {_.gt(_.size(eligibleWearerIds), 4) && (
         <Text
           onClick={() => setModals?.({ hatWearers: true })}
@@ -135,7 +140,7 @@ const WearerButtons = () => {
               shouldWrapChildren
             >
               <Button
-                variant='unstyled'
+                variant='link'
                 isDisabled={
                   maxWearersReached ||
                   !hatterIsAdmin ||
@@ -168,7 +173,7 @@ const WearerButtons = () => {
                 shouldWrapChildren
               >
                 <Button
-                  variant='unstyled'
+                  variant='link'
                   isDisabled={
                     !claimHat ||
                     maxWearersReached ||
@@ -195,7 +200,7 @@ const WearerButtons = () => {
               shouldWrapChildren
             >
               <Button
-                variant='unstyled'
+                variant='link'
                 isDisabled={maxWearersReached || chainId !== currentNetworkId}
                 onClick={() =>
                   !maxWearersReached ? setModals?.({ newWearer: true }) : {}

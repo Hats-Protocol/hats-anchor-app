@@ -125,16 +125,10 @@ const Header = () => {
             <Box>
               <Button
                 size={{ base: 'sm', md: 'md' }}
-                variant='text'
-                colorScheme='Functional-LinkPrimary'
+                variant='link'
+                color='Functional-LinkPrimary'
                 onClick={copyHatId}
-                rightIcon={
-                  <Icon
-                    as={CopyHash}
-                    color='Functional-LinkPrimary'
-                    cursor='pointer'
-                  />
-                }
+                rightIcon={<Icon as={CopyHash} />}
               >
                 {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
               </Button>

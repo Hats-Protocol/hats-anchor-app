@@ -1,4 +1,4 @@
-import _, { get, isString, map, omit } from 'lodash';
+import _, { get, isString, isUndefined, map, omit } from 'lodash';
 import { createHierarchy, idToIp } from 'shared';
 import {
   AppHat,
@@ -101,16 +101,14 @@ export const getDirtyFields = (
       );
     }
 
-    const defaultVal = isString(get(defaultFormValues, key)) || typeof get(defaultFormValues, key) === 'number'
-      ? get(defaultFormValues, key)
-      : JSON.stringify(
-        map(get(defaultFormValues, key) as any[], (item) => omit(item, ['moduleInfo'])),
-      );
-    const compareVal = isString(get(formValues, key)) || typeof get(formValues, key) === 'number'
-      ? get(formValues, key)
-      : JSON.stringify(
-        map(get(formValues, key) as any[], (item) => omit(item, ['moduleInfo'])),
-      );
+    const initialDefaultVal = get(defaultFormValues, key);
+    const defaultVal = isString(initialDefaultVal) || typeof initialDefaultVal === 'number' || typeof initialDefaultVal === 'boolean' || isUndefined(initialDefaultVal)
+      ? initialDefaultVal
+      : JSON.stringify(map(initialDefaultVal, (item: any) => omit(item, ['moduleInfo'])));
+    const initialFormVal = get(formValues, key);
+    const compareVal = isString(initialFormVal) || typeof initialFormVal === 'number' || typeof initialFormVal === 'boolean' || isUndefined(initialFormVal)
+      ? initialFormVal
+      : JSON.stringify(map(initialFormVal, (item: any) => omit(item, ['moduleInfo'])));
 
     return defaultVal !== compareVal;
   }) as string[];
