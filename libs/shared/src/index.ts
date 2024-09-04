@@ -10,6 +10,7 @@ import { Hex } from 'viem';
 export * from './hats';
 
 /**
+ * @deprecated
  * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
@@ -23,6 +24,7 @@ export function prettyIdToId(id: string | undefined): Hex {
 }
 
 /**
+ * @deprecated
  * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
@@ -42,6 +44,7 @@ export function idToPrettyId(id: Hex | undefined): string {
 }
 
 /**
+ * @deprecated
  * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
@@ -60,6 +63,7 @@ export function prettyIdToIp(id: string | undefined) {
 }
 
 /**
+ * @deprecated
  * @HACK UNTIL FUNCTION AVAILABLE IN SDK
  * - takes in a Hat ID Hex and returns a Hat ID IP
  * - `inverse` of `ipToHatId`
@@ -70,6 +74,7 @@ export function idToIp(id: Hex | undefined) {
 }
 
 /**
+ * @deprecated
  * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
@@ -88,6 +93,7 @@ export const toTreeId = (id: string | undefined) => {
 };
 
 /**
+ * @deprecated
  * ========== DEPRECATED ==========
  * - DO NOT USE
  * - to be removed
@@ -107,6 +113,7 @@ export function ipToPrettyId(id: string | undefined) {
 }
 
 /**
+ * @deprecated
  * @HACK UNTIL FUNCTION AVAILABLE IN SDK
  * - takes in a Hat ID IP and returns a Hat ID Hex
  * - `inverse` of `idToIp`

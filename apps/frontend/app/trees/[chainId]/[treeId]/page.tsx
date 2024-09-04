@@ -7,6 +7,13 @@ import { SearchParamsProps } from 'types';
 import { fetchHatDetailsMesh } from 'utils';
 
 const TreeDetails = ({ params }: TreeDetailsProps) => {
+  const { chainId, treeId } = params;
+  const treeIdNum = toNumber(treeId);
+  if (!chainId || !treeId || isNaN(treeIdNum)) return null;
+  console.log(chainId, treeId);
+
+  // const hat = getHat()
+
   return (
     <TreeFormContextProvider>
       <div className='hidden md:block'>

@@ -100,6 +100,11 @@ export const SelectedHatContextProvider = ({
     () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
     [onchainHats, selectedHat],
   );
+  const hatNotInTree = useMemo(
+    () => !_.includes(_.map(orgChartTree, 'id'), selectedHat?.id),
+    [orgChartTree, selectedHat],
+  );
+  console.log(selectedHat, hatNotInTree);
 
   // *********************
   // * ONCHAIN HAT

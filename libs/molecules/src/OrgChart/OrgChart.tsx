@@ -28,11 +28,9 @@ import _, { get, isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { BsArrowRight } from 'react-icons/bs';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import type { AppHat } from 'types';
-import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -522,28 +520,31 @@ function OrgChartComponent() {
   if (treeError) {
     // TODO check more specific error message
     return (
-      <Flex justify='center' align='center' w='full' h='full' pt={20}>
+      <Flex justify='center' align='center' w='full' h='full' pt='175px'>
         <Stack spacing={8} align='center'>
-          <Box position='relative'>
-            <Heading size='xl' position='absolute' top='30%' left='40%'>
-              Tree not found!
+          <Stack>
+            <Heading size='4xl' textAlign='center'>
+              404
             </Heading>
-            <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
-          </Box>
-          <Flex>
-            <ChakraNextLink href='/'>
-              <Button
-                variant='outline'
-                bg='white'
-                rightIcon={<Icon as={BsArrowRight} />}
-              >
-                <span role='img' aria-label='Hats ball cap'>
-                  🧢
-                </span>{' '}
-                Head home
-              </Button>
-            </ChakraNextLink>
-          </Flex>
+            <Heading textAlign='center'>Tree not found</Heading>
+
+            {/* <Flex>
+                <ChakraNextLink href='/'>
+                  <Button
+                    variant='outline'
+                    bg='white'
+                    rightIcon={<Icon as={BsArrowRight} />}
+                  >
+                    <span role='img' aria-label='Hats ball cap'>
+                      🧢
+                    </span>{' '}
+                    Head home
+                  </Button>
+                </ChakraNextLink>
+              </Flex> */}
+          </Stack>
+
+          <Image src='/tree-not-found.png' alt='No hats found' h='500px' />
         </Stack>
       </Flex>
     );
