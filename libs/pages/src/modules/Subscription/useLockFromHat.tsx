@@ -1,13 +1,20 @@
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { erc20Abi, formatUnits, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
-export const useLockFromHat = ({ moduleParameters, chainId }) => {
+export const useLockFromHat = ({
+  moduleParameters,
+  chainId,
+}: {
+  moduleParameters: ModuleParameter[] | undefined;
+  chainId: number | undefined;
+}) => {
   const { address } = useAccount();
 
   const lockAddress = moduleParameters?.filter(
     (param) => param.label === 'Lock Contract',
-  )[0].value;
+  )[0].value as `0x${string}`;
 
   const contractLockProperties = [
     {
@@ -33,13 +40,17 @@ export const useLockFromHat = ({ moduleParameters, chainId }) => {
     },
   ];
 
-  const lockPropertiesRequests = useReadContracts({
+  const lockPropertiesParams = {
     contracts: contractLockProperties,
-  });
+  };
+  // @ts-expect-error Type instantiation is excessively deep and possibly infinite
+  const lockPropertiesRequests = useReadContracts(lockPropertiesParams);
 
-  const currencyContract = lockPropertiesRequests?.data
-    ? lockPropertiesRequests?.data[0].result
-    : '';
+  const currencyContract = (
+    lockPropertiesRequests?.data
+      ? lockPropertiesRequests?.data[0].result
+      : zeroAddress
+  ) as `0x${string}`;
 
   const tokenProperties = [
     {
@@ -71,23 +82,26 @@ export const useLockFromHat = ({ moduleParameters, chainId }) => {
   )
     return { isLoading: true };
 
-  const durationInSeconds = lockPropertiesRequests.data[2].result;
+  const durationInSeconds = lockPropertiesRequests.data[2].result as bigint;
   let duration;
   if (durationInSeconds < Number.MAX_SAFE_INTEGER) {
     duration = Number(durationInSeconds) / (60 * 60 * 24);
   }
 
-  let symbol;
-  let decimals;
+  let symbol = 'ETH';
+  let decimals = 18n;
   if (currencyContract === zeroAddress) {
     symbol = 'ETH'; // TODO: can we get this from wagmi?
-    decimals = 18;
+    decimals = 18n;
   } else {
-    symbol = tokenPropertiesRequests.data[0].result;
-    decimals = tokenPropertiesRequests.data[1].result;
+    symbol = (tokenPropertiesRequests.data[0].result as string) || '';
+    decimals = tokenPropertiesRequests.data[1].result as bigint;
   }
-  const keyPrice = lockPropertiesRequests.data[1].result;
-  const price = formatUnits(lockPropertiesRequests.data[1].result, decimals);
+  const keyPrice = lockPropertiesRequests.data[1].result as bigint;
+  const price = formatUnits(
+    lockPropertiesRequests.data[1].result as bigint,
+    Number(decimals),
+  );
 
   return {
     currencyContract,

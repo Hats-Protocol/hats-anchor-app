@@ -1,8 +1,17 @@
 import { Button, Spinner } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { TransactionReceipt } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
 
-export const TransactionButton = ({ sendTx, children, onReceipt }) => {
+export const TransactionButton = ({
+  sendTx,
+  children,
+  onReceipt,
+}: {
+  sendTx: () => Promise<`0x${string}`>;
+  children: React.ReactNode;
+  onReceipt: (receipt: { [x: string]: any }) => void;
+}) => {
   const [hash, setHash] = useState<`0x${string}`>();
 
   const { data: receipt } = useWaitForTransactionReceipt({
