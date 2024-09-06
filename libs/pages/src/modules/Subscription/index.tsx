@@ -3,7 +3,6 @@
 import { Card, CardBody, Flex, Heading, Stack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import dynamic from 'next/dynamic';
-
 import CheckHasHat from './CheckHasHat';
 import { SubscribeActions } from './SubscribeActions';
 import { useLockFromHat } from './useLockFromHat';

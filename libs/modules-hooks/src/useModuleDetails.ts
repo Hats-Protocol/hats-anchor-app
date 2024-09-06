@@ -71,7 +71,6 @@ const useModuleDetails = ({
     enabled:
       !!address &&
       !!chainId &&
-      !!walletClient &&
       !isWalletClientLoading &&
       address !== FALLBACK_ADDRESS &&
       address !== zeroAddress &&

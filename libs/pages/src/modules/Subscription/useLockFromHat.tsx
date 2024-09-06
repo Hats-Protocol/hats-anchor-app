@@ -1,7 +1,16 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
+import { get } from 'lodash';
 import { erc20Abi, formatUnits, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
+
+interface ContractLookup {
+  address: any;
+  abi: any;
+  functionName: string;
+  args: string[];
+  chainId: any;
+}
 
 export const useLockFromHat = ({
   moduleParameters,
@@ -16,7 +25,7 @@ export const useLockFromHat = ({
     (param) => param.label === 'Lock Contract',
   )[0].value as `0x${string}`;
 
-  const contractLockProperties = [
+  const contractLockProperties: ContractLookup[] = [
     {
       address: lockAddress,
       abi: PublicLockV14.abi,
@@ -28,7 +37,7 @@ export const useLockFromHat = ({
       address: lockAddress,
       abi: PublicLockV14.abi,
       functionName: 'purchasePriceFor',
-      args: [address, address, ''],
+      args: [address!, address!, ''],
       chainId,
     },
     {
@@ -43,7 +52,8 @@ export const useLockFromHat = ({
   const lockPropertiesParams = {
     contracts: contractLockProperties,
   };
-  // @ts-expect-error Type instantiation is excessively deep and possibly infinite
+
+  // @ts-ignore
   const lockPropertiesRequests = useReadContracts(lockPropertiesParams);
 
   const currencyContract = (
@@ -82,7 +92,10 @@ export const useLockFromHat = ({
   )
     return { isLoading: true };
 
-  const durationInSeconds = lockPropertiesRequests.data[2].result as bigint;
+  const durationInSeconds = get(
+    lockPropertiesRequests,
+    'data[2].result',
+  ) as bigint;
   let duration;
   if (durationInSeconds < Number.MAX_SAFE_INTEGER) {
     duration = Number(durationInSeconds) / (60 * 60 * 24);
@@ -97,6 +110,7 @@ export const useLockFromHat = ({
     symbol = (tokenPropertiesRequests.data[0].result as string) || '';
     decimals = tokenPropertiesRequests.data[1].result as bigint;
   }
+
   const keyPrice = lockPropertiesRequests.data[1].result as bigint;
   const price = formatUnits(
     lockPropertiesRequests.data[1].result as bigint,

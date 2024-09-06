@@ -11,16 +11,18 @@ import { useAccount } from 'wagmi';
 const useAncillaryElection = ({
   id,
   chainId,
+  enabled = true,
 }: {
   id?: string;
   chainId: SupportedChains;
+  enabled: boolean;
 }) => {
   const { address } = useAccount();
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['electionData', id, chainId],
     queryFn: () => fetchElectionData(id || 'none', chainId),
-    enabled: !!id && !!chainId,
+    enabled: !!id && !!chainId && enabled,
   });
 
   const adminHatId = _.get(data, 'adminHat[0].id');

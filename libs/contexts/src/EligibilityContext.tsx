@@ -1,6 +1,6 @@
 'use client';
 
-import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useHatDetails, useWearersControllersDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
@@ -76,6 +76,7 @@ export const EligibilityContextProvider = ({
     useAncillaryElection({
       id: controllerAddress,
       chainId,
+      enabled: moduleDetails?.name === ELIGIBILITY_MODULES.election,
     });
 
   const value = useMemo(
