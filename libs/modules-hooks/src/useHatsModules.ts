@@ -44,8 +44,8 @@ const useHatsModules = ({
     data,
     (value: Module, key: string) =>
       ({
-        id: key,
         ...value,
+        id: key,
       } as ModuleDetails),
   );
 
