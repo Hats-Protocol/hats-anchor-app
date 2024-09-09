@@ -126,19 +126,19 @@ const HatBasicsForm = () => {
           <FormRowWrapper>
             <Icon as={HatIcon} boxSize={4} mt='2px' />
             <Input
-              localForm={localForm}
               name='name'
               label='Hat Name'
               placeholder='Hat name'
+              localForm={localForm}
             />
           </FormRowWrapper>
           <FormRowWrapper>
             <Icon as={BsTextParagraph} boxSize={4} mt='2px' />
             <Textarea
-              localForm={localForm}
               name='description'
               label='Description'
               placeholder='Add a brief description (or a link to one) for this hat'
+              localForm={localForm}
             />
           </FormRowWrapper>
           {isTopHat(selectedHat) && (

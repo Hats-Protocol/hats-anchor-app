@@ -122,14 +122,12 @@ const NewTreeForm = () => {
           name='name'
           label={_.toUpper('Top Hat name')}
           placeholder='Name of Top Hat'
-          variant='filled'
           localForm={localForm}
         />
         <Textarea
           name='description'
           label={_.toUpper('Top Hat description')}
           placeholder='Describe the Tree and this Top Hat'
-          variant='filled'
           localForm={localForm}
         />
 
@@ -150,10 +148,9 @@ const NewTreeForm = () => {
           <Box>
             <Input
               name='receiver'
-              label='Receiver'
+              label='Assign to'
               placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
               localForm={localForm}
-              variant='filled'
               rightElement={
                 receiverResolvedAddress && <Icon as={FaCheck} color='green' />
               }
@@ -166,21 +163,14 @@ const NewTreeForm = () => {
           </Box>
         )}
 
-        <Stack>
-          <Text variant='medium' size='sm'>
-            {_.toUpper('Network')}
-          </Text>
-          <Text>This Tree will be minted on {chainsMap(chainId)?.name}</Text>
-        </Stack>
-
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            colorScheme='blue'
+            variant='primary'
             isDisabled={!writeAsync}
             isLoading={isLoading || detailsCidLoading}
           >
-            Create
+            Create on {chainsMap(chainId)?.name}
           </Button>
         </Flex>
       </Stack>

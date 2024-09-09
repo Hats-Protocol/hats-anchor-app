@@ -101,14 +101,6 @@ const DropZone = ({
         </FormLabel>
       )}
       <Flex gap={3}>
-        <Box {...getRootProps({ style })}>
-          <Input {...getInputProps()} display='none' />{' '}
-          <Text>
-            {image
-              ? 'Image uploaded! For another image, drag n drop, or click to select'
-              : 'Drag n drop, or click to select'}
-          </Text>
-        </Box>
         {(image || imageUrl) && (
           <Flex wrap='wrap'>
             <Box style={thumb}>
@@ -127,6 +119,15 @@ const DropZone = ({
             </Box>
           </Flex>
         )}
+
+        <Box {...getRootProps({ style })}>
+          <Input {...getInputProps()} display='none' />{' '}
+          <Text>
+            {image
+              ? 'Image uploaded! For another image, drag n drop, or click to select'
+              : 'Drag n drop, or click to select'}
+          </Text>
+        </Box>
       </Flex>
     </Stack>
   );

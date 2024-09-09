@@ -235,16 +235,16 @@ const HatLinkRequestApproveForm = ({
                   {customDetails && (
                     <Stack spacing={2}>
                       <Input
-                        localForm={localForm}
                         name='name'
                         label='Name'
                         placeholder='Hat name'
+                        localForm={localForm}
                       />
                       <Textarea
-                        localForm={localForm}
                         name='description'
                         label='Description'
                         placeholder='Hat description'
+                        localForm={localForm}
                       />
                     </Stack>
                   )}

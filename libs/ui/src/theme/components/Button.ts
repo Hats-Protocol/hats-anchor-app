@@ -45,7 +45,7 @@ const Button = {
         borderColor: props.borderColor || props.colorScheme || 'gray.700',
       },
     }),
-    link: (prop: StyleFunctionProps) => ({
+    link: (props: StyleFunctionProps) => ({
       fontFamily: 'inter',
     })
   },

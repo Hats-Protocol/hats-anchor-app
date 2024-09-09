@@ -294,7 +294,11 @@ function OrgChartComponent() {
                     border: ${isSelected ? '3px' : '1px'} solid #4A5568;
                     left: ${isSelected ? -12 : 1}px;
                     top: ${isSelected ? -12 : 0}px;
-                    border-radius: 4px;
+                    ${
+                      isSelected
+                        ? 'border-radius: 4px;'
+                        : 'border-top-left-radius: 4px;'
+                    }
                     overflow: hidden;
                     ${isSelected && 'background: white;'}
                   ">
@@ -333,6 +337,7 @@ function OrgChartComponent() {
                       <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
                         <div style="
                           font-size: 12px;
+                          font-family: 'Inter Variable', sans-serif;
                           color: #08011E;
                           font-weight: ${isSelected ? 800 : 500};
                         ">
@@ -349,6 +354,7 @@ function OrgChartComponent() {
                       <div style="
                         display: -webkit-box;
                         font-size: 16px;
+                        font-family: 'Inter Variable', sans-serif;
                         font-weight: ${isSelected ? 800 : 500};
                         overflow: hidden;
                         color: #08011E;
@@ -406,8 +412,18 @@ function OrgChartComponent() {
                       flex-direction: row;
                       gap: 4px;
                       font-size: 14px;
+                      font-family: 'Inter Variable', sans-serif;
                       position: relative;
                     " class="hover-text">
+                      <div style="
+                        display: block;
+                        background: white;
+                        border-radius: 2px;
+                        height: 14px;
+                        width: 14px;
+                      ">
+                        <img src="/icons/plus-square.svg" alt="add" style="height: 100%;" />
+                      </div>
                       ${
                         levelAtLocalTree > 3
                           ? `
@@ -426,15 +442,6 @@ function OrgChartComponent() {
                         -webkit-box-orient: vertical;
                       ">
                         Add Hat ${nextChildId}
-                      </div>
-                      <div style="
-                        display: block;
-                        background: white;
-                        border-radius: 2px;
-                        height: 14px;
-                        width: 14px;
-                      ">
-                        <img src="/icons/plus-square.svg" alt="add" style="height: 100%;" />
                       </div>
                     </div>
                   </div>`

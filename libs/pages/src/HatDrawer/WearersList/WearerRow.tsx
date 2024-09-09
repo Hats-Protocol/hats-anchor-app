@@ -239,6 +239,7 @@ const WearerRow = ({
               </Button>
             </TooltipWrapper>
           )}
+
         {!isSameAddress(wearer.id, address) ? ( // if not current user, show copy button
           <IconButton
             icon={<Icon as={CopyAddress} boxSize={4} color='blue.500' />}

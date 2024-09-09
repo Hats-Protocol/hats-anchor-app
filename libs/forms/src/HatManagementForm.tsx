@@ -4,7 +4,6 @@ import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { isMutable } from 'hats-utils';
-import { useContractData } from 'hooks';
 import _ from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import { ReactNode, useEffect, useState } from 'react';
@@ -52,7 +51,7 @@ const HatManagementForm = ({
   onOpenModuleDrawer,
   setIsStandAloneHatterDeploy,
 }: HatManagementFormProps) => {
-  const { chainId, editMode } = useTreeForm();
+  const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const { localForm: hatForm } = useHatForm();
   const { watch, control, setValue, getValues } = _.pick(hatForm, [
@@ -72,26 +71,17 @@ const HatManagementForm = ({
   const controllerInput = getValues?.(`${_.toLower(title)}-input`);
 
   // TODO is extended controller working here? was removed in above context I think
-  const { eligibility, extendedEligibility, extendedToggle, toggle } = _.pick(
-    selectedHat,
-    ['eligibility', 'extendedEligibility', 'extendedToggle', 'toggle'],
-  );
-  const extendedController =
-    title === CONTROLLER_TYPES.eligibility
-      ? extendedEligibility
-      : extendedToggle;
+  const { eligibility, toggle } = _.pick(selectedHat, [
+    'eligibility',
+    'toggle',
+  ]);
+
   const controller =
     title === CONTROLLER_TYPES.eligibility ? eligibility : toggle;
 
   const { details: moduleDetails } = useModuleDetails({
     address: controllerInput,
     chainId,
-  });
-  const { data: contractData } = useContractData({
-    chainId,
-    address: extendedController?.id,
-    enabled: !!extendedController?.isContract,
-    editMode,
   });
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
@@ -160,24 +150,24 @@ const HatManagementForm = ({
               localForm={hatForm}
               isDisabled={!isMutable(selectedHat)}
               chainId={chainId}
-              originalValue={extendedController?.id || controller}
+              originalValue={controller}
             />
             <HStack spacing={8}>
-              {(moduleDetails || contractData) && (
+              {moduleDetails && (
                 <ChakraNextLink
                   href={`${explorerUrl(chainId)}/address/${
-                    newAddress || extendedController?.id
+                    newAddress || controller
                   }`}
                   isExternal
                 >
                   <HStack maxW='200px'>
-                    {extendedController?.isContract || moduleDetails ? (
+                    {moduleDetails ? (
                       <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
                     ) : (
                       <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                     )}
                     <Text size='sm' variant='gray'>
-                      {contractData?.contractName || moduleDetails?.name}
+                      {moduleDetails?.name}
                     </Text>
                   </HStack>
                 </ChakraNextLink>
@@ -194,7 +184,6 @@ const HatManagementForm = ({
           </Stack>
         </FormRowWrapper>
         {title === CONTROLLER_TYPES.eligibility &&
-          extendedController?.isContract &&
           isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
             <ClaimsHandler
               localForm={hatForm}
