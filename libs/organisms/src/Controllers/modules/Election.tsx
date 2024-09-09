@@ -4,7 +4,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
@@ -48,7 +48,7 @@ const ElectionEligibility = ({
         isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
       }
       displayStatus={isEligible ? 'Elected' : 'Not Elected'}
-      icon={isEligible ? BsCheckSquareFill : BsFillOctagonFill}
+      icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
     />
   );
 };

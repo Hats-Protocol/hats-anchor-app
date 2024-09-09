@@ -5,8 +5,14 @@ const Input = {
         bg: 'white',
         border: '1px',
         borderColor: 'gray.200',
+        _focus: {
+          bg: 'white',
+        }
       },
     },
+  },
+  defaultProps: {
+    variant: 'outline',
   },
 };
 

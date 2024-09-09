@@ -39,7 +39,6 @@ const TreesList = ({ params }: TreeListProps) => {
     chainId,
     enabled: !address || showKey === SHOW_KEY.all,
   });
-  console.log(paginatedTrees, hasNextPage);
 
   const trees = flatten(get(paginatedTrees, 'pages'));
   const currentTrees = useMemo(() => {

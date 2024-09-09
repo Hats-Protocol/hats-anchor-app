@@ -17,26 +17,12 @@ import {
   BsShieldLock,
 } from 'react-icons/bs';
 import { FaCode } from 'react-icons/fa';
-import { GrEdit } from 'react-icons/gr';
 import { DetailsItem } from 'types';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl } from 'utils';
 
 import ClaimsHandler from './ClaimsHandler';
-import {
-  AddressInput,
-  FormRowWrapper,
-  LabelWithLink,
-  RadioBox,
-} from './components';
-
-const options = [
-  { value: TRIGGER_OPTIONS.MANUALLY, label: TRIGGER_OPTIONS.MANUALLY },
-  {
-    value: TRIGGER_OPTIONS.AUTOMATICALLY,
-    label: TRIGGER_OPTIONS.AUTOMATICALLY,
-  },
-];
+import { AddressInput, FormRowWrapper, LabelWithLink } from './components';
 
 interface HatManagementFormProps {
   title: string;
@@ -157,17 +143,6 @@ const HatManagementForm = ({
     <form>
       <Stack spacing={8}>
         <FormRowWrapper>
-          <Icon as={GrEdit} boxSize={4} mt='2px' />
-          <RadioBox
-            name={radioBoxConfig.name}
-            label={radioBoxConfig.label}
-            subLabel={radioBoxConfig.subLabel}
-            // defaultValue={moduleDetails && TRIGGER_OPTIONS.AUTOMATICALLY}
-            localForm={hatForm}
-            options={options}
-          />
-        </FormRowWrapper>
-        <FormRowWrapper>
           <Icon as={BsShieldLock} boxSize={4} mt='2px' />
           <Stack>
             <AddressInput
@@ -207,16 +182,14 @@ const HatManagementForm = ({
                   </HStack>
                 </ChakraNextLink>
               )}
-              {isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
-                <Button
-                  leftIcon={<BsFileCode />}
-                  variant='outline'
-                  fontWeight='normal'
-                  onClick={onOpenModuleDrawer}
-                >
-                  Create new Module
-                </Button>
-              )}
+              <Button
+                leftIcon={<BsFileCode />}
+                variant='outline'
+                fontWeight='normal'
+                onClick={onOpenModuleDrawer}
+              >
+                Add Module
+              </Button>
             </HStack>
           </Stack>
         </FormRowWrapper>

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { get, isString, isUndefined, map, omit } from 'lodash';
 import { createHierarchy, idToIp } from 'shared';
 import {
   AppHat,
@@ -101,9 +101,16 @@ export const getDirtyFields = (
       );
     }
 
-    return (
-      JSON.stringify(defaultFormValues[key]) !== JSON.stringify(formValues[key])
-    );
+    const initialDefaultVal = get(defaultFormValues, key);
+    const defaultVal = isString(initialDefaultVal) || typeof initialDefaultVal === 'number' || typeof initialDefaultVal === 'boolean' || isUndefined(initialDefaultVal)
+      ? initialDefaultVal
+      : JSON.stringify(map(initialDefaultVal, (item: any) => omit(item, ['moduleInfo'])));
+    const initialFormVal = get(formValues, key);
+    const compareVal = isString(initialFormVal) || typeof initialFormVal === 'number' || typeof initialFormVal === 'boolean' || isUndefined(initialFormVal)
+      ? initialFormVal
+      : JSON.stringify(map(initialFormVal, (item: any) => omit(item, ['moduleInfo'])));
+
+    return defaultVal !== compareVal;
   }) as string[];
 };
 

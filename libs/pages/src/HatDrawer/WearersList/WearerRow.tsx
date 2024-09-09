@@ -226,7 +226,7 @@ const WearerRow = ({
               label="You can't revoke a hat on a different chain"
             >
               <Button
-                variant='ghost'
+                variant='link'
                 color='red.500'
                 size='xs'
                 isDisabled={!isSameChain}
@@ -244,7 +244,7 @@ const WearerRow = ({
             icon={<Icon as={CopyAddress} boxSize={4} color='blue.500' />}
             p={0}
             size='xs'
-            variant='ghost'
+            variant='link'
             aria-label='Copy wearer address'
             onClick={copyAddress}
           />
@@ -256,7 +256,7 @@ const WearerRow = ({
               label="You can't renounce a hat on a different chain"
             >
               <Button
-                variant='ghost'
+                variant='link'
                 size='xs'
                 color='red.500'
                 fontWeight='medium'

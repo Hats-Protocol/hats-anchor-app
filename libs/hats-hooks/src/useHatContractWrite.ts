@@ -20,6 +20,7 @@ interface ContractInteractionProps {
   waitForSubgraph: ((data?: TransactionReceipt) => Promise<unknown>) | undefined; // passed with handleSuccess
   handleSuccess?: ((data?: TransactionReceipt) => void) | undefined; // passed with handlePendingTx
   // Toasts
+  waitForTxToastData?: ToastProps;
   waitForSubgraphToastData?: ToastProps;
   successToastData?: ToastProps;
   errorToastData?: ToastProps;
@@ -39,6 +40,7 @@ const useHatContractWrite = ({
   waitForSubgraph,
   handleSuccess,
   // Toasts
+  waitForTxToastData,
   waitForSubgraphToastData,
   successToastData,
   errorToastData,
@@ -70,6 +72,7 @@ const useHatContractWrite = ({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
           duration: 5000,
+          ...waitForTxToastData,
         });
 
         handlePendingTx?.({

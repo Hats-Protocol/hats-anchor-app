@@ -51,10 +51,14 @@ const useTreeCreate = ({
       imageUrl || '',
     ],
     chainId,
+    waitForTxToastData: {
+      title: 'Registering your organization with Hats Protocol!',
+      description: 'It takes a few seconds for the network to confirm the creation...',
+    },
     waitForSubgraphToastData: {
       title: 'Tree created!',
       description: 'Waiting on the subgraph to index your tree...', // 'Successfully created tree',
-      // duration: 6000, // TODO did we remove this param?
+      duration: 6000, // TODO did we remove this param?
     },
     successToastData: { title: 'Redirecting you to your new tree' },
     queryKeys: [['treeList', chainId], ['wearerDetails']],
