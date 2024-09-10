@@ -6,7 +6,7 @@ import { Hex } from 'viem';
 export const editHasUpdates = (storedData: Partial<FormData>[] | undefined) =>
   !isEmpty(
     reject(storedData, (data: Partial<FormData>) =>
-      isEmpty(keys(omit(data, getExcludedFields(false)))),
+      isEmpty(keys(omit(data, getExcludedFields(true)))),
     ),
   );
 

@@ -14,6 +14,7 @@ import {
   Image,
   // Spinner,
   Stack,
+  Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
@@ -23,10 +24,10 @@ import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
-import _ from 'lodash';
+import _, { get, isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
@@ -65,6 +66,7 @@ function OrgChartComponent() {
     // isLoading,
     storedConfig,
     storedData,
+    queryParams,
     addHat,
     orgChartWearers,
     onOpenHatDrawer,
@@ -81,20 +83,20 @@ function OrgChartComponent() {
     chainId,
     editMode,
   });
-  const queryParams = new URLSearchParams(window.location.search);
-  const initialCompact =
-    queryParams.get('compact') === 'true' || storedConfig?.compact;
-  const initialFlipped =
-    queryParams.get('flipped') === 'true' || storedConfig?.flipped;
 
-  let collapsedNodes: string[] = queryParams
-    .getAll('collapsed')
-    .map((ipId) => ipToHatId(ipId))
-    .sort() // sorting so that the order of processing will be identical to the order of the node collapses by the user
-    .reverse();
-  if (collapsedNodes.length === 0 && storedConfig.collapsed !== undefined) {
-    collapsedNodes = storedConfig.collapsed.map((ipId) => ipToHatId(ipId));
-  }
+  const initialCompact = get(queryParams, 'compact') || storedConfig?.compact;
+  const initialFlipped = get(queryParams, 'flipped') || storedConfig?.flipped;
+
+  const collapsedNodes = useMemo(() => {
+    let collapsed = get(queryParams, 'collapsed')
+      ?.map((ipId) => ipToHatId(ipId))
+      .sort() // sorting so that the order of processing will be identical to the order of the node collapses by the user
+      .reverse();
+    if (collapsed?.length === 0 && storedConfig.collapsed !== undefined) {
+      collapsed = storedConfig.collapsed.map((ipId) => ipToHatId(ipId));
+    }
+    return collapsed ?? [];
+  }, [queryParams, storedConfig]);
 
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
     defaultIsOpen: initialCompact,
@@ -585,36 +587,50 @@ function OrgChartComponent() {
         >
           Show full {CONFIG.tree}
         </Button>
-        <Button
-          onClick={() => {
-            posthog.capture('Toggled Compact View', {
-              compact,
-            });
+        <Tooltip
+          label={
+            !isEmpty(collapsedNodes)
+              ? `Show full tree to ${compact ? 'expand' : 'compact'} view`
+              : ''
+          }
+        >
+          <Button
+            onClick={() => {
+              posthog.capture('Toggled Compact View', {
+                compact,
+              });
 
-            toggleCompact();
-            handleSetCompact?.(compact);
-          }}
-          variant='outline'
-          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+              toggleCompact();
+              handleSetCompact?.(compact);
+            }}
+            isDisabled={!isEmpty(collapsedNodes)} // add edit mode here?
+            variant='outline'
+            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+          >
+            {compact ? 'Full View' : 'Compact View'}
+          </Button>
+        </Tooltip>
+        <Tooltip
+          label={!isEmpty(collapsedNodes) ? 'Show full tree to flip view' : ''}
         >
-          {compact ? 'Full View' : 'Compact View'}
-        </Button>
-        <Button
-          onClick={() => {
-            posthog.capture('Toggled Flip View', {
-              flipped,
-            });
-            toggleFlip();
-            handleFlipChart?.(flipped);
-            setTimeout(() => {
-              chart?.fit();
-            }, 50);
-          }}
-          variant='outline'
-          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
-        >
-          Flip Tree
-        </Button>
+          <Button
+            onClick={() => {
+              posthog.capture('Toggled Flip View', {
+                flipped,
+              });
+              toggleFlip();
+              handleFlipChart?.(flipped);
+              setTimeout(() => {
+                chart?.fit();
+              }, 50);
+            }}
+            isDisabled={!isEmpty(collapsedNodes)} // add edit mode here?
+            variant='outline'
+            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+          >
+            Flip Tree
+          </Button>
+        </Tooltip>
         <HStack>
           <IconButton
             icon={<Icon as={FaMinus} />}

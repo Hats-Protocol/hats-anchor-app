@@ -78,6 +78,11 @@ export interface TreeFormContext {
   storedConfig: { flipped?: boolean; compact?: boolean; collapsed?: string[] };
   storedData: Partial<FormData>[] | undefined;
   setStoredData: Dispatch<SetStateAction<Partial<FormData>[]>> | undefined;
+  queryParams: {
+    compact: boolean | undefined;
+    collapsed: string[] | undefined;
+    flipped: boolean | undefined;
+  };
   // controls
   editMode: boolean;
   setEditMode: Dispatch<SetStateAction<boolean>> | undefined;
@@ -128,6 +133,11 @@ export const TreeFormContext = createContext<TreeFormContext>({
   storedConfig: {},
   storedData: undefined,
   setStoredData: undefined,
+  queryParams: {
+    compact: undefined,
+    collapsed: undefined,
+    flipped: undefined,
+  },
   orgChartTree: undefined,
   guildData: undefined,
   snapshotData: undefined,
@@ -177,7 +187,12 @@ export const TreeFormContextProvider = ({
 
   const params = useSearchParams();
   const queryParams = getQueryParams(params);
-  const { hatId: hatQueryParam } = queryParams;
+  const {
+    hatId: hatQueryParam,
+    compact: compactQueryParam,
+    collapsed: collapsedQueryParam,
+    flipped: flippedQueryParam,
+  } = queryParams;
   const { updateRecentlyVisitedTrees } = useOverlay();
 
   const hatId = hatQueryParam || hatPathParam;
@@ -488,7 +503,7 @@ export const TreeFormContextProvider = ({
 
       setStoredConfig({
         ...storedConfig,
-        flipped: isFlipped,
+        flipped: !isFlipped,
       });
     },
     [pathname, queryParams, setStoredConfig, storedConfig],
@@ -533,7 +548,7 @@ export const TreeFormContextProvider = ({
         updateCollapsedQueryParams(
           expanded
             ? _.reject(collapsed, (id) => id === nodeIdIp)
-            : _.uniq(_.concat(collapsed, nodeIdIp)),
+            : _.uniq(_.concat(collapsed, [nodeIdIp])),
         );
         return;
       }
@@ -609,7 +624,7 @@ export const TreeFormContextProvider = ({
 
       setStoredConfig({
         ...storedConfig,
-        compact: isCompact,
+        compact: !isCompact,
       });
     },
     [queryParams, pathname, setStoredConfig, storedConfig],
@@ -640,11 +655,23 @@ export const TreeFormContextProvider = ({
         });
         onOpenTreeDrawer?.();
       }
+      const url = urlFromQueryParams({
+        pathname,
+        params: queryParams,
+        drop: ['collapsed'],
+      });
+      setStoredConfig({
+        ..._.omit(storedConfig, 'collapsed'),
+      });
+      window.history.pushState({}, '', url);
     } else {
       const url = urlFromQueryParams({
         pathname,
         params: queryParams,
-        drop: ['hatId'],
+        drop: ['hatId', 'collapsed'],
+      });
+      setStoredConfig({
+        ..._.omit(storedConfig, 'collapsed'),
       });
       onCloseTreeDrawer?.();
       setOrgChartHats(onchainHats);
@@ -813,6 +840,11 @@ export const TreeFormContextProvider = ({
       storedConfig,
       storedData,
       setStoredData,
+      queryParams: {
+        compact: compactQueryParam,
+        collapsed: collapsedQueryParam,
+        flipped: flippedQueryParam,
+      },
       // CONTROLS
       editMode,
       setEditMode,
@@ -864,6 +896,9 @@ export const TreeFormContextProvider = ({
       storedData,
       storedConfig,
       setStoredData,
+      compactQueryParam,
+      collapsedQueryParam,
+      flippedQueryParam,
       // CONTROLS
       editMode,
       setEditMode,

@@ -1,5 +1,5 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import _, { first, isNaN, split, toNumber } from 'lodash';
+import _, { concat, first, get, has, isArray, isEmpty, isNaN, isString, isUndefined, map, omit, omitBy, split, toNumber, toPairs } from 'lodash';
 import { ReadonlyURLSearchParams } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -57,23 +57,23 @@ export const getQueryParams = (params: ReadonlyURLSearchParams) => {
   };
 };
 
-const handleCollapsedAdded = (
+const handleCollapsedQueryParams = (
   pathname: string,
   query: object,
-  collapsed: string | Array<string>,
+  collapsed: string | Array<string> | undefined,
 ) => {
-  if (_.isEmpty(collapsed) || collapsed === '')
-    return `${pathname}?${new URLSearchParams(_.toPairs(query))}`;
+  if (isUndefined(collapsed) || isEmpty(collapsed) || collapsed === '')
+    return `${pathname}?${new URLSearchParams(toPairs(query))}`;
 
-  if (_.isString(collapsed)) {
+  if (isString(collapsed)) {
     return `${pathname}?${new URLSearchParams(
-      _.concat(_.toPairs(query), [['collapsed', collapsed]]),
+      concat(toPairs(query), [['collapsed', collapsed]]),
     )}`;
   }
 
   const localQuery = _.concat(
-    _.toPairs(_.omit(query, 'collapsed')) as [string, string][],
-    _.map(collapsed, (v) => ['collapsed', v]) as [string, string][],
+    toPairs(omit(query, 'collapsed')) as [string, string][],
+    map(collapsed, (v) => ['collapsed', v]) as [string, string][],
   );
 
   return `${pathname}?${new URLSearchParams(localQuery)}`;
@@ -93,33 +93,33 @@ export const urlFromQueryParams = ({
   let query = params;
 
   // remove keys where the value is undefined or false
-  query = _.omitBy(query, _.isUndefined);
-  query = _.omitBy(query, (value) => value === false);
+  query = omitBy(query, isUndefined);
+  query = omitBy(query, (value) => value === false);
+  query = omitBy(query, isEmpty); // remove keys where the array is empty
 
   // always drop these keys, being used elsewhere in the app here
-  query = _.omit(query, _.concat(drop, ['treeId', 'chainId']));
+  query = omit(query, concat(drop, ['treeId', 'chainId']));
+  const queryCollapsed = get(query, 'collapsed'); // collapsed exists and is not empty array
 
-  // handle collapsed separately since incompatible with object keys
-  const restAdd = _.omit(add, 'collapsed') || {};
-  const queryWithoutCollapsed = _.omit(query, 'collapsed');
-  query = { ...queryWithoutCollapsed, ...restAdd };
+  if (has(add, 'collapsed')) {
+    // handle collapsed separately since incompatible with object keys
+    const restAdd = omit(add, 'collapsed') || {};
+    const queryWithoutCollapsed = omit(query, 'collapsed');
+    query = { ...queryWithoutCollapsed, ...restAdd };
 
-  // handle collapsed, concatenate with existing collapsed if present
-  const collapsed = _.compact(
-    _.concat(
-      _.get(params, 'collapsed', []),
-      _.flatten([_.get(add, 'collapsed')]),
-    ),
-  ) as unknown as string[];
-  if (
-    (_.isString(collapsed) && !_.isUndefined(collapsed)) ||
-    (_.isArray(collapsed) && !_.isEmpty(collapsed))
-  ) {
-    return handleCollapsedAdded(pathname, queryWithoutCollapsed, collapsed);
+    // collapsed should be passed as the expected current state
+    const collapsed = get(add, 'collapsed');
+
+    if (
+      (isString(collapsed) && !isUndefined(collapsed)) ||
+      (isArray(collapsed) && !isEmpty(collapsed))
+    ) {
+      return handleCollapsedQueryParams(pathname, queryWithoutCollapsed, collapsed);
+    }
   }
 
   // don't leave the trailing `?` if no query params
-  if (_.isEmpty(query)) return pathname;
+  if (isEmpty(query)) return pathname;
 
-  return `${pathname}?${new URLSearchParams(_.toPairs(query))}`;
+  return handleCollapsedQueryParams(pathname, query, queryCollapsed);
 };
