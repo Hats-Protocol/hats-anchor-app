@@ -373,12 +373,14 @@ export const TreeFormContextProvider = ({
     },
   );
 
+  // TODO replace this
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
     chainId,
     editMode,
   });
 
+  // TODO replace with nearestImage
   const { data: imagesData, isLoading: imagesLoading } = useTreeImages({
     hats: hatDetails,
     editMode,
@@ -630,65 +632,84 @@ export const TreeFormContextProvider = ({
     [queryParams, pathname, setStoredConfig, storedConfig],
   );
 
+  const enterEditMode = useCallback(() => {
+    const localDraftHats = _.reject(
+      storedData,
+      (hat: Partial<FormData>) =>
+        _.includes(_.map(onchainHats, 'id'), hat.id) ||
+        _.isEmpty(_.reject(hat, ['id', 'parentId'])),
+    );
+    if (!_.isEmpty(localDraftHats) && chainId && treeId) {
+      const drafts = translateDrafts({
+        chainId,
+        treeId,
+        onchainHats: orgChartTree || undefined,
+        drafts: localDraftHats,
+      });
+      setOrgChartHats(_.concat(onchainHats, drafts));
+    }
+    if (!hatId) {
+      posthog.capture('Opened Tree Drawer', {
+        chain_id: chainId,
+        tree_id: treeId,
+        edit_mode: true,
+      });
+      onOpenTreeDrawer?.();
+    }
+    const url = urlFromQueryParams({
+      pathname,
+      params: queryParams,
+      drop: ['collapsed'],
+    });
+    setStoredConfig({
+      ..._.omit(storedConfig, 'collapsed'),
+    });
+    window.history.pushState({}, '', url);
+  }, [
+    chainId,
+    hatId,
+    onOpenTreeDrawer,
+    onchainHats,
+    orgChartHats,
+    orgChartTree,
+    pathname,
+    queryParams,
+    setStoredConfig,
+    storedConfig,
+    storedData,
+    treeId,
+  ]);
+
+  const exitEditMode = useCallback(() => {
+    const url = urlFromQueryParams({
+      pathname,
+      params: queryParams,
+      drop: ['hatId', 'collapsed'],
+    });
+    setStoredConfig({
+      ..._.omit(storedConfig, 'collapsed'),
+    });
+    onCloseTreeDrawer?.();
+    setOrgChartHats(onchainHats);
+    window.history.pushState({}, '', url);
+  }, [
+    onCloseTreeDrawer,
+    onchainHats,
+    pathname,
+    queryParams,
+    setStoredConfig,
+    storedConfig,
+  ]);
+
   const toggleEditMode = useCallback(() => {
     if (!editMode) {
-      const localDraftHats = _.reject(
-        storedData,
-        (hat: Partial<FormData>) =>
-          _.includes(_.map(onchainHats, 'id'), hat.id) ||
-          _.isEmpty(_.reject(hat, ['id', 'parentId'])),
-      );
-      if (!_.isEmpty(localDraftHats) && chainId && treeId) {
-        const drafts = translateDrafts({
-          chainId,
-          treeId,
-          onchainHats: orgChartTree || undefined,
-          drafts: localDraftHats,
-        });
-        setOrgChartHats(_.concat(onchainHats, drafts));
-      }
-      if (!hatId) {
-        posthog.capture('Opened Tree Drawer', {
-          chain_id: chainId,
-          tree_id: treeId,
-          edit_mode: true,
-        });
-        onOpenTreeDrawer?.();
-      }
-      const url = urlFromQueryParams({
-        pathname,
-        params: queryParams,
-        drop: ['collapsed'],
-      });
-      setStoredConfig({
-        ..._.omit(storedConfig, 'collapsed'),
-      });
-      window.history.pushState({}, '', url);
+      enterEditMode();
     } else {
-      const url = urlFromQueryParams({
-        pathname,
-        params: queryParams,
-        drop: ['hatId', 'collapsed'],
-      });
-      setStoredConfig({
-        ..._.omit(storedConfig, 'collapsed'),
-      });
-      onCloseTreeDrawer?.();
-      setOrgChartHats(onchainHats);
-      window.history.pushState({}, '', url);
+      exitEditMode();
     }
     setEditMode(!editMode);
-    // TODO need to reset selectedHatId? query update handles?
-    // const updatedQuery = editMode
-    //   ? _.omit(router.query, 'hatId')
-    //   : router.query;
-    // router.push({ pathname: router.pathname, query: updatedQuery }, undefined, {
-    //   shallow: true,
-    // });
-
     setSelectedOption?.('wearers');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onchainHats, editMode, storedData, chainId, treeId]);
+  }, [enterEditMode, editMode, exitEditMode]);
 
   const addHat = useCallback(
     (hat: AppHat, parentId: Hex) => {

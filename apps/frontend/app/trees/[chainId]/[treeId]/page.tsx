@@ -10,7 +10,7 @@ const TreeDetails = ({ params }: TreeDetailsProps) => {
   const { chainId, treeId } = params;
   const treeIdNum = toNumber(treeId);
   if (!chainId || !treeId || isNaN(treeIdNum)) return null;
-  console.log(chainId, treeId);
+  // console.log(chainId, treeId);
 
   // const hat = getHat()
 

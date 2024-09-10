@@ -84,6 +84,7 @@ function OrgChartComponent() {
 
   const initialCompact = get(queryParams, 'compact') || storedConfig?.compact;
   const initialFlipped = get(queryParams, 'flipped') || storedConfig?.flipped;
+  console.log(orgChartTree);
 
   const collapsedNodes = useMemo(() => {
     let collapsed = get(queryParams, 'collapsed')
