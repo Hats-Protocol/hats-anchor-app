@@ -4,7 +4,7 @@ import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatWearers } from 'hats-hooks';
-import _ from 'lodash';
+import { find, includes, pick } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { Hex } from 'viem';
@@ -18,15 +18,15 @@ const Toggle = () => {
   const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
 
-  const { data: hatWearers } = useHatWearers({
+  const { data: hatWearers, isLoading: hatWearersLoading } = useHatWearers({
     hat: selectedHat,
     chainId,
   });
 
-  const { toggle } = _.pick(selectedHat, ['toggle']);
-  const hatWearerToggle = _.find(hatWearers, { id: toggle });
+  const { toggle } = pick(selectedHat, ['toggle']);
+  const hatWearerToggle = find(hatWearers, { id: toggle });
   const toggleData = hatWearerToggle ||
-    _.find(orgChartWearers, { id: toggle }) || {
+    find(orgChartWearers, { id: toggle }) || {
       id: toggle as Hex,
     };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
@@ -65,10 +65,14 @@ const Toggle = () => {
   }
 
   return (
-    <Skeleton isLoaded={!moduleDetailsLoading} py={2} px={{ base: 4, md: 0 }}>
+    <Skeleton
+      isLoaded={!hatWearersLoading && !moduleDetailsLoading}
+      py={2}
+      px={{ base: 4, md: 0 }}
+    >
       <Flex justify='space-between'>
         <Text fontSize={{ base: 'sm', md: 'md' }}>
-          {_.includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'}{' '}
+          {includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'}{' '}
           can deactivate this Hat
         </Text>
 

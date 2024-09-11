@@ -264,7 +264,6 @@ const AuthoritiesListCard = ({
                               }}
                               colorScheme='Functional-LinkPrimary'
                               size='sm'
-                              fontWeight='normal'
                               variant='filled'
                             >
                               {linkName || linkHostName}

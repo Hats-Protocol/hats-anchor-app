@@ -13,7 +13,7 @@ import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
 import { useState } from 'react';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -93,7 +93,7 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
                         Ineligible
                       </Text>
 
-                      <Icon as={BsFillOctagonFill} boxSize={4} />
+                      <Icon as={BsFillXOctagonFill} boxSize={4} />
                     </HStack>
                   )}
                 </Flex>

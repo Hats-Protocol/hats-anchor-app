@@ -189,7 +189,7 @@ const Input = ({
             onKeyDown={catchEnterKey} // prevent form submission on enter
             {...props}
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
-            variant='filled'
+            variant='outline'
           />
           <InputRightElement
             w={rightElementWidth ? `${rightElementWidth}px` : undefined}

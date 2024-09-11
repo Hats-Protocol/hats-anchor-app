@@ -3,7 +3,7 @@
 import { Text } from '@chakra-ui/react';
 import { find, pick } from 'lodash';
 import { useErc721Details } from 'modules-hooks';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl, formatAddress, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
@@ -56,7 +56,7 @@ const Erc721Eligibility = ({
       icon={
         userBalance && userBalance >= (amountParameter?.value as bigint)
           ? BsCheckSquareFill
-          : BsFillOctagonFill
+          : BsFillXOctagonFill
       }
     />
   );

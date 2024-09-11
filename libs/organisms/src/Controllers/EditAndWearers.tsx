@@ -19,7 +19,7 @@ import { getControllerNameAndLink } from 'hats-utils';
 import { useContractData } from 'hooks';
 import { filter, first, get, includes, map, reject, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import { startTransition, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
@@ -75,6 +75,14 @@ const AdminWearersPanel = () => {
   const { treeToDisplay } = useTreeForm();
   const { selectedHat, chainId, isClaimable } = useSelectedHat();
   const [expandedBackground, setExpandedBackground] = useState(false);
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const {
     data: admins,
@@ -117,7 +125,9 @@ const AdminWearersPanel = () => {
         }
       >
         {({ isExpanded }: { isExpanded: boolean }) => {
-          startTransition(() => setExpandedBackground(isExpanded));
+          if (isMounted.current && isExpanded !== expandedBackground) {
+            startTransition(() => setExpandedBackground(isExpanded));
+          }
 
           return (
             <>

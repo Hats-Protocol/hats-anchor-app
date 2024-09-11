@@ -4,7 +4,7 @@ import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import _, { pick } from 'lodash';
 import { useErc1155Details } from 'modules-hooks';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl, formatAddress, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
@@ -96,7 +96,7 @@ const Erc1155Eligibility = ({
       }
       status={ELIGIBILITY_STATUS.ineligible}
       displayStatus={userBalanceDisplay}
-      icon={BsFillOctagonFill}
+      icon={BsFillXOctagonFill}
     />
   );
 };

@@ -29,10 +29,10 @@ const ModuleDrawer = ({
     mode: 'onBlur',
     defaultValues: {
       moduleType: '',
-      isPermissionlesslyClaimable: 'No',
+      isPermissionlesslyClaimable: 'Yes',
       initialClaimableHats:
         selectedHat?.id && hatIdHexToDecimal(selectedHat?.id),
-      initialClaimabilityType: '1', // 1 for "claimable", 2 for "claimable for"
+      initialClaimabilityType: '2', // 1 for "claimable", 2 for "claimable for"
     },
   });
   const { watch } = localForm;

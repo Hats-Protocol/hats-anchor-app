@@ -1,3 +1,5 @@
+import '@fontsource-variable/inter';
+
 import { extendTheme } from '@chakra-ui/react';
 
 import Button from './components/Button';
@@ -34,12 +36,12 @@ const theme = extendTheme({
   },
   fonts: {
     inter: 'Inter Variable',
-    body: 'inter, sans-serif',
-    heading: 'inter, sans-serif',
+    body: "'Inter Variable', sans-serif",
+    heading: "'Inter Variable', sans-serif",
   },
   global: {
     body: {
-      fontFamily: 'inter, sans-serif',
+      fontFamily: "'Inter Variable', sans-serif",
     },
   },
 });

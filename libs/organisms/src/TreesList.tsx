@@ -87,7 +87,7 @@ const TreesList = ({ params }: TreeListProps) => {
       hasChildren={!isEmpty(trees)}
       dataLength={size(trees)}
       next={fetchNextPage}
-      hasMore={(showKey === SHOW_KEY.all && hasNextPage) || false}
+      hasMore={((showKey === SHOW_KEY.all || !address) && hasNextPage) || false}
       loader={
         <Flex justify='center' align='center' pt={10}>
           <Spinner />

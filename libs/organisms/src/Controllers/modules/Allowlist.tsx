@@ -3,7 +3,7 @@
 import { Text } from '@chakra-ui/react';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
@@ -45,7 +45,7 @@ const AllowlistEligibility = ({
       rule={<Text size={{ base: 'sm', md: 'md' }}>Be on the Allowlist</Text>}
       status={ELIGIBILITY_STATUS.ineligible}
       displayStatus='Not allowed'
-      icon={BsFillOctagonFill} // {EmptyWearer}
+      icon={BsFillXOctagonFill} // {EmptyWearer}
     />
   );
 };

@@ -1,7 +1,9 @@
 import { StyleFunctionProps } from '@chakra-ui/react';
 
 const Button = {
-  baseStyles: {},
+  baseStyles: {
+    fontWeight: 'medium'
+  },
   variants: {
     filled: (props: StyleFunctionProps) => ({
       background: props.background || props.bg || 'Functional-LinkPrimary',
@@ -30,6 +32,7 @@ const Button = {
     }),
     outline: (props: StyleFunctionProps) => ({
       color: props.color || 'gray.700',
+      fontWeight: 'medium',
       borderColor: props.borderColor || 'gray.300',
     }),
     outlineMatch: (props: StyleFunctionProps) => ({
@@ -42,14 +45,8 @@ const Button = {
         borderColor: props.borderColor || props.colorScheme || 'gray.700',
       },
     }),
-    text: (props: StyleFunctionProps) => ({
-      // Using important here to override media query styles
-      height: 'auto!',
-      minHeight: '0!',
-      padding: '0!',
-      border: 'none',
-      color: props.color || props.colorScheme,
-      fontWeight: 'normal',
+    link: (props: StyleFunctionProps) => ({
+      fontFamily: 'inter',
     })
   },
 };

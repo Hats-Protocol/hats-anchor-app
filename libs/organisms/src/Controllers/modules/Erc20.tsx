@@ -3,7 +3,7 @@
 import { Text, Tooltip } from '@chakra-ui/react';
 import { find, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
-import { BsCheckSquareFill, BsFillOctagonFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { ModuleDetailsHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
 
@@ -75,7 +75,7 @@ const Erc20Eligibility = ({
       }
       displayStatus={userBalanceDisplay}
       status={ELIGIBILITY_STATUS.ineligible}
-      icon={BsFillOctagonFill}
+      icon={BsFillXOctagonFill}
     />
   );
 };

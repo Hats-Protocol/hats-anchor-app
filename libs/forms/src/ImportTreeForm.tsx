@@ -20,7 +20,7 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
-import { BsBoxArrowInUpRight } from 'react-icons/bs';
+import { AiOutlineUpload } from 'react-icons/ai';
 import { HatExport } from 'types';
 import { DropZone } from 'ui';
 
@@ -172,7 +172,7 @@ const ImportTreeForm = () => {
               bgColor='blue.500'
               color='white'
               isDisabled={!treeFile || !validImport}
-              leftIcon={<Icon as={BsBoxArrowInUpRight} color='white' />}
+              leftIcon={<Icon as={AiOutlineUpload} color='white' />}
             >
               Import
             </Button>

@@ -14,24 +14,28 @@ import {
   Image,
   // Spinner,
   Stack,
+  Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+  hatIdIpToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
-import _ from 'lodash';
+import _, { get, isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { BsArrowRight } from 'react-icons/bs';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import type { AppHat } from 'types';
-import { ChakraNextLink } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -65,6 +69,7 @@ function OrgChartComponent() {
     // isLoading,
     storedConfig,
     storedData,
+    queryParams,
     addHat,
     orgChartWearers,
     onOpenHatDrawer,
@@ -81,20 +86,20 @@ function OrgChartComponent() {
     chainId,
     editMode,
   });
-  const queryParams = new URLSearchParams(window.location.search);
-  const initialCompact =
-    queryParams.get('compact') === 'true' || storedConfig?.compact;
-  const initialFlipped =
-    queryParams.get('flipped') === 'true' || storedConfig?.flipped;
 
-  let collapsedNodes: string[] = queryParams
-    .getAll('collapsed')
-    .map((ipId) => ipToHatId(ipId))
-    .sort() // sorting so that the order of processing will be identical to the order of the node collapses by the user
-    .reverse();
-  if (collapsedNodes.length === 0 && storedConfig.collapsed !== undefined) {
-    collapsedNodes = storedConfig.collapsed.map((ipId) => ipToHatId(ipId));
-  }
+  const initialCompact = get(queryParams, 'compact') || storedConfig?.compact;
+  const initialFlipped = get(queryParams, 'flipped') || storedConfig?.flipped;
+
+  const collapsedNodes = useMemo(() => {
+    let collapsed = get(queryParams, 'collapsed')
+      ?.map((ipId) => ipToHatId(ipId))
+      .sort() // sorting so that the order of processing will be identical to the order of the node collapses by the user
+      .reverse();
+    if (collapsed?.length === 0 && storedConfig.collapsed !== undefined) {
+      collapsed = storedConfig.collapsed.map((ipId) => ipToHatId(ipId));
+    }
+    return collapsed ?? [];
+  }, [queryParams, storedConfig]);
 
   const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
     defaultIsOpen: initialCompact,
@@ -114,6 +119,7 @@ function OrgChartComponent() {
         if (newNode !== undefined) {
           // eslint-disable-next-line no-restricted-syntax
           for (const [key, value] of Object.entries(node)) {
+            // TODO can this be more specific? it's potentially causing data to stick when nodes are collapsed
             if (key.startsWith('_')) {
               newNode[key] = value;
             }
@@ -254,6 +260,9 @@ function OrgChartComponent() {
           const extendedToggle = _.find(orgChartWearers, {
             id: toggle,
           });
+          const nodeIpUnderScore = hatIdDecimalToIp(
+            hatIdHexToDecimal(d.data.id),
+          ).replaceAll('.', '_');
 
           return `
             <div style='
@@ -261,6 +270,7 @@ function OrgChartComponent() {
               height: ${d.height}px;
               padding-left: 1px;
               padding-right: 1px;'
+              id='node-${nodeIpUnderScore}'
             >
               <div style="
                 display: flex;
@@ -294,7 +304,11 @@ function OrgChartComponent() {
                     border: ${isSelected ? '3px' : '1px'} solid #4A5568;
                     left: ${isSelected ? -12 : 1}px;
                     top: ${isSelected ? -12 : 0}px;
-                    border-radius: 4px;
+                    ${
+                      isSelected
+                        ? 'border-radius: 4px;'
+                        : 'border-top-left-radius: 4px;'
+                    }
                     overflow: hidden;
                     ${isSelected && 'background: white;'}
                   ">
@@ -333,6 +347,7 @@ function OrgChartComponent() {
                       <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
                         <div style="
                           font-size: 12px;
+                          font-family: 'Inter Variable', sans-serif;
                           color: #08011E;
                           font-weight: ${isSelected ? 800 : 500};
                         ">
@@ -349,6 +364,7 @@ function OrgChartComponent() {
                       <div style="
                         display: -webkit-box;
                         font-size: 16px;
+                        font-family: 'Inter Variable', sans-serif;
                         font-weight: ${isSelected ? 800 : 500};
                         overflow: hidden;
                         color: #08011E;
@@ -406,8 +422,18 @@ function OrgChartComponent() {
                       flex-direction: row;
                       gap: 4px;
                       font-size: 14px;
+                      font-family: 'Inter Variable', sans-serif;
                       position: relative;
                     " class="hover-text">
+                      <div style="
+                        display: block;
+                        background: white;
+                        border-radius: 2px;
+                        height: 14px;
+                        width: 14px;
+                      ">
+                        <img src="/icons/plus-square.svg" alt="add" style="height: 100%;" />
+                      </div>
                       ${
                         levelAtLocalTree > 3
                           ? `
@@ -425,16 +451,7 @@ function OrgChartComponent() {
                         -webkit-line-clamp: 1;
                         -webkit-box-orient: vertical;
                       ">
-                        Create Hat ${nextChildId}
-                      </div>
-                      <div style="
-                        display: block;
-                        background: white;
-                        border-radius: 2px;
-                        height: 14px;
-                        width: 14px;
-                      ">
-                        <img src="/icons/plus-square.svg" alt="add" style="height: 100%;" />
+                        Add Hat ${nextChildId}
                       </div>
                     </div>
                   </div>`
@@ -513,28 +530,31 @@ function OrgChartComponent() {
   if (treeError) {
     // TODO check more specific error message
     return (
-      <Flex justify='center' align='center' w='full' h='full' pt={20}>
+      <Flex justify='center' align='center' w='full' h='full' pt='175px'>
         <Stack spacing={8} align='center'>
-          <Box position='relative'>
-            <Heading size='xl' position='absolute' top='30%' left='40%'>
-              Tree not found!
+          <Stack>
+            <Heading size='4xl' textAlign='center'>
+              404
             </Heading>
-            <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
-          </Box>
-          <Flex>
-            <ChakraNextLink href='/'>
-              <Button
-                variant='outline'
-                bg='white'
-                rightIcon={<Icon as={BsArrowRight} />}
-              >
-                <span role='img' aria-label='Hats ball cap'>
-                  🧢
-                </span>{' '}
-                Head home
-              </Button>
-            </ChakraNextLink>
-          </Flex>
+            <Heading textAlign='center'>Tree not found</Heading>
+
+            {/* <Flex>
+                <ChakraNextLink href='/'>
+                  <Button
+                    variant='outline'
+                    bg='white'
+                    rightIcon={<Icon as={BsArrowRight} />}
+                  >
+                    <span role='img' aria-label='Hats ball cap'>
+                      🧢
+                    </span>{' '}
+                    Head home
+                  </Button>
+                </ChakraNextLink>
+              </Flex> */}
+          </Stack>
+
+          <Image src='/tree-not-found.png' alt='No hats found' h='500px' />
         </Stack>
       </Flex>
     );
@@ -578,36 +598,50 @@ function OrgChartComponent() {
         >
           Show full {CONFIG.tree}
         </Button>
-        <Button
-          onClick={() => {
-            posthog.capture('Toggled Compact View', {
-              compact,
-            });
+        <Tooltip
+          label={
+            !isEmpty(collapsedNodes)
+              ? `Show full tree to ${compact ? 'expand' : 'compact'} view`
+              : ''
+          }
+        >
+          <Button
+            onClick={() => {
+              posthog.capture('Toggled Compact View', {
+                compact,
+              });
 
-            toggleCompact();
-            handleSetCompact?.(compact);
-          }}
-          variant='outline'
-          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+              toggleCompact();
+              handleSetCompact?.(compact);
+            }}
+            isDisabled={!isEmpty(collapsedNodes)} // add edit mode here?
+            variant='outline'
+            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+          >
+            {compact ? 'Full View' : 'Compact View'}
+          </Button>
+        </Tooltip>
+        <Tooltip
+          label={!isEmpty(collapsedNodes) ? 'Show full tree to flip view' : ''}
         >
-          {compact ? 'Full View' : 'Compact View'}
-        </Button>
-        <Button
-          onClick={() => {
-            posthog.capture('Toggled Flip View', {
-              flipped,
-            });
-            toggleFlip();
-            handleFlipChart?.(flipped);
-            setTimeout(() => {
-              chart?.fit();
-            }, 50);
-          }}
-          variant='outline'
-          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
-        >
-          Flip Tree
-        </Button>
+          <Button
+            onClick={() => {
+              posthog.capture('Toggled Flip View', {
+                flipped,
+              });
+              toggleFlip();
+              handleFlipChart?.(flipped);
+              setTimeout(() => {
+                chart?.fit();
+              }, 50);
+            }}
+            isDisabled={!isEmpty(collapsedNodes)} // add edit mode here?
+            variant='outline'
+            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+          >
+            Flip Tree
+          </Button>
+        </Tooltip>
         <HStack>
           <IconButton
             icon={<Icon as={FaMinus} />}

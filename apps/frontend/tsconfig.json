@@ -10,7 +10,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": [],
-    "lib": ["ES2021"],
     "incremental": true,
     "plugins": [
       {

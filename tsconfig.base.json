@@ -9,7 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["ES2018", "dom"],
+    "lib": ["ES2021", "dom"],
     "module": "ESNext",
     "moduleResolution": "node",
     "rootDir": ".",

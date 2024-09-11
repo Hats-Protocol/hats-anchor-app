@@ -72,7 +72,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
       <Flex justify='center' align='center' w='full' flexGrow={1} bg='white'>
         <Stack spacing={8} align='center'>
           <Heading size='md'>Tree not found!</Heading>
-          <Image src='/no-hats.jpg' alt='No hats found' h='600px' />
+          <Image src='/tree-not-found.svg' alt='No hats found' h='600px' />
           <ChakraNextLink href='/'>
             <Button variant='outline' rightIcon={<Icon as={BsArrowRight} />}>
               <span aria-label='Ball cap' role='img'>

@@ -5,7 +5,7 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useWearerDetails } from 'hats-hooks';
 import { find, get, includes, map } from 'lodash';
 import dynamic from 'next/dynamic';
-import { BsFillOctagonFill } from 'react-icons/bs';
+import { BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
 import { hatLink, ModuleDetailsHandler } from 'utils';
@@ -76,7 +76,7 @@ const HatWearingEligibility = ({
       }
       status={ELIGIBILITY_STATUS.ineligible}
       displayStatus='Not Wearing'
-      icon={BsFillOctagonFill}
+      icon={BsFillXOctagonFill}
     />
   );
 };

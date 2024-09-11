@@ -1,9 +1,11 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import { isEmpty, map } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
 import { fetchTreeWearersDetails } from 'utils';
+
+// can be deprecated with fetching controller data from mesh
 
 const useTreeWearers = ({
   hats,
@@ -15,10 +17,10 @@ const useTreeWearers = ({
   editMode?: boolean;
 }) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['treeWearers', _.map(hats, 'id'), chainId],
+    queryKey: ['treeWearers', map(hats, 'id'), chainId],
     queryFn: () => fetchTreeWearersDetails(hats, chainId),
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
-    enabled: !_.isEmpty(hats) && !!chainId,
+    enabled: !isEmpty(hats) && !!chainId,
   });
 
   return { data, isLoading, error };

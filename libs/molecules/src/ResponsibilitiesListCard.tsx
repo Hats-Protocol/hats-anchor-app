@@ -154,7 +154,6 @@ const ResponsibilitiesListCard = ({
                           }
                           variant='filled'
                           size='sm'
-                          fontWeight='normal'
                           colorScheme='blue'
                           onClick={() => {
                             posthog.capture('Clicked Responsibility Link', {
