@@ -30,6 +30,7 @@ export interface SelectedHatContext {
   chainId: SupportedChains | undefined;
   hatLoading: boolean;
   isClaimable?: { by: boolean; for: boolean } | undefined;
+  hatNotInTree: boolean;
   // ONCHAIN HAT
   isDraft: boolean;
   selectedOnchainHat: AppHat | undefined;
@@ -49,6 +50,7 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   chainId: undefined,
   hatLoading: false,
   isClaimable: undefined,
+  hatNotInTree: false,
   // ONCHAIN HAT
   isDraft: false,
   selectedOnchainHat: undefined,
@@ -99,6 +101,10 @@ export const SelectedHatContextProvider = ({
   const isDraft = useMemo(
     () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
     [onchainHats, selectedHat],
+  );
+  const hatNotInTree = useMemo(
+    () => !_.includes(_.map(orgChartTree, 'id'), selectedHat?.id),
+    [orgChartTree, selectedHat],
   );
 
   // *********************
@@ -171,6 +177,7 @@ export const SelectedHatContextProvider = ({
       chainId,
       hatLoading: !selectedHat || !selectedHatDetails,
       isClaimable,
+      hatNotInTree,
       // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
@@ -186,6 +193,7 @@ export const SelectedHatContextProvider = ({
       selectedHatDetails,
       chainId,
       isClaimable,
+      hatNotInTree,
       // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,

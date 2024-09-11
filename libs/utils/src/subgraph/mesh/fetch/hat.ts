@@ -3,7 +3,6 @@ import { AppHat, HatWithMetadata } from 'types';
 
 import { getHatDetailsQuery, NETWORKS_PREFIX } from '../queries';
 
-// eslint-disable-next-line import/prefer-default-export
 export const fetchHatDetailsMesh = async (
   hatId: string | undefined,
   chainId?: number,

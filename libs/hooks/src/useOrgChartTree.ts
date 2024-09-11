@@ -4,7 +4,7 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { DetailsData, toTreeStructure } from 'hats-utils';
-import _ from 'lodash';
+import { concat, find, map, pick, reject } from 'lodash';
 import { useState } from 'react';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -34,7 +34,7 @@ const useOrgChartTree = ({
 
   useDeepCompareEffect(() => {
     setDetailsHashes(
-      _.map(_.reject(detailsData, ['events', 'admin']), (d: any) =>
+      map(reject(detailsData, ['events', 'admin']), (d: any) =>
         sha256(JSON.stringify(d)),
       ),
     );
@@ -42,7 +42,7 @@ const useOrgChartTree = ({
 
   useDeepCompareEffect(() => {
     setHatsHashes(
-      _.map(_.reject(hatsData, ['events', 'admin']), (d: any) =>
+      map(reject(hatsData, ['events', 'admin']), (d: any) =>
         sha256(JSON.stringify(d)),
       ),
     );
@@ -70,6 +70,26 @@ const useOrgChartTree = ({
       initialHatIds,
     });
 
+    if (editMode) {
+      // remove linked hats from tree
+      // mask top hat that is linked to itself
+
+      const topHat: AppHat | undefined = find(tree,
+        (hat: AppHat) => hat.treeId === treeData?.id && hat.levelAtLocalTree === 0
+      );
+      if (!topHat) return tree;
+      const filteredTree = reject(tree,
+        (hat: AppHat) => hat.treeId !== treeData?.id || hat.id === topHat?.id
+      );
+      const patchTopHat = {
+        ...topHat as AppHat,
+        // admin: { id: topHat.id }, // actually need to override parentId for OrgChart
+        parentId: undefined, // set to undefined for root node in d3-org-chart
+      };
+      const patchedTree = concat(filteredTree, [patchTopHat]);
+      return patchedTree;
+    }
+
     return tree;
   };
 
@@ -79,11 +99,9 @@ const useOrgChartTree = ({
       { chainId, treeId: treeData?.id },
       hatsHashes,
       detailsHashes,
-      _.map(imagesData, (h: AppHat) =>
-        _.pick(h, ['id', 'details', 'imageUri']),
-      ),
-      _.map(draftHats, (h: AppHat) => _.pick(h, ['id', 'details', 'imageUri'])),
-      { onchain },
+      map(imagesData, (h: AppHat) => pick(h, ['id', 'details', 'imageUri'])),
+      map(draftHats, (h: AppHat) => pick(h, ['id', 'details', 'imageUri'])),
+      { onchain, editMode },
     ],
     queryFn: fetchTree,
     enabled:
