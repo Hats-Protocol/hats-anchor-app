@@ -614,7 +614,6 @@ export const TreeFormContextProvider = ({
    */
   const handleSetCompact = useCallback(
     (isCompact: boolean) => {
-      // console.log(isCompact, queryParams);
       const url = urlFromQueryParams({
         pathname,
         params: queryParams,

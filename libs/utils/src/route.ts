@@ -79,6 +79,14 @@ const handleCollapsedQueryParams = (
   return `${pathname}?${new URLSearchParams(localQuery)}`;
 };
 
+/**
+ * Helper function for managing query params in the URL
+ * @param pathname - The pathname of the current route
+ * @param params - The current query params object
+ * @param add - Additional query params to add
+ * @param drop - An array of query params to drop
+ * @returns The updated URL with the new query params
+ */
 export const urlFromQueryParams = ({
   pathname,
   params,
@@ -95,7 +103,7 @@ export const urlFromQueryParams = ({
   // remove keys where the value is undefined or false
   query = omitBy(query, isUndefined);
   query = omitBy(query, (value) => value === false);
-  query = omitBy(query, isEmpty); // remove keys where the array is empty
+  query = omitBy(query, (value) => isArray(value) && isEmpty(value)); // remove keys where the array is empty
 
   // always drop these keys, being used elsewhere in the app here
   query = omit(query, concat(drop, ['treeId', 'chainId']));
@@ -110,12 +118,15 @@ export const urlFromQueryParams = ({
     // collapsed should be passed as the expected current state
     const collapsed = get(add, 'collapsed');
 
-    if (
-      (isString(collapsed) && !isUndefined(collapsed)) ||
-      (isArray(collapsed) && !isEmpty(collapsed))
-    ) {
+    const collapsedIsString = isString(collapsed) && !isUndefined(collapsed);
+    const collapsedIsArray = isArray(collapsed) && !isEmpty(collapsed);
+
+    if (collapsedIsString || collapsedIsArray) {
       return handleCollapsedQueryParams(pathname, queryWithoutCollapsed, collapsed);
     }
+  } else {
+    // otherwise handle add as normal
+    query = { ...query, ...add };
   }
 
   // don't leave the trailing `?` if no query params

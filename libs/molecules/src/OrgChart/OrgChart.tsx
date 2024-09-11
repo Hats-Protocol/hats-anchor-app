@@ -18,7 +18,12 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+  hatIdIpToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
@@ -84,7 +89,6 @@ function OrgChartComponent() {
 
   const initialCompact = get(queryParams, 'compact') || storedConfig?.compact;
   const initialFlipped = get(queryParams, 'flipped') || storedConfig?.flipped;
-  console.log(orgChartTree);
 
   const collapsedNodes = useMemo(() => {
     let collapsed = get(queryParams, 'collapsed')
@@ -115,6 +119,7 @@ function OrgChartComponent() {
         if (newNode !== undefined) {
           // eslint-disable-next-line no-restricted-syntax
           for (const [key, value] of Object.entries(node)) {
+            // TODO can this be more specific? it's potentially causing data to stick when nodes are collapsed
             if (key.startsWith('_')) {
               newNode[key] = value;
             }
@@ -255,6 +260,9 @@ function OrgChartComponent() {
           const extendedToggle = _.find(orgChartWearers, {
             id: toggle,
           });
+          const nodeIpUnderScore = hatIdDecimalToIp(
+            hatIdHexToDecimal(d.data.id),
+          ).replaceAll('.', '_');
 
           return `
             <div style='
@@ -262,6 +270,7 @@ function OrgChartComponent() {
               height: ${d.height}px;
               padding-left: 1px;
               padding-right: 1px;'
+              id='node-${nodeIpUnderScore}'
             >
               <div style="
                 display: flex;

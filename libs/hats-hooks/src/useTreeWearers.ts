@@ -5,6 +5,8 @@ import { isEmpty, map } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
 import { fetchTreeWearersDetails } from 'utils';
 
+// can be deprecated with fetching controller data from mesh
+
 const useTreeWearers = ({
   hats,
   chainId,
