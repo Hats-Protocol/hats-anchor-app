@@ -4,7 +4,7 @@
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { DetailsData, toTreeStructure } from 'hats-utils';
-import { concat, find, map, pick, reject } from 'lodash';
+import { concat, find, get, map, pick, reject } from 'lodash';
 import { useState } from 'react';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -70,14 +70,18 @@ const useOrgChartTree = ({
       initialHatIds,
     });
 
-    if (editMode) {
+    const topHat: AppHat | undefined = find(tree,
+      (hat: AppHat) => hat.treeId === treeData?.id && hat.levelAtLocalTree === 0
+    );
+    const topHatIsLinked = get(topHat, 'admin.id') !== get(topHat, 'id');
+
+    if (editMode && topHatIsLinked) {
       // remove linked hats from tree
       // mask top hat that is linked to itself
 
-      const topHat: AppHat | undefined = find(tree,
-        (hat: AppHat) => hat.treeId === treeData?.id && hat.levelAtLocalTree === 0
-      );
+
       if (!topHat) return tree;
+      // TODO does this break draft hats? adding treeId to draft hats maybe helps?
       const filteredTree = reject(tree,
         (hat: AppHat) => hat.treeId !== treeData?.id || hat.id === topHat?.id
       );
