@@ -92,11 +92,10 @@ const useModuleDeploy = ({
   const claimsHatterModule = _.find(modules, {
     name: CONFIG.modules.claimsHatter,
   });
-  const hatTitle =
-    selectedHat?.id &&
-    `${hatIdDecimalToIp(BigInt(selectedHat?.id))} (${
-      selectedHat?.detailsObject?.data?.name
-    })`;
+
+  const ipId = selectedHat?.id && hatIdDecimalToIp(BigInt(selectedHat?.id));
+  const hatName = selectedHat?.detailsObject?.data?.name;
+  const hatTitle = `${ipId} (${hatName})`;
 
   const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId,
@@ -356,6 +355,7 @@ const useModuleDeploy = ({
       }
     },
   });
+  console.log(adminHat);
 
   return {
     deploy: mutateAsync,

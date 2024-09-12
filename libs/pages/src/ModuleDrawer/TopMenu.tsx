@@ -109,6 +109,15 @@ const TopMenu = ({
     isStandaloneHatterDeploy && isPermissionlesslyClaimable === 'Yes'
   );
 
+  console.log({
+    formValid: localForm?.formState.isValid,
+    isChainCorrect,
+    requiresModuleTypeCheck,
+    moduleType,
+    cannotDeployWithoutIncrement,
+    moduleDeployIsBlocked,
+  });
+
   const isButtonDisabled =
     !localForm?.formState.isValid ||
     !isChainCorrect ||

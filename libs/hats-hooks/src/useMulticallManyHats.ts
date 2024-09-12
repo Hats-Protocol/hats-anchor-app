@@ -5,7 +5,21 @@ import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import { compact, filter, first, flatten, get, includes, isEmpty, isEqual, keys, map, size, sortBy } from 'lodash';
+import {
+  compact,
+  filter,
+  first,
+  flatten,
+  get,
+  includes,
+  isEmpty,
+  isEqual,
+  keys,
+  map,
+  reject,
+  size,
+  sortBy,
+} from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import {
   AppHat,
@@ -24,11 +38,7 @@ import {
   summarizeActions,
 } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
-import {
-  useAccount,
-  useChainId,
-  useWriteContract,
-} from 'wagmi';
+import { useAccount, useChainId, useWriteContract } from 'wagmi';
 
 import useAdminOfHats from './useAdminOfHats';
 
@@ -54,6 +64,7 @@ const useMulticallManyHats = ({
     (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
+  console.log(storedData);
 
   useEffect(() => {
     const prepareMulticallData = async () => {
@@ -61,8 +72,15 @@ const useMulticallManyHats = ({
         includes(map(onchainHats, 'id'), hat.id),
       );
 
+      const onlyActualChanges = filter(storedData, (obj) => {
+        const localKeys = keys(obj);
+        const withoutId = reject(localKeys, (key) => key === 'id');
+        if (isEmpty(withoutId)) return false;
+        return true;
+      });
+
       const deployableHatChanges = filter(
-        storedData,
+        onlyActualChanges,
         (hat: Partial<FormData>) => includes(adminHatIds, hat.id),
       );
       const allCallsPromises = map(
@@ -107,9 +125,11 @@ const useMulticallManyHats = ({
 
     // important that siblings are sent in order
     const sortedCalls = sortBy(allCallsData, 'hatChanges.id');
-    const onlyCalls = flatten(map(sortedCalls, (localCalls) => {
-      return map(get(localCalls, 'calls'), 'callData')
-    })) as Hex[];
+    const onlyCalls = flatten(
+      map(sortedCalls, (localCalls) => {
+        return map(get(localCalls, 'calls'), 'callData');
+      }),
+    ) as Hex[];
 
     return writeContractAsync({
       address: CONFIG.hatsAddress,
@@ -181,8 +201,7 @@ const useMulticallManyHats = ({
   };
 
   const waitForSubgraphUpdate = useWaitForSubgraph({
-    fetchHelper: () =>
-      fetchHatDetails(get(first(storedData), 'id'), chainId),
+    fetchHelper: () => fetchHatDetails(get(first(storedData), 'id'), chainId),
     checkResult,
     sendToast: true,
   });

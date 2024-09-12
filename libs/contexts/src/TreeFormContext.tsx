@@ -669,7 +669,6 @@ export const TreeFormContextProvider = ({
     hatId,
     onOpenTreeDrawer,
     onchainHats,
-    orgChartHats,
     orgChartTree,
     pathname,
     queryParams,

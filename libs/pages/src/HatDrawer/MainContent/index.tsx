@@ -97,10 +97,11 @@ const MainContent = ({
 
                 if (!value) return;
                 navigator.clipboard.writeText(value);
+                // toast
               };
 
               return (
-                <div className='flex gap-2'>
+                <div className='flex gap-2' key={get(data, 'value')}>
                   <Link
                     href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`}
                     target='_blank'
