@@ -20,7 +20,7 @@ export interface HatWearer {
   ensName?: string | null;
 }
 
-export interface ExtendedProfile extends HatWearer {
+export interface AllowlistProfile extends HatWearer {
   eligible: boolean;
   badStanding: boolean;
 }

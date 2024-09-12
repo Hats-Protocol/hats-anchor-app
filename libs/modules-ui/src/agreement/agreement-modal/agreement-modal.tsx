@@ -24,10 +24,10 @@ import {
   subtract,
   toString,
 } from 'lodash';
-import { useAllowlist } from 'modules-hooks';
+import { useAgreementDetails } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
-import { ExtendedProfile, ModuleDetails } from 'types';
+import { AllowlistProfile, ModuleDetails } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
@@ -37,9 +37,9 @@ import {
   ModuleModal,
   WearerFilters,
 } from '../../module-modal';
-import AboutAllowlist from './about';
+import AboutAgreement from './about';
 
-const AgreementModal = ({
+export const AgreementModal = ({
   eligibilityHatId,
   moduleInfo,
 }: {
@@ -50,7 +50,7 @@ const AgreementModal = ({
   const localForm = useForm();
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState(false);
-  const [removeList, setRemoveList] = useState<ExtendedProfile[]>([]);
+  const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
   // const { watch } = pick(localForm, ['watch']);
 
   const { data: hat } = useHatDetails({ hatId: eligibilityHatId, chainId });
@@ -58,21 +58,15 @@ const AgreementModal = ({
 
   // const searchInput = watch('search');
   // const addresses = watch('addresses');
-  const { data: allowlist } = useAllowlist({
+  const { data: agreementDetails } = useAgreementDetails({
     id: moduleInfo.id,
     chainId,
   });
-  const { data: profileDetails } = useProfileDetails({
-    addresses: map(allowlist, (wearer) => get(wearer, 'address')),
+  console.log('agreementDetails', agreementDetails);
+  const { data: agreementProfiles } = useProfileDetails({
+    addresses: get(agreementDetails, 'signers'),
     chainId,
   });
-  const allowlistProfiles = map(allowlist, (wearer: object) => {
-    const profile = find(profileDetails, { id: get(wearer, 'address') });
-    return {
-      ...wearer,
-      ...profile,
-    };
-  }) as ExtendedProfile[];
   const liveParams = get(moduleInfo, 'liveParameters');
   const ownerHat = toString(
     get(find(liveParams, { label: 'Owner Hat' }), 'value'),
@@ -82,16 +76,18 @@ const AgreementModal = ({
   );
 
   const filteredProfiles = useMemo(() => {
-    return allowlistProfiles;
-  }, [allowlistProfiles]);
+    return agreementProfiles;
+  }, [agreementProfiles]);
 
   const handleAdd = useCallback(
     (address: Hex) => {
-      const profile = find(allowlistProfiles, { id: address });
+      const profile = find(agreementProfiles, { id: address });
       if (!profile) return;
+      // TODO should be returning bad standing
+      // @ts-expect-error should be returning bad standing
       setRemoveList(concat(removeList, [profile]));
     },
-    [removeList, allowlistProfiles],
+    [removeList, agreementProfiles],
   );
 
   const handleRemove = useCallback(
@@ -103,13 +99,16 @@ const AgreementModal = ({
 
   return (
     <ModuleModal
-      name='allowlistManager'
-      title='Manage Allowlist'
+      name='agreementManager'
+      title='Agreement Signers'
       filters={
-        <WearerFilters extendedProfiles={allowlistProfiles} wearers={wearers} />
+        <WearerFilters
+          extendedProfiles={filteredProfiles || undefined}
+          wearers={wearers}
+        />
       }
       about={
-        <AboutAllowlist
+        <AboutAgreement
           eligibilityHat={eligibilityHatId}
           ownerHat={ownerHat as Hex}
           judgeHat={judgeHat as Hex}
@@ -117,7 +116,7 @@ const AgreementModal = ({
       }
       history={<ModuleHistory />}
     >
-      <Heading size='md'>Allowlist for Hat 1.2.1.2 - Hats Contributor</Heading>
+      <Heading size='md'>Agreement for Hat 1.2.1.2 - Hats Contributor</Heading>
 
       <Flex>
         <Input
@@ -138,7 +137,7 @@ const AgreementModal = ({
           <Divider borderColor='black' />
         </Stack>
 
-        {map(filteredProfiles, (p: ExtendedProfile) => (
+        {map(filteredProfiles, (p: AllowlistProfile) => (
           <EligibilityRow
             key={p.id}
             eligibilityAccount={p}
@@ -268,5 +267,3 @@ const AgreementModal = ({
     </ModuleModal>
   );
 };
-
-export default AgreementModal;

@@ -9,11 +9,10 @@ const useProfileDetails = ({
   addresses: Hex[];
   chainId: number | undefined;
 }) => {
-
   return useQuery({
     queryKey: ['profileDetails', { addresses, chainId }],
     queryFn: () => fetchWearersProfileDetails(addresses, chainId),
-  })
+  });
 };
 
 export default useProfileDetails;

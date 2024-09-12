@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import  { includes, lte, map, toLower, toNumber } from 'lodash';
+import { includes, lte, map, toLower, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -60,8 +60,7 @@ const Agreement = () => {
   );
   const hasSupply = useMemo(
     () =>
-      toNumber(selectedHat?.maxSupply) -
-        toNumber(selectedHat?.currentSupply) >
+      toNumber(selectedHat?.maxSupply) - toNumber(selectedHat?.currentSupply) >
       0,
     [selectedHat],
   );

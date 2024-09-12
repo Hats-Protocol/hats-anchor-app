@@ -1,16 +1,45 @@
+'use client';
+
 import { Button, Icon } from '@chakra-ui/react';
 import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { includes } from 'lodash';
-import { AllowlistModal } from 'modules-ui';
+import {
+  AgreementModal,
+  AllowlistModal,
+  ElectionModal,
+  JokeRaceModal,
+  StakingModal,
+} from 'modules-ui';
 import { BsPencil } from 'react-icons/bs';
+import { Authority } from 'types';
 
-const CustomFunction = ({ authority }: { authority: any | undefined }) => {
+const CustomFunction = ({
+  authority,
+}: {
+  authority: Authority | undefined;
+}) => {
   const { setModals } = useOverlay();
-  if (!authority) return null;
+  if (!authority || !authority.moduleInfo) return null;
 
   if (includes(KNOWN_ELIGIBILITY_MODULES.agreement, authority.moduleAddress)) {
-    return <div>AgreementModal</div>;
+    return (
+      <>
+        <Button
+          leftIcon={<Icon as={BsPencil} />}
+          size='sm'
+          variant='primary'
+          onClick={() => setModals?.({ agreementManager: true })}
+        >
+          View Signers
+        </Button>
+
+        <AgreementModal
+          eligibilityHatId={authority.hatId}
+          moduleInfo={authority.moduleInfo}
+        />
+      </>
+    );
   }
 
   if (includes(KNOWN_ELIGIBILITY_MODULES.allowlist, authority.moduleAddress)) {
@@ -35,15 +64,63 @@ const CustomFunction = ({ authority }: { authority: any | undefined }) => {
   }
 
   if (includes(KNOWN_ELIGIBILITY_MODULES.election, authority.moduleAddress)) {
-    return <div>ElectionModal</div>;
+    return (
+      <>
+        <Button
+          leftIcon={<Icon as={BsPencil} />}
+          size='sm'
+          variant='primary'
+          onClick={() => setModals?.({ electionManager: true })}
+        >
+          View Electees
+        </Button>
+
+        <ElectionModal
+          eligibilityHatId={authority.hatId}
+          moduleInfo={authority.moduleInfo}
+        />
+      </>
+    );
   }
 
   if (includes(KNOWN_ELIGIBILITY_MODULES.jokeRace, authority.moduleAddress)) {
-    return <div>JokeRaceModal</div>;
+    return (
+      <>
+        <Button
+          leftIcon={<Icon as={BsPencil} />}
+          size='sm'
+          variant='primary'
+          onClick={() => setModals?.({ jokeRaceManager: true })}
+        >
+          View Electees
+        </Button>
+
+        <JokeRaceModal
+          eligibilityHatId={authority.hatId}
+          moduleInfo={authority.moduleInfo}
+        />
+      </>
+    );
   }
 
   if (includes(KNOWN_ELIGIBILITY_MODULES.staking, authority.moduleAddress)) {
-    return <div>StakingModal</div>;
+    return (
+      <>
+        <Button
+          leftIcon={<Icon as={BsPencil} />}
+          size='sm'
+          variant='primary'
+          onClick={() => setModals?.({ stakingManager: true })}
+        >
+          View Stakers
+        </Button>
+
+        <StakingModal
+          eligibilityHatId={authority.hatId}
+          moduleInfo={authority.moduleInfo}
+        />
+      </>
+    );
   }
 
   return <div>CustomFunction</div>;

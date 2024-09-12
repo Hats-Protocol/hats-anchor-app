@@ -1,8 +1,5 @@
-'use client';
-
 import {
   Button,
-  Card,
   Divider,
   Flex,
   Heading,
@@ -16,17 +13,18 @@ import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import {
   concat,
   find,
+  get,
   isEmpty,
   map,
-  // pick,
   reject,
   size,
   subtract,
   toString,
 } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
+import dynamic from 'next/dynamic';
 import { useCallback, useMemo, useState } from 'react';
-import { get, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
@@ -37,9 +35,10 @@ import {
   ModuleModal,
   WearerFilters,
 } from '../../module-modal';
-import AboutAllowlist from './about';
 
-export const AllowlistModal = ({
+const Card = dynamic(() => import('ui').then((mod) => mod.Card));
+
+export const StakingModal = ({
   eligibilityHatId,
   moduleInfo,
 }: {
@@ -63,7 +62,7 @@ export const AllowlistModal = ({
     chainId,
   });
   const { data: profileDetails } = useProfileDetails({
-    addresses: map(allowlist, (wearer) => get(wearer, 'address')),
+    addresses: map(allowlist, (wearer) => get(wearer, 'id') as Hex), // TODO was 'address' ? works in allowlist
     chainId,
   });
   const allowlistProfiles = map(allowlist, (wearer: object) => {
@@ -72,7 +71,8 @@ export const AllowlistModal = ({
       ...wearer,
       ...profile,
     };
-  }) as AllowlistProfile[];
+    // TODO fix type
+  }) as unknown as AllowlistProfile[];
   const liveParams = get(moduleInfo, 'liveParameters');
   const ownerHat = toString(
     get(find(liveParams, { label: 'Owner Hat' }), 'value'),
@@ -103,21 +103,24 @@ export const AllowlistModal = ({
 
   return (
     <ModuleModal
-      name='allowlistManager'
-      title='Manage Allowlist'
+      name='stakingManager'
+      title='Manage Stakers'
       filters={
         <WearerFilters extendedProfiles={allowlistProfiles} wearers={wearers} />
       }
       about={
-        <AboutAllowlist
-          eligibilityHat={eligibilityHatId}
-          ownerHat={ownerHat as Hex}
-          judgeHat={judgeHat as Hex}
-        />
+        <></>
+        // <AboutJokeRace
+        //   eligibilityHat={eligibilityHatId}
+        //   ownerHat={ownerHat as Hex}
+        //   judgeHat={judgeHat as Hex}
+        // />
       }
       history={<ModuleHistory />}
     >
-      <Heading size='md'>Allowlist for Hat 1.2.1.2 - Hats Contributor</Heading>
+      <Heading size='md'>
+        JokeRace Election for Hat 1.2.1.2 - Hats Contributor
+      </Heading>
 
       <Flex>
         <Input

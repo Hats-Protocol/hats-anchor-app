@@ -22,10 +22,10 @@ export async function POST(request: Request) {
 }
 
 // TODO [low] handle distinguishing between file and json tokens
-export const PIN_TYPE = {
-  FILE: 'FILE',
-  JSON: 'JSON',
-};
+// export const PIN_TYPE = {
+//   FILE: 'FILE',
+//   JSON: 'JSON',
+// };
 
 const { PINATA_JWT } = process.env;
 

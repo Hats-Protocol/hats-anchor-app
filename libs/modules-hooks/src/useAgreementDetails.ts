@@ -1,22 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get, toLower } from 'lodash';
-import { AllowlistProfile, HatAuthorityResponse, SupportedChains } from 'types';
+import { HatAuthorityResponse, SupportedChains } from 'types';
 import { ancillarySubgraphClient } from 'utils';
 
-const ALLOWLIST_QUERY = gql`
+const AGREEMENT_QUERY = gql`
   query GetModuleAuthorities($id: ID!) {
-    allowListEligibility(id: $id) {
-      eligibilityData {
-        address
-        eligible
-        badStanding
+    agreementEligibility(id: $id) {
+      agreements(orderBy: graceEndTime, orderDirection: desc, first: 1) {
+        graceEndTime
+        signers
       }
     }
   }
 `;
 
-const fetchAllowlist = async ({
+const fetchAgreement = async ({
   id,
   chainId,
 }: {
@@ -24,24 +23,20 @@ const fetchAllowlist = async ({
   chainId: SupportedChains | undefined;
 }) => {
   if (!id || !chainId) return null;
+  console.log('id', id, 'chainId', chainId);
 
   try {
     const client = ancillarySubgraphClient(chainId);
     if (!client) return null;
     const response = await client.request<HatAuthorityResponse>(
-      ALLOWLIST_QUERY,
-      {
-        id: toLower(id),
-      },
+      AGREEMENT_QUERY,
+      { id: toLower(id) },
     );
-
-    const result = get(response, 'allowListEligibility.eligibilityData') as
-      | AllowlistProfile[]
-      | undefined;
-
-    if (!result) return null;
-
-    return result;
+    console.log('response', response);
+    // only returning "last" (most recent) agreement
+    return get(response, 'agreementEligibility')
+      ? get(response, 'agreementEligibility.agreements[0]')
+      : null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);
@@ -49,7 +44,7 @@ const fetchAllowlist = async ({
   }
 };
 
-const useAllowlist = ({
+const useAgreement = ({
   id,
   chainId,
 }: {
@@ -57,10 +52,10 @@ const useAllowlist = ({
   chainId: SupportedChains | undefined;
 }) => {
   return useQuery({
-    queryKey: ['allowlistDetails', { id, chainId }],
-    queryFn: () => fetchAllowlist({ id, chainId }),
+    queryKey: ['agreementDetails', { id, chainId }],
+    queryFn: () => fetchAgreement({ id, chainId }),
     enabled: !!id && !!chainId,
   });
 };
 
-export default useAllowlist;
+export default useAgreement;

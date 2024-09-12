@@ -37,9 +37,9 @@ import {
   ModuleModal,
   WearerFilters,
 } from '../../module-modal';
-import AboutAllowlist from './about';
+import AboutJokeRace from './about';
 
-export const AllowlistModal = ({
+export const JokeRaceModal = ({
   eligibilityHatId,
   moduleInfo,
 }: {
@@ -103,13 +103,13 @@ export const AllowlistModal = ({
 
   return (
     <ModuleModal
-      name='allowlistManager'
-      title='Manage Allowlist'
+      name='jokeRaceManager'
+      title='Manage JokeRace'
       filters={
         <WearerFilters extendedProfiles={allowlistProfiles} wearers={wearers} />
       }
       about={
-        <AboutAllowlist
+        <AboutJokeRace
           eligibilityHat={eligibilityHatId}
           ownerHat={ownerHat as Hex}
           judgeHat={judgeHat as Hex}
@@ -117,7 +117,9 @@ export const AllowlistModal = ({
       }
       history={<ModuleHistory />}
     >
-      <Heading size='md'>Allowlist for Hat 1.2.1.2 - Hats Contributor</Heading>
+      <Heading size='md'>
+        JokeRace Election for Hat 1.2.1.2 - Hats Contributor
+      </Heading>
 
       <Flex>
         <Input

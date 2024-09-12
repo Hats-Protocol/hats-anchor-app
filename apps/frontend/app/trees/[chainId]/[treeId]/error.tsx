@@ -30,13 +30,13 @@ export default function Error({
   return (
     <main className='flex h-full flex-col items-center justify-center min-h-screen'>
       <Stack spacing={10} w='60%'>
-        <h2 className='text-center text-xl font-bold'>Something went wrong!</h2>
+        <h2 className='text-center text-xl font-bold'>Something went wrong</h2>
 
         <Flex justifyContent='center'>
           <Button
             variant='primary'
             onClick={
-              // Attempt to recover by trying to re-render the invoices route
+              // Attempt to recover by trying to re-render the route
               () => reset()
             }
           >

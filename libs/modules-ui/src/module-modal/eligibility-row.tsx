@@ -2,7 +2,7 @@ import { Checkbox, Flex, HStack, Icon, Image, Text } from '@chakra-ui/react';
 import { get, includes, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
-import { ExtendedProfile, HatWearer } from 'types';
+import { AllowlistProfile, HatWearer } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar } from 'wagmi';
@@ -17,10 +17,10 @@ export const EligibilityRow = ({
   handleAdd,
   handleRemove,
 }: {
-  eligibilityAccount: ExtendedProfile;
+  eligibilityAccount: AllowlistProfile;
   wearers: HatWearer[] | undefined;
   removing: boolean;
-  removeList: ExtendedProfile[] | undefined;
+  removeList: AllowlistProfile[] | undefined;
   handleAdd: (account: Hex) => void;
   handleRemove: (address: Hex) => void;
 }) => {

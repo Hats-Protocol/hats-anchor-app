@@ -1,5 +1,6 @@
 export * from './modules';
 export { default as useAgreementClaim } from './useAgreementClaim';
+export { default as useAgreementDetails } from './useAgreementDetails';
 export { default as useAllowlist } from './useAllowlist';
 export { default as useAncillaryElection } from './useAncillaryElection';
 export { default as useAncillaryModules } from './useAncillaryModules';

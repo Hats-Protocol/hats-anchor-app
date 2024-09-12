@@ -1,12 +1,12 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
-import { NETWORKS_PREFIX } from "./constants";
+import { NETWORKS_PREFIX } from './constants';
 
 export function getHatsDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
-    query getHat($id: ID!) {
-      ${networkPrefix}_hat(id: $id) {
+    query getHats($ids: [ID!]!) {
+      ${networkPrefix}_hats(where: { id_in: $ids }) {
         id
         prettyId
         status
@@ -113,4 +113,3 @@ export function getPaginatedWearersForHatQuery(chainId: number): string {
     }
   `;
 }
-

@@ -5,6 +5,7 @@ import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
 import { AllowlistModal } from 'modules-ui';
+import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
@@ -34,6 +35,10 @@ const AllowlistEligibility = ({
     toLower(wearer),
   );
 
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('eligibility-modal') ||
+    process.env.NODE_ENV === 'development';
+
   if (!selectedHat || !moduleDetails?.id) return null;
 
   if (isEligible) {
@@ -51,13 +56,16 @@ const AllowlistEligibility = ({
           rule={
             <Text>
               Be on the{' '}
-              <Button
-                onClick={() => setModals?.({ allowlistManager: true })}
-                variant='text'
-                textDecoration='underline'
-              >
-                Allowlist
-              </Button>
+              {eligibilityModalFlag ? (
+                <Button
+                  onClick={() => setModals?.({ allowlistManager: true })}
+                  variant='link'
+                >
+                  Allowlist
+                </Button>
+              ) : (
+                'Allowlist'
+              )}
             </Text>
           }
           status={ELIGIBILITY_STATUS.eligible}
@@ -81,10 +89,10 @@ const AllowlistEligibility = ({
       <EligibilityRule
         rule={
           <Text>
-            Be on the{' '}
+            Be on the {}
             <Button
               onClick={() => setModals?.({ allowlistManager: true })}
-              variant='text'
+              variant='link'
               textDecoration='underline'
             >
               Allowlist

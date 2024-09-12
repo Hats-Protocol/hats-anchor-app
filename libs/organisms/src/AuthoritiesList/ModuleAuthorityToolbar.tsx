@@ -219,11 +219,17 @@ const ModuleAuthorityToolbar = ({
     });
   };
 
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('eligibility-modal') ||
+    process.env.NODE_ENV === 'development';
+
   return (
     <HStack wrap='wrap'>
-      <CustomFunction authority={customFunction} />
+      {customFunction && eligibilityModalFlag ? (
+        <CustomFunction authority={customFunction} />
+      ) : null}
 
-      {primaryFunction && !customFunction && (
+      {primaryFunction && (!customFunction || !eligibilityModalFlag) && (
         <Tooltip label={primaryDisabledReason}>
           <Button
             colorScheme='blue'

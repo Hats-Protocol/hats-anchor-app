@@ -1,1 +1,1 @@
-export { default } from './agreement-modal';
+export * from './agreement-modal';

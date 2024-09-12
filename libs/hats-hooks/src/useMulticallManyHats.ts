@@ -50,6 +50,7 @@ const useMulticallManyHats = ({
   onchainHats,
   chainId,
   handlePendingTx,
+  editMode,
 }: UseMulticallManyHatsProps) => {
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
@@ -107,7 +108,9 @@ const useMulticallManyHats = ({
     treeToDisplay,
     adminHatIds,
   ]);
-  console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
+  if (editMode) {
+    console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
+  }
 
   const { writeContractAsync } = useWriteContract();
 
@@ -268,6 +271,7 @@ interface UseMulticallManyHatsProps {
   onchainHats: AppHat[] | undefined;
   chainId: SupportedChains | undefined;
   handlePendingTx?: HandlePendingTx;
+  editMode?: boolean;
 }
 
 export interface HatPinDetails {

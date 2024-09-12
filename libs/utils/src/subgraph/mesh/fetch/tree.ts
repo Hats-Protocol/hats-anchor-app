@@ -39,7 +39,6 @@ export const fetchTreeDetailsMesh = async (
   return tree;
 };
 
-
 export const fetchPaginatedTreesMesh = async (
   chainId: number,
   page: number = 0,

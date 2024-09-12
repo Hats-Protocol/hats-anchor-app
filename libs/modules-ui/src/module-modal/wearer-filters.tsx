@@ -1,7 +1,7 @@
 import { Button, Flex, Heading, Icon, Stack } from '@chakra-ui/react';
 import { filter, get, includes, isEmpty, map, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import { ExtendedProfile, HatWearer } from 'types';
+import { AllowlistProfile, HatWearer } from 'types';
 
 const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
 
@@ -9,7 +9,7 @@ export const WearerFilters = ({
   extendedProfiles,
   wearers,
 }: {
-  extendedProfiles: ExtendedProfile[] | undefined;
+  extendedProfiles: AllowlistProfile[] | undefined;
   wearers: HatWearer[] | undefined;
 }) => {
   const eligible = filter(extendedProfiles, (p) => {

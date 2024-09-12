@@ -28,9 +28,12 @@ const useAgreementClaim = ({
   mchAddress,
   onDecline,
 }: ContractInteractionProps) => {
-  const ipfsHash = get(find(moduleParameters, {
-    label: 'Current Agreement',
-  }), 'value') as string;
+  const ipfsHash = get(
+    find(moduleParameters, {
+      label: 'Current Agreement',
+    }),
+    'value',
+  ) as string;
 
   const {
     data: agreement,
@@ -42,14 +45,13 @@ const useAgreementClaim = ({
     enabled: !!ipfsHash,
   });
 
-  const signAndClaim = find(
-    get(moduleDetails, 'writeFunctions'),
-    { functionName: 'signAgreementAndClaimHat' },
-  );
+  const signAndClaim = find(get(moduleDetails, 'writeFunctions'), {
+    functionName: 'signAgreementAndClaimHat',
+  });
 
-  const signFn = find(
-    get(moduleDetails, 'writeFunctions'), { functionName: 'signAgreement' },
-  );
+  const signFn = find(get(moduleDetails, 'writeFunctions'), {
+    functionName: 'signAgreement',
+  });
 
   const { mutate: callModuleFunction } = useCallModuleFunction({
     chainId,
