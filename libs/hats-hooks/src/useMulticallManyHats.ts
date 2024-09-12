@@ -64,7 +64,6 @@ const useMulticallManyHats = ({
     (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
-  console.log(storedData);
 
   useEffect(() => {
     const prepareMulticallData = async () => {
@@ -72,7 +71,7 @@ const useMulticallManyHats = ({
         includes(map(onchainHats, 'id'), hat.id),
       );
 
-      const onlyActualChanges = filter(storedData, (obj) => {
+      const removeEmptyHats = filter(storedData, (obj) => {
         const localKeys = keys(obj);
         const withoutId = reject(localKeys, (key) => key === 'id');
         if (isEmpty(withoutId)) return false;
@@ -80,7 +79,7 @@ const useMulticallManyHats = ({
       });
 
       const deployableHatChanges = filter(
-        onlyActualChanges,
+        removeEmptyHats,
         (hat: Partial<FormData>) => includes(adminHatIds, hat.id),
       );
       const allCallsPromises = map(

@@ -315,7 +315,10 @@ function OrgChartComponent() {
                     <img
                       loading="lazy"
                       src="${
-                        imageUrl && imageUrl !== '' && imageUrl !== null
+                        imageUrl &&
+                        imageUrl !== '' &&
+                        imageUrl !== '#' &&
+                        imageUrl !== null
                           ? imageUrl
                           : '/icon.jpeg'
                       }"

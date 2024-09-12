@@ -37,7 +37,7 @@ export const ipfsUrl = (hash: string | undefined, publicGateway?: boolean) => {
   if (startsWith(localHash, 'ipfs://')) {
     localHash = localHash?.slice(7);
   }
-  if (!localHash) return '#';
+  if (!localHash) return ''; // Adverse affect of empty string?
   if (publicGateway) return `https://ipfs.io/ipfs/${localHash}`;
   return `${GATEWAY_URL}${localHash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
