@@ -343,8 +343,8 @@ const EditMode = () => {
               drawers?.eligibility
                 ? 'eligibility'
                 : drawers?.toggle
-                ? 'toggle'
-                : undefined
+                  ? 'toggle'
+                  : undefined
             }
           />
         )}

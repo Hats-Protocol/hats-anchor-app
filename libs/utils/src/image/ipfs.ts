@@ -8,7 +8,16 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import { find, get, keys, pick, startsWith, toLower, toString, trim } from 'lodash';
+import {
+  find,
+  get,
+  keys,
+  pick,
+  startsWith,
+  toLower,
+  toString,
+  trim,
+} from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
