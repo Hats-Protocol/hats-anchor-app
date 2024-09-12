@@ -1,9 +1,7 @@
 # Add files here to ignore them from prettier formatting
 /dist
 /coverage
-/.nx
 /node_modules
-/apps/frontend/.next
-/apps/election/.next
-/.nx/cache
-/.nx/workspace-data
+
+**/.nx
+**/.next

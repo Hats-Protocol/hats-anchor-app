@@ -10,8 +10,8 @@
   ],
   "extends": [
     "plugin:@tanstack/eslint-plugin-query/recommended",
-    "prettier",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2023
