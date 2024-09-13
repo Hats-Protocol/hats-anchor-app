@@ -4,6 +4,7 @@ export { default as CmdkButton } from './CmdkButton';
 export { default as CommandPalette } from './CommandPalette';
 export { default as ConnectWallet } from './ConnectWallet';
 export { default as EventHistory } from './EventHistory';
+export { default as HatDevDetails } from './HatDevDetails';
 export { default as MyHats } from './MyHats';
 export { default as Navbar } from './Navbar';
 export { default as NavLinks } from './NavLinks';

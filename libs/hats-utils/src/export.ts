@@ -44,8 +44,9 @@ const prepDraftsAndHats = (
   drafts: Partial<FormData>[],
 ) => {
   const mapDrafts = _.map(drafts, (hat: Partial<FormData>) => {
-    const adminId = hat.adminId || hat.parentId;
-    if (!hat.id || !adminId) return undefined;
+    if (!hat.id) return undefined;
+    const adminId = hat.adminId || hat.parentId || calculateParentId(hat.id);
+    if (!adminId) return undefined;
     return {
       id: hat.id,
       ipId: hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
@@ -58,7 +59,7 @@ const prepDraftsAndHats = (
   const mapOnchainHats = _.map(onchainHats, (hat: AppHat) => ({
     id: hat.id,
     ipId: hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
-    admin: hat.admin,
+    admin: hat.admin || { id: calculateParentId(hat.id) },
     imageUrl: hat.imageUrl,
   }));
 
@@ -101,7 +102,10 @@ export const translateDrafts = ({
       imageHats,
       hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
     );
-    const firstAdminWithImage = _.find(admins, (h) => h.imageUrl !== '');
+    const firstAdminWithImage = _.find(
+      admins,
+      (h) => h.imageUrl && h.imageUrl !== '',
+    );
     const adminImageUrl = firstAdminWithImage
       ? { imageUrl: firstAdminWithImage.imageUrl }
       : {}; // TODO don't include when translating for export

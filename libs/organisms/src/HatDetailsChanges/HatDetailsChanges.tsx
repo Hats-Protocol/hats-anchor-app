@@ -13,11 +13,14 @@ import { useSelectedHat, useTreeForm } from 'contexts';
 import { useIpfsData } from 'hooks';
 import { filter, get, has, map, toNumber } from 'lodash';
 import Link from 'next/link';
-import { Card, CardContent, Skeleton } from 'ui';
+import { Card, CardContent, HatDeco, Skeleton } from 'ui';
 import { explorerUrl, formatDate } from 'utils';
+
 const HatDetailsCard = ({ event }: { event: any }) => {
   const { chainId } = useTreeForm();
-  const { data: fullDetails, isLoading } = useIpfsData(event.hatNewDetails);
+  const hash = event.hatNewDetails || event.hatDetails;
+
+  const { data: fullDetails, isLoading } = useIpfsData(hash);
   const details = get(fullDetails, 'data.data');
 
   const formattedDate = formatDate(toNumber(event.timestamp) * 1000);
@@ -26,25 +29,25 @@ const HatDetailsCard = ({ event }: { event: any }) => {
     return <Skeleton className='h-10 w-full' />;
   }
 
-  console.log(details);
-  if (!details || !event.hatNewDetails) {
+  if (!details || !hash) {
     return null;
   }
 
   return (
     <Card className='my-4'>
-      <div className='pt-6' />
-      <CardContent>
+      <CardContent className='p-2 md:p-6'>
         <AccordionItem borderTop='none' borderBottom='none'>
           <AccordionButton>
             <div className='flex justify-between w-full'>
-              <div className='flex gap-2 items-center'>
+              <div className='flex gap-2 flex-col md:flex-row md:items-center'>
                 <h2 className='font-mono font-medium bg-slate-600 text-white px-2 rounded-md'>
-                  {event.hatNewDetails.slice(7, 10)}...
-                  {event.hatNewDetails.slice(-10)}
+                  {hash.slice(7, 10)}...
+                  {hash.slice(-10)}
                 </h2>
-                on
-                <p className='text-sm text-slate-500'>{formattedDate}</p>
+                <span className='flex gap-2 items-center'>
+                  on
+                  <p className='text-sm text-slate-500'>{formattedDate}</p>
+                </span>
               </div>
               <AccordionIcon />
             </div>
@@ -53,7 +56,7 @@ const HatDetailsCard = ({ event }: { event: any }) => {
             <div className='flex flex-col gap-2'>
               <div className='flex gap-4'>
                 <Link
-                  href={`https://ipfs.io/ipfs/${event.hatNewDetails.slice(7)}`}
+                  href={`https://ipfs.io/ipfs/${hash.slice(7)}`}
                   target='_blank'
                   rel='noopener noreferrer'
                 >
@@ -86,15 +89,15 @@ const HatDetailsCard = ({ event }: { event: any }) => {
 
 const HatDetailsChanges = () => {
   const { selectedHat, selectedHatDetails } = useSelectedHat();
-  const detailsChangesEvents = filter(get(selectedHat, 'events'), (event) =>
-    has(event, 'hatNewDetails'),
+
+  const detailsChangesEvents = filter(
+    get(selectedHat, 'events'),
+    (event) => has(event, 'hatNewDetails') || has(event, 'hatDetails'),
   );
 
-  console.log(detailsChangesEvents);
-
   return (
-    <div className='flex flex-col justify-center gap-4 pt-32 w-[60%] mx-auto'>
-      <h1 className='text-2xl font-bold'>
+    <div className='flex flex-col justify-center gap-4 py-32 w-[90%] md:w-[60%] mx-auto'>
+      <h1 className='text-lg md:text-2xl font-bold'>
         {selectedHatDetails?.name} Details Changes
       </h1>
 
@@ -103,6 +106,8 @@ const HatDetailsChanges = () => {
           <HatDetailsCard key={event.id} event={event} />
         ))}
       </Accordion>
+
+      <HatDeco />
     </div>
   );
 };
