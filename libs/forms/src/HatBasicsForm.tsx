@@ -38,7 +38,12 @@ const MUTABILITY_OPTIONS = [
 const HatBasicsForm = () => {
   const { chainId, treeToDisplay } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const { localForm, formValues, setFormLoading } = useHatForm();
+  const {
+    localForm,
+    formValues,
+    setFormLoading,
+    isLoading: hatFormLoading,
+  } = useHatForm();
   const [image, setImage] = useState<ImageFile>();
   const { control, setValue } = _.pick(localForm, ['control', 'setValue']);
 
@@ -129,6 +134,7 @@ const HatBasicsForm = () => {
               name='name'
               label='Hat Name'
               placeholder='Hat name'
+              isDisabled={hatFormLoading}
               localForm={localForm}
             />
           </FormRowWrapper>
@@ -138,6 +144,7 @@ const HatBasicsForm = () => {
               name='description'
               label='Description'
               placeholder='Add a brief description (or a link to one) for this hat'
+              isDisabled={hatFormLoading}
               localForm={localForm}
             />
           </FormRowWrapper>

@@ -47,7 +47,7 @@ export interface IHatFormContext {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any> | null;
   formValues: Partial<FormData> | undefined;
-  formLoading: boolean;
+  isLoading: boolean;
   setFormLoading: (loading: boolean) => void;
   handleSave: (sendToast?: boolean) => void;
   handleRemoveHat: () => void;
@@ -58,7 +58,7 @@ export interface IHatFormContext {
 export const HatFormContext = createContext<IHatFormContext>({
   localForm: null,
   formValues: undefined,
-  formLoading: false,
+  isLoading: false,
   setFormLoading: () => {},
   handleSave: () => {},
   handleRemoveHat: () => {},
@@ -81,12 +81,14 @@ export const HatFormContextProvider = ({
     onCloseHatDrawer,
     guildData,
     snapshotData,
+    isLoading: treeIsLoading,
   } = useTreeForm();
   const {
     selectedHat,
     selectedOnchainHat,
     selectedOnchainHatDetails,
     isDraft,
+    hatLoading,
   } = useSelectedHat();
   const toast = useToast();
   const localForm = useForm({
@@ -101,16 +103,17 @@ export const HatFormContextProvider = ({
       editMode: false,
       tree: orgChartTree,
     });
-  const { data: guildRoles } = useHatGuildRoles({
+  const { data: guildRoles, isLoading: guildRolesLoading } = useHatGuildRoles({
     hatId: selectedHat?.id,
     guildData,
     chainId,
   });
-  const { data: snapshotRoles } = useHatSnapshotRoles({
-    hatId: selectedHat?.id,
-    spaces: snapshotData,
-    chainId,
-  });
+  const { data: snapshotRoles, isLoading: snapshotRolesLoading } =
+    useHatSnapshotRoles({
+      hatId: selectedHat?.id,
+      spaces: snapshotData,
+      chainId,
+    });
 
   const [formLoading, setFormLoading] = useState(false);
   const formName = useDebounce<string>(watch?.('name', ''));
@@ -208,7 +211,14 @@ export const HatFormContextProvider = ({
 
   // get default form values
   const defaultFormValues = useMemo<FormData>(() => {
-    if (isDraft || ancillaryModulesLoading) {
+    if (
+      isDraft ||
+      ancillaryModulesLoading ||
+      hatLoading ||
+      treeIsLoading ||
+      guildRolesLoading ||
+      snapshotRolesLoading
+    ) {
       return EMPTY_FORM_VALUES;
     }
 
@@ -268,6 +278,12 @@ export const HatFormContextProvider = ({
     isDraft,
     guildRoles,
     snapshotRoles,
+    treeIsLoading,
+    hatLoading,
+    guildRolesLoading,
+    snapshotRolesLoading,
+    ancillaryModulesLoading,
+    // modulesAuthorities,
   ]);
 
   // set initial form values
@@ -386,8 +402,14 @@ export const HatFormContextProvider = ({
       // form state
       localForm,
       formValues: debouncedFormValues,
-      formLoading,
       setFormLoading,
+      isLoading:
+        formLoading ||
+        ancillaryModulesLoading ||
+        hatLoading ||
+        treeIsLoading ||
+        guildRolesLoading ||
+        snapshotRolesLoading,
 
       // helpers
       getDirtyFieldsForAccordion,
@@ -403,6 +425,11 @@ export const HatFormContextProvider = ({
       debouncedFormValues,
       formLoading,
       setFormLoading,
+      ancillaryModulesLoading,
+      hatLoading,
+      treeIsLoading,
+      guildRolesLoading,
+      snapshotRolesLoading,
 
       // helpers
       getDirtyFieldsForAccordion,

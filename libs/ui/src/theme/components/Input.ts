@@ -1,5 +1,14 @@
 const Input = {
-  variants: {},
+  variants: {
+    outline: {
+      field: {
+        bg: 'white',
+        _hover: {
+          bg: 'whiteAlpha.700',
+        },
+      },
+    },
+  },
   defaultProps: {
     variant: 'outline',
   },
