@@ -101,12 +101,10 @@ export const translateDrafts = ({
       imageHats,
       hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
     );
-    console.log('imageHats', imageHats, admins);
     const firstAdminWithImage = _.find(admins, (h) => h.imageUrl !== '');
-    console.log(firstAdminWithImage);
     const adminImageUrl = firstAdminWithImage
       ? { imageUrl: firstAdminWithImage.imageUrl }
-      : {}; // don't include when translating for export
+      : {}; // TODO don't include when translating for export
     if (!hat.id) return undefined;
     return {
       id: hat.id,

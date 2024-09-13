@@ -28,7 +28,7 @@ import {
   formatScientificWhole,
 } from 'utils';
 import { isAddress } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import { FormRowWrapper, MultiAddressInput, NumberInput } from './components';
 
@@ -47,11 +47,9 @@ type HatWearerFormProps = {
 // TODO reset form state on unmount?
 
 const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
-  const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
-  const { chainId, onchainHats, storedData, editMode, onCloseHatDrawer } =
-    useTreeForm();
-  const { selectedHat, selectedOnchainHat } = useSelectedHat();
+  const { chainId, storedData, editMode, onCloseHatDrawer } = useTreeForm();
+  const { selectedHat } = useSelectedHat();
 
   const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
@@ -137,15 +135,15 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
     ],
-    enabled:
-      !!hatId &&
-      !!currentResolvedAddress &&
-      Boolean(hatIdDecimal) &&
-      _.includes(_.map(onchainHats, 'id'), hatId) &&
-      !_.isEmpty(localWearers) &&
-      _.toNumber(selectedOnchainHat?.maxSupply) >
-        (currentWearerList.length + currentResolvedAddress ? 1 : 0) &&
-      chainId === currentNetworkId,
+    // TODO move these to disabled/other checks
+    // enabled:
+    //   !!hatId &&
+    //   Boolean(hatIdDecimal) &&
+    //   _.includes(_.map(onchainHats, 'id'), hatId) &&
+    //   !_.isEmpty(localWearers) &&
+    //   _.toNumber(selectedOnchainHat?.maxSupply) >
+    //     (currentWearerList.length + currentResolvedAddress ? 1 : 0) &&
+    //   chainId === currentNetworkId,
   });
 
   const txDescriptionSingle = `Minted hat ${idToIp(selectedHat?.id)} to ${
@@ -173,15 +171,16 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
         ['hatDetails', { id: hatId, chainId }],
         ['treeDetails', toTreeId(hatId)],
       ],
-      enabled:
-        Boolean(hatIdDecimal) &&
-        _.includes(_.map(onchainHats, 'id'), hatId) &&
-        (Boolean(currentResolvedAddress) || isAddress(currentInput)) &&
-        _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
-        chainId === currentNetworkId,
+      // enabled:
+      //   Boolean(hatIdDecimal) &&
+      //   _.includes(_.map(onchainHats, 'id'), hatId) &&
+      //   (Boolean(currentResolvedAddress) || isAddress(currentInput)) &&
+      //   _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
+      //   chainId === currentNetworkId,
     });
 
   const onSubmit = async () => {
+    console.log(currentResolvedAddress, localWearers);
     if (
       currentResolvedAddress &&
       isAddress(currentResolvedAddress) &&

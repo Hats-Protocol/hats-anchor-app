@@ -122,8 +122,9 @@ const useMulticallManyHats = ({
       return undefined;
     }
 
-    // important that siblings are sent in order
+    // ! important that siblings are sent in order
     const sortedCalls = sortBy(allCallsData, 'hatChanges.id');
+    // TODO do we need to check if calls is empty?
     const onlyCalls = flatten(
       map(sortedCalls, (localCalls) => {
         return map(get(localCalls, 'calls'), 'callData');

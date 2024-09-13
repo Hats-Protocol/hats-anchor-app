@@ -83,7 +83,7 @@ const WearerRow = ({
     args: [hatIdHexToDecimal(hatId), wearer.id],
     chainId,
     // TODO re-add check for isContract
-    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+    // enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],

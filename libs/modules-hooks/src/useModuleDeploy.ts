@@ -66,7 +66,13 @@ const useModuleDeploy = ({
   const originalValues = watch();
   const tokenAddress = originalValues['Token Address'];
   const { data } = useToken({ address: tokenAddress });
+  const { hatterIsAdmin, wearingHat } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats,
+  });
   const tokenDecimals = data?.decimals;
+  console.log(hatterIsAdmin, wearingHat);
 
   const values = useMemo(
     () =>
@@ -77,6 +83,7 @@ const useModuleDeploy = ({
       }),
     [originalValues, selectedModuleDetails, tokenDecimals],
   );
+  console.log(values);
 
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -355,12 +362,19 @@ const useModuleDeploy = ({
       }
     },
   });
-  console.log(adminHat);
+  console.log(
+    'no admin',
+    adminHat,
+    isPermissionlesslyClaimable === 'Yes',
+    !adminHat || !hatterIsAdmin,
+    isPermissionlesslyClaimable === 'Yes' && (!adminHat || !hatterIsAdmin),
+  );
 
   return {
     deploy: mutateAsync,
     isLoading: isLoadingMultiClaimsHatter,
-    isBlocked: isPermissionlesslyClaimable === 'Yes' && !adminHat,
+    isBlocked:
+      isPermissionlesslyClaimable === 'Yes' && !adminHat && !hatterIsAdmin,
   };
 };
 

@@ -101,7 +101,10 @@ const MainContent = ({
               };
 
               return (
-                <div className='flex gap-2' key={get(data, 'value')}>
+                <div
+                  className='flex gap-2'
+                  key={`${get(data, 'label')}-${get(data, 'value')}`}
+                >
                   <Link
                     href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`}
                     target='_blank'

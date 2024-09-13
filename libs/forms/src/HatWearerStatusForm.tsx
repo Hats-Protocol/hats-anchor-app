@@ -20,8 +20,8 @@ import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
 import { formatAddress, viemPublicClient } from 'utils';
-import { Hex, isAddress } from 'viem';
-import { useAccount, useChainId, useEnsName } from 'wagmi';
+import { Hex } from 'viem';
+import { useEnsName } from 'wagmi';
 
 const HatWearerStatusForm = ({
   wearer,
@@ -30,8 +30,8 @@ const HatWearerStatusForm = ({
   wearer: Hex | undefined;
   eligibility: string; // form value
 }) => {
-  const currentNetworkId = useChainId();
-  const { address } = useAccount();
+  // const currentNetworkId = useChainId();
+  // const { address } = useAccount();
   const { setModals, handlePendingTx } = useOverlay();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch, setValue } = localForm;
@@ -91,12 +91,13 @@ const HatWearerStatusForm = ({
       title: 'Wearer Status Updated',
       description: txDescription,
     },
-    enabled:
-      !!wearer &&
-      !!hatId &&
-      isAddress(wearer) &&
-      _.toLower(address) === selectedHat.eligibility &&
-      chainId === currentNetworkId,
+    // TODO move to submit check
+    // enabled:
+    //   !!wearer &&
+    //   !!hatId &&
+    //   isAddress(wearer) &&
+    //   _.toLower(address) === selectedHat.eligibility &&
+    //   chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
