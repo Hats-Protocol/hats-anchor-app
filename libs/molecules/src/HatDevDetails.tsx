@@ -1,11 +1,14 @@
-import { Button, Link } from '@chakra-ui/react';
+'use client';
+
+import { Button, HStack, Link, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { explorerUrl, formatAddress } from 'utils';
+import { ChakraNextLink } from 'ui';
+import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 
 const CopyAddress = dynamic(() =>
   import('icons').then((mod) => mod.CopyAddress),
@@ -33,10 +36,41 @@ const HatDevDetails = () => {
   if (!isDev) return null;
 
   return (
-    <div className='flex flex-col gap-6 px-16'>
-      <h2 className='text-md font-bold'>Dev Info</h2>
+    <div className='flex flex-col gap-6 px-4 md:px-16'>
+      <h2 className='text-sm md:text-md font-bold'>Dev Info</h2>
 
       <div className='flex flex-col gap-2'>
+        <Stack>
+          <HStack>
+            <Text variant='medium' size={{ base: 'sm', md: 'md' }}>
+              Image URI:
+            </Text>
+            <ChakraNextLink href={ipfsUrl(selectedHat?.imageUri)} isExternal>
+              <Text
+                maxW={['250px', null, null, '350px']}
+                size={{ base: 'sm', md: 'md' }}
+                isTruncated
+              >
+                {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
+              </Text>
+            </ChakraNextLink>
+          </HStack>
+          <HStack>
+            <Text variant='medium' size={{ base: 'sm', md: 'md' }}>
+              Details URI:
+            </Text>
+            <ChakraNextLink href={ipfsUrl(selectedHat?.details)} isExternal>
+              <Text
+                maxW={['250px', null, null, '350px']}
+                size={{ base: 'sm', md: 'md' }}
+                isTruncated
+              >
+                {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
+              </Text>
+            </ChakraNextLink>
+          </HStack>
+        </Stack>
+
         {map(devData, (data) => {
           const devDataClick = () => {
             const value = get(data, 'value');
@@ -55,6 +89,7 @@ const HatDevDetails = () => {
                 href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`}
                 target='_blank'
                 rel='noopener noreferrer'
+                fontSize={{ base: 'sm', md: 'md' }}
               >
                 {get(data, 'label')}: {formatAddress(get(data, 'value'))}
               </Link>
@@ -69,7 +104,7 @@ const HatDevDetails = () => {
 
       <div className='flex gap-2'>
         <Link href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
-          <Button size='sm' variant='outline'>
+          <Button size={{ base: 'xs', md: 'sm' }} variant='outline'>
             View Details Changes
           </Button>
         </Link>

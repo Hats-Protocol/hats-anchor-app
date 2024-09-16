@@ -67,8 +67,8 @@ const Toggle = () => {
   return (
     <Skeleton
       isLoaded={!hatWearersLoading && !moduleDetailsLoading}
-      py={2}
-      px={{ base: 4, md: 0 }}
+      my={2}
+      mx={{ base: 4, md: 0 }}
     >
       <Flex justify='space-between'>
         <Text fontSize={{ base: 'sm', md: 'md' }}>

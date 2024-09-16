@@ -4,7 +4,7 @@ import { first, get, pick, split, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { HatDrawer } from 'pages';
 import { SearchParamsProps } from 'types';
-import { fetchHatDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh } from 'utils';
 
 const HatDetails = ({}: HatDetailsProps) => (
   <TreeFormContextProvider>
@@ -29,7 +29,7 @@ export async function generateMetadata({
   if (!hatIdHex) return {};
 
   // fetch data
-  return fetchHatDetailsMesh(hatIdHex, toNumber(chainId))
+  return fetchHatsDetailsMesh([hatIdHex], toNumber(chainId))
     .then((hat) => {
       const detailsMetadata = get(hat, 'detailsMetadata');
       const detailsObject = detailsMetadata

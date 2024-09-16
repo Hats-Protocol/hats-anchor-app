@@ -8,6 +8,7 @@ import {
   Flex,
   HStack,
   Icon,
+  Skeleton,
   Stack,
   Text,
   useBreakpointValue,
@@ -73,7 +74,12 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
 
 const AdminWearersPanel = () => {
   const { treeToDisplay } = useTreeForm();
-  const { selectedHat, chainId, isClaimable } = useSelectedHat();
+  const {
+    selectedHat,
+    chainId,
+    isClaimable,
+    hatLoading: selectedHatLoading,
+  } = useSelectedHat();
   const [expandedBackground, setExpandedBackground] = useState(false);
   const isMounted = useRef(false);
 
@@ -88,7 +94,20 @@ const AdminWearersPanel = () => {
     data: admins,
     adminCount,
     adminHats,
+    isLoading: adminWearersLoading,
   } = useHatAdminWearers(selectedHat, treeToDisplay, chainId);
+
+  if (size(admins) === 0) {
+    return (
+      <Skeleton
+        h='1.5rem'
+        w='full'
+        mx={4}
+        my={2}
+        isLoaded={!selectedHatLoading && !adminWearersLoading}
+      />
+    );
+  }
 
   if (size(admins) === 1) {
     return (

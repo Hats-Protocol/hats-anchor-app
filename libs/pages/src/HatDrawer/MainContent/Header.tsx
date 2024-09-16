@@ -9,6 +9,7 @@ import {
   HStack,
   Icon,
   Image,
+  Skeleton,
   Stack,
   Tooltip,
   useBreakpointValue,
@@ -29,7 +30,7 @@ const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const Header = () => {
   const { address } = useAccount();
   const { chainId, editMode, treeToDisplay } = useTreeForm();
-  const { selectedHat, selectedHatDetails } = useSelectedHat();
+  const { selectedHat, selectedHatDetails, hatLoading } = useSelectedHat();
 
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
     toastData: {
@@ -126,6 +127,7 @@ const Header = () => {
               <Button
                 size={{ base: 'sm', md: 'md' }}
                 variant='link'
+                p={0}
                 color='Functional-LinkPrimary'
                 onClick={copyHatId}
                 rightIcon={<Icon as={CopyHash} />}
@@ -145,15 +147,17 @@ const Header = () => {
       <Flex justify={isMobile ? 'center' : 'start'}>
         <HStack>
           {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-          <Badge
-            colorScheme={
-              mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0
-                ? 'blue'
-                : 'red'
-            }
-          >
-            {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
-          </Badge>
+          <Skeleton isLoaded={!hatLoading}>
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0
+                  ? 'blue'
+                  : 'red'
+              }
+            >
+              {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
+            </Badge>
+          </Skeleton>
           {levelAtLocalTree > 0 && (
             <>
               <Badge

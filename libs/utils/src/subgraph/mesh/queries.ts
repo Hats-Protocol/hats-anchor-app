@@ -214,8 +214,8 @@ export function getTreesByIdQuery(chainId: number): string {
 export function getHatDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
-    query getHat($id: ID!) {
-      ${networkPrefix}_hat(id: $id) {
+    query getHats($ids: [ID!]!) {
+      ${networkPrefix}_hats(where: { id_in: $ids }) {
         id
         prettyId
         status

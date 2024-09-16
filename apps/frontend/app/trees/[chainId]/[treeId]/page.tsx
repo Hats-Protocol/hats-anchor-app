@@ -4,7 +4,7 @@ import { get, pick, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { TreePage, TreePageMobile } from 'pages';
 import { SearchParamsProps } from 'types';
-import { fetchHatDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh } from 'utils';
 
 const TreeDetails = ({ params }: TreeDetailsProps) => {
   const { chainId, treeId } = params;
@@ -40,7 +40,7 @@ export async function generateMetadata({
   const hatId = hatIdDecimalToHex(treeIdToTopHatId(treeIdNum));
 
   // fetch data
-  return fetchHatDetailsMesh(hatId, toNumber(chainId))
+  return fetchHatsDetailsMesh([hatId], toNumber(chainId))
     .then((hat) => {
       const detailsMetadata = get(hat, 'detailsMetadata');
       const detailsObject = detailsMetadata
