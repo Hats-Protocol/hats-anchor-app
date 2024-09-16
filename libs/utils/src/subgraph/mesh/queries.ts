@@ -211,7 +211,7 @@ export function getTreesByIdQuery(chainId: number): string {
   `;
 }
 
-export function getHatDetailsQuery(chainId: number): string {
+export function getHatsDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
     query getHats($ids: [ID!]!) {

@@ -1,6 +1,6 @@
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider } from 'contexts';
-import { get, pick, toNumber } from 'lodash';
+import { first, get, pick, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { TreePage, TreePageMobile } from 'pages';
 import { SearchParamsProps } from 'types';
@@ -41,7 +41,8 @@ export async function generateMetadata({
 
   // fetch data
   return fetchHatsDetailsMesh([hatId], toNumber(chainId))
-    .then((hat) => {
+    .then((hats) => {
+      const hat = first(hats);
       const detailsMetadata = get(hat, 'detailsMetadata');
       const detailsObject = detailsMetadata
         ? get(JSON.parse(detailsMetadata), 'data')

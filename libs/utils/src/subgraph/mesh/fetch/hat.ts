@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { isEmpty, map } from 'lodash';
 import { AppHat, HatWithMetadata } from 'types';
 
-import { getHatDetailsQuery, NETWORKS_PREFIX } from '../queries';
+import { getHatsDetailsQuery, NETWORKS_PREFIX } from '../queries';
 
 export const fetchHatsDetailsMesh = async (
   hatIds: string[],
@@ -13,7 +13,7 @@ export const fetchHatsDetailsMesh = async (
   const client = new GraphQLClient(
     `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
   );
-  const query = getHatDetailsQuery(chainId);
+  const query = getHatsDetailsQuery(chainId);
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -30,7 +30,8 @@ export async function generateMetadata({
 
   // fetch data
   return fetchHatsDetailsMesh([hatIdHex], toNumber(chainId))
-    .then((hat) => {
+    .then((hats) => {
+      const hat = first(hats);
       const detailsMetadata = get(hat, 'detailsMetadata');
       const detailsObject = detailsMetadata
         ? get(JSON.parse(detailsMetadata), 'data')

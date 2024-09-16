@@ -9,10 +9,11 @@ const BASE_URL = process.env.VERCEL_URL
 
 export const MINI_CONFIG = {
   appName: 'Hats Protocol',
-  shortDescription: 'The Organization Graph Protocol',
+  shortDescription: 'Onchain Roles for Organizations',
+  description:
+    'Organizations work better with Hats Save time, automate onboarding, and make better decisions with programmable onchain roles.',
   url: BASE_URL,
   logoUrl: `${BASE_URL}/img/favicon-512.png`,
-  description: 'A hat for any occasion',
 };
 
 const TITLE = {
