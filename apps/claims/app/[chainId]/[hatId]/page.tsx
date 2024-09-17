@@ -4,7 +4,7 @@ import { first, get, pick, split, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { Claims } from 'pages';
 import { SupportedChains } from 'types';
-import { fetchHatDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh } from 'utils';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
@@ -42,8 +42,9 @@ export async function generateMetadata({
   const hatIdHex = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
   // fetch data
-  return fetchHatDetailsMesh(hatIdHex, toNumber(chainId))
-    .then((hat) => {
+  return fetchHatsDetailsMesh([hatIdHex], toNumber(chainId))
+    .then((hats) => {
+      const hat = first(hats);
       const detailsMetadata = get(hat, 'detailsMetadata');
       const detailsObject = detailsMetadata
         ? get(JSON.parse(detailsMetadata), 'data')

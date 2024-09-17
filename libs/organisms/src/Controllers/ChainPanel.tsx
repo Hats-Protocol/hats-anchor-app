@@ -76,22 +76,20 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
                 <Flex justify='space-between' py={2} px={4} width='100%'>
-                  <Text fontSize={{ base: 'sm', md: 'md' }}>
+                  <Text>
                     Comply with {isAndChain ? 'all' : 'any'} of{' '}
                     {size(flatten(ruleSets))} Rules to claim this Hat
                   </Text>
 
                   {isEligible ? (
                     <HStack spacing={1} color='green.600'>
-                      <Text fontSize={{ base: 'sm', md: 'md' }}>Eligible</Text>
+                      <Text>Eligible</Text>
 
                       <Icon as={BsCheckSquareFill} boxSize={4} />
                     </HStack>
                   ) : (
                     <HStack spacing={1} color='red.600'>
-                      <Text fontSize={{ base: 'sm', md: 'md' }}>
-                        Ineligible
-                      </Text>
+                      <Text>Ineligible</Text>
 
                       <Icon as={BsFillXOctagonFill} boxSize={4} />
                     </HStack>

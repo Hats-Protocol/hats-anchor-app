@@ -37,7 +37,7 @@ const HatDevDetails = () => {
 
   return (
     <div className='flex flex-col gap-6 px-4 md:px-16'>
-      <h2 className='text-sm md:text-md font-bold'>Dev Info</h2>
+      <h2 className='font-bold'>Dev Info</h2>
 
       <div className='flex flex-col gap-2'>
         <Stack>
@@ -46,11 +46,7 @@ const HatDevDetails = () => {
               Image URI:
             </Text>
             <ChakraNextLink href={ipfsUrl(selectedHat?.imageUri)} isExternal>
-              <Text
-                maxW={['250px', null, null, '350px']}
-                size={{ base: 'sm', md: 'md' }}
-                isTruncated
-              >
+              <Text maxW={['250px', null, null, '350px']} isTruncated>
                 {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
               </Text>
             </ChakraNextLink>
@@ -60,11 +56,7 @@ const HatDevDetails = () => {
               Details URI:
             </Text>
             <ChakraNextLink href={ipfsUrl(selectedHat?.details)} isExternal>
-              <Text
-                maxW={['250px', null, null, '350px']}
-                size={{ base: 'sm', md: 'md' }}
-                isTruncated
-              >
+              <Text maxW={['250px', null, null, '350px']} isTruncated>
                 {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
               </Text>
             </ChakraNextLink>
@@ -90,7 +82,6 @@ const HatDevDetails = () => {
                 href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`}
                 target='_blank'
                 rel='noopener noreferrer'
-                fontSize={{ base: 'sm', md: 'md' }}
               >
                 {formatAddress(get(data, 'value'))}
               </Link>

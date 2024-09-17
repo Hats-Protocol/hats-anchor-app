@@ -192,7 +192,7 @@ const WearerRow = ({
               label="You can't transfer a hat on a different chain"
             >
               <Button
-                variant='ghost'
+                variant='link'
                 size='xs'
                 color='Functional-LinkSecondary'
                 isDisabled={!isSameChain}
@@ -208,7 +208,7 @@ const WearerRow = ({
 
         {isIneligible && ( // when ineligible, we use same rows
           <Button
-            variant='ghost'
+            variant='link'
             size='xs'
             color='red.500'
             fontWeight='medium'

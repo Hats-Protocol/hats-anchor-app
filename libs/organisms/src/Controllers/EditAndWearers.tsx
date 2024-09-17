@@ -97,7 +97,7 @@ const AdminWearersPanel = () => {
     isLoading: adminWearersLoading,
   } = useHatAdminWearers(selectedHat, treeToDisplay, chainId);
 
-  if (size(admins) === 0) {
+  if (size(adminHats) === 0 || selectedHatLoading || adminWearersLoading) {
     return (
       <Skeleton
         h='1.5rem'
@@ -112,7 +112,7 @@ const AdminWearersPanel = () => {
   if (size(admins) === 1) {
     return (
       <Flex justify='space-between' py={1} px={{ base: 4, md: 0 }}>
-        <Text fontSize={{ base: 'sm', md: 'md' }}>
+        <Text>
           Admins can edit this Hat
           {!isClaimable?.for ? ' and choose Wearers' : ''}
         </Text>
@@ -169,7 +169,7 @@ const AdminWearersPanel = () => {
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
                 <Flex justify='space-between' py={2} px={4} width='100%'>
-                  <Text fontSize={{ base: 'sm', md: 'md' }}>
+                  <Text>
                     Admins can edit this Hat
                     {!isClaimable?.for ? ' and choose Wearers' : ''}
                   </Text>
@@ -237,9 +237,7 @@ const WearerBreakdown = ({
           }
           spacing={1}
         >
-          <Text fontSize={{ base: 'sm', md: 'md' }}>
-            {name || formatAddress(wearer?.id)}
-          </Text>
+          <Text>{name || formatAddress(wearer?.id)}</Text>
           <Icon
             as={icon ?? (wearer?.isContract ? CodeIcon : WearerIcon)}
             boxSize={{ base: '14px', md: 4 }}
@@ -253,19 +251,19 @@ const WearerBreakdown = ({
     <HStack spacing='2px'>
       {wearerCount.code > 0 && (
         <HStack color='Informative-Code' spacing='1px'>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>{wearerCount.code}×</Text>
+          <Text>{wearerCount.code}×</Text>
           <Icon as={CodeIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       )}
       {wearerCount.groups > 0 && (
         <HStack color='Informative-Human' spacing='1px'>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>{wearerCount.groups}×</Text>
+          <Text>{wearerCount.groups}×</Text>
           <Icon as={GroupIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       )}
       {wearerCount.human > 0 && (
         <HStack color='Informative-Human' spacing='1px'>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>{wearerCount.human}×</Text>
+          <Text>{wearerCount.human}×</Text>
           <Icon as={WearerIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       )}
@@ -290,9 +288,7 @@ const Claimable = ({
       isExternal
     >
       <HStack color='blue.500' spacing={1}>
-        <Text fontSize={{ base: 'sm', md: 'md' }}>
-          {claimFor ? 'Free Claim' : 'Self Claim'}
-        </Text>
+        <Text>{claimFor ? 'Free Claim' : 'Self Claim'}</Text>
         <Icon as={CodeIcon} boxSize={{ base: '14px', md: 4 }} />
       </HStack>
     </ChakraNextLink>
@@ -326,25 +322,16 @@ const EditAndWearers = () => {
     return (
       <Stack py={1} px={{ base: 4, md: 0 }}>
         <Flex justify='space-between'>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>
-            This Hat cannot be edited
-          </Text>
+          <Text>This Hat cannot be edited</Text>
 
           <HStack>
-            <Text
-              display={{ base: 'none', md: 'block' }}
-              fontSize={{ base: 'sm', md: 'md' }}
-            >
-              Immutable
-            </Text>
+            <Text display={{ base: 'none', md: 'block' }}>Immutable</Text>
             <Icon as={IoEllipsisVerticalSharp} />
           </HStack>
         </Flex>
 
         <Flex justify='space-between'>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>
-            Admins can add Wearers
-          </Text>
+          <Text>Admins can add Wearers</Text>
 
           <WearerBreakdown
             wearers={admins}
@@ -363,7 +350,7 @@ const EditAndWearers = () => {
       {(isClaimable?.for || isClaimable?.by) &&
         (isClaimable?.for ? (
           <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
-            <Text fontSize={{ base: 'sm', md: 'md' }}>{canAddWearers}</Text>
+            <Text>{canAddWearers}</Text>
 
             <Claimable
               address={claimableForAddress}
@@ -373,9 +360,7 @@ const EditAndWearers = () => {
           </Flex>
         ) : (
           <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
-            <Text fontSize={{ base: 'sm', md: 'md' }}>
-              Eligible addresses can claim a Hat
-            </Text>
+            <Text>Eligible addresses can claim a Hat</Text>
 
             <Claimable
               address={claimableAddress}

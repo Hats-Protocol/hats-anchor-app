@@ -127,7 +127,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
         <VStack>
           <Button
-            leftIcon={<Icon as={AiOutlineDownload} />}
+            leftIcon={<Icon as={AiOutlineUpload} />}
             colorScheme='gray'
             variant='outline'
             onClick={openImportModal}
@@ -135,7 +135,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             Import
           </Button>
           <Button
-            leftIcon={<Icon as={AiOutlineUpload} />}
+            leftIcon={<Icon as={AiOutlineDownload} />}
             colorScheme='twitter'
             variant='solid'
             isDisabled={treeToDisplay?.length === 1}

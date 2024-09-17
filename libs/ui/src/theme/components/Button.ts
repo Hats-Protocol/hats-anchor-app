@@ -48,6 +48,7 @@ const Button = {
     link: (props: StyleFunctionProps) => ({
       fontFamily: 'inter',
       px: '0!',
+      fontWeight: 'normal',
     }),
   },
 };

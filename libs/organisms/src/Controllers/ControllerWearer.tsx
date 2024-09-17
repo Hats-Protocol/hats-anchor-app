@@ -34,7 +34,7 @@ const ControllerWearer = ({
   if (_.includes(NULL_ADDRESSES, address)) {
     return (
       <HStack color='blackAlpha.600' spacing={1}>
-        <Text fontSize={{ base: 'sm', md: 'md' }}>Null</Text>
+        <Text>Null</Text>
         <Icon as={EmptyWearer} boxSize={{ base: '14px', md: 4 }} />
       </HStack>
     );
@@ -56,7 +56,7 @@ const ControllerWearer = ({
           }
           spacing={1}
         >
-          <Text fontSize={{ base: 'sm', md: 'md' }}>{name}</Text>
+          <Text>{name}</Text>
           <Icon
             as={icon ?? (isContract ? CodeIcon : WearerIcon)}
             boxSize={{ base: '14px', md: 4 }}

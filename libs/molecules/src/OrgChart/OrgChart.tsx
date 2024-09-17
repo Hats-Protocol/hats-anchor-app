@@ -118,14 +118,15 @@ function OrgChartComponent() {
     if (chartNodes !== undefined && treeToDisplay !== undefined) {
       const newChartNodes = treeToDisplay as OrgChartHat[];
       chartNodes.forEach((node) => {
-        const newNode = find(newChartNodes, { id: node.id }) as OrgChartHat;
+        const newNode: OrgChartHat | undefined = find(newChartNodes, {
+          id: node.id,
+        });
         if (isUndefined(newNode)) return;
 
         // eslint-disable-next-line no-restricted-syntax
         for (const [key, value] of Object.entries(node)) {
           // TODO can this be more specific? it's potentially causing data to stick when nodes are collapsed
           if (!key.startsWith('_')) return;
-          console.log(key, value);
           // @ts-expect-error why does it think this is never?
           newNode[key as keyof OrgChartHat] = value as any;
         }
@@ -134,7 +135,6 @@ function OrgChartComponent() {
       setChartNodes(newChartNodes);
     }
   }, [chartNodes, treeToDisplay, orgChartTree]);
-  console.log(chartNodes);
 
   useEffect(() => {
     // encode the collapsed nodes in the tree to display, used for custom manipulation of expanded/collapsed nodes

@@ -4,15 +4,26 @@ import {
   TemplateData,
 } from '@hatsprotocol/constants';
 import { find, get, map } from 'lodash';
-import {
-  FeaturedTreeCard,
-  IntegrationCard,
-  LearnMoreCard,
-  MyHats,
-} from 'molecules';
+import dynamic from 'next/dynamic';
 import { DocsLink } from 'types';
 import { Card, LinkButton } from 'ui';
 import { fetchFeaturedTrees, fetchFeaturedTreesData } from 'utils';
+
+const MyHats = dynamic(() => import('molecules').then((mod) => mod.MyHats), {
+  ssr: false,
+});
+const FeaturedTreeCard = dynamic(
+  () => import('molecules').then((mod) => mod.FeaturedTreeCard),
+  {
+    ssr: false,
+  },
+);
+const IntegrationCard = dynamic(() =>
+  import('molecules').then((mod) => mod.IntegrationCard),
+);
+const LearnMoreCard = dynamic(() =>
+  import('molecules').then((mod) => mod.LearnMoreCard),
+);
 
 const RootPage = async () => {
   const featuredTrees = fetchFeaturedTrees();
