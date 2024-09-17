@@ -33,14 +33,14 @@ if (!ALCHEMY_ID) {
 }
 
 const RPC_URLS: { [key: number]: string } = {
-  1: `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
-  10: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
-  100: `https://rpc.gnosischain.com`,
-  137: `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
-  8453: `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
-  42220: 'https://forno.celo.org', // `https://celo-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
-  42161: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_ID}`,
-  11155111: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_ID}`,
+  1: process.env.NEXT_PUBLIC_MAINNET_HTTP_PROVIDER,
+  10: process.env.NEXT_PUBLIC_OPTIMISM_HTTP_PROVIDER,
+  100: process.env.NEXT_PUBLIC_GNOSIS_HTTP_PROVIDER,
+  137: process.env.NEXT_PUBLIC_POLYGON_HTTP_PROVIDER,
+  8453: process.env.NEXT_PUBLIC_BASE_HTTP_PROVIDER,
+  42220: process.env.NEXT_PUBLIC_CELO_HTTP_PROVIDER,
+  42161: process.env.NEXT_PUBLIC_ARBITRUM_HTTP_PROVIDER,
+  11155111: process.env.NEXT_PUBLIC_SEPOLIA_HTTP_PROVIDER,
 };
 
 export const getRpcUrl = (chainId: number) => {
