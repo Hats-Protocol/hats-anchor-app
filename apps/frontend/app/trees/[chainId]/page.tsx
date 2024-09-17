@@ -1,5 +1,5 @@
 import { chainsList, CONFIG } from '@hatsprotocol/constants';
-import { chain, get, pick, toNumber } from 'lodash';
+import { get, pick, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { TreesList as TreesListCards } from 'organisms';

@@ -283,7 +283,7 @@ export const HatFormContextProvider = ({
     guildRolesLoading,
     snapshotRolesLoading,
     ancillaryModulesLoading,
-    // modulesAuthorities,
+    // ! modulesAuthorities, causes infinite re-render
   ]);
 
   // set initial form values

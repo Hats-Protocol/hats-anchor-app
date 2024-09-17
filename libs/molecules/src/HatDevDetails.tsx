@@ -85,15 +85,15 @@ const HatDevDetails = () => {
               className='flex gap-2'
               key={`${get(data, 'label')}-${get(data, 'value')}`}
             >
+              <span className='font-medium'>{get(data, 'label')}:</span>{' '}
               <Link
                 href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 fontSize={{ base: 'sm', md: 'md' }}
               >
-                {get(data, 'label')}: {formatAddress(get(data, 'value'))}
+                {formatAddress(get(data, 'value'))}
               </Link>
-
               <button onClick={devDataClick}>
                 <CopyAddress />
               </button>

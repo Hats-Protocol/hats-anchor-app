@@ -102,7 +102,7 @@ const AdminWearersPanel = () => {
       <Skeleton
         h='1.5rem'
         w='full'
-        mx={4}
+        mx={{ base: 4, md: 0 }}
         my={2}
         isLoaded={!selectedHatLoading && !adminWearersLoading}
       />

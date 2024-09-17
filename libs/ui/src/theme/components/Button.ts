@@ -2,7 +2,7 @@ import { StyleFunctionProps } from '@chakra-ui/react';
 
 const Button = {
   baseStyles: {
-    fontWeight: 'medium'
+    fontWeight: 'medium',
   },
   variants: {
     filled: (props: StyleFunctionProps) => ({
@@ -47,7 +47,8 @@ const Button = {
     }),
     link: (props: StyleFunctionProps) => ({
       fontFamily: 'inter',
-    })
+      px: '0!',
+    }),
   },
 };
 

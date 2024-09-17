@@ -48,9 +48,17 @@ export async function generateMetadata({
         ? get(JSON.parse(detailsMetadata), 'data')
         : {};
 
+      const title = get(detailsObject, 'name');
+      let includeTitle = {};
+      if (title) includeTitle = { title };
+
+      const description = get(detailsObject, 'description');
+      let includeDescription = {};
+      if (description) includeDescription = { description };
+
       return {
-        title: get(detailsObject, 'name'),
-        description: get(detailsObject, 'description'),
+        ...includeTitle,
+        ...includeDescription,
       };
     })
     .catch((err) => {

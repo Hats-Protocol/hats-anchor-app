@@ -11,7 +11,7 @@ export const MINI_CONFIG = {
   appName: 'Hats Protocol',
   shortDescription: 'Onchain Roles for Organizations',
   description:
-    'Organizations work better with Hats Save time, automate onboarding, and make better decisions with programmable onchain roles.',
+    'Organizations work better with Hats. Save time, automate onboarding, and make better decisions with programmable onchain roles.',
   url: BASE_URL,
   logoUrl: `${BASE_URL}/img/favicon-512.png`,
 };
@@ -45,9 +45,7 @@ export const MetadataConfig: Metadata = {
     title: TITLE,
     description: MINI_CONFIG.description,
   },
-  icons: {
-    icon: icons,
-  },
+  icons,
 };
 
 export default MetadataConfig;

@@ -127,7 +127,6 @@ const Header = () => {
               <Button
                 size={{ base: 'sm', md: 'md' }}
                 variant='link'
-                p={0}
                 color='Functional-LinkPrimary'
                 onClick={copyHatId}
                 rightIcon={<Icon as={CopyHash} />}

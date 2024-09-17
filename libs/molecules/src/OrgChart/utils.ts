@@ -1,14 +1,13 @@
 import { OrgChart } from 'd3-org-chart';
-import _ from 'lodash';
+import { includes, split } from 'lodash';
 
-/* eslint-disable no-underscore-dangle */
 export function checkParentElementForClass(e: any, name: string) {
   let element = e.srcElement;
   let n = 0;
   while (element) {
     if (n > 5) break;
-    const classArray = _.split(element.classList.value, ' ');
-    if (classArray && _.includes(classArray, name)) {
+    const classArray = split(element.classList.value, ' ');
+    if (classArray && includes(classArray, name)) {
       return true;
     }
     element = element.parentNode;
@@ -86,9 +85,7 @@ export const recreateNodesCollapse = (
 const collapseNode = (chart: OrgChart<unknown>, node: any) => {
   // If children are expanded
   if (node.children) {
-    // eslint-disable-next-line no-param-reassign
     node._children = node.children;
-    // eslint-disable-next-line no-param-reassign
     node.children = null;
 
     // Set descendants expanded property to false

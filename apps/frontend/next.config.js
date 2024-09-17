@@ -23,16 +23,7 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   eslint: {
     dirs: [
-      'pages',
-      'components',
-      // '@hatsprotocol/constants',
-      'contexts',
-      'forms',
-      'gql',
-      'hooks',
-      'lib',
-      'theme',
-      'utils',
+      'app',
       // You might need to adjust these paths based on the actual paths in your Nx workspace
     ],
   },
