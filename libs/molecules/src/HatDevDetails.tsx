@@ -42,9 +42,7 @@ const HatDevDetails = () => {
       <div className='flex flex-col gap-2'>
         <Stack>
           <HStack>
-            <Text variant='medium' size={{ base: 'sm', md: 'md' }}>
-              Image URI:
-            </Text>
+            <Text variant='medium'>Image URI:</Text>
             <ChakraNextLink href={ipfsUrl(selectedHat?.imageUri)} isExternal>
               <Text maxW={['250px', null, null, '350px']} isTruncated>
                 {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
@@ -52,9 +50,7 @@ const HatDevDetails = () => {
             </ChakraNextLink>
           </HStack>
           <HStack>
-            <Text variant='medium' size={{ base: 'sm', md: 'md' }}>
-              Details URI:
-            </Text>
+            <Text variant='medium'>Details URI:</Text>
             <ChakraNextLink href={ipfsUrl(selectedHat?.details)} isExternal>
               <Text maxW={['250px', null, null, '350px']} isTruncated>
                 {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
@@ -95,7 +91,7 @@ const HatDevDetails = () => {
 
       <div className='flex gap-2'>
         <Link href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
-          <Button size={{ base: 'xs', md: 'sm' }} variant='outline'>
+          <Button size='sm' variant='outline'>
             View Details Changes
           </Button>
         </Link>

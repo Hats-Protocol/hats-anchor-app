@@ -34,11 +34,7 @@ const SeasonToggle = ({
   if (seasonEndDate > Date.now()) {
     return (
       <EligibilityRule
-        rule={
-          <Text size={{ base: 'sm', md: 'md' }}>
-            Hat is active until end of season
-          </Text>
-        }
+        rule={<Text>Hat is active until end of season</Text>}
         status={TOGGLE_STATUS.active}
         displayStatus={`${formatDistanceToNow(seasonEndDate)} left`}
         icon={BsCheckSquareFill}
@@ -47,11 +43,7 @@ const SeasonToggle = ({
   }
   return (
     <EligibilityRule
-      rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
-          Inactive since end of season
-        </Text>
-      }
+      rule={<Text>Inactive since end of season</Text>}
       status={TOGGLE_STATUS.inactive}
       displayStatus={`${formatDistanceToNow(seasonEndDate)} ago`}
       icon={BsFillXOctagonFill}

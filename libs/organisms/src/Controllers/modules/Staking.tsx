@@ -43,7 +43,7 @@ const StakingEligibility = ({
   return (
     <EligibilityRule
       rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
+        <Text>
           Stake {amountParamDisplay} {tokenDetails?.symbol}
         </Text>
       }

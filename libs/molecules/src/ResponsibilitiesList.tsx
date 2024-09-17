@@ -24,7 +24,7 @@ const ResponsibilitiesList = () => {
     // return (
     //   <Flex px={{ base: 0, md: 10 }} py={4}>
     //     <Heading
-    //       size={{ base: 'sm', md: 'md' }}
+    //       size='md'
     //       mx={{ base: 4, md: 0 }}
     //       variant='medium'
     //     >
@@ -39,7 +39,7 @@ const ResponsibilitiesList = () => {
       <Stack>
         <Skeleton isLoaded={!hatLoading && !!responsibilities}>
           <Heading
-            size={{ base: 'sm', md: 'md' }}
+            size='md'
             mx={{ base: 4, md: 0 }}
             variant={{ base: 'medium', md: 'default' }}
           >

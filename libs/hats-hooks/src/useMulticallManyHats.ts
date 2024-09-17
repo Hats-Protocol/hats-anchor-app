@@ -107,6 +107,7 @@ const useMulticallManyHats = ({
     treeToDisplay,
     adminHatIds,
   ]);
+  console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
 
   const { writeContractAsync } = useWriteContract();
 

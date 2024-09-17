@@ -48,19 +48,19 @@ const hasDetailsChanged = (
   const hasResponsibilitiesChanged =
     _.gt(_.size(responsibilities), 0) &&
     JSON.stringify(responsibilities) !==
-      JSON.stringify(originalHatDetails?.responsibilities);
+    JSON.stringify(originalHatDetails?.responsibilities);
   const hasAuthoritiesChanged =
     _.gt(_.size(authorities), 0) &&
     JSON.stringify(authorities) !==
-      JSON.stringify(originalHatDetails?.authorities);
+    JSON.stringify(originalHatDetails?.authorities);
   const hasRevocationsCriteriaChanged =
     _.gt(_.size(revocationsCriteria), 0) ||
     _.size(revocationsCriteria) !==
-      _.size(originalHatDetails?.eligibility?.criteria);
+    _.size(originalHatDetails?.eligibility?.criteria);
   const hasDeactivationsCriteriaChanged =
     _.gt(_.size(deactivationsCriteria), 0) ||
     _.size(deactivationsCriteria) !==
-      _.size(originalHatDetails?.toggle?.criteria);
+    _.size(originalHatDetails?.toggle?.criteria);
 
   return (
     !!name ||
@@ -577,6 +577,7 @@ export const processHatForCalls = async (
 ) => {
   const hatsClient = await createHatsClient(chainId);
   if (!hat || !hatsClient || !chainId) return emptyReturnData;
+  console.log(hat.id);
 
   if (!_.includes(_.map(onchainHats, 'id'), _.get(hat, 'id'))) {
     const newDetailsResult = await processNewDetailsCallForHat({

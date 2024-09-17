@@ -14,7 +14,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
@@ -42,7 +41,6 @@ const ResponsibilitiesListCard = ({
   const hostname = getHostnameFromURL(link);
   const [expanded, setExpanded] = useState(false);
   const isMounted = useRef(false);
-  const smallFont = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
     isMounted.current = true;
@@ -173,7 +171,7 @@ const ResponsibilitiesListCard = ({
                 <Flex>
                   {description && (
                     <Box>
-                      <Markdown smallFont={smallFont}>{description}</Markdown>
+                      <Markdown>{description}</Markdown>
                     </Box>
                   )}
                 </Flex>

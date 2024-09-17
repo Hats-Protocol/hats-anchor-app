@@ -50,7 +50,7 @@ const EligibilityRule = ({
       <EligibilityRuleWrapper rule={rule}>
         <ChakraNextLink href={displayStatusLink}>
           <HStack spacing={1}>
-            <Text fontSize={{ base: 'sm', md: 'md' }}>{displayStatus}</Text>
+            <Text>{displayStatus}</Text>
             <Icon as={icon} boxSize={{ base: '14px', md: 4 }} />
           </HStack>
         </ChakraNextLink>
@@ -70,7 +70,7 @@ const EligibilityRule = ({
               : 'red.600'
           }
         >
-          <Text fontSize={{ base: 'sm', md: 'md' }}>{displayStatus}</Text>
+          <Text>{displayStatus}</Text>
           <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       </EligibilityRuleWrapper>

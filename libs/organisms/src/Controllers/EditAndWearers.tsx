@@ -113,7 +113,8 @@ const AdminWearersPanel = () => {
     return (
       <Flex justify='space-between' py={1} px={{ base: 4, md: 0 }}>
         <Text>
-          Admins can edit this Hat
+          <span className='hidden md:inline'>Admins can edit this Hat</span>
+          <span className='inline md:hidden'>Can edit Hat</span>
           {!isClaimable?.for ? ' and choose Wearers' : ''}
         </Text>
 
@@ -240,7 +241,7 @@ const WearerBreakdown = ({
           <Text>{name || formatAddress(wearer?.id)}</Text>
           <Icon
             as={icon ?? (wearer?.isContract ? CodeIcon : WearerIcon)}
-            boxSize={{ base: '14px', md: 4 }}
+            boxSize={4}
           />
         </HStack>
       </ChakraNextLink>
@@ -252,19 +253,19 @@ const WearerBreakdown = ({
       {wearerCount.code > 0 && (
         <HStack color='Informative-Code' spacing='1px'>
           <Text>{wearerCount.code}×</Text>
-          <Icon as={CodeIcon} boxSize={{ base: '14px', md: 4 }} />
+          <Icon as={CodeIcon} boxSize={4} />
         </HStack>
       )}
       {wearerCount.groups > 0 && (
         <HStack color='Informative-Human' spacing='1px'>
           <Text>{wearerCount.groups}×</Text>
-          <Icon as={GroupIcon} boxSize={{ base: '14px', md: 4 }} />
+          <Icon as={GroupIcon} boxSize={4} />
         </HStack>
       )}
       {wearerCount.human > 0 && (
         <HStack color='Informative-Human' spacing='1px'>
           <Text>{wearerCount.human}×</Text>
-          <Icon as={WearerIcon} boxSize={{ base: '14px', md: 4 }} />
+          <Icon as={WearerIcon} boxSize={4} />
         </HStack>
       )}
     </HStack>
@@ -289,7 +290,7 @@ const Claimable = ({
     >
       <HStack color='blue.500' spacing={1}>
         <Text>{claimFor ? 'Free Claim' : 'Self Claim'}</Text>
-        <Icon as={CodeIcon} boxSize={{ base: '14px', md: 4 }} />
+        <Icon as={CodeIcon} boxSize={4} />
       </HStack>
     </ChakraNextLink>
   );

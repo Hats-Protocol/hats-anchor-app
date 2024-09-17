@@ -35,7 +35,7 @@ const ControllerWearer = ({
     return (
       <HStack color='blackAlpha.600' spacing={1}>
         <Text>Null</Text>
-        <Icon as={EmptyWearer} boxSize={{ base: '14px', md: 4 }} />
+        <Icon as={EmptyWearer} boxSize={4} />
       </HStack>
     );
   }
@@ -57,10 +57,7 @@ const ControllerWearer = ({
           spacing={1}
         >
           <Text>{name}</Text>
-          <Icon
-            as={icon ?? (isContract ? CodeIcon : WearerIcon)}
-            boxSize={{ base: '14px', md: 4 }}
-          />
+          <Icon as={icon ?? (isContract ? CodeIcon : WearerIcon)} boxSize={4} />
         </HStack>
       </Tooltip>
     </ChakraNextLink>

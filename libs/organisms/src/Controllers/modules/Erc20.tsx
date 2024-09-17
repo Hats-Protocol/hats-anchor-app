@@ -44,7 +44,7 @@ const Erc20Eligibility = ({
     return (
       <EligibilityRule
         rule={
-          <Text size={{ base: 'sm', md: 'md' }}>
+          <Text>
             Retain at least {amountValueDisplay}
             <Tooltip label={tokenDetails?.name}>
               <Text as='span' variant='cashtag'>
@@ -64,7 +64,7 @@ const Erc20Eligibility = ({
   return (
     <EligibilityRule
       rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
+        <Text>
           Hold at least {amountValueDisplay}{' '}
           <Tooltip label={tokenDetails?.name}>
             <Text as='span' variant='cashtag'>

@@ -176,9 +176,7 @@ const WearerRow = ({
               />
             )}
 
-            <Text color={color} size={{ base: 'sm', md: 'md' }}>
-              {displayName}
-            </Text>
+            <Text color={color}>{displayName}</Text>
           </Flex>
         </Tooltip>
       </ChakraNextLink>

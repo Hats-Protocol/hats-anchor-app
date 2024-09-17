@@ -10,10 +10,7 @@ const EventHistory = dynamic(() =>
 const HatHistory = () => {
   return (
     <Stack spacing={1} px={{ base: 4, md: 16 }}>
-      <Heading
-        size={{ base: 'sm', md: 'md' }}
-        variant={{ base: 'medium', md: 'default' }}
-      >
+      <Heading size='md' variant={{ base: 'medium', md: 'default' }}>
         Hat History
       </Heading>
       <EventHistory type='hat' />

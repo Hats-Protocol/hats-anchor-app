@@ -42,7 +42,7 @@ const HatWearingEligibility = ({
     return (
       <EligibilityRule
         rule={
-          <Text size={{ base: 'sm', md: 'md' }}>
+          <Text>
             Wear the {hatName} Hat (
             <ChakraNextLink
               href={hatLink({ chainId, hatId: mainDetails?.id })}
@@ -63,7 +63,7 @@ const HatWearingEligibility = ({
   return (
     <EligibilityRule
       rule={
-        <Text noOfLines={1} size={{ base: 'sm', md: 'md' }}>
+        <Text noOfLines={1}>
           Wear the {hatName} Hat (
           <ChakraNextLink
             href={hatLink({ chainId, hatId: mainDetails?.id })}
