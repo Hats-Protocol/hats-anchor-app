@@ -12,7 +12,7 @@ import {
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -39,6 +39,13 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
   // can assume theres 2+ modules in the ruleSet array already
   // ! currently only supporting single nested chains TODO support deeper nested chains
   const isAndChain = size(ruleSets) === 1;
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   return (
     <Accordion allowToggle>
