@@ -9,10 +9,12 @@ const BASE_URL = process.env.VERCEL_URL
 
 export const MINI_CONFIG = {
   appName: 'Hats Protocol',
-  shortDescription: 'The Organization Graph Protocol',
+  shortDescription: 'Onchain Roles for Organizations',
+  description:
+    'Organizations work better with Hats. Save time, automate onboarding, and make better decisions with programmable onchain roles.',
   url: BASE_URL,
   logoUrl: `${BASE_URL}/img/favicon-512.png`,
-  description: 'A hat for any occasion',
+  ogImageUrl: `${BASE_URL}/og.png`,
 };
 
 const TITLE = {
@@ -22,11 +24,17 @@ const TITLE = {
 
 const IMAGES = [
   {
-    url: MINI_CONFIG.logoUrl,
-    width: 500,
-    height: 500,
+    url: MINI_CONFIG.ogImageUrl,
+    width: 1200,
+    height: 630,
     alt: 'Hats Protocol',
   },
+  // {
+  //   url: MINI_CONFIG.logoUrl,
+  //   width: 500,
+  //   height: 500,
+  //   alt: 'Hats Protocol',
+  // },
 ];
 
 export const MetadataConfig: Metadata = {
@@ -44,9 +52,7 @@ export const MetadataConfig: Metadata = {
     title: TITLE,
     description: MINI_CONFIG.description,
   },
-  icons: {
-    icon: icons,
-  },
+  icons,
 };
 
 export default MetadataConfig;

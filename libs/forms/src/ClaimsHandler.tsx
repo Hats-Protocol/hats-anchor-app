@@ -31,8 +31,10 @@ const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
   <FormRowWrapper>
     <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
     <Stack>
-      <HStack fontSize='sm'>
-        <Text variant='lightMedium'>HAT CLAIMING</Text>
+      <HStack>
+        <Text variant='lightMedium' fontSize='sm'>
+          HAT CLAIMING
+        </Text>
       </HStack>
 
       {children}
@@ -128,17 +130,19 @@ const ClaimsHandler = ({
     return (
       <ClaimsHandlerWrapper>
         <Stack mt={1}>
-          <Text size='sm' variant='lightMedium'>
+          <Text size='sm' color='blackAlpha.600'>
             This hat has a claims hatter contract deployed, and permissionless
             claiming is enabled. Potential wearers will be able to claim this
             hat if they meet the requirements in this hat&quot;s accountability
             module.
           </Text>
           {wearingHat && instanceAddress && (
-            <Text size='sm' variant='gray'>
-              🧢 Claims hatter contract{' '}
-              <Code fontSize='xs'>{formatAddress(instanceAddress)}</Code> is
-              wearing hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} (
+            <Text>
+              Claims hatter contract (
+              <Box as='span' fontFamily='mono'>
+                {formatAddress(instanceAddress)}
+              </Box>
+              ) is wearing Hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} (
               {wearingHat?.detailsObject?.data?.name})
             </Text>
           )}

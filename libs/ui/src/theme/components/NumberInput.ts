@@ -7,6 +7,14 @@ const NumberInput = {
         borderColor: 'gray.200',
       },
     },
+    outline: {
+      field: {
+        bg: 'white',
+        _hover: {
+          bg: 'whiteAlpha.700',
+        },
+      },
+    },
   },
   defaultProps: {
     variant: 'outline',

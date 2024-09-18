@@ -1,10 +1,10 @@
 'use client';
 
-import { useQueries } from '@tanstack/react-query';
-import _ from 'lodash';
+import { useQuery } from '@tanstack/react-query';
+import { filter, first, get, includes, isEmpty, map } from 'lodash';
 import { mapWithChainId } from 'shared';
 import { AppHat } from 'types';
-import { fetchHatDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh } from 'utils';
 
 // TODO handle as a single cache
 
@@ -17,36 +17,24 @@ const useManyHatsDetails = ({
   initialHats?: Partial<AppHat>[];
   editMode?: boolean;
 }): { data: AppHat[] | undefined; isLoading: boolean } => {
-  const onlyOnchainHats: AppHat[] = _.filter(hats, (hat: { id: string }) =>
-    _.includes(_.map(initialHats, 'id'), hat.id),
+  const onlyOnchainHats: AppHat[] = filter(hats, (hat: { id: string }) =>
+    includes(map(initialHats, 'id'), hat.id),
   ) as AppHat[];
+  const onlyOnchainHatsIds = map(onlyOnchainHats, 'id');
 
-  const chainId = _.get(_.first(onlyOnchainHats), 'chainId');
-  const hatsDetails = useQueries({
-    queries: _.map(
-      onlyOnchainHats,
-      (hat: { id: string | undefined; chainId: number }) => {
-        const hatDetails = _.pick(hat, ['id', 'chainId']);
+  const chainId = get(first(onlyOnchainHats), 'chainId');
 
-        return {
-          queryKey: ['hatDetails', hatDetails],
-          queryFn: () => fetchHatDetailsMesh(hat.id, hat.chainId || 5),
-          enabled: !!hat.id && !!hat.chainId && hat?.id !== '0x',
-          refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
-        };
-      },
-    ) as any[], // UseQueryOptions[]
+  const { data, isLoading } = useQuery({
+    queryKey: ['hatDetails', onlyOnchainHatsIds, chainId],
+    queryFn: () => fetchHatsDetailsMesh(onlyOnchainHatsIds, chainId),
+    enabled: !isEmpty(onlyOnchainHatsIds) && !!chainId,
+    refetchInterval: editMode ? Infinity : 1000 * 60 * 5,
   });
 
-  const isLoading = _.some(hatsDetails, { isLoading: true });
-
-  let returnData = _.compact(_.map(hatsDetails, 'data'));
-  if (chainId) {
-    returnData = mapWithChainId(returnData as object[], chainId);
-  }
-
   return {
-    data: !isLoading ? (returnData as AppHat[]) : undefined,
+    data: chainId
+      ? (mapWithChainId(data || undefined, chainId) as AppHat[])
+      : undefined,
     isLoading,
   };
 };

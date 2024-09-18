@@ -2,7 +2,7 @@ import { StyleFunctionProps } from '@chakra-ui/react';
 
 const Button = {
   baseStyles: {
-    fontWeight: 'medium'
+    fontWeight: 'medium',
   },
   variants: {
     filled: (props: StyleFunctionProps) => ({
@@ -45,9 +45,11 @@ const Button = {
         borderColor: props.borderColor || props.colorScheme || 'gray.700',
       },
     }),
-    link: (prop: StyleFunctionProps) => ({
+    link: (props: StyleFunctionProps) => ({
       fontFamily: 'inter',
-    })
+      px: '0!',
+      fontWeight: 'normal',
+    }),
   },
 };
 

@@ -8,7 +8,16 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import { find, get, keys, pick, startsWith, toLower, toString, trim } from 'lodash';
+import {
+  find,
+  get,
+  keys,
+  pick,
+  startsWith,
+  toLower,
+  toString,
+  trim,
+} from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
@@ -28,7 +37,7 @@ export const ipfsUrl = (hash: string | undefined, publicGateway?: boolean) => {
   if (startsWith(localHash, 'ipfs://')) {
     localHash = localHash?.slice(7);
   }
-  if (!localHash) return '#';
+  if (!localHash) return ''; // Adverse affect of empty string?
   if (publicGateway) return `https://ipfs.io/ipfs/${localHash}`;
   return `${GATEWAY_URL}${localHash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };

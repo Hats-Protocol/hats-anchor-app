@@ -4,7 +4,7 @@
   "description": "Hats Protocol - The Organizational Graph Protocol",
   "icons": [
     {
-      "src": "hats.png",
+      "src": "og.png",
       "sizes": "any",
       "type": "image/png"
     }

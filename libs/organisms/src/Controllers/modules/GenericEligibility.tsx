@@ -29,11 +29,7 @@ const GenericEligibility = ({
 
   return (
     <EligibilityRule
-      rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
-          Comply with 1 eligibility rule
-        </Text>
-      }
+      rule={<Text>Comply with 1 eligibility rule</Text>}
       status={
         isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
       }

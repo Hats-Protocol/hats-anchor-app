@@ -18,10 +18,9 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
-  reactStrictMode: true,
   eslint: {
     dirs: [
-      'pages',
+      'app',
       // You might need to adjust these paths based on the actual paths in your Nx workspace
     ],
   },

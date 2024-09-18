@@ -12,8 +12,8 @@ import { useDebounce, useWaitForSubgraph } from 'hooks';
 import { first, isEmpty, map } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Hex } from 'viem';
-import { useChainId } from 'wagmi';
 
+// import { useChainId } from 'wagmi';
 import { Select } from './components';
 
 const HatLinkRequestCreateForm = ({
@@ -23,7 +23,7 @@ const HatLinkRequestCreateForm = ({
   newAdmin: string;
   wearerTopHats: Hex[];
 }) => {
-  const currentNetworkId = useChainId();
+  // const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const { chainId } = useTreeForm();
   const localForm = useForm({
@@ -66,11 +66,12 @@ const HatLinkRequestCreateForm = ({
     ],
     handlePendingTx,
     waitForSubgraph,
-    enabled:
-      Boolean(topHatDomain) &&
-      Boolean(newAdmin) &&
-      !!chainId &&
-      chainId === currentNetworkId,
+    // TODO check these on submit instead
+    // enabled:
+    //   Boolean(topHatDomain) &&
+    //   Boolean(newAdmin) &&
+    //   !!chainId &&
+    //   chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

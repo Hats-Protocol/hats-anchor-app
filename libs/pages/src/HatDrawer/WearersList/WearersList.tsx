@@ -36,7 +36,20 @@ import {
   sortWearers,
 } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import {
+  filter,
+  find,
+  get,
+  includes,
+  isEmpty,
+  map,
+  pick,
+  size,
+  slice,
+  toLower,
+  toNumber,
+  toString,
+} from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -85,12 +98,12 @@ const WearersList = () => {
     const {
       eligibleWearers: eligibleWearerIds,
       ineligibleWearers: ineligibleWearerIds,
-    } = _.pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
-    const localEligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
-      _.includes(eligibleWearerIds, w?.id),
+    } = pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
+    const localEligibleWearers = filter(hatWearers, (w: HatWearer) =>
+      includes(eligibleWearerIds, w?.id),
     );
-    const localIneligibleWearers = _.filter(hatWearers, (w: HatWearer) =>
-      _.includes(ineligibleWearerIds, w?.id),
+    const localIneligibleWearers = filter(hatWearers, (w: HatWearer) =>
+      includes(ineligibleWearerIds, w?.id),
     );
     return {
       eligibleWearers: localEligibleWearers,
@@ -112,7 +125,7 @@ const WearersList = () => {
     mode: 'onBlur',
   });
 
-  const maxSupply = _.toNumber(_.get(selectedHat, 'maxSupply', 0));
+  const maxSupply = toNumber(get(selectedHat, 'maxSupply', 0));
   // const extendedWearers = extendWearers(
   //   _.get(selectedHat, 'wearers'),
   //   hatWearers,
@@ -123,11 +136,7 @@ const WearersList = () => {
       wearers: eligibleWearers,
       address: address as Hex,
     });
-    return _.slice(
-      filterWearers(searchTerm, sortedWearers),
-      0,
-      4,
-    ) as HatWearer[];
+    return slice(filterWearers(searchTerm, sortedWearers), 0, 4) as HatWearer[];
   }, [searchTerm, eligibleWearers, address]);
   const loadingWearers = Array(4).fill({});
 
@@ -136,24 +145,24 @@ const WearersList = () => {
     chainId,
   });
   const currentUserIsAdmin = isWearingAdminHat(
-    _.map(wearerDetails, 'id'),
+    map(wearerDetails, 'id'),
     selectedHat?.id,
     !!isTopHat(selectedHat),
   );
-  const currentUserIsWearing = _.includes(
-    _.map(wearerDetails, 'id'),
+  const currentUserIsWearing = includes(
+    map(wearerDetails, 'id'),
     selectedHat?.id,
   );
-  const currentWearerDetails = _.find(orgChartWearers, {
-    id: _.toLower(address),
+  const currentWearerDetails = find(orgChartWearers, {
+    id: toLower(address),
   }) as ControllerData;
-  const currentUserInList = _.includes(
-    _.map(filteredWearers, 'id'),
-    _.toLower(address),
+  const currentUserInList = includes(
+    map(filteredWearers, 'id'),
+    toLower(address),
   );
-  const currentUserIsIneligible = _.includes(
-    _.map(ineligibleWearers, 'id'),
-    _.toLower(address),
+  const currentUserIsIneligible = includes(
+    map(ineligibleWearers, 'id'),
+    toLower(address),
   );
 
   return (
@@ -163,12 +172,9 @@ const WearersList = () => {
           <Flex justify='space-between' alignItems='center'>
             <HStack spacing={1}>
               <Skeleton isLoaded={!!eligibleWearers}>
-                <Heading
-                  size={{ base: 'sm', md: 'md' }}
-                  variant={{ base: 'medium', md: 'default' }}
-                >
-                  {_.get(selectedHat, 'currentSupply')}{' '}
-                  {_.toNumber(_.get(selectedHat, 'currentSupply')) === 1
+                <Heading variant={{ base: 'medium', md: 'default' }} size='md'>
+                  {get(selectedHat, 'currentSupply')}{' '}
+                  {toNumber(get(selectedHat, 'currentSupply')) === 1
                     ? 'Wearer'
                     : 'Wearers'}{' '}
                   of this Hat
@@ -177,7 +183,7 @@ const WearersList = () => {
               <Tooltip
                 label={
                   maxSupply &&
-                  formatScientificWhole(maxSupply) !== _.toString(maxSupply) &&
+                  formatScientificWhole(maxSupply) !== toString(maxSupply) &&
                   commify(maxSupply)
                 }
                 placement='left'
@@ -204,7 +210,6 @@ const WearersList = () => {
                 }}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                size={{ base: 'sm', md: 'md' }}
               />
             </InputGroup>
           )} */}
@@ -219,7 +224,7 @@ const WearersList = () => {
                 setWearerToTransferFrom={setWearerToTransferFrom}
               />
             )}
-          {_.map(
+          {map(
             !wearersLoading ? filteredWearers : loadingWearers,
             (w: HatWearer, index: number) => (
               <Skeleton isLoaded={typeof w.id === 'string'} key={index}>
@@ -232,25 +237,23 @@ const WearersList = () => {
               </Skeleton>
             ),
           )}
-          {!wearersLoading && _.isEmpty(filteredWearers) && (
+          {!wearersLoading && isEmpty(filteredWearers) && (
             <Box>
               <Flex h='70px' align='center'>
-                <Text size={{ base: 'sm', md: 'md' }}>
-                  No wearers currently
-                </Text>
+                <Text>No wearers currently</Text>
               </Flex>
               {/* <Divider /> */}
             </Box>
           )}
         </Stack>
-        {!_.isEmpty(ineligibleWearers) && (
+        {!isEmpty(ineligibleWearers) && (
           <Collapse startingHeight={25} in={ineligibleWearersExpanded}>
             <Stack px={{ base: 4, md: 16 }}>
               <Flex justify='space-between'>
                 <HStack spacing={1} color='Functional-LinkSecondary'>
                   <Icon as={RemovedWearer} />
                   <Text>
-                    {_.size(ineligibleWearers)} recently removed wearers
+                    {size(ineligibleWearers)} recently removed wearers
                   </Text>
                 </HStack>
                 <Button
@@ -264,7 +267,7 @@ const WearersList = () => {
                 </Button>
               </Flex>
               <Stack>
-                {_.map(ineligibleWearers, (w: HatWearer) => (
+                {map(ineligibleWearers, (w: HatWearer) => (
                   <WearerRow
                     wearer={w}
                     key={w.id}

@@ -93,6 +93,18 @@ export interface AppHat extends HatWithMetadata {
   metadataType?: string;
 }
 
+export interface OrgChartHat extends AppHat {
+  _collapsed?: boolean;
+  _centeredWithDescendants?: boolean;
+  _directSubordinatesPaging?: number;
+  _directSubordinates?: number;
+  _totalSubordinates?: number;
+  _highlighted?: boolean;
+  _upToTheRootHighlighted?: boolean;
+  _expanded?: boolean;
+  _centered?: boolean;
+}
+
 export interface HatWithDepth extends AppHat {
   ipId?: string;
   depth?: number;

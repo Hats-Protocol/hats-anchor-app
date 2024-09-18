@@ -1,6 +1,7 @@
 import { useWearerDetails } from 'hats-hooks';
 import React from 'react';
 import { AppHat } from 'types';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 export const CheckHasHat = ({
@@ -18,7 +19,7 @@ export const CheckHasHat = ({
 
   const { data: wearerDetails, isLoading: isLoadingWearerDetails } =
     useWearerDetails({
-      wearerAddress: address,
+      wearerAddress: address as Hex,
       chainId,
     });
 

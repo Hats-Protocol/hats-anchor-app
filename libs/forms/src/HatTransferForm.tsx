@@ -17,13 +17,13 @@ import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';
 import { fetchWearerDetails, formatAddress } from 'utils';
-import { isAddress } from 'viem';
-import { useChainId, useEnsAddress } from 'wagmi';
+// import { isAddress } from 'viem';
+import { useEnsAddress } from 'wagmi';
 
 import { AddressInput } from './components';
 
 const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
-  const currentNetworkId = useChainId();
+  // const currentNetworkId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
   const { txPending, handlePendingTx } = useOverlay();
@@ -84,15 +84,15 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
       ['hatWearers'],
       ['treeWearers'],
     ],
-    enabled:
-      Boolean(newWearerResolvedAddress ?? newWearer) &&
-      Boolean(currentWearerAddress) &&
-      Boolean(hatId) &&
-      isAddress(newWearerResolvedAddress ?? newWearer) &&
-      isAddress(currentWearerAddress) &&
-      chainId === currentNetworkId,
     waitForSubgraph,
     handlePendingTx,
+    // enabled:
+    //   Boolean(newWearerResolvedAddress ?? newWearer) &&
+    //   Boolean(currentWearerAddress) &&
+    //   Boolean(hatId) &&
+    //   isAddress(newWearerResolvedAddress ?? newWearer) &&
+    //   isAddress(currentWearerAddress) &&
+    //   chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

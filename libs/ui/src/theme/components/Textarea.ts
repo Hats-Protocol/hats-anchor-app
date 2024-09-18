@@ -1,9 +1,10 @@
 const Textarea = {
   variants: {
-    filled: {
+    outline: {
       bg: 'white',
-      border: '1px',
-      borderColor: 'gray.200',
+      _hover: {
+        bg: 'whiteAlpha.700',
+      },
     },
   },
   defaultProps: {

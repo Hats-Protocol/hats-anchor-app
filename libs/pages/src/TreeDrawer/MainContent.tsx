@@ -7,6 +7,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   Stack,
   Text,
   VStack,
@@ -25,8 +26,8 @@ import { useMediaStyles, useToast } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
+import { AiOutlineDownload, AiOutlineUpload } from 'react-icons/ai';
 import { BsChevronRight } from 'react-icons/bs';
-import { FiSave, FiShare2 } from 'react-icons/fi';
 import { AppHat } from 'types';
 import { Hex } from 'viem';
 
@@ -126,7 +127,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
         <VStack>
           <Button
-            leftIcon={<FiShare2 />}
+            leftIcon={<Icon as={AiOutlineUpload} />}
             colorScheme='gray'
             variant='outline'
             onClick={openImportModal}
@@ -134,7 +135,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             Import
           </Button>
           <Button
-            leftIcon={<FiSave />}
+            leftIcon={<Icon as={AiOutlineDownload} />}
             colorScheme='twitter'
             variant='solid'
             isDisabled={treeToDisplay?.length === 1}

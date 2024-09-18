@@ -85,6 +85,7 @@ export const selectedOptionContent = ({
                 <div style="
                   display: -webkit-box;
                   font-size: 15px;
+                  font-family: 'Inter Variable', sans-serif;
                   font-weight: 400;
                   opacity: 0.6;
                 ">
@@ -128,6 +129,7 @@ export const selectedOptionContent = ({
               <div style="
                 display: -webkit-box;
                 font-size: 15px;
+                font-family: 'Inter Variable', sans-serif;
                 font-weight: ${_.toNumber(maxSupply) > 0 ? 600 : 'normal'};
                 opacity: 0.8;
                 overflow: hidden;
@@ -138,19 +140,19 @@ export const selectedOptionContent = ({
                 ${hatChartWearers?.content}
               </div>
             </div>
-            ${
-              hatChartWearers?.accent
-                ? `<div style="
-                    display: inline-block;
-                    fit-content: contain;
-                    text-align: right;
-                    min-width: ${hatChartWearers?.accentWidth};
-                    opacity: 0.6;
-                  ">
-                    ${hatChartWearers?.accent}
-                  </div>`
-                : ''
-            }
+            ${hatChartWearers?.accent
+          ? `<div style="
+              display: inline-block;
+              fit-content: contain;
+              text-align: right;
+              font-family: 'Inter Variable', sans-serif;
+              min-width: ${hatChartWearers?.accentWidth};
+              opacity: 0.6;
+            ">
+              ${hatChartWearers?.accent}
+            </div>`
+          : ''
+        }
           </div>`;
 
     case CONTROL_OPTIONS.toggle:
@@ -177,6 +179,7 @@ export const selectedOptionContent = ({
               <div style="
                 display: inline-block;
                 font-size: 15px;
+                font-family: 'Inter Variable', sans-serif;
                 font-weight: 550;
                 opacity: 0.8;
               ">
@@ -209,6 +212,7 @@ export const selectedOptionContent = ({
               <div style="
                 display: inline-block;
                 font-size: 15px;
+                font-family: 'Inter Variable', sans-serif;
                 font-weight: 550;
                 opacity: 0.8;
               ">

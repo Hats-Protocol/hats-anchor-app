@@ -15,11 +15,7 @@ const Controllers = () => {
   return (
     <Flex direction='column' px={{ base: 0, md: 16 }}>
       <Box px={{ base: 4, md: 0 }}>
-        <Heading
-          size={{ base: 'sm', md: 'md' }}
-          variant={{ base: 'medium', md: 'default' }}
-          pb={2}
-        >
+        <Heading size='md' variant={{ base: 'medium', md: 'default' }} pb={2}>
           Control over this Hat
         </Heading>
       </Box>

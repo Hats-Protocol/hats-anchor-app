@@ -83,7 +83,7 @@ const WearerRow = ({
     args: [hatIdHexToDecimal(hatId), wearer.id],
     chainId,
     // TODO re-add check for isContract
-    enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
+    // enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
@@ -176,9 +176,7 @@ const WearerRow = ({
               />
             )}
 
-            <Text color={color} size={{ base: 'sm', md: 'md' }}>
-              {displayName}
-            </Text>
+            <Text color={color}>{displayName}</Text>
           </Flex>
         </Tooltip>
       </ChakraNextLink>
@@ -192,7 +190,7 @@ const WearerRow = ({
               label="You can't transfer a hat on a different chain"
             >
               <Button
-                variant='ghost'
+                variant='link'
                 size='xs'
                 color='Functional-LinkSecondary'
                 isDisabled={!isSameChain}
@@ -208,7 +206,7 @@ const WearerRow = ({
 
         {isIneligible && ( // when ineligible, we use same rows
           <Button
-            variant='ghost'
+            variant='link'
             size='xs'
             color='red.500'
             fontWeight='medium'
@@ -239,6 +237,7 @@ const WearerRow = ({
               </Button>
             </TooltipWrapper>
           )}
+
         {!isSameAddress(wearer.id, address) ? ( // if not current user, show copy button
           <IconButton
             icon={<Icon as={CopyAddress} boxSize={4} color='blue.500' />}

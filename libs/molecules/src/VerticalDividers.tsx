@@ -2,11 +2,11 @@
 
 import { Divider } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import _ from 'lodash';
+import { map, range } from 'lodash';
 import { paddingForMaxDepth } from 'utils';
 
 const VerticalDividers = ({ count }: { count: number }) =>
-  _.map(_.range(count), (index: number) => {
+  map(range(count), (index: number) => {
     // skip the first level
     if (index === 0) return null;
     // top level is fixed position

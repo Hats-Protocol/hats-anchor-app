@@ -71,7 +71,7 @@ const WalletProfile = ({
           <Heading size='xl'>{name}</Heading>
           <HStack gap={4}>
             <Skeleton isLoaded={!!balance?.value}>
-              <Text size='sm'>
+              <Text>
                 {formatRoundedDecimals({
                   value: balance?.value,
                   decimals: balance?.decimals || 18,
@@ -81,8 +81,7 @@ const WalletProfile = ({
               </Text>
             </Skeleton>
             <Button
-              size='xs'
-              variant='ghost'
+              variant='link'
               rightIcon={<Icon as={CopyAddress} />}
               color='blue.500'
               onClick={onCopy}

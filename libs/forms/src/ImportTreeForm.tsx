@@ -1,6 +1,8 @@
 'use client';
 
 import {
+  Alert,
+  AlertIcon,
   Button,
   Flex,
   Heading,
@@ -20,7 +22,7 @@ import {
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
-import { BsBoxArrowInUpRight } from 'react-icons/bs';
+import { AiOutlineUpload } from 'react-icons/ai';
 import { HatExport } from 'types';
 import { DropZone } from 'ui';
 
@@ -139,8 +141,17 @@ const ImportTreeForm = () => {
         Any local changes in your workspace will be overwritten and cannot be
         restored. Make sure to export these changes before importing.
       </Text>
+
+      <Alert status='info'>
+        <AlertIcon />
+        Wearers are not considered on import due to mechanistic eligibility.
+        Upload new wearers separately.
+      </Alert>
+
       <Stack>
-        <Heading fontSize='xs'>UPLOAD JSON FILE</Heading>
+        <Heading fontSize='xs' textTransform='uppercase'>
+          Upload JSON File
+        </Heading>
         <Text>
           Add a JSON file exported by you or someone else in your organization
         </Text>
@@ -172,7 +183,7 @@ const ImportTreeForm = () => {
               bgColor='blue.500'
               color='white'
               isDisabled={!treeFile || !validImport}
-              leftIcon={<Icon as={BsBoxArrowInUpRight} color='white' />}
+              leftIcon={<Icon as={AiOutlineUpload} color='white' />}
             >
               Import
             </Button>

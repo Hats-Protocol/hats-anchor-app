@@ -36,7 +36,7 @@ const AgreementEligibility = ({
   return (
     <EligibilityRule
       rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
+        <Text>
           Sign the{' '}
           <ChakraNextLink
             href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(

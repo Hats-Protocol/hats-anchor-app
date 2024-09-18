@@ -73,11 +73,7 @@ const EventHistory = ({
       )}
 
       {shouldCollapse && (
-        <Button
-          onClick={onToggle}
-          size={{ base: 'xs', md: 'sm' }}
-          variant='outline'
-        >
+        <Button onClick={onToggle} size='sm' variant='outline'>
           {isOpen ? 'Show Less' : `Show All (${events.length - 1})`}
         </Button>
       )}
@@ -98,9 +94,7 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
       justify='space-between'
       py={2}
     >
-      <Text size={{ base: 'sm', md: 'md' }} color='blackAlpha.800'>
-        {eventDisplayName}
-      </Text>
+      <Text color='blackAlpha.800'>{eventDisplayName}</Text>
 
       <ChakraNextLink
         isExternal
@@ -108,12 +102,12 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
         display='block'
       >
         <HStack color='blue.500' justify='center'>
-          <Text size={{ base: 'sm', md: 'md' }}>
+          <Text>
             {`${formatDistanceToNow(
               new Date(Number(event.timestamp) * 1000),
             )} ago`}
           </Text>
-          <Icon as={Etherscan} boxSize={{ base: 3, md: 4 }} />
+          <Icon as={Etherscan} />
         </HStack>
       </ChakraNextLink>
     </Flex>

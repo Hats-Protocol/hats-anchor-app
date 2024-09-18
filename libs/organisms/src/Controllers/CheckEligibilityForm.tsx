@@ -44,13 +44,13 @@ const CheckEligibilityForm = () => {
       const w = _.get(data, 'wearer-input');
 
       let eligibleStatus = (
-        <Text color='red.500' size={{ base: 'sm', md: 'md' }}>
+        <Text color='red.500'>
           {w || formatAddress(resolvedAddress)} is not eligible
         </Text>
       );
       if (isEligible) {
         eligibleStatus = (
-          <Text color='green.500' size={{ base: 'sm', md: 'md' }}>
+          <Text color='green.500'>
             {w || formatAddress(resolvedAddress)} is eligible
           </Text>
         );

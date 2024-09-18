@@ -13,13 +13,11 @@ const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 if (!WC_PROJECT_ID) {
   throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
 }
-const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
-if (!ALCHEMY_ID) {
-  throw new Error('NEXT_PUBLIC_ALCHEMY_ID is not set');
-}
 
 const MODULES_TO_PREPARE = [
   {
+    id: 'unlock-protocol-eligibility-publiclock-v14',
+    version: '14',
     name: 'Unlock Protocol Eligibility (PublicLock V14)',
     details: [
       'Use this module to make a hat only wearable by addresses that have purchased an Unlock Protocol key NFT.',
@@ -398,11 +396,8 @@ export async function createHatsModulesClient(
     return Promise.resolve(client);
   }
 
-  console.log('creatingWalletClient', publicClient);
   return getWalletClient(wagmiConfig)
     .then(async (walletClient) => {
-      console.log('walletClient', walletClient);
-
       const hatsModulesClient = new HatsModulesClient({
         publicClient,
         walletClient,
@@ -417,8 +412,6 @@ export async function createHatsModulesClient(
       return Promise.resolve(hatsModulesClient);
     })
     .catch(async (e) => {
-      console.log('error', e);
-
       const modulesClient = new HatsModulesClient({
         publicClient,
       });

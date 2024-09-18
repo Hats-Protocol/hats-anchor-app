@@ -8,7 +8,7 @@ import { useDebounce, useWaitForSubgraph } from 'hooks';
 import { map } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { fetchHatDetails } from 'utils';
-import { Hex, isAddress } from 'viem';
+import { Hex } from 'viem';
 
 import { Select } from './components';
 
@@ -54,7 +54,7 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
       )}`,
     },
     queryKeys: [['topHat', topHatPrettyId]],
-    enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
+    // enabled: Boolean(topHatPrettyId) && Boolean(wearer) && isAddress(wearer),
   });
 
   const onSubmit = async () => {

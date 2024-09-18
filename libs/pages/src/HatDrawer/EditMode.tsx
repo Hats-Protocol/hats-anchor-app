@@ -266,7 +266,7 @@ const EditMode = () => {
                 inputConfig={{
                   label: 'DEACTIVATOR',
                   description: [
-                    <Text key='manual'>
+                    <Text fontSize='sm' variant='light' key='manual'>
                       The address of the person or group that can manually
                       deactivate and reactive this hat. More details in the{' '}
                       <ChakraNextLink
@@ -278,7 +278,7 @@ const EditMode = () => {
                       </ChakraNextLink>
                       .
                     </Text>,
-                    <Text key='automatic'>
+                    <Text fontSize='sm' variant='light' key='automatic'>
                       The address of the smart contract containing the logic
                       about when this hat should be active. More details in the{' '}
                       <ChakraNextLink
@@ -343,8 +343,8 @@ const EditMode = () => {
               drawers?.eligibility
                 ? 'eligibility'
                 : drawers?.toggle
-                ? 'toggle'
-                : undefined
+                  ? 'toggle'
+                  : undefined
             }
           />
         )}

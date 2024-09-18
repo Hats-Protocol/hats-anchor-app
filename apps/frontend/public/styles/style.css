@@ -1,3 +1,5 @@
+@import './OrgChart.css';
+
 .dotted-link {
   stroke-dasharray: 5, 5;
   /* change these values to adjust the length and spacing of the dots */

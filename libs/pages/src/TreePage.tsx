@@ -17,9 +17,7 @@ const EventHistory = dynamic(() =>
 );
 const OrgChart = dynamic(
   () => import('molecules').then((mod) => mod.OrgChart),
-  {
-    ssr: false,
-  },
+  { ssr: false },
 );
 const TreeDrawer = dynamic(() => import('./TreeDrawer'), {
   loading: () => <Suspender />,

@@ -1,12 +1,19 @@
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider } from 'contexts';
-import { get, pick, toNumber } from 'lodash';
+import { first, get, pick, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { TreePage, TreePageMobile } from 'pages';
 import { SearchParamsProps } from 'types';
-import { fetchHatDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh } from 'utils';
 
 const TreeDetails = ({ params }: TreeDetailsProps) => {
+  const { chainId, treeId } = params;
+  const treeIdNum = toNumber(treeId);
+  if (!chainId || !treeId || isNaN(treeIdNum)) return null;
+  // console.log(chainId, treeId);
+
+  // const hat = getHat()
+
   return (
     <TreeFormContextProvider>
       <div className='hidden md:block'>
@@ -33,16 +40,25 @@ export async function generateMetadata({
   const hatId = hatIdDecimalToHex(treeIdToTopHatId(treeIdNum));
 
   // fetch data
-  return fetchHatDetailsMesh(hatId, toNumber(chainId))
-    .then((hat) => {
+  return fetchHatsDetailsMesh([hatId], toNumber(chainId))
+    .then((hats) => {
+      const hat = first(hats);
       const detailsMetadata = get(hat, 'detailsMetadata');
       const detailsObject = detailsMetadata
         ? get(JSON.parse(detailsMetadata), 'data')
         : {};
 
+      const title = get(detailsObject, 'name');
+      let includeTitle = {};
+      if (title) includeTitle = { title };
+
+      const description = get(detailsObject, 'description');
+      let includeDescription = {};
+      if (description) includeDescription = { description };
+
       return {
-        title: get(detailsObject, 'name'),
-        description: get(detailsObject, 'description'),
+        ...includeTitle,
+        ...includeDescription,
       };
     })
     .catch((err) => {

@@ -1,13 +1,11 @@
 const Input = {
   variants: {
-    filled: {
+    outline: {
       field: {
         bg: 'white',
-        border: '1px',
-        borderColor: 'gray.200',
-        _focus: {
-          bg: 'white',
-        }
+        _hover: {
+          bg: 'whiteAlpha.700',
+        },
       },
     },
   },

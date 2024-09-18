@@ -5,8 +5,8 @@ import { useWaitForSubgraph } from 'hooks';
 import posthog from 'posthog-js';
 import { HandlePendingTx } from 'types';
 import { fetchTreeDetails } from 'utils';
-import { isAddress } from 'viem';
-import { useAccount, useChainId, useEnsAddress } from 'wagmi';
+// import { isAddress } from 'viem';
+import { useAccount, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
 import useLastTopHatId from './useLastTopHatId';
@@ -20,7 +20,7 @@ const useTreeCreate = ({
   handlePendingTx,
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
-  const currentNetworkId = useChainId();
+  // const currentNetworkId = useChainId();
   const { data: lastTopHatId } = useLastTopHatId({ chainId });
 
   const {
@@ -46,14 +46,15 @@ const useTreeCreate = ({
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'mintTopHat',
     args: [
-      overrideReceiver ? newReceiverResolvedAddress ?? receiver : address,
+      overrideReceiver ? (newReceiverResolvedAddress ?? receiver) : address,
       details || '',
       imageUrl || '',
     ],
     chainId,
     waitForTxToastData: {
       title: 'Registering your organization with Hats Protocol!',
-      description: 'It takes a few seconds for the network to confirm the creation...',
+      description:
+        'It takes a few seconds for the network to confirm the creation...',
     },
     waitForSubgraphToastData: {
       title: 'Tree created!',
@@ -63,12 +64,13 @@ const useTreeCreate = ({
     successToastData: { title: 'Redirecting you to your new tree' },
     queryKeys: [['treeList', chainId], ['wearerDetails']],
     redirect: lastTopHatId ? `/trees/${chainId}/${lastTopHatId + 1}` : null,
-    enabled:
-      isAddress(
-        overrideReceiver
-          ? newReceiverResolvedAddress ?? receiver
-          : address || '',
-      ) && chainId === currentNetworkId,
+    // TODO move to submit check
+    // enabled:
+    //   isAddress(
+    //     overrideReceiver
+    //       ? (newReceiverResolvedAddress ?? receiver)
+    //       : address || '',
+    //   ) && chainId === currentNetworkId,
     handleSuccess,
     handlePendingTx,
     waitForSubgraph,

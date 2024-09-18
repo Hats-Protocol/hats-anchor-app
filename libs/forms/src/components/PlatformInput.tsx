@@ -103,6 +103,7 @@ const PlatformInput = ({
         }
         isDisabled={index !== fieldsLength - 1}
         onChange={handleChange}
+        variant='outline'
         rightElement={
           // eslint-disable-next-line no-nested-ternary
           dataExists ? (

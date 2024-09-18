@@ -27,11 +27,7 @@ const PassthroughEligibility = ({
 
   return (
     <EligibilityRule
-      rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
-          One Hat can choose eligible wearers
-        </Text>
-      }
+      rule={<Text>One Hat can choose eligible wearers</Text>}
       status={ELIGIBILITY_STATUS.hat}
       displayStatus={passthroughHatDisplay}
       displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
@@ -54,11 +50,7 @@ const PassthroughToggle = ({
 
   return (
     <EligibilityRule
-      rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
-          One Hat can deactivate this Hat
-        </Text>
-      }
+      rule={<Text>One Hat can deactivate this Hat</Text>}
       status={TOGGLE_STATUS.hat}
       displayStatus={passthroughHatDisplay}
       displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}

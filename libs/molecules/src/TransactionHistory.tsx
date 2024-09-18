@@ -58,9 +58,7 @@ const TransactionHistoryRow = ({
           ) : (
             <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
           )}
-          <Text size={{ base: 'sm', md: 'md' }} wordBreak='break-word'>
-            {txDescription}
-          </Text>
+          <Text wordBreak='break-word'>{txDescription}</Text>
         </HStack>
 
         <HStack>

@@ -167,7 +167,6 @@ const AuthorityHeader = ({
               label
             ) : (
               <Text
-                size={{ base: 'sm', md: 'md' }}
                 // TODO should be a Heading component when expanded
                 fontWeight={
                   isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'

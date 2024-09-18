@@ -126,7 +126,7 @@ const Header = () => {
             </HStack>
           </HStack>
           {description && (
-            <Markdown smallFont collapse maxHeight={70}>
+            <Markdown collapse maxHeight={70}>
               {description}
             </Markdown>
           )}
