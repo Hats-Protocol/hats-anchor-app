@@ -12,7 +12,7 @@ import {
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -23,6 +23,7 @@ import KnownModule from './modules/KnownEligibilityModule';
 const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
   const [expandedBackground, setExpandedBackground] = useState(false);
   const { address } = useAccount();
+  const isMounted = useRef(false);
 
   const wearerIds = address ? [toLower(address) as Hex] : undefined;
   const { data: wearerStatus } = useWearersEligibilityStatus({
@@ -53,6 +54,8 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
         borderRadius={expandedBackground ? 'md' : undefined}
       >
         {({ isExpanded }: { isExpanded: boolean }) => {
+          if (!isMounted.current) return;
+
           setExpandedBackground(isExpanded);
 
           return (
@@ -122,7 +125,7 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
 
                       return (
                         <KnownModule
-                          key={index}
+                          key={`${index}-${instance}`}
                           moduleDetails={
                             { ...moduleDetails, id: instance } as ModuleDetails
                           }

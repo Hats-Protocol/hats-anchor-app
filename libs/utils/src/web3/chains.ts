@@ -17,7 +17,17 @@ import {
   walletConnectWallet,
   zerionWallet,
 } from '@rainbow-me/rainbowkit/wallets';
-import { concat, each, first, get, has, keys, map, toNumber, values } from 'lodash';
+import {
+  concat,
+  each,
+  first,
+  get,
+  has,
+  keys,
+  map,
+  toNumber,
+  values,
+} from 'lodash';
 import { SupportedChains } from 'types';
 import { Chain, http, Transport } from 'viem';
 import { createConfig } from 'wagmi';
@@ -27,20 +37,16 @@ const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 if (!WC_PROJECT_ID) {
   throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
 }
-const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
-if (!ALCHEMY_ID) {
-  throw new Error('NEXT_PUBLIC_ALCHEMY_ID is not set');
-}
 
 const RPC_URLS: { [key: number]: string } = {
-  1: process.env.NEXT_PUBLIC_MAINNET_HTTP_PROVIDER,
-  10: process.env.NEXT_PUBLIC_OPTIMISM_HTTP_PROVIDER,
-  100: process.env.NEXT_PUBLIC_GNOSIS_HTTP_PROVIDER,
-  137: process.env.NEXT_PUBLIC_POLYGON_HTTP_PROVIDER,
-  8453: process.env.NEXT_PUBLIC_BASE_HTTP_PROVIDER,
-  42220: process.env.NEXT_PUBLIC_CELO_HTTP_PROVIDER,
-  42161: process.env.NEXT_PUBLIC_ARBITRUM_HTTP_PROVIDER,
-  11155111: process.env.NEXT_PUBLIC_SEPOLIA_HTTP_PROVIDER,
+  1: process.env.NEXT_PUBLIC_MAINNET_HTTP_PROVIDER || '',
+  10: process.env.NEXT_PUBLIC_OPTIMISM_HTTP_PROVIDER || '',
+  100: process.env.NEXT_PUBLIC_GNOSIS_HTTP_PROVIDER || '',
+  137: process.env.NEXT_PUBLIC_POLYGON_HTTP_PROVIDER || '',
+  8453: process.env.NEXT_PUBLIC_BASE_HTTP_PROVIDER || '',
+  42220: process.env.NEXT_PUBLIC_CELO_HTTP_PROVIDER || '',
+  42161: process.env.NEXT_PUBLIC_ARBITRUM_HTTP_PROVIDER || '',
+  11155111: process.env.NEXT_PUBLIC_SEPOLIA_HTTP_PROVIDER || '',
 };
 
 export const getRpcUrl = (chainId: number) => {
