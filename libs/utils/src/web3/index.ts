@@ -9,15 +9,6 @@ import { getWalletClient } from 'wagmi/actions';
 
 import { chainsMap, getRpcUrl, wagmiConfig } from './chains';
 
-const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
-if (!WC_PROJECT_ID) {
-  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
-}
-const ALCHEMY_ID = process.env.NEXT_PUBLIC_ALCHEMY_ID;
-if (!ALCHEMY_ID) {
-  throw new Error('NEXT_PUBLIC_ALCHEMY_ID is not set');
-}
-
 declare global {
   interface Window {
     // @ts-expect-error - overlapping with definition from Coinbase wallet for some reason
