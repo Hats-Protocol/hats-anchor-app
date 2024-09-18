@@ -21,11 +21,7 @@ const GenericToggle = ({
 
   return (
     <EligibilityRule
-      rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
-          Comply with 1 eligibility rule
-        </Text>
-      }
+      rule={<Text>Comply with 1 eligibility rule</Text>}
       status={isActive ? TOGGLE_STATUS.active : TOGGLE_STATUS.inactive}
       displayStatus={isActive ? 'Active' : 'Inactive'}
       icon={isActive ? BsCheckSquareFill : BsFillXOctagonFill}

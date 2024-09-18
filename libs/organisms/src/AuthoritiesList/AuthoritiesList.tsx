@@ -67,7 +67,7 @@ const AuthoritiesList = () => {
     return null;
     // return (
     //   <Flex px={{ base: 4, md: 10 }}>
-    //     <Heading size={{ base: 'sm', md: 'md' }} variant='medium'>
+    //     <Heading variant='medium' size='md'>
     //       No Authorities granted to Wearers
     //     </Heading>
     //   </Flex>
@@ -86,7 +86,7 @@ const AuthoritiesList = () => {
           }
         >
           <Heading
-            size={{ base: 'sm', md: 'md' }}
+            size='md'
             mx={{ base: 4, md: 0 }}
             variant={{ base: 'medium', md: 'default' }}
           >

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
+import { Button, Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { isMutable } from 'hats-utils';
@@ -166,7 +166,7 @@ const HatManagementForm = ({
                     ) : (
                       <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                     )}
-                    <Text size='sm' variant='gray'>
+                    <Text fontSize='sm' variant='gray'>
                       {moduleDetails?.name}
                     </Text>
                   </HStack>
@@ -194,11 +194,17 @@ const HatManagementForm = ({
         <FormRowWrapper>
           <Icon as={BsListTask} boxSize={4} mt='2px' />
           <Stack>
-            <HStack fontSize='sm'>
-              <Text variant='lightMedium'>{criteriaConfig.label}</Text>
-              <Text variant='light'>optional</Text>
+            <HStack>
+              <Text variant='lightMedium' fontSize='sm'>
+                {criteriaConfig.label}
+              </Text>
+              <Text variant='light' fontSize='sm'>
+                optional
+              </Text>
             </HStack>
-            <Text variant='light'>{criteriaConfig.description}</Text>
+            <Text fontSize='sm' variant='light'>
+              {criteriaConfig.description}
+            </Text>
             {fields.map((field, index) => (
               <LabelWithLink
                 key={field.id}
@@ -215,16 +221,20 @@ const HatManagementForm = ({
                 linkName={`${formName}.${index}.link`}
               />
             ))}
-            <Button
-              onClick={() => append({ link: '', label: '' })}
-              isDisabled={items?.some((item: DetailsItem) => item.label === '')}
-              gap={2}
-              variant='outline'
-              fontWeight='normal'
-            >
-              <BsPlusCircle />
-              Add {items?.length ? 'another' : 'a'} Requirement
-            </Button>
+            <Flex>
+              <Button
+                onClick={() => append({ link: '', label: '' })}
+                isDisabled={items?.some(
+                  (item: DetailsItem) => item.label === '',
+                )}
+                gap={2}
+                variant='outline'
+                fontWeight='normal'
+              >
+                <BsPlusCircle />
+                Add {items?.length ? 'another' : 'a'} Requirement
+              </Button>
+            </Flex>
           </Stack>
         </FormRowWrapper>
       </Stack>

@@ -10,6 +10,11 @@ import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
+type AsyncTxHandler =
+  | ((data?: TransactionReceipt) => Promise<unknown>)
+  | undefined;
+type SyncTxHandler = ((data?: TransactionReceipt) => void) | undefined;
+
 interface ContractInteractionProps {
   functionName: string;
   args: unknown[];
@@ -17,8 +22,8 @@ interface ContractInteractionProps {
   txDescription?: string;
   // Transaction handling
   handlePendingTx: HandlePendingTx | undefined; // pass both handlePendingTx and handleSuccess to useHatContractWrite
-  waitForSubgraph: ((data?: TransactionReceipt) => Promise<unknown>) | undefined; // passed with handleSuccess
-  handleSuccess?: ((data?: TransactionReceipt) => void) | undefined; // passed with handlePendingTx
+  waitForSubgraph: AsyncTxHandler; // passed with handleSuccess
+  handleSuccess?: SyncTxHandler; // passed with handlePendingTx
   // Toasts
   waitForTxToastData?: ToastProps;
   waitForSubgraphToastData?: ToastProps;
@@ -27,7 +32,6 @@ interface ContractInteractionProps {
   // After transaction clean up
   queryKeys?: (object | string | number)[][];
   redirect?: string | null;
-  enabled: boolean;
 }
 
 const useHatContractWrite = ({
@@ -47,7 +51,6 @@ const useHatContractWrite = ({
   // After transaction clean up
   queryKeys = [],
   redirect,
-  enabled,
 }: ContractInteractionProps) => {
   const toast = useToast();
   const userChainId = useChainId();
@@ -57,7 +60,7 @@ const useHatContractWrite = ({
   const { writeContractAsync } = useWriteContract();
 
   const handleHatWrite = async () => {
-    if (!enabled || !chainId || userChainId !== chainId) return null;
+    if (!chainId || userChainId !== chainId) return null;
 
     return writeContractAsync({
       address: CONFIG.hatsAddress,
@@ -97,7 +100,7 @@ const useHatContractWrite = ({
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
-        console.log(error)
+        console.log(error);
         if (
           error.name === 'TransactionExecutionError' &&
           error.message.includes('User rejected the request')

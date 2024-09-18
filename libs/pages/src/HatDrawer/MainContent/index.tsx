@@ -14,6 +14,9 @@ import LinkRequests from './LinkRequests';
 const ResponsibilitiesList = dynamic(() =>
   import('molecules').then((mod) => mod.ResponsibilitiesList),
 );
+const HatDevDetails = dynamic(() =>
+  import('molecules').then((mod) => mod.HatDevDetails),
+);
 
 const MainContent = ({
   showBottomMenu,
@@ -61,6 +64,8 @@ const MainContent = ({
       <LinkRequests />
 
       <HatHistory />
+
+      <HatDevDetails />
     </Stack>
   );
 };

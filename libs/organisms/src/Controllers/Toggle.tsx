@@ -53,11 +53,9 @@ const Toggle = () => {
     // * shouldn't be hitting this flow yet
     return (
       <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
-        <Text fontSize={{ base: 'sm', md: 'md' }}>
-          Another Hat can remove wearers
-        </Text>
+        <Text>Another Hat can remove wearers</Text>
         <HStack spacing={1}>
-          <Text fontSize={{ base: 'sm', md: 'md' }}>Hat ID</Text>
+          <Text>Hat ID</Text>
           <Icon as={HatIcon} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       </Flex>
@@ -67,11 +65,11 @@ const Toggle = () => {
   return (
     <Skeleton
       isLoaded={!hatWearersLoading && !moduleDetailsLoading}
-      py={2}
-      px={{ base: 4, md: 0 }}
+      my={2}
+      mx={{ base: 4, md: 0 }}
     >
       <Flex justify='space-between'>
-        <Text fontSize={{ base: 'sm', md: 'md' }}>
+        <Text>
           {includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'}{' '}
           can deactivate this Hat
         </Text>

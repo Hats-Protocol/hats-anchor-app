@@ -63,7 +63,6 @@ const ResponsibilityHeader = ({
       )}
       <Box flex={1} minW={0} w='full'>
         <Text
-          size={{ base: 'sm', md: 'md' }}
           // TODO ideally this is a heading when expanded
           // eslint-disable-next-line no-nested-ternary
           fontWeight={isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'}

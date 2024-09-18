@@ -9,9 +9,9 @@ import {
   HStack,
   Icon,
   Image,
+  Skeleton,
   Stack,
   Tooltip,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -29,7 +29,7 @@ const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const Header = () => {
   const { address } = useAccount();
   const { chainId, editMode, treeToDisplay } = useTreeForm();
-  const { selectedHat, selectedHatDetails } = useSelectedHat();
+  const { selectedHat, selectedHatDetails, hatLoading } = useSelectedHat();
 
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
     toastData: {
@@ -38,7 +38,6 @@ const Header = () => {
     },
   });
   const { isMobile } = useMediaStyles();
-  const smallFont = useBreakpointValue({ base: true, md: false });
 
   const { name, description } = _.pick(selectedHatDetails, [
     'name',
@@ -124,7 +123,6 @@ const Header = () => {
 
             <Box>
               <Button
-                size={{ base: 'sm', md: 'md' }}
                 variant='link'
                 color='Functional-LinkPrimary'
                 onClick={copyHatId}
@@ -137,7 +135,7 @@ const Header = () => {
         </HStack>
         {description && (
           <Box opacity={0.6}>
-            <Markdown smallFont={smallFont}>{description}</Markdown>
+            <Markdown>{description}</Markdown>
           </Box>
         )}
       </Stack>
@@ -145,15 +143,17 @@ const Header = () => {
       <Flex justify={isMobile ? 'center' : 'start'}>
         <HStack>
           {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
-          <Badge
-            colorScheme={
-              mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0
-                ? 'blue'
-                : 'red'
-            }
-          >
-            {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
-          </Badge>
+          <Skeleton isLoaded={!hatLoading}>
+            <Badge
+              colorScheme={
+                mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0
+                  ? 'blue'
+                  : 'red'
+              }
+            >
+              {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
+            </Badge>
+          </Skeleton>
           {levelAtLocalTree > 0 && (
             <>
               <Badge

@@ -37,7 +37,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     handleRemoveHat,
     handleClearChanges,
     handleSave: onSave,
-    formLoading,
+    isLoading: hatFormLoading,
   } = useHatForm();
   const { address } = useAccount();
   const { isMobile } = useMediaStyles();
@@ -109,7 +109,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
           <Button
             onClick={handleReturnToList}
             variant='outline'
-            isLoading={formLoading}
+            isLoading={hatFormLoading}
           >
             <HStack>
               <Icon as={BsArrowLeft} />
@@ -168,7 +168,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
               colorScheme='twitter'
               variant='solid'
               onClick={handleSave}
-              isLoading={formLoading}
+              isLoading={hatFormLoading}
             >
               Save
             </Button>

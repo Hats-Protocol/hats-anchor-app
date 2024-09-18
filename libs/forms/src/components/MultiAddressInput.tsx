@@ -461,7 +461,7 @@ const MultiAddressInput = ({
               >
                 Upload CSV
               </Text>
-              <Text size='md' mt={1} variant='light' mb={4}>
+              <Text size='sm' mt={1} variant='light' mb={4}>
                 The CSV file must only contain Ethereum addresses, one per line.
                 ENS is currently not supported. Any additional data will be
                 ignored.

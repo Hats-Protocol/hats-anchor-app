@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 /* eslint-disable import/no-extraneous-dependencies */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { fontFamily } = require('tailwindcss/defaultTheme');
+const { fontFamily, screens } = require('tailwindcss/defaultTheme');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { join } = require('path');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -16,6 +16,10 @@ module.exports = {
   exclude: ['node_modules', 'dist', 'coverage', 'tmp', 'public', 'cypress'],
   theme: {
     extend: {
+      screens: {
+        xs: '384px',
+        ...screens,
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

@@ -17,7 +17,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 import {
   AUTHORITY_ENFORCEMENT,
@@ -68,7 +67,6 @@ const AuthoritiesListCard = ({
   const { selectedHat } = useSelectedHat();
   const [expanded, setExpanded] = useState(false);
   const isMounted = useRef(false);
-  const smallFont = useBreakpointValue({ base: true, md: false });
 
   // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
@@ -220,9 +218,7 @@ const AuthoritiesListCard = ({
                         boxSize={6}
                       />
                       <HStack spacing={1}>
-                        <Text size={{ base: 'sm', md: 'md' }}>
-                          {authorityEnforcement.label}
-                        </Text>
+                        <Text>{authorityEnforcement.label}</Text>
                         {!isMobile && (
                           <Tooltip
                             label={tooltipInfo}
@@ -231,7 +227,7 @@ const AuthoritiesListCard = ({
                           >
                             <Icon
                               as={BsInfoCircle}
-                              boxSize={{ base: 3, md: '14px' }}
+                              boxSize={4}
                               cursor='pointer'
                             />
                           </Tooltip>
@@ -333,7 +329,7 @@ const AuthoritiesListCard = ({
                   {type !== AUTHORITY_TYPES.modules &&
                     (typeof description === 'string' ? (
                       <Box>
-                        <Markdown smallFont={smallFont}>{description}</Markdown>
+                        <Markdown>{description}</Markdown>
                       </Box>
                     ) : (
                       <Box pt={link || gate ? 2 : 0} pb={3}>

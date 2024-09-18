@@ -172,10 +172,7 @@ const WearersList = () => {
           <Flex justify='space-between' alignItems='center'>
             <HStack spacing={1}>
               <Skeleton isLoaded={!!eligibleWearers}>
-                <Heading
-                  size={{ base: 'sm', md: 'md' }}
-                  variant={{ base: 'medium', md: 'default' }}
-                >
+                <Heading variant={{ base: 'medium', md: 'default' }} size='md'>
                   {get(selectedHat, 'currentSupply')}{' '}
                   {toNumber(get(selectedHat, 'currentSupply')) === 1
                     ? 'Wearer'
@@ -213,7 +210,6 @@ const WearersList = () => {
                 }}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                size={{ base: 'sm', md: 'md' }}
               />
             </InputGroup>
           )} */}
@@ -244,9 +240,7 @@ const WearersList = () => {
           {!wearersLoading && isEmpty(filteredWearers) && (
             <Box>
               <Flex h='70px' align='center'>
-                <Text size={{ base: 'sm', md: 'md' }}>
-                  No wearers currently
-                </Text>
+                <Text>No wearers currently</Text>
               </Flex>
               {/* <Divider /> */}
             </Box>

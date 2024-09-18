@@ -2,9 +2,9 @@
 
 import { ZERO_ID } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import { first, get } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
-import { fetchHatDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh } from 'utils';
 
 const useHatDetails = ({
   hatId,
@@ -17,9 +17,10 @@ const useHatDetails = ({
   initialData?: AppHat | null;
   editMode?: boolean;
 }) => {
+  const id = hatId ? [hatId] : [];
   const { data, isLoading, error } = useQuery({
-    queryKey: ['hatDetails', { id: hatId, chainId }],
-    queryFn: () => fetchHatDetailsMesh(hatId, chainId),
+    queryKey: ['hatDetails', { id, chainId }],
+    queryFn: () => fetchHatsDetailsMesh(id, chainId),
     enabled:
       !!hatId &&
       hatId !== ZERO_ID &&
@@ -27,14 +28,14 @@ const useHatDetails = ({
       hatId !== '0x' &&
       !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
-    initialData,
+    initialData: initialData ? [initialData] : undefined,
   });
 
-  const metadata = _.get(data, 'detailsMetadata');
+  const metadata = get(first(data), 'detailsMetadata');
   const fullDetails = metadata ? JSON.parse(metadata) : {};
-  const details = _.get(fullDetails, 'data');
+  const details = get(fullDetails, 'data');
 
-  return { data, details, isLoading, error };
+  return { data: first(data), details, isLoading, error };
 };
 
 export default useHatDetails;

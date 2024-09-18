@@ -24,7 +24,7 @@ import { AppHat, ImageFile } from 'types';
 import { DropZone } from 'ui';
 import { fetchHatDetails, fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
-import { useChainId, useEnsAddress } from 'wagmi';
+import { useEnsAddress } from 'wagmi';
 
 import { Input, Select, Textarea } from './components';
 
@@ -39,7 +39,7 @@ const HatRelinkForm = ({
   hatData: AppHat;
   parentTreeHats: AppHat[];
 }) => {
-  const currentNetworkId = useChainId();
+  // const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const localForm = useForm({
     mode: 'onChange',
@@ -136,7 +136,7 @@ const HatRelinkForm = ({
     },
     handlePendingTx,
     waitForSubgraph,
-    enabled: !!hatData.prettyId && !!newAdmin && chainId === currentNetworkId,
+    // enabled: !!hatData.prettyId && !!newAdmin && chainId === currentNetworkId,
   });
 
   const showEligilityResolvedAddress =

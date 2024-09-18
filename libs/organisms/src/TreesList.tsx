@@ -11,6 +11,7 @@ import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { LinkButton, Skeleton } from 'ui';
+import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -19,6 +20,7 @@ const LOADING_TREES = Array(20).fill({});
 const TreesList = ({ params }: TreeListProps) => {
   const { chainId: chainIdParam } = params;
   const chainId = toNumber(chainIdParam);
+  const chain = chainsMap(chainId);
   const queryParams = useSearchParams();
   const { address } = useAccount();
 
@@ -64,7 +66,7 @@ const TreesList = ({ params }: TreeListProps) => {
 
           {(!showKey || showKey === SHOW_KEY.me) && (
             <LinkButton href={`/trees/${chainId}?show=all`} variant='primary'>
-              Show all trees
+              Show all trees on {chain?.name}
             </LinkButton>
           )}
         </Stack>

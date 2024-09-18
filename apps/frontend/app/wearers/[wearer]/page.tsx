@@ -1,8 +1,18 @@
 import { pick } from 'lodash';
-import { WearerHats, WearerInfo, WearerStats } from 'molecules';
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { SearchParamsProps } from 'types';
 import { fetchWearerDetailsMesh, formatAddress } from 'utils';
+
+const WearerStats = dynamic(() =>
+  import('molecules').then((mod) => mod.WearerStats),
+);
+const WearerHats = dynamic(() =>
+  import('molecules').then((mod) => mod.WearerHats),
+);
+const WearerInfo = dynamic(() =>
+  import('molecules').then((mod) => mod.WearerInfo),
+);
 
 // TODO use new tree list cards on mobile
 // TODO switch Avatar back to `OblongAvatar`, something about undefined component/default export mixup

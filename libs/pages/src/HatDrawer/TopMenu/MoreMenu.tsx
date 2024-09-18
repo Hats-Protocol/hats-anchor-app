@@ -115,10 +115,10 @@ const MoreMenu = () => {
       ],
       handlePendingTx,
       waitForSubgraph,
-      enabled:
-        Boolean(selectedHat) &&
-        isSameAddress(address, selectedHat?.toggle) &&
-        chainId === currentNetworkId,
+      // enabled:
+      //   Boolean(selectedHat) &&
+      //   isSameAddress(address, selectedHat?.toggle) &&
+      //   chainId === currentNetworkId,
     });
 
   const {
@@ -221,8 +221,8 @@ const MoreMenu = () => {
                   !toggleIsContract
                     ? 'The toggle is "humanistic"'
                     : chainId !== currentNetworkId
-                    ? "You can't test status of a hat on a different chain"
-                    : ''
+                      ? "You can't test status of a hat on a different chain"
+                      : ''
                 }
                 shouldWrapChildren
               >

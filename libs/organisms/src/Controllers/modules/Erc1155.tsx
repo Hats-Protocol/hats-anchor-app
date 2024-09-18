@@ -48,7 +48,7 @@ const Erc1155Eligibility = ({
       <EligibilityRule
         rule={
           <HStack spacing={1}>
-            <Text size={{ base: 'sm', md: 'md' }}>
+            <Text>
               Hold at least {amountValueDisplay}{' '}
               <ChakraNextLink
                 href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}
@@ -77,7 +77,7 @@ const Erc1155Eligibility = ({
     <EligibilityRule
       rule={
         <HStack spacing={1}>
-          <Text size={{ base: 'sm', md: 'md' }}>
+          <Text>
             Hold at least {amountValueDisplay}{' '}
             <ChakraNextLink
               href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}

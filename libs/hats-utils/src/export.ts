@@ -7,10 +7,11 @@ import {
 } from '@hatsprotocol/constants';
 import {
   hatIdDecimalToIp,
+  hatIdHexToDecimal,
   treeIdDecimalToHex,
 } from '@hatsprotocol/sdk-v1-core';
 import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
-import _ from 'lodash';
+import _, { orderBy } from 'lodash';
 import { idToPrettyId, ipToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
 import { AppHat, FormData, FormWearer, HatExport, HatWearer } from 'types';
 import { ipfsUrl } from 'utils';
@@ -38,6 +39,41 @@ const calculateParentId = (hatId: Hex) => {
   return parentHex;
 };
 
+const prepDraftsAndHats = (
+  onchainHats: AppHat[] | undefined,
+  drafts: Partial<FormData>[],
+) => {
+  const mapDrafts = _.map(drafts, (hat: Partial<FormData>) => {
+    if (!hat.id) return undefined;
+    const adminId = hat.adminId || hat.parentId || calculateParentId(hat.id);
+    if (!adminId) return undefined;
+    return {
+      id: hat.id,
+      ipId: hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
+      admin: {
+        id: adminId,
+      },
+      imageUrl: hat.imageUrl,
+    };
+  });
+  const mapOnchainHats = _.map(onchainHats, (hat: AppHat) => ({
+    id: hat.id,
+    ipId: hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
+    admin: hat.admin || { id: calculateParentId(hat.id) },
+    imageUrl: hat.imageUrl,
+  }));
+
+  const combinedHats = _.concat(mapOnchainHats, _.compact(mapDrafts));
+  return combinedHats;
+};
+
+const getAdmins = (hats: any[], hatIpId: string) => {
+  const admins = _.filter(hats, (hat: any) => {
+    return hatIpId.includes(hat.ipId) && hat.ipId !== hatIpId;
+  });
+  return orderBy(admins, 'id', 'desc');
+};
+
 /**
  * Translate drafted changes into hats compatible with the org chart and viewing
  * @param chainId the chain ID of the tree
@@ -60,8 +96,19 @@ export const translateDrafts = ({
   const extendDrafts = _.map(drafts, (hat: Partial<FormData>) => {
     if (!hat || !hat.id) return undefined;
 
-    const admin = _.find(onchainHats, { id: calculateParentId(hat.id) });
-    const imageUrl = admin ? { imageUrl: admin.imageUrl } : {}; // don't include when translating for export
+    // TODO can break this up?
+    const imageHats = prepDraftsAndHats(onchainHats, drafts);
+    const admins = getAdmins(
+      imageHats,
+      hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
+    );
+    const firstAdminWithImage = _.find(
+      admins,
+      (h) => h.imageUrl && h.imageUrl !== '',
+    );
+    const adminImageUrl = firstAdminWithImage
+      ? { imageUrl: firstAdminWithImage.imageUrl }
+      : {}; // TODO don't include when translating for export
     if (!hat.id) return undefined;
     return {
       id: hat.id,
@@ -76,7 +123,7 @@ export const translateDrafts = ({
         },
       },
       imageUri: '',
-      ...imageUrl,
+      ...adminImageUrl,
       parentId: calculateParentId(hat.id),
       mutable: _.has(hat, 'mutable')
         ? hat.mutable === MUTABILITY.MUTABLE
@@ -341,46 +388,46 @@ export const flattenHatData = (data: any[]): FormData[] =>
   _.map(
     data || [],
     (hat: any) =>
-    ({
-      id: hat.id,
-      status: hat.status,
-      createdAt: _.toNumber(hat.createdAt),
-      // details: hat.details,
-      maxSupply: _.toString(hat.maxSupply),
-      eligibility: hat.eligibility,
-      isEligibilityManual:
-        hat.detailsObject?.data?.eligibility?.manual !== false
-          ? TRIGGER_OPTIONS.MANUALLY
-          : TRIGGER_OPTIONS.AUTOMATICALLY,
-      revocationsCriteria:
-        hat.detailsObject?.data?.eligibility?.criteria || [],
-      toggle: hat.toggle,
-      isToggleManual:
-        hat.detailsObject?.data?.toggle?.manual !== false
-          ? TRIGGER_OPTIONS.MANUALLY
-          : TRIGGER_OPTIONS.AUTOMATICALLY,
-      deactivationsCriteria: _.get(
-        hat,
-        'detailsObject.data.toggle.criteria',
-        [],
-      ),
-      mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
-      // imageUri: hat.imageUri,
-      currentSupply: _.toNumber(hat.currentSupply),
-      wearers: extractWearers(hat.wearers),
-      adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
-      // imported as imageUri from export data, likely imageUrl from `storedData`
-      imageUrl: hat.imageUrl || ipfsUrl(hat.imageUri.slice(7)),
-      imageUri: hat.imageUri,
-      name: _.get(hat, 'detailsObject.data.name', 'New Hat'),
-      description: _.get(
-        hat,
-        'detailsObject.data.description',
-        '', // was there a reason for override string vs empty
-      ),
-      responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
-      authorities: _.get(hat, 'detailsObject.data.authorities', []),
-      guilds: _.get(hat, 'detailsObject.data.guilds', []),
-      spaces: _.get(hat, 'detailsObject.data.spaces', []),
-    } as FormData),
+      ({
+        id: hat.id,
+        status: hat.status,
+        createdAt: _.toNumber(hat.createdAt),
+        // details: hat.details,
+        maxSupply: _.toString(hat.maxSupply),
+        eligibility: hat.eligibility,
+        isEligibilityManual:
+          hat.detailsObject?.data?.eligibility?.manual !== false
+            ? TRIGGER_OPTIONS.MANUALLY
+            : TRIGGER_OPTIONS.AUTOMATICALLY,
+        revocationsCriteria:
+          hat.detailsObject?.data?.eligibility?.criteria || [],
+        toggle: hat.toggle,
+        isToggleManual:
+          hat.detailsObject?.data?.toggle?.manual !== false
+            ? TRIGGER_OPTIONS.MANUALLY
+            : TRIGGER_OPTIONS.AUTOMATICALLY,
+        deactivationsCriteria: _.get(
+          hat,
+          'detailsObject.data.toggle.criteria',
+          [],
+        ),
+        mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
+        // imageUri: hat.imageUri,
+        currentSupply: _.toNumber(hat.currentSupply),
+        wearers: extractWearers(hat.wearers),
+        adminId: hat.adminId || hat.parentId || _.get(hat, 'admin.id'),
+        // imported as imageUri from export data, likely imageUrl from `storedData`
+        imageUrl: hat.imageUrl || ipfsUrl(hat.imageUri.slice(7)),
+        imageUri: hat.imageUri,
+        name: _.get(hat, 'detailsObject.data.name', 'New Hat'),
+        description: _.get(
+          hat,
+          'detailsObject.data.description',
+          '', // was there a reason for override string vs empty
+        ),
+        responsibilities: _.get(hat, 'detailsObject.data.responsibilities', []),
+        authorities: _.get(hat, 'detailsObject.data.authorities', []),
+        guilds: _.get(hat, 'detailsObject.data.guilds', []),
+        spaces: _.get(hat, 'detailsObject.data.spaces', []),
+      }) as FormData,
   );

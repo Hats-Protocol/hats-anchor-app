@@ -70,8 +70,10 @@ const useOrgChartTree = ({
       initialHatIds,
     });
 
-    const topHat: AppHat | undefined = find(tree,
-      (hat: AppHat) => hat.treeId === treeData?.id && hat.levelAtLocalTree === 0
+    const topHat: AppHat | undefined = find(
+      tree,
+      (hat: AppHat) =>
+        hat.treeId === treeData?.id && hat.levelAtLocalTree === 0,
     );
     const topHatIsLinked = get(topHat, 'admin.id') !== get(topHat, 'id');
 
@@ -79,14 +81,14 @@ const useOrgChartTree = ({
       // remove linked hats from tree
       // mask top hat that is linked to itself
 
-
       if (!topHat) return tree;
       // TODO does this break draft hats? adding treeId to draft hats maybe helps?
-      const filteredTree = reject(tree,
-        (hat: AppHat) => hat.treeId !== treeData?.id || hat.id === topHat?.id
+      const filteredTree = reject(
+        tree,
+        (hat: AppHat) => hat.treeId !== treeData?.id || hat.id === topHat?.id,
       );
       const patchTopHat = {
-        ...topHat as AppHat,
+        ...(topHat as AppHat),
         // admin: { id: topHat.id }, // actually need to override parentId for OrgChart
         parentId: undefined, // set to undefined for root node in d3-org-chart
       };

@@ -30,7 +30,7 @@ import { ImageFile } from 'types';
 import { DropZone } from 'ui';
 import { fetchHatDetails, fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
-import { useChainId, useEnsAddress } from 'wagmi';
+import { useEnsAddress } from 'wagmi';
 
 import { Input, Textarea } from './components';
 
@@ -43,7 +43,7 @@ const HatLinkRequestApproveForm = ({
   topHatDomain: string;
   newAdmin: string;
 }) => {
-  const currentNetworkId = useChainId();
+  // const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const { selectedHat } = useSelectedHat();
   const { chainId } = useTreeForm();
@@ -166,11 +166,12 @@ const HatLinkRequestApproveForm = ({
       ['treeDetails', topHatDomain, chainId || 1],
       ['treeDetails', toTreeId(newAdmin), chainId || 1],
     ],
-    enabled:
-      Boolean(topHatDomain) &&
-      Boolean(newAdmin) &&
-      !!chainId &&
-      chainId === currentNetworkId,
+    // TODO move to check on submit
+    // enabled:
+    //   Boolean(topHatDomain) &&
+    //   Boolean(newAdmin) &&
+    //   !!chainId &&
+    //   chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {

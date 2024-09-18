@@ -85,7 +85,7 @@ const useHatAdminWearers = (
     return uniqBy(flatten(map(adminHats, 'wearers')), 'id');
   }, [adminHats]);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, status, error } = useQuery({
     queryKey: ['adminWearers', adminWearers, chainId],
     queryFn: () => fetchAdminWearers(adminWearers, chainId),
     enabled: !isEmpty(adminWearers) && !!chainId,
@@ -106,7 +106,13 @@ const useHatAdminWearers = (
     };
   }, [data]);
 
-  return { data, adminHats, adminCount, isLoading, error };
+  return {
+    data,
+    adminHats,
+    adminCount,
+    isLoading: status === 'pending' || isLoading,
+    error,
+  };
 };
 
 export default useHatAdminWearers;

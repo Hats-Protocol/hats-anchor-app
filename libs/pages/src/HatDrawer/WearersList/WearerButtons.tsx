@@ -120,7 +120,6 @@ const WearerButtons = () => {
             textDecor: 'underline',
           }}
           color='Functional-LinkSecondary'
-          size={{ base: 'sm', md: 'md' }}
           // TODO technically not taking into account eligibility here
         >
           Show all {_.get(selectedHat, 'currentSupply')} wearers

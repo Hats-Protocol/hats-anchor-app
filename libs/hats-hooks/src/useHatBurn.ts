@@ -1,14 +1,14 @@
 'use client';
 
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { find } from 'lodash';
+// import { find } from 'lodash';
 import { idToIp } from 'shared';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
-import { Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
 
+// import { Hex } from 'viem';
+// import { useAccount, useChainId } from 'wagmi';
 import useHatContractWrite from './useHatContractWrite';
-import useWearerDetails from './useWearerDetails';
+// import useWearerDetails from './useWearerDetails';
 
 const useHatBurn = ({
   selectedHat,
@@ -21,18 +21,18 @@ const useHatBurn = ({
   handlePendingTx?: HandlePendingTx;
   waitForSubgraph?: () => Promise<unknown>;
 }) => {
-  const currentNetworkId = useChainId();
-  const { address } = useAccount();
+  // const currentNetworkId = useChainId();
+  // const { address } = useAccount();
 
   const hatId = selectedHat?.id;
 
-  const { data: wearer } = useWearerDetails({
-    wearerAddress: address as Hex,
-    chainId,
-  });
-  const currentlyWearing = find(wearer, {
-    id: selectedHat?.id,
-  });
+  // const { data: wearer } = useWearerDetails({
+  //   wearerAddress: address as Hex,
+  //   chainId,
+  // });
+  // const currentlyWearing = find(wearer, {
+  //   id: selectedHat?.id,
+  // });
   const txDescription = `Renounced hat ${idToIp(hatId)}`;
 
   const { writeAsync, isLoading } = useHatContractWrite({
@@ -52,8 +52,9 @@ const useHatBurn = ({
       ['orgChartTree'],
       ['wearerDetails'],
     ],
-    enabled:
-      Boolean(hatId) && chainId === currentNetworkId && !!currentlyWearing,
+    // TODO check where writeAsync is called
+    // enabled:
+    //   Boolean(hatId) && chainId === currentNetworkId && !!currentlyWearing,
   });
 
   return { writeAsync, isLoading };

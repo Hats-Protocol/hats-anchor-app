@@ -14,7 +14,7 @@ const NavLinks = () => {
   const pathname = usePathname();
   const currentChainId = useChainId();
   const { address } = useAccount();
-  const { wearer, chainId, treeId } = getPathParams(pathname);
+  const { chainId, treeId } = getPathParams(pathname);
   // ! breaks chainId on wearer page
 
   // Get the top hat name
@@ -33,9 +33,7 @@ const NavLinks = () => {
   return (
     <>
       <ChakraNextLink
-        href={`/${CONFIG.trees}/${
-          wearer ? currentChainId : chainId || currentChainId || 1
-        }`}
+        href={`/${CONFIG.trees}/${treeId ? chainId : currentChainId || 1}`}
       >
         <Button
           h='75px'

@@ -1,5 +1,12 @@
 const Textarea = {
-  variants: {},
+  variants: {
+    outline: {
+      bg: 'white',
+      _hover: {
+        bg: 'whiteAlpha.700',
+      },
+    },
+  },
   defaultProps: {
     variant: 'outline',
   },

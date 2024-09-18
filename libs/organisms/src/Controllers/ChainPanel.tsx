@@ -12,7 +12,7 @@ import {
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -23,6 +23,7 @@ import KnownModule from './modules/KnownEligibilityModule';
 const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
   const [expandedBackground, setExpandedBackground] = useState(false);
   const { address } = useAccount();
+  const isMounted = useRef(false);
 
   const wearerIds = address ? [toLower(address) as Hex] : undefined;
   const { data: wearerStatus } = useWearersEligibilityStatus({
@@ -39,6 +40,13 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
   // ! currently only supporting single nested chains TODO support deeper nested chains
   const isAndChain = size(ruleSets) === 1;
 
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   return (
     <Accordion allowToggle>
       <AccordionItem
@@ -53,6 +61,8 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
         borderRadius={expandedBackground ? 'md' : undefined}
       >
         {({ isExpanded }: { isExpanded: boolean }) => {
+          if (!isMounted.current) return;
+
           setExpandedBackground(isExpanded);
 
           return (
@@ -76,22 +86,20 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
                 <Flex justify='space-between' py={2} px={4} width='100%'>
-                  <Text fontSize={{ base: 'sm', md: 'md' }}>
+                  <Text>
                     Comply with {isAndChain ? 'all' : 'any'} of{' '}
                     {size(flatten(ruleSets))} Rules to claim this Hat
                   </Text>
 
                   {isEligible ? (
                     <HStack spacing={1} color='green.600'>
-                      <Text fontSize={{ base: 'sm', md: 'md' }}>Eligible</Text>
+                      <Text>Eligible</Text>
 
                       <Icon as={BsCheckSquareFill} boxSize={4} />
                     </HStack>
                   ) : (
                     <HStack spacing={1} color='red.600'>
-                      <Text fontSize={{ base: 'sm', md: 'md' }}>
-                        Ineligible
-                      </Text>
+                      <Text>Ineligible</Text>
 
                       <Icon as={BsFillXOctagonFill} boxSize={4} />
                     </HStack>
@@ -122,7 +130,7 @@ const ChainPanel = ({ selectedHat, ruleSets, chainId }: ChainPanelProps) => {
 
                       return (
                         <KnownModule
-                          key={index}
+                          key={`${index}-${instance}`}
                           moduleDetails={
                             { ...moduleDetails, id: instance } as ModuleDetails
                           }

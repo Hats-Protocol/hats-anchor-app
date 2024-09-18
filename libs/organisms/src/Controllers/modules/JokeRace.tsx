@@ -45,7 +45,7 @@ const JokeRaceEligibility = ({
   return (
     <EligibilityRule
       rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
+        <Text>
           {toNumber(topK) > 1 ? `Finish top ${topK}` : 'Finish first'} in the{' '}
           <ChakraNextLink
             href={jokeRaceUrl({ chainId, address: contestAddress })}

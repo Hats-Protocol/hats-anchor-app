@@ -29,13 +29,13 @@ import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
 import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
-import _, { get, isEmpty } from 'lodash';
+import { find, get, includes, isEmpty, isUndefined, map } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
-import type { AppHat } from 'types';
+import type { OrgChartHat } from 'types';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -80,7 +80,7 @@ function OrgChartComponent() {
   const d3Container = useRef(null);
   const [chart] = useState<OrgChart<unknown> | null>(new OrgChart());
   const initialLoad = useRef<boolean>(true);
-  const [chartNodes, setChartNodes] = useState<AppHat[] | undefined>(undefined);
+  const [chartNodes, setChartNodes] = useState<OrgChartHat[] | undefined>();
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
@@ -112,18 +112,23 @@ function OrgChartComponent() {
   useEffect(() => {
     if (chartNodes === undefined && treeToDisplay !== undefined) {
       setChartNodes(treeToDisplay);
-    } else if (chartNodes !== undefined && treeToDisplay !== undefined) {
-      const newChartNodes = treeToDisplay as any[]; // TODO org chart app hat with _ properties
+      return;
+    }
+
+    if (chartNodes !== undefined && treeToDisplay !== undefined) {
+      const newChartNodes = treeToDisplay as OrgChartHat[];
       chartNodes.forEach((node) => {
-        const newNode = newChartNodes.find((elem) => elem.id === node.id);
-        if (newNode !== undefined) {
-          // eslint-disable-next-line no-restricted-syntax
-          for (const [key, value] of Object.entries(node)) {
-            // TODO can this be more specific? it's potentially causing data to stick when nodes are collapsed
-            if (key.startsWith('_')) {
-              newNode[key] = value;
-            }
-          }
+        const newNode: OrgChartHat | undefined = find(newChartNodes, {
+          id: node.id,
+        });
+        if (isUndefined(newNode)) return;
+
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [key, value] of Object.entries(node)) {
+          // TODO can this be more specific? it's potentially causing data to stick when nodes are collapsed
+          if (!key.startsWith('_')) return;
+          // @ts-expect-error why does it think this is never?
+          newNode[key as keyof OrgChartHat] = value as any;
         }
       });
 
@@ -133,26 +138,23 @@ function OrgChartComponent() {
 
   useEffect(() => {
     // encode the collapsed nodes in the tree to display, used for custom manipulation of expanded/collapsed nodes
-    if (chartNodes !== undefined) {
-      for (let i = 0; i < chartNodes.length; i += 1) {
-        (chartNodes[i] as any)._collapsed = false;
-      }
-      collapsedNodes.forEach((node) => {
-        const hatToUpdate = chartNodes.find((hat) => {
-          if (hat.id === node) {
-            return true;
-          }
-          return false;
-        });
-        if (hatToUpdate !== undefined) {
-          (hatToUpdate as any)._collapsed = true;
-        }
-      });
+    if (isUndefined(chartNodes)) return;
+
+    for (let i = 0; i < chartNodes.length; i += 1) {
+      chartNodes[i]._collapsed = false;
     }
+    collapsedNodes.forEach((node: string) => {
+      const hatToUpdate = find(chartNodes, {
+        id: node,
+      }) as OrgChartHat;
+      if (isUndefined(hatToUpdate)) return;
+
+      hatToUpdate._collapsed = true;
+    });
   }, [chartNodes, collapsedNodes]);
 
   useLayoutEffect(() => {
-    if (_.isEmpty(chartNodes)) return;
+    if (isEmpty(chartNodes)) return;
 
     if (chart && chartNodes && d3Container.current) {
       chart
@@ -230,7 +232,7 @@ function OrgChartComponent() {
         })
         .buttonContent((d) => buttonContent(d))
         .nodeContent((d: any) => {
-          const isInWearerHats = _.includes(_.map(wearerHats, 'id'), d.data.id);
+          const isInWearerHats = includes(map(wearerHats, 'id'), d.data.id);
 
           const {
             imageUrl,
@@ -247,17 +249,16 @@ function OrgChartComponent() {
           } = d.data;
 
           const nextChildId = calculateNextChildId(d.data.id, chartNodes);
-          const currentName = _.find(chartNodes, [
-            'id',
-            d.data.id,
-          ])?.displayName;
+          const currentName = find(chartNodes, {
+            id: d.data.id,
+          })?.displayName;
           const detailsName =
             currentName || detailsObject?.data?.name || details;
           const isSelected = selectedHatId === d.id;
-          const extendedEligibility = _.find(orgChartWearers, {
+          const extendedEligibility = find(orgChartWearers, {
             id: eligibility,
           });
-          const extendedToggle = _.find(orgChartWearers, {
+          const extendedToggle = find(orgChartWearers, {
             id: toggle,
           });
           const nodeIpUnderScore = hatIdDecimalToIp(
@@ -315,7 +316,10 @@ function OrgChartComponent() {
                     <img
                       loading="lazy"
                       src="${
-                        imageUrl && imageUrl !== '' && imageUrl !== null
+                        imageUrl &&
+                        imageUrl !== '' &&
+                        imageUrl !== '#' &&
+                        imageUrl !== null
                           ? imageUrl
                           : '/icon.jpeg'
                       }"
@@ -462,26 +466,26 @@ function OrgChartComponent() {
         .compact(compact)
         .layout(flipped ? 'bottom' : 'top')
         .onExpandOrCollapse((d: any) => {
-          if (handleNodeCollapsedOrExpanded !== undefined) {
-            const isExpanded = d.children !== null;
-            handleNodeCollapsedOrExpanded(idToIp(d.data.id), isExpanded);
+          if (handleNodeCollapsedOrExpanded === undefined) return;
 
-            if (isExpanded) {
-              d.data._collapsed = false;
-              adjustAfterNodeExpanded(d);
-            } else {
-              d.data._collapsed = true;
-            }
+          const isExpanded = d.children !== null;
+          handleNodeCollapsedOrExpanded(idToIp(d.data.id), isExpanded);
+
+          if (isExpanded) {
+            d.data._collapsed = false;
+            adjustAfterNodeExpanded(d);
+          } else {
+            d.data._collapsed = true;
           }
         });
 
-      if (_.isEmpty(collapsedNodes)) {
+      if (isEmpty(collapsedNodes)) {
         chart.expandAll(); // keep nodes expanded on edit mode. Note that expandAll performs a render so no need to call render again
       } else if (initialLoad.current) {
         // initial rendering with collapsed nodes
         if (chartNodes !== undefined) {
           collapsedNodes.forEach((node) => {
-            const hatToUpdate = _.find(chartNodes, { id: node });
+            const hatToUpdate = find(chartNodes, { id: node });
             if (hatToUpdate !== undefined) {
               (hatToUpdate as any)._collapsed = true;
             }

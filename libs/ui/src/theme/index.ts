@@ -13,6 +13,15 @@ import Text from './components/Text';
 import Textarea from './components/Textarea';
 
 const theme = extendTheme({
+  breakpoints: {
+    base: '0em',
+    xs: '24em', // Added 384px to catch high DPI mobile devices
+    sm: '30em',
+    md: '48em',
+    lg: '62em',
+    xl: '80em',
+    '2xl': '96em',
+  },
   colors: {
     // INFORMATIVE
     'Informative-Human': '#B83280',

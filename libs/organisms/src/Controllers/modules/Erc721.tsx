@@ -37,7 +37,7 @@ const Erc721Eligibility = ({
   return (
     <EligibilityRule
       rule={
-        <Text size={{ base: 'sm', md: 'md' }}>
+        <Text>
           Hold at least {amountParameterDisplay}{' '}
           <ChakraNextLink
             href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}
