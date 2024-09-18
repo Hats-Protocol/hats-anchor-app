@@ -73,11 +73,7 @@ const EventHistory = ({
       )}
 
       {shouldCollapse && (
-        <Button
-          onClick={onToggle}
-          size={{ base: 'xs', md: 'sm' }}
-          variant='outline'
-        >
+        <Button onClick={onToggle} size='sm' variant='outline'>
           {isOpen ? 'Show Less' : `Show All (${events.length - 1})`}
         </Button>
       )}

@@ -14,6 +14,7 @@ export const MINI_CONFIG = {
     'Organizations work better with Hats. Save time, automate onboarding, and make better decisions with programmable onchain roles.',
   url: BASE_URL,
   logoUrl: `${BASE_URL}/img/favicon-512.png`,
+  ogImageUrl: `${BASE_URL}/og.png`,
 };
 
 const TITLE = {
@@ -23,11 +24,17 @@ const TITLE = {
 
 const IMAGES = [
   {
-    url: MINI_CONFIG.logoUrl,
-    width: 500,
-    height: 500,
+    url: MINI_CONFIG.ogImageUrl,
+    width: 1200,
+    height: 630,
     alt: 'Hats Protocol',
   },
+  // {
+  //   url: MINI_CONFIG.logoUrl,
+  //   width: 500,
+  //   height: 500,
+  //   alt: 'Hats Protocol',
+  // },
 ];
 
 export const MetadataConfig: Metadata = {
