@@ -30,7 +30,7 @@ import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import _ from 'lodash';
 import {
-  useAgreementEligibility,
+  useAgreementClaim,
   useHatClaimBy,
   useMultiClaimsHatterCheck,
 } from 'modules-hooks';
@@ -97,7 +97,7 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
     onchainHats: selectedHat ? [selectedHat] : [],
   });
 
-  const { signAndClaim, isLoading } = useAgreementEligibility({
+  const { signAndClaim, isLoading } = useAgreementClaim({
     moduleParameters,
     moduleDetails,
     chainId,

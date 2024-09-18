@@ -15,7 +15,7 @@ import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { useWaitForSubgraph } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import {
-  useAgreementEligibility,
+  useAgreementClaim,
   useHatClaimBy,
   useMultiClaimsHatterCheck,
 } from 'modules-hooks';
@@ -129,7 +129,7 @@ const ClaimHat = ({
     },
   });
 
-  const { signAndClaim, signAgreement } = useAgreementEligibility({
+  const { signAndClaim, signAgreement } = useAgreementClaim({
     moduleParameters,
     moduleDetails,
     chainId,

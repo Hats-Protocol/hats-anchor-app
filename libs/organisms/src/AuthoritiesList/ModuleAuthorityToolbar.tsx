@@ -221,7 +221,7 @@ const ModuleAuthorityToolbar = ({
 
   return (
     <HStack wrap='wrap'>
-      <CustomFunction customFunction={customFunction} />
+      <CustomFunction authority={customFunction} />
 
       {primaryFunction && !customFunction && (
         <Tooltip label={primaryDisabledReason}>

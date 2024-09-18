@@ -15,7 +15,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { lte } from 'lodash';
-import { useAgreementEligibility } from 'modules-hooks';
+import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
@@ -43,7 +43,7 @@ const AgreementModal = ({
   const queryClient = useQueryClient();
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const { agreement } = useAgreementEligibility({
+  const { agreement } = useAgreementClaim({
     moduleParameters,
     moduleDetails,
     controllerAddress,

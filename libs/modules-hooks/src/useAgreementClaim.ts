@@ -2,7 +2,7 @@
 
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import { find, get } from 'lodash';
 import { ModuleFunction, SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
@@ -19,7 +19,7 @@ interface ContractInteractionProps {
   onDecline?: () => void;
 }
 
-const useAgreementEligibility = ({
+const useAgreementClaim = ({
   moduleParameters,
   moduleDetails,
   chainId,
@@ -28,9 +28,9 @@ const useAgreementEligibility = ({
   mchAddress,
   onDecline,
 }: ContractInteractionProps) => {
-  const ipfsHash = _.find(moduleParameters, {
+  const ipfsHash = get(find(moduleParameters, {
     label: 'Current Agreement',
-  })?.value as string;
+  }), 'value') as string;
 
   const {
     data: agreement,
@@ -42,14 +42,13 @@ const useAgreementEligibility = ({
     enabled: !!ipfsHash,
   });
 
-  const signAndClaim = _.find(
-    _.get(moduleDetails, 'writeFunctions'),
-    (fn: ModuleFunction) => fn.functionName === 'signAgreementAndClaimHat',
+  const signAndClaim = find(
+    get(moduleDetails, 'writeFunctions'),
+    { functionName: 'signAgreementAndClaimHat' },
   );
 
-  const signFn = _.find(
-    _.get(moduleDetails, 'writeFunctions'),
-    (fn: ModuleFunction) => fn.functionName === 'signAgreement',
+  const signFn = find(
+    get(moduleDetails, 'writeFunctions'), { functionName: 'signAgreement' },
   );
 
   const { mutate: callModuleFunction } = useCallModuleFunction({
@@ -89,4 +88,4 @@ const useAgreementEligibility = ({
   };
 };
 
-export default useAgreementEligibility;
+export default useAgreementClaim;
