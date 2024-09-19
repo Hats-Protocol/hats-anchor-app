@@ -1,11 +1,6 @@
 'use client';
 
 import {
-  // Accordion,
-  // AccordionButton,
-  // AccordionIcon,
-  // AccordionItem,
-  // AccordionPanel,
   Box,
   Button,
   Card,
@@ -33,6 +28,7 @@ import ActiveStreams from './ActiveStreams';
 import LastTransaction from './LastTransaction';
 import SafeAssets from './SafeAssets';
 import SafeTotal from './SafeTotal';
+import SafeTransactions from './SafeTransactions';
 
 const SafeCard = ({
   hats,
@@ -108,14 +104,16 @@ const SafeCard = ({
               <LastTransaction safeAddress={safeAddress} type={'outbound'} />
             </Flex>
 
-            <Flex justify='space-between' align='center'>
+            <SafeTransactions safeAddress={safeAddress} />
+
+            <Flex justify='space-between' align='center' pt={4}>
               <Link
                 href={safeUrl(
                   chainId as SupportedChains,
                   get(signerSafe, 'safe'),
                 )}
               >
-                <Button variant='ghost' p={0} m={0}>
+                <Button variant='link' p={0} m={0}>
                   <HStack>
                     <Box
                       height='26px'
@@ -140,27 +138,13 @@ const SafeCard = ({
                   hatId: firstHat.id,
                 })}
               >
-                <Button variant='ghost' p={0} m={0}>
+                <Button variant='link' p={0} m={0}>
                   <Text size='sm' fontWeight={400}>
                     #{hatIdDecimalToIp(hatIdHexToDecimal(firstHat.id))}
                   </Text>
                 </Button>
               </Link>
             </Flex>
-
-            {/* <Flex>
-              <Accordion w='full' allowToggle>
-                <AccordionItem border='none'>
-                  <AccordionButton>
-                    <Text>History</Text>
-                    <AccordionIcon />
-                  </AccordionButton>
-                  <AccordionPanel>
-                    <Stack>Events</Stack>
-                  </AccordionPanel>
-                </AccordionItem>
-              </Accordion>
-            </Flex> */}
           </Stack>
         </CardBody>
       </Card>
