@@ -1,12 +1,10 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { createSubgraphClient } from 'utils';
 import { Hex } from 'viem';
 
-// move to utils
+// TODO move to utils
 const fetchHatWearersPage = async ({
   hatId,
   chainId,
@@ -29,6 +27,7 @@ const fetchHatWearersPage = async ({
   return res;
 };
 
+// TODO migrate to use mesh
 const useAllWearers = ({
   selectedHat,
   chainId,

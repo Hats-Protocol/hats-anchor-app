@@ -13,28 +13,16 @@ export type DetailsItem = {
   imageUrl?: string; // old field, prefer `imageUri`
 };
 
-// Contract Details returned from Etherscan
-interface ContractDetails {
-  contractName: string;
-  // abi: string; // omitted in API route fetch
-  // sourceCode: string; // omitted in API route fetch
-  compilerVersion: string;
-  constructorArguments: string;
-  evmVersion: string;
-  id: string;
-  implementation: string;
-  library: string;
-  licenseType: string;
-  optimizationUsed: string;
-  proxy: string;
-  runs: string;
-  swarmSource: string;
-}
-
-export interface HatWearer extends Partial<ContractDetails> {
+export interface HatWearer {
   id: Hex;
   isContract?: boolean;
+  contractName?: string;
   ensName?: string | null;
+}
+
+export interface AllowlistProfile extends HatWearer {
+  eligible: boolean;
+  badStanding: boolean;
 }
 
 export type HatDetailsKeys = keyof HatDetails;

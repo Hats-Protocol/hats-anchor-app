@@ -78,6 +78,7 @@ const TopMenu = () => {
     onchainHats,
     chainId,
     handlePendingTx,
+    editMode,
   });
 
   const handleDeploy = async () => {

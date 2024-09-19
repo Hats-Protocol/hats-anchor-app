@@ -1,8 +1,11 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
+import { Button, Text } from '@chakra-ui/react';
+import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { find, get, includes, toLower, toNumber, toString } from 'lodash';
+import { JokeRaceModal } from 'modules-ui';
+import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
@@ -19,6 +22,7 @@ const JokeRaceEligibility = ({
   wearer,
   selectedHat,
 }: ModuleDetailsHandler) => {
+  const { setModals } = useOverlay();
   const contestAddress = get(
     find(moduleParameters, { displayType: 'jokerace' }),
     'value',
@@ -39,28 +43,51 @@ const JokeRaceEligibility = ({
   });
   const isEligible = includes(get(wearerStatus, 'eligibleWearers'), wearer);
 
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('eligibility-modal') ||
+    process.env.NODE_ENV === 'development';
+
   // TODO fetch contest from JokeRace subgraph
   // TODO fetch contest name from details (subgraph/ipfs?)
+  if (!moduleDetails) return null;
 
   return (
-    <EligibilityRule
-      rule={
-        <Text>
-          {toNumber(topK) > 1 ? `Finish top ${topK}` : 'Finish first'} in the{' '}
-          <ChakraNextLink
-            href={jokeRaceUrl({ chainId, address: contestAddress })}
-            decoration
-          >
-            JokeRace
-          </ChakraNextLink>
-        </Text>
-      }
-      status={
-        isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
-      }
-      displayStatus={isEligible ? 'Selected' : 'Not Selected'}
-      icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
-    />
+    <>
+      <JokeRaceModal
+        eligibilityHatId={selectedHat?.id}
+        moduleInfo={moduleDetails}
+      />
+
+      <EligibilityRule
+        rule={
+          <Text>
+            {toNumber(topK) > 1 ? `Finish top ${topK}` : 'Finish first'} in the{' '}
+            {eligibilityModalFlag ? (
+              <Button
+                onClick={() => setModals?.({ jokeRaceManager: true })}
+                variant='link'
+              >
+                JokeRace
+              </Button>
+            ) : (
+              <ChakraNextLink
+                href={jokeRaceUrl({ chainId, address: contestAddress })}
+                decoration
+              >
+                JokeRace
+              </ChakraNextLink>
+            )}
+          </Text>
+        }
+        status={
+          isEligible
+            ? ELIGIBILITY_STATUS.eligible
+            : ELIGIBILITY_STATUS.ineligible
+        }
+        displayStatus={isEligible ? 'Selected' : 'Not Selected'}
+        icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
+      />
+    </>
   );
 };
 

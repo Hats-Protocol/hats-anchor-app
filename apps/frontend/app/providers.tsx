@@ -27,6 +27,10 @@ declare global {
   interface Window {
     Intercom: (action: string, options: object) => void;
   }
+
+  interface BigInt {
+    toJSON: () => string;
+  }
 }
 
 // Check that PostHog is client-side (used to handle Next.js SSR)
@@ -51,8 +55,13 @@ const queryClientOptions = {
   },
 };
 
+BigInt.prototype['toJSON'] = function () {
+  return this.toString();
+};
+
 const Providers = ({ children }: Props) => {
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
+
   useEffect(() => {
     if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
       window.Intercom('boot', { app_id: INTERCOM_APP_ID });

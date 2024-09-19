@@ -19,7 +19,7 @@ const useWearerIsInGoodStanding = ({
     abi: HATS_ABI,
     chainId,
     functionName: 'isInGoodStanding',
-    args: [wearer || "0x", hatId ? BigInt(hatId) : 0n],
+    args: [wearer || '0x', hatId ? BigInt(hatId) : 0n],
   });
 
   return { data, isLoading };

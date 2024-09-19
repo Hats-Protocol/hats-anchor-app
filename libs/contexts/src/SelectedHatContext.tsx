@@ -1,13 +1,16 @@
 'use client';
 
+import { Ruleset } from '@hatsprotocol/modules-sdk';
 import {
+  FALLBACK_ADDRESS,
   hatIdDecimalToHex,
   hatIdDecimalToIp,
   hatIdIpToDecimal,
   treeIdDecimalToHex,
 } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { find, get, includes, isEmpty, map } from 'lodash';
+import { useEligibilityRules } from 'modules-hooks';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
   createContext,
@@ -27,6 +30,8 @@ export interface SelectedHatContext {
   // SELECTED HAT
   selectedHat: AppHat | undefined;
   selectedHatDetails: HatDetails | undefined;
+  eligibilityInfo: Ruleset[] | undefined;
+  toggleInfo: Ruleset[] | undefined;
   chainId: SupportedChains | undefined;
   hatLoading: boolean;
   isClaimable?: { by: boolean; for: boolean } | undefined;
@@ -47,6 +52,8 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   // SELECTED HAT
   selectedHat: undefined,
   selectedHatDetails: undefined,
+  eligibilityInfo: undefined,
+  toggleInfo: undefined,
   chainId: undefined,
   hatLoading: false,
   isClaimable: undefined,
@@ -92,30 +99,44 @@ export const SelectedHatContextProvider = ({
   // * SELECTED HAT
   // *********************
   const selectedHat = useMemo(() => {
-    return _.find(orgChartTree, { id: hatId });
+    return find(orgChartTree, { id: hatId });
   }, [orgChartTree, hatId]) as AppHat | undefined;
   const selectedHatDetails = useMemo(
-    () => _.get(selectedHat, 'detailsObject.data'),
+    () => get(selectedHat, 'detailsObject.data'),
     [selectedHat],
   );
   const isDraft = useMemo(
-    () => !_.includes(_.map(onchainHats, 'id'), selectedHat?.id),
+    () => !includes(map(onchainHats, 'id'), selectedHat?.id),
     [onchainHats, selectedHat],
   );
   const hatNotInTree = useMemo(
-    () => !_.includes(_.map(orgChartTree, 'id'), selectedHat?.id),
+    () => !includes(map(orgChartTree, 'id'), selectedHat?.id),
     [orgChartTree, selectedHat],
   );
+
+  const { data: eligibilityInfo, isLoading: eligibilityLoading } =
+    useEligibilityRules({
+      address: selectedHat?.eligibility,
+      chainId,
+      enabled:
+        !!selectedHat?.eligibility &&
+        selectedHat?.eligibility !== FALLBACK_ADDRESS,
+    });
+  const { data: toggleInfo, isLoading: toggleLoading } = useEligibilityRules({
+    address: selectedHat?.toggle,
+    chainId,
+    enabled: !!selectedHat?.toggle && selectedHat?.toggle !== FALLBACK_ADDRESS,
+  });
 
   // *********************
   // * ONCHAIN HAT
   // *********************
   const selectedOnchainHat = useMemo(
-    () => _.find(onchainTree, { id: hatId }),
+    () => find(onchainTree, { id: hatId }),
     [onchainTree, hatId],
   ) as AppHat | undefined;
   const selectedOnchainHatDetails = useMemo(
-    () => _.get(selectedOnchainHat, 'detailsObject.data'),
+    () => get(selectedOnchainHat, 'detailsObject.data'),
     [selectedOnchainHat],
   );
 
@@ -123,14 +144,14 @@ export const SelectedHatContextProvider = ({
     () =>
       selectedHat
         ? {
-            by: !_.isEmpty(selectedHat?.claimableBy),
-            for: !_.isEmpty(selectedHat?.claimableForBy),
+            by: !isEmpty(selectedHat?.claimableBy),
+            for: !isEmpty(selectedHat?.claimableForBy),
           }
         : undefined,
     [selectedHat],
   );
   const hierarchy = useMemo(() => {
-    const parentsAndIds = _.map(orgChartTree, (hat: AppHat) => ({
+    const parentsAndIds = map(orgChartTree, (hat: AppHat) => ({
       id: hat.id,
       parentId: hat.admin?.id,
     }));
@@ -144,9 +165,9 @@ export const SelectedHatContextProvider = ({
     (id: Hex) => {
       if (isMobile) return;
 
-      const allIds = _.map(orgChartTree, 'id');
-      const hat = _.find(orgChartTree, ['id', id]);
-      if (!_.includes(allIds, id) || !hat) return;
+      const allIds = map(orgChartTree, 'id');
+      const hat = find(orgChartTree, ['id', id]);
+      if (!includes(allIds, id) || !hat) return;
 
       // if it's linked
       if (hat.treeId && treeId && hat.treeId !== treeIdDecimalToHex(treeId)) {
@@ -174,8 +195,14 @@ export const SelectedHatContextProvider = ({
       // SELECTED HAT
       selectedHat,
       selectedHatDetails,
+      eligibilityInfo: eligibilityInfo || undefined,
+      toggleInfo: toggleInfo || undefined,
       chainId,
-      hatLoading: !selectedHat || !selectedHatDetails,
+      hatLoading:
+        !selectedHat ||
+        !selectedHatDetails ||
+        eligibilityLoading ||
+        toggleLoading,
       isClaimable,
       hatNotInTree,
       // ONCHAIN HAT
@@ -188,19 +215,20 @@ export const SelectedHatContextProvider = ({
       hierarchy,
     }),
     [
-      // SELECTED HAT
       selectedHat,
       selectedHatDetails,
+      eligibilityInfo,
+      toggleInfo,
       chainId,
+      eligibilityLoading,
+      toggleLoading,
       isClaimable,
       hatNotInTree,
       // ONCHAIN HAT
       isDraft,
       selectedOnchainHat,
       selectedOnchainHatDetails,
-      // ACTIONS
       handleSelectHat,
-      // RELATIONS
       hierarchy,
     ],
   );

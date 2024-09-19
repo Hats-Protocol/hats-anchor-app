@@ -1,12 +1,13 @@
 import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import { GraphQLClient } from 'graphql-request';
-import { get, map, uniqBy } from 'lodash';
+import { get, map, toLower, uniqBy } from 'lodash';
 import { mapWithChainId } from 'shared';
 import { AppTree } from 'types';
 import { Hex } from 'viem';
 
 import {
   getWearerDetailsQuery,
+  getWearersProfileDetailQuery,
   getWearerTreesQuery,
   NETWORKS_PREFIX,
 } from '../queries';
@@ -40,6 +41,27 @@ export const fetchWearerDetailsMesh = async (
     ...wearer,
     currentHats: mapWithChainId(get(wearer, 'currentHats'), chainId),
   };
+};
+
+export const fetchWearersProfileDetails = async (
+  addresses: string[] | undefined,
+  chainId: number | undefined,
+) => {
+  if (!addresses || !chainId) return undefined;
+
+  const client = new GraphQLClient(
+    `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
+  );
+
+  const query = getWearersProfileDetailQuery(chainId);
+
+  const res: unknown = await client.request(query, {
+    ids: map(addresses, (address) => toLower(address)),
+  });
+
+  return get(res, `${NETWORKS_PREFIX[chainId]}_wearers`)
+    ? get(res, `${NETWORKS_PREFIX[chainId]}_wearers`)
+    : null;
 };
 
 export const fetchWearerTrees = async ({

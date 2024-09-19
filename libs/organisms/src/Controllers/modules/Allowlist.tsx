@@ -1,8 +1,11 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
+import { Button, Text } from '@chakra-ui/react';
+import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
+import { AllowlistModal } from 'modules-ui';
+import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
@@ -15,9 +18,12 @@ const AllowlistEligibility = ({
   chainId,
   wearer,
   selectedHat,
+  moduleDetails,
+  moduleParameters,
 }: ModuleDetailsHandler) => {
   // TODO subgraph will need to index these allowlists specifically, to show the actual lists
 
+  const { setModals } = useOverlay();
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
     selectedHat,
@@ -29,24 +35,75 @@ const AllowlistEligibility = ({
     toLower(wearer),
   );
 
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('eligibility-modal') ||
+    process.env.NODE_ENV === 'development';
+
+  if (!selectedHat || !moduleDetails?.id) return null;
+
   if (isEligible) {
     return (
-      <EligibilityRule
-        rule={<Text>Be on the Allowlist</Text>}
-        status={ELIGIBILITY_STATUS.eligible}
-        displayStatus='Allowed'
-        icon={BsCheckSquareFill}
-      />
+      <>
+        <AllowlistModal
+          eligibilityHatId={selectedHat?.id}
+          moduleInfo={{
+            ...moduleDetails,
+            liveParameters: moduleParameters,
+          }}
+        />
+
+        <EligibilityRule
+          rule={
+            <Text>
+              Be on the{' '}
+              {eligibilityModalFlag ? (
+                <Button
+                  onClick={() => setModals?.({ allowlistManager: true })}
+                  variant='link'
+                >
+                  Allowlist
+                </Button>
+              ) : (
+                'Allowlist'
+              )}
+            </Text>
+          }
+          status={ELIGIBILITY_STATUS.eligible}
+          displayStatus='Allowed'
+          icon={BsCheckSquareFill}
+        />
+      </>
     );
   }
 
   return (
-    <EligibilityRule
-      rule={<Text>Be on the Allowlist</Text>}
-      status={ELIGIBILITY_STATUS.ineligible}
-      displayStatus='Not allowed'
-      icon={BsFillXOctagonFill} // {EmptyWearer}
-    />
+    <>
+      <AllowlistModal
+        eligibilityHatId={selectedHat?.id}
+        moduleInfo={{
+          ...moduleDetails,
+          liveParameters: moduleParameters,
+        }}
+      />
+
+      <EligibilityRule
+        rule={
+          <Text>
+            Be on the {}
+            <Button
+              onClick={() => setModals?.({ allowlistManager: true })}
+              variant='link'
+              textDecoration='underline'
+            >
+              Allowlist
+            </Button>
+          </Text>
+        }
+        status={ELIGIBILITY_STATUS.ineligible}
+        displayStatus='Not allowed'
+        icon={BsFillXOctagonFill} // {EmptyWearer}
+      />
+    </>
   );
 };
 
