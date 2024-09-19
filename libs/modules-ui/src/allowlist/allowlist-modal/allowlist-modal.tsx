@@ -10,34 +10,47 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+} from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { Input, MultiAddressInput } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import {
+  compact,
   concat,
+  filter,
   find,
+  includes,
   isEmpty,
   map,
-  // pick,
+  pick,
   reject,
   size,
+  some,
   subtract,
+  toLower,
   toString,
 } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { formatAddress } from 'utils';
+import { filterProfiles, formatAddress } from 'utils';
 import { Hex } from 'viem';
+import { useAccount, useWriteContract } from 'wagmi';
 
 import {
+  AboutModule,
   EligibilityRow,
+  FILTER,
+  Filter,
   ModuleHistory,
   ModuleModal,
   WearerFilters,
 } from '../../module-modal';
-import AboutAllowlist from './about';
 
 export const AllowlistModal = ({
   eligibilityHatId,
@@ -48,16 +61,23 @@ export const AllowlistModal = ({
 }) => {
   const { chainId } = useTreeForm();
   const localForm = useForm();
+  const { address } = useAccount();
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
-  // const { watch } = pick(localForm, ['watch']);
+  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.HUMANISTIC);
+  const { setValue, watch } = pick(localForm, ['setValue', 'watch']);
+  const { writeContractAsync } = useWriteContract();
 
-  const { data: hat } = useHatDetails({ hatId: eligibilityHatId, chainId });
+  const { data: hat, details } = useHatDetails({
+    hatId: eligibilityHatId,
+    chainId,
+  });
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
-  // const searchInput = watch('search');
-  // const addresses = watch('addresses');
+  const searchInput = watch('search');
+  const addressesToAdd = watch('addresses');
+  console.log('addressesToAdd', addressesToAdd);
   const { data: allowlist } = useAllowlist({
     id: moduleInfo.id,
     chainId,
@@ -80,12 +100,46 @@ export const AllowlistModal = ({
   const judgeHat = toString(
     get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
   );
+  const { data: ownerHatDetails } = useHatDetails({
+    hatId: hatIdDecimalToHex(BigInt(ownerHat)),
+    chainId,
+  });
+  const { data: judgeHatDetails } = useHatDetails({
+    hatId: hatIdDecimalToHex(BigInt(judgeHat)),
+    chainId,
+  });
+  console.log(
+    'ownerHatDetails',
+    ownerHat,
+    ownerHatDetails,
+    'judgeHatDetails',
+    judgeHat,
+    judgeHatDetails,
+  );
+  const { wearers: ownerHatWearers } = useAllWearers({
+    selectedHat: ownerHatDetails || undefined,
+    chainId,
+  });
+  const { wearers: judgeHatWearers } = useAllWearers({
+    selectedHat: judgeHatDetails || undefined,
+    chainId,
+  });
+  console.log(
+    'ownerHatWearers',
+    ownerHatWearers,
+    'judgeHatWearers',
+    judgeHatWearers,
+  );
+  const isOwner = some(ownerHatWearers, { id: toLower(address) });
+  const isJudge = some(judgeHatWearers, { id: toLower(address) });
+  console.log('isOwner', isOwner, 'isJudge', isJudge);
 
-  const filteredProfiles = useMemo(() => {
-    return allowlistProfiles;
-  }, [allowlistProfiles]);
+  const filteredProfiles = filterProfiles({
+    allowlistProfiles,
+    wearerIds: map(wearers, (wearer) => wearer.id),
+  });
 
-  const handleAdd = useCallback(
+  const handleRemoveListAdd = useCallback(
     (address: Hex) => {
       const profile = find(allowlistProfiles, { id: address });
       if (!profile) return;
@@ -94,30 +148,115 @@ export const AllowlistModal = ({
     [removeList, allowlistProfiles],
   );
 
-  const handleRemove = useCallback(
+  const handleRemoveListRemove = useCallback(
     (address: Hex) => {
       setRemoveList(reject(removeList, (p) => p.id === address));
     },
     [removeList],
   );
 
+  const handleRemoveWearers = useCallback(async () => {
+    const removeAddresses = map(removeList, (p) => p.id);
+    const tx = await writeContractAsync({
+      address: moduleInfo.id,
+      abi: moduleInfo.abi,
+      functionName: 'removeAccounts',
+      args: [removeAddresses],
+    });
+    console.log('tx', tx);
+    setRemoveList([]);
+    setRemoving(false);
+  }, [
+    setRemoveList,
+    moduleInfo.abi,
+    moduleInfo.id,
+    removeList,
+    // writeContractAsync,
+    setRemoving,
+  ]);
+
+  const handleAddWearers = useCallback(async () => {
+    const addresses = map(addressesToAdd, (account) => get(account, 'address'));
+    const tx = await writeContractAsync({
+      address: moduleInfo.id,
+      abi: moduleInfo.abi,
+      functionName: 'addAccounts',
+      args: [addresses],
+    });
+    console.log('tx', tx);
+    setValue('addresses', []);
+    setAdding(false);
+  }, [
+    addressesToAdd,
+    setAdding,
+    // writeContractAsync,
+    // setValue,
+    moduleInfo.abi,
+    moduleInfo.id,
+  ]);
+
+  const handleClose = useCallback(() => {
+    setActiveFilter(FILTER.HUMANISTIC);
+    setRemoveList([]);
+    setAdding(false);
+    setRemoving(false);
+    setValue('addresses', []);
+    setValue('search', undefined);
+  }, [setValue]);
+
+  const currentFilteredProfiles = filter(
+    filteredProfiles[activeFilter],
+    (p) =>
+      !searchInput ||
+      includes(toString(p.id), searchInput) ||
+      includes(toString(p.ensName), searchInput),
+  );
+
+  const moduleDescriptors = useMemo(() => {
+    return compact([
+      eligibilityHatId && {
+        label: 'Eligibility Rule for this Hat',
+        hatId: eligibilityHatId,
+      },
+      {
+        label: 'Owner edits the allowlist',
+        hatId: ownerHat as Hex,
+      },
+      {
+        label: 'Judge determines wearer standing',
+        hatId: judgeHat as Hex,
+      },
+    ]);
+  }, [ownerHat, judgeHat, eligibilityHatId]);
+
+  if (!hat || !eligibilityHatId) return null;
+
   return (
     <ModuleModal
       name='allowlistManager'
       title='Manage Allowlist'
       filters={
-        <WearerFilters extendedProfiles={allowlistProfiles} wearers={wearers} />
+        <WearerFilters
+          filteredProfiles={filteredProfiles}
+          wearers={wearers}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+        />
       }
       about={
-        <AboutAllowlist
-          eligibilityHat={eligibilityHatId}
-          ownerHat={ownerHat as Hex}
-          judgeHat={judgeHat as Hex}
+        <AboutModule
+          heading='About this Allowlist'
+          moduleDescriptors={moduleDescriptors}
         />
       }
       history={<ModuleHistory />}
+      onClose={handleClose}
     >
-      <Heading size='md'>Allowlist for Hat 1.2.1.2 - Hats Contributor</Heading>
+      <Heading size='md'>
+        Allowlist for Hat{' '}
+        {hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))} -{' '}
+        {details?.name || hat?.details}
+      </Heading>
 
       <Flex>
         <Input
@@ -138,19 +277,25 @@ export const AllowlistModal = ({
           <Divider borderColor='black' />
         </Stack>
 
-        {map(filteredProfiles, (p: AllowlistProfile) => (
+        {map(currentFilteredProfiles, (p: AllowlistProfile) => (
           <EligibilityRow
             key={p.id}
             eligibilityAccount={p}
             wearers={wearers}
             removing={removing}
             removeList={removeList}
-            handleAdd={handleAdd}
-            handleRemove={handleRemove}
+            handleAdd={handleRemoveListAdd}
+            handleRemove={handleRemoveListRemove}
           />
         ))}
+        {isEmpty(currentFilteredProfiles) && (
+          <Flex justify='center' align='center' w='full' h='100px'>
+            <Text color='gray.500'>No addresses found</Text>
+          </Flex>
+        )}
       </Stack>
 
+      {/* TODO: must be wearer of owner hat to add/remove */}
       <Flex
         position='absolute'
         bottom={0}
@@ -191,11 +336,11 @@ export const AllowlistModal = ({
             <Stack spacing={1}>
               <Heading size='md'>Add an address</Heading>
 
-              <AddressInput
+              <MultiAddressInput
                 name='addresses'
-                chainId={chainId}
                 localForm={localForm}
-                hideAddressButtons
+                checkEligibility={false}
+                btnSize='xs'
               />
             </Stack>
 
@@ -206,12 +351,13 @@ export const AllowlistModal = ({
                 colorScheme='blue.500'
                 onClick={() => {
                   setRemoveList([]);
+                  setValue('addresses', []);
                   setAdding(false);
                 }}
               >
                 Cancel
               </Button>
-              <Button variant='primary' size='sm'>
+              <Button variant='primary' size='sm' onClick={handleAddWearers}>
                 Add
               </Button>
             </Flex>
@@ -258,6 +404,7 @@ export const AllowlistModal = ({
                 colorScheme='red.500'
                 size='sm'
                 isDisabled={isEmpty(removeList)}
+                onClick={handleRemoveWearers}
               >
                 Remove
               </Button>

@@ -11,6 +11,7 @@ const AGREEMENT_QUERY = gql`
         graceEndTime
         signers
       }
+      badStandings
     }
   }
 `;
@@ -35,7 +36,7 @@ const fetchAgreement = async ({
     console.log('response', response);
     // only returning "last" (most recent) agreement
     return get(response, 'agreementEligibility')
-      ? get(response, 'agreementEligibility.agreements[0]')
+      ? get(response, 'agreementEligibility')
       : null;
   } catch (error) {
     // eslint-disable-next-line no-console

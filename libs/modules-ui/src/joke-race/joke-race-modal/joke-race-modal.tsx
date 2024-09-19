@@ -10,10 +10,12 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import {
+  compact,
   concat,
   find,
   isEmpty,
@@ -28,16 +30,18 @@ import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { formatAddress } from 'utils';
+import { filterProfiles, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 import {
+  AboutModule,
   EligibilityRow,
+  FILTER,
+  Filter,
   ModuleHistory,
   ModuleModal,
   WearerFilters,
 } from '../../module-modal';
-import AboutJokeRace from './about';
 
 export const JokeRaceModal = ({
   eligibilityHatId,
@@ -51,9 +55,13 @@ export const JokeRaceModal = ({
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
+  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.HUMANISTIC);
   // const { watch } = pick(localForm, ['watch']);
 
-  const { data: hat } = useHatDetails({ hatId: eligibilityHatId, chainId });
+  const { data: hat, details } = useHatDetails({
+    hatId: eligibilityHatId,
+    chainId,
+  });
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
   // const searchInput = watch('search');
@@ -81,9 +89,10 @@ export const JokeRaceModal = ({
     get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
   );
 
-  const filteredProfiles = useMemo(() => {
-    return allowlistProfiles;
-  }, [allowlistProfiles]);
+  const filteredProfiles = filterProfiles({
+    allowlistProfiles,
+    wearerIds: map(wearers, (wearer) => wearer.id),
+  });
 
   const handleAdd = useCallback(
     (address: Hex) => {
@@ -101,24 +110,49 @@ export const JokeRaceModal = ({
     [removeList],
   );
 
+  const moduleDescriptors = useMemo(() => {
+    return compact([
+      eligibilityHatId && {
+        label: 'Eligibility Rule for this Hat',
+        hatId: eligibilityHatId,
+      },
+      {
+        label: 'Owner edits the allowlist',
+        hatId: ownerHat as Hex,
+      },
+      {
+        label: 'Judge determines wearer standing',
+        hatId: judgeHat as Hex,
+      },
+    ]);
+  }, [ownerHat, judgeHat, eligibilityHatId]);
+
+  if (!eligibilityHatId || !hat) return null;
+
   return (
     <ModuleModal
       name='jokeRaceManager'
       title='Manage JokeRace'
       filters={
-        <WearerFilters extendedProfiles={allowlistProfiles} wearers={wearers} />
+        <WearerFilters
+          filteredProfiles={filteredProfiles}
+          wearers={wearers}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+        />
       }
       about={
-        <AboutJokeRace
-          eligibilityHat={eligibilityHatId}
-          ownerHat={ownerHat as Hex}
-          judgeHat={judgeHat as Hex}
+        <AboutModule
+          heading='About this JokeRace Election'
+          moduleDescriptors={moduleDescriptors}
         />
       }
       history={<ModuleHistory />}
     >
       <Heading size='md'>
-        JokeRace Election for Hat 1.2.1.2 - Hats Contributor
+        JokeRace Election for Hat{' '}
+        {hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))} -{' '}
+        {details?.name || hat?.details}
       </Heading>
 
       <Flex>
@@ -140,7 +174,7 @@ export const JokeRaceModal = ({
           <Divider borderColor='black' />
         </Stack>
 
-        {map(filteredProfiles, (p: AllowlistProfile) => (
+        {map(filteredProfiles[activeFilter], (p: AllowlistProfile) => (
           <EligibilityRow
             key={p.id}
             eligibilityAccount={p}

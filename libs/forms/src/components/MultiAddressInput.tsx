@@ -3,6 +3,7 @@
 import {
   Box,
   Button,
+  ButtonProps,
   Collapse,
   Flex,
   FormControl,
@@ -54,6 +55,8 @@ interface MultiAddressInputProps {
   placeholder?: string;
   holdOnAdd?: boolean;
   overrideMaxSupply?: boolean;
+  checkEligibility?: boolean;
+  btnSize?: ButtonProps['size'];
 }
 
 const MultiAddressInput = ({
@@ -64,6 +67,8 @@ const MultiAddressInput = ({
   placeholder,
   holdOnAdd,
   overrideMaxSupply,
+  btnSize,
+  checkEligibility = true,
 }: MultiAddressInputProps) => {
   const { setValue, watch, control, setError, formState, clearErrors } = _.pick(
     localForm,
@@ -160,10 +165,11 @@ const MultiAddressInput = ({
         return;
       }
 
-      if (chainId && selectedHat) {
+      if (chainId && selectedHat && checkEligibility) {
         // check eligibility and standing of potential wearer
         const viemClient = viemPublicClient(chainId);
 
+        // TODO multicall instead
         const promises = [
           viemClient.readContract({
             address: CONFIG.hatsAddress,
@@ -443,11 +449,12 @@ const MultiAddressInput = ({
             <Button
               aria-label='Toggle CSV Input'
               onClick={toggleCollapse}
+              size={btnSize || 'md'}
               variant='outlineMatch'
               colorScheme='blue.500'
-              leftIcon={<Icon as={FaUpload} w={3} h={3} />}
+              leftIcon={<Icon as={FaUpload} />}
             >
-              <Text>Upload CSV</Text>
+              Upload CSV
             </Button>
           </HStack>
 

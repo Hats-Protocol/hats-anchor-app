@@ -17,6 +17,7 @@ export const ModuleModal = ({
   about,
   history,
   children,
+  onClose,
 }: {
   name: string;
   title: string;
@@ -24,13 +25,17 @@ export const ModuleModal = ({
   about: ReactNode;
   history: ReactNode;
   children: ReactNode;
+  onClose?: () => void;
 }) => {
   const { setModals, modals } = useOverlay();
 
   return (
     <Modal
       isOpen={modals?.[name] || false}
-      onClose={() => setModals?.({})}
+      onClose={() => {
+        onClose?.();
+        setModals?.({});
+      }}
       size='6xl'
     >
       <ModalOverlay />

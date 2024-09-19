@@ -1,7 +1,7 @@
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
-import _ from 'lodash';
-import { AppHat, ModuleDetails, ValueOf } from 'types';
+import { filter, first, get, includes, nth } from 'lodash';
+import { AllowlistProfile, AppHat, ModuleDetails, ValueOf } from 'types';
 import { Hex } from 'viem';
 
 import { viemPublicClient } from '../web3';
@@ -50,8 +50,8 @@ export const fallbackModuleCheck = async ({
     })
     .then(async (result: unknown) => {
       const localResult = result as [boolean, boolean];
-      const eligible = _.first(localResult) || false;
-      const standing = _.nth(localResult, 1) || true;
+      const eligible = first(localResult) || false;
+      const standing = nth(localResult, 1) || true;
       return Promise.resolve({ eligible, standing });
     })
     .catch((error) => {
@@ -86,3 +86,42 @@ export const fallbackModuleCheck = async ({
 //       return Promise.resolve(undefined);
 //     });
 // };
+
+export const filterProfiles = ({
+  allowlistProfiles,
+  wearerIds,
+}: {
+  allowlistProfiles: AllowlistProfile[];
+  wearerIds: Hex[];
+}) => {
+  const eligible =
+    (filter(allowlistProfiles, (p) => {
+      return get(p, 'eligible') && !get(p, 'badStanding');
+    }) as AllowlistProfile[]) || [];
+  const contracts = filter(allowlistProfiles, { isContract: true }) || [];
+  const multiSigs =
+    filter(allowlistProfiles, {
+      contractName: 'GnosisSafeProxy',
+    }) || [];
+  const humanistic = filter(allowlistProfiles, { isContract: false }) || [];
+
+  const wearerProfiles =
+    filter(allowlistProfiles, (p) => includes(wearerIds, p.id)) || [];
+  const unclaimed =
+    filter(allowlistProfiles, (p) => !includes(wearerIds, p.id)) || [];
+
+  const goodStanding = filter(allowlistProfiles, { badStanding: false }) || [];
+  const badStanding = filter(allowlistProfiles, { badStanding: true }) || [];
+
+  return {
+    all: allowlistProfiles,
+    eligible,
+    contracts,
+    multiSigs,
+    humanistic,
+    wearer: wearerProfiles,
+    unclaimed,
+    goodStanding,
+    badStanding,
+  };
+};

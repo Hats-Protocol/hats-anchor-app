@@ -10,15 +10,19 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import {
+  compact,
   concat,
+  filter,
   find,
+  includes,
   isEmpty,
   map,
-  // pick,
+  pick,
   reject,
   size,
   subtract,
@@ -28,16 +32,18 @@ import { useAgreementDetails } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { formatAddress } from 'utils';
+import { filterProfiles, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 import {
+  AboutModule,
   EligibilityRow,
+  FILTER,
+  Filter,
   ModuleHistory,
   ModuleModal,
   WearerFilters,
 } from '../../module-modal';
-import AboutAgreement from './about';
 
 export const AgreementModal = ({
   eligibilityHatId,
@@ -51,20 +57,23 @@ export const AgreementModal = ({
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
-  // const { watch } = pick(localForm, ['watch']);
+  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.HUMANISTIC);
+  const { watch } = pick(localForm, ['watch']);
 
-  const { data: hat } = useHatDetails({ hatId: eligibilityHatId, chainId });
+  const { data: hat, details } = useHatDetails({
+    hatId: eligibilityHatId,
+    chainId,
+  });
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
-  // const searchInput = watch('search');
+  const searchInput = watch('search');
   // const addresses = watch('addresses');
   const { data: agreementDetails } = useAgreementDetails({
     id: moduleInfo.id,
     chainId,
   });
-  console.log('agreementDetails', agreementDetails);
   const { data: agreementProfiles } = useProfileDetails({
-    addresses: get(agreementDetails, 'signers'),
+    addresses: get(agreementDetails, 'agreements.0.signers'),
     chainId,
   });
   const liveParams = get(moduleInfo, 'liveParameters');
@@ -75,9 +84,27 @@ export const AgreementModal = ({
     get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
   );
 
-  const filteredProfiles = useMemo(() => {
-    return agreementProfiles;
-  }, [agreementProfiles]);
+  const badStandings = get(agreementDetails, 'badStandings');
+  const mappedProfiles = map(agreementProfiles, (profile) => {
+    const badStanding = find(badStandings, { id: profile.id });
+    return {
+      ...profile,
+      eligible: true,
+      badStanding: badStanding ? true : false,
+    };
+  });
+
+  const filteredProfiles = filterProfiles({
+    allowlistProfiles: mappedProfiles || [],
+    wearerIds: map(wearers, (wearer) => wearer.id),
+  });
+  const currentFilteredProfiles = filter(
+    filteredProfiles[activeFilter],
+    (p) =>
+      !searchInput ||
+      includes(toString(p.id), searchInput) ||
+      includes(toString(p.ensName), searchInput),
+  );
 
   const handleAdd = useCallback(
     (address: Hex) => {
@@ -97,26 +124,56 @@ export const AgreementModal = ({
     [removeList],
   );
 
+  const moduleDescriptors = useMemo(() => {
+    return compact([
+      eligibilityHatId && {
+        label: 'Eligibility Rule for this Hat',
+        hatId: eligibilityHatId,
+      },
+      {
+        label: 'Owner edits the agreement',
+        hatId: ownerHat as Hex,
+      },
+      {
+        label: 'Judge determines wearer standing',
+        hatId: judgeHat as Hex,
+      },
+    ]);
+  }, [ownerHat, judgeHat, eligibilityHatId]);
+
+  if (!eligibilityHatId) return null;
+
+  console.log(
+    typeof currentFilteredProfiles,
+    currentFilteredProfiles,
+    isEmpty(currentFilteredProfiles),
+  );
+
   return (
     <ModuleModal
       name='agreementManager'
       title='Agreement Signers'
       filters={
         <WearerFilters
-          extendedProfiles={filteredProfiles || undefined}
+          filteredProfiles={filteredProfiles}
           wearers={wearers}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
         />
       }
       about={
-        <AboutAgreement
-          eligibilityHat={eligibilityHatId}
-          ownerHat={ownerHat as Hex}
-          judgeHat={judgeHat as Hex}
+        <AboutModule
+          heading='About this Agreement'
+          moduleDescriptors={moduleDescriptors}
         />
       }
       history={<ModuleHistory />}
     >
-      <Heading size='md'>Agreement for Hat 1.2.1.2 - Hats Contributor</Heading>
+      <Heading size='md'>
+        Agreement for Hat{' '}
+        {hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))} -{' '}
+        {details?.name || hat?.details}
+      </Heading>
 
       <Flex>
         <Input
@@ -137,7 +194,7 @@ export const AgreementModal = ({
           <Divider borderColor='black' />
         </Stack>
 
-        {map(filteredProfiles, (p: AllowlistProfile) => (
+        {map(currentFilteredProfiles, (p: AllowlistProfile) => (
           <EligibilityRow
             key={p.id}
             eligibilityAccount={p}
@@ -148,6 +205,12 @@ export const AgreementModal = ({
             handleRemove={handleRemove}
           />
         ))}
+
+        {isEmpty(currentFilteredProfiles) && (
+          <Flex justify='center' align='center' w='full' h='100px'>
+            <Text color='gray.500'>No addresses found</Text>
+          </Flex>
+        )}
       </Stack>
 
       <Flex
@@ -165,14 +228,14 @@ export const AgreementModal = ({
         {!adding && !removing && (
           <Flex w='full' justify='center' align='center'>
             <HStack>
-              <Button
+              {/* <Button
                 variant='outlineMatch'
                 colorScheme='blue.500'
                 size='sm'
                 onClick={() => setAdding(true)}
               >
                 Add Address
-              </Button>
+              </Button> */}
               <Button
                 variant='outlineMatch'
                 colorScheme='red.500'

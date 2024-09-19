@@ -60,7 +60,7 @@ export const fetchWearersProfileDetails = async (
   });
 
   return get(res, `${NETWORKS_PREFIX[chainId]}_wearers`)
-    ? get(res, `${NETWORKS_PREFIX[chainId]}_wearers`)
+    ? (get(res, `${NETWORKS_PREFIX[chainId]}_wearers`, null) as Wearer[] | null)
     : null;
 };
 
