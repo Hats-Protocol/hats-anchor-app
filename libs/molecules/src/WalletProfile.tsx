@@ -34,10 +34,12 @@ const WalletProfile = ({
   address,
   name,
   avatar,
+  hideProfileButton,
 }: {
   address: Hex;
   name: string;
   avatar: string | undefined;
+  hideProfileButton?: boolean;
 }) => {
   const chainId = useChainId();
   const { transactions, setModals } = useOverlay();
@@ -101,18 +103,20 @@ const WalletProfile = ({
             <Text>{chainsMap(chainId)?.name}</Text>
           </HStack>
         </Button>
-        <ChakraNextLink
-          href={`/wearers/${address}`}
-          onClick={() => setModals?.({})}
-          w='full'
-        >
-          <Button w='100%' variant='outline'>
-            <HStack>
-              <Icon as={WearerIcon} color='blackAlpha.700' />
-              <Text>Profile</Text>
-            </HStack>
-          </Button>
-        </ChakraNextLink>
+        {hideProfileButton && (
+          <ChakraNextLink
+            href={`/wearers/${address}`}
+            onClick={() => setModals?.({})}
+            w='full'
+          >
+            <Button w='100%' variant='outline'>
+              <HStack>
+                <Icon as={WearerIcon} color='blackAlpha.700' />
+                <Text>Profile</Text>
+              </HStack>
+            </Button>
+          </ChakraNextLink>
+        )}
       </Flex>
       {!isEmpty(transactions) && (
         <Stack>

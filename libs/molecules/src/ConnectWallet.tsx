@@ -22,7 +22,7 @@ import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 import WalletProfile from './WalletProfile';
 
-const ConnectWallet = () => {
+const ConnectWallet = ({ hideProfileButton }: ConnectWalletProps) => {
   const { address } = useAccount();
   const { setModals } = useOverlay();
   const chainId = useChainId();
@@ -187,11 +187,16 @@ const ConnectWallet = () => {
             address={address as Hex}
             name={ensName || formatAddress(address)}
             avatar={ensAvatar || fallbackAvatar}
+            hideProfileButton={hideProfileButton}
           />
         )}
       </Modal>
     </>
   );
 };
+
+interface ConnectWalletProps {
+  hideProfileButton?: boolean;
+}
 
 export default ConnectWallet;
