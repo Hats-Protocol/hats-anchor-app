@@ -1,6 +1,6 @@
 {
   "name": "hats-clients",
-  "version": "2.7.2",
+  "version": "2.9.0",
   "scripts": {
     "dev": "nx run frontend:serve",
     "start": "nx run frontend:serve:production",

@@ -35,6 +35,7 @@ import {
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
 import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
+import posthog from 'posthog-js';
 import {
   FaCopy,
   FaDoorOpen,
@@ -163,6 +164,8 @@ const MoreMenu = () => {
       toast,
     });
 
+  const enableLinking = posthog.isFeatureEnabled('linking');
+
   if (!selectedHat) return null;
 
   return (
@@ -240,7 +243,7 @@ const MoreMenu = () => {
                 </MenuItem>
               </Tooltip>
 
-              {address && (
+              {address && enableLinking && (
                 <Tooltip
                   label={getDisabledReason({
                     isNotConnected: !address,

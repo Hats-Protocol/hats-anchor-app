@@ -29,7 +29,7 @@ const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
         )}
       </HStack>
 
-      <ConnectWallet />
+      <ConnectWallet hideProfileButton />
     </Flex>
   );
 };

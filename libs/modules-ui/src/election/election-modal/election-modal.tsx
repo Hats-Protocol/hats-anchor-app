@@ -106,7 +106,12 @@ export const ElectionModal = ({
       name='electionManager'
       title='Manage Election'
       filters={
-        <WearerFilters extendedProfiles={allowlistProfiles} wearers={wearers} />
+        <WearerFilters
+          filteredProfiles={{ all: allowlistProfiles }}
+          wearers={wearers}
+          activeFilter='all'
+          setActiveFilter={() => {}}
+        />
       }
       about={
         <></>
