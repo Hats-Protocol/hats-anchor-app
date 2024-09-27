@@ -54,6 +54,8 @@ import {
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
+import CustomFunction from './CustomFunction';
+
 const BoxArrowUpRightOut = dynamic(() =>
   import('icons').then((i) => i.BoxArrowUpRightOut),
 );
@@ -217,14 +219,17 @@ const ModuleAuthorityToolbar = ({
     });
   };
 
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('eligibility-modal') ||
+    process.env.NODE_ENV === 'development';
+
   return (
     <HStack wrap='wrap'>
-      {customFunction && (
-        <Tooltip label={primaryDisabledReason}>
-          <Button>Go</Button>
-        </Tooltip>
-      )}
-      {primaryFunction && !customFunction && (
+      {customFunction && eligibilityModalFlag ? (
+        <CustomFunction authority={customFunction} />
+      ) : null}
+
+      {primaryFunction && (!customFunction || !eligibilityModalFlag) && (
         <Tooltip label={primaryDisabledReason}>
           <Button
             colorScheme='blue'

@@ -6,9 +6,9 @@ import { first, pick } from 'lodash';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
-import GenericToggle from './GenericToggle';
 import PassthroughModule from './Passthrough';
 import SeasonToggle from './Season';
+import UnknownToggle from './UnknownToggle';
 
 const KnownModule = ({
   ruleSets,
@@ -47,7 +47,7 @@ const KnownModule = ({
   }
 
   return (
-    <GenericToggle
+    <UnknownToggle
       chainId={chainId}
       wearer={wearer}
       selectedHat={selectedHat}

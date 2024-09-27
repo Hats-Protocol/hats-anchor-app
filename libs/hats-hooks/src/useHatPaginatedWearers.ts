@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { sortWearers } from 'hats-utils';
 import { useState } from 'react';

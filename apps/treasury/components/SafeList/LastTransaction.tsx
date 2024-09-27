@@ -11,62 +11,33 @@ import {
 } from '@chakra-ui/react';
 import { NETWORK_CURRENCY } from '@hatsprotocol/constants';
 import { useTreasury } from 'contexts';
-import { useSafeTransactions, useTokenDetails, useTokenPrices } from 'hooks';
 import {
-  every,
-  filter,
-  find,
-  first,
-  get,
-  some,
-  toLower,
-  toUpper,
-} from 'lodash';
+  useApprovedTokens,
+  useSafeTransactions,
+  useTokenDetails,
+  useTokenPrices,
+} from 'hooks';
+import { find, first, get, toLower, toUpper } from 'lodash';
 import {
   BsFillArrowDownRightCircleFill,
   BsFillArrowUpRightCircleFill,
 } from 'react-icons/bs';
 import {
   explorerUrl,
+  filterSafeTransactions,
+  findLastInboundTransaction,
+  findLastOutboundTransaction,
   formatBalanceValue,
   formatRoundedDecimals,
   shortDateFormatter,
   symbolPriceHandler,
   tokenImageHandler,
 } from 'utils';
-import { getAddress, Hex } from 'viem';
+import { Hex } from 'viem';
 
 const TRANSACTION_TYPE = {
   inbound: 'inbound',
   outbound: 'outbound',
-};
-
-const inboundTransactions = (transactions: any, safeAddress: Hex) => {
-  return filter(
-    transactions,
-    (tx) =>
-      some(
-        tx.transfers,
-        (transfer) => transfer.to === getAddress(safeAddress),
-      ) &&
-      every(tx.transfers, (transfer) => transfer.type !== 'ERC721_TRANSFER'),
-  );
-};
-
-const outboundTransactions = (transactions: any, safeAddress: Hex) => {
-  return filter(transactions, (tx) =>
-    some(tx.transfers, (transfer) => transfer.from === getAddress(safeAddress)),
-  );
-};
-
-const findLastInboundTransaction = (transactions: any, safeAddress: Hex) => {
-  const inboundTx = inboundTransactions(transactions, safeAddress);
-  return first(inboundTx);
-};
-
-const findLastOutboundTransaction = (transactions: any, safeAddress: Hex) => {
-  const outboundTx = outboundTransactions(transactions, safeAddress);
-  return first(outboundTx);
 };
 
 const LastTransaction = ({
@@ -82,11 +53,19 @@ const LastTransaction = ({
     safeAddress,
     chainId,
   });
+  const { data: approvedTokens } = useApprovedTokens();
   const { data: prices } = useTokenPrices();
 
-  const lastInbound = findLastInboundTransaction(safeTransactions, safeAddress);
-  const lastOutbound = findLastOutboundTransaction(
+  const filteredSafeTransactions = filterSafeTransactions(
     safeTransactions,
+    approvedTokens,
+  );
+  const lastInbound = findLastInboundTransaction(
+    filteredSafeTransactions,
+    safeAddress,
+  );
+  const lastOutbound = findLastOutboundTransaction(
+    filteredSafeTransactions,
     safeAddress,
   );
   const transaction =
@@ -146,6 +125,7 @@ const LastTransaction = ({
         href={`${explorerUrl(chainId)}/tx/${get(
           transaction,
           'transactionHash',
+          get(transaction, 'txHash'),
         )}`}
       >
         <Stack align='center' spacing={0}>
@@ -155,7 +135,6 @@ const LastTransaction = ({
               price: get(priceDetails, 'priceUsd'),
               balance: BigInt(get(firstTransfer, 'value', '0')),
               decimals: get(firstTransfer, 'tokenInfo.decimals', 18),
-              startScientific: 3,
               dropDecimals: true,
             })}
           </Heading>

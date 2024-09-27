@@ -34,7 +34,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     <body>
       <div className='relative'>
         <Providers>
-          <Navbar heading='Budgets' />
+          <Navbar />
 
           <div className='w-screen'>{children}</div>
         </Providers>

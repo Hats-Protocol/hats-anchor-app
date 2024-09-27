@@ -1,5 +1,3 @@
-'use client';
-
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 // import { find } from 'lodash';
 import { idToIp } from 'shared';

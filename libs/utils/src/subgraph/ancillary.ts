@@ -141,7 +141,7 @@ const ELECTION_QUERY = gql`
   }
 `;
 
-const ancillarySubgraphClient = (chainId: SupportedChains) => {
+export const ancillarySubgraphClient = (chainId: SupportedChains) => {
   const url = ANCILLARY_API_URL[chainId];
   if (url) {
     return new GraphQLClient(url);

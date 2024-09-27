@@ -30,7 +30,7 @@ export type ModuleCreationArgs = {
 
 export interface ModuleDetails extends Module {
   id: Hex;
-  customRoles: ModuleRole[];
+  // customRoles: ModuleRole[];
   liveParameters: ModuleParameter[] | undefined;
 }
 

@@ -11,11 +11,11 @@ import ElectionEligibility from './Election';
 import Erc20Eligibility from './Erc20';
 import Erc721Eligibility from './Erc721';
 import Erc1155Eligibility from './Erc1155';
-import GenericEligibility from './GenericEligibility';
 import HatWearingEligibility from './HatWearing';
 import JokeRaceEligibility from './JokeRace';
 import PassthroughModule from './Passthrough';
 import StakingEligibility from './Staking';
+import UnknownEligibility from './UnknownEligibility';
 
 const KnownModule = ({
   moduleDetails,
@@ -28,16 +28,19 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.agreement:
       return (
         <AgreementEligibility
-          moduleDetails={moduleDetails}
-          chainId={chainId}
-          wearer={wearer}
           selectedHat={selectedHat}
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleParameters}
+          wearer={wearer}
+          chainId={chainId}
         />
       );
     case ELIGIBILITY_MODULES.allowlist:
       return (
         <AllowlistEligibility
           selectedHat={selectedHat}
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleParameters}
           wearer={wearer}
           chainId={chainId}
         />
@@ -45,88 +48,88 @@ const KnownModule = ({
     case ELIGIBILITY_MODULES.election:
       return (
         <ElectionEligibility
-          moduleDetails={moduleDetails}
-          // parameters={parameters}
-          chainId={chainId}
-          wearer={wearer}
           selectedHat={selectedHat}
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleParameters}
+          wearer={wearer}
+          chainId={chainId}
         />
       );
     case ELIGIBILITY_MODULES.erc1155:
       return (
         <Erc1155Eligibility
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
-          chainId={chainId}
           wearer={wearer}
-          selectedHat={selectedHat}
+          chainId={chainId}
         />
       );
     case ELIGIBILITY_MODULES.erc20:
       return (
         <Erc20Eligibility
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
-          chainId={chainId}
           wearer={wearer}
-          selectedHat={selectedHat}
+          chainId={chainId}
         />
       );
     case ELIGIBILITY_MODULES.erc721:
       return (
         <Erc721Eligibility
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
-          chainId={chainId}
           wearer={wearer}
-          selectedHat={selectedHat}
+          chainId={chainId}
         />
       );
     case ELIGIBILITY_MODULES.hatWearing:
       return (
         <HatWearingEligibility
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
-          chainId={chainId}
           wearer={wearer}
-          selectedHat={selectedHat}
+          chainId={chainId}
         />
       );
     case ELIGIBILITY_MODULES.jokerace:
       return (
         <JokeRaceEligibility
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
-          chainId={chainId}
           wearer={wearer}
-          selectedHat={selectedHat}
+          chainId={chainId}
         />
       );
     case ELIGIBILITY_MODULES.passthrough:
       return (
         <PassthroughModule
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
-          chainId={chainId}
           wearer={wearer}
-          selectedHat={selectedHat}
+          chainId={chainId}
           moduleType={CONTROLLER_TYPES.eligibility}
         />
       );
     case ELIGIBILITY_MODULES.staking:
       return (
         <StakingEligibility
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           moduleParameters={moduleParameters}
-          chainId={chainId}
           wearer={wearer}
-          selectedHat={selectedHat}
+          chainId={chainId}
         />
       );
   }
 
   return (
-    <GenericEligibility
+    <UnknownEligibility
       chainId={chainId}
       wearer={wearer}
       selectedHat={selectedHat}

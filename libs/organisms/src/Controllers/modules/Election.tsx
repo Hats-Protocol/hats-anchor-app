@@ -1,9 +1,13 @@
 'use client';
 
+import { Button } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
+import { ElectionModal } from 'modules-ui';
+import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
@@ -15,10 +19,12 @@ import EligibilityRule from './EligibilityRule';
 
 const ElectionEligibility = ({
   moduleDetails,
+  moduleParameters,
   chainId,
   wearer,
   selectedHat,
 }: ModuleDetailsHandler) => {
+  const { setModals } = useOverlay();
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
     selectedHat,
@@ -31,24 +37,50 @@ const ElectionEligibility = ({
   );
   const hatId = get(selectedHat, 'id', '0');
 
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('eligibility-modal') ||
+    process.env.NODE_ENV === 'development';
+
+  if (!moduleDetails) return null;
+
   return (
-    <EligibilityRule
-      rule={
-        <ChakraNextLink
-          href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(
-            BigInt(hatId),
-          )}`}
-          decoration
-        >
-          Be elected by voters
-        </ChakraNextLink>
-      }
-      status={
-        isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible
-      }
-      displayStatus={isEligible ? 'Elected' : 'Not Elected'}
-      icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
-    />
+    <>
+      <ElectionModal
+        eligibilityHatId={selectedHat?.id}
+        moduleInfo={{ ...moduleDetails, liveParameters: moduleParameters }}
+      />
+
+      <EligibilityRule
+        rule={
+          eligibilityModalFlag ? (
+            <Button
+              onClick={() => {
+                setModals?.({ electionManager: true });
+              }}
+              variant='link'
+            >
+              Be elected by voters
+            </Button>
+          ) : (
+            <ChakraNextLink
+              href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(
+                BigInt(hatId),
+              )}`}
+              decoration
+            >
+              Be elected by voters
+            </ChakraNextLink>
+          )
+        }
+        status={
+          isEligible
+            ? ELIGIBILITY_STATUS.eligible
+            : ELIGIBILITY_STATUS.ineligible
+        }
+        displayStatus={isEligible ? 'Elected' : 'Not Elected'}
+        icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
+      />
+    </>
   );
 };
 
