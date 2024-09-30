@@ -56,7 +56,7 @@ export const Conditions = ({
             }
             borderBottom='1px solid var(--gray-500, #718096)'
           >
-            <Box fontSize='sm'>Comply with all Rules to claim this Hat</Box>
+            <Box>Comply with all Rules to claim this Hat</Box>
             <AccordionIcon />
             {/* {isSignAgreementLoading ? (
               <Spinner size='sm' color='blue.500' />
@@ -69,15 +69,10 @@ export const Conditions = ({
           </AccordionButton>
           <AccordionPanel>
             <HStack w='full' justifyContent='space-between'>
-              <Box fontSize='sm'>
+              <Box>
                 Sign the{' '}
                 {agreementIsLink ? (
-                  <Button
-                    onClick={onOpen}
-                    colorScheme='blue'
-                    variant='link'
-                    fontSize='sm'
-                  >
+                  <Button onClick={onOpen} colorScheme='blue' variant='link'>
                     Agreement
                   </Button>
                 ) : (

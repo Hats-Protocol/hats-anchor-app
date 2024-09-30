@@ -15,7 +15,7 @@ import { NETWORK_IMAGES } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
-import { isEmpty, size } from 'lodash';
+import { each, isEmpty, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
@@ -29,6 +29,13 @@ import TransactionHistory from './TransactionHistory';
 
 const CopyAddress = dynamic(() => import('icons').then((i) => i.CopyAddress));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
+
+const WAGMI_STORAGE_KEYS = [
+  'wagmi.injected.connected',
+  'wagmi.injected.disconnected',
+  'wagmi.recentConnectorId',
+  'wagmi.store',
+];
 
 const WalletProfile = ({
   address,
@@ -63,6 +70,10 @@ const WalletProfile = ({
   const handleDisconnect = () => {
     setModals?.({});
     disconnect();
+    each(WAGMI_STORAGE_KEYS, (key) => {
+      localStorage.removeItem(key);
+    });
+    window.location.reload();
   };
 
   return (

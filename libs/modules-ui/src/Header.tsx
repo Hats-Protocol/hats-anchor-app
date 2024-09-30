@@ -17,7 +17,7 @@ import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { useClipboard, useMediaStyles, useToast } from 'hooks';
+import { useClipboard, useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { hatLink } from 'utils';
@@ -31,7 +31,6 @@ const ChakraNextLink = dynamic(() =>
 const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
 const Header = () => {
-  const toast = useToast();
   const { address } = useAccount();
   const { chainId, selectedHat, selectedHatDetails } = useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string, {
@@ -107,21 +106,16 @@ const Header = () => {
               </Heading>
             </Tooltip>
 
-            <HStack>
-              <Text color='blue.500' fontSize='xs'>
+            <HStack spacing={1}>
+              <Text color='blue.500'>
                 {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
               </Text>
               <Icon
                 as={CopyHash}
                 color='blue.500'
                 cursor='pointer'
-                h='12px'
-                onClick={() => {
-                  onCopy();
-                  toast.info({
-                    title: 'Successfully copied hat ID to clipboard',
-                  });
-                }}
+                h={4}
+                onClick={onCopy}
               />
             </HStack>
           </HStack>

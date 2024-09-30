@@ -16,6 +16,7 @@ const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
 const AgreementContent = dynamic(() =>
   import('modules-ui').then((mod) => mod.AgreementContent),
 );
+const HatDeco = dynamic(() => import('ui').then((mod) => mod.HatDeco));
 
 const AgreementV0 = () => {
   const [agreement, setAgreement] = useState('');
@@ -34,8 +35,8 @@ const AgreementV0 = () => {
   return (
     <Layout title='Claims'>
       <Stack
-        px={{ base: 6, md: 10, lg: 20 }}
-        py={120}
+        px={{ base: 0, md: 10, lg: 20 }}
+        py={{ base: 0, md: 120 }}
         gap={{ base: 10, md: 20 }}
       >
         <Flex maxW='100%' justifyContent='center'>
@@ -48,10 +49,11 @@ const AgreementV0 = () => {
             lg: 20,
           }}
           direction={{ base: 'column', md: 'row' }}
+          px={{ base: 4, md: 0 }}
         >
           <Box
             py={5}
-            px={10}
+            px={{ base: 4, md: 10 }}
             h='50%'
             maxH='600px'
             overflowY='scroll'
@@ -62,7 +64,13 @@ const AgreementV0 = () => {
             <AgreementContent agreement={agreement} />
           </Box>
 
-          <ClaimHat agreement={agreement} />
+          <Box px={{ base: 4, md: 0 }} w={{ base: '100%', md: '30%' }}>
+            <ClaimHat agreement={agreement} />
+          </Box>
+
+          <Box display={{ base: 'block', md: 'none' }}>
+            <HatDeco />
+          </Box>
         </Flex>
       </Stack>
     </Layout>
