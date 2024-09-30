@@ -96,19 +96,21 @@ export const HatFormContextProvider = ({
   });
   const { watch, reset } = pick(localForm, ['watch', 'reset', 'setValue']);
 
-  const { modulesAuthorities, isLoading: ancillaryModulesLoading } =
+  const { modulesAuthorities, isLoading: isLoadingModulesAuthorities } =
     useAncillaryModules({
       id: selectedHat?.id,
       chainId,
       editMode: false,
       tree: orgChartTree,
     });
-  const { data: guildRoles, isLoading: guildRolesLoading } = useHatGuildRoles({
-    hatId: selectedHat?.id,
-    guildData,
-    chainId,
-  });
-  const { data: snapshotRoles, isLoading: snapshotRolesLoading } =
+  const { data: guildRoles, isLoading: isLoadingGuildRoles } = useHatGuildRoles(
+    {
+      hatId: selectedHat?.id,
+      guildData,
+      chainId,
+    },
+  );
+  const { data: snapshotRoles, isLoading: isLoadingSnapshotRoles } =
     useHatSnapshotRoles({
       hatId: selectedHat?.id,
       spaces: snapshotData,
@@ -209,17 +211,17 @@ export const HatFormContextProvider = ({
     ['maxSupply', 'eligibility', 'toggle', 'mutable', 'imageUrl', 'details'],
   );
 
-  // get default form values
-  const defaultFormValues = useMemo<FormData>(() => {
+  const combinedAuthorities = useMemo(() => {
     if (
-      isDraft ||
-      ancillaryModulesLoading ||
-      hatLoading ||
-      treeIsLoading ||
-      guildRolesLoading ||
-      snapshotRolesLoading
+      isLoadingModulesAuthorities ||
+      isLoadingGuildRoles ||
+      isLoadingSnapshotRoles
     ) {
-      return EMPTY_FORM_VALUES;
+      return undefined;
+    }
+
+    if (isDraft) {
+      return initialAuthorities;
     }
 
     // mesh authorities from details with automatic authorities
@@ -229,6 +231,28 @@ export const HatFormContextProvider = ({
       spaces: snapshotRoles,
       modulesAuthorities,
     });
+    return authorities;
+  }, [
+    initialAuthorities,
+    guildRoles,
+    snapshotRoles,
+    modulesAuthorities,
+    isDraft,
+    isLoadingModulesAuthorities,
+    isLoadingGuildRoles,
+    isLoadingSnapshotRoles,
+  ]);
+
+  // get default form values
+  const defaultFormValues = useMemo<FormData>(() => {
+    if (
+      isDraft ||
+      isLoadingModulesAuthorities ||
+      isLoadingGuildRoles ||
+      isLoadingSnapshotRoles
+    ) {
+      return EMPTY_FORM_VALUES;
+    }
 
     return {
       id: selectedHat?.id || '0x',
@@ -251,12 +275,13 @@ export const HatFormContextProvider = ({
       deactivationsCriteria: initialToggle?.criteria ?? [],
       name: initialName && initialName !== '' ? initialName : details || '',
       description: initialDescription || '',
-      authorities: authorities ?? [],
+      authorities: combinedAuthorities ?? [],
       responsibilities: initialResponsibilities ?? [],
       guilds: initialGuilds ?? [],
       spaces: initialSpaces ?? [],
       wearers: [],
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedHat?.id,
     maxSupply,
@@ -271,7 +296,6 @@ export const HatFormContextProvider = ({
     initialToggle?.manual,
     initialName,
     initialDescription,
-    initialAuthorities,
     initialResponsibilities,
     initialGuilds,
     initialSpaces,
@@ -280,9 +304,9 @@ export const HatFormContextProvider = ({
     snapshotRoles,
     treeIsLoading,
     hatLoading,
-    guildRolesLoading,
-    snapshotRolesLoading,
-    ancillaryModulesLoading,
+    isLoadingModulesAuthorities,
+    isLoadingGuildRoles,
+    isLoadingSnapshotRoles,
     // ! modulesAuthorities, causes infinite re-render
   ]);
 
@@ -405,11 +429,11 @@ export const HatFormContextProvider = ({
       setFormLoading,
       isLoading:
         formLoading ||
-        ancillaryModulesLoading ||
+        isLoadingModulesAuthorities ||
         hatLoading ||
         treeIsLoading ||
-        guildRolesLoading ||
-        snapshotRolesLoading,
+        isLoadingGuildRoles ||
+        isLoadingSnapshotRoles,
 
       // helpers
       getDirtyFieldsForAccordion,
@@ -425,11 +449,11 @@ export const HatFormContextProvider = ({
       debouncedFormValues,
       formLoading,
       setFormLoading,
-      ancillaryModulesLoading,
+      isLoadingModulesAuthorities,
       hatLoading,
       treeIsLoading,
-      guildRolesLoading,
-      snapshotRolesLoading,
+      isLoadingGuildRoles,
+      isLoadingSnapshotRoles,
 
       // helpers
       getDirtyFieldsForAccordion,

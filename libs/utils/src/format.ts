@@ -1,7 +1,18 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { format } from 'date-fns';
-import { eq, findIndex, map, round, toLower, toNumber, toString } from 'lodash';
+import {
+  eq,
+  find,
+  findIndex,
+  get,
+  map,
+  round,
+  size,
+  toLower,
+  toNumber,
+  toString,
+} from 'lodash';
 import { formatUnits, Hex } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
@@ -59,9 +70,7 @@ export const hatLink = ({
 }) => {
   if (!chainId || !hatId) return '#';
   const treeId = hatIdToTreeId(BigInt(hatId));
-  return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}${
-    isMobile ? '/' : '?hatId='
-  }${hatIdDecimalToIp(BigInt(hatId))}`;
+  return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}${isMobile ? '/' : '?hatId='}${hatIdDecimalToIp(BigInt(hatId))}`;
 };
 
 export const generateLocalStorageKey = (
@@ -116,7 +125,7 @@ export function getHostnameFromURL(urlString?: string) {
 export const formatScientificWhole = (amount: number): string => {
   if (toNumber(amount) > 999) {
     const rounds = [1_000_000_000, 1_000_000, 1_000];
-    const formatString = [`e9`, `e6`, `k`];
+    const formatString = [`bn`, `mm`, `k`];
     const amountRounded = map(rounds, (r: number) =>
       round(toNumber(amount) / r, 0),
     );
@@ -127,14 +136,31 @@ export const formatScientificWhole = (amount: number): string => {
   return toString(amount);
 };
 
+const shortHandAbbreviations = [
+  {
+    value: 1_000_000_000,
+    abbrev: 'b',
+  },
+  {
+    value: 1_000_000,
+    abbrev: 'm',
+  },
+  {
+    value: 1_000,
+    abbrev: 'k',
+  },
+];
+
 export const formatRound = ({
   value,
   rounded = 2,
-  startScientific = 7,
+  shortHand = 5,
+  startScientific = 9,
   dropDecimals = false,
 }: {
   value: string | undefined;
   rounded?: number;
+  shortHand?: number;
   startScientific?: number;
   dropDecimals?: boolean;
 }) => {
@@ -144,10 +170,20 @@ export const formatRound = ({
 
   const scientificWhole = formatScientificWhole(toNumber(whole));
   const formattedWhole = commify(whole);
+  console.log(value, { whole, formattedWhole, roundedFraction, rounded });
 
   if (!roundedFraction || roundedFraction === '00' || dropDecimals) {
     if (whole.length > startScientific) return scientificWhole;
     return formattedWhole;
+  }
+
+  if (whole.length > shortHand) {
+    const shortHandAbbrev = find(
+      shortHandAbbreviations,
+      (s) => toNumber(whole) > s.value,
+    );
+    const shortAbbrevLength = size(toString(get(shortHandAbbrev, 'value'))) - 1;
+    return `${whole.slice(0, shortAbbrevLength)}${shortHandAbbrev?.abbrev}`;
   }
 
   if (whole.length > startScientific) {

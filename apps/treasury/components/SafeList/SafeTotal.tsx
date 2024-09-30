@@ -52,8 +52,6 @@ const SafeTotal = ({ safeAddress }: { safeAddress: Hex }) => {
         $
         {formatRound({
           value: toString(total),
-          startScientific: 4,
-          dropDecimals: true,
         })}
       </Heading>
     </Stack>

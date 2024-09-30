@@ -2,19 +2,18 @@
 
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { useHatDetails, useWearersControllersDetails } from 'hats-hooks';
+import { useHatDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
 import _ from 'lodash';
 import { useAncillaryElection, useModuleDetails } from 'modules-hooks';
 import { createContext, useContext, useMemo } from 'react';
-import { AppHat, HatDetails, HatWearer, SupportedChains } from 'types';
+import { AppHat, HatDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 export interface EligibilityContextProps {
   chainId: SupportedChains | undefined;
   selectedHat: AppHat | null | undefined;
   selectedHatDetails: HatDetails | undefined;
-  wearersAndControllers: HatWearer[] | undefined;
   moduleDetails: Module | undefined;
   moduleParameters: ModuleParameter[] | undefined;
   controllerAddress: Hex | undefined;
@@ -27,7 +26,6 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   chainId: undefined,
   selectedHat: undefined,
   selectedHatDetails: undefined,
-  wearersAndControllers: undefined,
   moduleDetails: undefined,
   moduleParameters: undefined,
   controllerAddress: undefined,
@@ -48,10 +46,6 @@ export const EligibilityContextProvider = ({
   const { data: selectedHat, details: hatDetails } = useHatDetails({
     chainId,
     hatId,
-  });
-
-  const wearersAndControllers = useWearersControllersDetails({
-    hats: selectedHat ? [selectedHat] : [],
   });
 
   const controllerAddress = _.get(
@@ -83,7 +77,6 @@ export const EligibilityContextProvider = ({
       chainId,
       selectedHat: _.first(selectedHatWithImageUrl) || selectedHat,
       selectedHatDetails: hatDetails,
-      wearersAndControllers,
       moduleDetails,
       moduleParameters,
       controllerAddress,
@@ -96,7 +89,6 @@ export const EligibilityContextProvider = ({
       hatDetails,
       selectedHatWithImageUrl,
       selectedHat,
-      wearersAndControllers,
       moduleDetails,
       moduleParameters,
       controllerAddress,

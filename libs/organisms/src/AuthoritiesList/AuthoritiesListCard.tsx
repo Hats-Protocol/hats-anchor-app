@@ -327,6 +327,7 @@ const AuthoritiesListCard = ({
                     </Box>
                   )}
                   {type !== AUTHORITY_TYPES.modules &&
+                    description &&
                     (typeof description === 'string' ? (
                       <Box>
                         <Markdown>{description}</Markdown>

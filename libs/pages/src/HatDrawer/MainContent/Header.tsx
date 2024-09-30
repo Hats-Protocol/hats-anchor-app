@@ -156,11 +156,13 @@ const Header = () => {
           </Skeleton>
           {levelAtLocalTree > 0 && (
             <>
-              <Badge
-                colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
-              >
-                {activeStatus}
-              </Badge>
+              <Skeleton isLoaded={!hatLoading && !!activeStatus}>
+                <Badge
+                  colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+                >
+                  {activeStatus}
+                </Badge>
+              </Skeleton>
               <Badge>Level {levelAtLocalTree}</Badge>
             </>
           )}

@@ -14,8 +14,8 @@ import {
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _, { lte } from 'lodash';
-import { useAgreementEligibility } from 'modules-hooks';
+import { includes, lte, map, toLower, toNumber } from 'lodash';
+import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { hatLink } from 'utils';
@@ -46,7 +46,7 @@ const Conditions = dynamic(() =>
 const Agreement = () => {
   const { isMobile } = useMediaStyles();
   const { moduleParameters, selectedHat, chainId } = useEligibility();
-  const { agreement } = useAgreementEligibility({
+  const { agreement } = useAgreementClaim({
     moduleParameters,
   });
   const { address } = useAccount();
@@ -55,13 +55,12 @@ const Agreement = () => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const isWearing = useMemo(
-    () => _.includes(_.map(selectedHat?.wearers, 'id'), _.toLower(address)),
+    () => includes(map(selectedHat?.wearers, 'id'), toLower(address)),
     [selectedHat, address],
   );
   const hasSupply = useMemo(
     () =>
-      _.toNumber(selectedHat?.maxSupply) -
-        _.toNumber(selectedHat?.currentSupply) >
+      toNumber(selectedHat?.maxSupply) - toNumber(selectedHat?.currentSupply) >
       0,
     [selectedHat],
   );

@@ -1,9 +1,10 @@
 export * from './agreement';
-export * from './buidl';
-export * from './details';
+export * from './allowlist';
 export * from './election';
 export { default as Header } from './Header';
-export { default as HSGDetails } from './HSGDetails';
-export { default as ModuleDetails } from './ModuleDetails';
-export { default as ModuleParameters } from './ModuleParameters';
+export * from './hsg';
+export * from './joke-race';
+export * from './module-card-details';
+export * from './module-modal';
 export { default as SlimModuleDetails } from './SlimModuleDetails';
+export * from './staking';

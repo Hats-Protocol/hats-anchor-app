@@ -5,6 +5,7 @@ import {
   AccordionButton,
   AccordionItem,
   AccordionPanel,
+  Box,
   Flex,
   HStack,
   Icon,
@@ -170,10 +171,10 @@ const AdminWearersPanel = () => {
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
                 <Flex justify='space-between' py={2} px={4} width='100%'>
-                  <Text>
+                  <Box>
                     Admins can edit this Hat
                     {!isClaimable?.for ? ' and choose Wearers' : ''}
-                  </Text>
+                  </Box>
 
                   <WearerBreakdown
                     wearers={admins}

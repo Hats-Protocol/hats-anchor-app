@@ -1,6 +1,8 @@
 'use client';
 
 import {
+  Alert,
+  AlertIcon,
   Button,
   Flex,
   Heading,
@@ -139,8 +141,17 @@ const ImportTreeForm = () => {
         Any local changes in your workspace will be overwritten and cannot be
         restored. Make sure to export these changes before importing.
       </Text>
+
+      <Alert status='info'>
+        <AlertIcon />
+        Wearers are not considered on import due to mechanistic eligibility.
+        Upload new wearers separately.
+      </Alert>
+
       <Stack>
-        <Heading fontSize='xs'>UPLOAD JSON FILE</Heading>
+        <Heading fontSize='xs' textTransform='uppercase'>
+          Upload JSON File
+        </Heading>
         <Text>
           Add a JSON file exported by you or someone else in your organization
         </Text>

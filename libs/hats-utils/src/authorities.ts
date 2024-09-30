@@ -29,7 +29,7 @@ export const combineAuthorities = ({
   spaces: Authority[] | undefined;
   modulesAuthorities: Authority[] | undefined;
 }): { data: Authority[] | undefined } => {
-  if (!modulesAuthorities) return { data: undefined };
+  if (!modulesAuthorities) return { data: authorities };
   const socialAuthorities = _.map(authorities, (authority: Authority) => ({
     ...authority,
     type: AUTHORITY_TYPES.manual as AuthorityType,

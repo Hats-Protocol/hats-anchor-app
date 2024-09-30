@@ -194,7 +194,7 @@ function OrgChartComponent() {
                   id: data.data.id,
                 },
                 imageUri: '',
-                imageUrl: '/icon.jpeg',
+                imageUrl: data.data.imageUrl,
                 parentId: data.data.id,
                 name: nextChildId,
                 detailsObject: {

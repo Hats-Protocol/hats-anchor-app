@@ -13,7 +13,7 @@ import {
 import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { isEmpty, map, take } from 'lodash';
 import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
 import { Transaction } from 'types';
 import { ChakraNextLink } from 'ui';
@@ -90,7 +90,7 @@ const TransactionHistory = ({
   let events = transactions || allTransactions;
 
   if (count) {
-    events = _.take(transactions, count);
+    events = take(transactions, count);
   }
 
   if (events.length === 0) {
@@ -118,14 +118,14 @@ const TransactionHistory = ({
               variant='outlineMatch'
               colorScheme='blue.500'
               onClick={clearAllTransactions}
-              isDisabled={_.isEmpty(transactions)}
+              isDisabled={isEmpty(events)}
             >
               Clear
             </Button>
           </Flex>
         )}
 
-        {_.map(
+        {map(
           events,
           ({
             hash,
