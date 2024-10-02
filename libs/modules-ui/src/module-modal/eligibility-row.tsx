@@ -50,10 +50,10 @@ export const EligibilityRow = ({
 }: {
   eligibilityAccount: AllowlistProfile;
   wearers: HatWearer[] | undefined;
-  removing: boolean;
-  removeList: AllowlistProfile[] | undefined;
-  handleAdd: (account: Hex) => void;
-  handleRemove: (address: Hex) => void;
+  removing?: boolean;
+  removeList?: AllowlistProfile[] | undefined;
+  handleAdd?: (account: Hex) => void;
+  handleRemove?: (address: Hex) => void;
 }) => {
   const { address } = useAccount();
   const { data: ensAvatar } = useEnsAvatar({
@@ -70,9 +70,9 @@ export const EligibilityRow = ({
 
   const handleRemoveToggle = useCallback(() => {
     if (isChecked) {
-      handleRemove(eligibilityAccount.id);
+      handleRemove?.(eligibilityAccount.id);
     } else {
-      handleAdd(eligibilityAccount.id);
+      handleAdd?.(eligibilityAccount.id);
     }
   }, [isChecked, handleAdd, handleRemove, eligibilityAccount.id]);
 

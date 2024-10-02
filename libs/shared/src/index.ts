@@ -123,6 +123,7 @@ export function ipToHatId(id: string | undefined): Hex {
   return hatIdDecimalToHex(hatIdIpToDecimal(id));
 }
 
+// TODO move to utils
 export const getDefaultAdminId = (hatId: string) => {
   const currentIpId = hatIdDecimalToIp(BigInt(hatId));
   const splitIpId = _.split(currentIpId, '.');

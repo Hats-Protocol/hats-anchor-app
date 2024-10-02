@@ -41,7 +41,7 @@ const WalletProfile = ({
   address,
   name,
   avatar,
-  hideProfileButton,
+  hideProfileButton = false,
 }: {
   address: Hex;
   name: string;
@@ -114,7 +114,7 @@ const WalletProfile = ({
             <Text>{chainsMap(chainId)?.name}</Text>
           </HStack>
         </Button>
-        {hideProfileButton && (
+        {!hideProfileButton && (
           <ChakraNextLink
             href={`/wearers/${address}`}
             onClick={() => setModals?.({})}

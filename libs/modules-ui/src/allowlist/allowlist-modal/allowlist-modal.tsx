@@ -135,7 +135,7 @@ export const AllowlistModal = ({
   console.log('isOwner', isOwner, 'isJudge', isJudge);
 
   const filteredProfiles = filterProfiles({
-    allowlistProfiles,
+    profiles: allowlistProfiles,
     wearerIds: map(wearers, (wearer) => wearer.id),
   });
 

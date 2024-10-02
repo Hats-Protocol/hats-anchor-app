@@ -1,40 +1,45 @@
 'use client';
 
 import {
+  Box,
   Button,
-  Card,
   Divider,
   Flex,
   Heading,
   HStack,
+  Icon,
   Stack,
   Text,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { AddressInput, Input } from 'forms';
-import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import {
-  compact,
-  concat,
-  find,
-  isEmpty,
-  map,
-  // pick,
-  reject,
-  size,
-  subtract,
-  toString,
-} from 'lodash';
-import { useAllowlist } from 'modules-hooks';
-import { useCallback, useMemo, useState } from 'react';
+  AddressInput,
+  DatePicker,
+  DurationInput,
+  Input,
+  NumberInput,
+} from 'forms';
+import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
+import { useClipboard } from 'hooks';
+import { compact, find, map, pick, toNumber } from 'lodash';
+import { useJokeRace } from 'modules-hooks';
+import dynamic from 'next/dynamic';
+import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { filterProfiles, formatAddress } from 'utils';
+import {
+  filterProfiles,
+  formatAddress,
+  getJokeRaceModuleParameters,
+  shortDateFormatter,
+} from 'utils';
 import { Hex } from 'viem';
+import { useReadContracts, useWriteContract } from 'wagmi';
 
 import {
   AboutModule,
+  DevInfo,
   EligibilityRow,
   FILTER,
   Filter,
@@ -42,6 +47,10 @@ import {
   ModuleModal,
   WearerFilters,
 } from '../../module-modal';
+
+const CopyAddress = dynamic(() =>
+  import('icons').then((icons) => icons.CopyAddress),
+);
 
 export const JokeRaceModal = ({
   eligibilityHatId,
@@ -51,64 +60,86 @@ export const JokeRaceModal = ({
   moduleInfo: ModuleDetails;
 }) => {
   const { chainId } = useTreeForm();
-  const localForm = useForm();
-  const [adding, setAdding] = useState(false);
-  const [removing, setRemoving] = useState(false);
-  const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
+  const localForm = useForm({
+    defaultValues: {
+      contestAddress: undefined,
+      termEnd: undefined,
+      transitionPeriod: 18000,
+      topK: 1,
+    },
+  });
+  const [managingNextTerm, setManagingNextTerm] = useState(false);
   const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.HUMANISTIC);
-  // const { watch } = pick(localForm, ['watch']);
+  const { writeContractAsync } = useWriteContract();
+  const { watch } = pick(localForm, ['watch']);
 
   const { data: hat, details } = useHatDetails({
     hatId: eligibilityHatId,
     chainId,
   });
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
+  const values = watch();
 
   // const searchInput = watch('search');
   // const addresses = watch('addresses');
-  const { data: allowlist } = useAllowlist({
-    id: moduleInfo.id,
+  const { data: jokeRaceDetails } = useJokeRace({
+    moduleId: moduleInfo.id,
     chainId,
   });
+  const { data: eligibilityData } = useReadContracts({
+    contracts: [
+      {
+        address: moduleInfo.id,
+        chainId,
+        abi: moduleInfo.abi,
+        functionName: 'canStartNextTerm',
+      },
+      // {
+      //   address: moduleInfo.id,
+      //   chainId,
+      //   abi: moduleInfo.abi,
+      //   functionName: 'currentTermEnded',
+      // },
+      // {
+      //   address: moduleInfo.id,
+      //   chainId,
+      //   abi: moduleInfo.abi,
+      //   functionName: 'currentTermIndex',
+      // },
+    ],
+  });
+
+  const [canStartNextTerm] = map(eligibilityData, 'result') || [];
+
   const { data: profileDetails } = useProfileDetails({
-    addresses: map(allowlist, (wearer) => get(wearer, 'address')),
+    addresses: get(jokeRaceDetails, 'currentTerm.winners', []),
     chainId,
   });
-  const allowlistProfiles = map(allowlist, (wearer: object) => {
-    const profile = find(profileDetails, { id: get(wearer, 'address') });
-    return {
-      ...wearer,
-      ...profile,
-    };
-  }) as AllowlistProfile[];
+  const jokeRaceProfiles = map(
+    get(jokeRaceDetails, 'currentTerm.winners', []),
+    (wearer: string) => {
+      const profile = find(profileDetails, { id: get(wearer, 'address') });
+      return {
+        id: wearer,
+        ...profile,
+      };
+    },
+  ) as AllowlistProfile[];
   const liveParams = get(moduleInfo, 'liveParameters');
-  const ownerHat = toString(
-    get(find(liveParams, { label: 'Owner Hat' }), 'value'),
-  );
-  const judgeHat = toString(
-    get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
-  );
+  const { contestAddress, topK, termEnd, adminHat } =
+    getJokeRaceModuleParameters({
+      moduleParameters: liveParams,
+      jokeRaceDetails: jokeRaceDetails || undefined,
+    });
+
+  const { onCopy: copyContest } = useClipboard(contestAddress, {
+    toastData: { title: 'Contest Address Copied' },
+  });
 
   const filteredProfiles = filterProfiles({
-    allowlistProfiles,
+    profiles: jokeRaceProfiles,
     wearerIds: map(wearers, (wearer) => wearer.id),
   });
-
-  const handleAdd = useCallback(
-    (address: Hex) => {
-      const profile = find(allowlistProfiles, { id: address });
-      if (!profile) return;
-      setRemoveList(concat(removeList, [profile]));
-    },
-    [removeList, allowlistProfiles],
-  );
-
-  const handleRemove = useCallback(
-    (address: Hex) => {
-      setRemoveList(reject(removeList, (p) => p.id === address));
-    },
-    [removeList],
-  );
 
   const moduleDescriptors = useMemo(() => {
     return compact([
@@ -117,15 +148,82 @@ export const JokeRaceModal = ({
         hatId: eligibilityHatId,
       },
       {
-        label: 'Owner edits the allowlist',
-        hatId: ownerHat as Hex,
+        label: 'Admin creates new terms',
+        hatId: adminHat,
       },
-      {
-        label: 'Judge determines wearer standing',
-        hatId: judgeHat as Hex,
+      topK && {
+        label: 'Top K',
+        descriptor: <div className='text-sm'>{topK}</div>,
+      },
+      termEnd && {
+        label: 'Term End',
+        descriptor: (
+          <div className='text-sm'>
+            {shortDateFormatter(toNumber(termEnd?.toString()) * 1000)}
+          </div>
+        ),
       },
     ]);
-  }, [ownerHat, judgeHat, eligibilityHatId]);
+  }, [adminHat, eligibilityHatId, topK, termEnd]);
+
+  const devInfo = useMemo(() => {
+    return compact([
+      contestAddress && {
+        label: 'Contest Address',
+        descriptor: (
+          <Button
+            onClick={copyContest}
+            variant='link'
+            size='sm'
+            rightIcon={<Icon as={CopyAddress} />}
+          >
+            {formatAddress(contestAddress as Hex)}
+          </Button>
+        ),
+      },
+    ]);
+  }, [contestAddress, copyContest]);
+
+  const handleStartNextTerm = async () => {
+    return writeContractAsync({
+      address: moduleInfo.id,
+      chainId,
+      abi: moduleInfo.abi,
+      functionName: 'startNextTerm',
+    })
+      .then((data) => {
+        console.log('data', data);
+
+        // TODO handle success
+      })
+      .catch((error) => {
+        console.log('error', error);
+      });
+  };
+
+  const canSetNextTerm = useMemo(() => {
+    // TODO check errors
+    return true;
+  }, []);
+
+  const handleSetTerm = async () => {
+    const {
+      contestAddress: newContestAddress,
+      termEnd: newTermEnd,
+      transitionPeriod: newTransitionPeriod,
+      topK: newTopK,
+    } = pick(values, ['contestAddress', 'termEnd', 'transitionPeriod', 'topK']);
+
+    const tx = await writeContractAsync({
+      address: moduleInfo.id,
+      chainId,
+      abi: moduleInfo.abi,
+      functionName: 'setNextTerm',
+      args: [newContestAddress, newTermEnd, newTransitionPeriod, newTopK],
+    });
+
+    // TODO handle success
+  };
 
   if (!eligibilityHatId || !hat) return null;
 
@@ -148,6 +246,7 @@ export const JokeRaceModal = ({
         />
       }
       history={<ModuleHistory />}
+      devInfo={<DevInfo moduleDescriptors={devInfo} />}
     >
       <Heading size='md'>
         JokeRace Election for Hat{' '}
@@ -175,15 +274,7 @@ export const JokeRaceModal = ({
         </Stack>
 
         {map(filteredProfiles[activeFilter], (p: AllowlistProfile) => (
-          <EligibilityRow
-            key={p.id}
-            eligibilityAccount={p}
-            wearers={wearers}
-            removing={removing}
-            removeList={removeList}
-            handleAdd={handleAdd}
-            handleRemove={handleRemove}
-          />
+          <EligibilityRow key={p.id} eligibilityAccount={p} wearers={wearers} />
         ))}
       </Stack>
 
@@ -199,103 +290,94 @@ export const JokeRaceModal = ({
         borderColor='blackAlpha.200'
         py={{ base: 4, md: 10 }}
       >
-        {!adding && !removing && (
+        {!managingNextTerm && (
           <Flex w='full' justify='center' align='center'>
             <HStack>
               <Button
                 variant='outlineMatch'
                 colorScheme='blue.500'
                 size='sm'
-                onClick={() => setAdding(true)}
+                onClick={() => setManagingNextTerm(true)}
               >
-                Add Address
+                Set Next Term
               </Button>
-              <Button
-                variant='outlineMatch'
-                colorScheme='red.500'
-                size='sm'
-                onClick={() => setRemoving(true)}
-              >
-                Remove Address
-              </Button>
+              {!!canStartNextTerm && (
+                <Button
+                  variant='outlineMatch'
+                  colorScheme='red.500'
+                  size='sm'
+                  onClick={handleStartNextTerm}
+                >
+                  Start Next Term
+                </Button>
+              )}
             </HStack>
           </Flex>
         )}
 
-        {adding && (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-            <Stack spacing={1}>
-              <Heading size='md'>Add an address</Heading>
-
-              <AddressInput
-                name='addresses'
-                chainId={chainId}
-                localForm={localForm}
-                hideAddressButtons
-              />
-            </Stack>
-
-            <Flex justify='space-between' w='full'>
-              <Button
-                size='sm'
-                variant='outlineMatch'
-                colorScheme='blue.500'
-                onClick={() => {
-                  setRemoveList([]);
-                  setAdding(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button variant='primary' size='sm'>
-                Add
-              </Button>
-            </Flex>
-          </Stack>
-        )}
-
-        {removing && (
+        {managingNextTerm && (
           <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
             <Stack spacing={4}>
-              <Heading size='md'>Addresses selected for removal</Heading>
-              <Card>
-                <Flex m={2} mx={4}>
-                  {isEmpty(removeList) ? (
-                    <Text color='gray.500'>Select an address to remove</Text>
-                  ) : (
-                    <Text>
-                      {map(
-                        removeList,
-                        (profile, index) =>
-                          `${profile.ensName || formatAddress(profile.id)}${
-                            index < subtract(size(removeList), 1) ? ', ' : ''
-                          }`,
-                      )}
-                    </Text>
-                  )}
-                </Flex>
-              </Card>
+              <Heading size='lg'>Create next term</Heading>
+
+              <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
+                <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                  <AddressInput
+                    name='contestAddress'
+                    label='Contest Address'
+                    chainId={chainId}
+                    localForm={localForm}
+                    hideAddressButtons
+                  />
+                </Box>
+
+                <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                  <NumberInput
+                    name='topK'
+                    label='Top K'
+                    localForm={localForm}
+                  />
+                </Box>
+              </Flex>
+
+              <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
+                <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                  <DatePicker
+                    name='termEnd'
+                    label='Term End'
+                    localForm={localForm}
+                  />
+                </Box>
+
+                <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                  <DurationInput
+                    name='transitionPeriod'
+                    label='Transition Period'
+                    localForm={localForm}
+                  />
+                </Box>
+              </Flex>
             </Stack>
 
             <Flex justify='space-between' w='full'>
               <Button
+                size='sm'
                 variant='outlineMatch'
                 colorScheme='blue.500'
-                size='sm'
                 onClick={() => {
-                  setRemoveList([]);
-                  setRemoving(false);
+                  setManagingNextTerm(false);
                 }}
               >
                 Cancel
               </Button>
+
               <Button
-                variant='filled'
-                colorScheme='red.500'
+                variant='primary'
                 size='sm'
-                isDisabled={isEmpty(removeList)}
+                onClick={handleSetTerm}
+                isDisabled={!canSetNextTerm}
               >
-                Remove
+                Set Term
               </Button>
             </Flex>
           </Stack>

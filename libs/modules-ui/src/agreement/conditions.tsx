@@ -67,7 +67,7 @@ export const Conditions = ({
             />
             {/* )} */}
           </AccordionButton>
-          <AccordionPanel>
+          <AccordionPanel bg='gray.50'>
             <HStack w='full' justifyContent='space-between'>
               <Box>
                 Sign the{' '}
