@@ -1,4 +1,5 @@
 import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 
 import { extendTheme } from '@chakra-ui/react';
 
@@ -47,6 +48,7 @@ const theme = extendTheme({
     inter: 'Inter Variable',
     body: "'Inter Variable', sans-serif",
     heading: "'Inter Variable', sans-serif",
+    jbMono: 'JetBrains Mono Variable, monospace',
   },
   global: {
     body: {

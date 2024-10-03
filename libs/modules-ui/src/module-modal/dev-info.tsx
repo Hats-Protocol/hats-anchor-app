@@ -25,7 +25,7 @@ export const DevInfo = ({ moduleDescriptors }: DevInfoProps) => {
 
       {map(moduleDescriptors, (descriptor) => {
         return (
-          <div className='flex justify-between' key={descriptor.label}>
+          <div className='flex justify-between w-full' key={descriptor.label}>
             <div className='text-sm'>{descriptor.label}</div>
 
             <div className='text-sm'>

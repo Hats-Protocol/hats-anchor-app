@@ -2,7 +2,7 @@ import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
 import { MetadataConfig } from '@hatsprotocol/constants';
-import { StandaloneNavbar as Navbar } from 'molecules';
+import { StandaloneNavbar as Navbar, TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
 // import Script from 'next/script';
 import { ReactNode } from 'react';
@@ -35,6 +35,8 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <Navbar />
 
           <div className='w-screen'>{children}</div>
+
+          <TxHistoryModal />
         </Providers>
 
         <div className='fixed left-0 top-0 z-[-5] size-full bg-[url("/bg-topography.svg")]' />

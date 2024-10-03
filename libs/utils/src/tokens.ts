@@ -43,7 +43,7 @@ export const tokenImageHandler = ({
 }: {
   symbol: string | null | undefined;
   primaryImage: string | undefined;
-  backupImage: string | undefined;
+  backupImage?: string | undefined;
   chainId: number | undefined;
 }) => {
   let localImage = primaryImage;

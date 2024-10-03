@@ -20,6 +20,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@fontsource-variable/inter": "^5.0.19",
+    "@fontsource-variable/jetbrains-mono": "^5.1.0",
     "@hatsprotocol/hats-account-sdk": "^0.0.5",
     "@hatsprotocol/hsg-sdk": "^0.0.15",
     "@hatsprotocol/modules-sdk": "1.4.0",
@@ -60,8 +61,8 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-markdown": "^8.0.7",
     "rollup": "^2",
-    "viem": "^2.16.0",
-    "wagmi": "^2.12.0",
+    "viem": "^2.21.18",
+    "wagmi": "^2.12.16",
     "webpack": "^5.94.0"
   },
   "devDependencies": {

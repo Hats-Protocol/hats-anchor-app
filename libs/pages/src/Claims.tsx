@@ -34,7 +34,7 @@ const Claims = () => {
 
   if (isModuleDetailsLoading || !selectedHat?.id) {
     return (
-      <Layout title='Claims'>
+      <Layout title='Claims' showBottomMenu={false}>
         <Flex justify='center' pt='120px'>
           <Stack minW='350px' align='center' spacing={50}>
             <Header />
@@ -63,7 +63,7 @@ const Claims = () => {
 
   // fallback for unknown modules
   return (
-    <Layout title='Claims'>
+    <Layout title='Claims' showBottomMenu={false}>
       <Flex justify='center' pt='120px'>
         <Stack align='center' minW='350px' spacing={150}>
           <Header />

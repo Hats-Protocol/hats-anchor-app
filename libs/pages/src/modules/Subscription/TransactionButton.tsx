@@ -1,18 +1,25 @@
-import { Button, Spinner } from '@chakra-ui/react';
+import { Button, ButtonProps as ChakraButtonProps } from '@chakra-ui/react';
+import { useOverlay } from 'contexts';
 import { useEffect, useState } from 'react';
-import { TransactionReceipt } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
+
+interface TransactionButtonProps extends ChakraButtonProps {
+  sendTx: () => Promise<`0x${string}`>;
+  children: React.ReactNode;
+  onReceipt: (receipt: { [x: string]: any }) => void;
+  txDescription: string;
+}
 
 export const TransactionButton = ({
   sendTx,
   children,
   onReceipt,
-}: {
-  sendTx: () => Promise<`0x${string}`>;
-  children: React.ReactNode;
-  onReceipt: (receipt: { [x: string]: any }) => void;
-}) => {
+  txDescription,
+  ...props
+}: TransactionButtonProps) => {
   const [hash, setHash] = useState<`0x${string}`>();
+  const { handlePendingTx } = useOverlay();
+  // TODO also pass the hash to overlay context
 
   const { data: receipt } = useWaitForTransactionReceipt({
     hash,
@@ -28,20 +35,15 @@ export const TransactionButton = ({
     }
   }, [receipt?.blockNumber, onReceipt, receipt]);
 
-  if (hash) {
-    return (
-      <Button disabled>
-        <div className='flex gap-2'>
-          <Spinner /> {children}
-        </div>
-      </Button>
-    );
-  }
   return (
     <Button
+      isLoading={!!hash}
       onClick={async () => {
-        setHash(await sendTx());
+        const localHash = await sendTx();
+        setHash(localHash);
+        handlePendingTx?.({ hash: localHash, txDescription });
       }}
+      {...props}
     >
       {children}
     </Button>

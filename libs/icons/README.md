@@ -7,7 +7,7 @@ The Hats Icons are a set of icons that are used in the Hats project. They are de
 To use the Hats Icons in your project, you can import the icons from the `icons` package and use them in your components.
 
 ```tsx
-import { HatIcon } from '@hats/icons';
+import { HatIcon } from 'icons';
 
 const MyComponent = () => {
   return (

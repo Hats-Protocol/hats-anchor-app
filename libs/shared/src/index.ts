@@ -63,10 +63,9 @@ export function prettyIdToIp(id: string | undefined) {
 }
 
 /**
- * @deprecated
- * @HACK UNTIL FUNCTION AVAILABLE IN SDK
- * - takes in a Hat ID Hex and returns a Hat ID IP
- * - `inverse` of `ipToHatId`
+ * Wrapper to convert between Hat ID Hex and Hat ID IP
+ * @param id - Hat ID Hex
+ * @returns Hat ID IP
  */
 export function idToIp(id: Hex | undefined) {
   if (!id) return '';

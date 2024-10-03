@@ -49,12 +49,11 @@ export const useLockFromHat = ({
     },
   ];
 
-  const lockPropertiesParams = {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore infinite loop
+  const lockPropertiesRequests = useReadContracts({
     contracts: contractLockProperties,
-  };
-
-  // @ts-ignore
-  const lockPropertiesRequests = useReadContracts(lockPropertiesParams);
+  });
 
   const currencyContract = (
     lockPropertiesRequests?.data
@@ -107,20 +106,22 @@ export const useLockFromHat = ({
     symbol = 'ETH'; // TODO: can we get this from wagmi?
     decimals = 18n;
   } else {
-    symbol = (tokenPropertiesRequests.data[0].result as string) || '';
-    decimals = tokenPropertiesRequests.data[1].result as bigint;
+    symbol = get(tokenPropertiesRequests, 'data[0].result', '') as string;
+    decimals = get(tokenPropertiesRequests, 'data[1].result', 18n) as bigint;
   }
 
-  const keyPrice = lockPropertiesRequests.data[1].result as bigint;
-  const price = formatUnits(
-    lockPropertiesRequests.data[1].result as bigint,
-    Number(decimals),
-  );
+  const keyPrice = get(lockPropertiesRequests, 'data[1].result', 0n) as bigint;
+  const price = get(lockPropertiesRequests, 'data[1].result', 0n) as bigint;
+
+  const formattedPrice = price
+    ? formatUnits(price, Number(decimals))
+    : undefined;
 
   return {
     currencyContract,
-    price,
+    price: formattedPrice,
     symbol,
+    decimals,
     duration,
     keyPrice,
     lockAddress,
