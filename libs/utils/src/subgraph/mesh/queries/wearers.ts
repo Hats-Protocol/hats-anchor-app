@@ -1,6 +1,6 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
-import { NETWORKS_PREFIX } from "./constants";
+import { NETWORKS_PREFIX } from './constants';
 
 export function getWearerDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];

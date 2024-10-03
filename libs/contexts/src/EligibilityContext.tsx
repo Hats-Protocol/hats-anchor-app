@@ -2,10 +2,14 @@
 
 import { CONTROLLER_TYPES, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { useHatDetails } from 'hats-hooks';
+import { useHatDetails, useTreeDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
-import { first, get, toLower } from 'lodash';
-import { useAncillaryElection, useModuleDetails } from 'modules-hooks';
+import { first, get, includes, map, toLower, toNumber } from 'lodash';
+import {
+  useAncillaryElection,
+  useModuleDetails,
+  useMultiClaimsHatterCheck,
+} from 'modules-hooks';
 import { createContext, useContext, useMemo } from 'react';
 import { AppHat, HatDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -20,6 +24,7 @@ export interface EligibilityContextProps {
   isModuleDetailsLoading: boolean | undefined;
   electionsAuthority: any | undefined;
   isElectionsAuthorityLoading: boolean;
+  isClaimableFor: boolean;
 }
 
 export const EligibilityContext = createContext<EligibilityContextProps>({
@@ -32,6 +37,7 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   isModuleDetailsLoading: false,
   electionsAuthority: undefined,
   isElectionsAuthorityLoading: false,
+  isClaimableFor: false,
 });
 
 export const EligibilityContextProvider = ({
@@ -46,6 +52,12 @@ export const EligibilityContextProvider = ({
   const { data: selectedHat, details: hatDetails } = useHatDetails({
     chainId,
     hatId,
+  });
+  const treeId = toNumber(get(selectedHat, 'treeId'));
+
+  const { data: treeDetails } = useTreeDetails({
+    treeId,
+    chainId,
   });
 
   const controllerAddress = get(
@@ -66,6 +78,16 @@ export const EligibilityContextProvider = ({
     chainId,
   });
 
+  const { claimableForHats } = useMultiClaimsHatterCheck({
+    selectedHat,
+    chainId,
+    onchainHats: get(treeDetails, 'hats', []),
+  });
+  const isClaimableFor = useMemo(
+    () => includes(map(claimableForHats, 'id'), selectedHat?.id),
+    [claimableForHats, selectedHat],
+  );
+
   const { data: electionsAuthority, isLoading: isElectionsAuthorityLoading } =
     useAncillaryElection({
       id: controllerAddress,
@@ -84,6 +106,7 @@ export const EligibilityContextProvider = ({
       isModuleDetailsLoading,
       electionsAuthority,
       isElectionsAuthorityLoading,
+      isClaimableFor,
     }),
     [
       chainId,
@@ -96,6 +119,7 @@ export const EligibilityContextProvider = ({
       isModuleDetailsLoading,
       electionsAuthority,
       isElectionsAuthorityLoading,
+      isClaimableFor,
     ],
   );
 

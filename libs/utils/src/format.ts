@@ -38,7 +38,7 @@ const offsetString = (date: Date) => {
 
 export const formatDate = (
   date: Date | string | number | undefined,
-  toUtc: boolean = false,
+  toUtc = false,
 ) => {
   if (!date) return '';
   if (toUtc)

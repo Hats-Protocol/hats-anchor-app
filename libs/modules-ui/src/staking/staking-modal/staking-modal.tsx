@@ -106,7 +106,12 @@ export const StakingModal = ({
       name='stakingManager'
       title='Manage Stakers'
       filters={
-        <WearerFilters extendedProfiles={allowlistProfiles} wearers={wearers} />
+        <WearerFilters
+          filteredProfiles={{ all: allowlistProfiles }}
+          wearers={wearers}
+          activeFilter='all'
+          setActiveFilter={() => {}}
+        />
       }
       about={
         <></>

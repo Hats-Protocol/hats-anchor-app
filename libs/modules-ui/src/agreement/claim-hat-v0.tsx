@@ -13,7 +13,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG, TOASTS } from '@hatsprotocol/constants';
-import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
 import {
@@ -21,7 +20,7 @@ import {
   useMediaStyles,
   useWaitForSubgraph,
 } from 'hooks';
-import _ from 'lodash';
+import { find, get, includes, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import ReactDOMServer from 'react-dom/server';
@@ -44,9 +43,7 @@ const HatCreateCard = dynamic(() =>
 );
 
 const ClaimHat = ({ agreement }: { agreement: string }) => {
-  const hatId = hatIdDecimalToHex(
-    hatIdIpToDecimal(CONFIG.agreementV0.communityHatId),
-  ); // TODO handle IP from URL params
+  const hatId = CONFIG.agreementV0.communityHatId; // TODO handle IP from URL params
   const { address } = useAccount();
   const chainId = useChainId();
   const queryClient = useQueryClient();
@@ -56,15 +53,12 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
     wearerAddress: address as Hex,
     chainId,
   });
-  const wearing = !!_.find(wearerDetails, ['id', hatId]);
+  const wearing = !!find(wearerDetails, { id: hatId });
 
   const waitForClaim = useWaitForSubgraph({
     fetchHelper: () => fetchWearerDetails(address, chainId),
     checkResult: (result) => {
-      const hasClaimed = _.includes(
-        _.map(_.get(result, 'currentHats'), 'id'),
-        hatId,
-      );
+      const hasClaimed = includes(map(get(result, 'currentHats'), 'id'), hatId);
       return hasClaimed;
     },
   });
@@ -117,10 +111,7 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
 
   return (
     <Stack
-      w={{
-        base: '90%',
-        lg: '30%',
-      }}
+      w='100%'
       justifyContent='center'
       alignItems='left'
       px={{

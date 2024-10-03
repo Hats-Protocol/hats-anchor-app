@@ -108,9 +108,9 @@ const useMulticallManyHats = ({
     treeToDisplay,
     adminHatIds,
   ]);
-  if (editMode) {
-    console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
-  }
+  // if (editMode) {
+  //   console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
+  // }
 
   const { writeContractAsync } = useWriteContract();
 

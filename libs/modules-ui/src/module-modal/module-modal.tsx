@@ -16,6 +16,7 @@ export const ModuleModal = ({
   filters,
   about,
   history,
+  devInfo,
   children,
   onClose,
 }: {
@@ -24,6 +25,7 @@ export const ModuleModal = ({
   filters: ReactNode;
   about: ReactNode;
   history: ReactNode;
+  devInfo?: ReactNode;
   children: ReactNode;
   onClose?: () => void;
 }) => {
@@ -63,6 +65,8 @@ export const ModuleModal = ({
             {about}
 
             {history}
+
+            {devInfo}
           </Stack>
 
           <Stack

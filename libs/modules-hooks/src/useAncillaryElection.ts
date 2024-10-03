@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useManyHatsDetails } from 'hats-hooks';
-import _ from 'lodash';
+import { get, some } from 'lodash';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { fetchElectionData } from 'utils';
@@ -15,18 +15,19 @@ const useAncillaryElection = ({
 }: {
   id?: string;
   chainId: SupportedChains;
-  enabled: boolean;
+  enabled?: boolean;
 }) => {
   const { address } = useAccount();
 
+  // TODO only fetch if module is an election
   const { data, error, isLoading } = useQuery({
     queryKey: ['electionData', id, chainId],
     queryFn: () => fetchElectionData(id || 'none', chainId),
     enabled: !!id && !!chainId && enabled,
   });
 
-  const adminHatId = _.get(data, 'adminHat[0].id');
-  const ballotBoxHatId = _.get(data, 'ballotBoxHat.id');
+  const adminHatId = get(data, 'adminHat[0].id');
+  const ballotBoxHatId = get(data, 'ballotBoxHat.id');
 
   const hatsDetails = useManyHatsDetails({
     hats: [
@@ -41,7 +42,7 @@ const useAncillaryElection = ({
 
   const isWearingAdminHat = useMemo(
     () =>
-      _.some(_.get(hatsDetails, 'data[0].wearers'), {
+      some(get(hatsDetails, 'data[0].wearers'), {
         id: address?.toLocaleLowerCase(),
       }),
     [hatsDetails, address],
@@ -49,7 +50,7 @@ const useAncillaryElection = ({
 
   const isWearingBallotBoxHat = useMemo(
     () =>
-      _.some(_.get(hatsDetails, 'data[1].wearers'), {
+      some(get(hatsDetails, 'data[1].wearers'), {
         id: address?.toLocaleLowerCase(),
       }),
     [hatsDetails, address],

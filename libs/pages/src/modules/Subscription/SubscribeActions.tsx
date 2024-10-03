@@ -4,6 +4,9 @@ import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 
 import { TransactionButton } from './TransactionButton';
 
+// TODO: (referrer) put a Hats DAO address!
+const REFERRAL_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 export const SubscribeActions = ({
   symbol,
   lockAddress,
@@ -64,7 +67,7 @@ export const SubscribeActions = ({
           args: [
             [keyPrice], // values
             [address], // recipients
-            [address], // TODO: (referrer) put a Hats DAO address!
+            [REFERRAL_ADDRESS],
             [address], // keyManagers
             [''], // data (empty)
           ],
