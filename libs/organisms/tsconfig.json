@@ -5,7 +5,8 @@
     "esModuleInterop": false,
     "declaration": true,
     "declarationMap": true,
-    "strict": true
+    "strict": true,
+    "types": ["wagmi", "viem"]
   },
   "references": [
     { "path": "../constants/tsconfig.lib.json" },

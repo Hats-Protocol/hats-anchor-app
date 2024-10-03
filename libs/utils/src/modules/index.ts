@@ -1,6 +1,6 @@
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
-import { filter, first, get, includes, nth } from 'lodash';
+import { concat, filter, first, get, includes, nth } from 'lodash';
 import { AllowlistProfile, AppHat, ModuleDetails, ValueOf } from 'types';
 import { Hex } from 'viem';
 
@@ -99,29 +99,22 @@ export const filterProfiles = ({
     (filter(profiles, (p) => {
       return get(p, 'eligible') && !get(p, 'badStanding');
     }) as AllowlistProfile[]) || [];
-  const contracts = filter(profiles, { isContract: true }) || [];
-  const multiSigs =
-    filter(profiles, {
-      contractName: 'GnosisSafeProxy',
-    }) || [];
-  const humanistic = filter(profiles, { isContract: false }) || [];
+  // const contracts = filter(profiles, { isContract: true }) || [];
+  // const multiSigs =
+  //   filter(profiles, {
+  //     contractName: 'GnosisSafeProxy',
+  //   }) || [];
+  // const humanistic = filter(profiles, { isContract: false }) || [];
 
   const wearerProfiles =
     filter(profiles, (p) => includes(wearerIds, p.id)) || [];
-  const unclaimed = filter(profiles, (p) => !includes(wearerIds, p.id)) || [];
-
-  const goodStanding = filter(profiles, { badStanding: false }) || [];
+  const ineligible: AllowlistProfile[] = [];
   const badStanding = filter(profiles, { badStanding: true }) || [];
 
   return {
     all: profiles,
-    eligible,
-    contracts,
-    multiSigs,
-    humanistic,
     wearer: wearerProfiles,
-    unclaimed,
-    goodStanding,
-    badStanding,
+    eligible,
+    ineligible: concat(badStanding, ineligible),
   };
 };

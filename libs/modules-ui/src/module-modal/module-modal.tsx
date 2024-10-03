@@ -13,7 +13,6 @@ import { ReactNode } from 'react';
 export const ModuleModal = ({
   name,
   title,
-  filters,
   about,
   history,
   devInfo,
@@ -22,7 +21,6 @@ export const ModuleModal = ({
 }: {
   name: string;
   title: string;
-  filters: ReactNode;
   about: ReactNode;
   history: ReactNode;
   devInfo?: ReactNode;
@@ -59,9 +57,6 @@ export const ModuleModal = ({
               top={4}
               right={4}
             />
-
-            {filters}
-
             {about}
 
             {history}

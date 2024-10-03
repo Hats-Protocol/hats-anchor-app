@@ -1,0 +1,82 @@
+import { Button, Flex, HStack } from '@chakra-ui/react';
+import { find, map, some } from 'lodash';
+import { ReactNode, useMemo } from 'react';
+
+interface Section {
+  label: string;
+  value: boolean;
+  hasRole: boolean;
+  section: ReactNode;
+}
+
+interface ManageButton {
+  label: string;
+  onClick: () => void;
+  colorScheme?: string;
+  hasRole?: boolean;
+}
+
+interface ManageBarProps {
+  sections: Section[];
+  buttons: ManageButton[];
+}
+
+export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
+  const activeSection = useMemo(() => {
+    return find(sections, (s) => s.value);
+  }, [sections]);
+  const hasAnyRole = useMemo(() => {
+    return some(sections, (s) => s.hasRole);
+  }, [sections]);
+
+  if (activeSection) {
+    return (
+      <Flex
+        position='absolute'
+        bottom={0}
+        minH='100px'
+        bg='whiteAlpha.900'
+        w='100%'
+        borderBottomRightRadius='md'
+        borderBottomLeftRadius={{ base: 'md', md: 'none' }}
+        borderTop='1px solid'
+        borderColor='blackAlpha.200'
+        py={{ base: 4, md: 10 }}
+      >
+        {activeSection.section}
+      </Flex>
+    );
+  }
+
+  if (!hasAnyRole) return null;
+
+  return (
+    <Flex
+      position='absolute'
+      bottom={0}
+      minH='100px'
+      bg='whiteAlpha.900'
+      w='100%'
+      borderBottomRightRadius='md'
+      borderBottomLeftRadius={{ base: 'md', md: 'none' }}
+      borderTop='1px solid'
+      borderColor='blackAlpha.200'
+      py={{ base: 4, md: 10 }}
+    >
+      <Flex w='full' justify='center' align='center'>
+        <HStack>
+          {map(buttons, ({ onClick, label, colorScheme }) => (
+            <Button
+              variant='outlineMatch'
+              colorScheme={colorScheme || 'blue.500'}
+              size='sm'
+              onClick={onClick}
+            >
+              {label}
+            </Button>
+          ))}
+        </HStack>
+      </Flex>
+    </Flex>
+  );
+};

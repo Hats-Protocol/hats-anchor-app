@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
@@ -22,7 +23,7 @@ import {
   reject,
   size,
   subtract,
-  toString,
+  // toString,
 } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
@@ -32,12 +33,11 @@ import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 import {
+  AboutModule,
   EligibilityRow,
   ModuleHistory,
   ModuleModal,
-  WearerFilters,
 } from '../../module-modal';
-// import AboutJokeRace from './about';
 
 export const ElectionModal = ({
   eligibilityHatId,
@@ -53,7 +53,10 @@ export const ElectionModal = ({
   const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
   // const { watch } = pick(localForm, ['watch']);
 
-  const { data: hat } = useHatDetails({ hatId: eligibilityHatId, chainId });
+  const { data: hat, details } = useHatDetails({
+    hatId: eligibilityHatId,
+    chainId,
+  });
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
   // const searchInput = watch('search');
@@ -74,12 +77,12 @@ export const ElectionModal = ({
     };
   }) as AllowlistProfile[];
   const liveParams = get(moduleInfo, 'liveParameters');
-  const ownerHat = toString(
-    get(find(liveParams, { label: 'Owner Hat' }), 'value'),
-  );
-  const judgeHat = toString(
-    get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
-  );
+  // const ownerHat = toString(
+  //   get(find(liveParams, { label: 'Owner Hat' }), 'value'),
+  // );
+  // const judgeHat = toString(
+  //   get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
+  // );
 
   const filteredProfiles = useMemo(() => {
     return allowlistProfiles;
@@ -105,25 +108,18 @@ export const ElectionModal = ({
     <ModuleModal
       name='electionManager'
       title='Manage Election'
-      filters={
-        <WearerFilters
-          filteredProfiles={{ all: allowlistProfiles }}
-          wearers={wearers}
-          activeFilter='all'
-          setActiveFilter={() => {}}
-        />
-      }
       about={
-        <></>
-        // <AboutJokeRace
-        //   eligibilityHat={eligibilityHatId}
-        //   ownerHat={ownerHat as Hex}
-        //   judgeHat={judgeHat as Hex}
-        // />
+        <AboutModule heading='About this Election' moduleDescriptors={[]} />
       }
       history={<ModuleHistory />}
     >
-      <Heading size='md'>Allowlist for Hat 1.2.1.2 - Hats Contributor</Heading>
+      <Heading size='md'>
+        Election for Hat{' '}
+        {eligibilityHatId
+          ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))
+          : ''}{' '}
+        - {details?.name || hat?.details}
+      </Heading>
 
       <Flex>
         <Input

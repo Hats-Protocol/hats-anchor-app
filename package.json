@@ -45,7 +45,7 @@
     "i18next": "^23.11.5",
     "lodash": "^4.17.21",
     "multiformats": "^13.0.1",
-    "next": "^14.2.5",
+    "next": "^14.2.10",
     "next-seo": "^5.15.0",
     "opepen-standard": "^1.0.1",
     "papaparse": "^5.4.1",
@@ -60,7 +60,7 @@
     "react-icons": "^4.7.1",
     "react-infinite-scroll-component": "^6.1.0",
     "react-markdown": "^8.0.7",
-    "rollup": "^2",
+    "rollup": "^4.22.4",
     "viem": "^2.21.18",
     "wagmi": "^2.12.16",
     "webpack": "^5.94.0"
@@ -117,6 +117,7 @@
     "typescript": "5.5.3"
   },
   "resolutions": {
-    "viem": "^2.14.0"
+    "viem": "2.21.18",
+    "express": "4.20.0"
   }
 }

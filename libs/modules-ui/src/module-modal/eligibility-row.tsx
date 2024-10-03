@@ -43,15 +43,15 @@ const AddressProfile = ({
 export const EligibilityRow = ({
   eligibilityAccount,
   wearers,
-  removing,
-  removeList,
+  updating,
+  updateList,
   handleAdd,
   handleRemove,
 }: {
   eligibilityAccount: AllowlistProfile;
   wearers: HatWearer[] | undefined;
-  removing?: boolean;
-  removeList?: AllowlistProfile[] | undefined;
+  updating?: boolean;
+  updateList?: AllowlistProfile[] | undefined;
   handleAdd?: (account: Hex) => void;
   handleRemove?: (address: Hex) => void;
 }) => {
@@ -66,7 +66,7 @@ export const EligibilityRow = ({
   let color = 'Informative-Human';
   if (isCurrentUser) color = 'green.800';
   if (eligibilityAccount.isContract) color = 'Informative-Code';
-  const isChecked = includes(map(removeList, 'id'), eligibilityAccount.id);
+  const isChecked = includes(map(updateList, 'id'), eligibilityAccount.id);
 
   const handleRemoveToggle = useCallback(() => {
     if (isChecked) {
@@ -78,7 +78,7 @@ export const EligibilityRow = ({
 
   return (
     <Flex justify='space-between'>
-      {removing ? (
+      {updating ? (
         <Checkbox isChecked={isChecked} onChange={handleRemoveToggle}>
           <AddressProfile
             eligibilityAccount={eligibilityAccount}
