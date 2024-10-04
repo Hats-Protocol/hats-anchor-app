@@ -66,7 +66,7 @@ const DatePicker = ({
 
   return (
     <FormControl isDisabled={isDisabled} {...props}>
-      <Stack spacing={1} w='100%'>
+      <Stack w='100%'>
         <Box>
           {label && (
             <FormLabel mb={0}>
@@ -92,21 +92,25 @@ const DatePicker = ({
             </Text>
           )}
         </Box>
-        <DatePickerComponent
-          wrapperClassName='chakra-datepicker'
-          selected={currentValue}
-          onChange={handleChange}
-        />
-        {showLocalConversion && (
-          <HStack color='blackAlpha.800' fontSize='xs' spacing={1}>
-            {/* <Text variant='medium'>Local Timezone:</Text>
+
+        <Stack spacing={1}>
+          <DatePickerComponent
+            wrapperClassName='chakra-datepicker'
+            selected={currentValue}
+            onChange={handleChange}
+          />
+
+          {showLocalConversion && (
+            <HStack color='blackAlpha.800' fontSize='xs' spacing={1}>
+              {/* <Text variant='medium'>Local Timezone:</Text>
             <Text>{userTz}</Text> */}
-            <Text variant='medium'>Current:</Text>
-            <Tooltip label={formatDate(currentValue, true)} placement='top'>
-              <Text>{formatDate(currentValue)}</Text>
-            </Tooltip>
-          </HStack>
-        )}
+              <Text variant='medium'>Current:</Text>
+              <Tooltip label={formatDate(currentValue, true)} placement='top'>
+                <Text>{formatDate(currentValue)}</Text>
+              </Tooltip>
+            </HStack>
+          )}
+        </Stack>
       </Stack>
     </FormControl>
   );

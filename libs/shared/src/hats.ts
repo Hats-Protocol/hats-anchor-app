@@ -1,4 +1,14 @@
-import { filter, find, findIndex, first, get, last, map, slice, sortBy } from 'lodash';
+import {
+  filter,
+  find,
+  findIndex,
+  first,
+  get,
+  last,
+  map,
+  slice,
+  sortBy,
+} from 'lodash';
 import { AppHat, Hierarchy, InputObject } from 'types';
 import { Hex } from 'viem';
 
@@ -36,14 +46,14 @@ export function createHierarchy(
       : currentHat.parentId) as Hex,
   };
 
-  const siblings =
-    currentHat.parentId !== currentHat.id
-      ? filter(
-        data,
-        (hat: Partial<AppHat>) =>
-          hat.parentId === currentHat.parentId && hat.id !== hat.parentId,
-      )
-      : [];
+  let siblings: Partial<AppHat>[] = [];
+  if (currentHat.parentId !== currentHat.id) {
+    siblings = filter(
+      data as Partial<AppHat>[],
+      (hat: Partial<AppHat>) =>
+        hat.parentId === currentHat.parentId && hat.id !== hat.parentId,
+    );
+  }
 
   const sortedSiblings = sortBy(siblings, (sibling: AppHat) =>
     BigInt(sibling.id),

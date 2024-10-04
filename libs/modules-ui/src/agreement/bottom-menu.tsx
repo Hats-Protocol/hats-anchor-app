@@ -5,7 +5,6 @@ import {
   Button,
   Flex,
   Icon,
-  IconButton,
   Menu,
   MenuButton,
   MenuItem,
@@ -170,17 +169,19 @@ const BottomMenu = ({ isReviewed }: { isReviewed: boolean }) => {
         {!isWearing && (
           <Menu>
             <MenuButton
-              as={IconButton}
-              icon={<Icon as={BsThreeDotsVertical} />}
+              as={Button}
+              leftIcon={<Icon as={BsThreeDotsVertical} />}
               aria-label='Menu'
               variant='outline'
-            />
+            >
+              More
+            </MenuButton>
             <MenuList>
               <ChakraNextLink
                 href={hatLink({ hatId: selectedHat?.id, chainId })}
                 isExternal
               >
-                <MenuItem>View Hat</MenuItem>
+                <MenuItem>View Full Role</MenuItem>
               </ChakraNextLink>
             </MenuList>
           </Menu>

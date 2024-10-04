@@ -1,10 +1,12 @@
-import { As } from '@chakra-ui/react';
+import { As, ComponentWithAs, IconProps } from '@chakra-ui/react';
 import { ReactNode } from 'react';
 import { IconName } from 'react-cmdk';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
 
 export type ValueOf<T> = T[keyof T];
+
+export type MixedIcon = IconType | ComponentWithAs<'svg', IconProps>;
 
 export type ImageFile = {
   path: string;

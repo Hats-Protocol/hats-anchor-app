@@ -8,3 +8,4 @@ export * from './module-card-details';
 export * from './module-modal';
 export { default as SlimModuleDetails } from './SlimModuleDetails';
 export * from './staking';
+export * from './subscription';

@@ -8,6 +8,7 @@ import { viemPublicClient } from '../web3';
 
 export * from './authorities';
 export * from './input';
+export * from './parameters';
 export * from './tokens';
 
 export type ModuleDetailsHandler = {
@@ -88,33 +89,32 @@ export const fallbackModuleCheck = async ({
 // };
 
 export const filterProfiles = ({
-  allowlistProfiles,
+  profiles,
   wearerIds,
 }: {
-  allowlistProfiles: AllowlistProfile[];
+  profiles: AllowlistProfile[];
   wearerIds: Hex[];
 }) => {
   const eligible =
-    (filter(allowlistProfiles, (p) => {
+    (filter(profiles, (p) => {
       return get(p, 'eligible') && !get(p, 'badStanding');
     }) as AllowlistProfile[]) || [];
-  const contracts = filter(allowlistProfiles, { isContract: true }) || [];
+  const contracts = filter(profiles, { isContract: true }) || [];
   const multiSigs =
-    filter(allowlistProfiles, {
+    filter(profiles, {
       contractName: 'GnosisSafeProxy',
     }) || [];
-  const humanistic = filter(allowlistProfiles, { isContract: false }) || [];
+  const humanistic = filter(profiles, { isContract: false }) || [];
 
   const wearerProfiles =
-    filter(allowlistProfiles, (p) => includes(wearerIds, p.id)) || [];
-  const unclaimed =
-    filter(allowlistProfiles, (p) => !includes(wearerIds, p.id)) || [];
+    filter(profiles, (p) => includes(wearerIds, p.id)) || [];
+  const unclaimed = filter(profiles, (p) => !includes(wearerIds, p.id)) || [];
 
-  const goodStanding = filter(allowlistProfiles, { badStanding: false }) || [];
-  const badStanding = filter(allowlistProfiles, { badStanding: true }) || [];
+  const goodStanding = filter(profiles, { badStanding: false }) || [];
+  const badStanding = filter(profiles, { badStanding: true }) || [];
 
   return {
-    all: allowlistProfiles,
+    all: profiles,
     eligible,
     contracts,
     multiSigs,

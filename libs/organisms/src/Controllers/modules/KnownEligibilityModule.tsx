@@ -1,11 +1,10 @@
 'use client';
 
-import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
-import { ELIGIBILITY_MODULES } from '../utils';
 import AgreementEligibility from './Agreement';
 import AllowlistEligibility from './Allowlist';
 import ElectionEligibility from './Election';

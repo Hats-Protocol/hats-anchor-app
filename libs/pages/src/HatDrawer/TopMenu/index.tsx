@@ -7,7 +7,7 @@ import { HatLinkRequestCreateForm } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { filter, find, isEmpty, keys, map, omit } from 'lodash';
 import { MainAction } from 'organisms';
 import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
@@ -48,22 +48,22 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
     editMode,
   });
 
-  const wearerTopHats = _.map(
-    _.filter(
+  const wearerTopHats = map(
+    filter(
       wearer,
       (hat: AppHat) => isTopHat(hat) && hat?.id !== selectedHat?.id,
     ),
     'id',
   );
 
-  const onchainHat = _.find(onchainHats, { id: selectedHat?.id });
-  const hatHasChanges = !_.isEmpty(
-    _.keys(_.omit(_.find(storedData, { id: selectedHat?.id }), 'id')),
+  const onchainHat = find(onchainHats, { id: selectedHat?.id });
+  const hatHasChanges = !isEmpty(
+    keys(omit(find(storedData, { id: selectedHat?.id }), 'id')),
   );
 
   const draftWithChildren =
     !onchainHat &&
-    !_.isEmpty(_.filter(treeToDisplay, { parentId: selectedHat?.id }));
+    !isEmpty(filter(treeToDisplay, { parentId: selectedHat?.id }));
 
   if (!selectedHat || isMobile) return null;
 
@@ -179,10 +179,12 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
       <Modal name='requestLink' title='Request to Link'>
         <HatLinkRequestCreateForm
           newAdmin={selectedHat.id}
-          wearerTopHats={_.filter(
-            wearerTopHats,
-            (hat: string | undefined) => hat !== selectedHat.admin?.id,
-          )}
+          wearerTopHats={
+            filter(
+              wearerTopHats,
+              (hat: string | undefined) => hat !== selectedHat.admin?.id,
+            ) as Hex[]
+          }
         />
       </Modal>
     </Flex>

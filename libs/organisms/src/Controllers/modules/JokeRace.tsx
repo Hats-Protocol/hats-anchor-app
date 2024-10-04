@@ -3,13 +3,18 @@
 import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
-import { find, get, includes, toLower, toNumber, toString } from 'lodash';
+import { get, includes, toLower, toNumber } from 'lodash';
+import { useJokeRace } from 'modules-hooks';
 import { JokeRaceModal } from 'modules-ui';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
-import { jokeRaceUrl, ModuleDetailsHandler } from 'utils';
+import {
+  getJokeRaceModuleParameters,
+  jokeRaceUrl,
+  ModuleDetailsHandler,
+} from 'utils';
 import { Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS } from '../utils';
@@ -23,17 +28,16 @@ const JokeRaceEligibility = ({
   selectedHat,
 }: ModuleDetailsHandler) => {
   const { setModals } = useOverlay();
-  const contestAddress = get(
-    find(moduleParameters, { displayType: 'jokerace' }),
-    'value',
-  ) as Hex;
-  const topK =
-    toString(
-      get(
-        find(moduleParameters, { label: 'Number Of Elected Hat Wearers' }),
-        'value',
-      ),
-    ) || 'X';
+
+  const { data: jokeRaceDetails } = useJokeRace({
+    moduleId: moduleDetails?.id,
+    chainId: chainId as SupportedChains,
+  });
+
+  const { contestAddress, topK } = getJokeRaceModuleParameters({
+    moduleParameters,
+    jokeRaceDetails: jokeRaceDetails || undefined,
+  });
 
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
@@ -48,14 +52,13 @@ const JokeRaceEligibility = ({
     process.env.NODE_ENV === 'development';
 
   // TODO fetch contest from JokeRace subgraph
-  // TODO fetch contest name from details (subgraph/ipfs?)
   if (!moduleDetails) return null;
 
   return (
     <>
       <JokeRaceModal
         eligibilityHatId={selectedHat?.id}
-        moduleInfo={moduleDetails}
+        moduleInfo={{ ...moduleDetails, liveParameters: moduleParameters }}
       />
 
       <EligibilityRule

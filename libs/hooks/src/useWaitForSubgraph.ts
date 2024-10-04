@@ -2,6 +2,7 @@
 
 import useToast from './useToast';
 
+// TODO one more step universal is to check subgraph for block specified in tx
 const useWaitForSubgraph = ({
   fetchHelper,
   checkResult,

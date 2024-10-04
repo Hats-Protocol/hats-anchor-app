@@ -17,6 +17,11 @@ import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
 
 // TODO use standalone & fix exporting of waitForTransaction
+declare global {
+  interface BigInt {
+    toJSON: () => string;
+  }
+}
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 if (!POSTHOG_KEY) {
@@ -44,6 +49,10 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+BigInt.prototype['toJSON'] = function () {
+  return this.toString();
+};
 
 const Providers = ({ children }: ProvidersProps) => (
   <ChakraBaseProvider theme={theme}>

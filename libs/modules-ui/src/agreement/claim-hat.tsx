@@ -12,7 +12,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
-import { useWaitForSubgraph } from 'hooks';
+import { useMediaStyles, useWaitForSubgraph } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import {
   useAgreementClaim,
@@ -57,6 +57,7 @@ const ClaimHat = ({
   const queryClient = useQueryClient();
   const { handlePendingTx } = useOverlay();
   const currentNetworkId = useChainId();
+  const { isMobile } = useMediaStyles();
 
   const {
     moduleParameters,
@@ -141,6 +142,8 @@ const ClaimHat = ({
       queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
     },
   });
+
+  if (isMobile) return null;
 
   let claimTooltipText = '';
   if (!hatterIsAdmin) claimTooltipText = 'Claims Hatter is not an admin';

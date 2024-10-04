@@ -25,6 +25,9 @@ const Button = {
       color: props.color || 'white',
       _hover: {
         background: props.hoverBackground || props.hoverBg || 'blue.700',
+        _disabled: {
+          background: props.background || props.bg || 'blue.500',
+        },
       },
     }),
     ghostBg: (props: StyleFunctionProps) => ({

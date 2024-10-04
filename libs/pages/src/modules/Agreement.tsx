@@ -14,10 +14,10 @@ import {
 } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import { includes, lte, map, toLower, toNumber } from 'lodash';
+import { includes, map, toLower, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { hatLink } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -45,14 +45,13 @@ const Conditions = dynamic(() =>
 
 const Agreement = () => {
   const { isMobile } = useMediaStyles();
-  const { moduleParameters, selectedHat, chainId } = useEligibility();
+  const { moduleParameters, selectedHat, chainId, isClaimableFor } =
+    useEligibility();
   const { agreement } = useAgreementClaim({
     moduleParameters,
   });
   const { address } = useAccount();
   const [isReviewed, setIsReviewed] = useState(false);
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const isWearing = useMemo(
     () => includes(map(selectedHat?.wearers, 'id'), toLower(address)),
@@ -65,23 +64,8 @@ const Agreement = () => {
     [selectedHat],
   );
 
-  const handleScroll = (e: any) => {
-    const bottom =
-      Math.floor(e.target.scrollHeight - e.target.scrollTop) >
-      e.target.clientHeight * 0.9;
-    if (bottom) setIsButtonEnabled(true);
-  };
-
-  useEffect(() => {
-    const contentHeight = contentRef.current?.scrollHeight;
-    const containerHeight = contentRef.current?.clientHeight;
-    if (lte(contentHeight, containerHeight)) {
-      setIsButtonEnabled(true);
-    }
-  }, [agreement]);
-
   return (
-    <Layout title='Claims'>
+    <Layout title='Claims' showBottomMenu={false}>
       {!isMobile && (
         <Stack pt='80px' alignItems='center' mb={6}>
           <Header />
@@ -99,11 +83,6 @@ const Agreement = () => {
         }}
         h={{ base: 'auto', md: 'calc(100vh - 232px)' }}
         minH={{ base: '100%', md: 'none' }}
-        background={
-          isMobile
-            ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%) !important'
-            : 'none'
-        }
         direction={{
           base: 'column',
           lg: 'row',
@@ -111,87 +90,92 @@ const Agreement = () => {
         position='relative'
         alignItems='flex-start'
       >
-        {!isMobile && (
-          <>
-            <VStack spacing={4} align='stretch' maxH='90%' w='70%'>
-              <Box
-                py={5}
-                px={10}
-                flex='1'
-                overflowY='auto'
-                backgroundColor='white'
-                border='1px solid #cbcbcb'
-                onScroll={handleScroll}
-                ref={contentRef}
+        <VStack
+          spacing={4}
+          align='stretch'
+          maxH='90%'
+          w='70%'
+          display={{ base: 'none', md: 'flex' }}
+        >
+          <Box
+            py={5}
+            px={10}
+            flex='1'
+            overflowY='auto'
+            backgroundColor='white'
+            border='1px solid #cbcbcb'
+          >
+            <AgreementContent agreement={agreement} />
+          </Box>
+          <Flex justifyContent='center'>
+            <Tooltip
+              label={
+                !hasSupply
+                  ? 'No hats left to claim. If this hat is mutable an admin could increase the supply.'
+                  : !isClaimableFor
+                    ? 'Please all any account to claim this Hat on behalf of eligible users.'
+                    : 'Review the hat details and conditions to claim.'
+              }
+              placement='top'
+            >
+              <Button
+                colorScheme='blue'
+                onClick={() => {
+                  setIsReviewed(true);
+                }}
+                isDisabled={!isClaimableFor || !hasSupply}
+                leftIcon={<Icon as={HatIcon} color='white' />}
+                py={4}
               >
-                <AgreementContent agreement={agreement} />
-              </Box>
-              <Flex justifyContent='center'>
-                <Tooltip
-                  label={
-                    !hasSupply &&
-                    'No hats left to claim. If this hat is mutable an admin could increase the supply.'
-                  }
-                  placement='top'
-                >
-                  <Button
-                    colorScheme='blue'
-                    onClick={() => {
-                      setIsReviewed(true);
-                    }}
-                    isDisabled={!isButtonEnabled || !hasSupply}
-                    leftIcon={<Icon as={HatIcon} color='white' />}
-                    py={4}
-                  >
-                    Reviewed
-                  </Button>
-                </Tooltip>
-              </Flex>
-            </VStack>
+                Reviewed
+              </Button>
+            </Tooltip>
+          </Flex>
+        </VStack>
 
-            <ClaimHat
-              agreement={agreement}
-              isReviewed={isReviewed}
+        <ClaimHat
+          agreement={agreement}
+          isReviewed={isReviewed}
+          setIsReviewed={setIsReviewed}
+          hasSupply={hasSupply}
+        />
+
+        <Stack
+          spacing={4}
+          minH='800px'
+          display={{ base: 'flex', md: 'none' }}
+          bg='gray.50'
+        >
+          <Header />
+          {hasSupply ? (
+            <Conditions
+              isReviewed={isReviewed || isWearing}
               setIsReviewed={setIsReviewed}
-              hasSupply={hasSupply}
+              agreementIsLink
             />
-          </>
-        )}
+          ) : (
+            <Stack align='center' spacing={8} mb={100}>
+              <Heading size='md'>This hat has no remaining supply!</Heading>
 
-        {isMobile && (
-          <Stack spacing={4} minH='800px'>
-            <Header />
-            {hasSupply ? (
-              <Conditions
-                isReviewed={isReviewed || isWearing}
-                setIsReviewed={setIsReviewed}
-                agreementIsLink
-              />
-            ) : (
-              <Stack align='center' spacing={8} mb={100}>
-                <Heading size='md'>This hat has no remaining supply!</Heading>
+              {selectedHat?.mutable && (
+                <Text maxW='80%' textAlign='center'>
+                  Since this hat is mutable, an admin can adjust the max supply.
+                </Text>
+              )}
 
-                {selectedHat?.mutable && (
-                  <Text maxW='80%' textAlign='center'>
-                    Since this hat is mutable, an admin can adjust the max
-                    supply.
-                  </Text>
-                )}
+              <ChakraNextLink
+                href={hatLink({ chainId, hatId: selectedHat?.id })}
+                isExternal
+              >
+                <Button variant='outlineMatch' colorScheme='blue.500'>
+                  View Hat
+                </Button>
+              </ChakraNextLink>
+            </Stack>
+          )}
 
-                <ChakraNextLink
-                  href={hatLink({ chainId, hatId: selectedHat?.id })}
-                  isExternal
-                >
-                  <Button variant='outlineMatch' colorScheme='blue.500'>
-                    View Hat
-                  </Button>
-                </ChakraNextLink>
-              </Stack>
-            )}
-
-            <BottomMenu isReviewed={isReviewed || isWearing} />
-          </Stack>
-        )}
+          <BottomMenu isReviewed={isReviewed || isWearing} />
+        </Stack>
       </HStack>
     </Layout>
   );

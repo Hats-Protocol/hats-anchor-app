@@ -103,16 +103,21 @@ export const fetchWearerDetailsForChain = async (
   chainId: number,
 ) => {
   if (!address) return Promise.resolve([]);
-  return fetchWearerDetailsMesh(toLower(address), chainId).then((data) => {
-    if (!data) return Promise.resolve([]);
+  return fetchWearerDetailsMesh(toLower(address), chainId)
+    .then((data) => {
+      if (!data) return Promise.resolve([]);
 
-    const currentHats = get(data, 'currentHats');
-    const withProcessedMetadata = map(currentHats, parseMetadata);
+      const currentHats = get(data, 'currentHats');
+      const withProcessedMetadata = map(
+        currentHats,
+        parseMetadata,
+      ) as unknown as AppHat[];
 
-    return Promise.resolve(withProcessedMetadata);
-  }).catch((err) => {
-    return Promise.resolve([]);
-  });
+      return Promise.resolve(withProcessedMetadata);
+    })
+    .catch((err) => {
+      return Promise.resolve([]);
+    });
 };
 
 export const fetchWearerDetailsForAllChains = async (
