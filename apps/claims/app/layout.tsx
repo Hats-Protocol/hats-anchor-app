@@ -39,7 +39,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <TxHistoryModal />
         </Providers>
 
-        <div className='fixed left-0 top-0 z-[-5] size-full bg-[url("/bg-topography.svg")]' />
+        <div className='fixed left-0 top-0 z-[-5] size-full bg-gray-50' />
       </div>
     </body>
   </html>

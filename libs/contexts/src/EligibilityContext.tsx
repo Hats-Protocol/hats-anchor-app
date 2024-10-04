@@ -4,13 +4,13 @@ import { CONTROLLER_TYPES, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useHatDetails, useTreeDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
-import { first, get, includes, map, toLower, toNumber } from 'lodash';
+import { first, get, includes, toLower, toNumber } from 'lodash';
 import {
   useAncillaryElection,
   useModuleDetails,
   useMultiClaimsHatterCheck,
 } from 'modules-hooks';
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { AppHat, HatDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
@@ -30,6 +30,10 @@ export interface EligibilityContextProps {
   // claiming
   isClaimableFor: boolean;
   hatterIsAdmin: boolean | undefined;
+  requireHatter: boolean;
+  // temporary eligibility
+  isEligible: boolean;
+  setIsEligible: (isEligible: boolean) => void;
 }
 
 export const EligibilityContext = createContext<EligibilityContextProps>({
@@ -48,6 +52,10 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   // claiming
   isClaimableFor: false,
   hatterIsAdmin: false,
+  requireHatter: false,
+  // temporary eligibility
+  isEligible: false,
+  setIsEligible: () => {},
 });
 
 export const EligibilityContextProvider = ({
@@ -59,6 +67,7 @@ export const EligibilityContextProvider = ({
   chainId: SupportedChains;
   children: React.ReactNode;
 }) => {
+  const [isEligible, setIsEligible] = useState(false);
   const {
     data: selectedHat,
     details: hatDetails,
@@ -67,8 +76,8 @@ export const EligibilityContextProvider = ({
     chainId,
     hatId,
   });
-  const treeId = toNumber(get(selectedHat, 'treeId'));
-
+  const treeId = toNumber(get(selectedHat, 'tree.id'));
+  const requireHatter = false;
   const { data: treeDetails } = useTreeDetails({
     treeId,
     chainId,
@@ -98,7 +107,7 @@ export const EligibilityContextProvider = ({
     onchainHats: get(treeDetails, 'hats', []),
   });
   const isClaimableFor = useMemo(
-    () => includes(map(claimableForHats, 'id'), selectedHat?.id),
+    () => includes(claimableForHats, selectedHat?.id),
     [claimableForHats, selectedHat],
   );
 
@@ -126,6 +135,10 @@ export const EligibilityContextProvider = ({
       // claiming
       isClaimableFor,
       hatterIsAdmin,
+      requireHatter,
+      // temporary eligibility
+      isEligible,
+      setIsEligible,
     }),
     [
       chainId,
@@ -144,6 +157,10 @@ export const EligibilityContextProvider = ({
       // claiming
       isClaimableFor,
       hatterIsAdmin,
+      requireHatter,
+      // temporary eligibility
+      isEligible,
+      setIsEligible,
     ],
   );
 

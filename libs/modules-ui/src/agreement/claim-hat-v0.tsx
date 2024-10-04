@@ -42,7 +42,7 @@ const HatCreateCard = dynamic(() =>
   import('molecules').then((mod) => mod.HatCreateCard),
 );
 
-const ClaimHat = ({ agreement }: { agreement: string }) => {
+export const ClaimHatV0 = ({ agreement }: { agreement: string }) => {
   const hatId = CONFIG.agreementV0.communityHatId; // TODO handle IP from URL params
   const { address } = useAccount();
   const chainId = useChainId();
@@ -238,5 +238,3 @@ const ClaimHat = ({ agreement }: { agreement: string }) => {
     </Stack>
   );
 };
-
-export default ClaimHat;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Card, CardBody, Flex, Stack } from '@chakra-ui/react';
+import { Card, CardBody, Flex, Skeleton, Stack } from '@chakra-ui/react';
 // import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
@@ -23,10 +23,6 @@ const UpcomingSeason = dynamic(() =>
 );
 const WearersList = dynamic(() =>
   import('modules-ui').then((mod) => mod.WearersList),
-);
-const Header = dynamic(() => import('modules-ui').then((mod) => mod.Header));
-const Layout = dynamic(() =>
-  import('molecules').then((mod) => mod.StandaloneLayout),
 );
 
 const Election = () => {
@@ -51,72 +47,92 @@ const Election = () => {
   // }
 
   // should be loaded and know if it's election eligibility
-  if (!isClient || isModuleDetailsLoading) return null;
+  if (!isClient || isModuleDetailsLoading)
+    return <Skeleton w='full' minH='500px' borderRadius='lg' />;
 
   return (
-    <Layout title='Claims' showBottomMenu={false}>
-      <Stack
-        position='relative'
-        px={{ base: 6, md: 10, lg: 32 }}
-        py={120}
-        gap={10}
-      >
-        <Flex maxW='100%' justifyContent='center'>
-          <Header />
-        </Flex>
-        <Flex gap={6} direction={{ base: 'column', md: 'row' }}>
-          <Box flexBasis={{ base: '100%', md: '35%' }}>
-            <Stack gap={6}>
-              <Card>
-                <CardBody>
-                  <CurrentSeason />
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody>
-                  <WearersList />
-                </CardBody>
-              </Card>
-              <Card display={{ base: 'none', md: 'inherit' }}>
-                <CardBody>
-                  <ElectionRoles />
-                </CardBody>
-              </Card>
-            </Stack>
-          </Box>
-          <Box flexBasis={['100%', '65%']}>
-            <Stack gap={6}>
-              {!isMobile && (
-                <Card display={{ base: 'none', md: 'inherit' }}>
-                  <CardBody>
-                    <UpcomingSeason />
-                  </CardBody>
-                </Card>
-              )}
-              <Card>
-                <CardBody>
-                  <ProposalView />
-                </CardBody>
-              </Card>
-            </Stack>
-          </Box>
-        </Flex>
-        {isMobile && (
-          <>
-            <Card display={{ base: 'inherit', md: 'none' }}>
+    <Stack gap={10}>
+      <Flex gap={6} w='full'>
+        <Skeleton
+          w={{ base: '100%', md: '48%' }}
+          minH='90px'
+          isLoaded={!isModuleDetailsLoading}
+        >
+          <Card w='full' h='full'>
+            <CardBody>
+              <CurrentSeason />
+            </CardBody>
+          </Card>
+        </Skeleton>
+
+        <Skeleton
+          w={{ base: '100%', md: '48%' }}
+          display={{ base: 'none', md: 'inherit' }}
+          minH='90px'
+          isLoaded={!isModuleDetailsLoading}
+        >
+          <Card w='full' h='full'>
+            <CardBody>
+              <UpcomingSeason />
+            </CardBody>
+          </Card>
+        </Skeleton>
+      </Flex>
+
+      <Flex gap={6} w='full'>
+        <Skeleton
+          w={{ base: '100%', md: '48%' }}
+          minH='90px'
+          isLoaded={!isModuleDetailsLoading}
+        >
+          <Card w='full' h='full'>
+            <CardBody>
+              <WearersList />
+            </CardBody>
+          </Card>
+        </Skeleton>
+
+        <Skeleton
+          w={{ base: '100%', md: '48%' }}
+          minH='90px'
+          isLoaded={!isModuleDetailsLoading}
+        >
+          <Card display={{ base: 'none', md: 'inherit' }} w='full' h='full'>
+            <CardBody>
+              <ElectionRoles />
+            </CardBody>
+          </Card>
+        </Skeleton>
+      </Flex>
+
+      <Skeleton w='full' minH='300px' isLoaded={!isModuleDetailsLoading}>
+        <Card w='full' h='full'>
+          <CardBody>
+            <ProposalView />
+          </CardBody>
+        </Card>
+      </Skeleton>
+
+      {isMobile && (
+        <>
+          <Skeleton w='full' minH='300px' isLoaded={!isModuleDetailsLoading}>
+            <Card w='full' h='full'>
               <CardBody>
                 <UpcomingSeason />
               </CardBody>
             </Card>
-            <Card display={{ base: 'inherit', md: 'none' }}>
+          </Skeleton>
+
+          <Skeleton w='full' minH='300px' isLoaded={!isModuleDetailsLoading}>
+            <Card display={{ base: 'inherit', md: 'none' }} w='full' h='full'>
               <CardBody>
                 <ElectionRoles />
               </CardBody>
             </Card>
-          </>
-        )}
-      </Stack>
-    </Layout>
+          </Skeleton>
+        </>
+      )}
+    </Stack>
   );
 };
 

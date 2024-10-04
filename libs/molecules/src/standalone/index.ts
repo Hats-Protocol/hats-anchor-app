@@ -1,2 +1,2 @@
-export { default as StandaloneLayout } from './Layout';
+export * from './bottom-menu';
 export { default as StandaloneNavbar } from './Navbar';

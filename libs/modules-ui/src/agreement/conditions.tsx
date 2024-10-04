@@ -13,23 +13,18 @@ import {
   Icon,
   useDisclosure,
 } from '@chakra-ui/react';
+import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import { Dispatch, SetStateAction } from 'react';
+// import { Dispatch, SetStateAction } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 
 import { AgreementContentModal } from './agreement-content-modal';
 
-export const Conditions = ({
-  isReviewed,
-  setIsReviewed,
-  agreementIsLink,
-}: {
-  isReviewed: boolean;
-  setIsReviewed: Dispatch<SetStateAction<boolean>>;
-  agreementIsLink?: boolean;
-}) => {
+export const Conditions = () => {
+  const agreementIsLink = true;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const allConditionsMet = isReviewed;
+  const { isEligible: isReadyToClaim } = useEligibility();
+  const allConditionsMet = isReadyToClaim;
   const { isMobile } = useMediaStyles();
 
   return (
@@ -56,13 +51,13 @@ export const Conditions = ({
             }
             borderBottom='1px solid var(--gray-500, #718096)'
           >
-            <Box>Comply with all Rules to claim this Hat</Box>
+            <Box textAlign='left'>Comply with all Rules to claim this Hat</Box>
             <AccordionIcon />
             {/* {isSignAgreementLoading ? (
               <Spinner size='sm' color='blue.500' />
             ) : ( */}
             <Icon
-              as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
+              as={isReadyToClaim ? BsCheckSquareFill : BsXOctagonFill}
               color={allConditionsMet ? 'green.500' : 'red.500'}
             />
             {/* )} */}
@@ -83,8 +78,8 @@ export const Conditions = ({
                 <Spinner size='sm' color='blue.500' />
               ) : ( */}
               <Icon
-                as={isReviewed ? BsCheckSquareFill : BsXOctagonFill}
-                color={isReviewed ? 'green.500' : 'red.500'}
+                as={isReadyToClaim ? BsCheckSquareFill : BsXOctagonFill}
+                color={isReadyToClaim ? 'green.500' : 'red.500'}
               />
               {/* )} */}
             </HStack>
@@ -92,11 +87,7 @@ export const Conditions = ({
         </AccordionItem>
       </Accordion>
 
-      <AgreementContentModal
-        setIsReviewed={setIsReviewed}
-        isOpen={isOpen}
-        onClose={onClose}
-      />
+      <AgreementContentModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };

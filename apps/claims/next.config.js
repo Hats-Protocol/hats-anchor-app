@@ -36,10 +36,12 @@ const nextConfig = {
     optimizePackageImports: [
       // external pkgs
       '@chakra-ui/react',
+      'react-icons',
       '@rainbow-me/rainbowkit',
       '@tanstack/react-query',
       'd3-org-chart',
       'viem',
+      'wagmi',
       // internal packages
       // '@hatsprotocol/constants',
       'contexts',

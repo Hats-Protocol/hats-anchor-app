@@ -213,7 +213,7 @@ const WearerRow = ({
             isLoading={isLoading}
             onClick={updateEligibility}
           >
-            Revoke
+            Reconcile
           </Button>
         )}
 

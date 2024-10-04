@@ -16,7 +16,7 @@ const CopyAddress = dynamic(() =>
 
 const HatDevDetails = () => {
   const { treeId } = useTreeForm();
-  const { selectedHat, chainId } = useSelectedHat();
+  const { selectedHat, chainId, isClaimable } = useSelectedHat();
 
   const devData = useMemo(() => {
     return [
@@ -56,6 +56,13 @@ const HatDevDetails = () => {
                 {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
               </Text>
             </ChakraNextLink>
+          </HStack>
+
+          <HStack>
+            <Text variant='medium'>Claimable:</Text>
+            <Text>
+              {isClaimable?.for ? 'For' : isClaimable?.by ? 'Any' : 'None'}
+            </Text>
           </HStack>
         </Stack>
 

@@ -5,6 +5,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   Stack,
   Text,
   Tooltip,
@@ -41,8 +42,9 @@ const ChakraNextLink = dynamic(() =>
 const ConnectWallet = dynamic(() =>
   import('molecules').then((mod) => mod.ConnectWallet),
 );
+const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
-const ClaimHat = ({
+export const ClaimHat = ({
   agreement,
   isReviewed,
   setIsReviewed,
@@ -156,7 +158,7 @@ const ClaimHat = ({
   if (!hasSupply) {
     // TODO text is assuming > 1 wearers is max supply. handle 0 or 1 wearers
     return (
-      <Stack w='40%' alignItems='center' gap={12}>
+      <Stack w='full' alignItems='center' gap={12}>
         <Heading size='md'>No remaining supply!</Heading>
         <Text maxW='80%' textAlign='center'>
           {selectedHatDetails?.name} already has {selectedHat?.maxSupply}{' '}
@@ -176,8 +178,8 @@ const ClaimHat = ({
 
   if (isEligible && isWearing) {
     return (
-      <Stack w='40%' justifyContent='center' alignItems='left'>
-        <Conditions isReviewed setIsReviewed={() => undefined} />
+      <Stack w='full' justifyContent='center' alignItems='left'>
+        <Conditions />
         <Stack align='center'>
           <Heading size='md' fontWeight={500}>
             Claimed!
@@ -189,7 +191,9 @@ const ClaimHat = ({
               target='_blank'
             >
               <Button
-                colorScheme='blue.500'
+                background='green.500'
+                colorScheme='green.500' // need both for primary variant
+                leftIcon={<Icon as={HatIcon} />}
                 variant={telegramAuthority ? 'outlineMatch' : 'primary'}
               >
                 View in Hats
@@ -214,8 +218,9 @@ const ClaimHat = ({
 
   if (!address) {
     return (
-      <Stack w='40%' justifyContent='center' alignItems='left'>
-        <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
+      <Stack w='full' justifyContent='center' alignItems='left'>
+        <Conditions />
+
         <Stack w='full' justifyContent='center' gap={3}>
           <ConnectWallet />
         </Stack>
@@ -225,8 +230,9 @@ const ClaimHat = ({
 
   if (chainId !== currentNetworkId) {
     return (
-      <Stack w='40%' justifyContent='center' alignItems='left'>
-        <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
+      <Stack w='full' justifyContent='center' alignItems='left'>
+        <Conditions />
+
         <Stack w='full' justifyContent='center' gap={3}>
           <NetworkSwitcher chainId={chainId} colorScheme='blue.500' />
         </Stack>
@@ -235,8 +241,9 @@ const ClaimHat = ({
   }
 
   return (
-    <Stack w='40%' justifyContent='center' alignItems='left'>
-      <Conditions isReviewed={isReviewed} setIsReviewed={setIsReviewed} />
+    <Stack w='full' justifyContent='center' alignItems='left'>
+      <Conditions />
+
       <Stack w='full' justifyContent='center' gap={3}>
         <Tooltip label={claimTooltipText} placement='top'>
           <Button
@@ -268,5 +275,3 @@ const ClaimHat = ({
     </Stack>
   );
 };
-
-export default ClaimHat;

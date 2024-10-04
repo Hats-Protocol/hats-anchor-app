@@ -14,15 +14,15 @@ import { useEligibility } from 'contexts';
 import { NumberInput } from 'forms';
 import { useTokenDetails } from 'hooks';
 import { get, isUndefined, pick, toLower, toUpper } from 'lodash';
+import { useLockFromHat } from 'modules-hooks';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { BsArrowUpRightCircle } from 'react-icons/bs';
 import { getDuration, tokenImageHandler } from 'utils';
-import { erc20Abi, formatUnits, Hex, maxUint256 } from 'viem';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { erc20Abi, formatUnits, maxUint256 } from 'viem';
+import { useWriteContract } from 'wagmi';
 
 import { TransactionButton } from './TransactionButton';
-import { useLockFromHat } from './useLockFromHat';
 
 export const AllowanceActions = ({
   moduleParameters,
@@ -31,7 +31,6 @@ export const AllowanceActions = ({
   moduleParameters: ModuleParameter[];
   activeSubscription: boolean;
 }) => {
-  const { address } = useAccount();
   const { chainId } = useEligibility();
   const { writeContractAsync } = useWriteContract();
   const localForm = useForm({});
@@ -47,19 +46,9 @@ export const AllowanceActions = ({
     currencyContract,
     duration,
     lockAddress,
+    allowance,
   } = useLockFromHat({
     moduleParameters,
-    chainId,
-  });
-
-  const { data: approvedAmount, refetch: refetchAllowance } = useReadContract({
-    abi: erc20Abi,
-    address: currencyContract,
-    functionName: 'allowance',
-    args: [
-      address as Hex, // account
-      lockAddress as Hex, // spender
-    ],
     chainId,
   });
 
@@ -72,8 +61,8 @@ export const AllowanceActions = ({
     ? formatUnits(amountToApprove, Number(decimals))
     : '';
   const allowanceInDuration =
-    approvedAmount && keyPrice ? Number(approvedAmount / keyPrice) : undefined;
-  const hasAllowance = approvedAmount && approvedAmount >= BigInt(0);
+    allowance && keyPrice ? Number(allowance / keyPrice) : undefined;
+  const hasAllowance = allowance && allowance >= BigInt(0);
 
   const { data: tokenData } = useTokenDetails({
     symbol: toLower(symbol),
@@ -133,48 +122,61 @@ export const AllowanceActions = ({
         </Heading>
       </Skeleton>
 
-      <Flex justify='space-between' gap={4} align='end'>
-        <Box>
-          <NumberInput
-            name='amount'
-            numOptions={{ min: allowanceInDuration }}
-            label='Authorized Duration'
-            isDisabled={isLoading}
-            localForm={localForm}
-          />
-        </Box>
+      <Flex
+        justify='space-between'
+        gap={4}
+        align={{ base: 'center', md: 'end' }}
+        direction={{ base: 'column', md: 'row' }}
+      >
+        <Flex
+          gap={4}
+          justify={{ base: 'space-between', md: 'start' }}
+          w={{ base: 'full', md: 'auto' }}
+        >
+          <Box>
+            <NumberInput
+              name='amount'
+              numOptions={{ min: allowanceInDuration }}
+              label='Authorized Duration'
+              isDisabled={isLoading}
+              localForm={localForm}
+            />
+          </Box>
 
-        <Stack minW='110px' align='center'>
-          <Skeleton isLoaded={!isLoading} h='full'>
-            <Heading size='sm' fontWeight='medium'>
-              {toUpper(`${durationText.adjective} fee`)}
-            </Heading>
-          </Skeleton>
+          <Stack minW={{ base: 'auto', md: '110px' }} align='center'>
+            <Skeleton isLoaded={!isLoading} h='full'>
+              <Heading size='sm' fontWeight='medium'>
+                {toUpper(`${durationText.adjective} fee`)}
+              </Heading>
+            </Skeleton>
 
-          <Skeleton isLoaded={!isLoading} my={2}>
-            <HStack>
-              <Image
-                src={tokenImage}
-                alt={`${symbol} token image`}
-                boxSize={5}
-              />
+            <Skeleton isLoaded={!isLoading} my={2}>
+              <HStack>
+                <Image
+                  src={tokenImage}
+                  alt={`${symbol} token image`}
+                  boxSize={5}
+                />
 
-              <Text fontFamily='jbMono'>{price}</Text>
-              <Text fontFamily='jbMono' color='gray.500'>
-                {symbol}
-              </Text>
-            </HStack>
-          </Skeleton>
-        </Stack>
+                <Text fontFamily='jbMono'>{price}</Text>
+                <Text fontFamily='jbMono' color='gray.500'>
+                  {symbol}
+                </Text>
+              </HStack>
+            </Skeleton>
+          </Stack>
+        </Flex>
 
         <Flex align='center'>
           <TransactionButton
-            onReceipt={() => refetchAllowance()}
+            onReceipt={() => {
+              // refetchAllowance()
+            }}
             variant='primary'
             isDisabled={
-              !isUndefined(approvedAmount) &&
+              !isUndefined(allowance) &&
               !isUndefined(amountToApprove) &&
-              approvedAmount >= amountToApprove
+              allowance >= amountToApprove
             }
             sendTx={async () => {
               // @ts-expect-error argument of type
@@ -201,7 +203,9 @@ export const AllowanceActions = ({
               // @ts-expect-error argument of type
               return writeContractAsync(zeroApprovalParams);
             }}
-            onReceipt={() => refetchAllowance()}
+            onReceipt={() => {
+              // refetchAllowance()
+            }}
             variant='link'
             color='red.500'
             leftIcon={<Icon as={BsArrowUpRightCircle} />}
@@ -216,11 +220,11 @@ export const AllowanceActions = ({
             // @ts-expect-error argument of type
             return writeContractAsync(unlimitedApprovalParams);
           }}
-          onReceipt={() => refetchAllowance()}
+          onReceipt={() => {
+            // refetchAllowance()
+          }}
           variant='link'
-          isDisabled={
-            !isUndefined(approvedAmount) && approvedAmount === maxUint256
-          }
+          isDisabled={!isUndefined(allowance) && allowance === maxUint256}
           leftIcon={<Icon as={BsArrowUpRightCircle} />}
           txDescription='Cancel subscription for Hat'
         >
