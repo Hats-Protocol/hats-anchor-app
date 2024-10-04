@@ -9,7 +9,13 @@ import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { chainsMap } from 'utils';
 
-import { Agreement, AgreementV0, Election, KnownModule } from './modules';
+import {
+  Agreement,
+  AgreementV0,
+  Election,
+  KnownModule,
+  Subscription,
+} from './modules';
 
 const Layout = dynamic(() =>
   import('molecules').then((mod) => mod.StandaloneLayout),
@@ -28,7 +34,7 @@ const Claims = () => {
 
   if (isModuleDetailsLoading || !selectedHat?.id) {
     return (
-      <Layout title='Claims'>
+      <Layout title='Claims' showBottomMenu={false}>
         <Flex justify='center' pt='120px'>
           <Stack minW='350px' align='center' spacing={50}>
             <Header />
@@ -50,13 +56,14 @@ const Claims = () => {
   // TODO migrate to ID and CONSTs
   if (moduleDetails?.name === 'Hats Election Eligibility') return <Election />;
   if (moduleDetails?.name.includes('Agreement')) return <Agreement />;
+  if (moduleDetails?.name.includes('PublicLock')) return <Subscription />;
 
   // fallback for other known modules
   if (moduleDetails) return <KnownModule />;
 
   // fallback for unknown modules
   return (
-    <Layout title='Claims'>
+    <Layout title='Claims' showBottomMenu={false}>
       <Flex justify='center' pt='120px'>
         <Stack align='center' minW='350px' spacing={150}>
           <Header />

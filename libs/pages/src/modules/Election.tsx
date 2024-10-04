@@ -54,7 +54,7 @@ const Election = () => {
   if (!isClient || isModuleDetailsLoading) return null;
 
   return (
-    <Layout title='Claims'>
+    <Layout title='Claims' showBottomMenu={false}>
       <Stack
         position='relative'
         px={{ base: 6, md: 10, lg: 32 }}

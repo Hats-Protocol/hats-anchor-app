@@ -20,8 +20,9 @@ const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
     >
       <HStack>
         <ChakraNextLink href='/'>
-          <Image src='/hats.png' h='40px' w='40px' alt='Hats Logo' />
+          <Image src='/hats.png' boxSize={10} alt='Hats Logo' />
         </ChakraNextLink>
+
         {heading && (
           <Heading size='lg' variant='medium'>
             {heading}

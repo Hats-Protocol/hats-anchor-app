@@ -1,28 +1,22 @@
 'use client';
 
 import { Box } from '@chakra-ui/react';
-// import { useAttemptAutoConnect } from 'hooks';
 import { ReactNode } from 'react';
 
-import Navbar from './Navbar';
+import { BottomMenu } from './bottom-menu';
 
-const StandaloneLayout = ({ children, title }: StandaloneLayoutProps) => {
-  // useAttemptAutoConnect();
-
+const StandaloneLayout = ({
+  children,
+  title,
+  claimFn,
+  disableClaim,
+  requireHatter,
+  isLoading,
+  isEligible,
+  showBottomMenu = true,
+}: StandaloneLayoutProps) => {
   return (
     <Box h='100%' w='100%' position='relative'>
-      <Box
-        bgColor='gray.100'
-        backgroundImage='/bg-topography.svg'
-        backgroundRepeat='repeat'
-        position='fixed'
-        h='100%'
-        w='110%'
-        left='-5%'
-        zIndex={-1}
-      />
-
-      <Navbar />
       <Box
         h={{ base: 'auto', md: '100vh' }}
         w={{ base: 'auto', md: '100vw' }}
@@ -31,6 +25,16 @@ const StandaloneLayout = ({ children, title }: StandaloneLayoutProps) => {
       >
         {children}
       </Box>
+
+      {showBottomMenu && (
+        <BottomMenu
+          claimFn={claimFn!}
+          disableClaim={disableClaim!}
+          requireHatter={requireHatter!}
+          isLoading={isLoading!}
+          isEligible={isEligible!}
+        />
+      )}
     </Box>
   );
 };
@@ -40,4 +44,10 @@ export default StandaloneLayout;
 interface StandaloneLayoutProps {
   title?: string;
   children: ReactNode;
+  claimFn?: () => void;
+  disableClaim?: boolean;
+  requireHatter?: boolean;
+  isLoading?: boolean;
+  isEligible?: boolean;
+  showBottomMenu?: boolean;
 }

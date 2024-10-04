@@ -65,7 +65,7 @@ const Agreement = () => {
   );
 
   return (
-    <Layout title='Claims'>
+    <Layout title='Claims' showBottomMenu={false}>
       {!isMobile && (
         <Stack pt='80px' alignItems='center' mb={6}>
           <Header />

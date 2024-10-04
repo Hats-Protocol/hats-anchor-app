@@ -19,8 +19,10 @@ const useWearerDetails = ({
     queryKey: ['wearerDetails', { wearerAddress, chainId }],
     queryFn: () =>
       chainId && chainId !== 'all'
-        ? fetchWearerDetailsForChain(wearerAddress, chainId)
-        : fetchWearerDetailsForAllChains(wearerAddress),
+        ? (fetchWearerDetailsForChain(wearerAddress, chainId) as Promise<
+          AppHat[]
+        >)
+        : (fetchWearerDetailsForAllChains(wearerAddress) as Promise<AppHat[]>),
     enabled: !!wearerAddress && !!chainId,
     initialData,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes

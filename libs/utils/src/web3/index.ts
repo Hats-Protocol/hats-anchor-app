@@ -4,10 +4,15 @@ import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, http, WalletClient } from 'viem';
 import { getWalletClient } from 'wagmi/actions';
 
 import { chainsMap, getRpcUrl, wagmiConfig } from './chains';
+
+const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
+if (!WC_PROJECT_ID) {
+  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
+}
 
 declare global {
   interface Window {
@@ -20,6 +25,7 @@ declare global {
 export const viemPublicClient = (chainId: number) => {
   return createPublicClient({
     chain: chainsMap(chainId),
+    batch: { multicall: true },
     transport: http(getRpcUrl(chainId), { batch: true }),
   });
 };
@@ -51,31 +57,44 @@ export function createSubgraphClient(): HatsSubgraphClient {
 
 export async function createHatsModulesClient(
   chainId: number | undefined,
-): Promise<HatsModulesClient | undefined> {
-  if (!chainId) return undefined;
+  walletClient?: WalletClient | undefined,
+): Promise<HatsModulesClient | null> {
+  if (!chainId) return Promise.resolve(null);
 
   const publicClient = viemPublicClient(chainId);
-  try {
-    const walletClient = await getWalletClient(wagmiConfig);
 
-    const hatsModulesClient = new HatsModulesClient({
+  if (walletClient) {
+    const client = new HatsModulesClient({
       publicClient,
       walletClient,
     });
+    await client.prepare();
 
-    await hatsModulesClient.prepare();
-
-    return hatsModulesClient as HatsModulesClient;
-  } catch (e) {
-    // expect an error when not connected to a wallet
-    const modulesClient = new HatsModulesClient({
-      publicClient,
-    });
-
-    await modulesClient.prepare();
-
-    return modulesClient as HatsModulesClient;
+    return Promise.resolve(client);
   }
+
+  return getWalletClient(wagmiConfig)
+    .then(async (walletClient) => {
+      const hatsModulesClient = new HatsModulesClient({
+        publicClient,
+        walletClient,
+      });
+
+      // Will look up all modules in registry but can be configired to
+      // handle a specific module if passed as argument
+      await hatsModulesClient.prepare();
+
+      return Promise.resolve(hatsModulesClient);
+    })
+    .catch(async (e) => {
+      const modulesClient = new HatsModulesClient({
+        publicClient,
+      });
+
+      await modulesClient.prepare();
+
+      return Promise.resolve(modulesClient);
+    });
 }
 
 export async function createHatsSignerGateClient(

@@ -1,6 +1,6 @@
 'use client';
 
-import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useHatDetails, useTreeDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
@@ -21,10 +21,15 @@ export interface EligibilityContextProps {
   moduleDetails: Module | undefined;
   moduleParameters: ModuleParameter[] | undefined;
   controllerAddress: Hex | undefined;
+  // loading
+  isHatDetailsLoading: boolean | undefined;
   isModuleDetailsLoading: boolean | undefined;
+  // election eligibility
   electionsAuthority: any | undefined;
   isElectionsAuthorityLoading: boolean;
+  // claiming
   isClaimableFor: boolean;
+  hatterIsAdmin: boolean | undefined;
 }
 
 export const EligibilityContext = createContext<EligibilityContextProps>({
@@ -34,10 +39,15 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   moduleDetails: undefined,
   moduleParameters: undefined,
   controllerAddress: undefined,
+  // loading
+  isHatDetailsLoading: false,
   isModuleDetailsLoading: false,
+  // election eligibility
   electionsAuthority: undefined,
   isElectionsAuthorityLoading: false,
+  // claiming
   isClaimableFor: false,
+  hatterIsAdmin: false,
 });
 
 export const EligibilityContextProvider = ({
@@ -49,7 +59,11 @@ export const EligibilityContextProvider = ({
   chainId: SupportedChains;
   children: React.ReactNode;
 }) => {
-  const { data: selectedHat, details: hatDetails } = useHatDetails({
+  const {
+    data: selectedHat,
+    details: hatDetails,
+    isLoading: isHatDetailsLoading,
+  } = useHatDetails({
     chainId,
     hatId,
   });
@@ -78,7 +92,7 @@ export const EligibilityContextProvider = ({
     chainId,
   });
 
-  const { claimableForHats } = useMultiClaimsHatterCheck({
+  const { claimableForHats, hatterIsAdmin } = useMultiClaimsHatterCheck({
     selectedHat,
     chainId,
     onchainHats: get(treeDetails, 'hats', []),
@@ -92,6 +106,7 @@ export const EligibilityContextProvider = ({
     useAncillaryElection({
       id: controllerAddress,
       chainId,
+      enabled: moduleDetails?.name === ELIGIBILITY_MODULES.election,
     });
 
   const value = useMemo(
@@ -102,10 +117,15 @@ export const EligibilityContextProvider = ({
       moduleDetails,
       moduleParameters,
       controllerAddress,
+      // loading
+      isHatDetailsLoading,
       isModuleDetailsLoading,
+      // election
       electionsAuthority,
       isElectionsAuthorityLoading,
+      // claiming
       isClaimableFor,
+      hatterIsAdmin,
     }),
     [
       chainId,
@@ -115,10 +135,15 @@ export const EligibilityContextProvider = ({
       moduleDetails,
       moduleParameters,
       controllerAddress,
+      // loading
+      isHatDetailsLoading,
       isModuleDetailsLoading,
+      // election
       electionsAuthority,
       isElectionsAuthorityLoading,
+      // claiming
       isClaimableFor,
+      hatterIsAdmin,
     ],
   );
 
