@@ -9,21 +9,25 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
 import dynamic from 'next/dynamic';
-import { chainsMap } from 'utils';
+import { chainsMap, hatLink } from 'utils';
 
-import {
-  Agreement,
-  AgreementV0,
-  Election,
-  KnownModule,
-  Subscription,
-} from './modules';
-
+const AgreementClaims = dynamic(() =>
+  import('modules-ui').then((mod) => mod.AgreementClaims),
+);
+const ElectionClaims = dynamic(() =>
+  import('modules-ui').then((mod) => mod.ElectionClaims),
+);
+const SubscriptionClaims = dynamic(() =>
+  import('modules-ui').then((mod) => mod.SubscriptionClaims),
+);
+const SlimModuleDetails = dynamic(() =>
+  import('modules-ui').then((mod) => mod.SlimModuleDetails),
+);
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
@@ -53,17 +57,19 @@ const Claims = () => {
     chainId === 10 &&
     get(selectedHat, 'id') === CONFIG.agreementV0.communityHatId
   ) {
-    return <AgreementV0 />;
+    return <AgreementClaims />;
   }
 
   // handle specific modules found
   // TODO migrate to ID and CONSTs
-  if (moduleDetails?.name === 'Hats Election Eligibility') return <Election />;
-  if (moduleDetails?.name.includes('Agreement')) return <Agreement />;
-  if (moduleDetails?.name.includes('Unlock Protocol')) return <Subscription />;
+  if (moduleDetails?.name === 'Hats Election Eligibility')
+    return <ElectionClaims />;
+  if (moduleDetails?.name.includes('Agreement')) return <AgreementClaims />;
+  if (moduleDetails?.name.includes('Unlock Protocol'))
+    return <SubscriptionClaims />;
 
   // fallback for other known modules
-  if (moduleDetails) return <KnownModule />;
+  if (moduleDetails) return <SlimModuleDetails type='eligibility' />;
 
   // fallback for unknown modules
   return (
@@ -74,9 +80,7 @@ const Claims = () => {
           <Text>
             No compatible module found for hat{' '}
             <ChakraNextLink
-              href={`${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(
-                BigInt(selectedHat?.id),
-              )}?hatId=${hatIdDecimalToIp(BigInt(selectedHat?.id))}`}
+              href={hatLink({ chainId, hatId: selectedHat?.id })}
               decoration
             >
               #{hatIdDecimalToIp(BigInt(selectedHat?.id))}

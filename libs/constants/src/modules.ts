@@ -45,6 +45,7 @@ export const ELIGIBILITY_MODULES = {
   jokerace: eligibilityModule('JokeRace'),
   passthrough: 'Passthrough Module',
   staking: eligibilityModule('Staking'),
+  unlock: 'Subscription Eligibility (Unlock Protocol V14)',
   // meta modules
   eligibilityChain: 'Eligibilities Chain',
 };

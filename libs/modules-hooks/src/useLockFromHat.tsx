@@ -1,7 +1,7 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
-import { map } from 'lodash';
-import { erc20Abi, formatUnits, zeroAddress } from 'viem';
+import { find, get, map } from 'lodash';
+import { erc20Abi, formatUnits, Hex, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
 interface ContractLookup {
@@ -21,9 +21,10 @@ export const useLockFromHat = ({
 }) => {
   const { address } = useAccount();
 
-  const lockAddress = moduleParameters?.filter(
-    (param) => param.label === 'Lock Contract',
-  )[0].value as `0x${string}`;
+  const lockAddress = get(
+    find(moduleParameters, { label: 'Lock Contract' }),
+    'value',
+  ) as Hex;
 
   const contractLockProperties: ContractLookup[] = [
     {

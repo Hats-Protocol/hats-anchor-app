@@ -22,7 +22,7 @@ const useWearersEligibilityStatus = ({
   const wearers = selectedHat?.wearers;
   const localWearerIds = wearerIds || map(wearers, 'id');
 
-  const { data, isLoading, error } = useQuery({
+  return useQuery({
     queryKey: ['wearerEligibility', localWearerIds, hatId, chainId],
     queryFn: () =>
       hatId && chainId
@@ -31,8 +31,6 @@ const useWearersEligibilityStatus = ({
     staleTime: editMode ? Infinity : 15 * 1000 * 60,
     enabled: !!hatId && !!chainId,
   });
-
-  return { data, isLoading, error };
 };
 
 export default useWearersEligibilityStatus;

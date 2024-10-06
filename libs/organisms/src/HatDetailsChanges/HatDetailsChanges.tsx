@@ -38,13 +38,13 @@ const HatDetailsCard = ({ event }: { event: any }) => {
       <CardContent className='p-2 md:p-6'>
         <AccordionItem borderTop='none' borderBottom='none'>
           <AccordionButton>
-            <div className='flex justify-between w-full'>
-              <div className='flex gap-2 flex-col md:flex-row md:items-center'>
-                <h2 className='font-mono font-medium bg-slate-600 text-white px-2 rounded-md'>
+            <div className='flex w-full justify-between'>
+              <div className='flex flex-col gap-2 md:flex-row md:items-center'>
+                <h2 className='rounded-md bg-slate-600 px-2 font-mono font-medium text-white'>
                   {hash.slice(7, 10)}...
                   {hash.slice(-10)}
                 </h2>
-                <span className='flex gap-2 items-center'>
+                <span className='flex items-center gap-2'>
                   on
                   <p className='text-sm text-slate-500'>{formattedDate}</p>
                 </span>
@@ -76,7 +76,7 @@ const HatDetailsCard = ({ event }: { event: any }) => {
                 </Link>
               </div>
 
-              <div className='bg-slate-700 text-white overflow-scroll px-2 max-h-[500px]'>
+              <div className='max-h-[500px] overflow-scroll bg-slate-700 px-2 text-white'>
                 <pre>{JSON.stringify(details, null, 2)}</pre>
               </div>
             </div>
@@ -96,8 +96,8 @@ const HatDetailsChanges = () => {
   );
 
   return (
-    <div className='flex flex-col justify-center gap-4 py-32 w-[90%] md:w-[60%] mx-auto'>
-      <h1 className='text-lg md:text-2xl font-bold'>
+    <div className='mx-auto flex w-[90%] flex-col justify-center gap-4 py-32 md:w-[60%]'>
+      <h1 className='text-lg font-bold md:text-2xl'>
         {selectedHatDetails?.name} Details Changes
       </h1>
 

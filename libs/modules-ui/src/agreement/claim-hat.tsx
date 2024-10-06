@@ -30,8 +30,8 @@ import { fetchWearerDetails, hatLink } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
+import { ClaimsConditions } from '../claims-conditions';
 import AgreementContent from './agreement-content';
-import { Conditions } from './conditions';
 
 const NetworkSwitcher = dynamic(() =>
   import('molecules').then((mod) => mod.NetworkSwitcher),
@@ -179,7 +179,7 @@ export const ClaimHat = ({
   if (isEligible && isWearing) {
     return (
       <Stack w='full' justifyContent='center' alignItems='left'>
-        <Conditions />
+        <ClaimsConditions />
         <Stack align='center'>
           <Heading size='md' fontWeight={500}>
             Claimed!
@@ -219,7 +219,7 @@ export const ClaimHat = ({
   if (!address) {
     return (
       <Stack w='full' justifyContent='center' alignItems='left'>
-        <Conditions />
+        <ClaimsConditions />
 
         <Stack w='full' justifyContent='center' gap={3}>
           <ConnectWallet />
@@ -231,7 +231,7 @@ export const ClaimHat = ({
   if (chainId !== currentNetworkId) {
     return (
       <Stack w='full' justifyContent='center' alignItems='left'>
-        <Conditions />
+        <ClaimsConditions />
 
         <Stack w='full' justifyContent='center' gap={3}>
           <NetworkSwitcher chainId={chainId} colorScheme='blue.500' />
@@ -242,7 +242,7 @@ export const ClaimHat = ({
 
   return (
     <Stack w='full' justifyContent='center' alignItems='left'>
-      <Conditions />
+      <ClaimsConditions />
 
       <Stack w='full' justifyContent='center' gap={3}>
         <Tooltip label={claimTooltipText} placement='top'>

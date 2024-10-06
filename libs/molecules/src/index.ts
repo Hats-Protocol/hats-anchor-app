@@ -1,5 +1,7 @@
+export * from './agreement-content';
 export { default as AuthorityHeader } from './AuthorityHeader';
 export * from './cards';
+export * from './CheckHasHat';
 export { default as CmdkButton } from './CmdkButton';
 export { default as CommandPalette } from './CommandPalette';
 export { default as ConnectWallet } from './ConnectWallet';
@@ -17,6 +19,7 @@ export { default as ResponsibilityHeader } from './ResponsibilityHeader';
 export { default as ShowTreesButton } from './ShowTreesButton';
 export * from './standalone';
 export { default as TooltipWrapper } from './TooltipWrapper';
+export * from './TransactionButton';
 export { default as TransactionHistory } from './TransactionHistory';
 export { default as TreeMenu } from './TreeMenu';
 export { default as TxHistoryModal } from './TxHistoryModal';

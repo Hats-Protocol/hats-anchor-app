@@ -73,6 +73,17 @@ export const hatLink = ({
   return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}${isMobile ? '/' : '?hatId='}${hatIdDecimalToIp(BigInt(hatId))}`;
 };
 
+export const claimsLink = ({
+  chainId,
+  hatId,
+}: {
+  chainId: number | undefined;
+  hatId: Hex | undefined;
+}) => {
+  if (!chainId || !hatId) return '#';
+  return `${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(BigInt(hatId))}`;
+};
+
 export const generateLocalStorageKey = (
   chainId: number | undefined,
   treeId: string | undefined,
@@ -202,6 +213,7 @@ export const formatRoundedDecimals = ({
   decimals?: number;
   rounded?: number;
 }): string => {
+  if (value === BigInt(0)) return '0';
   if (!value || !decimals) return '-';
   const formattedValue = formatUnits(value, decimals);
   return formatRound({ value: formattedValue, rounded });

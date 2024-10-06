@@ -20,6 +20,9 @@ export type ModuleDetailsHandler = {
   selectedHat?: AppHat;
   moduleType?: ValueOf<typeof CONTROLLER_TYPES>;
   isWearer?: boolean;
+  modalSuffix?: string | undefined;
+  setIsReadyToClaim?: (isReadyToClaim: boolean) => void;
+  isReadyToClaim?: boolean;
 };
 
 type FallbackModuleResult = {

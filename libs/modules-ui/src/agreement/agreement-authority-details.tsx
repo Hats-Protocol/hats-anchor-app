@@ -55,7 +55,7 @@ export const AgreementEligibilityDetails = (
         ) as bigint;
         return (
           <div className='flex justify-between' key={role}>
-            <div className='flex gap-2 items-center'>
+            <div className='flex items-center gap-2'>
               <div>{AGREEMENT_ROLES[role].label}</div>
 
               <Tooltip label={AGREEMENT_ROLES[role].tooltip} placement='top'>

@@ -123,12 +123,6 @@ export const AgreementModal = ({
   );
   const { data: agreementData } = useIpfsData(currentAgreement);
   const agreementContent = get(agreementData, 'data');
-  console.log({
-    judgeHat: hatIdDecimalToHex(BigInt(judgeHat)),
-    ownerHat: hatIdDecimalToHex(BigInt(ownerHat)),
-    isJudge,
-    isOwner,
-  });
 
   const badStandings = get(agreementDetails, 'badStandings');
   const mappedProfiles = map(agreementProfiles, (profile) => {
@@ -301,8 +295,8 @@ export const AgreementModal = ({
                 key={p.id}
                 eligibilityAccount={p}
                 wearers={wearers}
-                removing={removing}
-                removeList={removeList}
+                updating={removing}
+                updateList={removeList}
                 handleAdd={handleAdd}
                 handleRemove={handleRemove}
               />

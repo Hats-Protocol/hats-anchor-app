@@ -17,6 +17,7 @@ const useWaitForSubgraph = ({
   interval?: number;
 }) => {
   const toast = useToast();
+
   const waitForResult = async () =>
     new Promise((resolve, reject) => {
       const checkResultHandler = async () => {
@@ -33,6 +34,7 @@ const useWaitForSubgraph = ({
             }, 5000);
           }
         } catch (e) {
+          console.log(e);
           toast.error({
             title: 'Error',
             description: 'An error occurred while waiting for subgraph',

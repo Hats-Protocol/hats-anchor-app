@@ -43,7 +43,7 @@ const HatCreateCard = dynamic(() =>
 );
 
 export const ClaimHatV0 = ({ agreement }: { agreement: string }) => {
-  const hatId = CONFIG.agreementV0.communityHatId; // TODO handle IP from URL params
+  const COMMUNITY_HAT_ID = CONFIG.agreementV0.communityHatId; // TODO handle IP from URL params
   const { address } = useAccount();
   const chainId = useChainId();
   const queryClient = useQueryClient();
@@ -53,12 +53,15 @@ export const ClaimHatV0 = ({ agreement }: { agreement: string }) => {
     wearerAddress: address as Hex,
     chainId,
   });
-  const wearing = !!find(wearerDetails, { id: hatId });
+  const wearing = !!find(wearerDetails, { id: COMMUNITY_HAT_ID });
 
   const waitForClaim = useWaitForSubgraph({
     fetchHelper: () => fetchWearerDetails(address, chainId),
     checkResult: (result) => {
-      const hasClaimed = includes(map(get(result, 'currentHats'), 'id'), hatId);
+      const hasClaimed = includes(
+        map(get(result, 'currentHats'), 'id'),
+        COMMUNITY_HAT_ID,
+      );
       return hasClaimed;
     },
   });
@@ -88,7 +91,7 @@ export const ClaimHatV0 = ({ agreement }: { agreement: string }) => {
     functionName: 'claimHatWithAgreement',
     address: CONFIG.agreementV0.hatterAddress,
     chainId,
-    enabled: Boolean(hatId) && !wearerLoading && !wearing,
+    enabled: !wearerLoading && !wearing,
     onSuccessToastData: TOASTS.claimHatWithAgreement,
   });
 
@@ -128,11 +131,14 @@ export const ClaimHatV0 = ({ agreement }: { agreement: string }) => {
       </Text>
       <Flex w='full' justifyContent='center' py={4}>
         <NextLink
-          href={hatLink({ chainId, hatId, isMobile })}
+          href={hatLink({ chainId, hatId: COMMUNITY_HAT_ID, isMobile })}
           passHref
           target='_blank'
         >
-          <HatCreateCard id={hatId} chainId={chainId as SupportedChains} />
+          <HatCreateCard
+            id={COMMUNITY_HAT_ID}
+            chainId={chainId as SupportedChains}
+          />
         </NextLink>
       </Flex>
 

@@ -9,6 +9,7 @@ import {
   Link,
   Skeleton,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
@@ -19,14 +20,13 @@ import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import React from 'react';
 import { BsArrowRight } from 'react-icons/bs';
-import { FiExternalLink } from 'react-icons/fi';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
-import { hatLink } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import NetworkSwitcher from '../NetworkSwitcher';
+import { BottomMoreMenu } from './bottom-more-menu';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
@@ -37,26 +37,12 @@ const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
         p={2}
         borderTop='1px solid'
         borderColor='gray.200'
+        direction={{ base: 'row', md: 'row-reverse' }}
         justify='space-between'
       >
         {children}
       </Flex>
     </Box>
-  );
-};
-
-const FullRoleLink = () => {
-  const { selectedHat, chainId } = useEligibility();
-  const link = hatLink({ hatId: selectedHat?.id, chainId });
-  return (
-    <Link href={link} isExternal>
-      <Button
-        variant='outline'
-        rightIcon={<Icon as={FiExternalLink} boxSize={4} />}
-      >
-        View full role
-      </Button>
-    </Link>
   );
 };
 
@@ -85,15 +71,15 @@ export const BottomMenu = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
-  const { handleClaim, isLoading, isEligible } = useClaimFn({
+  const { handleClaim, disableClaim, isLoading, isEligible } = useClaimFn({
     selectedHat: selectedHat as AppHat,
     handlePendingTx,
     moduleParameters,
     moduleDetails,
     controllerAddress,
     chainId,
+    isReadyToClaim,
   });
-  const disableClaim = false;
 
   const hatUrl = selectedHat?.id
     ? `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(
@@ -109,9 +95,14 @@ export const BottomMenu = () => {
   ) {
     return (
       <MenuWrapper>
-        <Skeleton w='200px' h='full' minH='40px' borderRadius='md' />
+        <Skeleton
+          w={{ base: '25%', md: '250px' }}
+          h='full'
+          minH='40px'
+          borderRadius='md'
+        />
 
-        <FullRoleLink />
+        <Skeleton w='100px' h='full' borderRadius='md' />
       </MenuWrapper>
     );
   }
@@ -138,7 +129,7 @@ export const BottomMenu = () => {
       <MenuWrapper>
         <NetworkSwitcher chainId={chainId} />
 
-        <FullRoleLink />
+        <BottomMoreMenu />
       </MenuWrapper>
     );
   }
@@ -151,22 +142,31 @@ export const BottomMenu = () => {
     hatterIfNeeded = !hatterIsAdmin || !isClaimableFor;
   }
 
+  let tooltip = '';
+  if (requireHatter && !hatterIsAdmin) {
+    tooltip = 'There is no claims hatter enabled for this tree';
+  }
+  if (!isClaimableFor) {
+    tooltip = 'Ensure any address can claim on behalf of wearers.';
+  }
+
   return (
     <MenuWrapper>
-      <Button
-        variant='primary'
-        // won't hit this flow if wrong network
-        isDisabled={hatterIfNeeded || disableClaim || !isReadyToClaim}
-        onClick={handleClaim}
-        isLoading={isLoading}
-      >
-        <HStack>
-          <HatIcon />
-          <Text>Claim this Hat</Text>
-        </HStack>
-      </Button>
-
-      <FullRoleLink />
+      <Tooltip label={tooltip}>
+        <Button
+          variant='primary'
+          // won't hit this flow if wrong network
+          isDisabled={hatterIfNeeded || disableClaim} // handle isReadyToClaim on respective disableClaims
+          onClick={handleClaim}
+          isLoading={isLoading}
+        >
+          <HStack>
+            <HatIcon />
+            <Text>Claim this Hat</Text>
+          </HStack>
+        </Button>
+      </Tooltip>
+      <BottomMoreMenu />
     </MenuWrapper>
   );
 };

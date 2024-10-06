@@ -145,8 +145,8 @@ export const ElectionModal = ({
             key={p.id}
             eligibilityAccount={p}
             wearers={wearers}
-            removing={removing}
-            removeList={removeList}
+            updating={removing}
+            updateList={removeList}
             handleAdd={handleAdd}
             handleRemove={handleRemove}
           />

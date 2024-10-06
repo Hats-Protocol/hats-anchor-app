@@ -1,7 +1,7 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { EligibilityContextProvider } from 'contexts';
 import { first, get, pick, split, toNumber } from 'lodash';
-import { Conditions, Header } from 'modules-ui';
+import { ClaimsConditions, Header } from 'modules-ui';
 import { BottomMenu } from 'molecules';
 import { Metadata } from 'next';
 import { Claims } from 'pages';
@@ -15,6 +15,7 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
   const hexHatId = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
   // TODO handle unexpected chainIds that won't produce valid numbers
+  // TODO handle chainIds that are not supported
 
   return (
     <EligibilityContextProvider
@@ -23,13 +24,13 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
     >
       <div className='relative h-full w-full'>
         <div className='mx-auto h-auto w-auto max-w-7xl md:h-screen md:w-screen'>
-          <div className='flex flex-col-reverse gap-8 pt-0 md:flex-row md:gap-10 md:pt-[120px] 2xl:gap-24'>
-            <div className='md:w-[65%] md:max-w-[65%]'>
+          <div className='md:grid-cols-20 flex flex-col-reverse pt-0 md:grid md:pt-[120px]'>
+            <div className='hidden md:col-span-11 md:col-start-2 md:grid'>
               <Claims />
             </div>
 
-            <div className='right-0 flex w-full flex-col-reverse items-center gap-6 overflow-y-auto md:fixed md:w-[28%] md:flex-col md:gap-2 md:pr-10 lg:w-[30%] lg:pr-10 xl:w-[31%] xl:pr-24 2xl:flex'>
-              <Conditions />
+            <div className='md:col-start-14 flex w-full flex-col-reverse items-center gap-6 overflow-y-auto md:col-span-6 md:flex-col'>
+              <ClaimsConditions />
 
               <Header />
             </div>

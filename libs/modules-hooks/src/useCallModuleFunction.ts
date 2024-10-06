@@ -70,6 +70,11 @@ const useCallModuleFunction = ({
           args: preparedArgs,
         });
 
+        if (!get(result, 'transactionHash')) {
+          onDecline?.();
+          return;
+        }
+
         await invalidateAfterTransaction(chainId, result.transactionHash);
 
         if (result?.status === 'success') {
@@ -80,8 +85,6 @@ const useCallModuleFunction = ({
 
           onSuccess?.();
         }
-
-        if (!result) onDecline?.();
       } catch (error: unknown) {
         const err = error as Error;
         // eslint-disable-next-line no-console
