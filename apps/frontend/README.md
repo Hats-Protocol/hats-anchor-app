@@ -12,6 +12,6 @@ To test your local instance for a production build run `pnpm build` from the roo
 
 The build artifacts will be stored in the `{ROOT_DIR}/dist/` directory, ready to be deployed. Build cache for libraries is also stored in `{ROOT_DIR}/tmp/` so they don't need to rebuilt each time without changes.
 
-## Caveat
+## Deployment
 
-Building with the libraries requires a change in the app also to actually build the respective app deploy.
+Having multiple apps that are at different stages of deploy we can choose when to build based on changes in the specific app repo. If there's no changes in an app it won't be built by the CI/CD process. The simplest change is to add (or remove) an extra new line at the end of this file.

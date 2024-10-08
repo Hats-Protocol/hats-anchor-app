@@ -24,7 +24,7 @@ import dynamic from 'next/dynamic';
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
-const Header = () => {
+export const Header = () => {
   const { selectedHat, selectedHatDetails, isHatDetailsLoading } =
     useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string, {
@@ -135,5 +135,3 @@ const Header = () => {
     </Stack>
   );
 };
-
-export default Header;

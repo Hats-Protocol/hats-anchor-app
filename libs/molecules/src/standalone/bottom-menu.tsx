@@ -71,15 +71,16 @@ export const BottomMenu = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
-  const { handleClaim, disableClaim, isLoading, isEligible } = useClaimFn({
-    selectedHat: selectedHat as AppHat,
-    handlePendingTx,
-    moduleParameters,
-    moduleDetails,
-    controllerAddress,
-    chainId,
-    isReadyToClaim,
-  });
+  const { handleClaim, disableClaim, disableReason, isLoading, isEligible } =
+    useClaimFn({
+      selectedHat: selectedHat as AppHat,
+      handlePendingTx,
+      moduleParameters,
+      moduleDetails,
+      controllerAddress,
+      chainId,
+      isReadyToClaim,
+    });
 
   const hatUrl = selectedHat?.id
     ? `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(
@@ -146,13 +147,13 @@ export const BottomMenu = () => {
   if (requireHatter && !hatterIsAdmin) {
     tooltip = 'There is no claims hatter enabled for this tree';
   }
-  if (!isClaimableFor) {
+  if (requireHatter && !isClaimableFor) {
     tooltip = 'Ensure any address can claim on behalf of wearers.';
   }
 
   return (
     <MenuWrapper>
-      <Tooltip label={tooltip}>
+      <Tooltip label={tooltip || disableReason}>
         <Button
           variant='primary'
           // won't hit this flow if wrong network

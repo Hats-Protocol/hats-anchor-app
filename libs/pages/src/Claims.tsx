@@ -48,9 +48,7 @@ const Claims = () => {
     isHatDetailsLoading ||
     !selectedHat?.id
   ) {
-    return (
-      <Skeleton w='full' h='500px' borderRadius='lg' ml={{ md: 8, lg: 10 }} />
-    );
+    return <Skeleton w='full' h='500px' borderRadius='lg' />;
   }
 
   if (

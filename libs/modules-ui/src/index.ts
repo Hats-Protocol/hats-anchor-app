@@ -3,7 +3,7 @@ export * from './allowlist';
 export * from './claims-conditions';
 export * from './election';
 export * from './eligibility-rules';
-export { default as Header } from './Header';
+export * from './header';
 export * from './hsg';
 export * from './joke-race';
 export * from './module-card-details';

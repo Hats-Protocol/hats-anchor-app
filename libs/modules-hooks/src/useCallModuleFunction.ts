@@ -89,6 +89,10 @@ const useCallModuleFunction = ({
         const err = error as Error;
         // eslint-disable-next-line no-console
         console.log(err);
+        if (err.message.includes('User rejected the request')) {
+          console.log('User rejected the request');
+          onDecline?.();
+        }
         toast.error({
           title: 'Transaction failed',
           description: err.message,

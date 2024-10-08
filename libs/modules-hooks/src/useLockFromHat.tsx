@@ -88,16 +88,22 @@ export const useLockFromHat = ({
       args: [address!, lockAddress],
       enabled: tokenAddress !== zeroAddress && !!lockAddress && !!address,
     },
+    {
+      ...currencyContract,
+      functionName: 'balanceOf',
+      args: [address!],
+      enabled: tokenAddress !== zeroAddress && !!address,
+    },
   ];
 
   const { data: tokenProperties, isLoading: isLoadingTokenProperties } =
     useReadContracts({
       contracts: tokenPropertiesRequests as any,
     });
-  const [tokenSymbol, tokenDecimals, tokenAllowance] = map(
+  const [tokenSymbol, tokenDecimals, tokenAllowance, tokenBalance] = map(
     tokenProperties,
     'result',
-  ) as [string, bigint, bigint];
+  ) as [string, bigint, bigint, bigint];
 
   if (
     isLoadingLockProperties ||
@@ -125,6 +131,7 @@ export const useLockFromHat = ({
     keyPrice: purchasePrice,
     lockAddress,
     keyBalance,
+    tokenBalance,
     allowance: tokenAllowance,
   };
 };

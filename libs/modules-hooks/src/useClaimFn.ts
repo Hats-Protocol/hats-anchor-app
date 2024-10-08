@@ -68,15 +68,18 @@ export const useClaimFn = ({
   // TODO handle check which module to enable each hook
 
   // SUBSCRIPTION via UNLOCK
-  const { claimFn: subscriptionClaim, disableClaim: subscriptionDisableClaim } =
-    useSubscriptionClaim({
-      moduleParameters,
-      moduleDetails,
-      chainId,
-      controllerAddress,
-      status,
-      setStatus,
-    });
+  const {
+    claimFn: subscriptionClaim,
+    disableClaim: subscriptionDisableClaim,
+    disableReason: subscriptionDisableReason,
+  } = useSubscriptionClaim({
+    moduleParameters,
+    moduleDetails,
+    chainId,
+    controllerAddress,
+    status,
+    setStatus,
+  });
 
   // AGREEMENT v1
   const { signAndClaim: agreementClaim, isLoading: isLoadingAgreementClaim } =
@@ -109,6 +112,9 @@ export const useClaimFn = ({
     chainId,
     enabled: Boolean(COMMUNITY_HAT_ID) && !isLoadingWearerDetails && !isWearing,
     onSuccessToastData: TOASTS.claimHatWithAgreement,
+    onDecline: () => {
+      setStatus(CLAIM_STATUS.DECLINED);
+    },
   });
 
   const claimHandlers = useMemo(() => {
@@ -124,6 +130,7 @@ export const useClaimFn = ({
       return {
         claimFn: subscriptionClaim,
         disableClaim: subscriptionDisableClaim,
+        disableReason: subscriptionDisableReason,
       };
     }
 
@@ -140,6 +147,7 @@ export const useClaimFn = ({
     agreementV0Claim,
     subscriptionClaim,
     subscriptionDisableClaim,
+    subscriptionDisableReason,
     isReadyToClaim,
   ]);
 
@@ -150,21 +158,16 @@ export const useClaimFn = ({
     }
     setStatus(CLAIM_STATUS.CLAIMING);
 
-    return claimHandlers
-      .claimFn?.()
-      .then(() => {
-        // MODAL used for pending tx handler, not claiming
-        onOpen();
-      })
-      .catch((error: Error) => {
-        console.error(error);
-        setStatus(CLAIM_STATUS.FAILED);
-      });
+    return claimHandlers.claimFn?.().then(() => {
+      // MODAL used for pending tx handler, not claiming
+      onOpen();
+    });
   };
 
   return {
     handleClaim,
     disableClaim: claimHandlers.disableClaim,
+    disableReason: claimHandlers.disableReason,
     isEligible,
     status,
     isLoading: status === CLAIM_STATUS.CLAIMING,

@@ -23,7 +23,7 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 import { MixedIcon } from 'types';
-import { getDuration } from 'utils';
+import { formatAddress, getDuration } from 'utils';
 import { erc20Abi, formatUnits, Hex } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
@@ -84,7 +84,7 @@ export const SubscriptionClaims = () => {
     },
   ];
 
-  const { data: contractData, refetch: refetchBalances } = useReadContracts({
+  const { data: contractData } = useReadContracts({
     contracts: contracts as any,
   });
   const [keyBalance, allowance, tokenBalance] = map(contractData, 'result') as [
@@ -111,8 +111,24 @@ export const SubscriptionClaims = () => {
         label: 'Key Balance',
         descriptor: `${keyBalance.toString()} keys`,
       },
+      !isUndefined(price) && {
+        label: 'Price',
+        descriptor: `${price} ${symbol}`,
+      },
+      !isUndefined(lockAddress) && {
+        label: 'Lock Address',
+        descriptor: formatAddress(lockAddress),
+      },
     ]);
-  }, [keyBalance, tokenBalance, allowance, decimals, symbol]);
+  }, [
+    keyBalance,
+    tokenBalance,
+    allowance,
+    decimals,
+    symbol,
+    price,
+    lockAddress,
+  ]);
 
   if (isLoading || isLoadingWearerDetails) {
     return <Skeleton w='full' h='200px' />;
@@ -147,7 +163,7 @@ export const SubscriptionClaims = () => {
 
   return (
     <Stack spacing={8}>
-      <Card w='full' mx={{ base: 2, md: 0 }} ml={{ md: 8, lg: 10 }}>
+      <Card w='full' mx={{ base: 2, md: 0 }}>
         <CardBody m={{ base: 0, md: 4 }}>
           <Stack spacing={8}>
             <Heading>
@@ -224,7 +240,7 @@ export const SubscriptionClaims = () => {
         </CardBody>
       </Card>
 
-      <Box maxW='350px' ml={14}>
+      <Box maxW='350px'>
         <DevInfo moduleDescriptors={moduleDescriptors} />
       </Box>
     </Stack>

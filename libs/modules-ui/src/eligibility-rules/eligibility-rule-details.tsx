@@ -78,8 +78,8 @@ export const EligibilityRuleDetails = ({
             status === ELIGIBILITY_STATUS.eligible ||
             status === ELIGIBILITY_STATUS.pending ||
             status === TOGGLE_STATUS.active
-              ? 'green.600'
-              : 'red.600'
+              ? 'green.500'
+              : 'red.500'
           }
         >
           <Text>{displayStatus}</Text>

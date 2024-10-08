@@ -1,8 +1,11 @@
+'use client';
+
 import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { get, includes, toLower } from 'lodash';
+import { useLockFromHat } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import {
   BsCheckSquare,
@@ -27,6 +30,7 @@ const SUBSCRIPTION_MODAL_NAME = 'subscriptionManager';
 
 export const UnlockEligibilityRule = ({
   selectedHat,
+  moduleParameters,
   chainId,
   wearer,
   modalSuffix,
@@ -34,6 +38,13 @@ export const UnlockEligibilityRule = ({
 }: ModuleDetailsHandler) => {
   const { setModals } = useOverlay();
   const { isMobile } = useMediaStyles();
+
+  const { allowance: tokenAllowance, keyPrice } = useLockFromHat({
+    moduleParameters,
+    chainId,
+  });
+  const hasAllowance =
+    !!tokenAllowance && !!keyPrice && tokenAllowance >= keyPrice;
 
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
@@ -67,7 +78,7 @@ export const UnlockEligibilityRule = ({
       </Text>
     );
   }
-  if (isReadyToClaim) {
+  if (isReadyToClaim || hasAllowance) {
     status = ELIGIBILITY_STATUS.pending;
     displayStatus = 'Pending';
     icon = BsCheckSquare;

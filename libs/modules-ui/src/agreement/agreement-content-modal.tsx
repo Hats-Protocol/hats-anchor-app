@@ -28,7 +28,6 @@ const AgreementContent = dynamic(() =>
 const handleFetchIpfs: any = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
     .then((res: any) => {
-      console.log('res', res);
       return get(res, 'data', null);
     })
     .catch((err: Error) => {

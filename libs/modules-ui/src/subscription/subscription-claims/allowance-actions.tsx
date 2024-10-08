@@ -15,7 +15,7 @@ import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { NumberInput } from 'forms';
-import { useTokenDetails } from 'hooks';
+import { useMediaStyles, useTokenDetails } from 'hooks';
 import { get, isUndefined, pick, toLower, toUpper } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -43,6 +43,7 @@ export const AllowanceActions = ({
   const { setModals } = useOverlay();
   const localForm = useForm({});
   const { watch, reset } = pick(localForm, ['watch', 'reset']);
+  const { isMobile } = useMediaStyles();
 
   const amount = watch('amount');
   const {
@@ -203,8 +204,10 @@ export const AllowanceActions = ({
 
       <Flex
         h='75px'
-        justify={hasAllowance ? 'space-between' : 'center'}
+        direction={{ base: 'column-reverse', md: 'row' }}
+        justify={!isMobile && hasAllowance ? 'space-between' : 'center'}
         align='center'
+        gap={6}
       >
         {hasAllowance && (
           <TransactionButton

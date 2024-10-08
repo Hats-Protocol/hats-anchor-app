@@ -45,7 +45,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <CommandPalette />
         </Providers>
 
-        <div className='fixed h-full w-full z-[-5] bg-[url("/bg-topography.svg")] top-0 left-0' />
+        <div className='fixed left-0 top-0 z-[-5] h-full w-full bg-[url("/bg-topography.svg")]' />
       </div>
     </body>
   </html>
