@@ -49,7 +49,7 @@ pnpm claims:build # to build the Claims app
 
 #### Libs
 
-- [`constants`](./libs/constants/) - holds shared constants for the apps\*
+- [`constants`](./libs/constants/) - holds shared constants for the apps
 - [`contexts`](./libs/contexts/) - shared context providers for the apps
 - [`forms`](./libs/forms/) - shared form components and utilities
 - [`hats-hooks`](./libs/hats-hooks/) - hooks for interacting with the Hats Protocol contracts & subgraph
@@ -67,7 +67,7 @@ pnpm claims:build # to build the Claims app
 - [`utils`](./libs/utils/) - utilities for managing UI state and other app specific needs
 
 \* avoids circular imports with other libraries  
-† coming soon
+<!-- † coming soon -->
 
 ## Nx & Code integration
 

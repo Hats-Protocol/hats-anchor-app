@@ -153,6 +153,7 @@ export const useClaimFn = ({
 
   const handleClaim = async () => {
     if (!claimHandlers.claimFn || claimHandlers.disableClaim) {
+      // eslint-disable-next-line no-console
       console.log('claim disabled');
       return;
     }

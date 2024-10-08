@@ -52,7 +52,11 @@ export const UnlockEligibilityRule = ({
     wearerIds,
     chainId: chainId as SupportedChains,
   });
-  const isEligible = includes(get(wearerStatus, 'eligibleWearers'), wearer);
+  const isEligible = includes(
+    get(wearerStatus, 'eligibleWearers'),
+    toLower(wearer),
+  );
+  const renewSoon = isEligible && !hasAllowance;
 
   let modalName = SUBSCRIPTION_MODAL_NAME;
   if (modalSuffix) {
@@ -84,9 +88,15 @@ export const UnlockEligibilityRule = ({
     icon = BsCheckSquare;
   }
   if (isEligible) {
-    status = ELIGIBILITY_STATUS.eligible;
-    displayStatus = 'Paid';
-    icon = BsCheckSquareFill;
+    if (renewSoon) {
+      status = ELIGIBILITY_STATUS.eligible;
+      displayStatus = 'Renew Soon';
+      icon = BsCheckSquareFill;
+    } else {
+      status = ELIGIBILITY_STATUS.eligible;
+      displayStatus = 'Paid';
+      icon = BsCheckSquareFill;
+    }
   }
 
   if (IS_CLAIMS_APP) {

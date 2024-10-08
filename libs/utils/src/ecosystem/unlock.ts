@@ -5,8 +5,7 @@ export interface Duration {
   adjective: string;
 }
 
-// TODO: (referrer) put a Hats DAO address!
-export const REFERRAL_ADDRESS = '0x0000000000000000000000000000000000000000';
+export const REFERRAL_ADDRESS = '0x58c8854a8e51bdce9f00726b966905fe2719b4d9';
 
 export const DURATIONS: Record<number, Duration> = {
   7: {

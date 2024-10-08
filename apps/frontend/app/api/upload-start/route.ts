@@ -3,12 +3,14 @@ import { KeyRestrictions } from 'types';
 
 const date = new Date();
 
+const MAX_KEY_USES = 60;
+
 export async function POST(request: Request) {
   const { count } = await request.json();
 
   if (_.gt(_.toNumber(count), 0)) {
     // TODO check on this maximum value
-    keyRestrictions.maxUses = _.gt(count, 20) ? 20 : count;
+    keyRestrictions.maxUses = _.gt(count, MAX_KEY_USES) ? MAX_KEY_USES : count;
   }
 
   try {
