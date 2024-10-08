@@ -12,12 +12,14 @@ import {
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
+import { useWearerDetails } from 'hats-hooks';
 import { get, includes, map, toLower, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquareFill } from 'react-icons/bs';
 import { fetchIpfs } from 'utils';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const AgreementContent = dynamic(() =>
@@ -39,15 +41,21 @@ const handleFetchIpfs: any = async (ipfsHash: string) => {
 const AgreementButton = () => {
   const {
     selectedHat,
+    chainId,
     isClaimableFor,
     isEligible: isReadyToClaim,
     setIsEligible: setIsReadyToClaim,
   } = useEligibility();
   const { address } = useAccount();
 
+  const { data: wearerHats } = useWearerDetails({
+    wearerAddress: address as Hex,
+    chainId,
+  });
+
   const isWearing = useMemo(
-    () => includes(map(selectedHat?.wearers, 'id'), toLower(address)),
-    [selectedHat, address],
+    () => includes(map(wearerHats, 'id'), toLower(address)),
+    [wearerHats, address],
   );
   const hasSupply = useMemo(
     () =>

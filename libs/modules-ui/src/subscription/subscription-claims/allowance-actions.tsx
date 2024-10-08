@@ -24,10 +24,13 @@ import { useForm } from 'react-hook-form';
 import { BsArrowUpRightCircle } from 'react-icons/bs';
 import { getDuration, tokenImageHandler } from 'utils';
 import { erc20Abi, formatUnits, maxUint256 } from 'viem';
-import { useWriteContract } from 'wagmi';
+import { useChainId, useWriteContract } from 'wagmi';
 
 const TransactionButton = dynamic(() =>
   import('molecules').then((mod) => mod.TransactionButton),
+);
+const NetworkSwitcher = dynamic(() =>
+  import('molecules').then((mod) => mod.NetworkSwitcher),
 );
 
 export const AllowanceActions = ({
@@ -38,6 +41,7 @@ export const AllowanceActions = ({
   activeSubscription: boolean;
 }) => {
   const { chainId, setIsEligible: setIsReadyToClaim } = useEligibility();
+  const currentChainId = useChainId();
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
@@ -177,28 +181,32 @@ export const AllowanceActions = ({
         </Flex>
 
         <Flex align='center'>
-          <TransactionButton
-            sendTx={async () => {
-              // @ts-expect-error argument of type
-              return writeContractAsync(approvalParams);
-            }}
-            onReceipt={() => {
-              // refetchAllowance()
-              setIsReadyToClaim(true);
-              setModals?.({});
-              queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-            }}
-            variant='primary'
-            isDisabled={
-              !isUndefined(allowance) &&
-              !isUndefined(amountToApprove) &&
-              allowance >= amountToApprove
-            }
-            txDescription='Approve allowance on Hat subscription'
-          >
-            Approve {amount} {durationText.noun}
-            {amount > 1 ? 's' : ''} ({tokenAmountText} {symbol})
-          </TransactionButton>
+          {currentChainId === chainId ? (
+            <TransactionButton
+              sendTx={async () => {
+                // @ts-expect-error argument of type
+                return writeContractAsync(approvalParams);
+              }}
+              onReceipt={() => {
+                // refetchAllowance()
+                setIsReadyToClaim(true);
+                setModals?.({});
+                queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+              }}
+              variant='primary'
+              isDisabled={
+                !isUndefined(allowance) &&
+                !isUndefined(amountToApprove) &&
+                allowance >= amountToApprove
+              }
+              txDescription='Approve allowance on Hat subscription'
+            >
+              Approve {amount} {durationText.noun}
+              {amount > 1 ? 's' : ''} ({tokenAmountText} {symbol})
+            </TransactionButton>
+          ) : (
+            <NetworkSwitcher chainId={chainId} />
+          )}
         </Flex>
       </Flex>
 

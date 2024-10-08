@@ -4,11 +4,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { useToast } from 'hooks';
 import { isUndefined } from 'lodash';
-import { invalidateAfterTransaction, viemPublicClient } from 'utils';
+import {
+  invalidateAfterTransaction,
+  REFERRAL_ADDRESS,
+  viemPublicClient,
+} from 'utils';
 import { Abi, zeroAddress } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
 import { useLockFromHat } from './useLockFromHat';
+
+// TODO replace where we get the ABI from
+// TODO check that eligibility module is wearing admin hat (handles its own claiming)
 
 export const useSubscriptionClaim = ({
   moduleParameters,
@@ -32,8 +39,6 @@ export const useSubscriptionClaim = ({
     chainId,
   });
 
-  // TODO check that eligibility module is wearing admin hat (handles its own claiming)
-
   const lockContract = {
     abi: PublicLockV14.abi as Abi,
     address: lockAddress,
@@ -46,7 +51,7 @@ export const useSubscriptionClaim = ({
       args: [
         [keyPrice], // values
         [address], // recipients
-        [address], // [REFERRAL_ADDRESS], // referral
+        [REFERRAL_ADDRESS], // referral
         [address], // keyManagers
         ['0x'], // data (empty)
       ],

@@ -148,17 +148,22 @@ export const SubscriptionClaims = () => {
 
   const durationText = getDuration(duration);
 
-  let subscriptionStatus = 'No authorization';
-  let subscriptionStatusIcon: MixedIcon = BsXOctagonFill;
+  let status = 'No authorization';
+  let icon: MixedIcon = BsXOctagonFill;
+  let color = 'red.500';
   if (hasAllowance || activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
-    subscriptionStatus = `${durationsLeft} ${durationText.noun}${
-      durationsLeft > 1 ? 's' : ''
-    } left`;
-    subscriptionStatusIcon = BsCheckSquareFill as ComponentWithAs<
-      'svg',
-      IconProps
-    >;
+    if (durationsLeft === 0) {
+      status = 'Renew Soon';
+      icon = BsCheckSquareFill;
+      color = 'orange.500';
+    } else {
+      status = `${durationsLeft} ${durationText.noun}${
+        durationsLeft > 1 || durationsLeft === 0 ? 's' : ''
+      } left`;
+      icon = BsCheckSquareFill as ComponentWithAs<'svg', IconProps>;
+      color = 'green.500';
+    }
   }
 
   return (
@@ -180,14 +185,9 @@ export const SubscriptionClaims = () => {
                 <Text>Pay the subscription fee</Text>
 
                 <HStack>
-                  <Text color={hasAllowance ? 'green.500' : 'red.500'}>
-                    {subscriptionStatus}
-                  </Text>
+                  <Text color={color}>{status}</Text>
 
-                  <Icon
-                    as={subscriptionStatusIcon}
-                    color={hasAllowance ? 'green.500' : 'red.500'}
-                  />
+                  <Icon as={icon} color={color} />
                 </HStack>
               </Flex>
             </Stack>
