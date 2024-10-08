@@ -1,6 +1,7 @@
 'use client';
 
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { invalidateAfterTransaction } from 'utils';
 import { Hex } from 'viem';
@@ -21,9 +22,10 @@ interface ContractInteractionProps {
     toastData?: { title: string; description: string };
   }) => Promise<void>;
   enabled: boolean;
+  onDecline?: () => void;
 }
 
-// ! DEPRECATED. TO BE REMOVED WITH HATS COMMUNITY HAT MIGRATION WITH SEASON 3
+// ! DEPRECATED. TO BE REMOVED WITH HATS COMMUNITY HAT MIGRATION
 
 // workaround for https://github.com/microsoft/TypeScript/issues/48212
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,7 +36,9 @@ const useAgreementClaimsHatterContractWrite: any = ({
   onSuccessToastData,
   handlePendingTx,
   enabled = true,
+  onDecline,
 }: ContractInteractionProps) => {
+  const queryClient = useQueryClient();
   const localEnabled = !!address && chainId === 10 && !!functionName && enabled;
 
   const toast = useToast();
@@ -60,6 +64,9 @@ const useAgreementClaimsHatterContractWrite: any = ({
 
         invalidateAfterTransaction(chainId, hash);
 
+        queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+
         handlePendingTx?.({
           hash,
           toastData: onSuccessToastData,
@@ -68,8 +75,9 @@ const useAgreementClaimsHatterContractWrite: any = ({
       })
 
       .catch((error) => {
+        console.log(error);
         if (
-          error.name === 'TransactionExecutionError' &&
+          // error.name === 'TransactionExecutionError' &&
           error.message.includes('User rejected the request')
         ) {
           toast.error({
@@ -82,6 +90,7 @@ const useAgreementClaimsHatterContractWrite: any = ({
             description: 'Please try again later',
           });
         }
+        onDecline?.();
       });
   };
 

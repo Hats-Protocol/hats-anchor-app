@@ -6,7 +6,8 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "declarationMap": true,
-    "strict": false
+    "strict": true,
+    "types": ["wagmi", "viem"]
   },
   "references": [
     { "path": "../constants/tsconfig.lib.json" },

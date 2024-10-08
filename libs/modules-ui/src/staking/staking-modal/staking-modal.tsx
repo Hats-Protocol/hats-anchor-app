@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Button,
   Divider,
@@ -7,6 +9,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
@@ -19,7 +22,6 @@ import {
   reject,
   size,
   subtract,
-  toString,
 } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -30,10 +32,10 @@ import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 import {
+  AboutModule,
   EligibilityRow,
   ModuleHistory,
   ModuleModal,
-  WearerFilters,
 } from '../../module-modal';
 
 const Card = dynamic(() => import('ui').then((mod) => mod.Card));
@@ -48,11 +50,14 @@ export const StakingModal = ({
   const { chainId } = useTreeForm();
   const localForm = useForm();
   const [adding, setAdding] = useState(false);
-  const [removing, setRemoving] = useState(false);
-  const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
+  const [updating, setUpdating] = useState(false);
+  const [updateList, setUpdateList] = useState<AllowlistProfile[]>([]);
   // const { watch } = pick(localForm, ['watch']);
 
-  const { data: hat } = useHatDetails({ hatId: eligibilityHatId, chainId });
+  const { data: hat, details } = useHatDetails({
+    hatId: eligibilityHatId,
+    chainId,
+  });
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
   // const searchInput = watch('search');
@@ -73,13 +78,13 @@ export const StakingModal = ({
     };
     // TODO fix type
   }) as unknown as AllowlistProfile[];
-  const liveParams = get(moduleInfo, 'liveParameters');
-  const ownerHat = toString(
-    get(find(liveParams, { label: 'Owner Hat' }), 'value'),
-  );
-  const judgeHat = toString(
-    get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
-  );
+  // const liveParams = get(moduleInfo, 'liveParameters');
+  // const ownerHat = toString(
+  //   get(find(liveParams, { label: 'Owner Hat' }), 'value'),
+  // );
+  // const judgeHat = toString(
+  //   get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
+  // );
 
   const filteredProfiles = useMemo(() => {
     return allowlistProfiles;
@@ -89,42 +94,36 @@ export const StakingModal = ({
     (address: Hex) => {
       const profile = find(allowlistProfiles, { id: address });
       if (!profile) return;
-      setRemoveList(concat(removeList, [profile]));
+      setUpdateList(concat(updateList, [profile]));
     },
-    [removeList, allowlistProfiles],
+    [updateList, allowlistProfiles],
   );
 
   const handleRemove = useCallback(
     (address: Hex) => {
-      setRemoveList(reject(removeList, (p) => p.id === address));
+      setUpdateList(reject(updateList, (p) => p.id === address));
     },
-    [removeList],
+    [updateList],
   );
 
   return (
     <ModuleModal
       name='stakingManager'
       title='Manage Stakers'
-      filters={
-        <WearerFilters
-          filteredProfiles={{ all: allowlistProfiles }}
-          wearers={wearers}
-          activeFilter='all'
-          setActiveFilter={() => {}}
-        />
-      }
       about={
-        <></>
-        // <AboutJokeRace
-        //   eligibilityHat={eligibilityHatId}
-        //   ownerHat={ownerHat as Hex}
-        //   judgeHat={judgeHat as Hex}
-        // />
+        <AboutModule
+          heading='About this Staking Module'
+          moduleDescriptors={[]}
+        />
       }
       history={<ModuleHistory />}
     >
       <Heading size='md'>
-        JokeRace Election for Hat 1.2.1.2 - Hats Contributor
+        Staking for Hat{' '}
+        {eligibilityHatId
+          ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))
+          : ''}{' '}
+        - {details?.name || hat?.details}
       </Heading>
 
       <Flex>
@@ -151,8 +150,8 @@ export const StakingModal = ({
             key={p.id}
             eligibilityAccount={p}
             wearers={wearers}
-            removing={removing}
-            removeList={removeList}
+            updating={updating}
+            updateList={updateList}
             handleAdd={handleAdd}
             handleRemove={handleRemove}
           />
@@ -171,7 +170,7 @@ export const StakingModal = ({
         borderColor='blackAlpha.200'
         py={{ base: 4, md: 10 }}
       >
-        {!adding && !removing && (
+        {!adding && !updating && (
           <Flex w='full' justify='center' align='center'>
             <HStack>
               <Button
@@ -186,7 +185,7 @@ export const StakingModal = ({
                 variant='outlineMatch'
                 colorScheme='red.500'
                 size='sm'
-                onClick={() => setRemoving(true)}
+                onClick={() => setUpdating(true)}
               >
                 Remove Address
               </Button>
@@ -213,7 +212,7 @@ export const StakingModal = ({
                 variant='outlineMatch'
                 colorScheme='blue.500'
                 onClick={() => {
-                  setRemoveList([]);
+                  setUpdateList([]);
                   setAdding(false);
                 }}
               >
@@ -226,21 +225,21 @@ export const StakingModal = ({
           </Stack>
         )}
 
-        {removing && (
+        {updating && (
           <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
             <Stack spacing={4}>
               <Heading size='md'>Addresses selected for removal</Heading>
               <Card>
                 <Flex m={2} mx={4}>
-                  {isEmpty(removeList) ? (
+                  {isEmpty(updateList) ? (
                     <Text color='gray.500'>Select an address to remove</Text>
                   ) : (
                     <Text>
                       {map(
-                        removeList,
+                        updateList,
                         (profile, index) =>
                           `${profile.ensName || formatAddress(profile.id)}${
-                            index < subtract(size(removeList), 1) ? ', ' : ''
+                            index < subtract(size(updateList), 1) ? ', ' : ''
                           }`,
                       )}
                     </Text>
@@ -255,8 +254,8 @@ export const StakingModal = ({
                 colorScheme='blue.500'
                 size='sm'
                 onClick={() => {
-                  setRemoveList([]);
-                  setRemoving(false);
+                  setUpdateList([]);
+                  setUpdating(false);
                 }}
               >
                 Cancel
@@ -265,7 +264,7 @@ export const StakingModal = ({
                 variant='filled'
                 colorScheme='red.500'
                 size='sm'
-                isDisabled={isEmpty(removeList)}
+                isDisabled={isEmpty(updateList)}
               >
                 Remove
               </Button>

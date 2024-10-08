@@ -2,9 +2,20 @@
 
 import { Flex, Text } from '@chakra-ui/react';
 
-const HatDeco = ({ height }: { height?: string | number }) => (
-  <Flex minH={height || '150px'} justify='center' align='center'>
-    <Text size='sm'>
+const HatDeco = ({
+  height,
+  hideOnDesktop,
+}: {
+  height?: string | number;
+  hideOnDesktop?: boolean;
+}) => (
+  <Flex
+    minH={height || '150px'}
+    justify='center'
+    align='center'
+    display={{ base: 'flex', md: hideOnDesktop ? 'none' : 'flex' }}
+  >
+    <Text size={{ base: 'sm', md: 'md' }}>
       <span aria-label='Ball cap' role='img'>
         🧢
       </span>

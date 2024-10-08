@@ -2,11 +2,12 @@
 
 import { Box, Flex, Heading } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
-
-import CheckEligibilityForm from './CheckEligibilityForm';
-import EditAndWearers from './EditAndWearers';
-import Eligibility from './Eligibility';
-import Toggle from './Toggle';
+import {
+  CheckEligibilityForm,
+  EditAndWearers,
+  Eligibility,
+  Toggle,
+} from 'modules-ui';
 
 const Controllers = () => {
   const { selectedHat } = useSelectedHat();
@@ -19,9 +20,13 @@ const Controllers = () => {
           Control over this Hat
         </Heading>
       </Box>
+
       <EditAndWearers />
+
       <Eligibility />
+
       <Toggle />
+
       <CheckEligibilityForm />
     </Flex>
   );

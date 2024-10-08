@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { Input } from 'forms';
+import { Input, Textarea } from 'forms';
 import {
   useAllWearers,
   useHatDetails,
@@ -52,7 +52,6 @@ import {
   Filter,
   ModuleHistory,
   ModuleModal,
-  WearerFilters,
 } from '../../module-modal';
 
 const ControlledRadioBox = dynamic(() =>
@@ -73,8 +72,9 @@ export const AgreementModal = ({
   const localForm = useForm();
   const [removing, setRemoving] = useState(false);
   const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
-  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.HUMANISTIC);
+  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const [selectedOption, setSelectedOption] = useState<string>('Agreement');
+  const [updatingAgreement, setUpdatingAgreement] = useState(false);
   const { watch } = pick(localForm, ['watch']);
 
   const { data: hat } = useHatDetails({
@@ -123,12 +123,6 @@ export const AgreementModal = ({
   );
   const { data: agreementData } = useIpfsData(currentAgreement);
   const agreementContent = get(agreementData, 'data');
-  console.log({
-    judgeHat: hatIdDecimalToHex(BigInt(judgeHat)),
-    ownerHat: hatIdDecimalToHex(BigInt(ownerHat)),
-    isJudge,
-    isOwner,
-  });
 
   const badStandings = get(agreementDetails, 'badStandings');
   const mappedProfiles = map(agreementProfiles, (profile) => {
@@ -208,7 +202,7 @@ export const AgreementModal = ({
     ]);
   }, [ownerHat, judgeHat, eligibilityHatId]);
 
-  const handleSignAgreement = useCallback(async () => {
+  const handleSignAgreement = async () => {
     console.log('sign agreement');
     const tx = await writeContractAsync({
       address: moduleInfo.id,
@@ -219,7 +213,20 @@ export const AgreementModal = ({
 
     console.log('tx', tx);
     // TODO handle success
-  }, []);
+  };
+
+  const handleUpdateAgreement = async () => {
+    console.log('update agreement');
+    // const tx = await writeContractAsync({
+    //   address: moduleInfo.id,
+    //   abi: moduleInfo.abi,
+    //   functionName: 'updateAgreement',
+    //   args: [instanceAddress],
+    // });
+    // console.log('tx', tx);
+    // TODO handle success
+    setUpdatingAgreement(false);
+  };
 
   if (!eligibilityHatId) return null;
 
@@ -227,14 +234,6 @@ export const AgreementModal = ({
     <ModuleModal
       name='agreementManager'
       title='Agreement Signers'
-      filters={
-        <WearerFilters
-          filteredProfiles={filteredProfiles}
-          wearers={wearers}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
-        />
-      }
       about={
         <AboutModule
           heading='About this Agreement'
@@ -250,9 +249,22 @@ export const AgreementModal = ({
         size='sm'
       />
 
-      {selectedOption === 'Agreement' && (
+      {selectedOption === 'Agreement' && !updatingAgreement && (
         <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
           <Markdown>{agreementContent as string}</Markdown>
+        </Stack>
+      )}
+
+      {selectedOption === 'Agreement' && updatingAgreement && (
+        <Stack w='100%'>
+          <Heading size='md'>Update Agreement</Heading>
+
+          <Textarea
+            name='agreementContent'
+            value={agreementContent as string}
+            localForm={localForm}
+            minH='450px'
+          />
         </Stack>
       )}
 
@@ -283,8 +295,8 @@ export const AgreementModal = ({
                 key={p.id}
                 eligibilityAccount={p}
                 wearers={wearers}
-                removing={removing}
-                removeList={removeList}
+                updating={removing}
+                updateList={removeList}
                 handleAdd={handleAdd}
                 handleRemove={handleRemove}
               />
@@ -300,7 +312,7 @@ export const AgreementModal = ({
       )}
 
       {((selectedOption === 'Signatures' && isJudge) ||
-        (selectedOption === 'Agreement' && !isWearing)) && (
+        (selectedOption === 'Agreement' && (!isWearing || isOwner))) && (
         <Flex
           position='absolute'
           bottom={0}
@@ -313,10 +325,10 @@ export const AgreementModal = ({
           borderColor='blackAlpha.200'
           py={{ base: 4, md: 10 }}
         >
-          {!removing && (
+          {!removing && !updatingAgreement && (
             <Flex w='full' justify='center' align='center'>
               <HStack>
-                {selectedOption === 'Agreement' && (
+                {selectedOption === 'Agreement' && !isWearing && (
                   <Button
                     variant='outlineMatch'
                     colorScheme='blue.500'
@@ -326,7 +338,17 @@ export const AgreementModal = ({
                     Sign Agreement & Claim
                   </Button>
                 )}
-                {selectedOption === 'Signatures' && (
+                {selectedOption === 'Agreement' && isOwner && (
+                  <Button
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
+                    size='sm'
+                    onClick={() => setUpdatingAgreement(true)}
+                  >
+                    Update Agreement
+                  </Button>
+                )}
+                {selectedOption === 'Signatures' && isJudge && (
                   <Button
                     variant='outlineMatch'
                     colorScheme='red.500'
@@ -337,6 +359,29 @@ export const AgreementModal = ({
                   </Button>
                 )}
               </HStack>
+            </Flex>
+          )}
+
+          {updatingAgreement && (
+            <Flex w='full' justify='space-between' px={{ base: 4, md: 10 }}>
+              <Button
+                variant='outlineMatch'
+                colorScheme='blue.500'
+                size='sm'
+                onClick={() => {
+                  setUpdatingAgreement(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant='primary'
+                size='sm'
+                isDisabled={isEmpty(agreementContent)}
+                onClick={handleUpdateAgreement}
+              >
+                Update Agreement
+              </Button>
             </Flex>
           )}
 

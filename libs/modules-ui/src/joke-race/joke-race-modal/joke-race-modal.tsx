@@ -45,7 +45,6 @@ import {
   Filter,
   ModuleHistory,
   ModuleModal,
-  WearerFilters,
 } from '../../module-modal';
 
 const CopyAddress = dynamic(() =>
@@ -69,7 +68,7 @@ export const JokeRaceModal = ({
     },
   });
   const [managingNextTerm, setManagingNextTerm] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.HUMANISTIC);
+  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const { writeContractAsync } = useWriteContract();
   const { watch } = pick(localForm, ['watch']);
 
@@ -202,9 +201,20 @@ export const JokeRaceModal = ({
   };
 
   const canSetNextTerm = useMemo(() => {
+    const {
+      contestAddress: newContestAddress,
+      termEnd: newTermEnd,
+      transitionPeriod: newTransitionPeriod,
+      topK: newTopK,
+    } = pick(values, ['contestAddress', 'termEnd', 'transitionPeriod', 'topK']);
+
+    if (!newContestAddress || !newTermEnd || !newTransitionPeriod || !newTopK) {
+      return false;
+    }
+
     // TODO check errors
     return true;
-  }, []);
+  }, [values]);
 
   const handleSetTerm = async () => {
     const {
@@ -231,14 +241,6 @@ export const JokeRaceModal = ({
     <ModuleModal
       name='jokeRaceManager'
       title='Manage JokeRace'
-      filters={
-        <WearerFilters
-          filteredProfiles={filteredProfiles}
-          wearers={wearers}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
-        />
-      }
       about={
         <AboutModule
           heading='About this JokeRace Election'

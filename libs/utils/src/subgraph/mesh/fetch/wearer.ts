@@ -47,7 +47,7 @@ export const fetchWearersProfileDetails = async (
   addresses: string[] | undefined,
   chainId: number | undefined,
 ) => {
-  if (!addresses || !chainId) return undefined;
+  if (!addresses || !chainId) return null;
 
   const client = new GraphQLClient(
     `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,

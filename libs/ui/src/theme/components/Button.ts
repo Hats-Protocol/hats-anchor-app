@@ -12,7 +12,9 @@ const Button = {
         props.colorScheme ||
         'Functional-LinkPrimary',
       color: 'white',
-      _hover: {},
+      _hover: {
+        background: props.hoverBackground || props.hoverBg || 'blue.700',
+      },
     }),
     whiteFilled: (props: StyleFunctionProps) => ({
       background: props.background || props.bg || 'white',

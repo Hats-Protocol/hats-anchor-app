@@ -70,6 +70,11 @@ const useCallModuleFunction = ({
           args: preparedArgs,
         });
 
+        if (!get(result, 'transactionHash')) {
+          onDecline?.();
+          return;
+        }
+
         await invalidateAfterTransaction(chainId, result.transactionHash);
 
         if (result?.status === 'success') {
@@ -80,12 +85,14 @@ const useCallModuleFunction = ({
 
           onSuccess?.();
         }
-
-        if (!result) onDecline?.();
       } catch (error: unknown) {
         const err = error as Error;
         // eslint-disable-next-line no-console
         console.log(err);
+        if (err.message.includes('User rejected the request')) {
+          console.log('User rejected the request');
+          onDecline?.();
+        }
         toast.error({
           title: 'Transaction failed',
           description: err.message,

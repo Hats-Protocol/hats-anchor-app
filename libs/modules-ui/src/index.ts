@@ -1,11 +1,13 @@
 export * from './agreement';
 export * from './allowlist';
+export * from './claims-conditions';
 export * from './election';
-export { default as Header } from './Header';
+export * from './eligibility-rules';
+export * from './header';
 export * from './hsg';
 export * from './joke-race';
 export * from './module-card-details';
 export * from './module-modal';
-export { default as SlimModuleDetails } from './SlimModuleDetails';
+export * from './slim-module-details';
 export * from './staking';
 export * from './subscription';

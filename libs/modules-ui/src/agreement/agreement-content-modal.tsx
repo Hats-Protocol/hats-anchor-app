@@ -12,86 +12,73 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useEligibility } from 'contexts';
-import { lte } from 'lodash';
+import { CONFIG } from '@hatsprotocol/constants';
+import { useQuery } from '@tanstack/react-query';
+import { useEligibility, useOverlay } from 'contexts';
+import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-
-import AgreementContent from './agreement-content';
+import { fetchIpfs } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
+const AgreementContent = dynamic(() =>
+  import('molecules').then((mod) => mod.AgreementContent),
+);
 
-export const AgreementContentModal = ({
-  setIsReviewed,
-  isOpen,
-  onClose,
-}: {
-  setIsReviewed: Dispatch<SetStateAction<boolean>>;
-  isOpen: boolean;
-  onClose: () => void;
-}) => {
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const {
-    moduleParameters,
-    moduleDetails,
-    controllerAddress,
-    chainId,
-    selectedHat,
-  } = useEligibility();
-  const queryClient = useQueryClient();
-  const contentRef = useRef<HTMLDivElement>(null);
+const handleFetchIpfs: any = async (ipfsHash: string) => {
+  return fetchIpfs(ipfsHash)
+    .then((res: any) => {
+      return get(res, 'data', null);
+    })
+    .catch((err: Error) => {
+      console.error(err);
+      return null;
+    });
+};
+
+export const AgreementContentModal = () => {
+  const { moduleParameters } = useEligibility();
+  const { modals, setModals } = useOverlay();
 
   const { agreement } = useAgreementClaim({
     moduleParameters,
-    moduleDetails,
-    controllerAddress,
-    chainId,
-    onSuccessfulSign: () => {
-      setIsReviewed?.(true);
-      queryClient.invalidateQueries({
-        queryKey: ['hatDetails', { chainId, id: selectedHat?.id }],
-      });
-    },
   });
 
-  const handleScroll = (e: any) => {
-    const { scrollHeight, scrollTop, clientHeight } = e.target;
-    const bottom = scrollHeight - scrollTop === clientHeight;
+  const { data: agreementV0 } = useQuery({
+    queryKey: ['agreementV0'],
+    queryFn: () => handleFetchIpfs(CONFIG.agreementV0.ipfsHash),
+    enabled: !agreement,
+  });
 
-    if (bottom) setIsButtonEnabled(true);
+  const handleDownload = () => {
+    console.log('download');
+
+    // TODO download agreement
   };
 
-  const contentHeight = contentRef.current?.scrollHeight;
-  const containerHeight = contentRef.current?.clientHeight;
-
-  useEffect(() => {
-    if (agreement && lte(contentHeight, containerHeight))
-      setIsButtonEnabled(true);
-  }, [contentHeight, containerHeight, agreement]);
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal
+      isOpen={!!modals?.agreementManagerClaims}
+      onClose={() => setModals?.({})}
+    >
       <ModalOverlay />
       <ModalContent height='calc(100% - 80px)' width='calc(100% - 40px)'>
         <ModalHeader>Agreement</ModalHeader>
         <ModalCloseButton />
         <ModalBody overflowY='scroll'>
-          <Box onScroll={handleScroll} ref={contentRef}>
-            <AgreementContent agreement={agreement} />
+          <Box>
+            <AgreementContent agreement={agreement || agreementV0} />
           </Box>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter gap={4} justifyContent='space-between'>
+          <Button variant='link' color='blue.500' onClick={handleDownload}>
+            Download agreement
+          </Button>
+
           <Button
             colorScheme='blue'
-            onClick={() => {
-              setIsReviewed(true);
-              onClose();
-            }}
-            isDisabled={!isButtonEnabled}
+            onClick={() => setModals?.({})}
             leftIcon={<Icon as={HatIcon} color='white' />}
-            w='full'
           >
             Reviewed
           </Button>

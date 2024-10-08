@@ -28,7 +28,7 @@ export default function Error({
   // }, [error]);
 
   return (
-    <main className='flex h-full flex-col items-center justify-center min-h-screen'>
+    <main className='flex h-full min-h-screen flex-col items-center justify-center'>
       <Stack spacing={10} w='60%'>
         <h2 className='text-center text-xl font-bold'>Something went wrong</h2>
 

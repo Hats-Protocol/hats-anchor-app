@@ -83,7 +83,7 @@ const WalletProfile = ({
         <Stack>
           <Heading size='xl'>{name}</Heading>
           <HStack gap={4}>
-            <Skeleton isLoaded={!!balance?.value}>
+            <Skeleton isLoaded={!!balance}>
               <Text>
                 {formatRoundedDecimals({
                   value: balance?.value,

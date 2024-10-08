@@ -14,10 +14,13 @@ import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
 import { isEmpty, map, take } from 'lodash';
-import { FaExternalLinkAlt, FaRegCheckCircle } from 'react-icons/fa';
+import dynamic from 'next/dynamic';
+import { FaRegCheckCircle } from 'react-icons/fa';
 import { Transaction } from 'types';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl } from 'utils';
+
+const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
 
 // Utility function to get abbreviated hash
 const abbreviateHash = (hash: string) => {
@@ -45,32 +48,31 @@ const TransactionHistoryRow = ({
       href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'}
       display='block'
     >
-      <HStack
-        key={hash}
-        align='center'
-        justify='space-between'
-        py={2}
-        spacing={4}
-      >
-        <HStack maxW={{ base: '55%', md: '50%' }}>
+      <Stack key={hash} py={2} spacing={1}>
+        <HStack>
           {status === 'pending' ? (
             <Spinner color='blue.500' size='xs' />
           ) : (
-            <Icon color='green.500' as={FaRegCheckCircle} w='12px' />
+            <Icon color='green.500' as={FaRegCheckCircle} w={3} />
           )}
           <Text wordBreak='break-word'>{txDescription}</Text>
         </HStack>
 
-        <HStack>
-          {!hideHash && !isMobile && (
-            <Text size='sm' variant='gray'>{`(${abbreviateHash(hash)})`}</Text>
-          )}
-          <Text size={{ base: 'xs', md: 'sm' }}>
-            {formatDistanceToNow(new Date(timestamp))} ago
-          </Text>
-          <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
-        </HStack>
-      </HStack>
+        <Flex justify='space-between' pl={5}>
+          <HStack>
+            {!hideHash && !isMobile && (
+              <Text
+                size='sm'
+                variant='gray'
+              >{`(${abbreviateHash(hash)})`}</Text>
+            )}
+            <Text size={{ base: 'xs', md: 'sm' }}>
+              {formatDistanceToNow(new Date(timestamp))} ago
+            </Text>
+            <Icon as={Etherscan} w={3} color='blue.500' />
+          </HStack>
+        </Flex>
+      </Stack>
     </ChakraNextLink>
   );
 };

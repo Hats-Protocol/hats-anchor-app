@@ -19,8 +19,8 @@ const TreesList = async ({ params }: TreeListProps) => {
 
   return (
     <>
-      <div className='py-20 lg:py-[100px] px-4 md:px-20 lg:px-[100px]'>
-        <div className='flex justify-end items-center mb-3 gap-2'>
+      <div className='px-4 py-20 md:px-20 lg:px-[100px] lg:py-[100px]'>
+        <div className='mb-3 flex items-center justify-end gap-2'>
           <div className='flex gap-2'>
             <LinkButton href='/trees/new'>
               Create <span className='hidden md:inline'>a new </span>
@@ -38,7 +38,7 @@ const TreesList = async ({ params }: TreeListProps) => {
         <TreesListCards params={params} />
       </div>
 
-      <div className='fixed w-full h-full bg-blue-100 opacity-[0.7] z-[-5] mt-[40px] md:mt-[70px] top-0 left-0' />
+      <div className='fixed left-0 top-0 z-[-5] mt-[40px] h-full w-full bg-blue-100 opacity-[0.7] md:mt-[70px]' />
     </>
   );
 };

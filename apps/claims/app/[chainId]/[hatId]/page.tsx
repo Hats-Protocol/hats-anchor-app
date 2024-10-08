@@ -1,9 +1,12 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { EligibilityContextProvider } from 'contexts';
 import { first, get, pick, split, toNumber } from 'lodash';
+import { ClaimsConditions, Header } from 'modules-ui';
+import { BottomMenu } from 'molecules';
 import { Metadata } from 'next';
 import { Claims } from 'pages';
 import { SupportedChains } from 'types';
+import { HatDeco } from 'ui';
 import { fetchHatsDetailsMesh } from 'utils';
 import { Hex } from 'viem';
 
@@ -12,13 +15,32 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
   const hexHatId = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
   // TODO handle unexpected chainIds that won't produce valid numbers
+  // TODO handle chainIds that are not supported
 
   return (
     <EligibilityContextProvider
       hatId={hexHatId}
       chainId={toNumber(chainId) as SupportedChains}
     >
-      <Claims />
+      <div className='relative h-full w-full'>
+        <div className='mx-auto h-auto w-auto max-w-7xl md:h-screen md:w-screen'>
+          <div className='md:grid-cols-20 flex flex-col-reverse pt-0 md:grid md:pt-[120px]'>
+            <div className='hidden md:col-span-11 md:col-start-2 md:grid'>
+              <Claims />
+            </div>
+
+            <div className='md:col-start-14 flex w-full flex-col-reverse items-center gap-6 overflow-y-auto md:col-span-6 md:flex-col'>
+              <ClaimsConditions />
+
+              <Header />
+            </div>
+          </div>
+
+          <HatDeco height='250px' />
+        </div>
+
+        <BottomMenu />
+      </div>
     </EligibilityContextProvider>
   );
 };

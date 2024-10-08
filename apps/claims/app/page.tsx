@@ -2,7 +2,6 @@
 
 import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
-import { StandaloneLayout as Layout } from 'molecules';
 import { ChakraNextLink } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
@@ -39,31 +38,27 @@ const Home = () => {
 
   if (!isClient || !wearerAddress) {
     return (
-      <Layout title='Claims'>
-        <Flex px={20} py={120}>
-          <Stack spacing={10}>
-            <Heading variant='medium'>
-              Welcome to the Hats Protocol Claims app! 🧢
-            </Heading>
-            <LookingForHat />
-          </Stack>
-        </Flex>
-      </Layout>
-    );
-  }
-
-  return (
-    <Layout title='Claims'>
       <Flex px={20} py={120}>
-        <Stack spacing={50}>
+        <Stack spacing={10}>
           <Heading variant='medium'>
-            gm {ensName || formatAddress(wearerAddress)}, welcome to the claims
-            app
+            Welcome to the Hats Protocol Claims app! 🧢
           </Heading>
           <LookingForHat />
         </Stack>
       </Flex>
-    </Layout>
+    );
+  }
+
+  return (
+    <Flex px={20} py={120}>
+      <Stack spacing={50}>
+        <Heading variant='medium'>
+          gm {ensName || formatAddress(wearerAddress)}, welcome to the claims
+          app
+        </Heading>
+        <LookingForHat />
+      </Stack>
+    </Flex>
   );
 };
 

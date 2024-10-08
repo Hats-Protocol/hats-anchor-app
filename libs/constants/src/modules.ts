@@ -6,6 +6,15 @@ export const FALLBACK_ARG_EXAMPLES = {
   booleanOption: ['True', 'False'],
 };
 
+export const CLAIM_STATUS = {
+  PENDING: 'pending',
+  READY: 'ready',
+  CLAIMING: 'claiming',
+  SUCCESS: 'success',
+  FAILED: 'failed',
+  DECLINED: 'declined',
+};
+
 export const MODULE_ARG_BOOLEAN_OPTION_SETS = {
   standing: ['Good Standing', 'Bad Standing'],
   eligibility: ['Eligible', 'Ineligible'],
@@ -36,6 +45,7 @@ export const ELIGIBILITY_MODULES = {
   jokerace: eligibilityModule('JokeRace'),
   passthrough: 'Passthrough Module',
   staking: eligibilityModule('Staking'),
+  unlock: 'Subscription Eligibility (Unlock Protocol V14)',
   // meta modules
   eligibilityChain: 'Eligibilities Chain',
 };
