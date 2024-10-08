@@ -35,10 +35,7 @@ const HatLinkRequestCreateForm = ({
   });
   const { handleSubmit, watch } = localForm;
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => Promise.resolve(true),
-    checkResult: (result) => result,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   // first(wearerTopHats) is the default value for topHatDomain
   const topHatDomain = useDebounce<Hex | undefined>(watch('topHatDomain'));

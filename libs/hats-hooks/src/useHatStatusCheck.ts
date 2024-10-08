@@ -1,5 +1,3 @@
-'use client';
-
 import { CONFIG, STATUS } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal, HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -88,8 +86,8 @@ const useHatStatusCheck = ({
               toast.success({
                 title: txDescription,
                 description: `Hat Status Changed to ${_.first(_.slice(logData, -1, _.size(logData))) === '1'
-                  ? STATUS.ACTIVE
-                  : STATUS.INACTIVE
+                    ? STATUS.ACTIVE
+                    : STATUS.INACTIVE
                   }`,
               });
               await invalidateAfterTransaction(chainId, hash);

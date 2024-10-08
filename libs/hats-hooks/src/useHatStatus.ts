@@ -1,5 +1,3 @@
-'use client';
-
 import { CONFIG } from '@hatsprotocol/constants';
 import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { AppHat, SupportedChains } from 'types';

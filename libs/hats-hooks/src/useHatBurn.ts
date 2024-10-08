@@ -1,12 +1,9 @@
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-// import { find } from 'lodash';
 import { idToIp } from 'shared';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
+import { TransactionReceipt } from 'viem';
 
-// import { Hex } from 'viem';
-// import { useAccount, useChainId } from 'wagmi';
 import useHatContractWrite from './useHatContractWrite';
-// import useWearerDetails from './useWearerDetails';
 
 const useHatBurn = ({
   selectedHat,
@@ -17,7 +14,7 @@ const useHatBurn = ({
   selectedHat: AppHat | undefined;
   chainId: SupportedChains | undefined;
   handlePendingTx?: HandlePendingTx;
-  waitForSubgraph?: () => Promise<unknown>;
+  waitForSubgraph?: (data: TransactionReceipt | undefined) => Promise<unknown>;
 }) => {
   // const currentNetworkId = useChainId();
   // const { address } = useAccount();

@@ -65,8 +65,6 @@ export const AllowanceActions = ({
     chainId,
   });
 
-  // const waitForSubgraph = useWaitForSubgraph()
-
   const durationText = getDuration(duration);
   const amountToApprove =
     amount && keyPrice ? BigInt(amount) * keyPrice : undefined;
@@ -200,6 +198,7 @@ export const AllowanceActions = ({
                 allowance >= amountToApprove
               }
               txDescription='Approve allowance on Hat subscription'
+              chainId={chainId}
             >
               Approve {amount} {durationText.noun}
               {amount > 1 ? 's' : ''} ({tokenAmountText} {symbol})
@@ -230,6 +229,7 @@ export const AllowanceActions = ({
             color='red.500'
             leftIcon={<Icon as={BsArrowUpRightCircle} />}
             txDescription='Cancel subscription for Hat'
+            chainId={chainId}
           >
             Cancel Subscription
           </TransactionButton>
@@ -247,6 +247,7 @@ export const AllowanceActions = ({
           isDisabled={!isUndefined(allowance) && allowance === maxUint256}
           leftIcon={<Icon as={BsArrowUpRightCircle} />}
           txDescription='Cancel subscription for Hat'
+          chainId={chainId}
         >
           Authorize unlimited withdrawals{' '}
         </TransactionButton>

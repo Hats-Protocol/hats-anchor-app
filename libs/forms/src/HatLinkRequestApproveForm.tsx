@@ -125,13 +125,7 @@ const HatLinkRequestApproveForm = ({
     chainId: 1,
   });
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(topHatDomain, chainId),
-    checkResult: (hatDetails) =>
-      !isEmpty(
-        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(newAdmin)),
-      ),
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId, sendToast: true });
 
   const eligibilityAddress =
     (eligibilityResolvedAddress ?? eligibility) || FALLBACK_ADDRESS;

@@ -1,5 +1,3 @@
-'use client';
-
 import { CONFIG } from '@hatsprotocol/constants';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';

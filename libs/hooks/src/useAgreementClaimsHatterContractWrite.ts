@@ -1,5 +1,3 @@
-'use client';
-
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';

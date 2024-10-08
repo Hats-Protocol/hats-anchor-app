@@ -1,48 +1,82 @@
-'use client';
+import { NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
+import { gql, GraphQLClient } from 'graphql-request';
+import { get, toNumber, toString } from 'lodash';
+import { TransactionReceipt } from 'viem';
 
 import useToast from './useToast';
 
-// TODO one more step universal is to check subgraph for block specified in tx
+const SUBGRAPH_WAIT_TIMEOUT = 20_000; // 20 seconds
+
+const quickSubgraphClient = (chainId: number) => {
+  const networkEndpoint = NETWORK_ENDPOINTS[chainId];
+  const client = new GraphQLClient(get(networkEndpoint, 'endpoint'));
+  return client;
+};
+
+const fetchSubgraphBlockNumber = async (chainId: number) => {
+  const subgraphClient = quickSubgraphClient(chainId);
+
+  const query = gql`
+    query {
+      _meta {
+        block {
+          number
+        }
+      }
+    }
+  `;
+
+  const data = await subgraphClient.request(query);
+  return data;
+};
+
 const useWaitForSubgraph = ({
-  fetchHelper,
-  checkResult,
+  chainId,
   sendToast = false,
   interval = 1000,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fetchHelper: () => Promise<any> | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  checkResult: (value: any) => boolean;
+  chainId: number | undefined;
   sendToast?: boolean;
   interval?: number;
 }) => {
   const toast = useToast();
 
-  const waitForResult = async () =>
+  const waitForResult = async (data: TransactionReceipt | undefined) =>
     new Promise((resolve, reject) => {
-      const checkResultHandler = async () => {
-        try {
-          const result = await fetchHelper();
+      const blockNumber = toNumber(toString(get(data, 'blockNumber')));
 
-          if (result && checkResult(result)) {
-            clearInterval(intervalId);
-            setTimeout(() => {
+      const checkResultHandler = async () => {
+        if (!chainId || !blockNumber) {
+          return reject(new Error('No chainId or blockNumber'));
+        }
+
+        return fetchSubgraphBlockNumber(chainId)
+          .then((result) => {
+            const subgraphBlockNumber = get(result, '_meta.block.number');
+            console.log({ subgraphBlockNumber, blockNumber });
+
+            if (subgraphBlockNumber && subgraphBlockNumber >= blockNumber) {
+              clearInterval(intervalId);
+
               toast.success({
                 title: 'Subgraph updated!',
               });
-              resolve(result);
-            }, 5000);
-          }
-        } catch (e) {
-          console.log(e);
-          toast.error({
-            title: 'Error',
-            description: 'An error occurred while waiting for subgraph',
+              return resolve(result);
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+            toast.error({
+              title: 'Error',
+              description: 'An error occurred while waiting for subgraph',
+            });
+            clearInterval(intervalId);
+            return reject(e);
           });
-          clearInterval(intervalId);
-          reject(e);
-        }
       };
+
+      const intervalId = setInterval(checkResultHandler, interval);
+      checkResultHandler();
 
       if (sendToast) {
         toast.info({
@@ -50,13 +84,10 @@ const useWaitForSubgraph = ({
         });
       }
 
-      const intervalId = setInterval(checkResultHandler, interval);
-      checkResultHandler();
-
       setTimeout(() => {
         clearInterval(intervalId);
-        resolve(null);
-      }, 20000);
+        return reject(new Error('Subgraph wait timeout'));
+      }, SUBGRAPH_WAIT_TIMEOUT);
     });
 
   return waitForResult;

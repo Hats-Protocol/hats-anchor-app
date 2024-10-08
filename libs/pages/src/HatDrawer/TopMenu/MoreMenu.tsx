@@ -47,7 +47,7 @@ import {
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
 import { idToIp, toTreeId } from 'shared';
-import { fetchHatDetails, getDisabledReason, isSameAddress } from 'utils';
+import { getDisabledReason, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -95,10 +95,7 @@ const MoreMenu = () => {
     selectedHat?.status ? 'Deactivated' : 'Activated'
   } hat ${idToIp(selectedHat?.id)}`;
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => selectedHat && fetchHatDetails(selectedHat.id, chainId),
-    checkResult: (hatDetails) => !hatDetails?.mutable,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({

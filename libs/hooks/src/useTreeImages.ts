@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { checkImageIsValid } from 'hats-utils';
 import _ from 'lodash';
@@ -28,7 +26,7 @@ const treeImages = async (
   if (!images || _.isEmpty(images) || !hats) return [];
 
   const promises = _.map(images, (image: string) =>
-    checkImageIsValid(image).catch((e) => {}),
+    checkImageIsValid(image).catch((e) => { }),
   );
   const imageUrls = await Promise.all(promises);
 

@@ -1,11 +1,7 @@
-'use client';
-
-/* eslint-disable import/no-unresolved */
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { calculateCid } from 'utils';
 
-// image-sdk/hooks
 /**
  * Computes the CID of a Json object
  * @param {*} data JS object representing the Json object

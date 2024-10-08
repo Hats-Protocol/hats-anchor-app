@@ -1,5 +1,3 @@
-'use client';
-
 import { CONFIG } from '@hatsprotocol/constants';
 import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { Hex } from 'viem';
@@ -19,7 +17,7 @@ const useIsAdmin = ({
     abi: HATS_ABI,
     chainId,
     functionName: 'isAdminOfHat',
-    args: [address || "0x", hatId ? BigInt(hatId) : 0n],
+    args: [address || '0x', hatId ? BigInt(hatId) : 0n],
   });
 
   return isAdmin as boolean | undefined;

@@ -92,7 +92,6 @@ export const useClaimFn = ({
       onSuccessfulSign: () => {
         setStatus(CLAIM_STATUS.SUCCESS);
 
-        // should implement useWaitForSubgraph when merged
         queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
         queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
       },

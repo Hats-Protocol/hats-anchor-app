@@ -1,5 +1,3 @@
-'use client';
-
 // import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/constants';
 import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';

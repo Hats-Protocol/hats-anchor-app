@@ -14,12 +14,12 @@ import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite } from 'hats-hooks';
 import { getControllerNameAndLink, isTopHat } from 'hats-utils';
 import { useClipboard, useWaitForSubgraph } from 'hooks';
-import { filter, get, isEmpty, toLower } from 'lodash';
+import { get, toLower } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { idToIp, toTreeId } from 'shared';
 import { ControllerData } from 'types';
-import { fetchHatDetails, formatAddress, isSameAddress } from 'utils';
+import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar } from 'wagmi';
 
@@ -70,13 +70,7 @@ const WearerRow = ({
     wearer.id,
   )}`;
 
-  const checkEligibilityWaitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(hatId, chainId),
-    checkResult: (hatDetails) =>
-      isEmpty(
-        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(address)),
-      ),
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { writeAsync: updateEligibility, isLoading } = useHatContractWrite({
     functionName: 'checkHatWearerStatus',
@@ -89,7 +83,7 @@ const WearerRow = ({
       ['treeDetails', toTreeId(hatId)],
     ],
     handlePendingTx,
-    waitForSubgraph: checkEligibilityWaitForSubgraph,
+    waitForSubgraph,
     txDescription,
     successToastData: {
       title: txDescription,
@@ -102,19 +96,11 @@ const WearerRow = ({
     enabled: wearer.isContract,
   });
 
-  const renounceWaitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(hatId, chainId),
-    checkResult: (hatDetails) =>
-      isEmpty(
-        filter(hatDetails?.wearers, (w) => toLower(w.id) === toLower(address)),
-      ),
-  });
-
   const { writeAsync: renounceHat } = useHatBurn({
     selectedHat,
     chainId,
     handlePendingTx,
-    waitForSubgraph: renounceWaitForSubgraph,
+    waitForSubgraph,
   });
 
   const handleRenounceHat = async () => {

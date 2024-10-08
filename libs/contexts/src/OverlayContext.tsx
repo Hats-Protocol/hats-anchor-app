@@ -221,6 +221,7 @@ export const OverlayContextProvider = ({
 
     updateTransactionStatus(hash, 'completed');
 
+    // TODO This can be centralized a bit and doesn't require a hook
     await waitForSubgraph?.(txReceipt);
     await invalidateAfterTransaction(txChainId, hash);
 
@@ -239,6 +240,7 @@ export const OverlayContextProvider = ({
       setModals(defaultModals);
     }
 
+    console.log('checking redirect', redirect);
     if (redirect) {
       console.log('redirecting to', redirect);
       router.push(redirect);

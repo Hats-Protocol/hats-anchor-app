@@ -10,8 +10,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
-import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
@@ -19,7 +17,7 @@ import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import { formatAddress, viemPublicClient } from 'utils';
+import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useEnsName } from 'wagmi';
 
@@ -58,18 +56,7 @@ const HatWearerStatusForm = ({
 
   const txDescription = getSuccessToastDescription();
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => {
-      if (!chainId) return Promise.reject(Error('No chainId'));
-      return viemPublicClient(chainId).readContract({
-        address: CONFIG.hatsAddress,
-        abi: HATS_ABI,
-        functionName: 'isEligible',
-        args: [wearer || '0x', hatId ? BigInt(hatId) : 0n],
-      });
-    },
-    checkResult: (isEligible) => !isEligible,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'setHatWearerStatus',

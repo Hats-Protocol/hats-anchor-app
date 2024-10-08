@@ -16,7 +16,7 @@ import { useDebounce, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useForm } from 'react-hook-form';
 import { toTreeId } from 'shared';
-import { fetchWearerDetails, formatAddress } from 'utils';
+import { formatAddress } from 'utils';
 // import { isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
@@ -41,17 +41,7 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
     chainId: 1,
   });
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: async () => {
-      const result = await fetchWearerDetails(
-        newWearerResolvedAddress || undefined,
-        chainId,
-      );
-      return result;
-    },
-    checkResult: (result) =>
-      _.includes(_.map(result?.currentHats, 'id'), hatId),
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const newWearerAddress = newWearerResolvedAddress ?? newWearer;
 

@@ -7,7 +7,6 @@ import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
 import { map } from 'lodash';
 import { useForm } from 'react-hook-form';
-import { fetchHatDetails } from 'utils';
 import { Hex } from 'viem';
 
 import { Select } from './components';
@@ -34,12 +33,7 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
 
   const wearer = topHatData?.wearers?.[0]?.id || '0x';
 
-  // TODO check this check logic
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () =>
-      topHatPrettyId && fetchHatDetails(topHatPrettyId, chainId),
-    checkResult: (hatDetails) => !hatDetails?.wearers?.length,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'unlinkTopHatFromTree',

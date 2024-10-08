@@ -1,10 +1,6 @@
-'use client';
-
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { fetchToken, pinImage, unpinImage } from 'utils';
-
-// hooks/image-sdk
 
 /**
  * Pins an image file to ipfs. If image file is updated, then unpins previous and pins updated image

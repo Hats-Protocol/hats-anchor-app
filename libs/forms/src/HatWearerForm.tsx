@@ -20,15 +20,8 @@ import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart } from 'react-icons/bs';
 import { idToIp, toTreeId } from 'shared';
-import { AppHat, HatWearer } from 'types';
-import {
-  chainsMap,
-  fetchHatDetails,
-  formatAddress,
-  formatScientificWhole,
-} from 'utils';
+import { chainsMap, formatAddress, formatScientificWhole } from 'utils';
 import { isAddress } from 'viem';
-import { useAccount } from 'wagmi';
 
 import { FormRowWrapper, MultiAddressInput, NumberInput } from './components';
 
@@ -51,7 +44,6 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
   const { chainId, storedData, editMode, onCloseHatDrawer } = useTreeForm();
   const { selectedHat } = useSelectedHat();
 
-  const { address: userAddress } = useAccount();
   const { localForm: hatForm } = useHatForm();
   const form = localForm || hatForm;
   const { handleSubmit, watch, formState } = _.pick(form, [
@@ -105,14 +97,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
       _.size(localWearers) + (isAddress(currentResolvedAddress) ? 1 : 0)
     } wearers`;
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(hatId, chainId),
-    checkResult: (hatDetails: AppHat) =>
-      _.some(
-        hatDetails?.wearers,
-        (w: HatWearer) => _.toLower(w.id) === _.toLower(userAddress),
-      ),
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const {
     writeAsync: writeAsyncBatchMintHats,
@@ -180,6 +165,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
     });
 
   const onSubmit = async () => {
+    // eslint-disable-next-line no-console
     console.log(currentResolvedAddress, localWearers);
     if (
       currentResolvedAddress &&

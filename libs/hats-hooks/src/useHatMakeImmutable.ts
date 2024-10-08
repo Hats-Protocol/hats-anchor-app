@@ -3,7 +3,6 @@ import { useWaitForSubgraph } from 'hooks';
 // import _ from 'lodash';
 import { toTreeId } from 'shared';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
-import { fetchHatDetails } from 'utils';
 
 // import { useChainId } from 'wagmi';
 import useHatContractWrite from './useHatContractWrite';
@@ -19,10 +18,7 @@ const useHatMakeImmutable = ({
   // const currentNetworkId = useChainId();
   const selectedHatId = selectedHat?.id;
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => selectedHat && fetchHatDetails(selectedHat.id, chainId),
-    checkResult: (hatDetails) => !hatDetails?.mutable,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'makeHatImmutable',

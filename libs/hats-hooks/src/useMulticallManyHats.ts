@@ -1,26 +1,21 @@
-'use client';
-
 import { CONFIG } from '@hatsprotocol/constants';
 import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
-import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import {
   compact,
   filter,
-  first,
   flatten,
   get,
   includes,
   isEmpty,
-  isEqual,
   keys,
   map,
   reject,
   size,
   sortBy,
 } from 'lodash';
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   AppHat,
   FormData,
@@ -30,7 +25,6 @@ import {
   SupportedChains,
 } from 'types';
 import {
-  fetchHatDetails,
   fetchToken,
   handleDetailsPin,
   invalidateAfterTransaction,
@@ -180,41 +174,14 @@ const useMulticallManyHats = ({
       });
   };
 
-  const firstProposedChangeKey = useMemo<keyof Hat | undefined>(() => {
-    if (proposedChanges.length === 0 || !proposedChanges[0]) {
-      return undefined;
-    }
-
-    return first(
-      filter(
-        keys(proposedChanges[0]),
-        (k: string) => k !== 'id' && k !== 'imageUrl',
-      ),
-    ) as keyof Hat | undefined;
-  }, [proposedChanges]);
-
-  const checkResult = (hatDetails: Hat) => {
-    if (!hatDetails || !firstProposedChangeKey) return false;
-
-    const currentPropertyValue = hatDetails[firstProposedChangeKey];
-    const expectedPropertyValue = proposedChanges[0]
-      ? proposedChanges[0][firstProposedChangeKey]
-      : undefined;
-
-    return isEqual(currentPropertyValue, expectedPropertyValue);
-  };
-
-  const waitForSubgraphUpdate = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(get(first(storedData), 'id'), chainId),
-    checkResult,
-    sendToast: true,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId, sendToast: true });
 
   const onSuccess = async (d: TransactionReceipt | undefined) => {
-    await waitForSubgraphUpdate();
+    await waitForSubgraph(d);
     if (d !== undefined) {
       await invalidateAfterTransaction(Number(chainId), d.transactionHash);
     }
+    // TODO alternate error handling needed here?
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });

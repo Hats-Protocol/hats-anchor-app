@@ -1,6 +1,5 @@
 export { default as useAgreementClaimsHatterContractWrite } from './useAgreementClaimsHatterContractWrite';
 export { default as useApprovedTokens } from './useApprovedTokens';
-export { default as useAutoConnect } from './useAutoConnect';
 export { default as useCid } from './useCid';
 export { default as useClipboard } from './useClipboard';
 export { default as useContractData } from './useContractData';
