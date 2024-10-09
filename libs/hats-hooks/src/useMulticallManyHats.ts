@@ -195,6 +195,8 @@ const useMulticallManyHats = ({
     );
 
     setStoredData?.(newStoredData);
+
+    // TODO leave edit mode
   };
 
   const txDescription = summarizeActions(allCallsData as HatsCalls[]);

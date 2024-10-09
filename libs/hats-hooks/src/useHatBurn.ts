@@ -1,4 +1,3 @@
-import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { idToIp } from 'shared';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { TransactionReceipt } from 'viem';
@@ -42,14 +41,11 @@ const useHatBurn = ({
     handlePendingTx,
     waitForSubgraph,
     queryKeys: [
-      ['hatDetails', { id: hatId, chainId }],
-      ['treeDetails', hatIdToTreeId(BigInt(hatId || '')), chainId || ''],
+      ['hatDetails'],
+      ['treeDetails'],
       ['orgChartTree'],
       ['wearerDetails'],
     ],
-    // TODO check where writeAsync is called
-    // enabled:
-    //   Boolean(hatId) && chainId === currentNetworkId && !!currentlyWearing,
   });
 
   return { writeAsync, isLoading };

@@ -25,9 +25,7 @@ interface ContractInteractionProps {
 
 // ! DEPRECATED. TO BE REMOVED WITH HATS COMMUNITY HAT MIGRATION
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useAgreementClaimsHatterContractWrite: any = ({
+const useAgreementClaimsHatterContractWrite = ({
   functionName,
   address,
   chainId,
@@ -64,6 +62,7 @@ const useAgreementClaimsHatterContractWrite: any = ({
 
         queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
         queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
 
         handlePendingTx?.({
           hash,

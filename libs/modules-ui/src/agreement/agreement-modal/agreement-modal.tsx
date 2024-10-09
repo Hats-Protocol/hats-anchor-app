@@ -38,7 +38,7 @@ import {
 } from 'lodash';
 import { useAgreementDetails, useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
 import { filterProfiles, formatAddress } from 'utils';
@@ -75,7 +75,7 @@ export const AgreementModal = ({
   const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const [selectedOption, setSelectedOption] = useState<string>('Agreement');
   const [updatingAgreement, setUpdatingAgreement] = useState(false);
-  const { watch } = pick(localForm, ['watch']);
+  const { watch, reset } = pick(localForm, ['watch', 'reset']);
 
   const { data: hat } = useHatDetails({
     hatId: eligibilityHatId,
@@ -261,7 +261,6 @@ export const AgreementModal = ({
 
           <Textarea
             name='agreementContent'
-            value={agreementContent as string}
             localForm={localForm}
             minH='450px'
           />
@@ -343,7 +342,10 @@ export const AgreementModal = ({
                     variant='outlineMatch'
                     colorScheme='blue.500'
                     size='sm'
-                    onClick={() => setUpdatingAgreement(true)}
+                    onClick={() => {
+                      reset({ agreementContent }, { keepDefaultValues: false });
+                      setUpdatingAgreement(true);
+                    }}
                   >
                     Update Agreement
                   </Button>
@@ -368,9 +370,7 @@ export const AgreementModal = ({
                 variant='outlineMatch'
                 colorScheme='blue.500'
                 size='sm'
-                onClick={() => {
-                  setUpdatingAgreement(false);
-                }}
+                onClick={() => setUpdatingAgreement(false)}
               >
                 Cancel
               </Button>

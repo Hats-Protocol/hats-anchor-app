@@ -12,8 +12,8 @@ import { useDebounce, useWaitForSubgraph } from 'hooks';
 import { first, isEmpty, map } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Hex } from 'viem';
+import { useChainId } from 'wagmi';
 
-// import { useChainId } from 'wagmi';
 import { Select } from './components';
 
 const HatLinkRequestCreateForm = ({
@@ -23,7 +23,7 @@ const HatLinkRequestCreateForm = ({
   newAdmin: string;
   wearerTopHats: Hex[];
 }) => {
-  // const currentNetworkId = useChainId();
+  const currentChainId = useChainId();
   const { handlePendingTx } = useOverlay();
   const { chainId } = useTreeForm();
   const localForm = useForm({
@@ -55,20 +55,9 @@ const HatLinkRequestCreateForm = ({
           BigInt(topHatDomain),
         )} to ${hatIdDecimalToIp(BigInt(newAdmin))}`,
     },
-    queryKeys: [
-      ['hatDetails', { id: newAdmin, chainId }],
-      ['hatDetails', { id: topHatDomain, chainId }],
-      ['treeDetails', topHatDomain || 'none', chainId || 1],
-      ['treeDetails', newAdmin, chainId || 1],
-    ],
+    queryKeys: [['hatDetails'], ['treeDetails']],
     handlePendingTx,
     waitForSubgraph,
-    // TODO check these on submit instead
-    // enabled:
-    //   Boolean(topHatDomain) &&
-    //   Boolean(newAdmin) &&
-    //   !!chainId &&
-    //   chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
@@ -118,7 +107,11 @@ const HatLinkRequestCreateForm = ({
         </Select>
 
         <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync} isLoading={isLoading}>
+          <Button
+            type='submit'
+            isDisabled={!writeAsync || chainId !== currentChainId}
+            isLoading={isLoading}
+          >
             Request
           </Button>
         </Flex>

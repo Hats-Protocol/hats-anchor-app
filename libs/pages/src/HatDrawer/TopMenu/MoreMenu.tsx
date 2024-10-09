@@ -46,7 +46,7 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
-import { idToIp, toTreeId } from 'shared';
+import { idToIp } from 'shared';
 import { getDisabledReason, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -107,16 +107,9 @@ const MoreMenu = () => {
         title: 'Hat Status Updated!',
         description: txDescription,
       },
-      queryKeys: [
-        ['hatDetails', { id: selectedHat?.id, chainId }],
-        ['treeDetails', toTreeId(selectedHat?.id)],
-      ],
+      queryKeys: [['hatDetails'], ['treeDetails']],
       handlePendingTx,
       waitForSubgraph,
-      // enabled:
-      //   Boolean(selectedHat) &&
-      //   isSameAddress(address, selectedHat?.toggle) &&
-      //   chainId === currentNetworkId,
     });
 
   const {

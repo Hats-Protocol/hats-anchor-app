@@ -49,6 +49,8 @@ const useHatStatusCheck = ({
     if (!hatDecimalId || !toggleIsContract || currentNetworkId !== chainId)
       return null;
 
+    const hatStatus = hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
+
     return writeContractAsync({
       address: CONFIG.hatsAddress,
       chainId,
@@ -78,31 +80,25 @@ const useHatStatusCheck = ({
             if (logs?.length === 0) {
               toast.success({
                 title: txDescription,
-                description: `No change: Hat Status remains ${hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE
-                  }`,
+                description: `No change: Hat Status remains ${hatStatus}`,
               });
             } else {
               const logData = _.get(_.first(logs), 'data');
+              const newHatStatus =
+                _.first(_.slice(logData, -1, _.size(logData))) === '1'
+                  ? STATUS.ACTIVE
+                  : STATUS.INACTIVE;
+
               toast.success({
                 title: txDescription,
-                description: `Hat Status Changed to ${_.first(_.slice(logData, -1, _.size(logData))) === '1'
-                    ? STATUS.ACTIVE
-                    : STATUS.INACTIVE
-                  }`,
+                description: `Hat Status Changed to ${newHatStatus}`,
               });
               await invalidateAfterTransaction(chainId, hash);
 
               setTimeout(() => {
-                queryClient.invalidateQueries({
-                  queryKey: [
-                    'hatDetails',
-                    { id: _.get(hatData, 'id'), chainId },
-                  ],
-                });
-                queryClient.invalidateQueries({
-                  queryKey: ['treeDetails', toTreeId(_.get(hatData, 'id'))],
-                });
-              }, 4000);
+                queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+                queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+              }, 1000);
             }
           },
         });

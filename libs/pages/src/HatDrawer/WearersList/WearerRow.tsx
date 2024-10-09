@@ -17,7 +17,7 @@ import { useClipboard, useWaitForSubgraph } from 'hooks';
 import { get, toLower } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { idToIp, toTreeId } from 'shared';
+import { idToIp } from 'shared';
 import { ControllerData } from 'types';
 import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
@@ -47,7 +47,6 @@ const WearerRow = ({
   const { address } = useAccount();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  // const { isMobile } = useMediaStyles();
   const { onCopy: copyAddress } = useClipboard(wearer.id, {
     toastData: {
       title: 'Copied address',
@@ -77,11 +76,7 @@ const WearerRow = ({
     args: [hatIdHexToDecimal(hatId), wearer.id],
     chainId,
     // TODO re-add check for isContract
-    // enabled: Boolean(hatId) && Boolean(wearer) && chainId === currentNetworkId,
-    queryKeys: [
-      ['hatDetails', { id: hatId, chainId }],
-      ['treeDetails', toTreeId(hatId)],
-    ],
+    queryKeys: [['hatDetails'], ['treeDetails'], ['wearerDetails']],
     handlePendingTx,
     waitForSubgraph,
     txDescription,
@@ -104,6 +99,7 @@ const WearerRow = ({
   });
 
   const handleRenounceHat = async () => {
+    // TODO check that they're wearing the hat currently
     renounceHat?.().catch((e) => {
       // eslint-disable-next-line no-console
       console.error(e);

@@ -142,7 +142,11 @@ const Header = () => {
 
       <Flex justify={isMobile ? 'center' : 'start'}>
         <HStack>
-          {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>}
+          {isCurrentWearer && (
+            <Skeleton isLoaded={!hatLoading}>
+              <Badge colorScheme='green'>My Hat</Badge>
+            </Skeleton>
+          )}
           <Skeleton isLoaded={!hatLoading}>
             <Badge
               colorScheme={
@@ -163,7 +167,10 @@ const Header = () => {
                   {activeStatus}
                 </Badge>
               </Skeleton>
-              <Badge>Level {levelAtLocalTree}</Badge>
+
+              <Skeleton isLoaded={!hatLoading}>
+                <Badge>Level {levelAtLocalTree}</Badge>
+              </Skeleton>
             </>
           )}
         </HStack>

@@ -100,10 +100,10 @@ const useHatClaimBy = ({
           description: 'Waiting for your transaction to be accepted...',
         });
 
-        const txDescription = `You've claimed ${selectedHat?.id
-            ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
-            : 'this hat'
-          }.`;
+        // TODO add hat name
+        const txDescription = selectedHat?.id
+          ? `You've claimed Hat ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
+          : '';
 
         handlePendingTx?.({
           hash,
@@ -116,12 +116,9 @@ const useHatClaimBy = ({
           onSuccess: async () => {
             onSuccess?.();
 
-            queryClient.invalidateQueries({
-              queryKey: ['hatDetails', { id: selectedHat?.id, chainId }],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ['wearerDetails', { wearerAddress: address, chainId }],
-            });
+            queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+            queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+            queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
           },
         });
       })

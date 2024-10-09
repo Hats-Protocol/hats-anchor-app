@@ -1,10 +1,7 @@
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useWaitForSubgraph } from 'hooks';
-// import _ from 'lodash';
-import { toTreeId } from 'shared';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 
-// import { useChainId } from 'wagmi';
 import useHatContractWrite from './useHatContractWrite';
 
 const useHatMakeImmutable = ({
@@ -15,7 +12,6 @@ const useHatMakeImmutable = ({
   mutable,
   handlePendingTx,
 }: UseHatMakeImmutableProps) => {
-  // const currentNetworkId = useChainId();
   const selectedHatId = selectedHat?.id;
 
   const waitForSubgraph = useWaitForSubgraph({ chainId });
@@ -34,19 +30,7 @@ const useHatMakeImmutable = ({
           BigInt(selectedHatId),
         )} immutable`,
     },
-    queryKeys: [
-      ['hatDetails', { id: selectedHatId, chainId }],
-      ['treeDetails', toTreeId(selectedHatId)],
-    ],
-    // enabled:
-    //   !!selectedHatId &&
-    //   !!selectedHat?.mutable &&
-    //   Boolean(hatIdHexToDecimal(selectedHatId)) &&
-    //   !!mutable &&
-    //   _.gt(selectedHat?.levelAtLocalTree, 0) &&
-    //   _.includes(_.map(onchainHats, 'id'), selectedHatId) &&
-    //   !!isAdminUser &&
-    //   chainId === currentNetworkId,
+    queryKeys: [['hatDetails'], ['treeDetails']],
   });
 
   return { writeAsync, isLoading };

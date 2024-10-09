@@ -13,17 +13,15 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { includes } from 'lodash';
 import { useForm } from 'react-hook-form';
-import { toTreeId } from 'shared';
 import { formatAddress } from 'utils';
-// import { isAddress } from 'viem';
-import { useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
 import { AddressInput } from './components';
 
 const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
-  // const currentNetworkId = useChainId();
+  const currentChainId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
   const { txPending, handlePendingTx } = useOverlay();
@@ -45,7 +43,7 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
 
   const newWearerAddress = newWearerResolvedAddress ?? newWearer;
 
-  const isTopHat = hatId && !_.includes(hatIdDecimalToIp(BigInt(hatId)), '.');
+  const isTopHat = hatId && !includes(hatIdDecimalToIp(BigInt(hatId)), '.');
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'transferHat',
@@ -67,30 +65,26 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
         )} to ${formatAddress(newWearerAddress)}`,
     },
     queryKeys: [
-      ['hatDetails', { id: hatId, chainId }],
-      ['treeDetails', toTreeId(hatId)],
+      ['hatDetails'],
+      ['treeDetails'],
       ['wearerDetails'],
       ['orgChartTree'],
-      ['hatWearers'],
-      ['treeWearers'],
+      ['wearerAndControllerDetails  '],
     ],
     waitForSubgraph,
     handlePendingTx,
-    // enabled:
-    //   Boolean(newWearerResolvedAddress ?? newWearer) &&
-    //   Boolean(currentWearerAddress) &&
-    //   Boolean(hatId) &&
-    //   isAddress(newWearerResolvedAddress ?? newWearer) &&
-    //   isAddress(currentWearerAddress) &&
-    //   chainId === currentNetworkId,
   });
 
   const onSubmit = async () => {
+    // TODO check both addresses are addresses + current chainId
     await writeAsync?.();
   };
 
   const isDisabled =
-    !writeAsync || isLoading || isLoadingNewWearerResolvedAddress;
+    !writeAsync ||
+    isLoading ||
+    isLoadingNewWearerResolvedAddress ||
+    chainId !== currentChainId;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

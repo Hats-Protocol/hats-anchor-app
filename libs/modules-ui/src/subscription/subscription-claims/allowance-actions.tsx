@@ -223,7 +223,7 @@ export const AllowanceActions = ({
               return writeContractAsync(zeroApprovalParams);
             }}
             onReceipt={() => {
-              // refetchAllowance()
+              queryClient.invalidateQueries({ queryKey: ['readContracts'] });
             }}
             variant='link'
             color='red.500'
@@ -241,7 +241,7 @@ export const AllowanceActions = ({
             return writeContractAsync(unlimitedApprovalParams);
           }}
           onReceipt={() => {
-            // refetchAllowance()
+            queryClient.invalidateQueries({ queryKey: ['readContracts'] });
           }}
           variant='link'
           isDisabled={!isUndefined(allowance) && allowance === maxUint256}

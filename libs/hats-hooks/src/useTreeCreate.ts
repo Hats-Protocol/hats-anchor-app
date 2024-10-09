@@ -15,7 +15,7 @@ const useTreeCreate = ({
   handlePendingTx,
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
-  // const currentNetworkId = useChainId();
+
   const { data: lastTopHatId } = useLastTopHatId({ chainId });
 
   const {
@@ -52,7 +52,7 @@ const useTreeCreate = ({
       duration: 6000, // TODO did we remove this param?
     },
     successToastData: { title: 'Redirecting you to your new tree' },
-    queryKeys: [['treeList', chainId], ['wearerDetails']],
+    queryKeys: [['treeList'], ['wearerDetails']],
     redirect: lastTopHatId ? `/trees/${chainId}/${lastTopHatId + 1}` : null,
     handleSuccess,
     handlePendingTx,

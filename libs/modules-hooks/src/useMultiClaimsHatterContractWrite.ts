@@ -91,9 +91,9 @@ const useMultiClaimsHatterContractWrite = ({
         });
 
         setTimeout(() => {
-          queryClient.invalidateQueries({
-            queryKey: ['hatDetails', { id: hatId, chainId }],
-          });
+          queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+          queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+          queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
         }, 1000);
         return hash;
       })

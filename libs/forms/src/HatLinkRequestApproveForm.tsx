@@ -20,17 +20,17 @@ import {
   usePinImageIpfs,
   useWaitForSubgraph,
 } from 'hooks';
-import _, { filter, isEmpty, toLower } from 'lodash';
+import { toString } from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
-import { prettyIdToIp, toTreeId } from 'shared';
+import { prettyIdToIp } from 'shared';
 import { ImageFile } from 'types';
 import { DropZone } from 'ui';
-import { fetchHatDetails, fetchToken, pinJson } from 'utils';
+import { fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
-import { useEnsAddress } from 'wagmi';
+import { useChainId, useEnsAddress } from 'wagmi';
 
 import { Input, Textarea } from './components';
 
@@ -43,10 +43,10 @@ const HatLinkRequestApproveForm = ({
   topHatDomain: string;
   newAdmin: string;
 }) => {
-  // const currentNetworkId = useChainId();
   const { handlePendingTx } = useOverlay();
   const { selectedHat } = useSelectedHat();
   const { chainId } = useTreeForm();
+  const currentChainId = useChainId();
 
   const localForm = useForm({
     mode: 'onChange',
@@ -101,7 +101,7 @@ const HatLinkRequestApproveForm = ({
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: newImage && customImage,
-    metadata: { name: `image_${_.toString(chainId)}_${decimalAdmin}` },
+    metadata: { name: `image_${toString(chainId)}_${decimalAdmin}` },
   });
 
   const { cid: detailsCID, loading: detailsCidLoading } = useCid({
@@ -154,18 +154,7 @@ const HatLinkRequestApproveForm = ({
     },
     handlePendingTx,
     waitForSubgraph,
-    queryKeys: [
-      ['hatDetails', { id: newAdmin, chainId }],
-      ['hatDetails', { id: topHatDomain, chainId }],
-      ['treeDetails', topHatDomain, chainId || 1],
-      ['treeDetails', toTreeId(newAdmin), chainId || 1],
-    ],
-    // TODO move to check on submit
-    // enabled:
-    //   Boolean(topHatDomain) &&
-    //   Boolean(newAdmin) &&
-    //   !!chainId &&
-    //   chainId === currentNetworkId,
+    queryKeys: [['hatDetails'], ['treeDetails']],
   });
 
   const onSubmit = async () => {
@@ -174,7 +163,7 @@ const HatLinkRequestApproveForm = ({
       const token = await fetchToken();
       await pinJson(
         { type: '1.0', data: { name, description } },
-        { name: `details_${_.toString(chainId)}_${decimalAdmin}` },
+        { name: `details_${toString(chainId)}_${decimalAdmin}` },
         token,
       );
     }
@@ -347,7 +336,7 @@ const HatLinkRequestApproveForm = ({
         <Flex justify='flex-end'>
           <Button
             type='submit'
-            isDisabled={!writeAsync}
+            isDisabled={!writeAsync || chainId !== currentChainId}
             isLoading={
               detailsCidLoading ||
               isLoading ||
