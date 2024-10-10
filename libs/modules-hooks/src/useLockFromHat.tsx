@@ -1,15 +1,15 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { find, get, map } from 'lodash';
-import { erc20Abi, formatUnits, Hex, zeroAddress } from 'viem';
+import { Abi, erc20Abi, formatUnits, Hex, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
 interface ContractLookup {
-  address: any;
-  abi: any;
+  address: Hex;
+  abi: Abi;
   functionName: string;
   args: string[];
-  chainId: any;
+  chainId: number | undefined;
 }
 
 export const useLockFromHat = ({
@@ -59,7 +59,7 @@ export const useLockFromHat = ({
 
   const { data: lockProperties, isLoading: isLoadingLockProperties } =
     useReadContracts({
-      contracts: contractLockProperties as any,
+      contracts: contractLockProperties as readonly unknown[],
     });
   const [tokenAddress, purchasePrice, durationInSeconds, keyBalance] = map(
     lockProperties,
@@ -98,7 +98,7 @@ export const useLockFromHat = ({
 
   const { data: tokenProperties, isLoading: isLoadingTokenProperties } =
     useReadContracts({
-      contracts: tokenPropertiesRequests as any,
+      contracts: tokenPropertiesRequests as readonly unknown[],
     });
   const [tokenSymbol, tokenDecimals, tokenAllowance, tokenBalance] = map(
     tokenProperties,

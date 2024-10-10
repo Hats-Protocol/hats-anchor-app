@@ -1,7 +1,7 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { Hex } from 'viem';
 
-import { CONTACT_URL, DOCS_URL } from './content';
+import { CONTACT_URL, DOCS_URL, LANDING_URL } from './content';
 import { MINI_CONFIG } from './metadata';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
@@ -36,7 +36,7 @@ const CONFIG: Config = {
   CLAIMS_URL: 'https://claim.hatsprotocol.xyz',
   CONTACT_URL,
   DOCS_URL,
-
+  LANDING_URL,
   // terminology
   hat: 'hat',
   hats: 'hats',
@@ -121,6 +121,7 @@ type Config = {
   CLAIMS_URL: string;
   CONTACT_URL: string;
   DOCS_URL: string;
+  LANDING_URL: string;
 
   // docs
   docsLinks: {

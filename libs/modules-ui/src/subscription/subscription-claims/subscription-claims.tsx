@@ -17,7 +17,11 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { some } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
+import {
+  BsCheckSquare,
+  BsCheckSquareFill,
+  BsXOctagonFill,
+} from 'react-icons/bs';
 import { MixedIcon } from 'types';
 import { getDuration } from 'utils';
 import { Hex } from 'viem';
@@ -53,7 +57,7 @@ export const SubscriptionClaims = () => {
   const activeSubscription = keyBalance && keyBalance > BigInt(0);
 
   if (isLoading || isLoadingWearerDetails) {
-    return <Skeleton w='full' h='500px' />;
+    return <Skeleton w='full' h='500px' borderRadius='md' />;
   }
 
   if (!moduleParameters) {
@@ -73,11 +77,18 @@ export const SubscriptionClaims = () => {
   let status = 'Not Paid';
   let icon: MixedIcon = BsXOctagonFill;
   let color = 'red.500';
-  if (hasAllowance || activeSubscription) {
+  if (hasAllowance) {
+    const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
+    status = `Authorized for ${durationsLeft} ${durationText.noun}${
+      durationsLeft > 1 || durationsLeft === 0 ? 's' : ''
+    }`;
+    icon = BsCheckSquare;
+    color = 'green.500';
+  } else if (activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
     if (durationsLeft === 0) {
       status = 'Renew Soon';
-      icon = BsCheckSquareFill;
+      icon = BsCheckSquare;
       color = 'orange.500';
     } else {
       status = `${durationsLeft} ${durationText.noun}${

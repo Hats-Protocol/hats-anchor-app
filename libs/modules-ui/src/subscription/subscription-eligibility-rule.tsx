@@ -28,6 +28,8 @@ const ChakraNextLink = dynamic(() =>
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const SUBSCRIPTION_MODAL_NAME = 'subscriptionManager';
 
+// TODO get expiration date from key
+
 export const UnlockEligibilityRule = ({
   selectedHat,
   moduleParameters,
@@ -89,9 +91,9 @@ export const UnlockEligibilityRule = ({
   }
   if (isEligible) {
     if (renewSoon) {
-      status = ELIGIBILITY_STATUS.eligible;
+      status = ELIGIBILITY_STATUS.expiring;
       displayStatus = 'Renew Soon';
-      icon = BsCheckSquareFill;
+      icon = BsCheckSquare;
     } else {
       status = ELIGIBILITY_STATUS.eligible;
       displayStatus = 'Paid';
@@ -116,8 +118,8 @@ export const UnlockEligibilityRule = ({
         <Text>
           Pay the{' '}
           <ChakraNextLink
+            color='gray.500'
             href={claimsLink({ chainId, hatId: selectedHat?.id })}
-            decoration
           >
             subscription
           </ChakraNextLink>
@@ -125,6 +127,11 @@ export const UnlockEligibilityRule = ({
       }
       status={status}
       displayStatus={displayStatus}
+      // statusTooltip={
+      //   status === ELIGIBILITY_STATUS.expiring
+      //     ? `Expires ${formatDate(moduleParameters.expiration)}`
+      //     : ''
+      // }
       icon={icon}
     />
   );

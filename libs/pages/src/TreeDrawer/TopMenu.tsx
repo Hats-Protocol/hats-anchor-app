@@ -79,6 +79,7 @@ const TopMenu = () => {
     chainId,
     handlePendingTx,
     editMode,
+    setEditMode,
   });
 
   const handleDeploy = async () => {

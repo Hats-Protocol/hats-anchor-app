@@ -44,6 +44,9 @@ export const TransactionButton = ({
       await waitForSubgraph(result);
 
       await invalidateAfterTransaction(chainId, localHash);
+
+      onReceipt?.(result);
+
       setIsLoading(false);
     } catch (err) {
       console.error(err);

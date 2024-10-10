@@ -56,6 +56,17 @@ export const EligibilityRuleDetails = ({
   const { setModals } = useOverlay();
   const { address } = useAccount();
 
+  let statusColor = 'red.500';
+  if (status === ELIGIBILITY_STATUS.expiring) {
+    statusColor = 'orange.500';
+  } else if (
+    status === ELIGIBILITY_STATUS.eligible ||
+    status === ELIGIBILITY_STATUS.pending ||
+    status === TOGGLE_STATUS.active
+  ) {
+    statusColor = 'green.500';
+  }
+
   if (displayStatusLink) {
     return (
       <EligibilityRuleWrapper rule={rule}>
@@ -72,16 +83,7 @@ export const EligibilityRuleDetails = ({
   if (address) {
     return (
       <EligibilityRuleWrapper rule={rule}>
-        <HStack
-          spacing={1}
-          color={
-            status === ELIGIBILITY_STATUS.eligible ||
-            status === ELIGIBILITY_STATUS.pending ||
-            status === TOGGLE_STATUS.active
-              ? 'green.500'
-              : 'red.500'
-          }
-        >
+        <HStack spacing={1} color={statusColor}>
           <Text>{displayStatus}</Text>
           <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
