@@ -6,15 +6,12 @@ import {
   Flex,
   HStack,
   Icon,
-  IconProps,
-  MergeWithAs,
   Skeleton,
   Text,
 } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import dynamic from 'next/dynamic';
-import { ComponentType, ReactNode, SVGProps } from 'react';
-import { IconType } from 'react-icons';
+import { ReactNode } from 'react';
 import { useAccount } from 'wagmi';
 
 import {
@@ -66,6 +63,8 @@ export const EligibilityRuleDetails = ({
   ) {
     statusColor = 'green.500';
   }
+
+  // TODO handle tooltip on displayStatus
 
   if (displayStatusLink) {
     return (

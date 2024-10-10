@@ -1,12 +1,14 @@
 'use client';
 
 import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
+import { ConnectWallet } from 'molecules';
 import { AppHat } from 'types';
 import { ChakraNextLink } from 'ui';
 
-import ConnectWallet from '../ConnectWallet';
-
-const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
+export const StandaloneNavbar = ({
+  heading,
+  hatData,
+}: StandaloneNavbarProps) => {
   return (
     <Flex
       w='100%'
@@ -34,8 +36,6 @@ const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
     </Flex>
   );
 };
-
-export default StandaloneNavbar;
 
 interface StandaloneNavbarProps {
   heading?: string;

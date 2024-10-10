@@ -1,47 +1,40 @@
 'use client';
 
-import {
-  Button,
-  HStack,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from '@chakra-ui/react';
+import { Button, HStack, Icon } from '@chakra-ui/react';
 import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
-import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
+import { AgreementContent } from 'molecules';
+import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
-import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { BsDownload, BsThreeDotsVertical } from 'react-icons/bs';
+import { BsDownload } from 'react-icons/bs';
 import { FiExternalLink } from 'react-icons/fi';
-import { ChakraNextLink } from 'ui';
-import { fetchIpfs } from 'utils';
-import { hatLink } from 'utils';
+import { fetchIpfs, hatLink } from 'utils';
 
-import { AgreementContent } from '../agreement-content';
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
-const handleFetchIpfs: any = async (ipfsHash: string) => {
+const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
-    .then((res: any) => {
-      console.log('res', res);
+    .then((res: unknown) => {
       return get(res, 'data', null);
     })
     .catch((err: Error) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       return null;
     });
 };
 
-export const BottomMoreMenu = () => {
+export const ClaimsHelperButtons = ({
+  stackVertically = false,
+}: ClaimsHelperButtonsProps) => {
   const { selectedHat, chainId, moduleDetails, moduleParameters } =
     useEligibility();
-  const { isMobile } = useMediaStyles();
   const link = hatLink({ hatId: selectedHat?.id, chainId });
 
   const hasAgreement =
@@ -75,32 +68,8 @@ export const BottomMoreMenu = () => {
     };
   }, [agreement, agreementV0]);
 
-  if (isMobile) {
-    return (
-      <Menu>
-        <MenuButton
-          as={Button}
-          variant='outline'
-          rightIcon={<Icon as={BsThreeDotsVertical} boxSize={4} />}
-          display={{ base: 'flex', md: 'none' }}
-        >
-          More
-        </MenuButton>
-        <MenuList>
-          <ChakraNextLink href={link} isExternal>
-            <MenuItem>View full role</MenuItem>
-          </ChakraNextLink>
-
-          {hasAgreement && (
-            <MenuItem onClick={handleDownload}>Download Agreement</MenuItem>
-          )}
-        </MenuList>
-      </Menu>
-    );
-  }
-
   return (
-    <HStack>
+    <HStack flexDir={stackVertically ? 'column' : 'row'}>
       <ChakraNextLink href={link} isExternal>
         <Button
           variant='outline'
@@ -123,3 +92,7 @@ export const BottomMoreMenu = () => {
     </HStack>
   );
 };
+
+interface ClaimsHelperButtonsProps {
+  stackVertically?: boolean;
+}

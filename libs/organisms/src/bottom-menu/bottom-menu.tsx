@@ -22,7 +22,7 @@ const BoxArrowUp = dynamic(() =>
   import('react-icons/pi').then((i) => i.PiArrowSquareUp),
 );
 
-const BottomMenu = ({ show }: { show?: boolean }) => {
+export const BottomMenu = ({ show }: { show?: boolean }) => {
   const { hierarchy, handleSelectHat } = useSelectedHat();
   const { isMobile } = useMediaStyles();
 
@@ -110,5 +110,3 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
     </Box>
   );
 };
-
-export default BottomMenu;

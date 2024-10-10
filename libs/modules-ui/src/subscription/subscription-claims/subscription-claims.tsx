@@ -24,7 +24,7 @@ import {
 } from 'react-icons/bs';
 import { MixedIcon } from 'types';
 import { getDuration } from 'utils';
-import { Hex } from 'viem';
+import { Hex, maxUint256 } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { AllowanceActions } from './allowance-actions';
@@ -154,13 +154,16 @@ export const SubscriptionClaims = () => {
                 <Heading size='lg'>Claim your Hat now</Heading>
 
                 <Text>
-                  You enabled a monthly withdrawal of the subscription fee and
-                  paid the first month.
+                  You've enabled a {durationText.adjective} withdrawal of the
+                  subscription fee.
                 </Text>
-                <Text>You can now claim this Hat.</Text>
                 <Text>
-                  Below you can adjust the authorized amount to control the
-                  duration of your subscription.
+                  You can now claim this Hat and pay the first{' '}
+                  {durationText.noun}.
+                </Text>
+                <Text>
+                  Anytime you'd like, you can adjust the authorized amount to
+                  control the potential duration of your subscription.
                 </Text>
               </Stack>
             )}

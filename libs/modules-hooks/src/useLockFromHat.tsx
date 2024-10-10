@@ -29,28 +29,28 @@ export const useLockFromHat = ({
   const contractLockProperties: ContractLookup[] = [
     {
       address: lockAddress,
-      abi: PublicLockV14.abi,
+      abi: PublicLockV14.abi as Abi,
       functionName: 'tokenAddress',
       args: [],
       chainId,
     },
     {
       address: lockAddress,
-      abi: PublicLockV14.abi,
+      abi: PublicLockV14.abi as Abi,
       functionName: 'purchasePriceFor',
       args: [address!, address!, ''],
       chainId,
     },
     {
       address: lockAddress,
-      abi: PublicLockV14.abi,
+      abi: PublicLockV14.abi as Abi,
       functionName: 'expirationDuration',
       args: [],
       chainId,
     },
     {
       address: lockAddress,
-      abi: PublicLockV14.abi,
+      abi: PublicLockV14.abi as Abi,
       functionName: 'balanceOf',
       args: [address!],
       chainId,
@@ -68,7 +68,7 @@ export const useLockFromHat = ({
 
   const currencyContract = {
     address: tokenAddress,
-    abi: erc20Abi,
+    abi: erc20Abi as Abi,
     chainId,
     enabled: tokenAddress && tokenAddress !== zeroAddress,
   };

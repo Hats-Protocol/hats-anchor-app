@@ -216,7 +216,6 @@ export const AgreementModal = ({
   }, [ownerHat, judgeHat, eligibilityHatId]);
 
   const handleSignAgreement = async () => {
-    console.log('sign agreement');
     const tx = await writeContractAsync({
       address: moduleInfo.id,
       abi: moduleInfo.abi,
