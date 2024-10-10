@@ -35,6 +35,7 @@ interface DurationInputProps {
   options?: RegisterOptions;
   label?: string;
   subLabel?: string;
+  // defaultTimeUnit?: string; // is this easier to handle at the form level with `reset`?
 }
 
 const DurationInput: React.FC<DurationInputProps> = ({
@@ -45,6 +46,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
   options,
   label,
   subLabel,
+  // defaultTimeUnit,
 }) => {
   const { setValue, watch } = _.pick(localForm, ['setValue', 'watch']);
   const calculateSeconds = (value: number, timeUnit: string) => {

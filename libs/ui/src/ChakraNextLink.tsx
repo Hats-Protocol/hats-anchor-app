@@ -19,6 +19,7 @@ const ChakraNextLink = ({
   <ChakraLink
     as={Link}
     textDecoration={decoration ? 'underline' : 'none'}
+    color='gray.500'
     _hover={{
       textDecoration: decoration ? 'underline' : 'none',
       color: '#23232380',

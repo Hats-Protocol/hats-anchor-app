@@ -10,9 +10,9 @@ import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
 import { useAgreementClaimsHatterContractWrite } from 'hooks';
-import { find } from 'lodash';
+import { find, pick } from 'lodash';
 import { useMemo, useState } from 'react';
-import { AppHat, HandlePendingTx, SupportedChains } from 'types';
+import { AppHat, HandlePendingTx, SupportedChains, ToastProps } from 'types';
 import { Hex } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 
@@ -101,20 +101,18 @@ export const useClaimFn = ({
     });
 
   // AGREEMENT v0
-  const {
-    writeAsync: agreementV0Claim,
-    prepareError,
-    isLoading: isLoadingAgreementV0Claim,
-  } = useAgreementClaimsHatterContractWrite({
-    functionName: 'claimHatWithAgreement',
-    address: CONFIG.agreementV0.hatterAddress,
-    chainId,
-    enabled: Boolean(COMMUNITY_HAT_ID) && !isLoadingWearerDetails && !isWearing,
-    onSuccessToastData: TOASTS.claimHatWithAgreement,
-    onDecline: () => {
-      setStatus(CLAIM_STATUS.DECLINED);
-    },
-  });
+  const { writeAsync: agreementV0Claim, isLoading: isLoadingAgreementV0Claim } =
+    useAgreementClaimsHatterContractWrite({
+      functionName: 'claimHatWithAgreement',
+      address: CONFIG.agreementV0.hatterAddress as Hex,
+      chainId,
+      enabled:
+        Boolean(COMMUNITY_HAT_ID) && !isLoadingWearerDetails && !isWearing,
+      successToastData: TOASTS.claimHatWithAgreement as ToastProps,
+      onDecline: () => {
+        setStatus(CLAIM_STATUS.DECLINED);
+      },
+    });
 
   const claimHandlers = useMemo(() => {
     if (moduleDetails?.name === ELIGIBILITY_MODULES.agreement) {
@@ -151,14 +149,18 @@ export const useClaimFn = ({
   ]);
 
   const handleClaim = async () => {
-    if (!claimHandlers.claimFn || claimHandlers.disableClaim) {
+    const { claimFn, disableClaim } = pick(claimHandlers, [
+      'claimFn',
+      'disableClaim',
+    ]);
+    if (!claimFn || disableClaim) {
       // eslint-disable-next-line no-console
       console.log('claim disabled');
       return;
     }
     setStatus(CLAIM_STATUS.CLAIMING);
 
-    return claimHandlers.claimFn?.().then(() => {
+    return claimFn?.()?.then(() => {
       // MODAL used for pending tx handler, not claiming
       onOpen();
     });

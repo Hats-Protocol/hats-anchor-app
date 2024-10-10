@@ -23,7 +23,16 @@ import {
   isTopHatOrMutable,
 } from 'hats-utils';
 import { useMediaStyles, useToast } from 'hooks';
-import _ from 'lodash';
+import {
+  filter,
+  first,
+  get,
+  gt,
+  includes,
+  last,
+  map,
+  startsWith,
+} from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { AiOutlineDownload, AiOutlineUpload } from 'react-icons/ai';
@@ -34,7 +43,7 @@ import { Hex } from 'viem';
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 
 const isDraft = (hatId: string, onchainHats: AppHat[]) =>
-  !_.includes(_.map(onchainHats, 'id'), hatId);
+  !includes(map(onchainHats, 'id'), hatId);
 
 const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   const {
@@ -57,14 +66,14 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
 
   const { setModals } = localOverlay;
 
-  const topHatCreated = _.get(_.last(_.get(topHat, 'events')), 'timestamp');
+  const topHatCreated = get(last(get(topHat, 'events')), 'timestamp');
 
   const openImportModal = () => {
     setModals?.({ importFile: true });
   };
 
-  const hatIds = _.filter(
-    _.map(storedData, 'id'),
+  const hatIds = filter(
+    map(storedData, 'id'),
     (hatId: string | undefined) => hatId !== undefined,
   ) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
@@ -112,11 +121,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                   new Date(Number(topHatCreated) * 1000),
                 )}{' '}
               ago. Last edited {/* treeEvents is sorted by recent timestamp */}
-              {_.get(_.first(treeEvents), 'timestamp') &&
+              {get(first(treeEvents), 'timestamp') &&
                 formatDistanceToNow(
-                  new Date(
-                    Number(_.get(_.first(treeEvents), 'timestamp')) * 1000,
-                  ),
+                  new Date(Number(get(first(treeEvents), 'timestamp')) * 1000),
                 )}{' '}
               ago.
             </Text>
@@ -160,18 +167,18 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         borderY='1px solid'
         borderColor='gray.200'
       >
-        {_.map(treeToDisplay, (hat: AppHat) => {
+        {map(treeToDisplay, (hat: AppHat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
           // console.log(changes);
 
           const hatId = hatIdDecimalToIp(BigInt(hat.id));
           // get hat name for list display, default to details name
-          let displayName = _.get(hat, 'detailsObject.data.name') || hat.name;
-          if (displayName === hatId && !_.startsWith(hat.details, 'ipfs://')) {
+          let displayName = get(hat, 'detailsObject.data.name') || hat.name;
+          if (displayName === hatId && !startsWith(hat.details, 'ipfs://')) {
             displayName = hat.details;
           }
-          const localDisplayName = _.get(hat, 'displayName', '');
+          const localDisplayName = get(hat, 'displayName', '');
           if (localDisplayName !== '') {
             displayName = localDisplayName;
           }
@@ -189,7 +196,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
             onOpenHatDrawer?.(hat.id);
           };
 
-          const isAdmin = _.includes(adminHatIds, hat.id);
+          const isAdmin = includes(adminHatIds, hat.id);
 
           return (
             <Box
@@ -238,7 +245,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                       >
                         {changes}
                         {isAdmin ? ' Deployable Edit' : ' Change'}
-                        {_.gt(changes, 1) ? 'S' : ''}
+                        {gt(changes, 1) ? 'S' : ''}
                       </Badge>
                     )
                   )}

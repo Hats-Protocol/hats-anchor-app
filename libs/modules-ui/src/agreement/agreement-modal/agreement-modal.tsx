@@ -10,9 +10,9 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { Input, Textarea } from 'forms';
+import { DurationInput, Input, Textarea } from 'forms';
 import {
   useAllWearers,
   useHatDetails,
@@ -38,10 +38,15 @@ import {
 } from 'lodash';
 import { useAgreementDetails, useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { filterProfiles, formatAddress } from 'utils';
+import {
+  fetchToken,
+  filterProfiles,
+  formatAddress,
+  pinFileToIpfs,
+} from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
@@ -58,6 +63,12 @@ const ControlledRadioBox = dynamic(() =>
   import('ui').then((ui) => ui.ControlledRadioBox),
 );
 const Markdown = dynamic(() => import('ui').then((ui) => ui.Markdown));
+const TransactionButton = dynamic(() =>
+  import('molecules').then((mod) => mod.TransactionButton),
+);
+
+const DEFAULT_GRACE_PERIOD = 4;
+const DEFAULT_GRACE_PERIOD_UNIT = 'weeks';
 
 export const AgreementModal = ({
   eligibilityHatId,
@@ -76,7 +87,10 @@ export const AgreementModal = ({
   const [selectedOption, setSelectedOption] = useState<string>('Agreement');
   const [updatingAgreement, setUpdatingAgreement] = useState(false);
   const { watch, reset } = pick(localForm, ['watch', 'reset']);
+  const localHat = find(onchainHats, { id: eligibilityHatId });
 
+  const gracePeriod = watch('gracePeriod');
+  const newAgreementContent = watch('agreementContent');
   const { data: hat } = useHatDetails({
     hatId: eligibilityHatId,
     chainId,
@@ -95,7 +109,6 @@ export const AgreementModal = ({
   const isWearing = find(wearers, { id: toLower(address) });
 
   const searchInput = watch('search');
-  // const addresses = watch('addresses');
   const { data: agreementDetails } = useAgreementDetails({
     id: moduleInfo.id,
     chainId,
@@ -215,20 +228,30 @@ export const AgreementModal = ({
     // TODO handle success
   };
 
+  if (!eligibilityHatId) return null;
+
   const handleUpdateAgreement = async () => {
-    console.log('update agreement');
-    // const tx = await writeContractAsync({
-    //   address: moduleInfo.id,
-    //   abi: moduleInfo.abi,
-    //   functionName: 'updateAgreement',
-    //   args: [instanceAddress],
-    // });
-    // console.log('tx', tx);
+    const token = await fetchToken();
+    // TODO handle error
+    console.log('token', token);
+    const ipfsHash = await pinFileToIpfs({
+      file: newAgreementContent,
+      fileName: `agreement_${hatIdDecimalToIp(BigInt(eligibilityHatId))}_${chainId}`,
+      token,
+    });
+
+    console.log('ipfsHash', ipfsHash);
+    const tx = await writeContractAsync({
+      address: moduleInfo.id,
+      abi: moduleInfo.abi,
+      functionName: 'setAgreement',
+      args: [ipfsHash, gracePeriod],
+    });
+    console.log('tx', tx);
     // TODO handle success
     setUpdatingAgreement(false);
+    return tx;
   };
-
-  if (!eligibilityHatId) return null;
 
   return (
     <ModuleModal
@@ -262,7 +285,7 @@ export const AgreementModal = ({
           <Textarea
             name='agreementContent'
             localForm={localForm}
-            minH='450px'
+            minH='350px'
           />
         </Stack>
       )}
@@ -277,6 +300,8 @@ export const AgreementModal = ({
                 localForm={localForm}
               />
             </Flex>
+
+            <Button>Wearer Filters</Button>
           </Flex>
 
           <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
@@ -343,7 +368,14 @@ export const AgreementModal = ({
                     colorScheme='blue.500'
                     size='sm'
                     onClick={() => {
-                      reset({ agreementContent }, { keepDefaultValues: false });
+                      reset(
+                        {
+                          agreementContent,
+                          'gracePeriod-time-value': DEFAULT_GRACE_PERIOD,
+                          'gracePeriod-time-unit': DEFAULT_GRACE_PERIOD_UNIT,
+                        },
+                        { keepDefaultValues: false },
+                      );
                       setUpdatingAgreement(true);
                     }}
                   >
@@ -365,24 +397,41 @@ export const AgreementModal = ({
           )}
 
           {updatingAgreement && (
-            <Flex w='full' justify='space-between' px={{ base: 4, md: 10 }}>
-              <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
-                size='sm'
-                onClick={() => setUpdatingAgreement(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant='primary'
-                size='sm'
-                isDisabled={isEmpty(agreementContent)}
-                onClick={handleUpdateAgreement}
-              >
-                Update Agreement
-              </Button>
-            </Flex>
+            <Stack w='full' px={{ base: 4, md: 10 }} spacing={4}>
+              <DurationInput
+                name='gracePeriod'
+                label='Grace Period'
+                localForm={localForm}
+              />
+
+              <Flex w='full' justify='space-between'>
+                <Button
+                  variant='outlineMatch'
+                  colorScheme='blue.500'
+                  size='sm'
+                  onClick={() => setUpdatingAgreement(false)}
+                >
+                  Cancel
+                </Button>
+
+                <TransactionButton
+                  variant='primary'
+                  size='sm'
+                  chainId={chainId}
+                  txDescription={`Updated Agreement for ${
+                    localHat?.detailsObject
+                      ? get(localHat, 'detailsObject.name')
+                      : `Hat ${hatIdDecimalToIp(BigInt(eligibilityHatId))}`
+                  }`}
+                  sendTx={handleUpdateAgreement}
+                  onReceipt={() => {}}
+                  isDisabled={isEmpty(agreementContent)}
+                  onClick={handleUpdateAgreement}
+                >
+                  Update Agreement
+                </TransactionButton>
+              </Flex>
+            </Stack>
           )}
 
           {removing && (

@@ -53,7 +53,6 @@ const useWaitForSubgraph = ({
         return fetchSubgraphBlockNumber(chainId)
           .then((result) => {
             const subgraphBlockNumber = get(result, '_meta.block.number');
-            console.log({ subgraphBlockNumber, blockNumber });
 
             if (subgraphBlockNumber && subgraphBlockNumber >= blockNumber) {
               clearInterval(intervalId);
@@ -65,6 +64,7 @@ const useWaitForSubgraph = ({
             }
           })
           .catch((e) => {
+            // eslint-disable-next-line no-console
             console.log(e);
             toast.error({
               title: 'Error',

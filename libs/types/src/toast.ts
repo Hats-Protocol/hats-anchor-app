@@ -14,7 +14,6 @@ export interface ToastBaseProps {
   isClosable?: boolean;
 }
 
-
 export interface ToastProps {
   title: string;
   description?: string;

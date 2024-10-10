@@ -120,15 +120,6 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
       ['hatDetails', { id: hatId, chainId }],
       ['treeDetails', toTreeId(hatId)],
     ],
-    // TODO move these to disabled/other checks
-    // enabled:
-    //   !!hatId &&
-    //   Boolean(hatIdDecimal) &&
-    //   _.includes(_.map(onchainHats, 'id'), hatId) &&
-    //   !_.isEmpty(localWearers) &&
-    //   _.toNumber(selectedOnchainHat?.maxSupply) >
-    //     (currentWearerList.length + currentResolvedAddress ? 1 : 0) &&
-    //   chainId === currentNetworkId,
   });
 
   const txDescriptionSingle = `Minted hat ${idToIp(selectedHat?.id)} to ${
@@ -156,12 +147,6 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
         ['hatDetails', { id: hatId, chainId }],
         ['treeDetails', toTreeId(hatId)],
       ],
-      // enabled:
-      //   Boolean(hatIdDecimal) &&
-      //   _.includes(_.map(onchainHats, 'id'), hatId) &&
-      //   (Boolean(currentResolvedAddress) || isAddress(currentInput)) &&
-      //   _.toNumber(selectedOnchainHat?.maxSupply) > currentWearerList.length &&
-      //   chainId === currentNetworkId,
     });
 
   const onSubmit = async () => {

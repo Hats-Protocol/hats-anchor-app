@@ -3,13 +3,14 @@
 import { Button, ButtonProps as ChakraButtonProps } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWaitForSubgraph } from 'hooks';
-import { hash, invalidateAfterTransaction, wagmiConfig } from 'utils';
+import { useState } from 'react';
+import { invalidateAfterTransaction, wagmiConfig } from 'utils';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 
 interface TransactionButtonProps extends ChakraButtonProps {
   sendTx: () => Promise<`0x${string}`>;
   children: React.ReactNode;
-  chainId: number;
+  chainId: number | undefined;
   onReceipt: (receipt: { [x: string]: any }) => void;
   txDescription: string;
 }
@@ -24,23 +25,34 @@ export const TransactionButton = ({
 }: TransactionButtonProps) => {
   const { handlePendingTx } = useOverlay();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
+  const [isLoading, setIsLoading] = useState(false);
+  console.log({ isLoading });
 
   const handleAsyncTx = async () => {
-    const localHash = await sendTx();
+    if (!chainId) return;
 
-    const result = await waitForTransactionReceipt(wagmiConfig, {
-      hash: localHash,
-    });
+    try {
+      setIsLoading(true);
+      const localHash = await sendTx();
 
-    await waitForSubgraph(result);
+      const result = await waitForTransactionReceipt(wagmiConfig, {
+        hash: localHash,
+      });
 
-    await invalidateAfterTransaction(chainId, localHash);
+      handlePendingTx?.({ hash: localHash, txDescription });
 
-    handlePendingTx?.({ hash: localHash, txDescription });
+      await waitForSubgraph(result);
+
+      await invalidateAfterTransaction(chainId, localHash);
+      setIsLoading(false);
+    } catch (err) {
+      console.error(err);
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Button isLoading={!!hash} onClick={handleAsyncTx} {...props}>
+    <Button isLoading={isLoading} onClick={handleAsyncTx} {...props}>
       {children}
     </Button>
   );

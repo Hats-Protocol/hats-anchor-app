@@ -1,3 +1,5 @@
+'use client';
+
 import { Heading, Stack } from '@chakra-ui/react';
 import { isEmpty, map } from 'lodash';
 import posthog from 'posthog-js';
@@ -5,32 +7,30 @@ import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
 
-// canonical in about
-interface ModuleDescriptor {
+export interface DevInfo {
   label?: string;
   hatId?: Hex;
   icon?: IconType;
   descriptor?: ReactNode;
+  link?: string;
 }
 
-export const DevInfo = ({ moduleDescriptors }: DevInfoProps) => {
+export const DevInfo = ({ devInfos }: DevInfoProps) => {
   const devFlag =
     posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
-  if (!moduleDescriptors || isEmpty(moduleDescriptors) || !devFlag) return null;
+  if (!devInfos || isEmpty(devInfos) || !devFlag) return null;
 
   return (
     <Stack>
       <Heading size='sm'>Dev Info</Heading>
 
-      {map(moduleDescriptors, (descriptor) => {
+      {map(devInfos, ({ label, descriptor }) => {
         return (
-          <div className='flex w-full justify-between' key={descriptor.label}>
-            <div className='text-sm'>{descriptor.label}</div>
+          <div className='flex w-full justify-between' key={label}>
+            <div className='text-sm'>{label}</div>
 
-            <div className='text-sm'>
-              {descriptor.descriptor || descriptor.hatId}
-            </div>
+            {descriptor}
           </div>
         );
       })}
@@ -39,5 +39,5 @@ export const DevInfo = ({ moduleDescriptors }: DevInfoProps) => {
 };
 
 interface DevInfoProps {
-  moduleDescriptors: ModuleDescriptor[];
+  devInfos: DevInfo[];
 }
