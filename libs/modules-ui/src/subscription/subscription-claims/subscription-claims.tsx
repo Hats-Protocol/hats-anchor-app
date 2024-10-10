@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Box,
   Card,
   CardBody,
   ComponentWithAs,
@@ -14,22 +13,18 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { compact, isUndefined, map, some } from 'lodash';
+import { some } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import dynamic from 'next/dynamic';
-import { useMemo } from 'react';
 import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 import { MixedIcon } from 'types';
-import { formatAddress, getDuration } from 'utils';
-import { erc20Abi, formatUnits, Hex } from 'viem';
-import { useAccount, useReadContracts } from 'wagmi';
+import { getDuration } from 'utils';
+import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 import { AllowanceActions } from './allowance-actions';
-
-const DevInfo = dynamic(() => import('ui').then((mod) => mod.DevInfo));
+import { SubscriptionDevInfo } from './subscription-dev-info';
 
 export const SubscriptionClaims = () => {
   const { address } = useAccount();
@@ -37,12 +32,11 @@ export const SubscriptionClaims = () => {
   const {
     isLoading,
     price,
-    decimals,
     keyPrice,
     symbol,
     duration,
-    currencyContract,
-    lockAddress,
+    keyBalance,
+    allowance,
   } = useLockFromHat({
     moduleParameters,
     chainId,
@@ -54,84 +48,12 @@ export const SubscriptionClaims = () => {
       chainId,
     });
 
-  const lockContract = {
-    address: lockAddress,
-    abi: PublicLockV14.abi,
-    chainId,
-  } as const;
-
-  const tokenContract = {
-    address: currencyContract,
-    abi: erc20Abi,
-    chainId,
-  } as const;
-
-  const contracts = [
-    {
-      ...lockContract,
-      functionName: 'balanceOf',
-      args: [address as Hex],
-    },
-    {
-      ...tokenContract,
-      functionName: 'allowance',
-      args: [address as Hex, lockAddress],
-    },
-    {
-      ...tokenContract,
-      functionName: 'balanceOf',
-      args: [address as Hex],
-    },
-  ];
-
-  const { data: contractData } = useReadContracts({
-    contracts: contracts as any,
-  });
-  const [keyBalance, allowance, tokenBalance] = map(contractData, 'result') as [
-    bigint,
-    bigint,
-    bigint,
-  ];
-
   const isWearing = some(wearerDetails, { id: selectedHat?.id });
   const hasAllowance = allowance && allowance >= BigInt(0);
   const activeSubscription = keyBalance && keyBalance > BigInt(0);
 
-  const moduleDescriptors = useMemo(() => {
-    return compact([
-      !isUndefined(allowance) && {
-        label: 'Allowance',
-        descriptor: `${formatUnits(allowance, Number(decimals))} ${symbol}`,
-      },
-      !isUndefined(tokenBalance) && {
-        label: 'Token Balance',
-        descriptor: `${formatUnits(tokenBalance, Number(decimals))} ${symbol}`,
-      },
-      !isUndefined(keyBalance) && {
-        label: 'Key Balance',
-        descriptor: `${keyBalance.toString()} keys`,
-      },
-      !isUndefined(price) && {
-        label: 'Price',
-        descriptor: `${price} ${symbol}`,
-      },
-      !isUndefined(lockAddress) && {
-        label: 'Lock Address',
-        descriptor: formatAddress(lockAddress),
-      },
-    ]);
-  }, [
-    keyBalance,
-    tokenBalance,
-    allowance,
-    decimals,
-    symbol,
-    price,
-    lockAddress,
-  ]);
-
   if (isLoading || isLoadingWearerDetails) {
-    return <Skeleton w='full' h='200px' />;
+    return <Skeleton w='full' h='500px' />;
   }
 
   if (!moduleParameters) {
@@ -148,7 +70,7 @@ export const SubscriptionClaims = () => {
 
   const durationText = getDuration(duration);
 
-  let status = 'No authorization';
+  let status = 'Not Paid';
   let icon: MixedIcon = BsXOctagonFill;
   let color = 'red.500';
   if (hasAllowance || activeSubscription) {
@@ -182,7 +104,7 @@ export const SubscriptionClaims = () => {
                 Requirements to claim and keep this Hat
               </Heading>
               <Flex w='full' justify='space-between'>
-                <Text>Pay the subscription fee</Text>
+                <Text>Pay the subscription</Text>
 
                 <HStack>
                   <Text color={color}>{status}</Text>
@@ -240,9 +162,10 @@ export const SubscriptionClaims = () => {
         </CardBody>
       </Card>
 
-      <Box maxW='350px'>
-        <DevInfo moduleDescriptors={moduleDescriptors} />
-      </Box>
+      <SubscriptionDevInfo
+        moduleParameters={moduleParameters}
+        chainId={chainId}
+      />
     </Stack>
   );
 };

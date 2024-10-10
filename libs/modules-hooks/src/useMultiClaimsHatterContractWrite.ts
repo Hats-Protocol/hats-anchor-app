@@ -1,5 +1,3 @@
-'use client';
-
 import { CONFIG } from '@hatsprotocol/constants';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
@@ -93,9 +91,9 @@ const useMultiClaimsHatterContractWrite = ({
         });
 
         setTimeout(() => {
-          queryClient.invalidateQueries({
-            queryKey: ['hatDetails', { id: hatId, chainId }],
-          });
+          queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+          queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+          queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
         }, 1000);
         return hash;
       })

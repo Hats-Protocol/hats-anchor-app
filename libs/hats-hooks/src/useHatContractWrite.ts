@@ -9,9 +9,11 @@ import { TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
 type AsyncTxHandler =
-  | ((data?: TransactionReceipt) => Promise<unknown>)
+  | ((data?: TransactionReceipt | undefined) => Promise<unknown>)
   | undefined;
-type SyncTxHandler = ((data?: TransactionReceipt) => void) | undefined;
+type SyncTxHandler =
+  | ((data?: TransactionReceipt | undefined) => void)
+  | undefined;
 
 interface ContractInteractionProps {
   functionName: string;
@@ -85,6 +87,7 @@ const useHatContractWrite = ({
           waitForSubgraph,
           redirect,
           onSuccess: async (d?: TransactionReceipt) => {
+            console.log('onSuccess', { d });
             handleSuccess?.(d);
 
             queryKeys.forEach((key) =>

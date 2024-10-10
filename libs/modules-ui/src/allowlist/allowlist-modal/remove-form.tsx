@@ -9,10 +9,12 @@ export const RemoveForm = ({
   setUpdateList,
   setUpdating,
   handleRemoveWearers,
+  isLoading,
 }: {
   updateList: AllowlistProfile[];
   setUpdateList: Dispatch<SetStateAction<AllowlistProfile[]>>;
   setUpdating: Dispatch<SetStateAction<boolean>>;
+  isLoading: boolean;
   handleRemoveWearers: () => void;
 }) => {
   return (
@@ -50,10 +52,12 @@ export const RemoveForm = ({
         >
           Cancel
         </Button>
+
         <Button
           variant='filled'
           colorScheme='red.500'
           size='sm'
+          isLoading={isLoading}
           isDisabled={isEmpty(updateList)}
           onClick={handleRemoveWearers}
         >

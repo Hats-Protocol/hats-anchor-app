@@ -1,8 +1,7 @@
-'use client';
-
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { HandlePendingTx, ToastProps } from 'types';
 import { invalidateAfterTransaction } from 'utils';
 import { Hex } from 'viem';
 import { useWriteContract } from 'wagmi';
@@ -13,27 +12,19 @@ interface ContractInteractionProps {
   functionName: string;
   address?: Hex;
   chainId?: number;
-  onSuccessToastData?: {
-    title: string;
-    description: string;
-  };
-  handlePendingTx?: (data: {
-    hash: Hex;
-    toastData?: { title: string; description: string };
-  }) => Promise<void>;
+  successToastData?: ToastProps;
+  handlePendingTx?: HandlePendingTx;
   enabled: boolean;
   onDecline?: () => void;
 }
 
 // ! DEPRECATED. TO BE REMOVED WITH HATS COMMUNITY HAT MIGRATION
 
-// workaround for https://github.com/microsoft/TypeScript/issues/48212
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useAgreementClaimsHatterContractWrite: any = ({
+const useAgreementClaimsHatterContractWrite = ({
   functionName,
   address,
   chainId,
-  onSuccessToastData,
+  successToastData,
   handlePendingTx,
   enabled = true,
   onDecline,
@@ -66,15 +57,18 @@ const useAgreementClaimsHatterContractWrite: any = ({
 
         queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
         queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
 
         handlePendingTx?.({
           hash,
-          toastData: onSuccessToastData,
+          successToastData,
+          txDescription: 'Signed agreement and claimed the Community Hat',
         });
         setIsLoading(false);
       })
 
       .catch((error) => {
+        // eslint-disable-next-line no-console
         console.log(error);
         if (
           // error.name === 'TransactionExecutionError' &&

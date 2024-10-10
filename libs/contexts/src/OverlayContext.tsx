@@ -76,6 +76,7 @@ export const OverlayContextProvider = ({
   const router = useRouter();
 
   // LOCAL STATE
+  // const [txIsPending, setTxIsPending] = useState(false);
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
   const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
   const [commandPalette, setCommandPalette] = useState(false);
@@ -221,6 +222,7 @@ export const OverlayContextProvider = ({
 
     updateTransactionStatus(hash, 'completed');
 
+    // TODO This can be centralized a bit and doesn't require a hook
     await waitForSubgraph?.(txReceipt);
     await invalidateAfterTransaction(txChainId, hash);
 
@@ -240,7 +242,6 @@ export const OverlayContextProvider = ({
     }
 
     if (redirect) {
-      console.log('redirecting to', redirect);
       router.push(redirect);
     }
 

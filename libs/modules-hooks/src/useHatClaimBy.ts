@@ -1,18 +1,12 @@
-'use client';
-
 import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast, useWaitForSubgraph } from 'hooks';
+import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, SupportedChains } from 'types';
-import {
-  createHatsModulesClient,
-  fetchHatDetails,
-  invalidateAfterTransaction,
-} from 'utils';
+import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 import {
   useAccount,
@@ -40,15 +34,6 @@ const useHatClaimBy = ({
   const toast = useToast();
   const isCurrentWearer = address === wearer;
   const queryClient = useQueryClient();
-
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(selectedHat?.id, chainId),
-    checkResult: (hatDetails) =>
-      _.some(
-        hatDetails?.wearers,
-        (w: { id: Hex }) => _.toLower(w.id) === _.toLower(address),
-      ),
-  });
 
   const claimsHatterAddress: Hex | undefined = useMemo(
     () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id') as Hex,
@@ -115,10 +100,10 @@ const useHatClaimBy = ({
           description: 'Waiting for your transaction to be accepted...',
         });
 
-        const txDescription = `You've claimed ${selectedHat?.id
-          ? `hat ID ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
-          : 'this hat'
-          }.`;
+        // TODO add hat name
+        const txDescription = selectedHat?.id
+          ? `You've claimed Hat ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
+          : '';
 
         handlePendingTx?.({
           hash,
@@ -130,15 +115,10 @@ const useHatClaimBy = ({
           },
           onSuccess: async () => {
             onSuccess?.();
-            await waitForSubgraph();
-            await invalidateAfterTransaction(chainId, hash);
 
-            queryClient.invalidateQueries({
-              queryKey: ['hatDetails', { id: selectedHat?.id, chainId }],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ['wearerDetails', { wearerAddress: address, chainId }],
-            });
+            queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+            queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+            queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
           },
         });
       })

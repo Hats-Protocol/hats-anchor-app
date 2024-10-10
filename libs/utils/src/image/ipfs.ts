@@ -48,15 +48,9 @@ export const pinJson = async (
   token: string,
 ) => {
   const pinataData = JSON.stringify({
-    pinataOptions: {
-      cidVersion: 1,
-    },
-    pinataMetadata: {
-      ...metadata,
-    },
-    pinataContent: {
-      ...data,
-    },
+    pinataOptions: { cidVersion: 1 },
+    pinataMetadata: { ...metadata },
+    pinataContent: { ...data },
   });
 
   const config = {
@@ -74,6 +68,7 @@ export const pinJson = async (
   return get(res, 'data.IpfsHash');
 };
 
+// TODO wrap/combine with pinFileToIpfs
 export const pinImage = async ({
   file,
   metadata,
@@ -89,9 +84,7 @@ export const pinImage = async ({
 
   formData.append('pinataMetadata', JSON.stringify(metadata));
 
-  const options = JSON.stringify({
-    cidVersion: 1,
-  });
+  const options = JSON.stringify({ cidVersion: 1 });
   formData.append('pinataOptions', options);
 
   const res = await axios.post(
@@ -146,6 +139,40 @@ export const handleDetailsPin = async ({
   )}`;
 
   return cid;
+};
+
+export const pinFileToIpfs = async ({
+  file,
+  fileName,
+  token,
+}: {
+  file: string;
+  fileName: string;
+  token: string;
+}) => {
+  const formData = new FormData();
+
+  const localFile = new File([file], fileName, { type: 'text/plain' });
+  formData.append('file', localFile);
+
+  const pinataMetadata = JSON.stringify({ name: fileName });
+  formData.append('pinataMetadata', pinataMetadata);
+
+  const pinataOptions = JSON.stringify({ cidVersion: 1 });
+  formData.append('pinataOptions', pinataOptions);
+
+  const request = await fetch(
+    'https://api.pinata.cloud/pinning/pinFileToIPFS',
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    },
+  );
+  const response = await request.json();
+  const ipfsHash = get(response, 'IpfsHash');
+
+  return `ipfs://${ipfsHash}`;
 };
 
 export const urlToIpfsUri = (url: string) => {

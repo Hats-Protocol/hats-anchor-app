@@ -1,14 +1,18 @@
+import { ToastProps } from 'types';
+
 const TOAST_TYPES = {
   claimHat: 'claimHat',
   claimHatWithAgreement: 'claimHatWithAgreement',
   mintHat: 'mintHat',
 };
 
+export type Toast = {
+  title: string;
+  description?: string;
+};
+
 type ToastContent = Partial<{
-  [key in keyof typeof TOAST_TYPES]: {
-    title: string;
-    description?: string;
-  };
+  [key in keyof typeof TOAST_TYPES]: ToastProps;
 }>;
 
 // many of these are interpolated

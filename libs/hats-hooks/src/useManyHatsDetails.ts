@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { filter, first, get, includes, isEmpty, map } from 'lodash';
 import { mapWithChainId } from 'shared';

@@ -46,8 +46,8 @@ import {
   FaPowerOff,
 } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
-import { idToIp, toTreeId } from 'shared';
-import { fetchHatDetails, getDisabledReason, isSameAddress } from 'utils';
+import { idToIp } from 'shared';
+import { getDisabledReason, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -95,10 +95,7 @@ const MoreMenu = () => {
     selectedHat?.status ? 'Deactivated' : 'Activated'
   } hat ${idToIp(selectedHat?.id)}`;
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => selectedHat && fetchHatDetails(selectedHat.id, chainId),
-    checkResult: (hatDetails) => !hatDetails?.mutable,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { writeAsync: toggleHat, isLoading: isLoadingToggleHat } =
     useHatContractWrite({
@@ -110,16 +107,9 @@ const MoreMenu = () => {
         title: 'Hat Status Updated!',
         description: txDescription,
       },
-      queryKeys: [
-        ['hatDetails', { id: selectedHat?.id, chainId }],
-        ['treeDetails', toTreeId(selectedHat?.id)],
-      ],
+      queryKeys: [['hatDetails'], ['treeDetails']],
       handlePendingTx,
       waitForSubgraph,
-      // enabled:
-      //   Boolean(selectedHat) &&
-      //   isSameAddress(address, selectedHat?.toggle) &&
-      //   chainId === currentNetworkId,
     });
 
   const {

@@ -18,7 +18,7 @@ import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatAdminWearers, useHatDetails, useHatWearers } from 'hats-hooks';
 import { getControllerNameAndLink } from 'hats-utils';
-import { useContractData } from 'hooks';
+import { useContractData, useMediaStyles } from 'hooks';
 import { filter, first, get, includes, map, reject, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import { startTransition, useEffect, useRef, useState } from 'react';
@@ -83,6 +83,7 @@ const AdminWearersPanel = () => {
     isClaimable,
     hatLoading: selectedHatLoading,
   } = useSelectedHat();
+  const { isMobile } = useMediaStyles();
   const [expandedBackground, setExpandedBackground] = useState(false);
   const isMounted = useRef(false);
 
@@ -173,8 +174,8 @@ const AdminWearersPanel = () => {
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
                 <Flex justify='space-between' py={2} px={4} width='100%'>
-                  <Box>
-                    Admins can edit this Hat
+                  <Box textAlign='left'>
+                    Admins can edit {!isMobile ? 'this Hat' : ''}
                     {!isClaimable?.for ? ' and choose Wearers' : ''}
                   </Box>
 

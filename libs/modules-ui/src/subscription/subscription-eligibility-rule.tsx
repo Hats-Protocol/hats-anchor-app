@@ -117,6 +117,7 @@ export const UnlockEligibilityRule = ({
           Pay the{' '}
           <ChakraNextLink
             href={claimsLink({ chainId, hatId: selectedHat?.id })}
+            decoration
           >
             subscription
           </ChakraNextLink>

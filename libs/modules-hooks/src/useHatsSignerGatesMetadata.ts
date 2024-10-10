@@ -1,5 +1,3 @@
-'use client';
-
 import { HsgMetadata } from '@hatsprotocol/hsg-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { SupportedChains } from 'types';

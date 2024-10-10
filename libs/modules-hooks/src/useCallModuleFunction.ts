@@ -1,7 +1,5 @@
-'use client';
-
 import { useMutation } from '@tanstack/react-query';
-import { useToast } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import { get, map } from 'lodash';
 import { useCallback } from 'react';
 import { ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
@@ -9,9 +7,11 @@ import {
   createHatsModulesClient,
   invalidateAfterTransaction,
   transformInput,
+  wagmiConfig,
 } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
+import { waitForTransactionReceipt } from 'wagmi/actions';
 
 // TODO update to use `usePollSubgraph`
 
@@ -31,6 +31,8 @@ const useCallModuleFunction = ({
 }) => {
   const { address } = useAccount();
   const toast: UseCustomToastReturn = useToast();
+
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const callModuleFunction = useCallback(
     async ({
@@ -75,6 +77,13 @@ const useCallModuleFunction = ({
           return;
         }
 
+        const txResult = await waitForTransactionReceipt(wagmiConfig, {
+          chainId,
+          hash: result.transactionHash,
+        });
+
+        await waitForSubgraph(txResult);
+
         await invalidateAfterTransaction(chainId, result.transactionHash);
 
         if (result?.status === 'success') {
@@ -85,21 +94,21 @@ const useCallModuleFunction = ({
 
           onSuccess?.();
         }
-      } catch (error: unknown) {
-        const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.log(err);
-        if (err.message.includes('User rejected the request')) {
+      } catch (err: unknown) {
+        const error = err as Error;
+        if (error.message.includes('User rejected the request')) {
+          // eslint-disable-next-line no-console
           console.log('User rejected the request');
           onDecline?.();
+          return;
         }
         toast.error({
           title: 'Transaction failed',
-          description: err.message,
+          description: error.message,
         });
       }
     },
-    [address, chainId, toast],
+    [address, chainId, waitForSubgraph, toast],
   );
 
   return useMutation({ mutationFn: callModuleFunction });

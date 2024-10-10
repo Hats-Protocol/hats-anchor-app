@@ -2,7 +2,7 @@ import { CLAIM_STATUS } from '@hatsprotocol/constants';
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
-import { useToast } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import { isUndefined } from 'lodash';
 import {
   invalidateAfterTransaction,
@@ -38,6 +38,7 @@ export const useSubscriptionClaim = ({
     moduleParameters,
     chainId,
   });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const lockContract = {
     abi: PublicLockV14.abi as Abi,
@@ -59,19 +60,19 @@ export const useSubscriptionClaim = ({
       value: currencyContract !== zeroAddress ? 0n : keyPrice,
     } as any)
       .then(async (hash) => {
-        console.log({ hash });
         if (!chainId) return;
         const client = viemPublicClient(chainId);
         return client
           .waitForTransactionReceipt({ hash })
           .then(async (receipt) => {
-            console.log(receipt);
-            // TODO wait for subgraph
-            invalidateAfterTransaction(chainId, hash);
+            await waitForSubgraph(receipt);
+
+            await invalidateAfterTransaction(chainId, hash);
 
             queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
             queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
             queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+            queryClient.invalidateQueries({ queryKey: ['readContracts'] });
             // refetchBalances();
             setStatus(CLAIM_STATUS.SUCCESS);
           });

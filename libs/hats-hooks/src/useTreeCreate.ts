@@ -1,11 +1,6 @@
-'use client';
-
-import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useWaitForSubgraph } from 'hooks';
 import posthog from 'posthog-js';
 import { HandlePendingTx } from 'types';
-import { fetchTreeDetails } from 'utils';
-// import { isAddress } from 'viem';
 import { useAccount, useEnsAddress } from 'wagmi';
 
 import useHatContractWrite from './useHatContractWrite';
@@ -20,7 +15,7 @@ const useTreeCreate = ({
   handlePendingTx,
 }: UseTreeCreateProps) => {
   const { address } = useAccount();
-  // const currentNetworkId = useChainId();
+
   const { data: lastTopHatId } = useLastTopHatId({ chainId });
 
   const {
@@ -31,12 +26,7 @@ const useTreeCreate = ({
     chainId: 1,
   });
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: lastTopHatId
-      ? () => fetchTreeDetails(treeIdDecimalToHex(lastTopHatId + 1), chainId)
-      : () => Promise.resolve(null),
-    checkResult: (tree) => !!tree,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   function handleSuccess() {
     if (!lastTopHatId) return;
@@ -62,15 +52,8 @@ const useTreeCreate = ({
       duration: 6000, // TODO did we remove this param?
     },
     successToastData: { title: 'Redirecting you to your new tree' },
-    queryKeys: [['treeList', chainId], ['wearerDetails']],
+    queryKeys: [['treeList'], ['wearerDetails']],
     redirect: lastTopHatId ? `/trees/${chainId}/${lastTopHatId + 1}` : null,
-    // TODO move to submit check
-    // enabled:
-    //   isAddress(
-    //     overrideReceiver
-    //       ? (newReceiverResolvedAddress ?? receiver)
-    //       : address || '',
-    //   ) && chainId === currentNetworkId,
     handleSuccess,
     handlePendingTx,
     waitForSubgraph,

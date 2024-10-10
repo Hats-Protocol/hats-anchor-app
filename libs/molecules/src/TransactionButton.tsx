@@ -2,12 +2,15 @@
 
 import { Button, ButtonProps as ChakraButtonProps } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
-import { useEffect, useState } from 'react';
-import { useWaitForTransactionReceipt } from 'wagmi';
+import { useWaitForSubgraph } from 'hooks';
+import { useState } from 'react';
+import { invalidateAfterTransaction, wagmiConfig } from 'utils';
+import { waitForTransactionReceipt } from 'wagmi/actions';
 
 interface TransactionButtonProps extends ChakraButtonProps {
   sendTx: () => Promise<`0x${string}`>;
   children: React.ReactNode;
+  chainId: number | undefined;
   onReceipt: (receipt: { [x: string]: any }) => void;
   txDescription: string;
 }
@@ -17,36 +20,39 @@ export const TransactionButton = ({
   children,
   onReceipt,
   txDescription,
+  chainId,
   ...props
 }: TransactionButtonProps) => {
-  const [hash, setHash] = useState<`0x${string}`>();
   const { handlePendingTx } = useOverlay();
-  // TODO also pass the hash to overlay context
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
+  const [isLoading, setIsLoading] = useState(false);
+  console.log({ isLoading });
 
-  const { data: receipt } = useWaitForTransactionReceipt({
-    hash,
-    query: {
-      enabled: !!hash,
-    },
-  });
+  const handleAsyncTx = async () => {
+    if (!chainId) return;
 
-  useEffect(() => {
-    if (receipt?.blockNumber) {
-      onReceipt(receipt);
-      setHash(undefined);
+    try {
+      setIsLoading(true);
+      const localHash = await sendTx();
+
+      const result = await waitForTransactionReceipt(wagmiConfig, {
+        hash: localHash,
+      });
+
+      handlePendingTx?.({ hash: localHash, txDescription });
+
+      await waitForSubgraph(result);
+
+      await invalidateAfterTransaction(chainId, localHash);
+      setIsLoading(false);
+    } catch (err) {
+      console.error(err);
+      setIsLoading(false);
     }
-  }, [receipt?.blockNumber, onReceipt, receipt]);
+  };
 
   return (
-    <Button
-      isLoading={!!hash}
-      onClick={async () => {
-        const localHash = await sendTx();
-        setHash(localHash);
-        handlePendingTx?.({ hash: localHash, txDescription });
-      }}
-      {...props}
-    >
+    <Button isLoading={isLoading} onClick={handleAsyncTx} {...props}>
       {children}
     </Button>
   );

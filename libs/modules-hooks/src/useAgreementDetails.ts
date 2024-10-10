@@ -24,7 +24,6 @@ const fetchAgreement = async ({
   chainId: SupportedChains | undefined;
 }) => {
   if (!id || !chainId) return null;
-  console.log('id', id, 'chainId', chainId);
 
   try {
     const client = ancillarySubgraphClient(chainId);
@@ -33,7 +32,6 @@ const fetchAgreement = async ({
       AGREEMENT_QUERY,
       { id: toLower(id) },
     );
-    console.log('response', response);
     // only returning "last" (most recent) agreement
     return get(response, 'agreementEligibility')
       ? get(response, 'agreementEligibility')
@@ -55,7 +53,7 @@ const useAgreement = ({
   return useQuery({
     queryKey: ['agreementDetails', { id, chainId }],
     queryFn: () => fetchAgreement({ id, chainId }),
-    enabled: !!id && !!chainId,
+    enabled: !!id && !!chainId, // TODO check if module is agreement module
   });
 };
 

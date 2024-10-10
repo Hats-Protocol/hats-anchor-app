@@ -107,10 +107,7 @@ const HatRelinkForm = ({
   const eligibilityAddress = eligibilityResolvedAddress || FALLBACK_ADDRESS;
   const toggleAddress = toggleResolvedAddress || FALLBACK_ADDRESS;
 
-  const waitForSubgraph = useWaitForSubgraph({
-    fetchHelper: () => fetchHatDetails(hatData.id, chainId),
-    checkResult: (hatDetails) => hatDetails?.admin === newAdmin,
-  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'relinkTopHatWithinTree',

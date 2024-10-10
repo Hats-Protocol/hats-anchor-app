@@ -1,5 +1,3 @@
-'use client';
-
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import _ from 'lodash';

@@ -13,7 +13,8 @@ export type HandlePendingTxProps = {
   sendToast?: boolean;
   waitForSubgraph?: (data?: TransactionReceipt) => Promise<unknown>;
   onSuccess?: (data?: TransactionReceipt) => void;
-}
+};
 
-export type HandlePendingTx = (props: HandlePendingTxProps) => Promise<TransactionReceipt | undefined>;
-
+export type HandlePendingTx = (
+  props: HandlePendingTxProps,
+) => Promise<TransactionReceipt | undefined>;

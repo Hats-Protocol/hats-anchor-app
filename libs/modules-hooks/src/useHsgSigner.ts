@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { SupportedChains } from 'types';
 import { createHatsSignerGateClient } from 'utils';

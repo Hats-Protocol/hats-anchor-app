@@ -1,11 +1,10 @@
-'use client';
-
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useToast } from 'hooks';
+import { useWaitForSubgraph } from 'hooks';
 import { first, get } from 'lodash';
 import { useMemo } from 'react';
 import { idToIp } from 'shared';
-import { AppHat, SupportedChains } from 'types';
+import { AppHat, HandlePendingTx, SupportedChains } from 'types';
 import { createHatsClient, formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
@@ -37,11 +36,15 @@ const useHatClaimFor = ({
   chainId,
   wearer,
   onchainHats,
+  handlePendingTx,
+  onSuccess,
 }: {
   selectedHat?: AppHat | null;
   chainId?: SupportedChains;
   wearer: Hex | undefined;
   onchainHats?: AppHat[] | undefined; // passed to useMultiClaimsHatterCheck
+  handlePendingTx?: HandlePendingTx;
+  onSuccess?: () => void;
 }) => {
   const { address } = useAccount();
   const toast = useToast();
@@ -50,6 +53,8 @@ const useHatClaimFor = ({
     () => get(first(get(selectedHat, 'claimableForBy')), 'id') as Hex,
     [selectedHat],
   );
+
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { multiClaimsHatter: claimsHatter } = useMultiClaimsHatterCheck({
     chainId,
@@ -97,17 +102,26 @@ const useHatClaimFor = ({
   };
 
   const { mutateAsync } = useMutation({
-    mutationKey: ['claimHatFor', selectedHat?.id],
+    mutationKey: ['claimHatFor', selectedHat?.id, wearer],
     mutationFn: claimHatFor,
     onSuccess: (result) => {
-      if (result?.status === 'success') {
-        toast.success({
+      // TODO handle error
+      if (result?.status !== 'success') return;
+
+      handlePendingTx?.({
+        hash: result.transactionHash,
+        txChainId: chainId,
+        txDescription: `Claimed Hat ${idToIp(
+          selectedHat?.id,
+        )} for ${formatAddress(wearer)}`,
+        successToastData: {
           title: 'Hat claimed',
           description: `Hat ${idToIp(
             selectedHat?.id,
           )} has been claimed for ${formatAddress(wearer)}`,
-        });
-      }
+        },
+        waitForSubgraph,
+      });
     },
     onError: (error) => {
       // eslint-disable-next-line no-console

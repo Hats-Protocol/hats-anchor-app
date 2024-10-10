@@ -52,6 +52,7 @@ export const ProfileList = ({
   profiles: AllowlistProfile[];
   activeFilter: Filter;
   setActiveFilter: (filter: Filter) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   handleUpdateListAdd: (account: `0x${string}`) => void;
   handleUpdateListRemove: (account: `0x${string}`) => void;
@@ -80,7 +81,13 @@ export const ProfileList = ({
     <Stack w='full' h='full' align='center'>
       <Heading size='md'>{heading}</Heading>
 
-      <Flex w='full' justify='space-between' align='end'>
+      <Flex
+        w='full'
+        direction={{ base: 'column', md: 'row' }}
+        justify='space-between'
+        align={{ base: 'start', md: 'end' }}
+        gap={4}
+      >
         <Input
           name='search'
           w='350px'

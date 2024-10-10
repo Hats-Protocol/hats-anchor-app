@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { filter, find, get, map, omit } from 'lodash';
 import { useMemo } from 'react';

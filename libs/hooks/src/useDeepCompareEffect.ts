@@ -1,10 +1,8 @@
-'use client';
-
-import _ from 'lodash';
+import { isEqual } from 'lodash';
 import { EffectCallback, useEffect, useRef } from 'react';
 
 function deepCompareEquals(a: unknown, b: unknown) {
-  return _.isEqual(a, b);
+  return isEqual(a, b);
 }
 
 // hooks

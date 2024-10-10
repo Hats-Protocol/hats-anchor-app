@@ -1,5 +1,3 @@
-'use client';
-
 /* eslint-disable import/extensions */
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';

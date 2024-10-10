@@ -73,7 +73,8 @@ const WalletProfile = ({
     each(WAGMI_STORAGE_KEYS, (key) => {
       localStorage.removeItem(key);
     });
-    window.location.reload();
+    // don't reload as it'll attempt to re-connect
+    // window.location.reload();
   };
 
   return (

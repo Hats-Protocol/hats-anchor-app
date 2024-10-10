@@ -1,5 +1,3 @@
-'use client';
-
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
@@ -46,7 +44,7 @@ const useHatsModules = ({
       ({
         ...value,
         id: key,
-      } as ModuleDetails),
+      }) as ModuleDetails,
   );
 
   return { modules, isLoading, isError, error };

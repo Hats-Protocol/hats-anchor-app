@@ -1,5 +1,3 @@
-'use client';
-
 import { SAFE_ABI } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { SupportedChains } from 'types';

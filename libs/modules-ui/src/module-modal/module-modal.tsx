@@ -43,20 +43,16 @@ export const ModuleModal = ({
         <Flex direction={{ base: 'column', md: 'row' }} height='700px'>
           <Stack
             position='relative'
-            w={{ base: '100%', md: '30%' }}
-            minW={{ base: 'none', md: '450px' }}
-            p={{ base: 8, md: 14 }}
+            display={{ base: 'none', md: 'flex' }}
+            w={{ md: '30%' }}
+            minW={{ md: '450px' }}
+            p={{ md: 14 }}
             spacing={10}
             borderRight='1px solid'
             borderColor='blackAlpha.200'
           >
             <Heading size='xl'>{title}</Heading>
-            <ModalCloseButton
-              display={{ base: 'block', md: 'none' }}
-              position='absolute'
-              top={4}
-              right={4}
-            />
+
             {about}
 
             {history}
@@ -67,18 +63,15 @@ export const ModuleModal = ({
           <Stack
             bg='cyan.50'
             w={{ base: '100%', md: '70%' }}
+            h={{ base: '100%', md: 'auto' }}
             borderRightRadius='md'
+            borderTopLeftRadius={{ base: 'md', md: 'none' }}
             borderBottomLeftRadius={{ base: 'md', md: 'none' }}
             position='relative'
             align='center'
             p={{ base: 6, md: 10 }}
           >
-            <ModalCloseButton
-              display={{ base: 'none', md: 'block' }}
-              position='absolute'
-              top={4}
-              right={4}
-            />
+            <ModalCloseButton position='absolute' top={4} right={4} />
 
             {children}
           </Stack>

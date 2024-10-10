@@ -1,22 +1,21 @@
 import { Button, Flex, Heading, Stack } from '@chakra-ui/react';
 import { MultiAddressInput } from 'forms';
-import React, { Dispatch, SetStateAction } from 'react';
-import { UseFormReturn, UseFormSetValue } from 'react-hook-form';
-import { AllowlistProfile } from 'types';
+import { isEmpty, pick } from 'lodash';
+import { Dispatch, SetStateAction } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { HatWearer } from 'types';
 
 export const AddForm = ({
   localForm,
   setUpdateList,
-  setValue,
   setAdding,
   handleAddWearers,
-}: {
-  localForm: UseFormReturn<any>;
-  setUpdateList: Dispatch<SetStateAction<AllowlistProfile[]>>;
-  setValue: UseFormSetValue<any>;
-  setAdding: Dispatch<SetStateAction<boolean>>;
-  handleAddWearers: () => void;
-}) => {
+  isLoading,
+}: AddFormProps) => {
+  const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
+  const addressesToAdd = watch?.('addresses');
+  const isDisabled = isEmpty(addressesToAdd);
+
   return (
     <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
       <Stack spacing={1}>
@@ -37,16 +36,32 @@ export const AddForm = ({
           colorScheme='blue.500'
           onClick={() => {
             setUpdateList([]);
-            setValue('addresses', []);
+            setValue?.('addresses', []);
             setAdding(false);
           }}
         >
           Cancel
         </Button>
-        <Button variant='primary' size='sm' onClick={handleAddWearers}>
+
+        <Button
+          variant='primary'
+          size='sm'
+          onClick={handleAddWearers}
+          isDisabled={isDisabled}
+          isLoading={isLoading}
+        >
           Add
         </Button>
       </Flex>
     </Stack>
   );
 };
+
+interface AddFormProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
+  setUpdateList: Dispatch<SetStateAction<HatWearer[]>>;
+  setAdding: Dispatch<SetStateAction<boolean>>;
+  handleAddWearers: () => void;
+  isLoading: boolean;
+}
