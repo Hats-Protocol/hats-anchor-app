@@ -182,7 +182,7 @@ export const INTEGRATION_CARDS: IntegrationCard[] = [
   {
     label: 'Control onchain assets and Safe signer rights',
     icons: [Safe, HatIcon, Allo],
-    link: `${LANDING_URL}/wearer/access`,
+    link: `${LANDING_URL}/wearer/secure-safe-management-for-daos`,
   },
   {
     label: 'Automate contributor access & permissions',
@@ -190,7 +190,7 @@ export const INTEGRATION_CARDS: IntegrationCard[] = [
     link: `${LANDING_URL}/wearer/access`,
   },
   {
-    label: 'Grant powers automatically to election winners',
+    label: 'Seamless powers for election winners',
     icons: [Snapshot, JokeRaceShort, Tally],
     link: `${LANDING_URL}/wearer/elections`,
   },

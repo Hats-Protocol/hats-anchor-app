@@ -75,7 +75,6 @@ const WearerRow = ({
     functionName: 'checkHatWearerStatus',
     args: [hatIdHexToDecimal(hatId), wearer.id],
     chainId,
-    // TODO re-add check for isContract
     queryKeys: [['hatDetails'], ['treeDetails'], ['wearerDetails']],
     handlePendingTx,
     waitForSubgraph,

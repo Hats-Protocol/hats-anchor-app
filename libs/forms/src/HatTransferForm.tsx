@@ -69,7 +69,7 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
       ['treeDetails'],
       ['wearerDetails'],
       ['orgChartTree'],
-      ['wearerAndControllerDetails  '],
+      ['wearerAndControllerDetails'],
     ],
     waitForSubgraph,
     handlePendingTx,

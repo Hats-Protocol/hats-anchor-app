@@ -46,21 +46,9 @@ export const ProfileList = ({
   handleUpdateListRemove,
   updating,
   updateList,
-}: {
-  heading: string;
-  hat: AppHat;
-  profiles: AllowlistProfile[];
-  activeFilter: Filter;
-  setActiveFilter: (filter: Filter) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
-  handleUpdateListAdd: (account: `0x${string}`) => void;
-  handleUpdateListRemove: (account: `0x${string}`) => void;
-  updating: boolean;
-  updateList: AllowlistProfile[];
-}) => {
+}: ProfileListProps) => {
   const { chainId } = useTreeForm();
-  const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
+  const { wearers } = useAllWearers({ selectedHat: hat, chainId });
   const filteredProfiles = filterProfiles({
     profiles,
     wearerIds: map(wearers, (wearer) => wearer.id),
@@ -153,3 +141,17 @@ export const ProfileList = ({
     </Stack>
   );
 };
+
+interface ProfileListProps {
+  heading?: string;
+  hat: AppHat | undefined;
+  profiles: AllowlistProfile[];
+  activeFilter: Filter;
+  setActiveFilter: (filter: Filter) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
+  handleUpdateListAdd: (account: `0x${string}`) => void;
+  handleUpdateListRemove: (account: `0x${string}`) => void;
+  updating: boolean;
+  updateList: AllowlistProfile[];
+}

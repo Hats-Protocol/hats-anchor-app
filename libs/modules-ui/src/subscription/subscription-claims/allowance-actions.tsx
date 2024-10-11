@@ -223,7 +223,6 @@ export const AllowanceActions = ({
               return writeContractAsync(zeroApprovalParams);
             }}
             onReceipt={() => {
-              console.log('after receipt');
               setTimeout(() => {
                 queryClient.invalidateQueries({ queryKey: ['readContracts'] });
                 queryClient.invalidateQueries({ queryKey: ['readContract'] });

@@ -3,24 +3,21 @@
 import {
   Box,
   Button,
-  Divider,
   Flex,
   Heading,
   HStack,
   Icon,
   Stack,
-  Text,
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
+import { AddressInput, DatePicker, DurationInput, NumberInput } from 'forms';
 import {
-  AddressInput,
-  DatePicker,
-  DurationInput,
-  Input,
-  NumberInput,
-} from 'forms';
-import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
+  useAllWearers,
+  useHatDetails,
+  useProfileDetails,
+  useWearerDetails,
+} from 'hats-hooks';
 import { useClipboard } from 'hooks';
 import { compact, find, map, pick, toNumber } from 'lodash';
 import { useJokeRace } from 'modules-hooks';
@@ -35,16 +32,17 @@ import {
   shortDateFormatter,
 } from 'utils';
 import { Hex } from 'viem';
-import { useReadContracts, useWriteContract } from 'wagmi';
+import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
 
 import {
   AboutModule,
   DevInfo,
-  EligibilityRow,
   FILTER,
   Filter,
+  ManageBar,
   ModuleHistory,
   ModuleModal,
+  ProfileList,
 } from '../../module-modal';
 
 const CopyAddress = dynamic(() =>
@@ -58,6 +56,7 @@ export const JokeRaceModal = ({
   eligibilityHatId: Hex | undefined;
   moduleInfo: ModuleDetails;
 }) => {
+  const { address } = useAccount();
   const { chainId } = useTreeForm();
   const localForm = useForm({
     defaultValues: {
@@ -77,10 +76,12 @@ export const JokeRaceModal = ({
     chainId,
   });
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
+  const { data: wearerHats } = useWearerDetails({
+    wearerAddress: address as Hex,
+    chainId,
+  });
   const values = watch();
 
-  // const searchInput = watch('search');
-  // const addresses = watch('addresses');
   const { data: jokeRaceDetails } = useJokeRace({
     moduleId: moduleInfo.id,
     chainId,
@@ -130,6 +131,9 @@ export const JokeRaceModal = ({
       moduleParameters: liveParams,
       jokeRaceDetails: jokeRaceDetails || undefined,
     });
+  const isAdmin = useMemo(() => {
+    return find(wearerHats, { id: adminHat });
+  }, [wearerHats, adminHat]);
 
   const { onCopy: copyContest } = useClipboard(contestAddress, {
     toastData: { title: 'Contest Address Copied' },
@@ -235,6 +239,11 @@ export const JokeRaceModal = ({
     // TODO handle success
   };
 
+  const hatId =
+    eligibilityHatId && hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
+  const hatName = details?.name || hat?.details;
+  const heading = `JokeRace Election for Hat ${hatId} - ${hatName}`;
+
   if (!eligibilityHatId || !hat) return null;
 
   return (
@@ -250,35 +259,108 @@ export const JokeRaceModal = ({
       history={<ModuleHistory />}
       devInfo={<DevInfo moduleDescriptors={devInfo} />}
     >
-      <Heading size='md'>
-        JokeRace Election for Hat{' '}
-        {hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))} -{' '}
-        {details?.name || hat?.details}
-      </Heading>
+      <ProfileList
+        hat={hat}
+        heading={heading}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        localForm={localForm}
+        profiles={jokeRaceProfiles}
+        handleUpdateListAdd={() => {}}
+        handleUpdateListRemove={() => {}}
+        updating={false}
+        updateList={[]}
+      />
 
-      <Flex>
-        <Input
-          name='search'
-          minW='350px'
-          placeholder='Find by address (0x) or ENS (.eth)'
-          localForm={localForm}
-        />
-      </Flex>
+      <ManageBar
+        sections={[
+          {
+            label: 'Creating next term',
+            value: managingNextTerm,
+            hasRole: !!isAdmin,
+            section: (
+              <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
+                <Stack spacing={4}>
+                  <Heading size='lg'>Create next term</Heading>
 
-      <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
-        <Stack spacing={1}>
-          <Flex justify='space-between'>
-            <Text size='sm'>Address</Text>
-            <Text size='sm'>Status</Text>
-          </Flex>
+                  <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
+                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                      <AddressInput
+                        name='contestAddress'
+                        label='Contest Address'
+                        chainId={chainId}
+                        localForm={localForm}
+                        hideAddressButtons
+                      />
+                    </Box>
 
-          <Divider borderColor='black' />
-        </Stack>
+                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                      <NumberInput
+                        name='topK'
+                        label='Top K'
+                        localForm={localForm}
+                      />
+                    </Box>
+                  </Flex>
 
-        {map(filteredProfiles[activeFilter], (p: AllowlistProfile) => (
-          <EligibilityRow key={p.id} eligibilityAccount={p} wearers={wearers} />
-        ))}
-      </Stack>
+                  <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
+                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                      <DatePicker
+                        name='termEnd'
+                        label='Term End'
+                        localForm={localForm}
+                      />
+                    </Box>
+
+                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                      <DurationInput
+                        name='transitionPeriod'
+                        label='Transition Period'
+                        localForm={localForm}
+                      />
+                    </Box>
+                  </Flex>
+                </Stack>
+
+                <Flex justify='space-between' w='full'>
+                  <Button
+                    size='sm'
+                    variant='outlineMatch'
+                    colorScheme='blue.500'
+                    onClick={() => {
+                      setManagingNextTerm(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    variant='primary'
+                    size='sm'
+                    onClick={handleSetTerm}
+                    isDisabled={!canSetNextTerm}
+                  >
+                    Set Term
+                  </Button>
+                </Flex>
+              </Stack>
+            ),
+          },
+        ]}
+        buttons={compact([
+          {
+            label: 'Set Next Term',
+            onClick: () => setManagingNextTerm(true),
+            colorScheme: 'blue.500',
+            hasRole: !!isAdmin,
+          },
+          !!canStartNextTerm && {
+            label: 'Start Next Term',
+            colorScheme: 'blue.500',
+            onClick: () => setManagingNextTerm(true),
+          },
+        ])}
+      />
 
       <Flex
         position='absolute'
@@ -315,74 +397,6 @@ export const JokeRaceModal = ({
               )}
             </HStack>
           </Flex>
-        )}
-
-        {managingNextTerm && (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-            <Stack spacing={4}>
-              <Heading size='lg'>Create next term</Heading>
-
-              <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-                <Box h='100px' w={{ base: '100%', md: '48%' }}>
-                  <AddressInput
-                    name='contestAddress'
-                    label='Contest Address'
-                    chainId={chainId}
-                    localForm={localForm}
-                    hideAddressButtons
-                  />
-                </Box>
-
-                <Box h='100px' w={{ base: '100%', md: '48%' }}>
-                  <NumberInput
-                    name='topK'
-                    label='Top K'
-                    localForm={localForm}
-                  />
-                </Box>
-              </Flex>
-
-              <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-                <Box h='100px' w={{ base: '100%', md: '48%' }}>
-                  <DatePicker
-                    name='termEnd'
-                    label='Term End'
-                    localForm={localForm}
-                  />
-                </Box>
-
-                <Box h='100px' w={{ base: '100%', md: '48%' }}>
-                  <DurationInput
-                    name='transitionPeriod'
-                    label='Transition Period'
-                    localForm={localForm}
-                  />
-                </Box>
-              </Flex>
-            </Stack>
-
-            <Flex justify='space-between' w='full'>
-              <Button
-                size='sm'
-                variant='outlineMatch'
-                colorScheme='blue.500'
-                onClick={() => {
-                  setManagingNextTerm(false);
-                }}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                variant='primary'
-                size='sm'
-                onClick={handleSetTerm}
-                isDisabled={!canSetNextTerm}
-              >
-                Set Term
-              </Button>
-            </Flex>
-          </Stack>
         )}
       </Flex>
     </ModuleModal>
