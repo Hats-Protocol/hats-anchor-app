@@ -54,8 +54,8 @@ const AgreementButton = () => {
   });
 
   const isWearing = useMemo(
-    () => includes(map(wearerHats, 'id'), toLower(address)),
-    [wearerHats, address],
+    () => includes(map(wearerHats, 'id'), selectedHat?.id),
+    [wearerHats, selectedHat?.id],
   );
   const hasSupply = useMemo(
     () =>
@@ -65,14 +65,16 @@ const AgreementButton = () => {
   );
 
   let buttonTooltip = '';
-  if (!isReadyToClaim) {
-    buttonTooltip = 'Review the hat details and conditions to claim.';
+  if (isWearing) {
+    buttonTooltip = 'You are wearing this hat.';
   } else if (!hasSupply) {
     buttonTooltip =
       'No hats left to claim. If this hat is mutable an admin could increase the supply.';
   } else if (!isClaimableFor) {
     buttonTooltip =
       'Please allow any account to claim this Hat on behalf of eligible users.';
+  } else if (!isReadyToClaim) {
+    buttonTooltip = 'Review the hat details and conditions to claim.';
   }
 
   const localClaimable =

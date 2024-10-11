@@ -38,6 +38,9 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     ); // redirect to desktop view
   }
 
+  const hatImage =
+    (editMode && imageUrl) || get(selectedHat, 'imageUrl') || '/icon.jpeg';
+
   if (isMobile) {
     return (
       <Box h='calc(100vh - 58px)' pt='58px' position='relative'>
@@ -66,8 +69,6 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
       background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
     >
       <Box w='100%' h='100%' position='relative' zIndex={14}>
-        {/* Hat Image */}
-
         <Box
           position='absolute'
           h='100px'
@@ -81,14 +82,10 @@ const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           zIndex={16}
         >
           <LazyImage
-            src={
-              (editMode && imageUrl) ||
-              get(selectedHat, 'imageUrl') ||
-              '/icon.jpeg'
-            }
+            src={hatImage}
             alt='hat image'
-            background='white'
-            boxSize='101%'
+            boxSize={100}
+            skeletonProps={{ position: 'absolute', top: '-2px', left: '-2px' }}
           />
         </Box>
 

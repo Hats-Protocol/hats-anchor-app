@@ -50,6 +50,7 @@ const MobileHatCard = ({
           border='1px solid'
           borderColor='gray.600'
           borderRadius={6}
+          h='72px'
         >
           <HStack align='start' position='relative'>
             <LazyImage
@@ -57,13 +58,15 @@ const MobileHatCard = ({
               alt={`${detailsName} image`}
               objectFit='cover'
               bgPosition='center'
-              boxSize='72px'
-              borderRight='1px solid'
-              borderColor='gray.600'
-              borderLeftRadius={5}
+              boxSize={72}
+              skeletonProps={{
+                position: 'absolute',
+                top: '-2px',
+                left: '-2px',
+              }}
             />
 
-            <Stack gap={1} pt={1} w='70%' overflow='hidden'>
+            <Stack gap={1} pt={1} w='70%' pl='78px' overflow='hidden'>
               <Text size='xs' noOfLines={1} fontWeight='medium'>
                 {hatIdDecimalToIp(BigInt(hat.id))}
               </Text>

@@ -77,7 +77,7 @@ export const SubscriptionClaims = () => {
   let status = 'Not Paid';
   let icon: MixedIcon = BsXOctagonFill;
   let color = 'red.500';
-  if (hasAllowance) {
+  if (hasAllowance && !activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
     status = `Authorized for ${durationsLeft} ${durationText.noun}${
       durationsLeft > 1 || durationsLeft === 0 ? 's' : ''

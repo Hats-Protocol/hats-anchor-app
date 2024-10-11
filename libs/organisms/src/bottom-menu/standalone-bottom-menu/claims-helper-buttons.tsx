@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, HStack, Icon } from '@chakra-ui/react';
+import { Button, HStack, Icon, Skeleton } from '@chakra-ui/react';
 import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
@@ -69,27 +69,29 @@ export const ClaimsHelperButtons = ({
   }, [agreement, agreementV0]);
 
   return (
-    <HStack flexDir={stackVertically ? 'column' : 'row'}>
-      <ChakraNextLink href={link} isExternal>
-        <Button
-          variant='outline'
-          rightIcon={<Icon as={FiExternalLink} boxSize={4} />}
-          display={{ base: 'none', md: 'flex' }}
-        >
-          View full role
-        </Button>
-      </ChakraNextLink>
+    <Skeleton isLoaded={!!moduleParameters}>
+      <HStack flexDir={stackVertically ? 'column' : 'row'}>
+        <ChakraNextLink href={link} isExternal>
+          <Button
+            variant='outline'
+            rightIcon={<Icon as={FiExternalLink} boxSize={4} />}
+            display={{ base: 'none', md: 'flex' }}
+          >
+            View full role
+          </Button>
+        </ChakraNextLink>
 
-      {hasAgreement && (
-        <Button
-          onClick={handleDownload}
-          variant='outline'
-          leftIcon={<Icon as={BsDownload} />}
-        >
-          Download agreement
-        </Button>
-      )}
-    </HStack>
+        {hasAgreement && (
+          <Button
+            onClick={handleDownload}
+            variant='outline'
+            leftIcon={<Icon as={BsDownload} />}
+          >
+            Download agreement
+          </Button>
+        )}
+      </HStack>
+    </Skeleton>
   );
 };
 

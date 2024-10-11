@@ -26,7 +26,9 @@ const TreeDrawer = () => {
       background={editMode ? 'cyan.50' : 'whiteAlpha.900'}
     >
       <TopMenu />
+
       <MainContent isExpanded={isExpanded} />
+
       <BottomMenu
         isExpanded={isExpanded}
         setAccordionIndex={setAccordionIndex}

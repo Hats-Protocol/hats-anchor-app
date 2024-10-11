@@ -80,15 +80,19 @@ export const ClaimButton = () => {
     tooltip = 'There is no claims hatter enabled for this tree';
   }
   if (requireHatter && !isClaimableFor) {
-    tooltip = 'Ensure any address can claim on behalf of wearers.';
+    tooltip = 'Ensure any address can claim on behalf of wearers';
   }
+  if (isWearing && isEligible) {
+    tooltip = 'You are already wearing this hat';
+  }
+  // TODO check supply of hat
 
   return (
     <Tooltip label={tooltip || disableReason}>
       <Button
         variant='primary'
         // won't hit this flow if wrong network
-        isDisabled={hatterIfNeeded || disableClaim} // handle isReadyToClaim on respective disableClaims
+        isDisabled={hatterIfNeeded || disableClaim || (isWearing && isEligible)} // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
         isLoading={isLoading}
       >

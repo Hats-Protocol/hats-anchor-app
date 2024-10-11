@@ -9,7 +9,7 @@ export { default as ErrorPage } from './ErrorPage';
 export { default as FullWidthStack } from './FullWidthStack';
 export { default as HatDeco } from './HatDeco';
 export { default as IconHandler } from './IconHandler';
-export { default as LazyImage } from './LazyImage';
+export * from './lazy-image';
 export * from './lib';
 export { default as LinkButton } from './LinkButton';
 export { default as Markdown } from './Markdown';

@@ -159,21 +159,22 @@ export const AgreementModal = ({
         size='sm'
       />
 
-      {selectedOption === 'Agreement' && updatingAgreement ? (
-        <Stack w='100%'>
-          <Heading size='md'>Update Agreement</Heading>
+      {selectedOption === 'Agreement' &&
+        (updatingAgreement ? (
+          <Stack w='100%'>
+            <Heading size='md'>Update Agreement</Heading>
 
-          <Textarea
-            name='agreementContent'
-            localForm={localForm}
-            minH='350px'
-          />
-        </Stack>
-      ) : (
-        <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
-          <Markdown>{agreementContent as string}</Markdown>
-        </Stack>
-      )}
+            <Textarea
+              name='agreementContent'
+              localForm={localForm}
+              minH='350px'
+            />
+          </Stack>
+        ) : (
+          <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
+            <Markdown>{agreementContent as string}</Markdown>
+          </Stack>
+        ))}
 
       {selectedOption === 'Signatures' && (
         <ProfileList
