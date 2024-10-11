@@ -5,7 +5,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { includes, map } from 'lodash';
+import { capitalize, includes, map } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
@@ -98,7 +98,7 @@ export const ClaimButton = () => {
       >
         <HStack>
           <HatIcon />
-          <Text>Claim this Hat</Text>
+          <Text>Claim this {capitalize(CONFIG.TERMS.hat)}</Text>
         </HStack>
       </Button>
     </Tooltip>

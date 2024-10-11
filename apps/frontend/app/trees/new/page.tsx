@@ -1,13 +1,15 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { NewTreeForm } from 'forms';
-import _ from 'lodash';
+import { capitalize } from 'lodash';
 
 const NewTree = () => (
   <>
     <div className='fixed z-[-5] mt-[70px] h-full w-full bg-blue-100 opacity-[0.7]' />
 
     <div className='flex flex-col items-center pt-[125px]'>
-      <h2 className='text-2xl font-medium'>New {_.capitalize(CONFIG.tree)}</h2>
+      <h2 className='text-2xl font-medium'>
+        New {capitalize(CONFIG.TERMS.tree)}
+      </h2>
 
       <NewTreeForm />
     </div>

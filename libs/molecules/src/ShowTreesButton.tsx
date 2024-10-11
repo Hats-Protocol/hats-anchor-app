@@ -23,7 +23,7 @@ const ShowTreesButton = ({ chainId }: { chainId: number }) => {
       variant='ghostBg'
     >
       Show {showKey === SHOW_KEY.all && address ? 'my' : 'all'}
-      <span className='hidden md:inline'> {CONFIG.trees}</span>
+      <span className='hidden md:inline'> {CONFIG.TERMS.trees}</span>
     </LinkButton>
   );
 };

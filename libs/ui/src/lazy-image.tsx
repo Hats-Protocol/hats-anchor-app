@@ -49,8 +49,8 @@ export const LazyImage = ({
   }
 
   useEffect(() => {
-    if (!src) return;
-    if (src === '/icon.jpeg') {
+    if (!src || imageLoaded) return;
+    if (src === '/icon.jpeg' || src === '') {
       setUseFallback(true);
       setImageLoaded(true);
       return;
@@ -68,7 +68,7 @@ export const LazyImage = ({
         setImageLoaded(true);
       }, 500);
     };
-  }, [src]);
+  }, [src, imageLoaded]);
 
   return (
     <Skeleton
@@ -86,7 +86,10 @@ export const LazyImage = ({
         border={withBorder ? '1px solid' : undefined}
         borderColor={withBorder ? 'blackAlpha.200' : undefined}
         boxSize={imageSize}
-        borderRadius={noMobileRadius ? undefined : { base: 'md', md: 'lg' }}
+        borderRadius={
+          noMobileRadius ? { base: 0, md: 'lg' } : { base: 'md', md: 'lg' }
+        }
+        boxShadow='sm'
         h={h || height}
         maxW='100%'
         maxH={maxH || maxHeight}

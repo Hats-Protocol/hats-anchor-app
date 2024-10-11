@@ -1,6 +1,6 @@
 export * from './authorities';
 export * from './chains';
-export { default as CONFIG } from './config';
+export * from './config';
 export * from './content';
 export * from './contracts';
 export { default as DEFAULT_HAT } from './defaultHat';

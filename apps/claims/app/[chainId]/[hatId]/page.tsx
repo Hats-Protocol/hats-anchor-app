@@ -3,6 +3,7 @@ import { EligibilityContextProvider } from 'contexts';
 import { first, get, pick, split, toNumber } from 'lodash';
 import { ClaimsConditions, Header } from 'modules-ui';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { ClaimsHelperButtons, StandaloneBottomMenu } from 'organisms';
 import { Claims } from 'pages';
 import { SupportedChains } from 'types';
@@ -11,7 +12,9 @@ import { fetchHatsDetailsMesh } from 'utils';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
-  if (!hatId) return null;
+  if (!hatId || !chainId) {
+    notFound();
+  }
   const hexHatId = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
   // TODO handle unexpected chainIds that won't produce valid numbers

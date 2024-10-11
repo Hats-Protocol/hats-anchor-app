@@ -25,7 +25,7 @@ const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 
 export const Header = () => {
-  const { selectedHat, selectedHatDetails, isHatDetailsLoading } =
+  const { selectedHat, isHatDetailsLoading, selectedHatDetails } =
     useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string, {
     toastData: { title: 'Successfully copied hat ID to clipboard' },
@@ -42,13 +42,11 @@ export const Header = () => {
     : MUTABILITY.IMMUTABLE;
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
-  // TODO use bg image
-
   return (
     <Stack pb={2} w='full'>
       <Box width='100%'>
         <LazyImage
-          src={get(selectedHat, 'imageUrl') || '/icon.jpeg'}
+          src={!isHatDetailsLoading ? get(selectedHat, 'imageUrl') : undefined}
           alt='Hat image'
           minH={{ base: '100vw', md: '400px' }}
           w={{ base: '100%', md: 'auto' }}
@@ -69,17 +67,19 @@ export const Header = () => {
                 colorScheme={
                   mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
                 }
+                boxShadow='sm'
               >
                 {mutableStatus}
               </Badge>
 
               <Badge
                 colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+                boxShadow='sm'
               >
                 {activeStatus}
               </Badge>
 
-              <Badge>Level {levelAtLocalTree}</Badge>
+              <Badge boxShadow='sm'>Level {levelAtLocalTree}</Badge>
             </HStack>
           </Skeleton>
         </Flex>

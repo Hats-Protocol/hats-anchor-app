@@ -120,7 +120,7 @@ export const ClaimsConditions = () => {
     <Box w='100%' pb={{ base: 20, md: 0 }}>
       <Skeleton isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}>
         <Heading size='sm' my={1} px={{ base: 4, md: 0 }}>
-          Conditions to wear this Hat
+          Conditions to wear this {CONFIG.TERMS.hat}
         </Heading>
       </Skeleton>
 

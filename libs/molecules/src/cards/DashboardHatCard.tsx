@@ -22,9 +22,7 @@ import { ipfsUrl } from 'utils';
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { isMobile } = useMediaStyles();
 
-  const image = get(hat, 'imageUri')
-    ? ipfsUrl(get(hat, 'imageUri'))
-    : undefined;
+  const image = ipfsUrl(get(hat, 'nearestImage'));
   const hatRawDetails = get(hat, 'detailsMetadata');
   const hatDetails = hatRawDetails
     ? get(JSON.parse(hatRawDetails), 'data')
@@ -44,7 +42,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
         <CardBody p={4}>
           <HStack spacing={4}>
             <LazyImage
-              src={image || '/icon.jpeg'}
+              src={hat ? image : undefined}
               alt={`${get(hatDetails, 'name', get(hat, 'details'))} image`}
               boxSize={72}
             />

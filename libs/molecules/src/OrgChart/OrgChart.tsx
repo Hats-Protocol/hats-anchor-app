@@ -600,7 +600,7 @@ function OrgChartComponent() {
             handleExpandAll?.();
           }}
         >
-          Show full {CONFIG.tree}
+          Show full {CONFIG.TERMS.tree}
         </Button>
         <Tooltip
           label={

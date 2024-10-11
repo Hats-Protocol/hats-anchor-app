@@ -33,7 +33,7 @@ const NavLinks = () => {
   return (
     <>
       <ChakraNextLink
-        href={`/${CONFIG.trees}/${treeId ? chainId : currentChainId || 1}`}
+        href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`}
       >
         <Button
           h='75px'
@@ -42,14 +42,14 @@ const NavLinks = () => {
           borderRadius={0}
           background='transparent'
           _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-          isActive={includes(pathname, CONFIG.trees)}
+          isActive={includes(pathname, CONFIG.TERMS.trees)}
         >
           {!tabName ? (
-            <Text size='lg'>{capitalize(CONFIG.trees)}</Text>
+            <Text size='lg'>{capitalize(CONFIG.TERMS.trees)}</Text>
           ) : (
             <Stack align='start' w='90%' mx={2}>
               <Text size='sm' textTransform='uppercase'>
-                {CONFIG.trees}
+                {CONFIG.TERMS.trees}
               </Text>
               <Text size='lg' variant='gray' maxW='170px' isTruncated>
                 {containsUpperCase(tabName) ? tabName : capitalize(tabName)}
@@ -60,7 +60,7 @@ const NavLinks = () => {
       </ChakraNextLink>
 
       {address && (
-        <ChakraNextLink href={`/${CONFIG.wearers}/${address}`}>
+        <ChakraNextLink href={`/${CONFIG.TERMS.wearers}/${address}`}>
           <Button
             h='75px'
             minW='125px'
@@ -70,7 +70,7 @@ const NavLinks = () => {
             _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
             isActive={includes(toLower(pathname), toLower(address))}
           >
-            {`My ${capitalize(CONFIG.hats)}`}
+            {`My ${capitalize(CONFIG.TERMS.hats)}`}
           </Button>
         </ChakraNextLink>
       )}
