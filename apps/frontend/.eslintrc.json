@@ -35,8 +35,6 @@
     }
   ],
   "settings": {
-    "eslint-plugin-next": {
-      "pagesDir": "./pages"
-    }
+    "eslint-plugin-next": {}
   }
 }

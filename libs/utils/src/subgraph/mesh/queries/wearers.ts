@@ -20,6 +20,7 @@ export function getWearerDetailsQuery(chainId: number): string {
           toggle
           mutable
           imageUri
+          nearestImage
           levelAtLocalTree
           claimableBy {
             id

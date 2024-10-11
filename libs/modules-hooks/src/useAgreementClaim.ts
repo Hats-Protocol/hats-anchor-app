@@ -27,9 +27,7 @@ const useAgreementClaim = ({
   onDecline,
 }: ContractInteractionProps) => {
   const ipfsHash = get(
-    find(moduleParameters, {
-      label: 'Current Agreement',
-    }),
+    find(moduleParameters, { label: 'Current Agreement' }),
     'value',
   ) as string;
 
@@ -39,7 +37,7 @@ const useAgreementClaim = ({
     error,
   } = useQuery({
     queryKey: ['agreement', ipfsHash],
-    queryFn: () => fetchIpfs(ipfsHash).then((res) => res?.data),
+    queryFn: () => fetchIpfs(ipfsHash).then((res) => get(res, 'data', null)),
     enabled: !!ipfsHash,
   });
 

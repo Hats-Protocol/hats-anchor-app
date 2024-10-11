@@ -56,7 +56,6 @@ export const useClaimFn = ({
     ],
     chainId,
   });
-  // console.log({ isEligible });
 
   const { instanceAddress, currentHatIsClaimable, hatterIsAdmin } =
     useMultiClaimsHatterCheck({

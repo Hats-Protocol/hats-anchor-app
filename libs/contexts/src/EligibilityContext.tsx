@@ -88,9 +88,10 @@ export const EligibilityContextProvider = ({
     toLower(CONTROLLER_TYPES.eligibility),
   );
 
-  const { data: selectedHatWithImageUrl } = useImageURIs({
-    hats: selectedHat ? [selectedHat] : [],
-  });
+  const { data: selectedHatWithImageUrl, isLoading: isImageURIsLoading } =
+    useImageURIs({
+      hats: selectedHat ? [selectedHat] : [],
+    });
 
   const {
     details: moduleDetails,
@@ -127,7 +128,7 @@ export const EligibilityContextProvider = ({
       moduleParameters,
       controllerAddress,
       // loading
-      isHatDetailsLoading,
+      isHatDetailsLoading: isHatDetailsLoading || isImageURIsLoading,
       isModuleDetailsLoading,
       // election
       electionsAuthority,
@@ -150,6 +151,7 @@ export const EligibilityContextProvider = ({
       controllerAddress,
       // loading
       isHatDetailsLoading,
+      isImageURIsLoading,
       isModuleDetailsLoading,
       // election
       electionsAuthority,

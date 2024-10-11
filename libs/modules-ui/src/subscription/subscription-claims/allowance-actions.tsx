@@ -223,7 +223,10 @@ export const AllowanceActions = ({
               return writeContractAsync(zeroApprovalParams);
             }}
             onReceipt={() => {
-              queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+              setTimeout(() => {
+                queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+                queryClient.invalidateQueries({ queryKey: ['readContract'] });
+              }, 1000);
             }}
             variant='link'
             color='red.500'
@@ -241,7 +244,10 @@ export const AllowanceActions = ({
             return writeContractAsync(unlimitedApprovalParams);
           }}
           onReceipt={() => {
-            queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+            setTimeout(() => {
+              queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+              queryClient.invalidateQueries({ queryKey: ['readContract'] });
+            }, 1000);
           }}
           variant='link'
           isDisabled={!isUndefined(allowance) && allowance === maxUint256}

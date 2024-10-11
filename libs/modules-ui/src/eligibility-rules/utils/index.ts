@@ -9,6 +9,7 @@ export const ELIGIBILITY_STATUS = {
   eligible: 'eligible',
   ineligible: 'ineligible',
   pending: 'pending',
+  expiring: 'expiring',
   hat: 'hat',
 };
 

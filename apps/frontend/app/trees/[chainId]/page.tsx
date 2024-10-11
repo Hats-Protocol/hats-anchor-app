@@ -24,7 +24,7 @@ const TreesList = async ({ params }: TreeListProps) => {
           <div className='flex gap-2'>
             <LinkButton href='/trees/new'>
               Create <span className='hidden md:inline'>a new </span>
-              {CONFIG.tree}
+              {CONFIG.TERMS.tree}
             </LinkButton>
 
             <ShowTreesButton chainId={chainId} />

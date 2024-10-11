@@ -13,12 +13,10 @@ export const paddingForMaxDepth = (maxDepth: number) => {
   }
   const maxPadding = 24;
   const minPadding = 2 * CONFIG.CHAKRA_SPACING;
-  // TODO handle override when only 1 hat on level 1 (handle at same as top hat and cascade the others)
 
   // ideally this was smarter, lol
-  if (maxDepth > 4) return minPadding;
-  if (maxDepth === 5) return 16;
-  if (maxDepth < 6) return maxPadding;
+  if (maxDepth >= 5) return minPadding;
+  if (maxDepth < 5) return maxPadding;
 
   return minPadding;
 };

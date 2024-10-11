@@ -3,7 +3,7 @@
 import { Card, HStack, Icon, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
-import _ from 'lodash';
+import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HatWithDepth, SupportedChains } from 'types';
@@ -20,19 +20,19 @@ const MobileHatCard = ({
   maxDepth,
 }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(
-    _.get(hat, 'name') ? undefined : _.get(hat, 'details'), // don't attempt to lookup if name already found for hat
+    get(hat, 'name') ? undefined : get(hat, 'details'), // don't attempt to lookup if name already found for hat
   );
-  const detailsName = _.get(
+  const detailsName = get(
     hatDetails,
     'data.name',
-    _.get(hat, 'name', _.get(hat, 'details')),
+    get(hat, 'name', get(hat, 'details')),
   );
 
   // trying to match the right value in `VerticalDividers` (4), 3 seems to be best here
   const padding = maxDepth
-    ? ((_.get(hat, 'depth') || 0) * paddingForMaxDepth(maxDepth) || 2) - 3
+    ? (get(hat, 'depth', 0) - 1) * paddingForMaxDepth(maxDepth) + 1
     : undefined;
-  if (!_.get(hat, 'id')) return null;
+  if (!get(hat, 'id')) return null;
 
   return (
     <ChakraNextLink
@@ -41,7 +41,11 @@ const MobileHatCard = ({
         BigInt(hat.id),
       )}/${hatIdDecimalToIp(BigInt(hat.id))}`}
       // don't adjust top hat (or hat used throughout the app) width
-      w={!maxDepth || hat?.depth === 0 ? '100%' : `calc(100% - ${padding}px)`} // subtract left margin from card width
+      w={
+        !maxDepth || (hat?.depth || 0) <= 1
+          ? '100%'
+          : `calc(100% - ${padding}px)`
+      } // subtract left margin from card width
     >
       <Skeleton isLoaded={!!hat.details} w='full' h='100%'>
         <Card
@@ -50,20 +54,23 @@ const MobileHatCard = ({
           border='1px solid'
           borderColor='gray.600'
           borderRadius={6}
+          h='72px'
         >
           <HStack align='start' position='relative'>
             <LazyImage
-              src={_.get(hat, 'imageUrl')}
+              src={get(hat, 'imageUrl')}
               alt={`${detailsName} image`}
               objectFit='cover'
               bgPosition='center'
-              boxSize='72px'
-              borderRight='1px solid'
-              borderColor='gray.600'
-              borderLeftRadius={5}
+              boxSize={72}
+              skeletonProps={{
+                position: 'absolute',
+                top: '-2px',
+                left: '-2px',
+              }}
             />
 
-            <Stack gap={1} pt={1} w='70%' overflow='hidden'>
+            <Stack gap={1} pt={1} pl='78px'>
               <Text size='xs' noOfLines={1} fontWeight='medium'>
                 {hatIdDecimalToIp(BigInt(hat.id))}
               </Text>

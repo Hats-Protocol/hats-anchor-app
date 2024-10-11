@@ -67,7 +67,7 @@ const MyHatsCard = ({
                 <HStack gap={3}>
                   <BsDiagram3 />
                   <Text size='lg' variant='medium' noOfLines={1}>
-                    Create a new {CONFIG.tree}
+                    Create a new {CONFIG.TERMS.tree}
                   </Text>
                 </HStack>
               </Button>

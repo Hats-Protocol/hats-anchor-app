@@ -5,13 +5,14 @@ import { useOverlay } from 'contexts';
 import { useWaitForSubgraph } from 'hooks';
 import { useState } from 'react';
 import { invalidateAfterTransaction, wagmiConfig } from 'utils';
+import { TransactionReceipt } from 'viem';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 
 interface TransactionButtonProps extends ChakraButtonProps {
   sendTx: () => Promise<`0x${string}`>;
   children: React.ReactNode;
   chainId: number | undefined;
-  onReceipt: (receipt: { [x: string]: any }) => void;
+  onReceipt: (receipt: TransactionReceipt) => void;
   txDescription: string;
 }
 
@@ -26,7 +27,6 @@ export const TransactionButton = ({
   const { handlePendingTx } = useOverlay();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
   const [isLoading, setIsLoading] = useState(false);
-  console.log({ isLoading });
 
   const handleAsyncTx = async () => {
     if (!chainId) return;
@@ -44,8 +44,14 @@ export const TransactionButton = ({
       await waitForSubgraph(result);
 
       await invalidateAfterTransaction(chainId, localHash);
+
+      onReceipt?.(result);
+
       setIsLoading(false);
     } catch (err) {
+      // TODO catch decline
+
+      // eslint-disable-next-line no-console
       console.error(err);
       setIsLoading(false);
     }

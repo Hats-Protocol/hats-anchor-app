@@ -20,6 +20,7 @@ import {
   KnownEligibilityModule,
 } from '../eligibility-rules';
 import { SubscriptionClaimsModal } from '../subscription';
+import { ClaimButton } from './claim-button';
 
 // relies on different context from Controllers/Eligibility
 const MODAL_SUFFIX = 'Claims';
@@ -119,7 +120,7 @@ export const ClaimsConditions = () => {
     <Box w='100%' pb={{ base: 20, md: 0 }}>
       <Skeleton isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}>
         <Heading size='sm' my={1} px={{ base: 4, md: 0 }}>
-          Conditions to wear this Hat
+          Conditions to wear this {CONFIG.TERMS.hat}
         </Heading>
       </Skeleton>
 
@@ -130,8 +131,20 @@ export const ClaimsConditions = () => {
         <EligibilityConditions />
       </Skeleton>
 
+      <Skeleton
+        w='full'
+        mt={4}
+        isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}
+      >
+        <Flex display={{ base: 'none', '2xl': 'flex' }} justify='center'>
+          <ClaimButton />
+        </Flex>
+      </Skeleton>
+
       <AgreementContentModal />
+
       <SubscriptionClaimsModal />
+
       <ElectionClaimsModal />
     </Box>
   );

@@ -73,6 +73,8 @@ export const useSubscriptionClaim = ({
             queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
             queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
             queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+            queryClient.invalidateQueries({ queryKey: ['readContract'] });
+            queryClient.invalidateQueries({ queryKey: ['wearerEligibility'] });
             // refetchBalances();
             setStatus(CLAIM_STATUS.SUCCESS);
           });

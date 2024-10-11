@@ -25,6 +25,7 @@ import { useAccount } from 'wagmi';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
+const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 
 const Header = () => {
   const { address } = useAccount();
@@ -85,27 +86,7 @@ const Header = () => {
           w='100%'
         >
           {isMobile && (
-            <Box
-              boxSize='120px'
-              borderRadius='md'
-              overflow='hidden'
-              objectFit='contain'
-              border='1px solid'
-              borderColor='blackAlpha.200'
-            >
-              <Image
-                loading='lazy'
-                src={
-                  (editMode && imageUrl) ||
-                  _.get(selectedHat, 'imageUrl') ||
-                  '/icon.jpeg'
-                }
-                alt='hat image'
-                background='white'
-                objectFit='cover'
-                boxSize='122px'
-              />
-            </Box>
+            <LazyImage src={imageUrl} alt='hat image' boxSize={120} />
           )}
 
           <Flex

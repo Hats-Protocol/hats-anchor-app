@@ -45,6 +45,7 @@ const useMulticallManyHats = ({
   chainId,
   handlePendingTx,
   editMode,
+  setEditMode,
 }: UseMulticallManyHatsProps) => {
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
@@ -185,9 +186,8 @@ const useMulticallManyHats = ({
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
     queryClient.invalidateQueries({ queryKey: ['orgChartTree'] });
-    queryClient.invalidateQueries({ queryKey: ['hatDetailsField'] });
+    queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
     queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-    queryClient.invalidateQueries({ queryKey: ['imageURIs'] });
 
     const newStoredData = filter(
       storedData,
@@ -197,6 +197,7 @@ const useMulticallManyHats = ({
     setStoredData?.(newStoredData);
 
     // TODO leave edit mode
+    setEditMode?.(false);
   };
 
   const txDescription = summarizeActions(allCallsData as HatsCalls[]);
@@ -241,6 +242,7 @@ interface UseMulticallManyHatsProps {
   chainId: SupportedChains | undefined;
   handlePendingTx?: HandlePendingTx;
   editMode?: boolean;
+  setEditMode: Dispatch<SetStateAction<boolean>> | undefined;
 }
 
 export interface HatPinDetails {

@@ -14,6 +14,7 @@ interface ManageButton {
   onClick: () => void;
   colorScheme?: string;
   hasRole?: boolean;
+  section?: string;
 }
 
 interface ManageBarProps {

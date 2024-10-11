@@ -13,11 +13,11 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { get, includes, map, toLower, toNumber } from 'lodash';
+import { capitalize, get, includes, map, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-import { BsCheckCircleFill, BsCheckSquareFill } from 'react-icons/bs';
+import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -29,10 +29,10 @@ const AgreementContent = dynamic(() =>
 const handleFetchIpfs: any = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
     .then((res: any) => {
-      console.log('res', res);
       return get(res, 'data', null);
     })
     .catch((err: Error) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       return null;
     });
@@ -54,8 +54,8 @@ const AgreementButton = () => {
   });
 
   const isWearing = useMemo(
-    () => includes(map(wearerHats, 'id'), toLower(address)),
-    [wearerHats, address],
+    () => includes(map(wearerHats, 'id'), selectedHat?.id),
+    [wearerHats, selectedHat?.id],
   );
   const hasSupply = useMemo(
     () =>
@@ -65,14 +65,16 @@ const AgreementButton = () => {
   );
 
   let buttonTooltip = '';
-  if (!isReadyToClaim) {
-    buttonTooltip = 'Review the hat details and conditions to claim.';
+  if (isWearing) {
+    buttonTooltip = 'You are wearing this hat.';
   } else if (!hasSupply) {
     buttonTooltip =
       'No hats left to claim. If this hat is mutable an admin could increase the supply.';
   } else if (!isClaimableFor) {
     buttonTooltip =
       'Please allow any account to claim this Hat on behalf of eligible users.';
+  } else if (!isReadyToClaim) {
+    buttonTooltip = 'Review the hat details and conditions to claim.';
   }
 
   const localClaimable =
@@ -81,19 +83,19 @@ const AgreementButton = () => {
   return (
     <Tooltip label={buttonTooltip} placement='top'>
       <Button
-        variant='filled'
-        background={isReadyToClaim ? 'green.600' : 'blue.500'}
+        variant={isReadyToClaim ? 'outlineMatch' : 'filled'}
+        background={isReadyToClaim ? 'transparent' : 'blue.500'}
+        colorScheme={isReadyToClaim ? 'green.500' : 'white'}
         size='sm'
-        color='white'
         onClick={() => {
           setIsReadyToClaim(true);
         }}
         _hover={{
-          background: isReadyToClaim ? 'green.700' : 'blue.600',
+          background: isReadyToClaim ? 'transparent' : 'blue.600',
         }}
-        isDisabled={localClaimable || !hasSupply || isWearing}
+        isDisabled={localClaimable || !hasSupply || isWearing || isReadyToClaim}
         leftIcon={
-          <Icon as={isReadyToClaim ? BsCheckSquareFill : BsCheckCircleFill} />
+          <Icon as={isReadyToClaim ? BsCheckSquare : BsCheckCircleFill} />
         }
         py={4}
       >
@@ -105,7 +107,7 @@ const AgreementButton = () => {
 
 // SUPPORTS v0 and v1
 export const AgreementClaims = () => {
-  const { moduleParameters } = useEligibility();
+  const { moduleParameters, selectedHatDetails } = useEligibility();
 
   const { agreement } = useAgreementClaim({
     moduleParameters,
@@ -128,7 +130,10 @@ export const AgreementClaims = () => {
         minH='500px'
       >
         <Flex justify='space-between' mb={8} gap={10}>
-          <Heading>Sign the agreement to claim your Hat</Heading>
+          <Heading>
+            Sign the agreement to claim the {get(selectedHatDetails, 'name')}{' '}
+            {capitalize(CONFIG.TERMS.hat)}
+          </Heading>
 
           <Flex minW='175px' justify='end'>
             <AgreementButton />

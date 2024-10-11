@@ -2,7 +2,6 @@
 
 import {
   Button,
-  HStack,
   Icon,
   Menu,
   MenuButton,
@@ -15,24 +14,26 @@ import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
+import { AgreementContent } from 'molecules';
+import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
-import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { BsDownload, BsThreeDotsVertical } from 'react-icons/bs';
-import { FiExternalLink } from 'react-icons/fi';
-import { ChakraNextLink } from 'ui';
-import { fetchIpfs } from 'utils';
-import { hatLink } from 'utils';
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import { fetchIpfs, hatLink } from 'utils';
 
-import { AgreementContent } from '../agreement-content';
+import { ClaimsHelperButtons } from './claims-helper-buttons';
 
-const handleFetchIpfs: any = async (ipfsHash: string) => {
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+
+const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
-    .then((res: any) => {
-      console.log('res', res);
+    .then((res: unknown) => {
       return get(res, 'data', null);
     })
     .catch((err: Error) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       return null;
     });
@@ -99,27 +100,5 @@ export const BottomMoreMenu = () => {
     );
   }
 
-  return (
-    <HStack>
-      <ChakraNextLink href={link} isExternal>
-        <Button
-          variant='outline'
-          rightIcon={<Icon as={FiExternalLink} boxSize={4} />}
-          display={{ base: 'none', md: 'flex' }}
-        >
-          View full role
-        </Button>
-      </ChakraNextLink>
-
-      {hasAgreement && (
-        <Button
-          onClick={handleDownload}
-          variant='outline'
-          leftIcon={<Icon as={BsDownload} />}
-        >
-          Download agreement
-        </Button>
-      )}
-    </HStack>
-  );
+  return <ClaimsHelperButtons />;
 };

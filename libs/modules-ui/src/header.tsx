@@ -8,7 +8,6 @@ import {
   Heading,
   HStack,
   Icon,
-  Image,
   Skeleton,
   Stack,
   Text,
@@ -23,9 +22,10 @@ import dynamic from 'next/dynamic';
 
 const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
+const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 
 export const Header = () => {
-  const { selectedHat, selectedHatDetails, isHatDetailsLoading } =
+  const { selectedHat, isHatDetailsLoading, selectedHatDetails } =
     useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string, {
     toastData: { title: 'Successfully copied hat ID to clipboard' },
@@ -42,30 +42,24 @@ export const Header = () => {
     : MUTABILITY.IMMUTABLE;
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
-  // TODO use bg image
-
   return (
     <Stack pb={2} w='full'>
       <Box width='100%'>
-        <Skeleton
-          minH='250px'
+        <LazyImage
+          src={!isHatDetailsLoading ? get(selectedHat, 'imageUrl') : undefined}
+          alt='Hat image'
+          minH={{ base: '100vw', md: '400px' }}
           w={{ base: '100%', md: 'auto' }}
-          borderRadius={{ base: 'none', md: 'lg' }}
-          isLoaded={!isHatDetailsLoading}
-        >
-          <Image
-            src={get(selectedHat, 'imageUrl') || '/icon.jpeg'}
-            alt='Hat image'
-            background='white'
-            objectFit='cover'
-            width='100%'
-            height='auto'
-            borderRadius={{ base: 'none', md: 'lg' }}
-          />
-        </Skeleton>
+          noMobileRadius
+        />
 
-        <Flex mt={-2} px={4} justify='center'>
-          <Skeleton isLoaded={!isHatDetailsLoading} h='40px'>
+        <Flex position='relative' justify='center'>
+          <Skeleton
+            isLoaded={!isHatDetailsLoading}
+            h='40px'
+            position='absolute'
+            top='-10px'
+          >
             <HStack>
               {/* {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>} */}
 
@@ -73,23 +67,25 @@ export const Header = () => {
                 colorScheme={
                   mutableStatus === MUTABILITY.MUTABLE ? 'blue' : 'red'
                 }
+                boxShadow='sm'
               >
                 {mutableStatus}
               </Badge>
 
               <Badge
                 colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}
+                boxShadow='sm'
               >
                 {activeStatus}
               </Badge>
 
-              <Badge>Level {levelAtLocalTree}</Badge>
+              <Badge boxShadow='sm'>Level {levelAtLocalTree}</Badge>
             </HStack>
           </Skeleton>
         </Flex>
       </Box>
 
-      <Stack w='full' px={4}>
+      <Stack w='full' px={4} pt={10}>
         <Flex w='full' justify='space-between' align='baseline'>
           <Tooltip label={name || selectedHat?.details}>
             <Skeleton

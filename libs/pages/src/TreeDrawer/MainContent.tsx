@@ -94,6 +94,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
     <Stack
       p={10}
       pt={8}
+      pb={isExpanded ? '275px' : 20}
       spacing={10}
       w='100%'
       overflow='scroll'
@@ -109,6 +110,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
               topHat?.name ||
               'No Hats'}
           </Heading>
+
           {topHatDetails?.description && (
             <Markdown>{topHatDetails?.description}</Markdown>
           )}
@@ -141,6 +143,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           >
             Import
           </Button>
+
           <Button
             leftIcon={<Icon as={AiOutlineDownload} />}
             colorScheme='twitter'
@@ -161,16 +164,11 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           Propose changes to any hat. Deploy changes to the Hats you control.
         </Text>
       </Stack>
-      <Box
-        overflow='scroll'
-        height={isExpanded ? '200px' : '400px'}
-        borderY='1px solid'
-        borderColor='gray.200'
-      >
+
+      <Box borderY='1px solid' borderColor='gray.200'>
         {map(treeToDisplay, (hat: AppHat) => {
           const draft = isDraft(hat.id, onchainHats);
           const changes = getProposedChangesCount(hat.id, storedData);
-          // console.log(changes);
 
           const hatId = hatIdDecimalToIp(BigInt(hat.id));
           // get hat name for list display, default to details name

@@ -1,14 +1,33 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { Hex } from 'viem';
 
-import { CONTACT_URL, DOCS_URL } from './content';
+import { CONTACT_URL, DOCS_URL, LANDING_URL } from './content';
 import { MINI_CONFIG } from './metadata';
 
 const APP_URL = 'https://app.hatsprotocol.xyz';
 const TELEGRAM_KEY = 'VFBDI1RFTCNDT01NIy0xMDAxODUxMjg4MjQy';
 const COMMUNITY_HAT_ID = hatIdDecimalToHex(hatIdIpToDecimal('1.2.1.1'));
 
-const CONFIG: Config = {
+export const TERMS = {
+  hat: 'hat',
+  hats: 'hats',
+  tree: 'tree',
+  trees: 'trees',
+  responsibility: 'responsibility',
+  responsibilities: 'responsibilities',
+  authority: 'authority',
+  authorities: 'authorities',
+  permission: 'permission',
+  permissions: 'permissions',
+  eligibility: 'eligibility',
+  eligibilities: 'eligibilities',
+  toggle: 'toggle',
+  toggles: 'toggles',
+  wearer: 'wearer',
+  wearers: 'wearers',
+};
+
+export const CONFIG: Config = {
   ...MINI_CONFIG,
   hatsAddress: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137',
   emojis: '🧢🎩👒',
@@ -36,24 +55,10 @@ const CONFIG: Config = {
   CLAIMS_URL: 'https://claim.hatsprotocol.xyz',
   CONTACT_URL,
   DOCS_URL,
+  LANDING_URL,
 
   // terminology
-  hat: 'hat',
-  hats: 'hats',
-  tree: 'tree',
-  trees: 'trees',
-  authority: 'authority',
-  authorities: 'authorities',
-  permission: 'permission',
-  permissions: 'permissions',
-  right: 'right',
-  rights: 'rights',
-  eligibility: 'eligibility',
-  eligibilities: 'eligibilities',
-  toggle: 'toggle',
-  toggles: 'toggles',
-  wearer: 'wearer',
-  wearers: 'wearers',
+  TERMS,
 
   // docs
   docsLinks: {
@@ -69,8 +74,6 @@ const CONFIG: Config = {
   CHAKRA_SPACING: 4, // spacing value overlapping with mobile tree page and ^ default padding
   SHADE_HEADING_LENGTH: 60, // length of the heading in authority/responsibility cards before it is truncated
 };
-
-export default CONFIG;
 
 type Config = {
   hatsAddress: Hex;
@@ -98,29 +101,30 @@ type Config = {
     claimsHatter: string;
   };
 
-  // terminology
-  hat: string;
-  hats: string;
-  tree: string;
-  trees: string;
-  authority: string;
-  authorities: string;
-  permission: string;
-  permissions: string;
-  right: string;
-  rights: string;
-  eligibility: string;
-  eligibilities: string;
-  toggle: string;
-  toggles: string;
-  wearer: string;
-  wearers: string;
+  TERMS: {
+    // terminology
+    hat: string;
+    hats: string;
+    tree: string;
+    trees: string;
+    authority: string;
+    authorities: string;
+    responsibility: string;
+    responsibilities: string;
+    eligibility: string;
+    eligibilities: string;
+    toggle: string;
+    toggles: string;
+    wearer: string;
+    wearers: string;
+  };
 
   // urls
   APP_URL: string;
   CLAIMS_URL: string;
   CONTACT_URL: string;
   DOCS_URL: string;
+  LANDING_URL: string;
 
   // docs
   docsLinks: {

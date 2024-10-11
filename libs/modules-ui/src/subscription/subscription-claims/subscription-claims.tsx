@@ -17,10 +17,14 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { some } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import { BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
+import {
+  BsCheckSquare,
+  BsCheckSquareFill,
+  BsXOctagonFill,
+} from 'react-icons/bs';
 import { MixedIcon } from 'types';
 import { getDuration } from 'utils';
-import { Hex } from 'viem';
+import { Hex, maxUint256 } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { AllowanceActions } from './allowance-actions';
@@ -53,7 +57,7 @@ export const SubscriptionClaims = () => {
   const activeSubscription = keyBalance && keyBalance > BigInt(0);
 
   if (isLoading || isLoadingWearerDetails) {
-    return <Skeleton w='full' h='500px' />;
+    return <Skeleton w='full' h='500px' borderRadius='md' />;
   }
 
   if (!moduleParameters) {
@@ -73,11 +77,18 @@ export const SubscriptionClaims = () => {
   let status = 'Not Paid';
   let icon: MixedIcon = BsXOctagonFill;
   let color = 'red.500';
-  if (hasAllowance || activeSubscription) {
+  if (hasAllowance && !activeSubscription) {
+    const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
+    status = `Authorized for ${durationsLeft} ${durationText.noun}${
+      durationsLeft > 1 || durationsLeft === 0 ? 's' : ''
+    }`;
+    icon = BsCheckSquare;
+    color = 'green.500';
+  } else if (activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
     if (durationsLeft === 0) {
       status = 'Renew Soon';
-      icon = BsCheckSquareFill;
+      icon = BsCheckSquare;
       color = 'orange.500';
     } else {
       status = `${durationsLeft} ${durationText.noun}${
@@ -143,13 +154,16 @@ export const SubscriptionClaims = () => {
                 <Heading size='lg'>Claim your Hat now</Heading>
 
                 <Text>
-                  You enabled a monthly withdrawal of the subscription fee and
-                  paid the first month.
+                  You've enabled a {durationText.adjective} withdrawal of the
+                  subscription fee.
                 </Text>
-                <Text>You can now claim this Hat.</Text>
                 <Text>
-                  Below you can adjust the authorized amount to control the
-                  duration of your subscription.
+                  You can now claim this Hat and pay the first{' '}
+                  {durationText.noun}.
+                </Text>
+                <Text>
+                  Anytime you'd like, you can adjust the authorized amount to
+                  control the potential duration of your subscription.
                 </Text>
               </Stack>
             )}

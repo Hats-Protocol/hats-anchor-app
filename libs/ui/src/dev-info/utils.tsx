@@ -1,6 +1,6 @@
 'use client';
 
-import { Icon, Link } from '@chakra-ui/react';
+import { Icon, IconButton, Link } from '@chakra-ui/react';
 import { useClipboard } from 'hooks';
 import dynamic from 'next/dynamic';
 import { explorerUrl, formatAddress, hatLink } from 'utils';
@@ -64,7 +64,13 @@ export const AddressInfo = ({
         {formatAddress(address)}
       </Link>
 
-      <Icon as={CopyAddress} onClick={copyAddress} />
+      <IconButton
+        icon={<Icon as={CopyAddress} />}
+        minW={5}
+        variant='link'
+        onClick={copyAddress}
+        aria-label='Copy address'
+      />
     </div>
   );
 };
