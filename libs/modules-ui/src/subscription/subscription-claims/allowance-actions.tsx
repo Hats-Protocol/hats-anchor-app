@@ -24,7 +24,7 @@ import { useForm } from 'react-hook-form';
 import { BsArrowUpRightCircle } from 'react-icons/bs';
 import { getDuration, tokenImageHandler } from 'utils';
 import { erc20Abi, formatUnits, maxUint256 } from 'viem';
-import { useChainId, useWriteContract } from 'wagmi';
+import { useAccount, useChainId, useWriteContract } from 'wagmi';
 
 const TransactionButton = dynamic(() =>
   import('molecules').then((mod) => mod.TransactionButton),
@@ -42,6 +42,7 @@ export const AllowanceActions = ({
 }) => {
   const { chainId, setIsEligible: setIsReadyToClaim } = useEligibility();
   const currentChainId = useChainId();
+  const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
@@ -169,7 +170,7 @@ export const AllowanceActions = ({
                   boxSize={5}
                 />
 
-                <Text fontFamily='jbMono'>{price}</Text>
+                <Text fontFamily='jbMono'>{price || '0'}</Text>
                 <Text fontFamily='jbMono' color='gray.500'>
                   {symbol}
                 </Text>
@@ -193,15 +194,17 @@ export const AllowanceActions = ({
               }}
               variant='primary'
               isDisabled={
-                !isUndefined(allowance) &&
-                !isUndefined(amountToApprove) &&
-                allowance >= amountToApprove
+                (!isUndefined(allowance) &&
+                  !isUndefined(amountToApprove) &&
+                  allowance >= amountToApprove) ||
+                !address
               }
               txDescription='Approve allowance on Hat subscription'
               chainId={chainId}
             >
-              Approve {amount} {durationText.noun}
-              {amount > 1 ? 's' : ''} ({tokenAmountText} {symbol})
+              Approve {amount || 0} {durationText.noun}
+              {amount > 1 || amount === 0 ? 's' : ''} ({tokenAmountText}{' '}
+              {symbol})
             </TransactionButton>
           ) : (
             <NetworkSwitcher chainId={chainId} />

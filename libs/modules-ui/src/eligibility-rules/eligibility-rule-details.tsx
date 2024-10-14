@@ -20,6 +20,8 @@ import {
   TOGGLE_STATUS,
 } from './utils';
 
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
+
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
@@ -80,6 +82,17 @@ export const EligibilityRuleDetails = ({
   }
 
   if (address) {
+    return (
+      <EligibilityRuleWrapper rule={rule}>
+        <HStack spacing={1} color={statusColor}>
+          <Text>{displayStatus}</Text>
+          <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />
+        </HStack>
+      </EligibilityRuleWrapper>
+    );
+  }
+
+  if (IS_CLAIMS_APP) {
     return (
       <EligibilityRuleWrapper rule={rule}>
         <HStack spacing={1} color={statusColor}>

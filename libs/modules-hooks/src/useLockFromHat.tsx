@@ -1,6 +1,6 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
-import { find, get, map } from 'lodash';
+import { compact, find, get, map } from 'lodash';
 import { Abi, erc20Abi, formatUnits, Hex, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
@@ -26,7 +26,7 @@ export const useLockFromHat = ({
     'value',
   ) as Hex;
 
-  const contractLockProperties: ContractLookup[] = [
+  const contractLockProperties: ContractLookup[] = compact([
     {
       address: lockAddress,
       abi: PublicLockV14.abi as Abi,
@@ -37,31 +37,31 @@ export const useLockFromHat = ({
     {
       address: lockAddress,
       abi: PublicLockV14.abi as Abi,
-      functionName: 'purchasePriceFor',
-      args: [address!, address!, ''],
-      chainId,
-    },
-    {
-      address: lockAddress,
-      abi: PublicLockV14.abi as Abi,
       functionName: 'expirationDuration',
       args: [],
       chainId,
     },
-    {
+    address && {
+      address: lockAddress,
+      abi: PublicLockV14.abi as Abi,
+      functionName: 'purchasePriceFor',
+      args: [address!, address!, ''],
+      chainId,
+    },
+    address && {
       address: lockAddress,
       abi: PublicLockV14.abi as Abi,
       functionName: 'balanceOf',
       args: [address!],
       chainId,
     },
-  ];
+  ]);
 
   const { data: lockProperties, isLoading: isLoadingLockProperties } =
     useReadContracts({
       contracts: contractLockProperties as readonly unknown[],
     });
-  const [tokenAddress, purchasePrice, durationInSeconds, keyBalance] = map(
+  const [tokenAddress, durationInSeconds, purchasePrice, keyBalance] = map(
     lockProperties,
     'result',
   ) as [string, bigint, bigint, bigint];
@@ -73,7 +73,7 @@ export const useLockFromHat = ({
     enabled: tokenAddress && tokenAddress !== zeroAddress,
   };
 
-  const tokenPropertiesRequests = [
+  const tokenPropertiesRequests = compact([
     {
       ...currencyContract,
       functionName: 'symbol',
@@ -82,19 +82,19 @@ export const useLockFromHat = ({
       ...currencyContract,
       functionName: 'decimals',
     },
-    {
+    address && {
       ...currencyContract,
       functionName: 'allowance',
       args: [address!, lockAddress],
       enabled: tokenAddress !== zeroAddress && !!lockAddress && !!address,
     },
-    {
+    address && {
       ...currencyContract,
       functionName: 'balanceOf',
       args: [address!],
       enabled: tokenAddress !== zeroAddress && !!address,
     },
-  ];
+  ]);
 
   const { data: tokenProperties, isLoading: isLoadingTokenProperties } =
     useReadContracts({

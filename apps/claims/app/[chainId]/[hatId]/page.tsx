@@ -12,7 +12,7 @@ import { fetchHatsDetailsMesh } from 'utils';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
-  if (!hatId || !chainId) {
+  if (!hatId || !chainId || isNaN(toNumber(first(split(hatId, '.'))))) {
     notFound();
   }
   const hexHatId = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
