@@ -240,7 +240,7 @@ interface UseMulticallManyHatsProps {
   treeToDisplay: AppHat[] | undefined;
   onchainHats: AppHat[] | undefined;
   chainId: SupportedChains | undefined;
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
   editMode?: boolean;
   setEditMode: Dispatch<SetStateAction<boolean>> | undefined;
 }

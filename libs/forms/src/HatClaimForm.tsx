@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Flex, Stack } from '@chakra-ui/react';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useDebounce } from 'hooks';
 import { useHatClaimFor } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
@@ -22,6 +22,7 @@ const HatClaimForForm = () => {
   const { handleSubmit, watch } = localForm;
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
+  const { handlePendingTx } = useOverlay();
   const address = useDebounce<string>(watch('address'));
 
   const onSubmit = async () => {
@@ -38,6 +39,7 @@ const HatClaimForForm = () => {
     selectedHat,
     chainId,
     wearer: (resolvedAddress as Hex) || (address as Hex),
+    handlePendingTx,
   });
 
   return (

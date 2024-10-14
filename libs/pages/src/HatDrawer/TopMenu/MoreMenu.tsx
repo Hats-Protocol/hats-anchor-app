@@ -119,6 +119,7 @@ const MoreMenu = () => {
   } = useHatStatusCheck({
     chainId,
     hatData: selectedHat,
+    handlePendingTx,
   });
 
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {

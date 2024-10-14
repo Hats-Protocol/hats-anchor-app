@@ -100,14 +100,24 @@ export const useClaimFn = ({
     });
 
   // AGREEMENT v0
-  const { writeAsync: agreementV0Claim, isLoading: isLoadingAgreementV0Claim } =
+  const { writeAsync: agreementV0Claim } =
     useAgreementClaimsHatterContractWrite({
       functionName: 'claimHatWithAgreement',
       address: CONFIG.agreementV0.hatterAddress as Hex,
       chainId,
+      handlePendingTx,
       enabled:
         Boolean(COMMUNITY_HAT_ID) && !isLoadingWearerDetails && !isWearing,
       successToastData: TOASTS.claimHatWithAgreement as ToastProps,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+        queryClient.invalidateQueries({ queryKey: ['readContract'] });
+
+        setStatus(CLAIM_STATUS.SUCCESS);
+      },
       onDecline: () => {
         setStatus(CLAIM_STATUS.DECLINED);
       },

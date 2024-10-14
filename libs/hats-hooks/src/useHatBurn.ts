@@ -12,7 +12,7 @@ const useHatBurn = ({
 }: {
   selectedHat: AppHat | undefined;
   chainId: SupportedChains | undefined;
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
   waitForSubgraph?: (data: TransactionReceipt | undefined) => Promise<unknown>;
 }) => {
   // const currentNetworkId = useChainId();

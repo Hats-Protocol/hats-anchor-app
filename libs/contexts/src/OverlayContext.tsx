@@ -236,6 +236,7 @@ export const OverlayContextProvider = ({
     }
 
     onSuccess?.(txReceipt);
+    // TODO handle queryClient invalidations here
 
     if (clearModals) {
       setModals(defaultModals);
