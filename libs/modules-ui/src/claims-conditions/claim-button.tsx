@@ -76,6 +76,9 @@ export const ClaimButton = () => {
   }
 
   let tooltip = '';
+  if (!address) {
+    tooltip = 'Connect your wallet to claim';
+  }
   if (requireHatter && !hatterIsAdmin) {
     tooltip = 'There is no claims hatter enabled for this tree';
   }
@@ -92,7 +95,12 @@ export const ClaimButton = () => {
       <Button
         variant='primary'
         // won't hit this flow if wrong network
-        isDisabled={hatterIfNeeded || disableClaim || (isWearing && isEligible)} // handle isReadyToClaim on respective disableClaims
+        isDisabled={
+          hatterIfNeeded ||
+          disableClaim ||
+          (isWearing && isEligible) ||
+          !address
+        } // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
         isLoading={isLoading}
       >

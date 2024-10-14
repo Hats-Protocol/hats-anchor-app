@@ -33,8 +33,14 @@ const handleFetchIpfs = async (ipfsHash: string) => {
 export const ClaimsHelperButtons = ({
   stackVertically = false,
 }: ClaimsHelperButtonsProps) => {
-  const { selectedHat, chainId, moduleDetails, moduleParameters } =
-    useEligibility();
+  const {
+    selectedHat,
+    chainId,
+    moduleDetails,
+    moduleParameters,
+    isHatDetailsLoading,
+    isModuleDetailsLoading,
+  } = useEligibility();
   const link = hatLink({ hatId: selectedHat?.id, chainId });
 
   const hasAgreement =
@@ -69,7 +75,7 @@ export const ClaimsHelperButtons = ({
   }, [agreement, agreementV0]);
 
   return (
-    <Skeleton isLoaded={!!moduleParameters}>
+    <Skeleton isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}>
       <HStack flexDir={stackVertically ? 'column' : 'row'}>
         <ChakraNextLink href={link} isExternal>
           <Button

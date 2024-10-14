@@ -70,12 +70,16 @@ const AgreementButton = () => {
   } else if (!hasSupply) {
     buttonTooltip =
       'No hats left to claim. If this hat is mutable an admin could increase the supply.';
-  } else if (!isClaimableFor) {
+  } else if (
+    !isClaimableFor &&
+    selectedHat?.id !== CONFIG.agreementV0.communityHatId
+  ) {
     buttonTooltip =
       'Please allow any account to claim this Hat on behalf of eligible users.';
-  } else if (!isReadyToClaim) {
-    buttonTooltip = 'Review the hat details and conditions to claim.';
   }
+  // else if (!isReadyToClaim) {
+  //   buttonTooltip = 'Review the hat details and conditions to claim.';
+  // }
 
   const localClaimable =
     !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
