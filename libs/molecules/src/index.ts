@@ -17,6 +17,7 @@ export { default as ResponsibilitiesList } from './ResponsibilitiesList';
 export { default as ResponsibilitiesListCard } from './ResponsibilitiesListCard';
 export { default as ResponsibilityHeader } from './ResponsibilityHeader';
 export { default as ShowTreesButton } from './ShowTreesButton';
+export * from './subgraph-check';
 export { default as TooltipWrapper } from './TooltipWrapper';
 export * from './TransactionButton';
 export { default as TransactionHistory } from './TransactionHistory';

@@ -24,6 +24,7 @@ export { default as useScrollPosition } from './useScrollPosition';
 export { default as useSearchResults } from './useSearchResults';
 export { default as useSelectedHatDisclosure } from './useSelectedHatDisclosure';
 export * from './useSimulateTransaction';
+export * from './useSubgraphCheck';
 export { default as useSuperfluidStreams } from './useSuperfluidStreams';
 export { default as useToast } from './useToast';
 export { default as useTokenDetails } from './useTokenDetails';
