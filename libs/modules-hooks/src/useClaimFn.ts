@@ -75,9 +75,8 @@ export const useClaimFn = ({
     moduleParameters,
     moduleDetails,
     chainId,
-    controllerAddress,
-    status,
     setStatus,
+    handlePendingTx,
   });
 
   // AGREEMENT v1

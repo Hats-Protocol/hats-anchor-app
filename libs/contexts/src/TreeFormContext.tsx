@@ -460,7 +460,6 @@ export const TreeFormContextProvider = ({
     () => _.first(orgChartTree),
     [orgChartTree],
   );
-
   const topHatDetails = useMemo(
     () => _.get(topHat, 'detailsObject.data'),
     [topHat],

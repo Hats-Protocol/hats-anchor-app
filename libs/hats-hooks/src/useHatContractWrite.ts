@@ -21,19 +21,35 @@ interface ContractInteractionProps {
   chainId: number | undefined;
   txDescription?: string;
   // Transaction handling
-  handlePendingTx: HandlePendingTx | undefined; // pass both handlePendingTx and handleSuccess to useHatContractWrite
-  waitForSubgraph: AsyncTxHandler; // passed with handleSuccess
-  handleSuccess?: SyncTxHandler; // passed with handlePendingTx
+  handlePendingTx: HandlePendingTx | undefined; // pass both handlePendingTx and onSuccess to useHatContractWrite
+  waitForSubgraph: AsyncTxHandler; // passed with handlePendingTx
+  handleSuccess?: SyncTxHandler; // passed with handlePendingTx   // TODO rename onSuccess
   // Toasts
   waitForTxToastData?: ToastProps;
   waitForSubgraphToastData?: ToastProps;
   successToastData?: ToastProps;
   errorToastData?: ToastProps;
   // After transaction clean up
-  queryKeys?: (object | string | number)[][];
-  redirect?: string | null;
+  queryKeys?: (object | string | number)[][]; // invalidate these query keys after transaction is successful
+  redirect?: string | null; // redirect to this URL after transaction is successful
 }
 
+// generate a doc comment based on the type ContractInteractionProps
+/**
+ * @param {string} params.functionName - Name of the function to call on the contract
+ * @param {unknown[]} params.args - Arguments to passed to the function
+ * @param {number | undefined} params.chainId - Chain ID to use for the transaction
+ * @param {string=} params.txDescription - Description of the transaction
+ * @param {HandlePendingTx | undefined} params.handlePendingTx - Function to handle the pending transaction
+ * @param {AsyncTxHandler} params.waitForSubgraph - Function to wait for the subgraph to index the transaction
+ * @param {SyncTxHandler=} params.handleSuccess - Function to handle the success of the transaction
+ * @param {ToastProps=} params.waitForTxToastData - Content of the toast displayed while waiting for the transaction to be accepted
+ * @param {ToastProps=} params.waitForSubgraphToastData - Content of the toast displayed while waiting for the subgraph to index the transaction
+ * @param {ToastProps=} params.successToastData - Content of the toast displayed when the transaction is successful
+ * @param {ToastProps=} params.errorToastData - Content of the toast displayed when the transaction fails
+ * @param {(object | string | number)[][]} params.queryKeys - The keys to invalidate in the query client
+ * @param {string | null} params.redirect - The URL to redirect to after the transaction is successful.
+ */
 const useHatContractWrite = ({
   functionName,
   args,
@@ -71,6 +87,7 @@ const useHatContractWrite = ({
     })
       .then((hash) => {
         setIsLoading(true);
+
         toast.info({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',

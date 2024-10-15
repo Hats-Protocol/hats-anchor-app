@@ -2,6 +2,7 @@
 
 import { Box } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { useEligibility } from 'contexts';
 import { compact, isUndefined } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -16,6 +17,7 @@ export const SubscriptionDevInfo = ({
   moduleParameters,
   chainId,
 }: SubscriptionDevInfoProps) => {
+  const { selectedHat } = useEligibility();
   const {
     price,
     decimals,
@@ -62,6 +64,14 @@ export const SubscriptionDevInfo = ({
         label: 'Currency Contract',
         descriptor: (
           <AddressInfo address={currencyContract} chainId={chainId} />
+        ),
+      },
+      !isUndefined(selectedHat) && {
+        label: 'Hat Supply',
+        descriptor: (
+          <DefaultInfo>
+            {`${selectedHat?.currentSupply} / ${selectedHat?.maxSupply}`}
+          </DefaultInfo>
         ),
       },
     ]);

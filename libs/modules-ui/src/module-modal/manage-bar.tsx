@@ -27,8 +27,11 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
     return find(sections, (s) => s.value);
   }, [sections]);
   const hasAnyRole = useMemo(() => {
-    return some(sections, (s) => s.hasRole);
-  }, [sections]);
+    return (
+      some(sections, ({ hasRole }) => hasRole) ||
+      some(buttons, ({ hasRole }) => hasRole)
+    );
+  }, [sections, buttons]);
 
   if (activeSection) {
     return (
@@ -72,6 +75,7 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
               colorScheme={colorScheme || 'blue.500'}
               size='sm'
               onClick={onClick}
+              key={label}
             >
               {label}
             </Button>
