@@ -4,7 +4,7 @@ import { ToastProps } from './toast';
 
 export type HandlePendingTxProps = {
   hash: Hex;
-  txChainId?: number | undefined;
+  txChainId: number | undefined;
   txDescription: string;
   waitForSubgraphToastData?: ToastProps;
   successToastData?: ToastProps | undefined;

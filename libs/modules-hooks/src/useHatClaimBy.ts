@@ -25,7 +25,7 @@ const useHatClaimBy = ({
   selectedHat?: AppHat | null;
   chainId: SupportedChains | undefined;
   wearer: Hex | undefined;
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
   onSuccess?: () => void;
 }) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();

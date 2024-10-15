@@ -17,7 +17,7 @@ interface ContractInteractionProps {
   chainId?: SupportedChains;
   enabled: boolean;
   args: (string | number | bigint | undefined)[];
-  handlePendingTx?: HandlePendingTx | undefined;
+  handlePendingTx: HandlePendingTx | undefined;
   hatId?: Hex;
 }
 
@@ -51,16 +51,6 @@ const useMultiClaimsHatterContractWrite = ({
     ) {
       return null;
     }
-
-    // enabled:
-    // enabled &&
-    // !!address &&
-    // !!chainId &&
-    // chainId === userChainId &&
-    // !!mch?.abi &&
-    // !!functionName &&
-    // // module creation args could be optional in some cases
-    // (!_.isEmpty(args) ? !_.some(args, _.isUndefined) : true), // currently we're assuming not
 
     return writeContractAsync({
       address,

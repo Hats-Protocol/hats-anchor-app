@@ -12,12 +12,16 @@ import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
+const NetworkSwitcher = dynamic(() =>
+  import('molecules').then((mod) => mod.NetworkSwitcher),
+);
 
 export const ClaimButton = () => {
   const { address } = useAccount();
+  const currentChainId = useChainId();
   const { handlePendingTx } = useOverlay();
   const {
     chainId,
@@ -55,16 +59,18 @@ export const ClaimButton = () => {
     : '#';
 
   if (isWearing && isEligible) {
-    <Button
-      as={Link}
-      href={hatUrl}
-      colorScheme='green'
-      leftIcon={<Icon as={HatIcon} color='white' />}
-      rightIcon={<Icon as={BsArrowRight} color='white' />}
-      isExternal
-    >
-      View your hat
-    </Button>;
+    return (
+      <Button
+        as={Link}
+        href={hatUrl}
+        colorScheme='green'
+        leftIcon={<Icon as={HatIcon} color='white' />}
+        rightIcon={<Icon as={BsArrowRight} color='white' />}
+        isExternal
+      >
+        View your hat
+      </Button>
+    );
   }
 
   let hatterIfNeeded = false;
@@ -90,6 +96,10 @@ export const ClaimButton = () => {
   }
   // TODO check supply of hat
 
+  if (currentChainId !== chainId) {
+    return <NetworkSwitcher chainId={chainId} />;
+  }
+
   return (
     <Tooltip label={tooltip || disableReason}>
       <Button
@@ -99,7 +109,8 @@ export const ClaimButton = () => {
           hatterIfNeeded ||
           disableClaim ||
           (isWearing && isEligible) ||
-          !address
+          !address ||
+          currentChainId !== chainId
         } // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
         isLoading={isLoading}

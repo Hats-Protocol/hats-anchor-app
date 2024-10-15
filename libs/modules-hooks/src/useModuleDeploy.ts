@@ -44,7 +44,7 @@ interface UseModuleDeployArgs {
   selectedModuleDetails?: ModuleDetails;
   onCloseModuleDrawer: () => void;
   deploymentType: DeploymentType;
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
 }
 
 const useModuleDeploy = ({

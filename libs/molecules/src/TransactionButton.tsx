@@ -39,7 +39,11 @@ export const TransactionButton = ({
         hash: localHash,
       });
 
-      handlePendingTx?.({ hash: localHash, txDescription });
+      handlePendingTx?.({
+        hash: localHash,
+        txChainId: chainId,
+        txDescription,
+      });
 
       await waitForSubgraph(result);
 

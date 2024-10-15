@@ -65,17 +65,19 @@ export const useSubscriptionClaim = ({
         return client
           .waitForTransactionReceipt({ hash })
           .then(async (receipt) => {
+            // TODO pass to handlePendingTx
             await waitForSubgraph(receipt);
 
             await invalidateAfterTransaction(chainId, hash);
 
+            // TODO move to onSuccess
             queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
             queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
             queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
             queryClient.invalidateQueries({ queryKey: ['readContracts'] });
             queryClient.invalidateQueries({ queryKey: ['readContract'] });
             queryClient.invalidateQueries({ queryKey: ['wearerEligibility'] });
-            // refetchBalances();
+
             setStatus(CLAIM_STATUS.SUCCESS);
           });
       })

@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { idToIp, toTreeId } from 'shared';
+import { idToIp } from 'shared';
 import { AppHat, HandlePendingTx } from 'types';
 import { checkAddressIsContract, invalidateAfterTransaction } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
@@ -19,7 +19,7 @@ const useHatStatusCheck = ({
 }: {
   hatData?: AppHat;
   chainId?: number;
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
 }) => {
   const toast = useToast();
   const currentNetworkId = useChainId();

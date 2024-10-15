@@ -44,5 +44,5 @@ interface UseHatMakeImmutableProps {
   chainId: SupportedChains | undefined;
   isAdminUser?: boolean;
   mutable?: boolean;
-  handlePendingTx?: HandlePendingTx | undefined;
+  handlePendingTx: HandlePendingTx | undefined;
 }

@@ -1,21 +1,22 @@
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { HandlePendingTx, ToastProps } from 'types';
-import { invalidateAfterTransaction } from 'utils';
 import { Hex } from 'viem';
 import { useWriteContract } from 'wagmi';
 
 import useToast from './useToast';
+import useWaitForSubgraph from './useWaitForSubgraph';
 
 interface ContractInteractionProps {
   functionName: string;
   address?: Hex;
   chainId?: number;
   successToastData?: ToastProps;
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
   enabled: boolean;
   onDecline?: () => void;
+  onSuccess?: () => void;
 }
 
 // ! DEPRECATED. TO BE REMOVED WITH HATS COMMUNITY HAT MIGRATION
@@ -28,14 +29,14 @@ const useAgreementClaimsHatterContractWrite = ({
   handlePendingTx,
   enabled = true,
   onDecline,
+  onSuccess,
 }: ContractInteractionProps) => {
-  const queryClient = useQueryClient();
   const localEnabled = !!address && chainId === 10 && !!functionName && enabled;
 
   const toast = useToast();
-  const [isLoading, setIsLoading] = useState(false);
 
   const { writeContractAsync } = useWriteContract();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const handleContractWrite = async () => {
     if (!localEnabled) return null;
@@ -46,25 +47,20 @@ const useAgreementClaimsHatterContractWrite = ({
       abi: AGREEMENT_CLAIMS_HATTER_ABI,
       functionName,
     })
-      .then((hash) => {
-        setIsLoading(true);
+      .then(async (hash) => {
         toast.info({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
         });
 
-        invalidateAfterTransaction(chainId, hash);
-
-        queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-        queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
-        queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-
         handlePendingTx?.({
           hash,
           successToastData,
+          txChainId: chainId,
           txDescription: 'Signed agreement and claimed the Community Hat',
+          waitForSubgraph,
+          onSuccess,
         });
-        setIsLoading(false);
       })
 
       .catch((error) => {
@@ -90,7 +86,6 @@ const useAgreementClaimsHatterContractWrite = ({
 
   return {
     writeAsync: handleContractWrite,
-    isLoading,
   };
 };
 

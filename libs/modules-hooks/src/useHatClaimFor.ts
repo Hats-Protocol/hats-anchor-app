@@ -43,7 +43,7 @@ const useHatClaimFor = ({
   chainId?: SupportedChains;
   wearer: Hex | undefined;
   onchainHats?: AppHat[] | undefined; // passed to useMultiClaimsHatterCheck
-  handlePendingTx?: HandlePendingTx;
+  handlePendingTx: HandlePendingTx | undefined;
   onSuccess?: () => void;
 }) => {
   const { address } = useAccount();
