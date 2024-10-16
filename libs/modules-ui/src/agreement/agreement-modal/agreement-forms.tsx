@@ -280,7 +280,9 @@ export const AgreementForms = ({
                     : hat?.id && `Hat ${hatIdDecimalToIp(BigInt(hat.id))}`
                 }`}
                 sendTx={handleUpdateAgreement}
-                onReceipt={() => {}}
+                afterSuccess={() => {
+                  setUpdatingAgreement(false);
+                }}
                 isDisabled={isEmpty(agreementContent)}
                 onClick={handleUpdateAgreement}
               >

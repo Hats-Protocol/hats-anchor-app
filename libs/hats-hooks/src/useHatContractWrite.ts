@@ -3,17 +3,15 @@ import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import { useState } from 'react';
-import { HandlePendingTx, ToastProps } from 'types';
+import {
+  AsyncTxHandler,
+  HandlePendingTx,
+  SyncTxHandler,
+  ToastProps,
+} from 'types';
 import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
-
-type AsyncTxHandler =
-  | ((data?: TransactionReceipt | undefined) => Promise<unknown>)
-  | undefined;
-type SyncTxHandler =
-  | ((data?: TransactionReceipt | undefined) => void)
-  | undefined;
 
 interface ContractInteractionProps {
   functionName: string;

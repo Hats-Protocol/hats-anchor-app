@@ -109,6 +109,7 @@ const useMulticallManyHats = ({
   // }
 
   const { writeContractAsync } = useWriteContract();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const multicallTx = () => {
     // eslint-disable-next-line no-console
@@ -153,6 +154,7 @@ const useMulticallManyHats = ({
             description: txDescription,
             duration: 7000,
           },
+          waitForSubgraph,
           onSuccess,
         });
       })
@@ -176,13 +178,7 @@ const useMulticallManyHats = ({
       });
   };
 
-  const waitForSubgraph = useWaitForSubgraph({ chainId, sendToast: true });
-
   const onSuccess = async (d: TransactionReceipt | undefined) => {
-    await waitForSubgraph(d);
-    if (d !== undefined) {
-      await invalidateAfterTransaction(Number(chainId), d.transactionHash);
-    }
     // TODO alternate error handling needed here?
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });

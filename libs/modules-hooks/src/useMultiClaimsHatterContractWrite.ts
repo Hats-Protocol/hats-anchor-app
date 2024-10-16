@@ -1,11 +1,11 @@
 import { CONFIG } from '@hatsprotocol/constants';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'hooks';
-import _ from 'lodash';
+import { useToast, useWaitForSubgraph } from 'hooks';
+import _, { first, get } from 'lodash';
 import { useState } from 'react';
 import { HandlePendingTx, SupportedChains } from 'types';
-import { invalidateAfterTransaction, viemPublicClient } from 'utils';
+import { invalidateAfterTransaction } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
@@ -19,6 +19,7 @@ interface ContractInteractionProps {
   args: (string | number | bigint | undefined)[];
   handlePendingTx: HandlePendingTx | undefined;
   hatId?: Hex;
+  afterSuccess?: (newInstance: Hex | null) => void;
 }
 
 const useMultiClaimsHatterContractWrite = ({
@@ -28,6 +29,7 @@ const useMultiClaimsHatterContractWrite = ({
   address,
   args,
   handlePendingTx,
+  afterSuccess,
   hatId,
 }: ContractInteractionProps) => {
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] =
@@ -35,13 +37,39 @@ const useMultiClaimsHatterContractWrite = ({
   const toast = useToast();
   const userChainId = useChainId();
   const queryClient = useQueryClient();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const { modules } = useHatsModules({ chainId });
   const mch = _.find(modules, { name: CONFIG.modules.claimsHatter });
 
   const { writeContractAsync } = useWriteContract();
 
+  const onSuccess = async (receipt: TransactionReceipt | undefined) => {
+    const transactionHash = get(receipt, 'transactionHash');
+    if (transactionHash && !!chainId) {
+      await invalidateAfterTransaction(chainId, transactionHash);
+    }
+    let newInstances: Hex[] = [];
+    if (receipt) {
+      newInstances = getNewInstancesFromReceipt(receipt);
+    }
+
+    const newInstance = first(newInstances);
+    if (newInstance) {
+      afterSuccess?.(newInstance);
+    }
+
+    setIsLoadingMultiClaimsHatter(false);
+
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+    }, 1000);
+  };
+
   const writeAsync = async () => {
+    setIsLoadingMultiClaimsHatter(true);
     if (
       !address ||
       !chainId ||
@@ -49,7 +77,7 @@ const useMultiClaimsHatterContractWrite = ({
       chainId !== userChainId ||
       !functionName
     ) {
-      return null;
+      return;
     }
 
     return writeContractAsync({
@@ -73,23 +101,14 @@ const useMultiClaimsHatterContractWrite = ({
             title: 'Transaction successful',
             description: 'Your transaction has been confirmed.',
           },
-          onSuccess: async (d: TransactionReceipt | undefined) => {
-            if (d !== undefined) {
-              await invalidateAfterTransaction(chainId, d?.transactionHash);
-            }
-          },
+          waitForSubgraph,
+          onSuccess: onSuccess,
         });
-
-        setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-          queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-          queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
-        }, 1000);
-        return hash;
       })
       .catch((error) => {
         if (
-          error.name === 'TransactionExecutionError' &&
+          (error.name === 'TransactionExecutionError' ||
+            error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
           toast.error({
@@ -102,43 +121,12 @@ const useMultiClaimsHatterContractWrite = ({
             description: 'An error occurred while processing the transaction.',
           });
         }
-      });
-  };
-
-  const deploy = async () => {
-    if (!address || !chainId) {
-      return { newInstances: null };
-    }
-
-    setIsLoadingMultiClaimsHatter(true);
-    try {
-      const result = await writeAsync?.();
-
-      if (!result) {
         setIsLoadingMultiClaimsHatter(false);
-        throw new Error('No result');
-      }
-
-      const transactionReceipt = await viemPublicClient(
-        chainId,
-      ).waitForTransactionReceipt({
-        hash: result,
       });
-      const newInstances = getNewInstancesFromReceipt(transactionReceipt);
-
-      setIsLoadingMultiClaimsHatter(false);
-      return {
-        newInstances,
-      };
-    } catch (error) {
-      setIsLoadingMultiClaimsHatter(false);
-      throw error;
-    }
   };
 
   return {
     writeAsync,
-    deploy,
     isLoading: isLoadingMultiClaimsHatter,
   };
 };

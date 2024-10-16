@@ -11,19 +11,18 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
+import { MULTI_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
-import { usePendHatterMint } from 'hooks';
+import { usePendHatterMint, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
-import {
-  useMultiClaimsHatterCheck,
-  useMultiClaimsHatterContractWrite,
-} from 'modules-hooks';
+import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 import { AppHat } from 'types';
 import { formatAddress } from 'utils';
+import { useWriteContract } from 'wagmi';
 
 import { FormRowWrapper, Select } from './components';
 
@@ -60,6 +59,7 @@ const ClaimsHandler = ({
     setStoredData,
   } = useTreeForm();
   const { selectedHat } = useSelectedHat();
+  const { writeContractAsync } = useWriteContract();
   const {
     instanceAddress,
     hatterIsAdmin,
@@ -74,6 +74,7 @@ const ClaimsHandler = ({
   });
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
   const { handlePendingTx } = useOverlay();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const hatToMintTo = watch('hatToMintTo');
   const { availableAdmins, hatToMintPended, pendMintHatForHatter } =
@@ -90,15 +91,40 @@ const ClaimsHandler = ({
     return _.find(treeToDisplay, { id: wearingHatId });
   }, [treeToDisplay, wearingHatId]);
 
-  const { deploy: registerHat } = useMultiClaimsHatterContractWrite({
-    functionName: 'setHatClaimability',
-    address: instanceAddress,
-    enabled: !!instanceAddress && !!selectedHat?.id,
-    args: [selectedHat?.id, 1],
-    chainId,
-    handlePendingTx,
-    hatId: selectedHat?.id,
-  });
+  const onSuccess = () => {
+    console.log('success');
+  };
+
+  const registerHat = () => {
+    if (!instanceAddress || !selectedHat?.id) {
+      console.log('no instance address or selected hat id', {
+        instanceAddress,
+        selectedHat,
+      });
+      return;
+    }
+
+    return writeContractAsync({
+      functionName: 'setHatClaimability',
+      address: instanceAddress,
+      abi: MULTI_CLAIMS_HATTER_ABI,
+      args: [selectedHat?.id, 1],
+      chainId,
+    })
+      .then((hash) => {
+        console.log({ hash });
+        handlePendingTx?.({
+          hash,
+          txChainId: chainId,
+          txDescription: 'Register Hat',
+          waitForSubgraph,
+          onSuccess,
+        });
+      })
+      .catch((error) => {
+        console.log('error', error);
+      });
+  };
 
   useEffect(() => {
     if (treeToDisplay && hatToMintPended) {

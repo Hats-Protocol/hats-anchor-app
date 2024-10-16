@@ -4,22 +4,21 @@ import { Button, ButtonProps as ChakraButtonProps } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWaitForSubgraph } from 'hooks';
 import { useState } from 'react';
-import { invalidateAfterTransaction, wagmiConfig } from 'utils';
+import { SyncTxHandler } from 'types';
 import { TransactionReceipt } from 'viem';
-import { waitForTransactionReceipt } from 'wagmi/actions';
 
 interface TransactionButtonProps extends ChakraButtonProps {
   sendTx: () => Promise<`0x${string}`>;
   children: React.ReactNode;
   chainId: number | undefined;
-  onReceipt: (receipt: TransactionReceipt) => void;
+  afterSuccess: SyncTxHandler;
   txDescription: string;
 }
 
 export const TransactionButton = ({
   sendTx,
   children,
-  onReceipt,
+  afterSuccess,
   txDescription,
   chainId,
   ...props
@@ -28,37 +27,30 @@ export const TransactionButton = ({
   const waitForSubgraph = useWaitForSubgraph({ chainId });
   const [isLoading, setIsLoading] = useState(false);
 
+  const onSuccess = (data: TransactionReceipt | undefined) => {
+    afterSuccess?.(data);
+
+    setIsLoading(false);
+  };
+
   const handleAsyncTx = async () => {
     if (!chainId) return;
 
-    try {
-      setIsLoading(true);
-      const localHash = await sendTx();
-
-      const result = await waitForTransactionReceipt(wagmiConfig, {
-        hash: localHash,
+    setIsLoading(true);
+    return sendTx()
+      .then((hash) => {
+        handlePendingTx?.({
+          hash,
+          txChainId: chainId,
+          txDescription,
+          waitForSubgraph,
+          onSuccess,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsLoading(false);
       });
-
-      handlePendingTx?.({
-        hash: localHash,
-        txChainId: chainId,
-        txDescription,
-      });
-
-      await waitForSubgraph(result);
-
-      await invalidateAfterTransaction(chainId, localHash);
-
-      onReceipt?.(result);
-
-      setIsLoading(false);
-    } catch (err) {
-      // TODO catch decline
-
-      // eslint-disable-next-line no-console
-      console.error(err);
-      setIsLoading(false);
-    }
   };
 
   return (

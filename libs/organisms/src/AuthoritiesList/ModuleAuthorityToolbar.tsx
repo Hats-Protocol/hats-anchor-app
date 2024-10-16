@@ -44,7 +44,6 @@ import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
-import { ChakraNextLink } from 'ui';
 import {
   explorerUrl,
   getCustomModuleFunction,
@@ -58,6 +57,9 @@ import CustomFunction from './CustomFunction';
 
 const BoxArrowUpRightOut = dynamic(() =>
   import('icons').then((i) => i.BoxArrowUpRightOut),
+);
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((i) => i.ChakraNextLink),
 );
 
 const ModuleAuthorityToolbar = ({
@@ -219,9 +221,9 @@ const ModuleAuthorityToolbar = ({
     });
   };
 
-  const eligibilityModalFlag =
-    posthog.isFeatureEnabled('eligibility-modal') ||
-    process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag = false;
+  // posthog.isFeatureEnabled('eligibility-modal') ||
+  // process.env.NODE_ENV === 'development';
 
   return (
     <HStack wrap='wrap'>

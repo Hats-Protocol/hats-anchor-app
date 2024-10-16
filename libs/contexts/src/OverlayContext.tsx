@@ -163,7 +163,7 @@ export const OverlayContextProvider = ({
    * @param {string} params.successToastData Toast props
    * @param {string} params.redirect URL to redirect the user to after the transaction is successful
    * @param {boolean} params.clearModals defaults to true
-   * @param {boolean} params.sendToast defaults to true, override to false if you want to handle the toast in the onSuccess callback
+   * @param {boolean} params.sendSuccessToast defaults to true, override to false if you want to handle the toast in the onSuccess callback
    * @param {string} params.onSuccess after the tx is successful, subgraph is synced and mesh is invalidated
    * @returns {Promise<void>}
    * @example
@@ -187,7 +187,7 @@ export const OverlayContextProvider = ({
     // after success
     redirect = null,
     clearModals = true,
-    sendToast = true,
+    sendSuccessToast = true,
   }: HandlePendingTxProps): Promise<TransactionReceipt | undefined> => {
     if (!hash || !txChainId) {
       return Promise.resolve(undefined);
@@ -215,9 +215,7 @@ export const OverlayContextProvider = ({
       ...waitForSubgraphToastData,
     });
 
-    if (!txReceipt) {
-      return Promise.resolve(undefined);
-    }
+    if (!txReceipt) return Promise.resolve(undefined);
 
     updateTransactionStatus(hash, 'completed');
 
@@ -225,7 +223,7 @@ export const OverlayContextProvider = ({
     await waitForSubgraph?.(txReceipt);
     await invalidateAfterTransaction(txChainId, hash);
 
-    if (sendToast && successToastData) {
+    if (sendSuccessToast && successToastData) {
       // this toast is specifically the one that shows when the transaction is successful
       // we still need to wait for the subgraph to show true "success"
       toast[(successToastData.status as keyof typeof toast) || 'info']({

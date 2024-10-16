@@ -4,7 +4,7 @@ import { useWaitForSubgraph } from 'hooks';
 import { first, get } from 'lodash';
 import { useMemo } from 'react';
 import { idToIp } from 'shared';
-import { AppHat, HandlePendingTx, SupportedChains } from 'types';
+import { AppHat, HandlePendingTx, SupportedChains, SyncTxHandler } from 'types';
 import { createHatsClient, formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
@@ -38,14 +38,7 @@ const useHatClaimFor = ({
   onchainHats,
   handlePendingTx,
   onSuccess,
-}: {
-  selectedHat?: AppHat | null;
-  chainId?: SupportedChains;
-  wearer: Hex | undefined;
-  onchainHats?: AppHat[] | undefined; // passed to useMultiClaimsHatterCheck
-  handlePendingTx: HandlePendingTx | undefined;
-  onSuccess?: () => void;
-}) => {
+}: UseHatClaimForProps) => {
   const { address } = useAccount();
   const toast = useToast();
 
@@ -121,6 +114,7 @@ const useHatClaimFor = ({
           )} has been claimed for ${formatAddress(wearer)}`,
         },
         waitForSubgraph,
+        onSuccess,
       });
     },
     onError: (error) => {
@@ -144,5 +138,14 @@ const useHatClaimFor = ({
     isLoading: canClaimForAccountLoading || isLoadingClaimableFor,
   };
 };
+
+interface UseHatClaimForProps {
+  selectedHat?: AppHat | null;
+  chainId?: SupportedChains;
+  wearer: Hex | undefined;
+  onchainHats?: AppHat[] | undefined; // passed to useMultiClaimsHatterCheck
+  handlePendingTx: HandlePendingTx | undefined;
+  onSuccess?: SyncTxHandler;
+}
 
 export default useHatClaimFor;

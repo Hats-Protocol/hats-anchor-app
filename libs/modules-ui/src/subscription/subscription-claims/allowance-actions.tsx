@@ -186,7 +186,7 @@ export const AllowanceActions = ({
                 // @ts-expect-error argument of type
                 return writeContractAsync(approvalParams);
               }}
-              onReceipt={() => {
+              afterSuccess={() => {
                 // refetchAllowance()
                 setIsReadyToClaim(true);
                 setModals?.({});
@@ -225,7 +225,7 @@ export const AllowanceActions = ({
               // @ts-expect-error argument of type
               return writeContractAsync(zeroApprovalParams);
             }}
-            onReceipt={() => {
+            afterSuccess={() => {
               setTimeout(() => {
                 queryClient.invalidateQueries({ queryKey: ['readContracts'] });
                 queryClient.invalidateQueries({ queryKey: ['readContract'] });
@@ -246,7 +246,7 @@ export const AllowanceActions = ({
             // @ts-expect-error argument of type
             return writeContractAsync(unlimitedApprovalParams);
           }}
-          onReceipt={() => {
+          afterSuccess={() => {
             setTimeout(() => {
               queryClient.invalidateQueries({ queryKey: ['readContracts'] });
               queryClient.invalidateQueries({ queryKey: ['readContract'] });

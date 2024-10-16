@@ -20,6 +20,13 @@ import AmountWithDecimals from './AmountWithDecimals';
 import BooleanInput from './BooleanInput';
 import HatInput from './HatInput';
 
+const arrayPlaceholder = (example: string | string[]) => {
+  if (Array.isArray(example)) {
+    return example.join(', ');
+  }
+  return example;
+};
+
 const ModuleFormInput = ({
   localForm,
   arg,
@@ -34,8 +41,12 @@ const ModuleFormInput = ({
   isDeploy?: boolean;
 }) => {
   if (!arg) return null;
+  const { type, name, optional, displayType, description, example } = _.pick(
+    arg,
+    ['type', 'name', 'optional', 'displayType', 'description', 'example'],
+  );
 
-  if (arg.type === 'address') {
+  if (type === 'address') {
     return (
       <AddressInput
         arg={arg}
@@ -45,16 +56,17 @@ const ModuleFormInput = ({
     );
   }
 
-  if (arg.type === 'address[]') {
+  if (type === 'address[]') {
+    console.log({ arg });
     return (
       <MultiAddressInput
-        name={arg.name}
-        label={`${arg.name} (Optional)`}
-        subLabel={arg.description}
+        name={name}
+        label={`${name} (Optional)`}
+        subLabel={description}
         placeholder={
-          Array.isArray(arg.example)
-            ? _.first(arg.example as string[])
-            : (arg.example as string) || FALLBACK_ARG_EXAMPLES.address
+          Array.isArray(example)
+            ? _.first(example as string[])
+            : (example as string) || FALLBACK_ARG_EXAMPLES.address
         }
         localForm={localForm}
         overrideMaxSupply
@@ -62,17 +74,17 @@ const ModuleFormInput = ({
     );
   }
 
-  if (arg.type === 'bool') {
+  if (type === 'bool') {
     <BooleanInput arg={arg} localForm={localForm} />;
   }
 
-  if (arg.displayType === 'hat') {
+  if (displayType === 'hat') {
     if (!isDeploy) return null;
 
     return <HatInput arg={arg} localForm={localForm} />;
   }
 
-  if (arg.displayType === 'amountWithDecimals') {
+  if (displayType === 'amountWithDecimals') {
     return (
       <AmountWithDecimals
         arg={arg}
@@ -83,49 +95,41 @@ const ModuleFormInput = ({
     );
   }
 
-  if (arg.displayType === 'timestamp') {
+  if (displayType === 'timestamp') {
     return (
       <DatePicker
-        name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        subLabel={arg.description}
+        name={name}
+        label={`${name} ${optional ? '(Optional)' : ''}`}
+        subLabel={description}
         localForm={localForm}
         setToZeroUTC
       />
     );
   }
 
-  if (arg.displayType === 'seconds') {
+  if (displayType === 'seconds') {
     return (
       <DurationInput
-        name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        subLabel={arg.description}
-        placeholder={
-          Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
-            : (arg.example as string)
-        }
+        name={name}
+        label={`${name} ${optional ? '(Optional)' : ''}`}
+        subLabel={description}
+        placeholder={arrayPlaceholder(example as string | string[])}
         localForm={localForm}
       />
     );
   }
 
-  if (solidityToTypescriptType(arg.type) === 'bigint') {
+  if (solidityToTypescriptType(type) === 'bigint') {
     return (
       <NumberInput
-        name={arg.name}
-        label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        subLabel={arg.description}
-        placeholder={
-          Array.isArray(arg.example)
-            ? (arg.example as string[]).join(', ')
-            : (arg.example as string)
-        }
-        isRequired={!arg.optional}
+        name={name}
+        label={`${name} ${optional ? '(Optional)' : ''}`}
+        subLabel={description}
+        placeholder={arrayPlaceholder(example as string | string[])}
+        isRequired={!optional}
         localForm={localForm}
         options={{
-          validate: (value) => transformAndVerify(value, arg.type),
+          validate: (value) => transformAndVerify(value, type),
         }}
       />
     );
@@ -133,14 +137,10 @@ const ModuleFormInput = ({
 
   return (
     <Input
-      name={arg.name}
-      label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-      subLabel={arg.description}
-      placeholder={
-        Array.isArray(arg.example)
-          ? (arg.example as string[]).join(', ')
-          : (arg.example as string)
-      }
+      name={name}
+      label={`${name} ${optional ? '(Optional)' : ''}`}
+      subLabel={description}
+      placeholder={arrayPlaceholder(example as string | string[])}
       localForm={localForm}
       options={{
         required: !arg.optional,

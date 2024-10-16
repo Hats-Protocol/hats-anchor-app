@@ -53,6 +53,7 @@ const Input = ({
   isDisabled,
   resetValue,
   addressButtons,
+  // showNull = true,
   onChange,
   isInvalid,
   ...props
@@ -156,6 +157,7 @@ const Input = ({
           {addressButtons && (
             <Flex justify='flex-end'>
               <HStack>
+                {/* {showNull && ( */}
                 <Button
                   size='xs'
                   variant='outline'
@@ -164,6 +166,7 @@ const Input = ({
                 >
                   Null
                 </Button>
+                {/* )} */}
                 {address && (
                   <Button
                     size='xs'
