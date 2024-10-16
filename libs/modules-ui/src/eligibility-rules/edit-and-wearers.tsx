@@ -16,9 +16,9 @@ import {
 } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatAdminWearers, useHatDetails, useHatWearers } from 'hats-hooks';
+import { useHatAdminWearers, useHatDetails } from 'hats-hooks';
 import { getControllerNameAndLink } from 'hats-utils';
-import { useContractData, useMediaStyles } from 'hooks';
+import { useMediaStyles } from 'hooks';
 import { filter, first, get, includes, map, reject, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import { startTransition, useEffect, useRef, useState } from 'react';
@@ -36,24 +36,25 @@ const ChakraNextLink = dynamic(() =>
 );
 
 const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
-  const { chainId } = useTreeForm();
+  const { chainId, orgChartWearers } = useTreeForm();
 
   const { data: hat, details } = useHatDetails({ hatId, chainId });
-  const { data: wearers } = useHatWearers({ hat: hat || undefined, chainId });
-  const actualWearers = filter(wearers, (w: HatWearer) =>
+
+  const wearers = filter(orgChartWearers, (w: HatWearer) =>
     includes(map(get(hat, 'wearers'), 'id'), w.id),
   ) as HatWearer[];
 
-  const contractWearers = filter(actualWearers, 'isContract');
+  const contractWearers = filter(wearers, 'isContract');
   const safeWearers = filter(contractWearers, (w: HatWearer) =>
     w?.contractName?.includes('GnosisSafeProxy'),
   );
   const wearerCount = {
     code: size(contractWearers) - size(safeWearers) || 0,
     groups: size(safeWearers) || 0,
-    human: size(reject(actualWearers, 'isContract')) || 0,
+    human: size(reject(wearers, 'isContract')) || 0,
   };
-  if (!chainId || !hat || size(actualWearers) === 0) return null;
+
+  if (!chainId || !hat || size(wearers) === 0) return null;
 
   return (
     <div className='flex justify-between py-1'>
@@ -66,7 +67,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
 
       <div>
         <WearerBreakdown
-          wearers={actualWearers}
+          wearers={wearers}
           wearerCount={wearerCount}
           chainId={chainId}
         />
@@ -76,7 +77,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
 };
 
 const AdminWearersPanel = () => {
-  const { treeToDisplay } = useTreeForm();
+  const { treeToDisplay, orgChartWearers } = useTreeForm();
   const {
     selectedHat,
     chainId,
@@ -98,17 +99,22 @@ const AdminWearersPanel = () => {
     data: admins,
     adminCount,
     adminHats,
-    isLoading: adminWearersLoading,
-  } = useHatAdminWearers(selectedHat, treeToDisplay, chainId);
+    // isLoading: adminWearersLoading,
+  } = useHatAdminWearers({
+    selectedHat,
+    treeToDisplay,
+    orgChartWearers,
+    chainId,
+  });
 
-  if (size(adminHats) === 0 || selectedHatLoading || adminWearersLoading) {
+  if (size(adminHats) === 0 || selectedHatLoading) {
     return (
       <Skeleton
         h='1.5rem'
         w='full'
         mx={{ base: 4, md: 0 }}
         my={2}
-        isLoaded={!selectedHatLoading && !adminWearersLoading}
+        isLoaded={!selectedHatLoading}
       />
     );
   }
@@ -219,15 +225,10 @@ const WearerBreakdown = ({
   chainId: SupportedChains | undefined;
 }) => {
   const wearer = first(wearers);
-  const { data: contractData } = useContractData({
-    // TODO handle contract data further up
-    address: wearer?.id,
-    chainId,
-  });
 
   if (!wearers) return null;
   const { name, link, icon } = getControllerNameAndLink({
-    extendedController: { ...wearer, ...contractData },
+    extendedController: wearer,
     chainId,
   });
 
@@ -301,14 +302,15 @@ const Claimable = ({
 };
 
 export const EditAndWearers = () => {
-  const { treeToDisplay } = useTreeForm();
+  const { treeToDisplay, orgChartWearers } = useTreeForm();
   const { selectedHat, chainId, isClaimable } = useSelectedHat();
 
-  const { data: admins, adminCount } = useHatAdminWearers(
+  const { data: admins, adminCount } = useHatAdminWearers({
     selectedHat,
     treeToDisplay,
+    orgChartWearers,
     chainId,
-  );
+  });
 
   const claimableAddress = get(first(get(selectedHat, 'claimableBy')), 'id') as
     | Hex

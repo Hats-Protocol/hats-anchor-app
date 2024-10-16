@@ -1,5 +1,7 @@
+import { ERC1155_ABI } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { fetch1155BalanceWithId, fetchErc1155Details } from 'utils';
+import { compact, map } from 'lodash';
+import { viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 
 const bundleFetchErc1155Details = async ({
@@ -14,25 +16,25 @@ const bundleFetchErc1155Details = async ({
   chainId: number | undefined;
 }) => {
   if (!contractAddress || !chainId) return Promise.resolve(null);
-  const promises: Promise<unknown>[] = [
-    fetchErc1155Details({
+  const contracts = compact([
+    {
       address: contractAddress,
-      tokenId,
-      chainId,
-    }),
-  ];
-  if (wearerAddress) {
-    promises.push(
-      fetch1155BalanceWithId({
-        address: wearerAddress,
-        token: contractAddress,
-        tokenId,
-        chainId,
-      }),
-    );
-  }
-  const data = await Promise.all(promises);
-  const [, userBalance] = data as [object, bigint | undefined];
+      abi: ERC1155_ABI,
+      functionName: 'uri',
+      args: [tokenId],
+    },
+    wearerAddress && {
+      address: contractAddress,
+      abi: ERC1155_ABI,
+      functionName: 'balanceOf',
+      args: [wearerAddress, tokenId],
+    },
+  ]) as any[];
+  const data = await viemPublicClient(chainId).multicall({
+    contracts,
+  });
+
+  const [, userBalance] = map(data, 'result') as [object, bigint | undefined];
 
   const userBalanceDisplay = userBalance?.toString() || '0';
 

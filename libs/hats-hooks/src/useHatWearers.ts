@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 import { batchFetchContractData, fetchHatWearerDetails } from 'utils';
 
+// DEPRECATED: FETCH WEARER DETAILS FROM MESH
+
 const useHatWearers = ({
   hat,
   chainId,

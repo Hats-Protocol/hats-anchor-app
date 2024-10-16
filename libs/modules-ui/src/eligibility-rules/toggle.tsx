@@ -3,7 +3,6 @@
 import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatWearers } from 'hats-hooks';
 import { find, includes, pick } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -18,17 +17,10 @@ export const Toggle = () => {
   const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
 
-  const { data: hatWearers, isLoading: hatWearersLoading } = useHatWearers({
-    hat: selectedHat,
-    chainId,
-  });
-
   const { toggle } = pick(selectedHat, ['toggle']);
-  const hatWearerToggle = find(hatWearers, { id: toggle });
-  const toggleData = hatWearerToggle ||
-    find(orgChartWearers, { id: toggle }) || {
-      id: toggle as Hex,
-    };
+  const toggleData = find(orgChartWearers, { id: toggle }) || {
+    id: toggle as Hex,
+  };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const { data: ruleSets, isLoading: moduleDetailsLoading } =
     useEligibilityRules({
@@ -63,11 +55,7 @@ export const Toggle = () => {
   }
 
   return (
-    <Skeleton
-      isLoaded={!hatWearersLoading && !moduleDetailsLoading}
-      my={2}
-      mx={{ base: 4, md: 0 }}
-    >
+    <Skeleton isLoaded={!moduleDetailsLoading} my={2} mx={{ base: 4, md: 0 }}>
       <Flex justify='space-between'>
         <Text>
           {includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'}{' '}

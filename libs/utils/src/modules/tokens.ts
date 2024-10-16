@@ -1,71 +1,10 @@
-import { ERC721_ABI, ERC1155_ABI } from '@hatsprotocol/constants';
+import { ERC721_ABI } from '@hatsprotocol/constants';
 import _ from 'lodash';
-import { ModuleDetails } from 'types';
 import { Abi, Hex } from 'viem';
 
 import { viemPublicClient } from '../web3';
 
 const defaultTokenId = BigInt(0);
-
-export const fetchErc1155Details = async ({
-  address,
-  tokenId,
-  chainId,
-}: {
-  moduleDetails?: ModuleDetails;
-  address: Hex;
-  tokenId: Hex | bigint | undefined;
-  chainId: number | undefined;
-}): Promise<object | undefined> => {
-  if (!address || !chainId || !tokenId) return Promise.resolve(undefined);
-  return viemPublicClient(chainId)
-    .readContract({
-      address,
-      abi: ERC1155_ABI,
-      functionName: 'uri',
-      args: [tokenId],
-    })
-    .then(async (uri: unknown) => {
-      const localUri = uri as string;
-      return fetch(localUri)
-        .then((data) => Promise.resolve(data.json()))
-        .catch((error) => {
-          // eslint-disable-next-line no-console
-          console.error('Error fetching ERC1155 details', error);
-          return Promise.resolve(undefined);
-        });
-    });
-};
-
-export const fetch1155BalanceWithId = async ({
-  address,
-  token,
-  tokenId,
-  chainId,
-}: {
-  address: Hex;
-  token: Hex;
-  tokenId: Hex | bigint | undefined;
-  chainId: number | undefined;
-}): Promise<bigint | undefined> => {
-  if (!address || !token || !chainId || !tokenId)
-    return Promise.resolve(undefined);
-  return viemPublicClient(chainId)
-    .readContract({
-      address: token,
-      abi: ERC1155_ABI,
-      functionName: 'balanceOf',
-      args: [address, tokenId],
-    })
-    .then((balance: unknown) => {
-      return Promise.resolve(balance as bigint);
-    })
-    .catch((error) => {
-      // eslint-disable-next-line no-console
-      console.error('Error fetching ERC1155 balance', error);
-      return Promise.resolve(undefined);
-    });
-};
 
 export type Fetch721MetadataResult = {
   name: string | undefined;

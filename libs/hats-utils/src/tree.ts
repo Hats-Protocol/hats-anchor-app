@@ -3,7 +3,7 @@ import {
   treeIdHexToDecimal,
 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import _ from 'lodash';
+import _, { compact, size, split } from 'lodash';
 import {
   AppHat,
   HatDetails,
@@ -11,7 +11,7 @@ import {
   HatWithDepth,
   SupportedChains,
 } from 'types';
-import { formatAddress, formatScientificWhole } from 'utils';
+import { formatAddress, formatScientificWhole, ipfsUrl } from 'utils';
 import { Hex } from 'viem';
 
 import { getTreeId } from './hats';
@@ -121,8 +121,6 @@ const mapHat = (
 export async function toTreeStructure({
   treeData,
   hatsData,
-  detailsData,
-  imagesData,
   draftHats,
   orgChartWearers,
   chainId,
@@ -130,17 +128,12 @@ export async function toTreeStructure({
 }: {
   treeData: Tree | null | undefined;
   hatsData: AppHat[] | undefined;
-  detailsData: {
-    id: string;
-    detailsObject: { type: string; data: HatDetails };
-  }[];
-  imagesData: AppHat[] | undefined;
   draftHats: AppHat[] | undefined;
   orgChartWearers: HatWearer[] | undefined;
   chainId: SupportedChains;
   initialHatIds: Hex[];
 }): Promise<AppHat[] | undefined> {
-  if (!treeData || !hatsData || !detailsData || !imagesData) {
+  if (!treeData || !hatsData) {
     return Promise.resolve(undefined);
   }
   const onlyOnchainHats = _.filter(hatsData, (hat: AppHat) =>
@@ -149,15 +142,13 @@ export async function toTreeStructure({
 
   const mergedHatsData = _.map(onlyOnchainHats, (hat: AppHat) => {
     const fullHat = _.find(hatsData, { id: hat.id });
-    const details = _.find(detailsData, { id: hat.details });
-    const image = _.find(imagesData, { id: hat.id });
 
     if (!fullHat) return undefined;
 
     return {
       ...fullHat,
-      detailsObject: details?.detailsObject,
-      imageUrl: image?.imageUrl,
+      detailsObject: JSON.parse(fullHat?.detailsMetadata || '{}'),
+      imageUrl: ipfsUrl(fullHat?.nearestImage),
     };
   });
 
@@ -165,11 +156,10 @@ export async function toTreeStructure({
     mapHat(_.find(mergedHatsData, ['id', hat]), orgChartWearers, chainId),
   );
 
+  // extra sort for the list view
   const hatsList = _.orderBy(
     _.compact(_.concat(hats, draftHats)),
-    (h: AppHat) => {
-      return _.size(_.split(h.name, '.'));
-    },
+    (h: AppHat) => size(split(h.name, '.')),
     'asc',
   );
   const updatedHatsList = hatsList.map((hat: AppHat) =>
@@ -253,10 +243,11 @@ export function prepareMobileTreeHats(
   tree: AppHat[] | undefined,
 ): HatWithDepth[] {
   if (!tree) return [];
-  let newIdList = tree
-    ? // start with the top hat
-      [_.get(_.first(tree), 'id')]
-    : [];
+  let newIdList: Hex[] = [];
+  if (tree.length > 0) {
+    // start with the top hat
+    newIdList = compact([_.get(_.first(tree), 'id')]);
+  }
 
   _.each(tree.slice(1), (hat: AppHat) => {
     if (_.includes(newIdList, hat.id)) return;

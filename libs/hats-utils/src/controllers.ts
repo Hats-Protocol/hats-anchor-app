@@ -7,7 +7,7 @@ import { explorerUrl, formatAddress } from 'utils';
 
 import { daohausUrl, safeUrl } from './authorities';
 
-const EXCLUDE_CONTRACT_NAMES = ['MetaMultiSigWallet']
+const EXCLUDE_CONTRACT_NAMES = ['MetaMultiSigWallet'];
 
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const Group = dynamic(() => import('icons').then((i) => i.Group));
@@ -40,10 +40,7 @@ export const getControllerNameAndLink = ({
   if (extendedController?.contractName === 'GnosisSafeProxy') {
     return {
       name: `Safe (${formatAddress(extendedController?.id)})`,
-      link: safeUrl(
-        chainId as SupportedChains,
-        get(extendedController, 'id'),
-      ),
+      link: safeUrl(chainId as SupportedChains, get(extendedController, 'id')),
       icon: Group,
     };
   }
@@ -83,7 +80,10 @@ export const getControllerNameAndLink = ({
     };
   }
 
-  if (extendedController?.contractName && !includes(EXCLUDE_CONTRACT_NAMES, extendedController.contractName)) {
+  if (
+    extendedController?.contractName &&
+    !includes(EXCLUDE_CONTRACT_NAMES, extendedController.contractName)
+  ) {
     // contract (etherscan) name, if verified
     return {
       name: extendedController.contractName,

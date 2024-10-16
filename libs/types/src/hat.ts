@@ -53,6 +53,7 @@ export interface AppHat extends HatWithMetadata {
   id: Hex; // Confirm `Hat` ID is Hex instead of string
   chainId?: SupportedChains;
   imageUrl?: string;
+  nearestImage?: string;
   detailsObject?: {
     type: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

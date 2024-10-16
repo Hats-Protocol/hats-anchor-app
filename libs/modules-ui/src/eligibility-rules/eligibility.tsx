@@ -1,9 +1,8 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
+import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { CONFIG, NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useHatWearers } from 'hats-hooks';
 import { find, first, flatten, gt, includes, pick, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -30,16 +29,10 @@ export const Eligibility = ({
   const { selectedHat, chainId } = useSelectedHat();
   const { address } = useAccount();
 
-  const { data: hatWearers, isLoading: hatWearersLoading } = useHatWearers({
-    hat: selectedHat,
-    chainId,
-  });
-
   const { eligibility } = pick(selectedHat, ['eligibility']);
   const orgChartEligibility = find(orgChartWearers, { id: eligibility });
-  const hatWearerEligibility = find(hatWearers, { id: eligibility });
-  const eligibilityData = hatWearerEligibility ||
-    orgChartEligibility || { id: eligibility as Hex };
+  const eligibilityData = orgChartEligibility || { id: eligibility as Hex };
+
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const { data: ruleSets, isLoading: loadingModuleDetails } =
     useEligibilityRules({
@@ -109,10 +102,7 @@ export const Eligibility = ({
 
   return (
     <Skeleton
-      isLoaded={
-        !hatWearersLoading &&
-        (!loadingModuleDetails || orgChartEligibility?.isContract)
-      }
+      isLoaded={!loadingModuleDetails || orgChartEligibility?.isContract}
       my={2}
       mx={{ base: 4, md: 0 }}
     >

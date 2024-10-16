@@ -181,7 +181,6 @@ export const formatRound = ({
 
   const scientificWhole = formatScientificWhole(toNumber(whole));
   const formattedWhole = commify(whole);
-  console.log(value, { whole, formattedWhole, roundedFraction, rounded });
 
   if (!roundedFraction || roundedFraction === '00' || dropDecimals) {
     if (whole.length > startScientific) return scientificWhole;

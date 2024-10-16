@@ -4,7 +4,7 @@ import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
-import { DetailsData, translateDrafts } from 'hats-utils';
+import { translateDrafts } from 'hats-utils';
 import {
   useImageURIs,
   useLocalStorage,
@@ -300,46 +300,18 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const onchainDetailsFields: { id: string; detailsObject: DetailsData }[] =
-    _.map(
-      _.filter(onchainHatDetails, (hat) => {
-        return (
-          _.startsWith(_.get(hat, 'details'), 'ipfs://') &&
-          _.get(hat, 'detailsMetadata') !== null
-        );
-      }),
-      (hat) => {
-        return {
-          id: _.get(hat, 'details') as string,
-          detailsObject: JSON.parse(_.get(hat, 'detailsMetadata') as string),
-        };
-      },
-    );
-
   const { data: onchainWearers } = useTreeWearers({
     hats: onchainHatDetails,
     chainId,
     editMode,
   });
 
-  const { data: onchainImagesData, isLoading: onchainImagesLoading } =
-    useImageURIs({
-      hats: onchainHatDetails,
-      onchainHats,
-      editMode,
-      onchain: true,
-    });
-
   const { orgChartTree: onchainTree } = useOrgChartTree({
     treeData,
     chainId,
     hatsData: onchainHatDetails,
-    detailsData: onchainDetailsFields,
-    imagesData: onchainImagesData,
     draftHats,
     orgChartWearers: onchainWearers,
-    imagesLoaded: !onchainImagesLoading,
-    detailsLoaded: true,
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
     onchain: true,
@@ -358,31 +330,9 @@ export const TreeFormContextProvider = ({
     editMode,
   });
 
-  const detailsFields: { id: string; detailsObject: DetailsData }[] = _.map(
-    _.filter(hatDetails, (hat) => {
-      return (
-        _.startsWith(_.get(hat, 'details'), 'ipfs://') &&
-        _.get(hat, 'detailsMetadata') !== null
-      );
-    }),
-    (hat) => {
-      return {
-        id: _.get(hat, 'details') as string,
-        detailsObject: JSON.parse(_.get(hat, 'detailsMetadata') as string),
-      };
-    },
-  );
-
-  // TODO replace this
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
     chainId,
-    editMode,
-  });
-
-  // TODO replace with nearestImage
-  const { data: imagesData, isLoading: imagesLoading } = useTreeImages({
-    hats: hatDetails,
     editMode,
   });
 
@@ -390,12 +340,8 @@ export const TreeFormContextProvider = ({
     treeData,
     chainId,
     hatsData: hatDetails,
-    detailsData: detailsFields,
     orgChartWearers,
-    imagesData,
     draftHats,
-    imagesLoaded: !imagesLoading,
-    detailsLoaded: true,
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
   });

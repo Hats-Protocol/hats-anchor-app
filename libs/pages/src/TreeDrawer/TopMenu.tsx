@@ -80,6 +80,7 @@ const TopMenu = () => {
     handlePendingTx,
     editMode,
     setEditMode,
+    onCloseTreeDrawer,
   });
 
   const handleDeploy = async () => {

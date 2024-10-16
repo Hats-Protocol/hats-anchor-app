@@ -46,6 +46,7 @@ const useMulticallManyHats = ({
   handlePendingTx,
   editMode,
   setEditMode,
+  onCloseTreeDrawer,
 }: UseMulticallManyHatsProps) => {
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
@@ -195,9 +196,10 @@ const useMulticallManyHats = ({
     );
 
     setStoredData?.(newStoredData);
+    // todo remove hatId
 
-    // TODO leave edit mode
     setEditMode?.(false);
+    onCloseTreeDrawer?.();
   };
 
   const txDescription = summarizeActions(allCallsData as HatsCalls[]);
@@ -243,6 +245,7 @@ interface UseMulticallManyHatsProps {
   handlePendingTx: HandlePendingTx | undefined;
   editMode?: boolean;
   setEditMode: Dispatch<SetStateAction<boolean>> | undefined;
+  onCloseTreeDrawer: (() => void) | undefined;
 }
 
 export interface HatPinDetails {
