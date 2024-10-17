@@ -2,8 +2,9 @@ import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
 import { MetadataConfig } from '@hatsprotocol/constants';
-import { StandaloneNavbar as Navbar, TxHistoryModal } from 'molecules';
+import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
+import { StandaloneNavbar as Navbar } from 'organisms';
 // import Script from 'next/script';
 import { ReactNode } from 'react';
 

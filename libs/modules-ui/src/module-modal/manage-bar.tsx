@@ -26,6 +26,7 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
   const activeSection = useMemo(() => {
     return find(sections, (s) => s.value);
   }, [sections]);
+  console.log({ sections, buttons });
   const hasAnyRole = useMemo(() => {
     return (
       some(sections, ({ hasRole }) => hasRole) ||

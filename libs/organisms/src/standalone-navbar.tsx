@@ -2,8 +2,12 @@
 
 import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
 import { ConnectWallet } from 'molecules';
+import dynamic from 'next/dynamic';
 import { AppHat } from 'types';
-import { ChakraNextLink } from 'ui';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 export const StandaloneNavbar = ({
   heading,
