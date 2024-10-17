@@ -27,7 +27,7 @@ const fetchSubgraphBlockNumber = async (chainId: number) => {
   `;
 
   const data = await subgraphClient.request(query);
-  return data;
+  return get(data, '_meta.block.number', null);
 };
 
 const useWaitForSubgraph = ({
@@ -41,27 +41,27 @@ const useWaitForSubgraph = ({
 }) => {
   const toast = useToast();
 
-  const waitForResult = async (data: TransactionReceipt | undefined) =>
+  const waitForBlock = async (data: TransactionReceipt | undefined) =>
     new Promise((resolve, reject) => {
       const blockNumber = toNumber(toString(get(data, 'blockNumber')));
 
-      const checkResultHandler = async () => {
+      const checkBlockHandler = async () => {
         if (!chainId || !blockNumber) {
           return reject(new Error('No chainId or blockNumber'));
         }
 
         return fetchSubgraphBlockNumber(chainId)
-          .then((result) => {
-            const subgraphBlockNumber = get(result, '_meta.block.number');
-
-            if (subgraphBlockNumber && subgraphBlockNumber >= blockNumber) {
-              clearInterval(intervalId);
-
-              toast.success({
-                title: 'Subgraph updated!',
-              });
-              return resolve(result);
+          .then((subgraphBlockNumber) => {
+            if (!subgraphBlockNumber || subgraphBlockNumber < blockNumber) {
+              return;
             }
+
+            clearInterval(intervalId);
+
+            toast.success({
+              title: 'Subgraph updated!',
+            });
+            return resolve(subgraphBlockNumber);
           })
           .catch((e) => {
             // eslint-disable-next-line no-console
@@ -75,8 +75,8 @@ const useWaitForSubgraph = ({
           });
       };
 
-      const intervalId = setInterval(checkResultHandler, interval);
-      checkResultHandler();
+      const intervalId = setInterval(checkBlockHandler, interval);
+      checkBlockHandler();
 
       if (sendToast) {
         toast.info({
@@ -90,7 +90,7 @@ const useWaitForSubgraph = ({
       }, SUBGRAPH_WAIT_TIMEOUT);
     });
 
-  return waitForResult;
+  return waitForBlock;
 };
 
 export default useWaitForSubgraph;

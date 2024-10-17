@@ -65,9 +65,11 @@ const ChakraNextLink = dynamic(() =>
 const ModuleAuthorityToolbar = ({
   authority,
   index,
+  isExpanded,
 }: {
   authority: Authority | undefined;
   index: number;
+  isExpanded: boolean;
 }) => {
   const localOverlay = useOverlay();
   const { address } = useAccount();
@@ -212,7 +214,7 @@ const ModuleAuthorityToolbar = ({
     isCustom: primaryFunction?.isCustom || false,
   });
 
-  if (!authority) return null;
+  if (!authority || !isExpanded) return null;
 
   const trackSafeClick = () => {
     posthog.capture('Viewed Safe', {
@@ -349,6 +351,7 @@ const ModuleAuthorityToolbar = ({
       <ModuleAuthorityModal
         authority={authority}
         selectedFunction={selectedFunction}
+        setSelectedFunction={setSelectedFunction}
         index={index}
       />
     </HStack>

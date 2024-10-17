@@ -1,4 +1,5 @@
-import { has, toLower } from 'lodash';
+import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
+import { find, has, keys } from 'lodash';
 import {
   AppHat,
   ModuleDetails,
@@ -13,12 +14,12 @@ import { ElectionEligibilityDetails } from './election';
 import { JokeRaceEligibilityDetails } from './joke-race';
 import { StakingEligibilityDetails } from './staking';
 
-export const MODULE_DETAILS: { [key: Hex]: ModuleDetailsComponent } = {
-  '0xac208e6668de569c6ea1db76decea70430335ed5': AllowlistEligibilityDetails,
-  '0xf6bc6dd30403e6ff5b3bebead32b8fce1b753aa1': AgreementEligibilityDetails,
-  '0xd3b916a8f0c4f9d1d5b6af29c3c012dbd4f3149e': ElectionEligibilityDetails,
-  '0xae0e56a0c509da713722c1affcf4b5f1c6cdc73a': JokeRaceEligibilityDetails,
-  '0x9e01030af633be5a439df122f2eef750b44b8ac7': StakingEligibilityDetails,
+export const MODULE_DETAILS: { [key: string]: ModuleDetailsComponent } = {
+  allowlist: AllowlistEligibilityDetails,
+  agreement: AgreementEligibilityDetails,
+  election: ElectionEligibilityDetails,
+  'joke-race': JokeRaceEligibilityDetails,
+  staking: StakingEligibilityDetails,
 };
 
 // handle fallback more known modules
@@ -31,9 +32,16 @@ export const ModuleCardDetails = ({
   moduleInfo: ModuleDetails | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  if (has(MODULE_DETAILS, toLower(moduleInfo?.implementationAddress))) {
+  const knownModuleKeys = keys(KNOWN_ELIGIBILITY_MODULES);
+  const knownModule = find(knownModuleKeys, (key) =>
+    KNOWN_ELIGIBILITY_MODULES[key].includes(
+      moduleInfo?.implementationAddress as Hex,
+    ),
+  );
+
+  if (knownModule && has(MODULE_DETAILS, knownModule)) {
     const moduleDetailsFn = MODULE_DETAILS[
-      toLower(moduleInfo?.implementationAddress)
+      knownModule
     ] as ModuleDetailsComponent;
     if (!moduleDetailsFn || !moduleInfo || !chainId) return undefined;
     return moduleDetailsFn(moduleInfo, chainId);

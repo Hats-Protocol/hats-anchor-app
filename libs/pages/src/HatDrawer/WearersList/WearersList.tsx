@@ -147,6 +147,9 @@ const WearersList = () => {
     toLower(address),
   );
 
+  // TODO fetch additional details if wearer not found in orgChartWearers
+  // console.log({ currentWearerDetails });
+
   return (
     <>
       <Stack>

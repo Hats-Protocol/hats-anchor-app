@@ -129,6 +129,7 @@ const MultiAddressInput = ({
         defaultFieldOptions,
       );
       setValue(`${name}-currentAddress`, undefined, defaultFieldOptions);
+      setValue(`${name}-currentAddress-name`, undefined, defaultFieldOptions);
       clearErrors?.(`${name}-currentAddress`);
       isCancelled.current = true;
     },
@@ -152,17 +153,19 @@ const MultiAddressInput = ({
         return;
       }
 
-      // check if address is already in the local wearer list
-      const isInWearerList = _.includes(
-        currentWearerIds,
-        _.toLower(localAddress),
-      );
-      if (isInWearerList) {
-        setError?.(`${name}-currentAddress`, {
-          type: 'custom',
-          message: 'Address already wearing this hat',
-        });
-        return;
+      if (checkEligibility) {
+        // check if address is already in the local wearer list
+        const isInWearerList = _.includes(
+          currentWearerIds,
+          _.toLower(localAddress),
+        );
+        if (isInWearerList) {
+          setError?.(`${name}-currentAddress`, {
+            type: 'custom',
+            message: 'Address already wearing this hat',
+          });
+          return;
+        }
       }
 
       if (chainId && selectedHat && checkEligibility) {
@@ -247,8 +250,7 @@ const MultiAddressInput = ({
     //   isCancelled.current = true;
     // };
 
-    // intentionally omitting 'setError', 'setValue', and 'updateWearerList' from dependencies
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // intentionally omitting 'setValue', and 'updateWearerList' from dependencies
   }, [
     currentInput,
     currentSupply,
@@ -260,6 +262,7 @@ const MultiAddressInput = ({
     maxSupply,
     holdOnAdd,
     name,
+    checkEligibility,
   ]);
 
   useEffect(() => {
@@ -306,41 +309,45 @@ const MultiAddressInput = ({
           _.size(currentWearerList) -
           _.size(currentWearerIds),
       );
-      const publicClient = viemPublicClient(chainId || 1);
-      // TODO update to use multicall
-      const promises = _.map(csvAddresses, (a: Hex) =>
-        publicClient.readContract({
-          abi: HATS_ABI,
-          address: CONFIG.hatsAddress,
-          functionName: 'isEligible',
-          args: [a, selectedHat?.id ? BigInt(selectedHat.id) : 0n],
-        }),
-      );
-      const eligibilityOfAddresses = await Promise.all(promises);
-      const eligibleAddresses = _.filter(
-        csvAddresses,
-        (v: Hex, i: number) => eligibilityOfAddresses[i],
-      );
-      const ineligibleWearersCount = _.size(
-        _.filter(eligibilityOfAddresses, (v: boolean) => !v),
-      );
+
+      let eligibleAddresses = csvAddresses;
+      if (checkEligibility) {
+        const publicClient = viemPublicClient(chainId || 1);
+        // TODO update to use multicall
+        const promises = _.map(csvAddresses, (a: Hex) =>
+          publicClient.readContract({
+            abi: HATS_ABI,
+            address: CONFIG.hatsAddress,
+            functionName: 'isEligible',
+            args: [a, selectedHat?.id ? BigInt(selectedHat.id) : 0n],
+          }),
+        );
+        const eligibilityOfAddresses = await Promise.all(promises);
+        eligibleAddresses = _.filter(
+          csvAddresses,
+          (v: Hex, i: number) => eligibilityOfAddresses[i],
+        );
+        const ineligibleWearersCount = _.size(
+          _.filter(eligibilityOfAddresses, (v: boolean) => !v),
+        );
+        if (ineligibleWearersCount > 0) {
+          toast.info({
+            title: `${ineligibleWearersCount} wearer${
+              ineligibleWearersCount > 1 ? 's' : ''
+            } ${
+              ineligibleWearersCount > 1 ? 'were' : 'was'
+            } not eligible to be added`,
+            description:
+              'Check the eligibility module to determine eligible wearers',
+          });
+        }
+      }
       const newWearers = _.map(eligibleAddresses, (address: unknown) => ({
         address,
         ens: '',
       }));
-      if (ineligibleWearersCount > 0) {
-        toast.info({
-          title: `${ineligibleWearersCount} wearer${
-            ineligibleWearersCount > 1 ? 's' : ''
-          } ${
-            ineligibleWearersCount > 1 ? 'were' : 'was'
-          } not eligible to be added`,
-          description:
-            'Check the eligibility module to determine eligible wearers',
-        });
-      }
 
-      setValue?.('wearers', [...currentWearerList.current, ...newWearers]);
+      setValue(name, newWearers);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [chainId, currentWearerList.current, selectedHat],

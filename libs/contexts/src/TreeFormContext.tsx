@@ -6,12 +6,10 @@ import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
 import { translateDrafts } from 'hats-utils';
 import {
-  useImageURIs,
   useLocalStorage,
   useOrgChartTree,
   useSelectedHatDisclosure,
   useTreeGuilds,
-  useTreeImages,
   useTreeSnapshotSpaces,
 } from 'hooks';
 import _, { toNumber } from 'lodash';

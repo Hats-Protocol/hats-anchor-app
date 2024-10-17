@@ -32,7 +32,6 @@ interface ContractInteractionProps {
   redirect?: string | null; // redirect to this URL after transaction is successful
 }
 
-// generate a doc comment based on the type ContractInteractionProps
 /**
  * @param {string} params.functionName - Name of the function to call on the contract
  * @param {unknown[]} params.args - Arguments to passed to the function
@@ -105,12 +104,14 @@ const useHatContractWrite = ({
             console.log('onSuccess', { d });
             handleSuccess?.(d);
 
-            queryKeys.forEach((key) =>
-              queryClient.invalidateQueries({
-                queryKey: key,
-              }),
-            );
-            setIsLoading(false);
+            setTimeout(() => {
+              queryKeys.forEach((key) =>
+                queryClient.invalidateQueries({
+                  queryKey: key,
+                }),
+              );
+              setIsLoading(false);
+            }, 500);
           },
         });
       })

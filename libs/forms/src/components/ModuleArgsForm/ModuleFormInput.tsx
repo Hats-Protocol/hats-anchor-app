@@ -57,7 +57,6 @@ const ModuleFormInput = ({
   }
 
   if (type === 'address[]') {
-    console.log({ arg });
     return (
       <MultiAddressInput
         name={name}
@@ -70,6 +69,7 @@ const ModuleFormInput = ({
         }
         localForm={localForm}
         overrideMaxSupply
+        checkEligibility={false}
       />
     );
   }
