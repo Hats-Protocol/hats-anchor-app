@@ -33,7 +33,6 @@ import { startTransition, useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
-import { ChakraNextLink, Markdown } from 'ui';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
@@ -45,6 +44,10 @@ const CheckCircle = dynamic(() =>
   import('icons').then((mod) => mod.CheckCircle),
 );
 const Collapse = dynamic(() => import('icons').then((mod) => mod.Collapse));
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
+const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 
 const AuthoritiesListCard = ({
   authority,
@@ -240,6 +243,7 @@ const AuthoritiesListCard = ({
                     <ModuleAuthorityToolbar
                       authority={authority}
                       index={index}
+                      isExpanded={isExpanded}
                     />
                   ) : (
                     <HStack mb={!description ? 4 : 0}>

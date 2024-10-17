@@ -16,6 +16,12 @@ const etherscanUrl = (chainId: number, address: Hex) => {
   )}`;
 };
 
+/**
+ * Fetches contract data from Etherscan API
+ * @param chainId - The chain ID
+ * @param address - The contract address
+ * @returns The contract data
+ */
 const fetchContractData = async (chainId: number, address: Hex) =>
   fetch(etherscanUrl(chainId, address))
     .then((result) => {

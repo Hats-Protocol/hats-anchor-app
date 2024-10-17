@@ -3,7 +3,6 @@ import {
   CONTROLLER_TYPES,
   DEPLOYMENT_TYPES,
 } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   deployClaimsHatter,
@@ -15,7 +14,7 @@ import {
   processValues,
 } from 'hats-utils';
 import { useToast } from 'hooks';
-import _ from 'lodash';
+import _, { get, pick } from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import {
@@ -27,7 +26,7 @@ import {
   SupportedChains,
 } from 'types';
 import { Hex } from 'viem';
-import { useAccount, useToken } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 
 import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
@@ -63,25 +62,26 @@ const useModuleDeploy = ({
   const { watch } = localForm;
   const originalValues = watch();
   const tokenAddress = originalValues['Token Address'];
-  const { data } = useToken({ address: tokenAddress });
-  const { hatterIsAdmin, wearingHat } = useMultiClaimsHatterCheck({
+  const { data: balance } = useBalance({
+    address: tokenAddress,
+    token: tokenAddress,
+  });
+  const { hatterIsAdmin } = useMultiClaimsHatterCheck({
     chainId,
     selectedHat,
     onchainHats,
   });
-  const tokenDecimals = data?.decimals;
-  console.log(hatterIsAdmin, wearingHat);
 
-  const values = useMemo(
-    () =>
-      processValues({
-        originalValues,
-        selectedModuleDetails,
-        tokenDecimals,
-      }),
-    [originalValues, selectedModuleDetails, tokenDecimals],
-  );
-  console.log(values);
+  const values = useMemo(() => {
+    if (!balance) return originalValues;
+    const { decimals: tokenDecimals } = pick(balance, ['decimals']);
+
+    return processValues({
+      originalValues,
+      selectedModuleDetails,
+      tokenDecimals,
+    });
+  }, [originalValues, selectedModuleDetails, balance]);
 
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -98,9 +98,9 @@ const useModuleDeploy = ({
     name: CONFIG.modules.claimsHatter,
   });
 
-  const ipId = selectedHat?.id && hatIdDecimalToIp(BigInt(selectedHat?.id));
-  const hatName = selectedHat?.detailsObject?.data?.name;
-  const hatTitle = `${ipId} (${hatName})`;
+  // const ipId = selectedHat?.id && hatIdDecimalToIp(BigInt(selectedHat?.id));
+  // const hatName = selectedHat?.detailsObject?.data?.name;
+  // const hatTitle = `${ipId} (${hatName})`;
 
   const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId,
@@ -126,21 +126,6 @@ const useModuleDeploy = ({
       claimabilityType,
     });
 
-  const {
-    deploy: deployModuleAndRegisterWithClaimsHatter,
-    isLoading: isLoadingMultiClaimsHatter,
-  } = useMultiClaimsHatterContractWrite({
-    functionName: 'setHatClaimabilityAndCreateModule',
-    address: instanceAddress,
-    enabled:
-      !!instanceAddress &&
-      !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
-    args: deployModuleAndRegisterWithClaimsHatterArgs,
-    chainId,
-    handlePendingTx,
-    hatId: selectedHat?.id,
-  });
-
   const adminHatData = useMemo(() => {
     const storedHat = _.find(storedData, ['id', adminHat]);
     const onchainHat = _.find(onchainHats, ['id', adminHat]);
@@ -158,132 +143,151 @@ const useModuleDeploy = ({
     };
   }, [storedData, onchainHats, adminHat]);
 
-  const handleSuccess = useCallback(
-    (localData: { newInstance?: Hex | null; newInstances?: Hex[] | null }) => {
-      switch (deploymentType) {
-        case DEPLOYMENT_TYPES.ONLY_MODULE: {
-          const moduleAddress = _.get(
-            localData,
-            'newInstance',
-            _.get(localData, 'newInstances[0]'),
-          );
+  const onAllSuccess = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['claimsHatter'] });
+    onCloseModuleDrawer();
+  }, [queryClient, onCloseModuleDrawer]);
 
-          if (moduleAddress && selectedModuleDetails) {
-            let type = CONTROLLER_TYPES.eligibility;
-            if (selectedModuleDetails.type.toggle) {
-              type = CONTROLLER_TYPES.toggle;
-            }
-            const moduleHats = processModule({
-              moduleAddress,
-              storedData,
-              selectedHat,
-              type,
-            });
-            const hatIds = _.uniq(_.map(moduleHats, 'id'));
-            const updatedHats: any[] = _.map(
-              hatIds,
-              (id: Hex) =>
-                _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
-            );
-            setStoredData?.(updatedHats);
-            toast.success({
-              title: 'Saved',
-              description: `${selectedModuleDetails?.name} has been successfully deployed!`,
-              duration: 1500,
-            });
-          }
-          break;
-        }
-        case DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER: {
-          const instances = _.get(localData, 'newInstances');
-          if (_.isArray(instances)) {
-            const [moduleAddress, claimsHatterAddress] = instances;
+  const onlyModuleDeploySuccess = useCallback(
+    (newInstance?: Hex | null) => {
+      if (!newInstance || !selectedModuleDetails) return;
 
-            const updatedHatsWithModule = processModule({
-              moduleAddress,
-              storedData,
-              selectedHat,
-              type: CONTROLLER_TYPES.eligibility,
-            });
-            const updatedHatsWithClaimsHatter = processClaimsHatter({
-              claimsHatterAddress,
-              storedData,
-              adminHat: adminHatData,
-              incrementWearers,
-            });
-            const hatIds = _.uniq(
-              _.concat(
-                _.map(updatedHatsWithModule, 'id'),
-                _.map(updatedHatsWithClaimsHatter, 'id'),
-              ),
-            );
-            const updatedHats: any[] = _.map(hatIds, (id: Hex) => {
-              const hatterHat = _.find(updatedHatsWithClaimsHatter, {
-                id,
-              });
-              const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
-              return _.merge({}, hatterHat, moduleHat) as Partial<FormData>;
-            });
-            setStoredData?.(updatedHats);
-
-            toast.success({
-              title: 'Saved',
-              description: instanceAddress
-                ? `${selectedModuleDetails?.name} Module has been successfully deployed!`
-                : `${selectedModuleDetails?.name} Module and Claims Hatter have been successfully deployed!`,
-              duration: 2500,
-            });
-          }
-          break;
-        }
-        case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER: {
-          const claimsHatterAddress: Hex | null | undefined = _.get(
-            localData,
-            'newInstance',
-            _.get(localData, 'newInstances[0]', undefined),
-          );
-          if (!claimsHatterAddress) return;
-          const updatedHats = processClaimsHatter({
-            claimsHatterAddress,
-            storedData,
-            adminHat: adminHatData,
-            incrementWearers,
-          });
-
-          setStoredData?.(updatedHats);
-
-          toast.success({
-            title: 'Saved',
-            description: instanceAddress
-              ? `Hat ${hatTitle} has been successfully registered!`
-              : `Claims Hatter Module has been successfully deployed!`,
-            duration: 1500,
-          });
-
-          break;
-        }
-
-        default:
-          // eslint-disable-next-line no-console
-          console.error('Invalid deployment type');
-          break;
+      let type = CONTROLLER_TYPES.eligibility;
+      if (selectedModuleDetails.type.toggle) {
+        type = CONTROLLER_TYPES.toggle;
       }
-      queryClient.invalidateQueries({ queryKey: ['claimsHatter'] });
-      onCloseModuleDrawer();
+      const moduleHats = processModule({
+        moduleAddress: newInstance,
+        storedData,
+        selectedHat,
+        type,
+      });
+
+      const hatIds = _.uniq(_.map(moduleHats, 'id'));
+      const updatedHats: any[] = _.map(
+        hatIds,
+        (id: Hex) =>
+          _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
+      );
+      setStoredData?.(updatedHats);
+      toast.success({
+        title: 'Saved',
+        description: `${selectedModuleDetails?.name} has been successfully deployed!`,
+        duration: 1500,
+      });
+
+      onAllSuccess();
     },
     [
-      deploymentType,
-      onCloseModuleDrawer,
-      selectedModuleDetails,
       storedData,
       selectedHat,
       setStoredData,
       toast,
-      incrementWearers,
+      selectedModuleDetails,
+      onAllSuccess,
+    ],
+  );
+
+  const moduleAndClaimsHatterDeploySuccess = useCallback(
+    (newInstances?: Hex[] | null) => {
+      if (!_.isArray(newInstances)) return;
+
+      const [moduleAddress, claimsHatterAddress] = newInstances;
+
+      const updatedHatsWithModule = processModule({
+        moduleAddress,
+        storedData,
+        selectedHat,
+        type: CONTROLLER_TYPES.eligibility,
+      });
+      const updatedHatsWithClaimsHatter = processClaimsHatter({
+        claimsHatterAddress,
+        storedData,
+        adminHat: adminHatData,
+        incrementWearers,
+      });
+      const hatIds = _.uniq(
+        _.concat(
+          _.map(updatedHatsWithModule, 'id'),
+          _.map(updatedHatsWithClaimsHatter, 'id'),
+        ),
+      );
+      const updatedHats: any[] = _.map(hatIds, (id: Hex) => {
+        const hatterHat = _.find(updatedHatsWithClaimsHatter, {
+          id,
+        });
+        const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
+        return _.merge({}, hatterHat, moduleHat) as Partial<FormData>;
+      });
+      setStoredData?.(updatedHats);
+
+      toast.success({
+        title: 'Saved',
+        description: instanceAddress
+          ? `${selectedModuleDetails?.name} Module has been successfully deployed!`
+          : `${selectedModuleDetails?.name} Module and Claims Hatter have been successfully deployed!`,
+        duration: 2500,
+      });
+
+      onAllSuccess();
+    },
+    [
+      storedData,
       adminHatData,
+      incrementWearers,
+      setStoredData,
+      toast,
       instanceAddress,
-      hatTitle,
-      queryClient,
+      selectedModuleDetails,
+      selectedHat,
+      onAllSuccess,
+    ],
+  );
+
+  const {
+    writeAsync: deployModuleAndRegisterWithClaimsHatter,
+    isLoading: isLoadingMultiClaimsHatter,
+  } = useMultiClaimsHatterContractWrite({
+    functionName: 'setHatClaimabilityAndCreateModule',
+    address: instanceAddress,
+    enabled:
+      !!instanceAddress &&
+      !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
+    args: deployModuleAndRegisterWithClaimsHatterArgs,
+    chainId,
+    handlePendingTx,
+    afterSuccess: onlyModuleDeploySuccess,
+    hatId: selectedHat?.id,
+  });
+
+  const onlyClaimsHatterDeploySuccess = useCallback(
+    (newInstance?: Hex | null) => {
+      if (!newInstance) return;
+
+      const updatedHats = processClaimsHatter({
+        claimsHatterAddress: newInstance,
+        storedData,
+        adminHat: adminHatData,
+        incrementWearers,
+      });
+
+      setStoredData?.(updatedHats);
+
+      toast.success({
+        title: 'Saved',
+        description: 'Claims Hatter Module has been successfully deployed!',
+        duration: 1500,
+      });
+
+      onAllSuccess();
+    },
+    [
+      storedData,
+      adminHatData,
+      incrementWearers,
+      setStoredData,
+      toast,
+      onAllSuccess,
     ],
   );
 
@@ -306,6 +310,10 @@ const useModuleDeploy = ({
             values,
             chainId,
             hatId,
+          }).then((resultData) => {
+            const newInstance = get(resultData, 'newInstance');
+            if (!newInstance) return;
+            onlyModuleDeploySuccess(newInstance);
           });
         }
 
@@ -321,6 +329,10 @@ const useModuleDeploy = ({
             chainId,
             hatId,
             adminHatId: BigInt(adminHat),
+          }).then((resultData) => {
+            const newInstances = get(resultData, 'newInstances');
+            if (!newInstances) return;
+            moduleAndClaimsHatterDeploySuccess(newInstances);
           });
 
         case DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER:
@@ -333,40 +345,22 @@ const useModuleDeploy = ({
             values,
             chainId,
             adminHatId: BigInt(adminHat),
+          }).then((resultData) => {
+            const newInstance = get(resultData, 'newInstance');
+            if (!newInstance) return;
+            onlyClaimsHatterDeploySuccess(newInstance);
           });
 
         default:
           return null;
       }
     },
-    onSuccess: (localData) => {
-      if (!localData) return;
-      handleSuccess(localData);
-    },
-    onError: (error: Error) => {
-      if (
-        error.name === 'TransactionExecutionError' &&
-        error.message.includes('User rejected the request')
-      ) {
-        toast.error({
-          title: 'Signature rejected!',
-          description: 'Please accept the transaction in your wallet',
-        });
-      } else {
-        toast.error({
-          title: 'Error!',
-          description: `${error.message}`,
-        });
-      }
-    },
   });
-  console.log(
-    'no admin',
+  console.log({
     adminHat,
-    isPermissionlesslyClaimable === 'Yes',
-    !adminHat || !hatterIsAdmin,
-    isPermissionlesslyClaimable === 'Yes' && (!adminHat || !hatterIsAdmin),
-  );
+    isPermissionlesslyClaimable: isPermissionlesslyClaimable === 'Yes',
+    hatterIsAdmin,
+  });
 
   return {
     deploy: mutateAsync,

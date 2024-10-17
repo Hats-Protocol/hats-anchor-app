@@ -2,10 +2,10 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
-import { AppHat, HandlePendingTx, SupportedChains } from 'types';
+import { AppHat, HandlePendingTx, SupportedChains, SyncTxHandler } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 import {
@@ -20,14 +20,8 @@ const useHatClaimBy = ({
   chainId,
   wearer,
   handlePendingTx,
-  onSuccess,
-}: {
-  selectedHat?: AppHat | null;
-  chainId: SupportedChains | undefined;
-  wearer: Hex | undefined;
-  handlePendingTx: HandlePendingTx | undefined;
-  onSuccess?: () => void;
-}) => {
+  afterSuccess,
+}: UseHatClaimByProps) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
   const currentChainId = useChainId();
@@ -83,6 +77,15 @@ const useHatClaimBy = ({
   }, [chainId, currentChainId]);
 
   const { writeContractAsync } = useWriteContract();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
+
+  const onSuccess = async () => {
+    onSuccess?.();
+
+    queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+  };
 
   const writeAsync = async () => {
     if (!claimsHatterAddress || !chainId || !claimsHatter?.abi) return null;
@@ -113,13 +116,8 @@ const useHatClaimBy = ({
             title: 'Hat claimed!',
             description: txDescription,
           },
-          onSuccess: async () => {
-            onSuccess?.();
-
-            queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-            queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
-            queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-          },
+          waitForSubgraph,
+          onSuccess,
         });
       })
       .catch((error) => {
@@ -148,5 +146,13 @@ const useHatClaimBy = ({
     canClaimFor: isClaimable,
   };
 };
+
+interface UseHatClaimByProps {
+  selectedHat?: AppHat | null;
+  chainId: SupportedChains | undefined;
+  wearer: Hex | undefined;
+  handlePendingTx: HandlePendingTx | undefined;
+  afterSuccess?: SyncTxHandler;
+}
 
 export default useHatClaimBy;

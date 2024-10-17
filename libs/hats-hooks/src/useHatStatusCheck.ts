@@ -1,7 +1,7 @@
 import { CONFIG, STATUS } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal, HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { idToIp } from 'shared';
@@ -44,12 +44,42 @@ const useHatStatusCheck = ({
   }, [hatData, chainId]);
 
   const { writeContractAsync } = useWriteContract();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
+
+  const txDescription = `Check Hat Status for ${idToIp(_.get(hatData, 'id'))}`;
+  const hatStatus = hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
+
+  const onSuccess = async (d?: TransactionReceipt) => {
+    const logs = _.get(d, 'logs');
+    if (logs?.length === 0) {
+      toast.success({
+        title: txDescription,
+        description: `No change: Hat Status remains ${hatStatus}`,
+      });
+    } else {
+      const logData = _.get(_.first(logs), 'data');
+      const newHatStatus =
+        _.first(_.slice(logData, -1, _.size(logData))) === '1'
+          ? STATUS.ACTIVE
+          : STATUS.INACTIVE;
+
+      toast.success({
+        title: txDescription,
+        description: `Hat Status Changed to ${newHatStatus}`,
+      });
+      if (chainId && d?.transactionHash) {
+        await invalidateAfterTransaction(chainId, d?.transactionHash);
+      }
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+      }, 1000);
+    }
+  };
 
   const writeAsync = async () => {
     if (!hatDecimalId || !toggleIsContract || currentNetworkId !== chainId)
       return null;
-
-    const hatStatus = hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
     return writeContractAsync({
       address: CONFIG.hatsAddress,
@@ -61,10 +91,6 @@ const useHatStatusCheck = ({
       .then((hash) => {
         setIsLoading(true);
 
-        const txDescription = `Check Hat Status for ${idToIp(
-          _.get(hatData, 'id'),
-        )}`;
-
         toast.info({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
@@ -74,33 +100,9 @@ const useHatStatusCheck = ({
           hash,
           txChainId: chainId,
           txDescription,
-          sendToast: false,
-          onSuccess: async (d?: TransactionReceipt) => {
-            const logs = _.get(d, 'logs');
-            if (logs?.length === 0) {
-              toast.success({
-                title: txDescription,
-                description: `No change: Hat Status remains ${hatStatus}`,
-              });
-            } else {
-              const logData = _.get(_.first(logs), 'data');
-              const newHatStatus =
-                _.first(_.slice(logData, -1, _.size(logData))) === '1'
-                  ? STATUS.ACTIVE
-                  : STATUS.INACTIVE;
-
-              toast.success({
-                title: txDescription,
-                description: `Hat Status Changed to ${newHatStatus}`,
-              });
-              await invalidateAfterTransaction(chainId, hash);
-
-              setTimeout(() => {
-                queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-                queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-              }, 1000);
-            }
-          },
+          sendSuccessToast: false,
+          waitForSubgraph,
+          onSuccess,
         });
         setIsLoading(false);
       })

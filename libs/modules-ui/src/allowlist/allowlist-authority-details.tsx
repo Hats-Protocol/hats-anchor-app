@@ -24,8 +24,6 @@ const ALLOWLIST_ROLES: { [key: string]: ModuleDetailRole } = {
   },
 };
 
-// TODO [2.9] handle indexed addresses
-
 export const AllowlistEligibilityDetails = (
   moduleInfo: ModuleDetails,
   chainId: SupportedChains,
@@ -42,7 +40,7 @@ export const AllowlistEligibilityDetails = (
         ) as bigint;
         return (
           <div className='flex justify-between' key={role}>
-            <div className='flex gap-2 items-center'>
+            <div className='flex items-center gap-2'>
               <div>{ALLOWLIST_ROLES[role].label}</div>
 
               <Tooltip label={ALLOWLIST_ROLES[role].tooltip} placement='top'>

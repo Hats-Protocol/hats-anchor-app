@@ -117,7 +117,7 @@ export const StandaloneOverlayContextProvider = ({
     successToastData,
     redirect = null,
     clearModals = true,
-    sendToast = true,
+    sendSuccessToast = true,
     onSuccess,
   }: HandlePendingTxProps): Promise<TransactionReceipt | undefined> => {
     const data = await viemPublicClient(
@@ -130,7 +130,7 @@ export const StandaloneOverlayContextProvider = ({
       return Promise.resolve(undefined);
     }
 
-    if (sendToast && successToastData) {
+    if (sendSuccessToast && successToastData) {
       toast.success({
         title: _.get(successToastData, 'title', 'Transaction successful'),
         description: _.get(successToastData, 'description'),

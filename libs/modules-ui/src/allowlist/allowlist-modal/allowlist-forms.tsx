@@ -2,11 +2,12 @@ import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
+import { useWaitForSubgraph } from 'hooks';
 import { find, get, map, pick, some } from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { AllowlistProfile, HatWearer, ModuleDetails } from 'types';
-import { Hex } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
 import { ManageBar } from '../../module-modal';
@@ -28,6 +29,7 @@ export const AllowlistForms = ({
   const { handlePendingTx } = useOverlay();
   const { chainId } = useTreeForm();
   const { writeContractAsync } = useWriteContract();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
   const [isLoading, setIsLoading] = useState(false);
   const { setValue, watch } = pick(localForm, ['setValue', 'watch']);
   const addressesToAdd = watch('addresses');
@@ -55,6 +57,12 @@ export const AllowlistForms = ({
       id: hatIdDecimalToHex(judgeHat as bigint),
     });
 
+  const onRemoveSuccess = (data: TransactionReceipt | undefined) => {
+    setUpdateList([]);
+    setUpdating(false);
+    setIsLoading(false);
+  };
+
   const handleRemoveWearers = useCallback(async () => {
     setIsLoading(true);
     const removeAddresses = map(updateList, (p) => p.id);
@@ -65,15 +73,13 @@ export const AllowlistForms = ({
       args: [removeAddresses],
     })
       .then((tx) => {
-        console.log('tx', tx);
         handlePendingTx?.({
           hash: tx,
           txChainId: chainId,
           txDescription: 'Removed Wearers',
+          waitForSubgraph,
+          onSuccess: onRemoveSuccess,
         });
-        setUpdateList([]);
-        setUpdating(false);
-        setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error removing wearers', error);
@@ -91,6 +97,12 @@ export const AllowlistForms = ({
     setUpdating,
   ]);
 
+  const onSetStandingSuccess = (data: TransactionReceipt | undefined) => {
+    setUpdateList([]);
+    setUpdating(false);
+    setIsLoading(false);
+  };
+
   const handleSetWearersStanding = useCallback(async () => {
     setIsLoading(true);
     const standings = map(updateList, () => false); // standing = false
@@ -101,17 +113,28 @@ export const AllowlistForms = ({
       functionName: 'setStandingForAccounts',
       args: [addresses, standings],
     });
-    console.log('tx', tx);
-    setUpdateList([]);
-    setUpdating(false);
-    setIsLoading(false);
+    handlePendingTx?.({
+      hash: tx,
+      txChainId: chainId,
+      txDescription: 'Set Wearers Standing',
+      waitForSubgraph,
+      onSuccess: onSetStandingSuccess,
+    });
   }, [
     setUpdateList,
+    chainId,
+    updateList,
     moduleInfo.abi,
     moduleInfo.id,
     // writeContractAsync,
     setUpdating,
   ]);
+
+  const onAddSuccess = (data: TransactionReceipt | undefined) => {
+    setUpdateList([]);
+    setAdding(false);
+    setIsLoading(false);
+  };
 
   const handleAddWearers = useCallback(async () => {
     setIsLoading(true);
@@ -129,11 +152,9 @@ export const AllowlistForms = ({
           hash: tx,
           txChainId: chainId,
           txDescription: 'Added Wearers to Allowlist', // TODO for Hat Id
+          waitForSubgraph,
+          onSuccess: onAddSuccess,
         });
-        // await waitForSubgraph();
-        setValue('addresses', []);
-        setAdding(false);
-        setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error adding wearers', error);

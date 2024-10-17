@@ -1,8 +1,6 @@
 import { AGREEMENT_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
 import { HandlePendingTx, ToastProps } from 'types';
-import { Hex } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 import { useWriteContract } from 'wagmi';
 
 import useToast from './useToast';
@@ -16,7 +14,7 @@ interface ContractInteractionProps {
   handlePendingTx: HandlePendingTx | undefined;
   enabled: boolean;
   onDecline?: () => void;
-  onSuccess?: () => void;
+  onSuccess: (data: TransactionReceipt | undefined) => void;
 }
 
 // ! DEPRECATED. TO BE REMOVED WITH HATS COMMUNITY HAT MIGRATION

@@ -16,7 +16,7 @@ const TreeDetails = ({ params: { treeId, chainId } }: TreeDetailsProps) => {
       treeId={toNumber(treeId)}
       chainId={toNumber(chainId) as SupportedChains}
     >
-      <div className='flex flex-col gap-6'>
+      <div className='flex flex-col gap-6 pt-20'>
         <TreeOverview />
 
         {/* <StreamsOverview /> */}

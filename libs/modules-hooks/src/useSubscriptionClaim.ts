@@ -4,11 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { isUndefined } from 'lodash';
-import {
-  invalidateAfterTransaction,
-  REFERRAL_ADDRESS,
-  viemPublicClient,
-} from 'utils';
+import { HandlePendingTx } from 'types';
+import { REFERRAL_ADDRESS } from 'utils';
 import { Abi, zeroAddress } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
@@ -21,6 +18,7 @@ export const useSubscriptionClaim = ({
   moduleParameters,
   chainId,
   setStatus,
+  handlePendingTx,
 }: UseSubscriptionClaimProps) => {
   const { address } = useAccount();
   const toast = useToast();
@@ -45,6 +43,17 @@ export const useSubscriptionClaim = ({
     address: lockAddress,
   } as const;
 
+  const onSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+    queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+    queryClient.invalidateQueries({ queryKey: ['readContract'] });
+    queryClient.invalidateQueries({ queryKey: ['wearerEligibility'] });
+
+    setStatus(CLAIM_STATUS.SUCCESS);
+  };
+
   const purchaseHat = async () => {
     return writeContractAsync({
       ...lockContract,
@@ -61,25 +70,19 @@ export const useSubscriptionClaim = ({
     } as any)
       .then(async (hash) => {
         if (!chainId) return;
-        const client = viemPublicClient(chainId);
-        return client
-          .waitForTransactionReceipt({ hash })
-          .then(async (receipt) => {
-            // TODO pass to handlePendingTx
-            await waitForSubgraph(receipt);
 
-            await invalidateAfterTransaction(chainId, hash);
+        toast.info({
+          title: 'Transaction pending',
+          description: 'Waiting for the transaction to be accepted',
+        });
 
-            // TODO move to onSuccess
-            queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
-            queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-            queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-            queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-            queryClient.invalidateQueries({ queryKey: ['readContract'] });
-            queryClient.invalidateQueries({ queryKey: ['wearerEligibility'] });
-
-            setStatus(CLAIM_STATUS.SUCCESS);
-          });
+        handlePendingTx?.({
+          hash,
+          txChainId: chainId,
+          txDescription: 'Claiming with subscription',
+          waitForSubgraph,
+          onSuccess,
+        });
       })
       .catch((err) => {
         // eslint-disable-next-line no-console
@@ -128,7 +131,6 @@ interface UseSubscriptionClaimProps {
   moduleParameters: ModuleParameter[] | undefined;
   moduleDetails: Module | undefined;
   chainId: number | undefined;
-  controllerAddress: string | undefined;
-  status: string;
   setStatus: (status: string) => void;
+  handlePendingTx: HandlePendingTx | undefined;
 }

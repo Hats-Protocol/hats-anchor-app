@@ -34,8 +34,6 @@ type HatWearerFormProps = {
   localForm?: UseFormReturn<any>;
 };
 
-// !currently experiencing an issue where the prepare hook is running when enabled is false
-// TODO after migrating to wagmi v2 look into `enabled` not working on `batchMintHats`
 // TODO edge case when user added to list but only wanted to single mint
 // TODO reset form state on unmount?
 

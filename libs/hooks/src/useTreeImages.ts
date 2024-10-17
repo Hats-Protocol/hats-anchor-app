@@ -26,7 +26,7 @@ const treeImages = async (
   if (!images || _.isEmpty(images) || !hats) return [];
 
   const promises = _.map(images, (image: string) =>
-    checkImageIsValid(image).catch((e) => { }),
+    checkImageIsValid(image).catch((e) => null),
   );
   const imageUrls = await Promise.all(promises);
 
@@ -46,6 +46,8 @@ const treeImages = async (
 
   return hatsWithImages;
 };
+
+// ! MOSTLY DEPRECATED IN THE MAIN APP, LEVERAGING THE MESH TO FETCH NEAREST IMAGES
 
 const useTreeImages = ({
   hats,

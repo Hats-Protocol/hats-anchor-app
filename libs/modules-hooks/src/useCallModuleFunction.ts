@@ -13,7 +13,7 @@ import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 
-// TODO update to use `usePollSubgraph`
+// TODO update to use `handlePendingTx`
 
 interface CallModuleFunction {
   moduleId?: string;

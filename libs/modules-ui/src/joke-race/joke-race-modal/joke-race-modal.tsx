@@ -1,23 +1,10 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Stack,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Icon, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, DatePicker, DurationInput, NumberInput } from 'forms';
-import {
-  useAllWearers,
-  useHatDetails,
-  useProfileDetails,
-  useWearerDetails,
-} from 'hats-hooks';
+import { useHatDetails, useProfileDetails, useWearerDetails } from 'hats-hooks';
 import { useClipboard } from 'hooks';
 import { compact, find, map, pick, toNumber } from 'lodash';
 import { useJokeRace } from 'modules-hooks';
@@ -26,7 +13,6 @@ import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
 import {
-  filterProfiles,
   formatAddress,
   getJokeRaceModuleParameters,
   shortDateFormatter,
@@ -69,13 +55,13 @@ export const JokeRaceModal = ({
   const [managingNextTerm, setManagingNextTerm] = useState(false);
   const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const { writeContractAsync } = useWriteContract();
-  const { watch } = pick(localForm, ['watch']);
+  const { watch, reset } = pick(localForm, ['watch', 'reset']);
 
   const { data: hat, details } = useHatDetails({
     hatId: eligibilityHatId,
     chainId,
   });
-  const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
+  // const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
@@ -131,18 +117,19 @@ export const JokeRaceModal = ({
       moduleParameters: liveParams,
       jokeRaceDetails: jokeRaceDetails || undefined,
     });
+
   const isAdmin = useMemo(() => {
-    return find(wearerHats, { id: adminHat });
+    return !!find(wearerHats, { id: adminHat });
   }, [wearerHats, adminHat]);
 
   const { onCopy: copyContest } = useClipboard(contestAddress, {
     toastData: { title: 'Contest Address Copied' },
   });
 
-  const filteredProfiles = filterProfiles({
-    profiles: jokeRaceProfiles,
-    wearerIds: map(wearers, (wearer) => wearer.id),
-  });
+  // const filteredProfiles = filterProfiles({
+  //   profiles: jokeRaceProfiles,
+  //   wearerIds: map(wearers, (wearer) => wearer.id),
+  // });
 
   const moduleDescriptors = useMemo(() => {
     return compact([
@@ -186,6 +173,7 @@ export const JokeRaceModal = ({
       },
     ]);
   }, [contestAddress, copyContest]);
+  console.log({ canStartNextTerm, isAdmin });
 
   const handleStartNextTerm = async () => {
     return writeContractAsync({
@@ -329,6 +317,7 @@ export const JokeRaceModal = ({
                     colorScheme='blue.500'
                     onClick={() => {
                       setManagingNextTerm(false);
+                      reset();
                     }}
                   >
                     Cancel
@@ -357,12 +346,13 @@ export const JokeRaceModal = ({
           !!canStartNextTerm && {
             label: 'Start Next Term',
             colorScheme: 'blue.500',
-            onClick: () => setManagingNextTerm(true),
+            onClick: handleStartNextTerm,
+            hasRole: !!canStartNextTerm,
           },
         ])}
       />
 
-      <Flex
+      {/* <Flex
         position='absolute'
         bottom={0}
         minH='100px'
@@ -398,7 +388,7 @@ export const JokeRaceModal = ({
             </HStack>
           </Flex>
         )}
-      </Flex>
+      </Flex> */}
     </ModuleModal>
   );
 };

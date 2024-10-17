@@ -8,9 +8,6 @@ import {
   Heading,
   HStack,
   Icon,
-  // Input,
-  // InputGroup,
-  // InputLeftElement,
   Skeleton,
   Stack,
   Text,
@@ -24,11 +21,7 @@ import {
   HatWearerForm,
   HatWearerStatusForm,
 } from 'forms';
-import {
-  useHatWearers,
-  useWearerDetails,
-  useWearersEligibilityStatus,
-} from 'hats-hooks';
+import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import {
   filterWearers,
   isTopHat,
@@ -53,7 +46,6 @@ import {
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-// import { FaSearch } from 'react-icons/fa';
 import { ControllerData, HatWearer } from 'types';
 import { commify, formatScientificWhole } from 'utils';
 import { Hex } from 'viem';
@@ -76,17 +68,12 @@ const WearersList = () => {
   const { isMobile } = useMediaStyles();
   const { address } = useAccount();
   const { editMode, orgChartWearers } = useTreeForm();
-  const { selectedHat, chainId } = useSelectedHat();
+  const { selectedHat, chainId, hatLoading } = useSelectedHat();
   const {
     isOpen: ineligibleWearersExpanded,
     onToggle: onToggleIneligibleWearers,
   } = useDisclosure();
 
-  const { data: hatWearers, isLoading: wearersLoading } = useHatWearers({
-    hat: selectedHat,
-    chainId,
-    editMode: false,
-  });
   const { data: wearersEligibility, isLoading: wearerEligibilityLoading } =
     useWearersEligibilityStatus({
       selectedHat,
@@ -94,27 +81,22 @@ const WearersList = () => {
       editMode,
     });
   const { eligibleWearers, ineligibleWearers } = useMemo(() => {
-    if (wearerEligibilityLoading || wearersLoading) return DEFAULT_WEARERS;
+    if (wearerEligibilityLoading) return DEFAULT_WEARERS;
     const {
       eligibleWearers: eligibleWearerIds,
       ineligibleWearers: ineligibleWearerIds,
     } = pick(wearersEligibility, ['eligibleWearers', 'ineligibleWearers']);
-    const localEligibleWearers = filter(hatWearers, (w: HatWearer) =>
+    const localEligibleWearers = filter(orgChartWearers, (w: HatWearer) =>
       includes(eligibleWearerIds, w?.id),
     );
-    const localIneligibleWearers = filter(hatWearers, (w: HatWearer) =>
+    const localIneligibleWearers = filter(orgChartWearers, (w: HatWearer) =>
       includes(ineligibleWearerIds, w?.id),
     );
     return {
-      eligibleWearers: localEligibleWearers,
-      ineligibleWearers: localIneligibleWearers,
+      eligibleWearers: localEligibleWearers as HatWearer[],
+      ineligibleWearers: localIneligibleWearers as HatWearer[],
     };
-  }, [
-    wearersEligibility,
-    wearerEligibilityLoading,
-    wearersLoading,
-    hatWearers,
-  ]);
+  }, [wearersEligibility, orgChartWearers, wearerEligibilityLoading]);
 
   const [changeStatusWearer, setChangeStatusWearer] = useState<
     Hex | undefined
@@ -164,6 +146,9 @@ const WearersList = () => {
     map(ineligibleWearers, 'id'),
     toLower(address),
   );
+
+  // TODO fetch additional details if wearer not found in orgChartWearers
+  // console.log({ currentWearerDetails });
 
   return (
     <>
@@ -225,7 +210,7 @@ const WearersList = () => {
               />
             )}
           {map(
-            !wearersLoading ? filteredWearers : loadingWearers,
+            !hatLoading ? filteredWearers : loadingWearers,
             (w: HatWearer, index: number) => (
               <Skeleton isLoaded={typeof w.id === 'string'} key={index}>
                 <WearerRow
@@ -237,7 +222,7 @@ const WearersList = () => {
               </Skeleton>
             ),
           )}
-          {!wearersLoading && isEmpty(filteredWearers) && (
+          {!hatLoading && isEmpty(filteredWearers) && (
             <Box>
               <Flex h='70px' align='center'>
                 <Text>No wearers currently</Text>

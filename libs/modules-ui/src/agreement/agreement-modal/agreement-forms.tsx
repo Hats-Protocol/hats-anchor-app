@@ -69,7 +69,6 @@ export const AgreementForms = ({
 
   const newAgreementContent = watch('agreementContent');
   const gracePeriod = watch('gracePeriod');
-  console.log(newAgreementContent);
 
   const { wearers } = useAllWearers({
     selectedHat: hat || undefined,
@@ -85,7 +84,7 @@ export const AgreementForms = ({
     onchainHats,
   });
 
-  const isWearing = find(wearers, { id: toLower(address) });
+  const isWearing = !!find(wearers, { id: hat?.id });
 
   const ownerHat = get(find(moduleParameters, { label: 'Owner Hat' }), 'value');
   const judgeHat = get(
@@ -144,7 +143,7 @@ export const AgreementForms = ({
   };
 
   const agreementButtons = compact([
-    selectedOption === 'Signatures' &&
+    selectedOption === 'Agreement' &&
       !isWearing && {
         label: 'Sign Agreement & Claim',
         onClick: handleSignAgreement,
@@ -281,7 +280,9 @@ export const AgreementForms = ({
                     : hat?.id && `Hat ${hatIdDecimalToIp(BigInt(hat.id))}`
                 }`}
                 sendTx={handleUpdateAgreement}
-                onReceipt={() => {}}
+                afterSuccess={() => {
+                  setUpdatingAgreement(false);
+                }}
                 isDisabled={isEmpty(agreementContent)}
                 onClick={handleUpdateAgreement}
               >
@@ -307,6 +308,7 @@ export const AgreementForms = ({
     agreementContent,
     // reset,
   ]);
+  console.log(agreementButtons);
 
   return <ManageBar sections={sections} buttons={agreementButtons} />;
 };

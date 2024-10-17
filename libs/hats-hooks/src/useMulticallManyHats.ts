@@ -46,6 +46,7 @@ const useMulticallManyHats = ({
   handlePendingTx,
   editMode,
   setEditMode,
+  onCloseTreeDrawer,
 }: UseMulticallManyHatsProps) => {
   const [proposedChanges, setProposedChanges] = useState<AppHat[]>([]);
   const [allCallsData, setAllCallsData] = useState<HatsCalls[]>();
@@ -108,6 +109,7 @@ const useMulticallManyHats = ({
   // }
 
   const { writeContractAsync } = useWriteContract();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const multicallTx = () => {
     // eslint-disable-next-line no-console
@@ -152,6 +154,7 @@ const useMulticallManyHats = ({
             description: txDescription,
             duration: 7000,
           },
+          waitForSubgraph,
           onSuccess,
         });
       })
@@ -175,13 +178,7 @@ const useMulticallManyHats = ({
       });
   };
 
-  const waitForSubgraph = useWaitForSubgraph({ chainId, sendToast: true });
-
   const onSuccess = async (d: TransactionReceipt | undefined) => {
-    await waitForSubgraph(d);
-    if (d !== undefined) {
-      await invalidateAfterTransaction(Number(chainId), d.transactionHash);
-    }
     // TODO alternate error handling needed here?
 
     queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
@@ -195,9 +192,10 @@ const useMulticallManyHats = ({
     );
 
     setStoredData?.(newStoredData);
+    // todo remove hatId
 
-    // TODO leave edit mode
     setEditMode?.(false);
+    onCloseTreeDrawer?.();
   };
 
   const txDescription = summarizeActions(allCallsData as HatsCalls[]);
@@ -243,6 +241,7 @@ interface UseMulticallManyHatsProps {
   handlePendingTx: HandlePendingTx | undefined;
   editMode?: boolean;
   setEditMode: Dispatch<SetStateAction<boolean>> | undefined;
+  onCloseTreeDrawer: (() => void) | undefined;
 }
 
 export interface HatPinDetails {

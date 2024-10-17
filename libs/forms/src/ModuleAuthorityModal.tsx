@@ -17,15 +17,17 @@ const ModuleAuthorityModal = ({
   authority,
   selectedFunction,
   index,
+  setSelectedFunction,
 }: {
   authority: Authority;
   selectedFunction: ModuleFunction | undefined;
+  setSelectedFunction: (func: ModuleFunction | undefined) => void;
   index: number;
 }) => {
   const { setModals } = useOverlay();
   const { chainId } = useTreeForm();
   const localForm = useForm({ mode: 'onChange' });
-  const { formState, handleSubmit } = localForm;
+  const { formState, handleSubmit, reset } = localForm;
   const { mutate: callModuleFunction } = useCallModuleFunction({
     chainId,
   });
@@ -39,6 +41,7 @@ const ModuleAuthorityModal = ({
 
   const onSubmit = (args: any) => {
     if (!authority || !selectedFunction) return;
+
     if (authority.type === AUTHORITY_TYPES.modules) {
       const localArgs = args;
       // ! workaround for hat being an arg on Passthrough module
@@ -67,6 +70,12 @@ const ModuleAuthorityModal = ({
     }
   };
 
+  const onCloseModal = () => {
+    reset();
+    setSelectedFunction(undefined);
+    setModals?.({});
+  };
+
   return (
     <Modal
       name={`functionCall-${authority?.label}-${index}`}
@@ -74,42 +83,44 @@ const ModuleAuthorityModal = ({
         get(selectedFunction, 'label'),
       )} for Hat #${authorityHatId}`}
     >
-      <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={1}>
-          {get(selectedFunction, 'description') && (
-            <Text>{get(selectedFunction, 'description')}</Text>
-          )}
-        </Stack>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={6}>
+          <Stack spacing={1}>
+            {get(selectedFunction, 'description') && (
+              <Text>{get(selectedFunction, 'description')}</Text>
+            )}
+          </Stack>
 
-        <Stack>
-          <ModuleArgsForm
-            selectedModuleArgs={
-              get(selectedFunction, 'args', []) as ModuleCreationArg[]
-            }
-            localForm={localForm}
-            hideIcon
-            noMargin
-            isDeploy={false}
-            // ? need `tokenAddress` ?
-          />
+          <Stack>
+            <ModuleArgsForm
+              selectedModuleArgs={
+                get(selectedFunction, 'args', []) as ModuleCreationArg[]
+              }
+              localForm={localForm}
+              hideIcon
+              noMargin
+              isDeploy={false}
+              // ? need `tokenAddress` ?
+            />
+          </Stack>
+          <Flex justify='flex-end'>
+            <HStack>
+              <Button variant='outline' onClick={onCloseModal}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme='blue'
+                type='submit'
+                isDisabled={!isValid}
+                // TODO alternative for loading here?
+                // isLoading={isModuleLoading || isHsgLoading}
+              >
+                {capitalize(get(selectedFunction, 'label'))}
+              </Button>
+            </HStack>
+          </Flex>
         </Stack>
-        <Flex justify='flex-end'>
-          <HStack>
-            <Button variant='outline' onClick={() => setModals?.({})}>
-              Cancel
-            </Button>
-            <Button
-              colorScheme='blue'
-              type='submit'
-              isDisabled={!isValid}
-              // TODO alternative for loading here?
-              // isLoading={isModuleLoading || isHsgLoading}
-            >
-              {capitalize(get(selectedFunction, 'label'))}
-            </Button>
-          </HStack>
-        </Flex>
-      </Stack>
+      </form>
     </Modal>
   );
 };
