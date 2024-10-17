@@ -132,19 +132,22 @@ export const OverlayContextProvider = ({
     [transactions, setTransactions],
   );
 
-  const updateTransactionStatus = (hash: Hex, status: string) => {
-    if (!hash) return;
+  const updateTransactionStatus = useCallback(
+    (hash: Hex, status: string) => {
+      if (!hash) return;
 
-    setTransactions((prevTransactions) => {
-      if (!prevTransactions.length) return prevTransactions;
+      setTransactions((prevTransactions) => {
+        if (!prevTransactions.length) return prevTransactions;
 
-      const updatedTransactions = prevTransactions.map((tx) =>
-        tx.hash === hash ? { ...tx, status } : tx,
-      );
+        const updatedTransactions = prevTransactions.map((tx) =>
+          tx.hash === hash ? { ...tx, status } : tx,
+        );
 
-      return updatedTransactions;
-    });
-  };
+        return updatedTransactions;
+      });
+    },
+    [setTransactions],
+  );
 
   const trackOpenCommandPalette = useCallback(() => {
     posthog.capture('Toggled Command Palette', { is_open: commandPalette });
@@ -174,77 +177,80 @@ export const OverlayContextProvider = ({
    *  successToastData: { ...ToastProps },
    * });
    * */
-  const handlePendingTx = async ({
-    hash,
-    txChainId,
-    txDescription,
-    // toasts
-    waitForSubgraphToastData,
-    successToastData,
-    // tx handling
-    waitForSubgraph,
-    onSuccess,
-    // after success
-    redirect = null,
-    clearModals = true,
-    sendSuccessToast = true,
-  }: HandlePendingTxProps): Promise<TransactionReceipt | undefined> => {
-    if (!hash || !txChainId) {
-      return Promise.resolve(undefined);
-    }
-
-    if (hash && hash !== '0x') {
-      addTransaction({
-        hash,
-        txChainId,
-        timestamp: Date.now(),
-        status: 'pending',
-        txDescription,
-      });
-    }
-
-    const txReceipt = await viemPublicClient(
-      txChainId || 1,
-    ).waitForTransactionReceipt({
+  const handlePendingTx = useCallback(
+    async ({
       hash,
-    });
+      txChainId,
+      txDescription,
+      // toasts
+      waitForSubgraphToastData,
+      successToastData,
+      // tx handling
+      waitForSubgraph,
+      onSuccess,
+      // after success
+      redirect = null,
+      clearModals = true,
+      sendSuccessToast = true,
+    }: HandlePendingTxProps): Promise<TransactionReceipt | undefined> => {
+      if (!hash || !txChainId) {
+        return Promise.resolve(undefined);
+      }
 
-    toast.info({
-      title: 'Transaction accepted',
-      description: 'Waiting for the updated state to be indexed...',
-      ...waitForSubgraphToastData,
-    });
+      if (hash && hash !== '0x') {
+        addTransaction({
+          hash,
+          txChainId,
+          timestamp: Date.now(),
+          status: 'pending',
+          txDescription,
+        });
+      }
 
-    if (!txReceipt) return Promise.resolve(undefined);
-
-    updateTransactionStatus(hash, 'completed');
-
-    // TODO This can be centralized a bit and doesn't require a hook
-    await waitForSubgraph?.(txReceipt);
-    await invalidateAfterTransaction(txChainId, hash);
-
-    if (sendSuccessToast && successToastData) {
-      // this toast is specifically the one that shows when the transaction is successful
-      // we still need to wait for the subgraph to show true "success"
-      toast[(successToastData.status as keyof typeof toast) || 'info']({
-        ...successToastData,
-        title: _.get(successToastData, 'title', 'Transaction successful'),
+      const txReceipt = await viemPublicClient(
+        txChainId || 1,
+      ).waitForTransactionReceipt({
+        hash,
       });
-    }
 
-    onSuccess?.(txReceipt);
-    // TODO handle queryClient invalidations here
+      toast.info({
+        title: 'Transaction accepted',
+        description: 'Waiting for the updated state to be indexed...',
+        ...waitForSubgraphToastData,
+      });
 
-    if (clearModals) {
-      setModals(defaultModals);
-    }
+      if (!txReceipt) return Promise.resolve(undefined);
 
-    if (redirect) {
-      router.push(redirect);
-    }
+      updateTransactionStatus(hash, 'completed');
 
-    return Promise.resolve(txReceipt);
-  };
+      // TODO This can be centralized a bit and doesn't require a hook
+      await waitForSubgraph?.(txReceipt);
+      await invalidateAfterTransaction(txChainId, hash);
+
+      if (sendSuccessToast && successToastData) {
+        // this toast is specifically the one that shows when the transaction is successful
+        // we still need to wait for the subgraph to show true "success"
+        toast[(successToastData.status as keyof typeof toast) || 'info']({
+          ...successToastData,
+          title: _.get(successToastData, 'title', 'Transaction successful'),
+        });
+      }
+
+      onSuccess?.(txReceipt);
+      // TODO handle queryClient invalidations here
+
+      if (clearModals) {
+        setModals(defaultModals);
+      }
+
+      if (redirect) {
+        router.push(redirect);
+      }
+
+      return Promise.resolve(txReceipt);
+    },
+    [addTransaction, toast, updateTransactionStatus, router],
+  );
 
   const txPending = useMemo(() => {
     const multicallTx = _.filter(

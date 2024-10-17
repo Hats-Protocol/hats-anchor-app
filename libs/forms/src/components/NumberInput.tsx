@@ -93,7 +93,7 @@ const NumberInput = ({
     >
       <Stack spacing={2} w='full'>
         {label && (
-          <FormLabel mb={0} as={Text} fontSize='sm'>
+          <FormLabel mb={0} as={Text} fontSize='sm' fontWeight='normal'>
             {label.toUpperCase()}
           </FormLabel>
         )}

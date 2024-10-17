@@ -160,7 +160,8 @@ const useMulticallManyHats = ({
       })
       .catch((error) => {
         if (
-          error.name === 'TransactionExecutionError' &&
+          (error.name === 'TransactionExecutionError' ||
+            error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
           toast.error({

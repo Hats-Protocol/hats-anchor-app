@@ -327,12 +327,14 @@ export const TreeFormContextProvider = ({
     initialHats: mapWithChainId(onchainIds, chainId),
     editMode,
   });
+  // console.log('hatDetails: ', hatDetails);
 
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
     chainId,
     editMode,
   });
+  // console.log('orgChartWearers: ', orgChartWearers);
 
   const { orgChartTree } = useOrgChartTree({
     treeData,

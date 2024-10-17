@@ -1,5 +1,4 @@
-export { default as AuthoritiesForm } from './AuthoritiesForm';
-export { default as AuthoritiesFormItem } from './AuthoritiesFormItem';
+export * from './authorities-list-form';
 export { default as ClaimsHandler } from './ClaimsHandler';
 export * from './components';
 export { default as HatBasicsForm } from './HatBasicsForm';

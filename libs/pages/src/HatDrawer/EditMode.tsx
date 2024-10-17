@@ -14,7 +14,7 @@ import { CONFIG, CONTROLLER_TYPES, FORM_FIELDS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import {
-  AuthoritiesForm,
+  AuthoritiesListForm,
   HatBasicsForm,
   HatManagementForm,
   HatWearerForm,
@@ -162,7 +162,7 @@ const EditMode = () => {
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
           >
             <Stack spacing={4} w='100%'>
-              <AuthoritiesForm
+              <AuthoritiesListForm
                 formName='authorities'
                 title='AUTHORITIES'
                 subtitle={

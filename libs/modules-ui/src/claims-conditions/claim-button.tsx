@@ -1,6 +1,14 @@
 'use client';
 
-import { Button, HStack, Icon, Link, Text, Tooltip } from '@chakra-ui/react';
+import {
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Link,
+  Text,
+  Tooltip,
+} from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
@@ -17,6 +25,9 @@ import { useAccount, useChainId } from 'wagmi';
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const NetworkSwitcher = dynamic(() =>
   import('molecules').then((mod) => mod.NetworkSwitcher),
+);
+const ConnectWallet = dynamic(() =>
+  import('molecules').then((mod) => mod.ConnectWallet),
 );
 
 export const ClaimButton = () => {
@@ -60,16 +71,18 @@ export const ClaimButton = () => {
 
   if (isWearing && isEligible) {
     return (
-      <Button
-        as={Link}
-        href={hatUrl}
-        colorScheme='green'
-        leftIcon={<Icon as={HatIcon} color='white' />}
-        rightIcon={<Icon as={BsArrowRight} color='white' />}
-        isExternal
-      >
-        View your hat
-      </Button>
+      <Flex>
+        <Button
+          as={Link}
+          href={hatUrl}
+          colorScheme='green'
+          leftIcon={<Icon as={HatIcon} color='white' />}
+          rightIcon={<Icon as={BsArrowRight} color='white' />}
+          isExternal
+        >
+          View your hat
+        </Button>
+      </Flex>
     );
   }
 
@@ -82,9 +95,6 @@ export const ClaimButton = () => {
   }
 
   let tooltip = '';
-  if (!address) {
-    tooltip = 'Connect your wallet to claim';
-  }
   if (requireHatter && !hatterIsAdmin) {
     tooltip = 'There is no claims hatter enabled for this tree';
   }
@@ -95,6 +105,10 @@ export const ClaimButton = () => {
     tooltip = 'You are already wearing this hat';
   }
   // TODO check supply of hat
+
+  if (!address) {
+    return <ConnectWallet />;
+  }
 
   if (currentChainId !== chainId) {
     return <NetworkSwitcher chainId={chainId} />;
@@ -109,7 +123,6 @@ export const ClaimButton = () => {
           hatterIfNeeded ||
           disableClaim ||
           (isWearing && isEligible) ||
-          !address ||
           currentChainId !== chainId
         } // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
