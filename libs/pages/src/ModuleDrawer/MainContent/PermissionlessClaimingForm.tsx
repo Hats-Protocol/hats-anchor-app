@@ -3,12 +3,12 @@
 import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { FormRowWrapper, RadioBox, Select } from 'forms';
+import { FormRowWrapper, RadioBox } from 'forms';
+import { Select } from 'forms';
 import { useHatDetails, useHatDetailsField, useIsAdmin } from 'hats-hooks';
 import { includes, map, pick, sortBy } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import {
   BsBarChartLine,
@@ -67,18 +67,6 @@ const PermissionlessClaimingForm = ({
     editMode,
   );
 
-  const scrollTargetRef = useRef<HTMLDivElement>(null);
-
-  // useEffect(() => {
-  //   if (isPermissionlesslyClaimable === 'Yes') {
-  //     scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
-  //     setValue('adminHat', _.get(_.first(parentHats), 'id'));
-  //   } else {
-  //     setValue('adminHat', undefined);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isPermissionlesslyClaimable]);
-
   if (!onchainHats || !treeToDisplay) return null;
 
   if (isClaimable) {
@@ -130,7 +118,7 @@ const PermissionlessClaimingForm = ({
       )}
 
       {isPermissionlesslyClaimable === 'Yes' && (
-        <Stack ref={scrollTargetRef} spacing={12}>
+        <Stack spacing={12}>
           {multiClaimsHatter &&
           !isClaimable &&
           isAdmin &&

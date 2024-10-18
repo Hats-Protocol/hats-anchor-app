@@ -32,6 +32,7 @@ export const Eligibility = ({
   const { eligibility } = pick(selectedHat, ['eligibility']);
   const orgChartEligibility = find(orgChartWearers, { id: eligibility });
   const eligibilityData = orgChartEligibility || { id: eligibility as Hex };
+  // console.log({ eligibilityData });
 
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const { data: ruleSets, isLoading: loadingModuleDetails } =

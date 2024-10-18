@@ -1,13 +1,11 @@
 'use client';
 
 import {
-  Box,
   Button,
   Card,
   Flex,
   HStack,
-  Icon as IconWrapper,
-  Modal,
+  Modal as ChakraModal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
@@ -15,44 +13,21 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
-  Text,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { AUTHORITY_TYPES, CONFIG } from '@hatsprotocol/constants';
-import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { usePinImageIpfs } from 'hooks';
 import { pick, some } from 'lodash';
 import { AuthorityHeader } from 'molecules';
-import dynamic from 'next/dynamic';
-import Link from 'next/link';
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import {
-  FieldValues,
-  useFieldArray,
-  useForm,
-  UseFormReturn,
-} from 'react-hook-form';
-import { IconType } from 'react-icons';
-import { BsPlusCircle, BsSave } from 'react-icons/bs';
+import { FieldValues, UseFormReturn } from 'react-hook-form';
+import { BsSave } from 'react-icons/bs';
 import { Authority } from 'types';
 import { DropZone } from 'ui';
 import { formatImageUrl, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 
-import AuthoritiesFormItem from './AuthoritiesFormItem';
-import { Input, Textarea } from './components';
-
-const Safe = dynamic(() => import('icons').then((mod) => mod.Safe));
-
-interface AuthoritiesFormListProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formName: string;
-  title: string;
-  subtitle?: string | ReactNode;
-  Icon: IconType;
-  label: string;
-}
+import { Input, Textarea } from '../components';
 
 interface AuthoritiesFormProps {
   formName: string;
@@ -67,7 +42,7 @@ interface AuthoritiesFormProps {
   hatId: Hex | undefined;
 }
 
-const AuthoritiesForm = ({
+export const AuthoritiesForm = ({
   formName,
   isOpen,
   onClose,
@@ -147,7 +122,7 @@ const AuthoritiesForm = ({
   }, [gate, link]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <ChakraModal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent minW='800px' px={3} py={2}>
         <ModalHeader>Edit Authority</ModalHeader>
@@ -257,147 +232,6 @@ const AuthoritiesForm = ({
         </ModalBody>
         <ModalFooter />
       </ModalContent>
-    </Modal>
+    </ChakraModal>
   );
 };
-
-const AuthoritiesFormList = ({
-  formName,
-  title,
-  Icon,
-  subtitle,
-  label,
-}: AuthoritiesFormListProps) => {
-  // CONTEXTS
-  const { chainId } = useTreeForm();
-  const { selectedHat } = useSelectedHat();
-  const { localForm: hatForm } = useHatForm();
-  // LOCAL STATE
-  const [editingIndex, setEditingIndex] = useState<number>();
-
-  // MODAL DISCLOSURE
-  const { isOpen, onOpen, onClose } = useDisclosure({
-    onClose: () => {
-      reset();
-      if (item.label === '') remove(editingIndex);
-    },
-  });
-
-  // FORMS
-  const {
-    getValues: hatGetValues,
-    watch: hatWatch,
-    control: hatControl,
-  } = pick(hatForm, ['getValues', 'watch', 'control']);
-  const localForm = useForm();
-  const { setValue, reset, watch } = pick(localForm, [
-    'setValue',
-    'reset',
-    'handleSubmit',
-    'watch',
-  ]);
-  const items = hatWatch?.(formName);
-  const item = watch();
-
-  const { fields, append, remove } = useFieldArray({
-    control: hatControl,
-    name: formName,
-  });
-
-  // ACTIONS
-  const openEditModal = (i: number) => {
-    const {
-      imageUrl: localImageUrl,
-      label: localLabel,
-      description: localDescription,
-      link: localLink,
-      gate: localGate,
-    } = hatGetValues?.(`${formName}.${i}`) ?? {};
-    setValue('label', localLabel, { shouldDirty: false });
-    setValue('description', localDescription, { shouldDirty: false });
-    setValue('link', localLink, { shouldDirty: false });
-    setValue('gate', localGate, { shouldDirty: false });
-    setValue('imageUrl', localImageUrl, { shouldDirty: false });
-    onOpen();
-  };
-
-  if (!localForm || !hatForm) return null;
-
-  return (
-    <>
-      <Stack>
-        <Box mb={3}>
-          <HStack alignItems='center' ml={-6}>
-            {Icon && <IconWrapper as={Icon} boxSize={4} mt='2px' />}
-            <Text size='sm' variant='lightMedium'>
-              {title}
-            </Text>
-          </HStack>
-          {subtitle && typeof subtitle !== 'string' ? (
-            subtitle
-          ) : (
-            <Text variant='gray'>{subtitle}</Text>
-          )}
-        </Box>
-        {fields.map((field, i) => (
-          <AuthoritiesFormItem
-            key={field.id}
-            index={i}
-            formName={formName}
-            remove={remove}
-            setIndex={setEditingIndex}
-            onOpen={() => openEditModal(i)}
-          />
-        ))}
-
-        <Box my={2}>
-          <HStack>
-            <Button
-              onClick={() => {
-                append({
-                  label: '',
-                  description: '',
-                  link: '',
-                  gate: '',
-                  imageUrl: '',
-                });
-                setEditingIndex(fields.length);
-                onOpen();
-              }}
-              isDisabled={some(items, ['label', ''])}
-              variant='outline'
-              borderColor='blackAlpha.300'
-              leftIcon={<IconWrapper as={BsPlusCircle} />}
-            >
-              Add {items?.length ? 'another' : 'an'} {label}
-            </Button>
-            {/* temporary button until interim form and edit mode v2 */}
-            <Link
-              href='https://hats-signer-gate-portal.vercel.app/deploy'
-              target='_blank'
-              rel='noreferrer noopener'
-              passHref
-            >
-              <Button variant='outline' leftIcon={<IconWrapper as={Safe} />}>
-                Add a Safe
-              </Button>
-            </Link>
-          </HStack>
-        </Box>
-      </Stack>
-
-      <AuthoritiesForm
-        formName={formName}
-        isOpen={isOpen}
-        onClose={onClose}
-        index={editingIndex}
-        localForm={localForm}
-        hatForm={hatForm}
-        chainId={chainId}
-        hatId={selectedHat?.id}
-      />
-    </>
-  );
-};
-
-export default AuthoritiesFormList;

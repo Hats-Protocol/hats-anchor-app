@@ -26,6 +26,9 @@ import { getDuration, tokenImageHandler } from 'utils';
 import { erc20Abi, formatUnits, maxUint256 } from 'viem';
 import { useAccount, useChainId, useWriteContract } from 'wagmi';
 
+const ConnectWallet = dynamic(() =>
+  import('molecules').then((mod) => mod.ConnectWallet),
+);
 const TransactionButton = dynamic(() =>
   import('molecules').then((mod) => mod.TransactionButton),
 );
@@ -180,34 +183,40 @@ export const AllowanceActions = ({
         </Flex>
 
         <Flex align='center'>
-          {currentChainId === chainId ? (
-            <TransactionButton
-              sendTx={async () => {
-                // @ts-expect-error argument of type
-                return writeContractAsync(approvalParams);
-              }}
-              afterSuccess={() => {
-                // refetchAllowance()
-                setIsReadyToClaim(true);
-                setModals?.({});
-                queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-              }}
-              variant='primary'
-              isDisabled={
-                (!isUndefined(allowance) &&
-                  !isUndefined(amountToApprove) &&
-                  allowance >= amountToApprove) ||
-                !address
-              }
-              txDescription='Approve allowance on Hat subscription'
-              chainId={chainId}
-            >
-              Approve {amount || 0} {durationText.noun}
-              {amount > 1 || amount === 0 ? 's' : ''} ({tokenAmountText}{' '}
-              {symbol})
-            </TransactionButton>
+          {address ? (
+            currentChainId === chainId ? (
+              <TransactionButton
+                sendTx={async () => {
+                  // @ts-expect-error argument of type
+                  return writeContractAsync(approvalParams);
+                }}
+                afterSuccess={() => {
+                  // refetchAllowance()
+                  setIsReadyToClaim(true);
+                  setModals?.({});
+                  queryClient.invalidateQueries({
+                    queryKey: ['readContracts'],
+                  });
+                }}
+                variant='primary'
+                isDisabled={
+                  (!isUndefined(allowance) &&
+                    !isUndefined(amountToApprove) &&
+                    allowance >= amountToApprove) ||
+                  !address
+                }
+                txDescription='Approve allowance on Hat subscription'
+                chainId={chainId}
+              >
+                Approve {amount || 0} {durationText.noun}
+                {amount > 1 || amount === 0 ? 's' : ''} ({tokenAmountText}{' '}
+                {symbol})
+              </TransactionButton>
+            ) : (
+              <NetworkSwitcher chainId={chainId} />
+            )
           ) : (
-            <NetworkSwitcher chainId={chainId} />
+            <ConnectWallet />
           )}
         </Flex>
       </Flex>
