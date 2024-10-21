@@ -577,7 +577,6 @@ export const processHatForCalls = async (
 ) => {
   const hatsClient = await createHatsClient(chainId);
   if (!hat || !hatsClient || !chainId) return emptyReturnData;
-  console.log(hat.id);
 
   if (!_.includes(_.map(onchainHats, 'id'), _.get(hat, 'id'))) {
     const newDetailsResult = await processNewDetailsCallForHat({
