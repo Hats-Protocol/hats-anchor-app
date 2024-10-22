@@ -31,7 +31,7 @@ export const useSimulateTransaction = ({
         value: 0,
       });
 
-      return fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/simulate`, {
+      return fetch('/api/simulate', {
         method: 'POST',
         body,
       })
