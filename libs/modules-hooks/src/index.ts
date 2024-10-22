@@ -12,6 +12,7 @@ export { default as useHatClaimBy } from './useHatClaimBy';
 export { default as useHatClaimFor } from './useHatClaimFor';
 export { default as useHatsModules } from './useHatsModules';
 export { default as useHatsSignerGatesMetadata } from './useHatsSignerGatesMetadata';
+export * from './useHsgDeploy';
 export { default as useHsgSigner } from './useHsgSigner';
 export * from './useLockFromHat';
 export { default as useModuleDeploy } from './useModuleDeploy';

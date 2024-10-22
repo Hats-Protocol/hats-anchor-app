@@ -115,7 +115,7 @@ export const useLockFromHat = ({
 
   let duration;
   if (durationInSeconds < Number.MAX_SAFE_INTEGER) {
-    duration = Number(durationInSeconds) / (60 * 60 * 24);
+    duration = Number(durationInSeconds) / (60 * 60 * 24); // convert to days
   }
 
   const formattedPrice = purchasePrice

@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { ChangeEvent, ReactNode } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 
 /**
@@ -47,8 +47,8 @@ const Select = ({
   };
 
   return (
-    <FormControl isRequired={options?.required}>
-      <Stack spacing={2} w='100%'>
+    <FormControl isRequired={!!options?.required}>
+      <Stack w='100%'>
         {label && (
           <HStack>
             <FormLabel mb={0} fontSize='sm'>
@@ -89,13 +89,7 @@ export default Select;
 interface SelectProps extends ChakraSelectProps {
   label?: string;
   name: string;
-  options?: {
-    required?: boolean;
-    pattern?: RegExp;
-    min?: number;
-    max?: number;
-    validate?: (value: object) => boolean | string;
-  };
+  options?: RegisterOptions;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;

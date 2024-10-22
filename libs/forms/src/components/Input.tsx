@@ -53,6 +53,7 @@ const Input = ({
   isDisabled,
   resetValue,
   addressButtons,
+  placeholder,
   // showNull = true,
   onChange,
   isInvalid,
@@ -129,12 +130,16 @@ const Input = ({
       <Stack spacing={1} w='full'>
         {label && (
           // disabled input lessens opacity of FormLabel
-          <FormLabel mb={0}>
+          <FormLabel mb={0} fontSize='sm'>
             <HStack>
-              <Text size='sm'>
-                {_.toUpper(label)}
-                {options?.required && ' *'}
-              </Text>
+              <Box fontWeight='normal'>{_.toUpper(label)}</Box>
+              {options?.required && (
+                <Box as='span' color='red.500'>
+                  {' '}
+                  *
+                </Box>
+              )}
+
               {tooltip && (
                 <Tooltip shouldWrapChildren label={tooltip}>
                   <FaRegQuestionCircle />
@@ -191,6 +196,7 @@ const Input = ({
             onPaste={handlePaste}
             onKeyDown={catchEnterKey} // prevent form submission on enter
             {...props}
+            placeholder={placeholder}
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='outline'
           />

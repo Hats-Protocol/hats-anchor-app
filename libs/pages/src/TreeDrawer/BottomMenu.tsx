@@ -20,13 +20,22 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
-import { useClipboard } from 'hooks';
+import { useClipboard, useSimulateTransaction } from 'hooks';
+import { get } from 'lodash';
+import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
+import { useCallback } from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { useAccount } from 'wagmi';
+
+const ChakraNextLink = dynamic(() =>
+  import('ui').then((mod) => mod.ChakraNextLink),
+);
 
 // TODO use ui/Input component
+const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';
 
 const BottomMenu = ({
   isExpanded,
@@ -35,9 +44,10 @@ const BottomMenu = ({
   isExpanded: boolean;
   setAccordionIndex: (index: number[]) => void;
 }) => {
-  const { storedData, chainId, treeId, onchainHats, treeToDisplay } =
+  const { storedData, chainId, treeId, onchainHats, treeToDisplay, topHat } =
     useTreeForm();
-  const { data, isLoading } = useMulticallCallData({
+  const { address } = useAccount();
+  const { data: multicallCallData, isLoading } = useMulticallCallData({
     chainId,
     treeId,
     storedData,
@@ -45,7 +55,8 @@ const BottomMenu = ({
     treeToDisplay,
     isExpanded,
   });
-  const callData = data ? data?.callData : null;
+  const callData = multicallCallData ? multicallCallData?.callData : null;
+  const topHatWearer = get(topHat, 'wearers.0.id');
 
   const hasUpdates = editHasUpdates(storedData);
 
@@ -58,11 +69,30 @@ const BottomMenu = ({
       status: 'info',
     },
   });
+  const { handleSimulate, isSimulating, simulationResponse } =
+    useSimulateTransaction({ chainId, callData: callData || undefined });
 
   const openCalldataMenu = () => {
     posthog.capture('Opened Transaction Calldata Menu');
     setAccordionIndex(isExpanded ? [] : [0]);
   };
+
+  const enableSimulation =
+    posthog.isFeatureEnabled('simulation') ||
+    process.env.NODE_ENV === 'development';
+
+  const handleSimulateTopHat = useCallback(() => {
+    if (!topHatWearer) return;
+    handleSimulate(topHatWearer);
+  }, [handleSimulate, topHatWearer]);
+
+  const handleSimulateMe = useCallback(() => {
+    if (!address) return;
+
+    handleSimulate(address);
+  }, [handleSimulate, address]);
+
+  console.log(simulationResponse);
 
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>
@@ -83,42 +113,61 @@ const BottomMenu = ({
 
             <AccordionPanel pb={8} px={8}>
               <Stack>
-                <Text variant='light'>Hats contract address</Text>
-                <HStack spacing={4}>
-                  <Input
-                    value={CONFIG.hatsAddress}
-                    background='white'
-                    color='blackAlpha.600'
-                    isReadOnly
-                    placeholder='Loading...'
-                  />
-                  <Button
-                    leftIcon={<FiCopy />}
-                    onClick={copyContractAddress}
-                    variant='outline'
-                    borderColor='gray.300'
-                  >
-                    Copy
-                  </Button>
-                </HStack>
-                <HStack>
-                  <Text variant='light'>
-                    Transaction call data (hex encoded)
-                  </Text>
-                  <Tooltip
-                    label='To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.'
-                    hasArrow
-                  >
-                    <Box h={5}>
-                      <Icon as={AiOutlineInfoCircle} color='blackAlpha.700' />
-                    </Box>
-                  </Tooltip>
-                </HStack>
+                {enableSimulation && (
+                  <Stack spacing={1}>
+                    <Text variant='light'>Simulate transaction</Text>
 
-                {!isLoading ? (
+                    <Flex gap={2}>
+                      <Button
+                        size='sm'
+                        variant='outlineMatch'
+                        colorScheme='blue.500'
+                        isDisabled={!callData}
+                        isLoading={isSimulating}
+                        onClick={handleSimulateMe}
+                      >
+                        Simulate Me
+                      </Button>
+
+                      <Button
+                        size='sm'
+                        variant='outlineMatch'
+                        colorScheme='blue.500'
+                        isDisabled={!callData}
+                        isLoading={isSimulating}
+                        onClick={handleSimulateTopHat}
+                      >
+                        Simulate Top Hat
+                      </Button>
+
+                      {simulationResponse && (
+                        <HStack>
+                          <Text size='sm'>
+                            {get(simulationResponse, 'transaction.status')
+                              ? 'Simulation successful!'
+                              : 'Simulation failed!'}
+                          </Text>
+
+                          <ChakraNextLink
+                            href={
+                              TENDERLY_SIMULATION_URL +
+                              get(simulationResponse, 'simulation.id')
+                            }
+                            decoration
+                          >
+                            <Text size='sm'>View on Tenderly</Text>
+                          </ChakraNextLink>
+                        </HStack>
+                      )}
+                    </Flex>
+                  </Stack>
+                )}
+
+                <Stack spacing={1}>
+                  <Text variant='light'>Hats contract address</Text>
                   <HStack spacing={4}>
                     <Input
-                      value={isLoading ? '' : callData || ''}
+                      value={CONFIG.hatsAddress}
                       background='white'
                       color='blackAlpha.600'
                       isReadOnly
@@ -126,19 +175,55 @@ const BottomMenu = ({
                     />
                     <Button
                       leftIcon={<FiCopy />}
-                      onClick={copyCallData}
-                      isDisabled={!callData}
+                      onClick={copyContractAddress}
                       variant='outline'
                       borderColor='gray.300'
                     >
                       Copy
                     </Button>
                   </HStack>
-                ) : (
-                  <Flex justify='center' align='center'>
-                    <Spinner />
-                  </Flex>
-                )}
+                </Stack>
+
+                <Stack spacing={1}>
+                  <HStack>
+                    <Text variant='light'>
+                      Transaction call data (hex encoded)
+                    </Text>
+                    <Tooltip
+                      label='To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.'
+                      hasArrow
+                    >
+                      <Box h={5}>
+                        <Icon as={AiOutlineInfoCircle} color='blackAlpha.700' />
+                      </Box>
+                    </Tooltip>
+                  </HStack>
+
+                  {!isLoading ? (
+                    <HStack spacing={4}>
+                      <Input
+                        value={isLoading ? '' : callData || ''}
+                        background='white'
+                        color='blackAlpha.600'
+                        isReadOnly
+                        placeholder='Loading...'
+                      />
+                      <Button
+                        leftIcon={<FiCopy />}
+                        onClick={copyCallData}
+                        isDisabled={!callData}
+                        variant='outline'
+                        borderColor='gray.300'
+                      >
+                        Copy
+                      </Button>
+                    </HStack>
+                  ) : (
+                    <Flex justify='center' align='center'>
+                      <Spinner />
+                    </Flex>
+                  )}
+                </Stack>
               </Stack>
             </AccordionPanel>
           </AccordionItem>
