@@ -27,7 +27,7 @@
     "@hatsprotocol/sdk-v1-core": "^0.10.0",
     "@hatsprotocol/sdk-v1-subgraph": "^1.0.0",
     "@radix-ui/react-popover": "^1.1.1",
-    "@rainbow-me/rainbowkit": "^2.1.6",
+    "@rainbow-me/rainbowkit": "^2.2.0",
     "@safe-global/api-kit": "^2.4.3",
     "@swc/helpers": "0.5.11",
     "@tanstack/react-query": "^5.45.0",
@@ -62,8 +62,8 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-markdown": "^8.0.7",
     "rollup": "^4.22.4",
-    "viem": "^2.21.18",
-    "wagmi": "^2.12.16",
+    "viem": "2.21.32",
+    "wagmi": "^2.12.22",
     "webpack": "^5.94.0"
   },
   "devDependencies": {
@@ -119,7 +119,7 @@
     "typescript": "5.5.3"
   },
   "resolutions": {
-    "viem": "2.21.18",
+    "viem": "2.21.32",
     "express": "4.20.0"
   }
 }
