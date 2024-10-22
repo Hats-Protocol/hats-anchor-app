@@ -27,6 +27,7 @@ const ChakraNextLink = dynamic(() =>
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const SUBSCRIPTION_MODAL_NAME = 'subscriptionManager';
+const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 
 // TODO get expiration date from key
 
@@ -41,10 +42,16 @@ export const UnlockEligibilityRule = ({
   const { setModals } = useOverlay();
   const { isMobile } = useMediaStyles();
 
-  const { allowance: tokenAllowance, keyPrice } = useLockFromHat({
+  const {
+    allowance: tokenAllowance,
+    duration,
+    keyPrice,
+  } = useLockFromHat({
     moduleParameters,
     chainId,
   });
+
+  const isOneTime = duration && duration >= MIN_ONE_TIME_DURATION;
   const hasAllowance =
     !!tokenAllowance && !!keyPrice && tokenAllowance >= keyPrice;
 
@@ -65,7 +72,7 @@ export const UnlockEligibilityRule = ({
     modalName = `${SUBSCRIPTION_MODAL_NAME}${modalSuffix}`;
   }
 
-  let claimsAppRule = <Text>Pay the subscription</Text>;
+  let claimsAppRule = <Text>Pay the {isOneTime ? 'fee' : 'subscription'}</Text>;
   let status = ELIGIBILITY_STATUS.ineligible;
   let displayStatus = 'Not Paid';
   let icon = BsFillXOctagonFill;
@@ -79,7 +86,7 @@ export const UnlockEligibilityRule = ({
             setModals?.({ [modalName]: true });
           }}
         >
-          subscription
+          {isOneTime ? 'fee' : 'subscription'}
         </Button>
       </Text>
     );
@@ -90,7 +97,7 @@ export const UnlockEligibilityRule = ({
     icon = BsCheckSquare;
   }
   if (isEligible) {
-    if (renewSoon) {
+    if (renewSoon && !isOneTime) {
       status = ELIGIBILITY_STATUS.expiring;
       displayStatus = 'Renew Soon';
       icon = BsCheckSquare;
@@ -121,7 +128,7 @@ export const UnlockEligibilityRule = ({
             color='gray.500'
             href={claimsLink({ chainId, hatId: selectedHat?.id })}
           >
-            subscription
+            {isOneTime ? 'fee' : 'subscription'}
           </ChakraNextLink>
         </Text>
       }

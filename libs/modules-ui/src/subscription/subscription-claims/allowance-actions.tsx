@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { NumberInput } from 'forms';
 import { useMediaStyles, useTokenDetails } from 'hooks';
-import { get, isUndefined, pick, toLower, toUpper } from 'lodash';
+import { get, isUndefined, pick, toLower } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo } from 'react';
@@ -35,6 +35,8 @@ const TransactionButton = dynamic(() =>
 const NetworkSwitcher = dynamic(() =>
   import('molecules').then((mod) => mod.NetworkSwitcher),
 );
+
+const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 
 export const AllowanceActions = ({
   moduleParameters,
@@ -57,6 +59,7 @@ export const AllowanceActions = ({
   const {
     isLoading,
     keyPrice,
+    keyBalance,
     price,
     symbol,
     decimals,
@@ -70,6 +73,7 @@ export const AllowanceActions = ({
   });
 
   const durationText = getDuration(duration);
+  const isOneTime = duration && duration >= MIN_ONE_TIME_DURATION;
   const amountToApprove =
     amount && keyPrice ? BigInt(amount) * keyPrice : undefined;
   const tokenAmountText = amountToApprove
@@ -126,15 +130,24 @@ export const AllowanceActions = ({
     primaryImage: get(tokenData, 'avatar'),
     chainId,
   });
+  let heading = 'Authorize Unlock Protocol to withdraw from your wallet';
+  if (isOneTime) {
+    heading = 'Authorize the one-time fee from your wallet';
+  } else if (activeSubscription) {
+    heading = 'Your active subscription';
+  }
+
+  let buttonText = `Approve ${amount || 0} ${durationText.noun}
+    ${amount > 1 || amount === 0 ? 's' : ''} (${tokenAmountText}{' '}
+    ${symbol})`;
+  if (isOneTime) {
+    buttonText = `Approve ${tokenAmountText} ${symbol}`;
+  }
 
   return (
     <Stack>
       <Skeleton isLoaded={!isLoading}>
-        <Heading size='lg'>
-          {activeSubscription
-            ? 'Your active subscription'
-            : 'Authorize Unlock Protocol to withdraw from your wallet'}
-        </Heading>
+        <Heading size='lg'>{heading}</Heading>
       </Skeleton>
 
       <Flex
@@ -148,20 +161,22 @@ export const AllowanceActions = ({
           justify={{ base: 'space-between', md: 'start' }}
           w={{ base: 'full', md: 'auto' }}
         >
-          <Box>
-            <NumberInput
-              name='amount'
-              numOptions={{ min: allowanceInDuration }}
-              label='Authorized Duration'
-              isDisabled={isLoading}
-              localForm={localForm}
-            />
-          </Box>
+          {!isOneTime && (
+            <Box>
+              <NumberInput
+                name='amount'
+                numOptions={{ min: allowanceInDuration }}
+                label='Authorized Duration'
+                isDisabled={isLoading}
+                localForm={localForm}
+              />
+            </Box>
+          )}
 
           <Stack minW={{ base: 'auto', md: '110px' }} align='center'>
             <Skeleton isLoaded={!isLoading} h='full'>
-              <Heading size='sm' fontWeight='medium'>
-                {toUpper(`${durationText.adjective} fee`)}
+              <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
+                {isOneTime ? 'One-time fee' : `${durationText.adjective} fee`}
               </Heading>
             </Skeleton>
 
@@ -203,14 +218,13 @@ export const AllowanceActions = ({
                   (!isUndefined(allowance) &&
                     !isUndefined(amountToApprove) &&
                     allowance >= amountToApprove) ||
-                  !address
+                  !address ||
+                  (!!isOneTime && !!keyBalance && keyBalance >= BigInt(0))
                 }
                 txDescription='Approve allowance on Hat subscription'
                 chainId={chainId}
               >
-                Approve {amount || 0} {durationText.noun}
-                {amount > 1 || amount === 0 ? 's' : ''} ({tokenAmountText}{' '}
-                {symbol})
+                {buttonText}
               </TransactionButton>
             ) : (
               <NetworkSwitcher chainId={chainId} />
@@ -221,18 +235,42 @@ export const AllowanceActions = ({
         </Flex>
       </Flex>
 
-      <Flex
-        h='75px'
-        direction={{ base: 'column-reverse', md: 'row' }}
-        justify={!isMobile && hasAllowance ? 'space-between' : 'center'}
-        align='center'
-        gap={6}
-      >
-        {hasAllowance && (
+      {!isOneTime && (
+        <Flex
+          h='75px'
+          direction={{ base: 'column-reverse', md: 'row' }}
+          justify={!isMobile && hasAllowance ? 'space-between' : 'center'}
+          align='center'
+          gap={6}
+        >
+          {hasAllowance && (
+            <TransactionButton
+              sendTx={async () => {
+                // @ts-expect-error argument of type
+                return writeContractAsync(zeroApprovalParams);
+              }}
+              afterSuccess={() => {
+                setTimeout(() => {
+                  queryClient.invalidateQueries({
+                    queryKey: ['readContracts'],
+                  });
+                  queryClient.invalidateQueries({ queryKey: ['readContract'] });
+                }, 1000);
+              }}
+              variant='link'
+              color='red.500'
+              leftIcon={<Icon as={BsArrowUpRightCircle} />}
+              txDescription='Cancel subscription for Hat'
+              chainId={chainId}
+            >
+              Cancel Subscription
+            </TransactionButton>
+          )}
+
           <TransactionButton
             sendTx={async () => {
               // @ts-expect-error argument of type
-              return writeContractAsync(zeroApprovalParams);
+              return writeContractAsync(unlimitedApprovalParams);
             }}
             afterSuccess={() => {
               setTimeout(() => {
@@ -241,35 +279,15 @@ export const AllowanceActions = ({
               }, 1000);
             }}
             variant='link'
-            color='red.500'
+            isDisabled={!isUndefined(allowance) && allowance === maxUint256}
             leftIcon={<Icon as={BsArrowUpRightCircle} />}
             txDescription='Cancel subscription for Hat'
             chainId={chainId}
           >
-            Cancel Subscription
+            Authorize unlimited withdrawals{' '}
           </TransactionButton>
-        )}
-
-        <TransactionButton
-          sendTx={async () => {
-            // @ts-expect-error argument of type
-            return writeContractAsync(unlimitedApprovalParams);
-          }}
-          afterSuccess={() => {
-            setTimeout(() => {
-              queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-              queryClient.invalidateQueries({ queryKey: ['readContract'] });
-            }, 1000);
-          }}
-          variant='link'
-          isDisabled={!isUndefined(allowance) && allowance === maxUint256}
-          leftIcon={<Icon as={BsArrowUpRightCircle} />}
-          txDescription='Cancel subscription for Hat'
-          chainId={chainId}
-        >
-          Authorize unlimited withdrawals{' '}
-        </TransactionButton>
-      </Flex>
+        </Flex>
+      )}
     </Stack>
   );
 };

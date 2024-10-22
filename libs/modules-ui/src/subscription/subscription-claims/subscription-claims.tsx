@@ -24,11 +24,13 @@ import {
 } from 'react-icons/bs';
 import { MixedIcon } from 'types';
 import { getDuration } from 'utils';
-import { Hex, maxUint256 } from 'viem';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { AllowanceActions } from './allowance-actions';
 import { SubscriptionDevInfo } from './subscription-dev-info';
+
+const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 
 export const SubscriptionClaims = () => {
   const { address } = useAccount();
@@ -72,6 +74,7 @@ export const SubscriptionClaims = () => {
     );
   }
 
+  const isOneTime = duration && duration >= MIN_ONE_TIME_DURATION;
   const durationText = getDuration(duration);
 
   let status = 'Not Paid';
@@ -79,21 +82,25 @@ export const SubscriptionClaims = () => {
   let color = 'red.500';
   if (hasAllowance && !activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
-    status = `Authorized for ${durationsLeft} ${durationText.noun}${
-      durationsLeft > 1 || durationsLeft === 0 ? 's' : ''
-    }`;
+    status = isOneTime
+      ? 'Authorized'
+      : `Authorized for ${durationsLeft} ${durationText.noun}${
+          durationsLeft > 1 || durationsLeft === 0 ? 's' : ''
+        }`;
     icon = BsCheckSquare;
     color = 'green.500';
   } else if (activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
-    if (durationsLeft === 0) {
+    if (durationsLeft === 0 && !isOneTime) {
       status = 'Renew Soon';
       icon = BsCheckSquare;
       color = 'orange.500';
     } else {
-      status = `${durationsLeft} ${durationText.noun}${
-        durationsLeft > 1 || durationsLeft === 0 ? 's' : ''
-      } left`;
+      status = isOneTime
+        ? 'Paid'
+        : `${durationsLeft} ${durationText.noun}${
+            durationsLeft > 1 || durationsLeft === 0 ? 's' : ''
+          } left`;
       icon = BsCheckSquareFill as ComponentWithAs<'svg', IconProps>;
       color = 'green.500';
     }
@@ -104,18 +111,24 @@ export const SubscriptionClaims = () => {
       <Card w='full' mx={{ base: 2, md: 0 }}>
         <CardBody m={{ base: 0, md: 4 }}>
           <Stack spacing={8}>
-            <Heading>
-              Authorize {durationText.adjective} fee{' '}
-              {!activeSubscription ? `of ${price} ${symbol}` : ''} to claim this
-              Hat
-            </Heading>
+            {isOneTime ? (
+              <Heading>Purchase and claim this Hat</Heading>
+            ) : (
+              <Heading>
+                Authorize {durationText.adjective} fee{' '}
+                {!activeSubscription ? `of ${price} ${symbol}` : ''} to claim
+                this Hat
+              </Heading>
+            )}
 
             <Stack spacing={1}>
               <Heading size='lg'>
                 Requirements to claim and keep this Hat
               </Heading>
               <Flex w='full' justify='space-between'>
-                <Text>Pay the subscription</Text>
+                <Text>
+                  Pay the {isOneTime ? 'one-time fee' : 'subscription'}
+                </Text>
 
                 <HStack>
                   <Text color={color}>{status}</Text>
@@ -125,7 +138,7 @@ export const SubscriptionClaims = () => {
               </Flex>
             </Stack>
 
-            {(!hasAllowance || isWearing) && (
+            {(!hasAllowance || isWearing) && !isOneTime && (
               <Stack>
                 <Heading size='lg'>
                   {!isWearing
@@ -149,7 +162,7 @@ export const SubscriptionClaims = () => {
                 </Text>
               </Stack>
             )}
-            {hasAllowance && !isWearing && (
+            {hasAllowance && !isWearing && !isOneTime && (
               <Stack>
                 <Heading size='lg'>Claim your Hat now</Heading>
 
