@@ -1,7 +1,7 @@
 {
-  "name": "treasury",
+  "name": "councils",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/treasury",
+  "sourceRoot": "apps/councils",
   "projectType": "application",
   "targets": {
     "build": {
@@ -9,11 +9,11 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/treasury"
+        "outputPath": "dist/apps/councils"
       },
       "configurations": {
         "development": {
-          "outputPath": "apps/treasury"
+          "outputPath": "apps/councils"
         },
         "production": {}
       }
@@ -22,16 +22,16 @@
       "executor": "@nx/next:server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "treasury:build",
+        "buildTarget": "councils:build",
         "dev": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "treasury:build:development",
+          "buildTarget": "councils:build:development",
           "dev": true
         },
         "production": {
-          "buildTarget": "treasury:build:production",
+          "buildTarget": "councils:build:production",
           "dev": false
         }
       }
@@ -39,7 +39,7 @@
     "export": {
       "executor": "@nx/next:export",
       "options": {
-        "buildTarget": "treasury:build:production"
+        "buildTarget": "councils:build:production"
       }
     },
     "lint": {

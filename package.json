@@ -8,9 +8,9 @@
     "claims:dev": "nx run claims:serve",
     "claims:start": "nx run claims:serve:production",
     "claims:build": "nx run claims:build",
-    "treasury:dev": "nx run treasury:serve",
-    "treasury:start": "nx run treasury:serve:production",
-    "treasury:build": "nx run treasury:build",
+    "councils:dev": "nx run councils:serve",
+    "councils:start": "nx run councils:serve:production",
+    "councils:build": "nx run councils:build",
     "test": "nx test",
     "preinstall": "npx only-allow pnpm"
   },
