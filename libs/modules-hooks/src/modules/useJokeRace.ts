@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get } from 'lodash';
-import { JokeRaceEligibility, SupportedChains } from 'types';
+import { JokeRaceTerm, SupportedChains } from 'types';
 import { ancillarySubgraphClient } from 'utils';
 import { Hex } from 'viem';
 
@@ -34,9 +34,9 @@ const fetchJokeRace = async (
 
   return get(
     response,
-    'jokeRaceEligibility',
+    'jokeRaceEligibility.currentTerm',
     null,
-  ) as JokeRaceEligibility | null;
+  ) as JokeRaceTerm | null;
 };
 
 const useJokeRace = ({

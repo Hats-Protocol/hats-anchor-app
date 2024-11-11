@@ -35,6 +35,11 @@ const CopyAddress = dynamic(() =>
   import('icons').then((icons) => icons.CopyAddress),
 );
 
+const transitionPeriodToDuration = (transitionPeriod: string) => {
+  const duration = toNumber(transitionPeriod) / 60 / 60 / 24; // convert to days
+  return `${duration} days`;
+};
+
 export const JokeRaceModal = ({
   eligibilityHatId,
   moduleInfo,
@@ -68,7 +73,7 @@ export const JokeRaceModal = ({
   });
   const values = watch();
 
-  const { data: jokeRaceDetails } = useJokeRace({
+  const { data: currentTerm } = useJokeRace({
     moduleId: moduleInfo.id,
     chainId,
   });
@@ -98,11 +103,11 @@ export const JokeRaceModal = ({
   const [canStartNextTerm] = map(eligibilityData, 'result') || [];
 
   const { data: profileDetails } = useProfileDetails({
-    addresses: get(jokeRaceDetails, 'currentTerm.winners', []),
+    addresses: get(currentTerm, 'winners', []),
     chainId,
   });
   const jokeRaceProfiles = map(
-    get(jokeRaceDetails, 'currentTerm.winners', []),
+    get(currentTerm, 'winners', []),
     (wearer: string) => {
       const profile = find(profileDetails, { id: get(wearer, 'address') });
       return {
@@ -112,10 +117,10 @@ export const JokeRaceModal = ({
     },
   ) as AllowlistProfile[];
   const liveParams = get(moduleInfo, 'liveParameters');
-  const { contestAddress, topK, termEnd, adminHat } =
+  const { contestAddress, topK, termEnd, adminHat, transitionPeriod } =
     getJokeRaceModuleParameters({
       moduleParameters: liveParams,
-      jokeRaceDetails: jokeRaceDetails || undefined,
+      currentTerm: currentTerm || undefined,
     });
 
   const isAdmin = useMemo(() => {
@@ -125,6 +130,9 @@ export const JokeRaceModal = ({
   const { onCopy: copyContest } = useClipboard(contestAddress, {
     toastData: { title: 'Contest Address Copied' },
   });
+  // convert to seconds
+  const termExpires =
+    toNumber(termEnd?.toString()) * 1000 + toNumber(transitionPeriod) * 1000;
 
   // const filteredProfiles = filterProfiles({
   //   profiles: jokeRaceProfiles,
@@ -145,16 +153,22 @@ export const JokeRaceModal = ({
         label: 'Top K',
         descriptor: <div className='text-sm'>{topK}</div>,
       },
-      termEnd && {
-        label: 'Term End',
+      transitionPeriod && {
+        label: 'Transition Period',
         descriptor: (
           <div className='text-sm'>
-            {shortDateFormatter(toNumber(termEnd?.toString()) * 1000)}
+            {transitionPeriodToDuration(transitionPeriod)}
           </div>
         ),
       },
+      termExpires && {
+        label: 'Term Expires',
+        descriptor: (
+          <div className='text-sm'>{shortDateFormatter(termExpires)}</div>
+        ),
+      },
     ]);
-  }, [adminHat, eligibilityHatId, topK, termEnd]);
+  }, [adminHat, eligibilityHatId, topK, termExpires, transitionPeriod]);
 
   const devInfo = useMemo(() => {
     return compact([
@@ -173,7 +187,6 @@ export const JokeRaceModal = ({
       },
     ]);
   }, [contestAddress, copyContest]);
-  console.log({ canStartNextTerm, isAdmin });
 
   const handleStartNextTerm = async () => {
     return writeContractAsync({

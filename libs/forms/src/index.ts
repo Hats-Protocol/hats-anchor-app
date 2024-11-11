@@ -1,6 +1,7 @@
 export * from './authorities-list-form';
 export { default as ClaimsHandler } from './ClaimsHandler';
 export * from './components';
+export * from './council-create-form';
 export { default as HatBasicsForm } from './HatBasicsForm';
 export { default as HatClaimForm } from './HatClaimForm';
 export { default as HatLinkRequestApproveForm } from './HatLinkRequestApproveForm';

@@ -137,9 +137,7 @@ export const AllowanceActions = ({
     heading = 'Your active subscription';
   }
 
-  let buttonText = `Approve ${amount || 0} ${durationText.noun}
-    ${amount > 1 || amount === 0 ? 's' : ''} (${tokenAmountText}{' '}
-    ${symbol})`;
+  let buttonText = `Approve ${amount || 0} ${durationText.noun}${amount > 1 || amount === 0 ? 's' : ''} (${tokenAmountText} ${symbol})`;
   if (isOneTime) {
     buttonText = `Approve ${tokenAmountText} ${symbol}`;
   }

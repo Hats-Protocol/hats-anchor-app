@@ -91,14 +91,18 @@ export const AllowlistEligibilityRule = ({
       <EligibilityRuleDetails
         rule={
           <Text>
-            Be on the {}
-            <Button
-              onClick={() => setModals?.({ allowlistManager: true })}
-              variant='link'
-              textDecoration='underline'
-            >
-              Allowlist
-            </Button>
+            Be on the{' '}
+            {eligibilityModalFlag ? (
+              <Button
+                onClick={() => setModals?.({ allowlistManager: true })}
+                variant='link'
+                textDecoration='underline'
+              >
+                Allowlist
+              </Button>
+            ) : (
+              'Allowlist'
+            )}
           </Text>
         }
         status={ELIGIBILITY_STATUS.ineligible}

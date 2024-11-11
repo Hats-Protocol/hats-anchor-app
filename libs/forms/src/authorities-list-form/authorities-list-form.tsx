@@ -40,6 +40,8 @@ interface AuthoritiesFormListProps {
   label: string;
 }
 
+const ENABLE_HSG_DEPLOY = false;
+
 export const AuthoritiesListForm = ({
   formName,
   title,
@@ -174,19 +176,21 @@ export const AuthoritiesListForm = ({
                   </Modal>
                 </>
               ) : (
-                <Link
-                  href='https://hats-signer-gate-portal.vercel.app/deploy'
-                  target='_blank'
-                  rel='noreferrer noopener'
-                  passHref
-                >
-                  <Button
-                    variant='outline'
-                    leftIcon={<IconWrapper as={Safe} />}
+                ENABLE_HSG_DEPLOY && (
+                  <Link
+                    href='https://hats-signer-gate-portal.vercel.app/deploy'
+                    target='_blank'
+                    rel='noreferrer noopener'
+                    passHref
                   >
-                    Add a Safe
-                  </Button>
-                </Link>
+                    <Button
+                      variant='outline'
+                      leftIcon={<IconWrapper as={Safe} />}
+                    >
+                      Add a Safe
+                    </Button>
+                  </Link>
+                )
               ))}
           </HStack>
         </Box>

@@ -35,14 +35,14 @@ export const JokeRaceEligibilityRule = ({
 }: ModuleDetailsHandler) => {
   const { setModals } = useOverlay();
 
-  const { data: jokeRaceDetails } = useJokeRace({
+  const { data: currentTerm } = useJokeRace({
     moduleId: moduleDetails?.id,
     chainId: chainId as SupportedChains,
   });
 
   const { contestAddress, topK } = getJokeRaceModuleParameters({
     moduleParameters,
-    jokeRaceDetails: jokeRaceDetails || undefined,
+    currentTerm: currentTerm || undefined,
   });
 
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];

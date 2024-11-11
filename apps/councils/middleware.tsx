@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 
+const DISABLE_POSTHOG = process.env.DISABLE_POSTHOG
+  ? process.env.DISABLE_POSTHOG === 'true'
+  : true;
+
 export function middleware(request: any) {
   const url = request.nextUrl.clone();
   const hostname = url.pathname.startsWith('/ingest/static/')
