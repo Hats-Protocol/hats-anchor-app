@@ -11,6 +11,7 @@ module.exports = {
   darkMode: ['class'],
   content: [
     join(__dirname, 'app/**/*.{ts,tsx,html}'),
+    join(__dirname, 'components/**/*.{ts,tsx,html}'),
     ...createGlobPatternsForDependencies(__dirname),
   ],
   exclude: ['node_modules', 'dist', 'coverage', 'tmp', 'public', 'cypress'],
@@ -73,6 +74,21 @@ module.exports = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+      gridTemplateColumns: {
+        16: 'repeat(16, minmax(0, 1fr))',
+        20: 'repeat(20, minmax(0, 1fr))',
+      },
+      gridColumnStart: {
+        12: '12',
+        13: '13',
+        14: '14',
+        15: '15',
+        16: '16',
+        17: '17',
+        18: '18',
+        19: '19',
+        20: '20',
       },
     },
   },

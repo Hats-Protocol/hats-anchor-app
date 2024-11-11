@@ -33,7 +33,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     </head>
 
     <body>
-      <div className='relative'>
+      <div className='relative h-screen bg-slate-200'>
         <Providers>
           <Navbar />
 
@@ -41,8 +41,6 @@ const RootLayout = ({ children }: RootLayoutProps) => (
 
           <TxHistoryModal />
         </Providers>
-
-        {/* <div className='fixed left-0 top-0 z-[-5] size-full bg-[url("/bg-topography.svg")]' /> */}
       </div>
     </body>
   </html>

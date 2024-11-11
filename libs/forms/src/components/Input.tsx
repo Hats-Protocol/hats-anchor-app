@@ -133,6 +133,7 @@ const Input = ({
           <FormLabel mb={0} fontSize='sm'>
             <HStack>
               <Box fontWeight='normal'>{_.toUpper(label)}</Box>
+
               {options?.required && (
                 <Box as='span' color='red.500'>
                   {' '}
