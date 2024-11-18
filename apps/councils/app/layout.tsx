@@ -4,7 +4,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { MetadataConfig } from '@hatsprotocol/constants';
 import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
-import { StandaloneNavbar as Navbar } from 'organisms';
+import { Navbar } from '../components/navbar';
 // import Script from 'next/script';
 import { ReactNode } from 'react';
 
@@ -39,7 +39,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
 
           <div className='w-screen'>{children}</div>
 
-          <TxHistoryModal />
+          {/*<TxHistoryModal />*/}
         </Providers>
       </div>
     </body>

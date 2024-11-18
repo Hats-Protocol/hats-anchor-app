@@ -26,6 +26,8 @@
     "@hatsprotocol/modules-sdk": "1.4.0",
     "@hatsprotocol/sdk-v1-core": "^0.10.0",
     "@hatsprotocol/sdk-v1-subgraph": "^1.0.0",
+    "@privy-io/react-auth": "^1.94.2",
+    "@privy-io/wagmi": "^0.2.12",
     "@radix-ui/react-popover": "^1.1.1",
     "@rainbow-me/rainbowkit": "^2.2.0",
     "@safe-global/api-kit": "^2.4.3",

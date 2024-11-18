@@ -5,6 +5,8 @@ import '@fontsource-variable/inter';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
+import { PrivyProvider } from '@privy-io/react-auth';
+import { createConfig, WagmiProvider } from '@privy-io/wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -13,8 +15,17 @@ import { OverlayContextProvider } from 'contexts';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { theme } from 'ui';
-import { wagmiConfig } from 'utils';
-import { WagmiProvider } from 'wagmi';
+import {
+  arbitrum,
+  base,
+  celo,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from 'viem/chains';
+import { http } from 'wagmi';
 
 // TODO use standalone & fix exporting of waitForTransaction
 declare global {
@@ -50,22 +61,56 @@ const queryClient = new QueryClient({
   },
 });
 
+const wagmiConfig = createConfig({
+  chains: [mainnet, optimism, arbitrum, base, gnosis, polygon, celo, sepolia],
+  transports: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+    [arbitrum.id]: http(),
+    [base.id]: http(),
+    [gnosis.id]: http(),
+    [polygon.id]: http(),
+    [celo.id]: http(),
+    [sepolia.id]: http(),
+  },
+});
+
 BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };
 
 const Providers = ({ children }: ProvidersProps) => (
-  <ChakraBaseProvider theme={theme}>
-    <WagmiProvider config={wagmiConfig}>
+  <PrivyProvider
+    appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string}
+    config={{
+      loginMethods: ['email', 'wallet', 'google', 'apple'],
+      supportedChains: [
+        mainnet,
+        optimism,
+        arbitrum,
+        base,
+        gnosis,
+        polygon,
+        celo,
+        sepolia,
+      ],
+      appearance: {
+        theme: 'light',
+        accentColor: '#676FFF',
+        logo: 'https://ipfs.io/ipfs/bafkreiflezpk3kjz6zsv23pbvowtatnd5hmqfkdro33x5mh2azlhne3ah4',
+      },
+    }}
+  >
+    <ChakraBaseProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <WagmiProvider config={wagmiConfig}>
           <ReactQueryDevtools initialIsOpen={false} />
           <Analytics />
           <OverlayContextProvider>{children}</OverlayContextProvider>
-        </RainbowKitProvider>
+        </WagmiProvider>
       </QueryClientProvider>
-    </WagmiProvider>
-  </ChakraBaseProvider>
+    </ChakraBaseProvider>
+  </PrivyProvider>
 );
 
 interface ProvidersProps {
