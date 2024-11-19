@@ -33,7 +33,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     </head>
 
     <body>
-      <div className='relative h-screen bg-gray-50'>
+      <div className='relative min-h-screen bg-gray-50'>
         <Providers>
           <Navbar />
 

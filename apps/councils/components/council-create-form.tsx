@@ -31,6 +31,7 @@ export function CouncilCreateForm({ step }: { step: string }) {
     useCouncilForm();
 
   const handleNext = () => {
+    console.log('handleNext', formData);
     setCurrentStep('members');
     router.push('/councils/new/members');
   };
