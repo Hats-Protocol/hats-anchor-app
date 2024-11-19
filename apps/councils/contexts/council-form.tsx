@@ -7,6 +7,11 @@ interface CouncilFormData {
   councilName: string;
   chain: string;
   description?: string;
+  members?: Array<{
+    address: string;
+    name?: string;
+  }>;
+  threshold?: number;
 }
 
 interface CouncilFormContextType {

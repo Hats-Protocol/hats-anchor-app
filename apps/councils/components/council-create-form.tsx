@@ -1,80 +1,148 @@
 'use client';
 
+import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Button,
   FormControl,
+  FormHelperText,
   FormLabel,
+  Heading,
+  HStack,
   Input,
   Select,
   Stack,
+  Text,
   Textarea,
 } from '@chakra-ui/react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { useCouncilForm } from '../contexts/council-form';
 
+const CHAIN_OPTIONS = [
+  { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },
+  { value: 'base', label: 'Base', icon: '/chains/base.svg' },
+  { value: 'arbitrum', label: 'Arbitrum', icon: '/chains/arbitrum.svg' },
+];
+
 export function CouncilCreateForm({ step }: { step: string }) {
   const router = useRouter();
-  const { formData, updateFormData } = useCouncilForm();
+  const { formData, updateFormData, currentStep, setCurrentStep } =
+    useCouncilForm();
+
+  const handleNext = () => {
+    setCurrentStep('members');
+    router.push('/councils/new/members');
+  };
 
   if (step === 'details') {
     return (
       <Stack spacing={6}>
+        <Heading size='2xl' mb={2}>
+          Create your first Council
+        </Heading>
         <FormControl isRequired>
           <FormLabel>Organization name</FormLabel>
-          <Input
-            placeholder='DAO or Company Name'
-            value={formData.organizationName}
-            onChange={(e) =>
-              updateFormData({ organizationName: e.target.value })
-            }
-          />
+          <Stack spacing={2}>
+            <FormHelperText>
+              The name of the organization you are creating councils for.
+            </FormHelperText>
+            <Input
+              placeholder='DAO or Company Name'
+              value={formData.organizationName}
+              onChange={(e) =>
+                updateFormData({ organizationName: e.target.value })
+              }
+            />
+          </Stack>
         </FormControl>
 
         <FormControl isRequired>
           <FormLabel>Council name</FormLabel>
-          <Input
-            placeholder='Council Name'
-            value={formData.councilName}
-            onChange={(e) => updateFormData({ councilName: e.target.value })}
-          />
+          <Stack spacing={2}>
+            <FormHelperText>
+              The name of your first council. You can add further councils
+              later.
+            </FormHelperText>
+            <Input
+              placeholder='Council Name'
+              value={formData.councilName}
+              onChange={(e) => updateFormData({ councilName: e.target.value })}
+            />
+          </Stack>
         </FormControl>
 
         <FormControl isRequired>
           <FormLabel>Choose a chain</FormLabel>
-          <Select
-            placeholder='Select chain'
-            value={formData.chain}
-            onChange={(e) => updateFormData({ chain: e.target.value })}
-          >
-            <option value='optimism'>Optimism</option>
-            <option value='base'>Base</option>
-            <option value='arbitrum'>Arbitrum</option>
-          </Select>
+          <Stack spacing={2}>
+            <FormHelperText>
+              The chain you deploy the Safe Multisig and Hats Council to.
+            </FormHelperText>
+            <Select
+              placeholder='Select chain'
+              value={formData.chain}
+              onChange={(e) => updateFormData({ chain: e.target.value })}
+              icon={<ChevronDownIcon />}
+            >
+              {CHAIN_OPTIONS.map((chain) => (
+                <option key={chain.value} value={chain.value}>
+                  <HStack spacing={2}>
+                    <Image
+                      src={chain.icon}
+                      alt={chain.label}
+                      width={20}
+                      height={20}
+                    />
+                    <Text>{chain.label}</Text>
+                  </HStack>
+                </option>
+              ))}
+            </Select>
+          </Stack>
         </FormControl>
 
         <FormControl>
-          <FormLabel>Council description (Optional)</FormLabel>
-          <Textarea
-            placeholder='Bylaws, policies or important links'
-            value={formData.description}
-            onChange={(e) => updateFormData({ description: e.target.value })}
-          />
+          <FormLabel>
+            Council description{' '}
+            <Text as='span' color='gray.500' fontSize='sm' fontWeight='normal'>
+              Optional
+            </Text>
+          </FormLabel>
+          <Stack spacing={2}>
+            <FormHelperText>
+              Add a short description or some links you want all council members
+              to see.
+            </FormHelperText>
+            <Textarea
+              placeholder='Bylaws, policies or important links'
+              value={formData.description}
+              onChange={(e) => updateFormData({ description: e.target.value })}
+            />
+          </Stack>
         </FormControl>
 
         <Button
           colorScheme='blue'
-          onClick={() => router.push('/councils/new/members')}
+          onClick={handleNext}
           isDisabled={
             !formData.organizationName ||
             !formData.councilName ||
             !formData.chain
           }
+          size='lg'
+          borderRadius='xl'
+          bg='blue.400'
+          _hover={{ bg: 'blue.500' }}
+          rightIcon={<ChevronRightIcon />}
         >
-          Add Council Members
+          Set Signer Threshold
         </Button>
       </Stack>
     );
+  }
+
+  if (step === 'members') {
+    return <Stack spacing={6}>{/* Members step implementation */}</Stack>;
   }
 
   return null;
