@@ -158,7 +158,7 @@ export function CouncilCreateForm({ step }: { step: string }) {
     );
   }
 
-  if (step === 'members') {
+  if (step === 'threshold') {
     return <Stack spacing={6}>{/* Members step implementation */}</Stack>;
   }
 

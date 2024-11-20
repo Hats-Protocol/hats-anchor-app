@@ -8,24 +8,24 @@ import { useCouncilForm } from '../contexts/council-form';
 const STEPS = [
   { id: 'details', label: 'Council Details', sublabel: 'Name your council' },
   {
-    id: 'members',
-    label: 'Council Members',
-    sublabel: 'Choose who will be on the council',
+    id: 'threshold',
+    label: 'Signer Threshold',
+    sublabel: 'How council members confirm transactions',
   },
   {
-    id: 'admission',
-    label: 'Council Admission',
-    sublabel: 'Choose requirements to join the council',
+    id: 'onboarding',
+    label: 'Member Onboarding',
+    sublabel: 'Set requirements to join the council',
   },
   {
-    id: 'confirmation',
-    label: 'Required Confirmation',
-    sublabel: 'Specify a threshold for transactions',
+    id: 'selection',
+    label: 'Member Selection',
+    sublabel: 'Configure the chosen access modules',
   },
   {
     id: 'finalize',
     label: 'Finalize & Pay',
-    sublabel: 'Ready to deploy or share',
+    sublabel: 'Deploy contracts or save & share configuration',
   },
 ];
 
