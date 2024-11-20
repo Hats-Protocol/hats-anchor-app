@@ -9,6 +9,14 @@ import {
   Heading,
   HStack,
   Input,
+  InputGroup,
+  InputLeftAddon,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Radio,
   Select,
   Stack,
   Text,
@@ -19,21 +27,36 @@ import { useRouter } from 'next/navigation';
 
 import { useCouncilForm } from '../contexts/council-form';
 
+interface CouncilCreateFormProps {
+  step: string;
+  draftId: string;
+}
+
 const CHAIN_OPTIONS = [
   { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },
   { value: 'base', label: 'Base', icon: '/chains/base.svg' },
   { value: 'arbitrum', label: 'Arbitrum', icon: '/chains/arbitrum.svg' },
 ];
 
-export function CouncilCreateForm({ step }: { step: string }) {
+export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
   const router = useRouter();
   const { formData, updateFormData, currentStep, setCurrentStep } =
     useCouncilForm();
 
   const handleNext = () => {
-    console.log('handleNext', formData);
-    setCurrentStep('members');
-    router.push('/councils/new/members');
+    console.log('formData', formData);
+    const nextStepMap = {
+      details: 'threshold',
+      threshold: 'onboarding',
+      onboarding: 'selection',
+      selection: 'finalize',
+    };
+
+    const nextStep = nextStepMap[currentStep as keyof typeof nextStepMap];
+    if (nextStep) {
+      setCurrentStep(nextStep);
+      router.push(`/councils/new/${nextStep}?draftId=${draftId}`);
+    }
   };
 
   if (step === 'details') {
@@ -159,7 +182,173 @@ export function CouncilCreateForm({ step }: { step: string }) {
   }
 
   if (step === 'threshold') {
-    return <Stack spacing={6}>{/* Members step implementation */}</Stack>;
+    const calculateConfirmations = (total: number) => {
+      if (formData.thresholdLogic === 'percentage') {
+        return Math.ceil((total * (formData.requiredPercentage || 0)) / 100);
+      }
+      return formData.confirmationsRequired;
+    };
+
+    return (
+      <Stack spacing={6} height='100%'>
+        <Stack spacing={6} flex={1}>
+          <Stack spacing={2}>
+            <Heading size='2xl'>Signer Threshold</Heading>
+            <Text color='gray.500' fontSize='sm'>
+              Powered by Safe
+            </Text>
+          </Stack>
+
+          <FormControl>
+            <FormLabel fontWeight='bold'>
+              What's the Signer Threshold logic
+            </FormLabel>
+            <Stack direction='row' spacing={4}>
+              <Radio
+                isChecked={formData.thresholdLogic === 'fixed'}
+                onChange={() => updateFormData({ thresholdLogic: 'fixed' })}
+              >
+                Fixed number of confirmations
+              </Radio>
+              <Radio
+                isChecked={formData.thresholdLogic === 'percentage'}
+                onChange={() =>
+                  updateFormData({ thresholdLogic: 'percentage' })
+                }
+              >
+                Fixed percentage of council members
+              </Radio>
+            </Stack>
+          </FormControl>
+
+          {formData.thresholdLogic === 'fixed' ? (
+            <Stack spacing={6}>
+              <FormControl>
+                <FormLabel fontWeight='bold'>Confirmations required</FormLabel>
+                <NumberInput
+                  min={1}
+                  max={formData.maxMembers}
+                  value={formData.confirmationsRequired}
+                  onChange={(value) =>
+                    updateFormData({ confirmationsRequired: Number(value) })
+                  }
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </FormControl>
+              <FormControl>
+                <FormLabel fontWeight='bold'>Maximum council members</FormLabel>
+                <NumberInput
+                  value={formData.maxMembers}
+                  onChange={(value) =>
+                    updateFormData({ maxMembers: Number(value) })
+                  }
+                  width='full'
+                >
+                  <NumberInputField />
+                  <NumberInputStepper>
+                    <NumberIncrementStepper />
+                    <NumberDecrementStepper />
+                  </NumberInputStepper>
+                </NumberInput>
+              </FormControl>
+            </Stack>
+          ) : (
+            <Stack>
+              <FormControl>
+                <FormLabel fontWeight='bold'>Required confirmations</FormLabel>
+                <InputGroup>
+                  <InputLeftAddon>%</InputLeftAddon>
+                  <NumberInput
+                    min={1}
+                    max={100}
+                    value={formData.requiredPercentage}
+                    onChange={(value) =>
+                      updateFormData({ requiredPercentage: Number(value) })
+                    }
+                    width='full'
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                </InputGroup>
+              </FormControl>
+              <Stack direction='row' spacing={4}>
+                <FormControl>
+                  <FormLabel fontWeight='bold'>
+                    Minimum council members
+                  </FormLabel>
+                  <NumberInput
+                    min={1}
+                    max={formData.maxMembers}
+                    value={formData.minMembers}
+                    onChange={(value) =>
+                      updateFormData({ minMembers: Number(value) })
+                    }
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  <FormHelperText>
+                    {calculateConfirmations(formData.minMembers)} Confirmations
+                    required
+                  </FormHelperText>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontWeight='bold'>
+                    Maximum council members
+                  </FormLabel>
+                  <NumberInput
+                    min={formData.minMembers}
+                    value={formData.maxMembers}
+                    onChange={(value) =>
+                      updateFormData({ maxMembers: Number(value) })
+                    }
+                  >
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                  </NumberInput>
+                  <FormHelperText>
+                    {calculateConfirmations(formData.maxMembers)} Confirmations
+                    required
+                  </FormHelperText>
+                </FormControl>
+              </Stack>
+            </Stack>
+          )}
+        </Stack>
+
+        <HStack justify='flex-end' py={6}>
+          <Button
+            bg='blue.50'
+            color='blue.500'
+            _hover={{ bg: 'blue.100' }}
+            size='md'
+            rightIcon={<ChevronRightIcon />}
+            onClick={handleNext}
+            px={4}
+            py={2}
+            borderRadius='md'
+          >
+            Set Council Admission
+          </Button>
+        </HStack>
+      </Stack>
+    );
   }
 
   return null;

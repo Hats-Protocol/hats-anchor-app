@@ -11,7 +11,11 @@ interface CouncilFormData {
     address: string;
     name?: string;
   }>;
-  threshold?: number;
+  thresholdLogic: 'fixed' | 'percentage';
+  confirmationsRequired: number;
+  requiredPercentage?: number;
+  minMembers: number;
+  maxMembers: number;
 }
 
 interface CouncilFormContextType {
@@ -34,6 +38,11 @@ export function CouncilFormProvider({
     organizationName: '',
     councilName: '',
     chain: '',
+    thresholdLogic: 'fixed',
+    confirmationsRequired: 4,
+    requiredPercentage: 51,
+    minMembers: 2,
+    maxMembers: 7,
   });
   const [currentStep, setCurrentStep] = useState('details');
 
