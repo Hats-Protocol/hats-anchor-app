@@ -11,7 +11,6 @@ export const Navbar = () => {
       w='100%'
       justify='space-between'
       align='center'
-      position='fixed'
       zIndex={10}
       px={2}
       minH='56px'
