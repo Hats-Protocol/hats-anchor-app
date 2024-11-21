@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Card } from 'ui';
 
-import { CouncilCreateForm } from '../../../../components/council-create-form';
+import { CouncilCreateForm } from '../../../../components/council-create-form/index';
 import { CreationFormSteps } from '../../../../components/creation-form-steps';
 
 const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
