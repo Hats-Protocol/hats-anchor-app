@@ -42,7 +42,7 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
             </FormHelperText>
             <Input
               placeholder='DAO or Company Name'
-              value={formData.organizationName}
+              value={formData.organizationName ?? undefined}
               onChange={(e) =>
                 updateFormData({ organizationName: e.target.value })
               }
@@ -59,7 +59,7 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
             </FormHelperText>
             <Input
               placeholder='Council Name'
-              value={formData.councilName}
+              value={formData.councilName ?? undefined}
               onChange={(e) => updateFormData({ councilName: e.target.value })}
             />
           </Stack>
@@ -73,7 +73,7 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
             </FormHelperText>
             <Select
               placeholder='Select chain'
-              value={formData.chain}
+              value={formData.chain ?? undefined}
               onChange={(e) => updateFormData({ chain: e.target.value })}
               icon={<ChevronDownIcon />}
             >
@@ -108,7 +108,7 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
             </FormHelperText>
             <Textarea
               placeholder='Bylaws, policies or important links'
-              value={formData.description}
+              value={formData.description ?? undefined}
               onChange={(e) => updateFormData({ description: e.target.value })}
             />
           </Stack>

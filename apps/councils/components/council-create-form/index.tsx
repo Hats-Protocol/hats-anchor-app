@@ -13,9 +13,10 @@ interface CouncilCreateFormProps {
 
 export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { formData, setCurrentStep } = useCouncilForm();
+  const { formData, setCurrentStep, persistForm } = useCouncilForm();
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    await persistForm();
     console.log('formData', formData);
     const nextStepMap = {
       details: 'threshold',

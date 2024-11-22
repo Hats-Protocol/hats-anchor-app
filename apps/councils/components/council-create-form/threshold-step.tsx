@@ -26,7 +26,7 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
   const { formData, updateFormData } = useCouncilForm();
 
   const calculateConfirmations = (total: number) => {
-    if (formData.thresholdLogic === 'percentage') {
+    if (formData.thresholdLogic === 'RELATIVE') {
       return Math.ceil((total * (formData.requiredPercentage || 0)) / 100);
     }
     return formData.confirmationsRequired;
@@ -48,21 +48,21 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
           </FormLabel>
           <Stack direction='row' spacing={4}>
             <Radio
-              isChecked={formData.thresholdLogic === 'fixed'}
-              onChange={() => updateFormData({ thresholdLogic: 'fixed' })}
+              isChecked={formData.thresholdLogic === 'ABSOLUTE'}
+              onChange={() => updateFormData({ thresholdLogic: 'ABSOLUTE' })}
             >
               Fixed number of confirmations
             </Radio>
             <Radio
-              isChecked={formData.thresholdLogic === 'percentage'}
-              onChange={() => updateFormData({ thresholdLogic: 'percentage' })}
+              isChecked={formData.thresholdLogic === 'RELATIVE'}
+              onChange={() => updateFormData({ thresholdLogic: 'RELATIVE' })}
             >
               Fixed percentage of council members
             </Radio>
           </Stack>
         </FormControl>
 
-        {formData.thresholdLogic === 'fixed' ? (
+        {formData.thresholdLogic === 'ABSOLUTE' ? (
           <Stack spacing={6}>
             <FormControl>
               <FormLabel fontWeight='bold'>Confirmations required</FormLabel>

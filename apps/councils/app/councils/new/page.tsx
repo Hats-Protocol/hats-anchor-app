@@ -1,9 +1,16 @@
 import { redirect } from 'next/navigation';
-import { v4 as uuidv4 } from 'uuid';
+import { graphqlClient } from '../../../lib/graphql-client';
+import { CREATE_INITIAL_FORM } from '../../../lib/graphql/council-form';
 
-const NewCouncil = () => {
-  const draftId = uuidv4();
-  return redirect(`/councils/new/details?draftId=${draftId}`);
+const NewCouncil = async () => {
+  const result: {
+    createCouncilCreationForm: {
+      id: string;
+    };
+  } = await graphqlClient.request(CREATE_INITIAL_FORM);
+  const formId = result.createCouncilCreationForm.id;
+
+  return redirect(`/councils/new/details?draftId=${formId}`);
 };
 
 export default NewCouncil;
