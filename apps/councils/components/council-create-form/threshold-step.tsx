@@ -26,8 +26,8 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
   const { formData, updateFormData } = useCouncilForm();
 
   const calculateConfirmations = (total: number) => {
-    if (formData.thresholdLogic === 'RELATIVE') {
-      return Math.ceil((total * (formData.requiredPercentage || 0)) / 100);
+    if (formData.thresholdType === 'RELATIVE') {
+      return Math.ceil((total * (formData.percentageRequired || 0)) / 100);
     }
     return formData.confirmationsRequired;
   };
@@ -48,21 +48,21 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
           </FormLabel>
           <Stack direction='row' spacing={4}>
             <Radio
-              isChecked={formData.thresholdLogic === 'ABSOLUTE'}
-              onChange={() => updateFormData({ thresholdLogic: 'ABSOLUTE' })}
+              isChecked={formData.thresholdType === 'ABSOLUTE'}
+              onChange={() => updateFormData({ thresholdType: 'ABSOLUTE' })}
             >
               Fixed number of confirmations
             </Radio>
             <Radio
-              isChecked={formData.thresholdLogic === 'RELATIVE'}
-              onChange={() => updateFormData({ thresholdLogic: 'RELATIVE' })}
+              isChecked={formData.thresholdType === 'RELATIVE'}
+              onChange={() => updateFormData({ thresholdType: 'RELATIVE' })}
             >
               Fixed percentage of council members
             </Radio>
           </Stack>
         </FormControl>
 
-        {formData.thresholdLogic === 'ABSOLUTE' ? (
+        {formData.thresholdType === 'ABSOLUTE' ? (
           <Stack spacing={6}>
             <FormControl>
               <FormLabel fontWeight='bold'>Confirmations required</FormLabel>
@@ -107,9 +107,9 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
                 <NumberInput
                   min={1}
                   max={100}
-                  value={formData.requiredPercentage}
+                  value={formData.percentageRequired}
                   onChange={(value) =>
-                    updateFormData({ requiredPercentage: Number(value) })
+                    updateFormData({ percentageRequired: Number(value) })
                   }
                   width='full'
                 >
@@ -127,9 +127,9 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
                 <NumberInput
                   min={1}
                   max={formData.maxMembers}
-                  value={formData.minMembers}
+                  value={formData.minConfirmations}
                   onChange={(value) =>
-                    updateFormData({ minMembers: Number(value) })
+                    updateFormData({ minConfirmations: Number(value) })
                   }
                 >
                   <NumberInputField />
@@ -139,15 +139,15 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
                   </NumberInputStepper>
                 </NumberInput>
                 <FormHelperText>
-                  {calculateConfirmations(formData.minMembers)} Confirmations
-                  required
+                  {calculateConfirmations(formData.minConfirmations)}{' '}
+                  Confirmations required
                 </FormHelperText>
               </FormControl>
 
               <FormControl>
                 <FormLabel fontWeight='bold'>Maximum council members</FormLabel>
                 <NumberInput
-                  min={formData.minMembers}
+                  min={formData.minConfirmations}
                   value={formData.maxMembers}
                   onChange={(value) =>
                     updateFormData({ maxMembers: Number(value) })

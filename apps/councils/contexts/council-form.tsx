@@ -6,16 +6,19 @@ import {
   GET_COUNCIL_FORM,
   UPDATE_COUNCIL_FORM,
 } from '../lib/graphql/council-form';
+import { chainIdToString, chainStringToId } from '../lib/chain-mapping';
 
 interface CouncilFormData {
+  // step 1
   organizationName: string | null;
   councilName: string | null;
   chain: string | null;
-  description?: string | null;
-  thresholdLogic: 'ABSOLUTE' | 'RELATIVE';
-  confirmationsRequired: number;
-  requiredPercentage?: number;
-  minMembers: number;
+  councilDescription: string | null;
+  // step 2
+  thresholdType: 'ABSOLUTE' | 'RELATIVE';
+  confirmationsRequired: number; // used if thresholdType is ABSOLUTE
+  percentageRequired: number; // used if thresholdType is RELATIVE
+  minConfirmations: number; // used if thresholdType is RELATIVE.
   maxMembers: number;
 }
 
@@ -43,10 +46,11 @@ export function CouncilFormProvider({
     organizationName: null,
     councilName: null,
     chain: null,
-    thresholdLogic: 'ABSOLUTE',
+    councilDescription: null,
+    thresholdType: 'ABSOLUTE',
     confirmationsRequired: 4,
-    requiredPercentage: 51,
-    minMembers: 2,
+    percentageRequired: 51,
+    minConfirmations: 2,
     maxMembers: 7,
   });
   const [currentStep, setCurrentStep] = useState('details');
@@ -80,7 +84,11 @@ export function CouncilFormProvider({
 
       setFormData((prev) => ({
         ...prev,
-        thresholdLogic: form.thresholdType,
+        councilName: form.councilName,
+        organizationName: form.organizationName,
+        chain: chainIdToString(form.chain),
+        councilDescription: form.councilDescription,
+        thresholdType: form.thresholdType,
         confirmationsRequired:
           form.thresholdType === 'ABSOLUTE'
             ? form.thresholdTarget
@@ -88,13 +96,10 @@ export function CouncilFormProvider({
         requiredPercentage:
           form.thresholdType === 'RELATIVE'
             ? form.thresholdTarget
-            : prev.requiredPercentage,
-        minMembers: form.thresholdMin,
+            : prev.percentageRequired,
+        minConfirmations: form.thresholdMin,
         maxMembers: form.maxCouncilMembers,
-        councilName: form.councilName,
-        organizationName: form.organizationName,
       }));
-      console.log('formData after load', formData);
     } catch (error) {
       console.error('Error loading form data:', error);
     } finally {
@@ -110,16 +115,20 @@ export function CouncilFormProvider({
 
     const payload = {
       id: draftId,
-      thresholdType: formData.thresholdLogic,
-      maxCouncilMembers: formData.maxMembers,
-      thresholdTarget:
-        formData.thresholdLogic === 'ABSOLUTE'
-          ? formData.confirmationsRequired
-          : formData.requiredPercentage,
-      thresholdMin: formData.minMembers,
       councilName: formData.councilName,
       organizationName: formData.organizationName,
-      councilDescription: formData.description,
+      councilDescription: formData.councilDescription,
+      chain: chainStringToId(formData.chain),
+      thresholdType: formData.thresholdType,
+      maxCouncilMembers: formData.maxMembers,
+      thresholdTarget:
+        formData.thresholdType === 'ABSOLUTE'
+          ? formData.confirmationsRequired
+          : formData.percentageRequired,
+      thresholdMin:
+        formData.thresholdType === 'ABSOLUTE'
+          ? formData.confirmationsRequired
+          : formData.minConfirmations,
     };
 
     console.log('Mutation payload:', payload);
@@ -128,7 +137,7 @@ export function CouncilFormProvider({
     try {
       const result = await graphqlClient.request(UPDATE_COUNCIL_FORM, payload);
       console.log('GraphQL Response:', result);
-    } catch (error) {
+    } catch (error: any) {
       console.error('GraphQL Error:', error);
       if (error.response) {
         console.error('GraphQL Response Errors:', error.response.errors);

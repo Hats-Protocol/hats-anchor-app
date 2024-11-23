@@ -16,7 +16,6 @@ import {
 import Image from 'next/image';
 
 import { useCouncilForm } from '../../contexts/council-form';
-import { warnOptionHasBeenMovedOutOfExperimental } from 'next/dist/server/config';
 
 const CHAIN_OPTIONS = [
   { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },
@@ -108,8 +107,10 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
             </FormHelperText>
             <Textarea
               placeholder='Bylaws, policies or important links'
-              value={formData.description ?? undefined}
-              onChange={(e) => updateFormData({ description: e.target.value })}
+              value={formData.councilDescription ?? undefined}
+              onChange={(e) =>
+                updateFormData({ councilDescription: e.target.value })
+              }
             />
           </Stack>
         </FormControl>

@@ -24,6 +24,7 @@ export const UPDATE_COUNCIL_FORM = gql`
     $organizationName: String
     $councilName: String
     $councilDescription: String
+    $chain: Int
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -34,6 +35,7 @@ export const UPDATE_COUNCIL_FORM = gql`
       organizationName: $organizationName
       councilName: $councilName
       councilDescription: $councilDescription
+      chain: $chain
     ) {
       id
       organizationName
@@ -43,6 +45,7 @@ export const UPDATE_COUNCIL_FORM = gql`
       maxCouncilMembers
       thresholdTarget
       thresholdMin
+      chain
     }
   }
 `;
