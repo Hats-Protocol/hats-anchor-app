@@ -20,6 +20,13 @@ interface CouncilFormData {
   percentageRequired: number; // used if thresholdType is RELATIVE
   minConfirmations: number; // used if thresholdType is RELATIVE.
   maxMembers: number;
+  // step 3 - onboarding
+  membershipType: 'APPOINTED' | 'ELECTED';
+  requirements: {
+    signAgreement: boolean;
+    holdTokens: boolean;
+    passCompliance: boolean;
+  };
 }
 
 interface CouncilFormContextType {
@@ -42,7 +49,7 @@ export function CouncilFormProvider({
   children: React.ReactNode;
   draftId: string;
 }) {
-  const [formData, setFormData] = useState<CouncilFormData>({
+  const initialFormData: CouncilFormData = {
     organizationName: null,
     councilName: null,
     chain: null,
@@ -52,7 +59,14 @@ export function CouncilFormProvider({
     percentageRequired: 51,
     minConfirmations: 2,
     maxMembers: 7,
-  });
+    membershipType: 'APPOINTED',
+    requirements: {
+      signAgreement: false,
+      holdTokens: false,
+      passCompliance: false,
+    },
+  };
+  const [formData, setFormData] = useState<CouncilFormData>(initialFormData);
   const [currentStep, setCurrentStep] = useState('details');
   const [isLoading, setIsLoading] = useState(false);
 
