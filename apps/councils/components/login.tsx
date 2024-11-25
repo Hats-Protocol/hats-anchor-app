@@ -1,19 +1,19 @@
 'use client';
 
 import {
+  Avatar,
   Box,
   Button,
   Flex,
   HStack,
   Image,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Skeleton,
   Text,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
   VStack,
-  Avatar,
 } from '@chakra-ui/react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMediaStyles } from 'hooks';
