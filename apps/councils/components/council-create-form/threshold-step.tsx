@@ -16,9 +16,9 @@ import {
   NumberInputField,
   NumberInputStepper,
   Radio,
+  Spinner,
   Stack,
   Text,
-  Spinner,
 } from '@chakra-ui/react';
 
 import { useCouncilForm } from '../../contexts/council-form';

@@ -10,12 +10,12 @@ import {
   Icon,
   Radio,
   RadioGroup,
+  Spinner,
   Stack,
   Text,
   useRadio,
   useRadioGroup,
   UseRadioProps,
-  Spinner,
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { FiFileText, FiShield } from 'react-icons/fi';
@@ -80,14 +80,6 @@ function RadioCard(props: UseRadioProps & { children: React.ReactNode }) {
 export function OnboardingStep({ onNext }: { onNext: () => void }) {
   const { formData, updateFormData, isLoading } = useCouncilForm();
 
-  if (isLoading) {
-    return (
-      <Stack height='100%' justify='center' align='center'>
-        <Spinner size='xl' color='blue.500' />
-      </Stack>
-    );
-  }
-
   useEffect(() => {
     if (!formData.membershipType) {
       updateFormData({ membershipType: 'APPOINTED' });
@@ -101,6 +93,14 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
     onChange: (value) =>
       updateFormData({ membershipType: value as 'APPOINTED' | 'ELECTED' }),
   });
+
+  if (isLoading) {
+    return (
+      <Stack height='100%' justify='center' align='center'>
+        <Spinner size='xl' color='blue.500' />
+      </Stack>
+    );
+  }
 
   const handleRequirementChange = (key: string, value: boolean) => {
     updateFormData({

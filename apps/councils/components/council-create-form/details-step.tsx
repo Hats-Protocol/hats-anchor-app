@@ -9,10 +9,10 @@ import {
   HStack,
   Input,
   Select,
+  Spinner,
   Stack,
   Text,
   Textarea,
-  Spinner,
 } from '@chakra-ui/react';
 import Image from 'next/image';
 
