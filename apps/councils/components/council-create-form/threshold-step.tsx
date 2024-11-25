@@ -18,12 +18,21 @@ import {
   Radio,
   Stack,
   Text,
+  Spinner,
 } from '@chakra-ui/react';
 
 import { useCouncilForm } from '../../contexts/council-form';
 
 export function ThresholdStep({ onNext }: { onNext: () => void }) {
-  const { formData, updateFormData } = useCouncilForm();
+  const { formData, updateFormData, isLoading } = useCouncilForm();
+
+  if (isLoading) {
+    return (
+      <Stack height='100%' justify='center' align='center'>
+        <Spinner size='xl' color='blue.500' />
+      </Stack>
+    );
+  }
 
   const calculateConfirmations = (total: number) => {
     if (formData.thresholdType === 'RELATIVE') {

@@ -15,6 +15,7 @@ import {
   useRadio,
   useRadioGroup,
   UseRadioProps,
+  Spinner,
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { FiFileText, FiShield } from 'react-icons/fi';
@@ -77,7 +78,15 @@ function RadioCard(props: UseRadioProps & { children: React.ReactNode }) {
 }
 
 export function OnboardingStep({ onNext }: { onNext: () => void }) {
-  const { formData, updateFormData } = useCouncilForm();
+  const { formData, updateFormData, isLoading } = useCouncilForm();
+
+  if (isLoading) {
+    return (
+      <Stack height='100%' justify='center' align='center'>
+        <Spinner size='xl' color='blue.500' />
+      </Stack>
+    );
+  }
 
   useEffect(() => {
     if (!formData.membershipType) {

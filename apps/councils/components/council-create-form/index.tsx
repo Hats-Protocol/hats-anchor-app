@@ -14,24 +14,27 @@ interface CouncilCreateFormProps {
 
 export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { formData, setCurrentStep, persistForm } = useCouncilForm();
+  const { formData, persistForm } = useCouncilForm();
 
   const handleNext = async () => {
-    await persistForm();
-    console.log('formData', formData);
-    const nextStepMap = {
-      details: 'threshold',
-      threshold: 'onboarding',
-      onboarding: 'selection',
-      selection: 'finalize',
-    };
+    try {
+      await persistForm();
 
-    const nextStep = nextStepMap[step as keyof typeof nextStepMap];
-    if (nextStep) {
-      setCurrentStep(nextStep);
-      router.push(
-        `/councils/new/${nextStep}${draftId ? `?draftId=${draftId}` : ''}`,
-      );
+      const nextStepMap = {
+        details: 'threshold',
+        threshold: 'onboarding',
+        onboarding: 'selection',
+        selection: 'finalize',
+      };
+
+      const nextStep = nextStepMap[step as keyof typeof nextStepMap];
+      if (nextStep) {
+        router.push(
+          `/councils/new/${nextStep}${draftId ? `?draftId=${draftId}` : ''}`,
+        );
+      }
+    } catch (error) {
+      console.error('Failed to save form data:', error);
     }
   };
 

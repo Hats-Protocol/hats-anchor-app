@@ -12,6 +12,7 @@ import {
   Stack,
   Text,
   Textarea,
+  Spinner,
 } from '@chakra-ui/react';
 import Image from 'next/image';
 
@@ -24,7 +25,15 @@ const CHAIN_OPTIONS = [
 ];
 
 export function DetailsStep({ onNext }: { onNext: () => void }) {
-  const { formData, updateFormData } = useCouncilForm();
+  const { formData, updateFormData, isLoading } = useCouncilForm();
+
+  if (isLoading) {
+    return (
+      <Stack height='100%' justify='center' align='center'>
+        <Spinner size='xl' color='blue.500' />
+      </Stack>
+    );
+  }
 
   return (
     <Stack spacing={6} height='100%'>
