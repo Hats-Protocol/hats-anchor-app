@@ -6,15 +6,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
 import { PrivyProvider } from '@privy-io/react-auth';
-import { createConfig, WagmiProvider } from '@privy-io/wagmi';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from '@privy-io/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Analytics } from '@vercel/analytics/react';
 import { OverlayContextProvider } from 'contexts';
-import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { theme } from 'ui';
+import { wagmiConfig } from 'utils';
 import {
   arbitrum,
   base,
@@ -25,7 +24,6 @@ import {
   polygon,
   sepolia,
 } from 'viem/chains';
-import { http } from 'wagmi';
 
 // TODO use standalone & fix exporting of waitForTransaction
 declare global {
@@ -58,20 +56,6 @@ const queryClient = new QueryClient({
       refetchInterval: 15 * 60 * 1000,
       staleTime: 30 * 60 * 1000,
     },
-  },
-});
-
-const wagmiConfig = createConfig({
-  chains: [mainnet, optimism, arbitrum, base, gnosis, polygon, celo, sepolia],
-  transports: {
-    [mainnet.id]: http(),
-    [optimism.id]: http(),
-    [arbitrum.id]: http(),
-    [base.id]: http(),
-    [gnosis.id]: http(),
-    [polygon.id]: http(),
-    [celo.id]: http(),
-    [sepolia.id]: http(),
   },
 });
 
