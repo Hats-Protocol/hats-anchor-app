@@ -1,24 +1,25 @@
 // apps/councils/components/council-create-form/onboarding-step.tsx
 'use client';
 
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import {
+  Box,
   Button,
-  Stack,
-  Text,
-  Radio,
-  RadioGroup,
   Checkbox,
   HStack,
   Icon,
-  Box,
+  Radio,
+  RadioGroup,
+  Stack,
+  Text,
   useRadio,
   useRadioGroup,
   UseRadioProps,
 } from '@chakra-ui/react';
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import { FiFileText, FiCoins, FiShield } from 'react-icons/fi';
-import { useCouncilForm } from '../../contexts/council-form';
 import { useEffect } from 'react';
+import { FiFileText, FiShield } from 'react-icons/fi';
+
+import { useCouncilForm } from '../../contexts/council-form';
 
 // Custom Radio Card component
 function RadioCard(props: UseRadioProps & { children: React.ReactNode }) {
@@ -158,7 +159,7 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
               },
               {
                 key: 'holdTokens',
-                icon: FiCoins,
+                icon: FiFileText,
                 title: 'Hold Tokens',
                 description:
                   'Specify an amount of coins council members need to hold',

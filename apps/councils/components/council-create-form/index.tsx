@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 
 import { useCouncilForm } from '../../contexts/council-form';
 import { DetailsStep } from './details-step';
-import { ThresholdStep } from './threshold-step';
 import { OnboardingStep } from './onboarding-step';
+import { ThresholdStep } from './threshold-step';
 
 interface CouncilCreateFormProps {
   step: string;

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
-import { graphqlClient } from '../../../lib/graphql-client';
+
 import { CREATE_INITIAL_FORM } from '../../../lib/graphql/council-form';
+import { graphqlClient } from '../../../lib/graphql-client';
 
 const NewCouncil = async () => {
   const result: {

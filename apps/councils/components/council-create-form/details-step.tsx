@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRightIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Button,
   FormControl,

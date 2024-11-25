@@ -1,12 +1,13 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import { graphqlClient } from '../lib/graphql-client';
+import { createContext, useContext, useEffect, useState } from 'react';
+
+import { chainIdToString, chainStringToId } from '../lib/chain-mapping';
 import {
   GET_COUNCIL_FORM,
   UPDATE_COUNCIL_FORM,
 } from '../lib/graphql/council-form';
-import { chainIdToString, chainStringToId } from '../lib/chain-mapping';
+import { graphqlClient } from '../lib/graphql-client';
 
 interface CouncilFormData {
   // step 1

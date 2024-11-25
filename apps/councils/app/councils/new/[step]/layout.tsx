@@ -1,7 +1,8 @@
 'use client';
 
-import { CouncilFormProvider } from '../../../../contexts/council-form';
 import { useSearchParams } from 'next/navigation';
+
+import { CouncilFormProvider } from '../../../../contexts/council-form';
 
 export default function NewCouncilLayout({
   children,

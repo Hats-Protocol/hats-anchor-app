@@ -10,14 +10,14 @@ import {
   HStack,
   InputGroup,
   InputLeftAddon,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
   Radio,
   Stack,
   Text,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
 } from '@chakra-ui/react';
 
 import { useCouncilForm } from '../../contexts/council-form';
@@ -44,7 +44,7 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
 
         <FormControl>
           <FormLabel fontWeight='bold'>
-            What's the Signer Threshold logic
+            What&apos;s the Signer Threshold logic
           </FormLabel>
           <Stack direction='row' spacing={4}>
             <Radio
