@@ -25,7 +25,8 @@ import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 const Login = () => {
-  const { ready, authenticated, login, logout, user } = usePrivy();
+  const { ready, authenticated, login, logout, user, linkEmail, linkWallet } =
+    usePrivy();
   const { address } = useAccount();
   const chainId = useChainId();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
@@ -159,9 +160,21 @@ const Login = () => {
                 </HStack>
               )}
 
-              <Button size='sm' variant='outline' onClick={() => login()}>
-                Link another account
-              </Button>
+              {!user.wallet || !user.email ? (
+                <Button
+                  size='sm'
+                  variant='outline'
+                  onClick={() => {
+                    if (user.wallet) {
+                      linkEmail();
+                    } else if (user.email) {
+                      linkWallet();
+                    }
+                  }}
+                >
+                  {user.wallet ? 'Link Email' : 'Link Wallet'}
+                </Button>
+              ) : null}
 
               <Button
                 size='sm'
