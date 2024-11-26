@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 
 import { chainIdToString, chainStringToId } from '../lib/chain-mapping';
 import {
@@ -81,6 +81,7 @@ export function CouncilFormProvider({
     },
   };
   const [formData, setFormData] = useState<CouncilFormData>(initialFormData);
+  const isInitialLoadRef = useRef(true);
 
   const updateFormData = (newData: Partial<CouncilFormData>) => {
     setFormData((prev) => ({ ...prev, ...newData }));
@@ -99,10 +100,12 @@ export function CouncilFormProvider({
       return result.councilCreationForm;
     },
     enabled: !!draftId,
+    staleTime: Infinity,
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && isInitialLoadRef.current) {
+      isInitialLoadRef.current = false;
       setFormData((prev) => ({
         ...prev,
         councilName: data.councilName,
