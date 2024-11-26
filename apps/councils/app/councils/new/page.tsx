@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import { CREATE_INITIAL_FORM } from '../../../lib/graphql/council-form';
 import { graphqlClient } from '../../../lib/graphql-client';
 
+// Make the route dynamic
+export const dynamic = 'force-dynamic';
+
 const NewCouncil = async () => {
   const result: {
     createCouncilCreationForm: {
