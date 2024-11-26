@@ -13,9 +13,8 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { Input, NumberInput, RadioBox } from 'forms';
-
-import { useCouncilForm } from '../../contexts/council-form';
+import { useCouncilForm } from 'contexts';
+import { NumberInput, RadioBox } from 'forms';
 
 export function ThresholdStep({ onNext }: { onNext: () => void }) {
   const { form, isLoading } = useCouncilForm();

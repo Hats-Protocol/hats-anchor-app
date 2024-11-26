@@ -1,5 +1,7 @@
 export * from './authorities';
+export * from './chains';
 export * from './contract';
+export * from './councils-gql';
 export * from './ecosystem';
 export * from './events';
 export * from './featured';

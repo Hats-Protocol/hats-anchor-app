@@ -1,8 +1,8 @@
 'use client';
 
+import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 
-import { useCouncilForm } from '../../contexts/council-form';
 import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
 import { ThresholdStep } from './threshold-step';

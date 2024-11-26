@@ -3,8 +3,6 @@
 import { map } from 'lodash';
 import Link from 'next/link';
 
-import { useCouncilForm } from '../contexts/council-form';
-
 const STEPS = [
   { id: 'details', label: 'Council Details', sublabel: 'Name your council' },
   {

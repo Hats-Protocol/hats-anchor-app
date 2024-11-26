@@ -3,10 +3,9 @@
 
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { useCouncilForm } from 'contexts';
 import { RadioCard, RequirementBox } from 'forms';
 import { FiFileText, FiShield } from 'react-icons/fi';
-
-import { useCouncilForm } from '../../contexts/council-form';
 
 export function OnboardingStep({ onNext }: { onNext: () => void }) {
   const { form, isLoading } = useCouncilForm();
