@@ -44,8 +44,7 @@ export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
     case 'threshold':
       return <ThresholdStep onNext={handleNext} />;
     case 'onboarding':
-      /*return <OnboardingStep onNext={handleNext} />;*/
-      return null;
+      return <OnboardingStep onNext={handleNext} />;
     default:
       return null;
   }
