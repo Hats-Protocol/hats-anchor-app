@@ -10,39 +10,39 @@ import {
   HStack,
   InputGroup,
   InputLeftAddon,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  Radio,
-  Spinner,
   Stack,
   Text,
 } from '@chakra-ui/react';
+import {
+  Input,
+  NumberInput,
+  RadioBox,
+} from '../../../../libs/forms/src/components';
 
 import { useCouncilForm } from '../../contexts/council-form';
 
 export function ThresholdStep({ onNext }: { onNext: () => void }) {
-  const { formData, updateFormData, isLoading } = useCouncilForm();
+  const { form, isLoading } = useCouncilForm();
 
-  if (isLoading) {
-    return (
-      <Stack height='100%' justify='center' align='center'>
-        <Spinner size='xl' color='blue.500' />
-      </Stack>
-    );
-  }
+  const thresholdType = form.watch('thresholdType');
+  const percentageRequired = form.watch('percentageRequired');
+  const minConfirmations = form.watch('minConfirmations');
+  const maxMembers = form.watch('maxMembers');
 
   const calculateConfirmations = (total: number) => {
-    if (formData.thresholdType === 'RELATIVE') {
-      return Math.ceil((total * (formData.percentageRequired || 0)) / 100);
+    if (thresholdType === 'RELATIVE') {
+      return Math.ceil((total * (percentageRequired || 0)) / 100);
     }
-    return formData.confirmationsRequired;
+    return form.watch('confirmationsRequired');
   };
 
   return (
-    <Stack spacing={6} height='100%'>
+    <Stack
+      spacing={6}
+      height='100%'
+      as='form'
+      onSubmit={form.handleSubmit(onNext)}
+    >
       <Stack spacing={6} flex={1}>
         <Stack spacing={2}>
           <Heading size='2xl'>Signer Threshold</Heading>
@@ -51,128 +51,92 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
           </Text>
         </Stack>
 
-        <FormControl>
+        <Stack>
           <FormLabel fontWeight='bold'>
-            What&apos;s the Signer Threshold logic
+            What's the Signer Threshold logic
           </FormLabel>
-          <Stack direction='row' spacing={4}>
-            <Radio
-              isChecked={formData.thresholdType === 'ABSOLUTE'}
-              onChange={() => updateFormData({ thresholdType: 'ABSOLUTE' })}
-            >
-              Fixed number of confirmations
-            </Radio>
-            <Radio
-              isChecked={formData.thresholdType === 'RELATIVE'}
-              onChange={() => updateFormData({ thresholdType: 'RELATIVE' })}
-            >
-              Fixed percentage of council members
-            </Radio>
-          </Stack>
-        </FormControl>
+          <RadioBox
+            name='thresholdType'
+            localForm={form}
+            options={[
+              { label: 'Fixed number of confirmations', value: 'ABSOLUTE' },
+              {
+                label: 'Fixed percentage of council members',
+                value: 'RELATIVE',
+              },
+            ]}
+            textSize='md'
+          />
+        </Stack>
 
-        {formData.thresholdType === 'ABSOLUTE' ? (
+        {thresholdType === 'ABSOLUTE' ? (
           <Stack spacing={6}>
-            <FormControl>
-              <FormLabel fontWeight='bold'>Confirmations required</FormLabel>
-              <NumberInput
-                min={1}
-                max={formData.maxMembers}
-                value={formData.confirmationsRequired}
-                onChange={(value) =>
-                  updateFormData({ confirmationsRequired: Number(value) })
-                }
-              >
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
-            </FormControl>
-            <FormControl>
-              <FormLabel fontWeight='bold'>Maximum council members</FormLabel>
-              <NumberInput
-                value={formData.maxMembers}
-                onChange={(value) =>
-                  updateFormData({ maxMembers: Number(value) })
-                }
-                width='full'
-              >
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
-            </FormControl>
+            <NumberInput
+              name='confirmationsRequired'
+              label='Confirmations required'
+              localForm={form}
+              options={{
+                min: 1,
+                max: maxMembers,
+                required: true,
+              }}
+            />
+
+            <NumberInput
+              name='maxMembers'
+              label='Maximum council members'
+              localForm={form}
+              options={{
+                min: 1,
+                required: true,
+              }}
+            />
           </Stack>
         ) : (
-          <Stack>
-            <FormControl>
+          <Stack spacing={6}>
+            <Stack>
               <FormLabel fontWeight='bold'>Required confirmations</FormLabel>
               <InputGroup>
                 <InputLeftAddon>%</InputLeftAddon>
                 <NumberInput
-                  min={1}
-                  max={100}
-                  value={formData.percentageRequired}
-                  onChange={(value) =>
-                    updateFormData({ percentageRequired: Number(value) })
-                  }
-                  width='full'
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
+                  name='percentageRequired'
+                  localForm={form}
+                  options={{
+                    min: 1,
+                    max: 100,
+                    required: true,
+                  }}
+                />
               </InputGroup>
-            </FormControl>
-            <Stack direction='row' spacing={4}>
-              <FormControl>
+            </Stack>
+
+            <Stack direction='row' spacing={4} w='full'>
+              <Stack w='full'>
                 <FormLabel fontWeight='bold'>Minimum council members</FormLabel>
                 <NumberInput
-                  min={1}
-                  max={formData.maxMembers}
-                  value={formData.minConfirmations}
-                  onChange={(value) =>
-                    updateFormData({ minConfirmations: Number(value) })
-                  }
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-                <FormHelperText>
-                  {calculateConfirmations(formData.minConfirmations)}{' '}
-                  Confirmations required
-                </FormHelperText>
-              </FormControl>
+                  name='minConfirmations'
+                  localForm={form}
+                  helperText={`${calculateConfirmations(minConfirmations)} Confirmations required`}
+                  options={{
+                    min: 1,
+                    max: maxMembers,
+                    required: true,
+                  }}
+                />
+              </Stack>
 
-              <FormControl>
+              <Stack w='full'>
                 <FormLabel fontWeight='bold'>Maximum council members</FormLabel>
                 <NumberInput
-                  min={formData.minConfirmations}
-                  value={formData.maxMembers}
-                  onChange={(value) =>
-                    updateFormData({ maxMembers: Number(value) })
-                  }
-                >
-                  <NumberInputField />
-                  <NumberInputStepper>
-                    <NumberIncrementStepper />
-                    <NumberDecrementStepper />
-                  </NumberInputStepper>
-                </NumberInput>
-                <FormHelperText>
-                  {calculateConfirmations(formData.maxMembers)} Confirmations
-                  required
-                </FormHelperText>
-              </FormControl>
+                  name='maxMembers'
+                  localForm={form}
+                  helperText={`${calculateConfirmations(maxMembers)} Confirmations required`}
+                  options={{
+                    min: minConfirmations,
+                    required: true,
+                  }}
+                />
+              </Stack>
             </Stack>
           </Stack>
         )}
@@ -180,12 +144,13 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
 
       <HStack justify='flex-end' py={6}>
         <Button
+          type='submit'
           bg='blue.50'
           color='blue.500'
           _hover={{ bg: 'blue.100' }}
           size='md'
           rightIcon={<ChevronRightIcon />}
-          onClick={onNext}
+          isDisabled={!form.formState.isValid}
           px={4}
           py={2}
           borderRadius='md'

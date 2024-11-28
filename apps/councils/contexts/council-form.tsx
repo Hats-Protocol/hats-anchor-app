@@ -1,8 +1,8 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
-
+import { createContext, useContext, useEffect } from 'react';
+import { UseFormReturn, useForm } from 'react-hook-form';
 import { chainIdToString, chainStringToId } from '../lib/chain-mapping';
 import {
   GET_COUNCIL_FORM,
@@ -12,15 +12,15 @@ import { graphqlClient } from '../lib/graphql-client';
 
 interface CouncilFormData {
   // step 1
-  organizationName: string | null;
-  councilName: string | null;
-  chain: string | null;
-  councilDescription: string | null;
+  organizationName: string;
+  councilName: string;
+  chain: string;
+  councilDescription?: string;
   // step 2
   thresholdType: 'ABSOLUTE' | 'RELATIVE';
   confirmationsRequired: number; // used if thresholdType is ABSOLUTE
   percentageRequired: number; // used if thresholdType is RELATIVE
-  minConfirmations: number; // used if thresholdType is RELATIVE.
+  minConfirmations: number; // used if thresholdType is RELATIVE
   maxMembers: number;
   // step 3 - onboarding
   membershipType: 'APPOINTED' | 'ELECTED';
@@ -31,23 +31,11 @@ interface CouncilFormData {
   };
 }
 
-interface CouncilFormContextType {
-  formData: CouncilFormData;
-  updateFormData: (data: Partial<CouncilFormData>) => void;
-  isLoading: boolean;
-  persistForm: () => Promise<void>;
-}
-
-const CouncilFormContext = createContext<CouncilFormContextType | undefined>(
-  undefined,
-);
-
-// Add interface for the GraphQL response
 interface CouncilFormResponse {
   councilCreationForm: {
     councilName: string | null;
     organizationName: string | null;
-    chain: number;
+    chain: number | null;
     councilDescription: string | null;
     thresholdType: 'ABSOLUTE' | 'RELATIVE';
     thresholdTarget: number;
@@ -56,6 +44,16 @@ interface CouncilFormResponse {
   };
 }
 
+interface CouncilFormContextType {
+  form: UseFormReturn<CouncilFormData>;
+  isLoading: boolean;
+  persistForm: () => Promise<unknown>;
+}
+
+const CouncilFormContext = createContext<CouncilFormContextType | undefined>(
+  undefined,
+);
+
 export function CouncilFormProvider({
   children,
   draftId,
@@ -63,30 +61,25 @@ export function CouncilFormProvider({
   children: React.ReactNode;
   draftId: string;
 }) {
-  const initialFormData: CouncilFormData = {
-    organizationName: null,
-    councilName: null,
-    chain: null,
-    councilDescription: null,
-    thresholdType: 'ABSOLUTE',
-    confirmationsRequired: 4,
-    percentageRequired: 51,
-    minConfirmations: 2,
-    maxMembers: 7,
-    membershipType: 'APPOINTED',
-    requirements: {
-      signAgreement: false,
-      holdTokens: false,
-      passCompliance: false,
+  const form = useForm<CouncilFormData>({
+    defaultValues: {
+      organizationName: '',
+      councilName: '',
+      chain: '',
+      councilDescription: '',
+      thresholdType: 'ABSOLUTE',
+      confirmationsRequired: 4,
+      percentageRequired: 51,
+      minConfirmations: 2,
+      maxMembers: 7,
+      membershipType: 'APPOINTED',
+      requirements: {
+        signAgreement: false,
+        holdTokens: false,
+        passCompliance: false,
+      },
     },
-  };
-  const [formData, setFormData] = useState<CouncilFormData>(initialFormData);
-  const isInitialLoadRef = useRef(true);
-
-  const updateFormData = (newData: Partial<CouncilFormData>) => {
-    setFormData((prev) => ({ ...prev, ...newData }));
-    console.log('formData', formData);
-  };
+  });
 
   const { isLoading, data } = useQuery({
     queryKey: ['councilForm', draftId],
@@ -104,33 +97,28 @@ export function CouncilFormProvider({
   });
 
   useEffect(() => {
-    if (data && isInitialLoadRef.current) {
-      isInitialLoadRef.current = false;
-      setFormData((prev) => ({
-        ...prev,
-        councilName: data.councilName,
-        organizationName: data.organizationName,
-        chain: chainIdToString(data.chain),
-        councilDescription: data.councilDescription,
+    if (data) {
+      form.reset({
+        organizationName: data.organizationName || '',
+        councilName: data.councilName || '',
+        chain: chainIdToString(data.chain) || undefined,
+        councilDescription: data.councilDescription || '',
         thresholdType: data.thresholdType,
         confirmationsRequired:
-          data.thresholdType === 'ABSOLUTE'
-            ? data.thresholdTarget
-            : prev.confirmationsRequired,
+          data.thresholdType === 'ABSOLUTE' ? data.thresholdTarget : 4,
         percentageRequired:
-          data.thresholdType === 'RELATIVE'
-            ? data.thresholdTarget
-            : prev.percentageRequired,
+          data.thresholdType === 'RELATIVE' ? data.thresholdTarget : 51,
         minConfirmations: data.thresholdMin,
         maxMembers: data.maxCouncilMembers,
-      }));
+      });
     }
-  }, [data]);
+  }, [data, form]);
 
   const queryClient = useQueryClient();
 
   const { mutateAsync: persistForm } = useMutation({
     mutationFn: async () => {
+      const formData = form.getValues();
       const payload = {
         id: draftId,
         councilName: formData.councilName,
@@ -138,21 +126,20 @@ export function CouncilFormProvider({
         councilDescription: formData.councilDescription,
         chain: chainStringToId(formData.chain),
         thresholdType: formData.thresholdType,
-        maxCouncilMembers: formData.maxMembers,
+        maxCouncilMembers: parseInt(formData.maxMembers.toString()),
         thresholdTarget:
           formData.thresholdType === 'ABSOLUTE'
-            ? formData.confirmationsRequired
-            : formData.percentageRequired,
+            ? parseInt(formData.confirmationsRequired.toString())
+            : parseInt(formData.percentageRequired.toString()),
         thresholdMin:
           formData.thresholdType === 'ABSOLUTE'
-            ? formData.confirmationsRequired
-            : formData.minConfirmations,
+            ? parseInt(formData.confirmationsRequired.toString())
+            : parseInt(formData.minConfirmations.toString()),
       };
 
       return await graphqlClient.request(UPDATE_COUNCIL_FORM, payload);
     },
     onSuccess: () => {
-      // Invalidate and refetch the form data
       queryClient.invalidateQueries({ queryKey: ['councilForm', draftId] });
     },
   });
@@ -160,12 +147,9 @@ export function CouncilFormProvider({
   return (
     <CouncilFormContext.Provider
       value={{
-        formData,
-        updateFormData,
+        form,
         isLoading,
-        persistForm: async () => {
-          await persistForm();
-        },
+        persistForm,
       }}
     >
       {children}

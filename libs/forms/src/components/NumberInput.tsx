@@ -25,8 +25,9 @@ import { GrUndo } from 'react-icons/gr';
 export interface CustomNumberInputProps {
   label?: string;
   subLabel?: string;
+  helperText?: string;
   name: string;
-  localForm: UseFormReturn<any>; // UseFormReturn<FieldValues>;
+  localForm: UseFormReturn<any>;
   options?: RegisterOptions;
   numOptions?: {
     min?: number;
@@ -52,6 +53,7 @@ const NumberInput = ({
   options,
   numOptions,
   subLabel,
+  helperText,
   step = 1,
   variant = 'outline',
   placeholder,
@@ -145,6 +147,8 @@ const NumberInput = ({
             </InputGroup>
           )}
         />
+
+        {helperText && <FormHelperText>{helperText}</FormHelperText>}
 
         {getErrorMessage() && (
           <Text color='red.500' size='xs'>

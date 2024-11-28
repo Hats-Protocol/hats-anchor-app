@@ -14,7 +14,7 @@ interface CouncilCreateFormProps {
 
 export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { formData, persistForm } = useCouncilForm();
+  const { persistForm } = useCouncilForm();
 
   const handleNext = async () => {
     try {
@@ -44,7 +44,8 @@ export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
     case 'threshold':
       return <ThresholdStep onNext={handleNext} />;
     case 'onboarding':
-      return <OnboardingStep onNext={handleNext} />;
+      /*return <OnboardingStep onNext={handleNext} />;*/
+      return null;
     default:
       return null;
   }
