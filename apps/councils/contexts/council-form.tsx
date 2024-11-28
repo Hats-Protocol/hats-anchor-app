@@ -41,6 +41,20 @@ interface CouncilFormResponse {
     thresholdTarget: number;
     thresholdMin: number;
     maxCouncilMembers: number;
+    membersSelectionType: 'ALLOWLIST' | 'ELECTION';
+    membersAllowlist: {
+      admins: string[];
+      members: string[];
+    } | null;
+    agreementCriteria: {
+      agreement: string;
+    } | null;
+    tokenCriteria: {
+      id: string;
+    } | null;
+    kycCriteria: {
+      verifiers: string[];
+    } | null;
   };
 }
 
@@ -110,6 +124,12 @@ export function CouncilFormProvider({
           data.thresholdType === 'RELATIVE' ? data.thresholdTarget : 51,
         minConfirmations: data.thresholdMin,
         maxMembers: data.maxCouncilMembers,
+        membershipType: 'APPOINTED',
+        requirements: {
+          signAgreement: !!data.agreementCriteria,
+          holdTokens: !!data.tokenCriteria,
+          passCompliance: !!data.kycCriteria,
+        },
       });
     }
   }, [data, form]);
@@ -135,6 +155,20 @@ export function CouncilFormProvider({
           formData.thresholdType === 'ABSOLUTE'
             ? parseInt(formData.confirmationsRequired.toString())
             : parseInt(formData.minConfirmations.toString()),
+        membersSelectionType: 'ALLOWLIST',
+        membersAllowlist: {
+          admins: [],
+          members: [],
+        },
+        agreementCriteria: formData.requirements.signAgreement
+          ? { agreement: '' }
+          : null,
+        tokenCriteria: formData.requirements.holdTokens
+          ? { placeholder: true }
+          : null,
+        kycCriteria: formData.requirements.passCompliance
+          ? { verifiers: [] }
+          : null,
       };
 
       return await graphqlClient.request(UPDATE_COUNCIL_FORM, payload);

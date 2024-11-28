@@ -25,6 +25,11 @@ export const UPDATE_COUNCIL_FORM = gql`
     $councilName: String
     $councilDescription: String
     $chain: Int
+    $membersSelectionType: MemberSelectionType
+    $membersAllowlist: AllowlistInput
+    $agreementCriteria: AgreementInput
+    $tokenCriteria: TokenInput
+    $kycCriteria: KycInput
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -36,6 +41,11 @@ export const UPDATE_COUNCIL_FORM = gql`
       councilName: $councilName
       councilDescription: $councilDescription
       chain: $chain
+      membersSelectionType: $membersSelectionType
+      membersAllowlist: $membersAllowlist
+      agreementCriteria: $agreementCriteria
+      tokenCriteria: $tokenCriteria
+      kycCriteria: $kycCriteria
     ) {
       id
       organizationName
@@ -46,6 +56,20 @@ export const UPDATE_COUNCIL_FORM = gql`
       thresholdTarget
       thresholdMin
       chain
+      membersSelectionType
+      membersAllowlist {
+        admins
+        members
+      }
+      agreementCriteria {
+        agreement
+      }
+      tokenCriteria {
+        id
+      }
+      kycCriteria {
+        verifiers
+      }
     }
   }
 `;
@@ -63,7 +87,19 @@ export const GET_COUNCIL_FORM = gql`
       councilDescription
       membersSelectionType
       chain
-      collaborators
+      membersAllowlist {
+        admins
+        members
+      }
+      agreementCriteria {
+        agreement
+      }
+      tokenCriteria {
+        id
+      }
+      kycCriteria {
+        verifiers
+      }
     }
   }
 `;
