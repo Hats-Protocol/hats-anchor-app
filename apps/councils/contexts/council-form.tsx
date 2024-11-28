@@ -22,7 +22,7 @@ interface CouncilFormData {
   percentageRequired: number; // used if thresholdType is RELATIVE
   minConfirmations: number; // used if thresholdType is RELATIVE
   maxMembers: number;
-  // step 3 - onboarding
+  // step 3
   membershipType: 'APPOINTED' | 'ELECTED';
   requirements: {
     signAgreement: boolean;

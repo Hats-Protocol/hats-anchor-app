@@ -112,7 +112,6 @@ const RadioCard = ({
                     px={6}
                     py={4}
                     cursor={option.disabled ? 'not-allowed' : 'pointer'}
-                    opacity={option.disabled ? 0.5 : 1}
                     borderColor={
                       field.value === option.value ? 'blue.500' : 'gray.200'
                     }
@@ -125,7 +124,7 @@ const RadioCard = ({
                     }
                   >
                     <HStack justify='space-between' width='100%'>
-                      <HStack spacing={4}>
+                      <HStack spacing={4} opacity={option.disabled ? 0.5 : 1}>
                         {option.icon && (
                           <Icon
                             as={option.icon}
