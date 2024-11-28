@@ -13,11 +13,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import {
-  Input,
-  NumberInput,
-  RadioBox,
-} from '../../../../libs/forms/src/components';
+import { Input, NumberInput, RadioBox } from 'forms';
 
 import { useCouncilForm } from '../../contexts/council-form';
 
@@ -53,7 +49,7 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
 
         <Stack>
           <FormLabel fontWeight='bold'>
-            What's the Signer Threshold logic
+            What&apos;s the Signer Threshold logic
           </FormLabel>
           <RadioBox
             name='thresholdType'

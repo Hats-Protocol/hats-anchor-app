@@ -2,8 +2,8 @@
 
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Input, Select, Textarea } from 'forms';
 import Image from 'next/image';
-import { Input, Select, Textarea } from '../../../../libs/forms/src/components';
 
 import { useCouncilForm } from '../../contexts/council-form';
 
