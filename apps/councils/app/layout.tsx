@@ -4,10 +4,10 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { MetadataConfig } from '@hatsprotocol/constants';
 import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
-import { StandaloneNavbar as Navbar } from 'organisms';
 // import Script from 'next/script';
 import { ReactNode } from 'react';
 
+import { Navbar } from '../components/navbar';
 import Providers from './providers';
 
 // const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
@@ -33,13 +33,13 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     </head>
 
     <body>
-      <div className='relative h-screen bg-slate-200'>
+      <div className='relative min-h-screen bg-gray-50'>
         <Providers>
           <Navbar />
 
           <div className='w-screen'>{children}</div>
 
-          <TxHistoryModal />
+          {/*<TxHistoryModal />*/}
         </Providers>
       </div>
     </body>

@@ -30,6 +30,7 @@ interface RadioBoxProps extends BoxProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   options?: RadioOption[];
+  textSize?: string;
   defaultValue?: string;
   isRequired?: boolean;
   helperText?: string;
@@ -50,6 +51,7 @@ const RadioBox = ({
   tooltip,
   subLabel,
   isDisabled,
+  textSize = 'sm',
 }: RadioBoxProps) => {
   if (!localForm) return null;
 
@@ -103,7 +105,7 @@ const RadioBox = ({
               <HStack spacing={4}>
                 {options?.map((option) => (
                   <Radio key={option.value} value={option.value} maxW={maxW}>
-                    <Text size='sm'>{option.label}</Text>
+                    <Text size={textSize}>{option.label}</Text>
                   </Radio>
                 ))}
               </HStack>
