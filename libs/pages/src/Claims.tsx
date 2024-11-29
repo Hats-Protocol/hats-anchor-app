@@ -52,8 +52,9 @@ const Claims = () => {
   }
 
   if (
-    chainId === 10 &&
-    get(selectedHat, 'id') === CONFIG.agreementV0.communityHatId
+    (chainId === 10 &&
+      get(selectedHat, 'id') === CONFIG.agreementV0.communityHatId) ||
+    moduleDetails?.name.includes('Agreement')
   ) {
     return <AgreementClaims />;
   }
@@ -62,7 +63,6 @@ const Claims = () => {
   // TODO migrate to ID and CONSTs
   if (moduleDetails?.name === 'Hats Election Eligibility')
     return <ElectionClaims />;
-  if (moduleDetails?.name.includes('Agreement')) return <AgreementClaims />;
   if (moduleDetails?.name.includes('Unlock Protocol'))
     return <SubscriptionClaims />;
 

@@ -54,7 +54,7 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
 
 interface TreeDetailsProps {
   params: {
-    hatId: Hex;
+    hatId: Hex | string;
     chainId: SupportedChains;
   };
 }
@@ -65,7 +65,13 @@ export async function generateMetadata({
   // read route params
   const { hatId, chainId } = pick(params, ['hatId', 'chainId']);
   // hatId is in IP format
-  if (!chainId || !hatId || isNaN(toNumber(first(split(hatId, '.'))))) {
+  if (
+    !chainId ||
+    !hatId ||
+    hatId === 'undefined' ||
+    isNaN(toNumber(first(split(hatId, '.'))))
+  ) {
+    // TODO why is Next still pinging /chainId/hatId when hatId is not found?
     return {};
   }
   const hatIdHex = hatIdDecimalToHex(hatIdIpToDecimal(hatId));

@@ -8,10 +8,9 @@ import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { Analytics } from '@vercel/analytics/react';
 import { OverlayContextProvider } from 'contexts';
 import posthog from 'posthog-js';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { theme } from 'ui';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
@@ -21,11 +20,20 @@ declare global {
   interface BigInt {
     toJSON: () => string;
   }
+
+  interface Window {
+    Intercom: (action: string, options: object) => void;
+  }
 }
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 if (!POSTHOG_KEY) {
   throw new Error('POSTHOG_KEY is required');
+}
+
+const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
+if (!INTERCOM_APP_ID) {
+  throw new Error('INTERCOM_APP_ID is required');
 }
 
 const queryClient = new QueryClient({
@@ -44,7 +52,7 @@ if (typeof window !== 'undefined') {
     api_host: `/ingest` || 'https://app.posthog.com',
     // Enable debug mode in development
     loaded: (p: { debug: () => void }) => {
-      if (process.env.NODE_ENV === 'development') p.debug();
+      // if (process.env.NODE_ENV === 'development') p.debug();
     },
     ui_host: 'https://app.posthog.com',
   });
@@ -54,19 +62,26 @@ BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };
 
-const Providers = ({ children }: ProvidersProps) => (
-  <ChakraBaseProvider theme={theme}>
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
-          <Analytics />
-          <OverlayContextProvider>{children}</OverlayContextProvider>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  </ChakraBaseProvider>
-);
+const Providers = ({ children }: ProvidersProps) => {
+  useEffect(() => {
+    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    }
+  }, []);
+
+  return (
+    <ChakraBaseProvider theme={theme}>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <OverlayContextProvider>{children}</OverlayContextProvider>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </ChakraBaseProvider>
+  );
+};
 
 interface ProvidersProps {
   children: ReactNode;

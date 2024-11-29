@@ -2,10 +2,9 @@
 
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { useCouncilForm } from 'contexts';
 import { Input, Select, Textarea } from 'forms';
 import Image from 'next/image';
-
-import { useCouncilForm } from '../../contexts/council-form';
 
 const CHAIN_OPTIONS = [
   { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },

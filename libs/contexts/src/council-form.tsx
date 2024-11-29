@@ -3,13 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-
-import { chainIdToString, chainStringToId } from '../lib/chain-mapping';
 import {
+  chainIdToString,
+  chainStringToId,
+  councilsGraphqlClient,
   GET_COUNCIL_FORM,
   UPDATE_COUNCIL_FORM,
-} from '../lib/graphql/council-form';
-import { graphqlClient } from '../lib/graphql-client';
+} from 'utils';
 
 interface CouncilFormData {
   // step 1
@@ -74,7 +74,7 @@ export function CouncilFormProvider({
   draftId,
 }: {
   children: React.ReactNode;
-  draftId: string;
+  draftId: string | null;
 }) {
   const form = useForm<CouncilFormData>({
     defaultValues: {
@@ -99,7 +99,7 @@ export function CouncilFormProvider({
   const { isLoading, data } = useQuery({
     queryKey: ['councilForm', draftId],
     queryFn: async () => {
-      const result = await graphqlClient.request<CouncilFormResponse>(
+      const result = await councilsGraphqlClient.request<CouncilFormResponse>(
         GET_COUNCIL_FORM,
         {
           id: draftId,
@@ -172,7 +172,7 @@ export function CouncilFormProvider({
           : null,
       };
 
-      return await graphqlClient.request(UPDATE_COUNCIL_FORM, payload);
+      return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['councilForm', draftId] });
