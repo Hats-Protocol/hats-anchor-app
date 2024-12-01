@@ -9,10 +9,15 @@ import { ThresholdStep } from './threshold-step';
 
 interface CouncilCreateFormProps {
   step: string;
+  subStep?: string;
   draftId: string;
 }
 
-export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
+export function CouncilCreateForm({
+  step,
+  subStep,
+  draftId,
+}: CouncilCreateFormProps) {
   const router = useRouter();
   const { persistForm } = useCouncilForm();
 
@@ -20,18 +25,38 @@ export function CouncilCreateForm({ step, draftId }: CouncilCreateFormProps) {
     try {
       await persistForm();
 
+      if (step === 'selection') {
+        const subStepMap = {
+          members: 'management',
+          management: 'agreement',
+          agreement: 'compliance',
+          compliance: 'finalize',
+        };
+
+        const nextSubStep = subStepMap[subStep as keyof typeof subStepMap];
+        if (nextSubStep === 'finalize') {
+          router.push(`/councils/new/finalize?draftId=${draftId}`);
+        } else {
+          router.push(
+            `/councils/new/selection?subStep=${nextSubStep}&draftId=${draftId}`,
+          );
+        }
+        return;
+      }
+
       const nextStepMap = {
         details: 'threshold',
         threshold: 'onboarding',
         onboarding: 'selection',
-        selection: 'finalize',
       };
 
       const nextStep = nextStepMap[step as keyof typeof nextStepMap];
-      if (nextStep) {
+      if (nextStep === 'selection') {
         router.push(
-          `/councils/new/${nextStep}${draftId ? `?draftId=${draftId}` : ''}`,
+          `/councils/new/${nextStep}?subStep=members&draftId=${draftId}`,
         );
+      } else if (nextStep) {
+        router.push(`/councils/new/${nextStep}?draftId=${draftId}`);
       }
     } catch (error) {
       console.error('Failed to save form data:', error);

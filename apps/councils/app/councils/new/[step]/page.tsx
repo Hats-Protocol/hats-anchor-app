@@ -25,7 +25,11 @@ const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
         </div>
 
         <div className='col-start-14 col-span-6 grid'>
-          <CreationFormSteps currentStep={step} draftId={draftId} />
+          <CreationFormSteps
+            currentStep={step}
+            currentSubStep={searchParams.get('subStep') || undefined}
+            draftId={draftId}
+          />
         </div>
       </div>
     </CouncilFormProvider>
