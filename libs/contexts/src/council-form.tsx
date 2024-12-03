@@ -11,7 +11,13 @@ import {
   UPDATE_COUNCIL_FORM,
 } from 'utils';
 
-interface CouncilFormData {
+interface CouncilMember {
+  address: string;
+  email: string;
+  name?: string;
+}
+
+export interface CouncilFormData {
   // step 1
   organizationName: string;
   councilName: string;
@@ -30,6 +36,8 @@ interface CouncilFormData {
     holdTokens: boolean;
     passCompliance: boolean;
   };
+  // step 4
+  members: CouncilMember[];
 }
 
 interface CouncilFormResponse {
@@ -93,6 +101,7 @@ export function CouncilFormProvider({
         holdTokens: false,
         passCompliance: false,
       },
+      members: [],
     },
   });
 
@@ -131,6 +140,7 @@ export function CouncilFormProvider({
           holdTokens: !!data.tokenCriteria,
           passCompliance: !!data.kycCriteria,
         },
+        members: [],
       });
     }
   }, [data, form]);

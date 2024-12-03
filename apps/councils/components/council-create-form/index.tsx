@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
 import { ThresholdStep } from './threshold-step';
+import { SelectionMembersStep } from './selection/members-step';
 
 interface CouncilCreateFormProps {
   step: string;
@@ -70,6 +71,13 @@ export function CouncilCreateForm({
       return <ThresholdStep onNext={handleNext} />;
     case 'onboarding':
       return <OnboardingStep onNext={handleNext} />;
+    case 'selection':
+      switch (subStep) {
+        case 'members':
+          return <SelectionMembersStep onNext={handleNext} />;
+        default:
+          return null;
+      }
     default:
       return null;
   }

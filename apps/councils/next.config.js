@@ -56,6 +56,22 @@ const nextConfig = {
       'utils',
     ],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.seadn.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'metadata.ens.domains',
+      },
+      {
+        protocol: 'https',
+        hostname: 'effigy.im',
+      },
+    ],
+  },
 };
 
 const plugins = [
