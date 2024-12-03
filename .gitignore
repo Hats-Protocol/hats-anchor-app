@@ -70,3 +70,5 @@ dist-ssr
 .env
 /treeData
 /migrations.json
+
+libs/utils/src/mesh/zeus

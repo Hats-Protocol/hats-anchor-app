@@ -1,0 +1,20 @@
+'use client';
+
+import { useCouncilDetails } from 'hooks';
+import { pick } from 'lodash';
+import { Hex } from 'viem';
+
+import SafeAssets from './SafeList/SafeAssets';
+
+const SafeAssetsPage = ({ chainId, hsg }: { chainId: number; hsg: Hex }) => {
+  const { data } = useCouncilDetails({ chainId, address: hsg });
+  const { safe: safeAddress } = pick(data, ['safe']);
+
+  return (
+    <div>
+      <SafeAssets chainId={chainId} safeAddress={safeAddress as Hex} />
+    </div>
+  );
+};
+
+export default SafeAssetsPage;

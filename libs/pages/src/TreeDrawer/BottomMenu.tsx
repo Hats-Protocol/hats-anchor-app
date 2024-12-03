@@ -92,7 +92,7 @@ const BottomMenu = ({
     handleSimulate(address);
   }, [handleSimulate, address]);
 
-  console.log(simulationResponse);
+  // console.log(simulationResponse);
 
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>

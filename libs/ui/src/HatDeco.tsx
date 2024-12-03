@@ -1,6 +1,4 @@
-'use client';
-
-import { Flex, Text } from '@chakra-ui/react';
+import { cn } from './lib/utils';
 
 const HatDeco = ({
   height,
@@ -9,13 +7,13 @@ const HatDeco = ({
   height?: string | number;
   hideOnDesktop?: boolean;
 }) => (
-  <Flex
-    minH={height || '150px'}
-    justify='center'
-    align='center'
-    display={{ base: 'flex', md: hideOnDesktop ? 'none' : 'flex' }}
+  <div
+    className={cn(
+      'flex min-h-[150px] items-center justify-center',
+      hideOnDesktop && 'hidden md:flex',
+    )}
   >
-    <Text size={{ base: 'sm', md: 'md' }}>
+    <p className='md:text-md text-sm'>
       <span aria-label='Ball cap' role='img'>
         🧢
       </span>
@@ -25,8 +23,8 @@ const HatDeco = ({
       <span aria-label='Hat with bow' role='img'>
         👒
       </span>
-    </Text>
-  </Flex>
+    </p>
+  </div>
 );
 
 export default HatDeco;
