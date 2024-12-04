@@ -9,7 +9,8 @@ const HatDeco = ({
 }) => (
   <div
     className={cn(
-      'flex min-h-[150px] items-center justify-center',
+      'flex items-center justify-center',
+      height ? `min-h-[${height}]` : 'min-h-[150px]',
       hideOnDesktop && 'hidden md:flex',
     )}
   >

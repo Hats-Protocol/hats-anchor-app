@@ -1,17 +1,11 @@
-import { Button } from '@chakra-ui/react';
+import { MailForm } from '../../../components/mail-form';
 
 const Mails = () => {
   return (
-    <div>
-      <h1>Mail Test</h1>
+    <div className='mx-auto flex max-w-screen-md flex-col gap-6 pt-8'>
+      <h1 className='text-center text-2xl font-bold'>Mail Test</h1>
 
-      <div>
-        <Button>Send &quot;You&apos;ve been invited&quot;</Button>
-        <Button>Send &quot;You&apos;ve been added to a council&quot;</Button>
-        <Button>
-          Send &quot;You&apos;ve been removed from a council&quot;
-        </Button>
-      </div>
+      <MailForm />
     </div>
   );
 };

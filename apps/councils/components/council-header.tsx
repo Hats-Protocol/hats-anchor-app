@@ -3,13 +3,13 @@
 import { Button } from '@chakra-ui/react';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useSafesInfo } from 'hooks';
-import { capitalize, first, get, last, nth, size } from 'lodash';
+import { capitalize, first, get, nth, size } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
+import { chainsMap, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
-
-const chainId = 11155111;
 
 const handleHatDetails = (detailsMetadata: string | undefined) => {
   if (!detailsMetadata) return undefined;
@@ -22,15 +22,16 @@ const handleHatDetails = (detailsMetadata: string | undefined) => {
 export const CouncilHeader = () => {
   const pathname = usePathname();
   const slug = nth(pathname.split('/'), 2);
-  const chain = first(slug?.split(':'));
-  const address = last(slug?.split(':'));
+  const { chainId, address } = parseCouncilSlug(slug ?? '');
+
   const { data: councilDetails } = useCouncilDetails({
-    chainId,
+    chainId: chainId ?? 11155111,
     address,
   });
   const { data: safesDetails } = useSafesInfo({
-    chainId,
-    safes: [councilDetails?.safe as Hex],
+    chainId: chainId ?? 11155111,
+    // TODO fix type
+    safes: [councilDetails?.safe as unknown as Hex],
   });
   const primarySignerHat = first(councilDetails?.signerHats);
   const signerHatDetails = handleHatDetails(
@@ -61,7 +62,10 @@ export const CouncilHeader = () => {
 
         <div className='flex w-auto items-center'>
           <Link
-            href={safeUrl(chainId, councilDetails?.safe as Hex)}
+            href={safeUrl(
+              (chainId ?? 11155111) as SupportedChains,
+              councilDetails?.safe as unknown as Hex,
+            )}
             target='_blank'
           >
             <Button>Safe Wallet</Button>
@@ -72,7 +76,7 @@ export const CouncilHeader = () => {
           <div>
             {get(safe, 'threshold')}/{size(get(safe, 'owners'))} Multisig
           </div>
-          <div>on {capitalize(chain)}</div>
+          <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
           <div>by Circle DAO</div>
         </div>
       </div>

@@ -1,18 +1,19 @@
 // import { CouncilsContextProvider } from 'contexts';
 // import { compact, concat, find, get, last, map, toLower } from 'lodash';
 // import { getCouncilData, getHatsDetails } from 'utils';
-import { last } from 'lodash';
+import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
+import MembersPage from '../../../../components/members-page';
 import SafeAssetsPage from '../../../../components/safe-assets-page';
 
 const CouncilDetails = async ({
-  params: { id, page },
+  params: { slug, page },
 }: {
-  params: { id: string; page: string };
+  params: { slug: string; page: string };
 }) => {
   // TODO identifier could be ID in database, slug or chainId/hsg
-  const address = last(id?.split('%3A'));
+  const { chainId, address } = parseCouncilSlug(slug);
 
   if (page === 'transactions') {
     return <div>Transactions</div>;
@@ -23,13 +24,13 @@ const CouncilDetails = async ({
   }
 
   if (page === 'members') {
-    return <div>Members</div>;
+    return <MembersPage slug={slug} />;
   }
 
   if (!address) return null;
 
   // Default is assets
-  return <SafeAssetsPage chainId={11155111} hsg={address as Hex} />;
+  return <SafeAssetsPage chainId={chainId ?? 11155111} hsg={address as Hex} />;
 };
 
 export default CouncilDetails;

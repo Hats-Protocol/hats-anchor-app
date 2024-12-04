@@ -11,7 +11,7 @@ if (!MESH_API_URL) {
 const chain = Chain(`${MESH_API_URL}/graphql`);
 
 // TODO lookup by hsg or safe address
-export const getCouncilData = async ({ id }: { id: string }): Promise<any> => {
+export const getCouncilData = async ({ id }: { id: string }) => {
   const result = await chain('query')({
     Sep_hatsSignerGates: [
       // @ts-expect-error subgraphError is not included in schema but expected by type
@@ -36,7 +36,12 @@ export const getHatsDetails = async ({ ids }: { ids: string[] }) => {
     Sep_hats: [
       // @ts-expect-error subgraphError is not included in schema but expected by type
       { where: { id_in: ids } },
-      { id: true, details: true, detailsMetadata: true },
+      {
+        id: true,
+        details: true,
+        detailsMetadata: true,
+        wearers: [{ first: 10 }, { id: true, ensName: true, isContract: true }],
+      },
     ],
   });
 

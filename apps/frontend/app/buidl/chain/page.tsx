@@ -1,6 +1,5 @@
-import { HatDeco } from 'ui';
-
 import { ChainModuleForm } from 'forms';
+import { HatDeco } from 'ui';
 
 const ChainModuleDeployer = () => {
   return (

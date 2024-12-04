@@ -12,7 +12,11 @@ const SafeAssetsPage = ({ chainId, hsg }: { chainId: number; hsg: Hex }) => {
 
   return (
     <div>
-      <SafeAssets chainId={chainId} safeAddress={safeAddress as Hex} />
+      <SafeAssets
+        chainId={chainId}
+        // TODO fix type
+        safeAddress={safeAddress as unknown as Hex}
+      />
     </div>
   );
 };
