@@ -16,16 +16,26 @@ To run the app, you need to have a `.env` file in the root of the project. You c
 cp .env.example .env.local
 cp apps/frontend/.env.example apps/frontend/.env.local
 # claims app doesn't have any additional variables yet
-``` 
+```
+
+## Generate the Mesh API GraphQL client
+
+The Mesh API GraphQL client is generated using [GraphQL Zeus](https://www.graphql-zeus.com/). **Your build might fail if you don't generate the client.**
+
+```bash
+pnpm generate # runs npx graphql-zeus $HATS_MESH_API_URL ./libs/utils/src/mesh
+```
 
 ## Start the apps
 
 To start the development server run `pnpm dev`. The server will be running on http://localhost:4200/.
 
 ```bash
-pnpm dev # to start the Anchor app
+pnpm dev # runs nx run frontend:dev (Anchor app)
 
-pnpm claims:dev # to start the Claims app
+pnpm councils:dev # runs nx run councils:dev (Councils app)
+
+pnpm claims:dev # runs nx run claims:dev (Claims app)
 ```
 
 ## Build production application

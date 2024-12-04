@@ -1,4 +1,5 @@
 export * from './authorities-list-form';
+export * from './chain-module-form';
 export { default as ClaimsHandler } from './ClaimsHandler';
 export * from './components';
 export * from './council-create-form';

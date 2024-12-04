@@ -92,7 +92,7 @@ const SafeCard = ({
               <SafeTotal safeAddress={safeAddress} />
             </Flex>
 
-            <SafeAssets safeAddress={safeAddress} />
+            <SafeAssets safeAddress={safeAddress} chainId={chainId} />
 
             <Divider w='70%' mx='auto' />
 
