@@ -20,9 +20,10 @@ export function CouncilCreateForm({
   draftId,
 }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { persistForm } = useCouncilForm();
+  const { persistForm, form } = useCouncilForm();
 
   const handleNext = async () => {
+    console.log('form', form.getValues());
     try {
       await persistForm();
 

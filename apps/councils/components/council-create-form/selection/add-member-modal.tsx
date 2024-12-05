@@ -5,7 +5,7 @@ import { AddressInput, Input } from 'forms';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
 import { isAddress } from 'viem';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { CouncilFormData } from 'contexts'; // adjust the import path based on your project structure
 
 interface CouncilMember {
@@ -39,25 +39,52 @@ export function AddMemberModal({
     },
   });
 
+  const [formError, setFormError] = useState<string | null>(null);
+
   const handleSubmit = (data: {
     address: string;
     email: string;
     name?: string;
   }) => {
-    if (!isAddress(data.address)) return;
+    console.log('data', data);
+    if (!isAddress(data.address)) {
+      console.log('non valid address');
+      setFormError('Please enter a valid Ethereum address');
+      return;
+    }
 
     const currentMembers = parentForm.getValues('members') || [];
+
+    // Check for duplicate address, but ignore if we're editing the same member
+    const isDuplicate = currentMembers.some(
+      (member) =>
+        member.address.toLowerCase() === data.address.toLowerCase() &&
+        member.address !== editingMember?.address,
+    );
+
+    if (isDuplicate) {
+      console.log('duplicate address');
+      setFormError('This address is already a member of the council');
+      return;
+    }
+
     if (editingMember) {
       // Update existing member
       const updatedMembers = currentMembers.map((member) =>
-        member.address === editingMember.address ? data : member,
+        member.address === editingMember.address
+          ? { address: data.address, email: data.email, name: data.name }
+          : member,
       );
       parentForm.setValue('members', updatedMembers);
     } else {
       // Add new member
-      parentForm.setValue('members', [...currentMembers, data]);
+      parentForm.setValue('members', [
+        ...currentMembers,
+        { address: data.address, email: data.email, name: data.name },
+      ]);
     }
 
+    setFormError(null);
     modalForm.reset();
     onClose();
   };
@@ -65,6 +92,7 @@ export function AddMemberModal({
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
+      setFormError(null);
       modalForm.reset({
         address: editingMember?.address || '',
         email: editingMember?.email || '',
@@ -132,14 +160,19 @@ export function AddMemberModal({
           />
         </div>
 
-        <div className='mt-8 flex justify-end'>
-          <button
-            type='submit'
-            disabled={!modalForm.formState.isValid}
-            className='rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50'
-          >
-            {editingMember ? 'Save Changes' : 'Add Member'}
-          </button>
+        <div className='mt-8'>
+          {formError && (
+            <p className='mb-4 text-sm text-red-500'>{formError}</p>
+          )}
+          <div className='flex justify-end'>
+            <button
+              type='submit'
+              disabled={!modalForm.formState.isValid}
+              className='rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50'
+            >
+              {editingMember ? 'Save Changes' : 'Add Member'}
+            </button>
+          </div>
         </div>
       </ModalContent>
     </Modal>
