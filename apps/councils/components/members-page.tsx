@@ -87,7 +87,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
         </div>
       </div>
 
-      {map(allowlist, (member) => (
+      {map(allowlist, (member: { address: Hex }) => (
         <div
           className='flex h-16 justify-between border-b border-gray-200'
           key={member.address}
