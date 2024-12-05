@@ -7,6 +7,8 @@ import { useEnsAvatar, useEnsName } from 'wagmi';
 import Image from 'next/image';
 import { useState } from 'react';
 import { AddMemberModal } from './add-member-modal';
+import { EditIcon } from '../../icons/edit-icon';
+import { TrashIcon } from '../../icons/trash-icon';
 
 interface CouncilMember {
   address: string;
@@ -79,47 +81,33 @@ function MemberCard({
     chainId: 1,
   });
 
-  const { data: avatarUrl } = useEnsAvatar({
-    name: ensName ?? undefined,
-    chainId: 1,
-  });
-
   return (
-    <div className='flex items-center justify-between rounded-xl'>
+    <div className='flex items-center justify-between'>
       <div className='flex items-center gap-2'>
-        <span className='font-medium'>{member.name}</span>
-        {avatarUrl && (
-          <div className='h-5 w-5 overflow-hidden rounded'>
-            <Image
-              src={avatarUrl}
-              alt='ENS Avatar'
-              width={20}
-              height={20}
-              className='h-full w-full object-cover'
-              onError={(e) => {
-                (e.target as HTMLElement).parentElement!.style.display = 'none';
-              }}
-            />
-          </div>
+        {member.name && (
+          <span className='text-sm font-medium text-gray-900'>
+            {member.name}
+          </span>
         )}
-        <span className='text-pink-500'>
+        <span className='text-sm text-gray-600'>
           {ensName || formatAddress(member.address)}
         </span>
       </div>
-      <div className='flex items-center gap-4'>
+      <div className='flex items-center gap-3'>
         <button
           type='button'
-          className='text-sm font-medium text-blue-500 hover:text-blue-600'
+          className='flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800'
           onClick={onEdit}
         >
+          <EditIcon />
           Edit
         </button>
         <button
           type='button'
           onClick={() => onRemove(member.address)}
-          className='text-sm font-medium text-red-500 hover:text-red-600'
+          className='text-red-700 hover:text-red-800'
         >
-          Delete
+          <TrashIcon />
         </button>
       </div>
     </div>

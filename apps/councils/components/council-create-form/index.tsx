@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
 import { ThresholdStep } from './threshold-step';
-import { SelectionMembersStep } from './selection/members-step';
+import { SelectionMembersStep } from './selection-step/members-step';
 
 interface CouncilCreateFormProps {
   step: string;
