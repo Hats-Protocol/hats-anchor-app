@@ -38,6 +38,7 @@ export interface CouncilFormData {
   };
   // step 4
   members: CouncilMember[];
+  admins: CouncilMember[];
 }
 
 interface CouncilFormResponse {
@@ -102,6 +103,7 @@ export function CouncilFormProvider({
         passCompliance: false,
       },
       members: [],
+      admins: [],
     },
   });
 
@@ -141,6 +143,7 @@ export function CouncilFormProvider({
           passCompliance: !!data.kycCriteria,
         },
         members: [],
+        admins: [],
       });
     }
   }, [data, form]);

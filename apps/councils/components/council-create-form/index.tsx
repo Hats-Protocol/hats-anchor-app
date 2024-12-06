@@ -7,6 +7,7 @@ import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
 import { ThresholdStep } from './threshold-step';
 import { SelectionMembersStep } from './selection-step/members-step';
+import { SelectionManagementStep } from './selection-step/management-step';
 
 interface CouncilCreateFormProps {
   step: string;
@@ -76,6 +77,8 @@ export function CouncilCreateForm({
       switch (subStep) {
         case 'members':
           return <SelectionMembersStep onNext={handleNext} />;
+        case 'management':
+          return <SelectionManagementStep onNext={handleNext} />;
         default:
           return null;
       }
