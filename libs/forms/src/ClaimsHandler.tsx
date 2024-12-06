@@ -15,7 +15,7 @@ import { MULTI_CLAIMS_HATTER_ABI } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { usePendHatterMint, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -169,7 +169,7 @@ const ClaimsHandler = ({
                 {formatAddress(instanceAddress)}
               </Box>
               ) is wearing Hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} (
-              {wearingHat?.detailsObject?.data?.name})
+              {get(wearingHat, 'detailsObject.data.name')})
             </Text>
           )}
         </Stack>
@@ -189,7 +189,8 @@ const ClaimsHandler = ({
           <Select localForm={localForm} name='hatToMintTo'>
             {_.map(availableAdmins, (a: AppHat) => (
               <option value={a.id} key={a.id}>
-                {hatIdDecimalToIp(BigInt(a.id))} {a.detailsObject?.data.name}
+                {hatIdDecimalToIp(BigInt(a.id))}{' '}
+                {get(a, 'detailsObject.data.name', get(a, 'details'))}
               </option>
             ))}
           </Select>

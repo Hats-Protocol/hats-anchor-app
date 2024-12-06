@@ -14,7 +14,7 @@ import {
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -68,9 +68,9 @@ export const ChainPanel = ({
         borderRadius={expandedBackground ? 'md' : undefined}
       >
         {({ isExpanded }: { isExpanded: boolean }) => {
-          if (!isMounted.current) return;
-
-          setExpandedBackground(isExpanded);
+          if (isMounted.current && isExpanded !== expandedBackground) {
+            startTransition(() => setExpandedBackground(isExpanded));
+          }
 
           return (
             <>

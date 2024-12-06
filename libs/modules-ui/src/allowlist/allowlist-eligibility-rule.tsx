@@ -3,7 +3,8 @@
 import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
-import { get, includes, toLower } from 'lodash';
+import { filter, get, includes, map, toLower } from 'lodash';
+import { useAllowlist } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
@@ -24,6 +25,12 @@ export const AllowlistEligibilityRule = ({
   moduleParameters,
 }: ModuleDetailsHandler) => {
   // TODO subgraph will need to index these allowlists specifically, to show the actual lists
+  console.log(
+    'moduleDetails',
+    moduleDetails,
+    'moduleParameters',
+    moduleParameters,
+  );
 
   const { setModals } = useOverlay();
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
@@ -32,10 +39,21 @@ export const AllowlistEligibilityRule = ({
     wearerIds,
     chainId: chainId as SupportedChains,
   });
-  const isEligible = includes(
-    get(wearerStatus, 'eligibleWearers'),
+
+  const { data: allowlist } = useAllowlist({
+    id: moduleDetails?.id,
+    chainId: chainId as SupportedChains,
+  });
+  const isIncludedInAllowlist = includes(
+    map(
+      filter(allowlist, (a) => a.eligible && !a.badStanding),
+      'address',
+    ),
     toLower(wearer),
   );
+  const isEligible =
+    includes(get(wearerStatus, 'eligibleWearers'), toLower(wearer)) ||
+    isIncludedInAllowlist;
 
   const eligibilityModalFlag =
     posthog.isFeatureEnabled('eligibility-modal') ||

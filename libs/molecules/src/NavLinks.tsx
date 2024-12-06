@@ -99,6 +99,10 @@ const NavLinks = () => {
             <Link href='/buidl/chain' passHref>
               <MenuItem>Chain Module Deploy</MenuItem>
             </Link>
+
+            <Link href='/buidl/active' passHref>
+              <MenuItem>Deactivate Hats</MenuItem>
+            </Link>
           </MenuList>
         </Menu>
       )}

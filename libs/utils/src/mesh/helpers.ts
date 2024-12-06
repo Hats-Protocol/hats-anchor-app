@@ -40,6 +40,8 @@ export const getHatsDetails = async ({ ids }: { ids: string[] }) => {
         id: true,
         details: true,
         detailsMetadata: true,
+        eligibility: true,
+        toggle: true,
         wearers: [{ first: 10 }, { id: true, ensName: true, isContract: true }],
       },
     ],

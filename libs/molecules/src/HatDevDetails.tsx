@@ -16,7 +16,8 @@ const CopyAddress = dynamic(() =>
 
 const HatDevDetails = () => {
   const { treeId } = useTreeForm();
-  const { selectedHat, chainId, isClaimable } = useSelectedHat();
+  const { selectedHat, eligibilityInfo, chainId, isClaimable } =
+    useSelectedHat();
 
   const devData = useMemo(() => {
     return [
@@ -72,7 +73,7 @@ const HatDevDetails = () => {
 
             if (!value) return;
             navigator.clipboard.writeText(value);
-            // toast
+            // TODO toast
           };
 
           return (
@@ -96,12 +97,38 @@ const HatDevDetails = () => {
         })}
       </div>
 
+      {eligibilityInfo && (
+        <>
+          <hr className='border-gray-200' />
+
+          <div className='flex flex-col gap-2'>
+            <h3 className='font-bold'>Eligibility Rules</h3>
+
+            {eligibilityInfo.map((ruleSet) =>
+              map(ruleSet, (rule) => (
+                <div key={rule.address}>
+                  {rule.module.name} (
+                  <ChakraNextLink
+                    href={`${explorerUrl(chainId)}/address/${rule.address}`}
+                    isExternal
+                    decoration
+                  >
+                    {formatAddress(rule.address)}
+                  </ChakraNextLink>
+                  )
+                </div>
+              )),
+            )}
+          </div>
+        </>
+      )}
+
       <div className='flex gap-2'>
-        <Link href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
+        <ChakraNextLink href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
           <Button size='sm' variant='outline'>
             View Details Changes
           </Button>
-        </Link>
+        </ChakraNextLink>
       </div>
     </div>
   );
