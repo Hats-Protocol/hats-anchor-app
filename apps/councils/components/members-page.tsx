@@ -10,6 +10,9 @@ import { Skeleton } from 'ui';
 import { formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
+const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
+const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
+
 const MembersPage = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
   const { data: councilDetails, isLoading: councilDetailsLoading } =
@@ -23,8 +26,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
       address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
       chainId: (chainId ?? 11155111) as SupportedChains,
     });
-  const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
-  const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
+  // TODO fetch module labels
 
   const { data: allowlist } = useAllowlist({
     id: selectionModule,

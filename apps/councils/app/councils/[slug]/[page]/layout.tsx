@@ -11,7 +11,7 @@ const CouncilLayout = ({ children }: { children: React.ReactNode }) => {
           <CouncilButtons />
         </div>
 
-        <div className='mx-auto h-full w-[90%] max-w-[800px] pt-10'>
+        <div className='mx-auto h-full w-[90%] max-w-[1000px] pt-10'>
           {children}
         </div>
       </div>

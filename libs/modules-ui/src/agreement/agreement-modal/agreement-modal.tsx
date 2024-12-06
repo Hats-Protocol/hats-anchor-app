@@ -142,7 +142,7 @@ export const AgreementModal = ({
 
   return (
     <ModuleModal
-      name='agreementManager'
+      name={`${moduleInfo.id}-agreementManager`}
       title='Agreement Signers'
       about={
         <AboutModule

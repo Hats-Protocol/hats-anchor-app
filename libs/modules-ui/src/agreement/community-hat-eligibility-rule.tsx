@@ -64,7 +64,7 @@ export const CommunityHatEligibilityRule = ({
     icon = BsCheckSquare;
   }
 
-  let modalName = MODAL_NAME;
+  let modalName = `${selectedHat?.eligibility}-${MODAL_NAME}`;
   if (modalSuffix) modalName += modalSuffix;
 
   if (!IS_CLAIMS_APP) {

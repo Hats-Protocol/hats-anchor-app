@@ -73,7 +73,9 @@ export const JokeRaceEligibilityRule = ({
             {toNumber(topK) > 1 ? `Finish top ${topK}` : 'Finish first'} in the{' '}
             {eligibilityModalFlag ? (
               <Button
-                onClick={() => setModals?.({ jokeRaceManager: true })}
+                onClick={() =>
+                  setModals?.({ [`${moduleDetails.id}-jokeRaceManager`]: true })
+                }
                 variant='link'
               >
                 JokeRace

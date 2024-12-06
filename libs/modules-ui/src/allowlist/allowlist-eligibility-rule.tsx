@@ -24,14 +24,6 @@ export const AllowlistEligibilityRule = ({
   moduleDetails,
   moduleParameters,
 }: ModuleDetailsHandler) => {
-  // TODO subgraph will need to index these allowlists specifically, to show the actual lists
-  console.log(
-    'moduleDetails',
-    moduleDetails,
-    'moduleParameters',
-    moduleParameters,
-  );
-
   const { setModals } = useOverlay();
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
@@ -78,7 +70,11 @@ export const AllowlistEligibilityRule = ({
               Be on the{' '}
               {eligibilityModalFlag ? (
                 <Button
-                  onClick={() => setModals?.({ allowlistManager: true })}
+                  onClick={() =>
+                    setModals?.({
+                      [`${moduleDetails.id}-allowlistManager`]: true,
+                    })
+                  }
                   variant='link'
                 >
                   Allowlist
@@ -112,7 +108,11 @@ export const AllowlistEligibilityRule = ({
             Be on the{' '}
             {eligibilityModalFlag ? (
               <Button
-                onClick={() => setModals?.({ allowlistManager: true })}
+                onClick={() =>
+                  setModals?.({
+                    [`${moduleDetails.id}-allowlistManager`]: true,
+                  })
+                }
                 variant='link'
                 textDecoration='underline'
               >

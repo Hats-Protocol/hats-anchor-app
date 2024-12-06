@@ -56,7 +56,7 @@ export const AgreementEligibilityRule = ({
     toLower(wearer),
   );
 
-  let modalName = MODAL_NAME;
+  let modalName = `${moduleDetails?.id}-${MODAL_NAME}`;
   if (modalSuffix) {
     modalName += modalSuffix;
   }

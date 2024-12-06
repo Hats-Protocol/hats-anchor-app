@@ -249,7 +249,7 @@ export const JokeRaceModal = ({
 
   return (
     <ModuleModal
-      name='jokeRaceManager'
+      name={`${moduleInfo.id}-jokeRaceManager`}
       title='Manage JokeRace'
       about={
         <AboutModule

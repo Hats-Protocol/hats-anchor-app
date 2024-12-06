@@ -4,6 +4,7 @@
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
+import ManagePage from '../../../../components/manage-page';
 import MembersPage from '../../../../components/members-page';
 import SafeAssetsPage from '../../../../components/safe-assets-page';
 
@@ -20,7 +21,7 @@ const CouncilDetails = async ({
   }
 
   if (page === 'manage') {
-    return <div>Manage</div>;
+    return <ManagePage slug={slug} />;
   }
 
   if (page === 'members') {

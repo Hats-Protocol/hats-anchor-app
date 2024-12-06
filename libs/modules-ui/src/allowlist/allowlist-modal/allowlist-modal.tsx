@@ -131,7 +131,7 @@ export const AllowlistModal = ({
 
   return (
     <ModuleModal
-      name='allowlistManager'
+      name={`${moduleInfo.id}-allowlistManager`}
       title='Manage Allowlist'
       about={
         <AboutModule
