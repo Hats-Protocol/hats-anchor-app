@@ -48,12 +48,17 @@ interface CreationFormStepsProps {
 function getSubStepStatus(
   subStepId: string,
   currentSubStep: string | undefined,
-  requirements: { signAgreement: boolean; passCompliance: boolean },
+  requirements: {
+    signAgreement: boolean;
+    passCompliance: boolean;
+    holdTokens: boolean;
+  },
 ) {
   const order = [
     'members',
     'management',
     ...(requirements.signAgreement ? ['agreement'] : []),
+    ...(requirements.holdTokens ? ['tokens'] : []),
     ...(requirements.passCompliance ? ['compliance'] : []),
   ];
   const currentIndex = order.indexOf(currentSubStep || '');
@@ -82,6 +87,9 @@ export function CreationFormSteps({
       { id: 'management', label: 'Council Management' },
       ...(requirements?.signAgreement
         ? [{ id: 'agreement', label: 'Agreement' }]
+        : []),
+      ...(requirements?.holdTokens
+        ? [{ id: 'tokens', label: 'Token Requirements' }]
         : []),
       ...(requirements?.passCompliance
         ? [{ id: 'compliance', label: 'Compliance Check' }]
