@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
-import { useState } from 'react';
+
 import { EditIcon } from '../../icons/edit-icon';
 import { TrashIcon } from '../../icons/trash-icon';
 import { AddAdminModal } from './add-admin-modal';

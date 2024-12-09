@@ -1,14 +1,15 @@
 'use client';
 
-import { FiX } from 'react-icons/fi';
-import { UseFormReturn } from 'react-hook-form';
-import { formatAddress } from 'utils';
-import { useEnsAvatar, useEnsName } from 'wagmi';
 import Image from 'next/image';
 import { useState } from 'react';
-import { AddMemberModal } from './add-member-modal';
+import { UseFormReturn } from 'react-hook-form';
+import { FiX } from 'react-icons/fi';
+import { formatAddress } from 'utils';
+import { useEnsAvatar, useEnsName } from 'wagmi';
+
 import { EditIcon } from '../../icons/edit-icon';
 import { TrashIcon } from '../../icons/trash-icon';
+import { AddMemberModal } from './add-member-modal';
 
 interface CouncilMember {
   address: string;

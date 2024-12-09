@@ -1,12 +1,12 @@
 'use client';
 
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import type { CouncilFormData } from 'contexts'; // adjust the import path based on your project structure
 import { AddressInput, Input } from 'forms';
+import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
 import { isAddress } from 'viem';
-import { useEffect, useState } from 'react';
-import type { CouncilFormData } from 'contexts'; // adjust the import path based on your project structure
 
 interface CouncilMember {
   address: string;
