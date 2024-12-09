@@ -1,9 +1,16 @@
 'use client';
 
-import { map } from 'lodash';
+import { useCouncilForm } from 'contexts';
 import Link from 'next/link';
 
-const STEPS = [
+interface Step {
+  id: string;
+  label: string;
+  sublabel?: string;
+  subSteps?: Array<{ id: string; label: string }>;
+}
+
+const BASE_STEPS: Step[] = [
   {
     id: 'details',
     label: 'Council Details',
@@ -23,12 +30,7 @@ const STEPS = [
     id: 'selection',
     label: 'Invite People',
     sublabel: 'Configure the chosen access modules',
-    subSteps: [
-      { id: 'members', label: 'Council Members' },
-      { id: 'management', label: 'Council Management' },
-      { id: 'agreement', label: 'Agreement' },
-      { id: 'compliance', label: 'Compliance Check' },
-    ],
+    subSteps: [],
   },
   {
     id: 'payment',
@@ -46,8 +48,14 @@ interface CreationFormStepsProps {
 function getSubStepStatus(
   subStepId: string,
   currentSubStep: string | undefined,
+  requirements: { signAgreement: boolean; passCompliance: boolean },
 ) {
-  const order = ['members', 'management', 'agreement', 'compliance'];
+  const order = [
+    'members',
+    'management',
+    ...(requirements.signAgreement ? ['agreement'] : []),
+    ...(requirements.passCompliance ? ['compliance'] : []),
+  ];
   const currentIndex = order.indexOf(currentSubStep || '');
   const stepIndex = order.indexOf(subStepId);
 
@@ -63,6 +71,24 @@ export function CreationFormSteps({
   currentSubStep,
   draftId,
 }: CreationFormStepsProps) {
+  const { form } = useCouncilForm();
+  const requirements = form.watch('requirements');
+
+  const STEPS = [...BASE_STEPS];
+  const selectionStep = STEPS.find((step) => step.id === 'selection');
+  if (selectionStep) {
+    selectionStep.subSteps = [
+      { id: 'members', label: 'Council Members' },
+      { id: 'management', label: 'Council Management' },
+      ...(requirements?.signAgreement
+        ? [{ id: 'agreement', label: 'Agreement' }]
+        : []),
+      ...(requirements?.passCompliance
+        ? [{ id: 'compliance', label: 'Compliance Check' }]
+        : []),
+    ];
+  }
+
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
   return (
@@ -141,8 +167,11 @@ export function CreationFormSteps({
               <div className='my-3 ml-[23px]'>
                 {step.subSteps.map((subStep, subIndex) => {
                   const isCompleted =
-                    getSubStepStatus(subStep.id, currentSubStep) ===
-                    'completed';
+                    getSubStepStatus(
+                      subStep.id,
+                      currentSubStep,
+                      form.watch('requirements'),
+                    ) === 'completed';
                   const isCurrent = subStep.id === currentSubStep;
 
                   return (

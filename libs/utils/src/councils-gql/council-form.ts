@@ -15,61 +15,64 @@ export const CREATE_INITIAL_FORM = gql`
 `;
 
 export const UPDATE_COUNCIL_FORM = gql`
-  mutation UpdateCouncilCreationForm(
+  mutation UpdateCouncilForm(
     $id: ID!
+    $organizationName: String
+    $councilName: String
+    $chain: Int
+    $councilDescription: String
+    $membersSelectionType: MemberSelectionType
     $thresholdType: ThresholdType
     $maxCouncilMembers: Int
     $thresholdTarget: Int
     $thresholdMin: Int
-    $organizationName: String
-    $councilName: String
-    $councilDescription: String
-    $chain: Int
-    $membersSelectionType: MemberSelectionType
-    $membersAllowlist: AllowlistInput
-    $agreementCriteria: AgreementInput
-    $tokenCriteria: TokenInput
-    $kycCriteria: KycInput
+    $members: [UserInput!]
+    $admins: [UserInput!]
+    $memberRequirements: MemberRequirementsInput!
+    $agreement: String
   ) {
     updateCouncilCreationForm(
       id: $id
+      organizationName: $organizationName
+      councilName: $councilName
+      chain: $chain
+      councilDescription: $councilDescription
+      membersSelectionType: $membersSelectionType
       thresholdType: $thresholdType
       maxCouncilMembers: $maxCouncilMembers
       thresholdTarget: $thresholdTarget
       thresholdMin: $thresholdMin
-      organizationName: $organizationName
-      councilName: $councilName
-      councilDescription: $councilDescription
-      chain: $chain
-      membersSelectionType: $membersSelectionType
-      membersAllowlist: $membersAllowlist
-      agreementCriteria: $agreementCriteria
-      tokenCriteria: $tokenCriteria
-      kycCriteria: $kycCriteria
+      members: $members
+      admins: $admins
+      memberRequirements: $memberRequirements
+      agreement: $agreement
     ) {
       id
       organizationName
       councilName
+      chain
       councilDescription
+      membersSelectionType
       thresholdType
       maxCouncilMembers
       thresholdTarget
       thresholdMin
-      chain
-      membersSelectionType
-      membersAllowlist {
-        admins
-        members
+      members {
+        address
+        email
+        name
       }
-      agreementCriteria {
-        agreement
+      admins {
+        address
+        email
+        name
       }
-      tokenCriteria {
-        id
+      memberRequirements {
+        signAgreement
+        holdTokens
+        passCompliance
       }
-      kycCriteria {
-        verifiers
-      }
+      agreement
     }
   }
 `;
@@ -78,28 +81,31 @@ export const GET_COUNCIL_FORM = gql`
   query GetCouncilForm($id: ID!) {
     councilCreationForm(id: $id) {
       id
+      organizationName
+      councilName
+      chain
+      councilDescription
+      membersSelectionType
       thresholdType
       maxCouncilMembers
       thresholdTarget
       thresholdMin
-      organizationName
-      councilName
-      councilDescription
-      membersSelectionType
-      chain
-      membersAllowlist {
-        admins
-        members
+      members {
+        address
+        email
+        name
       }
-      agreementCriteria {
-        agreement
+      admins {
+        address
+        email
+        name
       }
-      tokenCriteria {
-        id
+      memberRequirements {
+        signAgreement
+        holdTokens
+        passCompliance
       }
-      kycCriteria {
-        verifiers
-      }
+      agreement
     }
   }
 `;

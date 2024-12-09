@@ -43,8 +43,8 @@ export interface CouncilFormData {
 
 interface CouncilFormResponse {
   councilCreationForm: {
-    councilName: string | null;
     organizationName: string | null;
+    councilName: string | null;
     chain: number | null;
     councilDescription: string | null;
     thresholdType: 'ABSOLUTE' | 'RELATIVE';
@@ -52,20 +52,27 @@ interface CouncilFormResponse {
     thresholdMin: number;
     maxCouncilMembers: number;
     membersSelectionType: 'ALLOWLIST' | 'ELECTION';
-    membersAllowlist: {
-      admins: string[];
-      members: string[];
-    } | null;
-    agreementCriteria: {
-      agreement: string;
-    } | null;
-    tokenCriteria: {
-      id: string;
-    } | null;
-    kycCriteria: {
-      verifiers: string[];
-    } | null;
+    members: Array<{
+      address: string;
+      email: string;
+      name?: string;
+    }>;
+    admins: Array<{
+      address: string;
+      email: string;
+      name?: string;
+    }>;
+    memberRequirements: {
+      signAgreement: boolean;
+      holdTokens: boolean;
+      passCompliance: boolean;
+    };
+    agreement?: string;
   };
+}
+
+interface UpdateCouncilFormResponse {
+  updateCouncilCreationForm: CouncilFormResponse['councilCreationForm'];
 }
 
 interface CouncilFormContextType {
@@ -120,14 +127,22 @@ export function CouncilFormProvider({
     },
     enabled: !!draftId,
     staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   useEffect(() => {
     if (data) {
-      form.reset({
+      console.log('API Response data:', data);
+      const currentValues = form.getValues();
+      console.log('Current form values:', currentValues);
+
+      const newValues: CouncilFormData = {
         organizationName: data.organizationName || '',
         councilName: data.councilName || '',
-        chain: chainIdToString(data.chain) || undefined,
+        chain: chainIdToString(data.chain) || '',
         councilDescription: data.councilDescription || '',
         thresholdType: data.thresholdType,
         confirmationsRequired:
@@ -136,15 +151,18 @@ export function CouncilFormProvider({
           data.thresholdType === 'RELATIVE' ? data.thresholdTarget : 51,
         minConfirmations: data.thresholdMin,
         maxMembers: data.maxCouncilMembers,
-        membershipType: 'APPOINTED',
-        requirements: {
-          signAgreement: !!data.agreementCriteria,
-          holdTokens: !!data.tokenCriteria,
-          passCompliance: !!data.kycCriteria,
+        membershipType:
+          data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
+        requirements: data.memberRequirements || {
+          signAgreement: false,
+          holdTokens: false,
+          passCompliance: false,
         },
-        members: [],
-        admins: [],
-      });
+        members: data.members || [],
+        admins: data.admins || [],
+      };
+      console.log('Setting form to:', newValues);
+      form.reset(newValues);
     }
   }, [data, form]);
 
@@ -153,10 +171,11 @@ export function CouncilFormProvider({
   const { mutateAsync: persistForm } = useMutation({
     mutationFn: async () => {
       const formData = form.getValues();
+      console.log('Persisting form data:', formData);
       const payload = {
         id: draftId,
-        councilName: formData.councilName,
         organizationName: formData.organizationName,
+        councilName: formData.councilName,
         councilDescription: formData.councilDescription,
         chain: chainStringToId(formData.chain),
         thresholdType: formData.thresholdType,
@@ -169,26 +188,24 @@ export function CouncilFormProvider({
           formData.thresholdType === 'ABSOLUTE'
             ? parseInt(formData.confirmationsRequired.toString())
             : parseInt(formData.minConfirmations.toString()),
-        membersSelectionType: 'ALLOWLIST',
-        membersAllowlist: {
-          admins: [],
-          members: [],
-        },
-        agreementCriteria: formData.requirements.signAgreement
-          ? { agreement: '' }
-          : null,
-        tokenCriteria: formData.requirements.holdTokens
-          ? { placeholder: true }
-          : null,
-        kycCriteria: formData.requirements.passCompliance
-          ? { verifiers: [] }
-          : null,
+        membersSelectionType:
+          formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
+        members: formData.members,
+        admins: formData.admins,
+        memberRequirements: formData.requirements,
+        agreement: formData.requirements.signAgreement ? '' : undefined,
       };
 
-      return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, payload);
+      return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(
+        UPDATE_COUNCIL_FORM,
+        payload,
+      );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['councilForm', draftId] });
+    onSuccess: (data: UpdateCouncilFormResponse) => {
+      queryClient.setQueryData(
+        ['councilForm', draftId],
+        data.updateCouncilCreationForm,
+      );
     },
   });
 

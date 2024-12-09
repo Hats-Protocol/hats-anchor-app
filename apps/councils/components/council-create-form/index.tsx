@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 
 import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
-import { ThresholdStep } from './threshold-step';
-import { SelectionMembersStep } from './selection-step/members-step';
 import { SelectionManagementStep } from './selection-step/management-step';
+import { SelectionMembersStep } from './selection-step/members-step';
+import { ThresholdStep } from './threshold-step';
 
 interface CouncilCreateFormProps {
   step: string;
@@ -29,20 +29,25 @@ export function CouncilCreateForm({
       await persistForm();
 
       if (step === 'selection') {
-        const subStepMap = {
-          members: 'management',
-          management: 'agreement',
-          agreement: 'compliance',
-          compliance: 'finalize',
-        };
+        const requirements = form.getValues('requirements');
 
-        const nextSubStep = subStepMap[subStep as keyof typeof subStepMap];
-        if (nextSubStep === 'finalize') {
-          router.push(`/councils/new/finalize?draftId=${draftId}`);
-        } else {
+        // Define the sub-step flow based on requirements
+        const subStepFlow = [
+          'members',
+          'management',
+          ...(requirements.signAgreement ? ['agreement'] : []),
+          ...(requirements.passCompliance ? ['compliance'] : []),
+        ];
+
+        const currentIndex = subStepFlow.indexOf(subStep || 'members');
+        const nextSubStep = subStepFlow[currentIndex + 1];
+
+        if (nextSubStep) {
           router.push(
             `/councils/new/selection?subStep=${nextSubStep}&draftId=${draftId}`,
           );
+        } else {
+          router.push(`/councils/new/payment?draftId=${draftId}`);
         }
         return;
       }
