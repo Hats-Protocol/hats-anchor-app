@@ -32,6 +32,7 @@ const Textarea = ({
   helperText,
   tooltip,
   headerNote,
+  subLabel,
   ...props
 }: TextareaProps) => {
   const {
@@ -50,7 +51,7 @@ const Textarea = ({
 
   return (
     <FormControl>
-      <Stack spacing={2}>
+      <Stack spacing={1}>
         <HStack align='center'>
           {label && (
             <FormLabel m='0' display='contents' alignItems='baseline' size='sm'>
@@ -78,28 +79,31 @@ const Textarea = ({
             </Tooltip>
           )}
         </HStack>
+        <Stack>
+          {subLabel && <FormHelperText>{subLabel}</FormHelperText>}
+          <HStack>
+            <InputGroup>
+              <ChakraTextarea
+                {...props}
+                {...register(name)}
+                borderColor={isDirty ? 'cyan.500' : undefined}
+                variant='outline'
+              />
+              {isDirty && (
+                <InputRightElement>
+                  <IconButton
+                    icon={<GrUndo />}
+                    aria-label='Reset'
+                    onClick={onReset}
+                    size='xs'
+                    colorScheme='cyan'
+                  />
+                </InputRightElement>
+              )}
+            </InputGroup>
+          </HStack>
+        </Stack>
 
-        <HStack>
-          <InputGroup>
-            <ChakraTextarea
-              {...props}
-              {...register(name)}
-              borderColor={isDirty ? 'cyan.500' : undefined}
-              variant='outline'
-            />
-            {isDirty && (
-              <InputRightElement>
-                <IconButton
-                  icon={<GrUndo />}
-                  aria-label='Reset'
-                  onClick={onReset}
-                  size='xs'
-                  colorScheme='cyan'
-                />
-              </InputRightElement>
-            )}
-          </InputGroup>
-        </HStack>
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
         {typeof error === 'string' && (
           <FormErrorMessage>Error Message</FormErrorMessage>
@@ -120,4 +124,5 @@ interface TextareaProps extends ChakraTextareaProps {
   tooltip?: string;
   placeholder?: string;
   headerNote?: string;
+  subLabel?: string;
 }

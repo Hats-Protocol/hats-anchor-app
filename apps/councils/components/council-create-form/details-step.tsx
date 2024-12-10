@@ -6,10 +6,17 @@ import { useCouncilForm } from 'contexts';
 import { Input, Select, Textarea } from 'forms';
 import Image from 'next/image';
 
+import { ChainSelect } from '../chain-select';
+
 const CHAIN_OPTIONS = [
   { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },
-  { value: 'base', label: 'Base', icon: '/chains/base.svg' },
+  { value: 'base', label: 'Base', icon: '/chains/base.png' },
   { value: 'arbitrum', label: 'Arbitrum', icon: '/chains/arbitrum.svg' },
+  { value: 'polygon', label: 'Polygon', icon: '/chains/polygon.svg' },
+  { value: 'ethereum', label: 'Ethereum', icon: '/chains/ethereum.svg' },
+  { value: 'gnosis', label: 'Gnosis', icon: '/chains/gnosis.png' },
+  { value: 'celo', label: 'Celo', icon: '/chains/celo.svg' },
+  { value: 'sepolia', label: 'Sepolia', icon: '/chains/sepolia.png' },
 ];
 
 export function DetailsStep({ onNext }: { onNext: () => void }) {
@@ -53,33 +60,24 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
           options={{ required: true }}
         />
 
-        <Select
-          name='chain'
-          label='Choose a chain'
-          localForm={form}
-          subLabel='The chain you deploy the Safe Multisig and Hats Council to.'
-          options={{ required: true }}
-        >
-          {CHAIN_OPTIONS.map((chain) => (
-            <option key={chain.value} value={chain.value}>
-              <HStack spacing={2}>
-                <Image
-                  src={chain.icon}
-                  alt={chain.label}
-                  width={20}
-                  height={20}
-                />
-                <Text>{chain.label}</Text>
-              </HStack>
-            </option>
-          ))}
-        </Select>
+        <Stack spacing={2}>
+          <Text fontWeight='medium'>Choose a chain</Text>
+          <Text fontSize='sm' color='gray.600'>
+            The chain you deploy the Safe Multisig and Hats Council to.
+          </Text>
+          <ChainSelect
+            name='chain'
+            form={form}
+            options={CHAIN_OPTIONS}
+            placeholder='Select a chain'
+          />
+        </Stack>
 
         <Textarea
           name='councilDescription'
           label='Council description'
           localForm={form}
-          helperText='Add a short description or some links you want all council members to see.'
+          subLabel='Add a short description or some links you want all council members to see.'
           placeholder='Bylaws, policies or important links'
           headerNote='Optional'
         />
