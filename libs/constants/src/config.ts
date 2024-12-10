@@ -38,7 +38,7 @@ export const CONFIG: Config = {
   banner: false,
   // modules
   modules: {
-    factory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
+    factory: '0x0a3f85fa597B6a967271286aA0724811acDF5CD9',
     claimsHatter: 'Multi Claims Hatter', // move to implementation address
   },
   // Hats Protocol Community Hat Agreement v0
