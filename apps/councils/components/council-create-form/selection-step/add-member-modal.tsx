@@ -1,14 +1,17 @@
 'use client';
 
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
-import type { CouncilFormData } from 'contexts'; // adjust the import path based on your project structure
+import { useMutation } from '@tanstack/react-query';
+import type { CouncilFormData } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
+import { councilsGraphqlClient } from 'utils';
 import { isAddress } from 'viem';
 
 interface CouncilMember {
+  id: string;
   address: string;
   email: string;
   name?: string;
@@ -21,6 +24,28 @@ interface AddMemberModalProps {
   editingMember?: CouncilMember | null;
 }
 
+const CREATE_USER = `
+  mutation CreateUser($address: String!, $email: String!, $name: String) {
+    createUser(address: $address, email: $email, name: $name) {
+      id
+      address
+      email
+      name
+    }
+  }
+`;
+
+const UPDATE_USER = `
+  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String) {
+    updateUser(id: $id, address: $address, email: $email, name: $name) {
+      id
+      address 
+      email
+      name
+    }
+  }
+`;
+
 export function AddMemberModal({
   isOpen,
   onClose,
@@ -29,7 +54,7 @@ export function AddMemberModal({
 }: AddMemberModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId =
-    selectedChain === 'optimism' ? 10 : selectedChain === 'base' ? 8453 : 42161; // Arbitrum
+    selectedChain === 'optimism' ? 10 : selectedChain === 'base' ? 8453 : 42161;
 
   const modalForm = useForm({
     defaultValues: {
@@ -41,52 +66,84 @@ export function AddMemberModal({
 
   const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = (data: {
+  const createUserMutation = useMutation({
+    mutationFn: async (variables: {
+      address: string;
+      email: string;
+      name?: string;
+    }) => {
+      const result = await councilsGraphqlClient.request<{
+        createUser: CouncilMember;
+      }>(CREATE_USER, variables);
+      return result.createUser;
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (variables: {
+      id: string;
+      address: string;
+      email: string;
+      name?: string;
+    }) => {
+      const result = await councilsGraphqlClient.request<{
+        updateUser: CouncilMember;
+      }>(UPDATE_USER, variables);
+      return result.updateUser;
+    },
+  });
+
+  const handleSubmit = async (data: {
     address: string;
     email: string;
     name?: string;
   }) => {
-    console.log('data', data);
     if (!isAddress(data.address)) {
-      console.log('non valid address');
       setFormError('Please enter a valid Ethereum address');
       return;
     }
 
     const currentMembers = parentForm.getValues('members') || [];
 
-    // Check for duplicate address, but ignore if we're editing the same member
     const isDuplicate = currentMembers.some(
       (member) =>
         member.address.toLowerCase() === data.address.toLowerCase() &&
-        member.address !== editingMember?.address,
+        member.id !== editingMember?.id,
     );
 
     if (isDuplicate) {
-      console.log('duplicate address');
       setFormError('This address is already a member of the council');
       return;
     }
 
-    if (editingMember) {
-      // Update existing member
-      const updatedMembers = currentMembers.map((member) =>
-        member.address === editingMember.address
-          ? { address: data.address, email: data.email, name: data.name }
-          : member,
-      );
-      parentForm.setValue('members', updatedMembers);
-    } else {
-      // Add new member
-      parentForm.setValue('members', [
-        ...currentMembers,
-        { address: data.address, email: data.email, name: data.name },
-      ]);
-    }
+    try {
+      let userData;
 
-    setFormError(null);
-    modalForm.reset();
-    onClose();
+      if (editingMember) {
+        userData = await updateUserMutation.mutateAsync({
+          id: editingMember.id,
+          ...data,
+        });
+      } else {
+        userData = await createUserMutation.mutateAsync(data);
+      }
+
+      if (editingMember) {
+        const updatedMembers = currentMembers.map((member) =>
+          member.id === editingMember.id ? userData : member,
+        );
+        parentForm.setValue('members', updatedMembers);
+      } else {
+        parentForm.setValue('members', [...currentMembers, userData]);
+      }
+
+      setFormError(null);
+      modalForm.reset();
+      onClose();
+    } catch (error) {
+      setFormError('Failed to save user. Please try again.');
+      console.error('Error saving user:', error);
+    }
   };
 
   // Reset form when modal opens

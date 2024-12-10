@@ -12,6 +12,7 @@ import { TrashIcon } from '../../icons/trash-icon';
 import { AddMemberModal } from './add-member-modal';
 
 interface CouncilMember {
+  id: string;
   address: string;
   email: string;
   name?: string;
@@ -27,11 +28,16 @@ export function MembersList({ members, form }: MembersListProps) {
     null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // console.log('members in members list', members);
 
-  const handleRemove = (addressToRemove: string) => {
-    const updatedMembers = members.filter(
-      (member) => member.address !== addressToRemove,
+  const handleRemove = (memberId: string) => {
+    // console.log('removing memberId', memberId);
+    const currentMembers = form.getValues('members') || [];
+    //console.log('currentMembers', currentMembers);
+    const updatedMembers = currentMembers.filter(
+      (member: CouncilMember) => member.id !== memberId,
     );
+    //console.log('updatedMembers', updatedMembers);
     form.setValue('members', updatedMembers);
   };
 
@@ -74,7 +80,7 @@ function MemberCard({
   onEdit,
 }: {
   member: CouncilMember;
-  onRemove: (address: string) => void;
+  onRemove: (id: string) => void;
   onEdit: () => void;
 }) {
   const { data: ensName } = useEnsName({
@@ -105,7 +111,7 @@ function MemberCard({
         </button>
         <button
           type='button'
-          onClick={() => onRemove(member.address)}
+          onClick={() => onRemove(member.id)}
           className='text-red-700 hover:text-red-800'
         >
           <TrashIcon />

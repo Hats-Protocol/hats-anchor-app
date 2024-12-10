@@ -91,11 +91,13 @@ export const GET_COUNCIL_FORM = gql`
       thresholdTarget
       thresholdMin
       members {
+        id
         address
         email
         name
       }
       admins {
+        id
         address
         email
         name

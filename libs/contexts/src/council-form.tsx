@@ -12,6 +12,7 @@ import {
 } from 'utils';
 
 interface CouncilMember {
+  id: string;
   address: string;
   email: string;
   name?: string;
@@ -53,11 +54,13 @@ interface CouncilFormResponse {
     maxCouncilMembers: number;
     membersSelectionType: 'ALLOWLIST' | 'ELECTION';
     members: Array<{
+      id: string;
       address: string;
       email: string;
       name?: string;
     }>;
     admins: Array<{
+      id: string;
       address: string;
       email: string;
       name?: string;
