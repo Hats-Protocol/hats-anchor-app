@@ -1,11 +1,13 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
+import { Button, Icon } from '@chakra-ui/react';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useSafesInfo } from 'hooks';
+import { Safe } from 'icons';
 import { capitalize, first, get, nth, size } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { chainsMap, parseCouncilSlug } from 'utils';
@@ -68,7 +70,13 @@ export const CouncilHeader = () => {
             )}
             target='_blank'
           >
-            <Button>Safe Wallet</Button>
+            <Button
+              variant='outline'
+              leftIcon={<Icon as={Safe} />}
+              rightIcon={<Icon as={FaExternalLinkAlt} boxSize={3} />}
+            >
+              Safe Wallet
+            </Button>
           </Link>
         </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, Icon } from '@chakra-ui/react';
+import { Button, Checkbox, Icon } from '@chakra-ui/react';
 import { useCouncilDetails } from 'hooks';
 import { filter, first, get, map, split, toLower } from 'lodash';
 import { useAllowlist, useEligibilityRules } from 'modules-hooks';
@@ -50,7 +50,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div>
+    <div className='flex flex-col'>
       <div className='flex h-12 items-center justify-between border-b border-t border-gray-200'>
         <div className='flex items-center'>
           <div className='w-12' />
@@ -126,6 +126,10 @@ const MembersPage = ({ slug }: { slug: string }) => {
           </div>
         </div>
       ))}
+
+      <div className='flex pt-8'>
+        <Button variant='outline'>Update Members</Button>
+      </div>
     </div>
   );
 };

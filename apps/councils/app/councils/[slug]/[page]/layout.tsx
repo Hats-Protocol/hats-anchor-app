@@ -1,9 +1,11 @@
+import { HatDeco } from 'ui';
+
 import { CouncilButtons } from '../../../../components/council-buttons';
 import { CouncilHeader } from '../../../../components/council-header';
 
 const CouncilLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='flex h-screen flex-col bg-white'>
+    <div className='flex min-h-screen flex-col bg-white'>
       <CouncilHeader />
 
       <div className='relative h-full min-h-[700px]'>
@@ -15,6 +17,8 @@ const CouncilLayout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </div>
       </div>
+
+      <HatDeco />
     </div>
   );
 };

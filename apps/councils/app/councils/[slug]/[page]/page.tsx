@@ -28,6 +28,10 @@ const CouncilDetails = async ({
     return <MembersPage slug={slug} />;
   }
 
+  if (page === 'dev') {
+    return <div>Dev</div>;
+  }
+
   if (!address) return null;
 
   // Default is assets

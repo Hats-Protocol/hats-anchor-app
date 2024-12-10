@@ -55,6 +55,7 @@ export const TOGGLE_MODULES = {
   season: 'Season Toggle',
 };
 
+// TODO consider migrating to leverage the new ID field
 /**
  * Implementation address for known Eligibility modules. Uses an array to handle multiple implementations.
  */
