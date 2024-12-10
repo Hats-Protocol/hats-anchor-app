@@ -1,10 +1,9 @@
 'use client';
 
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
-import { Input, Select, Textarea } from 'forms';
-import Image from 'next/image';
+import { Input, Textarea } from 'forms';
 
 import { ChainSelect } from '../chain-select';
 
@@ -24,94 +23,84 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
 
   if (isLoading) {
     return (
-      <Stack height='100%' justify='center' align='center'>
+      <div className='flex h-full items-center justify-center'>
         <Spinner size='xl' color='blue.500' />
-      </Stack>
+      </div>
     );
   }
 
   return (
-    <Stack
-      spacing={6}
-      height='100%'
-      as='form'
+    <form
+      className='flex h-full flex-col space-y-6'
       onSubmit={form.handleSubmit(onNext)}
     >
-      <Stack spacing={6} flex={1}>
-        <Text fontSize='xl' fontWeight='semibold'>
-          Create your first Council
-        </Text>
+      <div className='flex-1 space-y-6'>
+        <h2 className='text-xl font-semibold'>Create your first Council</h2>
 
-        <Stack spacing={2}>
-          <Text fontWeight='medium'>Organization Name</Text>
-          <Text fontSize='sm' color='gray.600'>
+        <div className='space-y-2'>
+          <label className='font-medium'>Organization Name</label>
+          <p className='text-sm text-gray-600'>
             The name of the organization you are creating councils for.
-          </Text>
+          </p>
           <Input
             name='organizationName'
             localForm={form}
             placeholder='DAO or Company Name'
             options={{ required: true }}
           />
-        </Stack>
+        </div>
 
-        <Stack spacing={2}>
-          <Text fontWeight='medium'>Council Name</Text>
-          <Text fontSize='sm' color='gray.600'>
+        <div className='space-y-2'>
+          <label className='font-medium'>Council Name</label>
+          <p className='text-sm text-gray-600'>
             The name of your first council. You can add further councils later.
-          </Text>
+          </p>
           <Input
             name='councilName'
             localForm={form}
             placeholder='Council Name'
             options={{ required: true }}
           />
-        </Stack>
+        </div>
 
-        <Stack spacing={2}>
-          <Text fontWeight='medium'>Choose a Chain</Text>
-          <Text fontSize='sm' color='gray.600'>
+        <div className='space-y-2'>
+          <label className='font-medium'>Choose a Chain</label>
+          <p className='text-sm text-gray-600'>
             The chain you deploy the Safe Multisig and Hats Council to.
-          </Text>
+          </p>
           <ChainSelect
             name='chain'
             form={form}
             options={CHAIN_OPTIONS}
             placeholder='Select a chain'
           />
-        </Stack>
+        </div>
 
-        <Stack spacing={2}>
-          <Text fontWeight='medium'>Council Description</Text>
-          <Text fontSize='sm' color='gray.600'>
+        <div className='space-y-2'>
+          <label className='font-medium'>Council Description</label>
+          <p className='text-sm text-gray-600'>
             Add a short description or some links you want all council members
             to see.
-          </Text>
+          </p>
           <Textarea
             name='councilDescription'
             localForm={form}
             placeholder='Bylaws, policies or important links'
             headerNote='Optional'
           />
-        </Stack>
-      </Stack>
+        </div>
+      </div>
 
-      <HStack justify='flex-end' py={6}>
-        <Button
+      <div className='flex justify-end py-6'>
+        <button
           type='submit'
-          bg='blue.50'
-          color='blue.500'
-          _hover={{ bg: 'blue.100' }}
-          size='md'
-          rightIcon={<ChevronRightIcon />}
-          isDisabled={!form.formState.isValid}
-          px={4}
-          py={2}
-          borderRadius='md'
+          disabled={!form.formState.isValid}
+          className='flex items-center space-x-2 rounded-md bg-blue-50 px-4 py-2 text-blue-500 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50'
         >
-          Set Signer Threshold
-        </Button>
-      </HStack>
-    </Stack>
+          <span>Configure Council</span>
+          <ChevronRightIcon className='h-4 w-4' />
+        </button>
+      </div>
+    </form>
   );
 }
