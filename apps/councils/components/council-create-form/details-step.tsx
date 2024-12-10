@@ -42,26 +42,34 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
           Create your first Council
         </Text>
 
-        <Input
-          name='organizationName'
-          label='Organization name'
-          localForm={form}
-          subLabel='The name of the organization you are creating councils for.'
-          placeholder='DAO or Company Name'
-          options={{ required: true }}
-        />
-
-        <Input
-          name='councilName'
-          label='Council name'
-          localForm={form}
-          subLabel='The name of your first council. You can add further councils later.'
-          placeholder='Council Name'
-          options={{ required: true }}
-        />
+        <Stack spacing={2}>
+          <Text fontWeight='medium'>Organization Name</Text>
+          <Text fontSize='sm' color='gray.600'>
+            The name of the organization you are creating councils for.
+          </Text>
+          <Input
+            name='organizationName'
+            localForm={form}
+            placeholder='DAO or Company Name'
+            options={{ required: true }}
+          />
+        </Stack>
 
         <Stack spacing={2}>
-          <Text fontWeight='medium'>Choose a chain</Text>
+          <Text fontWeight='medium'>Council Name</Text>
+          <Text fontSize='sm' color='gray.600'>
+            The name of your first council. You can add further councils later.
+          </Text>
+          <Input
+            name='councilName'
+            localForm={form}
+            placeholder='Council Name'
+            options={{ required: true }}
+          />
+        </Stack>
+
+        <Stack spacing={2}>
+          <Text fontWeight='medium'>Choose a Chain</Text>
           <Text fontSize='sm' color='gray.600'>
             The chain you deploy the Safe Multisig and Hats Council to.
           </Text>
@@ -73,14 +81,19 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
           />
         </Stack>
 
-        <Textarea
-          name='councilDescription'
-          label='Council description'
-          localForm={form}
-          subLabel='Add a short description or some links you want all council members to see.'
-          placeholder='Bylaws, policies or important links'
-          headerNote='Optional'
-        />
+        <Stack spacing={2}>
+          <Text fontWeight='medium'>Council Description</Text>
+          <Text fontSize='sm' color='gray.600'>
+            Add a short description or some links you want all council members
+            to see.
+          </Text>
+          <Textarea
+            name='councilDescription'
+            localForm={form}
+            placeholder='Bylaws, policies or important links'
+            headerNote='Optional'
+          />
+        </Stack>
       </Stack>
 
       <HStack justify='flex-end' py={6}>
