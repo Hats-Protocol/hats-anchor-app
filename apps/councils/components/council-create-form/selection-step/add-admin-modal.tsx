@@ -1,14 +1,17 @@
 'use client';
 
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import { useMutation } from '@tanstack/react-query';
 import type { CouncilFormData } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
+import { councilsGraphqlClient } from 'utils';
 import { isAddress } from 'viem';
 
 interface CouncilMember {
+  id: string;
   address: string;
   email: string;
   name?: string;
@@ -20,6 +23,28 @@ interface AddAdminModalProps {
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
 }
+
+const CREATE_USER = `
+  mutation CreateUser($address: String!, $email: String!, $name: String) {
+    createUser(address: $address, email: $email, name: $name) {
+      id
+      address
+      email
+      name
+    }
+  }
+`;
+
+const UPDATE_USER = `
+  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String) {
+    updateUser(id: $id, address: $address, email: $email, name: $name) {
+      id
+      address 
+      email
+      name
+    }
+  }
+`;
 
 export function AddAdminModal({
   isOpen,
@@ -41,7 +66,34 @@ export function AddAdminModal({
 
   const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = (data: {
+  const createUserMutation = useMutation({
+    mutationFn: async (variables: {
+      address: string;
+      email: string;
+      name?: string;
+    }) => {
+      const result = await councilsGraphqlClient.request<{
+        createUser: CouncilMember;
+      }>(CREATE_USER, variables);
+      return result.createUser;
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (variables: {
+      id: string;
+      address: string;
+      email: string;
+      name?: string;
+    }) => {
+      const result = await councilsGraphqlClient.request<{
+        updateUser: CouncilMember;
+      }>(UPDATE_USER, variables);
+      return result.updateUser;
+    },
+  });
+
+  const handleSubmit = async (data: {
     address: string;
     email: string;
     name?: string;
@@ -56,7 +108,7 @@ export function AddAdminModal({
     const isDuplicate = currentAdmins.some(
       (admin) =>
         admin.address.toLowerCase() === data.address.toLowerCase() &&
-        admin.address !== editingAdmin?.address,
+        admin.id !== editingAdmin?.id,
     );
 
     if (isDuplicate) {
@@ -64,23 +116,36 @@ export function AddAdminModal({
       return;
     }
 
-    if (editingAdmin) {
-      const updatedAdmins = currentAdmins.map((admin) =>
-        admin.address === editingAdmin.address
-          ? { address: data.address, email: data.email, name: data.name }
-          : admin,
-      );
-      parentForm.setValue('admins', updatedAdmins);
-    } else {
-      parentForm.setValue('admins', [
-        ...currentAdmins,
-        { address: data.address, email: data.email, name: data.name },
-      ]);
-    }
+    try {
+      let userData;
 
-    setFormError(null);
-    modalForm.reset();
-    onClose();
+      if (editingAdmin) {
+        userData = await updateUserMutation.mutateAsync({
+          id: editingAdmin.id,
+          address: data.address,
+          email: data.email,
+          name: data.name,
+        });
+      } else {
+        userData = await createUserMutation.mutateAsync(data);
+      }
+
+      if (editingAdmin) {
+        const updatedAdmins = currentAdmins.map((admin) =>
+          admin.id === editingAdmin.id ? userData : admin,
+        );
+        parentForm.setValue('admins', updatedAdmins);
+      } else {
+        parentForm.setValue('admins', [...currentAdmins, userData]);
+      }
+
+      setFormError(null);
+      modalForm.reset();
+      onClose();
+    } catch (error) {
+      setFormError('Failed to save user. Please try again.');
+      console.error('Error saving user:', error);
+    }
   };
 
   useEffect(() => {

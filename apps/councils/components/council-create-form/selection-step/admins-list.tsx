@@ -1,5 +1,6 @@
 'use client';
 
+import type { CouncilFormData } from 'contexts';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { formatAddress } from 'utils';
@@ -10,6 +11,7 @@ import { TrashIcon } from '../../icons/trash-icon';
 import { AddAdminModal } from './add-admin-modal';
 
 interface CouncilMember {
+  id: string;
   address: string;
   email: string;
   name?: string;
@@ -17,16 +19,17 @@ interface CouncilMember {
 
 interface AdminsListProps {
   admins: CouncilMember[];
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CouncilFormData>;
 }
 
 export function AdminsList({ admins, form }: AdminsListProps) {
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleRemove = (addressToRemove: string) => {
-    const updatedAdmins = admins.filter(
-      (admin) => admin.address !== addressToRemove,
+  const handleRemove = (adminId: string) => {
+    const currentAdmins = form.getValues('admins') || [];
+    const updatedAdmins = currentAdmins.filter(
+      (admin: CouncilMember) => admin.id !== adminId,
     );
     form.setValue('admins', updatedAdmins);
   };
@@ -46,7 +49,7 @@ export function AdminsList({ admins, form }: AdminsListProps) {
       <div className='space-y-4'>
         {admins.map((admin) => (
           <AdminCard
-            key={admin.address}
+            key={admin.id}
             admin={admin}
             onRemove={handleRemove}
             onEdit={() => handleEdit(admin)}
@@ -70,7 +73,7 @@ function AdminCard({
   onEdit,
 }: {
   admin: CouncilMember;
-  onRemove: (address: string) => void;
+  onRemove: (id: string) => void;
   onEdit: () => void;
 }) {
   const { data: ensName } = useEnsName({
@@ -101,7 +104,7 @@ function AdminCard({
         </button>
         <button
           type='button'
-          onClick={() => onRemove(admin.address)}
+          onClick={() => onRemove(admin.id)}
           className='text-red-700 hover:text-red-800'
         >
           <TrashIcon />

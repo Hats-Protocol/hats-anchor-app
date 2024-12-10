@@ -122,10 +122,15 @@ export function AddMemberModal({
       if (editingMember) {
         userData = await updateUserMutation.mutateAsync({
           id: editingMember.id,
-          ...data,
+          address: data.address,
+          email: data.email,
+          name: data.name,
         });
       } else {
         userData = await createUserMutation.mutateAsync(data);
+        if (!userData.id) {
+          throw new Error('Created user is missing ID');
+        }
       }
 
       if (editingMember) {
