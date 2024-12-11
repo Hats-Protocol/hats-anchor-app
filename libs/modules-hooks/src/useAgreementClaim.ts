@@ -1,7 +1,7 @@
-import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { find, get } from 'lodash';
-import { ModuleFunction, SupportedChains } from 'types';
+import { ModuleDetails, ModuleFunction, SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 
@@ -9,7 +9,7 @@ import useCallModuleFunction from './useCallModuleFunction';
 
 interface ContractInteractionProps {
   moduleParameters: ModuleParameter[] | undefined;
-  moduleDetails?: Module | undefined;
+  moduleDetails?: ModuleDetails | undefined;
   chainId?: SupportedChains | undefined;
   controllerAddress?: string | undefined;
   onSuccessfulSign?: () => void;
@@ -21,7 +21,6 @@ const useAgreementClaim = ({
   moduleParameters,
   moduleDetails,
   chainId,
-  controllerAddress,
   onSuccessfulSign,
   mchAddress,
   onDecline,
@@ -56,7 +55,7 @@ const useAgreementClaim = ({
   const handleSignAndClaim = async () => {
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
-      instance: controllerAddress as Hex,
+      instance: moduleDetails?.instanceAddress as Hex,
       func: signAndClaim as ModuleFunction,
       args: {
         'Claims Hatter': mchAddress,
@@ -69,7 +68,7 @@ const useAgreementClaim = ({
   const handleSign = async () => {
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
-      instance: controllerAddress as Hex,
+      instance: moduleDetails?.instanceAddress as Hex,
       func: signFn as ModuleFunction,
       args: {},
       onSuccess: onSuccessfulSign,

@@ -54,3 +54,9 @@ export interface ModuleFunction extends WriteFunction {
   onClick: (args?: unknown) => void;
   icon?: ReactNode;
 }
+
+export interface EligibilityRule {
+  module: Module;
+  address: `0x${string}`;
+  liveParams?: ModuleParameter[] | undefined;
+}

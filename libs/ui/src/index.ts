@@ -12,6 +12,7 @@ export { default as IconHandler } from './IconHandler';
 export * from './lazy-image';
 export * from './lib';
 export { default as LinkButton } from './LinkButton';
+export * from './manager-avatar';
 export { default as Markdown } from './Markdown';
 export { default as NotFound } from './NotFound';
 export { default as OblongAvatar } from './OblongAvatar';

@@ -12,3 +12,4 @@ export * from './toast';
 export * from './tokens';
 export * from './transaction';
 export * from './tree';
+export * from './wearer';

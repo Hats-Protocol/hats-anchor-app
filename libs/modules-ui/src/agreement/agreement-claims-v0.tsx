@@ -13,12 +13,11 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { get, includes, map, toNumber } from 'lodash';
+import { capitalize, get, includes, map, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
-import { ModuleDetails } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -39,13 +38,13 @@ const handleFetchIpfs: any = async (ipfsHash: string) => {
     });
 };
 
-const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
+const AgreementButton = () => {
   const {
     selectedHat,
     chainId,
     isClaimableFor,
-    isReadyToClaim: aggregateReadyToClaim,
-    setIsReadyToClaim,
+    isEligible: isReadyToClaim,
+    setIsEligible: setIsReadyToClaim,
   } = useEligibility();
   const { address } = useAccount();
 
@@ -82,12 +81,8 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
   //   buttonTooltip = 'Review the hat details and conditions to claim.';
   // }
 
-  const moduleAddress = activeModule?.instanceAddress;
-  if (!moduleAddress) return null;
-
   const localClaimable =
     !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
-  const isReadyToClaim = !!get(aggregateReadyToClaim, moduleAddress);
 
   return (
     <Tooltip label={buttonTooltip} placement='top'>
@@ -97,7 +92,7 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
         colorScheme={isReadyToClaim ? 'green.500' : 'white'}
         size='sm'
         onClick={() => {
-          setIsReadyToClaim(moduleAddress);
+          setIsReadyToClaim(true);
         }}
         _hover={{
           background: isReadyToClaim ? 'transparent' : 'blue.600',
@@ -115,15 +110,11 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
 };
 
 // SUPPORTS v0 and v1
-export const AgreementClaims = ({
-  activeModule,
-}: {
-  activeModule: ModuleDetails;
-}) => {
-  const { selectedHatDetails } = useEligibility();
+export const AgreementClaims = () => {
+  const { moduleParameters, selectedHatDetails } = useEligibility();
 
   const { agreement } = useAgreementClaim({
-    moduleParameters: activeModule?.liveParameters,
+    moduleParameters,
   });
 
   const { data: agreementV0 } = useQuery({
@@ -131,7 +122,6 @@ export const AgreementClaims = ({
     queryFn: () => handleFetchIpfs(CONFIG.agreementV0.ipfsHash),
     enabled: !agreement,
   });
-  const onlyHat = false;
 
   return (
     <Stack spacing={4} w='100%' display={{ base: 'none', md: 'flex' }}>
@@ -145,15 +135,12 @@ export const AgreementClaims = ({
       >
         <Flex justify='space-between' mb={8} gap={10}>
           <Heading>
-            Sign the agreement
-            {onlyHat
-              ? ` to claim the ${get(selectedHatDetails, 'name')}{' '}
-            {capitalize(CONFIG.TERMS.hat)}}`
-              : ''}
+            Sign the agreement to claim the {get(selectedHatDetails, 'name')}{' '}
+            {capitalize(CONFIG.TERMS.hat)}
           </Heading>
 
           <Flex minW='175px' justify='end'>
-            <AgreementButton activeModule={activeModule} />
+            <AgreementButton />
           </Flex>
         </Flex>
 
@@ -161,7 +148,7 @@ export const AgreementClaims = ({
       </Box>
 
       <Flex>
-        <AgreementButton activeModule={activeModule} />
+        <AgreementButton />
       </Flex>
     </Stack>
   );

@@ -13,9 +13,10 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { capitalize, includes, map } from 'lodash';
+import { capitalize, every, includes, map } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
+import { useMemo } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
@@ -37,14 +38,16 @@ export const ClaimButton = () => {
   const {
     chainId,
     selectedHat,
-    moduleParameters,
-    moduleDetails,
     controllerAddress,
     isClaimableFor,
     hatterIsAdmin,
     requireHatter,
-    isEligible: isReadyToClaim, // TODO fix
+    isReadyToClaim,
   } = useEligibility();
+  const allModulesReadyToClaim = useMemo(
+    () => every(isReadyToClaim, (value) => value),
+    [isReadyToClaim],
+  );
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address as Hex,
@@ -60,7 +63,7 @@ export const ClaimButton = () => {
       moduleDetails,
       controllerAddress,
       chainId,
-      isReadyToClaim,
+      isReadyToClaim: allModulesReadyToClaim,
     });
 
   const hatUrl = selectedHat?.id

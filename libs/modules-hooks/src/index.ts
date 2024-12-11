@@ -7,6 +7,7 @@ export { default as useAncillaryModules } from './useAncillaryModules';
 export { default as useCallHsgFunction } from './useCallHsgFunction';
 export { default as useCallModuleFunction } from './useCallModuleFunction';
 export * from './useClaimFn';
+export { default as useCurrentEligibility } from './useCurrentEligibility';
 export { default as useEligibilityRules } from './useEligibilityRules';
 export { default as useHatClaimBy } from './useHatClaimBy';
 export { default as useHatClaimFor } from './useHatClaimFor';

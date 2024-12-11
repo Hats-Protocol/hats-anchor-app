@@ -1,7 +1,9 @@
-import { HatDeco } from 'ui';
+import dynamic from 'next/dynamic';
 
 import { CouncilButtons } from '../../../../components/council-buttons';
 import { CouncilHeader } from '../../../../components/council-header';
+
+const HatDeco = dynamic(() => import('ui').then((mod) => mod.HatDeco));
 
 const CouncilLayout = ({ children }: { children: React.ReactNode }) => {
   return (
