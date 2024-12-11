@@ -28,16 +28,53 @@ const BASE_STEPS: Step[] = [
   },
   {
     id: 'selection',
-    label: 'Invite People',
-    sublabel: 'Configure the chosen access modules',
+    label: 'Council Roles',
+    sublabel: 'Council Members & Managers',
     subSteps: [],
   },
   {
     id: 'payment',
-    label: 'Payment & deploying',
-    sublabel: 'Deploy contracts or save & share configuration',
+    label: 'Subscribe & Deploy',
+    sublabel: 'Add payment details and deploy onchain',
   },
 ];
+
+// Helper function to get step summary
+function getStepSummary(
+  step: Step,
+  form: any,
+  currentStepIndex: number,
+  stepIndex: number,
+) {
+  if (stepIndex >= currentStepIndex) {
+    return step.sublabel;
+  }
+
+  switch (step.id) {
+    case 'details':
+      return `${form.watch('councilName')}`;
+    case 'threshold':
+      const thresholdType = form.watch('thresholdType');
+      if (thresholdType === 'ABSOLUTE') {
+        return `${form.watch('confirmationsRequired')} out of ${form.watch('maxMembers')} members`;
+      } else {
+        return `${form.watch('percentageRequired')}% of members`;
+      }
+    case 'onboarding':
+      const requirements = form.watch('requirements');
+      const reqs = [];
+      if (requirements?.signAgreement) reqs.push('Agreement');
+      if (requirements?.holdTokens) reqs.push('Tokens');
+      if (requirements?.passCompliance) reqs.push('Compliance');
+      return reqs.length ? reqs.join(' • ') : 'No requirements';
+    case 'selection':
+      const memberCount = form.watch('members')?.length || 0;
+      const adminCount = form.watch('admins')?.length || 0;
+      return `${memberCount} council members & ${adminCount} managers`;
+    default:
+      return step.sublabel;
+  }
+}
 
 interface CreationFormStepsProps {
   currentStep: string;
@@ -162,7 +199,7 @@ export function CreationFormSteps({
                   {step.label}
                 </span>
                 <span className='block text-sm text-gray-500'>
-                  {step.sublabel}
+                  {getStepSummary(step, form, currentStepIndex, index)}
                 </span>
               </div>
             </div>
