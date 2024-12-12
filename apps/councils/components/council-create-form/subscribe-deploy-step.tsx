@@ -1,5 +1,7 @@
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
+import { formatAddress } from 'utils';
+import { useEnsName } from 'wagmi';
 
 import { CheckSquareIcon } from '../icons/check-square-icon';
 import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
@@ -68,13 +70,63 @@ const RequirementItem = ({
   </div>
 );
 
+interface RoleSummaryProps {
+  title: string;
+  description?: string;
+  members: { id: string; address: string; name?: string }[];
+}
+
+const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
+  <div className='space-y-2'>
+    <div>
+      <h4 className='text-base font-bold text-gray-900'>{title}</h4>
+      {description && <p className='text-sm text-gray-600'>{description}</p>}
+    </div>
+    <div className='space-y-2'>
+      {members.map((member) => (
+        <MemberItem key={member.id} member={member} />
+      ))}
+    </div>
+  </div>
+);
+
+const MemberItem = ({
+  member,
+}: {
+  member: { address: string; name?: string };
+}) => {
+  const { data: ensName } = useEnsName({
+    address: member.address as `0x${string}`,
+    chainId: 1,
+  });
+
+  return (
+    <div className='flex items-center gap-2'>
+      {member.name && (
+        <span className='text-base font-medium text-gray-900'>
+          {member.name}
+        </span>
+      )}
+      <span className='text-base text-gray-600'>
+        {ensName || formatAddress(member.address)}
+      </span>
+    </div>
+  );
+};
+
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { form } = useCouncilForm();
   const router = useRouter();
   const formData = form.getValues();
 
-  const setCurrentStep = (step: string) => {
-    router.push(`/councils/new/${step}?draftId=${draftId}`);
+  const setCurrentStep = (step: string, subStep?: string) => {
+    if (subStep) {
+      router.push(
+        `/councils/new/${step}?draftId=${draftId}&subStep=${subStep}`,
+      );
+    } else {
+      router.push(`/councils/new/${step}?draftId=${draftId}`);
+    }
   };
 
   const handleCopyLink = () => {
@@ -180,6 +232,24 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               />
             )}
           </div>
+        </div>
+      </StepSummary>
+
+      <StepSummary
+        title='Council Roles'
+        isCompleted={true}
+        onEdit={() => setCurrentStep('selection', 'members')}
+      >
+        <div className='space-y-8'>
+          <RoleSummary
+            title='Council Members'
+            members={formData.members || []}
+          />
+          <RoleSummary
+            title='Council Managers'
+            description='Can select Council Members and manage the Safe'
+            members={formData.admins || []}
+          />
         </div>
       </StepSummary>
     </div>
