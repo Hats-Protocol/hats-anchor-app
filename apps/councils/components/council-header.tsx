@@ -3,8 +3,8 @@
 import { Button, Icon } from '@chakra-ui/react';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useSafesInfo } from 'hooks';
-import { Safe } from 'icons';
 import { capitalize, first, get, nth, size } from 'lodash';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaExternalLinkAlt } from 'react-icons/fa';
@@ -12,6 +12,10 @@ import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { chainsMap, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
+
+const SafeIcon = dynamic(() => import('icons').then((mod) => mod.Safe), {
+  ssr: false,
+});
 
 const handleHatDetails = (detailsMetadata: string | undefined) => {
   if (!detailsMetadata) return undefined;
@@ -72,7 +76,7 @@ export const CouncilHeader = () => {
           >
             <Button
               variant='outline'
-              leftIcon={<Icon as={Safe} />}
+              leftIcon={<Icon as={SafeIcon} />}
               rightIcon={<Icon as={FaExternalLinkAlt} boxSize={3} />}
             >
               Safe Wallet

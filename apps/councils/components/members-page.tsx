@@ -4,14 +4,13 @@ import { Button, Checkbox, Icon } from '@chakra-ui/react';
 import { useCouncilDetails } from 'hooks';
 import { filter, first, get, map, split, toLower } from 'lodash';
 import { useAllowlist, useEligibilityRules } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { BsCheckSquareFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Skeleton } from 'ui';
 import { formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
-const Skeleton = dynamic(() => import('ui').then((mod) => mod.Skeleton));
-
+// TODO hardcode
 const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 

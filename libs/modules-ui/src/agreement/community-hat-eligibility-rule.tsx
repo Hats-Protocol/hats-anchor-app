@@ -31,6 +31,7 @@ export const CommunityHatEligibilityRule = ({
   selectedHat,
   wearer,
   chainId,
+  moduleDetails,
   setIsReadyToClaim,
   isReadyToClaim,
   modalSuffix,
@@ -96,7 +97,8 @@ export const CommunityHatEligibilityRule = ({
             Sign the{' '}
             <Button
               onClick={() => {
-                setIsReadyToClaim?.(true);
+                if (!moduleDetails?.instanceAddress) return;
+                setIsReadyToClaim?.(moduleDetails.instanceAddress);
                 setModals?.({ [modalName]: true });
               }}
               variant='link'

@@ -1,15 +1,15 @@
 'use client';
 
 import { Flex, HStack, Image, Text } from '@chakra-ui/react';
-import dynamic from 'next/dynamic';
+import { usePathname } from 'next/navigation';
+import { ChakraNextLink } from 'ui';
 
 import Login from './login';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
-
 export const Navbar = () => {
+  const pathname = usePathname();
+  const isJoinLink = pathname.includes('join');
+
   return (
     <Flex
       w='100%'
@@ -24,9 +24,11 @@ export const Navbar = () => {
           <Image src='/hats.png' boxSize={10} alt='Hats Logo' />
         </ChakraNextLink>
 
-        <Text size='lg' fontWeight='bold'>
-          Join Group A Council
-        </Text>
+        {isJoinLink ? (
+          <Text size='lg' fontWeight='bold'>
+            Join Group A Council
+          </Text>
+        ) : null}
       </HStack>
 
       <Login />

@@ -13,15 +13,15 @@ import {
 import { useClaimFn } from 'modules-hooks';
 import { useEffect } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { AppHat, EligibilityRule, ModuleDetails, SupportedChains } from 'types';
+import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
-import ModuleChainClaimButtons from './module-chain-claim-buttons';
+import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
 const ModuleChainClaimHeader = ({
-  activeRule,
-  setActiveRule,
+  // activeRule,
+  // setActiveRule,
   chainId,
 }: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
@@ -32,21 +32,18 @@ const ModuleChainClaimHeader = ({
     eligibilityRules: rawEligibilityRules,
     currentEligibility,
     isReadyToClaim: aggregateIsReadyToClaim,
+    activeRule,
+    setActiveRule,
   } = useEligibility();
   const eligibilityRules = flatten(rawEligibilityRules);
 
   // in cases where there's one module to complete the action and claim the hat, it likely has a readyToClaim status
   const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) =>
     get(aggregateIsReadyToClaim, v),
-  );
+  ); // TODO check that this is the only one/not already eligible
   const ruleToCompleteAndClaim = find(
     eligibilityRules,
     (rule) => get(rule, 'address') === completeToClaim,
-  );
-  console.log(
-    'moduleToCompleteAndClaim',
-    completeToClaim,
-    ruleToCompleteAndClaim,
   );
 
   useEffect(() => {
@@ -119,12 +116,7 @@ const ModuleChainClaimHeader = ({
       </div>
 
       <div className='flex items-center justify-between'>
-        <ModuleChainClaimButtons
-          eligibilityRules={eligibilityRules}
-          activeRule={activeRule}
-          setActiveRule={setActiveRule}
-          isReadyToClaim={aggregateIsReadyToClaim}
-        />
+        <ModuleChainClaimButtons />
 
         <Button
           isDisabled={!address || chainId !== currentChainId || !isReadyToClaim}
@@ -139,8 +131,8 @@ const ModuleChainClaimHeader = ({
 };
 
 interface ModuleChainClaimHeaderProps {
-  activeRule: EligibilityRule | undefined;
-  setActiveRule: (rule: EligibilityRule | undefined) => void;
+  // activeRule: EligibilityRule | undefined;
+  // setActiveRule: (rule: EligibilityRule | undefined) => void;
   chainId: number | undefined;
 }
 

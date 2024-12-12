@@ -3,8 +3,7 @@ import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map } from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
-
-import { ManagerAvatar } from '../manager-avatar';
+import { ManagerAvatar } from 'ui';
 
 interface ModuleManagerProps {
   m: ModuleDetails;
@@ -14,8 +13,6 @@ interface ModuleManagerProps {
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
 const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
-  console.log(m);
-
   const managerHatId = get(
     find(get(m, 'liveParameters'), { label: 'Owner Hat' }),
     'value',
@@ -25,7 +22,6 @@ const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
     chainId: chainId as SupportedChains,
     hatId: managerHatId ? hatIdDecimalToHex(managerHatId) : undefined,
   });
-  console.log(managerHat);
 
   if (!m) return null;
 

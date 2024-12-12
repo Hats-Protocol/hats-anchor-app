@@ -11,7 +11,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "types": [],
-    "lib": ["ES2021"],
+    "lib": [
+      "ES2021"
+    ],
     "incremental": true,
     "plugins": [
       {
@@ -62,7 +64,8 @@
     "**/*.ts",
     "**/*.tsx",
     "../../libs/types/src/*.d.ts",
-    "../../dist/apps/claims/.next/types/**/*.ts"
+    "../../dist/apps/claims/.next/types/**/*.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": []
 }

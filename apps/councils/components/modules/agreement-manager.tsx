@@ -3,8 +3,7 @@ import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map } from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
-
-import { ManagerAvatar } from '../manager-avatar';
+import { ManagerAvatar } from 'ui';
 
 interface ModuleManagerProps {
   m: ModuleDetails;
@@ -12,7 +11,6 @@ interface ModuleManagerProps {
 }
 
 const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
-  console.log(m);
   const ownerHatId = get(
     find(get(m, 'liveParameters'), { label: 'Owner Hat' }),
     'value',

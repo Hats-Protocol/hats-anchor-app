@@ -1,5 +1,6 @@
 import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { id } from 'date-fns/locale';
 import _ from 'lodash';
 import { AppHat, FormData, FormValues, ModuleDetails } from 'types';
 import { createHatsModulesClient, transformInput } from 'utils';
@@ -60,7 +61,7 @@ export const deployModuleWithClaimsHatter = async ({
   adminHatId: bigint;
 }) => {
   if (
-    !selectedModuleDetails ||
+    !selectedModuleDetails?.id ||
     !selectedHat?.id ||
     !address ||
     !claimsHatterId
@@ -189,27 +190,30 @@ export const processClaimsHatter = ({
   const updatedHatExists = _.find(storedData, ['id', adminId]);
 
   // TODO [md - edge case] handle draft case with increment wearers
-  const updatedHats = _.isArray(storedData)
-    ? _.map(storedData, (hat: Partial<FormData>) => {
-        if (hat.id === adminId && claimsHatterAddress) {
-          const maxSupply: { maxSupply?: string } = {};
-          if (
-            (adminHat?.currentSupply === adminHat?.maxSupply ||
-              hat.maxSupply === adminHat?.maxSupply) &&
-            incrementWearers === 'Yes'
-          ) {
-            maxSupply.maxSupply = _.toString(
-              _.add(_.toNumber(_.get(adminHat, 'maxSupply')), 1),
-            );
-          }
-          const updatedHat = { ...hat, ...maxSupply };
-          updatedHat.wearers = updatedHat.wearers || [];
-          updatedHat.wearers.push(claimsHatterWearer);
-          return updatedHat;
-        }
+  let updatedHats: Partial<FormData>[] = [];
+  if (_.isArray(storedData)) {
+    updatedHats = _.map(storedData, (hat: Partial<FormData>) => {
+      if (hat.id !== adminId && claimsHatterAddress) {
         return hat;
-      })
-    : [...(storedData || [])];
+      }
+      const maxSupply: { maxSupply?: string } = {};
+      if (
+        (adminHat?.currentSupply === adminHat?.maxSupply ||
+          hat.maxSupply === adminHat?.maxSupply) &&
+        incrementWearers === 'Yes'
+      ) {
+        maxSupply.maxSupply = _.toString(
+          _.add(_.toNumber(_.get(adminHat, 'maxSupply')), 1),
+        );
+      }
+      const updatedHat = { ...hat, ...maxSupply };
+      updatedHat.wearers = updatedHat.wearers || [];
+      updatedHat.wearers.push(claimsHatterWearer);
+      return updatedHat;
+    });
+  } else {
+    updatedHats = [...(storedData || [])];
+  }
 
   if (claimsHatterAddress && adminId && !updatedHatExists) {
     const maxSupply: { maxSupply?: string } = {};

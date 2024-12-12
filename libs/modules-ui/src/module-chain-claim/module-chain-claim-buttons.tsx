@@ -2,7 +2,8 @@
 
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { first, get, map, pick } from 'lodash';
+import { first, flatten, get, map, pick } from 'lodash';
+import { ReactNode } from 'react';
 import {
   BsCheckSquare,
   BsCheckSquareFill,
@@ -54,15 +55,13 @@ const EligibilityStatus = ({
   );
 };
 
-const WrapperButton = ({
-  rule,
-  activeRule,
-  setActiveRule,
-  isEligible,
-  customYesNo,
-  isReadyToClaim,
-  children,
-}: WrapperButtonProps) => {
+const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
+  const { currentEligibility, activeRule, setActiveRule, isReadyToClaim } =
+    useEligibility();
+  const isEligible =
+    get(currentEligibility, `[${rule.address}].eligible`) &&
+    get(currentEligibility, `[${rule.address}].goodStanding`);
+
   return (
     <Button
       variant='outline'
@@ -83,7 +82,7 @@ const WrapperButton = ({
 
         <EligibilityStatus
           isEligible={isEligible}
-          isReadyToClaim={isReadyToClaim}
+          isReadyToClaim={get(isReadyToClaim, rule.address, false)}
           customYesNo={customYesNo}
         />
       </Stack>
@@ -93,100 +92,43 @@ const WrapperButton = ({
 
 interface WrapperButtonProps {
   rule: EligibilityRule;
-  activeRule: EligibilityRule | undefined;
-  setActiveRule: (rule: EligibilityRule | undefined) => void;
-  isEligible: boolean | undefined;
   customYesNo?: { yes: string; no: string };
   isReadyToClaim?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const ModuleChainClaimButton = ({
   rule,
-  activeRule,
-  setActiveRule,
-  isReadyToClaim,
   // TODO pass through module labels
 }: ModuleChainClaimButtonProps) => {
-  const { currentEligibility } = useEligibility();
-  const isEligible =
-    get(currentEligibility, `[${rule.address}].eligible`) &&
-    get(currentEligibility, `[${rule.address}].goodStanding`);
-
   if (rule.address === selectionModule) {
-    return (
-      <WrapperButton
-        rule={rule}
-        activeRule={activeRule}
-        setActiveRule={setActiveRule}
-        isEligible={isEligible}
-      >
-        Appointed
-      </WrapperButton>
-    );
+    return <WrapperButton rule={rule}>Appointed</WrapperButton>;
   }
 
   if (rule.address === criteriaModule) {
-    return (
-      <WrapperButton
-        rule={rule}
-        activeRule={activeRule}
-        setActiveRule={setActiveRule}
-        isEligible={isEligible}
-      >
-        Compliant
-      </WrapperButton>
-    );
+    return <WrapperButton rule={rule}>Compliant</WrapperButton>;
   }
 
   const shortName = first(get(rule, 'module.name').split(' Eligibility'));
 
-  return (
-    <WrapperButton
-      rule={rule}
-      activeRule={activeRule}
-      setActiveRule={setActiveRule}
-      isEligible={isEligible}
-      isReadyToClaim={isReadyToClaim}
-    >
-      {shortName}
-    </WrapperButton>
-  );
+  return <WrapperButton rule={rule}>{shortName}</WrapperButton>;
 };
 
 interface ModuleChainClaimButtonProps {
   rule: EligibilityRule;
-  activeRule: EligibilityRule | undefined;
-  setActiveRule: (rule: EligibilityRule | undefined) => void;
-  isReadyToClaim: boolean;
 }
 
-const ModuleChainClaimButtons = ({
-  eligibilityRules,
-  activeRule,
-  setActiveRule,
-  isReadyToClaim,
-}: ModuleChainClaimButtonsProps) => {
+export const ModuleChainClaimButtons = () => {
+  const { eligibilityRules } = useEligibility();
+
   return (
     <div className='flex gap-2'>
-      {map(eligibilityRules, (rule) => (
+      {map(flatten(eligibilityRules), (rule) => (
         <ModuleChainClaimButton
           key={`${rule.module.id}-${rule.address}`}
           rule={rule}
-          activeRule={activeRule}
-          setActiveRule={setActiveRule}
-          isReadyToClaim={get(isReadyToClaim, rule.address, false)}
         />
       ))}
     </div>
   );
 };
-
-interface ModuleChainClaimButtonsProps {
-  eligibilityRules: EligibilityRule[];
-  activeRule: EligibilityRule | undefined;
-  setActiveRule: (rule: EligibilityRule | undefined) => void;
-  isReadyToClaim: { [key: string]: boolean } | undefined;
-}
-
-export default ModuleChainClaimButtons;

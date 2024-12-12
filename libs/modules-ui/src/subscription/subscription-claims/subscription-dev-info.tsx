@@ -95,6 +95,6 @@ export const SubscriptionDevInfo = ({
 };
 
 interface SubscriptionDevInfoProps {
-  moduleParameters: ModuleParameter[];
+  moduleParameters: ModuleParameter[] | undefined;
   chainId: number | undefined;
 }

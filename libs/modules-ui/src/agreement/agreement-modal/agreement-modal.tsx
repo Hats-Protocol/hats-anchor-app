@@ -1,7 +1,7 @@
 'use client';
 
 import { Heading, Stack } from '@chakra-ui/react';
-import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { Textarea } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
@@ -125,15 +125,15 @@ export const AgreementModal = ({
     return compact([
       eligibilityHatId && {
         label: 'Eligibility Rule for this Hat',
-        hatId: eligibilityHatId,
+        hatId: hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId)),
       },
-      {
+      ownerHat && {
         label: 'Owner edits the agreement',
-        hatId: hatIdDecimalToHex(ownerHat) as Hex,
+        hatId: hatIdDecimalToIp(ownerHat) as Hex,
       },
-      {
+      judgeHat && {
         label: 'Judge determines wearer standing',
-        hatId: toString(judgeHat) as Hex,
+        hatId: hatIdDecimalToIp(judgeHat) as Hex,
       },
     ]);
   }, [ownerHat, judgeHat, eligibilityHatId]);

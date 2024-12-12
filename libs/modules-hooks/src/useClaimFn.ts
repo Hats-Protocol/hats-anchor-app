@@ -134,6 +134,7 @@ export const useClaimFn = ({
       return { claimFn: undefined, disableClaim: true };
     }
 
+    // TODO match on implementation address/module key
     if (moduleDetails?.name === ELIGIBILITY_MODULES.agreement) {
       return {
         claimFn: agreementClaim,
@@ -169,6 +170,7 @@ export const useClaimFn = ({
       return { claimFn: () => undefined, disableClaim: true };
     }
 
+    // TODO fallback to claim with MCH when eligible
     return { claimFn: undefined, disableClaim: true };
   }, [
     moduleDetails?.name,

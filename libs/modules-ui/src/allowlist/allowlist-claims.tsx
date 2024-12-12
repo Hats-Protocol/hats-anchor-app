@@ -21,6 +21,7 @@ import { ModuleDetails } from 'types';
 import { explorerUrl, formatAddress } from 'utils';
 import { useAccount } from 'wagmi';
 
+// TODO hardcode
 const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
@@ -78,7 +79,6 @@ export const AllowlistClaims = ({
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
     chainId,
   });
-  console.log(get(ownerHatDetails, 'wearers'));
 
   const { address } = useAccount();
 
@@ -150,7 +150,7 @@ export const AllowlistClaims = ({
           </div>
 
           {map(get(ownerHatDetails, 'wearers'), (wearer) => (
-            <ManagerAvatar manager={wearer} />
+            <ManagerAvatar manager={wearer} key={wearer.id} />
           ))}
         </div>
       </Box>

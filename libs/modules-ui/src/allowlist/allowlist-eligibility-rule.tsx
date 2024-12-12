@@ -33,7 +33,7 @@ export const AllowlistEligibilityRule = ({
   });
 
   const { data: allowlist } = useAllowlist({
-    id: moduleDetails?.id,
+    id: moduleDetails?.instanceAddress,
     chainId: chainId as SupportedChains,
   });
   const isIncludedInAllowlist = includes(
@@ -51,17 +51,14 @@ export const AllowlistEligibilityRule = ({
     posthog.isFeatureEnabled('eligibility-modal') ||
     process.env.NODE_ENV === 'development';
 
-  if (!selectedHat || !moduleDetails?.id) return null;
+  if (!selectedHat || !moduleDetails?.instanceAddress) return null;
 
   if (isEligible) {
     return (
       <>
         <AllowlistModal
           eligibilityHatId={selectedHat?.id}
-          moduleInfo={{
-            ...moduleDetails,
-            liveParameters: moduleParameters,
-          }}
+          moduleInfo={moduleDetails}
         />
 
         <EligibilityRuleDetails
@@ -72,7 +69,8 @@ export const AllowlistEligibilityRule = ({
                 <Button
                   onClick={() =>
                     setModals?.({
-                      [`${moduleDetails.id}-allowlistManager`]: true,
+                      [`${moduleDetails.instanceAddress}-allowlistManager`]:
+                        true,
                     })
                   }
                   variant='link'
@@ -110,7 +108,7 @@ export const AllowlistEligibilityRule = ({
               <Button
                 onClick={() =>
                   setModals?.({
-                    [`${moduleDetails.id}-allowlistManager`]: true,
+                    [`${moduleDetails.instanceAddress}-allowlistManager`]: true,
                   })
                 }
                 variant='link'

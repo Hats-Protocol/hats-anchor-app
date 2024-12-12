@@ -18,7 +18,7 @@ import { useEligibility, useOverlay } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { fetchIpfs } from 'utils';
+import { eligibilityRuleToModuleDetails, fetchIpfs } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const AgreementContent = dynamic(() =>
@@ -37,11 +37,13 @@ const handleFetchIpfs: any = async (ipfsHash: string) => {
 };
 
 export const AgreementContentModal = () => {
-  const { moduleParameters } = useEligibility();
+  const { activeRule } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+
   const { modals, setModals } = useOverlay();
 
   const { agreement } = useAgreementClaim({
-    moduleParameters,
+    moduleParameters: moduleDetails?.liveParameters,
   });
 
   const { data: agreementV0 } = useQuery({

@@ -13,22 +13,78 @@ import {
 } from '@chakra-ui/react';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useWearersEligibilityStatus } from 'hats-hooks';
-import { flatten, get, includes, map, pick, size, toLower } from 'lodash';
+import {
+  every,
+  filter,
+  flatten,
+  get,
+  includes,
+  map,
+  size,
+  toLower,
+} from 'lodash';
 import { startTransition, useEffect, useRef, useState } from 'react';
-import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { AppHat, ModuleDetails, SupportedChains } from 'types';
+import {
+  BsCheckSquare,
+  BsCheckSquareFill,
+  BsFillXOctagonFill,
+} from 'react-icons/bs';
+import { AppHat, SupportedChains, WearerStatus } from 'types';
+import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { KnownEligibilityModule } from './known-eligibility-module';
+
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
+
+const EligibilityStatus = ({
+  isEligible,
+  isReadyToClaim,
+}: {
+  isEligible: boolean;
+  isReadyToClaim: boolean;
+}) => {
+  if (isEligible) {
+    return (
+      <HStack spacing={1} color='green.600'>
+        <Text>Eligible</Text>
+
+        <Icon as={BsCheckSquareFill} boxSize={4} />
+      </HStack>
+    );
+  }
+
+  if (isReadyToClaim) {
+    return (
+      <HStack spacing={1} color='green.600'>
+        <Text>Pending</Text>
+
+        <Icon as={BsCheckSquare} boxSize={4} />
+      </HStack>
+    );
+  }
+
+  return (
+    <HStack spacing={1} color='red.600'>
+      <Text>Ineligible</Text>
+
+      <Icon as={BsFillXOctagonFill} boxSize={4} />
+    </HStack>
+  );
+};
 
 export const ChainPanel = ({
   selectedHat,
   ruleSets,
   chainId,
   modalSuffix,
+  isReadyToClaim: aggregateIsReadyToClaim,
+  setIsReadyToClaim,
+  currentEligibility,
+  defaultOpen = false,
 }: ChainPanelProps) => {
-  const [expandedBackground, setExpandedBackground] = useState(false);
+  const [expandedBackground, setExpandedBackground] = useState(defaultOpen);
   const { address } = useAccount();
   const isMounted = useRef(false);
 
@@ -43,6 +99,16 @@ export const ChainPanel = ({
     get(wearerStatus, 'eligibleWearers'),
     toLower(address),
   );
+  const rulesNotAlreadyClaimed = filter(flatten(ruleSets), (rule) => {
+    return (
+      !get(currentEligibility, `${rule.address}.eligible`) ||
+      !get(currentEligibility, `${rule.address}.goodStanding`)
+    );
+  });
+  const isReadyToClaim = every(rulesNotAlreadyClaimed, (rule) => {
+    return get(aggregateIsReadyToClaim, rule.address);
+  });
+
   // can assume theres 2+ modules in the ruleSet array already
   // ! currently only supporting single nested chains TODO support deeper nested chains
   const isAndChain = size(ruleSets) === 1;
@@ -55,7 +121,7 @@ export const ChainPanel = ({
   }, []);
 
   return (
-    <Accordion allowToggle>
+    <Accordion allowToggle defaultIndex={defaultOpen ? 0 : undefined}>
       <AccordionItem
         border='none'
         w={{ base: '100%', md: 'calc(100% + 32px)' }}
@@ -92,25 +158,30 @@ export const ChainPanel = ({
                 borderColor={isExpanded ? 'gray.100' : 'transparent'}
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
-                <Flex justify='space-between' py={2} px={4} width='100%'>
-                  <Text>
+                <Flex justify='space-between' py={2} px={6} width='100%'>
+                  <Text
+                    display={{
+                      base: 'none',
+                      md: IS_CLAIMS_APP ? 'none' : 'block',
+                    }}
+                  >
                     Comply with {isAndChain ? 'all' : 'any'} of{' '}
                     {size(flatten(ruleSets))} Rules to claim this Hat
                   </Text>
+                  <Text
+                    display={{
+                      base: 'block',
+                      md: IS_CLAIMS_APP ? 'block' : 'none',
+                    }}
+                  >
+                    {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))}{' '}
+                    Rules to claim
+                  </Text>
 
-                  {isEligible ? (
-                    <HStack spacing={1} color='green.600'>
-                      <Text>Eligible</Text>
-
-                      <Icon as={BsCheckSquareFill} boxSize={4} />
-                    </HStack>
-                  ) : (
-                    <HStack spacing={1} color='red.600'>
-                      <Text>Ineligible</Text>
-
-                      <Icon as={BsFillXOctagonFill} boxSize={4} />
-                    </HStack>
-                  )}
+                  <EligibilityStatus
+                    isEligible={isEligible}
+                    isReadyToClaim={isReadyToClaim}
+                  />
                 </Flex>
               </AccordionButton>
 
@@ -122,30 +193,23 @@ export const ChainPanel = ({
                 bg='white'
                 border='gray'
               >
-                <Stack mx={4} pb={2} spacing={0}>
+                <Stack mx={4} pb={2} spacing={0} px={2}>
                   {map(ruleSets, (ruleSet: Ruleset, index: number) =>
-                    map(ruleSet, (knownModule) => {
-                      const {
-                        module: moduleDetails,
-                        address: instance,
-                        liveParams: parameters,
-                      } = pick(knownModule, [
-                        'module',
-                        'address',
-                        'liveParams',
-                      ]);
+                    map(ruleSet, (rule) => {
+                      const moduleDetails =
+                        eligibilityRuleToModuleDetails(rule);
 
                       return (
                         <KnownEligibilityModule
-                          key={`${index}-${instance}`}
-                          moduleDetails={
-                            { ...moduleDetails, id: instance } as ModuleDetails
-                          }
-                          moduleParameters={parameters}
+                          key={`${index}-${rule.address}`}
+                          moduleDetails={moduleDetails}
+                          moduleParameters={moduleDetails?.liveParameters}
                           selectedHat={selectedHat}
                           chainId={chainId}
                           wearer={address as Hex}
                           modalSuffix={modalSuffix}
+                          isReadyToClaim={aggregateIsReadyToClaim}
+                          setIsReadyToClaim={setIsReadyToClaim}
                         />
                       );
                     }),
@@ -165,6 +229,10 @@ interface ChainPanelProps {
   ruleSets: Ruleset[] | undefined;
   chainId: SupportedChains | undefined;
   modalSuffix?: string | undefined;
+  isReadyToClaim?: { [key: Hex]: boolean };
+  setIsReadyToClaim?: (address: Hex) => void;
+  currentEligibility?: { [key: Hex]: WearerStatus };
+  defaultOpen?: boolean;
 }
 
 export default ChainPanel;

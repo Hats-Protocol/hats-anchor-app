@@ -13,13 +13,13 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { capitalize, every, includes, map } from 'lodash';
+import { capitalize, filter, first, flatten, get, includes, map } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { useMemo } from 'react';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
+import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -38,16 +38,13 @@ export const ClaimButton = () => {
   const {
     chainId,
     selectedHat,
-    controllerAddress,
+    eligibilityRules,
     isClaimableFor,
     hatterIsAdmin,
     requireHatter,
     isReadyToClaim,
+    currentEligibility,
   } = useEligibility();
-  const allModulesReadyToClaim = useMemo(
-    () => every(isReadyToClaim, (value) => value),
-    [isReadyToClaim],
-  );
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address as Hex,
@@ -55,15 +52,25 @@ export const ClaimButton = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
+  // console.log('isReadyToClaim', isReadyToClaim);
+  const rulesNotAlreadyClaimed = filter(flatten(eligibilityRules), (rule) => {
+    return (
+      !get(currentEligibility, `${rule.address}.eligible`) ||
+      !get(currentEligibility, `${rule.address}.goodStanding`)
+    );
+  });
+
+  const moduleDetails = eligibilityRuleToModuleDetails(
+    first(rulesNotAlreadyClaimed), // TODO assuming there is only 1 rule remaining to claim
+  );
   const { handleClaim, disableClaim, disableReason, isLoading, isEligible } =
     useClaimFn({
       selectedHat: selectedHat as AppHat,
       handlePendingTx,
-      moduleParameters,
+      moduleParameters: get(moduleDetails, 'liveParameters'),
       moduleDetails,
-      controllerAddress,
       chainId,
-      isReadyToClaim: allModulesReadyToClaim,
+      isReadyToClaim,
     });
 
   const hatUrl = selectedHat?.id

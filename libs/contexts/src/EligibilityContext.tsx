@@ -4,7 +4,7 @@ import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useHatDetails, useTreeDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
-import { first, get, includes, toLower, toNumber } from 'lodash';
+import { first, flatten, get, includes, toLower, toNumber } from 'lodash';
 import {
   useCurrentEligibility,
   useEligibilityRules,
@@ -14,10 +14,17 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
-import { AppHat, HatDetails, SupportedChains, WearerStatus } from 'types';
+import {
+  AppHat,
+  EligibilityRule,
+  HatDetails,
+  SupportedChains,
+  WearerStatus,
+} from 'types';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -35,7 +42,10 @@ export interface EligibilityContextProps {
   isClaimableFor: boolean;
   hatterIsAdmin: boolean | undefined;
   requireHatter: boolean;
-  // temporary eligibility
+  // current active rule
+  activeRule: EligibilityRule | undefined;
+  setActiveRule: (rule: EligibilityRule | undefined) => void;
+  // in-app eligibility
   isReadyToClaim: { [key: Hex]: boolean } | undefined;
   setIsReadyToClaim: (address: Hex) => void;
 }
@@ -54,6 +64,9 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   isClaimableFor: false,
   hatterIsAdmin: false,
   requireHatter: false,
+  // current active rule
+  activeRule: undefined,
+  setActiveRule: (rule: EligibilityRule | undefined) => {},
   // in-app eligibility
   isReadyToClaim: {},
   setIsReadyToClaim: (address: Hex) => {},
@@ -69,6 +82,7 @@ export const EligibilityContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [isReadyToClaim, rawSetIsReadyToClaim] = useState({});
+  const [activeRule, setActiveRule] = useState<EligibilityRule | undefined>();
   const {
     data: selectedHat,
     details: hatDetails,
@@ -125,6 +139,12 @@ export const EligibilityContextProvider = ({
     [rawSetIsReadyToClaim, isReadyToClaim],
   );
 
+  useEffect(() => {
+    if (activeRule) return;
+
+    setActiveRule(first(flatten(eligibilityRules)));
+  }, [eligibilityRules, activeRule]);
+
   const value = useMemo(
     () => ({
       chainId,
@@ -140,6 +160,9 @@ export const EligibilityContextProvider = ({
       isClaimableFor,
       hatterIsAdmin,
       requireHatter,
+      // current active rule
+      activeRule,
+      setActiveRule,
       // in-app eligibility
       isReadyToClaim,
       setIsReadyToClaim,
@@ -160,6 +183,9 @@ export const EligibilityContextProvider = ({
       isClaimableFor,
       hatterIsAdmin,
       requireHatter,
+      // current active rule
+      activeRule,
+      setActiveRule,
       // in-app eligibility
       isReadyToClaim,
       setIsReadyToClaim,

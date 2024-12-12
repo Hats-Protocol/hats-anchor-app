@@ -2,16 +2,11 @@
 
 import { useCouncilDetails } from 'hooks';
 import { compact, get } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
+import { ChakraNextLink, DevInfo } from 'ui';
 import { formatAddress } from 'utils';
 import { explorerUrl, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
-const DevInfo = dynamic(() => import('ui').then((mod) => mod.DevInfo));
 
 const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);

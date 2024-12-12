@@ -36,7 +36,7 @@ export const JokeRaceEligibilityRule = ({
   const { setModals } = useOverlay();
 
   const { data: currentTerm } = useJokeRace({
-    moduleId: moduleDetails?.id,
+    moduleId: moduleDetails?.instanceAddress,
     chainId: chainId as SupportedChains,
   });
 
@@ -74,7 +74,9 @@ export const JokeRaceEligibilityRule = ({
             {eligibilityModalFlag ? (
               <Button
                 onClick={() =>
-                  setModals?.({ [`${moduleDetails.id}-jokeRaceManager`]: true })
+                  setModals?.({
+                    [`${moduleDetails.instanceAddress}-jokeRaceManager`]: true,
+                  })
                 }
                 variant='link'
               >

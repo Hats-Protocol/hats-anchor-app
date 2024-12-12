@@ -11,10 +11,10 @@ import { useCouncilDetails } from 'hooks';
 import { concat, filter, flatten, get, map, toLower } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { HatWearer, SupportedChains } from 'types';
+import { ManagerAvatar } from 'ui';
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
-import { ManagerAvatar } from './manager-avatar';
 import ModuleManager from './modules/module-manager';
 import { SignersIndicator } from './signers-indicator';
 
@@ -36,6 +36,7 @@ const OWNER_SECTIONS = [
   },
 ];
 
+// TODO hardcode
 const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 

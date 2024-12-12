@@ -15,7 +15,7 @@ export const ElectionClaims = () => {
     chainId,
     // selectedHat,
     // selectedHatDetails,
-    isModuleDetailsLoading,
+    isEligibilityRulesLoading,
   } = useEligibility();
   const { isClient, isMobile } = useMediaStyles();
 
@@ -32,7 +32,7 @@ export const ElectionClaims = () => {
   // }
 
   // should be loaded and know if it's election eligibility
-  if (!isClient || isModuleDetailsLoading)
+  if (!isClient || isEligibilityRulesLoading)
     return <Skeleton w='full' minH='500px' borderRadius='lg' />;
 
   return (
@@ -41,7 +41,7 @@ export const ElectionClaims = () => {
         <Skeleton
           w={{ base: '100%', md: '48%' }}
           minH='90px'
-          isLoaded={!isModuleDetailsLoading}
+          isLoaded={!isEligibilityRulesLoading}
         >
           <Card w='full' h='full'>
             <CardBody>
@@ -54,7 +54,7 @@ export const ElectionClaims = () => {
           w={{ base: '100%', md: '48%' }}
           display={{ base: 'none', md: 'inherit' }}
           minH='90px'
-          isLoaded={!isModuleDetailsLoading}
+          isLoaded={!isEligibilityRulesLoading}
         >
           <Card w='full' h='full'>
             <CardBody>
@@ -68,7 +68,7 @@ export const ElectionClaims = () => {
         <Skeleton
           w={{ base: '100%', md: '48%' }}
           minH='90px'
-          isLoaded={!isModuleDetailsLoading}
+          isLoaded={!isEligibilityRulesLoading}
         >
           <Card w='full' h='full'>
             <CardBody>
@@ -80,7 +80,7 @@ export const ElectionClaims = () => {
         <Skeleton
           w={{ base: '100%', md: '48%' }}
           minH='90px'
-          isLoaded={!isModuleDetailsLoading}
+          isLoaded={!isEligibilityRulesLoading}
         >
           <Card display={{ base: 'none', md: 'inherit' }} w='full' h='full'>
             <CardBody>
@@ -90,7 +90,7 @@ export const ElectionClaims = () => {
         </Skeleton>
       </Flex>
 
-      <Skeleton w='full' minH='300px' isLoaded={!isModuleDetailsLoading}>
+      <Skeleton w='full' minH='300px' isLoaded={!isEligibilityRulesLoading}>
         <Card w='full' h='full'>
           <CardBody>
             <ProposalView />
@@ -100,7 +100,7 @@ export const ElectionClaims = () => {
 
       {isMobile && (
         <>
-          <Skeleton w='full' minH='300px' isLoaded={!isModuleDetailsLoading}>
+          <Skeleton w='full' minH='300px' isLoaded={!isEligibilityRulesLoading}>
             <Card w='full' h='full'>
               <CardBody>
                 <UpcomingSeason />
@@ -108,7 +108,7 @@ export const ElectionClaims = () => {
             </Card>
           </Skeleton>
 
-          <Skeleton w='full' minH='300px' isLoaded={!isModuleDetailsLoading}>
+          <Skeleton w='full' minH='300px' isLoaded={!isEligibilityRulesLoading}>
             <Card display={{ base: 'inherit', md: 'none' }} w='full' h='full'>
               <CardBody>
                 <ElectionRoles />

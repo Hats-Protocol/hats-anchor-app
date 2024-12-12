@@ -29,7 +29,7 @@ export type ModuleCreationArgs = {
 };
 
 export interface ModuleDetails extends Module {
-  id: Hex;
+  // id: Hex; // was added to registry and SDK migrate module address to `instanceAddress`
   liveParameters: ModuleParameter[] | undefined;
   instanceAddress?: Hex;
 }

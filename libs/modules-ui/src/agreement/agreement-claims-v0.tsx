@@ -18,7 +18,7 @@ import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
-import { fetchIpfs } from 'utils';
+import { eligibilityRuleToModuleDetails, fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -43,9 +43,12 @@ const AgreementButton = () => {
     selectedHat,
     chainId,
     isClaimableFor,
-    isEligible: isReadyToClaim,
-    setIsEligible: setIsReadyToClaim,
+    isReadyToClaim: aggregateIsReadyToClaim,
+    activeRule,
+    setIsReadyToClaim,
   } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+
   const { address } = useAccount();
 
   const { data: wearerHats } = useWearerDetails({
@@ -63,6 +66,11 @@ const AgreementButton = () => {
       0,
     [selectedHat],
   );
+  const isReadyToClaim = useMemo(() => {
+    if (!moduleDetails?.instanceAddress) return false;
+
+    return get(aggregateIsReadyToClaim, moduleDetails.instanceAddress);
+  }, [aggregateIsReadyToClaim, moduleDetails?.instanceAddress]);
 
   let buttonTooltip = '';
   if (isWearing) {
@@ -92,7 +100,8 @@ const AgreementButton = () => {
         colorScheme={isReadyToClaim ? 'green.500' : 'white'}
         size='sm'
         onClick={() => {
-          setIsReadyToClaim(true);
+          if (!moduleDetails?.instanceAddress) return;
+          setIsReadyToClaim(moduleDetails.instanceAddress);
         }}
         _hover={{
           background: isReadyToClaim ? 'transparent' : 'blue.600',
@@ -111,10 +120,11 @@ const AgreementButton = () => {
 
 // SUPPORTS v0 and v1
 export const AgreementClaims = () => {
-  const { moduleParameters, selectedHatDetails } = useEligibility();
+  const { activeRule, selectedHatDetails } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
 
   const { agreement } = useAgreementClaim({
-    moduleParameters,
+    moduleParameters: moduleDetails?.liveParameters,
   });
 
   const { data: agreementV0 } = useQuery({

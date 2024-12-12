@@ -1,7 +1,6 @@
+import { ModuleChainClaim } from 'modules-ui';
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
-
-import { ModuleChainClaim } from '../../../../components/module-chain-claim';
 
 const JoinCouncil = async ({
   params: { slug },

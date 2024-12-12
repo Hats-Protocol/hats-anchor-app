@@ -23,7 +23,7 @@ import {
   BsXOctagonFill,
 } from 'react-icons/bs';
 import { MixedIcon } from 'types';
-import { getDuration } from 'utils';
+import { eligibilityRuleToModuleDetails, getDuration } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -34,7 +34,8 @@ const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 
 export const SubscriptionClaims = () => {
   const { address } = useAccount();
-  const { chainId, moduleParameters, selectedHat } = useEligibility();
+  const { chainId, activeRule, selectedHat } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
   const {
     isLoading,
     price,
@@ -44,7 +45,7 @@ export const SubscriptionClaims = () => {
     keyBalance,
     allowance,
   } = useLockFromHat({
-    moduleParameters,
+    moduleParameters: moduleDetails?.liveParameters,
     chainId,
   });
 
@@ -62,7 +63,7 @@ export const SubscriptionClaims = () => {
     return <Skeleton w='full' h='500px' borderRadius='md' />;
   }
 
-  if (!moduleParameters) {
+  if (!moduleDetails) {
     return (
       <Card>
         <CardBody>
@@ -182,7 +183,8 @@ export const SubscriptionClaims = () => {
             )}
 
             <AllowanceActions
-              moduleParameters={moduleParameters}
+              moduleDetails={moduleDetails}
+              moduleParameters={moduleDetails?.liveParameters}
               activeSubscription={!!activeSubscription}
             />
           </Stack>
@@ -190,7 +192,7 @@ export const SubscriptionClaims = () => {
       </Card>
 
       <SubscriptionDevInfo
-        moduleParameters={moduleParameters}
+        moduleParameters={moduleDetails?.liveParameters}
         chainId={chainId}
       />
     </Stack>

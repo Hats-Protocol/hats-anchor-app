@@ -74,7 +74,7 @@ export const JokeRaceModal = ({
   const values = watch();
 
   const { data: currentTerm } = useJokeRace({
-    moduleId: moduleInfo.id,
+    moduleId: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: eligibilityData } = useReadContracts({

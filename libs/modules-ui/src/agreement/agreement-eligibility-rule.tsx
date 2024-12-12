@@ -18,10 +18,8 @@ import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { EligibilityRuleDetails } from '../eligibility-rules/eligibility-rule-details';
+import { ELIGIBILITY_STATUS } from '../eligibility-rules/utils';
 import { AgreementModal } from './agreement-modal';
 
 const ChakraNextLink = dynamic(() =>
@@ -38,7 +36,7 @@ export const AgreementEligibilityRule = ({
   wearer,
   selectedHat,
   modalSuffix,
-  isReadyToClaim,
+  isReadyToClaim: aggregateIsReadyToClaim,
   setIsReadyToClaim,
 }: ModuleDetailsHandler) => {
   const hatId = get(selectedHat, 'id', '0');
@@ -55,8 +53,11 @@ export const AgreementEligibilityRule = ({
     get(wearerStatus, 'eligibleWearers'),
     toLower(wearer),
   );
+  const isReadyToClaim =
+    !!moduleDetails?.instanceAddress &&
+    get(aggregateIsReadyToClaim, moduleDetails.instanceAddress, false);
 
-  let modalName = `${moduleDetails?.id}-${MODAL_NAME}`;
+  let modalName = `${moduleDetails?.instanceAddress}-${MODAL_NAME}`;
   if (modalSuffix) {
     modalName += modalSuffix;
   }
@@ -65,8 +66,9 @@ export const AgreementEligibilityRule = ({
     posthog.isFeatureEnabled('eligibility-modal') ||
     process.env.NODE_ENV === 'development';
 
-  if (!moduleDetails?.id) return null;
+  if (!moduleDetails?.instanceAddress) return null;
 
+  // set the eligibility rule text based on current feature flag & app
   let rule = (
     <Text>
       Sign the{' '}
@@ -87,7 +89,9 @@ export const AgreementEligibilityRule = ({
         Sign the{' '}
         <Button
           onClick={() => {
-            setIsReadyToClaim?.(true);
+            if (!moduleDetails.instanceAddress) return;
+
+            setIsReadyToClaim?.(moduleDetails.instanceAddress);
             setModals?.({ [modalName]: true });
           }}
           variant='link'
@@ -119,10 +123,7 @@ export const AgreementEligibilityRule = ({
     <>
       <AgreementModal
         eligibilityHatId={selectedHat?.id}
-        moduleInfo={{
-          ...moduleDetails,
-          liveParameters: moduleParameters,
-        }}
+        moduleInfo={moduleDetails}
       />
 
       <EligibilityRuleDetails
