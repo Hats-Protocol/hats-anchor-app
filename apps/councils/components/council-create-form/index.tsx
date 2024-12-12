@@ -7,6 +7,7 @@ import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
 import { SelectionManagementStep } from './selection-step/management-step';
 import { SelectionMembersStep } from './selection-step/members-step';
+import { SubscribeDeployStep } from './subscribe-deploy-step';
 import { ThresholdStep } from './threshold-step';
 
 interface CouncilCreateFormProps {
@@ -87,6 +88,8 @@ export function CouncilCreateForm({
         default:
           return null;
       }
+    case 'payment':
+      return <SubscribeDeployStep draftId={draftId} />;
     default:
       return null;
   }

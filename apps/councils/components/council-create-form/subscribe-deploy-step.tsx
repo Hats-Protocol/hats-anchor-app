@@ -1,0 +1,187 @@
+import { useCouncilForm } from 'contexts';
+import { useRouter } from 'next/navigation';
+
+import { CheckSquareIcon } from '../icons/check-square-icon';
+import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
+import { DocumentIcon } from '../icons/document-icon';
+import { EditIcon } from '../icons/edit-icon';
+import { GetAppointedIcon } from '../icons/get-appointed-icon';
+import { LinkIcon } from '../icons/link-icon';
+import { SignAgreementIcon } from '../icons/sign-agreement-icon';
+
+interface StepSummaryProps {
+  title: string;
+  isCompleted: boolean;
+  onEdit: () => void;
+  children: React.ReactNode;
+}
+
+const StepSummary = ({
+  title,
+  isCompleted,
+  onEdit,
+  children,
+}: StepSummaryProps) => (
+  <div className='grid grid-cols-[200px_1fr_100px] items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
+    <div className='space-y-2'>
+      <h3 className='text-l font-medium text-gray-900'>{title}</h3>
+      <div className='flex items-center gap-2'>
+        <CheckSquareIcon />
+        <span className='text-sm font-medium text-green-600'>Ready</span>
+      </div>
+    </div>
+
+    <div className='flex-grow'>{children}</div>
+
+    <div className='text-right'>
+      <button
+        type='button'
+        className='inline-flex items-center gap-2 text-blue-600 hover:text-blue-700'
+        onClick={onEdit}
+      >
+        <EditIcon />
+        <span className='text-sm font-medium'>Edit</span>
+      </button>
+    </div>
+  </div>
+);
+
+interface RequirementItemProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+const RequirementItem = ({
+  icon,
+  title,
+  description,
+}: RequirementItemProps) => (
+  <div className='flex items-center gap-3'>
+    <div className='flex-shrink-0 rounded-full border border-gray-200 p-2 text-gray-900'>
+      {icon}
+    </div>
+    <div>
+      <p className='font-medium text-gray-900'>{title}</p>
+      <p className='text-sm text-gray-600'>{description}</p>
+    </div>
+  </div>
+);
+
+export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
+  const { form } = useCouncilForm();
+  const router = useRouter();
+  const formData = form.getValues();
+
+  const setCurrentStep = (step: string) => {
+    router.push(`/councils/new/${step}?draftId=${draftId}`);
+  };
+
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
+    navigator.clipboard.writeText(url).then(
+      () => {
+        // Could add a toast notification here
+        console.log('URL copied to clipboard');
+      },
+      (err) => {
+        console.error('Could not copy text: ', err);
+      },
+    );
+  };
+
+  return (
+    <div className='mx-auto max-w-4xl'>
+      <div className='relative border-b border-gray-200 pb-6'>
+        <div className='absolute right-0 top-0'>
+          <button
+            type='button'
+            className='inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-gray-50'
+            onClick={handleCopyLink}
+          >
+            <LinkIcon /> Copy link
+          </button>
+        </div>
+        <div className='text-center'>
+          <h2 className='text-3xl font-medium'>Proposed Council</h2>
+          <p className='mt-1'>
+            <span className='text-gray-900'>by</span>{' '}
+            <span className='text-gray-500'>ccarella.eth</span>
+          </p>
+        </div>
+      </div>
+
+      <StepSummary
+        title='Council Details'
+        isCompleted={true}
+        onEdit={() => setCurrentStep('details')}
+      >
+        <div className='space-y-2'>
+          <h4 className='text-base font-bold text-gray-900'>
+            Create a Council
+          </h4>
+          <div className='text-gray-900'>
+            <p className='text-base'>{formData.councilName}</p>
+            <p className='text-base'>by {formData.organizationName}</p>
+            <p className='text-base'>on {formData.chain}</p>
+          </div>
+        </div>
+      </StepSummary>
+
+      <StepSummary
+        title='Signer Threshold'
+        isCompleted={true}
+        onEdit={() => setCurrentStep('threshold')}
+      >
+        <div className='space-y-2'>
+          <h4 className='text-babse font-bold text-gray-900'>
+            {formData.thresholdType === 'ABSOLUTE'
+              ? `Deploy a new ${formData.confirmationsRequired}/${formData.maxMembers} Safe Multisig`
+              : `Deploy a new ${formData.percentageRequired}% Safe Multisig`}
+          </h4>
+          <div className='text-gray-900'>
+            <p className='text-base'>
+              {formData.thresholdType === 'ABSOLUTE'
+                ? `${formData.confirmationsRequired} confirmations required`
+                : `${formData.percentageRequired}% confimations required`}
+            </p>
+            <p className='text-base'>{`From up to ${formData.maxMembers} Council Members`}</p>
+          </div>
+        </div>
+      </StepSummary>
+
+      <StepSummary
+        title='Council Settings'
+        isCompleted={true}
+        onEdit={() => setCurrentStep('onboarding')}
+      >
+        <div className='space-y-2'>
+          <h4 className='text-base font-bold text-gray-900'>
+            {`${Object.values(formData.requirements).filter(Boolean).length + 1} requirements for Council Members`}
+          </h4>
+          <div className='space-y-4'>
+            <RequirementItem
+              icon={<GetAppointedIcon />}
+              title='Get Appointed'
+              description='Selected to be on the council'
+            />
+            {formData.requirements.passCompliance && (
+              <RequirementItem
+                icon={<ComplianceCheckIcon />}
+                title='Pass Compliance Checks'
+                description='Passed the compliance check'
+              />
+            )}
+            {formData.requirements.signAgreement && (
+              <RequirementItem
+                icon={<SignAgreementIcon />}
+                title='Sign Agreement'
+                description='Signed and abides agreement'
+              />
+            )}
+          </div>
+        </div>
+      </StepSummary>
+    </div>
+  );
+};
