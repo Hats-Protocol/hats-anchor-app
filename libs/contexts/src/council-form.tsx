@@ -1,7 +1,13 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useEffect } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import {
   chainIdToString,
@@ -50,11 +56,11 @@ interface CouncilFormResponse {
     councilName: string | null;
     chain: number | null;
     councilDescription: string | null;
-    thresholdType: 'ABSOLUTE' | 'RELATIVE';
-    thresholdTarget: number;
-    thresholdMin: number;
-    maxCouncilMembers: number;
-    membersSelectionType: 'ALLOWLIST' | 'ELECTION';
+    thresholdType: 'ABSOLUTE' | 'RELATIVE' | null;
+    thresholdTarget: number | null;
+    thresholdMin: number | null;
+    maxCouncilMembers: number | null;
+    membersSelectionType: 'ALLOWLIST' | 'ELECTION' | null;
     members: Array<{
       id: string;
       address: string;
@@ -87,15 +93,94 @@ interface UpdateCouncilFormResponse {
   updateCouncilCreationForm: CouncilFormResponse['councilCreationForm'];
 }
 
+export interface StepValidation {
+  details: boolean;
+  threshold: boolean;
+  onboarding: boolean;
+  selection: boolean;
+  selectionSubSteps: {
+    members: boolean;
+    management: boolean;
+    compliance: boolean;
+    agreement: boolean;
+    tokens: boolean;
+  };
+  payment: boolean;
+}
+
 interface CouncilFormContextType {
   form: UseFormReturn<CouncilFormData>;
   isLoading: boolean;
-  persistForm: () => Promise<unknown>;
+  persistForm: (step: string) => Promise<unknown>;
+  stepValidation: StepValidation;
+  setStepValidation: (step: keyof StepValidation, isValid: boolean) => void;
 }
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(
   undefined,
 );
+
+const computeStepValidation = (
+  data: CouncilFormResponse['councilCreationForm'],
+): StepValidation => {
+  return {
+    details: !!(
+      data.organizationName &&
+      data.organizationName !== '' &&
+      data.councilName &&
+      data.councilName !== '' &&
+      data.chain !== null
+    ),
+    threshold: !!(
+      data.maxCouncilMembers &&
+      data.maxCouncilMembers > 0 &&
+      data.thresholdType &&
+      data.thresholdTarget &&
+      data.thresholdTarget > 0
+    ),
+    onboarding: !!data.membersSelectionType,
+    selection: false, // Main step validity will be computed from sub-steps
+    selectionSubSteps: {
+      members: !!data.members,
+      management: !!(data.admins && data.admins.length > 0),
+      compliance: data.createComplianceAdminRole !== null,
+      agreement: true, // Default valid
+      tokens: true, // Default valid
+    },
+    payment: false,
+  };
+};
+
+// Add these types
+interface DetailsStepData {
+  organizationName: string;
+  councilName: string;
+  chain: number;
+  councilDescription?: string;
+}
+
+interface ThresholdStepData {
+  thresholdType: 'ABSOLUTE' | 'RELATIVE';
+  maxCouncilMembers: number;
+  thresholdTarget: number;
+  thresholdMin: number;
+}
+
+interface OnboardingStepData {
+  membersSelectionType: 'ALLOWLIST' | 'ELECTION';
+  memberRequirements: {
+    signAgreement: boolean;
+    holdTokens: boolean;
+    passCompliance: boolean;
+  };
+}
+
+interface SelectionStepData {
+  members: CouncilMember[];
+  admins: CouncilMember[];
+  complianceAdmins: CouncilMember[];
+  createComplianceAdminRole: boolean;
+}
 
 export function CouncilFormProvider({
   children,
@@ -128,14 +213,37 @@ export function CouncilFormProvider({
     },
   });
 
+  const [stepValidation, setStepValidationState] = useState<StepValidation>({
+    details: false,
+    threshold: false,
+    onboarding: false,
+    selection: false,
+    selectionSubSteps: {
+      members: false,
+      management: false,
+      compliance: false,
+      agreement: true,
+      tokens: true,
+    },
+    payment: false,
+  });
+
+  const setStepValidation = useCallback(
+    (step: keyof StepValidation, isValid: boolean) => {
+      setStepValidationState((prev) => ({
+        ...prev,
+        [step]: isValid,
+      }));
+    },
+    [],
+  );
+
   const { isLoading, data } = useQuery({
     queryKey: ['councilForm', draftId],
     queryFn: async () => {
       const result = await councilsGraphqlClient.request<CouncilFormResponse>(
         GET_COUNCIL_FORM,
-        {
-          id: draftId,
-        },
+        { id: draftId },
       );
       return result.councilCreationForm;
     },
@@ -158,13 +266,11 @@ export function CouncilFormProvider({
         councilName: data.councilName || '',
         chain: chainIdToString(data.chain) || '',
         councilDescription: data.councilDescription || '',
-        thresholdType: data.thresholdType,
-        confirmationsRequired:
-          data.thresholdType === 'ABSOLUTE' ? data.thresholdTarget : 4,
-        percentageRequired:
-          data.thresholdType === 'RELATIVE' ? data.thresholdTarget : 51,
-        minConfirmations: data.thresholdMin,
-        maxMembers: data.maxCouncilMembers,
+        thresholdType: data.thresholdType || 'ABSOLUTE',
+        confirmationsRequired: data.thresholdTarget || 4,
+        percentageRequired: data.thresholdTarget || 51,
+        minConfirmations: data.thresholdMin || 2,
+        maxMembers: data.maxCouncilMembers || 7,
         membershipType:
           data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
         requirements: data.memberRequirements || {
@@ -181,41 +287,67 @@ export function CouncilFormProvider({
       };
       console.log('Setting form to:', newValues);
       form.reset(newValues);
+
+      // Compute validation state here
+      const validation = computeStepValidation(data);
+      setStepValidationState(validation);
     }
   }, [data, form]);
 
   const queryClient = useQueryClient();
 
   const { mutateAsync: persistForm } = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (step: string) => {
       const formData = form.getValues();
-      console.log('Persisting form data:', formData);
-      const payload = {
-        id: draftId,
-        organizationName: formData.organizationName,
-        councilName: formData.councilName,
-        councilDescription: formData.councilDescription,
-        chain: chainStringToId(formData.chain),
-        thresholdType: formData.thresholdType,
-        maxCouncilMembers: parseInt(formData.maxMembers.toString()),
-        thresholdTarget:
-          formData.thresholdType === 'ABSOLUTE'
-            ? parseInt(formData.confirmationsRequired.toString())
-            : parseInt(formData.percentageRequired.toString()),
-        thresholdMin:
-          formData.thresholdType === 'ABSOLUTE'
-            ? parseInt(formData.confirmationsRequired.toString())
-            : parseInt(formData.minConfirmations.toString()),
-        membersSelectionType:
-          formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
-        members: formData.members,
-        admins: formData.admins,
-        complianceAdmins: formData.complianceAdmins,
-        createComplianceAdminRole:
-          formData.createComplianceAdminRole === 'true',
-        memberRequirements: formData.requirements,
-        agreement: formData.requirements.signAgreement ? '' : undefined,
-      };
+      let payload: any = { id: draftId };
+
+      switch (step) {
+        case 'details':
+          payload = {
+            ...payload,
+            organizationName: formData.organizationName,
+            councilName: formData.councilName,
+            chain: chainStringToId(formData.chain),
+            councilDescription: formData.councilDescription,
+          };
+          break;
+
+        case 'threshold':
+          payload = {
+            ...payload,
+            thresholdType: formData.thresholdType,
+            maxCouncilMembers: parseInt(formData.maxMembers.toString()),
+            thresholdTarget:
+              formData.thresholdType === 'ABSOLUTE'
+                ? parseInt(formData.confirmationsRequired.toString())
+                : parseInt(formData.percentageRequired.toString()),
+            thresholdMin:
+              formData.thresholdType === 'ABSOLUTE'
+                ? parseInt(formData.confirmationsRequired.toString())
+                : parseInt(formData.minConfirmations.toString()),
+          };
+          break;
+
+        case 'onboarding':
+          payload = {
+            ...payload,
+            membersSelectionType:
+              formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
+            memberRequirements: formData.requirements,
+          };
+          break;
+
+        case 'selection':
+          payload = {
+            ...payload,
+            members: formData.members,
+            admins: formData.admins,
+            complianceAdmins: formData.complianceAdmins,
+            createComplianceAdminRole:
+              formData.createComplianceAdminRole === 'true',
+          };
+          break;
+      }
 
       return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(
         UPDATE_COUNCIL_FORM,
@@ -236,6 +368,8 @@ export function CouncilFormProvider({
         form,
         isLoading,
         persistForm,
+        stepValidation,
+        setStepValidation,
       }}
     >
       {children}

@@ -1,10 +1,10 @@
 'use client';
 
-import { useCouncilForm } from 'contexts';
+import { StepValidation, useCouncilForm } from 'contexts';
 import Link from 'next/link';
 
 interface Step {
-  id: string;
+  id: keyof StepValidation;
   label: string;
   sublabel?: string;
   subSteps?: Array<{ id: string; label: string }>;
@@ -85,27 +85,47 @@ interface CreationFormStepsProps {
 function getSubStepStatus(
   subStepId: string,
   currentSubStep: string | undefined,
-  requirements: {
-    signAgreement: boolean;
-    passCompliance: boolean;
-    holdTokens: boolean;
-  },
+  stepValidation: StepValidation,
 ) {
-  const order = [
+  const isValid =
+    stepValidation.selectionSubSteps[
+      subStepId as keyof typeof stepValidation.selectionSubSteps
+    ];
+  if (isValid) {
+    return 'completed';
+  }
+  return subStepId === currentSubStep ? 'current' : 'upcoming';
+}
+
+function isSelectionStepValid(
+  stepValidation: StepValidation,
+  requirements: any,
+) {
+  const activeSubSteps = [
     'members',
     'management',
-    ...(requirements.signAgreement ? ['agreement'] : []),
-    ...(requirements.holdTokens ? ['tokens'] : []),
-    ...(requirements.passCompliance ? ['compliance'] : []),
+    ...(requirements?.signAgreement ? ['agreement'] : []),
+    ...(requirements?.holdTokens ? ['tokens'] : []),
+    ...(requirements?.passCompliance ? ['compliance'] : []),
   ];
-  const currentIndex = order.indexOf(currentSubStep || '');
-  const stepIndex = order.indexOf(subStepId);
 
-  return stepIndex < currentIndex
-    ? 'completed'
-    : stepIndex === currentIndex
-      ? 'current'
-      : 'upcoming';
+  return activeSubSteps.every(
+    (subStep) =>
+      stepValidation.selectionSubSteps[
+        subStep as keyof typeof stepValidation.selectionSubSteps
+      ],
+  );
+}
+
+function getStepValidation(
+  step: Step,
+  stepValidation: StepValidation,
+  requirements: any,
+) {
+  if (step.id === 'selection') {
+    return isSelectionStepValid(stepValidation, requirements);
+  }
+  return stepValidation[step.id];
 }
 
 export function CreationFormSteps({
@@ -113,7 +133,7 @@ export function CreationFormSteps({
   currentSubStep,
   draftId,
 }: CreationFormStepsProps) {
-  const { form } = useCouncilForm();
+  const { form, stepValidation } = useCouncilForm();
   const requirements = form.watch('requirements');
 
   const STEPS = [...BASE_STEPS];
@@ -152,7 +172,7 @@ export function CreationFormSteps({
                 {/* Main step circle */}
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                    index < currentStepIndex
+                    getStepValidation(step, stepValidation, requirements)
                       ? 'bg-white'
                       : 'border-2 ' +
                         (index === currentStepIndex
@@ -160,7 +180,7 @@ export function CreationFormSteps({
                           : 'border-gray-200 bg-white')
                   } `}
                 >
-                  {index < currentStepIndex ? (
+                  {getStepValidation(step, stepValidation, requirements) ? (
                     <svg
                       width='44'
                       height='44'
@@ -188,7 +208,9 @@ export function CreationFormSteps({
                   currentStep === 'selection') ? null : (
                   <div
                     className={`my-3 h-12 w-[2px] ${
-                      index < currentStepIndex ? 'bg-blue-500' : 'bg-gray-200'
+                      getStepValidation(step, stepValidation, requirements)
+                        ? 'bg-blue-500'
+                        : 'bg-gray-200'
                     }`}
                   />
                 )}
@@ -211,14 +233,11 @@ export function CreationFormSteps({
             step.subSteps && (
               <div className='my-3 ml-[23px]'>
                 {step.subSteps.map((subStep, subIndex) => {
-                  const isCompleted =
-                    getSubStepStatus(
-                      subStep.id,
-                      currentSubStep,
-                      form.watch('requirements'),
-                    ) === 'completed';
-                  const isCurrent = subStep.id === currentSubStep;
-
+                  const status = getSubStepStatus(
+                    subStep.id,
+                    currentSubStep,
+                    stepValidation,
+                  );
                   return (
                     <Link
                       key={subStep.id}
@@ -226,19 +245,19 @@ export function CreationFormSteps({
                     >
                       <div
                         className={`flex items-center gap-3 border-l-[2px] ${
-                          isCompleted
+                          status === 'completed'
                             ? 'border-l-blue-500'
                             : 'border-l-gray-200'
                         }`}
                       >
                         <div
                           className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
-                            isCurrent
+                            status === 'current'
                               ? 'border border-blue-500 bg-blue-100'
                               : 'border border-gray-200 bg-white'
                           }`}
                         >
-                          {isCompleted ? (
+                          {status === 'completed' ? (
                             <svg
                               width='44'
                               height='44'

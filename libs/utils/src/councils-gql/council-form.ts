@@ -1,14 +1,8 @@
 import { gql } from 'graphql-request';
 
-export const CREATE_INITIAL_FORM = gql`
+export const CREATE_INITIAL_FORM = `
   mutation CreateInitialForm {
-    createCouncilCreationForm(
-      thresholdType: ABSOLUTE
-      maxCouncilMembers: 7
-      thresholdTarget: 4
-      thresholdMin: 2
-      membersSelectionType: ALLOWLIST
-    ) {
+    createCouncilCreationForm {
       id
     }
   }
@@ -29,8 +23,8 @@ export const UPDATE_COUNCIL_FORM = gql`
     $members: [UserInput!]
     $admins: [UserInput!]
     $complianceAdmins: [UserInput!]
-    $createComplianceAdminRole: Boolean!
-    $memberRequirements: MemberRequirementsInput!
+    $createComplianceAdminRole: Boolean
+    $memberRequirements: MemberRequirementsInput
     $agreement: String
   ) {
     updateCouncilCreationForm(

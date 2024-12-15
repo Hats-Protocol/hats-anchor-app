@@ -1,6 +1,6 @@
 'use client';
 
-import { useCouncilForm } from 'contexts';
+import { StepValidation, useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 
 import { DetailsStep } from './details-step';
@@ -23,12 +23,12 @@ export function CouncilCreateForm({
   draftId,
 }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { persistForm, form } = useCouncilForm();
+  const { persistForm, form, setStepValidation } = useCouncilForm();
 
   const handleNext = async () => {
-    console.log('form', form.getValues());
     try {
-      await persistForm();
+      await persistForm(step);
+      setStepValidation(step as keyof StepValidation, true);
 
       if (step === 'selection') {
         const requirements = form.getValues('requirements');
@@ -70,6 +70,7 @@ export function CouncilCreateForm({
       }
     } catch (error) {
       console.error('Failed to save form data:', error);
+      setStepValidation(step as keyof StepValidation, false);
     }
   };
 
