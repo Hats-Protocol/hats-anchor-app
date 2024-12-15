@@ -28,6 +28,8 @@ export const UPDATE_COUNCIL_FORM = gql`
     $thresholdMin: Int
     $members: [UserInput!]
     $admins: [UserInput!]
+    $complianceAdmins: [UserInput!]
+    $createComplianceAdminRole: Boolean!
     $memberRequirements: MemberRequirementsInput!
     $agreement: String
   ) {
@@ -44,6 +46,8 @@ export const UPDATE_COUNCIL_FORM = gql`
       thresholdMin: $thresholdMin
       members: $members
       admins: $admins
+      complianceAdmins: $complianceAdmins
+      createComplianceAdminRole: $createComplianceAdminRole
       memberRequirements: $memberRequirements
       agreement: $agreement
     ) {
@@ -69,6 +73,13 @@ export const UPDATE_COUNCIL_FORM = gql`
         email
         name
       }
+      complianceAdmins {
+        id
+        address
+        email
+        name
+      }
+      createComplianceAdminRole
       memberRequirements {
         signAgreement
         holdTokens
@@ -104,6 +115,13 @@ export const GET_COUNCIL_FORM = gql`
         email
         name
       }
+      complianceAdmins {
+        id
+        address
+        email
+        name
+      }
+      createComplianceAdminRole
       memberRequirements {
         signAgreement
         holdTokens

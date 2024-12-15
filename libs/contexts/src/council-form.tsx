@@ -40,6 +40,8 @@ export interface CouncilFormData {
   // step 4
   members: CouncilMember[];
   admins: CouncilMember[];
+  complianceAdmins: CouncilMember[];
+  createComplianceAdminRole: 'true' | 'false';
 }
 
 interface CouncilFormResponse {
@@ -65,6 +67,13 @@ interface CouncilFormResponse {
       email: string;
       name?: string;
     }>;
+    complianceAdmins: Array<{
+      id: string;
+      address: string;
+      email: string;
+      name?: string;
+    }>;
+    createComplianceAdminRole: boolean;
     memberRequirements: {
       signAgreement: boolean;
       holdTokens: boolean;
@@ -114,6 +123,8 @@ export function CouncilFormProvider({
       },
       members: [],
       admins: [],
+      complianceAdmins: [],
+      createComplianceAdminRole: 'false',
     },
   });
 
@@ -163,6 +174,10 @@ export function CouncilFormProvider({
         },
         members: data.members || [],
         admins: data.admins || [],
+        complianceAdmins: data.complianceAdmins || [],
+        createComplianceAdminRole: data.createComplianceAdminRole
+          ? 'true'
+          : 'false',
       };
       console.log('Setting form to:', newValues);
       form.reset(newValues);
@@ -195,6 +210,9 @@ export function CouncilFormProvider({
           formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
         members: formData.members,
         admins: formData.admins,
+        complianceAdmins: formData.complianceAdmins,
+        createComplianceAdminRole:
+          formData.createComplianceAdminRole === 'true',
         memberRequirements: formData.requirements,
         agreement: formData.requirements.signAgreement ? '' : undefined,
       };
