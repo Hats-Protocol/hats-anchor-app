@@ -91,6 +91,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     encodedMutableArgs,
     hatId,
     claimabilityType,
+    // Nonce,
   ];
 };
 

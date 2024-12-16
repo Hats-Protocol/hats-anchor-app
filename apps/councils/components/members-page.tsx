@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, Icon } from '@chakra-ui/react';
+import { Button, Checkbox, Icon } from '@chakra-ui/react';
 import { useCouncilDetails } from 'hooks';
 import { filter, first, get, map, split, toLower } from 'lodash';
 import { useAllowlist, useEligibilityRules } from 'modules-hooks';
@@ -9,6 +9,10 @@ import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
+
+// TODO hardcode
+const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
+const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
 const MembersPage = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
@@ -23,8 +27,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
       address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
       chainId: (chainId ?? 11155111) as SupportedChains,
     });
-  const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
-  const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
+  // TODO fetch module labels
 
   const { data: allowlist } = useAllowlist({
     id: selectionModule,
@@ -48,7 +51,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div>
+    <div className='flex flex-col'>
       <div className='flex h-12 items-center justify-between border-b border-t border-gray-200'>
         <div className='flex items-center'>
           <div className='w-12' />
@@ -124,6 +127,10 @@ const MembersPage = ({ slug }: { slug: string }) => {
           </div>
         </div>
       ))}
+
+      <div className='flex pt-8'>
+        <Button variant='outline'>Update Members</Button>
+      </div>
     </div>
   );
 };

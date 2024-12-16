@@ -24,14 +24,6 @@ export const AllowlistEligibilityRule = ({
   moduleDetails,
   moduleParameters,
 }: ModuleDetailsHandler) => {
-  // TODO subgraph will need to index these allowlists specifically, to show the actual lists
-  console.log(
-    'moduleDetails',
-    moduleDetails,
-    'moduleParameters',
-    moduleParameters,
-  );
-
   const { setModals } = useOverlay();
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
@@ -41,7 +33,7 @@ export const AllowlistEligibilityRule = ({
   });
 
   const { data: allowlist } = useAllowlist({
-    id: moduleDetails?.id,
+    id: moduleDetails?.instanceAddress,
     chainId: chainId as SupportedChains,
   });
   const isIncludedInAllowlist = includes(
@@ -59,17 +51,14 @@ export const AllowlistEligibilityRule = ({
     posthog.isFeatureEnabled('eligibility-modal') ||
     process.env.NODE_ENV === 'development';
 
-  if (!selectedHat || !moduleDetails?.id) return null;
+  if (!selectedHat || !moduleDetails?.instanceAddress) return null;
 
   if (isEligible) {
     return (
       <>
         <AllowlistModal
           eligibilityHatId={selectedHat?.id}
-          moduleInfo={{
-            ...moduleDetails,
-            liveParameters: moduleParameters,
-          }}
+          moduleInfo={moduleDetails}
         />
 
         <EligibilityRuleDetails
@@ -78,7 +67,12 @@ export const AllowlistEligibilityRule = ({
               Be on the{' '}
               {eligibilityModalFlag ? (
                 <Button
-                  onClick={() => setModals?.({ allowlistManager: true })}
+                  onClick={() =>
+                    setModals?.({
+                      [`${moduleDetails.instanceAddress}-allowlistManager`]:
+                        true,
+                    })
+                  }
                   variant='link'
                 >
                   Allowlist
@@ -112,7 +106,11 @@ export const AllowlistEligibilityRule = ({
             Be on the{' '}
             {eligibilityModalFlag ? (
               <Button
-                onClick={() => setModals?.({ allowlistManager: true })}
+                onClick={() =>
+                  setModals?.({
+                    [`${moduleDetails.instanceAddress}-allowlistManager`]: true,
+                  })
+                }
                 variant='link'
                 textDecoration='underline'
               >

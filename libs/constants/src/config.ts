@@ -9,16 +9,16 @@ const TELEGRAM_KEY = 'VFBDI1RFTCNDT01NIy0xMDAxODUxMjg4MjQy';
 const COMMUNITY_HAT_ID = hatIdDecimalToHex(hatIdIpToDecimal('1.2.1.1'));
 
 export const TERMS = {
-  hat: 'hat',
-  hats: 'hats',
+  hat: 'role',
+  hats: 'roles',
   tree: 'tree',
   trees: 'trees',
   responsibility: 'responsibility',
   responsibilities: 'responsibilities',
   authority: 'authority',
   authorities: 'authorities',
-  permission: 'permission',
-  permissions: 'permissions',
+  // permission: 'permission',
+  // permissions: 'permissions',
   eligibility: 'eligibility',
   eligibilities: 'eligibilities',
   toggle: 'toggle',
@@ -38,7 +38,8 @@ export const CONFIG: Config = {
   banner: false,
   // modules
   modules: {
-    factory: '0x0a3f85fa597B6a967271286aA0724811acDF5CD9',
+    factory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
+    // factory: '0x0a3f85fa597B6a967271286aA0724811acDF5CD9', // new factory
     claimsHatter: 'Multi Claims Hatter', // move to implementation address
   },
   // Hats Protocol Community Hat Agreement v0
@@ -102,15 +103,16 @@ type Config = {
   };
 
   TERMS: {
-    // terminology
+    // general terminology
     hat: string;
     hats: string;
     tree: string;
     trees: string;
-    authority: string;
-    authorities: string;
+    // hat details
     responsibility: string;
     responsibilities: string;
+    authority: string;
+    authorities: string;
     eligibility: string;
     eligibilities: string;
     toggle: string;

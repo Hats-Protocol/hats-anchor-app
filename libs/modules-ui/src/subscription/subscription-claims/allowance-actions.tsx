@@ -22,6 +22,7 @@ import dynamic from 'next/dynamic';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { BsArrowUpRightCircle } from 'react-icons/bs';
+import { ModuleDetails } from 'types';
 import { getDuration, tokenImageHandler } from 'utils';
 import { erc20Abi, formatUnits, maxUint256 } from 'viem';
 import { useAccount, useChainId, useWriteContract } from 'wagmi';
@@ -39,13 +40,15 @@ const NetworkSwitcher = dynamic(() =>
 const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 
 export const AllowanceActions = ({
+  moduleDetails,
   moduleParameters,
   activeSubscription,
 }: {
-  moduleParameters: ModuleParameter[];
+  moduleDetails: ModuleDetails;
+  moduleParameters: ModuleParameter[] | undefined;
   activeSubscription: boolean;
 }) => {
-  const { chainId, setIsEligible: setIsReadyToClaim } = useEligibility();
+  const { chainId, setIsReadyToClaim } = useEligibility();
   const currentChainId = useChainId();
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -204,8 +207,9 @@ export const AllowanceActions = ({
                   return writeContractAsync(approvalParams);
                 }}
                 afterSuccess={() => {
+                  if (!moduleDetails?.instanceAddress) return;
                   // refetchAllowance()
-                  setIsReadyToClaim(true);
+                  setIsReadyToClaim(moduleDetails.instanceAddress);
                   setModals?.({});
                   queryClient.invalidateQueries({
                     queryKey: ['readContracts'],

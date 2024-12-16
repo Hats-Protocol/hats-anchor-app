@@ -322,7 +322,7 @@ const useModuleDeploy = ({
 
           return deployModuleWithClaimsHatter({
             selectedModuleDetails,
-            claimsHatterId: claimsHatterModule?.id,
+            claimsHatterId: claimsHatterModule?.id as Hex,
             selectedHat,
             address: address as Hex,
             values,

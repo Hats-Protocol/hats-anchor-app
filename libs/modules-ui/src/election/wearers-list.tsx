@@ -3,10 +3,11 @@
 import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useEligibility, useOverlay } from 'contexts';
 import _ from 'lodash';
-import { useHatClaimBy } from 'modules-hooks';
+import { useAncillaryElection, useHatClaimBy } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
+import { SupportedChains } from 'types';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
@@ -63,15 +64,20 @@ const WearerCard = ({ account }: { account: Hex }) => {
 };
 
 export const WearersList = () => {
-  const { electionsAuthority } = useEligibility();
+  const { chainId, activeRule } = useEligibility();
+  const { data: electionsAuthority } = useAncillaryElection({
+    chainId: chainId as SupportedChains,
+    id: activeRule?.address,
+  });
 
-  const electedAccounts = useMemo(() => {
-    if (!electionsAuthority?.currentTerm) return [];
-    const uniqueElectedAccounts = _.uniq(
-      electionsAuthority.currentTerm.electedAccounts,
-    );
-    return uniqueElectedAccounts;
-  }, [electionsAuthority.currentTerm]);
+  const electedAccounts: any[] = [];
+  // const electedAccounts = useMemo(() => {
+  //   if (!electionsAuthority?.currentTerm) return [];
+  //   const uniqueElectedAccounts = _.uniq(
+  //     electionsAuthority.currentTerm.electedAccounts,
+  //   );
+  //   return uniqueElectedAccounts;
+  // }, [electionsAuthority.currentTerm]);
 
   return (
     <Stack spacing={4}>

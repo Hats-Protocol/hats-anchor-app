@@ -12,7 +12,7 @@ import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload } from 'react-icons/bs';
 import { FiExternalLink } from 'react-icons/fi';
-import { fetchIpfs, hatLink } from 'utils';
+import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
@@ -36,18 +36,21 @@ export const ClaimsHelperButtons = ({
   const {
     selectedHat,
     chainId,
-    moduleDetails,
-    moduleParameters,
+    activeRule,
     isHatDetailsLoading,
-    isModuleDetailsLoading,
+    isEligibilityRulesLoading,
   } = useEligibility();
   const link = hatLink({ hatId: selectedHat?.id, chainId });
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+  // TODO use last rule to complete rather than active rule
 
   const hasAgreement =
     selectedHat?.id === CONFIG.agreementV0.communityHatId ||
     moduleDetails?.name === ELIGIBILITY_MODULES.agreement;
 
-  const { agreement } = useAgreementClaim({ moduleParameters });
+  const { agreement } = useAgreementClaim({
+    moduleParameters: moduleDetails?.liveParameters,
+  });
 
   const { data: agreementV0 } = useQuery({
     queryKey: ['agreementV0'],
@@ -75,7 +78,7 @@ export const ClaimsHelperButtons = ({
   }, [agreement, agreementV0]);
 
   return (
-    <Skeleton isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}>
+    <Skeleton isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
       <HStack flexDir={stackVertically ? 'column' : 'row'}>
         <ChakraNextLink href={link} isExternal>
           <Button

@@ -3,17 +3,21 @@
 import { Heading, Stack } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
-import _ from 'lodash';
-import { parsedSeconds } from 'utils';
+import { find, get } from 'lodash';
+import { eligibilityRuleToModuleDetails, parsedSeconds } from 'utils';
 
 import { DateInfo } from './date-info';
 
 export const CurrentSeason = () => {
-  const { moduleParameters } = useEligibility();
+  const { activeRule } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
 
-  const currentTermEnd: ModuleParameter | undefined = _.find(moduleParameters, {
-    label: 'Current Term End',
-  });
+  const currentTermEnd: ModuleParameter | undefined = find(
+    get(moduleDetails, 'liveParameters'),
+    {
+      label: 'Current Term End',
+    },
+  );
 
   const date = parsedSeconds(currentTermEnd?.value as bigint);
 

@@ -29,9 +29,9 @@ export type ModuleCreationArgs = {
 };
 
 export interface ModuleDetails extends Module {
-  id: Hex;
-  // customRoles: ModuleRole[];
+  // id: Hex; // was added to registry and SDK migrate module address to `instanceAddress`
   liveParameters: ModuleParameter[] | undefined;
+  instanceAddress?: Hex;
 }
 
 export type ModuleDetailsComponent = (
@@ -53,4 +53,10 @@ export interface ModuleFunction extends WriteFunction {
   isCustom?: boolean;
   onClick: (args?: unknown) => void;
   icon?: ReactNode;
+}
+
+export interface EligibilityRule {
+  module: Module;
+  address: `0x${string}`;
+  liveParams?: ModuleParameter[] | undefined;
 }

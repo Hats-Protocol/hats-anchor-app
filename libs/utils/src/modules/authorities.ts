@@ -1,6 +1,7 @@
 import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
-import { concat, flatten } from 'lodash';
+import { concat, find, flatten, keys } from 'lodash';
 import { Authority } from 'types';
+import { Hex } from 'viem';
 
 export const getCustomModuleFunction = (authority: Authority | undefined) => {
   const customImplementationAddresses = flatten(
@@ -21,4 +22,13 @@ export const getCustomModuleFunction = (authority: Authority | undefined) => {
   }
 
   return authority;
+};
+
+export const getKnownEligibilityModule = (implementationAddress: Hex) => {
+  const knownModuleKeys = keys(KNOWN_ELIGIBILITY_MODULES);
+  const knownModuleKey = find(knownModuleKeys, (key) =>
+    KNOWN_ELIGIBILITY_MODULES[key].includes(implementationAddress),
+  );
+
+  return knownModuleKey;
 };
