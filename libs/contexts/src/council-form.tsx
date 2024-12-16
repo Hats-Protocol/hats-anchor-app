@@ -111,7 +111,7 @@ export interface StepValidation {
 interface CouncilFormContextType {
   form: UseFormReturn<CouncilFormData>;
   isLoading: boolean;
-  persistForm: (step: string) => Promise<unknown>;
+  persistForm: (step: string, subStep?: string) => Promise<unknown>;
   stepValidation: StepValidation;
   setStepValidation: (step: keyof StepValidation, isValid: boolean) => void;
 }
@@ -296,8 +296,12 @@ export function CouncilFormProvider({
 
   const queryClient = useQueryClient();
 
-  const { mutateAsync: persistForm } = useMutation({
-    mutationFn: async (step: string) => {
+  const { mutateAsync: persistForm } = useMutation<
+    UpdateCouncilFormResponse,
+    Error,
+    { step: string; subStep?: string }
+  >({
+    mutationFn: async ({ step, subStep }) => {
       const formData = form.getValues();
       let payload: any = { id: draftId };
 
@@ -338,14 +342,29 @@ export function CouncilFormProvider({
           break;
 
         case 'selection':
-          payload = {
-            ...payload,
-            members: formData.members,
-            admins: formData.admins,
-            complianceAdmins: formData.complianceAdmins,
-            createComplianceAdminRole:
-              formData.createComplianceAdminRole === 'true',
-          };
+          switch (subStep) {
+            case 'members':
+              payload = {
+                ...payload,
+                members: formData.members,
+              };
+              break;
+            case 'management':
+              payload = {
+                ...payload,
+                admins: formData.admins,
+              };
+              break;
+            case 'compliance':
+              payload = {
+                ...payload,
+                complianceAdmins: formData.complianceAdmins,
+                createComplianceAdminRole:
+                  formData.createComplianceAdminRole === 'true',
+              };
+              break;
+            // agreement and tokens cases will be added when implemented
+          }
           break;
       }
 
@@ -367,7 +386,8 @@ export function CouncilFormProvider({
       value={{
         form,
         isLoading,
-        persistForm,
+        persistForm: (step: string, subStep?: string) =>
+          persistForm({ step, subStep }),
         stepValidation,
         setStepValidation,
       }}

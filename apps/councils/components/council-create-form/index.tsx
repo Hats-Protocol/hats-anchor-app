@@ -27,7 +27,7 @@ export function CouncilCreateForm({
 
   const handleNext = async () => {
     try {
-      await persistForm(step);
+      await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
 
       if (step === 'selection') {
