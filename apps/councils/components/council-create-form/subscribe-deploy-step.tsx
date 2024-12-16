@@ -5,11 +5,11 @@ import { useEnsName } from 'wagmi';
 
 import { CheckSquareIcon } from '../icons/check-square-icon';
 import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
-import { DocumentIcon } from '../icons/document-icon';
 import { EditIcon } from '../icons/edit-icon';
 import { GetAppointedIcon } from '../icons/get-appointed-icon';
 import { LinkIcon } from '../icons/link-icon';
 import { SignAgreementIcon } from '../icons/sign-agreement-icon';
+import { XSquareIcon } from '../icons/x-square-icon';
 
 interface StepSummaryProps {
   title: string;
@@ -28,8 +28,17 @@ const StepSummary = ({
     <div className='space-y-2'>
       <h3 className='text-l font-medium text-gray-900'>{title}</h3>
       <div className='flex items-center gap-2'>
-        <CheckSquareIcon />
-        <span className='text-sm font-medium text-green-600'>Ready</span>
+        {isCompleted ? (
+          <>
+            <CheckSquareIcon />
+            <span className='text-sm font-medium text-green-600'>Ready</span>
+          </>
+        ) : (
+          <>
+            <XSquareIcon />
+            <span className='text-sm font-medium text-red-600'>Incomplete</span>
+          </>
+        )}
       </div>
     </div>
 
@@ -115,9 +124,9 @@ const MemberItem = ({
 };
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form } = useCouncilForm();
-  const router = useRouter();
+  const { form, stepValidation } = useCouncilForm();
   const formData = form.getValues();
+  const router = useRouter();
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -139,6 +148,24 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       (err) => {
         console.error('Could not copy text: ', err);
       },
+    );
+  };
+
+  // Helper function to determine if selection step is valid
+  const isSelectionStepValid = () => {
+    const activeSubSteps = [
+      'members',
+      'management',
+      ...(formData.requirements?.signAgreement ? ['agreement'] : []),
+      ...(formData.requirements?.holdTokens ? ['tokens'] : []),
+      ...(formData.requirements?.passCompliance ? ['compliance'] : []),
+    ];
+
+    return activeSubSteps.every(
+      (subStep) =>
+        stepValidation.selectionSubSteps[
+          subStep as keyof typeof stepValidation.selectionSubSteps
+        ],
     );
   };
 
@@ -165,7 +192,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
 
       <StepSummary
         title='Council Details'
-        isCompleted={true}
+        isCompleted={stepValidation.details}
         onEdit={() => setCurrentStep('details')}
       >
         <div className='space-y-2'>
@@ -182,7 +209,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
 
       <StepSummary
         title='Signer Threshold'
-        isCompleted={true}
+        isCompleted={stepValidation.threshold}
         onEdit={() => setCurrentStep('threshold')}
       >
         <div className='space-y-2'>
@@ -204,7 +231,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
 
       <StepSummary
         title='Council Settings'
-        isCompleted={true}
+        isCompleted={stepValidation.onboarding}
         onEdit={() => setCurrentStep('onboarding')}
       >
         <div className='space-y-2'>
@@ -237,7 +264,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
 
       <StepSummary
         title='Council Roles'
-        isCompleted={true}
+        isCompleted={isSelectionStepValid()}
         onEdit={() => setCurrentStep('selection', 'members')}
       >
         <div className='space-y-8'>
@@ -250,6 +277,21 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             description='Can select Council Members and manage the Safe'
             members={formData.admins || []}
           />
+          {formData.requirements.passCompliance && (
+            <RoleSummary
+              title='Compliance Managers'
+              description={
+                formData.createComplianceAdminRole === 'true'
+                  ? 'Conducts compliance checks on Council Members'
+                  : 'Council Managers conduct compliance checks'
+              }
+              members={
+                formData.createComplianceAdminRole === 'true'
+                  ? formData.complianceAdmins || []
+                  : formData.admins || []
+              }
+            />
+          )}
         </div>
       </StepSummary>
     </div>
