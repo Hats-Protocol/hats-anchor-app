@@ -10,6 +10,7 @@ import { SelectionManagementStep } from './selection-step/management-step';
 import { SelectionMembersStep } from './selection-step/members-step';
 import { SubscribeDeployStep } from './subscribe-deploy-step';
 import { ThresholdStep } from './threshold-step';
+import { findNextInvalidStep } from './utils';
 
 interface CouncilCreateFormProps {
   step: string;
@@ -23,50 +24,27 @@ export function CouncilCreateForm({
   draftId,
 }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { persistForm, form, setStepValidation } = useCouncilForm();
+  const { persistForm, form, stepValidation, setStepValidation } =
+    useCouncilForm();
 
   const handleNext = async () => {
     try {
       await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
 
-      if (step === 'selection') {
-        const requirements = form.getValues('requirements');
+      const nextStep = findNextInvalidStep(
+        stepValidation,
+        step,
+        subStep,
+        form.watch('requirements'),
+      );
 
-        // Define the sub-step flow based on requirements
-        const subStepFlow = [
-          'members',
-          'management',
-          ...(requirements.signAgreement ? ['agreement'] : []),
-          ...(requirements.passCompliance ? ['compliance'] : []),
-        ];
-
-        const currentIndex = subStepFlow.indexOf(subStep || 'members');
-        const nextSubStep = subStepFlow[currentIndex + 1];
-
-        if (nextSubStep) {
-          router.push(
-            `/councils/new/selection?subStep=${nextSubStep}&draftId=${draftId}`,
-          );
-        } else {
-          router.push(`/councils/new/payment?draftId=${draftId}`);
-        }
-        return;
-      }
-
-      const nextStepMap = {
-        details: 'threshold',
-        threshold: 'onboarding',
-        onboarding: 'selection',
-      };
-
-      const nextStep = nextStepMap[step as keyof typeof nextStepMap];
-      if (nextStep === 'selection') {
+      if (nextStep.subStep) {
         router.push(
-          `/councils/new/${nextStep}?subStep=members&draftId=${draftId}`,
+          `/councils/new/${nextStep.step}?subStep=${nextStep.subStep}&draftId=${draftId}`,
         );
-      } else if (nextStep) {
-        router.push(`/councils/new/${nextStep}?draftId=${draftId}`);
+      } else {
+        router.push(`/councils/new/${nextStep.step}?draftId=${draftId}`);
       }
     } catch (error) {
       console.error('Failed to save form data:', error);

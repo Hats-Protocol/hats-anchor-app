@@ -1,11 +1,20 @@
 'use client';
-
-import { ChevronRightIcon } from '@chakra-ui/icons';
 import { useCouncilForm } from 'contexts';
 import { NumberInput, RadioBox } from 'forms';
 
+import { NextStepButton } from '../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from './utils';
+
 export function ThresholdStep({ onNext }: { onNext: () => void }) {
-  const { form } = useCouncilForm();
+  const { form, stepValidation } = useCouncilForm();
+  const requirements = form.watch('requirements');
+
+  const nextStep = findNextInvalidStep(
+    stepValidation,
+    'threshold',
+    undefined,
+    requirements,
+  );
 
   const thresholdType = form.watch('thresholdType');
   const percentageRequired = form.watch('percentageRequired');
@@ -128,14 +137,9 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
       </div>
 
       <div className='flex justify-end py-6'>
-        <button
-          type='submit'
-          disabled={!form.formState.isValid}
-          className='flex items-center space-x-2 rounded-md bg-blue-50 px-4 py-2 text-blue-500 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50'
-        >
-          <span>Set up Council Membership</span>
-          <ChevronRightIcon className='h-4 w-4' />
-        </button>
+        <NextStepButton disabled={!form.formState.isValid}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
     </form>
   );

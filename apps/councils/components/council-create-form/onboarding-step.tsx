@@ -1,14 +1,23 @@
 // apps/councils/components/council-create-form/onboarding-step.tsx
 'use client';
-
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Spinner, Stack, Text } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { RadioCard, RequirementBox } from 'forms';
 import { FiFileText, FiShield } from 'react-icons/fi';
 
+import { NextStepButton } from '../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from './utils';
+
 export function OnboardingStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading } = useCouncilForm();
+  const { form, isLoading, stepValidation } = useCouncilForm();
+  const requirements = form.watch('requirements');
+
+  const nextStep = findNextInvalidStep(
+    stepValidation,
+    'onboarding',
+    undefined,
+    requirements,
+  );
 
   if (isLoading) {
     return (
@@ -92,22 +101,11 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
         </Stack>
       </Stack>
 
-      <HStack justify='flex-end' py={6}>
-        <Button
-          type='submit'
-          bg='blue.50'
-          color='blue.500'
-          _hover={{ bg: 'blue.100' }}
-          size='md'
-          rightIcon={<ChevronRightIcon />}
-          isDisabled={!form.formState.isValid}
-          px={4}
-          py={2}
-          borderRadius='md'
-        >
-          Select Members
-        </Button>
-      </HStack>
+      <div className='flex justify-end py-6'>
+        <NextStepButton disabled={!form.formState.isValid}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
+      </div>
     </Stack>
   );
 }

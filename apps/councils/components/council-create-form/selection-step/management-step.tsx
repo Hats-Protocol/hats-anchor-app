@@ -1,18 +1,27 @@
 'use client';
 
-import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 
+import { NextStepButton } from '../../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddAdminModal } from './add-admin-modal';
 import { AdminsList } from './admins-list';
 
 export function SelectionManagementStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading } = useCouncilForm();
+  const { form, isLoading, stepValidation } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const admins = form.watch('admins') || [];
+  const requirements = form.watch('requirements');
+
+  const nextStep = findNextInvalidStep(
+    stepValidation,
+    'selection',
+    'management',
+    requirements,
+  );
 
   if (isLoading) {
     return (
@@ -55,15 +64,10 @@ export function SelectionManagementStep({ onNext }: { onNext: () => void }) {
         </div>
       </div>
 
-      <div className='flex justify-end'>
-        <button
-          type='submit'
-          className='inline-flex items-center rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-500 hover:bg-blue-100 disabled:opacity-50'
-          disabled={!form.formState.isValid}
-        >
-          Configure Agreement
-          <ChevronRightIcon className='ml-1 h-4 w-4' />
-        </button>
+      <div className='flex justify-end py-6'>
+        <NextStepButton disabled={!form.formState.isValid}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
 
       <AddAdminModal

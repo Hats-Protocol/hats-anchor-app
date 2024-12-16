@@ -1,6 +1,5 @@
 'use client';
 
-import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { RadioBox } from 'forms';
@@ -9,6 +8,8 @@ import { FiUserPlus } from 'react-icons/fi';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
+import { NextStepButton } from '../../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddComplianceModal } from './add-compliance-modal';
 import { ComplianceList } from './compliance-list';
 
@@ -20,11 +21,18 @@ interface CouncilMember {
 }
 
 export function SelectionComplianceStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading } = useCouncilForm();
+  const { form, isLoading, stepValidation } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const complianceAdmins = form.watch('complianceAdmins') || [];
   const createComplianceAdminRole = form.watch('createComplianceAdminRole');
   const admins = form.watch('admins') || [];
+
+  const nextStep = findNextInvalidStep(
+    stepValidation,
+    'selection',
+    'compliance',
+    form.watch('requirements'),
+  );
 
   if (isLoading) {
     return (
@@ -137,19 +145,16 @@ export function SelectionComplianceStep({ onNext }: { onNext: () => void }) {
         )}
       </div>
 
-      <div className='flex justify-end'>
-        <button
-          type='submit'
-          className='inline-flex items-center rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-500 hover:bg-blue-100 disabled:opacity-50'
+      <div className='flex justify-end py-6'>
+        <NextStepButton
           disabled={
             !form.formState.isValid ||
             (createComplianceAdminRole === 'true' &&
               complianceAdmins.length === 0)
           }
         >
-          Review Council Proposal
-          <ChevronRightIcon className='ml-1 h-4 w-4' />
-        </button>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
 
       <AddComplianceModal

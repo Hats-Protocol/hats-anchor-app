@@ -6,6 +6,8 @@ import { useCouncilForm } from 'contexts';
 import { Input, Textarea } from 'forms';
 
 import { ChainSelect } from '../chain-select';
+import { NextStepButton } from '../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
 const CHAIN_OPTIONS = [
   { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },
@@ -19,7 +21,8 @@ const CHAIN_OPTIONS = [
 ];
 
 export function DetailsStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading } = useCouncilForm();
+  const { form, isLoading, stepValidation } = useCouncilForm();
+  const requirements = form.watch('requirements');
 
   if (isLoading) {
     return (
@@ -28,6 +31,13 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
       </div>
     );
   }
+
+  const nextStep = findNextInvalidStep(
+    stepValidation,
+    'details',
+    undefined,
+    requirements,
+  );
 
   return (
     <form
@@ -92,14 +102,9 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
       </div>
 
       <div className='flex justify-end py-6'>
-        <button
-          type='submit'
-          disabled={!form.formState.isValid}
-          className='flex items-center space-x-2 rounded-md bg-blue-50 px-4 py-2 text-blue-500 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50'
-        >
-          <span>Configure Council</span>
-          <ChevronRightIcon className='h-4 w-4' />
-        </button>
+        <NextStepButton disabled={!form.formState.isValid}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
     </form>
   );
