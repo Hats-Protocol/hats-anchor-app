@@ -60,6 +60,7 @@ export const fetchHatDetails = async (
   } as unknown as AppHat;
 };
 
+// TODO: remove this if unused
 export const fetchManyHatDetails = async (
   hatIds: string[],
   chainId: SupportedChains,

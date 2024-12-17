@@ -13,22 +13,23 @@ const getEligibilityRules = async ({
 }) => {
   if (!chainId || !address) return Promise.resolve(null);
 
-  const modulesClient = await createHatsModulesClient(chainId);
-  if (!modulesClient) return Promise.resolve(null);
+  return createHatsModulesClient(chainId).then(async (modulesClient) => {
+    if (!modulesClient) return Promise.resolve(null);
 
-  return modulesClient
-    .getRulesets(address, { includeLiveParams: true })
-    .then((ruleSets) => {
-      return Promise.resolve(ruleSets || null);
-    })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error(err);
-      return Promise.resolve(null);
-    });
+    return modulesClient
+      .getRulesets(address, { includeLiveParams: true })
+      .then((ruleSets) => {
+        return Promise.resolve(ruleSets || null);
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(err);
+        return Promise.resolve(null);
+      });
+  });
 };
 
-const useModuleDetails = ({
+const useEligibilityRules = ({
   address,
   chainId,
   enabled = true,
@@ -57,4 +58,4 @@ const useModuleDetails = ({
   };
 };
 
-export default useModuleDetails;
+export default useEligibilityRules;

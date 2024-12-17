@@ -9,8 +9,8 @@ import useCallModuleFunction from './useCallModuleFunction';
 
 interface ContractInteractionProps {
   moduleParameters: ModuleParameter[] | undefined;
-  moduleDetails?: ModuleDetails | undefined;
-  chainId?: SupportedChains | undefined;
+  moduleDetails?: ModuleDetails | undefined; // required when signing agreement
+  chainId?: SupportedChains | undefined; // required when signing agreement
   controllerAddress?: string | undefined;
   onSuccessfulSign?: () => void;
   mchAddress?: Hex | undefined;
@@ -66,6 +66,7 @@ const useAgreementClaim = ({
   };
 
   const handleSign = async () => {
+    // TODO better catch for errors?
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
       instance: moduleDetails?.instanceAddress as Hex,

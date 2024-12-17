@@ -52,13 +52,13 @@ export const ClaimButton = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
-  // console.log('isReadyToClaim', isReadyToClaim);
   const rulesNotAlreadyClaimed = filter(flatten(eligibilityRules), (rule) => {
     return (
       !get(currentEligibility, `${rule.address}.eligible`) ||
       !get(currentEligibility, `${rule.address}.goodStanding`)
     );
   });
+  console.log(rulesNotAlreadyClaimed);
 
   const moduleDetails = eligibilityRuleToModuleDetails(
     first(rulesNotAlreadyClaimed), // TODO assuming there is only 1 rule remaining to claim

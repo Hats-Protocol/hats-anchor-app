@@ -38,6 +38,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
     first(eligibilityRules),
     (rule) => toLower(rule.address) !== toLower(selectionModule),
   );
+  console.log(eligibilityRules, remainingModules);
 
   if (councilDetailsLoading || eligibilityRulesLoading) {
     return (
