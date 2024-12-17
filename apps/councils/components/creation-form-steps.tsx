@@ -42,16 +42,13 @@ const BASE_STEPS: Step[] = [
 ];
 
 // Helper function to get step summary
-function getStepSummary(
-  step: Step,
-  form: any,
-  currentStepIndex: number,
-  stepIndex: number,
-) {
-  if (stepIndex >= currentStepIndex) {
+function getStepSummary(step: Step, form: any, stepValidation: StepValidation) {
+  // If step is not valid, show sublabel
+  if (!getStepValidation(step, stepValidation, form.watch('requirements'))) {
     return step.sublabel;
   }
 
+  // If step is valid, show summary
   switch (step.id) {
     case 'details':
       return `${form.watch('councilName')}`;
@@ -247,7 +244,7 @@ export function CreationFormSteps({
                   {step.label}
                 </span>
                 <span className='block text-sm text-gray-500'>
-                  {getStepSummary(step, form, currentStepIndex, index)}
+                  {getStepSummary(step, form, stepValidation)}
                 </span>
               </div>
             </div>
