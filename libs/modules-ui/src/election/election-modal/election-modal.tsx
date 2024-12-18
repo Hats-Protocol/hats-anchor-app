@@ -62,7 +62,7 @@ export const ElectionModal = ({
   // const searchInput = watch('search');
   // const addresses = watch('addresses');
   const { data: allowlist } = useAllowlist({
-    id: moduleInfo.id,
+    id: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: profileDetails } = useProfileDetails({

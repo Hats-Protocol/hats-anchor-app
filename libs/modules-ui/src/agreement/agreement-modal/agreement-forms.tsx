@@ -100,10 +100,11 @@ export const AgreementForms = ({
   });
 
   const handleRemoveWearers = useCallback(async () => {
+    if (!moduleInfo.instanceAddress) return;
     // TODO handle remove many
     const removeAddresses = map(removeList, (p) => p.id);
     const tx = await writeContractAsync({
-      address: moduleInfo.id,
+      address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'revoke',
       args: [first(removeAddresses)],
@@ -114,15 +115,16 @@ export const AgreementForms = ({
   }, [
     setRemoveList,
     moduleInfo.abi,
-    moduleInfo.id,
+    moduleInfo.instanceAddress,
     removeList,
     // writeContractAsync,
     setRemoving,
   ]);
 
   const handleSignAgreement = async () => {
+    if (!moduleInfo.instanceAddress) return;
     const tx = await writeContractAsync({
-      address: moduleInfo.id,
+      address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'signAgreementAndClaimHat',
       args: [instanceAddress],
@@ -170,7 +172,9 @@ export const AgreementForms = ({
   ]);
 
   const handleUpdateAgreement = async () => {
-    if (!newAgreementContent || !hat?.id) return '0x';
+    if (!newAgreementContent || !hat?.id || !moduleInfo.instanceAddress) {
+      return '0x';
+    }
 
     const token = await fetchToken();
     // TODO handle error
@@ -183,7 +187,7 @@ export const AgreementForms = ({
 
     console.log('ipfsHash', ipfsHash);
     const tx = await writeContractAsync({
-      address: moduleInfo.id,
+      address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'setAgreement',
       args: [ipfsHash, gracePeriod],

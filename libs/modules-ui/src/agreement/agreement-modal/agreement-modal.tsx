@@ -1,7 +1,7 @@
 'use client';
 
 import { Heading, Stack } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { Textarea } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
@@ -64,7 +64,7 @@ export const AgreementModal = ({
 
   const searchInput = watch('search');
   const { data: agreementDetails } = useAgreementDetails({
-    id: moduleInfo.id,
+    id: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: agreementProfiles } = useProfileDetails({
@@ -125,15 +125,15 @@ export const AgreementModal = ({
     return compact([
       eligibilityHatId && {
         label: 'Eligibility Rule for this Hat',
-        hatId: hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId)),
+        hatId: eligibilityHatId as Hex,
       },
       ownerHat && {
         label: 'Owner edits the agreement',
-        hatId: hatIdDecimalToIp(ownerHat) as Hex,
+        hatId: hatIdDecimalToHex(ownerHat),
       },
       judgeHat && {
         label: 'Judge determines wearer standing',
-        hatId: hatIdDecimalToIp(judgeHat) as Hex,
+        hatId: hatIdDecimalToHex(judgeHat),
       },
     ]);
   }, [ownerHat, judgeHat, eligibilityHatId]);
@@ -142,7 +142,7 @@ export const AgreementModal = ({
 
   return (
     <ModuleModal
-      name={`${moduleInfo.id}-agreementManager`}
+      name={`${moduleInfo.instanceAddress}-agreementManager`}
       title='Agreement Signers'
       about={
         <AboutModule

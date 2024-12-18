@@ -173,7 +173,12 @@ export const ChainPanel = ({
                 borderColor={isExpanded ? 'gray.100' : 'transparent'}
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
               >
-                <Flex justify='space-between' py={2} px={6} width='100%'>
+                <Flex
+                  justify='space-between'
+                  py={2}
+                  px={{ base: 4, md: IS_CLAIMS_APP ? 6 : 4 }}
+                  width='100%'
+                >
                   <Text
                     display={{
                       base: 'none',
@@ -208,7 +213,12 @@ export const ChainPanel = ({
                 bg='white'
                 border='gray'
               >
-                <Stack mx={4} pb={2} spacing={0} px={2}>
+                <Stack
+                  mx={4}
+                  pb={2}
+                  spacing={0}
+                  // px={{ base: 2, md: IS_CLAIMS_APP ? 4 : 0 }}
+                >
                   {map(ruleSets, (ruleSet: Ruleset, index: number) =>
                     map(ruleSet, (rule) => {
                       const moduleDetails =
