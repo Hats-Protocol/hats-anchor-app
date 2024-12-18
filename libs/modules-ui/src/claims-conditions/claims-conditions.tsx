@@ -41,7 +41,6 @@ const EligibilityConditions = () => {
   const eligibilityData = { id: eligibility as Hex };
 
   const multipleModules = gt(size(flatten(eligibilityRules)), 1);
-  console.log('multipleModules', multipleModules, eligibilityRules);
 
   if (multipleModules) {
     return (
@@ -58,26 +57,6 @@ const EligibilityConditions = () => {
     );
   }
 
-  if (eligibilityRules) {
-    const moduleDetails = eligibilityRuleToModuleDetails(
-      first(flatten(eligibilityRules)),
-    );
-    console.log('moduleDetails', moduleDetails);
-
-    return (
-      <KnownEligibilityModule
-        moduleDetails={moduleDetails}
-        moduleParameters={moduleDetails?.liveParameters}
-        selectedHat={selectedHat || undefined}
-        wearer={address as Hex}
-        chainId={chainId}
-        modalSuffix={MODAL_SUFFIX}
-        isReadyToClaim={isReadyToClaim}
-        setIsReadyToClaim={setIsReadyToClaim}
-      />
-    );
-  }
-
   if (
     OVERRIDE_COMMUNITY_HAT &&
     selectedHat?.id === CONFIG.agreementV0.communityHatId
@@ -90,6 +69,25 @@ const EligibilityConditions = () => {
         isReadyToClaim={isReadyToClaim}
         setIsReadyToClaim={setIsReadyToClaim}
         modalSuffix={MODAL_SUFFIX}
+      />
+    );
+  }
+
+  if (eligibilityRules) {
+    const moduleDetails = eligibilityRuleToModuleDetails(
+      first(flatten(eligibilityRules)),
+    ); // can assume there's only one rule
+
+    return (
+      <KnownEligibilityModule
+        moduleDetails={moduleDetails}
+        moduleParameters={moduleDetails?.liveParameters}
+        selectedHat={selectedHat || undefined}
+        wearer={address as Hex}
+        chainId={chainId}
+        modalSuffix={MODAL_SUFFIX}
+        isReadyToClaim={isReadyToClaim}
+        setIsReadyToClaim={setIsReadyToClaim}
       />
     );
   }

@@ -10,15 +10,15 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { get, includes, map, toNumber } from 'lodash';
+import { flatten, get, includes, map, some, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
-import { ModuleDetails } from 'types';
+import { EligibilityRule, HatDetails, ModuleDetails } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -27,9 +27,15 @@ const AgreementContent = dynamic(() =>
   import('molecules').then((mod) => mod.AgreementContent),
 );
 
-const handleFetchIpfs: any = async (ipfsHash: string) => {
+type FetchIpfsResponse = {
+  details: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: HatDetails;
+} | null;
+
+const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
-    .then((res: any) => {
+    .then((res: FetchIpfsResponse) => {
       return get(res, 'data', null);
     })
     .catch((err: Error) => {
@@ -40,19 +46,39 @@ const handleFetchIpfs: any = async (ipfsHash: string) => {
 };
 
 const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
+  const queryClient = useQueryClient();
   const {
     selectedHat,
     chainId,
     isClaimableFor,
     isReadyToClaim: aggregateReadyToClaim,
     setIsReadyToClaim,
+    eligibilityRules,
   } = useEligibility();
   const { address } = useAccount();
+  const { signAgreement } = useAgreementClaim({
+    moduleDetails: activeModule,
+    moduleParameters: activeModule?.liveParameters,
+    chainId,
+    onSuccessfulSign: () => {
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      // TODO invalidate other queries
+    },
+  });
+
+  const chainHasSubscription = some(
+    flatten(eligibilityRules),
+    (rule: EligibilityRule) => rule.module.id.includes('public-lock-v14'),
+  );
 
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
   });
+
+  const handleSignAgreement = () => {
+    signAgreement();
+  };
 
   const isWearing = useMemo(
     () => includes(map(wearerHats, 'id'), selectedHat?.id),
@@ -97,7 +123,11 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
         colorScheme={isReadyToClaim ? 'green.500' : 'white'}
         size='sm'
         onClick={() => {
-          setIsReadyToClaim(moduleAddress);
+          if (chainHasSubscription) {
+            handleSignAgreement();
+          } else {
+            setIsReadyToClaim(moduleAddress);
+          }
         }}
         _hover={{
           background: isReadyToClaim ? 'transparent' : 'blue.600',

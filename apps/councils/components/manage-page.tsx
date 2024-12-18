@@ -82,6 +82,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
       chainId: (chainId ?? 11155111) as SupportedChains,
       hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
     });
+  console.log(eligibilityRules, rulesWithoutSelectionModule);
 
   const sections = concat(
     DEFAULT_SECTIONS,
@@ -127,7 +128,11 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
         {/* MANAGERS CAN MANAGE OTHER MODULES */}
         {map(rulesWithoutSelectionModule, (rule) => (
-          <ModuleManager rule={rule} chainId={chainId ?? 11155111} />
+          <ModuleManager
+            rule={rule}
+            chainId={chainId ?? 11155111}
+            key={rule.address}
+          />
         ))}
 
         {/* TOP HAT CAN TRANSFER */}

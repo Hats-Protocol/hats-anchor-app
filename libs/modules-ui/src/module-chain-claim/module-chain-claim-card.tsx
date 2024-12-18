@@ -12,14 +12,16 @@ import { Hex } from 'viem';
 
 import { AgreementClaims } from '../agreement';
 import { AllowlistClaims } from '../allowlist';
+import { ElectionClaims } from '../election';
+import { SubscriptionClaims } from '../subscription';
 
 const MODULE_CLAIMS_CARD: {
   [key: string]: ComponentType<{ activeModule: ModuleDetails }>;
 } = {
   agreement: AgreementClaims,
   allowlist: AllowlistClaims,
-  // election: ElectionClaims,
-  // subscription: SubscriptionClaims,
+  election: ElectionClaims,
+  unlock: SubscriptionClaims,
 };
 
 export const ModuleChainClaimsCard = () => {

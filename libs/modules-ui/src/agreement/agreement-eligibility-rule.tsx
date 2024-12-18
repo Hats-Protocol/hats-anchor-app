@@ -2,11 +2,12 @@
 
 import { Button, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
+import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
-import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
-import { get, includes, toLower } from 'lodash';
+import { get } from 'lodash';
+import { useCurrentEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import {
@@ -43,16 +44,30 @@ export const AgreementEligibilityRule = ({
   const { setModals } = useOverlay();
   const { isMobile } = useMediaStyles();
 
-  const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
-  const { data: wearerStatus } = useWearersEligibilityStatus({
-    selectedHat,
-    wearerIds,
+  const { data: currentEligibility } = useCurrentEligibility({
     chainId: chainId as SupportedChains,
+    selectedHat,
+    wearerAddress: wearer,
+    eligibilityRules: moduleDetails
+      ? [
+          [
+            {
+              module: moduleDetails as Module,
+              address: moduleDetails.instanceAddress as Hex,
+              liveParams: moduleParameters,
+            },
+          ],
+        ]
+      : undefined,
   });
-  const isEligible = includes(
-    get(wearerStatus, 'eligibleWearers'),
-    toLower(wearer),
+
+  const moduleEligibility = get(
+    currentEligibility,
+    moduleDetails?.instanceAddress as Hex,
   );
+  const isEligible =
+    get(moduleEligibility, 'eligible', false) &&
+    get(moduleEligibility, 'goodStanding', false);
   const isReadyToClaim =
     !!moduleDetails?.instanceAddress &&
     get(aggregateIsReadyToClaim, moduleDetails.instanceAddress, false);
