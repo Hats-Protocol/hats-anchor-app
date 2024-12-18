@@ -30,9 +30,7 @@ const fetchAllowlist = async ({
     if (!client) return null;
     const response = await client.request<HatAuthorityResponse>(
       ALLOWLIST_QUERY,
-      {
-        id: toLower(id),
-      },
+      { id: toLower(id) },
     );
 
     const result = get(response, 'allowListEligibility.eligibilityData') as

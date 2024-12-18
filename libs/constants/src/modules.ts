@@ -34,6 +34,10 @@ export const numberTypes = [
 ];
 
 const eligibilityModule = (name: string) => `${name} Eligibility`;
+/**
+ * old module names to match on
+ * @deprecated use KNOWN_ELIGIBILITY_MODULES instead
+ */
 export const ELIGIBILITY_MODULES = {
   agreement: eligibilityModule('Agreement'),
   allowlist: eligibilityModule('Allowlist'),
@@ -55,6 +59,7 @@ export const TOGGLE_MODULES = {
   season: 'Season Toggle',
 };
 
+// TODO consider migrating to leverage the new ID field
 /**
  * Implementation address for known Eligibility modules. Uses an array to handle multiple implementations.
  */
@@ -77,6 +82,9 @@ export const KNOWN_ELIGIBILITY_MODULES: { [key: string]: Hex[] } = {
     '0x0Bb0a2B9bc5Da206fead8e87D7Cbc6fCBa455320', // v0.0.3
     '0xAE0e56A0c509dA713722c1aFFcF4B5f1C6CDc73a', // v0.0.2
     '0x2bb30E1786a656EC6cD81e79EEf1A28607c9AE5A', // v0.0.1
+  ],
+  unlock: [
+    '0x4c7803041851f7a17Fc6b5Ff5c911FC748160637', // v0.1.2
   ],
   staking: ['0x9E01030aF633Be5a439DF122F2eEf750b44B8aC7'],
   // basic modules (no authorities given)

@@ -1,25 +1,34 @@
-import { CouncilCreateForm } from 'forms';
+'use client';
+
+// import { usePrivy } from '@privy-io/react-auth';
+import { CouncilFormProvider } from 'contexts';
+import { useSearchParams } from 'next/navigation';
 import { Card } from 'ui';
 
-import { CreationFormSteps } from '../../../../components';
+import { CouncilCreateForm } from '../../../../components/council-create-form/index';
+import { CreationFormSteps } from '../../../../components/creation-form-steps';
 
 const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
-  console.log(step);
+  const searchParams = useSearchParams();
+  const draftId = searchParams.get('draftId') || '';
 
-  // TODO identifier could be ID in database, slug or chainId/hatId
+  // const { user } = usePrivy();
+  // console.log(user);
 
   return (
-    <div className='grid-cols-20 grid pt-32'>
-      <div className='col-span-10 col-start-3 grid'>
-        <Card className='w-100 min-h-[500px] p-4'>
-          <CouncilCreateForm />
-        </Card>
-      </div>
+    <CouncilFormProvider draftId={draftId}>
+      <div className='grid-cols-20 grid pb-24 pt-24'>
+        <div className='col-span-10 col-start-3 grid'>
+          <Card className='w-100 min-h-[500px] p-4'>
+            <CouncilCreateForm step={step} draftId={draftId} />
+          </Card>
+        </div>
 
-      <div className='col-start-14 col-span-6 grid'>
-        <CreationFormSteps />
+        <div className='col-start-14 col-span-6 grid'>
+          <CreationFormSteps currentStep={step} draftId={draftId} />
+        </div>
       </div>
-    </div>
+    </CouncilFormProvider>
   );
 };
 

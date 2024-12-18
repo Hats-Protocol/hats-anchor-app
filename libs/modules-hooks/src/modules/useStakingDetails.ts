@@ -27,7 +27,6 @@ const fetchStakingDetails = async ({
   chainId: number | undefined;
   wearer: Hex | undefined;
 }) => {
-
   const abi = get(moduleDetails, 'abi');
   if (!tokenAddress || !abi || !chainId) return Promise.resolve(undefined);
   const tokenFields = ['symbol', 'name', 'decimals'];
@@ -44,12 +43,13 @@ const fetchStakingDetails = async ({
       contracts: tokenFieldContracts,
     }),
   ];
-  if (wearer && moduleDetails?.id) {
+  if (wearer && moduleDetails?.instanceAddress) {
     // check stakes if wearer is provided
+    // TODO bundle in multicall above
     promises.push(
       viemPublicClient(chainId)
         .readContract({
-          address: moduleDetails.id,
+          address: moduleDetails.instanceAddress,
           abi,
           functionName: 'stakes',
           args: [wearer],

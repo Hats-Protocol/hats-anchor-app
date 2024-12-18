@@ -1,5 +1,8 @@
 export * from './authorities';
+export * from './chains';
 export * from './contract';
+export * from './councils';
+export * from './councils-gql';
 export * from './ecosystem';
 export * from './events';
 export * from './featured';
@@ -8,6 +11,7 @@ export * from './format';
 export * from './hats';
 export * from './image';
 export * from './layout';
+export * from './mesh';
 export * from './mobile';
 export * from './modules';
 export * from './platform';

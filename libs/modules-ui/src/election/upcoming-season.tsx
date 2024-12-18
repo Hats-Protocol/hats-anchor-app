@@ -27,30 +27,36 @@ import {
   pick,
   some,
 } from 'lodash';
-import { useCallModuleFunction } from 'modules-hooks';
+import { useAncillaryElection, useCallModuleFunction } from 'modules-hooks';
 import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
-import { formatAddress, getDisabledReason, parsedSeconds } from 'utils';
+import { SupportedChains } from 'types';
+import {
+  eligibilityRuleToModuleDetails,
+  formatAddress,
+  getDisabledReason,
+  parsedSeconds,
+} from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { DateInfo } from './date-info';
 
 export const UpcomingSeason = () => {
-  const {
-    moduleDetails,
-    moduleParameters,
-    controllerAddress,
-    chainId,
-    electionsAuthority,
-  } = useEligibility();
+  const { controllerAddress, chainId, activeRule } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+
+  const { data: electionsAuthority } = useAncillaryElection({
+    chainId: chainId as SupportedChains,
+    id: activeRule?.address,
+  });
 
   const currentNetworkId = useChainId();
   const isSameChain = chainId === currentNetworkId;
 
-  const currentTermEnd = find(moduleParameters, {
+  const currentTermEnd = find(get(moduleDetails, 'liveParameters'), {
     label: 'Current Term End',
   });
-  const nextTermEnd = find(moduleParameters, {
+  const nextTermEnd = find(get(moduleDetails, 'liveParameters'), {
     label: 'Next Term End',
   });
   const currentTermEndDate = parsedSeconds(currentTermEnd?.value as bigint);
@@ -80,7 +86,7 @@ export const UpcomingSeason = () => {
 
       const canElect =
         action.functionName === 'elect' &&
-        electionsAuthority.isWearingBallotBoxHat &&
+        // electionsAuthority.isWearingBallotBoxHat && // TODO is this working?
         !!nextTermEnd?.value;
 
       const canStartNextTerm =
@@ -111,7 +117,7 @@ export const UpcomingSeason = () => {
     chainId,
   });
 
-  if (!moduleDetails || !moduleParameters || !controllerAddress) return null;
+  if (!moduleDetails || !controllerAddress) return null;
 
   const handleFunctionCall = (func: any) => {
     if (func.args && func.args.length > 0) {

@@ -5,17 +5,19 @@ import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { Modal, useEligibility } from 'contexts';
 import { map } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import { getDuration } from 'utils';
+import { eligibilityRuleToModuleDetails, getDuration } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
 import { AllowanceActions } from './allowance-actions';
 
 export const SubscriptionClaimsModal = () => {
-  const { chainId, moduleParameters } = useEligibility();
+  const { chainId, activeRule } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+
   const { address } = useAccount();
   const { lockAddress, duration, symbol } = useLockFromHat({
-    moduleParameters,
+    moduleParameters: moduleDetails?.liveParameters,
     chainId,
   });
 
@@ -40,7 +42,7 @@ export const SubscriptionClaimsModal = () => {
 
   const durationText = getDuration(duration);
 
-  if (!moduleParameters) return null;
+  if (!moduleDetails) return null;
 
   // CURRENTLY ONLY USED ON MOBILE CLAIMS APP, ADJUST FOR OTHER USES
 
@@ -67,7 +69,8 @@ export const SubscriptionClaimsModal = () => {
         </Stack>
 
         <AllowanceActions
-          moduleParameters={moduleParameters}
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleDetails?.liveParameters}
           activeSubscription={activeSubscription}
         />
       </Stack>

@@ -20,14 +20,16 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { explorerUrl } from 'utils';
+import { eligibilityRuleToModuleDetails, explorerUrl } from 'utils';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
 
 export const ProposalDetails = ({ proposal }: { proposal: any }) => {
-  const { chainId, moduleDetails } = useEligibility();
+  const { chainId, activeRule } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+
   const { isMobile } = useMediaStyles();
 
   const proposalDetails = useMemo(() => {

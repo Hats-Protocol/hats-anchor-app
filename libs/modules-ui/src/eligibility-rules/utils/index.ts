@@ -36,7 +36,7 @@ export interface EligibilityRuleDetailsProps {
   displayStatus: string | undefined;
   displayStatusLink?: string | undefined;
   icon: RuleIcon;
-  isReadyToClaim?: boolean;
+  isReadyToClaim?: { [key: string]: boolean } | undefined;
 }
 
 export type ToggleRuleDetails = {

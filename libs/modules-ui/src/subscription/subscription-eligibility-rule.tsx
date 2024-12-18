@@ -33,11 +33,12 @@ const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 
 export const UnlockEligibilityRule = ({
   selectedHat,
+  moduleDetails,
   moduleParameters,
   chainId,
   wearer,
   modalSuffix,
-  isReadyToClaim,
+  isReadyToClaim: aggregateIsReadyToClaim,
 }: ModuleDetailsHandler) => {
   const { setModals } = useOverlay();
   const { isMobile } = useMediaStyles();
@@ -54,6 +55,11 @@ export const UnlockEligibilityRule = ({
   const isOneTime = duration && duration >= MIN_ONE_TIME_DURATION;
   const hasAllowance =
     !!tokenAllowance && !!keyPrice && tokenAllowance >= keyPrice;
+  const isReadyToClaim =
+    isOneTime &&
+    hasAllowance &&
+    moduleDetails?.instanceAddress &&
+    get(aggregateIsReadyToClaim, moduleDetails.instanceAddress);
 
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({

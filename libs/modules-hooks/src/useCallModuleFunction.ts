@@ -19,6 +19,7 @@ interface CallModuleFunction {
   moduleId?: string;
   instance?: Hex;
   func?: ModuleFunction;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any; // unknown[];
   onSuccess?: () => void;
   onDecline?: () => void;
@@ -43,12 +44,14 @@ const useCallModuleFunction = ({
       onSuccess,
       onDecline,
     }: CallModuleFunction) => {
+      // TODO errors thrown here are not being caught well
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
 
       const moduleClient = await createHatsModulesClient(chainId);
       if (!moduleClient) throw new Error('Failed to create module client');
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const preparedArgs = map(get(func, 'args'), (arg: any) => {
         // strip apostrophes from arg names (react-hook-form, appears to automatically do this)
         const argName = arg.name.replace(/'/g, '');
@@ -61,8 +64,9 @@ const useCallModuleFunction = ({
       });
 
       try {
-        if (!moduleId || !instance || !func)
+        if (!moduleId || !instance || !func) {
           throw new Error('Missing required parameters');
+        }
 
         const result = await moduleClient.callInstanceWriteFunction({
           account: address,

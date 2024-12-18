@@ -3,7 +3,8 @@
 import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
-import { get, includes, toLower } from 'lodash';
+import { filter, get, includes, map, toLower } from 'lodash';
+import { useAllowlist } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
@@ -16,6 +17,8 @@ import {
 } from '../eligibility-rules';
 import { AllowlistModal } from './allowlist-modal';
 
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
+
 export const AllowlistEligibilityRule = ({
   chainId,
   wearer,
@@ -23,8 +26,6 @@ export const AllowlistEligibilityRule = ({
   moduleDetails,
   moduleParameters,
 }: ModuleDetailsHandler) => {
-  // TODO subgraph will need to index these allowlists specifically, to show the actual lists
-
   const { setModals } = useOverlay();
   const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
   const { data: wearerStatus } = useWearersEligibilityStatus({
@@ -32,35 +33,48 @@ export const AllowlistEligibilityRule = ({
     wearerIds,
     chainId: chainId as SupportedChains,
   });
-  const isEligible = includes(
-    get(wearerStatus, 'eligibleWearers'),
+
+  const { data: allowlist } = useAllowlist({
+    id: moduleDetails?.instanceAddress,
+    chainId: chainId as SupportedChains,
+  });
+  const isIncludedInAllowlist = includes(
+    map(
+      filter(allowlist, (a) => a.eligible && !a.badStanding),
+      'address',
+    ),
     toLower(wearer),
   );
+  const isEligible =
+    includes(get(wearerStatus, 'eligibleWearers'), toLower(wearer)) ||
+    isIncludedInAllowlist;
 
   const eligibilityModalFlag =
     posthog.isFeatureEnabled('eligibility-modal') ||
     process.env.NODE_ENV === 'development';
 
-  if (!selectedHat || !moduleDetails?.id) return null;
+  if (!selectedHat || !moduleDetails?.instanceAddress) return null;
 
   if (isEligible) {
     return (
       <>
         <AllowlistModal
           eligibilityHatId={selectedHat?.id}
-          moduleInfo={{
-            ...moduleDetails,
-            liveParameters: moduleParameters,
-          }}
+          moduleInfo={moduleDetails}
         />
 
         <EligibilityRuleDetails
           rule={
             <Text>
               Be on the{' '}
-              {eligibilityModalFlag ? (
+              {eligibilityModalFlag && !IS_CLAIMS_APP ? (
                 <Button
-                  onClick={() => setModals?.({ allowlistManager: true })}
+                  onClick={() =>
+                    setModals?.({
+                      [`${moduleDetails.instanceAddress}-allowlistManager`]:
+                        true,
+                    })
+                  }
                   variant='link'
                 >
                   Allowlist
@@ -94,7 +108,11 @@ export const AllowlistEligibilityRule = ({
             Be on the{' '}
             {eligibilityModalFlag ? (
               <Button
-                onClick={() => setModals?.({ allowlistManager: true })}
+                onClick={() =>
+                  setModals?.({
+                    [`${moduleDetails.instanceAddress}-allowlistManager`]: true,
+                  })
+                }
                 variant='link'
                 textDecoration='underline'
               >

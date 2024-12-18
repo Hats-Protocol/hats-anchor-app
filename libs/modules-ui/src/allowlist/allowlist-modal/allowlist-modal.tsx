@@ -1,5 +1,6 @@
 'use client';
 
+import { Link } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useHatDetails, useProfileDetails } from 'hats-hooks';
@@ -8,10 +9,12 @@ import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 import {
   AboutModule,
+  DevInfo,
   FILTER,
   Filter,
   ModuleHistory,
@@ -107,6 +110,19 @@ export const AllowlistModal = ({
     ]);
   }, [ownerHat, judgeHat, eligibilityHatId]);
 
+  const devInfo = useMemo(() => {
+    return compact([
+      moduleInfo.id && {
+        label: 'Allowlist Module',
+        descriptor: (
+          <Link href={`${explorerUrl(chainId)}/module/${moduleInfo.id}`}>
+            {formatAddress(moduleInfo.id as Hex)}
+          </Link>
+        ),
+      },
+    ]);
+  }, [moduleInfo.id, chainId]);
+
   if (!hat || !eligibilityHatId) return null;
 
   const hatId = hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
@@ -115,7 +131,7 @@ export const AllowlistModal = ({
 
   return (
     <ModuleModal
-      name='allowlistManager'
+      name={`${moduleInfo.id}-allowlistManager`}
       title='Manage Allowlist'
       about={
         <AboutModule
@@ -124,6 +140,7 @@ export const AllowlistModal = ({
         />
       }
       history={<ModuleHistory />}
+      devInfo={<DevInfo moduleDescriptors={devInfo} />}
       onClose={handleClose}
     >
       <ProfileList

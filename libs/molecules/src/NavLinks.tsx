@@ -1,11 +1,21 @@
 'use client';
 
-import { Button, Stack, Text } from '@chakra-ui/react';
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { capitalize, get, includes, isNaN, startsWith, toLower } from 'lodash';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import posthog from 'posthog-js';
 import { ChakraNextLink } from 'ui';
 import { containsUpperCase, getPathParams } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
@@ -29,6 +39,9 @@ const NavLinks = () => {
     ? get(topHat, 'details')
     : undefined;
   const tabName = get(details, 'name', textDetails);
+
+  const devMode =
+    posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
   return (
     <>
@@ -73,6 +86,25 @@ const NavLinks = () => {
             {`My ${capitalize(CONFIG.TERMS.hats)}`}
           </Button>
         </ChakraNextLink>
+      )}
+
+      {devMode && (
+        <Menu>
+          <MenuButton>Dev</MenuButton>
+          <MenuList>
+            <Link href='/subgraphs' passHref>
+              <MenuItem>Subgraphs</MenuItem>
+            </Link>
+
+            <Link href='/buidl/chain' passHref>
+              <MenuItem>Chain Module Deploy</MenuItem>
+            </Link>
+
+            <Link href='/buidl/active' passHref>
+              <MenuItem>Deactivate Hats</MenuItem>
+            </Link>
+          </MenuList>
+        </Menu>
       )}
     </>
   );

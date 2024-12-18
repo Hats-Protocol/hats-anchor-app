@@ -42,18 +42,6 @@ const nextConfig = {
       'd3-org-chart',
       'viem',
       'wagmi',
-      // internal packages
-      // '@hatsprotocol/constants',
-      'contexts',
-      'forms',
-      'hats-hooks',
-      'hats-utils',
-      'hooks',
-      // 'pages',
-      'shared',
-      'types',
-      // 'ui',
-      'utils',
     ],
   },
 };

@@ -74,7 +74,7 @@ export const JokeRaceModal = ({
   const values = watch();
 
   const { data: currentTerm } = useJokeRace({
-    moduleId: moduleInfo.id,
+    moduleId: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: eligibilityData } = useReadContracts({
@@ -249,7 +249,7 @@ export const JokeRaceModal = ({
 
   return (
     <ModuleModal
-      name='jokeRaceManager'
+      name={`${moduleInfo.id}-jokeRaceManager`}
       title='Manage JokeRace'
       about={
         <AboutModule

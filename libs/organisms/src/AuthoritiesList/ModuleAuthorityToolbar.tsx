@@ -162,7 +162,7 @@ const ModuleAuthorityToolbar = ({
       ) {
         const args = { 'Signer Hat': selectedHat?.id };
         callHsgFunction({
-          instance: authority.instanceAddress,
+          instance: authority.instanceAddress as Hex,
           func,
           args,
           type: 'MHSG', // hardcoded because we're only using this flow for MHSG which has an argument requirement
@@ -177,7 +177,7 @@ const ModuleAuthorityToolbar = ({
     if (authority.type === AUTHORITY_TYPES.modules) {
       callModuleFunction({
         moduleId: authority.moduleAddress,
-        instance: authority.instanceAddress,
+        instance: authority.instanceAddress as Hex,
         func,
         args: [],
       });
@@ -187,14 +187,14 @@ const ModuleAuthorityToolbar = ({
       callHsgFunction({
         func,
         args: [],
-        instance: authority.instanceAddress,
+        instance: authority.instanceAddress as Hex,
         type: authority.type as HsgType,
       });
     }
   };
 
   const { data: claimed } = useHsgSigner({
-    instance: authority?.instanceAddress,
+    instance: authority?.instanceAddress as Hex,
     signer: address as Hex,
     chainId,
     enabled: authority?.type === AUTHORITY_TYPES.hsg,

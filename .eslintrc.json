@@ -1,13 +1,7 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint",
-    "import",
-    "simple-import-sort",
-    "@tanstack/query",
-    "@nx"
-  ],
+  "plugins": ["import", "simple-import-sort", "@tanstack/query", "@nx"],
   "extends": [
     "plugin:@tanstack/eslint-plugin-query/recommended",
     "plugin:@typescript-eslint/recommended",

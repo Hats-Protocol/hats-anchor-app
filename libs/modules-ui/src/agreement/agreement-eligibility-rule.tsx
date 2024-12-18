@@ -2,11 +2,12 @@
 
 import { Button, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
+import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
-import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
-import { get, includes, toLower } from 'lodash';
+import { get } from 'lodash';
+import { useCurrentEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import {
@@ -18,10 +19,8 @@ import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { EligibilityRuleDetails } from '../eligibility-rules/eligibility-rule-details';
+import { ELIGIBILITY_STATUS } from '../eligibility-rules/utils';
 import { AgreementModal } from './agreement-modal';
 
 const ChakraNextLink = dynamic(() =>
@@ -38,25 +37,42 @@ export const AgreementEligibilityRule = ({
   wearer,
   selectedHat,
   modalSuffix,
-  isReadyToClaim,
+  isReadyToClaim: aggregateIsReadyToClaim,
   setIsReadyToClaim,
 }: ModuleDetailsHandler) => {
   const hatId = get(selectedHat, 'id', '0');
   const { setModals } = useOverlay();
   const { isMobile } = useMediaStyles();
 
-  const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
-  const { data: wearerStatus } = useWearersEligibilityStatus({
-    selectedHat,
-    wearerIds,
+  const { data: currentEligibility } = useCurrentEligibility({
     chainId: chainId as SupportedChains,
+    selectedHat,
+    wearerAddress: wearer,
+    eligibilityRules: moduleDetails
+      ? [
+          [
+            {
+              module: moduleDetails as Module,
+              address: moduleDetails.instanceAddress as Hex,
+              liveParams: moduleParameters,
+            },
+          ],
+        ]
+      : undefined,
   });
-  const isEligible = includes(
-    get(wearerStatus, 'eligibleWearers'),
-    toLower(wearer),
-  );
 
-  let modalName = MODAL_NAME;
+  const moduleEligibility = get(
+    currentEligibility,
+    moduleDetails?.instanceAddress as Hex,
+  );
+  const isEligible =
+    get(moduleEligibility, 'eligible', false) &&
+    get(moduleEligibility, 'goodStanding', false);
+  const isReadyToClaim =
+    !!moduleDetails?.instanceAddress &&
+    get(aggregateIsReadyToClaim, moduleDetails.instanceAddress, false);
+
+  let modalName = `${moduleDetails?.instanceAddress}-${MODAL_NAME}`;
   if (modalSuffix) {
     modalName += modalSuffix;
   }
@@ -65,8 +81,9 @@ export const AgreementEligibilityRule = ({
     posthog.isFeatureEnabled('eligibility-modal') ||
     process.env.NODE_ENV === 'development';
 
-  if (!moduleDetails?.id) return null;
+  if (!moduleDetails?.instanceAddress) return null;
 
+  // set the eligibility rule text based on current feature flag & app
   let rule = (
     <Text>
       Sign the{' '}
@@ -87,7 +104,9 @@ export const AgreementEligibilityRule = ({
         Sign the{' '}
         <Button
           onClick={() => {
-            setIsReadyToClaim?.(true);
+            if (!moduleDetails.instanceAddress) return;
+
+            setIsReadyToClaim?.(moduleDetails.instanceAddress);
             setModals?.({ [modalName]: true });
           }}
           variant='link'
@@ -119,10 +138,7 @@ export const AgreementEligibilityRule = ({
     <>
       <AgreementModal
         eligibilityHatId={selectedHat?.id}
-        moduleInfo={{
-          ...moduleDetails,
-          liveParameters: moduleParameters,
-        }}
+        moduleInfo={moduleDetails}
       />
 
       <EligibilityRuleDetails

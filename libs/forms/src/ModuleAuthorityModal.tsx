@@ -10,6 +10,7 @@ import { capitalize, filter, get, isEmpty, pick } from 'lodash';
 import { useCallHsgFunction, useCallModuleFunction } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
 import { Authority, ModuleFunction } from 'types';
+import { Hex } from 'viem';
 
 import { ModuleArgsForm } from './components';
 
@@ -49,7 +50,7 @@ const ModuleAuthorityModal = ({
         localArgs.Hat = authority?.hatId;
       }
       callModuleFunction({
-        instance: authority.instanceAddress,
+        instance: authority.instanceAddress as Hex,
         func: selectedFunction || undefined,
         args: localArgs,
         moduleId: authority.moduleAddress,
@@ -59,7 +60,7 @@ const ModuleAuthorityModal = ({
       });
     } else {
       callHsgFunction({
-        instance: authority.instanceAddress,
+        instance: authority.instanceAddress as Hex,
         func: selectedFunction || undefined,
         args,
         type: authority.type as HsgType,

@@ -40,7 +40,7 @@ export type Authority = {
   hatId?: Hex;
   strategies?: SnapshotStrategy[];
   functions?: ModuleFunction[];
-  instanceAddress?: Hex;
+  instanceAddress?: string; // previously Hex
   moduleAddress?: Hex;
   moduleLabel?: string;
   hsgConfig?: HSGConfig;

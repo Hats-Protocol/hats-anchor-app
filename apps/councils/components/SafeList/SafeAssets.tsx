@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Flex,
@@ -11,14 +13,13 @@ import {
   NETWORK_CURRENCY,
   OVERRIDE_TOKEN_IMAGE,
 } from '@hatsprotocol/constants';
-import { useTreasury } from 'contexts';
 import {
   useApprovedTokens,
   useSafeTokens,
   useTokenDetails,
   useTokenPrices,
 } from 'hooks';
-import { find, get, includes, map, toLower, toUpper } from 'lodash';
+import { find, get, includes, isEmpty, map, toLower, toUpper } from 'lodash';
 import {
   filterTokenList,
   formatBalanceValue,
@@ -28,8 +29,7 @@ import {
 } from 'utils';
 import { Hex } from 'viem';
 
-const SafeAssetRow = ({ token }: { token: any }) => {
-  const { chainId } = useTreasury();
+const SafeAssetRow = ({ token, chainId }: { token: any; chainId: number }) => {
   const { data: prices } = useTokenPrices();
 
   const localTokenImage = !includes(
@@ -42,7 +42,7 @@ const SafeAssetRow = ({ token }: { token: any }) => {
     (get(token, 'token.symbol')
       ? symbolPriceHandler(get(token, 'token.symbol'))
       : undefined) ||
-    (chainId && symbolPriceHandler(NETWORK_CURRENCY[chainId]));
+    (chainId ? symbolPriceHandler(NETWORK_CURRENCY[chainId]) : undefined);
   const priceDetails = find(prices, {
     symbol: toUpper(localTokenSymbol),
   });
@@ -96,9 +96,13 @@ const SafeAssetRow = ({ token }: { token: any }) => {
   );
 };
 
-const SafeAssets = ({ safeAddress }: { safeAddress: Hex }) => {
-  const { chainId } = useTreasury();
-
+const SafeAssets = ({
+  safeAddress,
+  chainId,
+}: {
+  safeAddress: Hex;
+  chainId: number;
+}) => {
   const { data: approvedTokens } = useApprovedTokens();
   const { data: safeTokens } = useSafeTokens({
     safeAddress,
@@ -112,7 +116,7 @@ const SafeAssets = ({ safeAddress }: { safeAddress: Hex }) => {
 
   if (!chainId) return null;
 
-  if (!filteredSafeTokens) {
+  if (isEmpty(filteredSafeTokens)) {
     return (
       <Flex w='full'>
         <Stack w='full'>
@@ -136,6 +140,7 @@ const SafeAssets = ({ safeAddress }: { safeAddress: Hex }) => {
         {map(filteredSafeTokens, (token: any) => (
           <SafeAssetRow
             token={token}
+            chainId={chainId}
             key={token.tokenAddress || 'native currency'}
           />
         ))}
