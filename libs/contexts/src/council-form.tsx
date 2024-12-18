@@ -48,6 +48,9 @@ export interface CouncilFormData {
   admins: CouncilMember[];
   complianceAdmins: CouncilMember[];
   createComplianceAdminRole: 'true' | 'false';
+  agreement?: string;
+  createAgreementAdminRole: 'true' | 'false';
+  agreementAdmins: CouncilMember[];
 }
 
 interface CouncilFormResponse {
@@ -86,6 +89,13 @@ interface CouncilFormResponse {
       passCompliance: boolean;
     };
     agreement?: string;
+    createAgreementAdminRole: boolean;
+    agreementAdmins: Array<{
+      id: string;
+      address: string;
+      email: string;
+      name?: string;
+    }>;
   };
 }
 
@@ -113,7 +123,10 @@ interface CouncilFormContextType {
   isLoading: boolean;
   persistForm: (step: string, subStep?: string) => Promise<unknown>;
   stepValidation: StepValidation;
-  setStepValidation: (step: keyof StepValidation, isValid: boolean) => void;
+  setStepValidation: (
+    step: keyof StepValidation,
+    isValid: boolean | Partial<StepValidation[keyof StepValidation]>,
+  ) => void;
 }
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(
@@ -210,6 +223,9 @@ export function CouncilFormProvider({
       admins: [],
       complianceAdmins: [],
       createComplianceAdminRole: 'false',
+      agreement: '',
+      createAgreementAdminRole: 'false',
+      agreementAdmins: [],
     },
   });
 
@@ -229,11 +245,25 @@ export function CouncilFormProvider({
   });
 
   const setStepValidation = useCallback(
-    (step: keyof StepValidation, isValid: boolean) => {
-      setStepValidationState((prev) => ({
-        ...prev,
-        [step]: isValid,
-      }));
+    (
+      step: keyof StepValidation,
+      isValid: boolean | Partial<StepValidation[keyof StepValidation]>,
+    ) => {
+      setStepValidationState((prev) => {
+        if (step === 'selectionSubSteps') {
+          return {
+            ...prev,
+            selectionSubSteps: {
+              ...prev.selectionSubSteps,
+              ...(isValid as Partial<StepValidation['selectionSubSteps']>),
+            },
+          };
+        }
+        return {
+          ...prev,
+          [step]: isValid,
+        };
+      });
     },
     [],
   );
@@ -284,6 +314,11 @@ export function CouncilFormProvider({
         createComplianceAdminRole: data.createComplianceAdminRole
           ? 'true'
           : 'false',
+        agreement: data.agreement || '',
+        createAgreementAdminRole: data.createAgreementAdminRole
+          ? 'true'
+          : 'false',
+        agreementAdmins: data.agreementAdmins || [],
       };
       console.log('Setting form to:', newValues);
       form.reset(newValues);
@@ -363,7 +398,15 @@ export function CouncilFormProvider({
                   formData.createComplianceAdminRole === 'true',
               };
               break;
-            // agreement and tokens cases will be added when implemented
+            case 'agreement':
+              payload = {
+                ...payload,
+                agreement: formData.agreement,
+                agreementAdmins: formData.agreementAdmins,
+                createAgreementAdminRole:
+                  formData.createAgreementAdminRole === 'true',
+              };
+              break;
           }
           break;
       }

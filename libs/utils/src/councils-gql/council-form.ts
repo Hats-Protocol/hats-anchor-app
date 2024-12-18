@@ -26,6 +26,8 @@ export const UPDATE_COUNCIL_FORM = gql`
     $createComplianceAdminRole: Boolean
     $memberRequirements: MemberRequirementsInput
     $agreement: String
+    $createAgreementAdminRole: Boolean
+    $agreementAdmins: [UserInput!]
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -44,6 +46,8 @@ export const UPDATE_COUNCIL_FORM = gql`
       createComplianceAdminRole: $createComplianceAdminRole
       memberRequirements: $memberRequirements
       agreement: $agreement
+      createAgreementAdminRole: $createAgreementAdminRole
+      agreementAdmins: $agreementAdmins
     ) {
       id
       organizationName
@@ -80,6 +84,13 @@ export const UPDATE_COUNCIL_FORM = gql`
         passCompliance
       }
       agreement
+      createAgreementAdminRole
+      agreementAdmins {
+        id
+        address
+        email
+        name
+      }
     }
   }
 `;
@@ -122,6 +133,13 @@ export const GET_COUNCIL_FORM = gql`
         passCompliance
       }
       agreement
+      createAgreementAdminRole
+      agreementAdmins {
+        id
+        address
+        email
+        name
+      }
     }
   }
 `;

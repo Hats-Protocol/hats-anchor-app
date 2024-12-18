@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
+import { SelectionAgreementStep } from './selection-step/agreement-step';
 import { SelectionComplianceStep } from './selection-step/compliance-step';
 import { SelectionManagementStep } from './selection-step/management-step';
 import { SelectionMembersStep } from './selection-step/members-step';
@@ -65,6 +66,8 @@ export function CouncilCreateForm({
           return <SelectionMembersStep onNext={handleNext} />;
         case 'management':
           return <SelectionManagementStep onNext={handleNext} />;
+        case 'agreement':
+          return <SelectionAgreementStep onNext={handleNext} />;
         case 'compliance':
           return <SelectionComplianceStep onNext={handleNext} />;
         default:
