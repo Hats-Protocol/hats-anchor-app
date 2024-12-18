@@ -17,6 +17,8 @@ import {
 } from '../eligibility-rules';
 import { AllowlistModal } from './allowlist-modal';
 
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
+
 export const AllowlistEligibilityRule = ({
   chainId,
   wearer,
@@ -65,7 +67,7 @@ export const AllowlistEligibilityRule = ({
           rule={
             <Text>
               Be on the{' '}
-              {eligibilityModalFlag ? (
+              {eligibilityModalFlag && !IS_CLAIMS_APP ? (
                 <Button
                   onClick={() =>
                     setModals?.({

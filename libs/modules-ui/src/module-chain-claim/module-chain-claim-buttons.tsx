@@ -3,6 +3,7 @@
 import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { concat, first, flatten, get, map, pick } from 'lodash';
+import { useSubscriptionClaim } from 'modules-hooks';
 import { ReactNode } from 'react';
 import {
   BsCheckSquare,
@@ -36,6 +37,7 @@ const EligibilityStatus = ({
     );
   }
 
+  // TODO handle subscription allowance as Pending state
   if (isReadyToClaim) {
     return (
       <HStack spacing={1}>
@@ -70,13 +72,26 @@ const getYesNoForRule = (rule: EligibilityRule) => {
 };
 
 const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
-  const { currentEligibility, activeRule, setActiveRule, isReadyToClaim } =
-    useEligibility();
+  const {
+    currentEligibility,
+    activeRule,
+    setActiveRule,
+    isReadyToClaim,
+    chainId,
+  } = useEligibility();
   const isEligible =
     get(currentEligibility, `[${rule.address}].eligible`) &&
     get(currentEligibility, `[${rule.address}].goodStanding`);
 
   const yesNoForRule = getYesNoForRule(rule); // use yes/no from rule if available
+
+  const { hasAllowance } = useSubscriptionClaim({
+    moduleDetails: rule.module,
+    moduleParameters: rule.liveParams,
+    chainId,
+    setStatus: () => {},
+    handlePendingTx: undefined, // only needed for purchasing/claiming
+  });
 
   return (
     <Button
@@ -98,7 +113,9 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
 
         <EligibilityStatus
           isEligible={isEligible}
-          isReadyToClaim={get(isReadyToClaim, rule.address, false)}
+          isReadyToClaim={
+            hasAllowance || get(isReadyToClaim, rule.address, false)
+          }
           customYesNo={customYesNo || yesNoForRule}
         />
       </Stack>

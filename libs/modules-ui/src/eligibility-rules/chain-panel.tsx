@@ -16,6 +16,7 @@ import { useWearersEligibilityStatus } from 'hats-hooks';
 import {
   every,
   filter,
+  find,
   flatten,
   get,
   includes,
@@ -23,6 +24,7 @@ import {
   size,
   toLower,
 } from 'lodash';
+import { useSubscriptionClaim } from 'modules-hooks';
 import { startTransition, useEffect, useRef, useState } from 'react';
 import {
   BsCheckSquare,
@@ -94,6 +96,16 @@ export const ChainPanel = ({
     wearerIds,
     chainId: chainId as SupportedChains,
   });
+  const subscriptionRule = find(flatten(ruleSets), (rule) =>
+    rule.module.id.includes('public-lock-v14'),
+  );
+  const { hasAllowance } = useSubscriptionClaim({
+    moduleDetails: subscriptionRule?.module,
+    moduleParameters: subscriptionRule?.liveParams,
+    chainId,
+    handlePendingTx: undefined,
+    setStatus: () => {},
+  });
 
   const isEligible = includes(
     get(wearerStatus, 'eligibleWearers'),
@@ -105,7 +117,10 @@ export const ChainPanel = ({
       !get(currentEligibility, `${rule.address}.goodStanding`)
     );
   });
-  const isReadyToClaim = every(rulesNotAlreadyClaimed, (rule) => {
+  const considerSubscriptionRule = filter(rulesNotAlreadyClaimed, (rule) => {
+    return !rule.module.id.includes('public-lock-v14') && !hasAllowance;
+  });
+  const isReadyToClaim = every(considerSubscriptionRule, (rule) => {
     return get(aggregateIsReadyToClaim, rule.address);
   });
 

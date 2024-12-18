@@ -265,7 +265,7 @@ export const AllowanceActions = ({
               txDescription='Cancel subscription for Hat'
               chainId={chainId}
             >
-              Cancel Subscription
+              Cancel {activeSubscription ? 'Subscription' : 'Allowance'}
             </TransactionButton>
           )}
 

@@ -13,7 +13,16 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { capitalize, filter, first, flatten, get, includes, map } from 'lodash';
+import {
+  capitalize,
+  filter,
+  first,
+  flatten,
+  get,
+  includes,
+  map,
+  size,
+} from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
@@ -58,7 +67,7 @@ export const ClaimButton = () => {
       !get(currentEligibility, `${rule.address}.goodStanding`)
     );
   });
-  console.log(rulesNotAlreadyClaimed);
+  const multipleModulesRemaining = size(rulesNotAlreadyClaimed) > 1;
 
   const moduleDetails = eligibilityRuleToModuleDetails(
     first(rulesNotAlreadyClaimed), // TODO assuming there is only 1 rule remaining to claim
@@ -110,6 +119,9 @@ export const ClaimButton = () => {
   }
   if (requireHatter && !isClaimableFor) {
     tooltip = 'Ensure any address can claim on behalf of wearers';
+  }
+  if (multipleModulesRemaining) {
+    tooltip = 'There are multiple rules remaining to claim';
   }
   if (isWearing && isEligible) {
     tooltip = 'You are already wearing this hat';
