@@ -292,6 +292,21 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               }
             />
           )}
+          {formData.requirements.signAgreement && (
+            <RoleSummary
+              title='Agreement Managers'
+              description={
+                formData.createAgreementAdminRole === 'true'
+                  ? 'Can update the agreement text and verify signatures'
+                  : 'Council Managers manage the agreement'
+              }
+              members={
+                formData.createAgreementAdminRole === 'true'
+                  ? formData.agreementAdmins || []
+                  : formData.admins || []
+              }
+            />
+          )}
         </div>
       </StepSummary>
     </div>
