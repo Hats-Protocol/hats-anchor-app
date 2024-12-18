@@ -104,11 +104,12 @@ export const AllowlistForms = ({
   };
 
   const handleSetWearersStanding = useCallback(async () => {
+    if (!moduleInfo.instanceAddress) return;
     setIsLoading(true);
     const standings = map(updateList, () => false); // standing = false
     const addresses = map(updateList, (account) => get(account, 'id'));
     const tx = await writeContractAsync({
-      address: moduleInfo.id,
+      address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'setStandingForAccounts',
       args: [addresses, standings],
@@ -125,7 +126,7 @@ export const AllowlistForms = ({
     chainId,
     updateList,
     moduleInfo.abi,
-    moduleInfo.id,
+    moduleInfo.instanceAddress,
     // writeContractAsync,
     setUpdating,
   ]);
@@ -137,11 +138,12 @@ export const AllowlistForms = ({
   };
 
   const handleAddWearers = useCallback(async () => {
+    if (!moduleInfo.instanceAddress) return;
     setIsLoading(true);
     // TODO catch error
     const addresses = map(addressesToAdd, (account) => get(account, 'address'));
     return writeContractAsync({
-      address: moduleInfo.id,
+      address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'addAccounts',
       args: [addresses],
@@ -167,7 +169,7 @@ export const AllowlistForms = ({
     // writeContractAsync,
     // setValue,
     moduleInfo.abi,
-    moduleInfo.id,
+    moduleInfo.instanceAddress,
   ]);
 
   return (

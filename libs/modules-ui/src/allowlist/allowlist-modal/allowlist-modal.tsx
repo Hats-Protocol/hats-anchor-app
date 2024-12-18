@@ -45,7 +45,7 @@ export const AllowlistModal = ({
   });
 
   const { data: allowlist } = useAllowlist({
-    id: moduleInfo.id,
+    id: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: profileDetails } = useProfileDetails({
@@ -112,16 +112,18 @@ export const AllowlistModal = ({
 
   const devInfo = useMemo(() => {
     return compact([
-      moduleInfo.id && {
+      moduleInfo.instanceAddress && {
         label: 'Allowlist Module',
         descriptor: (
-          <Link href={`${explorerUrl(chainId)}/module/${moduleInfo.id}`}>
-            {formatAddress(moduleInfo.id as Hex)}
+          <Link
+            href={`${explorerUrl(chainId)}/address/${moduleInfo.instanceAddress}`}
+          >
+            {formatAddress(moduleInfo.instanceAddress as Hex)}
           </Link>
         ),
       },
     ]);
-  }, [moduleInfo.id, chainId]);
+  }, [moduleInfo.instanceAddress, chainId]);
 
   if (!hat || !eligibilityHatId) return null;
 
@@ -131,7 +133,7 @@ export const AllowlistModal = ({
 
   return (
     <ModuleModal
-      name={`${moduleInfo.id}-allowlistManager`}
+      name={`${moduleInfo.instanceAddress}-allowlistManager`}
       title='Manage Allowlist'
       about={
         <AboutModule

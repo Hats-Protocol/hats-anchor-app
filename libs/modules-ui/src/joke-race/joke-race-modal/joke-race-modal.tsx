@@ -80,19 +80,19 @@ export const JokeRaceModal = ({
   const { data: eligibilityData } = useReadContracts({
     contracts: [
       {
-        address: moduleInfo.id,
+        address: moduleInfo.instanceAddress,
         chainId,
         abi: moduleInfo.abi,
         functionName: 'canStartNextTerm',
       },
       // {
-      //   address: moduleInfo.id,
+      //   address: moduleInfo.instanceAddress,
       //   chainId,
       //   abi: moduleInfo.abi,
       //   functionName: 'currentTermEnded',
       // },
       // {
-      //   address: moduleInfo.id,
+      //   address: moduleInfo.instanceAddress,
       //   chainId,
       //   abi: moduleInfo.abi,
       //   functionName: 'currentTermIndex',
@@ -189,8 +189,9 @@ export const JokeRaceModal = ({
   }, [contestAddress, copyContest]);
 
   const handleStartNextTerm = async () => {
+    if (!moduleInfo.instanceAddress) return;
     return writeContractAsync({
-      address: moduleInfo.id,
+      address: moduleInfo.instanceAddress,
       chainId,
       abi: moduleInfo.abi,
       functionName: 'startNextTerm',
@@ -222,6 +223,7 @@ export const JokeRaceModal = ({
   }, [values]);
 
   const handleSetTerm = async () => {
+    if (!moduleInfo.instanceAddress) return;
     const {
       contestAddress: newContestAddress,
       termEnd: newTermEnd,
@@ -230,7 +232,7 @@ export const JokeRaceModal = ({
     } = pick(values, ['contestAddress', 'termEnd', 'transitionPeriod', 'topK']);
 
     const tx = await writeContractAsync({
-      address: moduleInfo.id,
+      address: moduleInfo.instanceAddress,
       chainId,
       abi: moduleInfo.abi,
       functionName: 'setNextTerm',
@@ -249,7 +251,7 @@ export const JokeRaceModal = ({
 
   return (
     <ModuleModal
-      name={`${moduleInfo.id}-jokeRaceManager`}
+      name={`${moduleInfo.instanceAddress}-jokeRaceManager`}
       title='Manage JokeRace'
       about={
         <AboutModule
