@@ -8,6 +8,7 @@ import { FiUserPlus } from 'react-icons/fi';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
+import { ComplianceCheckIcon } from '../../icons/compliance-check-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddComplianceModal } from './add-compliance-modal';
@@ -65,33 +66,35 @@ export function SelectionComplianceStep({ onNext }: { onNext: () => void }) {
       className='mx-auto flex w-[600px] flex-col space-y-8 p-8'
       onSubmit={form.handleSubmit(onNext)}
     >
-      <h1 className='text-2xl font-bold'>Pass Compliance Check</h1>
+      <div className='flex items-center gap-2'>
+        <ComplianceCheckIcon />
+        <h2 className='text-2xl font-bold'>Pass Compliance Check</h2>
+      </div>
 
       <div className='space-y-8 bg-white'>
         <div>
           <h2 className='font-semibold'>Who does the compliance check?</h2>
+          <RadioBox
+            name='createComplianceAdminRole'
+            localForm={form}
+            options={[
+              {
+                value: 'false',
+                label: 'Council Managers',
+              },
+              {
+                value: 'true',
+                label: "New 'Compliance Manager' Role",
+              },
+            ]}
+            onChange={(e) => {
+              form.setValue(
+                'createComplianceAdminRole',
+                (e.target as HTMLInputElement).value as 'true' | 'false',
+              );
+            }}
+          />
         </div>
-
-        <RadioBox
-          name='createComplianceAdminRole'
-          localForm={form}
-          options={[
-            {
-              value: 'false',
-              label: 'Council Managers',
-            },
-            {
-              value: 'true',
-              label: "New 'Compliance Manager' Role",
-            },
-          ]}
-          onChange={(e) => {
-            form.setValue(
-              'createComplianceAdminRole',
-              (e.target as HTMLInputElement).value as 'true' | 'false',
-            );
-          }}
-        />
 
         {createComplianceAdminRole === 'false' && admins.length > 0 && (
           <div>

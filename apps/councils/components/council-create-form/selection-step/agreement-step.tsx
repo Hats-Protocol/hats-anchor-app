@@ -11,6 +11,7 @@ import { FiUserPlus } from 'react-icons/fi';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
+import { SignAgreementIcon } from '../../icons/sign-agreement-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 
@@ -88,74 +89,55 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
       className='mx-auto flex w-[600px] flex-col space-y-6 p-8'
       onSubmit={form.handleSubmit(onNext)}
     >
-      <div className='flex items-center gap-2'>
-        <svg
-          width='24'
-          height='24'
-          viewBox='0 0 24 24'
-          fill='none'
-          xmlns='http://www.w3.org/2000/svg'
-        >
-          <path
-            d='M8 12.5L10.5 15L16 9M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z'
-            stroke='#2B6CB0'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          />
-        </svg>
-        <h1 className='text-2xl font-bold'>Sign Agreement</h1>
+      <div className='space-y-4'>
+        <div className='flex items-center gap-2'>
+          <SignAgreementIcon />
+          <h2 className='text-2xl font-bold'>Sign Agreement</h2>
+        </div>
+        <p className='text-sm text-gray-600'>
+          Add an agreement that Council Members sign and abide by to be on the
+          council.
+        </p>
       </div>
 
-      <div className='space-y-4'>
-        <div>
-          <h2 className='font-medium'>Agreement text</h2>
-          <p className='text-sm text-gray-600'>
-            Add an agreement that Council Members sign and abide by to be on the
-            council.
-          </p>
-        </div>
-
-        <div
-          className='rounded-lg border border-gray-200 [&_.w-md-editor-input]:bg-white [&_.w-md-editor-toolbar]:rounded-t-lg [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-gray-200 [&_.w-md-editor-toolbar]:bg-gray-50 [&_.w-md-editor]:rounded-lg [&_.w-md-editor]:bg-white'
-          style={editorStyles}
-          data-color-mode='light'
-        >
-          <MDEditor
-            value={agreement}
-            onChange={(value) => form.setValue('agreement', value || '')}
-            preview='edit'
-            height={400}
-            className='!border-0'
-            textareaProps={{
-              placeholder:
-                'Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.',
-            }}
-            hideToolbar={false}
-            toolbarHeight={40}
-          />
-        </div>
+      <div
+        className='rounded-lg border border-gray-200 [&_.w-md-editor-input]:bg-white [&_.w-md-editor-toolbar]:rounded-t-lg [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-gray-200 [&_.w-md-editor-toolbar]:bg-gray-50 [&_.w-md-editor]:rounded-lg [&_.w-md-editor]:bg-white'
+        style={editorStyles}
+        data-color-mode='light'
+      >
+        <MDEditor
+          value={agreement}
+          onChange={(value) => form.setValue('agreement', value || '')}
+          preview='edit'
+          height={400}
+          className='!border-0'
+          textareaProps={{
+            placeholder:
+              'Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.',
+          }}
+          hideToolbar={false}
+          toolbarHeight={40}
+        />
       </div>
 
       <div className='space-y-8 bg-white'>
         <div>
           <h2 className='font-semibold'>Who manages the agreement?</h2>
+          <RadioBox
+            name='createAgreementAdminRole'
+            localForm={form}
+            options={[
+              {
+                value: 'false',
+                label: 'Council Managers',
+              },
+              {
+                value: 'true',
+                label: "New 'Agreement Manager' Role",
+              },
+            ]}
+          />
         </div>
-
-        <RadioBox
-          name='createAgreementAdminRole'
-          localForm={form}
-          options={[
-            {
-              value: 'false',
-              label: 'Council Managers',
-            },
-            {
-              value: 'true',
-              label: "New 'Agreement Manager' Role",
-            },
-          ]}
-        />
 
         {createAgreementAdminRole === 'false' && admins.length > 0 && (
           <div>

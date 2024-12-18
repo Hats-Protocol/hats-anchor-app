@@ -3,8 +3,12 @@
 import { Spinner, Stack, Text } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { RadioCard, RequirementBox } from 'forms';
-import { FiFileText, FiShield } from 'react-icons/fi';
 
+import { AppointMembersIcon } from '../icons/appoint-members-icon';
+import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
+import { ElectMembersIcon } from '../icons/elect-members-icon';
+import { HoldTokensIcon } from '../icons/hold-tokens-icon';
+import { SignAgreementIcon } from '../icons/sign-agreement-icon';
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
@@ -52,14 +56,14 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
                 value: 'APPOINTED',
                 description:
                   'Create an agreement council members have to sign and abide',
-                icon: FiFileText,
+                icon: AppointMembersIcon,
               },
               {
                 label: 'Elect Council Members',
                 value: 'ELECTED',
                 description:
                   'Specify an amount of coins council members need to hold',
-                icon: FiFileText,
+                icon: ElectMembersIcon,
                 disabled: true,
               },
             ]}
@@ -77,21 +81,21 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
             options={[
               {
                 key: 'signAgreement',
-                icon: FiFileText,
+                icon: SignAgreementIcon,
                 title: 'Sign Agreement',
                 description:
                   'Create an agreement council members have to sign and abide',
               },
               {
                 key: 'holdTokens',
-                icon: FiFileText,
+                icon: HoldTokensIcon,
                 title: 'Hold Tokens',
                 description:
                   'Specify an amount of coins council members need to hold',
               },
               {
                 key: 'passCompliance',
-                icon: FiShield,
+                icon: ComplianceCheckIcon,
                 title: 'Pass Compliance Check',
                 description:
                   'Choose a trusted onchain provider that gathers KYC data securely',
