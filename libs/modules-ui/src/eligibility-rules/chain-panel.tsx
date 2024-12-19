@@ -214,7 +214,7 @@ export const ChainPanel = ({
                 border='gray'
               >
                 <Stack
-                  mx={4}
+                  mx={{ base: 0, md: IS_CLAIMS_APP ? 4 : 0 }}
                   pb={2}
                   spacing={0}
                   // px={{ base: 2, md: IS_CLAIMS_APP ? 4 : 0 }}
