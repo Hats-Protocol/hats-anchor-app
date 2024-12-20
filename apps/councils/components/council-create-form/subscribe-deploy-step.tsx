@@ -1,5 +1,6 @@
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
@@ -8,13 +9,16 @@ import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
 import { EditIcon } from '../icons/edit-icon';
 import { GetAppointedIcon } from '../icons/get-appointed-icon';
 import { LinkIcon } from '../icons/link-icon';
+import { PaymentIcon } from '../icons/payment-icon';
 import { SignAgreementIcon } from '../icons/sign-agreement-icon';
 import { XSquareIcon } from '../icons/x-square-icon';
+import { NextStepButton } from '../next-step-button';
+import { PaymentDetailsModal } from './payment-details-modal';
 
 interface StepSummaryProps {
   title: string;
   isCompleted: boolean;
-  onEdit: () => void;
+  onEdit?: () => void;
   children: React.ReactNode;
 }
 
@@ -24,8 +28,8 @@ const StepSummary = ({
   onEdit,
   children,
 }: StepSummaryProps) => (
-  <div className='grid grid-cols-[200px_1fr_100px] items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
-    <div className='space-y-2'>
+  <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
+    <div className='w-[200px] shrink-0 space-y-2'>
       <h3 className='text-l font-medium text-gray-900'>{title}</h3>
       <div className='flex items-center gap-2'>
         {isCompleted ? (
@@ -42,18 +46,20 @@ const StepSummary = ({
       </div>
     </div>
 
-    <div className='flex-grow'>{children}</div>
+    <div className='min-w-0 flex-1'>{children}</div>
 
-    <div className='text-right'>
-      <button
-        type='button'
-        className='inline-flex items-center gap-2 text-blue-600 hover:text-blue-700'
-        onClick={onEdit}
-      >
-        <EditIcon />
-        <span className='text-sm font-medium'>Edit</span>
-      </button>
-    </div>
+    {onEdit && (
+      <div className='w-[100px] shrink-0 text-right'>
+        <button
+          type='button'
+          className='inline-flex items-center gap-2 text-blue-600 hover:text-blue-700'
+          onClick={onEdit}
+        >
+          <EditIcon />
+          <span className='text-sm font-medium'>Edit</span>
+        </button>
+      </div>
+    )}
   </div>
 );
 
@@ -127,6 +133,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { form, stepValidation } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const payer = form.watch('payer');
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -309,6 +317,86 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           )}
         </div>
       </StepSummary>
+
+      <div>
+        <StepSummary title='Invoice Details' isCompleted={!!payer}>
+          <div className='space-y-4'>
+            <RoleSummary
+              title='Provide payment details'
+              description='Set up a subscription to deploy and manage your council'
+              members={
+                payer
+                  ? [
+                      {
+                        id: payer.address,
+                        address: payer.address,
+                        name: payer.name,
+                      },
+                    ]
+                  : []
+              }
+            />
+            <div className='flex justify-end'>
+              {payer ? (
+                <NextStepButton
+                  type='button'
+                  onClick={() => setIsPaymentModalOpen(true)}
+                >
+                  <div className='flex items-center gap-2'>
+                    <PaymentIcon />
+                    <span>Edit invoice details</span>
+                  </div>
+                </NextStepButton>
+              ) : (
+                <NextStepButton
+                  type='button'
+                  onClick={() => setIsPaymentModalOpen(true)}
+                >
+                  <div className='flex items-center gap-2'>
+                    <PaymentIcon />
+                    <span>Add invoice details</span>
+                  </div>
+                </NextStepButton>
+              )}
+            </div>
+          </div>
+        </StepSummary>
+      </div>
+
+      <div className='mt-8 flex flex-col items-center gap-4'>
+        <div className='flex items-center gap-2'>
+          <input
+            type='checkbox'
+            id='agreement'
+            checked={form.watch('acceptedTerms')}
+            onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
+            className='h-4 w-4 rounded border-gray-300'
+          />
+          <label htmlFor='agreement' className='text-sm text-gray-600'>
+            I agree to the{' '}
+            <a href='#' className='text-blue-600'>
+              privacy policy
+            </a>{' '}
+            and a monthly fee of $299 to be paid in USDC
+          </label>
+        </div>
+
+        <NextStepButton
+          disabled={!payer || !form.watch('acceptedTerms')}
+          onClick={() => {
+            // Handle deployment here
+          }}
+        >
+          Deploy Council on Optimism
+        </NextStepButton>
+      </div>
+
+      <PaymentDetailsModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        form={form}
+        draftId={draftId}
+      />
     </div>
   );
 };

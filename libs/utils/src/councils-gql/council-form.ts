@@ -28,6 +28,7 @@ export const UPDATE_COUNCIL_FORM = gql`
     $agreement: String
     $createAgreementAdminRole: Boolean
     $agreementAdmins: [UserInput!]
+    $payer: UserInput
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -48,6 +49,7 @@ export const UPDATE_COUNCIL_FORM = gql`
       agreement: $agreement
       createAgreementAdminRole: $createAgreementAdminRole
       agreementAdmins: $agreementAdmins
+      payer: $payer
     ) {
       id
       organizationName
@@ -90,6 +92,13 @@ export const UPDATE_COUNCIL_FORM = gql`
         address
         email
         name
+      }
+      payer {
+        id
+        address
+        email
+        name
+        telegram
       }
     }
   }
@@ -139,6 +148,13 @@ export const GET_COUNCIL_FORM = gql`
         address
         email
         name
+      }
+      payer {
+        id
+        address
+        email
+        name
+        telegram
       }
     }
   }

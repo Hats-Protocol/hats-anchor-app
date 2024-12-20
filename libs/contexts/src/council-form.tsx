@@ -51,6 +51,14 @@ export interface CouncilFormData {
   agreement?: string;
   createAgreementAdminRole: 'true' | 'false';
   agreementAdmins: CouncilMember[];
+  payer?: {
+    id: string;
+    address: string;
+    email: string;
+    name?: string;
+    telegram?: string;
+  };
+  acceptedTerms?: boolean;
 }
 
 interface CouncilFormResponse {
@@ -96,6 +104,13 @@ interface CouncilFormResponse {
       email: string;
       name?: string;
     }>;
+    payer: {
+      id: string;
+      address: string;
+      email: string;
+      name?: string;
+      telegram?: string;
+    } | null;
   };
 }
 
@@ -164,37 +179,6 @@ const computeStepValidation = (
   };
 };
 
-// Add these types
-interface DetailsStepData {
-  organizationName: string;
-  councilName: string;
-  chain: number;
-  councilDescription?: string;
-}
-
-interface ThresholdStepData {
-  thresholdType: 'ABSOLUTE' | 'RELATIVE';
-  maxCouncilMembers: number;
-  thresholdTarget: number;
-  thresholdMin: number;
-}
-
-interface OnboardingStepData {
-  membersSelectionType: 'ALLOWLIST' | 'ELECTION';
-  memberRequirements: {
-    signAgreement: boolean;
-    holdTokens: boolean;
-    passCompliance: boolean;
-  };
-}
-
-interface SelectionStepData {
-  members: CouncilMember[];
-  admins: CouncilMember[];
-  complianceAdmins: CouncilMember[];
-  createComplianceAdminRole: boolean;
-}
-
 export function CouncilFormProvider({
   children,
   draftId,
@@ -226,6 +210,8 @@ export function CouncilFormProvider({
       agreement: '',
       createAgreementAdminRole: 'false',
       agreementAdmins: [],
+      payer: undefined,
+      acceptedTerms: false,
     },
   });
 
@@ -319,6 +305,8 @@ export function CouncilFormProvider({
           ? 'true'
           : 'false',
         agreementAdmins: data.agreementAdmins || [],
+        payer: data.payer || undefined,
+        acceptedTerms: false,
       };
       console.log('Setting form to:', newValues);
       form.reset(newValues);

@@ -2,16 +2,18 @@ interface NextStepButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   children: React.ReactNode;
+  type?: 'button' | 'submit';
 }
 
 export function NextStepButton({
   onClick,
   disabled,
   children,
+  type = 'submit',
 }: NextStepButtonProps) {
   return (
     <button
-      type='submit'
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className='inline-flex items-center rounded-lg bg-[#2B6CB0] px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50'
