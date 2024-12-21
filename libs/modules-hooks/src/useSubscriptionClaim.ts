@@ -6,7 +6,7 @@ import { useToast, useWaitForSubgraph } from 'hooks';
 import { isUndefined } from 'lodash';
 import { HandlePendingTx } from 'types';
 import { REFERRAL_ADDRESS } from 'utils';
-import { Abi, zeroAddress } from 'viem';
+import { Abi, Hex, zeroAddress } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
 import { useLockFromHat } from './useLockFromHat';
@@ -40,7 +40,7 @@ export const useSubscriptionClaim = ({
 
   const lockContract = {
     abi: PublicLockV14.abi as Abi,
-    address: lockAddress,
+    address: lockAddress as Hex,
   } as const;
 
   const onSuccess = () => {
@@ -67,7 +67,7 @@ export const useSubscriptionClaim = ({
       ],
       chainId,
       value: currencyContract !== zeroAddress ? 0n : keyPrice,
-    } as any)
+    })
       .then(async (hash) => {
         if (!chainId) return;
 
@@ -124,6 +124,10 @@ export const useSubscriptionClaim = ({
     claimFn: purchaseHat,
     disableClaim,
     disableReason,
+    hasAllowance:
+      !isUndefined(allowance) &&
+      !isUndefined(keyPrice) &&
+      allowance >= keyPrice,
   };
 };
 

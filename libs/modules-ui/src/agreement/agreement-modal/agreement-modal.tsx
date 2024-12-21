@@ -64,7 +64,7 @@ export const AgreementModal = ({
 
   const searchInput = watch('search');
   const { data: agreementDetails } = useAgreementDetails({
-    id: moduleInfo.id,
+    id: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: agreementProfiles } = useProfileDetails({
@@ -125,15 +125,15 @@ export const AgreementModal = ({
     return compact([
       eligibilityHatId && {
         label: 'Eligibility Rule for this Hat',
-        hatId: eligibilityHatId,
+        hatId: eligibilityHatId as Hex,
       },
-      {
+      ownerHat && {
         label: 'Owner edits the agreement',
-        hatId: hatIdDecimalToHex(ownerHat) as Hex,
+        hatId: hatIdDecimalToHex(ownerHat),
       },
-      {
+      judgeHat && {
         label: 'Judge determines wearer standing',
-        hatId: toString(judgeHat) as Hex,
+        hatId: hatIdDecimalToHex(judgeHat),
       },
     ]);
   }, [ownerHat, judgeHat, eligibilityHatId]);
@@ -142,7 +142,7 @@ export const AgreementModal = ({
 
   return (
     <ModuleModal
-      name='agreementManager'
+      name={`${moduleInfo.instanceAddress}-agreementManager`}
       title='Agreement Signers'
       about={
         <AboutModule

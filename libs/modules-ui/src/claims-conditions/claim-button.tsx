@@ -13,12 +13,22 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { capitalize, includes, map } from 'lodash';
+import {
+  capitalize,
+  filter,
+  first,
+  flatten,
+  get,
+  includes,
+  map,
+  size,
+} from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
+import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -37,13 +47,12 @@ export const ClaimButton = () => {
   const {
     chainId,
     selectedHat,
-    moduleParameters,
-    moduleDetails,
-    controllerAddress,
+    eligibilityRules,
     isClaimableFor,
     hatterIsAdmin,
     requireHatter,
-    isEligible: isReadyToClaim, // TODO fix
+    isReadyToClaim,
+    currentEligibility,
   } = useEligibility();
 
   const { data: wearer } = useWearerDetails({
@@ -52,13 +61,23 @@ export const ClaimButton = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
+  const rulesNotAlreadyClaimed = filter(flatten(eligibilityRules), (rule) => {
+    return (
+      !get(currentEligibility, `${rule.address}.eligible`) ||
+      !get(currentEligibility, `${rule.address}.goodStanding`)
+    );
+  });
+  const multipleModulesRemaining = size(rulesNotAlreadyClaimed) > 1;
+
+  const moduleDetails = eligibilityRuleToModuleDetails(
+    first(rulesNotAlreadyClaimed), // TODO assuming there is only 1 rule remaining to claim
+  );
   const { handleClaim, disableClaim, disableReason, isLoading, isEligible } =
     useClaimFn({
       selectedHat: selectedHat as AppHat,
       handlePendingTx,
-      moduleParameters,
+      moduleParameters: get(moduleDetails, 'liveParameters'),
       moduleDetails,
-      controllerAddress,
       chainId,
       isReadyToClaim,
     });
@@ -100,6 +119,9 @@ export const ClaimButton = () => {
   }
   if (requireHatter && !isClaimableFor) {
     tooltip = 'Ensure any address can claim on behalf of wearers';
+  }
+  if (multipleModulesRemaining) {
+    tooltip = 'There are multiple rules remaining to claim';
   }
   if (isWearing && isEligible) {
     tooltip = 'You are already wearing this hat';

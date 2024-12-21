@@ -1,61 +1,75 @@
 'use client';
 
-import { CONTROLLER_TYPES, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
-import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
+import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useHatDetails, useTreeDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
-import { first, get, includes, toLower, toNumber } from 'lodash';
+import { first, flatten, get, includes, toLower, toNumber } from 'lodash';
 import {
-  useAncillaryElection,
-  useModuleDetails,
+  useCurrentEligibility,
+  useEligibilityRules,
   useMultiClaimsHatterCheck,
 } from 'modules-hooks';
-import { createContext, useContext, useMemo, useState } from 'react';
-import { AppHat, HatDetails, SupportedChains } from 'types';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  AppHat,
+  EligibilityRule,
+  HatDetails,
+  SupportedChains,
+  WearerStatus,
+} from 'types';
 import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 export interface EligibilityContextProps {
   chainId: SupportedChains | undefined;
   selectedHat: AppHat | null | undefined;
   selectedHatDetails: HatDetails | undefined;
-  moduleDetails: Module | undefined;
-  moduleParameters: ModuleParameter[] | undefined;
+  eligibilityRules: Ruleset[] | undefined;
   controllerAddress: Hex | undefined;
+  currentEligibility: { [key: Hex]: WearerStatus } | undefined;
   // loading
   isHatDetailsLoading: boolean | undefined;
-  isModuleDetailsLoading: boolean | undefined;
-  // election eligibility
-  electionsAuthority: any | undefined;
-  isElectionsAuthorityLoading: boolean;
+  isEligibilityRulesLoading: boolean | undefined;
   // claiming
   isClaimableFor: boolean;
   hatterIsAdmin: boolean | undefined;
   requireHatter: boolean;
-  // temporary eligibility
-  isEligible: boolean;
-  setIsEligible: (isEligible: boolean) => void;
+  // current active rule
+  activeRule: EligibilityRule | undefined;
+  setActiveRule: (rule: EligibilityRule | undefined) => void;
+  // in-app eligibility
+  isReadyToClaim: { [key: Hex]: boolean } | undefined;
+  setIsReadyToClaim: (address: Hex) => void;
 }
 
 export const EligibilityContext = createContext<EligibilityContextProps>({
   chainId: undefined,
   selectedHat: undefined,
   selectedHatDetails: undefined,
-  moduleDetails: undefined,
-  moduleParameters: undefined,
+  eligibilityRules: undefined,
   controllerAddress: undefined,
+  currentEligibility: undefined,
   // loading
-  isHatDetailsLoading: false,
-  isModuleDetailsLoading: false,
-  // election eligibility
-  electionsAuthority: undefined,
-  isElectionsAuthorityLoading: false,
+  isHatDetailsLoading: true,
+  isEligibilityRulesLoading: true,
   // claiming
   isClaimableFor: false,
   hatterIsAdmin: false,
   requireHatter: false,
-  // temporary eligibility
-  isEligible: false,
-  setIsEligible: () => {},
+  // current active rule
+  activeRule: undefined,
+  setActiveRule: (rule: EligibilityRule | undefined) => {},
+  // in-app eligibility
+  isReadyToClaim: {},
+  setIsReadyToClaim: (address: Hex) => {},
 });
 
 export const EligibilityContextProvider = ({
@@ -67,7 +81,8 @@ export const EligibilityContextProvider = ({
   chainId: SupportedChains;
   children: React.ReactNode;
 }) => {
-  const [isEligible, setIsEligible] = useState(false);
+  const [isReadyToClaim, rawSetIsReadyToClaim] = useState({});
+  const [activeRule, setActiveRule] = useState<EligibilityRule | undefined>();
   const {
     data: selectedHat,
     details: hatDetails,
@@ -82,6 +97,7 @@ export const EligibilityContextProvider = ({
     treeId,
     chainId,
   });
+  const { address } = useAccount();
 
   const controllerAddress = get(
     selectedHat,
@@ -93,13 +109,17 @@ export const EligibilityContextProvider = ({
       hats: selectedHat ? [selectedHat] : [],
     });
 
-  const {
-    details: moduleDetails,
-    parameters: moduleParameters,
-    isLoading: isModuleDetailsLoading,
-  } = useModuleDetails({
-    address: controllerAddress,
+  const { data: eligibilityRules, isLoading: isEligibilityRulesLoading } =
+    useEligibilityRules({
+      chainId,
+      address: controllerAddress,
+    });
+
+  const { data: currentEligibility } = useCurrentEligibility({
     chainId,
+    wearerAddress: address as Hex,
+    eligibilityRules: eligibilityRules || undefined,
+    selectedHat,
   });
 
   const { claimableForHats, hatterIsAdmin } = useMultiClaimsHatterCheck({
@@ -112,57 +132,63 @@ export const EligibilityContextProvider = ({
     [claimableForHats, selectedHat],
   );
 
-  const { data: electionsAuthority, isLoading: isElectionsAuthorityLoading } =
-    useAncillaryElection({
-      id: controllerAddress,
-      chainId,
-      enabled: moduleDetails?.name === ELIGIBILITY_MODULES.election,
-    });
+  const setIsReadyToClaim = useCallback(
+    (address: Hex) => {
+      rawSetIsReadyToClaim({ ...isReadyToClaim, [address]: true }); // TODO handle toggle?
+    },
+    [rawSetIsReadyToClaim, isReadyToClaim],
+  );
+
+  useEffect(() => {
+    if (activeRule) return;
+
+    setActiveRule(first(flatten(eligibilityRules)));
+  }, [eligibilityRules, activeRule]);
 
   const value = useMemo(
     () => ({
       chainId,
       selectedHat: first(selectedHatWithImageUrl) || selectedHat,
       selectedHatDetails: hatDetails,
-      moduleDetails,
-      moduleParameters,
+      eligibilityRules: eligibilityRules || undefined,
       controllerAddress,
+      currentEligibility: currentEligibility || undefined,
       // loading
       isHatDetailsLoading: isHatDetailsLoading || isImageURIsLoading,
-      isModuleDetailsLoading,
-      // election
-      electionsAuthority,
-      isElectionsAuthorityLoading,
+      isEligibilityRulesLoading,
       // claiming
       isClaimableFor,
       hatterIsAdmin,
       requireHatter,
-      // temporary eligibility
-      isEligible,
-      setIsEligible,
+      // current active rule
+      activeRule,
+      setActiveRule,
+      // in-app eligibility
+      isReadyToClaim,
+      setIsReadyToClaim,
     }),
     [
       chainId,
       hatDetails,
       selectedHatWithImageUrl,
       selectedHat,
-      moduleDetails,
-      moduleParameters,
+      eligibilityRules,
       controllerAddress,
+      currentEligibility,
       // loading
       isHatDetailsLoading,
       isImageURIsLoading,
-      isModuleDetailsLoading,
-      // election
-      electionsAuthority,
-      isElectionsAuthorityLoading,
+      isEligibilityRulesLoading,
       // claiming
       isClaimableFor,
       hatterIsAdmin,
       requireHatter,
-      // temporary eligibility
-      isEligible,
-      setIsEligible,
+      // current active rule
+      activeRule,
+      setActiveRule,
+      // in-app eligibility
+      isReadyToClaim,
+      setIsReadyToClaim,
     ],
   );
 

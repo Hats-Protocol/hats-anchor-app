@@ -12,9 +12,9 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import { get } from 'lodash';
+import { first, flatten, get, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import { chainsMap, hatLink } from 'utils';
+import { chainsMap, eligibilityRuleToModuleDetails, hatLink } from 'utils';
 
 const AgreementClaims = dynamic(() =>
   import('modules-ui').then((mod) => mod.AgreementClaims),
@@ -31,43 +31,64 @@ const SlimModuleDetails = dynamic(() =>
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
+const ModuleChainClaimButtons = dynamic(() =>
+  import('modules-ui').then((mod) => mod.ModuleChainClaimButtons),
+);
+const ModuleChainClaimsCard = dynamic(() =>
+  import('modules-ui').then((mod) => mod.ModuleChainClaimsCard),
+);
 
 const Claims = () => {
   const { isClient } = useMediaStyles();
   const {
     chainId,
     selectedHat,
-    moduleDetails,
+    eligibilityRules: rawEligibilityRules,
     isHatDetailsLoading,
-    isModuleDetailsLoading,
+    isEligibilityRulesLoading,
   } = useEligibility();
+
+  const eligibilityRules = flatten(rawEligibilityRules);
+  const activeModule = eligibilityRuleToModuleDetails(first(eligibilityRules));
 
   if (
     !isClient ||
-    isModuleDetailsLoading ||
+    isEligibilityRulesLoading ||
     isHatDetailsLoading ||
-    !selectedHat?.id
+    !selectedHat?.id ||
+    !activeModule
   ) {
     return <Skeleton w='full' h='500px' borderRadius='lg' />;
+  }
+
+  if (size(eligibilityRules) > 1) {
+    // TODO handle multiple modules
+    return (
+      <div className='flex flex-col gap-4'>
+        <ModuleChainClaimButtons />
+
+        <ModuleChainClaimsCard />
+      </div>
+    );
   }
 
   if (
     (chainId === 10 &&
       get(selectedHat, 'id') === CONFIG.agreementV0.communityHatId) ||
-    moduleDetails?.name.includes('Agreement')
+    activeModule?.name.includes('Agreement')
   ) {
-    return <AgreementClaims />;
+    return <AgreementClaims activeModule={activeModule} />;
   }
 
   // handle specific modules found
   // TODO migrate to ID and CONSTs
-  if (moduleDetails?.name === 'Hats Election Eligibility')
+  if (activeModule?.name === 'Hats Election Eligibility')
     return <ElectionClaims />;
-  if (moduleDetails?.name.includes('Unlock Protocol'))
+  if (activeModule?.name.includes('Unlock Protocol'))
     return <SubscriptionClaims />;
 
   // fallback for other known modules
-  if (moduleDetails) return <SlimModuleDetails type='eligibility' />;
+  if (activeModule) return <SlimModuleDetails type='eligibility' />;
 
   // fallback for unknown modules
   return (

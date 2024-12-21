@@ -1,7 +1,7 @@
-import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { find, get } from 'lodash';
-import { ModuleFunction, SupportedChains } from 'types';
+import { ModuleDetails, ModuleFunction, SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 
@@ -9,8 +9,8 @@ import useCallModuleFunction from './useCallModuleFunction';
 
 interface ContractInteractionProps {
   moduleParameters: ModuleParameter[] | undefined;
-  moduleDetails?: Module | undefined;
-  chainId?: SupportedChains | undefined;
+  moduleDetails?: ModuleDetails | undefined; // required when signing agreement
+  chainId?: SupportedChains | undefined; // required when signing agreement
   controllerAddress?: string | undefined;
   onSuccessfulSign?: () => void;
   mchAddress?: Hex | undefined;
@@ -21,7 +21,6 @@ const useAgreementClaim = ({
   moduleParameters,
   moduleDetails,
   chainId,
-  controllerAddress,
   onSuccessfulSign,
   mchAddress,
   onDecline,
@@ -56,7 +55,7 @@ const useAgreementClaim = ({
   const handleSignAndClaim = async () => {
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
-      instance: controllerAddress as Hex,
+      instance: moduleDetails?.instanceAddress as Hex,
       func: signAndClaim as ModuleFunction,
       args: {
         'Claims Hatter': mchAddress,
@@ -67,9 +66,10 @@ const useAgreementClaim = ({
   };
 
   const handleSign = async () => {
+    // TODO better catch for errors?
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
-      instance: controllerAddress as Hex,
+      instance: moduleDetails?.instanceAddress as Hex,
       func: signFn as ModuleFunction,
       args: {},
       onSuccess: onSuccessfulSign,

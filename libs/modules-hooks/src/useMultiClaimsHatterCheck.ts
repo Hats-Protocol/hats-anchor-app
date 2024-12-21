@@ -3,7 +3,7 @@ import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import { useIsAdmin } from 'hats-hooks';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { useMemo } from 'react';
 import { AppHat, FormData, ModuleDetails, SupportedChains } from 'types';
 import { createSubgraphClient, fetchWearerDetails } from 'utils';
@@ -13,6 +13,8 @@ import useModuleDetails from './useModuleDetails';
 import useModulesDetails from './useModulesDetails';
 
 const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
+  if (isEmpty(hats)) return [];
+
   const subgraphClient = createSubgraphClient();
   const res = subgraphClient.getHatsByIds({
     chainId,
@@ -30,7 +32,7 @@ const fetchHatters = async (
   chainId: number | undefined,
   allHatIds: Hex[] | undefined,
 ) => {
-  if (!chainId || !allHatIds) return undefined;
+  if (!chainId || !allHatIds || isEmpty(allHatIds)) return undefined;
   const result = await fetchHattersHelper(chainId, allHatIds);
   return result;
 };
@@ -89,7 +91,7 @@ const useMultiClaimsHatterCheck = ({
   } = useQuery({
     queryKey: ['claimsHatter', allHatIds, chainId],
     queryFn: () => fetchHatters(chainId, allHatIds),
-    enabled: !!allHatIds && !!chainId,
+    enabled: !!allHatIds && !isEmpty(allHatIds) && !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

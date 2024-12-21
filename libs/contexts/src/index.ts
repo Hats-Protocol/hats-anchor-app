@@ -2,6 +2,7 @@
 export * from './components';
 // actual context exports
 export * from './council-form';
+export * from './councils-context';
 export * from './EligibilityContext';
 export * from './HatFormContext';
 export * from './OverlayContext';

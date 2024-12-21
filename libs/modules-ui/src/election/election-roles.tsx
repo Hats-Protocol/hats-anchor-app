@@ -5,15 +5,24 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { get } from 'lodash';
+import { useAncillaryElection } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { idToIp } from 'shared';
+import { SupportedChains } from 'types';
+import { eligibilityRuleToModuleDetails } from 'utils';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
 );
 
 export const ElectionRoles = () => {
-  const { electionsAuthority, selectedHat } = useEligibility();
+  const { selectedHat, activeRule } = useEligibility();
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+
+  const { data: electionsAuthority } = useAncillaryElection({
+    chainId: selectedHat?.chainId as SupportedChains,
+    id: moduleDetails?.instanceAddress,
+  });
 
   const chainId = selectedHat?.chainId;
   const treeId = selectedHat

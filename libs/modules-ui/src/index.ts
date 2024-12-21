@@ -7,6 +7,7 @@ export * from './header';
 export * from './hsg';
 export * from './joke-race';
 export * from './module-card-details';
+export * from './module-chain-claim';
 export * from './module-modal';
 export * from './slim-module-details';
 export * from './staking';

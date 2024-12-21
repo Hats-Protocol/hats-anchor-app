@@ -29,7 +29,11 @@ const CustomFunction = ({
           leftIcon={<Icon as={BsPencil} />}
           size='sm'
           variant='primary'
-          onClick={() => setModals?.({ agreementManager: true })}
+          onClick={() =>
+            setModals?.({
+              [`${authority.moduleInfo?.id}-agreementManager`]: true,
+            })
+          }
         >
           View Signers
         </Button>
@@ -50,7 +54,11 @@ const CustomFunction = ({
           leftIcon={<Icon as={BsPencil} />}
           size='sm'
           variant='primary'
-          onClick={() => setModals?.({ allowlistManager: true })}
+          onClick={() =>
+            setModals?.({
+              [`${authority.moduleInfo?.id}-allowlistManager`]: true,
+            })
+          }
         >
           Edit Allowlist
         </Button>
@@ -90,7 +98,11 @@ const CustomFunction = ({
           leftIcon={<Icon as={BsPencil} />}
           size='sm'
           variant='primary'
-          onClick={() => setModals?.({ jokeRaceManager: true })}
+          onClick={() =>
+            setModals?.({
+              [`${authority.moduleInfo?.id}-jokeRaceManager`]: true,
+            })
+          }
         >
           View Electees
         </Button>

@@ -66,7 +66,7 @@ export const SubgraphCheck = ({ chainId }: { chainId: number }) => {
 
       {map(SUBGRAPHS, ({ name, value, outOfSync }) => {
         return (
-          <div className='flex w-full justify-between gap-4'>
+          <div className='flex w-full justify-between gap-4' key={name}>
             <h5 className='w-[150px] text-sm'>{name}</h5>
 
             <div

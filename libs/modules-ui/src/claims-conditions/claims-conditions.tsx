@@ -4,8 +4,7 @@ import { Box, Flex, Heading, Skeleton, Text } from '@chakra-ui/react';
 import { CONFIG, NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { first, flatten, gt, includes, pick, size } from 'lodash';
-import { useEligibilityRules } from 'modules-hooks';
-import { ModuleDetails } from 'types';
+import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -31,52 +30,29 @@ const EligibilityConditions = () => {
   const {
     selectedHat,
     chainId,
-    isEligible: isReadyToClaim,
-    setIsEligible: setIsReadyToClaim,
+    eligibilityRules,
+    isReadyToClaim,
+    setIsReadyToClaim,
+    isEligibilityRulesLoading,
+    currentEligibility,
   } = useEligibility();
 
   const { eligibility } = pick(selectedHat, ['eligibility']);
-  // const orgChartEligibility = find(orgChartWearers, { id: eligibility });
-  // const hatWearerEligibility = find(hatWearers, { id: eligibility });
   const eligibilityData = { id: eligibility as Hex };
-  //  hatWearerEligibility ||  orgChartEligibility ||
-  // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
-  const { data: ruleSets, isLoading: loadingModuleDetails } =
-    useEligibilityRules({
-      address: eligibility,
-      chainId,
-      // enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
-    });
-  const multipleModules = gt(size(flatten(ruleSets)), 1);
+
+  const multipleModules = gt(size(flatten(eligibilityRules)), 1);
 
   if (multipleModules) {
     return (
       <ChainPanel
-        ruleSets={ruleSets || undefined}
+        ruleSets={eligibilityRules || undefined}
         chainId={chainId}
         selectedHat={selectedHat || undefined}
-        modalSuffix={MODAL_SUFFIX}
-      />
-    );
-  }
-
-  if (ruleSets) {
-    const {
-      module: moduleDetails,
-      address: instance,
-      liveParams: parameters,
-    } = pick(first(first(ruleSets)), ['module', 'address', 'liveParams']);
-
-    return (
-      <KnownEligibilityModule
-        moduleDetails={{ ...moduleDetails, id: instance } as ModuleDetails}
-        moduleParameters={parameters}
-        selectedHat={selectedHat || undefined}
-        wearer={address as Hex}
-        chainId={chainId}
         modalSuffix={MODAL_SUFFIX}
         isReadyToClaim={isReadyToClaim}
         setIsReadyToClaim={setIsReadyToClaim}
+        currentEligibility={currentEligibility}
+        defaultOpen
       />
     );
   }
@@ -97,8 +73,31 @@ const EligibilityConditions = () => {
     );
   }
 
+  if (eligibilityRules) {
+    const moduleDetails = eligibilityRuleToModuleDetails(
+      first(flatten(eligibilityRules)),
+    ); // can assume there's only one rule
+
+    return (
+      <KnownEligibilityModule
+        moduleDetails={moduleDetails}
+        moduleParameters={moduleDetails?.liveParameters}
+        selectedHat={selectedHat || undefined}
+        wearer={address as Hex}
+        chainId={chainId}
+        modalSuffix={MODAL_SUFFIX}
+        isReadyToClaim={isReadyToClaim}
+        setIsReadyToClaim={setIsReadyToClaim}
+      />
+    );
+  }
+
   return (
-    <Skeleton isLoaded={!loadingModuleDetails} my={2} mx={{ base: 4, md: 0 }}>
+    <Skeleton
+      isLoaded={!isEligibilityRulesLoading}
+      my={2}
+      mx={{ base: 4, md: 0 }}
+    >
       <Flex justify='space-between'>
         <Text>
           {includes(NULL_ADDRESSES, eligibility)
@@ -112,13 +111,14 @@ const EligibilityConditions = () => {
     </Skeleton>
   );
 };
+
 export const ClaimsConditions = () => {
   // TODO only include modals that are relevant
-  const { isHatDetailsLoading, isModuleDetailsLoading } = useEligibility();
+  const { isHatDetailsLoading, isEligibilityRulesLoading } = useEligibility();
 
   return (
     <Box w='100%' pb={{ base: 20, md: 0 }}>
-      <Skeleton isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}>
+      <Skeleton isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
         <Heading size='sm' my={1} px={{ base: 4, md: 0 }}>
           Conditions to wear this {CONFIG.TERMS.hat}
         </Heading>
@@ -126,7 +126,7 @@ export const ClaimsConditions = () => {
 
       <Skeleton
         w='full'
-        isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}
+        isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}
       >
         <EligibilityConditions />
       </Skeleton>
@@ -134,7 +134,7 @@ export const ClaimsConditions = () => {
       <Skeleton
         w='full'
         mt={4}
-        isLoaded={!isHatDetailsLoading && !isModuleDetailsLoading}
+        isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}
       >
         <Flex display={{ base: 'none', '2xl': 'flex' }} justify='center'>
           <ClaimButton />

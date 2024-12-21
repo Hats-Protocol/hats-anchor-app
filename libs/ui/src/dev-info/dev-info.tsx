@@ -1,13 +1,13 @@
 'use client';
 
-import { Heading, Stack } from '@chakra-ui/react';
+import { Heading, Link, Stack } from '@chakra-ui/react';
 import { isEmpty, map } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
 
-export interface DevInfo {
+export interface DevInfoUnit {
   label?: string;
   hatId?: Hex;
   icon?: IconType;
@@ -39,5 +39,5 @@ export const DevInfo = ({ devInfos }: DevInfoProps) => {
 };
 
 interface DevInfoProps {
-  devInfos: DevInfo[];
+  devInfos: DevInfoUnit[];
 }

@@ -19,7 +19,7 @@ import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { fetchIpfs, hatLink } from 'utils';
+import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 import { ClaimsHelperButtons } from './claims-helper-buttons';
 
@@ -40,16 +40,19 @@ const handleFetchIpfs = async (ipfsHash: string) => {
 };
 
 export const BottomMoreMenu = () => {
-  const { selectedHat, chainId, moduleDetails, moduleParameters } =
-    useEligibility();
+  const { selectedHat, chainId, activeRule } = useEligibility();
+  // TODO use last rule to complete rather than active rule
+  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
   const { isMobile } = useMediaStyles();
   const link = hatLink({ hatId: selectedHat?.id, chainId });
 
   const hasAgreement =
     selectedHat?.id === CONFIG.agreementV0.communityHatId ||
-    moduleDetails?.name === ELIGIBILITY_MODULES.agreement;
+    moduleDetails?.name === ELIGIBILITY_MODULES.agreement; // TODO match on implementation address/module key
 
-  const { agreement } = useAgreementClaim({ moduleParameters });
+  const { agreement } = useAgreementClaim({
+    moduleParameters: moduleDetails?.liveParameters,
+  });
 
   const { data: agreementV0 } = useQuery({
     queryKey: ['agreementV0'],

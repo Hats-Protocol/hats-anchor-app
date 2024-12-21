@@ -34,14 +34,14 @@ const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
 
 export const StandaloneBottomMenu = () => {
   const currentNetworkId = useChainId();
-  const { chainId, isHatDetailsLoading, isModuleDetailsLoading } =
+  const { chainId, isHatDetailsLoading, isEligibilityRulesLoading } =
     useEligibility();
 
   if (
     !currentNetworkId ||
     !chainId ||
     isHatDetailsLoading ||
-    isModuleDetailsLoading
+    isEligibilityRulesLoading
   ) {
     return (
       <MenuWrapper>

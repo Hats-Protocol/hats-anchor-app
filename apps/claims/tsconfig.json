@@ -64,10 +64,8 @@
     "**/*.ts",
     "**/*.tsx",
     "../../libs/types/src/*.d.ts",
-    ".next/types/**/*.ts",
-    "../../dist/apps/claims/.next/types/**/*.ts"
+    "../../dist/apps/claims/.next/types/**/*.ts",
+    ".next/types/**/*.ts"
   ],
-  "exclude": [
-    ".next"
-  ]
+  "exclude": []
 }

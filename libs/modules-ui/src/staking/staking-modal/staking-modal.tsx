@@ -63,7 +63,7 @@ export const StakingModal = ({
   // const searchInput = watch('search');
   // const addresses = watch('addresses');
   const { data: allowlist } = useAllowlist({
-    id: moduleInfo.id,
+    id: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: profileDetails } = useProfileDetails({
@@ -108,7 +108,7 @@ export const StakingModal = ({
 
   return (
     <ModuleModal
-      name='stakingManager'
+      name={`${moduleInfo.instanceAddress}-stakingManager`}
       title='Manage Stakers'
       about={
         <AboutModule

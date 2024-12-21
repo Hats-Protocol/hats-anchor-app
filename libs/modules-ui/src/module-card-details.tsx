@@ -1,11 +1,11 @@
-import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
-import { find, has, keys } from 'lodash';
+import { has } from 'lodash';
 import {
   AppHat,
   ModuleDetails,
   ModuleDetailsComponent,
   SupportedChains,
 } from 'types';
+import { getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 
 import { AgreementEligibilityDetails } from './agreement';
@@ -32,11 +32,8 @@ export const ModuleCardDetails = ({
   moduleInfo: ModuleDetails | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  const knownModuleKeys = keys(KNOWN_ELIGIBILITY_MODULES);
-  const knownModule = find(knownModuleKeys, (key) =>
-    KNOWN_ELIGIBILITY_MODULES[key].includes(
-      moduleInfo?.implementationAddress as Hex,
-    ),
+  const knownModule = getKnownEligibilityModule(
+    moduleInfo?.implementationAddress as Hex,
   );
 
   if (knownModule && has(MODULE_DETAILS, knownModule)) {

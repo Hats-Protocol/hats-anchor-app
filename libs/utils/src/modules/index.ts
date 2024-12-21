@@ -1,7 +1,13 @@
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { concat, filter, first, get, includes, nth } from 'lodash';
-import { AllowlistProfile, AppHat, ModuleDetails, ValueOf } from 'types';
+import {
+  AllowlistProfile,
+  AppHat,
+  EligibilityRule,
+  ModuleDetails,
+  ValueOf,
+} from 'types';
 import { Hex } from 'viem';
 
 import { viemPublicClient } from '../web3';
@@ -21,8 +27,8 @@ export type ModuleDetailsHandler = {
   moduleType?: ValueOf<typeof CONTROLLER_TYPES>;
   isWearer?: boolean;
   modalSuffix?: string | undefined;
-  setIsReadyToClaim?: (isReadyToClaim: boolean) => void;
-  isReadyToClaim?: boolean;
+  setIsReadyToClaim?: (address: Hex) => void;
+  isReadyToClaim?: { [key: Hex]: boolean };
 };
 
 type FallbackModuleResult = {
@@ -75,7 +81,7 @@ export const fallbackModuleCheck = async ({
 //   wearer: Hex | undefined;
 // }): Promise<boolean | undefined> => {
 //   return readContract({
-//     address: moduleDetails?.id as Hex,
+//     address: moduleDetails?.instanceAddress as Hex,
 //     abi: moduleDetails?.abi,
 //     chainId,
 //     functionName: 'allowlist',
@@ -119,5 +125,17 @@ export const filterProfiles = ({
     wearer: wearerProfiles,
     eligible,
     ineligible: concat(badStanding, ineligible),
+  };
+};
+
+export const eligibilityRuleToModuleDetails = (
+  eligibilityRule: EligibilityRule | undefined,
+): ModuleDetails | undefined => {
+  if (!eligibilityRule) return undefined;
+
+  return {
+    ...eligibilityRule.module,
+    instanceAddress: eligibilityRule.address,
+    liveParameters: eligibilityRule.liveParams,
   };
 };

@@ -31,6 +31,7 @@ export const CommunityHatEligibilityRule = ({
   selectedHat,
   wearer,
   chainId,
+  moduleDetails,
   setIsReadyToClaim,
   isReadyToClaim,
   modalSuffix,
@@ -64,7 +65,7 @@ export const CommunityHatEligibilityRule = ({
     icon = BsCheckSquare;
   }
 
-  let modalName = MODAL_NAME;
+  let modalName = `${selectedHat?.eligibility}-${MODAL_NAME}`;
   if (modalSuffix) modalName += modalSuffix;
 
   if (!IS_CLAIMS_APP) {
@@ -96,7 +97,8 @@ export const CommunityHatEligibilityRule = ({
             Sign the{' '}
             <Button
               onClick={() => {
-                setIsReadyToClaim?.(true);
+                if (!moduleDetails?.instanceAddress) return;
+                setIsReadyToClaim?.(moduleDetails.instanceAddress);
                 setModals?.({ [modalName]: true });
               }}
               variant='link'

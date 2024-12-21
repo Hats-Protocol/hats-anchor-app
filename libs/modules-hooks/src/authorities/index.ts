@@ -87,13 +87,14 @@ const mapModuleAuthority = ({
     moduleInfo?.writeFunctions,
     (func: ModuleFunction) => includes(func.roles, matchingRole?.id),
   ) as ModuleFunction[];
+  // TODO this doesn't handle chained module authorities
 
   // check the passthrough module for which type
   if (moduleInfo.name === 'Passthrough Module') {
     const { toggle, eligibility } = pick(hatInfo, ['toggle', 'eligibility']);
     const authorities: any[] = [];
 
-    if (moduleInfo.id === toggle) {
+    if (moduleInfo.instanceAddress === toggle) {
       const localFunctions = map(
         filter(matchingFunctions, {
           functionName: 'setHatStatus',
@@ -114,7 +115,7 @@ const mapModuleAuthority = ({
         }),
       );
     }
-    if (moduleInfo.id === eligibility) {
+    if (moduleInfo.instanceAddress === eligibility) {
       authorities.push(
         populateModuleAuthority({
           role: matchingRole,

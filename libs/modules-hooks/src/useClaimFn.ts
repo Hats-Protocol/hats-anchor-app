@@ -5,14 +5,20 @@ import {
   ELIGIBILITY_MODULES,
   TOASTS,
 } from '@hatsprotocol/constants';
-import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
 import { useAgreementClaimsHatterContractWrite } from 'hooks';
-import { find, pick } from 'lodash';
+import { find, get, pick } from 'lodash';
 import { useMemo, useState } from 'react';
-import { AppHat, HandlePendingTx, SupportedChains, ToastProps } from 'types';
+import {
+  AppHat,
+  HandlePendingTx,
+  ModuleDetails,
+  SupportedChains,
+  ToastProps,
+} from 'types';
 import { Hex } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 
@@ -27,7 +33,6 @@ export const useClaimFn = ({
   handlePendingTx,
   moduleParameters,
   moduleDetails,
-  controllerAddress,
   chainId,
   isReadyToClaim,
 }: UseClaimFnProps) => {
@@ -57,12 +62,15 @@ export const useClaimFn = ({
     chainId,
   });
 
-  const { instanceAddress, currentHatIsClaimable, hatterIsAdmin } =
-    useMultiClaimsHatterCheck({
-      chainId,
-      selectedHat,
-      onchainHats: selectedHat ? [selectedHat] : [],
-    });
+  const {
+    instanceAddress: mchAddress,
+    currentHatIsClaimable,
+    hatterIsAdmin,
+  } = useMultiClaimsHatterCheck({
+    chainId,
+    selectedHat,
+    onchainHats: selectedHat ? [selectedHat] : [],
+  });
 
   // TODO handle check which module to enable each hook
 
@@ -85,8 +93,7 @@ export const useClaimFn = ({
       moduleParameters,
       moduleDetails,
       chainId,
-      controllerAddress,
-      mchAddress: instanceAddress,
+      mchAddress,
       onSuccessfulSign: () => {
         setStatus(CLAIM_STATUS.SUCCESS);
 
@@ -123,12 +130,31 @@ export const useClaimFn = ({
     });
 
   const claimHandlers = useMemo(() => {
+    if (!moduleDetails?.instanceAddress) {
+      return { claimFn: undefined, disableClaim: true };
+    }
+
+    // TODO match on implementation address/module key
     if (moduleDetails?.name === ELIGIBILITY_MODULES.agreement) {
-      return { claimFn: agreementClaim, disableClaim: !isReadyToClaim };
+      return {
+        claimFn: agreementClaim,
+        disableClaim: !get(
+          isReadyToClaim,
+          moduleDetails?.instanceAddress,
+          false,
+        ),
+      };
     }
 
     if (selectedHat?.id === CONFIG.agreementV0.communityHatId) {
-      return { claimFn: agreementV0Claim, disableClaim: !isReadyToClaim };
+      return {
+        claimFn: agreementV0Claim,
+        disableClaim: !get(
+          isReadyToClaim,
+          moduleDetails?.instanceAddress,
+          false,
+        ),
+      };
     }
 
     if (moduleDetails?.name === ELIGIBILITY_MODULES.unlock) {
@@ -144,9 +170,11 @@ export const useClaimFn = ({
       return { claimFn: () => undefined, disableClaim: true };
     }
 
+    // TODO fallback to claim with MCH when eligible
     return { claimFn: undefined, disableClaim: true };
   }, [
     moduleDetails?.name,
+    moduleDetails?.instanceAddress,
     selectedHat?.id,
     agreementClaim,
     agreementV0Claim,
@@ -176,8 +204,8 @@ export const useClaimFn = ({
 
   return {
     handleClaim,
-    disableClaim: claimHandlers.disableClaim,
-    disableReason: claimHandlers.disableReason,
+    disableClaim: claimHandlers?.disableClaim,
+    disableReason: claimHandlers?.disableReason,
     isEligible,
     status,
     isLoading: status === CLAIM_STATUS.CLAIMING,
@@ -190,8 +218,7 @@ interface UseClaimFnProps {
   selectedHat: AppHat | undefined;
   handlePendingTx: HandlePendingTx | undefined;
   moduleParameters: ModuleParameter[] | undefined;
-  moduleDetails: Module | undefined;
-  controllerAddress: string | undefined;
+  moduleDetails: ModuleDetails | undefined;
   chainId: SupportedChains | undefined;
-  isReadyToClaim: boolean | undefined;
+  isReadyToClaim: { [key: string]: boolean } | undefined;
 }

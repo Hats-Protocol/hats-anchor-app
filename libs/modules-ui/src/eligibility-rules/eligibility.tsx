@@ -6,7 +6,7 @@ import { useSelectedHat, useTreeForm } from 'contexts';
 import { find, first, flatten, gt, includes, pick, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { ModuleDetails } from 'types';
+import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -35,19 +35,21 @@ export const Eligibility = ({
   // console.log({ eligibilityData });
 
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
-  const { data: ruleSets, isLoading: loadingModuleDetails } =
+  const { data: rawEligibilityRules, isLoading: loadingModuleDetails } =
     useEligibilityRules({
       address: eligibility,
       chainId,
       enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
     });
-  const multipleModules = gt(size(flatten(ruleSets)), 1);
-  const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
+
+  const ruleSets = flatten(rawEligibilityRules);
+  const multipleModules = gt(size(ruleSets), 1);
+  const isHatsAccount = false; // TODO enable with Hat ID reverse lookup
 
   if (multipleModules) {
     return (
       <ChainPanel
-        ruleSets={ruleSets || undefined}
+        ruleSets={rawEligibilityRules || undefined}
         chainId={chainId}
         selectedHat={selectedHat}
         modalSuffix={modalSuffix}
@@ -56,16 +58,12 @@ export const Eligibility = ({
   }
 
   if (ruleSets) {
-    const {
-      module: moduleDetails,
-      address: instance,
-      liveParams: parameters,
-    } = pick(first(first(ruleSets)), ['module', 'address', 'liveParams']);
+    const moduleDetails = eligibilityRuleToModuleDetails(first(ruleSets));
 
     return (
       <KnownEligibilityModule
-        moduleDetails={{ ...moduleDetails, id: instance } as ModuleDetails}
-        moduleParameters={parameters}
+        moduleDetails={moduleDetails}
+        moduleParameters={moduleDetails?.liveParameters}
         selectedHat={selectedHat}
         wearer={address as Hex}
         chainId={chainId}
