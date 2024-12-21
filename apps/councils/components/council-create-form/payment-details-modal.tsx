@@ -10,7 +10,9 @@ import { FiX } from 'react-icons/fi';
 import { councilsGraphqlClient } from 'utils';
 import { isAddress } from 'viem';
 
+import { getChainId } from '../../lib/utils/chains';
 import { UsdcIcon } from '../icons/usdc-icon';
+import { NextStepButton } from '../next-step-button';
 
 interface PaymentDetailsModalProps {
   isOpen: boolean;
@@ -53,8 +55,7 @@ export function PaymentDetailsModal({
   draftId,
 }: PaymentDetailsModalProps) {
   const selectedChain = parentForm.watch('chain');
-  const chainId =
-    selectedChain === 'optimism' ? 10 : selectedChain === 'base' ? 8453 : 42161;
+  const chainId = getChainId(selectedChain);
 
   const modalForm = useForm({
     defaultValues: {
@@ -66,6 +67,17 @@ export function PaymentDetailsModal({
   });
 
   const [formError, setFormError] = useState<string | null>(null);
+
+  const isValidEmail = (email: string) => {
+    return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
+  };
+
+  const isFormValid = () => {
+    const values = modalForm.getValues();
+    return (
+      !!values.name && values.name.length > 0 && isValidEmail(values.email)
+    );
+  };
 
   const createUserMutation = useMutation({
     mutationFn: async (variables: {
@@ -112,10 +124,10 @@ export function PaymentDetailsModal({
     name?: string;
     telegram?: string;
   }) => {
-    if (!isAddress(data.address)) {
-      setFormError('Please enter a valid Ethereum address');
-      return;
-    }
+    // if (!isAddress(data.address)) {
+    //   setFormError('Please enter a valid Ethereum address');
+    //   return;
+    // }
 
     try {
       const userData = await createUserMutation.mutateAsync(data);
@@ -164,7 +176,7 @@ export function PaymentDetailsModal({
       >
         <div className='p-6'>
           <div className='pr-6'>
-            <h2 className='text-xl font-semibold text-gray-900'>
+            <h2 className='text-2xl font-bold text-gray-900'>
               Invoicing Details
             </h2>
           </div>
@@ -174,15 +186,15 @@ export function PaymentDetailsModal({
             className='absolute right-6 top-6 text-gray-400 hover:text-gray-500'
           >
             <span className='sr-only'>Close</span>
-            <FiX className='h-6 w-6' />
+            <FiX className='h-5 w-5' />
           </button>
         </div>
 
         <div className='p-6'>
           <div className='space-y-6'>
             <div className='space-y-2'>
-              <h3 className='text-base font-medium text-gray-900'>Monthly</h3>
-              <p className='text-sm text-gray-600'>
+              <h3 className='text-base font-bold text-gray-900'>Monthly</h3>
+              <p className='text-gray-600'>
                 Here&apos;s some text that explains how invoices work.
               </p>
               <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
@@ -191,43 +203,63 @@ export function PaymentDetailsModal({
               </p>
             </div>
 
-            <Input
-              name='email'
-              label='EMAIL'
-              localForm={modalForm}
-              placeholder='Email address'
-              options={{
-                required: true,
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              }}
-            />
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Email{' '}
+                <span className='text-sm font-normal text-gray-400'>
+                  Hidden
+                </span>
+              </label>
+              <Input
+                name='email'
+                localForm={modalForm}
+                placeholder='Email address'
+                options={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+              />
+            </div>
 
-            <Input
-              name='name'
-              label='YOUR NAME'
-              localForm={modalForm}
-              placeholder='Full name'
-              options={{ required: true }}
-            />
+            <div className='space-y-2'>
+              <label className='font-bold'>Your Name</label>
+              <Input
+                name='name'
+                localForm={modalForm}
+                placeholder='Full name'
+              />
+            </div>
 
-            <AddressInput
-              name='address'
-              label='OPTIMISM ACCOUNT'
-              localForm={modalForm}
-              hideAddressButtons
-              chainId={chainId}
-              options={{ required: true }}
-            />
-
-            <Input
-              name='telegram'
-              label='TELEGRAM HANDLE'
-              localForm={modalForm}
-              placeholder='@username'
-            />
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)}{' '}
+                Account{' '}
+                <span className='text-sm font-normal text-gray-400'>
+                  Optional
+                </span>
+              </label>
+              <AddressInput
+                name='address'
+                localForm={modalForm}
+                hideAddressButtons
+                chainId={chainId}
+              />
+            </div>
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Telegram Handle{' '}
+                <span className='text-sm font-normal text-gray-400'>
+                  Optional
+                </span>
+              </label>
+              <Input
+                name='telegram'
+                localForm={modalForm}
+                placeholder='@username'
+              />
+            </div>
           </div>
 
           <div className='mt-8'>
@@ -235,13 +267,13 @@ export function PaymentDetailsModal({
               <p className='mb-4 text-sm text-red-500'>{formError}</p>
             )}
             <div className='flex justify-end'>
-              <button
+              <NextStepButton
                 type='submit'
-                disabled={!modalForm.formState.isValid}
-                className='rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50'
+                disabled={!isFormValid()}
+                withIcon={false}
               >
                 Submit details
-              </button>
+              </NextStepButton>
             </div>
           </div>
         </div>

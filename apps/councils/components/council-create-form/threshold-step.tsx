@@ -35,8 +35,8 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
     >
       <div className='flex-1 space-y-6'>
         <div className='space-y-2'>
-          <h2 className='text-3xl font-bold'>Signer Threshold</h2>
-          <p className='text-sm text-gray-500'>Powered by Safe</p>
+          <h2 className='text-2xl font-bold'>Signer Threshold</h2>
+          <p className='text-sm text-gray-600'>Powered by Safe</p>
         </div>
 
         <div>

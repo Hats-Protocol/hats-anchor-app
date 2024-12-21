@@ -10,6 +10,9 @@ import { FiX } from 'react-icons/fi';
 import { councilsGraphqlClient } from 'utils';
 import { isAddress } from 'viem';
 
+import { getChainId } from '../../../lib/utils/chains';
+import { NextStepButton } from '../../next-step-button';
+
 interface CouncilMember {
   id: string;
   address: string;
@@ -53,8 +56,7 @@ export function AddAgreementAdminModal({
   editingAdmin,
 }: AddAgreementAdminModalProps) {
   const selectedChain = parentForm.watch('chain');
-  const chainId =
-    selectedChain === 'optimism' ? 10 : selectedChain === 'base' ? 8453 : 42161;
+  const chainId = getChainId(selectedChain);
 
   const modalForm = useForm({
     defaultValues: {
@@ -65,6 +67,15 @@ export function AddAgreementAdminModal({
   });
 
   const [formError, setFormError] = useState<string | null>(null);
+
+  const isValidEmail = (email: string) => {
+    return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
+  };
+
+  const isFormValid = () => {
+    const values = modalForm.getValues();
+    return isAddress(values.address) && isValidEmail(values.email);
+  };
 
   const createUserMutation = useMutation({
     mutationFn: async (variables: {
@@ -172,7 +183,7 @@ export function AddAgreementAdminModal({
         className='p-8'
       >
         <div className='mb-8 flex items-center justify-between'>
-          <h2 className='text-2xl'>
+          <h2 className='text-2xl font-bold'>
             {editingAdmin ? 'Edit Agreement Manager' : 'Add Agreement Manager'}
           </h2>
           <button
@@ -180,42 +191,55 @@ export function AddAgreementAdminModal({
             onClick={onClose}
             className='text-black hover:opacity-70'
           >
-            <FiX className='h-6 w-6' />
+            <FiX className='h-5 w-5' />
           </button>
         </div>
 
         <div className='space-y-6'>
-          <AddressInput
-            name='address'
-            label='OPTIMISM ACCOUNT'
-            localForm={modalForm}
-            hideAddressButtons
-            chainId={chainId}
-            options={{
-              required: true,
-            }}
-          />
+          <div className='space-y-2'>
+            <label className='font-bold'>
+              {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)}{' '}
+              Account
+            </label>
+            <AddressInput
+              name='address'
+              localForm={modalForm}
+              hideAddressButtons
+              chainId={chainId}
+            />
+          </div>
 
-          <Input
-            name='email'
-            label='EMAIL ADDRESS'
-            localForm={modalForm}
-            placeholder='Email that receives the agreement manager invite'
-            options={{
-              required: true,
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Invalid email address',
-              },
-            }}
-          />
+          <div className='space-y-2'>
+            <label className='font-bold'>
+              Email Address{' '}
+              <span className='text-sm font-normal text-gray-400'>Hidden</span>
+            </label>
+            <Input
+              name='email'
+              localForm={modalForm}
+              placeholder='Email that receives the invite'
+              options={{
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address',
+                },
+              }}
+            />
+          </div>
 
-          <Input
-            name='name'
-            label='NAME'
-            localForm={modalForm}
-            placeholder='Alias or name'
-          />
+          <div className='space-y-2'>
+            <label className='font-bold'>
+              Name{' '}
+              <span className='text-sm font-normal text-gray-400'>
+                Optional
+              </span>
+            </label>
+            <Input
+              name='name'
+              localForm={modalForm}
+              placeholder='Alias or name'
+            />
+          </div>
         </div>
 
         <div className='mt-8'>
@@ -223,13 +247,13 @@ export function AddAgreementAdminModal({
             <p className='mb-4 text-sm text-red-500'>{formError}</p>
           )}
           <div className='flex justify-end'>
-            <button
+            <NextStepButton
               type='submit'
-              disabled={!modalForm.formState.isValid}
-              className='rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50'
+              disabled={!isFormValid()}
+              withIcon={false}
             >
               {editingAdmin ? 'Save Changes' : 'Add Manager'}
-            </button>
+            </NextStepButton>
           </div>
         </div>
       </ModalContent>

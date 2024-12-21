@@ -1,24 +1,13 @@
 'use client';
 
-import { ChevronRightIcon } from '@chakra-ui/icons';
 import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { Input, Textarea } from 'forms';
 
+import { CHAIN_OPTIONS } from '../../lib/utils/chains';
 import { ChainSelect } from '../chain-select';
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
-
-const CHAIN_OPTIONS = [
-  { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },
-  { value: 'base', label: 'Base', icon: '/chains/base.png' },
-  { value: 'arbitrum', label: 'Arbitrum', icon: '/chains/arbitrum.svg' },
-  { value: 'polygon', label: 'Polygon', icon: '/chains/polygon.svg' },
-  { value: 'ethereum', label: 'Ethereum', icon: '/chains/ethereum.svg' },
-  { value: 'gnosis', label: 'Gnosis', icon: '/chains/gnosis.png' },
-  { value: 'celo', label: 'Celo', icon: '/chains/celo.svg' },
-  { value: 'sepolia', label: 'Sepolia', icon: '/chains/sepolia.png' },
-];
 
 export function DetailsStep({ onNext }: { onNext: () => void }) {
   const { form, isLoading, stepValidation } = useCouncilForm();
@@ -45,11 +34,11 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
       onSubmit={form.handleSubmit(onNext)}
     >
       <div className='flex-1 space-y-6'>
-        <h2 className='text-xl font-semibold'>Create your first Council</h2>
+        <h2 className='text-xl font-bold'>Create your first Council</h2>
 
         <div className='space-y-2'>
-          <label className='font-medium'>Organization Name</label>
-          <p className='text-sm text-gray-600'>
+          <label className='font-bold'>Organization Name</label>
+          <p className='text-gray-600'>
             The name of the organization you are creating councils for.
           </p>
           <Input
@@ -61,8 +50,8 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
         </div>
 
         <div className='space-y-2'>
-          <label className='font-medium'>Council Name</label>
-          <p className='text-sm text-gray-600'>
+          <label className='font-bold'>Council Name</label>
+          <p className='text-gray-600'>
             The name of your first council. You can add further councils later.
           </p>
           <Input
@@ -74,8 +63,8 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
         </div>
 
         <div className='space-y-2'>
-          <label className='font-medium'>Choose a Chain</label>
-          <p className='text-sm text-gray-600'>
+          <label className='font-bold'>Choose a Chain</label>
+          <p className='text-gray-600'>
             The chain you deploy the Safe Multisig and Hats Council to.
           </p>
           <ChainSelect
@@ -87,8 +76,11 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
         </div>
 
         <div className='space-y-2'>
-          <label className='font-medium'>Council Description</label>
-          <p className='text-sm text-gray-600'>
+          <label className='font-bold'>
+            Council Description{' '}
+            <span className='text-sm font-normal text-gray-400'>Optional</span>
+          </label>
+          <p className='text-gray-600'>
             Add a short description or some links you want all council members
             to see.
           </p>
@@ -96,7 +88,6 @@ export function DetailsStep({ onNext }: { onNext: () => void }) {
             name='councilDescription'
             localForm={form}
             placeholder='Bylaws, policies or important links'
-            headerNote='Optional'
           />
         </div>
       </div>

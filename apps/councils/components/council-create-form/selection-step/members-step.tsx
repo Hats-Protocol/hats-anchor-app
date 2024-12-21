@@ -56,7 +56,7 @@ export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
           <button
             type='button'
             onClick={() => setIsModalOpen(true)}
-            className='inline-flex items-center rounded-lg border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 hover:bg-blue-50'
+            className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
           >
             <FiUserPlus className='mr-2 h-4 w-4' />
             Add Council Member

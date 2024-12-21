@@ -73,7 +73,7 @@ export function SelectionComplianceStep({ onNext }: { onNext: () => void }) {
 
       <div className='space-y-8 bg-white'>
         <div>
-          <h2 className='font-semibold'>Who does the compliance check?</h2>
+          <h2 className='font-bold'>Who does the compliance check?</h2>
           <RadioBox
             name='createComplianceAdminRole'
             localForm={form}
@@ -138,7 +138,7 @@ export function SelectionComplianceStep({ onNext }: { onNext: () => void }) {
               <button
                 type='button'
                 onClick={() => setIsModalOpen(true)}
-                className='inline-flex items-center rounded-lg border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 hover:bg-blue-50'
+                className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
               >
                 <FiUserPlus className='mr-2 h-4 w-4' />
                 Add Compliance Manager

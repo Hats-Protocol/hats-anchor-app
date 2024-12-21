@@ -94,7 +94,7 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
           <SignAgreementIcon />
           <h2 className='text-2xl font-bold'>Sign Agreement</h2>
         </div>
-        <p className='text-sm text-gray-600'>
+        <p className='text-gray-600'>
           Add an agreement that Council Members sign and abide by to be on the
           council.
         </p>
@@ -122,7 +122,7 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
 
       <div className='space-y-8 bg-white'>
         <div>
-          <h2 className='font-semibold'>Who manages the agreement?</h2>
+          <h2 className='font-bold'>Who manages the agreement?</h2>
           <RadioBox
             name='createAgreementAdminRole'
             localForm={form}
@@ -141,7 +141,7 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
 
         {createAgreementAdminRole === 'false' && admins.length > 0 && (
           <div>
-            <h3 className='mb-2 font-medium'>
+            <h3 className='mb-2 font-bold'>
               Council Managers can edit the Agreement
             </h3>
             <p className='text-sm text-gray-600'>
@@ -159,7 +159,7 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
         {createAgreementAdminRole === 'true' && (
           <>
             <div>
-              <h3 className='mb-2 font-medium'>Agreement Managers</h3>
+              <h3 className='mb-2 font-bold'>Agreement Managers</h3>
               <p className='text-sm text-gray-600'>
                 Agreement Managers can update the agreement text and verify that
                 Council Members have signed it.
@@ -179,7 +179,7 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
               <button
                 type='button'
                 onClick={() => setIsModalOpen(true)}
-                className='inline-flex items-center rounded-lg border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 hover:bg-blue-50'
+                className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
               >
                 <FiUserPlus className='mr-2 h-4 w-4' />
                 Add Agreement Manager

@@ -351,6 +351,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                 <NextStepButton
                   type='button'
                   onClick={() => setIsPaymentModalOpen(true)}
+                  withIcon={false}
                 >
                   <div className='flex items-center gap-2'>
                     <PaymentIcon />

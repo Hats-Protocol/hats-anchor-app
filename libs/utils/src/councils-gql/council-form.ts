@@ -1,9 +1,10 @@
 import { gql } from 'graphql-request';
 
-export const CREATE_INITIAL_FORM = `
+export const CREATE_INITIAL_FORM = gql`
   mutation CreateInitialForm {
-    createCouncilCreationForm {
+    createCouncilCreationForm(chain: 10) {
       id
+      chain
     }
   }
 `;

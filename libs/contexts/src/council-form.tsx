@@ -172,7 +172,10 @@ const computeStepValidation = (
       members: !!data.members,
       management: !!(data.admins && data.admins.length > 0),
       compliance: data.createComplianceAdminRole !== null,
-      agreement: true, // Default valid
+      agreement:
+        data.createAgreementAdminRole !== null &&
+        !!data.agreement &&
+        data.agreement !== '',
       tokens: true, // Default valid
     },
     payment: false,
@@ -190,7 +193,7 @@ export function CouncilFormProvider({
     defaultValues: {
       organizationName: '',
       councilName: '',
-      chain: '',
+      chain: 'optimism',
       councilDescription: '',
       thresholdType: 'ABSOLUTE',
       confirmationsRequired: 4,

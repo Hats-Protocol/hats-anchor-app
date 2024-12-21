@@ -12,17 +12,17 @@ interface ChainSelectProps extends Omit<SelectProps, 'children' | 'form'> {
 }
 
 export const ChainSelect = forwardRef<ChainSelectProps, 'select'>(
-  ({ options, form, name, ...props }, ref) => {
-    const selectedOption = options.find(
-      (opt) => opt.value === form.watch(name),
-    );
+  ({ options, form, name, placeholder, ...props }, ref) => {
+    const value = form.watch(name);
+    const selectedOption = options.find((opt) => opt.value === value);
 
     return (
       <Select
         ref={ref}
         {...props}
-        value={form.watch(name)}
+        value={value}
         onChange={(e) => form.setValue(name, e.target.value)}
+        placeholder={value ? undefined : placeholder}
         sx={{
           '& > option': {
             paddingLeft: '2rem',
