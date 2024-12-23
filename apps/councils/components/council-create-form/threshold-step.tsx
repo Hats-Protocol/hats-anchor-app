@@ -1,23 +1,20 @@
 'use client';
-
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import {
-  Button,
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  Heading,
-  HStack,
-  InputGroup,
-  InputLeftAddon,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { NumberInput, RadioBox } from 'forms';
 
+import { NextStepButton } from '../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from './utils';
+
 export function ThresholdStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading } = useCouncilForm();
+  const { form, stepValidation } = useCouncilForm();
+  const requirements = form.watch('requirements');
+
+  const nextStep = findNextInvalidStep(
+    stepValidation,
+    'threshold',
+    undefined,
+    requirements,
+  );
 
   const thresholdType = form.watch('thresholdType');
   const percentageRequired = form.watch('percentageRequired');
@@ -32,24 +29,20 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
   };
 
   return (
-    <Stack
-      spacing={6}
-      height='100%'
-      as='form'
+    <form
+      className='flex h-full flex-col space-y-6'
       onSubmit={form.handleSubmit(onNext)}
     >
-      <Stack spacing={6} flex={1}>
-        <Stack spacing={2}>
-          <Heading size='2xl'>Signer Threshold</Heading>
-          <Text color='gray.500' fontSize='sm'>
-            Powered by Safe
-          </Text>
-        </Stack>
+      <div className='flex-1 space-y-6'>
+        <div className='space-y-2'>
+          <h2 className='text-2xl font-bold'>Signer Threshold</h2>
+          <p className='text-sm text-gray-600'>Powered by Safe</p>
+        </div>
 
-        <Stack>
-          <FormLabel fontWeight='bold'>
+        <div>
+          <label className='font-bold'>
             What&apos;s the Signer Threshold logic
-          </FormLabel>
+          </label>
           <RadioBox
             name='thresholdType'
             localForm={form}
@@ -62,97 +55,92 @@ export function ThresholdStep({ onNext }: { onNext: () => void }) {
             ]}
             textSize='md'
           />
-        </Stack>
+        </div>
 
         {thresholdType === 'ABSOLUTE' ? (
-          <Stack spacing={6}>
-            <NumberInput
-              name='confirmationsRequired'
-              label='Confirmations required'
-              localForm={form}
-              options={{
-                min: 1,
-                max: maxMembers,
-                required: true,
-              }}
-            />
+          <div className='space-y-6'>
+            <div className='flex flex-col gap-2'>
+              <label className='font-bold'>Confirmations required</label>
+              <NumberInput
+                name='confirmationsRequired'
+                localForm={form}
+                options={{
+                  min: 1,
+                  max: maxMembers,
+                  required: true,
+                }}
+              />
+            </div>
 
-            <NumberInput
-              name='maxMembers'
-              label='Maximum council members'
-              localForm={form}
-              options={{
-                min: 1,
-                required: true,
-              }}
-            />
-          </Stack>
+            <div className='flex flex-col gap-2'>
+              <label className='font-bold'>Total council members</label>
+              <NumberInput
+                name='maxMembers'
+                localForm={form}
+                options={{
+                  min: 1,
+                  required: true,
+                }}
+              />
+            </div>
+          </div>
         ) : (
-          <Stack spacing={6}>
-            <Stack>
-              <FormLabel fontWeight='bold'>Required confirmations</FormLabel>
-              <InputGroup>
-                <InputLeftAddon>%</InputLeftAddon>
-                <NumberInput
-                  name='percentageRequired'
-                  localForm={form}
-                  options={{
-                    min: 1,
-                    max: 100,
-                    required: true,
-                  }}
-                />
-              </InputGroup>
-            </Stack>
-
-            <Stack direction='row' spacing={4} w='full'>
-              <Stack w='full'>
-                <FormLabel fontWeight='bold'>Minimum council members</FormLabel>
+          <div className='space-y-6'>
+            <div className='flex w-full gap-4'>
+              <div className='flex w-full flex-col gap-y-2'>
+                <label className='font-bold'>Confirmations required</label>
+                <div className='flex'>
+                  <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>
+                    %
+                  </div>
+                  <div className='flex-1'>
+                    <NumberInput
+                      name='percentageRequired'
+                      localForm={form}
+                      options={{
+                        min: 1,
+                        max: 100,
+                        required: true,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className='flex w-full flex-col gap-y-2'>
+                <label className='font-bold'>Minimum confirmations</label>
                 <NumberInput
                   name='minConfirmations'
                   localForm={form}
-                  helperText={`${calculateConfirmations(minConfirmations)} Confirmations required`}
                   options={{
                     min: 1,
                     max: maxMembers,
                     required: true,
                   }}
                 />
-              </Stack>
+              </div>
+            </div>
 
-              <Stack w='full'>
-                <FormLabel fontWeight='bold'>Maximum council members</FormLabel>
-                <NumberInput
-                  name='maxMembers'
-                  localForm={form}
-                  helperText={`${calculateConfirmations(maxMembers)} Confirmations required`}
-                  options={{
-                    min: minConfirmations,
-                    required: true,
-                  }}
-                />
-              </Stack>
-            </Stack>
-          </Stack>
+            <div className='flex w-full flex-col gap-2'>
+              <label className='font-bold'>Total council members</label>
+              <NumberInput
+                name='maxMembers'
+                localForm={form}
+                helperText={`${calculateConfirmations(maxMembers)} Confirmations required`}
+                options={{
+                  min: minConfirmations,
+                  required: true,
+                }}
+              />
+            </div>
+          </div>
         )}
-      </Stack>
+      </div>
 
-      <HStack justify='flex-end' py={6}>
-        <Button
-          type='submit'
-          bg='blue.50'
-          color='blue.500'
-          _hover={{ bg: 'blue.100' }}
-          size='md'
-          rightIcon={<ChevronRightIcon />}
-          isDisabled={!form.formState.isValid}
-          px={4}
-          py={2}
-          borderRadius='md'
-        >
-          Set Council Admission
-        </Button>
-      </HStack>
-    </Stack>
+      <div className='flex justify-end py-6'>
+        <NextStepButton disabled={!form.formState.isValid}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
+      </div>
+    </form>
   );
 }
