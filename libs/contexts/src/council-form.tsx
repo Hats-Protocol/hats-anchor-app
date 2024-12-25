@@ -1,20 +1,15 @@
 'use client';
 
 import {
-  AGREEMENT_ELIGIBILITY_ABI,
   AGREEMENT_ELIGIBILITY_ADDRESS,
-  ALLOWLIST_ELIGIBILITY_ABI,
   ALLOWLIST_ELIGIBILITY_ADDRESS,
-  chainsList,
-  ELIGIBILITY_CHAIN_ABI,
   ELIGIBILITY_CHAIN_ADDRESS,
-  HATS_ABI,
+  FALLBACK_ADDRESS,
   HATS_ADDRESS,
   HATS_MODULES_FACTORY_ABI,
   HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ABI,
   HSG_V2_ADDRESS,
-  MULTI_CLAIMS_HATTER_V1_ABI,
   MULTI_CLAIMS_HATTER_V1_ADDRESS,
   MULTICALL3_ABI,
   MULTICALL3_ADDRESS,
@@ -25,7 +20,6 @@ import { HatsDetailsClient } from '@hatsprotocol/details-sdk';
 import {
   hatIdDecimalToIp,
   hatIdIpToDecimal,
-  HatsClient,
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -42,7 +36,6 @@ import {
   chainStringToId,
   councilsGraphqlClient,
   createHatsClient,
-  FALLBACK_ADDRESS,
   fetchToken,
   GET_COUNCIL_FORM,
   UPDATE_COUNCIL_FORM,
@@ -51,13 +44,8 @@ import {
 } from 'utils';
 import {
   Address,
-  createPublicClient,
-  createWalletClient,
   encodeAbiParameters,
   encodeFunctionData,
-  getContract,
-  http,
-  PublicClient,
   zeroAddress,
 } from 'viem';
 import {
@@ -70,6 +58,7 @@ import {
   polygon,
   sepolia,
 } from 'viem/chains';
+import { useAccount } from 'wagmi';
 
 const CHAINS = {
   optimism: {
@@ -294,6 +283,7 @@ export function CouncilFormProvider({
   children: React.ReactNode;
   draftId: string | null;
 }) {
+  const { address } = useAccount();
   const form = useForm<CouncilFormData>({
     defaultValues: {
       organizationName: '',
@@ -522,6 +512,7 @@ export function CouncilFormProvider({
 
   const { mutateAsync: deployCouncil, isPending: isDeploying } = useMutation({
     mutationFn: async (): Promise<CouncilDeploymentResult> => {
+      console.log('Deploying council');
       const formData = form.getValues();
 
       const chainId = CHAINS[formData.chain as keyof typeof CHAINS].id;
@@ -577,6 +568,8 @@ export function CouncilFormProvider({
       const councilHatId = hatIdIpToDecimal(
         hatIdDecimalToIp(councilRolesGroupHatId) + '.2',
       );
+
+      console.log('computed hat ids');
 
       const saltNonce = BigInt(
         Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
@@ -1108,18 +1101,60 @@ export function CouncilFormProvider({
         args: [HSG_V2_ADDRESS, hsgV2setUpCalldata, saltNonce],
       });
 
-      // return {
-      //   success: true,
-      //   transactionHash: receipt.transactionHash,
-      // };
+      const transferTopHatCallData = hatsClient.transferHatCallData({
+        hatId: topHatId,
+        from: MULTICALL3_ADDRESS,
+        to: formData.admins[0].address,
+      });
+
+      const calls: {
+        target: `0x${string}`;
+        allowFailure: boolean;
+        callData: `0x${string}`;
+      }[] = [
+        {
+          target: HATS_ADDRESS,
+          allowFailure: false,
+          callData: hatsProtocolMulticallCallData.callData,
+        },
+        {
+          target: HATS_MODULES_FACTORY_ADDRESS,
+          allowFailure: false,
+          callData: createModulesCalldata,
+        },
+        {
+          target: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
+          allowFailure: false,
+          callData: createHsgV2Calldata,
+        },
+        {
+          target: HATS_ADDRESS,
+          allowFailure: false,
+          callData: transferTopHatCallData.callData,
+        },
+      ];
+
+      const hash = await walletClient.writeContract({
+        account: address,
+        address: MULTICALL3_ADDRESS,
+        abi: MULTICALL3_ABI,
+        functionName: 'aggregate3',
+        args: [calls],
+        chain: walletClient.chain,
+      });
+
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+
+      return {
+        success: receipt.status === 'success',
+        transactionHash: receipt.transactionHash,
+      };
     },
     onError: (error) => {
       console.error('Error deploying council:', error);
-      return {
-        success: false,
-        error:
-          error instanceof Error ? error.message : 'Unknown error occurred',
-      };
+      throw error;
     },
   });
 

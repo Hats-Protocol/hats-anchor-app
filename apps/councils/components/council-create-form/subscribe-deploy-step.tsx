@@ -1,3 +1,4 @@
+import { useToast } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -130,11 +131,12 @@ const MemberItem = ({
 };
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const payer = form.watch('payer');
+  const toast = useToast();
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -175,6 +177,41 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           subStep as keyof typeof stepValidation.selectionSubSteps
         ],
     );
+  };
+
+  const handleDeploy = async () => {
+    try {
+      const result = await deployCouncil();
+
+      if (result.success) {
+        toast({
+          title: 'Council deployed successfully',
+          description: `Transaction hash: ${result.transactionHash}`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        // Redirect to a success page or the new council page
+        router.push('/councils');
+      } else {
+        toast({
+          title: 'Deployment failed',
+          description: result.error || 'Unknown error occurred',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Deployment failed',
+        description:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -383,12 +420,10 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         </div>
 
         <NextStepButton
-          disabled={!payer || !form.watch('acceptedTerms')}
-          onClick={() => {
-            // Handle deployment here
-          }}
+          disabled={!payer || !form.watch('acceptedTerms') || isDeploying}
+          onClick={handleDeploy}
         >
-          Deploy Council on Optimism
+          {isDeploying ? 'Deploying...' : 'Deploy Council on Optimism'}
         </NextStepButton>
       </div>
 
