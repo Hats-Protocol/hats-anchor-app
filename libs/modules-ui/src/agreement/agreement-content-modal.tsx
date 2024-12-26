@@ -1,48 +1,41 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Icon,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Icon } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
-import { useEligibility, useOverlay } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { eligibilityRuleToModuleDetails, fetchIpfs } from 'utils';
+import { ModuleDetails } from 'types';
+import { fetchIpfs } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const AgreementContent = dynamic(() =>
   import('molecules').then((mod) => mod.AgreementContent),
 );
 
-const handleFetchIpfs: any = async (ipfsHash: string) => {
+const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
-    .then((res: any) => {
+    .then((res: unknown) => {
       return get(res, 'data', null);
     })
     .catch((err: Error) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       return null;
     });
 };
 
-export const AgreementContentModal = () => {
-  const { activeRule } = useEligibility();
-  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
-
-  const { modals, setModals } = useOverlay();
-
-  const { agreement } = useAgreementClaim({
+export const AgreementContentModal = ({
+  moduleDetails,
+  onlyModule = false,
+}: {
+  moduleDetails: ModuleDetails;
+  onlyModule?: boolean;
+}) => {
+  const { setModals } = useOverlay();
+  const { agreement, signAgreement } = useAgreementClaim({
     moduleParameters: moduleDetails?.liveParameters,
   });
 
@@ -58,34 +51,46 @@ export const AgreementContentModal = () => {
     // TODO download agreement
   };
 
+  const handleReviewed = () => {
+    if (onlyModule) {
+      setModals?.({});
+    } else {
+      signAgreement();
+    }
+
+    // TODO reviewed agreement
+  };
+
   return (
-    <Modal
-      isOpen={!!modals?.agreementManagerClaims}
-      onClose={() => setModals?.({})}
-    >
-      <ModalOverlay />
-      <ModalContent height='calc(100% - 80px)' width='calc(100% - 40px)'>
-        <ModalHeader>Agreement</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody overflowY='scroll'>
+    <Modal name={`${moduleDetails?.instanceAddress}-agreementManagerClaims`}>
+      <Flex flexDirection='column' gap={4}>
+        <Flex>
+          <Heading>Sign the Agreement</Heading>
+        </Flex>
+        <Box overflowY='scroll' maxHeight='70vh'>
           <Box>
             <AgreementContent agreement={agreement || agreementV0} />
           </Box>
-        </ModalBody>
-        <ModalFooter gap={4} justifyContent='space-between'>
-          <Button variant='link' color='blue.500' onClick={handleDownload}>
+        </Box>
+        <Flex gap={4} justifyContent='end'>
+          {/* <Button
+            variant='link'
+            color='blue.500'
+            onClick={handleDownload}
+            isDisabled={!agreement}
+          >
             Download agreement
-          </Button>
+          </Button> */}
 
           <Button
             colorScheme='blue'
-            onClick={() => setModals?.({})}
+            onClick={handleReviewed}
             leftIcon={<Icon as={HatIcon} color='white' />}
           >
-            Reviewed
+            {onlyModule ? 'Reviewed' : 'Sign Agreement'}
           </Button>
-        </ModalFooter>
-      </ModalContent>
+        </Flex>
+      </Flex>
     </Modal>
   );
 };

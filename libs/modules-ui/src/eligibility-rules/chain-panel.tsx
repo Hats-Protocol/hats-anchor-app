@@ -125,7 +125,8 @@ export const ChainPanel = ({
   });
 
   // can assume theres 2+ modules in the ruleSet array already
-  // ! currently only supporting single nested chains TODO support deeper nested chains
+  // ! currently only supporting single nested chains
+  // TODO support deeper nested chains
   const isAndChain = size(ruleSets) === 1;
 
   useEffect(() => {

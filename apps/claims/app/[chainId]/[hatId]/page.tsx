@@ -43,7 +43,9 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
             </div>
           </div>
 
-          <HatDeco height='250px' />
+          <div className='min-h-[250px]'>
+            <HatDeco />
+          </div>
         </div>
 
         <StandaloneBottomMenu />

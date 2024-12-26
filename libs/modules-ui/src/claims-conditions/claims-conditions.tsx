@@ -8,17 +8,12 @@ import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import {
-  AgreementContentModal,
-  CommunityHatEligibilityRule,
-} from '../agreement';
-import { ElectionClaimsModal } from '../election';
+import { CommunityHatEligibilityRule } from '../agreement';
 import {
   ChainPanel,
   ControllerWearer,
   KnownEligibilityModule,
 } from '../eligibility-rules';
-import { SubscriptionClaimsModal } from '../subscription';
 import { ClaimButton } from './claim-button';
 
 // relies on different context from Controllers/Eligibility
@@ -140,12 +135,6 @@ export const ClaimsConditions = () => {
           <ClaimButton />
         </Flex>
       </Skeleton>
-
-      <AgreementContentModal />
-
-      <SubscriptionClaimsModal />
-
-      <ElectionClaimsModal />
     </Box>
   );
 };

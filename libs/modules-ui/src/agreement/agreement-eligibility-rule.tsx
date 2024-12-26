@@ -6,7 +6,7 @@ import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import { get } from 'lodash';
+import { flatten, get, size } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
@@ -21,6 +21,7 @@ import { Hex } from 'viem';
 
 import { EligibilityRuleDetails } from '../eligibility-rules/eligibility-rule-details';
 import { ELIGIBILITY_STATUS } from '../eligibility-rules/utils';
+import { AgreementContentModal } from './agreement-content-modal';
 import { AgreementModal } from './agreement-modal';
 
 const ChakraNextLink = dynamic(() =>
@@ -39,6 +40,7 @@ export const AgreementEligibilityRule = ({
   modalSuffix,
   isReadyToClaim: aggregateIsReadyToClaim,
   setIsReadyToClaim,
+  ruleSets,
 }: ModuleDetailsHandler) => {
   const hatId = get(selectedHat, 'id', '0');
   const { setModals } = useOverlay();
@@ -61,6 +63,7 @@ export const AgreementEligibilityRule = ({
       : undefined,
   });
 
+  const onlyModule = size(flatten(ruleSets)) === 1;
   const moduleEligibility = get(
     currentEligibility,
     moduleDetails?.instanceAddress as Hex,
@@ -106,7 +109,10 @@ export const AgreementEligibilityRule = ({
           onClick={() => {
             if (!moduleDetails.instanceAddress) return;
 
-            setIsReadyToClaim?.(moduleDetails.instanceAddress);
+            if (onlyModule) {
+              // TODO or last module
+              setIsReadyToClaim?.(moduleDetails.instanceAddress);
+            }
             setModals?.({ [modalName]: true });
           }}
           variant='link'
@@ -136,10 +142,18 @@ export const AgreementEligibilityRule = ({
 
   return (
     <>
-      <AgreementModal
-        eligibilityHatId={selectedHat?.id}
-        moduleInfo={moduleDetails}
-      />
+      {!IS_CLAIMS_APP && (
+        <AgreementModal
+          eligibilityHatId={selectedHat?.id}
+          moduleInfo={moduleDetails}
+        />
+      )}
+      {IS_CLAIMS_APP && (
+        <AgreementContentModal
+          moduleDetails={moduleDetails}
+          onlyModule={onlyModule}
+        />
+      )}
 
       <EligibilityRuleDetails
         rule={rule}
