@@ -154,6 +154,7 @@ const BottomMenu = ({
                               get(simulationResponse, 'simulation.id')
                             }
                             decoration
+                            isExternal
                           >
                             <Text size='sm'>View on Tenderly</Text>
                           </ChakraNextLink>

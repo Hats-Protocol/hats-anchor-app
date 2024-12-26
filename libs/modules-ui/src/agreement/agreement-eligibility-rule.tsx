@@ -151,6 +151,7 @@ export const AgreementEligibilityRule = ({
       {IS_CLAIMS_APP && (
         <AgreementContentModal
           moduleDetails={moduleDetails}
+          chainId={chainId as SupportedChains}
           onlyModule={onlyModule}
         />
       )}

@@ -2,12 +2,12 @@
 
 import { Box, Button, Flex, Heading, Icon } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { ModuleDetails } from 'types';
+import { ModuleDetails, SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
@@ -29,14 +29,23 @@ const handleFetchIpfs = async (ipfsHash: string) => {
 
 export const AgreementContentModal = ({
   moduleDetails,
+  chainId,
   onlyModule = false,
 }: {
   moduleDetails: ModuleDetails;
+  chainId: SupportedChains;
   onlyModule?: boolean;
 }) => {
   const { setModals } = useOverlay();
+  const queryClient = useQueryClient();
   const { agreement, signAgreement } = useAgreementClaim({
+    moduleDetails,
     moduleParameters: moduleDetails?.liveParameters,
+    chainId,
+    onSuccessfulSign: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
+      setModals?.({});
+    },
   });
 
   const { data: agreementV0 } = useQuery({
@@ -45,11 +54,11 @@ export const AgreementContentModal = ({
     enabled: !agreement,
   });
 
-  const handleDownload = () => {
-    console.log('download');
+  // const handleDownload = () => {
+  //   console.log('download');
 
-    // TODO download agreement
-  };
+  //   // TODO download agreement
+  // };
 
   const handleReviewed = () => {
     if (onlyModule) {
