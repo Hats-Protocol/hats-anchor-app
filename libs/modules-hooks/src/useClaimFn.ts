@@ -130,6 +130,17 @@ export const useClaimFn = ({
     });
 
   const claimHandlers = useMemo(() => {
+    if (selectedHat?.id === CONFIG.agreementV0.communityHatId) {
+      const agreementV0 = '0xd0929e6ae5406cbee08604de99f83cf2ce52d903'; // Community Hat module, to be deprecated in season 4
+      const notReady = !get(isReadyToClaim, agreementV0, false);
+
+      return {
+        claimFn: agreementV0Claim,
+        disableClaim: notReady,
+        disableReason: notReady ? 'Accept the agreement to claim' : undefined,
+      };
+    }
+
     if (!moduleDetails?.instanceAddress) {
       return { claimFn: undefined, disableClaim: true };
     }
@@ -146,16 +157,6 @@ export const useClaimFn = ({
       };
     }
 
-    if (selectedHat?.id === CONFIG.agreementV0.communityHatId) {
-      return {
-        claimFn: agreementV0Claim,
-        disableClaim: !get(
-          isReadyToClaim,
-          moduleDetails?.instanceAddress,
-          false,
-        ),
-      };
-    }
 
     if (moduleDetails?.name === ELIGIBILITY_MODULES.unlock) {
       return {

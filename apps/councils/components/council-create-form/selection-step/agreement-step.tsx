@@ -4,42 +4,32 @@ import '@uiw/react-md-editor/markdown-editor.css';
 
 import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
-import { RadioBox } from 'forms';
-import dynamic from 'next/dynamic';
+import { MarkdownEditor, RadioBox } from 'forms';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
+import { CouncilMember } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
 import { SignAgreementIcon } from '../../icons/sign-agreement-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-
-// Dynamically import the editor to avoid SSR issues
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
-
-// Custom styles to match the design
-const editorStyles = {
-  '--color-canvas-default': '#ffffff',
-  '--color-border-default': '#E2E8F0',
-  '--color-fg-default': '#1A202C',
-  '--color-canvas-subtle': '#F7FAFC',
-  '--color-neutral-muted': '#EDF2F7',
-  '--md-toolbar-height': '40px',
-  '--md-toolbar-color': '#4A5568',
-  '--md-toolbar-background': '#F7FAFC',
-  '--md-toolbar-border': '#E2E8F0',
-} as React.CSSProperties;
-
 // Add new component for agreement admins list
 import { AddAgreementAdminModal } from './add-agreement-admin-modal';
 import { AgreementAdminsList } from './agreement-admins-list';
 
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
+function AdminDisplay({ admin }: { admin: CouncilMember }) {
+  const { data: ensName } = useEnsName({
+    address: admin.address as `0x${string}`,
+    chainId: 1,
+  });
+
+  return (
+    <div key={admin.id} className='text-sm text-gray-600'>
+      {admin.name && <span className='font-medium text-gray-900'>{admin.name} </span>}
+      <span className='text-gray-500'>{ensName || formatAddress(admin.address)}</span>
+    </div>
+  );
 }
 
 export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
@@ -51,30 +41,7 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
   const createAgreementAdminRole = form.watch('createAgreementAdminRole');
   const admins = form.watch('admins') || [];
 
-  const nextStep = findNextInvalidStep(
-    stepValidation,
-    'selection',
-    'agreement',
-    requirements,
-  );
-
-  function AdminDisplay({ admin }: { admin: CouncilMember }) {
-    const { data: ensName } = useEnsName({
-      address: admin.address as `0x${string}`,
-      chainId: 1,
-    });
-
-    return (
-      <div key={admin.id} className='text-sm text-gray-600'>
-        {admin.name && (
-          <span className='font-medium text-gray-900'>{admin.name} </span>
-        )}
-        <span className='text-gray-500'>
-          {ensName || formatAddress(admin.address)}
-        </span>
-      </div>
-    );
-  }
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'agreement', requirements);
 
   if (isLoading) {
     return (
@@ -85,40 +52,20 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <form
-      className='mx-auto flex w-[600px] flex-col space-y-6 p-8'
-      onSubmit={form.handleSubmit(onNext)}
-    >
+    <form className='mx-auto flex w-[600px] flex-col space-y-6 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='space-y-4'>
         <div className='flex items-center gap-2'>
           <SignAgreementIcon />
           <h2 className='text-2xl font-bold'>Sign Agreement</h2>
         </div>
-        <p className='text-gray-600'>
-          Add an agreement that Council Members sign and abide by to be on the
-          council.
-        </p>
+        <p className='text-gray-600'>Add an agreement that Council Members sign and abide by to be on the council.</p>
       </div>
 
-      <div
-        className='rounded-lg border border-gray-200 [&_.w-md-editor-input]:bg-white [&_.w-md-editor-toolbar]:rounded-t-lg [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-gray-200 [&_.w-md-editor-toolbar]:bg-gray-50 [&_.w-md-editor]:rounded-lg [&_.w-md-editor]:bg-white'
-        style={editorStyles}
-        data-color-mode='light'
-      >
-        <MDEditor
-          value={agreement}
-          onChange={(value) => form.setValue('agreement', value || '')}
-          preview='edit'
-          height={400}
-          className='!border-0'
-          textareaProps={{
-            placeholder:
-              'Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.',
-          }}
-          hideToolbar={false}
-          toolbarHeight={40}
-        />
-      </div>
+      <MarkdownEditor
+        name='agreement'
+        localForm={form}
+        placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
+      />
 
       <div className='space-y-8 bg-white'>
         <div>
@@ -141,12 +88,9 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
 
         {createAgreementAdminRole === 'false' && admins.length > 0 && (
           <div>
-            <h3 className='mb-2 font-bold'>
-              Council Managers can edit the Agreement
-            </h3>
+            <h3 className='mb-2 font-bold'>Council Managers can edit the Agreement</h3>
             <p className='text-sm text-gray-600'>
-              Council Managers can update the agreement text and verify that
-              Council Members have signed it.
+              Council Managers can update the agreement text and verify that Council Members have signed it.
             </p>
             <div className='mt-4 space-y-2'>
               {admins.map((admin) => (
@@ -161,17 +105,13 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
             <div>
               <h3 className='mb-2 font-bold'>Agreement Managers</h3>
               <p className='text-sm text-gray-600'>
-                Agreement Managers can update the agreement text and verify that
-                Council Members have signed it.
+                Agreement Managers can update the agreement text and verify that Council Members have signed it.
               </p>
             </div>
 
             {agreementAdmins.length > 0 && (
               <div>
-                <AgreementAdminsList
-                  agreementAdmins={agreementAdmins}
-                  form={form}
-                />
+                <AgreementAdminsList agreementAdmins={agreementAdmins} form={form} />
               </div>
             )}
 
@@ -194,19 +134,14 @@ export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
           disabled={
             !agreement ||
             agreement.trim().length === 0 ||
-            (createAgreementAdminRole === 'true' &&
-              agreementAdmins.length === 0)
+            (createAgreementAdminRole === 'true' && agreementAdmins.length === 0)
           }
         >
           {getNextStepButtonText(nextStep)}
         </NextStepButton>
       </div>
 
-      <AddAgreementAdminModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        form={form}
-      />
+      <AddAgreementAdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} />
     </form>
   );
 }
