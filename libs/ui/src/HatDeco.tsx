@@ -1,5 +1,6 @@
 import { cn } from './lib/utils';
 
+// TODO height not getting picked up
 const HatDeco = ({
   height,
   hideOnDesktop,

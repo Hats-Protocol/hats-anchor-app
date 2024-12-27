@@ -85,6 +85,7 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
 
   const yesNoForRule = getYesNoForRule(rule); // use yes/no from rule if available
 
+  // TODO handle has key but 0 allowance
   const { hasAllowance } = useSubscriptionClaim({
     moduleDetails: rule.module,
     moduleParameters: rule.liveParams,

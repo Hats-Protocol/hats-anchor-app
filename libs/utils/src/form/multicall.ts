@@ -4,7 +4,28 @@ import {
   TRIGGER_OPTIONS,
 } from '@hatsprotocol/constants';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import {
+  concat,
+  eq,
+  find,
+  get,
+  gt,
+  includes,
+  isArray,
+  isEmpty,
+  isNaN,
+  isObject,
+  keys,
+  map,
+  merge,
+  pick,
+  reduce,
+  reject,
+  size,
+  startsWith,
+  toNumber,
+  toString,
+} from 'lodash';
 import { getDefaultAdminId } from 'shared';
 import {
   AppHat,
@@ -23,7 +44,7 @@ const hasDetailsChanged = (
   currentHat: Partial<FormDataDetails>,
   originalHat?: AppHat,
 ) => {
-  const originalHatDetails = _.get(originalHat, 'detailsObject.data');
+  const originalHatDetails = get(originalHat, 'detailsObject.data');
   const {
     name,
     description,
@@ -37,30 +58,37 @@ const hasDetailsChanged = (
     deactivationsCriteria,
   } = currentHat;
 
-  const namePlainText = !_.startsWith(_.get(originalHat, 'details'), 'ipfs://');
+  const namePlainText = !startsWith(get(originalHat, 'details'), 'ipfs://');
   // TODO these checks could be more robust
   const hasGuildsChanged =
-    _.gt(_.size(guilds), 0) ||
-    _.size(guilds) !== _.size(originalHatDetails?.guilds);
+    gt(size(guilds), 0) || size(guilds) !== size(originalHatDetails?.guilds);
   const hasSpacesChanged =
-    _.gt(_.size(spaces), 0) ||
-    _.size(spaces) !== _.size(originalHatDetails?.spaces);
-  const hasResponsibilitiesChanged =
-    _.gt(_.size(responsibilities), 0) &&
-    JSON.stringify(responsibilities) !==
-    JSON.stringify(originalHatDetails?.responsibilities);
-  const hasAuthoritiesChanged =
-    _.gt(_.size(authorities), 0) &&
-    JSON.stringify(authorities) !==
-    JSON.stringify(originalHatDetails?.authorities);
-  const hasRevocationsCriteriaChanged =
-    _.gt(_.size(revocationsCriteria), 0) ||
-    _.size(revocationsCriteria) !==
-    _.size(originalHatDetails?.eligibility?.criteria);
-  const hasDeactivationsCriteriaChanged =
-    _.gt(_.size(deactivationsCriteria), 0) ||
-    _.size(deactivationsCriteria) !==
-    _.size(originalHatDetails?.toggle?.criteria);
+    gt(size(spaces), 0) || size(spaces) !== size(originalHatDetails?.spaces);
+  // TODO not super pretty
+  let hasResponsibilitiesChanged = false;
+  if (gt(size(responsibilities), 0)) {
+    hasResponsibilitiesChanged =
+      JSON.stringify(responsibilities) !==
+      JSON.stringify(originalHatDetails?.responsibilities);
+  }
+  let hasAuthoritiesChanged = false;
+  if (gt(size(authorities), 0)) {
+    hasAuthoritiesChanged =
+      JSON.stringify(authorities) !==
+      JSON.stringify(originalHatDetails?.authorities);
+  }
+  let hasRevocationsCriteriaChanged = false;
+  if (gt(size(revocationsCriteria), 0)) {
+    hasRevocationsCriteriaChanged =
+      size(revocationsCriteria) !==
+      size(originalHatDetails?.eligibility?.criteria);
+  }
+  let hasDeactivationsCriteriaChanged = false;
+  if (gt(size(deactivationsCriteria), 0)) {
+    hasDeactivationsCriteriaChanged =
+      size(deactivationsCriteria) !==
+      size(originalHatDetails?.toggle?.criteria);
+  }
 
   return (
     !!name ||
@@ -98,26 +126,26 @@ const createDetailsData = ({
     authorities,
   } = hat;
 
-  let updateName = _.get(originalHat, 'detailsObject.data.name');
+  let updateName = get(originalHat, 'detailsObject.data.name');
   if (name || displayName) updateName = name || displayName;
-  if (!updateName) updateName = _.get(originalHat, 'details');
+  if (!updateName) updateName = get(originalHat, 'details');
 
   const detailsData: HatDetails = {
     name: updateName || '',
     description: description || '',
-    responsibilities: _.reject(responsibilities, ['label', '']),
-    authorities: _.reject(authorities, ['label', '']),
+    responsibilities: reject(responsibilities, ['label', '']),
+    authorities: reject(authorities, ['label', '']),
     eligibility: {
       manual: isEligibilityManual
         ? isEligibilityManual === TRIGGER_OPTIONS.MANUALLY
-        : _.get(originalHat, 'detailsObject.data.eligibility.manual', true),
-      criteria: _.reject(revocationsCriteria, ['label', '']) || [],
+        : get(originalHat, 'detailsObject.data.eligibility.manual', true),
+      criteria: reject(revocationsCriteria, ['label', '']) || [],
     },
     toggle: {
       manual: isToggleManual
         ? isToggleManual === TRIGGER_OPTIONS.MANUALLY
         : true,
-      criteria: _.reject(deactivationsCriteria, ['label', '']) || [],
+      criteria: reject(deactivationsCriteria, ['label', '']) || [],
     },
   };
 
@@ -166,9 +194,9 @@ const createNewHatData = async ({
     ? urlToIpfsUri(imageUrl)
     : imageUrl;
 
-  const numMaxSupply = _.toNumber(maxSupply);
+  const numMaxSupply = toNumber(maxSupply);
   const finalMaxSupply =
-    _.isNaN(numMaxSupply) || maxSupply === undefined ? 1 : numMaxSupply;
+    isNaN(numMaxSupply) || maxSupply === undefined ? 1 : numMaxSupply;
 
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
@@ -181,7 +209,7 @@ const createNewHatData = async ({
   };
 };
 
-interface ProcessCallForHatReturnProps {
+export interface ProcessCallForHatReturnProps {
   calls: {
     functionName: string;
     callData: Hex;
@@ -229,7 +257,7 @@ const processNewDetailsCallForHat = async ({
   newHatChanges = {
     ...newHat,
     id,
-    maxSupply: _.toString(newHat.maxSupply),
+    maxSupply: toString(newHat.maxSupply),
     admin: {
       id: getDefaultAdminId(id),
     },
@@ -243,7 +271,7 @@ const processNewDetailsCallForHat = async ({
   };
 
   return {
-    calls: _.concat(calls, newHatData),
+    calls: concat(calls, newHatData),
     hatChanges: newHatChanges,
     detailsToPin: { hatId: id, chainId, details: detailsData },
   };
@@ -265,7 +293,7 @@ const processWearersCallForHat = ({
     ? wearers
     : wearers.map((wearer) => wearer.address);
 
-  if (_.eq(_.size(wearers), 1)) {
+  if (eq(size(wearers), 1)) {
     const mintHatWearersData = hatsClient?.mintHatCallData({
       hatId: BigInt(hatId),
       wearer: adaptedWearers[0] as Hex,
@@ -275,7 +303,7 @@ const processWearersCallForHat = ({
 
     return {
       ...returnData,
-      calls: _.concat(calls, mintHatWearersData),
+      calls: concat(calls, mintHatWearersData),
       hatChanges: {
         ...hatChanges,
         wearers: [adaptedWearers[0]],
@@ -283,9 +311,9 @@ const processWearersCallForHat = ({
     };
   }
 
-  if (_.gt(_.size(wearers), 1)) {
+  if (gt(size(wearers), 1)) {
     const batchMintHatWearersData = hatsClient.batchMintHatsCallData({
-      hatIds: Array(_.size(wearers)).fill(BigInt(hatId)),
+      hatIds: Array(size(wearers)).fill(BigInt(hatId)),
       wearers: adaptedWearers as Hex[],
     });
 
@@ -293,7 +321,7 @@ const processWearersCallForHat = ({
 
     return {
       ...returnData,
-      calls: _.concat(calls, batchMintHatWearersData),
+      calls: concat(calls, batchMintHatWearersData),
       hatChanges: {
         ...hatChanges,
         wearers: adaptedWearers,
@@ -325,38 +353,39 @@ const processDetailsChangeCallForHat = async ({
   const { calls, hatChanges } = returnData;
 
   const existingDetails: HatDetails | undefined =
-    _.get(onchainHat, 'detailsObject.data') || undefined;
+    get(onchainHat, 'detailsObject.data') || undefined;
   // extend existing details with the automated data for comparison of original objects
   const newDetails: HatDetails = createDetailsData({
     hat,
     originalHat: onchainHat,
   });
 
-  const combinedDetails = _.reduce(
+  const combinedDetails = reduce(
     existingDetails,
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: any, existingValue: any, key: string) => {
       // TODO REVISIT THIS REDUCE, NEED TO ISOLATE FLOWS
       const localKey = key as HatDetailsKeys;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newValue: any = newDetails[localKey];
       if (localKey === 'authorities') {
-        const newAuthorities = _.map(newValue, (val) =>
-          _.pick(val, AUTHORITY_KEYS),
+        const newAuthorities = map(newValue, (val) =>
+          pick(val, AUTHORITY_KEYS),
         );
         acc.authorities = newAuthorities;
       } else if (
-        _.isArray(newValue) &&
-        _.isEmpty(newValue) &&
+        isArray(newValue) &&
+        isEmpty(newValue) &&
         hat[localKey as keyof FormData] !== undefined
       ) {
         // skip update for empty arrays when values are arrays
         acc[localKey] = newValue;
       } else if (
-        (_.isArray(existingValue) && _.isArray(newValue)) ||
-        (_.isObject(existingValue) && _.isObject(newValue))
+        (isArray(existingValue) && isArray(newValue)) ||
+        (isObject(existingValue) && isObject(newValue))
       ) {
-        if (!_.includes(_.keys(hat), localKey)) {
+        if (!includes(keys(hat), localKey)) {
           // skip update for non-"dirty" fields when values are arrays
           acc[localKey] = existingValue;
         } else {
@@ -368,7 +397,7 @@ const processDetailsChangeCallForHat = async ({
       }
       return acc;
     },
-    _.merge({}, existingDetails, newDetails),
+    merge({}, existingDetails, newDetails),
   );
 
   const newCid = await calculateCid({ type: '1.0', data: combinedDetails });
@@ -386,7 +415,7 @@ const processDetailsChangeCallForHat = async ({
   };
 
   return {
-    calls: _.concat(calls, changeHatDetailsData),
+    calls: concat(calls, changeHatDetailsData),
     hatChanges: newChanges,
     detailsToPin: { hatId, chainId, details: combinedDetails },
   };
@@ -405,19 +434,19 @@ const processMaxSupplyChangeCallForHat = ({
 
   const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
     hatId: BigInt(hatId),
-    newMaxSupply: _.toNumber(maxSupply),
+    newMaxSupply: toNumber(maxSupply),
   });
 
   if (!changeHatMaxSupplyData) return returnData;
 
   const newHatChanges = {
     ...hatChanges,
-    maxSupply: _.toNumber(maxSupply),
+    maxSupply: toNumber(maxSupply),
   };
 
   return {
     ...returnData,
-    calls: _.concat(calls, changeHatMaxSupplyData),
+    calls: concat(calls, changeHatMaxSupplyData),
     hatChanges: newHatChanges,
   };
 };
@@ -456,7 +485,7 @@ const processEligibilityChangeCallForHat = async ({
 
   return {
     ...returnData,
-    calls: _.concat(calls, changeHatEligibilityData),
+    calls: concat(calls, changeHatEligibilityData),
     hatChanges: newHatChanges,
   };
 };
@@ -495,7 +524,7 @@ const processToggleChangeCallForHat = async ({
 
   return {
     ...returnData,
-    calls: _.concat(calls, changeHatToggleData),
+    calls: concat(calls, changeHatToggleData),
     hatChanges: newHatChanges,
   };
 };
@@ -524,7 +553,7 @@ const processMutabilityChangeCallForHat = ({
 
   return {
     ...returnData,
-    calls: _.concat(calls, makeHatImmutableData),
+    calls: concat(calls, makeHatImmutableData),
     hatChanges: newHatChanges,
   };
 };
@@ -564,7 +593,7 @@ const processImageChangeCallForHat = async ({
 
   return {
     ...returnDataWithHatId,
-    calls: _.concat(calls, changeHatImageUriData),
+    calls: concat(calls, changeHatImageUriData),
     hatChanges: newHatChanges,
   };
 };
@@ -578,7 +607,7 @@ export const processHatForCalls = async (
   const hatsClient = await createHatsClient(chainId);
   if (!hat || !hatsClient || !chainId) return emptyReturnData;
 
-  if (!_.includes(_.map(onchainHats, 'id'), _.get(hat, 'id'))) {
+  if (!includes(map(onchainHats, 'id'), get(hat, 'id'))) {
     const newDetailsResult = await processNewDetailsCallForHat({
       hatsClient,
       chainId,
@@ -598,7 +627,7 @@ export const processHatForCalls = async (
     chainId,
     hat,
     returnData: emptyReturnData,
-    onchainHat: _.find(onchainHats, ['id', _.get(hat, 'id')]),
+    onchainHat: find(onchainHats, ['id', get(hat, 'id')]),
   });
   const maxSupplyResult = processMaxSupplyChangeCallForHat({
     hatsClient,

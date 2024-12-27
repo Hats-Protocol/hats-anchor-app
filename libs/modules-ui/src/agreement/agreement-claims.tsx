@@ -13,7 +13,7 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { flatten, get, includes, map, some, toNumber } from 'lodash';
+import { flatten, get, includes, map, size, some, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
@@ -54,6 +54,7 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
     isReadyToClaim: aggregateReadyToClaim,
     setIsReadyToClaim,
     eligibilityRules,
+    currentEligibility,
   } = useEligibility();
   const { address } = useAccount();
   const { signAgreement } = useAgreementClaim({
@@ -62,7 +63,10 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
     chainId,
     onSuccessfulSign: () => {
       queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
       // TODO invalidate other queries
+      if (!activeModule.instanceAddress) return;
+      setIsReadyToClaim(activeModule.instanceAddress);
     },
   });
 
@@ -75,6 +79,13 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
     wearerAddress: address as Hex,
     chainId,
   });
+
+  const activeModuleEligibility = activeModule.instanceAddress
+    ? get(currentEligibility, activeModule.instanceAddress)
+    : { isEligible: false, goodStanding: false };
+  const isEligible =
+    get(activeModuleEligibility, 'eligible') &&
+    get(activeModuleEligibility, 'goodStanding');
 
   const handleSignAgreement = () => {
     signAgreement();
@@ -113,7 +124,8 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
 
   const localClaimable =
     !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
-  const isReadyToClaim = !!get(aggregateReadyToClaim, moduleAddress);
+  const isReadyToClaim =
+    !!get(aggregateReadyToClaim, moduleAddress) || isEligible;
 
   return (
     <Tooltip label={buttonTooltip} placement='top'>
@@ -150,7 +162,7 @@ export const AgreementClaims = ({
 }: {
   activeModule: ModuleDetails;
 }) => {
-  const { selectedHatDetails } = useEligibility();
+  const { selectedHatDetails, eligibilityRules } = useEligibility();
 
   const { agreement } = useAgreementClaim({
     moduleParameters: activeModule?.liveParameters,
@@ -161,7 +173,7 @@ export const AgreementClaims = ({
     queryFn: () => handleFetchIpfs(CONFIG.agreementV0.ipfsHash),
     enabled: !agreement,
   });
-  const onlyHat = false;
+  const onlyHat = size(flatten(eligibilityRules)) === 1;
 
   return (
     <Stack spacing={4} w='100%' display={{ base: 'none', md: 'flex' }}>

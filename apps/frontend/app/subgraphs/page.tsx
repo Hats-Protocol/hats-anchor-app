@@ -3,9 +3,7 @@ import { keys, map, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { Card } from 'ui';
 
-const SubgraphCheck = dynamic(() =>
-  import('molecules').then((mod) => mod.SubgraphCheck),
-);
+const SubgraphCheck = dynamic(() => import('molecules').then((mod) => mod.SubgraphCheck));
 
 const SubgraphDebug = async () => {
   // TODO fetch initial trees list
@@ -24,9 +22,7 @@ const SubgraphDebug = async () => {
         <Card className='mx-auto max-w-[600px] p-8'>
           <div className='flex flex-col gap-4'>
             {map(keys(chainsList), (chainId) => {
-              return (
-                <SubgraphCheck chainId={toNumber(chainId)} key={chainId} />
-              );
+              return <SubgraphCheck chainId={toNumber(chainId)} key={chainId} />;
             })}
           </div>
         </Card>

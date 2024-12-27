@@ -7,9 +7,9 @@ import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 
-import { AgreementEligibilityRule } from '../agreement';
+import { AgreementContentModal, AgreementEligibilityRule } from '../agreement';
 import { AllowlistEligibilityRule } from '../allowlist';
-import { ElectionEligibilityRule } from '../election';
+import { ElectionClaimsModal, ElectionEligibilityRule } from '../election';
 import { Erc20EligibilityRule } from '../erc';
 import { Erc721EligibilityRule } from '../erc';
 import { Erc1155EligibilityRule } from '../erc';
@@ -17,7 +17,10 @@ import { PassthroughModuleRule } from '../hat-controlled';
 import { HatWearingEligibilityRule } from '../hat-wearing';
 import { JokeRaceEligibilityRule } from '../joke-race';
 import { StakingEligibilityRule } from '../staking';
-import { UnlockEligibilityRule } from '../subscription';
+import {
+  SubscriptionClaimsModal,
+  UnlockEligibilityRule,
+} from '../subscription';
 import { UnknownEligibilityRule } from './unknown-eligibility';
 
 export type EligibilityRuleComponent = ({
