@@ -48,6 +48,7 @@ import {
   decodeEventLog,
   encodeAbiParameters,
   encodeFunctionData,
+  encodePacked,
   zeroAddress,
 } from 'viem';
 import {
@@ -532,7 +533,7 @@ export function CouncilFormProvider({
       }
 
       // Create hats details client
-      const pinningKey = await fetchToken(10);
+      const pinningKey = await fetchToken(20);
       const hatsDetailsClient = new HatsDetailsClient({
         provider: 'pinata',
         pinata: {
@@ -748,10 +749,19 @@ export function CouncilFormProvider({
           chainModules.push(predictedAgreementModuleAddress as `0x${string}`);
         }
         eligibilityChainInitArgs = '0x' as `0x${string}`;
-        eligibilityChainImmutableArgs = encodeAbiParameters(
-          [{ type: 'uint26' }, { type: 'uint256[]' }, { type: 'address[]' }],
-          [chainLength, [BigInt(chainLength)], chainModules],
+        eligibilityChainImmutableArgs = encodePacked(
+          ['uint256', 'uint256[]', ...Array(chainLength).fill('address')],
+          [
+            BigInt(chainLength),
+            Array(chainLength).fill(BigInt(1)),
+            ...chainModules,
+          ],
         );
+        console.log('eligiblity chain args', {
+          chainLength,
+          clauseLengths: Array(chainLength).fill(BigInt(1)),
+          chainModules,
+        });
         eligibilityChainHatId = councilMemberHatId;
         predictedEligibilityChainAddress = (await publicClient.readContract({
           address: HATS_MODULES_FACTORY_ADDRESS,
