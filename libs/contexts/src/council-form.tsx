@@ -44,6 +44,7 @@ import {
 } from 'utils';
 import {
   Address,
+  decodeEventLog,
   encodeAbiParameters,
   encodeFunctionData,
   zeroAddress,
@@ -1002,10 +1003,6 @@ export function CouncilFormProvider({
         hatsProtocolCalls.push(mintAgreementManagerHatCallData.callData);
       }
 
-      // create hats protocol multicall call data
-      const hatsProtocolMulticallCallData =
-        hatsClient.multicallCallData(hatsProtocolCalls);
-
       // create hsg v2 call data
       const hsgV2InitArgs = encodeAbiParameters(
         [
@@ -1100,6 +1097,76 @@ export function CouncilFormProvider({
         functionName: 'deployModule',
         args: [HSG_V2_ADDRESS, hsgV2setUpCalldata, saltNonce],
       });
+
+      // predict new safe address
+
+      const simulationResponse = await fetch('/api/simulate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          networkId: chainId.toString(),
+          from: MULTICALL3_ADDRESS as string,
+          to: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
+          input: createHsgV2Calldata,
+          value: '0',
+        }),
+      });
+
+      const simulationResult = await simulationResponse.json();
+      console.log('simulationResult', simulationResult);
+
+      // Find the safe proxy address from simulation logs
+      let safeProxyAddress: Address | undefined;
+
+      for (const log of simulationResult.transaction.transaction_info.logs) {
+        try {
+          const event = decodeEventLog({
+            abi: [
+              {
+                type: 'event',
+                name: 'ProxyCreation',
+                inputs: [
+                  {
+                    name: 'proxy',
+                    type: 'address',
+                    indexed: true,
+                    internalType: 'contract SafeProxy',
+                  },
+                  {
+                    name: 'singleton',
+                    type: 'address',
+                    indexed: false,
+                    internalType: 'address',
+                  },
+                ],
+                anonymous: false,
+              },
+            ],
+            eventName: 'ProxyCreation',
+            data: log.raw.data,
+            topics: log.raw.topics,
+          });
+
+          safeProxyAddress = event.args.proxy;
+          console.log('Found Safe proxy address:', safeProxyAddress);
+          break;
+        } catch (err) {
+          // Continue if this log entry isn't the event we're looking for
+          continue;
+        }
+      }
+
+      if (!safeProxyAddress) {
+        throw new Error('Failed to find Safe proxy address in simulation logs');
+      }
+
+      console.log('safeProxyAddress', safeProxyAddress);
+
+      // create hats protocol multicall call data
+      const hatsProtocolMulticallCallData =
+        hatsClient.multicallCallData(hatsProtocolCalls);
 
       const transferTopHatCallData = hatsClient.transferHatCallData({
         hatId: topHatId,
