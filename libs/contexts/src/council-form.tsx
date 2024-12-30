@@ -38,6 +38,7 @@ import {
   createHatsClient,
   fetchToken,
   GET_COUNCIL_FORM,
+  pinFileToIpfs,
   UPDATE_COUNCIL_FORM,
   viemPublicClient,
   viemWalletClient,
@@ -683,7 +684,14 @@ export function CouncilFormProvider({
       let agreementModuleImmutableArgs: `0x${string}`;
       let agreementModuleHatId: bigint;
       let predictedAgreementModuleAddress: `0x${string}` | undefined;
-      if (formData.requirements.signAgreement) {
+      if (formData.requirements.signAgreement && formData.agreement) {
+        // pin agreement file to ipfs
+        const agreementCid = await pinFileToIpfs({
+          file: formData.agreement,
+          fileName: `agreement_${formData.organizationName}_${formData.councilName}_${chainId}`,
+          token: pinningKey as string,
+        });
+
         agreementModuleInitArgs = encodeAbiParameters(
           [{ type: 'uint256' }, { type: 'uint256' }, { type: 'string' }],
           [
@@ -693,7 +701,7 @@ export function CouncilFormProvider({
             formData.createAgreementAdminRole === 'true'
               ? agreementManagerHatId
               : adminHatId,
-            'temp',
+            agreementCid,
           ],
         );
         agreementModuleImmutableArgs = '0x' as `0x${string}`;
@@ -780,7 +788,7 @@ export function CouncilFormProvider({
       });
       const createTopHatCallData = hatsClient.mintTopHatCallData({
         target: MULTICALL3_ADDRESS as Address,
-        details: detailsCid,
+        details: `ipfs://${detailsCid}`,
       });
       hatsProtocolCalls.push(createTopHatCallData.callData);
 
@@ -793,7 +801,7 @@ export function CouncilFormProvider({
       });
       const createAdminHatCallData = hatsClient.createHatCallData({
         admin: topHatId,
-        details: adminHatCid,
+        details: `ipfs://${adminHatCid}`,
         maxSupply: 10,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -810,7 +818,7 @@ export function CouncilFormProvider({
       });
       const createAutomationsHatCallData = hatsClient.createHatCallData({
         admin: adminHatId,
-        details: automationsHatCid,
+        details: `ipfs://${automationsHatCid}`,
         maxSupply: 10,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -827,7 +835,7 @@ export function CouncilFormProvider({
       });
       const createOrgRolesGroupHatCallData = hatsClient.createHatCallData({
         admin: automationsHatId,
-        details: orgRolesGroupHatCid,
+        details: `ipfs://${orgRolesGroupHatCid}`,
         maxSupply: 0,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -844,7 +852,7 @@ export function CouncilFormProvider({
       });
       const createCouncilRolesGroupHatCallData = hatsClient.createHatCallData({
         admin: automationsHatId,
-        details: councilRolesGroupHatCid,
+        details: `ipfs://${councilRolesGroupHatCid}`,
         maxSupply: 0,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -861,7 +869,7 @@ export function CouncilFormProvider({
       });
       const createCouncilAdminHatCallData = hatsClient.createHatCallData({
         admin: orgRolesGroupHatId,
-        details: councilAdminHatCid,
+        details: `ipfs://${councilAdminHatCid}`,
         maxSupply: 10,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -878,7 +886,7 @@ export function CouncilFormProvider({
       });
       const createComplianceManagerHatCallData = hatsClient.createHatCallData({
         admin: orgRolesGroupHatId,
-        details: complianceManagerHatCid,
+        details: `ipfs://${complianceManagerHatCid}`,
         maxSupply: 10,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -900,7 +908,7 @@ export function CouncilFormProvider({
       });
       const createAgreementManagerHatCallData = hatsClient.createHatCallData({
         admin: orgRolesGroupHatId,
-        details: agreementManagerHatCid,
+        details: `ipfs://${agreementManagerHatCid}`,
         maxSupply: 10,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -927,7 +935,7 @@ export function CouncilFormProvider({
           : predictedCouncilMemberAllowlistAddress;
       const createCouncilMemberHatCallData = hatsClient.createHatCallData({
         admin: councilRolesGroupHatId,
-        details: councilMemberHatCid,
+        details: `ipfs://${councilMemberHatCid}`,
         maxSupply: formData.maxMembers,
         eligibility: councilMemberEligibility,
         toggle: FALLBACK_ADDRESS,
@@ -944,7 +952,7 @@ export function CouncilFormProvider({
       });
       const createCouncilHatCallData = hatsClient.createHatCallData({
         admin: councilRolesGroupHatId,
-        details: councilHatCid,
+        details: `ipfs://${councilHatCid}`,
         maxSupply: 1,
         eligibility: FALLBACK_ADDRESS,
         toggle: FALLBACK_ADDRESS,
@@ -1163,6 +1171,13 @@ export function CouncilFormProvider({
       }
 
       console.log('safeProxyAddress', safeProxyAddress);
+
+      // mint council member hat
+      const mintCouncilHatCallData = hatsClient.mintHatCallData({
+        hatId: councilHatId,
+        wearer: safeProxyAddress as `0x${string}`,
+      });
+      hatsProtocolCalls.push(mintCouncilHatCallData.callData);
 
       // create hats protocol multicall call data
       const hatsProtocolMulticallCallData =
