@@ -2,8 +2,8 @@ import { useToast } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import { chainStringToId, formatAddress } from 'utils';
+import { useChainId, useEnsName, useSwitchChain } from 'wagmi';
 
 import { CheckSquareIcon } from '../icons/check-square-icon';
 import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
@@ -137,6 +137,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const payer = form.watch('payer');
   const toast = useToast();
+  const userChainId = useChainId();
+  const { switchChain } = useSwitchChain();
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -213,6 +215,12 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       });
     }
   };
+
+  const targetChainName =
+    formData.chain.charAt(0).toUpperCase() + formData.chain.slice(1);
+  const targetChainId = chainStringToId(formData.chain) as number;
+
+  const isWrongNetwork = userChainId !== targetChainId;
 
   return (
     <div className='mx-auto max-w-4xl'>
@@ -420,12 +428,23 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           </label>
         </div>
 
-        <NextStepButton
-          disabled={!payer || !form.watch('acceptedTerms') || isDeploying}
-          onClick={handleDeploy}
-        >
-          {isDeploying ? 'Deploying...' : 'Deploy Council on Optimism'}
-        </NextStepButton>
+        {isWrongNetwork ? (
+          <NextStepButton
+            onClick={() => switchChain?.({ chainId: targetChainId })}
+            disabled={!payer || !form.watch('acceptedTerms')}
+          >
+            Switch to {targetChainName}
+          </NextStepButton>
+        ) : (
+          <NextStepButton
+            disabled={!payer || !form.watch('acceptedTerms') || isDeploying}
+            onClick={handleDeploy}
+          >
+            {isDeploying
+              ? 'Deploying...'
+              : `Deploy Council on ${targetChainName}`}
+          </NextStepButton>
+        )}
       </div>
 
       <PaymentDetailsModal

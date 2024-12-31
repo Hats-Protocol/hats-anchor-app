@@ -159,9 +159,14 @@ const RadioCard = ({
                           bg='red.50'
                           color='red.500'
                           px={2}
-                          py={0.5}
+                          py={1}
                           borderRadius='full'
                           fontWeight='medium'
+                          display='flex'
+                          alignItems='center'
+                          justifyContent='center'
+                          minHeight='20px'
+                          whiteSpace='nowrap'
                         >
                           coming soon
                         </Text>
