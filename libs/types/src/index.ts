@@ -2,6 +2,7 @@ export * from './authorities';
 export * from './chains';
 export * from './contexts';
 export * from './contract';
+export * from './councils';
 export * from './ecosystem';
 export * from './form';
 export * from './hat';
