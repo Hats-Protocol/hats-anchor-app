@@ -577,6 +577,7 @@ export function CouncilFormProvider({
       const saltNonce = BigInt(
         Math.floor(Math.random() * Number.MAX_SAFE_INTEGER),
       );
+      const saltNonceComplianceModule = saltNonce + BigInt(1);
 
       // modules batch creation params
       const implementations: `0x${string}`[] = [];
@@ -670,14 +671,14 @@ export function CouncilFormProvider({
             ALLOWLIST_ELIGIBILITY_ADDRESS,
             complianceAllowlistHatId,
             complianceAllowlistImmutableArgs,
-            saltNonce,
+            saltNonceComplianceModule,
           ],
         })) as `0x${string}`;
         implementations.push(ALLOWLIST_ELIGIBILITY_ADDRESS);
         hatIds.push(complianceAllowlistHatId);
         immutableArgs.push(complianceAllowlistImmutableArgs);
         initArgs.push(complianceAllowlistInitArgs);
-        saltNonces.push(saltNonce);
+        saltNonces.push(saltNonceComplianceModule);
       }
 
       // agreement module
@@ -902,12 +903,7 @@ export function CouncilFormProvider({
         toggle: FALLBACK_ADDRESS,
         mutable: true,
       });
-      if (
-        formData.requirements.passCompliance &&
-        formData.createComplianceAdminRole === 'true'
-      ) {
-        hatsProtocolCalls.push(createComplianceManagerHatCallData.callData);
-      }
+      hatsProtocolCalls.push(createComplianceManagerHatCallData.callData);
 
       // create agreement manager hat call data
       const agreementManagerHatCid = await hatsDetailsClient.pin({
@@ -924,12 +920,7 @@ export function CouncilFormProvider({
         toggle: FALLBACK_ADDRESS,
         mutable: true,
       });
-      if (
-        formData.requirements.signAgreement &&
-        formData.createAgreementAdminRole === 'true'
-      ) {
-        hatsProtocolCalls.push(createAgreementManagerHatCallData.callData);
-      }
+      hatsProtocolCalls.push(createAgreementManagerHatCallData.callData);
 
       // create council member hat call data
       const councilMemberHatCid = await hatsDetailsClient.pin({

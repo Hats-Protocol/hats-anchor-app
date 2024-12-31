@@ -375,16 +375,16 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             />
             <div className='flex justify-end'>
               {payer ? (
-                <NextStepButton
+                <button
                   type='button'
                   onClick={() => setIsPaymentModalOpen(true)}
-                  withIcon={false}
+                  className='inline-flex items-center rounded-full border border-[#2B6CB0] px-4 py-2 text-sm font-medium text-[#2B6CB0]'
                 >
                   <div className='flex items-center gap-2'>
                     <PaymentIcon />
                     <span>Edit invoice details</span>
                   </div>
-                </NextStepButton>
+                </button>
               ) : (
                 <NextStepButton
                   type='button'
@@ -409,7 +409,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             id='agreement'
             checked={form.watch('acceptedTerms')}
             onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
-            className='h-4 w-4 rounded border-gray-300'
+            className='h-4 w-4 rounded border-gray-300 accent-[#3182CE]'
           />
           <label htmlFor='agreement' className='text-sm text-gray-600'>
             I agree to the{' '}
