@@ -17,7 +17,7 @@ import { formatUnits, Hex } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
   address && typeof address === 'string'
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+    ? `${address.slice(0, 6)}…${address.slice(-4)}`
     : '';
 
 export const isSameAddress = (a?: string, b?: string) => {

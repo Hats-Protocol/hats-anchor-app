@@ -1,106 +1,102 @@
 'use client';
 
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
-import { Input, Select, Textarea } from 'forms';
-import Image from 'next/image';
+import { Input, Textarea } from 'forms';
 
-const CHAIN_OPTIONS = [
-  { value: 'optimism', label: 'Optimism', icon: '/chains/optimism.svg' },
-  { value: 'base', label: 'Base', icon: '/chains/base.svg' },
-  { value: 'arbitrum', label: 'Arbitrum', icon: '/chains/arbitrum.svg' },
-];
+import { CHAIN_OPTIONS } from '../../lib/utils/chains';
+import { ChainSelect } from '../chain-select';
+import { NextStepButton } from '../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
 export function DetailsStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading } = useCouncilForm();
+  const { form, isLoading, stepValidation } = useCouncilForm();
+  const requirements = form.watch('requirements');
 
   if (isLoading) {
     return (
-      <Stack height='100%' justify='center' align='center'>
+      <div className='flex h-full items-center justify-center'>
         <Spinner size='xl' color='blue.500' />
-      </Stack>
+      </div>
     );
   }
 
+  const nextStep = findNextInvalidStep(
+    stepValidation,
+    'details',
+    undefined,
+    requirements,
+  );
+
   return (
-    <Stack
-      spacing={6}
-      height='100%'
-      as='form'
+    <form
+      className='flex h-full flex-col space-y-6'
       onSubmit={form.handleSubmit(onNext)}
     >
-      <Stack spacing={6} flex={1}>
-        <Text fontSize='xl' fontWeight='semibold'>
-          Create your first Council
-        </Text>
+      <div className='flex-1 space-y-6'>
+        <h2 className='text-xl font-bold'>Create your first Council</h2>
 
-        <Input
-          name='organizationName'
-          label='Organization name'
-          localForm={form}
-          subLabel='The name of the organization you are creating councils for.'
-          placeholder='DAO or Company Name'
-          options={{ required: true }}
-        />
+        <div className='space-y-2'>
+          <label className='font-bold'>Organization Name</label>
+          <p className='text-gray-600'>
+            The name of the organization you are creating councils for.
+          </p>
+          <Input
+            name='organizationName'
+            localForm={form}
+            placeholder='DAO or Company Name'
+            options={{ required: true }}
+          />
+        </div>
 
-        <Input
-          name='councilName'
-          label='Council name'
-          localForm={form}
-          subLabel='The name of your first council. You can add further councils later.'
-          placeholder='Council Name'
-          options={{ required: true }}
-        />
+        <div className='space-y-2'>
+          <label className='font-bold'>Council Name</label>
+          <p className='text-gray-600'>
+            The name of your first council. You can add further councils later.
+          </p>
+          <Input
+            name='councilName'
+            localForm={form}
+            placeholder='Council Name'
+            options={{ required: true }}
+          />
+        </div>
 
-        <Select
-          name='chain'
-          label='Choose a chain'
-          localForm={form}
-          subLabel='The chain you deploy the Safe Multisig and Hats Council to.'
-          options={{ required: true }}
-        >
-          {CHAIN_OPTIONS.map((chain) => (
-            <option key={chain.value} value={chain.value}>
-              <HStack spacing={2}>
-                <Image
-                  src={chain.icon}
-                  alt={chain.label}
-                  width={20}
-                  height={20}
-                />
-                <Text>{chain.label}</Text>
-              </HStack>
-            </option>
-          ))}
-        </Select>
+        <div className='space-y-2'>
+          <label className='font-bold'>Choose a Chain</label>
+          <p className='text-gray-600'>
+            The chain you deploy the Safe Multisig and Hats Council to.
+          </p>
+          <ChainSelect
+            name='chain'
+            form={form}
+            options={CHAIN_OPTIONS}
+            placeholder='Select a chain'
+          />
+        </div>
 
-        <Textarea
-          name='councilDescription'
-          label='Council description'
-          localForm={form}
-          helperText='Add a short description or some links you want all council members to see.'
-          placeholder='Bylaws, policies or important links'
-          headerNote='Optional'
-        />
-      </Stack>
+        <div className='space-y-2'>
+          <label className='font-bold'>
+            Council Description{' '}
+            <span className='text-sm font-normal text-gray-400'>Optional</span>
+          </label>
+          <p className='text-gray-600'>
+            Add a short description or some links you want all council members
+            to see.
+          </p>
+          <Textarea
+            name='councilDescription'
+            localForm={form}
+            placeholder='Bylaws, policies or important links'
+          />
+        </div>
+      </div>
 
-      <HStack justify='flex-end' py={6}>
-        <Button
-          type='submit'
-          bg='blue.50'
-          color='blue.500'
-          _hover={{ bg: 'blue.100' }}
-          size='md'
-          rightIcon={<ChevronRightIcon />}
-          isDisabled={!form.formState.isValid}
-          px={4}
-          py={2}
-          borderRadius='md'
-        >
-          Set Signer Threshold
-        </Button>
-      </HStack>
-    </Stack>
+      <div className='flex justify-end py-6'>
+        <NextStepButton disabled={!form.formState.isValid}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
+      </div>
+    </form>
   );
 }

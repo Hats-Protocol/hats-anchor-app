@@ -1,10 +1,10 @@
 # Tree Quick view App
 
-The Tree quick view app is a Next.js app for displaying budgets and assets stored in roles across a tree.
+The Tree quick view app is a Next.js app for displaying budgets and assets stored in roles across a tree .
 
 ## Start the app
 
-To start the development server run `pnpm treasury:dev` from the root of the project (not this directory). The server will be running on http://localhost:4200/. 
+To start the development server run `pnpm treasury:dev` from the root of the project (not this directory). The server will be running on http://localhost:4200/.
 
 ## Build production application
 

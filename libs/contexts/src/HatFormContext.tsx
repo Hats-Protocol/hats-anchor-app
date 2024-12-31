@@ -79,7 +79,7 @@ export const HatFormContextProvider = ({
     removeHat,
     onOpenTreeDrawer,
     onCloseHatDrawer,
-    guildData,
+    // guildData,
     snapshotData,
     isLoading: treeIsLoading,
   } = useTreeForm();
@@ -103,13 +103,13 @@ export const HatFormContextProvider = ({
       editMode: false,
       tree: orgChartTree,
     });
-  const { data: guildRoles, isLoading: isLoadingGuildRoles } = useHatGuildRoles(
-    {
-      hatId: selectedHat?.id,
-      guildData,
-      chainId,
-    },
-  );
+  // const { data: guildRoles, isLoading: isLoadingGuildRoles } = useHatGuildRoles(
+  //   {
+  //     hatId: selectedHat?.id,
+  //     guildData,
+  //     chainId,
+  //   },
+  // );
   const { data: snapshotRoles, isLoading: isLoadingSnapshotRoles } =
     useHatSnapshotRoles({
       hatId: selectedHat?.id,
@@ -214,7 +214,7 @@ export const HatFormContextProvider = ({
   const combinedAuthorities = useMemo(() => {
     if (
       isLoadingModulesAuthorities ||
-      isLoadingGuildRoles ||
+      // isLoadingGuildRoles ||
       isLoadingSnapshotRoles
     ) {
       return undefined;
@@ -227,19 +227,19 @@ export const HatFormContextProvider = ({
     // mesh authorities from details with automatic authorities
     const { data: authorities } = combineAuthorities({
       authorities: initialAuthorities,
-      guildRoles,
+      guildRoles: [],
       spaces: snapshotRoles,
       modulesAuthorities,
     });
     return authorities;
   }, [
     initialAuthorities,
-    guildRoles,
+    // guildRoles,
     snapshotRoles,
     modulesAuthorities,
     isDraft,
     isLoadingModulesAuthorities,
-    isLoadingGuildRoles,
+    // isLoadingGuildRoles,
     isLoadingSnapshotRoles,
   ]);
 
@@ -248,7 +248,7 @@ export const HatFormContextProvider = ({
     if (
       isDraft ||
       isLoadingModulesAuthorities ||
-      isLoadingGuildRoles ||
+      // isLoadingGuildRoles ||
       isLoadingSnapshotRoles
     ) {
       return EMPTY_FORM_VALUES;
@@ -300,12 +300,12 @@ export const HatFormContextProvider = ({
     initialGuilds,
     initialSpaces,
     isDraft,
-    guildRoles,
+    // guildRoles,
     snapshotRoles,
     treeIsLoading,
     hatLoading,
     isLoadingModulesAuthorities,
-    isLoadingGuildRoles,
+    // isLoadingGuildRoles,
     isLoadingSnapshotRoles,
     // ! modulesAuthorities, causes infinite re-render
   ]);
@@ -432,7 +432,7 @@ export const HatFormContextProvider = ({
         isLoadingModulesAuthorities ||
         hatLoading ||
         treeIsLoading ||
-        isLoadingGuildRoles ||
+        // isLoadingGuildRoles ||
         isLoadingSnapshotRoles,
 
       // helpers
@@ -452,7 +452,7 @@ export const HatFormContextProvider = ({
       isLoadingModulesAuthorities,
       hatLoading,
       treeIsLoading,
-      isLoadingGuildRoles,
+      // isLoadingGuildRoles,
       isLoadingSnapshotRoles,
 
       // helpers

@@ -20,6 +20,7 @@ import {
   ELIGIBILITY_STATUS,
   EligibilityRuleDetails,
 } from '../eligibility-rules';
+import { SubscriptionClaimsModal } from './subscription-claims';
 
 const ChakraNextLink = dynamic(() =>
   import('ui').then((mod) => mod.ChakraNextLink),
@@ -89,7 +90,10 @@ export const UnlockEligibilityRule = ({
         <Button
           variant='link'
           onClick={() => {
-            setModals?.({ [modalName]: true });
+            console.log(`${moduleDetails?.instanceAddress}-${modalName}`);
+            setModals?.({
+              [`${moduleDetails?.instanceAddress}-${modalName}`]: true,
+            });
           }}
         >
           {isOneTime ? 'fee' : 'subscription'}
@@ -114,14 +118,25 @@ export const UnlockEligibilityRule = ({
     }
   }
 
+  if (!moduleDetails) {
+    return null;
+  }
+
   if (IS_CLAIMS_APP) {
     return (
-      <EligibilityRuleDetails
-        rule={claimsAppRule}
-        status={status}
-        displayStatus={displayStatus}
-        icon={icon}
-      />
+      <>
+        <SubscriptionClaimsModal
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleParameters}
+        />
+
+        <EligibilityRuleDetails
+          rule={claimsAppRule}
+          status={status}
+          displayStatus={displayStatus}
+          icon={icon}
+        />
+      </>
     );
   }
 

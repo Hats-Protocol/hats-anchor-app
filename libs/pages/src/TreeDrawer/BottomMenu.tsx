@@ -7,7 +7,9 @@ import {
   AccordionPanel,
   Box,
   Button,
+  Divider,
   Flex,
+  Heading,
   HStack,
   Icon,
   Input,
@@ -17,11 +19,12 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import { useClipboard, useSimulateTransaction } from 'hooks';
-import { get } from 'lodash';
+import { get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useCallback } from 'react';
@@ -30,9 +33,7 @@ import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { useAccount } from 'wagmi';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
 
 // TODO use ui/Input component
 const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';
@@ -44,10 +45,9 @@ const BottomMenu = ({
   isExpanded: boolean;
   setAccordionIndex: (index: number[]) => void;
 }) => {
-  const { storedData, chainId, treeId, onchainHats, treeToDisplay, topHat } =
-    useTreeForm();
+  const { storedData, chainId, treeId, onchainHats, treeToDisplay, topHat } = useTreeForm();
   const { address } = useAccount();
-  const { data: multicallCallData, isLoading } = useMulticallCallData({
+  const { data: multicallData, isLoading } = useMulticallCallData({
     chainId,
     treeId,
     storedData,
@@ -55,7 +55,8 @@ const BottomMenu = ({
     treeToDisplay,
     isExpanded,
   });
-  const callData = multicallCallData ? multicallCallData?.callData : null;
+  const callData = get(multicallData, 'callData.callData', null);
+  const allCalls = get(multicallData, 'allCalls', []);
   const topHatWearer = get(topHat, 'wearers.0.id');
 
   const hasUpdates = editHasUpdates(storedData);
@@ -69,17 +70,17 @@ const BottomMenu = ({
       status: 'info',
     },
   });
-  const { handleSimulate, isSimulating, simulationResponse } =
-    useSimulateTransaction({ chainId, callData: callData || undefined });
+  const { handleSimulate, isSimulating, simulationResponse } = useSimulateTransaction({
+    chainId,
+    callData: callData || undefined,
+  });
 
   const openCalldataMenu = () => {
     posthog.capture('Opened Transaction Calldata Menu');
     setAccordionIndex(isExpanded ? [] : [0]);
   };
 
-  const enableSimulation =
-    posthog.isFeatureEnabled('simulation') ||
-    process.env.NODE_ENV === 'development';
+  const enableSimulation = posthog.isFeatureEnabled('simulation') || process.env.NODE_ENV === 'development';
 
   const handleSimulateTopHat = useCallback(() => {
     if (!topHatWearer) return;
@@ -92,16 +93,13 @@ const BottomMenu = ({
     handleSimulate(address);
   }, [handleSimulate, address]);
 
+  const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
+
   // console.log(simulationResponse);
 
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>
-      <Flex
-        justify='space-between'
-        borderTop='1px solid'
-        borderColor='gray.200'
-        bg='cyan.50'
-      >
+      <Flex justify='space-between' borderTop='1px solid' borderColor='gray.200' bg='cyan.50'>
         <Accordion allowToggle w='full' mt='-1px' index={isExpanded ? [0] : []}>
           <AccordionItem isDisabled={!hasUpdates}>
             <AccordionButton px={8} py={4} onClick={openCalldataMenu}>
@@ -113,54 +111,79 @@ const BottomMenu = ({
 
             <AccordionPanel pb={8} px={8}>
               <Stack>
+                {isDev && (
+                  <>
+                    <Stack maxH={400} overflow='auto'>
+                      <Heading size='sm' variant='medium'>
+                        Combined Call Data
+                      </Heading>
+
+                      {map(allCalls, (hat: { hatId: string; calls: { functionName: string }[] }) => {
+                        return (
+                          <Stack spacing={1}>
+                            <Heading size='sm'>{hatIdDecimalToIp(hatIdHexToDecimal(hat.hatId))}</Heading>
+                            {map(hat.calls, (call) => (
+                              <Text fontSize='sm'>-- {call.functionName}</Text>
+                            ))}
+                          </Stack>
+                        );
+                      })}
+                    </Stack>
+
+                    <Divider borderColor='gray.500' />
+                  </>
+                )}
+
                 {enableSimulation && (
-                  <Stack spacing={1}>
-                    <Text variant='light'>Simulate transaction</Text>
+                  <>
+                    <Stack spacing={1} my={2}>
+                      <Text variant='light'>Simulate transaction</Text>
 
-                    <Flex gap={2}>
-                      <Button
-                        size='sm'
-                        variant='outlineMatch'
-                        colorScheme='blue.500'
-                        isDisabled={!callData}
-                        isLoading={isSimulating}
-                        onClick={handleSimulateMe}
-                      >
-                        Simulate Me
-                      </Button>
+                      <Flex gap={2}>
+                        <Button
+                          size='sm'
+                          variant='outlineMatch'
+                          colorScheme='blue.500'
+                          isDisabled={!callData}
+                          isLoading={isSimulating}
+                          onClick={handleSimulateMe}
+                        >
+                          Simulate Me
+                        </Button>
 
-                      <Button
-                        size='sm'
-                        variant='outlineMatch'
-                        colorScheme='blue.500'
-                        isDisabled={!callData}
-                        isLoading={isSimulating}
-                        onClick={handleSimulateTopHat}
-                      >
-                        Simulate Top Hat
-                      </Button>
+                        <Button
+                          size='sm'
+                          variant='outlineMatch'
+                          colorScheme='blue.500'
+                          isDisabled={!callData}
+                          isLoading={isSimulating}
+                          onClick={handleSimulateTopHat}
+                        >
+                          Simulate Top Hat
+                        </Button>
 
-                      {simulationResponse && (
-                        <HStack>
-                          <Text size='sm'>
-                            {get(simulationResponse, 'transaction.status')
-                              ? 'Simulation successful!'
-                              : 'Simulation failed!'}
-                          </Text>
+                        {simulationResponse && (
+                          <HStack>
+                            <Text size='sm'>
+                              {get(simulationResponse, 'transaction.status')
+                                ? 'Simulation successful!'
+                                : 'Simulation failed!'}
+                            </Text>
 
-                          <ChakraNextLink
-                            href={
-                              TENDERLY_SIMULATION_URL +
-                              get(simulationResponse, 'simulation.id')
-                            }
-                            decoration
-                          >
-                            <Text size='sm'>View on Tenderly</Text>
-                          </ChakraNextLink>
-                        </HStack>
-                      )}
-                    </Flex>
-                  </Stack>
+                            <ChakraNextLink
+                              href={TENDERLY_SIMULATION_URL + get(simulationResponse, 'simulation.id')}
+                              decoration
+                              isExternal
+                            >
+                              <Text size='sm'>View on Tenderly</Text>
+                            </ChakraNextLink>
+                          </HStack>
+                        )}
+                      </Flex>
+                    </Stack>
+
+                    <Divider borderColor='gray.500' />
+                  </>
                 )}
 
                 <Stack spacing={1}>
@@ -186,9 +209,7 @@ const BottomMenu = ({
 
                 <Stack spacing={1}>
                   <HStack>
-                    <Text variant='light'>
-                      Transaction call data (hex encoded)
-                    </Text>
+                    <Text variant='light'>Transaction call data (hex encoded)</Text>
                     <Tooltip
                       label='To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.'
                       hasArrow

@@ -1,12 +1,17 @@
 import { Card, CardBody, Stack } from '@chakra-ui/react';
 import { Modal, useEligibility } from 'contexts';
+import { ModuleDetails } from 'types';
 
 import { CurrentSeason } from './current-season';
 import { ElectionRoles } from './election-roles';
 import { UpcomingSeason } from './upcoming-season';
 import { WearersList } from './wearers-list';
 
-export const ElectionClaimsModal = () => {
+export const ElectionClaimsModal = ({
+  moduleDetails,
+}: {
+  moduleDetails: ModuleDetails;
+}) => {
   const { selectedHat, selectedHatDetails } = useEligibility();
 
   return (

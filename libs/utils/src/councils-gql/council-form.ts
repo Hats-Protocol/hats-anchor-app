@@ -2,73 +2,104 @@ import { gql } from 'graphql-request';
 
 export const CREATE_INITIAL_FORM = gql`
   mutation CreateInitialForm {
-    createCouncilCreationForm(
-      thresholdType: ABSOLUTE
-      maxCouncilMembers: 7
-      thresholdTarget: 4
-      thresholdMin: 2
-      membersSelectionType: ALLOWLIST
-    ) {
+    createCouncilCreationForm(chain: 10) {
       id
+      chain
     }
   }
 `;
 
 export const UPDATE_COUNCIL_FORM = gql`
-  mutation UpdateCouncilCreationForm(
+  mutation UpdateCouncilForm(
     $id: ID!
+    $organizationName: String
+    $councilName: String
+    $chain: Int
+    $councilDescription: String
+    $membersSelectionType: MemberSelectionType
     $thresholdType: ThresholdType
     $maxCouncilMembers: Int
     $thresholdTarget: Int
     $thresholdMin: Int
-    $organizationName: String
-    $councilName: String
-    $councilDescription: String
-    $chain: Int
-    $membersSelectionType: MemberSelectionType
-    $membersAllowlist: AllowlistInput
-    $agreementCriteria: AgreementInput
-    $tokenCriteria: TokenInput
-    $kycCriteria: KycInput
+    $members: [UserInput!]
+    $admins: [UserInput!]
+    $complianceAdmins: [UserInput!]
+    $createComplianceAdminRole: Boolean
+    $memberRequirements: MemberRequirementsInput
+    $agreement: String
+    $createAgreementAdminRole: Boolean
+    $agreementAdmins: [UserInput!]
+    $payer: UserInput
   ) {
     updateCouncilCreationForm(
       id: $id
+      organizationName: $organizationName
+      councilName: $councilName
+      chain: $chain
+      councilDescription: $councilDescription
+      membersSelectionType: $membersSelectionType
       thresholdType: $thresholdType
       maxCouncilMembers: $maxCouncilMembers
       thresholdTarget: $thresholdTarget
       thresholdMin: $thresholdMin
-      organizationName: $organizationName
-      councilName: $councilName
-      councilDescription: $councilDescription
-      chain: $chain
-      membersSelectionType: $membersSelectionType
-      membersAllowlist: $membersAllowlist
-      agreementCriteria: $agreementCriteria
-      tokenCriteria: $tokenCriteria
-      kycCriteria: $kycCriteria
+      members: $members
+      admins: $admins
+      complianceAdmins: $complianceAdmins
+      createComplianceAdminRole: $createComplianceAdminRole
+      memberRequirements: $memberRequirements
+      agreement: $agreement
+      createAgreementAdminRole: $createAgreementAdminRole
+      agreementAdmins: $agreementAdmins
+      payer: $payer
     ) {
       id
       organizationName
       councilName
+      chain
       councilDescription
+      membersSelectionType
       thresholdType
       maxCouncilMembers
       thresholdTarget
       thresholdMin
-      chain
-      membersSelectionType
-      membersAllowlist {
-        admins
-        members
-      }
-      agreementCriteria {
-        agreement
-      }
-      tokenCriteria {
+      members {
         id
+        address
+        email
+        name
       }
-      kycCriteria {
-        verifiers
+      admins {
+        id
+        address
+        email
+        name
+      }
+      complianceAdmins {
+        id
+        address
+        email
+        name
+      }
+      createComplianceAdminRole
+      memberRequirements {
+        signAgreement
+        holdTokens
+        passCompliance
+      }
+      agreement
+      createAgreementAdminRole
+      agreementAdmins {
+        id
+        address
+        email
+        name
+      }
+      payer {
+        id
+        address
+        email
+        name
+        telegram
       }
     }
   }
@@ -78,27 +109,53 @@ export const GET_COUNCIL_FORM = gql`
   query GetCouncilForm($id: ID!) {
     councilCreationForm(id: $id) {
       id
+      organizationName
+      councilName
+      chain
+      councilDescription
+      membersSelectionType
       thresholdType
       maxCouncilMembers
       thresholdTarget
       thresholdMin
-      organizationName
-      councilName
-      councilDescription
-      membersSelectionType
-      chain
-      membersAllowlist {
-        admins
-        members
-      }
-      agreementCriteria {
-        agreement
-      }
-      tokenCriteria {
+      members {
         id
+        address
+        email
+        name
       }
-      kycCriteria {
-        verifiers
+      admins {
+        id
+        address
+        email
+        name
+      }
+      complianceAdmins {
+        id
+        address
+        email
+        name
+      }
+      createComplianceAdminRole
+      memberRequirements {
+        signAgreement
+        holdTokens
+        passCompliance
+      }
+      agreement
+      createAgreementAdminRole
+      agreementAdmins {
+        id
+        address
+        email
+        name
+      }
+      payer {
+        id
+        address
+        email
+        name
+        telegram
       }
     }
   }
