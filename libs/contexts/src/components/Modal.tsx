@@ -20,7 +20,7 @@ import { useOverlay } from '../OverlayContext';
 // TODO migrate modal to tailwind
 /**
  * Modal component, wraps Chakra's default Modal
- * @param {string} name name of modal
+ * @param {string} name name of modal `setModals?.({ modalName: true })`
  * @param {string} title title of modal used in header
  * @param {React.ReactNode} content content of modal
  * @param {string} size size of modal, defaults to 2xl
@@ -29,17 +29,7 @@ import { useOverlay } from '../OverlayContext';
  * @param {function} onClose function to close modal, fallback to OverlayContext
  * @returns Modal component and handlers
  */
-const Modal = ({
-  name,
-  title,
-  content,
-  footer,
-  customHeader,
-  isOpen,
-  onClose,
-  size = '2xl',
-  children,
-}: ModalProps) => {
+const Modal = ({ name, title, content, footer, customHeader, isOpen, onClose, size = '2xl', children }: ModalProps) => {
   const { modals, closeModals } = useOverlay();
 
   const handleClose = () => {
@@ -51,11 +41,7 @@ const Modal = ({
   };
 
   return (
-    <ChakraModal
-      isOpen={isOpen || _.get(modals, name) || false}
-      onClose={handleClose}
-      size={size}
-    >
+    <ChakraModal isOpen={isOpen || _.get(modals, name) || false} onClose={handleClose} size={size} id={name}>
       <ModalOverlay />
       <ModalContent
         // background={props.bgColor ? props.bgColor : 'gray.800'}

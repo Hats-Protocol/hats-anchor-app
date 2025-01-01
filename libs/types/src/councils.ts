@@ -23,3 +23,7 @@ export interface CouncilMember {
   email: string;
   name?: string;
 }
+
+export type StepProps = {
+  onNext(): void;
+};

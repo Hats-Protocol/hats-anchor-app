@@ -48,12 +48,7 @@ const CREATE_USER = `
   }
 `;
 
-export function PaymentDetailsModal({
-  isOpen,
-  onClose,
-  form: parentForm,
-  draftId,
-}: PaymentDetailsModalProps) {
+export function PaymentDetailsModal({ isOpen, onClose, form: parentForm, draftId }: PaymentDetailsModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
 
@@ -74,18 +69,11 @@ export function PaymentDetailsModal({
 
   const isFormValid = () => {
     const values = modalForm.getValues();
-    return (
-      !!values.name && values.name.length > 0 && isValidEmail(values.email)
-    );
+    return !!values.name && values.name.length > 0 && isValidEmail(values.email);
   };
 
   const createUserMutation = useMutation({
-    mutationFn: async (variables: {
-      address: string;
-      email: string;
-      name?: string;
-      telegram?: string;
-    }) => {
+    mutationFn: async (variables: { address: string; email: string; name?: string; telegram?: string }) => {
       const result = await councilsGraphqlClient.request<{
         createUser: {
           id: string;
@@ -110,20 +98,12 @@ export function PaymentDetailsModal({
         telegram?: string;
       };
     }) => {
-      const result = await councilsGraphqlClient.request(
-        UPDATE_PAYER,
-        variables,
-      );
+      const result = await councilsGraphqlClient.request(UPDATE_PAYER, variables);
       return result;
     },
   });
 
-  const handleSubmit = async (data: {
-    address: string;
-    email: string;
-    name?: string;
-    telegram?: string;
-  }) => {
+  const handleSubmit = async (data: { address: string; email: string; name?: string; telegram?: string }) => {
     // if (!isAddress(data.address)) {
     //   setFormError('Please enter a valid Ethereum address');
     //   return;
@@ -176,15 +156,9 @@ export function PaymentDetailsModal({
       >
         <div className='p-6'>
           <div className='pr-6'>
-            <h2 className='text-2xl font-bold text-gray-900'>
-              Invoicing Details
-            </h2>
+            <h2 className='text-2xl font-bold text-gray-900'>Invoicing Details</h2>
           </div>
-          <button
-            type='button'
-            onClick={onClose}
-            className='absolute right-6 top-6 text-gray-400 hover:text-gray-500'
-          >
+          <button type='button' onClick={onClose} className='absolute right-6 top-6 text-gray-400 hover:text-gray-500'>
             <span className='sr-only'>Close</span>
             <FiX className='h-5 w-5' />
           </button>
@@ -194,9 +168,7 @@ export function PaymentDetailsModal({
           <div className='space-y-6'>
             <div className='space-y-2'>
               <h3 className='text-base font-bold text-gray-900'>Monthly</h3>
-              <p className='text-gray-600'>
-                Here&apos;s some text that explains how invoices work.
-              </p>
+              <p className='text-gray-600'>Here&apos;s some text that explains how invoices work.</p>
               <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
                 <UsdcIcon />
                 299 USDC / month
@@ -205,10 +177,7 @@ export function PaymentDetailsModal({
 
             <div className='space-y-2'>
               <label className='font-bold'>
-                Email{' '}
-                <span className='text-sm font-normal text-gray-400'>
-                  Hidden
-                </span>
+                Email <span className='text-sm font-normal text-gray-400'>Hidden</span>
               </label>
               <Input
                 name='email'
@@ -225,53 +194,28 @@ export function PaymentDetailsModal({
 
             <div className='space-y-2'>
               <label className='font-bold'>Your Name</label>
-              <Input
-                name='name'
-                localForm={modalForm}
-                placeholder='Full name'
-              />
+              <Input name='name' localForm={modalForm} placeholder='Full name' />
             </div>
 
             <div className='space-y-2'>
               <label className='font-bold'>
-                {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)}{' '}
-                Account{' '}
-                <span className='text-sm font-normal text-gray-400'>
-                  Optional
-                </span>
+                {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account{' '}
+                <span className='text-sm font-normal text-gray-400'>Optional</span>
               </label>
-              <AddressInput
-                name='address'
-                localForm={modalForm}
-                hideAddressButtons
-                chainId={chainId}
-              />
+              <AddressInput name='address' localForm={modalForm} hideAddressButtons chainId={chainId} />
             </div>
             <div className='space-y-2'>
               <label className='font-bold'>
-                Telegram Handle{' '}
-                <span className='text-sm font-normal text-gray-400'>
-                  Optional
-                </span>
+                Telegram Handle <span className='text-sm font-normal text-gray-400'>Optional</span>
               </label>
-              <Input
-                name='telegram'
-                localForm={modalForm}
-                placeholder='@username'
-              />
+              <Input name='telegram' localForm={modalForm} placeholder='@username' />
             </div>
           </div>
 
           <div className='mt-8'>
-            {formError && (
-              <p className='mb-4 text-sm text-red-500'>{formError}</p>
-            )}
+            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
             <div className='flex justify-end'>
-              <NextStepButton
-                type='submit'
-                disabled={!isFormValid()}
-                withIcon={false}
-              >
+              <NextStepButton type='submit' disabled={!isFormValid()} withIcon={false}>
                 Submit details
               </NextStepButton>
             </div>

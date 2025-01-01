@@ -19,3 +19,4 @@ export { default as ModuleAuthorityModal } from './ModuleAuthorityModal';
 export { default as NewTreeForm } from './NewTreeForm';
 export { default as ResponsibilitiesForm } from './ResponsibilitiesForm';
 export { default as ResponsibilitiesFormItem } from './ResponsibilitiesFormItem';
+export * from './signer-threshold-form';
