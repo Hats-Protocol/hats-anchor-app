@@ -33,8 +33,7 @@ const ActiveStreams = ({ safeAddress }: { safeAddress: Hex }) => {
           <Stack spacing={0} align='center'>
             <Text variant='medium'>
               {formatRoundedDecimals({
-                value:
-                  BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_MONTH),
+                value: BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_MONTH),
                 decimals: stream.token.decimals,
               })}{' '}
               {stream.token.symbol}
@@ -46,8 +45,7 @@ const ActiveStreams = ({ safeAddress }: { safeAddress: Hex }) => {
           <Stack spacing={0} align='center' maxW='100px'>
             <Text size='xs'>from</Text>
             <Text size='sm' variant='medium' textAlign='center'>
-              {CUSTOM_NAMES[toLower(stream.sender.id)] ||
-                formatAddress(stream.sender.id)}
+              {CUSTOM_NAMES[toLower(stream.sender.id)] || formatAddress(stream.sender.id)}
             </Text>
           </Stack>
         </Flex>

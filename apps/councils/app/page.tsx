@@ -9,18 +9,13 @@ import { useAccount, useEnsName } from 'wagmi';
 const LookingForHat = () => (
   <Stack>
     <Text>
-      This app is here to help you get a quick glimpse at the current treasury &
-      budgets across your organization&apos;s roles.
+      This app is here to help you get a quick glimpse at the current treasury & budgets across your organization&apos;s
+      roles.
     </Text>
     <Text maxW='60%'>
-      You&apos;re probably looking for a specific tree. Look out for a link here
-      with a specific tree ID on it, like Raid Guild:{' '}
-      <ChakraNextLink
-        href='/100/92'
-        decoration
-        fontFamily='monospace'
-        display='inline-block'
-      >
+      You&apos;re probably looking for a specific tree. Look out for a link here with a specific tree ID on it, like
+      Raid Guild:{' '}
+      <ChakraNextLink href='/100/92' decoration fontFamily='monospace' display='inline-block'>
         /100/92
       </ChakraNextLink>
     </Text>
@@ -40,9 +35,7 @@ const Home = () => {
     return (
       <Flex px={20} py={120}>
         <Stack spacing={10}>
-          <Heading variant='medium'>
-            Welcome to the Hats Protocol treasury app! 🧢
-          </Heading>
+          <Heading variant='medium'>Welcome to the Hats Protocol treasury app! 🧢</Heading>
           <LookingForHat />
         </Stack>
       </Flex>
@@ -52,10 +45,7 @@ const Home = () => {
   return (
     <Flex px={20} py={120}>
       <Stack spacing={50}>
-        <Heading variant='medium'>
-          gm {ensName || formatAddress(wearerAddress)}, welcome to the treasury
-          app
-        </Heading>
+        <Heading variant='medium'>gm {ensName || formatAddress(wearerAddress)}, welcome to the treasury app</Heading>
         <LookingForHat />
       </Stack>
     </Flex>

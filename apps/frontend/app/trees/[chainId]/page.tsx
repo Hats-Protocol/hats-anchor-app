@@ -6,12 +6,8 @@ import { TreesList as TreesListCards } from 'organisms';
 import { SearchParamsProps } from 'types';
 import { LinkButton } from 'ui';
 
-const NetworkFilter = dynamic(() =>
-  import('molecules').then((mod) => mod.NetworkFilter),
-);
-const ShowTreesButton = dynamic(() =>
-  import('molecules').then((mod) => mod.ShowTreesButton),
-);
+const NetworkFilter = dynamic(() => import('molecules').then((mod) => mod.NetworkFilter));
+const ShowTreesButton = dynamic(() => import('molecules').then((mod) => mod.ShowTreesButton));
 
 const TreesList = async ({ params }: TreeListProps) => {
   // TODO fetch initial trees list
@@ -47,9 +43,7 @@ interface TreeListProps extends SearchParamsProps {
   params: { chainId: string };
 }
 
-export async function generateMetadata({
-  params,
-}: TreeListProps): Promise<Metadata> {
+export async function generateMetadata({ params }: TreeListProps): Promise<Metadata> {
   // read route params
   const { chainId } = pick(params, ['chainId']);
 

@@ -9,9 +9,7 @@ import { chainsMap, ipfsUrl } from 'utils';
 const TreeOverview = () => {
   const { treeDetails, chainId } = useTreasury();
   const topHatDetails = get(treeDetails, 'hats[0].detailsMetadata');
-  const topHatName = topHatDetails
-    ? get(JSON.parse(topHatDetails), 'data.name')
-    : get(treeDetails, 'hats[0].details');
+  const topHatName = topHatDetails ? get(JSON.parse(topHatDetails), 'data.name') : get(treeDetails, 'hats[0].details');
   const topHatImage = get(treeDetails, 'hats[0].nearestImage');
   const chain = chainsMap(chainId);
 
@@ -24,20 +22,14 @@ const TreeOverview = () => {
           <Box w={7}>&nbsp;</Box>
           <Box backgroundColor='white'>
             <Box
-              backgroundImage={
-                topHatImage ? ipfsUrl(topHatImage) : '/icon.jpeg'
-              }
+              backgroundImage={topHatImage ? ipfsUrl(topHatImage) : '/icon.jpeg'}
               backgroundSize='cover'
               boxSize='100px'
               borderRadius='lg'
               border='2px solid black'
             />
           </Box>
-          <Image
-            src={NETWORK_IMAGES[chainId]}
-            alt={`${chain?.name}`}
-            boxSize={7}
-          />
+          <Image src={NETWORK_IMAGES[chainId]} alt={`${chain?.name}`} boxSize={7} />
         </HStack>
         <Heading textAlign='center'>{topHatName}</Heading>
         {/* <Text textAlign='center' fontStyle='italic'>

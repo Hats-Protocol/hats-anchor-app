@@ -19,31 +19,19 @@ interface CouncilCreateFormProps {
   draftId: string;
 }
 
-export function CouncilCreateForm({
-  step,
-  subStep,
-  draftId,
-}: CouncilCreateFormProps) {
+export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { persistForm, form, stepValidation, setStepValidation } =
-    useCouncilForm();
+  const { persistForm, form, stepValidation, setStepValidation } = useCouncilForm();
 
   const handleNext = async () => {
     try {
       await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
 
-      const nextStep = findNextInvalidStep(
-        stepValidation,
-        step,
-        subStep,
-        form.watch('requirements'),
-      );
+      const nextStep = findNextInvalidStep(stepValidation, step, subStep, form.watch('requirements'));
 
       if (nextStep.subStep) {
-        router.push(
-          `/councils/new/${nextStep.step}?subStep=${nextStep.subStep}&draftId=${draftId}`,
-        );
+        router.push(`/councils/new/${nextStep.step}?subStep=${nextStep.subStep}&draftId=${draftId}`);
       } else {
         router.push(`/councils/new/${nextStep.step}?draftId=${draftId}`);
       }

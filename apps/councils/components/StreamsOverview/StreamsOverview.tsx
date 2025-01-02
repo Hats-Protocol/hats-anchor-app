@@ -29,16 +29,12 @@ const StreamsOverview = () => {
 
             {map(streams, (stream: any) => {
               return (
-                <Flex
-                  justify='space-between'
-                  key={`${stream.currentFlowRate}-${stream.receiver.id}`}
-                >
+                <Flex justify='space-between' key={`${stream.currentFlowRate}-${stream.receiver.id}`}>
                   <Text>to {formatAddress(stream.receiver.id)}</Text>
 
                   <Text>
                     {formatRoundedDecimals({
-                      value:
-                        BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_DAY),
+                      value: BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_DAY),
                       decimals: stream.token.decimals,
                     })}{' '}
                     {get(stream, 'token.symbol')} per day

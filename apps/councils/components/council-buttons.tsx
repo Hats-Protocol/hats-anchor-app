@@ -17,8 +17,7 @@ export const CouncilButtons = () => {
   const pathname = usePathname();
   const slug = nth(pathname.split('/'), 2);
 
-  const isDev =
-    process.env.NODE_ENV !== 'production' || posthog.isFeatureEnabled('dev');
+  const isDev = process.env.NODE_ENV !== 'production' || posthog.isFeatureEnabled('dev');
 
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
   const links = [...LINKS, ...devLink];
@@ -27,10 +26,7 @@ export const CouncilButtons = () => {
     <ButtonGroup isAttached position='absolute' top={-5} bg='white'>
       {map(links, ({ label, href }) => (
         <Link href={`/councils/${slug}/${href}`} passHref key={href}>
-          <Button
-            variant={pathname.includes(href) ? 'primary' : 'outlineMatch'}
-            colorScheme='blue.500'
-          >
+          <Button variant={pathname.includes(href) ? 'primary' : 'outlineMatch'} colorScheme='blue.500'>
             {label}
           </Button>
         </Link>

@@ -1,13 +1,13 @@
 'use client';
 
 import { Button } from '@chakra-ui/react';
-import { useMutation } from '@tanstack/react-query';
 import { Modal } from 'contexts';
 import { AddressInput, Input } from 'forms';
-import { some, toLower } from 'lodash';
+import { useCreateOrUpdateUser } from 'hooks';
+import { map, some, toLower } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
-import { councilsGraphqlClient } from 'utils';
+import { isValidEmail } from 'utils';
 import { isAddress } from 'viem';
 
 interface CouncilMemberDetails {
@@ -31,56 +31,30 @@ type AddAdminModalProps = {
   editingAdmin?: CouncilMember | null;
 };
 
-const CREATE_USER = `
-  mutation CreateUser($address: String!, $email: String!, $name: String) {
-    createUser(address: $address, email: $email, name: $name) {
-      id
-      address
-      email
-      name
-    }
-  }
-`;
-
-const UPDATE_USER = `
-  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String) {
-    updateUser(id: $id, address: $address, email: $email, name: $name) {
-      id
-      address 
-      email
-      name
-    }
-  }
-`;
-
 export function AddUserModal({ chainId = 11155111, type, userLabel, editingAdmin }: AddAdminModalProps) {
   const form = useForm<UserFormProps>();
   const { getValues, setValue, setError, handleSubmit } = form;
-
-  const isValidEmail = (email: string) => {
-    return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
-  };
 
   const isFormValid = () => {
     const values = getValues();
     return isAddress(values.address) && isValidEmail(values.email);
   };
 
-  const { mutateAsync: createUserMutation } = useMutation({
-    mutationFn: async (variables: CouncilMember) => {
-      const result = await councilsGraphqlClient.request<{
-        createUser: CouncilMember;
-      }>(CREATE_USER, variables);
-      return result.createUser;
+  const { createOrUpdateUser } = useCreateOrUpdateUser({
+    editingId: editingAdmin?.id,
+    onAddSuccess: (userData) => {
+      const currentAdmins = getValues('admins') || [];
+      const updatedAdmins = map(currentAdmins, (admin: CouncilMember) =>
+        admin.id === editingAdmin?.id ? userData : admin,
+      );
+      setValue('admins', updatedAdmins);
     },
-  });
-
-  const { mutateAsync: updateUserMutation } = useMutation({
-    mutationFn: async (variables: CouncilMember) => {
-      const result = await councilsGraphqlClient.request<{
-        updateUser: CouncilMember;
-      }>(UPDATE_USER, variables);
-      return result.updateUser;
+    onEditSuccess: (userData) => {
+      const currentAdmins = getValues('admins') || [];
+      setValue('admins', [...currentAdmins, userData]);
+    },
+    onError: () => {
+      setError('address', { message: 'Failed to save user. Please try again.' });
     },
   });
 
@@ -102,31 +76,13 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingAdmin
       return;
     }
 
-    try {
-      let userData;
-
-      if (editingAdmin) {
-        userData = await updateUserMutation({
-          id: editingAdmin.id,
-          address: data.address,
-          email: data.email,
-          name: data.name,
-        });
-      } else {
-        userData = await createUserMutation(data as CouncilMember);
-      }
-
-      if (editingAdmin) {
-        const updatedAdmins = currentAdmins.map((admin: any) => (admin.id === editingAdmin.id ? userData : admin));
-        setValue('admins', updatedAdmins);
-      } else {
-        setValue('admins', [...currentAdmins, userData]);
-      }
-    } catch (error) {
-      setError('address', { message: 'Failed to save user. Please try again.' });
-      console.error('Error saving user:', error);
-    }
+    createOrUpdateUser({
+      ...data,
+      id: editingAdmin?.id || '',
+    });
   };
+
+  // TODO reenable chain label
 
   return (
     <Modal name={`addUser-${type}`} title={`${editingAdmin ? 'Edit' : 'Add'} ${userLabel || 'Council Member'}`}>
