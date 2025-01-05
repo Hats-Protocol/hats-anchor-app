@@ -9,6 +9,7 @@ import { CheckSquareIcon } from '../icons/check-square-icon';
 import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
 import { EditIcon } from '../icons/edit-icon';
 import { GetAppointedIcon } from '../icons/get-appointed-icon';
+import { HoldTokensIcon } from '../icons/hold-tokens-icon';
 import { LinkIcon } from '../icons/link-icon';
 import { PaymentIcon } from '../icons/payment-icon';
 import { SignAgreementIcon } from '../icons/sign-agreement-icon';
@@ -308,6 +309,13 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               <RequirementItem
                 icon={<SignAgreementIcon />}
                 title='Sign Agreement'
+                description='Signed and abides agreement'
+              />
+            )}
+            {formData.requirements.holdTokens && (
+              <RequirementItem
+                icon={<HoldTokensIcon />}
+                title='Hold Tokens'
                 description='Signed and abides agreement'
               />
             )}

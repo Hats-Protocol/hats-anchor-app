@@ -9,6 +9,7 @@ import { SelectionAgreementStep } from './selection-step/agreement-step';
 import { SelectionComplianceStep } from './selection-step/compliance-step';
 import { SelectionManagementStep } from './selection-step/management-step';
 import { SelectionMembersStep } from './selection-step/members-step';
+import { SelectionTokensStep } from './selection-step/tokens-step';
 import { SubscribeDeployStep } from './subscribe-deploy-step';
 import { ThresholdStep } from './threshold-step';
 import { findNextInvalidStep } from './utils';
@@ -29,6 +30,7 @@ export function CouncilCreateForm({
     useCouncilForm();
 
   const handleNext = async () => {
+    console.log('handleNext', step, subStep);
     try {
       await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
@@ -39,6 +41,7 @@ export function CouncilCreateForm({
         subStep,
         form.watch('requirements'),
       );
+      console.log('nextStep', nextStep);
 
       if (nextStep.subStep) {
         router.push(
@@ -70,6 +73,8 @@ export function CouncilCreateForm({
           return <SelectionAgreementStep onNext={handleNext} />;
         case 'compliance':
           return <SelectionComplianceStep onNext={handleNext} />;
+        case 'tokens':
+          return <SelectionTokensStep onNext={handleNext} />;
         default:
           return null;
       }

@@ -59,6 +59,7 @@ const nextConfig = {
         hostname: 'effigy.im',
       },
     ],
+    domains: ['ipfs.io'],
   },
 };
 

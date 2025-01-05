@@ -148,6 +148,10 @@ export interface CouncilFormData {
     telegram?: string;
   };
   acceptedTerms?: boolean;
+  tokenRequirement: {
+    address: string;
+    minimum: number;
+  };
 }
 
 interface CouncilFormResponse {
@@ -200,6 +204,8 @@ interface CouncilFormResponse {
       name?: string;
       telegram?: string;
     } | null;
+    tokenAddress: string | null;
+    tokenAmount: number | null;
   };
 }
 
@@ -273,7 +279,11 @@ const computeStepValidation = (
         data.createAgreementAdminRole !== null &&
         !!data.agreement &&
         data.agreement !== '',
-      tokens: true, // Default valid
+      tokens:
+        data.tokenAddress !== null &&
+        data.tokenAddress !== '' &&
+        data.tokenAmount !== null &&
+        data.tokenAmount > 0,
     },
     payment: false,
   };
@@ -313,6 +323,10 @@ export function CouncilFormProvider({
       agreementAdmins: [],
       payer: undefined,
       acceptedTerms: false,
+      tokenRequirement: {
+        address: '',
+        minimum: 0,
+      },
     },
   });
 
@@ -325,8 +339,8 @@ export function CouncilFormProvider({
       members: false,
       management: false,
       compliance: false,
-      agreement: true,
-      tokens: true,
+      agreement: false,
+      tokens: false,
     },
     payment: false,
   });
@@ -336,15 +350,18 @@ export function CouncilFormProvider({
       step: keyof StepValidation,
       isValid: boolean | Partial<StepValidation[keyof StepValidation]>,
     ) => {
+      console.log('Setting step validation:', step, isValid);
       setStepValidationState((prev) => {
         if (step === 'selectionSubSteps') {
-          return {
+          const newState = {
             ...prev,
             selectionSubSteps: {
               ...prev.selectionSubSteps,
               ...(isValid as Partial<StepValidation['selectionSubSteps']>),
             },
           };
+          console.log('New validation state:', newState);
+          return newState;
         }
         return {
           ...prev,
@@ -408,6 +425,10 @@ export function CouncilFormProvider({
         agreementAdmins: data.agreementAdmins || [],
         payer: data.payer || undefined,
         acceptedTerms: false,
+        tokenRequirement: {
+          address: data.tokenAddress || '',
+          minimum: data.tokenAmount || 0,
+        },
       };
       console.log('Setting form to:', newValues);
       form.reset(newValues);
@@ -431,6 +452,13 @@ export function CouncilFormProvider({
 
       switch (step) {
         case 'details':
+          // Get previous form data from query cache
+          const previousData = queryClient.getQueryData<
+            CouncilFormResponse['councilCreationForm']
+          >(['councilForm', draftId]);
+          const previousChain = previousData?.chain;
+          const newChain = chainStringToId(formData.chain);
+
           payload = {
             ...payload,
             organizationName: formData.organizationName,
@@ -438,6 +466,15 @@ export function CouncilFormProvider({
             chain: chainStringToId(formData.chain),
             councilDescription: formData.councilDescription,
           };
+
+          // If chain has changed, reset token requirements in the payload
+          if (previousChain && previousChain !== newChain) {
+            payload = {
+              ...payload,
+              tokenAddress: '',
+              tokenAmount: 0,
+            };
+          }
           break;
 
         case 'threshold':
@@ -494,6 +531,19 @@ export function CouncilFormProvider({
                 agreementAdmins: formData.agreementAdmins,
                 createAgreementAdminRole:
                   formData.createAgreementAdminRole === 'true',
+              };
+              break;
+            case 'tokens':
+              payload = {
+                ...payload,
+                tokenAddress: formData.tokenRequirement.address,
+                tokenAmount: parseInt(
+                  formData.tokenRequirement.minimum.toString(),
+                ),
+                memberRequirements: {
+                  ...formData.requirements,
+                  holdTokens: true,
+                },
               };
               break;
           }
