@@ -25,6 +25,9 @@ export const MULTI_CLAIMS_HATTER_V1_ADDRESS =
 export const ELIGIBILITY_CHAIN_ADDRESS =
   '0x8AdED513a191e3FeE91Bb192Aba20FcC9c16aF2e' as const;
 
+export const ERC20_ELIGIBILITY_ADDRESS =
+  '0xba5b218e6685d0607139c06f81442681a32a0ec3' as const;
+
 export const ELIGIBILITY_CHAIN_ABI = [
   {
     inputs: [{ internalType: 'string', name: '_version', type: 'string' }],
@@ -3075,3 +3078,90 @@ export const MULTICALL3_ABI = [
     type: 'function',
   },
 ] as const;
+
+export const ERC20_ELIGIBILITY_ABI = [
+  {
+    inputs: [{ internalType: 'string', name: '_version', type: 'string' }],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  { inputs: [], name: 'AlreadyInitialized', type: 'error' },
+  { inputs: [], name: 'NotInitializing', type: 'error' },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: false, internalType: 'uint8', name: 'version', type: 'uint8' },
+    ],
+    name: 'Initialized',
+    type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'ERC20_TOKEN_ADDRESS',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'HATS',
+    outputs: [{ internalType: 'contract IHats', name: '', type: 'address' }],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'IMPLEMENTATION',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'MIN_BALANCE',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: '_wearer', type: 'address' },
+      { internalType: 'uint256', name: '', type: 'uint256' },
+    ],
+    name: 'getWearerStatus',
+    outputs: [
+      { internalType: 'bool', name: 'eligible', type: 'bool' },
+      { internalType: 'bool', name: 'standing', type: 'bool' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'hatId',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'bytes', name: '_initData', type: 'bytes' }],
+    name: 'setUp',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'version',
+    outputs: [{ internalType: 'string', name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'version_',
+    outputs: [{ internalType: 'string', name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];

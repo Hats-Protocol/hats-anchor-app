@@ -2648,8 +2648,32 @@ export const CHAIN_TOKENS: ChainTokens = {
       logoURI: 'ipfs://QmSoQXLiumcPMJAAtNPgi1LqovgYcAU9Yr2NUujQeWGjrK',
     },
   ],
+  11155111: [
+    {
+      chainId: 11155111,
+      address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+      symbol: 'USDC',
+      name: 'USD Coin',
+      decimals: 6,
+      logoURI: 'ipfs://QmTjYxAeRZgK56Nm1wtAGBptbRndL9L2NqkRS3pMgiLDY9',
+    },
+  ],
 };
 
 export function getChainTokens(chainId: number): TokenInfo[] {
   return CHAIN_TOKENS[chainId] || [];
+}
+
+export function getTokenDecimals(
+  chainId: number,
+  tokenAddress: string,
+): number | undefined {
+  const chainTokens = CHAIN_TOKENS[chainId];
+  if (!chainTokens) return undefined;
+
+  const token = chainTokens.find(
+    (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
+  );
+
+  return token?.decimals;
 }

@@ -1,11 +1,10 @@
 'use client';
 
 import { Spinner } from '@chakra-ui/react';
+import { getChainTokens } from '@hatsprotocol/constants';
 import { useCouncilForm } from 'contexts';
-import { useEffect, useRef } from 'react';
 import { chainStringToId } from 'utils';
 
-import { getChainTokens, TokenInfo } from '../../../lib/utils/tokens';
 import { HoldTokensIcon } from '../../icons/hold-tokens-icon';
 import { NextStepButton } from '../../next-step-button';
 import { TokenNumberInput } from '../../token-number-input';

@@ -1,9 +1,8 @@
 'use client';
 
 import { forwardRef, Select, SelectProps } from '@chakra-ui/react';
+import { TokenInfo } from '@hatsprotocol/constants';
 import { UseFormReturn } from 'react-hook-form';
-
-import { TokenInfo } from '../lib/utils/tokens';
 
 const ipfsToHttp = (ipfsUri: string): string => {
   const cid = ipfsUri.replace('ipfs://', '');

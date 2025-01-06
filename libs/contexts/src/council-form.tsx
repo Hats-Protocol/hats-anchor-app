@@ -4,7 +4,9 @@ import {
   AGREEMENT_ELIGIBILITY_ADDRESS,
   ALLOWLIST_ELIGIBILITY_ADDRESS,
   ELIGIBILITY_CHAIN_ADDRESS,
+  ERC20_ELIGIBILITY_ADDRESS,
   FALLBACK_ADDRESS,
+  getTokenDecimals,
   HATS_ADDRESS,
   HATS_MODULES_FACTORY_ABI,
   HATS_MODULES_FACTORY_ADDRESS,
@@ -776,6 +778,44 @@ export function CouncilFormProvider({
         saltNonces.push(saltNonce);
       }
 
+      // erc20 module
+      let erc20ModuleInitArgs: `0x${string}`;
+      let erc20ModuleImmutableArgs: `0x${string}`;
+      let erc20ModuleHatId: bigint;
+      let predictedErc20ModuleAddress: `0x${string}` | undefined;
+      if (formData.requirements.holdTokens) {
+        const tokenDecimals = getTokenDecimals(
+          chainId,
+          formData.tokenRequirement.address,
+        ) as number;
+        erc20ModuleInitArgs = '0x' as `0x${string}`;
+        erc20ModuleImmutableArgs = encodePacked(
+          ['address', 'uint256'],
+          [
+            formData.tokenRequirement.address as `0x${string}`,
+            BigInt(formData.tokenRequirement.minimum) *
+              10n ** BigInt(tokenDecimals),
+          ],
+        );
+        erc20ModuleHatId = councilMemberHatId;
+        predictedErc20ModuleAddress = (await publicClient.readContract({
+          address: HATS_MODULES_FACTORY_ADDRESS,
+          abi: HATS_MODULES_FACTORY_ABI,
+          functionName: 'getHatsModuleAddress',
+          args: [
+            ERC20_ELIGIBILITY_ADDRESS,
+            erc20ModuleHatId,
+            erc20ModuleImmutableArgs,
+            saltNonce,
+          ],
+        })) as `0x${string}`;
+        implementations.push(ERC20_ELIGIBILITY_ADDRESS);
+        hatIds.push(erc20ModuleHatId);
+        immutableArgs.push(erc20ModuleImmutableArgs);
+        initArgs.push(erc20ModuleInitArgs);
+        saltNonces.push(saltNonce);
+      }
+
       // eligibility chain
       let eligibilityChainInitArgs: `0x${string}`;
       let eligibilityChainImmutableArgs: `0x${string}`;
@@ -783,7 +823,8 @@ export function CouncilFormProvider({
       let predictedEligibilityChainAddress: `0x${string}` | undefined;
       if (
         formData.requirements.passCompliance ||
-        formData.requirements.signAgreement
+        formData.requirements.signAgreement ||
+        formData.requirements.holdTokens
       ) {
         let chainLength = 1;
         const chainModules: `0x${string}`[] = [
@@ -798,6 +839,10 @@ export function CouncilFormProvider({
         if (formData.requirements.signAgreement) {
           chainLength += 1;
           chainModules.push(predictedAgreementModuleAddress as `0x${string}`);
+        }
+        if (formData.requirements.holdTokens) {
+          chainLength += 1;
+          chainModules.push(predictedErc20ModuleAddress as `0x${string}`);
         }
         eligibilityChainInitArgs = '0x' as `0x${string}`;
         eligibilityChainImmutableArgs = encodePacked(

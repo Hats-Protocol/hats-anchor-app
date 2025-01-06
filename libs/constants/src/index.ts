@@ -1,3 +1,4 @@
+export * from './approved-tokens';
 export * from './authorities';
 export * from './chains';
 export * from './config';

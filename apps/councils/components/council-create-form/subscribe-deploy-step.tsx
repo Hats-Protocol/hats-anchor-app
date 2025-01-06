@@ -187,33 +187,35 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       const result = await deployCouncil();
 
       if (result.success) {
-        toast({
-          title: 'Council deployed successfully',
-          description: `Transaction hash: ${result.transactionHash}`,
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
+        // toast({
+        //   title: 'Council deployed successfully',
+        //   description: `Transaction hash: ${result.transactionHash}`,
+        //   status: 'success',
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
         // Redirect to a success page or the new council page
         router.push('/councils');
       } else {
-        toast({
-          title: 'Deployment failed',
-          description: result.error || 'Unknown error occurred',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+        console.log('result', result);
+        // toast({
+        //   title: 'Deployment failed',
+        //   description: result.error || 'Unknown error occurred',
+        //   status: 'error',
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
       }
     } catch (error) {
-      toast({
-        title: 'Deployment failed',
-        description:
-          error instanceof Error ? error.message : 'Unknown error occurred',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      console.error('Error deploying council', error);
+      // toast({
+      //   title: 'Deployment failed',
+      //   description:
+      //     error instanceof Error ? error.message : 'Unknown error occurred',
+      //   status: 'error',
+      //   duration: 5000,
+      //   isClosable: true,
+      // });
     }
   };
 
