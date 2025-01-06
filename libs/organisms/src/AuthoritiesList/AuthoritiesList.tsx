@@ -21,7 +21,7 @@ const LOADING_AUTHORITIES: Authority[] = Array(LOADING_COUNT).fill({
 // TODO need to handle case for automated integrations when using plaintext details
 
 const AuthoritiesList = () => {
-  const { orgChartTree, guildData, snapshotData } = useTreeForm();
+  const { orgChartTree, snapshotData } = useTreeForm();
   const { chainId, selectedHat, selectedHatDetails, hatLoading } =
     useSelectedHat();
 
@@ -33,11 +33,11 @@ const AuthoritiesList = () => {
       tree: orgChartTree,
     });
 
-  const { data: guildRoles, isLoading: guildsLoading } = useHatGuildRoles({
-    hatId: selectedHat?.id,
-    guildData,
-    chainId,
-  });
+  // const { data: guildRoles, isLoading: guildsLoading } = useHatGuildRoles({
+  //   hatId: selectedHat?.id,
+  //   guildData,
+  //   chainId,
+  // });
   const { data: spaces, isLoading: spacesLoading } = useHatSnapshotRoles({
     spaces: snapshotData,
     hatId: selectedHat?.id,
@@ -45,18 +45,17 @@ const AuthoritiesList = () => {
   });
   const { data: combinedAuthorities } = combineAuthorities({
     authorities: get(selectedHatDetails, 'authorities'),
-    guildRoles,
+    guildRoles: [],
     spaces,
     modulesAuthorities: ancillaryModulesLoading
       ? undefined
       : modulesAuthorities,
   });
   const localAuthorities =
-    !hatLoading && !ancillaryModulesLoading && !guildsLoading && !spacesLoading
+    !hatLoading && !ancillaryModulesLoading && !spacesLoading
       ? combinedAuthorities
       : LOADING_AUTHORITIES;
-  const allLoaded =
-    !hatLoading && !ancillaryModulesLoading && !guildsLoading && !spacesLoading;
+  const allLoaded = !hatLoading && !ancillaryModulesLoading && !spacesLoading;
 
   if ((allLoaded && isEmpty(combinedAuthorities)) || !selectedHatDetails) {
     return null;

@@ -125,7 +125,8 @@ export const ChainPanel = ({
   });
 
   // can assume theres 2+ modules in the ruleSet array already
-  // ! currently only supporting single nested chains TODO support deeper nested chains
+  // ! currently only supporting single nested chains
+  // TODO support deeper nested chains
   const isAndChain = size(ruleSets) === 1;
 
   useEffect(() => {
@@ -214,7 +215,7 @@ export const ChainPanel = ({
                 border='gray'
               >
                 <Stack
-                  mx={4}
+                  mx={{ base: 0, md: IS_CLAIMS_APP ? 4 : 0 }}
                   pb={2}
                   spacing={0}
                   // px={{ base: 2, md: IS_CLAIMS_APP ? 4 : 0 }}

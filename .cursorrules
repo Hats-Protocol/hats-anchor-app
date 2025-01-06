@@ -1,0 +1,76 @@
+# Hats App Monorepo
+
+## App Context
+
+- Hats Protocol is a smart contract protocol on Ethereum and other EVM compatible chains.
+- There are many apps that interact with the protocol including the Anchor app, the Claims app and the Pro app
+- The protocol is indexed with subgraphs and the data is cached via the Hats Mesh API (graphql-mesh)
+- The apps here are built with the Hats Protocol SDKs, Next.js and Tailwind CSS
+- This monorepo is managed with Nx
+
+## Code Style and Structure
+
+- Write clear, self-documenting code with meaningful variable names
+- Leverage established linting rules to meet consistency
+- Keep functions focused and single-purpose
+- Prefer camelCase for variable names and kebab-case for file names
+- Organize code into logical modules/components
+- Include JSDoc-style comments for functions and complex logic
+- Maintain a clear separation between game logic and rendering code
+- Use TypeScript types/interfaces where applicable
+- Keep files under 200 lines when possible
+- Duplicate code once, refactor and generalize on the third instance
+
+## Temporary Caveats
+
+- We're in the process of migrating from Chakra to Shadcn (Tailwind) UI. Prefer Shadcn where possible, fallback to Chakra if necessary.
+
+## Directory Structure
+
+```
+hats-clients/
+├── apps/
+│   ├── frontend/                           # Anchor App Next.js web application
+│   │   ├── app/
+│   ├── councils/                           # Council App Next.js web application
+│   │   ├── app/
+│   ├── claims/                             # Claims App Next.js web application
+│   │   ├── app/
+└── libs/
+    ├── constants/                          # Constants used across the apps
+    │   └── src/
+    │       ├── chains/                     # Chain configurations
+    │       ├── content/                    # Content for the landing page
+    │       ├── contracts/                  # Contract ABIs
+    │       └── metadata/                   # Handling of metadata
+    ├── contexts/                           # Contexts for the apps
+    │   └── src/
+    ├── forms/                              # React Hook Form components and forms
+    │   └── src/
+    ├── hats-hooks/                         # Hooks interacting with Hats
+    │   └── src/
+    ├── hats-utils/                         # Utils for managing Hats and their data
+    │   └── src/
+    ├── hooks/                              # Other hooks that don't fit hats-hooks or modules-hooks
+    │   └── src/
+    ├── icons/                              # Chakra UI Icons
+    │   └── src/
+    ├── modules/                            # UI components for Hats Modules
+    │   └── src/
+    ├── modules-hooks/                      # Hooks for interacting with Hats Modules
+    │   └── src/
+    ├── molecules/                          # UI components that consume UI atoms and other external components
+    │   └── src/
+    ├── organisms/                          # UI organisms that consume UI molecules and atoms
+    │   └── src/
+    ├── pages/                              # Pages (similar to Organisms) -- to be combined with organisms
+    │   └── src/
+    ├── shared/                             # Utilities shared between constants and utils to prevent circular dependencies
+    │   └── src/
+    ├── types/                              # Types used across the apps
+    │   └── src/
+    ├── ui/                                 # Base UI components consumed by the apps and other libraries
+    │   └── src/
+    └── utils/                              # Utilities for the apps, hooks, etc.
+    │   └── src/
+```

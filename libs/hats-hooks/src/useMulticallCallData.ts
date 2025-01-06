@@ -1,5 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import {
+  compact,
+  filter,
+  flatten,
+  includes,
+  isEmpty,
+  keys,
+  map,
+  omit,
+  pick,
+  size,
+} from 'lodash';
 import { AppHat, FormData, SupportedChains } from 'types';
 import {
   createHatsClient,
@@ -32,35 +43,35 @@ const useMulticallCallData = ({
     if (!chainId || !treeId || !storedData) return undefined;
     const hatsClient = await createHatsClient(chainId);
 
-    const onlyOnchainHats = _.filter(treeToDisplay, (hat: AppHat) =>
-      _.includes(_.map(onchainHats, 'id'), hat.id),
+    const onlyOnchainHats = filter(treeToDisplay, (hat: AppHat) =>
+      includes(map(onchainHats, 'id'), hat.id),
     );
-    const removeEmptyData = _.filter(
+    const removeEmptyData = filter(
       storedData,
-      (hat: Partial<FormData>) => !_.isEmpty(_.keys(_.omit(hat, ['id']))),
+      (hat: Partial<FormData>) => !isEmpty(keys(omit(hat, ['id']))),
     );
 
-    const allCallsPromises = _.map(removeEmptyData, (hat: Partial<FormData>) =>
+    const allCallsPromises = map(removeEmptyData, (hat: Partial<FormData>) =>
       processHatForCalls(hat, onlyOnchainHats, chainId),
     );
     const allCalls = await Promise.all(allCallsPromises);
 
-    const calls = _.map(_.flatten(_.map(allCalls, 'calls') || []), 'callData');
+    const calls = map(flatten(map(allCalls, 'calls') || []), 'callData');
 
-    const detailsToPin = _.map(allCalls, 'detailsToPin');
+    const detailsToPin = compact(map(allCalls, 'detailsToPin'));
 
-    const token = await fetchToken(_.size(detailsToPin));
+    const token = await fetchToken(size(detailsToPin));
     // TODO [low] handle no token
 
-    const detailsPromises = _.map(
-      _.compact(detailsToPin),
+    const detailsPromises = map(
+      detailsToPin,
       (hatDetails: HatPinDetails, index: number) => {
         setTimeout(() => {
           const {
             chainId: localChainId,
             hatId,
             details,
-          } = _.pick(hatDetails, ['chainId', 'hatId', 'details']);
+          } = pick(hatDetails, ['chainId', 'hatId', 'details']);
           return handleDetailsPin({
             chainId: localChainId,
             hatId,
@@ -72,7 +83,11 @@ const useMulticallCallData = ({
     );
     await Promise.all(detailsPromises);
 
-    return Promise.resolve(hatsClient?.multicallCallData(calls));
+    return Promise.resolve({
+      callData: hatsClient?.multicallCallData(calls),
+      detailsToPin,
+      allCalls,
+    });
   };
 
   const { data, isLoading } = useQuery({

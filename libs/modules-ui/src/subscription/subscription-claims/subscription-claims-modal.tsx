@@ -1,23 +1,30 @@
 'use client';
 
 import { Heading, Stack, Text } from '@chakra-ui/react';
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { Modal, useEligibility } from 'contexts';
 import { map } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import { eligibilityRuleToModuleDetails, getDuration } from 'utils';
+import { ModuleDetails } from 'types';
+import { getDuration } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
 import { AllowanceActions } from './allowance-actions';
 
-export const SubscriptionClaimsModal = () => {
-  const { chainId, activeRule } = useEligibility();
-  const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
+export const SubscriptionClaimsModal = ({
+  moduleDetails,
+  moduleParameters,
+}: {
+  moduleDetails: ModuleDetails;
+  moduleParameters: ModuleParameter[] | undefined;
+}) => {
+  const { chainId } = useEligibility();
 
   const { address } = useAccount();
   const { lockAddress, duration, symbol } = useLockFromHat({
-    moduleParameters: moduleDetails?.liveParameters,
+    moduleParameters,
     chainId,
   });
 
@@ -47,7 +54,7 @@ export const SubscriptionClaimsModal = () => {
   // CURRENTLY ONLY USED ON MOBILE CLAIMS APP, ADJUST FOR OTHER USES
 
   return (
-    <Modal name='subscriptionManagerClaims'>
+    <Modal name={`${moduleDetails?.instanceAddress}-subscriptionManagerClaims`}>
       <Stack>
         <Heading size='lg'>Subscribe to claim this Hat</Heading>
 

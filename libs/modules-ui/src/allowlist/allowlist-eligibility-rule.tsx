@@ -106,7 +106,7 @@ export const AllowlistEligibilityRule = ({
         rule={
           <Text>
             Be on the{' '}
-            {eligibilityModalFlag ? (
+            {eligibilityModalFlag && !IS_CLAIMS_APP ? (
               <Button
                 onClick={() =>
                   setModals?.({

@@ -69,7 +69,7 @@ export interface TreeFormContext {
   orgChartWearers: HatWearer[] | undefined;
   inactiveHats: string[] | undefined;
   orgChartTree: AppHat[] | undefined;
-  guildData: Guild[] | undefined;
+  // guildData: Guild[] | undefined;
   snapshotData: SnapshotSpace[] | undefined;
   treeError: Error | undefined;
   // local storage
@@ -137,7 +137,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
     flipped: undefined,
   },
   orgChartTree: undefined,
-  guildData: undefined,
+  // guildData: undefined,
   snapshotData: undefined,
   treeError: undefined,
   // controls
@@ -415,11 +415,11 @@ export const TreeFormContextProvider = ({
   // * TREE-LEVEL AUTHORITY DATA
   // *********************
 
-  const { data: guildData } = useTreeGuilds({
-    orgChartTree,
-    chainId,
-    editMode,
-  });
+  // const { data: guildData } = useTreeGuilds({
+  //   orgChartTree,
+  //   chainId,
+  //   editMode,
+  // });
   const { data: snapshotData } = useTreeSnapshotSpaces({
     orgChartTree,
     chainId,
@@ -797,7 +797,7 @@ export const TreeFormContextProvider = ({
       orgChartWearers,
       inactiveHats,
       orgChartTree: orgChartTree || undefined,
-      guildData,
+      // guildData,
       snapshotData,
       treeError,
       // LOCAL STORAGE
@@ -853,7 +853,7 @@ export const TreeFormContextProvider = ({
       orgChartWearers,
       inactiveHats,
       orgChartTree,
-      guildData,
+      // guildData,
       snapshotData,
       treeError,
       // LOCAL STORAGE

@@ -59,6 +59,7 @@ export const ElectionEligibilityRule = ({
   console.log(IS_CLAIMS_APP);
 
   if (!moduleDetails) return null;
+  // TODO handle modal in claims app
 
   let rule = (
     <ChakraNextLink

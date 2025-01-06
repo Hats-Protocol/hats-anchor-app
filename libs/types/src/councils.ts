@@ -16,3 +16,10 @@ export interface CouncilDraft {
   updatedAt: Date;
   createdBy: string;
 }
+
+export interface CouncilMember {
+  id: string;
+  address: string;
+  email: string;
+  name?: string;
+}

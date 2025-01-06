@@ -16,12 +16,7 @@ export function SelectionManagementStep({ onNext }: { onNext: () => void }) {
   const admins = form.watch('admins') || [];
   const requirements = form.watch('requirements');
 
-  const nextStep = findNextInvalidStep(
-    stepValidation,
-    'selection',
-    'management',
-    requirements,
-  );
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', requirements);
 
   if (isLoading) {
     return (
@@ -32,23 +27,18 @@ export function SelectionManagementStep({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <form
-      className='mx-auto flex w-[600px] flex-col space-y-8 p-8'
-      onSubmit={form.handleSubmit(onNext)}
-    >
+    <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <h1 className='text-2xl font-bold'>Council Management</h1>
 
       <div className='space-y-8 bg-white'>
         <div>
           <h2 className='font-bold'>Who can edit the council?</h2>
-          <p className='text-gray-600'>
-            Council Admins can add and remove council members and edit the Safe.
-          </p>
+          <p className='text-gray-600'>Council Admins can add and remove council members and edit the Safe.</p>
         </div>
 
         {admins.length > 0 && (
           <div>
-            <AdminsList admins={admins} form={form} />
+            <AdminsList name='admins' admins={admins} form={form} />
           </div>
         )}
 
@@ -65,16 +55,10 @@ export function SelectionManagementStep({ onNext }: { onNext: () => void }) {
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>
-          {getNextStepButtonText(nextStep)}
-        </NextStepButton>
+        <NextStepButton disabled={!form.formState.isValid}>{getNextStepButtonText(nextStep)}</NextStepButton>
       </div>
 
-      <AddAdminModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        form={form}
-      />
+      <AddAdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} />
     </form>
   );
 }

@@ -17,6 +17,7 @@ import { useOverlay } from '../OverlayContext';
 
 // type ModalName = keyof Partial<ClaimsModals> | keyof Partial<AppModals>;
 
+// TODO migrate modal to tailwind
 /**
  * Modal component, wraps Chakra's default Modal
  * @param {string} name name of modal
