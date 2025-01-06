@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Card,
-  CardBody,
-  Divider,
-  Flex,
-  Heading,
-  HStack,
-  Skeleton,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Card, CardBody, Divider, Flex, Heading, HStack, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { SafeInfoResponse } from '@safe-global/api-kit';
 import { formHatUrl, safeUrl } from 'hats-utils';
@@ -45,9 +33,7 @@ const SafeCard = ({
 
   const firstHat = get(hats, '[0]');
   const firstHatDetails = get(firstHat, 'detailsMetadata');
-  const firstHatName = firstHatDetails
-    ? get(JSON.parse(firstHatDetails), 'data.name')
-    : get(firstHat, 'details');
+  const firstHatName = firstHatDetails ? get(JSON.parse(firstHatDetails), 'data.name') : get(firstHat, 'details');
   const imageUrl = ipfsUrl(get(firstHat, 'nearestImage'));
 
   const { data: ensName } = useEnsName({
@@ -107,12 +93,7 @@ const SafeCard = ({
             <SafeTransactions safeAddress={safeAddress} />
 
             <Flex justify='space-between' align='center' pt={4}>
-              <Link
-                href={safeUrl(
-                  chainId as SupportedChains,
-                  get(signerSafe, 'safe'),
-                )}
-              >
+              <Link href={safeUrl(chainId as SupportedChains, get(signerSafe, 'safe'))}>
                 <Button variant='link' p={0} m={0}>
                   <HStack>
                     <Box

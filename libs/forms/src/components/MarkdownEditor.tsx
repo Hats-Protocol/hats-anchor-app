@@ -28,6 +28,7 @@ const MarkdownEditor = ({
 }: {
   name: string;
   placeholder: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
 }) => {
   const { watch, setValue } = pick(localForm, ['watch', 'setValue']);

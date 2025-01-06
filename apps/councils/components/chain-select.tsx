@@ -42,9 +42,7 @@ export const ChainSelect = forwardRef<ChainSelectProps, 'select'>(
           '&': {
             paddingLeft: selectedOption ? '2.5rem' : '1rem',
             paddingRight: '2rem',
-            backgroundImage: selectedOption
-              ? `url(${selectedOption.icon})`
-              : 'none',
+            backgroundImage: selectedOption ? `url(${selectedOption.icon})` : 'none',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: '0.5rem center',
             backgroundSize: '1.25rem',

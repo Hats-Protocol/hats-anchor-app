@@ -1,9 +1,12 @@
 import { Button } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map } from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
 import { ManagerAvatar } from 'ui';
+
+import { AddUserModal } from '../add-user-modal';
 
 interface ModuleManagerProps {
   m: ModuleDetails;
@@ -13,10 +16,8 @@ interface ModuleManagerProps {
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
 const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
-  const managerHatId = get(
-    find(get(m, 'liveParameters'), { label: 'Owner Hat' }),
-    'value',
-  ) as bigint;
+  const { setModals } = useOverlay();
+  const managerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
 
   const { data: managerHat } = useHatDetails({
     chainId: chainId as SupportedChains,
@@ -41,8 +42,12 @@ const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
         </div>
 
         <div className='flex'>
-          <Button variant='outline'>Add Compliance Manager</Button>
+          <Button variant='outline' onClick={() => setModals?.({ 'addUser-compliance': true })}>
+            Add Compliance Manager
+          </Button>
         </div>
+
+        <AddUserModal type='compliance' userLabel='Compliance Manager' chainId={chainId as SupportedChains} />
       </div>
     );
   }
@@ -62,8 +67,12 @@ const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
       </div>
 
       <div className='flex'>
-        <Button variant='outline'>Add Allowlist Manager</Button>
+        <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })}>
+          Add Allowlist Manager
+        </Button>
       </div>
+
+      <AddUserModal type='allowlist' userLabel='Allowlist Manager' chainId={chainId as SupportedChains} />
     </div>
   );
 };

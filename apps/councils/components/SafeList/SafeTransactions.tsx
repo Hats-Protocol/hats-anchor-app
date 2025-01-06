@@ -28,13 +28,7 @@ import {
 } from 'utils';
 import { Hex } from 'viem';
 
-const TransactionRecord = ({
-  tx,
-  chainId,
-}: {
-  tx: SafeTransaction;
-  chainId: number | undefined;
-}) => {
+const TransactionRecord = ({ tx, chainId }: { tx: SafeTransaction; chainId: number | undefined }) => {
   const value = get(tx, 'transfers.0.value');
   if (!value) return null;
   const txHash = get(tx, 'transactionHash', get(tx, 'txHash'));
@@ -69,13 +63,9 @@ const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
   const { data: approvedTokens } = useApprovedTokens();
   // const { data: prices } = useTokenPrices();
 
-  const filteredSafeTransactions = filterSafeTransactions(
-    safeTransactions,
-    approvedTokens,
-  );
+  const filteredSafeTransactions = filterSafeTransactions(safeTransactions, approvedTokens);
 
-  const isDev =
-    posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
   if (!isDev) return null;
 
@@ -88,16 +78,9 @@ const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
         </AccordionButton>
         <AccordionPanel>
           <Stack spacing={1}>
-            {map(
-              onlyInboundTransactions(filteredSafeTransactions, safeAddress),
-              (tx) => (
-                <TransactionRecord
-                  tx={tx}
-                  chainId={chainId}
-                  key={tx.transactionHash}
-                />
-              ),
-            ) || <Text>No inbound transactions</Text>}
+            {map(onlyInboundTransactions(filteredSafeTransactions, safeAddress), (tx) => (
+              <TransactionRecord tx={tx} chainId={chainId} key={tx.transactionHash} />
+            )) || <Text>No inbound transactions</Text>}
           </Stack>
         </AccordionPanel>
       </AccordionItem>
@@ -108,16 +91,9 @@ const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
         </AccordionButton>
         <AccordionPanel>
           <Stack spacing={1}>
-            {map(
-              onlyOutboundTransactions(filteredSafeTransactions, safeAddress),
-              (tx) => (
-                <TransactionRecord
-                  tx={tx}
-                  chainId={chainId}
-                  key={tx.transactionHash}
-                />
-              ),
-            ) || <Text>No outbound transactions</Text>}
+            {map(onlyOutboundTransactions(filteredSafeTransactions, safeAddress), (tx) => (
+              <TransactionRecord tx={tx} chainId={chainId} key={tx.transactionHash} />
+            )) || <Text>No outbound transactions</Text>}
           </Stack>
         </AccordionPanel>
       </AccordionItem>

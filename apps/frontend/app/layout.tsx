@@ -9,15 +9,9 @@ import { ReactNode } from 'react';
 
 import Providers from './providers';
 
-const CommandPalette = dynamic(
-  () => import('molecules').then((mod) => mod.CommandPalette),
-  { ssr: false },
-);
+const CommandPalette = dynamic(() => import('molecules').then((mod) => mod.CommandPalette), { ssr: false });
 const Navbar = dynamic(() => import('molecules').then((mod) => mod.Navbar));
-const TxHistoryModal = dynamic(
-  () => import('molecules').then((mod) => mod.TxHistoryModal),
-  { ssr: false },
-);
+const TxHistoryModal = dynamic(() => import('molecules').then((mod) => mod.TxHistoryModal), { ssr: false });
 
 const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
 

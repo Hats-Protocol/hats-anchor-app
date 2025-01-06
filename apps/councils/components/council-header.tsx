@@ -40,9 +40,7 @@ export const CouncilHeader = () => {
     safes: [councilDetails?.safe as unknown as Hex],
   });
   const primarySignerHat = first(councilDetails?.signerHats);
-  const signerHatDetails = handleHatDetails(
-    get(primarySignerHat, 'detailsMetadata') as string | undefined,
-  );
+  const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);
   const safe = first(safesDetails);
 
   if (!safe) {
@@ -58,20 +56,13 @@ export const CouncilHeader = () => {
       <div className='mx-auto flex w-[90%] max-w-[1000px] justify-between rounded-lg border border-black bg-slate-50 p-4'>
         <div className='flex w-[30%] flex-col gap-2'>
           <div>Back to Circle DAO councils</div>
-          <h1 className='text-2xl font-bold'>
-            {get(signerHatDetails, 'name')}
-          </h1>
-          <p className='truncate text-sm'>
-            {get(signerHatDetails, 'description')}
-          </p>
+          <h1 className='text-2xl font-bold'>{get(signerHatDetails, 'name')}</h1>
+          <p className='truncate text-sm'>{get(signerHatDetails, 'description')}</p>
         </div>
 
         <div className='flex w-auto items-center'>
           <Link
-            href={safeUrl(
-              (chainId ?? 11155111) as SupportedChains,
-              councilDetails?.safe as unknown as Hex,
-            )}
+            href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
             target='_blank'
           >
             <Button

@@ -7,7 +7,7 @@ import { useCouncilForm } from 'contexts';
 import { MarkdownEditor, RadioBox } from 'forms';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { CouncilMember } from 'types';
+import { CouncilMember, StepProps } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
@@ -32,7 +32,7 @@ function AdminDisplay({ admin }: { admin: CouncilMember }) {
   );
 }
 
-export function SelectionAgreementStep({ onNext }: { onNext: () => void }) {
+export function SelectionAgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const requirements = form.watch('requirements');

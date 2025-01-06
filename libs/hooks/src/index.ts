@@ -4,6 +4,7 @@ export { default as useCid } from './useCid';
 export { default as useClipboard } from './useClipboard';
 export { default as useContractData } from './useContractData';
 export { default as useCouncilDetails } from './useCouncilDetails';
+export * from './useCreateOrUpdateUser';
 export { default as useDebounce } from './useDebounce';
 export { default as useDeepCompareEffect } from './useDeepCompareEffect';
 export { default as useHatGuildRoles } from './useHatGuildRoles';

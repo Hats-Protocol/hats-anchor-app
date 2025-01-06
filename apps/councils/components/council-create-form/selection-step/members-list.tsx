@@ -24,9 +24,7 @@ interface MembersListProps {
 }
 
 export function MembersList({ members, form }: MembersListProps) {
-  const [editingMember, setEditingMember] = useState<CouncilMember | null>(
-    null,
-  );
+  const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   // console.log('members in members list', members);
 
@@ -34,9 +32,7 @@ export function MembersList({ members, form }: MembersListProps) {
     // console.log('removing memberId', memberId);
     const currentMembers = form.getValues('members') || [];
     //console.log('currentMembers', currentMembers);
-    const updatedMembers = currentMembers.filter(
-      (member: CouncilMember) => member.id !== memberId,
-    );
+    const updatedMembers = currentMembers.filter((member: CouncilMember) => member.id !== memberId);
     //console.log('updatedMembers', updatedMembers);
     form.setValue('members', updatedMembers);
   };
@@ -55,21 +51,11 @@ export function MembersList({ members, form }: MembersListProps) {
     <>
       <div className='space-y-4'>
         {members.map((member) => (
-          <MemberCard
-            key={member.address}
-            member={member}
-            onRemove={handleRemove}
-            onEdit={() => handleEdit(member)}
-          />
+          <MemberCard key={member.address} member={member} onRemove={handleRemove} onEdit={() => handleEdit(member)} />
         ))}
       </div>
 
-      <AddMemberModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        form={form}
-        editingMember={editingMember}
-      />
+      <AddMemberModal isOpen={isModalOpen} onClose={handleModalClose} form={form} editingMember={editingMember} />
     </>
   );
 }
@@ -91,14 +77,8 @@ function MemberCard({
   return (
     <div className='flex items-center justify-between'>
       <div className='flex items-center gap-2'>
-        {member.name && (
-          <span className='text-sm font-medium text-gray-900'>
-            {member.name}
-          </span>
-        )}
-        <span className='text-sm text-gray-600'>
-          {ensName || formatAddress(member.address)}
-        </span>
+        {member.name && <span className='text-sm font-medium text-gray-900'>{member.name}</span>}
+        <span className='text-sm text-gray-600'>{ensName || formatAddress(member.address)}</span>
       </div>
       <div className='flex items-center gap-3'>
         <button
@@ -109,11 +89,7 @@ function MemberCard({
           <EditIcon />
           Edit
         </button>
-        <button
-          type='button'
-          onClick={() => onRemove(member.id)}
-          className='text-red-700 hover:text-red-800'
-        >
+        <button type='button' onClick={() => onRemove(member.id)} className='text-red-700 hover:text-red-800'>
           <TrashIcon />
         </button>
       </div>

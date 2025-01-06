@@ -30,17 +30,13 @@ const SafeTotal = ({ safeAddress }: { safeAddress: Hex }) => {
     return filteredSafeTokens.reduce((usdBal, token) => {
       const price = find(prices, {
         symbol:
-          toUpper(symbolPriceHandler(get(token, 'token.symbol'))) ||
-          symbolPriceHandler(NETWORK_CURRENCY[chainId]),
+          toUpper(symbolPriceHandler(get(token, 'token.symbol'))) || symbolPriceHandler(NETWORK_CURRENCY[chainId]),
       });
       if (!price) return usdBal;
 
       return (
         usdBal +
-        toNumber(
-          formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18)),
-        ) *
-          toNumber(price.priceUsd)
+        toNumber(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))) * toNumber(price.priceUsd)
       );
     }, 0);
   }, [filteredSafeTokens, prices, chainId]);

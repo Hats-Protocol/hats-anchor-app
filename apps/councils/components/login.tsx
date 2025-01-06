@@ -25,8 +25,7 @@ import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 const Login = () => {
-  const { ready, authenticated, login, logout, user, linkEmail, linkWallet } =
-    usePrivy();
+  const { ready, authenticated, login, logout, user, linkEmail, linkWallet } = usePrivy();
   const { address } = useAccount();
   const chainId = useChainId();
   const { data: ensName } = useEnsName({ address, chainId: 1 });
@@ -67,9 +66,7 @@ const Login = () => {
   }, [address]);
 
   if (!ready) {
-    return (
-      <Skeleton w={{ base: '100px', md: '200px' }} h='40px' borderRadius='md' />
-    );
+    return <Skeleton w={{ base: '100px', md: '200px' }} h='40px' borderRadius='md' />;
   }
 
   if (!user || !authenticated) {
@@ -99,13 +96,7 @@ const Login = () => {
         }}
       >
         {chainId && (
-          <Image
-            src={getChainIcon(chainId)}
-            alt='Chain Icon'
-            width='24px'
-            height='24px'
-            objectFit='contain'
-          />
+          <Image src={getChainIcon(chainId)} alt='Chain Icon' width='24px' height='24px' objectFit='contain' />
         )}
       </Button>
 
@@ -128,9 +119,7 @@ const Login = () => {
               width='24px'
               height='24px'
               borderRadius='full'
-              fallback={
-                <Box bg='gray.100' w='24px' h='24px' borderRadius='full' />
-              }
+              fallback={<Box bg='gray.100' w='24px' h='24px' borderRadius='full' />}
             />
           </Button>
         </PopoverTrigger>
@@ -140,17 +129,9 @@ const Login = () => {
             <VStack spacing={4} align='stretch'>
               <VStack align='center' spacing={2}>
                 <Box boxSize='48px' borderRadius='full' overflow='hidden'>
-                  <Image
-                    src={ensAvatar || fallbackAvatar}
-                    alt='Profile'
-                    width='100%'
-                    height='100%'
-                    objectFit='cover'
-                  />
+                  <Image src={ensAvatar || fallbackAvatar} alt='Profile' width='100%' height='100%' objectFit='cover' />
                 </Box>
-                <Text fontWeight='medium'>
-                  {ensName || formatAddress(address as Hex)}
-                </Text>
+                <Text fontWeight='medium'>{ensName || formatAddress(address as Hex)}</Text>
               </VStack>
 
               {user.email && (
@@ -176,12 +157,7 @@ const Login = () => {
                 </Button>
               ) : null}
 
-              <Button
-                size='sm'
-                variant='solid'
-                colorScheme='red'
-                onClick={logout}
-              >
+              <Button size='sm' variant='solid' colorScheme='red' onClick={logout}>
                 Disconnect
               </Button>
             </VStack>

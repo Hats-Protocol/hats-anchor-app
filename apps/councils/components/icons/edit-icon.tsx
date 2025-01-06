@@ -1,12 +1,6 @@
 export function EditIcon() {
   return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      width='16'
-      height='16'
-      viewBox='0 0 16 16'
-      fill='none'
-    >
+    <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'>
       <path
         d='M15.5016 1.93934C15.6969 2.1346 15.6969 2.45118 15.5016 2.64645L14.4587 3.68933L12.4587 1.68933L13.5016 0.646447C13.6969 0.451184 14.0134 0.451185 14.2087 0.646447L15.5016 1.93934Z'
         fill='#2B6CB0'

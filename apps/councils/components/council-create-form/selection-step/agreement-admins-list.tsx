@@ -22,18 +22,13 @@ interface CouncilMember {
   name?: string;
 }
 
-export function AgreementAdminsList({
-  agreementAdmins,
-  form,
-}: AgreementAdminsListProps) {
+export function AgreementAdminsList({ agreementAdmins, form }: AgreementAdminsListProps) {
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleRemove = (adminId: string) => {
     const currentAdmins = form.getValues('agreementAdmins') || [];
-    const updatedAdmins = currentAdmins.filter(
-      (admin: CouncilMember) => admin.id !== adminId,
-    );
+    const updatedAdmins = currentAdmins.filter((admin: CouncilMember) => admin.id !== adminId);
     form.setValue('agreementAdmins', updatedAdmins);
   };
 
@@ -51,21 +46,11 @@ export function AgreementAdminsList({
     <>
       <div className='space-y-4'>
         {agreementAdmins.map((admin) => (
-          <AgreementAdminCard
-            key={admin.id}
-            admin={admin}
-            onRemove={handleRemove}
-            onEdit={() => handleEdit(admin)}
-          />
+          <AgreementAdminCard key={admin.id} admin={admin} onRemove={handleRemove} onEdit={() => handleEdit(admin)} />
         ))}
       </div>
 
-      <AddAgreementAdminModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        form={form}
-        editingAdmin={editingAdmin}
-      />
+      <AddAgreementAdminModal isOpen={isModalOpen} onClose={handleModalClose} form={form} editingAdmin={editingAdmin} />
     </>
   );
 }
@@ -87,14 +72,8 @@ function AgreementAdminCard({
   return (
     <div className='flex items-center justify-between'>
       <div className='flex items-center gap-2'>
-        {admin.name && (
-          <span className='text-sm font-medium text-gray-900'>
-            {admin.name}
-          </span>
-        )}
-        <span className='text-sm text-gray-600'>
-          {ensName || formatAddress(admin.address)}
-        </span>
+        {admin.name && <span className='text-sm font-medium text-gray-900'>{admin.name}</span>}
+        <span className='text-sm text-gray-600'>{ensName || formatAddress(admin.address)}</span>
       </div>
       <div className='flex items-center gap-3'>
         <button
@@ -105,11 +84,7 @@ function AgreementAdminCard({
           <EditIcon />
           Edit
         </button>
-        <button
-          type='button'
-          onClick={() => onRemove(admin.id)}
-          className='text-red-700 hover:text-red-800'
-        >
+        <button type='button' onClick={() => onRemove(admin.id)} className='text-red-700 hover:text-red-800'>
           <TrashIcon />
         </button>
       </div>
