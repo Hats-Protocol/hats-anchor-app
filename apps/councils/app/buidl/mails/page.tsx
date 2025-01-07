@@ -6,7 +6,7 @@ import { MailForm } from '../../../components/mail-form';
 const Mails = () => {
   const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
 
-  if (!isDev) return <NotFound />;
+  // if (!isDev) return <NotFound />;
 
   return (
     <div className='mx-auto flex max-w-screen-md flex-col gap-6 pt-8'>
