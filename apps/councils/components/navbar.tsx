@@ -11,14 +11,7 @@ export const Navbar = () => {
   const isJoinLink = pathname.includes('join');
 
   return (
-    <Flex
-      w='100%'
-      justify='space-between'
-      align='center'
-      zIndex={10}
-      px={2}
-      minH='56px'
-    >
+    <Flex w='100%' justify='space-between' align='center' zIndex={10} px={2} minH='56px'>
       <HStack spacing={4}>
         <ChakraNextLink href='/'>
           <Image src='/hats.png' boxSize={10} alt='Hats Logo' />

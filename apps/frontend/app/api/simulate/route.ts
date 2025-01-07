@@ -1,15 +1,13 @@
 import axios from 'axios';
 import { get } from 'lodash';
 
-const { TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG, TENDERLY_ACCESS_TOKEN } =
-  process.env;
+const { TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG, TENDERLY_ACCESS_TOKEN } = process.env;
 
 const HEADERS = { 'X-Access-Key': TENDERLY_ACCESS_TOKEN as string };
 
 export async function POST(request: Request) {
   // TODO check signed in/token/role
-  const { chainId, from, to, input, gas, gasPrice, value } =
-    await request.json();
+  const { chainId, from, to, input, gas, gasPrice, value } = await request.json();
 
   const tenderlyBaseUrl = `https://api.tenderly.co/api/v1/account/${TENDERLY_ACCOUNT_SLUG}/project/${TENDERLY_PROJECT_SLUG}`;
 
@@ -49,10 +47,7 @@ export async function POST(request: Request) {
           // eslint-disable-next-line no-console
           console.log(get(e, 'response.data'));
 
-          return Response.json(
-            { error: get(e, 'response.data') },
-            { status: 502 },
-          );
+          return Response.json({ error: get(e, 'response.data') }, { status: 502 });
         });
     })
     .catch((e) => {

@@ -12,10 +12,7 @@ const TreeDetails = ({ params: { treeId, chainId } }: TreeDetailsProps) => {
   // TODO handle unexpected chainIds that won't produce valid numbers
 
   return (
-    <TreasuryContextProvider
-      treeId={toNumber(treeId)}
-      chainId={toNumber(chainId) as SupportedChains}
-    >
+    <TreasuryContextProvider treeId={toNumber(treeId)} chainId={toNumber(chainId) as SupportedChains}>
       <div className='flex flex-col gap-6 pt-20'>
         <TreeOverview />
 

@@ -4,13 +4,14 @@ import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
+import { StepProps } from 'types';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddAdminModal } from './add-admin-modal';
 import { AdminsList } from './admins-list';
 
-export function SelectionManagementStep({ onNext }: { onNext: () => void }) {
+export function SelectionManagementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const admins = form.watch('admins') || [];

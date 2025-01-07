@@ -11,15 +11,12 @@ import { Hex } from 'viem';
 const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
 
-  const { data: councilDetails, isLoading: councilDetailsLoading } =
-    useCouncilDetails({
-      chainId: chainId ?? 11155111,
-      address,
-    });
+  const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
+    chainId: chainId ?? 11155111,
+    address,
+  });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
-  const eligibilityModule = get(primarySignerHat, 'eligibility') as
-    | Hex
-    | undefined;
+  const eligibilityModule = get(primarySignerHat, 'eligibility') as Hex | undefined;
   console.log(primarySignerHat, eligibilityModule);
 
   // TODO easy way to get MCH details?
@@ -30,9 +27,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
         eligibilityModule && {
           label: 'Eligibility',
           descriptor: (
-            <ChakraNextLink
-              href={`${explorerUrl(chainId || undefined)}/address/${eligibilityModule}`}
-            >
+            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${eligibilityModule}`}>
               {formatAddress(eligibilityModule)}
             </ChakraNextLink>
           ),

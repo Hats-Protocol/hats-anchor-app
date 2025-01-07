@@ -3,6 +3,7 @@
 import { Spinner, Stack, Text } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { RadioCard, RequirementBox } from 'forms';
+import { StepProps } from 'types';
 
 import { AppointMembersIcon } from '../icons/appoint-members-icon';
 import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
@@ -12,16 +13,11 @@ import { SignAgreementIcon } from '../icons/sign-agreement-icon';
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-export function OnboardingStep({ onNext }: { onNext: () => void }) {
+export function OnboardingStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation } = useCouncilForm();
   const requirements = form.watch('requirements');
 
-  const nextStep = findNextInvalidStep(
-    stepValidation,
-    'onboarding',
-    undefined,
-    requirements,
-  );
+  const nextStep = findNextInvalidStep(stepValidation, 'onboarding', undefined, requirements);
 
   if (isLoading) {
     return (
@@ -32,12 +28,7 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <Stack
-      spacing={8}
-      height='100%'
-      as='form'
-      onSubmit={form.handleSubmit(onNext)}
-    >
+    <Stack spacing={8} height='100%' as='form' onSubmit={form.handleSubmit(onNext)}>
       <Stack spacing={8} flex={1}>
         <Text fontSize='2xl' fontWeight='bold'>
           Council Membership
@@ -54,15 +45,13 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
               {
                 label: 'Appoint Council Members',
                 value: 'APPOINTED',
-                description:
-                  'Create an agreement council members have to sign and abide',
+                description: 'Create an agreement council members have to sign and abide',
                 icon: AppointMembersIcon,
               },
               {
                 label: 'Elect Council Members',
                 value: 'ELECTED',
-                description:
-                  'Specify an amount of coins council members need to hold',
+                description: 'Specify an amount of coins council members need to hold',
                 icon: ElectMembersIcon,
                 disabled: true,
               },
@@ -83,22 +72,19 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
                 key: 'signAgreement',
                 icon: SignAgreementIcon,
                 title: 'Sign Agreement',
-                description:
-                  'Create an agreement council members have to sign and abide',
+                description: 'Create an agreement council members have to sign and abide',
               },
               {
                 key: 'holdTokens',
                 icon: HoldTokensIcon,
                 title: 'Hold Tokens',
-                description:
-                  'Specify an amount of coins council members need to hold',
+                description: 'Specify an amount of coins council members need to hold',
               },
               {
                 key: 'passCompliance',
                 icon: ComplianceCheckIcon,
                 title: 'Pass Compliance Check',
-                description:
-                  'Choose a trusted onchain provider that gathers KYC data securely',
+                description: 'Choose a trusted onchain provider that gathers KYC data securely',
               },
             ]}
           />
@@ -106,9 +92,7 @@ export function OnboardingStep({ onNext }: { onNext: () => void }) {
       </Stack>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>
-          {getNextStepButtonText(nextStep)}
-        </NextStepButton>
+        <NextStepButton disabled={!form.formState.isValid}>{getNextStepButtonText(nextStep)}</NextStepButton>
       </div>
     </Stack>
   );

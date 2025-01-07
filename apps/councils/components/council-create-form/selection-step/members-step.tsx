@@ -4,24 +4,20 @@ import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
+import { StepProps } from 'types';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddMemberModal } from './add-member-modal';
 import { MembersList } from './members-list';
 
-export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
+export function SelectionMembersStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
 
-  const nextStep = findNextInvalidStep(
-    stepValidation,
-    'selection',
-    'members',
-    requirements,
-  );
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
 
   if (isLoading) {
     return (
@@ -32,10 +28,7 @@ export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <form
-      className='mx-auto flex w-[600px] flex-col space-y-8 p-8'
-      onSubmit={form.handleSubmit(onNext)}
-    >
+    <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <h1 className='text-2xl font-bold'>Council Members</h1>
 
       <div className='space-y-8 bg-white'>
@@ -65,16 +58,10 @@ export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>
-          {getNextStepButtonText(nextStep)}
-        </NextStepButton>
+        <NextStepButton disabled={!form.formState.isValid}>{getNextStepButtonText(nextStep)}</NextStepButton>
       </div>
 
-      <AddMemberModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        form={form}
-      />
+      <AddMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} />
     </form>
   );
 }

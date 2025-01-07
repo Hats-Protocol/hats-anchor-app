@@ -11,10 +11,7 @@ const Compliance = () => {
             </button>
           </Link>
 
-          <button
-            disabled
-            className='rounded bg-gray-500 px-4 py-2 font-bold text-white'
-          >
+          <button disabled className='rounded bg-gray-500 px-4 py-2 font-bold text-white'>
             Test Civic
           </button>
         </div>

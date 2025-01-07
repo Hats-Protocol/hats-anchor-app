@@ -1,12 +1,6 @@
 export function AppointMembersIcon() {
   return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
-      viewBox='0 0 24 24'
-      fill='none'
-    >
+    <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
       <path
         d='M12.8253 11.25C12.8253 10.8358 13.1611 10.5 13.5753 10.5H16.5753C16.9895 10.5 17.3253 10.8358 17.3253 11.25C17.3253 11.6642 16.9895 12 16.5753 12H13.5753C13.1611 12 12.8253 11.6642 12.8253 11.25Z'
         fill='#2B6CB0'

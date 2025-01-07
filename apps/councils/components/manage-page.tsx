@@ -1,23 +1,21 @@
 'use client';
 
 import { Button } from '@chakra-ui/react';
-import {
-  hatIdDecimalToHex,
-  hatIdToTreeId,
-  treeIdToTopHatId,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails } from 'hooks';
-import { concat, filter, flatten, get, map, toLower } from 'lodash';
-import { useEligibilityRules } from 'modules-hooks';
+import { concat, filter, first, flatten, get, map, toLower } from 'lodash';
+import { useEligibilityRules, useSignerSafes } from 'modules-hooks';
 import { HatWearer, SupportedChains } from 'types';
 import { ManagerAvatar } from 'ui';
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
+import { AddUserModal } from './add-user-modal';
 import ModuleManager from './modules/module-manager';
+import { SignerThresholdModal } from './signer-threshold-modal';
 import { SignersIndicator } from './signers-indicator';
-
 const DEFAULT_SECTIONS = [
   {
     value: 'threshold',
@@ -40,11 +38,7 @@ const OWNER_SECTIONS = [
 const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
-const SectionMenu = ({
-  sections,
-}: {
-  sections: { value: string; label: string }[];
-}) => {
+const SectionMenu = ({ sections }: { sections: { value: string; label: string }[] }) => {
   return (
     <div className='flex flex-col gap-4'>
       {map(sections, (section) => (
@@ -58,31 +52,30 @@ const SectionMenu = ({
 
 const ManagePage = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
+  const { setModals, modals } = useOverlay();
 
-  const { data: councilDetails, isLoading: councilDetailsLoading } =
-    useCouncilDetails({
-      chainId: chainId ?? 11155111,
-      address,
-    });
+  const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
+    chainId: chainId ?? 11155111,
+    address,
+  });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
-  const topHatId =
-    ownerHat && treeIdToTopHatId(hatIdToTreeId(BigInt(ownerHat.id)));
-  const { data: eligibilityRules, isLoading: eligibilityRulesLoading } =
-    useEligibilityRules({
-      address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
-      chainId: (chainId ?? 11155111) as SupportedChains,
-    });
-  const rulesWithoutSelectionModule = filter(
-    flatten(eligibilityRules),
-    (rule) => rule.address !== selectionModule,
-  );
-  const { data: topHatDetails, isLoading: topHatDetailsLoading } =
-    useHatDetails({
-      chainId: (chainId ?? 11155111) as SupportedChains,
-      hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
-    });
-  console.log(eligibilityRules, rulesWithoutSelectionModule);
+  const topHatId = ownerHat && treeIdToTopHatId(hatIdToTreeId(BigInt(ownerHat.id)));
+  const { data: eligibilityRules, isLoading: eligibilityRulesLoading } = useEligibilityRules({
+    address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
+    chainId: (chainId ?? 11155111) as SupportedChains,
+  });
+  const rulesWithoutSelectionModule = filter(flatten(eligibilityRules), (rule) => rule.address !== selectionModule);
+  const { data: topHatDetails, isLoading: topHatDetailsLoading } = useHatDetails({
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
+  });
+  const { data: hsgSigners } = useSignerSafes({
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    hatIds: primarySignerHat?.id ? [primarySignerHat.id] : undefined,
+  });
+  const signer = first(hsgSigners);
+  console.log(signer);
 
   const sections = concat(
     DEFAULT_SECTIONS,
@@ -93,6 +86,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
     })),
     OWNER_SECTIONS,
   );
+  console.log(modals);
 
   return (
     <div className='flex gap-4 pt-10'>
@@ -107,8 +101,12 @@ const ManagePage = ({ slug }: { slug: string }) => {
           <SignersIndicator threshold={4} signers={7} />
 
           <div className='flex'>
-            <Button variant='outline'>Change Threshold</Button>
+            <Button variant='outline' onClick={() => setModals?.({ hsgThreshold: true })}>
+              Change Threshold
+            </Button>
           </div>
+
+          <SignerThresholdModal signer={signer} />
         </div>
 
         {/* TOP HAT CAN EDIT MANAGERS */}
@@ -122,17 +120,17 @@ const ManagePage = ({ slug }: { slug: string }) => {
           </div>
 
           <div className='flex'>
-            <Button variant='outline'>Add Council Manager</Button>
+            <Button variant='outline' onClick={() => setModals?.({ 'addUser-admin': true })}>
+              Add Council Manager
+            </Button>
           </div>
+
+          <AddUserModal type='admin' userLabel='Council Manager' chainId={chainId as SupportedChains} />
         </div>
 
         {/* MANAGERS CAN MANAGE OTHER MODULES */}
         {map(rulesWithoutSelectionModule, (rule) => (
-          <ModuleManager
-            rule={rule}
-            chainId={chainId ?? 11155111}
-            key={rule.address}
-          />
+          <ModuleManager rule={rule} chainId={chainId ?? 11155111} key={rule.address} />
         ))}
 
         {/* TOP HAT CAN TRANSFER */}
@@ -146,7 +144,9 @@ const ManagePage = ({ slug }: { slug: string }) => {
           </div>
 
           <div className='flex'>
-            <Button variant='outline'>Transfer Ownership</Button>
+            <Button variant='outline' isDisabled>
+              Transfer Ownership
+            </Button>
           </div>
         </div>
       </div>

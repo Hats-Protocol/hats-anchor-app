@@ -29,16 +29,8 @@ export const MODULE_MANAGERS: { [key: string]: ModuleManagerComponent } = {
   agreement: AgreementManager,
 };
 
-const ModuleManager = ({
-  rule,
-  chainId,
-}: {
-  rule: Rule;
-  chainId: number | undefined;
-}) => {
-  const knownModule = getKnownEligibilityModule(
-    rule.module?.implementationAddress as Hex,
-  );
+const ModuleManager = ({ rule, chainId }: { rule: Rule; chainId: number | undefined }) => {
+  const knownModule = getKnownEligibilityModule(rule.module?.implementationAddress as Hex);
 
   if (knownModule && has(MODULE_MANAGERS, knownModule)) {
     const moduleDetailsFn = MODULE_MANAGERS[knownModule];
