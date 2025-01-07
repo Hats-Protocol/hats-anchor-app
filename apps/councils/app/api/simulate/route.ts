@@ -8,8 +8,7 @@ interface SimulationRequest {
   stateOverrides?: Record<string, any>;
 }
 
-const { TENDERLY_ACCESS_KEY, TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG } =
-  process.env;
+const { TENDERLY_ACCESS_KEY, TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG } = process.env;
 
 const TENDERLY_API_URL = `https://api.tenderly.co/api/v1/account/${TENDERLY_ACCOUNT_SLUG}/project/${TENDERLY_PROJECT_SLUG}/simulate`;
 
@@ -45,9 +44,6 @@ export async function POST(request: Request) {
     return Response.json(simulationResult, { status: 200 });
   } catch (error) {
     console.error('Simulation error:', error);
-    return Response.json(
-      { error: 'Failed to simulate transaction' },
-      { status: 500 },
-    );
+    return Response.json({ error: 'Failed to simulate transaction' }, { status: 500 });
   }
 }

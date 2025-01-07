@@ -18,8 +18,7 @@ interface TokenSelectProps extends Omit<SelectProps, 'children' | 'form'> {
 export const TokenSelect = forwardRef<TokenSelectProps, 'select'>(
   ({ options, form, name, placeholder, ...props }, ref) => {
     const value = form.watch(name);
-    const selectedToken =
-      options.find((token) => token.address === value) || options[0];
+    const selectedToken = options.find((token) => token.address === value) || options[0];
     console.log('selectedToken', selectedToken);
     // Set initial value if none exists
     if (!value && selectedToken) {
@@ -52,9 +51,7 @@ export const TokenSelect = forwardRef<TokenSelectProps, 'select'>(
           '&': {
             paddingLeft: selectedToken ? '2.5rem' : '1rem',
             paddingRight: '2rem',
-            backgroundImage: selectedToken
-              ? `url(${ipfsToHttp(selectedToken.logoURI)})`
-              : 'none',
+            backgroundImage: selectedToken ? `url(${ipfsToHttp(selectedToken.logoURI)})` : 'none',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: '0.5rem center',
             backgroundSize: '1.25rem',

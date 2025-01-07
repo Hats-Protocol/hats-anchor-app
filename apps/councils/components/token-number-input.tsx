@@ -21,21 +21,10 @@ interface TokenNumberInputProps {
   };
 }
 
-export function TokenNumberInput({
-  name,
-  form,
-  options,
-}: TokenNumberInputProps) {
+export function TokenNumberInput({ name, form, options }: TokenNumberInputProps) {
   return (
     <InputGroup size='md'>
-      <InputLeftAddon
-        bg='gray.50'
-        color='gray.600'
-        borderRightRadius='0'
-        px={4}
-        display='flex'
-        alignItems='center'
-      >
+      <InputLeftAddon bg='gray.50' color='gray.600' borderRightRadius='0' px={4} display='flex' alignItems='center'>
         Minimum:
       </InputLeftAddon>
       <Controller
@@ -43,13 +32,7 @@ export function TokenNumberInput({
         name={name}
         rules={options}
         render={({ field: { ref, ...restField } }) => (
-          <ChakraNumberInput
-            flex={1}
-            min={options?.min}
-            max={options?.max}
-            size='md'
-            {...restField}
-          >
+          <ChakraNumberInput flex={1} min={options?.min} max={options?.max} size='md' {...restField}>
             <NumberInputField ref={ref} borderLeftRadius='0' />
             <NumberInputStepper>
               <NumberIncrementStepper />

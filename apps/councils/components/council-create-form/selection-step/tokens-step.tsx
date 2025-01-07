@@ -18,12 +18,7 @@ export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
   const chainId = chainStringToId(selectedChain);
   const availableTokens = getChainTokens(chainId as number);
 
-  const nextStep = findNextInvalidStep(
-    stepValidation,
-    'selection',
-    'tokens',
-    requirements,
-  );
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
 
   if (isLoading) {
     return (
@@ -34,10 +29,7 @@ export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <form
-      className='mx-auto flex w-[600px] flex-col space-y-8 p-8'
-      onSubmit={form.handleSubmit(onNext)}
-    >
+    <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='space-y-2'>
         <div className='flex items-center gap-3'>
           <HoldTokensIcon />
@@ -60,18 +52,12 @@ export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
 
         <div className='w-full space-y-2'>
           <label className='font-bold'>Token Type</label>
-          <TokenSelect
-            name='tokenRequirement.address'
-            form={form}
-            options={availableTokens}
-          />
+          <TokenSelect name='tokenRequirement.address' form={form} options={availableTokens} />
         </div>
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton
-          disabled={!(form.watch('tokenRequirement.minimum') > 0)}
-        >
+        <NextStepButton disabled={!(form.watch('tokenRequirement.minimum') > 0)}>
           {getNextStepButtonText(nextStep)}
         </NextStepButton>
       </div>
