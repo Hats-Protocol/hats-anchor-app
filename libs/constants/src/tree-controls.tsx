@@ -1,11 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { Icon } from '@chakra-ui/react';
-import {
-  BsFileFont,
-  BsPersonBadge,
-  BsShieldLock,
-  BsToggles2,
-} from 'react-icons/bs';
+import { BsFileFont, BsPersonBadge, BsShieldLock, BsToggles2 } from 'react-icons/bs';
 import { Controls } from 'types';
 
 export const initialControls: Controls[] = [

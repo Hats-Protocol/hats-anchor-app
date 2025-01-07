@@ -23,14 +23,13 @@ export const ETHERSCAN_API_URLS: {
   11155111: 'https://api-sepolia.etherscan.io/api',
 };
 
-export const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } =
-  {
-    1: ETHERSCAN_API_KEY,
-    10: OPSCAN_API_KEY,
-    100: GNOSISSCAN_API_KEY,
-    137: POLYGONSCAN_API_KEY,
-    8453: BASESCAN_API_KEY,
-    42161: ARBISCAN_API_KEY,
-    42220: CELOSCAN_API_KEY,
-    11155111: ETHERSCAN_API_KEY,
-  };
+export const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = {
+  1: ETHERSCAN_API_KEY,
+  10: OPSCAN_API_KEY,
+  100: GNOSISSCAN_API_KEY,
+  137: POLYGONSCAN_API_KEY,
+  8453: BASESCAN_API_KEY,
+  42161: ARBISCAN_API_KEY,
+  42220: CELOSCAN_API_KEY,
+  11155111: ETHERSCAN_API_KEY,
+};
