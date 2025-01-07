@@ -1,13 +1,15 @@
+import { useToast } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import { chainStringToId, formatAddress } from 'utils';
+import { useChainId, useEnsName, useSwitchChain } from 'wagmi';
 
 import { CheckSquareIcon } from '../icons/check-square-icon';
 import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
 import { EditIcon } from '../icons/edit-icon';
 import { GetAppointedIcon } from '../icons/get-appointed-icon';
+import { HoldTokensIcon } from '../icons/hold-tokens-icon';
 import { LinkIcon } from '../icons/link-icon';
 import { PaymentIcon } from '../icons/payment-icon';
 import { SignAgreementIcon } from '../icons/sign-agreement-icon';
@@ -109,11 +111,14 @@ const MemberItem = ({ member }: { member: { address: string; name?: string } }) 
 };
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const payer = form.watch('payer');
+  const toast = useToast();
+  const userChainId = useChainId();
+  const { switchChain } = useSwitchChain();
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -150,6 +155,48 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       (subStep) => stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps],
     );
   };
+
+  const handleDeploy = async () => {
+    try {
+      const result = await deployCouncil();
+
+      if (result.success) {
+        // toast({
+        //   title: 'Council deployed successfully',
+        //   description: `Transaction hash: ${result.transactionHash}`,
+        //   status: 'success',
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
+        // Redirect to a success page or the new council page
+        router.push('/councils');
+      } else {
+        console.log('result', result);
+        // toast({
+        //   title: 'Deployment failed',
+        //   description: result.error || 'Unknown error occurred',
+        //   status: 'error',
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
+      }
+    } catch (error) {
+      console.error('Error deploying council', error);
+      // toast({
+      //   title: 'Deployment failed',
+      //   description:
+      //     error instanceof Error ? error.message : 'Unknown error occurred',
+      //   status: 'error',
+      //   duration: 5000,
+      //   isClosable: true,
+      // });
+    }
+  };
+
+  const targetChainName = formData.chain.charAt(0).toUpperCase() + formData.chain.slice(1);
+  const targetChainId = chainStringToId(formData.chain) as number;
+
+  const isWrongNetwork = userChainId !== targetChainId;
 
   return (
     <div className='mx-auto max-w-4xl'>
@@ -237,6 +284,13 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                 description='Signed and abides agreement'
               />
             )}
+            {formData.requirements.holdTokens && (
+              <RequirementItem
+                icon={<HoldTokensIcon />}
+                title='Hold Tokens'
+                description='Signed and abides agreement'
+              />
+            )}
           </div>
         </div>
       </StepSummary>
@@ -302,12 +356,16 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             />
             <div className='flex justify-end'>
               {payer ? (
-                <NextStepButton type='button' onClick={() => setIsPaymentModalOpen(true)}>
+                <button
+                  type='button'
+                  onClick={() => setIsPaymentModalOpen(true)}
+                  className='inline-flex items-center rounded-full border border-[#2B6CB0] px-4 py-2 text-sm font-medium text-[#2B6CB0]'
+                >
                   <div className='flex items-center gap-2'>
                     <PaymentIcon />
                     <span>Edit invoice details</span>
                   </div>
-                </NextStepButton>
+                </button>
               ) : (
                 <NextStepButton type='button' onClick={() => setIsPaymentModalOpen(true)} withIcon={false}>
                   <div className='flex items-center gap-2'>
@@ -328,7 +386,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             id='agreement'
             checked={form.watch('acceptedTerms')}
             onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
-            className='h-4 w-4 rounded border-gray-300'
+            className='h-4 w-4 rounded border-gray-300 accent-[#3182CE]'
           />
           <label htmlFor='agreement' className='text-sm text-gray-600'>
             I agree to the{' '}
@@ -339,14 +397,18 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           </label>
         </div>
 
-        <NextStepButton
-          disabled={!payer || !form.watch('acceptedTerms')}
-          onClick={() => {
-            // Handle deployment here
-          }}
-        >
-          Deploy Council on Optimism
-        </NextStepButton>
+        {isWrongNetwork ? (
+          <NextStepButton
+            onClick={() => switchChain?.({ chainId: targetChainId })}
+            disabled={!payer || !form.watch('acceptedTerms')}
+          >
+            Switch to {targetChainName}
+          </NextStepButton>
+        ) : (
+          <NextStepButton disabled={!payer || !form.watch('acceptedTerms') || isDeploying} onClick={handleDeploy}>
+            {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
+          </NextStepButton>
+        )}
       </div>
 
       <PaymentDetailsModal

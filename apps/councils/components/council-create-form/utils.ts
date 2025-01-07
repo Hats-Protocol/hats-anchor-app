@@ -78,6 +78,8 @@ export function getNextStepButtonText(nextStep: NextStep): string {
           return 'Select Council Managers';
         case 'compliance':
           return 'Select Compliance Managers';
+        case 'tokens':
+          return 'Select Token Requirement';
         default:
           return 'Continue';
       }
