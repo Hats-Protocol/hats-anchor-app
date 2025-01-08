@@ -13,9 +13,7 @@ const Home = () => {
 
   useEffect(() => {
     if (!ready) return;
-    console.log('authenticated', authenticated);
 
-    // Only reset the login trigger if auth state changed from true to false
     if (!isModalOpen && !authenticated) {
       hasTriggeredLogin.current = false;
     }
@@ -53,7 +51,6 @@ const Home = () => {
     );
   }
 
-  // Show spinner while on this page (not redirected yet)
   return (
     <Center minH='100vh'>
       <Spinner size='xl' />

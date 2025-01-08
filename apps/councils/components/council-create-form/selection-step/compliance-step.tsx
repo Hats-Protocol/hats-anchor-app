@@ -23,7 +23,7 @@ interface CouncilMember {
 }
 
 export function SelectionComplianceStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const complianceAdmins = form.watch('complianceAdmins') || [];
   const createComplianceAdminRole = form.watch('createComplianceAdminRole');
@@ -79,6 +79,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
             onChange={(e) => {
               form.setValue('createComplianceAdminRole', (e.target as HTMLInputElement).value as 'true' | 'false');
             }}
+            isDisabled={!canEdit}
           />
         </div>
 
@@ -109,7 +110,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
 
             {complianceAdmins.length > 0 && (
               <div>
-                <ComplianceList complianceAdmins={complianceAdmins} form={form} />
+                <ComplianceList complianceAdmins={complianceAdmins} form={form} canEdit={canEdit} />
               </div>
             )}
 
@@ -117,7 +118,10 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
               <button
                 type='button'
                 onClick={() => setIsModalOpen(true)}
-                className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
+                disabled={!canEdit}
+                className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
+                  !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
+                }`}
               >
                 <FiUserPlus className='mr-2 h-4 w-4' />
                 Add Compliance Manager
@@ -129,13 +133,17 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
 
       <div className='flex justify-end py-6'>
         <NextStepButton
-          disabled={!form.formState.isValid || (createComplianceAdminRole === 'true' && complianceAdmins.length === 0)}
+          disabled={
+            !form.formState.isValid ||
+            (createComplianceAdminRole === 'true' && complianceAdmins.length === 0) ||
+            !canEdit
+          }
         >
           {getNextStepButtonText(nextStep)}
         </NextStepButton>
       </div>
 
-      <AddComplianceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} />
+      <AddComplianceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} canEdit={canEdit} />
     </form>
   );
 }

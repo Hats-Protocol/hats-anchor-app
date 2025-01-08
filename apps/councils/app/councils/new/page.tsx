@@ -42,7 +42,7 @@ const NewCouncil = () => {
           };
         } = await councilsGraphqlClient.request(CREATE_INITIAL_FORM, {
           creator: user!.wallet!.address,
-          chain: 10, // Optimism
+          chain: 10,
           admins: [
             {
               id: userResult.createUser.id,

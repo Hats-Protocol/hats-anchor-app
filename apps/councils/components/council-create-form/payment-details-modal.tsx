@@ -19,6 +19,7 @@ interface PaymentDetailsModalProps {
   onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   draftId: string;
+  canEdit?: boolean;
 }
 
 const UPDATE_PAYER = `
@@ -48,7 +49,13 @@ const CREATE_USER = `
   }
 `;
 
-export function PaymentDetailsModal({ isOpen, onClose, form: parentForm, draftId }: PaymentDetailsModalProps) {
+export function PaymentDetailsModal({
+  isOpen,
+  onClose,
+  form: parentForm,
+  draftId,
+  canEdit = true,
+}: PaymentDetailsModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
 
@@ -104,6 +111,7 @@ export function PaymentDetailsModal({ isOpen, onClose, form: parentForm, draftId
   });
 
   const handleSubmit = async (data: { address: string; email: string; name?: string; telegram?: string }) => {
+    if (!canEdit) return;
     // if (!isAddress(data.address)) {
     //   setFormError('Please enter a valid Ethereum address');
     //   return;
@@ -189,12 +197,13 @@ export function PaymentDetailsModal({ isOpen, onClose, form: parentForm, draftId
                     message: 'Invalid email address',
                   },
                 }}
+                isDisabled={!canEdit}
               />
             </div>
 
             <div className='space-y-2'>
               <label className='font-bold'>Your Name</label>
-              <Input name='name' localForm={modalForm} placeholder='Full name' />
+              <Input name='name' localForm={modalForm} placeholder='Full name' isDisabled={!canEdit} />
             </div>
 
             <div className='space-y-2'>
@@ -202,20 +211,26 @@ export function PaymentDetailsModal({ isOpen, onClose, form: parentForm, draftId
                 {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account{' '}
                 <span className='text-sm font-normal text-gray-400'>Optional</span>
               </label>
-              <AddressInput name='address' localForm={modalForm} hideAddressButtons chainId={chainId} />
+              <AddressInput
+                name='address'
+                localForm={modalForm}
+                hideAddressButtons
+                chainId={chainId}
+                isDisabled={!canEdit}
+              />
             </div>
             <div className='space-y-2'>
               <label className='font-bold'>
                 Telegram Handle <span className='text-sm font-normal text-gray-400'>Optional</span>
               </label>
-              <Input name='telegram' localForm={modalForm} placeholder='@username' />
+              <Input name='telegram' localForm={modalForm} placeholder='@username' isDisabled={!canEdit} />
             </div>
           </div>
 
           <div className='mt-8'>
             {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
             <div className='flex justify-end'>
-              <NextStepButton type='submit' disabled={!isFormValid()} withIcon={false}>
+              <NextStepButton type='submit' disabled={!isFormValid() || !canEdit} withIcon={false}>
                 Submit details
               </NextStepButton>
             </div>
