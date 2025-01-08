@@ -1,10 +1,27 @@
 import { gql } from 'graphql-request';
 
+export const CREATE_USER = gql`
+  mutation CreateUser($address: String!, $email: String!, $name: String) {
+    createUser(address: $address, email: $email, name: $name) {
+      id
+      address
+      email
+      name
+    }
+  }
+`;
+
 export const CREATE_INITIAL_FORM = gql`
-  mutation CreateInitialForm {
-    createCouncilCreationForm(chain: 10) {
+  mutation CreateInitialForm($creator: String, $chain: Int, $admins: [UserInput!]) {
+    createCouncilCreationForm(creator: $creator, chain: $chain, admins: $admins) {
       id
       chain
+      creator
+      admins {
+        id
+        address
+        email
+      }
     }
   }
 `;

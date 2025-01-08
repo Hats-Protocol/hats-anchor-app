@@ -25,10 +25,10 @@ import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 const Login = () => {
-  const { ready, authenticated, login, logout, user, linkEmail, linkWallet } = usePrivy();
+  const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail, linkWallet } = usePrivy();
   const { address } = useAccount();
   const chainId = useChainId();
-  const { data: ensName } = useEnsName({ address, chainId: 1 });
+  const { data: ensName } = useEnsName({ address: user?.wallet?.address ?? undefined, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName as string,
     chainId: 1,
@@ -58,21 +58,21 @@ const Login = () => {
   };
 
   const fallbackAvatar = useMemo(() => {
-    if (!address) return undefined;
+    if (!user || !user.wallet) return undefined;
     return createIcon({
-      seed: toLower(address),
+      seed: toLower(user.wallet.address),
       size: 64,
     }).toDataURL();
-  }, [address]);
+  }, [user]);
 
   if (!ready) {
     return <Skeleton w={{ base: '100px', md: '200px' }} h='40px' borderRadius='md' />;
   }
 
-  if (!user || !authenticated) {
+  if (!user || !authenticated || !user.wallet) {
     return (
       <Button onClick={login} variant='whiteFilled' size='md' height='40px'>
-        Connect
+        Login
       </Button>
     );
   }
@@ -131,29 +131,36 @@ const Login = () => {
                 <Box boxSize='48px' borderRadius='full' overflow='hidden'>
                   <Image src={ensAvatar || fallbackAvatar} alt='Profile' width='100%' height='100%' objectFit='cover' />
                 </Box>
-                <Text fontWeight='medium'>{ensName || formatAddress(address as Hex)}</Text>
+                <Text fontWeight='medium'>{ensName || formatAddress(user.wallet.address as Hex)}</Text>
               </VStack>
 
               {user.email && (
-                <HStack justify='space-between'>
-                  <Text color='gray.500'>Email</Text>
-                  <Text>{user.email.address}</Text>
-                </HStack>
+                <VStack>
+                  <HStack justify='space-between'>
+                    <Text color='gray.500'>Email</Text>
+                    <Text>{user.email.address}</Text>
+                  </HStack>
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    onClick={() => {
+                      unlinkEmail(user.email!.address);
+                    }}
+                  >
+                    Unlink Email
+                  </Button>
+                </VStack>
               )}
 
-              {!user.wallet || !user.email ? (
+              {!user.email ? (
                 <Button
                   size='sm'
                   variant='outline'
                   onClick={() => {
-                    if (user.wallet) {
-                      linkEmail();
-                    } else if (user.email) {
-                      linkWallet();
-                    }
+                    linkEmail();
                   }}
                 >
-                  {user.wallet ? 'Link Email' : 'Link Wallet'}
+                  Link Email
                 </Button>
               ) : null}
 
