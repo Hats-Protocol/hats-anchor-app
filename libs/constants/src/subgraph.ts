@@ -28,12 +28,10 @@ const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
   11155111: studioUrl('hats-v1-sepolia', 'v1.1.0'),
 };
 
-const NETWORK_ENDPOINTS: EndpointsConfig = {
+export const NETWORK_ENDPOINTS: EndpointsConfig = {
   ...DEFAULT_ENDPOINTS_CONFIG,
   ..._.mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint: string) => ({ endpoint })),
 };
-
-export default NETWORK_ENDPOINTS;
 
 export const ANCILLARY_API_URL: {
   [key in SupportedChains]: string | undefined;

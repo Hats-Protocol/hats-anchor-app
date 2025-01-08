@@ -34,9 +34,7 @@ export const viemWalletClient = async (chainId: number) => {
   return await getWalletClient(wagmiConfig);
 };
 
-export async function createHatsClient(
-  chainId: number | undefined,
-): Promise<HatsClient | undefined> {
+export async function createHatsClient(chainId: number | undefined): Promise<HatsClient | undefined> {
   if (!chainId) return undefined;
 
   const publicClient = viemPublicClient(chainId);
@@ -124,9 +122,7 @@ export async function createHatsSignerGateClient(
   }
 }
 
-export async function createHatsAccountClient(
-  chainId: number | undefined,
-): Promise<HatsAccount1ofNClient | undefined> {
+export async function createHatsAccountClient(chainId: number | undefined): Promise<HatsAccount1ofNClient | undefined> {
   if (!chainId) return undefined;
 
   const publicClient = viemPublicClient(chainId);

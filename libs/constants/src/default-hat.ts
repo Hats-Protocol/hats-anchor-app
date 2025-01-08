@@ -2,7 +2,7 @@ import { Hex } from 'viem';
 
 import { FALLBACK_ADDRESS } from './misc';
 
-const DEFAULT_HAT = {
+export const DEFAULT_HAT = {
   status: true,
   maxSupply: '1',
   eligibility: FALLBACK_ADDRESS,
@@ -32,5 +32,3 @@ const DEFAULT_HAT = {
   revocationsCriteria: [],
   deactivationsCriteria: [],
 };
-
-export default DEFAULT_HAT;
