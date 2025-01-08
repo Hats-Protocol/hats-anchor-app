@@ -262,6 +262,7 @@ const computeStepValidation = (data: CouncilFormResponse['councilCreationForm'])
 export function CouncilFormProvider({ children, draftId }: { children: React.ReactNode; draftId: string | null }) {
   const { user, authenticated } = usePrivy();
   const [canEdit, setCanEdit] = useState(false);
+  const { address } = useAccount();
   const form = useForm<CouncilFormData>({
     defaultValues: {
       organizationName: '',
