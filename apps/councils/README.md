@@ -1,6 +1,6 @@
 # Tree Quick view App
 
-The Tree quick view app is a Next.js app for displaying budgets and assets stored in roles across a tree .
+The Tree quick view app is a Next.js app for displaying budgets and assets stored in roles across a tree.
 
 ## Start the app
 
