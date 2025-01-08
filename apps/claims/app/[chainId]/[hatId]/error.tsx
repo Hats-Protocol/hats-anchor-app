@@ -15,13 +15,7 @@ import {
 } from '@chakra-ui/react';
 // import { useEffect } from 'react';
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   // useEffect(() => {
   //   // Optionally log the error to an error reporting service
   //   console.error(error);
@@ -46,11 +40,7 @@ export default function Error({
 
         <Card>
           <CardBody>
-            <Accordion
-              allowToggle
-              borderTop='transparent'
-              borderBottom='transparent'
-            >
+            <Accordion allowToggle borderTop='transparent' borderBottom='transparent'>
               <AccordionItem>
                 <AccordionButton display='flex' justifyContent='space-between'>
                   <h2>View Error</h2>

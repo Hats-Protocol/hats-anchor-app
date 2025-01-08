@@ -1,14 +1,4 @@
-import {
-  Charmverse,
-  Discord,
-  Etherscan,
-  Github,
-  Guild,
-  HatIcon,
-  Safe,
-  Snapshot,
-  Telegram,
-} from 'icons';
+import { Charmverse, Discord, Etherscan, Github, Guild, HatIcon, Safe, Snapshot, Telegram } from 'icons';
 // import { ReactNode } from 'react';
 import { AuthorityType } from 'types';
 

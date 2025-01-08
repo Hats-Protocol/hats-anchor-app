@@ -47,6 +47,8 @@ export const UPDATE_COUNCIL_FORM = gql`
     $createAgreementAdminRole: Boolean
     $agreementAdmins: [UserInput!]
     $payer: UserInput
+    $tokenAmount: Int
+    $tokenAddress: String
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -68,6 +70,8 @@ export const UPDATE_COUNCIL_FORM = gql`
       createAgreementAdminRole: $createAgreementAdminRole
       agreementAdmins: $agreementAdmins
       payer: $payer
+      tokenAmount: $tokenAmount
+      tokenAddress: $tokenAddress
     ) {
       id
       organizationName
@@ -118,6 +122,8 @@ export const UPDATE_COUNCIL_FORM = gql`
         name
         telegram
       }
+      tokenAmount
+      tokenAddress
     }
   }
 `;
@@ -174,6 +180,8 @@ export const GET_COUNCIL_FORM = gql`
         name
         telegram
       }
+      tokenAmount
+      tokenAddress
     }
   }
 `;

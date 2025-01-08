@@ -24,10 +24,7 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: RootLayoutProps) => (
   <html lang='en'>
     <head>
-      <Script
-        id='intercom'
-        src={`https://widget.intercom.io/widget/${INTERCOM_APP_ID}`}
-      />
+      <Script id='intercom' src={`https://widget.intercom.io/widget/${INTERCOM_APP_ID}`} />
       <meta name='viewport' content='width=device-width, initial-scale=1' />
     </head>
 

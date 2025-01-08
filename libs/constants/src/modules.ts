@@ -23,15 +23,7 @@ export const MODULE_ARG_BOOLEAN_OPTION_SETS = {
 
 export const TOKEN_ARG_TYPES = ['erc20', 'token'];
 
-export const numberTypes = [
-  'uint256',
-  'uint8',
-  'uint16',
-  'uint32',
-  'uint64',
-  'uint128',
-  'uint248',
-];
+export const numberTypes = ['uint256', 'uint8', 'uint16', 'uint32', 'uint64', 'uint128', 'uint248'];
 
 const eligibilityModule = (name: string) => `${name} Eligibility`;
 /**
