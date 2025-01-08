@@ -18,6 +18,7 @@ const getCurrentEligibility = async ({
   moduleAddresses: Hex[];
 }) => {
   if (!chainId || !selectedHat || !wearerAddress || isEmpty(moduleAddresses)) {
+    // eslint-disable-next-line no-console
     console.log('no selectedHat or wearerAddress or moduleAddresses');
     return null;
   }
@@ -37,8 +38,7 @@ const getCurrentEligibility = async ({
   });
   const eligibleResults = map(results, 'result') as [boolean, boolean][];
 
-  const newObj: { [key: Hex]: { eligible: boolean; goodStanding: boolean } } =
-    {};
+  const newObj: { [key: Hex]: { eligible: boolean; goodStanding: boolean } } = {};
 
   forEach(moduleAddresses, (moduleAddress, index) => {
     newObj[moduleAddress] = {
@@ -64,10 +64,7 @@ const useCurrentEligibility = ({
   const moduleAddresses = map(flatten(eligibilityRules), 'address');
 
   return useQuery({
-    queryKey: [
-      'currentEligibility',
-      { chainId, wearerAddress, moduleAddresses, selectedHat },
-    ],
+    queryKey: ['currentEligibility', { chainId, wearerAddress, moduleAddresses, selectedHat }],
     queryFn: () =>
       getCurrentEligibility({
         chainId,

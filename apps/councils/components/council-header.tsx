@@ -4,6 +4,7 @@ import { Button, Icon } from '@chakra-ui/react';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useSafesInfo } from 'hooks';
 import { capitalize, first, get, nth, size } from 'lodash';
+import { toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -12,6 +13,8 @@ import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { chainsMap, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
+
+import { SignersIndicator } from './signers-indicator';
 
 const SafeIcon = dynamic(() => import('icons').then((mod) => mod.Safe), {
   ssr: false,
@@ -36,13 +39,14 @@ export const CouncilHeader = () => {
   });
   const { data: safesDetails } = useSafesInfo({
     chainId: chainId ?? 11155111,
-    // TODO fix type
     safes: [councilDetails?.safe as unknown as Hex],
   });
-  const primarySignerHat = first(councilDetails?.signerHats);
+  const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);
   const safe = first(safesDetails);
 
+  // TODO check signers vs hat wearers
+  // TODO better loading state/check
   if (!safe) {
     return (
       <div className='bg-slate-200 py-10'>
@@ -61,18 +65,27 @@ export const CouncilHeader = () => {
         </div>
 
         <div className='flex w-auto items-center'>
-          <Link
-            href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
-            target='_blank'
-          >
-            <Button
-              variant='outline'
-              leftIcon={<Icon as={SafeIcon} />}
-              rightIcon={<Icon as={FaExternalLinkAlt} boxSize={3} />}
+          {size(get(primarySignerHat, 'wearers')) === toNumber(get(primarySignerHat, 'maxSupply')) ? (
+            <Link
+              href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
+              target='_blank'
             >
-              Safe Wallet
-            </Button>
-          </Link>
+              <Button
+                variant='outline'
+                leftIcon={<Icon as={SafeIcon} />}
+                rightIcon={<Icon as={FaExternalLinkAlt} boxSize={3} />}
+              >
+                Safe Wallet
+              </Button>
+            </Link>
+          ) : (
+            <SignersIndicator
+              threshold={toNumber(get(councilDetails, 'minThreshold'))}
+              // TODO replace with safe signers instead of hat wearers
+              signers={size(get(primarySignerHat, 'wearers'))}
+              maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+            />
+          )}
         </div>
 
         <div className='flex w-[30%] flex-col items-end justify-center gap-2'>

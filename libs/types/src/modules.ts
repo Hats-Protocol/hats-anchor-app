@@ -1,18 +1,10 @@
-import {
-  Module,
-  ModuleParameter,
-  Role,
-  WriteFunction,
-} from '@hatsprotocol/modules-sdk';
+import { Module, ModuleParameter, Role, WriteFunction } from '@hatsprotocol/modules-sdk';
 import { ReactNode } from 'react';
 import { Hex } from 'viem';
 
 import { SupportedChains } from './chains';
 
-export type DeploymentType =
-  | 'onlyModule'
-  | 'moduleAndClaimsHatter'
-  | 'onlyClaimsHatter';
+export type DeploymentType = 'onlyModule' | 'moduleAndClaimsHatter' | 'onlyClaimsHatter';
 
 export type ModuleCreationArg = {
   name: string;
@@ -34,10 +26,7 @@ export interface ModuleDetails extends Module {
   instanceAddress?: Hex;
 }
 
-export type ModuleDetailsComponent = (
-  m: ModuleDetails,
-  chainId: SupportedChains,
-) => ReactNode | undefined;
+export type ModuleDetailsComponent = (m: ModuleDetails, chainId: SupportedChains) => ReactNode | undefined;
 
 export interface ModuleDetailRole {
   param: string;

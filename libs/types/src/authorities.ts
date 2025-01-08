@@ -2,16 +2,10 @@ import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { ReactNode } from 'react';
 import { Hex } from 'viem';
 
+import { AppHat } from './hat';
 import { ModuleDetails, ModuleFunction } from './modules';
 
-export type AuthorityType =
-  | 'protocol'
-  | 'modules'
-  | 'account'
-  | 'hsg'
-  | 'onchain'
-  | 'gate'
-  | 'manual';
+export type AuthorityType = 'protocol' | 'modules' | 'account' | 'hsg' | 'onchain' | 'gate' | 'manual';
 
 export type HSGConfig = {
   type: HsgType;
@@ -58,11 +52,9 @@ export interface HatElectionResponse {
 export interface HatSignerGate {
   id: Hex;
   hatId: Hex;
-  type: string;
   safe: Hex;
   minThreshold: string;
   targetThreshold: string;
-  maxSigners: string;
   ownerHat?: {
     id: Hex;
   };
@@ -71,14 +63,28 @@ export interface HatSignerGate {
   }[];
 }
 
+export interface HatSignerGateV1 extends HatSignerGate {
+  type: string;
+  maxSigners: string;
+}
+
+export interface HatSignerGateV2 extends HatSignerGate {
+  thresholdType: string;
+}
+
+export interface ExtendedHSGV2 extends HatSignerGateV2 {
+  signerHats: AppHat[];
+  ownerHat: AppHat | undefined;
+}
+
 export interface HatAuthority {
   allowListOwner: { id: Hex; hatId: Hex }[];
   allowListArbitrator: { id: Hex; hatId: Hex }[];
   electionsAdmin: { id: Hex; hatId: Hex }[];
   electionsBallotBox: { id: Hex; hatId: Hex }[];
   eligibilityTogglePassthrough: { id: Hex; hatId: Hex }[];
-  hsgOwner: HatSignerGate[];
-  hsgSigner: HatSignerGate[];
+  hsgOwner: HatSignerGateV1[];
+  hsgSigner: HatSignerGateV1[];
   jokeraceAdmin: { id: Hex; hatId: Hex }[];
   stakingJudge: { id: Hex; hatId: Hex }[];
   stakingRecipient: { id: Hex; hatId: Hex }[];

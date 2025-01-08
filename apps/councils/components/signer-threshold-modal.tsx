@@ -1,11 +1,18 @@
 import { Button } from '@chakra-ui/react';
 import { Modal } from 'contexts';
 import { SignerThresholdSubForm } from 'forms';
+import { get } from 'lodash';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { HatSignerGate } from 'types';
+import { AppHat, HatSignerGateV2 } from 'types';
 
-export function SignerThresholdModal({ signer }: { signer: HatSignerGate | undefined }) {
+export function SignerThresholdModal({
+  signer,
+  signerHat,
+}: {
+  signer: HatSignerGateV2 | undefined;
+  signerHat: AppHat | undefined;
+}) {
   const form = useForm();
   const { reset, handleSubmit } = form;
 
@@ -15,11 +22,12 @@ export function SignerThresholdModal({ signer }: { signer: HatSignerGate | undef
     reset({
       thresholdType: 'ABSOLUTE', // TODO handle in v2
       confirmationsRequired: signer.minThreshold, // TODO handle relative threshold in v2
-      maxMembers: signer.maxSigners,
+      maxMembers: get(signerHat, 'maxSupply'),
     });
-  }, [signer, reset]);
+  }, [signer, signerHat, reset]);
 
   const onSubmit = (data: any) => {
+    // TODO submit update
     console.log(data);
   };
 

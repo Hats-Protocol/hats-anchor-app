@@ -4,13 +4,7 @@ import { SupportedChains } from 'types';
 import { fetchHsgSigners } from 'utils';
 import { Hex } from 'viem';
 
-const useSignerSafes = ({
-  hatIds,
-  chainId,
-}: {
-  hatIds: Hex[] | undefined;
-  chainId: SupportedChains | undefined;
-}) => {
+const useSignerSafes = ({ hatIds, chainId }: { hatIds: Hex[] | undefined; chainId: SupportedChains | undefined }) => {
   return useQuery({
     queryKey: ['hsgSigners', { hatIds, chainId }],
     queryFn: () => fetchHsgSigners({ hatIds, chainId }),

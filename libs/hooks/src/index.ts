@@ -14,6 +14,7 @@ export { default as useIpfsData } from './useIpfsData';
 export { default as useIsSameChain } from './useIsSameChain';
 export { default as useLocalStorage } from './useLocalStorage';
 export { default as useMediaStyles } from './useMediaStyles';
+export * from './useOffchainCouncilDetails';
 export { default as useOrgChartTree } from './useOrgChartTree';
 export { default as usePendHatterMint } from './usePendHatterMint';
 export { default as usePinImageIpfs } from './usePinImageIpfs';

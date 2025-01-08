@@ -55,6 +55,7 @@ export function useCreateOrUpdateUser({
   });
 
   const createOrUpdateUser = async (data: CouncilMember) => {
+    console.log('createOrUpdateUser', data);
     try {
       let userData;
 
@@ -74,6 +75,9 @@ export function useCreateOrUpdateUser({
       } else {
         onAddSuccess(userData);
       }
+
+      // return for any consumers that need the user data back
+      return userData;
     } catch (error) {
       onError();
       // eslint-disable-next-line no-console

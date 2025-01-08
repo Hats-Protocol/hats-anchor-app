@@ -1,13 +1,7 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgMetadata, HsgType } from '@hatsprotocol/hsg-sdk';
 import { filter, find, includes, map, size, toNumber } from 'lodash';
-import {
-  Authority,
-  HatSignerGate,
-  HSGConfig,
-  ModuleFunction,
-  SupportedChains,
-} from 'types';
+import { Authority, HatSignerGateV1, HSGConfig, ModuleFunction, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 export const populateHatsGatesAuthorities = ({
@@ -17,7 +11,7 @@ export const populateHatsGatesAuthorities = ({
   chainId,
   hatId,
 }: {
-  details?: HatSignerGate[] | null;
+  details?: HatSignerGateV1[] | null;
   gates?: { single: HsgMetadata; multi: HsgMetadata } | null;
   role: 'hsgOwner' | 'hsgSigner';
   chainId: SupportedChains | undefined;
@@ -25,9 +19,7 @@ export const populateHatsGatesAuthorities = ({
 }) => {
   if (!details || !gates || !chainId) return [];
 
-  return details.map((gate) =>
-    createHSGAuthority({ gate, role, gates, chainId, hatId }),
-  );
+  return details.map((gate) => createHSGAuthority({ gate, role, gates, chainId, hatId }));
 };
 
 const createHSGAuthority = ({
@@ -37,7 +29,7 @@ const createHSGAuthority = ({
   chainId,
   hatId,
 }: {
-  gate: HatSignerGate;
+  gate: HatSignerGateV1;
   role: 'hsgOwner' | 'hsgSigner';
   gates: { single: HsgMetadata; multi: HsgMetadata };
   chainId: SupportedChains;
@@ -71,12 +63,7 @@ const createHSGAuthority = ({
 };
 
 const getOwnerFunctions = (functions: ModuleFunction[]) => {
-  const ownerFns = [
-    'setOwnerHat',
-    'removeSigner',
-    'setMinThreshold',
-    'setTargetThreshold',
-  ];
+  const ownerFns = ['setOwnerHat', 'removeSigner', 'setMinThreshold', 'setTargetThreshold'];
 
   return filter(
     map(functions, (func: ModuleFunction) => {
@@ -112,8 +99,7 @@ export const currentHsgThreshold = ({
   eligibleSigners: Hex[] | undefined;
 }) => {
   if (!hsgConfig || !eligibleSigners) return undefined;
-  if (authority?.label === 'HSG Owner' || !hsgConfig)
-    return 'Edit Safe multisig';
+  if (authority?.label === 'HSG Owner' || !hsgConfig) return 'Edit Safe multisig';
   const minThreshold = toNumber(hsgConfig?.minThreshold);
   const maxThreshold = toNumber(hsgConfig?.targetThreshold);
   const currentSigners = size(eligibleSigners);
