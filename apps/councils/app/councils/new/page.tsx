@@ -1,5 +1,6 @@
 'use client';
 
+import { Center, Spinner } from '@chakra-ui/react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
@@ -13,10 +14,7 @@ const NewCouncil = () => {
   useEffect(() => {
     if (!ready) return;
     if (hasAttemptedCreate.current) return;
-    if (!authenticated) {
-      // router.push('/');
-      return;
-    }
+    if (!authenticated) return;
     if (!user?.wallet?.address || !user?.email?.address) return;
 
     const createForm = async () => {
@@ -59,17 +57,18 @@ const NewCouncil = () => {
         router.push(`/councils/new/details?draftId=${formId}`);
       } catch (error) {
         console.error('Error creating council form:', error);
-        hasAttemptedCreate.current = false; // Allow retry on error
-        // router.push('/');
+        hasAttemptedCreate.current = false;
       }
     };
 
     createForm();
   }, [ready, authenticated, user, router]);
 
-  if (!ready) return null;
-
-  return null;
+  return (
+    <Center minH='100vh'>
+      <Spinner size='xl' />
+    </Center>
+  );
 };
 
 export default NewCouncil;

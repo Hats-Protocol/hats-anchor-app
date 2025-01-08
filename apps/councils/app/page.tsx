@@ -53,7 +53,12 @@ const Home = () => {
     );
   }
 
-  return null;
+  // Show spinner while on this page (not redirected yet)
+  return (
+    <Center minH='100vh'>
+      <Spinner size='xl' />
+    </Center>
+  );
 };
 
 export default Home;
