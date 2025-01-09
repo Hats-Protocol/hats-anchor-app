@@ -25,6 +25,7 @@ interface AddMemberModalProps {
   onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   editingMember?: CouncilMember | null;
+  canEdit?: boolean;
 }
 
 const CREATE_USER = `
@@ -49,7 +50,13 @@ const UPDATE_USER = `
   }
 `;
 
-export function AddMemberModal({ isOpen, onClose, form: parentForm, editingMember }: AddMemberModalProps) {
+export function AddMemberModal({
+  isOpen,
+  onClose,
+  form: parentForm,
+  editingMember,
+  canEdit = true,
+}: AddMemberModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
 
@@ -91,7 +98,8 @@ export function AddMemberModal({ isOpen, onClose, form: parentForm, editingMembe
   });
 
   const handleSubmit = async (data: { address: string; email: string; name?: string }) => {
-    console.log('data', data);
+    if (!canEdit) return;
+
     if (!isAddress(data.address)) {
       setFormError('Please enter a valid Ethereum address');
       return;
@@ -141,7 +149,6 @@ export function AddMemberModal({ isOpen, onClose, form: parentForm, editingMembe
     }
   };
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setFormError(null);
@@ -177,7 +184,13 @@ export function AddMemberModal({ isOpen, onClose, form: parentForm, editingMembe
             <label className='font-bold'>
               {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
             </label>
-            <AddressInput name='address' localForm={modalForm} hideAddressButtons chainId={chainId} />
+            <AddressInput
+              name='address'
+              localForm={modalForm}
+              hideAddressButtons
+              chainId={chainId}
+              isDisabled={!canEdit}
+            />
           </div>
           <div className='space-y-2'>
             <label className='font-bold'>
@@ -187,6 +200,7 @@ export function AddMemberModal({ isOpen, onClose, form: parentForm, editingMembe
               name='email'
               localForm={modalForm}
               placeholder='Email that receives the council invite'
+              isDisabled={!canEdit}
               options={{
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -199,14 +213,14 @@ export function AddMemberModal({ isOpen, onClose, form: parentForm, editingMembe
             <label className='font-bold'>
               Name <span className='text-sm font-normal text-gray-400'>Optional</span>
             </label>
-            <Input name='name' localForm={modalForm} placeholder='Alias or name' />
+            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
           </div>
         </div>
 
         <div className='mt-8'>
           {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
           <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!isFormValid()} withIcon={false}>
+            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
               {editingMember ? 'Save Changes' : 'Add Member'}
             </NextStepButton>
           </div>

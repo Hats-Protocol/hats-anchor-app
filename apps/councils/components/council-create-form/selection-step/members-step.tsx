@@ -12,7 +12,7 @@ import { AddMemberModal } from './add-member-modal';
 import { MembersList } from './members-list';
 
 export function SelectionMembersStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
@@ -41,7 +41,7 @@ export function SelectionMembersStep({ onNext }: StepProps) {
 
         {members.length > 0 && (
           <div>
-            <MembersList members={members} form={form} />
+            <MembersList members={members} form={form} canEdit={canEdit} />
           </div>
         )}
 
@@ -49,7 +49,10 @@ export function SelectionMembersStep({ onNext }: StepProps) {
           <button
             type='button'
             onClick={() => setIsModalOpen(true)}
-            className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
+            disabled={!canEdit}
+            className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
+              !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
+            }`}
           >
             <FiUserPlus className='mr-2 h-4 w-4' />
             Add Council Member
@@ -58,10 +61,12 @@ export function SelectionMembersStep({ onNext }: StepProps) {
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>{getNextStepButtonText(nextStep)}</NextStepButton>
+        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
 
-      <AddMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} />
+      <AddMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} canEdit={canEdit} />
     </form>
   );
 }

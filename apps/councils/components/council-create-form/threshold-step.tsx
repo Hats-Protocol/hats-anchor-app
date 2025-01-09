@@ -7,7 +7,7 @@ import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
 export function ThresholdStep({ onNext }: StepProps) {
-  const { form, stepValidation } = useCouncilForm();
+  const { form, stepValidation, canEdit } = useCouncilForm();
   const requirements = form.watch('requirements');
 
   const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, requirements);
@@ -20,11 +20,13 @@ export function ThresholdStep({ onNext }: StepProps) {
           <p className='text-sm text-gray-600'>Powered by Safe</p>
         </div>
 
-        <SignerThresholdSubForm form={form} />
+        <SignerThresholdSubForm form={form} isDisabled={!canEdit} />
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>{getNextStepButtonText(nextStep)}</NextStepButton>
+        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
     </form>
   );

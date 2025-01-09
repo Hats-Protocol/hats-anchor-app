@@ -12,7 +12,7 @@ import { AddAdminModal } from './add-admin-modal';
 import { AdminsList } from './admins-list';
 
 export function SelectionManagementStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const admins = form.watch('admins') || [];
   const requirements = form.watch('requirements');
@@ -39,7 +39,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
 
         {admins.length > 0 && (
           <div>
-            <AdminsList name='admins' admins={admins} form={form} />
+            <AdminsList name='admins' admins={admins} form={form} canEdit={canEdit} />
           </div>
         )}
 
@@ -47,7 +47,10 @@ export function SelectionManagementStep({ onNext }: StepProps) {
           <button
             type='button'
             onClick={() => setIsModalOpen(true)}
-            className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
+            disabled={!canEdit}
+            className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
+              !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
+            }`}
           >
             <FiUserPlus className='mr-2 h-4 w-4' />
             Add Admin
@@ -56,10 +59,12 @@ export function SelectionManagementStep({ onNext }: StepProps) {
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>{getNextStepButtonText(nextStep)}</NextStepButton>
+        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
 
-      <AddAdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} />
+      <AddAdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} canEdit={canEdit} />
     </form>
   );
 }

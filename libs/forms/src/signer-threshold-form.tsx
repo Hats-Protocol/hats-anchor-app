@@ -4,7 +4,7 @@ import { RadioBox } from 'forms';
 import { UseFormReturn } from 'react-hook-form';
 
 // TO BE USED WITHIN A FORM
-export function SignerThresholdSubForm({ form }: { form: UseFormReturn<any> }) {
+export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormReturn<any>; isDisabled?: boolean }) {
   const { watch } = form;
   const thresholdType = watch('thresholdType');
   const percentageRequired = watch('percentageRequired');
@@ -33,6 +33,7 @@ export function SignerThresholdSubForm({ form }: { form: UseFormReturn<any> }) {
             },
           ]}
           textSize='md'
+          isDisabled={isDisabled}
         />
       </div>
 
@@ -48,6 +49,7 @@ export function SignerThresholdSubForm({ form }: { form: UseFormReturn<any> }) {
                 max: maxMembers,
                 required: true,
               }}
+              isDisabled={isDisabled}
             />
           </div>
 
@@ -60,6 +62,7 @@ export function SignerThresholdSubForm({ form }: { form: UseFormReturn<any> }) {
                 min: 1,
                 required: true,
               }}
+              isDisabled={isDisabled}
             />
           </div>
         </div>
@@ -79,6 +82,7 @@ export function SignerThresholdSubForm({ form }: { form: UseFormReturn<any> }) {
                       max: 100,
                       required: true,
                     }}
+                    isDisabled={isDisabled}
                   />
                 </div>
               </div>
@@ -93,6 +97,7 @@ export function SignerThresholdSubForm({ form }: { form: UseFormReturn<any> }) {
                   max: maxMembers,
                   required: true,
                 }}
+                isDisabled={isDisabled}
               />
             </div>
           </div>
@@ -107,6 +112,7 @@ export function SignerThresholdSubForm({ form }: { form: UseFormReturn<any> }) {
                 min: minConfirmations,
                 required: true,
               }}
+              isDisabled={isDisabled}
             />
           </div>
         </div>

@@ -25,6 +25,7 @@ interface AddComplianceModalProps {
   onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
+  canEdit?: boolean;
 }
 
 const CREATE_USER = `
@@ -49,7 +50,13 @@ const UPDATE_USER = `
   }
 `;
 
-export function AddComplianceModal({ isOpen, onClose, form: parentForm, editingAdmin }: AddComplianceModalProps) {
+export function AddComplianceModal({
+  isOpen,
+  onClose,
+  form: parentForm,
+  editingAdmin,
+  canEdit = true,
+}: AddComplianceModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
 
@@ -91,6 +98,8 @@ export function AddComplianceModal({ isOpen, onClose, form: parentForm, editingA
   });
 
   const handleSubmit = async (data: { address: string; email: string; name?: string }) => {
+    if (!canEdit) return;
+
     if (!isAddress(data.address)) {
       setFormError('Please enter a valid Ethereum address');
       return;
@@ -172,7 +181,13 @@ export function AddComplianceModal({ isOpen, onClose, form: parentForm, editingA
             <label className='font-bold'>
               {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
             </label>
-            <AddressInput name='address' localForm={modalForm} hideAddressButtons chainId={chainId} />
+            <AddressInput
+              name='address'
+              localForm={modalForm}
+              hideAddressButtons
+              chainId={chainId}
+              isDisabled={!canEdit}
+            />
           </div>
 
           <div className='space-y-2'>
@@ -189,6 +204,7 @@ export function AddComplianceModal({ isOpen, onClose, form: parentForm, editingA
                   message: 'Invalid email address',
                 },
               }}
+              isDisabled={!canEdit}
             />
           </div>
 
@@ -196,14 +212,14 @@ export function AddComplianceModal({ isOpen, onClose, form: parentForm, editingA
             <label className='font-bold'>
               Name <span className='text-sm font-normal text-gray-400'>Optional</span>
             </label>
-            <Input name='name' localForm={modalForm} placeholder='Alias or name' />
+            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
           </div>
         </div>
 
         <div className='mt-8'>
           {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
           <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!isFormValid()} withIcon={false}>
+            <NextStepButton type='submit' disabled={!isFormValid() || !canEdit} withIcon={false}>
               {editingAdmin ? 'Save Changes' : 'Add Compliance Manager'}
             </NextStepButton>
           </div>

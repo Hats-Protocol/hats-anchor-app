@@ -20,6 +20,7 @@ import {
 } from '@hatsprotocol/constants';
 import { HatsDetailsClient } from '@hatsprotocol/details-sdk';
 import { hatIdDecimalToIp, hatIdIpToDecimal, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -132,6 +133,8 @@ export interface CouncilFormData {
 
 interface CouncilFormResponse {
   councilCreationForm: {
+    id: string;
+    creator: string | null;
     organizationName: string | null;
     councilName: string | null;
     chain: number | null;
@@ -221,6 +224,7 @@ interface CouncilFormContextType {
   ) => void;
   deployCouncil: () => Promise<CouncilDeploymentResult>;
   isDeploying: boolean;
+  canEdit: boolean;
 }
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(undefined);
@@ -256,6 +260,8 @@ const computeStepValidation = (data: CouncilFormResponse['councilCreationForm'])
 };
 
 export function CouncilFormProvider({ children, draftId }: { children: React.ReactNode; draftId: string | null }) {
+  const { user, authenticated } = usePrivy();
+  const [canEdit, setCanEdit] = useState(false);
   const { address } = useAccount();
   const form = useForm<CouncilFormData>({
     defaultValues: {
@@ -342,6 +348,20 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
+
+  // Check if user can edit the form
+  useEffect(() => {
+    if (!authenticated || !user?.wallet?.address || !data) {
+      setCanEdit(false);
+      return;
+    }
+
+    const userAddress = user.wallet.address.toLowerCase();
+    const isCreator = data.creator?.toLowerCase() === userAddress;
+    const isAdmin = data.admins?.some((admin) => admin.address.toLowerCase() === userAddress);
+
+    setCanEdit(isCreator || isAdmin);
+  }, [authenticated, user?.wallet?.address, data]);
 
   useEffect(() => {
     if (data) {
@@ -1204,6 +1224,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         setStepValidation,
         deployCouncil,
         isDeploying,
+        canEdit,
       }}
     >
       {children}

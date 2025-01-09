@@ -25,6 +25,7 @@ interface AddAgreementAdminModalProps {
   onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
+  canEdit?: boolean;
 }
 
 const CREATE_USER = `
@@ -54,6 +55,7 @@ export function AddAgreementAdminModal({
   onClose,
   form: parentForm,
   editingAdmin,
+  canEdit = true,
 }: AddAgreementAdminModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
@@ -96,6 +98,8 @@ export function AddAgreementAdminModal({
   });
 
   const handleSubmit = async (data: { address: string; email: string; name?: string }) => {
+    if (!canEdit) return;
+
     if (!isAddress(data.address)) {
       setFormError('Please enter a valid Ethereum address');
       return;
@@ -177,7 +181,13 @@ export function AddAgreementAdminModal({
             <label className='font-bold'>
               {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
             </label>
-            <AddressInput name='address' localForm={modalForm} hideAddressButtons chainId={chainId} />
+            <AddressInput
+              name='address'
+              localForm={modalForm}
+              hideAddressButtons
+              chainId={chainId}
+              isDisabled={!canEdit}
+            />
           </div>
 
           <div className='space-y-2'>
@@ -188,6 +198,7 @@ export function AddAgreementAdminModal({
               name='email'
               localForm={modalForm}
               placeholder='Email that receives the invite'
+              isDisabled={!canEdit}
               options={{
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -201,14 +212,14 @@ export function AddAgreementAdminModal({
             <label className='font-bold'>
               Name <span className='text-sm font-normal text-gray-400'>Optional</span>
             </label>
-            <Input name='name' localForm={modalForm} placeholder='Alias or name' />
+            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
           </div>
         </div>
 
         <div className='mt-8'>
           {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
           <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!isFormValid()} withIcon={false}>
+            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
               {editingAdmin ? 'Save Changes' : 'Add Manager'}
             </NextStepButton>
           </div>

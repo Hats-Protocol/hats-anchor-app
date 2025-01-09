@@ -14,7 +14,7 @@ import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
 export function OnboardingStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const requirements = form.watch('requirements');
 
   const nextStep = findNextInvalidStep(stepValidation, 'onboarding', undefined, requirements);
@@ -41,6 +41,7 @@ export function OnboardingStep({ onNext }: StepProps) {
           <RadioCard
             name='membershipType'
             localForm={form}
+            isDisabled={!canEdit}
             options={[
               {
                 label: 'Appoint Council Members',
@@ -67,6 +68,7 @@ export function OnboardingStep({ onNext }: StepProps) {
           <RequirementBox
             name='requirements'
             localForm={form}
+            isDisabled={!canEdit}
             options={[
               {
                 key: 'signAgreement',
@@ -92,7 +94,9 @@ export function OnboardingStep({ onNext }: StepProps) {
       </Stack>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>{getNextStepButtonText(nextStep)}</NextStepButton>
+        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
       </div>
     </Stack>
   );

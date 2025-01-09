@@ -14,7 +14,6 @@ import { useEnsName } from 'wagmi';
 import { SignAgreementIcon } from '../../icons/sign-agreement-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-// Add new component for agreement admins list
 import { AddAgreementAdminModal } from './add-agreement-admin-modal';
 import { AgreementAdminsList } from './agreement-admins-list';
 
@@ -33,7 +32,7 @@ function AdminDisplay({ admin }: { admin: CouncilMember }) {
 }
 
 export function SelectionAgreementStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const requirements = form.watch('requirements');
   const agreement = form.watch('agreement');
@@ -64,6 +63,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       <MarkdownEditor
         name='agreement'
         localForm={form}
+        isDisabled={!canEdit}
         placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
       />
 
@@ -73,6 +73,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           <RadioBox
             name='createAgreementAdminRole'
             localForm={form}
+            isDisabled={!canEdit}
             options={[
               {
                 value: 'false',
@@ -111,7 +112,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
 
             {agreementAdmins.length > 0 && (
               <div>
-                <AgreementAdminsList agreementAdmins={agreementAdmins} form={form} />
+                <AgreementAdminsList agreementAdmins={agreementAdmins} form={form} canEdit={canEdit} />
               </div>
             )}
 
@@ -119,7 +120,10 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
               <button
                 type='button'
                 onClick={() => setIsModalOpen(true)}
-                className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
+                disabled={!canEdit}
+                className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
+                  !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
+                }`}
               >
                 <FiUserPlus className='mr-2 h-4 w-4' />
                 Add Agreement Manager
@@ -132,6 +136,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       <div className='flex justify-end py-6'>
         <NextStepButton
           disabled={
+            !canEdit ||
             !agreement ||
             agreement.trim().length === 0 ||
             (createAgreementAdminRole === 'true' && agreementAdmins.length === 0)
@@ -141,7 +146,12 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
         </NextStepButton>
       </div>
 
-      <AddAgreementAdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} />
+      <AddAgreementAdminModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        form={form}
+        canEdit={canEdit}
+      />
     </form>
   );
 }

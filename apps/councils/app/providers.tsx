@@ -73,8 +73,8 @@ const Providers = ({ children }: ProvidersProps) => {
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string}
       config={{
-        loginMethods: ['email', 'wallet'],
-        supportedChains: [mainnet, optimism, arbitrum, base, gnosis, polygon, celo, sepolia],
+        loginMethods: ['wallet'],
+        supportedChains: [mainnet, optimism, arbitrum, base, gnosis, polygon, sepolia],
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',

@@ -111,7 +111,7 @@ const MemberItem = ({ member }: { member: { address: string; name?: string } }) 
 };
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation, deployCouncil, isDeploying } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying, canEdit } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -221,7 +221,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Details'
         isCompleted={stepValidation.details}
-        onEdit={() => setCurrentStep('details')}
+        onEdit={canEdit ? () => setCurrentStep('details') : undefined}
       >
         <div className='space-y-2'>
           <h4 className='text-base font-bold text-gray-900'>Create a Council</h4>
@@ -236,7 +236,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Signer Threshold'
         isCompleted={stepValidation.threshold}
-        onEdit={() => setCurrentStep('threshold')}
+        onEdit={canEdit ? () => setCurrentStep('threshold') : undefined}
       >
         <div className='space-y-2'>
           <h4 className='text-babse font-bold text-gray-900'>
@@ -258,7 +258,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Settings'
         isCompleted={stepValidation.onboarding}
-        onEdit={() => setCurrentStep('onboarding')}
+        onEdit={canEdit ? () => setCurrentStep('onboarding') : undefined}
       >
         <div className='space-y-2'>
           <h4 className='text-base font-bold text-gray-900'>
@@ -298,7 +298,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Roles'
         isCompleted={isSelectionStepValid()}
-        onEdit={() => setCurrentStep('selection', 'members')}
+        onEdit={canEdit ? () => setCurrentStep('selection', 'members') : undefined}
       >
         <div className='space-y-8'>
           <RoleSummary title='Council Members' members={formData.members || []} />
@@ -359,7 +359,10 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                 <button
                   type='button'
                   onClick={() => setIsPaymentModalOpen(true)}
-                  className='inline-flex items-center rounded-full border border-[#2B6CB0] px-4 py-2 text-sm font-medium text-[#2B6CB0]'
+                  disabled={!canEdit}
+                  className={`inline-flex items-center rounded-full border border-[#2B6CB0] px-4 py-2 text-sm font-medium text-[#2B6CB0] ${
+                    !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'
+                  }`}
                 >
                   <div className='flex items-center gap-2'>
                     <PaymentIcon />
@@ -367,7 +370,12 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                   </div>
                 </button>
               ) : (
-                <NextStepButton type='button' onClick={() => setIsPaymentModalOpen(true)} withIcon={false}>
+                <NextStepButton
+                  type='button'
+                  onClick={() => setIsPaymentModalOpen(true)}
+                  disabled={!canEdit}
+                  withIcon={false}
+                >
                   <div className='flex items-center gap-2'>
                     <PaymentIcon />
                     <span>Add invoice details</span>
@@ -386,7 +394,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             id='agreement'
             checked={form.watch('acceptedTerms')}
             onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
-            className='h-4 w-4 rounded border-gray-300 accent-[#3182CE]'
+            disabled={!canEdit}
+            className={`h-4 w-4 rounded border-gray-300 accent-[#3182CE] ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
           />
           <label htmlFor='agreement' className='text-sm text-gray-600'>
             I agree to the{' '}
@@ -400,12 +409,15 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         {isWrongNetwork ? (
           <NextStepButton
             onClick={() => switchChain?.({ chainId: targetChainId })}
-            disabled={!payer || !form.watch('acceptedTerms')}
+            disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
           >
             Switch to {targetChainName}
           </NextStepButton>
         ) : (
-          <NextStepButton disabled={!payer || !form.watch('acceptedTerms') || isDeploying} onClick={handleDeploy}>
+          <NextStepButton
+            disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
+            onClick={handleDeploy}
+          >
             {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
           </NextStepButton>
         )}
@@ -416,6 +428,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         onClose={() => setIsPaymentModalOpen(false)}
         form={form}
         draftId={draftId}
+        canEdit={canEdit}
       />
     </div>
   );

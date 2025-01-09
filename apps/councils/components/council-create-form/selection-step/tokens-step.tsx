@@ -12,7 +12,7 @@ import { TokenSelect } from '../../token-select';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 
 export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading, stepValidation } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const requirements = form.watch('requirements');
   const selectedChain = form.watch('chain');
   const chainId = chainStringToId(selectedChain);
@@ -47,17 +47,18 @@ export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
               required: true,
               min: 0,
             }}
+            disabled={!canEdit}
           />
         </div>
 
         <div className='w-full space-y-2'>
           <label className='font-bold'>Token Type</label>
-          <TokenSelect name='tokenRequirement.address' form={form} options={availableTokens} />
+          <TokenSelect name='tokenRequirement.address' form={form} options={availableTokens} disabled={!canEdit} />
         </div>
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!(form.watch('tokenRequirement.minimum') > 0)}>
+        <NextStepButton disabled={!(form.watch('tokenRequirement.minimum') > 0) || !canEdit}>
           {getNextStepButtonText(nextStep)}
         </NextStepButton>
       </div>
