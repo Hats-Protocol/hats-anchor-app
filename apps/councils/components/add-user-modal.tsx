@@ -4,10 +4,11 @@ import { Button } from '@chakra-ui/react';
 import { Modal } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
-import { map, some, toLower } from 'lodash';
+import { capitalize, map, some, toLower } from 'lodash';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
-import { isValidEmail } from 'utils';
+import { chainsMap, isValidEmail } from 'utils';
 import { isAddress } from 'viem';
 
 interface CouncilMemberDetails {
@@ -28,12 +29,13 @@ type AddAdminModalProps = {
   chainId: number;
   type: 'admin' | 'compliance' | 'member' | 'allowlist' | 'agreement' | 'election' | 'subscription';
   userLabel: string;
-  editingAdmin?: CouncilMember | null;
+  editingUser?: CouncilMember | null;
+  afterSuccess?: (user: CouncilMember | undefined) => Promise<void>;
 };
 
-export function AddUserModal({ chainId = 11155111, type, userLabel, editingAdmin }: AddAdminModalProps) {
+export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser, afterSuccess }: AddAdminModalProps) {
   const form = useForm<UserFormProps>();
-  const { getValues, setValue, setError, handleSubmit } = form;
+  const { getValues, setValue, setError, handleSubmit, reset } = form;
 
   const isFormValid = () => {
     const values = getValues();
@@ -41,11 +43,11 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingAdmin
   };
 
   const { createOrUpdateUser } = useCreateOrUpdateUser({
-    editingId: editingAdmin?.id,
+    editingId: editingUser?.id,
     onAddSuccess: (userData) => {
       const currentAdmins = getValues('admins') || [];
       const updatedAdmins = map(currentAdmins, (admin: CouncilMember) =>
-        admin.id === editingAdmin?.id ? userData : admin,
+        admin.id === editingUser?.id ? userData : admin,
       );
       setValue('admins', updatedAdmins);
     },
@@ -58,17 +60,28 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingAdmin
     },
   });
 
+  useEffect(() => {
+    if (!editingUser) return;
+
+    reset({
+      address: editingUser.address,
+      email: editingUser.email,
+      name: editingUser.name,
+    });
+  }, [editingUser, reset]);
+
   const onSubmit = async (data: CouncilMemberDetails) => {
     if (!isAddress(data.address)) {
       setError('address', { message: 'Please enter a valid Ethereum address' });
       return;
     }
 
+    // TODO generic check for duplicate (remove "admins" literal)
     const currentAdmins = getValues('admins') || [];
 
     const isDuplicate = some(
       currentAdmins,
-      (admin: CouncilMember) => toLower(admin.address) === toLower(data.address) && admin.id !== editingAdmin?.id,
+      (admin: CouncilMember) => toLower(admin.address) === toLower(data.address) && admin.id !== editingUser?.id,
     );
 
     if (isDuplicate) {
@@ -76,22 +89,23 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingAdmin
       return;
     }
 
-    createOrUpdateUser({
+    const createdOrUpdatedUser = await createOrUpdateUser({
       ...data,
-      id: editingAdmin?.id || '',
+      id: editingUser?.id || '',
     });
+
+    afterSuccess?.(createdOrUpdatedUser);
   };
 
-  // TODO reenable chain label
-
   return (
-    <Modal name={`addUser-${type}`} title={`${editingAdmin ? 'Edit' : 'Add'} ${userLabel || 'Council Member'}`}>
+    <Modal
+      name={editingUser ? `editUser-${type}-${editingUser.address}` : `addUser-${type}`}
+      title={`${editingUser ? 'Edit' : 'Add'} ${userLabel || 'Council Member'}`}
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className='space-y-6'>
           <div className='space-y-2'>
-            {/* <label className='font-bold'>
-              {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
-            </label> */}
+            <label className='font-bold'>{capitalize(chainsMap(chainId).name)} Account</label>
             <AddressInput name='address' localForm={form} hideAddressButtons chainId={chainId as SupportedChains} />
           </div>
 
@@ -123,7 +137,7 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingAdmin
         <div className='mt-8'>
           <div className='flex justify-end'>
             <Button type='submit' disabled={!isFormValid()} variant='primary'>
-              {editingAdmin ? 'Save Changes' : `Add ${userLabel || 'Council Member'}`}
+              {editingUser ? 'Save Changes' : `Add ${userLabel || 'Council Member'}`}
             </Button>
           </div>
         </div>

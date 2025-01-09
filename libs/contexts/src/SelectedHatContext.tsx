@@ -12,13 +12,7 @@ import { useMediaStyles } from 'hooks';
 import { find, get, includes, isEmpty, map } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { usePathname, useSearchParams } from 'next/navigation';
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+import { createContext, ReactNode, useCallback, useContext, useMemo } from 'react';
 import { createHierarchy } from 'shared';
 import { AppHat, HatDetails, Hierarchy, SupportedChains } from 'types';
 import { getPathParams } from 'utils';
@@ -68,31 +62,17 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   hierarchy: undefined,
 });
 
-export const SelectedHatContextProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const SelectedHatContextProvider = ({ children }: { children: ReactNode }) => {
   const params = useSearchParams();
   const pathname = usePathname();
   const { hatId: hatIdPathParam, treeId, chainId } = getPathParams(pathname);
 
   const hatIdQueryParam = params.get('hatId');
-  const hatId =
-    hatIdPathParam ||
-    (hatIdQueryParam
-      ? hatIdDecimalToHex(hatIdIpToDecimal(hatIdQueryParam))
-      : undefined);
+  const hatId = hatIdPathParam || (hatIdQueryParam ? hatIdDecimalToHex(hatIdIpToDecimal(hatIdQueryParam)) : undefined);
 
   const flipped = params.get('flipped');
   const compact = params.get('compact');
-  const {
-    onchainHats,
-    onchainTree,
-    orgChartTree,
-    onCloseTreeDrawer,
-    onOpenHatDrawer,
-  } = useTreeForm();
+  const { onchainHats, onchainTree, orgChartTree, onCloseTreeDrawer, onOpenHatDrawer } = useTreeForm();
   const { isMobile } = useMediaStyles();
 
   // *********************
@@ -101,27 +81,15 @@ export const SelectedHatContextProvider = ({
   const selectedHat = useMemo(() => {
     return find(orgChartTree, { id: hatId });
   }, [orgChartTree, hatId]) as AppHat | undefined;
-  const selectedHatDetails = useMemo(
-    () => get(selectedHat, 'detailsObject.data'),
-    [selectedHat],
-  );
-  const isDraft = useMemo(
-    () => !includes(map(onchainHats, 'id'), selectedHat?.id),
-    [onchainHats, selectedHat],
-  );
-  const hatNotInTree = useMemo(
-    () => !includes(map(orgChartTree, 'id'), selectedHat?.id),
-    [orgChartTree, selectedHat],
-  );
+  const selectedHatDetails = useMemo(() => get(selectedHat, 'detailsObject.data'), [selectedHat]);
+  const isDraft = useMemo(() => !includes(map(onchainHats, 'id'), selectedHat?.id), [onchainHats, selectedHat]);
+  const hatNotInTree = useMemo(() => !includes(map(orgChartTree, 'id'), selectedHat?.id), [orgChartTree, selectedHat]);
 
-  const { data: eligibilityInfo, isLoading: eligibilityLoading } =
-    useEligibilityRules({
-      address: selectedHat?.eligibility,
-      chainId,
-      enabled:
-        !!selectedHat?.eligibility &&
-        selectedHat?.eligibility !== FALLBACK_ADDRESS,
-    });
+  const { data: eligibilityInfo, isLoading: eligibilityLoading } = useEligibilityRules({
+    address: selectedHat?.eligibility,
+    chainId,
+    enabled: !!selectedHat?.eligibility && selectedHat?.eligibility !== FALLBACK_ADDRESS,
+  });
   const { data: toggleInfo, isLoading: toggleLoading } = useEligibilityRules({
     address: selectedHat?.toggle,
     chainId,
@@ -131,14 +99,10 @@ export const SelectedHatContextProvider = ({
   // *********************
   // * ONCHAIN HAT
   // *********************
-  const selectedOnchainHat = useMemo(
-    () => find(onchainTree, { id: hatId }),
-    [onchainTree, hatId],
-  ) as AppHat | undefined;
-  const selectedOnchainHatDetails = useMemo(
-    () => get(selectedOnchainHat, 'detailsObject.data'),
-    [selectedOnchainHat],
-  );
+  const selectedOnchainHat = useMemo(() => find(onchainTree, { id: hatId }), [onchainTree, hatId]) as
+    | AppHat
+    | undefined;
+  const selectedOnchainHatDetails = useMemo(() => get(selectedOnchainHat, 'detailsObject.data'), [selectedOnchainHat]);
 
   const isClaimable = useMemo(
     () =>
@@ -173,10 +137,7 @@ export const SelectedHatContextProvider = ({
       if (hat.treeId && treeId && hat.treeId !== treeIdDecimalToHex(treeId)) {
         const hatIdParam = hatIdDecimalToIp(BigInt(hat.id));
 
-        const urlToOpen = new URL(
-          `${BASE_PATH}${hat.url}`,
-          window.location.origin,
-        );
+        const urlToOpen = new URL(`${BASE_PATH}${hat.url}`, window.location.origin);
         urlToOpen.searchParams.append('hatId', hatIdParam);
         window.open(urlToOpen.toString(), '_blank')?.focus();
         return;
@@ -198,11 +159,7 @@ export const SelectedHatContextProvider = ({
       eligibilityInfo: eligibilityInfo || undefined,
       toggleInfo: toggleInfo || undefined,
       chainId,
-      hatLoading:
-        !selectedHat ||
-        !selectedHatDetails ||
-        eligibilityLoading ||
-        toggleLoading,
+      hatLoading: !selectedHat || !selectedHatDetails || eligibilityLoading || toggleLoading,
       isClaimable,
       hatNotInTree,
       // ONCHAIN HAT
@@ -233,11 +190,7 @@ export const SelectedHatContextProvider = ({
     ],
   );
 
-  return (
-    <SelectedHatContext.Provider value={returnValue}>
-      {children}
-    </SelectedHatContext.Provider>
-  );
+  return <SelectedHatContext.Provider value={returnValue}>{children}</SelectedHatContext.Provider>;
 };
 
 export const useSelectedHat = () => useContext(SelectedHatContext);

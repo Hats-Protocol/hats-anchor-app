@@ -1,6 +1,3 @@
-// import { CouncilsContextProvider } from 'contexts';
-// import { compact, concat, find, get, last, map, toLower } from 'lodash';
-// import { getCouncilData, getHatsDetails } from 'utils';
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
