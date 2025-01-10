@@ -42,6 +42,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
       ]),
     [eligibilityModule, chainId],
   );
+  console.log(eligibilityRules);
 
   if (!chainId) return null;
 

@@ -7,14 +7,17 @@ import { councilsGraphqlClient } from 'utils';
 // TODO support safe or id
 // TODO handle chainId
 const GET_COUNCIL = gql`
-  query getCouncil($id: String!) {
-    council(hsg: $id) {
+  query getCouncil {
+    # council(where: { hsg: $id }) {
+    council(id: "cm5nwysyo00081tfnoao49rp5") {
       id
-      memberSelectionModule
-      memberCriteriaModule
-      org {
-        name
-      }
+      hsg
+      membersSelectionModule
+      membersCriteriaModule
+      # org {
+      #   name
+      # }
+      # // council form fields
     }
   }
 `;
@@ -23,7 +26,7 @@ const getOffchainCouncilData = async ({ id, chainId }: { id: string; chainId: nu
   return councilsGraphqlClient
     .request<{
       updateUser: CouncilMember;
-    }>(GET_COUNCIL, { id, chainId })
+    }>(GET_COUNCIL) // { id, chainId })
     .then((data) => {
       console.log('getOffchainCouncilData - result', data);
       return get(data, 'council');

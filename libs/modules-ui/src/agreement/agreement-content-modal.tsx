@@ -11,9 +11,7 @@ import { ModuleDetails, SupportedChains } from 'types';
 import { fetchIpfs } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
-const AgreementContent = dynamic(() =>
-  import('molecules').then((mod) => mod.AgreementContent),
-);
+const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
@@ -91,11 +89,7 @@ export const AgreementContentModal = ({
             Download agreement
           </Button> */}
 
-          <Button
-            colorScheme='blue'
-            onClick={handleReviewed}
-            leftIcon={<Icon as={HatIcon} color='white' />}
-          >
+          <Button colorScheme='blue' onClick={handleReviewed} leftIcon={<Icon as={HatIcon} color='white' />}>
             {onlyModule ? 'Reviewed' : 'Sign Agreement'}
           </Button>
         </Flex>

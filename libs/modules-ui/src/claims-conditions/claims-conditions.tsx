@@ -74,6 +74,7 @@ const EligibilityConditions = () => {
         modalSuffix={MODAL_SUFFIX}
         isReadyToClaim={isReadyToClaim}
         setIsReadyToClaim={setIsReadyToClaim}
+        wearerEligibility={currentEligibility}
       />
     );
   }

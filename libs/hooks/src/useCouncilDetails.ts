@@ -3,12 +3,6 @@ import { compact, concat, find, get, map, toLower } from 'lodash';
 import { AppHat, ExtendedHSGV2, HatSignerGateV2 } from 'types';
 import { getCouncilData, getHatsDetails } from 'utils';
 
-const getOffchainCouncilData = async ({ id, chainId }: { id: string | undefined; chainId: number | undefined }) => {
-  if (!id || !chainId) return {};
-
-  return {};
-};
-
 const fetchCouncilDetails = async ({
   chainId,
   address,
@@ -37,25 +31,10 @@ const fetchCouncilDetails = async ({
 };
 
 const useCouncilDetails = ({ chainId, address }: { chainId: number | undefined; address: string | undefined }) => {
-  const { data: councilData, isLoading: isLoadingCouncilData } = useQuery({
+  return useQuery({
     queryKey: ['councilDetails', chainId, address],
     queryFn: () => fetchCouncilDetails({ chainId, address }),
   });
-
-  const { data: offchainCouncilData, isLoading: isLoadingOffchainCouncilData } = useQuery({
-    queryKey: ['offchainCouncilData', chainId, address],
-    queryFn: () => getOffchainCouncilData({ id: address, chainId }),
-  });
-
-  let councilDetails = undefined;
-  if (!isLoadingCouncilData && !isLoadingOffchainCouncilData) {
-    councilDetails = { ...councilData, ...offchainCouncilData };
-  }
-
-  return {
-    data: councilDetails as ExtendedHSGV2 | undefined,
-    isLoading: isLoadingCouncilData || isLoadingOffchainCouncilData,
-  };
 };
 
 export default useCouncilDetails;

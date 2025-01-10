@@ -7,9 +7,9 @@ import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 
-import { AgreementContentModal, AgreementEligibilityRule } from '../agreement';
+import { AgreementEligibilityRule } from '../agreement';
 import { AllowlistEligibilityRule } from '../allowlist';
-import { ElectionClaimsModal, ElectionEligibilityRule } from '../election';
+import { ElectionEligibilityRule } from '../election';
 import { Erc20EligibilityRule } from '../erc';
 import { Erc721EligibilityRule } from '../erc';
 import { Erc1155EligibilityRule } from '../erc';
@@ -17,12 +17,10 @@ import { PassthroughModuleRule } from '../hat-controlled';
 import { HatWearingEligibilityRule } from '../hat-wearing';
 import { JokeRaceEligibilityRule } from '../joke-race';
 import { StakingEligibilityRule } from '../staking';
-import {
-  SubscriptionClaimsModal,
-  UnlockEligibilityRule,
-} from '../subscription';
+import { UnlockEligibilityRule } from '../subscription';
 import { UnknownEligibilityRule } from './unknown-eligibility';
 
+type WearerEligibility = { [key: Hex]: { eligible: boolean; goodStanding: boolean } };
 export type EligibilityRuleComponent = ({
   selectedHat,
   moduleDetails,
@@ -41,6 +39,7 @@ export type EligibilityRuleComponent = ({
   modalSuffix?: string | undefined;
   isReadyToClaim?: { [key: Hex]: boolean };
   setIsReadyToClaim?: (address: Hex) => void;
+  wearerEligibility: WearerEligibility | undefined;
 }) => ReactNode | undefined;
 
 export const EligibilityModuleRules: {
@@ -68,34 +67,19 @@ export const KnownEligibilityModule = ({
   modalSuffix,
   isReadyToClaim,
   setIsReadyToClaim,
+  wearerEligibility,
 }: KnownEligibilityModuleParameters) => {
   if (!moduleDetails?.implementationAddress) {
-    return (
-      <UnknownEligibilityRule
-        chainId={chainId}
-        wearer={wearer}
-        selectedHat={selectedHat}
-      />
-    );
+    return <UnknownEligibilityRule chainId={chainId} wearer={wearer} selectedHat={selectedHat} />;
   }
 
-  const moduleKey = getKnownEligibilityModule(
-    moduleDetails.implementationAddress as Hex,
-  );
+  const moduleKey = getKnownEligibilityModule(moduleDetails.implementationAddress as Hex);
 
   if (!moduleKey || !has(EligibilityModuleRules, moduleKey)) {
-    return (
-      <UnknownEligibilityRule
-        chainId={chainId}
-        wearer={wearer}
-        selectedHat={selectedHat}
-      />
-    );
+    return <UnknownEligibilityRule chainId={chainId} wearer={wearer} selectedHat={selectedHat} />;
   }
 
-  const knownRule = EligibilityModuleRules[
-    moduleKey
-  ] as EligibilityRuleComponent;
+  const knownRule = EligibilityModuleRules[moduleKey] as EligibilityRuleComponent;
 
   return knownRule({
     selectedHat,
@@ -106,6 +90,7 @@ export const KnownEligibilityModule = ({
     modalSuffix,
     isReadyToClaim,
     setIsReadyToClaim,
+    wearerEligibility,
   });
 };
 
@@ -118,4 +103,5 @@ interface KnownEligibilityModuleParameters {
   modalSuffix?: string | undefined;
   isReadyToClaim?: { [key: Hex]: boolean };
   setIsReadyToClaim?: (address: Hex) => void;
+  wearerEligibility: WearerEligibility | undefined;
 }
