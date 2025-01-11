@@ -1,5 +1,6 @@
 'use client';
 
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, FormDescription, Input } from 'forms';
@@ -10,8 +11,8 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, SupportedChains } from 'types';
 import {
   chainsMap,
-  councilsGraphqlClient,
   CREATE_USER,
+  getCouncilsGraphqlClient,
   isValidEmail,
   logger,
   sendTelegramMessage,
@@ -35,6 +36,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
   const chainId = toNumber(selectedChain);
   const { modals, setModals } = useOverlay();
   const councilName = parentForm.watch('councilName');
+  const { getAccessToken } = usePrivy();
 
   const modalForm = useForm({
     defaultValues: {
@@ -54,7 +56,8 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
 
   const createUserMutation = useMutation({
     mutationFn: async (variables: { address: string; email: string; name?: string; telegram?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         createUser: {
           id: string;
           address: string;
@@ -78,7 +81,8 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         telegram?: string;
       };
     }) => {
-      const result = await councilsGraphqlClient.request(UPDATE_PAYER, variables);
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request(UPDATE_PAYER, variables);
       return result;
     },
   });

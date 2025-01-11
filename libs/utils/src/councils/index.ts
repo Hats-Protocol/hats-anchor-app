@@ -3,7 +3,7 @@ import { OffchainCouncilData } from 'types';
 import { getAddress } from 'viem';
 
 import { chainStringToId } from '../chains';
-import { councilsGraphqlClient, GET_COUNCIL_BY_HSG } from '../councils-gql';
+import { GET_COUNCIL_BY_HSG, getCouncilsGraphqlClient } from '../councils-gql';
 
 const checkChainId = (chain: string) => {
   const attemptNumber = toNumber(chain);
@@ -67,14 +67,16 @@ export const getOffchainCouncilData = async ({
   hsg,
   safe,
   chainId,
+  accessToken,
 }: {
   hsg?: string;
   safe?: string;
   chainId: number | undefined;
+  accessToken: string | null;
 }): Promise<OffchainCouncilData | null> => {
   if (!hsg || !chainId) return Promise.resolve(null);
   // TODO handle safe
-  return councilsGraphqlClient
+  return getCouncilsGraphqlClient(accessToken ?? undefined)
     .request<{
       councils: OffchainCouncilData[];
     }>(GET_COUNCIL_BY_HSG, { hsg, chainId })

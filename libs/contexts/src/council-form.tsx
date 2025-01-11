@@ -50,13 +50,13 @@ import {
   addCouncilForForm,
   chainIdToString,
   chainsMap,
-  councilsGraphqlClient,
   createHatsClient,
   createHatsModulesClient,
   createOrganization,
   explorerUrl,
   fetchToken,
   GET_COUNCIL_FORM,
+  getCouncilsGraphqlClient,
   logger,
   pinFileToIpfs,
   sendTelegramMessage,
@@ -172,7 +172,7 @@ const initialDeployStatus: DeployStatus = {
 };
 
 export function CouncilFormProvider({ children, draftId }: { children: React.ReactNode; draftId: string | null }) {
-  const { user, authenticated } = usePrivy();
+  const { user, authenticated, getAccessToken } = usePrivy();
   const [canEdit, setCanEdit] = useState(false);
   const [deployStatus, setDeployStatus] = useState(initialDeployStatus);
   const { address } = useAccount();
@@ -279,6 +279,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { isLoading, data } = useQuery({
     queryKey: ['councilForm', draftId],
     queryFn: async () => {
+      const accessToken = await getAccessToken();
+      const councilsGraphqlClient = getCouncilsGraphqlClient(accessToken ?? undefined);
       return councilsGraphqlClient
         .request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId })
         .then((result) => {
@@ -504,6 +506,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       }
 
       logger.debug('payload', payload);
+      const accessToken = await getAccessToken();
+      const councilsGraphqlClient = getCouncilsGraphqlClient(accessToken ?? undefined);
       return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
     },
     onSuccess: (data: UpdateCouncilFormResponse) => {
