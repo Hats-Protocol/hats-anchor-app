@@ -2,7 +2,7 @@
 
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { StepValidation } from 'types';
 import { cn } from 'ui';
@@ -115,7 +115,7 @@ function getStepValidation(step: Step, stepValidation: StepValidation, requireme
 }
 
 function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
-  const { form, stepValidation } = useCouncilForm();
+  const { form, stepValidation, persistForm, canEdit } = useCouncilForm();
   const router = useRouter();
   const requirements = form.watch('requirements');
 
@@ -133,13 +133,12 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
-  const [isNavigating, setIsNavigating] = useState(false);
-
   const handleStepNavigation = useCallback(
     async (targetStep: string, targetSubStep?: string) => {
       try {
-        setIsNavigating(true);
-        // await persistForm(currentStep, currentSubStep);
+        if (canEdit) {
+          await persistForm(currentStep, currentSubStep);
+        }
 
         if (targetStep === 'selection') {
           router.push(`/councils/new/${targetStep}?subStep=${targetSubStep || 'management'}&draftId=${draftId}`);
@@ -149,11 +148,9 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
       } catch (error) {
         logger.error('Failed to save step data:', error);
         // Add error notification here
-      } finally {
-        setIsNavigating(false);
       }
     },
-    [router, draftId],
+    [currentStep, currentSubStep, persistForm, router, draftId, canEdit],
   );
 
   return (
