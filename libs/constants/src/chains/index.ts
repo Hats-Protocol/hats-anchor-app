@@ -47,18 +47,22 @@ const extendIcon = (chain: Chain) => ({
   iconBackground: 'none',
 });
 
-export const chainsList: { [key in SupportedChains]: Chain } = {
-  1: mainnet,
-  10: optimism,
+export const councilsChainsList = {
+  1: extendIcon(mainnet),
+  10: extendIcon(optimism),
   100: extendIcon(gnosis),
-  137: polygon,
-  8453: base,
-  42161: arbitrum,
-  42220: extendIcon(celo),
+  137: extendIcon(polygon),
+  8453: extendIcon(base),
+  42161: extendIcon(arbitrum),
 
   // TESTNETS
   // 84532: baseSepolia,
   11155111: extendIcon(sepolia),
+};
+
+export const chainsList: { [key in SupportedChains]: Chain } = {
+  ...councilsChainsList,
+  42220: extendIcon(celo),
 };
 
 export const NETWORK_CURRENCY: { [key: number]: string } = {
@@ -88,3 +92,14 @@ export const NETWORK_CURRENCY_IMAGE: { [key: number]: string } = {
   // 84532: '/chains/ethereum.svg',
   11155111: '/chains/ethereum.svg',
 };
+
+export const CHAIN_IDS: Record<string, SupportedChains> = {
+  optimism: 10,
+  base: 8453,
+  arbitrum: 42161,
+  polygon: 137,
+  ethereum: 1,
+  gnosis: 100,
+  celo: 42220,
+  sepolia: 11155111,
+} as const;

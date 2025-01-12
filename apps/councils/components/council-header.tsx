@@ -89,9 +89,16 @@ export const CouncilHeader = () => {
         </div>
 
         <div className='flex w-[30%] flex-col items-end justify-center gap-2'>
-          <div>
-            {get(safe, 'threshold')}/{size(get(safe, 'owners'))} Multisig
-          </div>
+          {size(get(primarySignerHat, 'wearers')) > toNumber(get(councilDetails, 'minThreshold')) ? (
+            <div>
+              {get(safe, 'threshold')}/{size(get(safe, 'owners'))} Multisig
+            </div>
+          ) : (
+            <div>
+              Pending {get(councilDetails, 'minThreshold')}/{get(primarySignerHat, 'maxSupply')} Multisig
+            </div>
+          )}
+
           <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
           <div>by Circle DAO</div>
         </div>

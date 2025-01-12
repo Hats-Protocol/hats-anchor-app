@@ -22,11 +22,10 @@ import { HatsDetailsClient } from '@hatsprotocol/details-sdk';
 import { hatIdDecimalToIp, hatIdIpToDecimal, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toNumber, toString } from 'lodash';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import {
-  chainIdToString,
-  chainStringToId,
   councilsGraphqlClient,
   createHatsClient,
   fetchToken,
@@ -338,8 +337,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { isLoading, data } = useQuery({
     queryKey: ['councilForm', draftId],
     queryFn: async () => {
-      const result = await councilsGraphqlClient.request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId });
-      return result.councilCreationForm;
+      return councilsGraphqlClient
+        .request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId })
+        .then((result) => {
+          console.log('result', result);
+          return result.councilCreationForm;
+        })
+        .catch((error) => {
+          console.error('Error fetching council form:', error);
+          throw error;
+        });
     },
     enabled: !!draftId,
     staleTime: Infinity,
@@ -352,6 +359,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   // Check if user can edit the form
   useEffect(() => {
     if (!authenticated || !user?.wallet?.address || !data) {
+      console.log({ authenticated, user, data });
       setCanEdit(false);
       return;
     }
@@ -372,7 +380,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const newValues: CouncilFormData = {
         organizationName: data.organizationName || '',
         councilName: data.councilName || '',
-        chain: chainIdToString(data.chain) || '',
+        chain: toString(data.chain) || '',
         councilDescription: data.councilDescription || '',
         thresholdType: data.thresholdType || 'ABSOLUTE',
         confirmationsRequired: data.thresholdTarget || 4,
@@ -427,13 +435,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             draftId,
           ]);
           const previousChain = previousData?.chain;
-          const newChain = chainStringToId(formData.chain);
+          const newChain = toNumber(formData.chain);
 
           payload = {
             ...payload,
             organizationName: formData.organizationName,
             councilName: formData.councilName,
-            chain: chainStringToId(formData.chain),
+            chain: toNumber(formData.chain),
             councilDescription: formData.councilDescription,
           };
 
@@ -748,11 +756,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         eligibilityChainInitArgs = '0x' as `0x${string}`;
         eligibilityChainImmutableArgs = encodePacked(
           ['uint256', 'uint256[]', ...Array(chainLength).fill('address')],
-          [BigInt(chainLength), Array(chainLength).fill(BigInt(1)), ...chainModules],
+          [BigInt(1), [BigInt(chainLength)], ...chainModules],
         );
-        console.log('eligiblity chain args', {
+        console.log('eligibility chain args', {
           chainLength,
-          clauseLengths: Array(chainLength).fill(BigInt(1)),
+          clauseLengths: BigInt(chainLength),
           chainModules,
         });
         eligibilityChainHatId = councilMemberHatId;
@@ -767,6 +775,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         immutableArgs.push(eligibilityChainImmutableArgs);
         initArgs.push(eligibilityChainInitArgs);
         saltNonces.push(saltNonce);
+        console.log('predicted eligibility chain address', predictedEligibilityChainAddress);
       }
 
       // batch modules creation call data
@@ -1089,7 +1098,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          networkId: chainId.toString(),
+          chainId: chainId.toString(),
           from: MULTICALL3_ADDRESS as string,
           to: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
           input: createHsgV2Calldata,
@@ -1102,6 +1111,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
       // Find the safe proxy address from simulation logs
       let safeProxyAddress: Address | undefined;
+
+      console.log(simulationResult.transaction.status);
+      if (simulationResult.transaction.status === false) {
+        throw new Error('Simulation failed');
+      }
 
       for (const log of simulationResult.transaction.transaction_info.logs) {
         try {

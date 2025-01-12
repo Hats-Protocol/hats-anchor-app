@@ -1,14 +1,13 @@
 'use client';
 
 import type { CouncilFormData } from 'contexts';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilMember } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
-import { EditIcon } from '../../icons/edit-icon';
-import { TrashIcon } from '../../icons/trash-icon';
 import { AddAdminModal } from './add-admin-modal';
 
 interface AdminsListProps {
@@ -89,14 +88,14 @@ function AdminCard({
         <div className='flex items-center gap-3'>
           <button
             type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800'
+            className='flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-blue-700'
             onClick={onEdit}
           >
-            <EditIcon />
+            <SquarePen className='text-sky-600' />
             Edit
           </button>
-          <button type='button' onClick={() => onRemove(admin.id)} className='text-red-700 hover:text-red-800'>
-            <TrashIcon />
+          <button type='button' onClick={() => onRemove(admin.id)}>
+            <Trash2 className='text-red-700' />
           </button>
         </div>
       )}

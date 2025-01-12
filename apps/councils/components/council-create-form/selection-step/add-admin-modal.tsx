@@ -7,10 +7,9 @@ import { AddressInput, Input } from 'forms';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
-import { councilsGraphqlClient } from 'utils';
+import { councilsGraphqlClient, getChainId } from 'utils';
 import { isAddress } from 'viem';
 
-import { getChainId } from '../../../lib/utils/chains';
 import { NextStepButton } from '../../next-step-button';
 
 interface CouncilMember {

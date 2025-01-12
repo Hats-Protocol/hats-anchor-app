@@ -48,8 +48,8 @@ export function SelectionManagementStep({ onNext }: StepProps) {
             type='button'
             onClick={() => setIsModalOpen(true)}
             disabled={!canEdit}
-            className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
-              !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
+            className={`inline-flex items-center rounded-full border border-sky-500 px-4 py-2 text-sm font-medium text-sky-500 ${
+              !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-sky-50'
             }`}
           >
             <FiUserPlus className='mr-2 h-4 w-4' />

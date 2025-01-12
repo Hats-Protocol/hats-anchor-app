@@ -5,16 +5,17 @@ import '@fontsource-variable/inter';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
+import { councilsChainsList } from '@hatsprotocol/constants';
 import { PrivyProvider } from '@privy-io/react-auth';
 import { WagmiProvider } from '@privy-io/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
+import { values } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
 import { theme } from 'ui';
 import { wagmiConfig } from 'utils';
-import { arbitrum, base, celo, gnosis, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 
 // TODO use standalone & fix exporting of waitForTransaction
 declare global {
@@ -74,7 +75,7 @@ const Providers = ({ children }: ProvidersProps) => {
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string}
       config={{
         loginMethods: ['wallet'],
-        supportedChains: [mainnet, optimism, arbitrum, base, gnosis, polygon, sepolia],
+        supportedChains: values(councilsChainsList),
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',
@@ -84,7 +85,7 @@ const Providers = ({ children }: ProvidersProps) => {
     >
       <ChakraBaseProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <WagmiProvider config={wagmiConfig}>
+          <WagmiProvider config={wagmiConfig(values(councilsChainsList))}>
             <ReactQueryDevtools initialIsOpen={false} />
             <OverlayContextProvider>{children}</OverlayContextProvider>
           </WagmiProvider>

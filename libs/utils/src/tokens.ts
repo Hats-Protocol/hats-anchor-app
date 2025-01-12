@@ -6,13 +6,7 @@ import { viemPublicClient } from './web3';
 
 const tknAddress = '0xc11BA824ab2cEA5E701831AB87ed43eb013902Dd';
 
-export const fetchTokenData = async ({
-  symbol,
-  chainId,
-}: {
-  symbol: string;
-  chainId?: number | undefined;
-}) => {
+export const fetchTokenData = async ({ symbol, chainId }: { symbol: string; chainId?: number | undefined }) => {
   const viemClient = viemPublicClient(1);
 
   const tokenData = await viemClient.readContract({
@@ -27,11 +21,7 @@ export const fetchTokenData = async ({
 
 export const symbolPriceHandler = (symbol: string) => {
   if (!symbol) return undefined;
-  if (
-    eq(toLower(symbol), toLower('xDai')) ||
-    eq(toLower(symbol), toLower('WXDAI'))
-  )
-    return 'DAI';
+  if (eq(toLower(symbol), toLower('xDai')) || eq(toLower(symbol), toLower('WXDAI'))) return 'DAI';
   return symbol;
 };
 
@@ -65,21 +55,14 @@ export const filterTokenList = ({
   approvedTokens: string[] | undefined;
 }) => {
   if (!tokenList) return [];
-  const manuallyRemove = reject(tokenList, (token) =>
-    includes(MANUAL_EXCLUDE_TOKENS, get(token, 'tokenAddress')),
-  );
+  const manuallyRemove = reject(tokenList, (token) => includes(MANUAL_EXCLUDE_TOKENS, get(token, 'tokenAddress')));
 
-  if (!approvedTokens)
-    return filter(manuallyRemove, (token) => token.balance > 0);
+  if (!approvedTokens) return filter(manuallyRemove, (token) => token.balance > 0);
 
   return filter(
     manuallyRemove,
     (token: any) =>
       token.balance > 0 &&
-      (includes(
-        approvedTokens,
-        symbolPriceHandler(get(token, 'token.symbol')),
-      ) ||
-        !token.tokenAddress),
+      (includes(approvedTokens, symbolPriceHandler(get(token, 'token.symbol'))) || !token.tokenAddress),
   );
 };

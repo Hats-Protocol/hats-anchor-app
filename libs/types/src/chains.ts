@@ -8,3 +8,9 @@ export type SupportedChains =
   | 42220 // celo
   // | 84532 // base sepolia
   | 11155111; // sepolia
+
+export type ExtendedChain = Chain & {
+  hasIcon: boolean;
+  iconUrl: string;
+  iconBackground: string;
+};

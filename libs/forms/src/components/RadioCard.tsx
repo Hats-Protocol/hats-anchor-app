@@ -10,7 +10,6 @@ import {
   FormLabel,
   HStack,
   Icon,
-  Radio,
   RadioGroup,
   Stack,
   Text,
@@ -31,6 +30,7 @@ interface RadioCardOption {
 interface RadioCardProps extends BoxProps {
   name: string;
   label?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   options?: RadioCardOption[];
   textSize?: string;
@@ -71,12 +71,7 @@ const RadioCard = ({
               </FormLabel>
             )}
             {tooltip && (
-              <Tooltip
-                label={tooltip}
-                shouldWrapChildren
-                hasArrow
-                placement='end'
-              >
+              <Tooltip label={tooltip} shouldWrapChildren hasArrow placement='end'>
                 <Box
                   h='24px'
                   w='24px'
@@ -98,11 +93,7 @@ const RadioCard = ({
           control={control}
           name={name}
           render={({ field }) => (
-            <RadioGroup
-              isDisabled={isDisabled}
-              defaultValue={defaultValue}
-              {...field}
-            >
+            <RadioGroup isDisabled={isDisabled} defaultValue={defaultValue} {...field}>
               <Stack spacing={4}>
                 {options?.map((option) => (
                   <Box
@@ -112,16 +103,12 @@ const RadioCard = ({
                     px={6}
                     py={4}
                     cursor={option.disabled ? 'not-allowed' : 'pointer'}
-                    borderColor={
-                      field.value === option.value ? 'blue.500' : 'gray.200'
-                    }
+                    borderColor={field.value === option.value ? 'blue.500' : 'gray.200'}
                     bg={field.value === option.value ? 'blue.50' : 'white'}
                     _hover={{
                       borderColor: option.disabled ? 'gray.200' : 'blue.500',
                     }}
-                    onClick={() =>
-                      !option.disabled && field.onChange(option.value)
-                    }
+                    onClick={() => !option.disabled && field.onChange(option.value)}
                   >
                     <HStack justify='space-between' width='100%'>
                       <HStack spacing={4} opacity={option.disabled ? 0.5 : 1}>
@@ -129,11 +116,7 @@ const RadioCard = ({
                           <Icon
                             as={option.icon}
                             boxSize={6}
-                            color={
-                              field.value === option.value
-                                ? 'blue.500'
-                                : 'gray.400'
-                            }
+                            color={field.value === option.value ? 'blue.500' : 'gray.400'}
                           />
                         )}
                         <Stack spacing={0.5}>
@@ -148,11 +131,7 @@ const RadioCard = ({
                         </Stack>
                       </HStack>
                       {!option.disabled ? (
-                        <Checkbox
-                          isChecked={field.value === option.value}
-                          pointerEvents='none'
-                          colorScheme='blue'
-                        />
+                        <Checkbox isChecked={field.value === option.value} pointerEvents='none' colorScheme='blue' />
                       ) : (
                         <Text
                           fontSize='2xs'
@@ -179,9 +158,7 @@ const RadioCard = ({
           )}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
-        {typeof error === 'string' && (
-          <FormErrorMessage>{error}</FormErrorMessage>
-        )}
+        {typeof error === 'string' && <FormErrorMessage>{error}</FormErrorMessage>}
       </Stack>
     </FormControl>
   );

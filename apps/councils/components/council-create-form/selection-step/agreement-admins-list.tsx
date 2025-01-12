@@ -1,13 +1,12 @@
 'use client';
 
 import type { CouncilFormData } from 'contexts';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
-import { EditIcon } from '../../icons/edit-icon';
-import { TrashIcon } from '../../icons/trash-icon';
 import { AddAgreementAdminModal } from './add-agreement-admin-modal';
 
 interface AgreementAdminsListProps {
@@ -92,6 +91,7 @@ function AgreementAdminCard({
         {admin.name && <span className='text-sm font-medium text-gray-900'>{admin.name}</span>}
         <span className='text-sm text-gray-600'>{ensName || formatAddress(admin.address)}</span>
       </div>
+
       {canEdit && (
         <div className='flex items-center gap-3'>
           <button
@@ -99,11 +99,12 @@ function AgreementAdminCard({
             className='flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800'
             onClick={onEdit}
           >
-            <EditIcon />
+            <SquarePen />
             Edit
           </button>
+
           <button type='button' onClick={() => onRemove(admin.id)} className='text-red-700 hover:text-red-800'>
-            <TrashIcon />
+            <Trash2 />
           </button>
         </div>
       )}

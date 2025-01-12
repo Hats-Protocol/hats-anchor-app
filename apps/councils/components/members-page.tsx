@@ -4,7 +4,7 @@ import { Button, Checkbox, Icon, Tooltip } from '@chakra-ui/react';
 import { Ruleset, WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
-import { filter, find, first, flatten, get, map, split, toLower } from 'lodash';
+import { filter, find, first, flatten, get, isEmpty, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
 import { BsCheckSquareFill, BsPencilSquare } from 'react-icons/bs';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
@@ -13,10 +13,6 @@ import { formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
 import { AddUserModal } from './add-user-modal';
-
-// TODO hardcode
-const selectionModuleAddress = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
-const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
 const MemberRow = ({
   member,
@@ -122,26 +118,27 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const { data: offchainCouncilData, isLoading: isLoadingOffchainCouncilData } = useOffchainCouncilDetails({
-    id: address,
+    id: 'cm6nwzsyo00083tfnoao49rp5', // TODO update to use hsg address
     chainId: chainId ?? 11155111,
   });
-  console.log('offchainCouncilData', offchainCouncilData);
 
   // TODO fetch module labels
   // TODO more profile data about allowlist members
   const { data: allowlist } = useAllowlist({
-    id: selectionModuleAddress,
+    id: offchainCouncilData?.membersSelectionModule,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
+  console.log('allowlist', allowlist);
 
   const remainingModules = filter(
-    first(eligibilityRules), // TODO hardcode "flatten" outer Rulesets
-    (rule) => toLower(rule.address) !== toLower(selectionModuleAddress),
+    flatten(eligibilityRules), // TODO hardcoded "flatten" outer Rulesets
+    (rule) => toLower(rule.address) !== toLower(offchainCouncilData?.membersSelectionModule),
   );
+  console.log('remainingModules', eligibilityRules, remainingModules);
 
   const selectionModule = find(
     flatten(eligibilityRules),
-    (rule) => toLower(rule.address) === toLower(selectionModuleAddress),
+    (rule) => toLower(rule.address) === toLower(offchainCouncilData?.membersSelectionModule),
   );
   const addAccount = find(
     get(selectionModule, 'module.writeFunctions'),
@@ -193,7 +190,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
           </div>
 
           {map(remainingModules, (rule) => {
-            if (toLower(rule.address) === toLower(criteriaModule)) {
+            if (toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule)) {
               return (
                 <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
                   <p className='text-center'>Compliance</p>
@@ -214,16 +211,22 @@ const MembersPage = ({ slug }: { slug: string }) => {
         </div>
       </div>
 
-      {map(allowlist, (member: CouncilMember) => (
-        <MemberRow
-          key={member.address}
-          member={member}
-          remainingModules={remainingModules}
-          chainId={chainId as SupportedChains}
-          signerHat={primarySignerHat as AppHat}
-          eligibilityRules={eligibilityRules || undefined}
-        />
-      ))}
+      {!isEmpty(allowlist) ? (
+        map(allowlist, (member: CouncilMember) => (
+          <MemberRow
+            key={member.address}
+            member={member}
+            remainingModules={remainingModules}
+            chainId={chainId as SupportedChains}
+            signerHat={primarySignerHat as AppHat}
+            eligibilityRules={eligibilityRules || undefined}
+          />
+        ))
+      ) : (
+        <div className='flex h-20 items-center justify-center gap-4'>
+          <p>No members found</p>
+        </div>
+      )}
 
       <div className='flex pt-8'>
         <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>

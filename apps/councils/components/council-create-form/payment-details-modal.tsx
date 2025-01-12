@@ -4,15 +4,17 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
 import type { CouncilFormData } from 'contexts';
 import { AddressInput, Input } from 'forms';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
-import { councilsGraphqlClient } from 'utils';
-import { isAddress } from 'viem';
+import { councilsGraphqlClient, getChainId } from 'utils';
 
-import { getChainId } from '../../lib/utils/chains';
-import { UsdcIcon } from '../icons/usdc-icon';
 import { NextStepButton } from '../next-step-button';
+
+const UsdcIcon = dynamic(() => import('icons').then((mod) => mod.UsdcIcon), {
+  ssr: false,
+});
 
 interface PaymentDetailsModalProps {
   isOpen: boolean;
@@ -131,6 +133,7 @@ export function PaymentDetailsModal({
       onClose();
     } catch (error) {
       setFormError('Failed to save payment details. Please try again.');
+      // eslint-disable-next-line no-console
       console.error('Error saving payment details:', error);
     }
   };

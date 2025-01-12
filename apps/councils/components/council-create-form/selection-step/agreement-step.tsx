@@ -5,13 +5,13 @@ import '@uiw/react-md-editor/markdown-editor.css';
 import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { MarkdownEditor, RadioBox } from 'forms';
+import { FileText } from 'lucide-react';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
-import { SignAgreementIcon } from '../../icons/sign-agreement-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddAgreementAdminModal } from './add-agreement-admin-modal';
@@ -54,7 +54,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     <form className='mx-auto flex w-[600px] flex-col space-y-6 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='space-y-4'>
         <div className='flex items-center gap-2'>
-          <SignAgreementIcon />
+          <FileText />
           <h2 className='text-2xl font-bold'>Sign Agreement</h2>
         </div>
         <p className='text-gray-600'>Add an agreement that Council Members sign and abide by to be on the council.</p>

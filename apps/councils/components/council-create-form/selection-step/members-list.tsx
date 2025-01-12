@@ -1,14 +1,11 @@
 'use client';
 
-import Image from 'next/image';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { FiX } from 'react-icons/fi';
 import { formatAddress } from 'utils';
-import { useEnsAvatar, useEnsName } from 'wagmi';
+import { useEnsName } from 'wagmi';
 
-import { EditIcon } from '../../icons/edit-icon';
-import { TrashIcon } from '../../icons/trash-icon';
 import { AddMemberModal } from './add-member-modal';
 
 interface CouncilMember {
@@ -20,6 +17,7 @@ interface CouncilMember {
 
 interface MembersListProps {
   members: CouncilMember[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   canEdit?: boolean;
 }
@@ -93,18 +91,20 @@ function MemberCard({
         {member.name && <span className='text-sm font-medium text-gray-900'>{member.name}</span>}
         <span className='text-sm text-gray-600'>{ensName || formatAddress(member.address)}</span>
       </div>
+
       {canEdit && (
         <div className='flex items-center gap-3'>
           <button
             type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800'
+            className='flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700'
             onClick={onEdit}
           >
-            <EditIcon />
+            <SquarePen className='h-4 w-4' />
             Edit
           </button>
+
           <button type='button' onClick={() => onRemove(member.id)} className='text-red-700 hover:text-red-800'>
-            <TrashIcon />
+            <Trash2 className='h-4 w-4' />
           </button>
         </div>
       )}

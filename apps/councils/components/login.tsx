@@ -20,7 +20,7 @@ import { useMediaStyles } from 'hooks';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
-import { formatAddress } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -33,29 +33,6 @@ const Login = () => {
     name: ensName as string,
     chainId: 1,
   });
-
-  const getChainIcon = (chainId: number) => {
-    switch (chainId) {
-      case 10:
-        return '/chains/optimism.svg';
-      case 1:
-        return '/chains/ethereum.svg';
-      case 42161:
-        return '/chains/arbitrum.svg';
-      case 8453:
-        return '/chains/base.svg';
-      case 100:
-        return '/chains/gnosis.png';
-      case 137:
-        return '/chains/polygon.svg';
-      case 42220:
-        return '/chains/celo.svg';
-      case 11155111:
-        return '/chains/sepolia.png';
-      default:
-        return undefined;
-    }
-  };
 
   const fallbackAvatar = useMemo(() => {
     if (!user || !user.wallet) return undefined;
@@ -96,7 +73,7 @@ const Login = () => {
         }}
       >
         {chainId && (
-          <Image src={getChainIcon(chainId)} alt='Chain Icon' width='24px' height='24px' objectFit='contain' />
+          <Image src={chainsMap(chainId)?.iconUrl} alt='Chain Icon' width='24px' height='24px' objectFit='contain' />
         )}
       </Button>
 

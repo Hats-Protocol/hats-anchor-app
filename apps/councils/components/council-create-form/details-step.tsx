@@ -1,11 +1,13 @@
 'use client';
 
 import { Spinner } from '@chakra-ui/react';
+import { councilsChainsList } from '@hatsprotocol/constants';
 import { useCouncilForm } from 'contexts';
 import { Input, Textarea } from 'forms';
+import { map, values } from 'lodash';
+import { useMemo } from 'react';
 import { StepProps } from 'types';
 
-import { CHAIN_OPTIONS } from '../../lib/utils/chains';
 import { ChainSelect } from '../chain-select';
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -14,7 +16,15 @@ export function DetailsStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const requirements = form.watch('requirements');
 
-  if (isLoading) {
+  const chainOptions = useMemo(() => {
+    return map(values(councilsChainsList), (chain) => ({
+      value: chain.id.toString(),
+      label: chain.name,
+      icon: chain.iconUrl,
+    }));
+  }, []);
+
+  if (isLoading || !chainOptions) {
     return (
       <div className='flex h-full items-center justify-center'>
         <Spinner size='xl' color='blue.500' />
@@ -59,7 +69,7 @@ export function DetailsStep({ onNext }: StepProps) {
           <ChainSelect
             name='chain'
             form={form}
-            options={CHAIN_OPTIONS}
+            options={chainOptions}
             placeholder='Select a chain'
             isDisabled={!canEdit}
           />

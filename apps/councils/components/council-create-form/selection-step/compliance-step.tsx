@@ -1,15 +1,15 @@
 'use client';
 
-import { Spinner } from '@chakra-ui/react';
+import { Icon, Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { RadioBox } from 'forms';
 import { useState } from 'react';
+import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { StepProps } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
-import { ComplianceCheckIcon } from '../../icons/compliance-check-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddComplianceModal } from './add-compliance-modal';
@@ -56,7 +56,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
   return (
     <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='flex items-center gap-2'>
-        <ComplianceCheckIcon />
+        <Icon as={BsPersonCheck} boxSize={6} />
         <h2 className='text-2xl font-bold'>Pass Compliance Check</h2>
       </div>
 
