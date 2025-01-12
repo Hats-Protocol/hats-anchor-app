@@ -1,13 +1,7 @@
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { concat, filter, first, get, includes, nth } from 'lodash';
-import {
-  AllowlistProfile,
-  AppHat,
-  EligibilityRule,
-  ModuleDetails,
-  ValueOf,
-} from 'types';
+import { AllowlistProfile, AppHat, EligibilityRule, ModuleDetails, ValueOf } from 'types';
 import { Hex } from 'viem';
 
 import { viemPublicClient } from '../web3';
@@ -29,6 +23,7 @@ export type ModuleDetailsHandler = {
   modalSuffix?: string | undefined;
   setIsReadyToClaim?: (address: Hex) => void;
   isReadyToClaim?: { [key: Hex]: boolean };
+  wearerEligibility?: { [key: Hex]: { eligible: boolean; goodStanding: boolean } };
 };
 
 type FallbackModuleResult = {
@@ -42,13 +37,7 @@ export const fallbackModuleCheck = async ({
   wearer,
   selectedHat,
 }: ModuleDetailsHandler): Promise<FallbackModuleResult | undefined> => {
-  if (
-    !moduleDetails?.abi ||
-    !wearer ||
-    !selectedHat?.id ||
-    !selectedHat?.eligibility ||
-    !chainId
-  ) {
+  if (!moduleDetails?.abi || !wearer || !selectedHat?.id || !selectedHat?.eligibility || !chainId) {
     return Promise.resolve(undefined);
   }
   return viemPublicClient(chainId)
@@ -97,13 +86,7 @@ export const fallbackModuleCheck = async ({
 //     });
 // };
 
-export const filterProfiles = ({
-  profiles,
-  wearerIds,
-}: {
-  profiles: AllowlistProfile[];
-  wearerIds: Hex[];
-}) => {
+export const filterProfiles = ({ profiles, wearerIds }: { profiles: AllowlistProfile[]; wearerIds: Hex[] }) => {
   const eligible =
     (filter(profiles, (p) => {
       return get(p, 'eligible') && !get(p, 'badStanding');
@@ -115,8 +98,7 @@ export const filterProfiles = ({
   //   }) || [];
   // const humanistic = filter(profiles, { isContract: false }) || [];
 
-  const wearerProfiles =
-    filter(profiles, (p) => includes(wearerIds, p.id)) || [];
+  const wearerProfiles = filter(profiles, (p) => includes(wearerIds, p.id)) || [];
   const ineligible: AllowlistProfile[] = [];
   const badStanding = filter(profiles, { badStanding: true }) || [];
 

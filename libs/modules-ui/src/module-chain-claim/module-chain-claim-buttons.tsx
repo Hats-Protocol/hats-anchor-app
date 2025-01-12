@@ -5,11 +5,7 @@ import { useEligibility } from 'contexts';
 import { concat, first, flatten, get, map, pick } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
 import { ReactNode } from 'react';
-import {
-  BsCheckSquare,
-  BsCheckSquareFill,
-  BsFillXOctagonFill,
-} from 'react-icons/bs';
+import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule } from 'types';
 
 // TODO hardcode
@@ -72,16 +68,9 @@ const getYesNoForRule = (rule: EligibilityRule) => {
 };
 
 const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
-  const {
-    currentEligibility,
-    activeRule,
-    setActiveRule,
-    isReadyToClaim,
-    chainId,
-  } = useEligibility();
+  const { currentEligibility, activeRule, setActiveRule, isReadyToClaim, chainId } = useEligibility();
   const isEligible =
-    get(currentEligibility, `[${rule.address}].eligible`) &&
-    get(currentEligibility, `[${rule.address}].goodStanding`);
+    get(currentEligibility, `[${rule.address}].eligible`) && get(currentEligibility, `[${rule.address}].goodStanding`);
 
   const yesNoForRule = getYesNoForRule(rule); // use yes/no from rule if available
 
@@ -104,9 +93,7 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
       p={4}
       bg={activeRule?.address === rule.address ? 'white' : 'gray.50'}
       border={activeRule?.address === rule.address ? '2px solid' : '1px solid'}
-      borderColor={
-        activeRule?.address === rule.address ? 'gray.800' : 'gray.300'
-      }
+      borderColor={activeRule?.address === rule.address ? 'gray.800' : 'gray.300'}
       key={rule.address}
     >
       <Stack spacing={1}>
@@ -114,9 +101,7 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
 
         <EligibilityStatus
           isEligible={isEligible}
-          isReadyToClaim={
-            hasAllowance || get(isReadyToClaim, rule.address, false)
-          }
+          isReadyToClaim={hasAllowance || get(isReadyToClaim, rule.address, false)}
           customYesNo={customYesNo || yesNoForRule}
         />
       </Stack>
@@ -153,17 +138,11 @@ interface ModuleChainClaimButtonProps {
 }
 
 const sortRulesForClaims = (rules: EligibilityRule[]) => {
-  const allowlistModules = rules.filter((rule) =>
-    rule.module.id.includes('allowlist'),
-  );
+  const allowlistModules = rules.filter((rule) => rule.module.id.includes('allowlist'));
   const otherModules = rules.filter(
-    (rule) =>
-      !rule.module.id.includes('allowlist') &&
-      !rule.module.id.includes('public-lock-v14'),
+    (rule) => !rule.module.id.includes('allowlist') && !rule.module.id.includes('public-lock-v14'),
   );
-  const subscriptionModules = rules.filter((rule) =>
-    rule.module.id.includes('public-lock-v14'),
-  );
+  const subscriptionModules = rules.filter((rule) => rule.module.id.includes('public-lock-v14'));
 
   // TODO sort rules for claims
   return concat(
@@ -182,10 +161,7 @@ export const ModuleChainClaimButtons = () => {
   return (
     <div className='flex gap-2'>
       {map(sortedRules, (rule) => (
-        <ModuleChainClaimButton
-          key={`${rule.module.id}-${rule.address}`}
-          rule={rule}
-        />
+        <ModuleChainClaimButton key={`${rule.module.id}-${rule.address}`} rule={rule} />
       ))}
     </div>
   );

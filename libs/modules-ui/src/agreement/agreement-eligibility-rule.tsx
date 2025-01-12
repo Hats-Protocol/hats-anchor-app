@@ -10,11 +10,7 @@ import { flatten, get, size } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
-import {
-  BsCheckSquare,
-  BsCheckSquareFill,
-  BsFillXOctagonFill,
-} from 'react-icons/bs';
+import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
@@ -24,9 +20,7 @@ import { ELIGIBILITY_STATUS } from '../eligibility-rules/utils';
 import { AgreementContentModal } from './agreement-content-modal';
 import { AgreementModal } from './agreement-modal';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
 
 const MODAL_NAME = 'agreementManager';
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
@@ -63,26 +57,19 @@ export const AgreementEligibilityRule = ({
       : undefined,
   });
 
+  // TODO or last module in chain
   const onlyModule = size(flatten(ruleSets)) === 1;
-  const moduleEligibility = get(
-    currentEligibility,
-    moduleDetails?.instanceAddress as Hex,
-  );
-  const isEligible =
-    get(moduleEligibility, 'eligible', false) &&
-    get(moduleEligibility, 'goodStanding', false);
+  const moduleEligibility = get(currentEligibility, moduleDetails?.instanceAddress as Hex);
+  const isEligible = get(moduleEligibility, 'eligible', false) && get(moduleEligibility, 'goodStanding', false);
   const isReadyToClaim =
-    !!moduleDetails?.instanceAddress &&
-    get(aggregateIsReadyToClaim, moduleDetails.instanceAddress, false);
+    !!moduleDetails?.instanceAddress && get(aggregateIsReadyToClaim, moduleDetails.instanceAddress, false);
 
   let modalName = `${moduleDetails?.instanceAddress}-${MODAL_NAME}`;
   if (modalSuffix) {
     modalName += modalSuffix;
   }
 
-  const eligibilityModalFlag =
-    posthog.isFeatureEnabled('eligibility-modal') ||
-    process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
 
   if (!moduleDetails?.instanceAddress) return null;
 
@@ -90,13 +77,7 @@ export const AgreementEligibilityRule = ({
   let rule = (
     <Text>
       Sign the{' '}
-      <ChakraNextLink
-        href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(
-          BigInt(hatId),
-        )}`}
-        isExternal
-        decoration
-      >
+      <ChakraNextLink href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(BigInt(hatId))}`} isExternal decoration>
         Agreement
       </ChakraNextLink>
     </Text>
@@ -110,7 +91,6 @@ export const AgreementEligibilityRule = ({
             if (!moduleDetails.instanceAddress) return;
 
             if (onlyModule) {
-              // TODO or last module
               setIsReadyToClaim?.(moduleDetails.instanceAddress);
             }
             setModals?.({ [modalName]: true });
@@ -142,12 +122,7 @@ export const AgreementEligibilityRule = ({
 
   return (
     <>
-      {!IS_CLAIMS_APP && (
-        <AgreementModal
-          eligibilityHatId={selectedHat?.id}
-          moduleInfo={moduleDetails}
-        />
-      )}
+      {!IS_CLAIMS_APP && <AgreementModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />}
       {IS_CLAIMS_APP && (
         <AgreementContentModal
           moduleDetails={moduleDetails}
@@ -156,12 +131,7 @@ export const AgreementEligibilityRule = ({
         />
       )}
 
-      <EligibilityRuleDetails
-        rule={rule}
-        status={status}
-        displayStatus={displayStatus}
-        icon={icon}
-      />
+      <EligibilityRuleDetails rule={rule} status={status} displayStatus={displayStatus} icon={icon} />
     </>
   );
 };

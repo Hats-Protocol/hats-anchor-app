@@ -5,10 +5,7 @@ import { HatWearer } from 'types';
 import { isSameAddress, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 
-export const filterWearers = (
-  searchTerm: string,
-  wearers: HatWearer[] | undefined,
-) => {
+export const filterWearers = (searchTerm: string, wearers: HatWearer[] | undefined) => {
   if (!searchTerm || !wearers || isEmpty(wearers)) return wearers || [];
 
   return filter(wearers, (wearer: HatWearer) => {
@@ -20,11 +17,7 @@ export const filterWearers = (
   });
 };
 
-export const fetchWearersEligibilities = async (
-  wearerIds: Hex[],
-  hatId: Hex,
-  chainId: number,
-) => {
+export const fetchWearersEligibilities = async (wearerIds: Hex[], hatId: Hex, chainId: number) => {
   const eligibilityQueries = flatten(
     map(wearerIds, (wearer: Hex) => [
       {
@@ -54,30 +47,18 @@ export const fetchWearersEligibilities = async (
   }));
 
   const eligibleWearers = map(
-    filter(
-      eligibilityData,
-      ({ isEligible, isInGoodStanding }) => isEligible && isInGoodStanding,
-    ),
+    filter(eligibilityData, ({ isEligible, isInGoodStanding }) => isEligible && isInGoodStanding),
     'wearer',
   );
   const ineligibleWearers = map(
-    filter(
-      eligibilityData,
-      ({ isEligible, isInGoodStanding }) => !isEligible || !isInGoodStanding,
-    ),
+    filter(eligibilityData, ({ isEligible, isInGoodStanding }) => !isEligible || !isInGoodStanding),
     'wearer',
   );
 
   return { eligibilityData, eligibleWearers, ineligibleWearers };
 };
 
-export const sortWearers = ({
-  wearers,
-  address,
-}: {
-  wearers?: HatWearer[];
-  address?: Hex;
-}) => {
+export const sortWearers = ({ wearers, address }: { wearers?: HatWearer[]; address?: Hex }) => {
   if (!wearers) return [];
 
   const currentUser = wearers?.filter((w) => isSameAddress(w.id, address));

@@ -59,7 +59,7 @@ const useCurrentEligibility = ({
   chainId: SupportedChains | undefined;
   wearerAddress: Hex | undefined;
   eligibilityRules: Ruleset[] | undefined;
-  selectedHat: AppHat | undefined;
+  selectedHat: AppHat | undefined; // TODO consider using hatId instead
 }) => {
   const moduleAddresses = map(flatten(eligibilityRules), 'address');
 

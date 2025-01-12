@@ -4,17 +4,14 @@ import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { filter, get, includes, map, toLower } from 'lodash';
-import { useAllowlist } from 'modules-hooks';
+import { useAllowlist, useCurrentEligibility } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 import { AllowlistModal } from './allowlist-modal';
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
@@ -25,14 +22,9 @@ export const AllowlistEligibilityRule = ({
   selectedHat,
   moduleDetails,
   moduleParameters,
+  wearerEligibility,
 }: ModuleDetailsHandler) => {
   const { setModals } = useOverlay();
-  const wearerIds = wearer ? [toLower(wearer) as Hex] : [];
-  const { data: wearerStatus } = useWearersEligibilityStatus({
-    selectedHat,
-    wearerIds,
-    chainId: chainId as SupportedChains,
-  });
 
   const { data: allowlist } = useAllowlist({
     id: moduleDetails?.instanceAddress,
@@ -45,23 +37,18 @@ export const AllowlistEligibilityRule = ({
     ),
     toLower(wearer),
   );
-  const isEligible =
-    includes(get(wearerStatus, 'eligibleWearers'), toLower(wearer)) ||
-    isIncludedInAllowlist;
 
-  const eligibilityModalFlag =
-    posthog.isFeatureEnabled('eligibility-modal') ||
-    process.env.NODE_ENV === 'development';
+  const moduleEligibility = moduleDetails?.instanceAddress && get(wearerEligibility, moduleDetails.instanceAddress);
+  const isEligible = (moduleEligibility?.eligible && moduleEligibility?.goodStanding) || isIncludedInAllowlist;
+
+  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
 
   if (!selectedHat || !moduleDetails?.instanceAddress) return null;
 
   if (isEligible) {
     return (
       <>
-        <AllowlistModal
-          eligibilityHatId={selectedHat?.id}
-          moduleInfo={moduleDetails}
-        />
+        <AllowlistModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />
 
         <EligibilityRuleDetails
           rule={
@@ -71,8 +58,7 @@ export const AllowlistEligibilityRule = ({
                 <Button
                   onClick={() =>
                     setModals?.({
-                      [`${moduleDetails.instanceAddress}-allowlistManager`]:
-                        true,
+                      [`${moduleDetails.instanceAddress}-allowlistManager`]: true,
                     })
                   }
                   variant='link'
