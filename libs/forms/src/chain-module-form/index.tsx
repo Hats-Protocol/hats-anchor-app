@@ -38,7 +38,9 @@ export const ChainModuleForm = () => {
     const clausesLengths = isAnd ? [size(values.modules)] : Array.from({ length: numClauses }, () => 1);
 
     const hatsModulesClient = await createHatsModulesClient(chainId, walletClient);
-    if (!hatsModulesClient) return;
+    if (!hatsModulesClient) {
+      throw new Error('Failed to create Hats Modules client');
+    }
 
     const modules = compact(map(get(values, 'modules'), 'address'));
 
