@@ -1,4 +1,4 @@
-import { StepValidation } from 'contexts';
+import type { StepValidation } from 'types';
 
 interface NextStep {
   step: string;

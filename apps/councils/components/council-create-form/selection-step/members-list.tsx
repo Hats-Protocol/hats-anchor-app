@@ -1,7 +1,8 @@
 'use client';
 
+import { useOverlay } from 'contexts';
 import { SquarePen, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
@@ -20,11 +21,12 @@ interface MembersListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   canEdit?: boolean;
+  editingMember?: CouncilMember | null;
+  setEditingMember: Dispatch<SetStateAction<CouncilMember | null>>;
 }
 
-export function MembersList({ members, form, canEdit = true }: MembersListProps) {
-  const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export function MembersList({ members, form, editingMember, setEditingMember, canEdit = true }: MembersListProps) {
+  const { setModals } = useOverlay();
 
   const handleRemove = (memberId: string) => {
     if (!canEdit) return;
@@ -36,12 +38,7 @@ export function MembersList({ members, form, canEdit = true }: MembersListProps)
   const handleEdit = (member: CouncilMember) => {
     if (!canEdit) return;
     setEditingMember(member);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setEditingMember(null);
-    setIsModalOpen(false);
+    setModals?.({ addMemberModal: true });
   };
 
   return (
@@ -58,13 +55,7 @@ export function MembersList({ members, form, canEdit = true }: MembersListProps)
         ))}
       </div>
 
-      <AddMemberModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        form={form}
-        editingMember={editingMember}
-        canEdit={canEdit}
-      />
+      <AddMemberModal form={form} editingMember={editingMember} setEditingMember={setEditingMember} canEdit={canEdit} />
     </>
   );
 }

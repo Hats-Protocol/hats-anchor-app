@@ -6,14 +6,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
-import {
-  chainsMap,
-  createHatsModulesClient,
-  explorerUrl,
-  formatAddress,
-} from 'utils';
+import { chainsMap, createHatsModulesClient, explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useWalletClient } from 'wagmi';
 
 import { Input, RadioBox } from '../components';
 import ModuleDetailsForm from './module-details-form';
@@ -28,6 +23,7 @@ export const ChainModuleForm = () => {
   const localForm = useForm();
   const [newInstance, setNewInstance] = useState<Hex | undefined>();
   const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
   const chainId = useChainId();
   const { handleSubmit, control, reset } = localForm;
   const { fields, append, remove } = useFieldArray({
@@ -39,24 +35,21 @@ export const ChainModuleForm = () => {
     console.log(values);
     const isAnd = values.chainType === 'and';
     const numClauses = isAnd ? 1 : size(values.modules);
-    const clausesLengths = isAnd
-      ? [size(values.modules)]
-      : Array.from({ length: numClauses }, () => 1);
+    const clausesLengths = isAnd ? [size(values.modules)] : Array.from({ length: numClauses }, () => 1);
 
-    const hatsModulesClient = await createHatsModulesClient(chainId);
+    const hatsModulesClient = await createHatsModulesClient(chainId, walletClient);
     if (!hatsModulesClient) return;
 
     const modules = compact(map(get(values, 'modules'), 'address'));
 
-    const createInstanceResult =
-      await hatsModulesClient.createEligibilitiesChain({
-        account: address as string,
-        hatId: BigInt(values.hatId),
-        numClauses,
-        clausesLengths,
-        modules,
-        saltNonce: 0n,
-      });
+    const createInstanceResult = await hatsModulesClient.createEligibilitiesChain({
+      account: address as string,
+      hatId: BigInt(values.hatId),
+      numClauses,
+      clausesLengths,
+      modules,
+      saltNonce: 0n,
+    });
 
     setNewInstance(get(createInstanceResult, 'newInstance'));
   };
@@ -79,13 +72,7 @@ export const ChainModuleForm = () => {
         <h2 className='text-2xl font-bold'>Deploy Module Chain</h2>
       </div>
 
-      <Input
-        name='hatId'
-        placeholder='0x...'
-        label='Hat ID'
-        options={{ required: true }}
-        localForm={localForm}
-      />
+      <Input name='hatId' placeholder='0x...' label='Hat ID' options={{ required: true }} localForm={localForm} />
 
       <RadioBox
         name='chainType'

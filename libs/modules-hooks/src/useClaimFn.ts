@@ -1,10 +1,5 @@
 import { useDisclosure } from '@chakra-ui/react';
-import {
-  CLAIM_STATUS,
-  CONFIG,
-  ELIGIBILITY_MODULES,
-  TOASTS,
-} from '@hatsprotocol/constants';
+import { CLAIM_STATUS, CONFIG, ELIGIBILITY_MODULES, TOASTS } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,13 +7,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { useAgreementClaimsHatterContractWrite } from 'hooks';
 import { find, get, pick } from 'lodash';
 import { useMemo, useState } from 'react';
-import {
-  AppHat,
-  HandlePendingTx,
-  ModuleDetails,
-  SupportedChains,
-  ToastProps,
-} from 'types';
+import { AppHat, HandlePendingTx, ModuleDetails, SupportedChains, ToastProps } from 'types';
 import { Hex } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 
@@ -36,36 +25,30 @@ export const useClaimFn = ({
   chainId,
   isReadyToClaim,
 }: UseClaimFnProps) => {
-  const [status, setStatus] = useState<
-    (typeof CLAIM_STATUS)[keyof typeof CLAIM_STATUS]
-  >(CLAIM_STATUS.PENDING);
+  const [status, setStatus] = useState<(typeof CLAIM_STATUS)[keyof typeof CLAIM_STATUS]>(CLAIM_STATUS.PENDING);
 
   const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { address } = useAccount();
 
-  const { data: wearerHats, isLoading: isLoadingWearerDetails } =
-    useWearerDetails({
-      wearerAddress: address as Hex,
-      chainId,
-    });
+  const { data: wearerHats, isLoading: isLoadingWearerDetails } = useWearerDetails({
+    wearerAddress: address as Hex,
+    chainId,
+  });
   const isWearing = find(wearerHats, { id: selectedHat?.id });
 
   const { data: isEligible } = useReadContract({
     address: CONFIG.hatsAddress,
     abi: HATS_ABI,
     functionName: 'isEligible',
-    args: [
-      address as Hex,
-      selectedHat?.id ? BigInt(selectedHat.id) : BigInt(0),
-    ],
+    args: [address as Hex, selectedHat?.id ? BigInt(selectedHat.id) : BigInt(0)],
     chainId,
   });
 
   const {
     instanceAddress: mchAddress,
-    currentHatIsClaimable,
-    hatterIsAdmin,
+    // currentHatIsClaimable,
+    // hatterIsAdmin,
   } = useMultiClaimsHatterCheck({
     chainId,
     selectedHat,
@@ -88,46 +71,43 @@ export const useClaimFn = ({
   });
 
   // AGREEMENT v1
-  const { signAndClaim: agreementClaim, isLoading: isLoadingAgreementClaim } =
-    useAgreementClaim({
-      moduleParameters,
-      moduleDetails,
-      chainId,
-      mchAddress,
-      onSuccessfulSign: () => {
-        setStatus(CLAIM_STATUS.SUCCESS);
+  const { signAndClaim: agreementClaim } = useAgreementClaim({
+    moduleParameters,
+    moduleDetails,
+    chainId,
+    mchAddress,
+    onSuccessfulSign: () => {
+      setStatus(CLAIM_STATUS.SUCCESS);
 
-        queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
-        queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-      },
-      onDecline: () => {
-        setStatus(CLAIM_STATUS.DECLINED);
-      },
-    });
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+    },
+    onDecline: () => {
+      setStatus(CLAIM_STATUS.DECLINED);
+    },
+  });
 
   // AGREEMENT v0
-  const { writeAsync: agreementV0Claim } =
-    useAgreementClaimsHatterContractWrite({
-      functionName: 'claimHatWithAgreement',
-      address: CONFIG.agreementV0.hatterAddress as Hex,
-      chainId,
-      handlePendingTx,
-      enabled:
-        Boolean(COMMUNITY_HAT_ID) && !isLoadingWearerDetails && !isWearing,
-      successToastData: TOASTS.claimHatWithAgreement as ToastProps,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
-        queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
-        queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
-        queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-        queryClient.invalidateQueries({ queryKey: ['readContract'] });
+  const { writeAsync: agreementV0Claim } = useAgreementClaimsHatterContractWrite({
+    functionName: 'claimHatWithAgreement',
+    address: CONFIG.agreementV0.hatterAddress as Hex,
+    chainId,
+    handlePendingTx,
+    enabled: Boolean(COMMUNITY_HAT_ID) && !isLoadingWearerDetails && !isWearing,
+    successToastData: TOASTS.claimHatWithAgreement as ToastProps,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+      queryClient.invalidateQueries({ queryKey: ['readContract'] });
 
-        setStatus(CLAIM_STATUS.SUCCESS);
-      },
-      onDecline: () => {
-        setStatus(CLAIM_STATUS.DECLINED);
-      },
-    });
+      setStatus(CLAIM_STATUS.SUCCESS);
+    },
+    onDecline: () => {
+      setStatus(CLAIM_STATUS.DECLINED);
+    },
+  });
 
   const claimHandlers = useMemo(() => {
     if (selectedHat?.id === CONFIG.agreementV0.communityHatId) {
@@ -149,14 +129,9 @@ export const useClaimFn = ({
     if (moduleDetails?.name === ELIGIBILITY_MODULES.agreement) {
       return {
         claimFn: agreementClaim,
-        disableClaim: !get(
-          isReadyToClaim,
-          moduleDetails?.instanceAddress,
-          false,
-        ),
+        disableClaim: !get(isReadyToClaim, moduleDetails?.instanceAddress, false),
       };
     }
-
 
     if (moduleDetails?.name === ELIGIBILITY_MODULES.unlock) {
       return {
@@ -186,10 +161,7 @@ export const useClaimFn = ({
   ]);
 
   const handleClaim = async () => {
-    const { claimFn, disableClaim } = pick(claimHandlers, [
-      'claimFn',
-      'disableClaim',
-    ]);
+    const { claimFn, disableClaim } = pick(claimHandlers, ['claimFn', 'disableClaim']);
     if (!claimFn || disableClaim) {
       // eslint-disable-next-line no-console
       console.log('claim disabled');

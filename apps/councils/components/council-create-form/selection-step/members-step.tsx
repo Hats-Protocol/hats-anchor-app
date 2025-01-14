@@ -1,10 +1,10 @@
 'use client';
 
 import { Spinner } from '@chakra-ui/react';
-import { useCouncilForm } from 'contexts';
+import { useCouncilForm, useOverlay } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { StepProps } from 'types';
+import { CouncilMember, StepProps } from 'types';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -13,7 +13,8 @@ import { MembersList } from './members-list';
 
 export function SelectionMembersStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setModals } = useOverlay();
+  const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
 
@@ -41,14 +42,20 @@ export function SelectionMembersStep({ onNext }: StepProps) {
 
         {members.length > 0 && (
           <div>
-            <MembersList members={members} form={form} canEdit={canEdit} />
+            <MembersList
+              members={members}
+              form={form}
+              canEdit={canEdit}
+              editingMember={editingMember}
+              setEditingMember={setEditingMember}
+            />
           </div>
         )}
 
         <div className='flex items-center justify-between'>
           <button
             type='button'
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setModals?.({ addMemberModal: true })}
             disabled={!canEdit}
             className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
               !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-sky-50'
@@ -66,7 +73,7 @@ export function SelectionMembersStep({ onNext }: StepProps) {
         </NextStepButton>
       </div>
 
-      <AddMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} canEdit={canEdit} />
+      <AddMemberModal form={form} editingMember={editingMember} setEditingMember={setEditingMember} canEdit={canEdit} />
     </form>
   );
 }

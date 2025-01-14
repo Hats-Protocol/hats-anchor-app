@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Collapse,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Collapse, Flex, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import posthog from 'posthog-js';
 import React, { useState } from 'react';
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
@@ -40,17 +31,10 @@ const Accordion = ({
 
   return (
     <Flex direction='column' w='100%'>
-      <Flex
-        direction='column'
-        onClick={handleToggle}
-        _hover={{ cursor: 'pointer' }}
-      >
+      <Flex direction='column' onClick={handleToggle} _hover={{ cursor: 'pointer' }}>
         <Flex alignItems='center'>
           <HStack>
-            <Icon
-              as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare}
-              boxSize={5}
-            />
+            <Icon as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare} boxSize={5} />
             <Heading variant='lightMedium'>{title}</Heading>
           </HStack>
         </Flex>
@@ -66,9 +50,7 @@ const Accordion = ({
       {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
         <Box fontSize='sm' ml={7} color='cyan.900' mt={2}>
           <Text size='medium'>Edits:</Text>
-          {dirtyFieldsList?.map((field) => (
-            <Text key={field}>- {field} changed</Text>
-          ))}
+          {dirtyFieldsList?.map((field) => <Text key={field}>- {field} changed</Text>)}
         </Box>
       )}
 

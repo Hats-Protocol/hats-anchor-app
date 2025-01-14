@@ -76,9 +76,7 @@ export const AGREEMENT_CLAIMS_HATTER_ABI = [
   },
   {
     anonymous: false,
-    inputs: [
-      { indexed: false, internalType: 'uint8', name: 'version', type: 'uint8' },
-    ],
+    inputs: [{ indexed: false, internalType: 'uint8', name: 'version', type: 'uint8' }],
     name: 'Initialized',
     type: 'event',
   },
@@ -127,9 +125,7 @@ export const AGREEMENT_CLAIMS_HATTER_ABI = [
   {
     inputs: [{ internalType: 'address', name: 'claimer', type: 'address' }],
     name: 'claimerAgreements',
-    outputs: [
-      { internalType: 'uint256', name: 'agreementId', type: 'uint256' },
-    ],
+    outputs: [{ internalType: 'uint256', name: 'agreementId', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
   },

@@ -27,16 +27,12 @@ const useHatStatusCheck = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [toggleIsContract, setToggleIsContract] = useState(false);
   const [testingToggle, setTestingToggle] = useState(false);
-  const hatDecimalId =
-    _.get(hatData, 'id') && hatIdHexToDecimal(_.get(hatData, 'id') as string);
+  const hatDecimalId = _.get(hatData, 'id') && hatIdHexToDecimal(_.get(hatData, 'id') as string);
 
   useEffect(() => {
     const testToggle = async () => {
       setTestingToggle(true);
-      const localData = await checkAddressIsContract(
-        hatData?.toggle as Hex,
-        chainId,
-      );
+      const localData = await checkAddressIsContract(hatData?.toggle as Hex, chainId);
       setToggleIsContract(localData);
       setTestingToggle(false);
     };
@@ -58,10 +54,7 @@ const useHatStatusCheck = ({
       });
     } else {
       const logData = _.get(_.first(logs), 'data');
-      const newHatStatus =
-        _.first(_.slice(logData, -1, _.size(logData))) === '1'
-          ? STATUS.ACTIVE
-          : STATUS.INACTIVE;
+      const newHatStatus = _.first(_.slice(logData, -1, _.size(logData))) === '1' ? STATUS.ACTIVE : STATUS.INACTIVE;
 
       toast.success({
         title: txDescription,
@@ -78,8 +71,7 @@ const useHatStatusCheck = ({
   };
 
   const writeAsync = async () => {
-    if (!hatDecimalId || !toggleIsContract || currentNetworkId !== chainId)
-      return null;
+    if (!hatDecimalId || !toggleIsContract || currentNetworkId !== chainId) return null;
 
     return writeContractAsync({
       address: CONFIG.hatsAddress,
@@ -108,8 +100,7 @@ const useHatStatusCheck = ({
       })
       .catch((error) => {
         if (
-          (error.name === 'TransactionExecutionError' ||
-            error.name === 'ContractFunctionExecutionError') &&
+          (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
           toast.error({

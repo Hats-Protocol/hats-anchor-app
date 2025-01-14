@@ -1,13 +1,13 @@
 'use client';
 
 import { Icon } from '@chakra-ui/react';
-import { useCouncilForm } from 'contexts';
+import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import { get, map, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquareCheck, SquarePen, SquareX } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
@@ -116,7 +116,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { form, stepValidation, deployCouncil, isDeploying, canEdit } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const { setModals } = useOverlay();
   const payer = form.watch('payer');
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -151,40 +151,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   };
 
   const handleDeploy = async () => {
-    try {
-      const result = await deployCouncil();
-
-      if (result.success) {
-        // toast({
-        //   title: 'Council deployed successfully',
-        //   description: `Transaction hash: ${result.transactionHash}`,
-        //   status: 'success',
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
-        // Redirect to a success page or the new council page
-        router.push('/councils');
-      } else {
-        console.log('result', result);
-        // toast({
-        //   title: 'Deployment failed',
-        //   description: result.error || 'Unknown error occurred',
-        //   status: 'error',
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
-      }
-    } catch (error) {
-      console.error('Error deploying council', error);
-      // toast({
-      //   title: 'Deployment failed',
-      //   description:
-      //     error instanceof Error ? error.message : 'Unknown error occurred',
-      //   status: 'error',
-      //   duration: 5000,
-      //   isClosable: true,
-      // });
-    }
+    deployCouncil();
   };
 
   const tokenFields = ['symbol', 'name', 'decimals'];
@@ -218,12 +185,12 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         </div>
         <div className='text-center'>
           <h2 className='text-3xl font-medium'>{formData.councilName}</h2>
-          <p className='mt-1'>
+          <div className='mt-1 flex gap-1'>
             <span className='text-gray-900'>by</span>{' '}
             <span className='text-gray-500'>
               {firstAdmin?.name || <MemberItem member={firstAdmin || { address: '' }} />}
             </span>
-          </p>
+          </div>
         </div>
       </div>
 
@@ -367,7 +334,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               {payer ? (
                 <button
                   type='button'
-                  onClick={() => setIsPaymentModalOpen(true)}
+                  onClick={() => setModals?.({ paymentDetailsModal: true })}
                   disabled={!canEdit}
                   className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
                     !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'
@@ -381,7 +348,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               ) : (
                 <NextStepButton
                   type='button'
-                  onClick={() => setIsPaymentModalOpen(true)}
+                  onClick={() => setModals?.({ paymentDetailsModal: true })}
                   disabled={!canEdit}
                   withIcon={false}
                 >
@@ -437,13 +404,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         )}
       </div>
 
-      <PaymentDetailsModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        form={form}
-        draftId={draftId}
-        canEdit={canEdit}
-      />
+      <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
     </div>
   );
 };

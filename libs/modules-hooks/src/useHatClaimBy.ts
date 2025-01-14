@@ -8,26 +8,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, SupportedChains, SyncTxHandler } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
-import {
-  useAccount,
-  useChainId,
-  useReadContracts,
-  useWriteContract,
-} from 'wagmi';
+import { useAccount, useChainId, useReadContracts, useWalletClient, useWriteContract } from 'wagmi';
 
-const useHatClaimBy = ({
-  selectedHat,
-  chainId,
-  wearer,
-  handlePendingTx,
-  afterSuccess,
-}: UseHatClaimByProps) => {
+const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuccess }: UseHatClaimByProps) => {
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
   const currentChainId = useChainId();
   const toast = useToast();
   const isCurrentWearer = address === wearer;
   const queryClient = useQueryClient();
+  const { data: walletClient } = useWalletClient();
 
   const claimsHatterAddress: Hex | undefined = useMemo(
     () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id') as Hex,
@@ -63,7 +53,7 @@ const useHatClaimBy = ({
   useEffect(() => {
     const getHatter = async () => {
       if (chainId !== currentChainId) return; // This is due to an error thrown based on the 'current chain' in wagmi config
-      const moduleClient = await createHatsModulesClient(chainId); // used to create the module client here
+      const moduleClient = await createHatsModulesClient(chainId, walletClient); // used to create the module client here
       if (!moduleClient) return;
       const modules = moduleClient?.getModules();
       if (!modules) return;
@@ -103,17 +93,14 @@ const useHatClaimBy = ({
           description: 'Waiting for your transaction to be accepted...',
         });
 
-        // TODO add hat name
-        const txDescription = selectedHat?.id
-          ? `You've claimed Hat ${hatIdDecimalToIp(BigInt(selectedHat?.id))}`
-          : '';
+        const txDescription = selectedHat?.id ? `You've claimed Hat ${hatIdDecimalToIp(BigInt(selectedHat?.id))}` : ''; // TODO add hat name
 
         handlePendingTx?.({
           hash,
           txChainId: chainId,
           txDescription,
           successToastData: {
-            title: 'Hat claimed!',
+            title: 'Hat claimed!', // TODO add hat name
             description: txDescription,
           },
           waitForSubgraph,
@@ -122,8 +109,7 @@ const useHatClaimBy = ({
       })
       .catch((error) => {
         if (
-          (error.name === 'TransactionExecutionError' ||
-            error.name === 'ContractFunctionExecutionError') &&
+          (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
           toast.error({

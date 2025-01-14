@@ -4,11 +4,13 @@ import { Center, Spinner } from '@chakra-ui/react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { councilsGraphqlClient, CREATE_INITIAL_FORM, CREATE_USER } from 'utils';
+import { councilsGraphqlClient, CREATE_INITIAL_FORM, CREATE_USER, logger } from 'utils';
+import { useChainId } from 'wagmi';
 
 const NewCouncil = () => {
   const router = useRouter();
   const { user, authenticated, ready } = usePrivy();
+  const chainId = useChainId();
   const hasAttemptedCreate = useRef(false);
 
   useEffect(() => {
@@ -16,6 +18,7 @@ const NewCouncil = () => {
     if (hasAttemptedCreate.current) return;
     if (!authenticated) return;
     if (!user?.wallet?.address || !user?.email?.address) return;
+    if (!chainId) return;
 
     const createForm = async () => {
       try {
@@ -42,7 +45,7 @@ const NewCouncil = () => {
           };
         } = await councilsGraphqlClient.request(CREATE_INITIAL_FORM, {
           creator: user!.wallet!.address,
-          chain: 10,
+          chain: chainId,
           admins: [
             {
               id: userResult.createUser.id,
@@ -56,13 +59,13 @@ const NewCouncil = () => {
         const formId = result.createCouncilCreationForm.id;
         router.push(`/councils/new/details?draftId=${formId}`);
       } catch (error) {
-        console.error('Error creating council form:', error);
+        logger.error('Error creating council form:', error);
         hasAttemptedCreate.current = false;
       }
     };
 
     createForm();
-  }, [ready, authenticated, user, router]);
+  }, [ready, authenticated, user, chainId, router]);
 
   return (
     <Center minH='100vh'>

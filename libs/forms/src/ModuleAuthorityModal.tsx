@@ -80,23 +80,17 @@ const ModuleAuthorityModal = ({
   return (
     <Modal
       name={`functionCall-${authority?.label}-${index}`}
-      title={`${capitalize(
-        get(selectedFunction, 'label'),
-      )} for Hat #${authorityHatId}`}
+      title={`${capitalize(get(selectedFunction, 'label'))} for Hat #${authorityHatId}`}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={6}>
           <Stack spacing={1}>
-            {get(selectedFunction, 'description') && (
-              <Text>{get(selectedFunction, 'description')}</Text>
-            )}
+            {get(selectedFunction, 'description') && <Text>{get(selectedFunction, 'description')}</Text>}
           </Stack>
 
           <Stack>
             <ModuleArgsForm
-              selectedModuleArgs={
-                get(selectedFunction, 'args', []) as ModuleCreationArg[]
-              }
+              selectedModuleArgs={get(selectedFunction, 'args', []) as ModuleCreationArg[]}
               localForm={localForm}
               hideIcon
               noMargin

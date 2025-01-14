@@ -27,10 +27,7 @@ const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
       };
     });
 
-    const networksWithTrees: NetworkTreesMap = _.omitBy(
-      networkTrees,
-      (v: NetworkTrees) => _.isEmpty(v.trees),
-    );
+    const networksWithTrees: NetworkTreesMap = _.omitBy(networkTrees, (v: NetworkTrees) => _.isEmpty(v.trees));
     const networkChains = _.keys(networksWithTrees);
 
     // fetch the trees for each network
@@ -53,9 +50,8 @@ const useHatsAdminOf = ({ hats }: { hats: AppHat[] | undefined }) => {
 
     // TODO [md - linked] add another lookup for linked trees/hats
     // filter out the hats that the user is not an admin of
-    const filteredAdminHats = _.filter(
-      _.flatten(consolidateTrees),
-      (h: AppHat) => isWearingAdminHat(_.map(hats, 'id'), h.id),
+    const filteredAdminHats = _.filter(_.flatten(consolidateTrees), (h: AppHat) =>
+      isWearingAdminHat(_.map(hats, 'id'), h.id),
     );
 
     return filteredAdminHats;

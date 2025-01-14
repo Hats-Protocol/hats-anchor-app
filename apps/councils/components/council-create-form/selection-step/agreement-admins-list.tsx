@@ -1,9 +1,10 @@
 'use client';
 
-import type { CouncilFormData } from 'contexts';
+import { useOverlay } from 'contexts';
 import { SquarePen, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import type { CouncilFormData, CouncilMember } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
@@ -13,18 +14,18 @@ interface AgreementAdminsListProps {
   agreementAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
+  editingAdmin: CouncilMember | null;
+  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
 }
 
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
-}
-
-export function AgreementAdminsList({ agreementAdmins, form, canEdit = true }: AgreementAdminsListProps) {
-  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export function AgreementAdminsList({
+  agreementAdmins,
+  form,
+  canEdit = true,
+  editingAdmin,
+  setEditingAdmin,
+}: AgreementAdminsListProps) {
+  const { setModals } = useOverlay();
 
   const handleRemove = (adminId: string) => {
     if (!canEdit) return;
@@ -36,12 +37,7 @@ export function AgreementAdminsList({ agreementAdmins, form, canEdit = true }: A
   const handleEdit = (admin: CouncilMember) => {
     if (!canEdit) return;
     setEditingAdmin(admin);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setEditingAdmin(null);
-    setIsModalOpen(false);
+    setModals?.({ addAgreementAdminModal: true });
   };
 
   return (
@@ -59,10 +55,9 @@ export function AgreementAdminsList({ agreementAdmins, form, canEdit = true }: A
       </div>
 
       <AddAgreementAdminModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
         form={form}
         editingAdmin={editingAdmin}
+        setEditingAdmin={setEditingAdmin}
         canEdit={canEdit}
       />
     </>

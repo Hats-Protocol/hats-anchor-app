@@ -5,13 +5,14 @@ import { getChainTokens } from '@hatsprotocol/constants';
 import { useCouncilForm } from 'contexts';
 import { toNumber } from 'lodash';
 import { GemIcon } from 'lucide-react';
+import { StepProps } from 'types';
 
 import { NextStepButton } from '../../next-step-button';
 import { TokenNumberInput } from '../../token-number-input';
 import { TokenSelect } from '../../token-select';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 
-export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
+export function SelectionTokensStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const requirements = form.watch('requirements');
   const selectedChain = form.watch('chain');

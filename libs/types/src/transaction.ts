@@ -2,12 +2,8 @@ import { Hex, TransactionReceipt } from 'viem';
 
 import { ToastProps } from './toast';
 
-export type AsyncTxHandler =
-  | ((data?: TransactionReceipt | undefined) => Promise<unknown>)
-  | undefined;
-export type SyncTxHandler =
-  | ((data?: TransactionReceipt | undefined) => void)
-  | undefined;
+export type AsyncTxHandler = ((data?: TransactionReceipt | undefined) => Promise<unknown>) | undefined;
+export type SyncTxHandler = ((data?: TransactionReceipt | undefined) => void) | undefined;
 
 export type HandlePendingTxProps = {
   hash: Hex;
@@ -25,6 +21,4 @@ export type HandlePendingTxProps = {
   sendSuccessToast?: boolean;
 };
 
-export type HandlePendingTx = (
-  props: HandlePendingTxProps,
-) => Promise<TransactionReceipt | undefined>;
+export type HandlePendingTx = (props: HandlePendingTxProps) => Promise<TransactionReceipt | undefined>;

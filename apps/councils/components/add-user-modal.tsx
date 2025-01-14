@@ -8,7 +8,7 @@ import { capitalize, map, some, toLower } from 'lodash';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
-import { chainsMap, isValidEmail } from 'utils';
+import { chainsMap, isValidEmail, logger } from 'utils';
 import { isAddress } from 'viem';
 
 interface CouncilMemberDetails {
@@ -93,6 +93,7 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser,
       ...data,
       id: editingUser?.id || '',
     });
+    logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
     afterSuccess?.(createdOrUpdatedUser);
   };

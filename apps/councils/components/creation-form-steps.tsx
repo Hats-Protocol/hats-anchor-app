@@ -1,8 +1,11 @@
 'use client';
 
-import { StepValidation, useCouncilForm } from 'contexts';
+import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import type { StepValidation } from 'types';
+import { logger } from 'utils';
 
 interface Step {
   id: keyof StepValidation;
@@ -41,7 +44,8 @@ const BASE_STEPS: Step[] = [
 ];
 
 // Helper function to get step summary
-function getStepSummary(step: Step, form: any, stepValidation: StepValidation) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: StepValidation) {
   // If step is not valid, show sublabel
   if (!getStepValidation(step, stepValidation, form.watch('requirements'))) {
     return step.sublabel;
@@ -142,7 +146,7 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
           router.push(`/councils/new/${targetStep}?draftId=${draftId}`);
         }
       } catch (error) {
-        console.error('Failed to save step data:', error);
+        logger.error('Failed to save step data:', error);
         // Add error notification here
       } finally {
         setIsNavigating(false);

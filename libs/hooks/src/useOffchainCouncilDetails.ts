@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get } from 'lodash';
-import { CouncilMember } from 'types';
+// import { CouncilMember } from 'types';
 import { councilsGraphqlClient } from 'utils';
 
 // TODO support safe or id
-// TODO handle chainId
 const GET_COUNCIL = gql`
-  query getCouncil($id: ID!) {
-    # council(where: { hsg: $id }) {
-    council(id: $id) {
+  query getCouncil($hsg: String, $chainId: Int!) {
+    councils(where: { hsg: $hsg, chain: $chainId }) {
       id
       hsg
       membersSelectionModule
@@ -30,19 +28,21 @@ type OffchainCouncilData = {
 };
 
 const getOffchainCouncilData = async ({
-  id,
+  hsg,
+  safe,
   chainId,
 }: {
-  id: string;
+  hsg?: string;
+  safe?: string;
   chainId: number;
 }): Promise<OffchainCouncilData | null> => {
+  // TODO handle safe
   return councilsGraphqlClient
     .request<{
       council: OffchainCouncilData;
-    }>(GET_COUNCIL, { id }) // { id, chainId }) // TODO
+    }>(GET_COUNCIL, { hsg, chainId })
     .then((data) => {
-      console.log(data);
-      return get(data, 'council', null);
+      return get(data, 'councils.[0]', null);
     })
     .catch((error) => {
       // eslint-disable-next-line no-console
@@ -51,9 +51,9 @@ const getOffchainCouncilData = async ({
     });
 };
 
-export const useOffchainCouncilDetails = ({ id, chainId }: { id: string; chainId: number }) => {
+export const useOffchainCouncilDetails = ({ hsg, chainId }: { hsg: string; chainId: number }) => {
   return useQuery({
-    queryKey: ['offchainCouncilData', chainId, id],
-    queryFn: () => getOffchainCouncilData({ id, chainId }),
+    queryKey: ['offchainCouncilData', { chainId, hsg }],
+    queryFn: () => getOffchainCouncilData({ hsg, chainId }),
   });
 };

@@ -3,13 +3,7 @@ import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { AppHat, SupportedChains } from 'types';
 import { useReadContract } from 'wagmi';
 
-const useHatStatus = ({
-  selectedHat,
-  chainId,
-}: {
-  selectedHat?: AppHat;
-  chainId: SupportedChains | undefined;
-}) => {
+const useHatStatus = ({ selectedHat, chainId }: { selectedHat?: AppHat; chainId: SupportedChains | undefined }) => {
   const hatId = selectedHat?.id || 'none';
 
   const { data, isLoading } = useReadContract({

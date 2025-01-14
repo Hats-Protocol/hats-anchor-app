@@ -4,26 +4,9 @@ import { useLocalStorage, useToast } from 'hooks';
 import _ from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import {
-  AppModals,
-  HandlePendingTxProps,
-  OverlayContextProps,
-  Transaction,
-} from 'types';
-import {
-  checkTransactionStatus,
-  invalidateAfterTransaction,
-  viemPublicClient,
-} from 'utils';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AppModals, HandlePendingTxProps, OverlayContextProps, Transaction } from 'types';
+import { checkTransactionStatus, invalidateAfterTransaction, viemPublicClient } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 
 const defaultModals: AppModals = {
@@ -66,11 +49,7 @@ interface SavedTree {
   chainId: number;
 }
 
-export const OverlayContextProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const OverlayContextProvider = ({ children }: { children: ReactNode }) => {
   // HOOKS
   const toast = useToast();
   const router = useRouter();
@@ -81,10 +60,7 @@ export const OverlayContextProvider = ({
   const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
   const [commandPalette, setCommandPalette] = useState(false);
   // TODO don't need to have these hooked probably, use getter/setters individually when needed
-  const [transactions, setTransactions] = useLocalStorage<Transaction[]>(
-    'transactions',
-    [],
-  );
+  const [transactions, setTransactions] = useLocalStorage<Transaction[]>('transactions', []);
 
   // TODO move to command palette
   const [recentlyVisitedTrees, setRecentlyVisitedTrees] = useLocalStorage<
@@ -94,14 +70,11 @@ export const OverlayContextProvider = ({
   const updateRecentlyVisitedTrees = useCallback(
     ({ treeId: localTreeId, chainId: cId }: SavedTree) => {
       if (!localTreeId || !cId) return;
-      const localRecentTrees = _.compact(
-        _.concat([{ treeId: localTreeId, chainId: cId }], recentlyVisitedTrees),
-      );
+      const localRecentTrees = _.compact(_.concat([{ treeId: localTreeId, chainId: cId }], recentlyVisitedTrees));
 
       const uniqueTrees = _.uniqWith(
         localRecentTrees,
-        (treeA: SavedTree, treeB: SavedTree) =>
-          treeA.treeId === treeB.treeId && treeA.chainId === treeB.chainId,
+        (treeA: SavedTree, treeB: SavedTree) => treeA.treeId === treeB.treeId && treeA.chainId === treeB.chainId,
       );
 
       if (!_.isEqual(uniqueTrees, recentlyVisitedTrees)) {
@@ -139,9 +112,7 @@ export const OverlayContextProvider = ({
       setTransactions((prevTransactions) => {
         if (!prevTransactions.length) return prevTransactions;
 
-        const updatedTransactions = prevTransactions.map((tx) =>
-          tx.hash === hash ? { ...tx, status } : tx,
-        );
+        const updatedTransactions = prevTransactions.map((tx) => (tx.hash === hash ? { ...tx, status } : tx));
 
         return updatedTransactions;
       });
@@ -207,9 +178,7 @@ export const OverlayContextProvider = ({
         });
       }
 
-      const txReceipt = await viemPublicClient(
-        txChainId || 1,
-      ).waitForTransactionReceipt({
+      const txReceipt = await viemPublicClient(txChainId || 1).waitForTransactionReceipt({
         hash,
       });
 
@@ -255,9 +224,7 @@ export const OverlayContextProvider = ({
   const txPending = useMemo(() => {
     const multicallTx = _.filter(
       transactions,
-      (tx) =>
-        tx.txDescription?.includes('Updated') ||
-        tx.txDescription?.includes('Created'),
+      (tx) => tx.txDescription?.includes('Updated') || tx.txDescription?.includes('Created'),
     );
     return !_.isEmpty(_.filter(multicallTx, { status: 'pending' }));
   }, [transactions]);
@@ -319,11 +286,7 @@ export const OverlayContextProvider = ({
     ],
   );
 
-  return (
-    <OverlayContext.Provider value={returnValue}>
-      {children}
-    </OverlayContext.Provider>
-  );
+  return <OverlayContext.Provider value={returnValue}>{children}</OverlayContext.Provider>;
 };
 
 export const useOverlay = () => useContext(OverlayContext);

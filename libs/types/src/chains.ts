@@ -1,3 +1,5 @@
+import type { Chain } from 'viem';
+
 export type SupportedChains =
   | 1 // mainnet
   | 10 // optimism

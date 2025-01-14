@@ -1,8 +1,8 @@
 'use client';
 
-import type { CouncilFormData } from 'contexts';
+import { useOverlay } from 'contexts';
 import { SquarePen, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilMember } from 'types';
 import { formatAddress } from 'utils';
@@ -13,13 +13,15 @@ import { AddAdminModal } from './add-admin-modal';
 interface AdminsListProps {
   name: string;
   admins: CouncilMember[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>; // CouncilFormData
   canEdit?: boolean;
+  editingAdmin: CouncilMember | null;
+  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
 }
 
-export function AdminsList({ name, admins, form, canEdit = true }: AdminsListProps) {
-  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export function AdminsList({ admins, form, canEdit = true, editingAdmin, setEditingAdmin }: AdminsListProps) {
+  const { setModals } = useOverlay();
 
   const handleRemove = (adminId: string) => {
     const currentAdmins = form.getValues('admins') || [];
@@ -29,12 +31,7 @@ export function AdminsList({ name, admins, form, canEdit = true }: AdminsListPro
 
   const handleEdit = (admin: CouncilMember) => {
     setEditingAdmin(admin);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setEditingAdmin(null);
-    setIsModalOpen(false);
+    setModals?.({ addAdminModal: true });
   };
 
   return (
@@ -51,13 +48,7 @@ export function AdminsList({ name, admins, form, canEdit = true }: AdminsListPro
         ))}
       </div>
 
-      <AddAdminModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        form={form}
-        editingAdmin={editingAdmin}
-        canEdit={canEdit}
-      />
+      <AddAdminModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
     </>
   );
 }
@@ -88,14 +79,14 @@ function AdminCard({
         <div className='flex items-center gap-3'>
           <button
             type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-blue-700'
+            className='flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700'
             onClick={onEdit}
           >
-            <SquarePen className='text-sky-600' />
+            <SquarePen className='h-4 w-4 text-sky-600' />
             Edit
           </button>
           <button type='button' onClick={() => onRemove(admin.id)}>
-            <Trash2 className='text-red-700' />
+            <Trash2 className='h-4 w-4 text-red-700' />
           </button>
         </div>
       )}

@@ -102,8 +102,8 @@ export const wagmiConfig = (overrideChains?: Chain[]) => {
   });
 };
 
-export const chainsMap = (chainId?: number) =>
-  chainId ? chainsList[chainId as SupportedChains] : (first(values(chainsList)) as ExtendedChain);
+export const chainsMap = (chainId?: number): ExtendedChain =>
+  chainId ? (chainsList[chainId as SupportedChains] as ExtendedChain) : (first(values(chainsList)) as ExtendedChain);
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&

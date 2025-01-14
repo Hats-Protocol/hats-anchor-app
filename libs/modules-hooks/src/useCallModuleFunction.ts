@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import { ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
 import { createHatsModulesClient, invalidateAfterTransaction, transformInput, wagmiConfig } from 'utils';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 
 // TODO update to use `handlePendingTx`
@@ -23,6 +23,7 @@ interface CallModuleFunction {
 const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefined }) => {
   const { address } = useAccount();
   const toast: UseCustomToastReturn = useToast();
+  const { data: walletClient } = useWalletClient();
 
   const waitForSubgraph = useWaitForSubgraph({ chainId });
 
@@ -30,9 +31,10 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
     async ({ moduleId, instance, func, args, onSuccess, onDecline }: CallModuleFunction) => {
       // TODO errors thrown here are not being caught well
       if (!chainId) throw new Error('Chain ID is undefined');
-      if (!address) throw new Error('Address is undefined');
+      if (!address) throw new Error('User address is undefined');
+      if (!walletClient) throw new Error('Wallet client is undefined');
 
-      const moduleClient = await createHatsModulesClient(chainId);
+      const moduleClient = await createHatsModulesClient(chainId, walletClient);
       if (!moduleClient) throw new Error('Failed to create module client');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,7 +68,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
         }
 
         // TODO prefer passing to `handlePendingTx`?
-        const txResult = await waitForTransactionReceipt(wagmiConfig, {
+        const txResult = await waitForTransactionReceipt(wagmiConfig(), {
           chainId,
           hash: result.transactionHash,
         });
@@ -97,7 +99,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
         });
       }
     },
-    [address, chainId, waitForSubgraph, toast],
+    [address, chainId, waitForSubgraph, walletClient, toast],
   );
 
   return useMutation({ mutationFn: callModuleFunction });
