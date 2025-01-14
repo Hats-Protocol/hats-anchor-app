@@ -2,7 +2,7 @@ import { pick } from 'lodash';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { SearchParamsProps } from 'types';
-import { fetchWearerDetailsMesh, formatAddress } from 'utils';
+import { fetchWearerDetailsMesh, formatAddress, logger } from 'utils';
 
 const WearerStats = dynamic(() => import('molecules').then((mod) => mod.WearerStats));
 const WearerHats = dynamic(() => import('molecules').then((mod) => mod.WearerHats));
@@ -53,9 +53,8 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
         // },
       };
     })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
+    .catch((error) => {
+      logger.error(error);
       return {};
     });
 }

@@ -39,10 +39,10 @@ const getOffchainCouncilData = async ({
   // TODO handle safe
   return councilsGraphqlClient
     .request<{
-      council: OffchainCouncilData;
+      councils: OffchainCouncilData[];
     }>(GET_COUNCIL, { hsg, chainId })
     .then((data) => {
-      return get(data, 'councils.[0]', null);
+      return get(data, 'councils[0]', null);
     })
     .catch((error) => {
       // eslint-disable-next-line no-console

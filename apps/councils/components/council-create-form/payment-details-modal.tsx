@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, SupportedChains } from 'types';
-import { chainsMap, councilsGraphqlClient, CREATE_USER, isValidEmail, UPDATE_PAYER } from 'utils';
+import { chainsMap, councilsGraphqlClient, CREATE_USER, isValidEmail, logger, UPDATE_PAYER } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 
@@ -95,8 +95,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
       setModals?.({});
     } catch (error) {
       setFormError('Failed to save payment details. Please try again.');
-      // eslint-disable-next-line no-console
-      console.error('Error saving payment details:', error);
+      logger.error('Error saving payment details:', error);
     }
   };
 

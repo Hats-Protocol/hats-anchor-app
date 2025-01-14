@@ -1,4 +1,5 @@
 import { pick } from 'lodash';
+import { logger } from 'utils';
 
 const ALERTS_TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const ALERTS_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -12,8 +13,7 @@ export const GET = async (request: Request) => {
 
     fetch(url);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
+    logger.error(error);
   }
 
   return Response.json({ success: true });

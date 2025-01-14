@@ -1,5 +1,6 @@
 import { ETHERSCAN_API_URLS, ETHERSCAN_KEYS, FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import _ from 'lodash';
+import { logger } from 'utils';
 import { Hex } from 'viem';
 
 const etherscanUrl = (chainId: number, address: Hex) => {
@@ -45,11 +46,7 @@ export async function GET(request: Request, { params }: { params: { chainId: str
 
   try {
     const data = await fetchContractData(chainId, address);
-    // eslint-disable-next-line no-console
-    // console.log(
-    //   address,
-    //   _.omit(_.get(data, 'result[0]'), ['ABI', 'SourceCode']),
-    // );
+    logger.debug(address, _.omit(_.get(data, 'result[0]'), ['ABI', 'SourceCode']));
 
     // force error if not verified
     if (_.get(data, 'result[0].ABI') === 'Contract source code not verified') {
@@ -60,8 +57,7 @@ export async function GET(request: Request, { params }: { params: { chainId: str
 
     return Response.json(trimData, { status: 201 });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error);
+    logger.error(error);
     return Response.json({ error }, { status: 500 });
   }
 }
