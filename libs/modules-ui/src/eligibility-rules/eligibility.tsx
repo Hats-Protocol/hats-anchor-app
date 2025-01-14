@@ -4,7 +4,7 @@ import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { CONFIG, NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { find, first, flatten, gt, includes, pick, size } from 'lodash';
-import { useEligibilityRules } from 'modules-hooks';
+import { useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
@@ -20,11 +20,7 @@ const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 const OVERRIDE_COMMUNITY_HAT = true;
 
 // CURRENTLY REQUIRES TREE FORM context and SELECTED HAT context
-export const Eligibility = ({
-  modalSuffix,
-}: {
-  modalSuffix?: string | undefined;
-}) => {
+export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined }) => {
   const { orgChartWearers } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
   const { address } = useAccount();
@@ -35,12 +31,17 @@ export const Eligibility = ({
   // console.log({ eligibilityData });
 
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
-  const { data: rawEligibilityRules, isLoading: loadingModuleDetails } =
-    useEligibilityRules({
-      address: eligibility,
-      chainId,
-      enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
-    });
+  const { data: rawEligibilityRules, isLoading: loadingModuleDetails } = useEligibilityRules({
+    address: eligibility,
+    chainId,
+    enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
+  });
+  const { data: currentEligibility } = useCurrentEligibility({
+    chainId,
+    selectedHat,
+    wearerAddress: address as Hex,
+    eligibilityRules: rawEligibilityRules || undefined,
+  });
 
   const ruleSets = flatten(rawEligibilityRules);
   const multipleModules = gt(size(ruleSets), 1);
@@ -68,6 +69,7 @@ export const Eligibility = ({
         wearer={address as Hex}
         chainId={chainId}
         modalSuffix={modalSuffix}
+        wearerEligibility={currentEligibility || undefined}
       />
     );
   }
@@ -86,32 +88,14 @@ export const Eligibility = ({
     );
   }
 
-  if (
-    OVERRIDE_COMMUNITY_HAT &&
-    selectedHat?.id === CONFIG.agreementV0.communityHatId
-  ) {
-    return (
-      <CommunityHatEligibilityRule
-        selectedHat={selectedHat}
-        wearer={address as Hex}
-        chainId={chainId}
-      />
-    );
+  if (OVERRIDE_COMMUNITY_HAT && selectedHat?.id === CONFIG.agreementV0.communityHatId) {
+    return <CommunityHatEligibilityRule selectedHat={selectedHat} wearer={address as Hex} chainId={chainId} />;
   }
 
   return (
-    <Skeleton
-      isLoaded={!loadingModuleDetails || orgChartEligibility?.isContract}
-      my={2}
-      mx={{ base: 4, md: 0 }}
-    >
+    <Skeleton isLoaded={!loadingModuleDetails || orgChartEligibility?.isContract} my={2} mx={{ base: 4, md: 0 }}>
       <Flex justify='space-between'>
-        <Text>
-          {includes(NULL_ADDRESSES, eligibility)
-            ? 'No addresses'
-            : 'One address'}{' '}
-          can remove Wearers
-        </Text>
+        <Text>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</Text>
 
         <ControllerWearer controllerData={eligibilityData} />
       </Flex>

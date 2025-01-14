@@ -21,10 +21,7 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
   // TODO handle chainIds that are not supported
 
   return (
-    <EligibilityContextProvider
-      hatId={hexHatId}
-      chainId={toNumber(chainId) as SupportedChains}
-    >
+    <EligibilityContextProvider hatId={hexHatId} chainId={toNumber(chainId) as SupportedChains}>
       <div className='relative h-full w-full'>
         <div className='mx-auto h-auto w-auto max-w-7xl md:h-screen md:w-screen'>
           <div className='md:grid-cols-20 flex flex-col-reverse pt-0 md:grid md:pt-[120px]'>
@@ -61,18 +58,11 @@ interface TreeDetailsProps {
   };
 }
 
-export async function generateMetadata({
-  params,
-}: TreeDetailsProps): Promise<Metadata> {
+export async function generateMetadata({ params }: TreeDetailsProps): Promise<Metadata> {
   // read route params
   const { hatId, chainId } = pick(params, ['hatId', 'chainId']);
   // hatId is in IP format
-  if (
-    !chainId ||
-    !hatId ||
-    hatId === 'undefined' ||
-    isNaN(toNumber(first(split(hatId, '.'))))
-  ) {
+  if (!chainId || !hatId || hatId === 'undefined' || isNaN(toNumber(first(split(hatId, '.'))))) {
     // TODO why is Next still pinging /chainId/hatId when hatId is not found?
     return {};
   }
@@ -83,9 +73,7 @@ export async function generateMetadata({
     .then((hats) => {
       const hat = first(hats);
       const detailsMetadata = get(hat, 'detailsMetadata');
-      const detailsObject = detailsMetadata
-        ? get(JSON.parse(detailsMetadata), 'data')
-        : {};
+      const detailsObject = detailsMetadata ? get(JSON.parse(detailsMetadata), 'data') : {};
 
       return {
         title: get(detailsObject, 'name'),

@@ -25,6 +25,7 @@ interface AddComplianceModalProps {
   onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
+  canEdit?: boolean;
 }
 
 const CREATE_USER = `
@@ -54,6 +55,7 @@ export function AddComplianceModal({
   onClose,
   form: parentForm,
   editingAdmin,
+  canEdit = true,
 }: AddComplianceModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
@@ -78,11 +80,7 @@ export function AddComplianceModal({
   };
 
   const createUserMutation = useMutation({
-    mutationFn: async (variables: {
-      address: string;
-      email: string;
-      name?: string;
-    }) => {
+    mutationFn: async (variables: { address: string; email: string; name?: string }) => {
       const result = await councilsGraphqlClient.request<{
         createUser: CouncilMember;
       }>(CREATE_USER, variables);
@@ -91,12 +89,7 @@ export function AddComplianceModal({
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async (variables: {
-      id: string;
-      address: string;
-      email: string;
-      name?: string;
-    }) => {
+    mutationFn: async (variables: { id: string; address: string; email: string; name?: string }) => {
       const result = await councilsGraphqlClient.request<{
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables);
@@ -104,11 +97,9 @@ export function AddComplianceModal({
     },
   });
 
-  const handleSubmit = async (data: {
-    address: string;
-    email: string;
-    name?: string;
-  }) => {
+  const handleSubmit = async (data: { address: string; email: string; name?: string }) => {
+    if (!canEdit) return;
+
     if (!isAddress(data.address)) {
       setFormError('Please enter a valid Ethereum address');
       return;
@@ -117,9 +108,7 @@ export function AddComplianceModal({
     const currentAdmins = parentForm.getValues('complianceAdmins') || [];
 
     const isDuplicate = currentAdmins.some(
-      (admin) =>
-        admin.address.toLowerCase() === data.address.toLowerCase() &&
-        admin.id !== editingAdmin?.id,
+      (admin) => admin.address.toLowerCase() === data.address.toLowerCase() && admin.id !== editingAdmin?.id,
     );
 
     if (isDuplicate) {
@@ -142,9 +131,7 @@ export function AddComplianceModal({
       }
 
       if (editingAdmin) {
-        const updatedAdmins = currentAdmins.map((admin) =>
-          admin.id === editingAdmin.id ? userData : admin,
-        );
+        const updatedAdmins = currentAdmins.map((admin) => (admin.id === editingAdmin.id ? userData : admin));
         parentForm.setValue('complianceAdmins', updatedAdmins);
       } else {
         parentForm.setValue('complianceAdmins', [...currentAdmins, userData]);
@@ -183,16 +170,8 @@ export function AddComplianceModal({
         className='p-8'
       >
         <div className='mb-8 flex items-center justify-between'>
-          <h2 className='text-2xl font-bold'>
-            {editingAdmin
-              ? 'Edit Compliance Manager'
-              : 'Add Compliance Manager'}
-          </h2>
-          <button
-            type='button'
-            onClick={onClose}
-            className='text-black hover:opacity-70'
-          >
+          <h2 className='text-2xl font-bold'>{editingAdmin ? 'Edit Compliance Manager' : 'Add Compliance Manager'}</h2>
+          <button type='button' onClick={onClose} className='text-black hover:opacity-70'>
             <FiX className='h-5 w-5' />
           </button>
         </div>
@@ -200,21 +179,20 @@ export function AddComplianceModal({
         <div className='space-y-6'>
           <div className='space-y-2'>
             <label className='font-bold'>
-              {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)}{' '}
-              Account
+              {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
             </label>
             <AddressInput
               name='address'
               localForm={modalForm}
               hideAddressButtons
               chainId={chainId}
+              isDisabled={!canEdit}
             />
           </div>
 
           <div className='space-y-2'>
             <label className='font-bold'>
-              Email Address{' '}
-              <span className='text-sm font-normal text-gray-400'>Hidden</span>
+              Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
             </label>
             <Input
               name='email'
@@ -226,34 +204,22 @@ export function AddComplianceModal({
                   message: 'Invalid email address',
                 },
               }}
+              isDisabled={!canEdit}
             />
           </div>
 
           <div className='space-y-2'>
             <label className='font-bold'>
-              Name{' '}
-              <span className='text-sm font-normal text-gray-400'>
-                Optional
-              </span>
+              Name <span className='text-sm font-normal text-gray-400'>Optional</span>
             </label>
-            <Input
-              name='name'
-              localForm={modalForm}
-              placeholder='Alias or name'
-            />
+            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
           </div>
         </div>
 
         <div className='mt-8'>
-          {formError && (
-            <p className='mb-4 text-sm text-red-500'>{formError}</p>
-          )}
+          {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
           <div className='flex justify-end'>
-            <NextStepButton
-              type='submit'
-              disabled={!isFormValid()}
-              withIcon={false}
-            >
+            <NextStepButton type='submit' disabled={!isFormValid() || !canEdit} withIcon={false}>
               {editingAdmin ? 'Save Changes' : 'Add Compliance Manager'}
             </NextStepButton>
           </div>

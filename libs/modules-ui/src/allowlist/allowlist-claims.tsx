@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  HStack,
-  Icon,
-  Skeleton,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, HStack, Icon, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
@@ -25,13 +17,9 @@ import { useAccount } from 'wagmi';
 const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
 const DevInfo = dynamic(() => import('ui').then((mod) => mod.DevInfo));
-const ManagerAvatar = dynamic(() =>
-  import('ui').then((mod) => mod.ManagerAvatar),
-);
+const ManagerAvatar = dynamic(() => import('ui').then((mod) => mod.ManagerAvatar));
 
 const ALLOWLIST_COPY = {
   compliance: {
@@ -60,20 +48,16 @@ const ALLOWLIST_COPY = {
   },
 };
 
-export const AllowlistClaims = ({
-  activeModule,
-}: {
-  activeModule: ModuleDetails;
-}) => {
+export const AllowlistClaims = ({ activeModule }: { activeModule: ModuleDetails }) => {
   const { chainId, isEligibilityRulesLoading } = useEligibility();
   const { data: allowlist, isLoading: isAllowlistLoading } = useAllowlist({
     id: activeModule.instanceAddress,
     chainId,
   });
-  const ownerHatId = get(
-    find(get(activeModule, 'liveParameters'), { label: 'Owner Hat' }),
-    'value',
-  ) as bigint | undefined;
+
+  const ownerHatId = get(find(get(activeModule, 'liveParameters'), { label: 'Owner Hat' }), 'value') as
+    | bigint
+    | undefined;
 
   const { data: ownerHatDetails } = useHatDetails({
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
@@ -87,10 +71,7 @@ export const AllowlistClaims = ({
       {
         label: 'Module Address',
         descriptor: (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${activeModule.instanceAddress}`}
-            isExternal
-          >
+          <ChakraNextLink href={`${explorerUrl(chainId)}/address/${activeModule.instanceAddress}`} isExternal>
             {formatAddress(activeModule.instanceAddress)}
           </ChakraNextLink>
         ),
@@ -114,14 +95,7 @@ export const AllowlistClaims = ({
 
   return (
     <Stack>
-      <Box
-        py={5}
-        px={10}
-        flex='1'
-        backgroundColor='white'
-        border='1px solid #cbcbcb'
-        minH='500px'
-      >
+      <Box py={5} px={10} flex='1' backgroundColor='white' border='1px solid #cbcbcb' minH='500px'>
         <div className='flex items-center justify-between'>
           <h3 className='text-2xl font-bold'>{copy.heading}</h3>
 

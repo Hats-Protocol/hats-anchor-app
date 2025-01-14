@@ -17,21 +17,13 @@ const LOADING_SAFES = [
   { hats: [{ id: '5' }] },
 ];
 
-const AdminHatHeader = ({
-  adminId,
-  chainId,
-}: {
-  adminId: string;
-  chainId: number | undefined;
-}) => {
+const AdminHatHeader = ({ adminId, chainId }: { adminId: string; chainId: number | undefined }) => {
   const { data: adminHat } = useHatDetails({
     hatId: adminId,
     chainId: chainId as SupportedChains,
   });
   const adminHatDetails = get(adminHat, 'detailsMetadata');
-  const adminHatName = adminHatDetails
-    ? get(JSON.parse(adminHatDetails), 'data.name')
-    : get(adminHat, 'details');
+  const adminHatName = adminHatDetails ? get(JSON.parse(adminHatDetails), 'data.name') : get(adminHat, 'details');
   const adminHatImage = ipfsUrl(get(adminHat, 'nearestImage'));
 
   if (!chainId) return null;
@@ -54,9 +46,7 @@ const AdminHatHeader = ({
 const SafeList = () => {
   const { hatsWithSafesInfo, chainId } = useTreasury();
 
-  const groupedByAdmin = groupBy(hatsWithSafesInfo, (h: any) =>
-    get(h, 'hats.[0].admin.id'),
-  );
+  const groupedByAdmin = groupBy(hatsWithSafesInfo, (h: any) => get(h, 'hats.[0].admin.id'));
 
   return (
     <Stack w={{ base: '90%', md: '60%' }} mx='auto' spacing={4}>

@@ -4,24 +4,20 @@ import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
+import { StepProps } from 'types';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddMemberModal } from './add-member-modal';
 import { MembersList } from './members-list';
 
-export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
-  const { form, isLoading, stepValidation } = useCouncilForm();
+export function SelectionMembersStep({ onNext }: StepProps) {
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
 
-  const nextStep = findNextInvalidStep(
-    stepValidation,
-    'selection',
-    'members',
-    requirements,
-  );
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
 
   if (isLoading) {
     return (
@@ -32,10 +28,7 @@ export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <form
-      className='mx-auto flex w-[600px] flex-col space-y-8 p-8'
-      onSubmit={form.handleSubmit(onNext)}
-    >
+    <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <h1 className='text-2xl font-bold'>Council Members</h1>
 
       <div className='space-y-8 bg-white'>
@@ -48,7 +41,7 @@ export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
 
         {members.length > 0 && (
           <div>
-            <MembersList members={members} form={form} />
+            <MembersList members={members} form={form} canEdit={canEdit} />
           </div>
         )}
 
@@ -56,7 +49,10 @@ export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
           <button
             type='button'
             onClick={() => setIsModalOpen(true)}
-            className='inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500'
+            disabled={!canEdit}
+            className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
+              !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
+            }`}
           >
             <FiUserPlus className='mr-2 h-4 w-4' />
             Add Council Member
@@ -65,16 +61,12 @@ export function SelectionMembersStep({ onNext }: { onNext: () => void }) {
       </div>
 
       <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid}>
+        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
           {getNextStepButtonText(nextStep)}
         </NextStepButton>
       </div>
 
-      <AddMemberModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        form={form}
-      />
+      <AddMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} canEdit={canEdit} />
     </form>
   );
 }

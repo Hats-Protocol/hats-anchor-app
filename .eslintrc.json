@@ -4,8 +4,8 @@
   "plugins": ["import", "simple-import-sort", "@tanstack/query", "@nx"],
   "extends": [
     "plugin:@tanstack/eslint-plugin-query/recommended",
-    "plugin:@typescript-eslint/recommended"
-    // "plugin:prettier/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2023

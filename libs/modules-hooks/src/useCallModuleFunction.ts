@@ -3,12 +3,7 @@ import { useToast, useWaitForSubgraph } from 'hooks';
 import { get, map } from 'lodash';
 import { useCallback } from 'react';
 import { ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
-import {
-  createHatsModulesClient,
-  invalidateAfterTransaction,
-  transformInput,
-  wagmiConfig,
-} from 'utils';
+import { createHatsModulesClient, invalidateAfterTransaction, transformInput, wagmiConfig } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 import { waitForTransactionReceipt } from 'wagmi/actions';
@@ -25,25 +20,14 @@ interface CallModuleFunction {
   onDecline?: () => void;
 }
 
-const useCallModuleFunction = ({
-  chainId,
-}: {
-  chainId: SupportedChains | undefined;
-}) => {
+const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefined }) => {
   const { address } = useAccount();
   const toast: UseCustomToastReturn = useToast();
 
   const waitForSubgraph = useWaitForSubgraph({ chainId });
 
   const callModuleFunction = useCallback(
-    async ({
-      moduleId,
-      instance,
-      func,
-      args,
-      onSuccess,
-      onDecline,
-    }: CallModuleFunction) => {
+    async ({ moduleId, instance, func, args, onSuccess, onDecline }: CallModuleFunction) => {
       // TODO errors thrown here are not being caught well
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('Address is undefined');
@@ -81,6 +65,7 @@ const useCallModuleFunction = ({
           return;
         }
 
+        // TODO prefer passing to `handlePendingTx`?
         const txResult = await waitForTransactionReceipt(wagmiConfig, {
           chainId,
           hash: result.transactionHash,

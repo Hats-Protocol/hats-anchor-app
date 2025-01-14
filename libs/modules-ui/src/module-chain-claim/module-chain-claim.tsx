@@ -13,13 +13,7 @@ import ModuleChainClaimHeader from './module-chain-claim-header';
 
 const HatDeco = dynamic(() => import('ui').then((mod) => mod.HatDeco));
 
-export const ModuleChainClaim = ({
-  chainId,
-  address,
-}: {
-  chainId: number | undefined;
-  address: Hex | undefined;
-}) => {
+export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undefined; address: Hex | undefined }) => {
   const { data: councilDetails, isLoading } = useCouncilDetails({
     chainId,
     address,
@@ -27,6 +21,7 @@ export const ModuleChainClaim = ({
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const hatId = get(primarySignerHat, 'id');
 
+  // TODO better loading state
   if (isLoading) {
     return <Skeleton h='600px' w='800px' mx='auto' />;
   }
@@ -34,10 +29,7 @@ export const ModuleChainClaim = ({
   if (!hatId) return null;
 
   return (
-    <EligibilityContextProvider
-      hatId={hatId}
-      chainId={(chainId || undefined) as SupportedChains}
-    >
+    <EligibilityContextProvider hatId={hatId} chainId={(chainId || undefined) as SupportedChains}>
       <div className='flex min-h-[600px] justify-center pt-10'>
         <div className='flex w-full max-w-screen-md flex-col gap-4'>
           <ModuleChainClaimHeader chainId={chainId || undefined} />

@@ -43,12 +43,7 @@ const useEligibilityRules = ({
   const { data, isLoading, fetchStatus } = useQuery({
     queryKey: ['eligibilityRules', { address, chainId }],
     queryFn: () => getEligibilityRules({ address, chainId }),
-    enabled:
-      !!address &&
-      !!chainId &&
-      address !== FALLBACK_ADDRESS &&
-      address !== zeroAddress &&
-      enabled,
+    enabled: !!address && !!chainId && address !== FALLBACK_ADDRESS && address !== zeroAddress && enabled,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

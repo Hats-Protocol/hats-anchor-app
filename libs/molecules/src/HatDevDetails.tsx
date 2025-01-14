@@ -10,14 +10,11 @@ import { useMemo } from 'react';
 import { ChakraNextLink } from 'ui';
 import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 
-const CopyAddress = dynamic(() =>
-  import('icons').then((mod) => mod.CopyAddress),
-);
+const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
 
 const HatDevDetails = () => {
   const { treeId } = useTreeForm();
-  const { selectedHat, eligibilityInfo, chainId, isClaimable } =
-    useSelectedHat();
+  const { selectedHat, eligibilityInfo, chainId, isClaimable } = useSelectedHat();
 
   const devData = useMemo(() => {
     return [
@@ -31,8 +28,7 @@ const HatDevDetails = () => {
     return hatIdDecimalToIp(hatIdHexToDecimal(selectedHat.id));
   }, [selectedHat]);
 
-  const isDev =
-    posthog?.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const isDev = posthog?.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
   if (!isDev) return null;
 
@@ -61,9 +57,7 @@ const HatDevDetails = () => {
 
           <HStack>
             <Text variant='medium'>Claimable:</Text>
-            <Text>
-              {isClaimable?.for ? 'For' : isClaimable?.by ? 'Any' : 'None'}
-            </Text>
+            <Text>{isClaimable?.for ? 'For' : isClaimable?.by ? 'Any' : 'None'}</Text>
           </HStack>
         </Stack>
 
@@ -77,10 +71,7 @@ const HatDevDetails = () => {
           };
 
           return (
-            <div
-              className='flex gap-2'
-              key={`${get(data, 'label')}-${get(data, 'value')}`}
-            >
+            <div className='flex gap-2' key={`${get(data, 'label')}-${get(data, 'value')}`}>
               <span className='font-medium'>{get(data, 'label')}:</span>{' '}
               <Link
                 href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`}
@@ -108,11 +99,7 @@ const HatDevDetails = () => {
               map(ruleSet, (rule) => (
                 <div key={rule.address}>
                   {rule.module.name} (
-                  <ChakraNextLink
-                    href={`${explorerUrl(chainId)}/address/${rule.address}`}
-                    isExternal
-                    decoration
-                  >
+                  <ChakraNextLink href={`${explorerUrl(chainId)}/address/${rule.address}`} isExternal decoration>
                     {formatAddress(rule.address)}
                   </ChakraNextLink>
                   )

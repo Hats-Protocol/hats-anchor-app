@@ -23,15 +23,7 @@ export const MODULE_ARG_BOOLEAN_OPTION_SETS = {
 
 export const TOKEN_ARG_TYPES = ['erc20', 'token'];
 
-export const numberTypes = [
-  'uint256',
-  'uint8',
-  'uint16',
-  'uint32',
-  'uint64',
-  'uint128',
-  'uint248',
-];
+export const numberTypes = ['uint256', 'uint8', 'uint16', 'uint32', 'uint64', 'uint128', 'uint248'];
 
 const eligibilityModule = (name: string) => `${name} Eligibility`;
 /**
@@ -65,6 +57,7 @@ export const TOGGLE_MODULES = {
  */
 export const KNOWN_ELIGIBILITY_MODULES: { [key: string]: Hex[] } = {
   agreement: [
+    '0x4F10B9e99ce11f081652646f4b192ed1b812D5Bb', // v0.0.4
     '0x6AE5a62698f23dB7CAca13FFa7391ac782a94116', // v0.0.3
     '0x8126d02F4EcDE43eca4543a0D90B755C3E225F09', // v0.0.2
     '0xF6bc6Dd30403e6ff5b3Bebead32B8fce1b753aA1', // v0.0.1

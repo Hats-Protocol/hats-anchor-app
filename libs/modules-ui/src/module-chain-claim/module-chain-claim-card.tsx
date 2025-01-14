@@ -4,10 +4,7 @@ import { useEligibility } from 'contexts';
 import { get, includes, keys } from 'lodash';
 import { ComponentType } from 'react';
 import { ModuleDetails } from 'types';
-import {
-  eligibilityRuleToModuleDetails,
-  getKnownEligibilityModule,
-} from 'utils';
+import { eligibilityRuleToModuleDetails, getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 
 import { AgreementClaims } from '../agreement';
@@ -30,17 +27,11 @@ export const ModuleChainClaimsCard = () => {
   // TODO handle loading
   if (!moduleDetails) return null;
 
-  const knownModule = getKnownEligibilityModule(
-    moduleDetails.implementationAddress as Hex,
-  );
+  const knownModule = getKnownEligibilityModule(moduleDetails.implementationAddress as Hex);
 
   if (!includes(keys(MODULE_CLAIMS_CARD), knownModule)) {
     // eslint-disable-next-line no-console
-    console.log(
-      'unknown module implementation',
-      moduleDetails.implementationAddress,
-      moduleDetails.name,
-    );
+    console.log('unknown module implementation', moduleDetails.implementationAddress, moduleDetails.name);
     return <div>Unknown module</div>;
   }
   if (!knownModule) return null;

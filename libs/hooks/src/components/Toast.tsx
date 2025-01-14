@@ -112,12 +112,7 @@ const Toast: React.FC<ToastProps> = ({
         </Stack>
       </HStack>
       {isClosable && (
-        <Flex
-          marginLeft={8}
-          onClick={closeToast}
-          justifyContent='baseline'
-          _hover={{ cursor: 'pointer' }}
-        >
+        <Flex marginLeft={8} onClick={closeToast} justifyContent='baseline' _hover={{ cursor: 'pointer' }}>
           <Icon
             as={RiCloseFill}
             onClick={closeToast}

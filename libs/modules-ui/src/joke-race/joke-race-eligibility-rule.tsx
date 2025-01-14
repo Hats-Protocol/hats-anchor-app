@@ -9,22 +9,13 @@ import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
-import {
-  getJokeRaceModuleParameters,
-  jokeRaceUrl,
-  ModuleDetailsHandler,
-} from 'utils';
+import { getJokeRaceModuleParameters, jokeRaceUrl, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 import { JokeRaceModal } from './joke-race-modal';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((i) => i.ChakraNextLink),
-);
+const ChakraNextLink = dynamic(() => import('ui').then((i) => i.ChakraNextLink));
 
 export const JokeRaceEligibilityRule = ({
   moduleDetails,
@@ -32,6 +23,7 @@ export const JokeRaceEligibilityRule = ({
   chainId,
   wearer,
   selectedHat,
+  wearerEligibility,
 }: ModuleDetailsHandler) => {
   const { setModals } = useOverlay();
 
@@ -53,9 +45,7 @@ export const JokeRaceEligibilityRule = ({
   });
   const isEligible = includes(get(wearerStatus, 'eligibleWearers'), wearer);
 
-  const eligibilityModalFlag =
-    posthog.isFeatureEnabled('eligibility-modal') ||
-    process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
 
   // TODO fetch contest from JokeRace subgraph
   if (!moduleDetails) return null;
@@ -83,20 +73,13 @@ export const JokeRaceEligibilityRule = ({
                 JokeRace
               </Button>
             ) : (
-              <ChakraNextLink
-                href={jokeRaceUrl({ chainId, address: contestAddress })}
-                decoration
-              >
+              <ChakraNextLink href={jokeRaceUrl({ chainId, address: contestAddress })} decoration>
                 JokeRace
               </ChakraNextLink>
             )}
           </Text>
         }
-        status={
-          isEligible
-            ? ELIGIBILITY_STATUS.eligible
-            : ELIGIBILITY_STATUS.ineligible
-        }
+        status={isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible}
         displayStatus={isEligible ? 'Selected' : 'Not Selected'}
         icon={isEligible ? BsCheckSquareFill : BsFillXOctagonFill}
       />

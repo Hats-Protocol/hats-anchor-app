@@ -9,11 +9,7 @@ import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { CommunityHatEligibilityRule } from '../agreement';
-import {
-  ChainPanel,
-  ControllerWearer,
-  KnownEligibilityModule,
-} from '../eligibility-rules';
+import { ChainPanel, ControllerWearer, KnownEligibilityModule } from '../eligibility-rules';
 import { ClaimButton } from './claim-button';
 
 // relies on different context from Controllers/Eligibility
@@ -52,10 +48,7 @@ const EligibilityConditions = () => {
     );
   }
 
-  if (
-    OVERRIDE_COMMUNITY_HAT &&
-    selectedHat?.id === CONFIG.agreementV0.communityHatId
-  ) {
+  if (OVERRIDE_COMMUNITY_HAT && selectedHat?.id === CONFIG.agreementV0.communityHatId) {
     return (
       <CommunityHatEligibilityRule
         selectedHat={selectedHat}
@@ -69,9 +62,7 @@ const EligibilityConditions = () => {
   }
 
   if (eligibilityRules) {
-    const moduleDetails = eligibilityRuleToModuleDetails(
-      first(flatten(eligibilityRules)),
-    ); // can assume there's only one rule
+    const moduleDetails = eligibilityRuleToModuleDetails(first(flatten(eligibilityRules))); // can assume there's only one rule
 
     return (
       <KnownEligibilityModule
@@ -83,23 +74,15 @@ const EligibilityConditions = () => {
         modalSuffix={MODAL_SUFFIX}
         isReadyToClaim={isReadyToClaim}
         setIsReadyToClaim={setIsReadyToClaim}
+        wearerEligibility={currentEligibility}
       />
     );
   }
 
   return (
-    <Skeleton
-      isLoaded={!isEligibilityRulesLoading}
-      my={2}
-      mx={{ base: 4, md: 0 }}
-    >
+    <Skeleton isLoaded={!isEligibilityRulesLoading} my={2} mx={{ base: 4, md: 0 }}>
       <Flex justify='space-between'>
-        <Text>
-          {includes(NULL_ADDRESSES, eligibility)
-            ? 'No addresses'
-            : 'One address'}{' '}
-          can remove Wearers
-        </Text>
+        <Text>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</Text>
 
         <ControllerWearer controllerData={eligibilityData} />
       </Flex>
@@ -119,18 +102,11 @@ export const ClaimsConditions = () => {
         </Heading>
       </Skeleton>
 
-      <Skeleton
-        w='full'
-        isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}
-      >
+      <Skeleton w='full' isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
         <EligibilityConditions />
       </Skeleton>
 
-      <Skeleton
-        w='full'
-        mt={4}
-        isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}
-      >
+      <Skeleton w='full' mt={4} isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
         <Flex display={{ base: 'none', '2xl': 'flex' }} justify='center'>
           <ClaimButton />
         </Flex>

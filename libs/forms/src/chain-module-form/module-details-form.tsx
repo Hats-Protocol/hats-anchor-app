@@ -56,10 +56,7 @@ const ModuleDetailsForm = ({
   // const tokenAddress = tokenArgName ? watch(tokenArgName) : undefined;
 
   return (
-    <div
-      key={field.id}
-      className='flex flex-col gap-4 rounded border bg-slate-100 p-8'
-    >
+    <div key={field.id} className='flex flex-col gap-4 rounded border bg-slate-100 p-8'>
       <Input
         name={`modules.${index}.address`}
         label='Module Address'

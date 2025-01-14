@@ -81,25 +81,15 @@ interface CreationFormStepsProps {
   draftId: string;
 }
 
-function getSubStepStatus(
-  subStepId: string,
-  currentSubStep: string | undefined,
-  stepValidation: StepValidation,
-) {
-  const isValid =
-    stepValidation.selectionSubSteps[
-      subStepId as keyof typeof stepValidation.selectionSubSteps
-    ];
+function getSubStepStatus(subStepId: string, currentSubStep: string | undefined, stepValidation: StepValidation) {
+  const isValid = stepValidation.selectionSubSteps[subStepId as keyof typeof stepValidation.selectionSubSteps];
   if (isValid) {
     return 'completed';
   }
   return subStepId === currentSubStep ? 'current' : 'upcoming';
 }
 
-function isSelectionStepValid(
-  stepValidation: StepValidation,
-  requirements: any,
-) {
+function isSelectionStepValid(stepValidation: StepValidation, requirements: any) {
   const activeSubSteps = [
     'members',
     'management',
@@ -109,29 +99,18 @@ function isSelectionStepValid(
   ];
 
   return activeSubSteps.every(
-    (subStep) =>
-      stepValidation.selectionSubSteps[
-        subStep as keyof typeof stepValidation.selectionSubSteps
-      ],
+    (subStep) => stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps],
   );
 }
 
-function getStepValidation(
-  step: Step,
-  stepValidation: StepValidation,
-  requirements: any,
-) {
+function getStepValidation(step: Step, stepValidation: StepValidation, requirements: any) {
   if (step.id === 'selection') {
     return isSelectionStepValid(stepValidation, requirements);
   }
   return stepValidation[step.id];
 }
 
-export function CreationFormSteps({
-  currentStep,
-  currentSubStep,
-  draftId,
-}: CreationFormStepsProps) {
+export function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
   const { form, stepValidation, persistForm } = useCouncilForm();
   const router = useRouter();
   const requirements = form.watch('requirements');
@@ -142,15 +121,9 @@ export function CreationFormSteps({
     selectionStep.subSteps = [
       { id: 'members', label: 'Council Members' },
       { id: 'management', label: 'Council Management' },
-      ...(requirements?.signAgreement
-        ? [{ id: 'agreement', label: 'Agreement' }]
-        : []),
-      ...(requirements?.holdTokens
-        ? [{ id: 'tokens', label: 'Token Requirements' }]
-        : []),
-      ...(requirements?.passCompliance
-        ? [{ id: 'compliance', label: 'Compliance Check' }]
-        : []),
+      ...(requirements?.signAgreement ? [{ id: 'agreement', label: 'Agreement' }] : []),
+      ...(requirements?.holdTokens ? [{ id: 'tokens', label: 'Token Requirements' }] : []),
+      ...(requirements?.passCompliance ? [{ id: 'compliance', label: 'Compliance Check' }] : []),
     ];
   }
 
@@ -165,9 +138,7 @@ export function CreationFormSteps({
         await persistForm(currentStep, currentSubStep);
 
         if (targetStep === 'selection') {
-          router.push(
-            `/councils/new/${targetStep}?subStep=${targetSubStep || 'members'}&draftId=${draftId}`,
-          );
+          router.push(`/councils/new/${targetStep}?subStep=${targetSubStep || 'members'}&draftId=${draftId}`);
         } else {
           router.push(`/councils/new/${targetStep}?draftId=${draftId}`);
         }
@@ -198,9 +169,7 @@ export function CreationFormSteps({
                     getStepValidation(step, stepValidation, requirements)
                       ? 'bg-white'
                       : 'border-2 ' +
-                        (index === currentStepIndex
-                          ? 'border-blue-500 bg-blue-100'
-                          : 'border-gray-200 bg-white')
+                        (index === currentStepIndex ? 'border-blue-500 bg-blue-100' : 'border-gray-200 bg-white')
                   } `}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
@@ -226,91 +195,67 @@ export function CreationFormSteps({
                 </div>
 
                 {/* Vertical line */}
-                {step.id === 'payment' ||
-                (step.id === 'selection' &&
-                  currentStep === 'selection') ? null : (
+                {step.id === 'payment' || (step.id === 'selection' && currentStep === 'selection') ? null : (
                   <div
                     className={`my-3 h-12 w-[2px] ${
-                      getStepValidation(step, stepValidation, requirements)
-                        ? 'bg-blue-500'
-                        : 'bg-gray-200'
+                      getStepValidation(step, stepValidation, requirements) ? 'bg-blue-500' : 'bg-gray-200'
                     }`}
                   />
                 )}
               </div>
 
               <div className=''>
-                <span className='text-base font-medium text-gray-900'>
-                  {step.label}
-                </span>
-                <span className='block text-sm text-gray-500'>
-                  {getStepSummary(step, form, stepValidation)}
-                </span>
+                <span className='text-base font-medium text-gray-900'>{step.label}</span>
+                <span className='block text-sm text-gray-500'>{getStepSummary(step, form, stepValidation)}</span>
               </div>
             </div>
           </button>
 
           {/* Sub-steps */}
-          {currentStep === 'selection' &&
-            step.id === 'selection' &&
-            step.subSteps && (
-              <div className='my-3 ml-[23px]'>
-                {step.subSteps.map((subStep, subIndex) => {
-                  const status = getSubStepStatus(
-                    subStep.id,
-                    currentSubStep,
-                    stepValidation,
-                  );
-                  return (
-                    <button
-                      key={subStep.id}
-                      onClick={() =>
-                        handleStepNavigation('selection', subStep.id)
-                      }
-                      className={`flex w-full items-center gap-3 border-l-[2px] ${
-                        status === 'completed'
-                          ? 'border-l-blue-500'
-                          : 'border-l-gray-200'
+          {currentStep === 'selection' && step.id === 'selection' && step.subSteps && (
+            <div className='my-3 ml-[23px]'>
+              {step.subSteps.map((subStep, subIndex) => {
+                const status = getSubStepStatus(subStep.id, currentSubStep, stepValidation);
+                return (
+                  <button
+                    key={subStep.id}
+                    onClick={() => handleStepNavigation('selection', subStep.id)}
+                    className={`flex w-full items-center gap-3 border-l-[2px] ${
+                      status === 'completed' ? 'border-l-blue-500' : 'border-l-gray-200'
+                    }`}
+                  >
+                    <div
+                      className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
+                        status === 'current' ? 'border border-blue-500 bg-blue-100' : 'border border-gray-200 bg-white'
                       }`}
                     >
-                      <div
-                        className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
-                          status === 'current'
-                            ? 'border border-blue-500 bg-blue-100'
-                            : 'border border-gray-200 bg-white'
-                        }`}
-                      >
-                        {status === 'completed' ? (
-                          <svg
-                            width='44'
-                            height='44'
-                            viewBox='0 0 44 44'
-                            fill='none'
-                            xmlns='http://www.w3.org/2000/svg'
-                            className='text-white'
-                          >
-                            <g id='check-circle-fill'>
-                              <path
-                                id='Subtract'
-                                d='M44 22C44 34.1503 34.1503 44 22 44C9.84974 44 0 34.1503 0 22C0 9.84974 9.84974 0 22 0C34.1503 0 44 9.84974 44 22ZM33.0834 13.6666C32.2779 12.8611 30.972 12.8611 30.1666 13.6666C30.1471 13.686 30.1289 13.7066 30.1119 13.7283L20.5628 25.896L14.8057 20.1389C14.0002 19.3334 12.6943 19.3334 11.8888 20.1389C11.0834 20.9443 11.0834 22.2502 11.8888 23.0557L19.1666 30.3334C19.972 31.1389 21.2779 31.1389 22.0834 30.3334C22.1013 30.3155 22.1183 30.2966 22.1341 30.2768L33.1127 16.5535C33.8887 15.746 33.879 14.4622 33.0834 13.6666Z'
-                                fill='#2B6CB0'
-                              />
-                            </g>
-                          </svg>
-                        ) : (
-                          <span className='text-sm text-gray-500'>
-                            {subIndex + 1}
-                          </span>
-                        )}
-                      </div>
-                      <span className='text-sm text-gray-600'>
-                        {subStep.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+                      {status === 'completed' ? (
+                        <svg
+                          width='44'
+                          height='44'
+                          viewBox='0 0 44 44'
+                          fill='none'
+                          xmlns='http://www.w3.org/2000/svg'
+                          className='text-white'
+                        >
+                          <g id='check-circle-fill'>
+                            <path
+                              id='Subtract'
+                              d='M44 22C44 34.1503 34.1503 44 22 44C9.84974 44 0 34.1503 0 22C0 9.84974 9.84974 0 22 0C34.1503 0 44 9.84974 44 22ZM33.0834 13.6666C32.2779 12.8611 30.972 12.8611 30.1666 13.6666C30.1471 13.686 30.1289 13.7066 30.1119 13.7283L20.5628 25.896L14.8057 20.1389C14.0002 19.3334 12.6943 19.3334 11.8888 20.1389C11.0834 20.9443 11.0834 22.2502 11.8888 23.0557L19.1666 30.3334C19.972 31.1389 21.2779 31.1389 22.0834 30.3334C22.1013 30.3155 22.1183 30.2966 22.1341 30.2768L33.1127 16.5535C33.8887 15.746 33.879 14.4622 33.0834 13.6666Z'
+                              fill='#2B6CB0'
+                            />
+                          </g>
+                        </svg>
+                      ) : (
+                        <span className='text-sm text-gray-500'>{subIndex + 1}</span>
+                      )}
+                    </div>
+                    <span className='text-sm text-gray-600'>{subStep.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       ))}
     </div>

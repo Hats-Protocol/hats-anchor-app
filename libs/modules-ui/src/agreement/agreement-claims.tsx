@@ -101,6 +101,7 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
 
   const localClaimable = !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
   const isReadyToClaim = !!get(aggregateReadyToClaim, moduleAddress) || isEligible;
+  console.log('chainHasSubscription', chainHasSubscription);
 
   return (
     <Tooltip label={buttonTooltip} placement='top'>

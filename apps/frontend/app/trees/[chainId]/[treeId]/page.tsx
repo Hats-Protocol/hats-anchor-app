@@ -31,9 +31,7 @@ interface TreeDetailsProps extends SearchParamsProps {
   params: { chainId: string; treeId: string };
 }
 
-export async function generateMetadata({
-  params,
-}: TreeDetailsProps): Promise<Metadata> {
+export async function generateMetadata({ params }: TreeDetailsProps): Promise<Metadata> {
   // read route params
   const { chainId, treeId } = pick(params, ['chainId', 'treeId']);
   const treeIdNum = toNumber(treeId);
@@ -45,9 +43,7 @@ export async function generateMetadata({
     .then((hats) => {
       const hat = first(hats);
       const detailsMetadata = get(hat, 'detailsMetadata');
-      const detailsObject = detailsMetadata
-        ? get(JSON.parse(detailsMetadata), 'data')
-        : {};
+      const detailsObject = detailsMetadata ? get(JSON.parse(detailsMetadata), 'data') : {};
 
       const title = get(detailsObject, 'name');
       let includeTitle = {};

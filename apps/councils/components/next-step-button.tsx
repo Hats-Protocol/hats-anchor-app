@@ -6,13 +6,7 @@ interface NextStepButtonProps {
   withIcon?: boolean;
 }
 
-export function NextStepButton({
-  onClick,
-  disabled,
-  children,
-  type = 'submit',
-  withIcon = true,
-}: NextStepButtonProps) {
+export function NextStepButton({ onClick, disabled, children, type = 'submit', withIcon = true }: NextStepButtonProps) {
   return (
     <button
       type={type}
@@ -22,12 +16,7 @@ export function NextStepButton({
     >
       {children}
       {withIcon && (
-        <svg
-          className='ml-2 h-4 w-4'
-          viewBox='0 0 16 16'
-          fill='none'
-          xmlns='http://www.w3.org/2000/svg'
-        >
+        <svg className='ml-2 h-4 w-4' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
           <path
             fillRule='evenodd'
             clipRule='evenodd'

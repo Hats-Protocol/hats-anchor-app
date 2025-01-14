@@ -14,16 +14,7 @@ import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
 import { theme } from 'ui';
 import { wagmiConfig } from 'utils';
-import {
-  arbitrum,
-  base,
-  celo,
-  gnosis,
-  mainnet,
-  optimism,
-  polygon,
-  sepolia,
-} from 'viem/chains';
+import { arbitrum, base, celo, gnosis, mainnet, optimism, polygon, sepolia } from 'viem/chains';
 
 // TODO use standalone & fix exporting of waitForTransaction
 declare global {
@@ -82,17 +73,8 @@ const Providers = ({ children }: ProvidersProps) => {
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string}
       config={{
-        loginMethods: ['email', 'wallet'],
-        supportedChains: [
-          mainnet,
-          optimism,
-          arbitrum,
-          base,
-          gnosis,
-          polygon,
-          celo,
-          sepolia,
-        ],
+        loginMethods: ['wallet'],
+        supportedChains: [mainnet, optimism, arbitrum, base, gnosis, polygon, sepolia],
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',

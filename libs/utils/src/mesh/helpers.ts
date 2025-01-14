@@ -1,5 +1,6 @@
 import { first, get } from 'lodash';
 
+import { NETWORKS_PREFIX } from '../subgraph';
 import { Chain } from './zeus';
 
 const MESH_API_URL = process.env.NEXT_PUBLIC_MESH_API;
@@ -10,31 +11,40 @@ if (!MESH_API_URL) {
 // Create a Chain client instance with the endpoint
 const chain = Chain(`${MESH_API_URL}/graphql`);
 
-// TODO lookup by hsg or safe address
-export const getCouncilData = async ({ id }: { id: string }) => {
+/**
+ * Fetch council data from Ancillary subgraph via the Mesh API
+ * @param id - The Safe Address or Hat Signer Gate address of the council
+ * @param chainId - The chain ID of the council
+ * @returns The council data
+ */
+export const getCouncilData = async ({ id, chainId }: { id: string; chainId: number }) => {
+  // TODO handle other chains
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  // @ts-expect-error how to catch network prefix as key?
   const result = await chain('query')({
-    Sep_hatsSignerGates: [
-      // @ts-expect-error subgraphError is not included in schema but expected by type
-      { where: { id } }, // or safe address
+    [`${networkPrefix}_hatsSignerGateV2S` as string]: [
+      // ts-expect-error subgraphError is not included in schema but expected by type
+      { where: { or: [{ id }, { safe: id }] } },
       {
         signerHats: [{ first: 5 }, { id: true }],
         ownerHat: { id: true },
         safe: true,
         minThreshold: true,
         targetThreshold: true,
-        maxSigners: true,
       },
     ],
   });
 
   // TODO handle other chains
-  return first(get(result, 'Sep_hatsSignerGates', undefined));
+  return first(get(result, `${networkPrefix}_hatsSignerGateV2S`, undefined));
 };
 
-export const getHatsDetails = async ({ ids }: { ids: string[] }) => {
+export const getHatsDetails = async ({ ids, chainId }: { ids: string[]; chainId: number }) => {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  // @ts-expect-error how to catch network prefix as key?
   const result = await chain('query')({
-    Sep_hats: [
-      // @ts-expect-error subgraphError is not included in schema but expected by type
+    [`${networkPrefix}_hats`]: [
+      // ts-expect-error subgraphError is not included in schema but expected by type
       { where: { id_in: ids } },
       {
         id: true,
@@ -42,10 +52,11 @@ export const getHatsDetails = async ({ ids }: { ids: string[] }) => {
         detailsMetadata: true,
         eligibility: true,
         toggle: true,
-        wearers: [{ first: 10 }, { id: true, ensName: true, isContract: true }],
+        maxSupply: true,
+        wearers: [{ first: 20 }, { id: true, ensName: true, isContract: true }],
       },
     ],
   });
 
-  return get(result, 'Sep_hats', undefined);
+  return get(result, `${networkPrefix}_hats`, undefined);
 };

@@ -1,13 +1,15 @@
+import { useToast } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import { chainStringToId, formatAddress } from 'utils';
+import { useChainId, useEnsName, useSwitchChain } from 'wagmi';
 
 import { CheckSquareIcon } from '../icons/check-square-icon';
 import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
 import { EditIcon } from '../icons/edit-icon';
 import { GetAppointedIcon } from '../icons/get-appointed-icon';
+import { HoldTokensIcon } from '../icons/hold-tokens-icon';
 import { LinkIcon } from '../icons/link-icon';
 import { PaymentIcon } from '../icons/payment-icon';
 import { SignAgreementIcon } from '../icons/sign-agreement-icon';
@@ -22,12 +24,7 @@ interface StepSummaryProps {
   children: React.ReactNode;
 }
 
-const StepSummary = ({
-  title,
-  isCompleted,
-  onEdit,
-  children,
-}: StepSummaryProps) => (
+const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps) => (
   <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
     <div className='w-[200px] shrink-0 space-y-2'>
       <h3 className='text-l font-medium text-gray-900'>{title}</h3>
@@ -69,15 +66,9 @@ interface RequirementItemProps {
   description: string;
 }
 
-const RequirementItem = ({
-  icon,
-  title,
-  description,
-}: RequirementItemProps) => (
+const RequirementItem = ({ icon, title, description }: RequirementItemProps) => (
   <div className='flex items-center gap-3'>
-    <div className='flex-shrink-0 rounded-full border border-gray-200 p-2 text-gray-900'>
-      {icon}
-    </div>
+    <div className='flex-shrink-0 rounded-full border border-gray-200 p-2 text-gray-900'>{icon}</div>
     <div>
       <p className='font-medium text-gray-900'>{title}</p>
       <p className='text-sm text-gray-600'>{description}</p>
@@ -105,11 +96,7 @@ const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
   </div>
 );
 
-const MemberItem = ({
-  member,
-}: {
-  member: { address: string; name?: string };
-}) => {
+const MemberItem = ({ member }: { member: { address: string; name?: string } }) => {
   const { data: ensName } = useEnsName({
     address: member.address as `0x${string}`,
     chainId: 1,
@@ -117,30 +104,25 @@ const MemberItem = ({
 
   return (
     <div className='flex items-center gap-2'>
-      {member.name && (
-        <span className='text-base font-medium text-gray-900'>
-          {member.name}
-        </span>
-      )}
-      <span className='text-base text-gray-600'>
-        {ensName || formatAddress(member.address)}
-      </span>
+      {member.name && <span className='text-base font-medium text-gray-900'>{member.name}</span>}
+      <span className='text-base text-gray-600'>{ensName || formatAddress(member.address)}</span>
     </div>
   );
 };
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying, canEdit } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const payer = form.watch('payer');
+  const toast = useToast();
+  const userChainId = useChainId();
+  const { switchChain } = useSwitchChain();
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
-      router.push(
-        `/councils/new/${step}?draftId=${draftId}&subStep=${subStep}`,
-      );
+      router.push(`/councils/new/${step}?draftId=${draftId}&subStep=${subStep}`);
     } else {
       router.push(`/councils/new/${step}?draftId=${draftId}`);
     }
@@ -170,12 +152,51 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     ];
 
     return activeSubSteps.every(
-      (subStep) =>
-        stepValidation.selectionSubSteps[
-          subStep as keyof typeof stepValidation.selectionSubSteps
-        ],
+      (subStep) => stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps],
     );
   };
+
+  const handleDeploy = async () => {
+    try {
+      const result = await deployCouncil();
+
+      if (result.success) {
+        // toast({
+        //   title: 'Council deployed successfully',
+        //   description: `Transaction hash: ${result.transactionHash}`,
+        //   status: 'success',
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
+        // Redirect to a success page or the new council page
+        router.push('/councils');
+      } else {
+        console.log('result', result);
+        // toast({
+        //   title: 'Deployment failed',
+        //   description: result.error || 'Unknown error occurred',
+        //   status: 'error',
+        //   duration: 5000,
+        //   isClosable: true,
+        // });
+      }
+    } catch (error) {
+      console.error('Error deploying council', error);
+      // toast({
+      //   title: 'Deployment failed',
+      //   description:
+      //     error instanceof Error ? error.message : 'Unknown error occurred',
+      //   status: 'error',
+      //   duration: 5000,
+      //   isClosable: true,
+      // });
+    }
+  };
+
+  const targetChainName = formData.chain.charAt(0).toUpperCase() + formData.chain.slice(1);
+  const targetChainId = chainStringToId(formData.chain) as number;
+
+  const isWrongNetwork = userChainId !== targetChainId;
 
   return (
     <div className='mx-auto max-w-4xl'>
@@ -192,8 +213,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         <div className='text-center'>
           <h2 className='text-3xl font-medium'>Proposed Council</h2>
           <p className='mt-1'>
-            <span className='text-gray-900'>by</span>{' '}
-            <span className='text-gray-500'>ccarella.eth</span>
+            <span className='text-gray-900'>by</span> <span className='text-gray-500'>ccarella.eth</span>
           </p>
         </div>
       </div>
@@ -201,12 +221,10 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Details'
         isCompleted={stepValidation.details}
-        onEdit={() => setCurrentStep('details')}
+        onEdit={canEdit ? () => setCurrentStep('details') : undefined}
       >
         <div className='space-y-2'>
-          <h4 className='text-base font-bold text-gray-900'>
-            Create a Council
-          </h4>
+          <h4 className='text-base font-bold text-gray-900'>Create a Council</h4>
           <div className='text-gray-900'>
             <p className='text-base'>{formData.councilName}</p>
             <p className='text-base'>by {formData.organizationName}</p>
@@ -218,7 +236,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Signer Threshold'
         isCompleted={stepValidation.threshold}
-        onEdit={() => setCurrentStep('threshold')}
+        onEdit={canEdit ? () => setCurrentStep('threshold') : undefined}
       >
         <div className='space-y-2'>
           <h4 className='text-babse font-bold text-gray-900'>
@@ -240,7 +258,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Settings'
         isCompleted={stepValidation.onboarding}
-        onEdit={() => setCurrentStep('onboarding')}
+        onEdit={canEdit ? () => setCurrentStep('onboarding') : undefined}
       >
         <div className='space-y-2'>
           <h4 className='text-base font-bold text-gray-900'>
@@ -266,6 +284,13 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                 description='Signed and abides agreement'
               />
             )}
+            {formData.requirements.holdTokens && (
+              <RequirementItem
+                icon={<HoldTokensIcon />}
+                title='Hold Tokens'
+                description='Signed and abides agreement'
+              />
+            )}
           </div>
         </div>
       </StepSummary>
@@ -273,13 +298,10 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Roles'
         isCompleted={isSelectionStepValid()}
-        onEdit={() => setCurrentStep('selection', 'members')}
+        onEdit={canEdit ? () => setCurrentStep('selection', 'members') : undefined}
       >
         <div className='space-y-8'>
-          <RoleSummary
-            title='Council Members'
-            members={formData.members || []}
-          />
+          <RoleSummary title='Council Members' members={formData.members || []} />
           <RoleSummary
             title='Council Managers'
             description='Can select Council Members and manage the Safe'
@@ -294,9 +316,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                   : 'Council Managers conduct compliance checks'
               }
               members={
-                formData.createComplianceAdminRole === 'true'
-                  ? formData.complianceAdmins || []
-                  : formData.admins || []
+                formData.createComplianceAdminRole === 'true' ? formData.complianceAdmins || [] : formData.admins || []
               }
             />
           )}
@@ -309,9 +329,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                   : 'Council Managers manage the agreement'
               }
               members={
-                formData.createAgreementAdminRole === 'true'
-                  ? formData.agreementAdmins || []
-                  : formData.admins || []
+                formData.createAgreementAdminRole === 'true' ? formData.agreementAdmins || [] : formData.admins || []
               }
             />
           )}
@@ -338,19 +356,24 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             />
             <div className='flex justify-end'>
               {payer ? (
-                <NextStepButton
+                <button
                   type='button'
                   onClick={() => setIsPaymentModalOpen(true)}
+                  disabled={!canEdit}
+                  className={`inline-flex items-center rounded-full border border-[#2B6CB0] px-4 py-2 text-sm font-medium text-[#2B6CB0] ${
+                    !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'
+                  }`}
                 >
                   <div className='flex items-center gap-2'>
                     <PaymentIcon />
                     <span>Edit invoice details</span>
                   </div>
-                </NextStepButton>
+                </button>
               ) : (
                 <NextStepButton
                   type='button'
                   onClick={() => setIsPaymentModalOpen(true)}
+                  disabled={!canEdit}
                   withIcon={false}
                 >
                   <div className='flex items-center gap-2'>
@@ -371,7 +394,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             id='agreement'
             checked={form.watch('acceptedTerms')}
             onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
-            className='h-4 w-4 rounded border-gray-300'
+            disabled={!canEdit}
+            className={`h-4 w-4 rounded border-gray-300 accent-[#3182CE] ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
           />
           <label htmlFor='agreement' className='text-sm text-gray-600'>
             I agree to the{' '}
@@ -382,14 +406,21 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           </label>
         </div>
 
-        <NextStepButton
-          disabled={!payer || !form.watch('acceptedTerms')}
-          onClick={() => {
-            // Handle deployment here
-          }}
-        >
-          Deploy Council on Optimism
-        </NextStepButton>
+        {isWrongNetwork ? (
+          <NextStepButton
+            onClick={() => switchChain?.({ chainId: targetChainId })}
+            disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
+          >
+            Switch to {targetChainName}
+          </NextStepButton>
+        ) : (
+          <NextStepButton
+            disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
+            onClick={handleDeploy}
+          >
+            {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
+          </NextStepButton>
+        )}
       </div>
 
       <PaymentDetailsModal
@@ -397,6 +428,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         onClose={() => setIsPaymentModalOpen(false)}
         form={form}
         draftId={draftId}
+        canEdit={canEdit}
       />
     </div>
   );

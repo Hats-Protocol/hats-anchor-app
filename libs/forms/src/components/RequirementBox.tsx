@@ -1,8 +1,8 @@
 'use client';
 
 import { Box, Checkbox, HStack, Icon, Stack, Text } from '@chakra-ui/react';
-import { IconType } from 'react-icons';
 import { Controller, UseFormReturn } from 'react-hook-form';
+import { IconType } from 'react-icons';
 
 interface RequirementOption {
   key: string;
@@ -15,9 +15,10 @@ interface RequirementBoxProps {
   name: string;
   localForm: UseFormReturn<any>;
   options: RequirementOption[];
+  isDisabled?: boolean;
 }
 
-const RequirementBox = ({ name, localForm, options }: RequirementBoxProps) => {
+const RequirementBox = ({ name, localForm, options, isDisabled }: RequirementBoxProps) => {
   return (
     <Stack spacing={4}>
       {options.map((item) => (
@@ -34,19 +35,20 @@ const RequirementBox = ({ name, localForm, options }: RequirementBoxProps) => {
               py={4}
               borderColor={field.value ? 'blue.500' : 'gray.200'}
               bg={field.value ? 'blue.50' : 'white'}
-              _hover={{
-                borderColor: 'blue.500',
-              }}
-              cursor='pointer'
-              onClick={() => field.onChange(!field.value)}
+              _hover={
+                !isDisabled
+                  ? {
+                      borderColor: 'blue.500',
+                    }
+                  : undefined
+              }
+              cursor={isDisabled ? 'not-allowed' : 'pointer'}
+              onClick={isDisabled ? undefined : () => field.onChange(!field.value)}
+              opacity={isDisabled ? 0.6 : 1}
             >
               <HStack justify='space-between' width='100%'>
                 <HStack spacing={4}>
-                  <Icon
-                    as={item.icon}
-                    boxSize={6}
-                    color={field.value ? 'blue.500' : 'gray.400'}
-                  />
+                  <Icon as={item.icon} boxSize={6} color={field.value ? 'blue.500' : 'gray.400'} />
                   <Stack spacing={0.5}>
                     <Text fontWeight='semibold' color='gray.900'>
                       {item.title}
@@ -59,8 +61,9 @@ const RequirementBox = ({ name, localForm, options }: RequirementBoxProps) => {
                 <Box onClick={(e) => e.stopPropagation()}>
                   <Checkbox
                     isChecked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
+                    onChange={isDisabled ? undefined : (e) => field.onChange(e.target.checked)}
                     colorScheme='blue'
+                    isDisabled={isDisabled}
                   />
                 </Box>
               </HStack>

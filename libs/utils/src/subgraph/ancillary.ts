@@ -4,7 +4,8 @@ import {
   ElectionsAuthority,
   HatAuthorityResponse,
   HatElectionResponse,
-  HatSignerGate,
+  // HatSignerGate,
+  HatSignerGateV2,
   SupportedChains,
 } from 'types';
 import { Hex } from 'viem';
@@ -95,7 +96,7 @@ const MODULES_QUERY = gql`
 
 export const HSG_SIGNER_QUERY = gql`
   query GetHsgSigner($ids: [ID]!) {
-    hatsSignerGates(where: { signerHats_: { id_in: $ids } }) {
+    hatsSignerGateV2S(where: { signerHats_: { id_in: $ids } }) {
       id
       type
       safe
@@ -170,10 +171,7 @@ export const fetchAncillaryModules = async (
   }
 };
 
-export const fetchElectionData = async (
-  id: string,
-  chainId: SupportedChains,
-): Promise<ElectionsAuthority | null> => {
+export const fetchElectionData = async (id: string, chainId: SupportedChains): Promise<ElectionsAuthority | null> => {
   if (!id) return null;
 
   try {
@@ -207,7 +205,7 @@ export const fetchHsgSigners = async ({
       ids: hatIds,
     });
 
-    return (response?.hatsSignerGates as HatSignerGate[]) || null;
+    return (response?.hatsSignerGates as HatSignerGateV2[]) || null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);

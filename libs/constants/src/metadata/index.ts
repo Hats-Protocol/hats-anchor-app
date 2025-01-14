@@ -54,5 +54,3 @@ export const MetadataConfig: Metadata = {
   },
   icons,
 };
-
-export default MetadataConfig;

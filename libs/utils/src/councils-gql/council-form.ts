@@ -1,10 +1,27 @@
 import { gql } from 'graphql-request';
 
+export const CREATE_USER = gql`
+  mutation CreateUser($address: String!, $email: String!, $name: String) {
+    createUser(address: $address, email: $email, name: $name) {
+      id
+      address
+      email
+      name
+    }
+  }
+`;
+
 export const CREATE_INITIAL_FORM = gql`
-  mutation CreateInitialForm {
-    createCouncilCreationForm(chain: 10) {
+  mutation CreateInitialForm($creator: String, $chain: Int, $admins: [UserInput!]) {
+    createCouncilCreationForm(creator: $creator, chain: $chain, admins: $admins) {
       id
       chain
+      creator
+      admins {
+        id
+        address
+        email
+      }
     }
   }
 `;
@@ -30,6 +47,8 @@ export const UPDATE_COUNCIL_FORM = gql`
     $createAgreementAdminRole: Boolean
     $agreementAdmins: [UserInput!]
     $payer: UserInput
+    $tokenAmount: Int
+    $tokenAddress: String
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -51,6 +70,8 @@ export const UPDATE_COUNCIL_FORM = gql`
       createAgreementAdminRole: $createAgreementAdminRole
       agreementAdmins: $agreementAdmins
       payer: $payer
+      tokenAmount: $tokenAmount
+      tokenAddress: $tokenAddress
     ) {
       id
       organizationName
@@ -101,6 +122,8 @@ export const UPDATE_COUNCIL_FORM = gql`
         name
         telegram
       }
+      tokenAmount
+      tokenAddress
     }
   }
 `;
@@ -157,6 +180,8 @@ export const GET_COUNCIL_FORM = gql`
         name
         telegram
       }
+      tokenAmount
+      tokenAddress
     }
   }
 `;

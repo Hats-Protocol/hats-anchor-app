@@ -28,22 +28,20 @@ const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
   11155111: studioUrl('hats-v1-sepolia', 'v1.1.0'),
 };
 
-const NETWORK_ENDPOINTS: EndpointsConfig = {
+export const NETWORK_ENDPOINTS: EndpointsConfig = {
   ...DEFAULT_ENDPOINTS_CONFIG,
   ..._.mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint: string) => ({ endpoint })),
 };
 
-export default NETWORK_ENDPOINTS;
-
 export const ANCILLARY_API_URL: {
   [key in SupportedChains]: string | undefined;
 } = {
-  1: studioUrl('hats-v1-ethereum-ancillary', 'v0.0.22'),
-  10: studioUrl('hats-v1-optimism-ancillary', 'v0.0.22'),
-  100: studioUrl('hats-v1-gnosis-chain-ancillary', 'v0.0.22'),
-  137: studioUrl('hats-v1-polygon-ancillary', 'v0.0.22'),
-  8453: studioUrl('hats-v1-base-ancillary', 'v0.0.23'),
-  42161: studioUrl('hats-v1-arbitrum-ancillary', 'v0.0.22'),
-  42220: studioUrl('hats-v1-celo-ancillary', 'v0.0.23'),
-  11155111: studioUrl('hats-v1-sepolia-ancillary', 'v0.0.23'),
+  1: studioUrl('hats-v1-ethereum-ancillary', 'v0.0.24'),
+  10: studioUrl('hats-v1-optimism-ancillary', 'v0.0.24'),
+  100: studioUrl('hats-v1-gnosis-chain-ancillary', 'v0.0.24'),
+  137: studioUrl('hats-v1-polygon-ancillary', 'v0.0.24'),
+  8453: studioUrl('hats-v1-base-ancillary', 'v0.0.25'),
+  42161: studioUrl('hats-v1-arbitrum-ancillary', 'v0.0.24'),
+  42220: studioUrl('hats-v1-celo-ancillary', 'v0.0.25'),
+  11155111: studioUrl('hats-v1-sepolia-ancillary', 'v0.0.25'),
 };

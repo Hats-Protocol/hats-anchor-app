@@ -89,10 +89,7 @@ const NumberInput = ({
   const handleChange = onChange || defaultHandleChange;
 
   return (
-    <FormControl
-      isInvalid={!!errors[name]}
-      isRequired={!!_.get(options, 'required')}
-    >
+    <FormControl isInvalid={!!errors[name]} isRequired={!!_.get(options, 'required')}>
       <Stack spacing={2} w='full'>
         {label && (
           <FormLabel mb={0} as={Text} fontSize='sm' fontWeight='normal'>
@@ -112,27 +109,14 @@ const NumberInput = ({
                 step={step}
                 min={numOptions?.min !== undefined ? numOptions.min : 0}
                 max={numOptions?.max}
-                borderColor={
-                  isError ? 'red.500' : isDirty ? 'cyan.500' : undefined
-                }
+                borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
+                isDisabled={isDisabled}
                 {...restField}
               >
-                <NumberInputField
-                  ref={ref}
-                  onChange={handleChange}
-                  name={restField.name}
-                  placeholder={placeholder}
-                  disabled={isDisabled}
-                />
-                {isDirty && (
+                <NumberInputField ref={ref} onChange={handleChange} name={restField.name} placeholder={placeholder} />
+                {isDirty && !isDisabled && (
                   <InputRightElement mr={6}>
-                    <IconButton
-                      icon={<GrUndo />}
-                      aria-label='Reset'
-                      onClick={onReset}
-                      size='xs'
-                      colorScheme='cyan'
-                    />
+                    <IconButton icon={<GrUndo />} aria-label='Reset' onClick={onReset} size='xs' colorScheme='cyan' />
                   </InputRightElement>
                 )}
                 <NumberInputStepper>
@@ -141,9 +125,7 @@ const NumberInput = ({
                 </NumberInputStepper>
               </ChakraNumberInput>
 
-              {rightAddon && (
-                <InputRightAddon px={0}>{rightAddon}</InputRightAddon>
-              )}
+              {rightAddon && <InputRightAddon px={0}>{rightAddon}</InputRightAddon>}
             </InputGroup>
           )}
         />

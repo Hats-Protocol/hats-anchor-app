@@ -31,11 +31,7 @@ export function findNextInvalidStep(
     // Check remaining sub-steps
     for (let i = currentSubStepIndex + 1; i < subSteps.length; i++) {
       const subStep = subSteps[i];
-      if (
-        !stepValidation.selectionSubSteps[
-          subStep as keyof typeof stepValidation.selectionSubSteps
-        ]
-      ) {
+      if (!stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps]) {
         return { step: 'selection', subStep };
       }
     }
@@ -48,11 +44,7 @@ export function findNextInvalidStep(
     if (stepKey === 'selection') {
       const subSteps = getSelectionSubSteps(requirements);
       for (const subStep of subSteps) {
-        if (
-          !stepValidation.selectionSubSteps[
-            subStep as keyof typeof stepValidation.selectionSubSteps
-          ]
-        ) {
+        if (!stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps]) {
           return { step: 'selection', subStep };
         }
       }
@@ -86,6 +78,8 @@ export function getNextStepButtonText(nextStep: NextStep): string {
           return 'Select Council Managers';
         case 'compliance':
           return 'Select Compliance Managers';
+        case 'tokens':
+          return 'Select Token Requirement';
         default:
           return 'Continue';
       }
