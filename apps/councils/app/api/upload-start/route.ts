@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { KeyRestrictions } from 'types';
+import { logger } from 'utils';
 
 const date = new Date();
 
@@ -16,9 +17,9 @@ export async function POST(request: Request) {
   try {
     const apiKey = await generateApiKey(keyRestrictions);
     return Response.json({ apiKey }, { status: 200 });
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
+  } catch (error) {
+    logger.error(error);
+
     return Response.json({ error: 'Server Error' }, { status: 500 });
   }
 }
@@ -49,8 +50,7 @@ const generateApiKey = async (keyRestrictions: KeyRestrictions) => {
       return JWT;
     })
     .catch((error) => {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      logger.error(error);
       return null;
     });
 };

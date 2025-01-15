@@ -1,63 +1,31 @@
 'use client';
 
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
-import type { CouncilFormData } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
+import { toNumber } from 'lodash';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { FiX } from 'react-icons/fi';
-import { councilsGraphqlClient } from 'utils';
-import { isAddress } from 'viem';
+import type { CouncilFormData, SupportedChains } from 'types';
+import { chainsMap, councilsGraphqlClient, CREATE_USER, isValidEmail, logger, UPDATE_PAYER } from 'utils';
 
-import { getChainId } from '../../lib/utils/chains';
-import { UsdcIcon } from '../icons/usdc-icon';
 import { NextStepButton } from '../next-step-button';
 
+const UsdcIcon = dynamic(() => import('icons').then((mod) => mod.UsdcIcon), {
+  ssr: false,
+});
+
 interface PaymentDetailsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   draftId: string;
   canEdit?: boolean;
 }
 
-const UPDATE_PAYER = `
-  mutation UpdateCouncilCreationForm($id: ID!, $payer: UserInput!) {
-    updateCouncilCreationForm(id: $id, payer: $payer) {
-      id
-      payer {
-        id
-        address
-        email
-        name
-        telegram
-      }
-    }
-  }
-`;
-
-const CREATE_USER = `
-  mutation CreateUser($address: String!, $email: String!, $name: String, $telegram: String) {
-    createUser(address: $address, email: $email, name: $name, telegram: $telegram) {
-      id
-      address
-      email
-      name
-      telegram
-    }
-  }
-`;
-
-export function PaymentDetailsModal({
-  isOpen,
-  onClose,
-  form: parentForm,
-  draftId,
-  canEdit = true,
-}: PaymentDetailsModalProps) {
+export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true }: PaymentDetailsModalProps) {
   const selectedChain = parentForm.watch('chain');
-  const chainId = getChainId(selectedChain);
+  const chainId = toNumber(selectedChain);
+  const { modals, setModals } = useOverlay();
 
   const modalForm = useForm({
     defaultValues: {
@@ -69,10 +37,6 @@ export function PaymentDetailsModal({
   });
 
   const [formError, setFormError] = useState<string | null>(null);
-
-  const isValidEmail = (email: string) => {
-    return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
-  };
 
   const isFormValid = () => {
     const values = modalForm.getValues();
@@ -128,15 +92,15 @@ export function PaymentDetailsModal({
       parentForm.setValue('payer', userData);
       setFormError(null);
       modalForm.reset();
-      onClose();
+      setModals?.({});
     } catch (error) {
       setFormError('Failed to save payment details. Please try again.');
-      console.error('Error saving payment details:', error);
+      logger.error('Error saving payment details:', error);
     }
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (modals?.paymentDetailsModal) {
       setFormError(null);
       const currentPayer = parentForm.getValues('payer');
       if (currentPayer) {
@@ -148,30 +112,11 @@ export function PaymentDetailsModal({
         });
       }
     }
-  }, [isOpen, parentForm, modalForm]);
+  }, [modals?.paymentDetailsModal, parentForm, modalForm]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='2xl'>
-      <ModalOverlay className='bg-black/50' />
-      <ModalContent
-        as='form'
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          modalForm.handleSubmit(handleSubmit)(e);
-        }}
-        className='relative rounded-lg bg-white'
-      >
-        <div className='p-6'>
-          <div className='pr-6'>
-            <h2 className='text-2xl font-bold text-gray-900'>Invoicing Details</h2>
-          </div>
-          <button type='button' onClick={onClose} className='absolute right-6 top-6 text-gray-400 hover:text-gray-500'>
-            <span className='sr-only'>Close</span>
-            <FiX className='h-5 w-5' />
-          </button>
-        </div>
-
+    <Modal name='paymentDetailsModal' title='Invoicing Details' size='2xl'>
+      <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='relative rounded-lg bg-white'>
         <div className='p-6'>
           <div className='space-y-6'>
             <div className='space-y-2'>
@@ -208,14 +153,13 @@ export function PaymentDetailsModal({
 
             <div className='space-y-2'>
               <label className='font-bold'>
-                {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account{' '}
-                <span className='text-sm font-normal text-gray-400'>Optional</span>
+                {chainsMap(chainId)?.name} Account <span className='text-sm font-normal text-gray-400'>Optional</span>
               </label>
               <AddressInput
                 name='address'
                 localForm={modalForm}
                 hideAddressButtons
-                chainId={chainId}
+                chainId={chainId as SupportedChains}
                 isDisabled={!canEdit}
               />
             </div>
@@ -236,7 +180,7 @@ export function PaymentDetailsModal({
             </div>
           </div>
         </div>
-      </ModalContent>
+      </form>
     </Modal>
   );
 }

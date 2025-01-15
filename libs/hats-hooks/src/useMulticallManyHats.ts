@@ -2,35 +2,10 @@ import { CONFIG } from '@hatsprotocol/constants';
 import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import {
-  compact,
-  filter,
-  flatten,
-  get,
-  includes,
-  isEmpty,
-  keys,
-  map,
-  reject,
-  size,
-  sortBy,
-} from 'lodash';
+import { compact, filter, flatten, get, includes, isEmpty, keys, map, reject, size, sortBy } from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import {
-  AppHat,
-  FormData,
-  HandlePendingTx,
-  HatDetails,
-  HatsCalls,
-  SupportedChains,
-} from 'types';
-import {
-  fetchToken,
-  handleDetailsPin,
-  invalidateAfterTransaction,
-  processHatForCalls,
-  summarizeActions,
-} from 'utils';
+import { AppHat, FormData, HandlePendingTx, HatDetails, HatsCalls, SupportedChains } from 'types';
+import { fetchToken, handleDetailsPin, processHatForCalls, summarizeActions } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 import { useAccount, useChainId, useWriteContract } from 'wagmi';
 
@@ -56,17 +31,12 @@ const useMulticallManyHats = ({
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const hatIds = filter(
-    map(storedData, 'id'),
-    (hatId: string | undefined) => hatId !== undefined,
-  ) as Hex[];
+  const hatIds = filter(map(storedData, 'id'), (hatId: string | undefined) => hatId !== undefined) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
   useEffect(() => {
     const prepareMulticallData = async () => {
-      const onlyOnchainHats = filter(treeToDisplay, (hat: AppHat) =>
-        includes(map(onchainHats, 'id'), hat.id),
-      );
+      const onlyOnchainHats = filter(treeToDisplay, (hat: AppHat) => includes(map(onchainHats, 'id'), hat.id));
 
       const removeEmptyHats = filter(storedData, (obj) => {
         const localKeys = keys(obj);
@@ -75,14 +45,9 @@ const useMulticallManyHats = ({
         return true;
       });
 
-      const deployableHatChanges = filter(
-        removeEmptyHats,
-        (hat: Partial<FormData>) => includes(adminHatIds, hat.id),
-      );
-      const allCallsPromises = map(
-        deployableHatChanges,
-        (hat: Partial<FormData>) =>
-          processHatForCalls(hat, onlyOnchainHats, chainId),
+      const deployableHatChanges = filter(removeEmptyHats, (hat: Partial<FormData>) => includes(adminHatIds, hat.id));
+      const allCallsPromises = map(deployableHatChanges, (hat: Partial<FormData>) =>
+        processHatForCalls(hat, onlyOnchainHats, chainId),
       );
       const allCalls = await Promise.all(allCallsPromises);
       setAllCallsData(allCalls as HatsCalls[]);
@@ -93,17 +58,8 @@ const useMulticallManyHats = ({
       setDetailsToPin(localDetailsToPin);
     };
 
-    if (!!chainId && chainId === currentChain && !!address && !!storedData)
-      prepareMulticallData();
-  }, [
-    chainId,
-    currentChain,
-    address,
-    storedData,
-    onchainHats,
-    treeToDisplay,
-    adminHatIds,
-  ]);
+    if (!!chainId && chainId === currentChain && !!address && !!storedData) prepareMulticallData();
+  }, [chainId, currentChain, address, storedData, onchainHats, treeToDisplay, adminHatIds]);
   // if (editMode) {
   //   console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
   // }
@@ -114,12 +70,7 @@ const useMulticallManyHats = ({
   const multicallTx = () => {
     // eslint-disable-next-line no-console
     console.log(allCallsData, detailsToPin, isAdminOfAnyHatWithChanges);
-    if (
-      isEmpty(allCallsData) ||
-      !chainId ||
-      chainId !== currentChain ||
-      !isAdminOfAnyHatWithChanges
-    ) {
+    if (isEmpty(allCallsData) || !chainId || chainId !== currentChain || !isAdminOfAnyHatWithChanges) {
       return undefined;
     }
 
@@ -160,8 +111,7 @@ const useMulticallManyHats = ({
       })
       .catch((error) => {
         if (
-          (error.name === 'TransactionExecutionError' ||
-            error.name === 'ContractFunctionExecutionError') &&
+          (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
           toast.error({
@@ -187,10 +137,7 @@ const useMulticallManyHats = ({
     queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
     queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
 
-    const newStoredData = filter(
-      storedData,
-      (hat: Partial<FormData>) => !includes(adminHatIds, hat.id),
-    );
+    const newStoredData = filter(storedData, (hat: Partial<FormData>) => !includes(adminHatIds, hat.id));
 
     setStoredData?.(newStoredData);
     // todo remove hatId
@@ -208,14 +155,11 @@ const useMulticallManyHats = ({
       const token = await fetchToken(size(detailsToPin));
       // TODO [low] handle no token/empty string
 
-      const promises = map(
-        compact(detailsToPin),
-        ({ chainId: cId, hatId, details }: HatPinDetails, index: number) => {
-          return setTimeout(() => {
-            return handleDetailsPin({ chainId: cId, hatId, details, token });
-          }, index * 500);
-        },
-      );
+      const promises = map(compact(detailsToPin), ({ chainId: cId, hatId, details }: HatPinDetails, index: number) => {
+        return setTimeout(() => {
+          return handleDetailsPin({ chainId: cId, hatId, details, token });
+        }, index * 500);
+      });
 
       await Promise.all(promises);
     }

@@ -1,64 +1,30 @@
-'use client';
-
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
-import type { CouncilFormData } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { FiX } from 'react-icons/fi';
-import { councilsGraphqlClient } from 'utils';
+import type { CouncilFormData, CouncilMember } from 'types';
+import { chainsMap, councilsGraphqlClient, CREATE_USER, getChainId, logger, UPDATE_USER } from 'utils';
 import { isAddress } from 'viem';
 
-import { getChainId } from '../../../lib/utils/chains';
 import { NextStepButton } from '../../next-step-button';
 
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
-}
-
 interface AddComplianceModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
+  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
   canEdit?: boolean;
 }
 
-const CREATE_USER = `
-  mutation CreateUser($address: String!, $email: String!, $name: String) {
-    createUser(address: $address, email: $email, name: $name) {
-      id
-      address
-      email
-      name
-    }
-  }
-`;
-
-const UPDATE_USER = `
-  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String) {
-    updateUser(id: $id, address: $address, email: $email, name: $name) {
-      id
-      address 
-      email
-      name
-    }
-  }
-`;
-
 export function AddComplianceModal({
-  isOpen,
-  onClose,
   form: parentForm,
   editingAdmin,
+  setEditingAdmin,
   canEdit = true,
 }: AddComplianceModalProps) {
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
+  const { modals, setModals } = useOverlay();
 
   const modalForm = useForm({
     defaultValues: {
@@ -139,15 +105,20 @@ export function AddComplianceModal({
 
       setFormError(null);
       modalForm.reset();
-      onClose();
+      setModals?.({});
     } catch (error) {
       setFormError('Failed to save user. Please try again.');
-      console.error('Error saving user:', error);
+      logger.error('Error saving user:', error);
     }
   };
 
+  const handleClose = () => {
+    setEditingAdmin(null);
+    setModals?.({});
+  };
+
   useEffect(() => {
-    if (isOpen) {
+    if (modals?.addComplianceModal) {
       setFormError(null);
       modalForm.reset({
         address: editingAdmin?.address || '',
@@ -155,32 +126,19 @@ export function AddComplianceModal({
         name: editingAdmin?.name || '',
       });
     }
-  }, [isOpen, editingAdmin, modalForm]);
+  }, [modals?.addComplianceModal, editingAdmin, modalForm]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='2xl'>
-      <ModalOverlay className='bg-black/50' />
-      <ModalContent
-        as='form'
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          modalForm.handleSubmit(handleSubmit)(e);
-        }}
-        className='p-8'
-      >
-        <div className='mb-8 flex items-center justify-between'>
-          <h2 className='text-2xl font-bold'>{editingAdmin ? 'Edit Compliance Manager' : 'Add Compliance Manager'}</h2>
-          <button type='button' onClick={onClose} className='text-black hover:opacity-70'>
-            <FiX className='h-5 w-5' />
-          </button>
-        </div>
-
+    <Modal
+      name='addComplianceModal'
+      title={editingAdmin ? 'Edit Compliance Manager' : 'Add Compliance Manager'}
+      onClose={handleClose}
+      size='2xl'
+    >
+      <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='p-8'>
         <div className='space-y-6'>
           <div className='space-y-2'>
-            <label className='font-bold'>
-              {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
-            </label>
+            <label className='font-bold'>{chainsMap(chainId).name} Account</label>
             <AddressInput
               name='address'
               localForm={modalForm}
@@ -224,7 +182,7 @@ export function AddComplianceModal({
             </NextStepButton>
           </div>
         </div>
-      </ModalContent>
+      </form>
     </Modal>
   );
 }

@@ -1,10 +1,10 @@
 'use client';
 
 import { Spinner } from '@chakra-ui/react';
-import { useCouncilForm } from 'contexts';
+import { useCouncilForm, useOverlay } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { StepProps } from 'types';
+import { CouncilMember, StepProps } from 'types';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -13,7 +13,8 @@ import { AdminsList } from './admins-list';
 
 export function SelectionManagementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setModals } = useOverlay();
+  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const admins = form.watch('admins') || [];
   const requirements = form.watch('requirements');
 
@@ -39,17 +40,24 @@ export function SelectionManagementStep({ onNext }: StepProps) {
 
         {admins.length > 0 && (
           <div>
-            <AdminsList name='admins' admins={admins} form={form} canEdit={canEdit} />
+            <AdminsList
+              name='admins'
+              admins={admins}
+              editingAdmin={editingAdmin}
+              setEditingAdmin={setEditingAdmin}
+              form={form}
+              canEdit={canEdit}
+            />
           </div>
         )}
 
         <div className='flex items-center justify-between'>
           <button
             type='button'
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setModals?.({ addAdminModal: true })}
             disabled={!canEdit}
-            className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
-              !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
+            className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
+              !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-sky-50'
             }`}
           >
             <FiUserPlus className='mr-2 h-4 w-4' />
@@ -64,7 +72,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
         </NextStepButton>
       </div>
 
-      <AddAdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} canEdit={canEdit} />
+      <AddAdminModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
     </form>
   );
 }

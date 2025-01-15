@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Image,
-  Skeleton,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Image, Skeleton, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { Modal, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
@@ -59,20 +51,10 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
   return (
     <>
       <RainbowConnectButton.Custom>
-        {({
-          account,
-          chain,
-          openChainModal,
-          openConnectModal,
-          mounted,
-          authenticationStatus,
-        }) => {
+        {({ account, chain, openChainModal, openConnectModal, mounted, authenticationStatus }) => {
           const ready = mounted && authenticationStatus !== 'loading';
           const connected =
-            ready &&
-            account &&
-            chain &&
-            (!authenticationStatus || authenticationStatus === 'authenticated');
+            ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated');
 
           const trackedOpenConnectModal = () => {
             posthog.capture('Opened Wallet Modal', {
@@ -90,13 +72,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
           };
 
           if (!ready) {
-            return (
-              <Skeleton
-                w={{ base: '100px', md: '200px' }}
-                h='40px'
-                borderRadius='md'
-              />
-            );
+            return <Skeleton w={{ base: '100px', md: '200px' }} h='40px' borderRadius='md' />;
           }
 
           return (() => {
@@ -110,11 +86,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
 
             if (chain.unsupported) {
               return (
-                <Button
-                  onClick={trackedOpenChainModal}
-                  type='button'
-                  variant='whiteFilled'
-                >
+                <Button onClick={trackedOpenChainModal} type='button' variant='whiteFilled'>
                   Wrong network
                 </Button>
               );
@@ -122,13 +94,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
 
             return (
               <Flex gap={2}>
-                <Button
-                  onClick={openChainModal}
-                  display='flex'
-                  alignItems='center'
-                  px={2}
-                  variant='whiteFilled'
-                >
+                <Button onClick={openChainModal} display='flex' alignItems='center' px={2} variant='whiteFilled'>
                   {chain.hasIcon && chain.iconUrl && (
                     <Image
                       alt={chain.name ?? 'Chain icon'}
@@ -140,11 +106,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
                   )}
                 </Button>
 
-                <Button
-                  variant='whiteFilled'
-                  onClick={openAccountModal}
-                  px={{ base: 2, md: 4 }}
-                >
+                <Button variant='whiteFilled' onClick={openAccountModal} px={{ base: 2, md: 4 }}>
                   <HStack spacing={2} align='center'>
                     {ensAvatar || fallbackAvatar ? (
                       <Box
@@ -158,12 +120,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
                         borderRadius='sm'
                       />
                     ) : (
-                      <Box
-                        height='14px'
-                        width='14px'
-                        borderRadius='50%'
-                        bg='green.700'
-                      />
+                      <Box height='14px' width='14px' borderRadius='50%' bg='green.700' />
                     )}
 
                     {!isMobile && (

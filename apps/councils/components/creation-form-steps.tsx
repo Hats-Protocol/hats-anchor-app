@@ -1,9 +1,11 @@
 'use client';
 
-import { StepValidation, useCouncilForm } from 'contexts';
-import Link from 'next/link';
+import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import type { StepValidation } from 'types';
+import { logger } from 'utils';
 
 interface Step {
   id: keyof StepValidation;
@@ -42,7 +44,8 @@ const BASE_STEPS: Step[] = [
 ];
 
 // Helper function to get step summary
-function getStepSummary(step: Step, form: any, stepValidation: StepValidation) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: StepValidation) {
   // If step is not valid, show sublabel
   if (!getStepValidation(step, stepValidation, form.watch('requirements'))) {
     return step.sublabel;
@@ -143,7 +146,7 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
           router.push(`/councils/new/${targetStep}?draftId=${draftId}`);
         }
       } catch (error) {
-        console.error('Failed to save step data:', error);
+        logger.error('Failed to save step data:', error);
         // Add error notification here
       } finally {
         setIsNavigating(false);
@@ -169,7 +172,7 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                     getStepValidation(step, stepValidation, requirements)
                       ? 'bg-white'
                       : 'border-2 ' +
-                        (index === currentStepIndex ? 'border-blue-500 bg-blue-100' : 'border-gray-200 bg-white')
+                        (index === currentStepIndex ? 'border-sky-600 bg-sky-100' : 'border-gray-200 bg-white')
                   } `}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
@@ -198,7 +201,7 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                 {step.id === 'payment' || (step.id === 'selection' && currentStep === 'selection') ? null : (
                   <div
                     className={`my-3 h-12 w-[2px] ${
-                      getStepValidation(step, stepValidation, requirements) ? 'bg-blue-500' : 'bg-gray-200'
+                      getStepValidation(step, stepValidation, requirements) ? 'bg-sky-600' : 'bg-gray-200'
                     }`}
                   />
                 )}
@@ -221,12 +224,12 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                     key={subStep.id}
                     onClick={() => handleStepNavigation('selection', subStep.id)}
                     className={`flex w-full items-center gap-3 border-l-[2px] ${
-                      status === 'completed' ? 'border-l-blue-500' : 'border-l-gray-200'
+                      status === 'completed' ? 'border-l-sky-600' : 'border-l-gray-200'
                     }`}
                   >
                     <div
                       className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
-                        status === 'current' ? 'border border-blue-500 bg-blue-100' : 'border border-gray-200 bg-white'
+                        status === 'current' ? 'border border-sky-600 bg-sky-100' : 'border border-gray-200 bg-white'
                       }`}
                     >
                       {status === 'completed' ? (

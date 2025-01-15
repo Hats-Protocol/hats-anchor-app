@@ -1,21 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import {
-  filter,
-  find,
-  flatten,
-  get,
-  isEmpty,
-  map,
-  reject,
-  size,
-  uniqBy,
-} from 'lodash';
+// import { useQuery } from '@tanstack/react-query';
+import { filter, find, flatten, map, reject, size, uniqBy } from 'lodash';
 import { useMemo } from 'react';
 import { AppHat, HatWearer, SupportedChains } from 'types';
-// import { batchFetchContractData, extendWearerDetails } from 'utils';
-
-// eslint-disable-next-line no-promise-executor-return
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // TODO move to utils/wearers
 // const fetchAdminWearers = async (
@@ -59,8 +45,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 //       );
 //     })
 //     .catch((err) => {
-//       // eslint-disable-next-line no-console
-//       console.error(err);
+//       logger.error(err);
 //       return [];
 //     });
 // };
@@ -79,10 +64,7 @@ const useHatAdminWearers = ({
   const adminHats = useMemo(() => {
     if (!selectedHat?.id || !selectedHat?.prettyId) return [];
 
-    const filteredList = filter(
-      treeToDisplay,
-      (h: AppHat) => h.prettyId && selectedHat.prettyId?.includes(h.prettyId),
-    );
+    const filteredList = filter(treeToDisplay, (h: AppHat) => h.prettyId && selectedHat.prettyId?.includes(h.prettyId));
     // exclude current hat
     return reject(filteredList, { id: selectedHat.id });
   }, [treeToDisplay, selectedHat?.prettyId, selectedHat?.id]);
@@ -122,9 +104,7 @@ const useHatAdminWearers = ({
     if (!data) return { code: 0, groups: 0, human: 0 };
 
     const contracts = filter(data, 'isContract');
-    const groups = filter(contracts, (w: HatWearer) =>
-      w?.contractName?.includes('GnosisSafeProxy'),
-    );
+    const groups = filter(contracts, (w: HatWearer) => w?.contractName?.includes('GnosisSafeProxy'));
 
     return {
       code: size(contracts) - size(groups) || 0,

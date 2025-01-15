@@ -1,31 +1,31 @@
 'use client';
 
-import type { CouncilFormData } from 'contexts';
-import { useState } from 'react';
+import { useOverlay } from 'contexts';
+import { SquarePen, Trash2 } from 'lucide-react';
+import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import type { CouncilFormData, CouncilMember } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
-import { EditIcon } from '../../icons/edit-icon';
-import { TrashIcon } from '../../icons/trash-icon';
 import { AddComplianceModal } from './add-compliance-modal';
-
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
-}
 
 interface ComplianceListProps {
   complianceAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
+  editingAdmin: CouncilMember | null;
+  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
 }
 
-export function ComplianceList({ complianceAdmins, form, canEdit = true }: ComplianceListProps) {
-  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export function ComplianceList({
+  complianceAdmins,
+  form,
+  canEdit = true,
+  editingAdmin,
+  setEditingAdmin,
+}: ComplianceListProps) {
+  const { setModals } = useOverlay();
 
   const handleRemove = (adminId: string) => {
     const currentAdmins = form.getValues('complianceAdmins') || [];
@@ -35,12 +35,7 @@ export function ComplianceList({ complianceAdmins, form, canEdit = true }: Compl
 
   const handleEdit = (admin: CouncilMember) => {
     setEditingAdmin(admin);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setEditingAdmin(null);
-    setIsModalOpen(false);
+    setModals?.({ addComplianceModal: true });
   };
 
   return (
@@ -57,13 +52,7 @@ export function ComplianceList({ complianceAdmins, form, canEdit = true }: Compl
         ))}
       </div>
 
-      <AddComplianceModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        form={form}
-        editingAdmin={editingAdmin}
-        canEdit={canEdit}
-      />
+      <AddComplianceModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
     </>
   );
 }
@@ -90,18 +79,20 @@ function ComplianceCard({
         {admin.name && <span className='text-sm font-medium text-gray-900'>{admin.name}</span>}
         <span className='text-sm text-gray-600'>{ensName || formatAddress(admin.address)}</span>
       </div>
+
       {canEdit && (
         <div className='flex items-center gap-3'>
           <button
             type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800'
+            className='flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700'
             onClick={onEdit}
           >
-            <EditIcon />
+            <SquarePen className='h-4 w-4 text-sky-600' />
             Edit
           </button>
+
           <button type='button' onClick={() => onRemove(admin.id)} className='text-red-700 hover:text-red-800'>
-            <TrashIcon />
+            <Trash2 className='h-4 w-4 text-red-700' />
           </button>
         </div>
       )}

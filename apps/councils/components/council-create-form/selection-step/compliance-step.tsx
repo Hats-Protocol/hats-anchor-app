@@ -1,15 +1,15 @@
 'use client';
 
-import { Spinner } from '@chakra-ui/react';
-import { useCouncilForm } from 'contexts';
+import { Icon, Spinner } from '@chakra-ui/react';
+import { useCouncilForm, useOverlay } from 'contexts';
 import { RadioBox } from 'forms';
 import { useState } from 'react';
+import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { StepProps } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
-import { ComplianceCheckIcon } from '../../icons/compliance-check-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddComplianceModal } from './add-compliance-modal';
@@ -24,7 +24,8 @@ interface CouncilMember {
 
 export function SelectionComplianceStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setModals } = useOverlay();
+  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const complianceAdmins = form.watch('complianceAdmins') || [];
   const createComplianceAdminRole = form.watch('createComplianceAdminRole');
   const admins = form.watch('admins') || [];
@@ -56,7 +57,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
   return (
     <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='flex items-center gap-2'>
-        <ComplianceCheckIcon />
+        <Icon as={BsPersonCheck} boxSize={6} />
         <h2 className='text-2xl font-bold'>Pass Compliance Check</h2>
       </div>
 
@@ -110,14 +111,20 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
 
             {complianceAdmins.length > 0 && (
               <div>
-                <ComplianceList complianceAdmins={complianceAdmins} form={form} canEdit={canEdit} />
+                <ComplianceList
+                  complianceAdmins={complianceAdmins}
+                  editingAdmin={editingAdmin}
+                  setEditingAdmin={setEditingAdmin}
+                  form={form}
+                  canEdit={canEdit}
+                />
               </div>
             )}
 
             <div className='flex items-center justify-between'>
               <button
                 type='button'
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setModals?.({ addComplianceModal: true })}
                 disabled={!canEdit}
                 className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
                   !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
@@ -143,7 +150,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
         </NextStepButton>
       </div>
 
-      <AddComplianceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} form={form} canEdit={canEdit} />
+      <AddComplianceModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
     </form>
   );
 }

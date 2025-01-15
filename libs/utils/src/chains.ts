@@ -11,15 +11,11 @@ export const CHAIN_MAPPING = {
 
 export const chainIdToString = (chainId: number | null): string | null => {
   if (!chainId) return null;
-  return (
-    CHAIN_MAPPING[chainId.toString() as keyof typeof CHAIN_MAPPING] || null
-  );
+  return CHAIN_MAPPING[chainId.toString() as keyof typeof CHAIN_MAPPING] || null;
 };
 
 export const chainStringToId = (chainString: string | null): number | null => {
   if (!chainString) return null;
-  const entry = Object.entries(CHAIN_MAPPING).find(
-    ([_, value]) => value === chainString,
-  );
+  const entry = Object.entries(CHAIN_MAPPING).find(([_, value]) => value === chainString);
   return entry ? parseInt(entry[0]) : null;
 };

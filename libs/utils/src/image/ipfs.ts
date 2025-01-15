@@ -8,16 +8,7 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import axios from 'axios';
-import {
-  find,
-  get,
-  keys,
-  pick,
-  startsWith,
-  toLower,
-  toString,
-  trim,
-} from 'lodash';
+import { find, get, keys, pick, startsWith, toLower, toString, trim } from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
@@ -42,11 +33,7 @@ export const ipfsUrl = (hash: string | undefined, publicGateway?: boolean) => {
   return `${GATEWAY_URL}${localHash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
 };
 
-export const pinJson = async (
-  data: object,
-  metadata: object,
-  token: string,
-) => {
+export const pinJson = async (data: object, metadata: object, token: string) => {
   const pinataData = JSON.stringify({
     pinataOptions: { cidVersion: 1 },
     pinataMetadata: { ...metadata },
@@ -87,16 +74,12 @@ export const pinImage = async ({
   const options = JSON.stringify({ cidVersion: 1 });
   formData.append('pinataOptions', options);
 
-  const res = await axios.post(
-    'https://api.pinata.cloud/pinning/pinFileToIPFS',
-    formData,
-    {
-      maxBodyLength: undefined,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const res = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
+    maxBodyLength: undefined,
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 
   return res.data.IpfsHash;
 };
@@ -121,35 +104,16 @@ interface handleDetailsPinProps {
   token: string;
 }
 
-export const handleDetailsPin = async ({
-  chainId,
-  hatId,
-  details,
-  token,
-}: handleDetailsPinProps) => {
-  const detailsName = `details_${toString(chainId)}_${hatIdDecimalToIp(
-    BigInt(hatId),
-  )}`;
+export const handleDetailsPin = async ({ chainId, hatId, details, token }: handleDetailsPinProps) => {
+  const detailsName = `details_${toString(chainId)}_${hatIdDecimalToIp(BigInt(hatId))}`;
 
   // TODO [low] handle different details schemas
-  const cid = `ipfs://${await pinJson(
-    { type: '1.0', data: details },
-    { name: detailsName },
-    token,
-  )}`;
+  const cid = `ipfs://${await pinJson({ type: '1.0', data: details }, { name: detailsName }, token)}`;
 
   return cid;
 };
 
-export const pinFileToIpfs = async ({
-  file,
-  fileName,
-  token,
-}: {
-  file: string;
-  fileName: string;
-  token: string;
-}) => {
+export const pinFileToIpfs = async ({ file, fileName, token }: { file: string; fileName: string; token: string }) => {
   const formData = new FormData();
 
   const localFile = new File([file], fileName, { type: 'text/plain' });
@@ -161,14 +125,11 @@ export const pinFileToIpfs = async ({
   const pinataOptions = JSON.stringify({ cidVersion: 1 });
   formData.append('pinataOptions', pinataOptions);
 
-  const request = await fetch(
-    'https://api.pinata.cloud/pinning/pinFileToIPFS',
-    {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    },
-  );
+  const request = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
   const response = await request.json();
   const ipfsHash = get(response, 'IpfsHash');
 
@@ -188,9 +149,7 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
   return axios
     .get(url, { timeout: 5000 })
-    .then((res) =>
-      Promise.resolve({ details: detailsField, data: get(res, 'data') }),
-    )
+    .then((res) => Promise.resolve({ details: detailsField, data: get(res, 'data') }))
     .catch((err) => {
       // eslint-disable-next-line no-console
       console.log(err);
@@ -290,8 +249,7 @@ export const authorityImageHandler = ({
 };
 
 export const checkIfIpfs = (url: string | undefined) => {
-  if (!url || typeof url !== 'string' || url === '-')
-    return { isIpfs: false, imageUrl: '', icon: undefined };
+  if (!url || typeof url !== 'string' || url === '-') return { isIpfs: false, imageUrl: '', icon: undefined };
 
   const isIpfs = url.startsWith('ipfs://');
 

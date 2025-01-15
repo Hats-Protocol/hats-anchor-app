@@ -5,11 +5,7 @@ import { AppHat } from 'types';
 import { Hex } from 'viem';
 import { useReadContract } from 'wagmi';
 
-const useWearerIsInGoodStanding = ({
-  wearer,
-  selectedHat,
-  chainId,
-}: UseWearerIsInGoodStanding) => {
+const useWearerIsInGoodStanding = ({ wearer, selectedHat, chainId }: UseWearerIsInGoodStanding) => {
   const hatId: string = get(selectedHat, 'id', 'none');
 
   const { data, isLoading } = useReadContract({

@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get } from 'lodash';
-import { CouncilMember } from 'types';
+// import { CouncilMember } from 'types';
 import { councilsGraphqlClient } from 'utils';
 
 // TODO support safe or id
-// TODO handle chainId
 const GET_COUNCIL = gql`
-  query getCouncil {
-    # council(where: { hsg: $id }) {
-    council(id: "cm5nwysyo00081tfnoao49rp5") {
+  query getCouncil($hsg: String, $chainId: Int!) {
+    councils(where: { hsg: $hsg, chain: $chainId }) {
       id
       hsg
       membersSelectionModule
@@ -22,14 +20,29 @@ const GET_COUNCIL = gql`
   }
 `;
 
-const getOffchainCouncilData = async ({ id, chainId }: { id: string; chainId: number }) => {
+type OffchainCouncilData = {
+  id: string;
+  hsg: string;
+  membersSelectionModule: string;
+  membersCriteriaModule: string;
+};
+
+const getOffchainCouncilData = async ({
+  hsg,
+  safe,
+  chainId,
+}: {
+  hsg?: string;
+  safe?: string;
+  chainId: number;
+}): Promise<OffchainCouncilData | null> => {
+  // TODO handle safe
   return councilsGraphqlClient
     .request<{
-      updateUser: CouncilMember;
-    }>(GET_COUNCIL) // { id, chainId })
+      councils: OffchainCouncilData[];
+    }>(GET_COUNCIL, { hsg, chainId })
     .then((data) => {
-      console.log('getOffchainCouncilData - result', data);
-      return get(data, 'council');
+      return get(data, 'councils[0]', null);
     })
     .catch((error) => {
       // eslint-disable-next-line no-console
@@ -38,9 +51,9 @@ const getOffchainCouncilData = async ({ id, chainId }: { id: string; chainId: nu
     });
 };
 
-export const useOffchainCouncilDetails = ({ id, chainId }: { id: string; chainId: number }) => {
+export const useOffchainCouncilDetails = ({ hsg, chainId }: { hsg: string; chainId: number }) => {
   return useQuery({
-    queryKey: ['offchainCouncilData', chainId, id],
-    queryFn: () => getOffchainCouncilData({ id, chainId }),
+    queryKey: ['offchainCouncilData', { chainId, hsg }],
+    queryFn: () => getOffchainCouncilData({ hsg, chainId }),
   });
 };

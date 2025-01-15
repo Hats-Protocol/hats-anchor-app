@@ -70,10 +70,14 @@ const MultiAddressInput = ({
   btnSize,
   checkEligibility = true,
 }: MultiAddressInputProps) => {
-  const { setValue, watch, control, setError, formState, clearErrors } = _.pick(
-    localForm,
-    ['setValue', 'watch', 'control', 'setError', 'formState', 'clearErrors'],
-  );
+  const { setValue, watch, control, setError, formState, clearErrors } = _.pick(localForm, [
+    'setValue',
+    'watch',
+    'control',
+    'setError',
+    'formState',
+    'clearErrors',
+  ]);
   const currentWearerList = useRef([] as Hex[]);
   const { errors } = _.pick(formState, ['errors']);
   const currentInput = watch?.(`${name}-currentAddress-input`) as Hex | string;
@@ -89,27 +93,17 @@ const MultiAddressInput = ({
   });
   const toast = useToast();
 
-  const currentSupply = useMemo(
-    () => _.toNumber(_.get(selectedHat, 'currentSupply')),
-    [selectedHat],
-  );
+  const currentSupply = useMemo(() => _.toNumber(_.get(selectedHat, 'currentSupply')), [selectedHat]);
   const maxSupply = useMemo(
-    () =>
-      _.toNumber(currentMaxSupply) ||
-      _.toNumber(_.get(selectedHat, 'maxSupply')),
+    () => _.toNumber(currentMaxSupply) || _.toNumber(_.get(selectedHat, 'maxSupply')),
     [selectedHat, currentMaxSupply],
   );
   const currentWearerIds = useMemo(
-    () =>
-      _.map(_.get(selectedHat, 'wearers'), (h: AppHat) =>
-        _.toLower(h.id),
-      ) as unknown as Hex[],
+    () => _.map(_.get(selectedHat, 'wearers'), (h: AppHat) => _.toLower(h.id)) as unknown as Hex[],
     [selectedHat],
   ); // TODO handle more than N wearers
 
-  currentWearerList.current = _.map(fields, ({ address }: { address: Hex }) =>
-    _.toLower(address),
-  ) as unknown as Hex[];
+  currentWearerList.current = _.map(fields, ({ address }: { address: Hex }) => _.toLower(address)) as unknown as Hex[];
   const wouldExceedMaxSupply = overrideMaxSupply
     ? false
     : _.size(currentWearerList.current) + 1 + currentSupply > maxSupply;
@@ -123,11 +117,7 @@ const MultiAddressInput = ({
       } else {
         append({ address: currentInput, ens: '' });
       }
-      setValue?.(
-        `${name}-currentAddress-input`,
-        undefined,
-        defaultFieldOptions,
-      );
+      setValue?.(`${name}-currentAddress-input`, undefined, defaultFieldOptions);
       setValue(`${name}-currentAddress`, undefined, defaultFieldOptions);
       setValue(`${name}-currentAddress-name`, undefined, defaultFieldOptions);
       clearErrors?.(`${name}-currentAddress`);
@@ -140,8 +130,7 @@ const MultiAddressInput = ({
     const checkAddressEligibility = async () => {
       if (!isAddress(currentInput) && !currentResolvedAddress) return;
 
-      const localAddress = (_.toLower(currentResolvedAddress) ||
-        _.toLower(currentInput)) as Hex;
+      const localAddress = (_.toLower(currentResolvedAddress) || _.toLower(currentInput)) as Hex;
 
       // check if address is already in current wearer list
       if (_.includes(currentWearerList.current, localAddress)) {
@@ -155,10 +144,7 @@ const MultiAddressInput = ({
 
       if (checkEligibility) {
         // check if address is already in the local wearer list
-        const isInWearerList = _.includes(
-          currentWearerIds,
-          _.toLower(localAddress),
-        );
+        const isInWearerList = _.includes(currentWearerIds, _.toLower(localAddress));
         if (isInWearerList) {
           setError?.(`${name}-currentAddress`, {
             type: 'custom',
@@ -250,7 +236,8 @@ const MultiAddressInput = ({
     //   isCancelled.current = true;
     // };
 
-    // intentionally omitting 'setValue', and 'updateWearerList' from dependencies
+    // intentionally omitting, 'errors', 'setErrors', 'setValue', and 'updateWearerList' from dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentInput,
     currentSupply,
@@ -302,12 +289,9 @@ const MultiAddressInput = ({
         _.differenceWith(
           _.filter(_.flatten(results.data), isAddress),
           currentWearerIds,
-          (csvAddress: unknown, wearer: unknown) =>
-            csvAddress === _.get(wearer as HatWearer, 'address'),
+          (csvAddress: unknown, wearer: unknown) => csvAddress === _.get(wearer as HatWearer, 'address'),
         ),
-        _.toNumber(maxSupply) -
-          _.size(currentWearerList) -
-          _.size(currentWearerIds),
+        _.toNumber(maxSupply) - _.size(currentWearerList) - _.size(currentWearerIds),
       );
 
       let eligibleAddresses = csvAddresses;
@@ -323,22 +307,14 @@ const MultiAddressInput = ({
           }),
         );
         const eligibilityOfAddresses = await Promise.all(promises);
-        eligibleAddresses = _.filter(
-          csvAddresses,
-          (v: Hex, i: number) => eligibilityOfAddresses[i],
-        );
-        const ineligibleWearersCount = _.size(
-          _.filter(eligibilityOfAddresses, (v: boolean) => !v),
-        );
+        eligibleAddresses = _.filter(csvAddresses, (v: Hex, i: number) => eligibilityOfAddresses[i]);
+        const ineligibleWearersCount = _.size(_.filter(eligibilityOfAddresses, (v: boolean) => !v));
         if (ineligibleWearersCount > 0) {
           toast.info({
-            title: `${ineligibleWearersCount} wearer${
-              ineligibleWearersCount > 1 ? 's' : ''
-            } ${
+            title: `${ineligibleWearersCount} wearer${ineligibleWearersCount > 1 ? 's' : ''} ${
               ineligibleWearersCount > 1 ? 'were' : 'was'
             } not eligible to be added`,
-            description:
-              'Check the eligibility module to determine eligible wearers',
+            description: 'Check the eligibility module to determine eligible wearers',
           });
         }
       }
@@ -354,22 +330,21 @@ const MultiAddressInput = ({
   );
 
   // TODO handle csv upload component
-  const { getRootProps, getInputProps, isDragAccept, isDragReject } =
-    useDropzone({
-      accept: { 'text/csv': ['.csv'] },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onDrop: (droppedFiles: any) => {
-        const file = droppedFiles[0];
-        if (!file) return;
-        Papa.parse(file, {
-          complete: (data: { data: unknown[] }) => handleWearerImport(data),
-          error: (error: Error) => {
-            // eslint-disable-next-line no-console
-            console.error('Error parsing CSV file: ', error);
-          },
-        });
-      },
-    });
+  const { getRootProps, getInputProps, isDragAccept, isDragReject } = useDropzone({
+    accept: { 'text/csv': ['.csv'] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onDrop: (droppedFiles: any) => {
+      const file = droppedFiles[0];
+      if (!file) return;
+      Papa.parse(file, {
+        complete: (data: { data: unknown[] }) => handleWearerImport(data),
+        error: (error: Error) => {
+          // eslint-disable-next-line no-console
+          console.error('Error parsing CSV file: ', error);
+        },
+      });
+    },
+  });
 
   if (!localForm) return null;
 
@@ -393,12 +368,7 @@ const MultiAddressInput = ({
                   <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
                 </InputLeftElement>
 
-                <ChakraInput
-                  value={address}
-                  bg='whiteAlpha.600'
-                  readOnly
-                  w='calc(100% - 2rem)'
-                />
+                <ChakraInput value={address} bg='whiteAlpha.600' readOnly w='calc(100% - 2rem)' />
               </InputGroup>
               {ens && (
                 <Text size='sm' color='blackAlpha.600'>
@@ -435,10 +405,7 @@ const MultiAddressInput = ({
                   isDisabled={
                     !!errors?.[`${name}-currentAddress`] ||
                     !currentResolvedAddress ||
-                    _.includes(
-                      currentWearerList.current,
-                      _.toLower(currentResolvedAddress),
-                    )
+                    _.includes(currentWearerList.current, _.toLower(currentResolvedAddress))
                   }
                   onClick={handleAddWearer}
                   aria-label='Add Another Wallet'
@@ -467,18 +434,12 @@ const MultiAddressInput = ({
 
           <Collapse in={collapseIsOpen}>
             <FormControl id='csvFile'>
-              <Text
-                size='sm'
-                textTransform='uppercase'
-                fontWeight='medium'
-                mt={4}
-              >
+              <Text size='sm' textTransform='uppercase' fontWeight='medium' mt={4}>
                 Upload CSV
               </Text>
               <Text size='sm' mt={1} variant='light' mb={4}>
-                The CSV file must only contain Ethereum addresses, one per line.
-                ENS is currently not supported. Any additional data will be
-                ignored.
+                The CSV file must only contain Ethereum addresses, one per line. ENS is currently not supported. Any
+                additional data will be ignored.
               </Text>
               <DropZone
                 getRootProps={getRootProps}

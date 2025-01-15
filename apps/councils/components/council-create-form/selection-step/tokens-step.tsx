@@ -3,19 +3,20 @@
 import { Spinner } from '@chakra-ui/react';
 import { getChainTokens } from '@hatsprotocol/constants';
 import { useCouncilForm } from 'contexts';
-import { chainStringToId } from 'utils';
+import { toNumber } from 'lodash';
+import { GemIcon } from 'lucide-react';
+import { StepProps } from 'types';
 
-import { HoldTokensIcon } from '../../icons/hold-tokens-icon';
 import { NextStepButton } from '../../next-step-button';
 import { TokenNumberInput } from '../../token-number-input';
 import { TokenSelect } from '../../token-select';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 
-export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
+export function SelectionTokensStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const requirements = form.watch('requirements');
   const selectedChain = form.watch('chain');
-  const chainId = chainStringToId(selectedChain);
+  const chainId = toNumber(selectedChain);
   const availableTokens = getChainTokens(chainId as number);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
@@ -32,7 +33,7 @@ export function SelectionTokensStep({ onNext }: { onNext: () => void }) {
     <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='space-y-2'>
         <div className='flex items-center gap-3'>
-          <HoldTokensIcon />
+          <GemIcon />
           <h2 className='text-2xl font-bold'>Hold Tokens</h2>
         </div>
       </div>

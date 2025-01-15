@@ -1,7 +1,9 @@
 'use client';
 
-import { StepValidation, useCouncilForm } from 'contexts';
+import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
+import type { StepValidation } from 'types';
+import { logger } from 'utils';
 
 import { DetailsStep } from './details-step';
 import { OnboardingStep } from './onboarding-step';
@@ -25,13 +27,13 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
   const { persistForm, form, stepValidation, setStepValidation } = useCouncilForm();
 
   const handleNext = async () => {
-    console.log('handleNext', step, subStep);
+    logger.debug('handleNext', step, subStep);
     try {
       await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
 
       const nextStep = findNextInvalidStep(stepValidation, step, subStep, form.watch('requirements'));
-      console.log('nextStep', nextStep);
+      logger.debug('nextStep', nextStep);
 
       if (nextStep.subStep) {
         router.push(`/councils/new/${nextStep.step}?subStep=${nextStep.subStep}&draftId=${draftId}`);
@@ -39,7 +41,7 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
         router.push(`/councils/new/${nextStep.step}?draftId=${draftId}`);
       }
     } catch (error) {
-      console.error('Failed to save form data:', error);
+      logger.error('Failed to save form data:', error);
       setStepValidation(step as keyof StepValidation, false);
     }
   };

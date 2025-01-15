@@ -3,15 +3,15 @@
 import '@uiw/react-md-editor/markdown-editor.css';
 
 import { Spinner } from '@chakra-ui/react';
-import { useCouncilForm } from 'contexts';
+import { useCouncilForm, useOverlay } from 'contexts';
 import { MarkdownEditor, RadioBox } from 'forms';
+import { FileText } from 'lucide-react';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
 import { formatAddress } from 'utils';
 import { useEnsName } from 'wagmi';
 
-import { SignAgreementIcon } from '../../icons/sign-agreement-icon';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddAgreementAdminModal } from './add-agreement-admin-modal';
@@ -33,7 +33,8 @@ function AdminDisplay({ admin }: { admin: CouncilMember }) {
 
 export function SelectionAgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setModals } = useOverlay();
+  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const requirements = form.watch('requirements');
   const agreement = form.watch('agreement');
   const agreementAdmins = form.watch('agreementAdmins') || [];
@@ -54,7 +55,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     <form className='mx-auto flex w-[600px] flex-col space-y-6 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='space-y-4'>
         <div className='flex items-center gap-2'>
-          <SignAgreementIcon />
+          <FileText />
           <h2 className='text-2xl font-bold'>Sign Agreement</h2>
         </div>
         <p className='text-gray-600'>Add an agreement that Council Members sign and abide by to be on the council.</p>
@@ -112,14 +113,20 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
 
             {agreementAdmins.length > 0 && (
               <div>
-                <AgreementAdminsList agreementAdmins={agreementAdmins} form={form} canEdit={canEdit} />
+                <AgreementAdminsList
+                  agreementAdmins={agreementAdmins}
+                  editingAdmin={editingAdmin}
+                  setEditingAdmin={setEditingAdmin}
+                  form={form}
+                  canEdit={canEdit}
+                />
               </div>
             )}
 
             <div className='flex items-center justify-between'>
               <button
                 type='button'
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setModals?.({ addAgreementAdminModal: true })}
                 disabled={!canEdit}
                 className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
                   !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
@@ -147,9 +154,9 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       </div>
 
       <AddAgreementAdminModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
         form={form}
+        editingAdmin={editingAdmin}
+        setEditingAdmin={setEditingAdmin}
         canEdit={canEdit}
       />
     </form>

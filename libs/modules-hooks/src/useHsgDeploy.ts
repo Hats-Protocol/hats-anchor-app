@@ -17,13 +17,7 @@ const DEPLOY_TYPE = {
   mhsg: 'mhsg',
 };
 
-export const useHsgDeploy = ({
-  chainId,
-  afterSuccess,
-  localForm,
-  handlePendingTx,
-  onError,
-}: UseHsgDeployProps) => {
+export const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onError }: UseHsgDeployProps) => {
   const waitForSubgraph = useWaitForSubgraph({ chainId });
   const queryClient = useQueryClient();
   const toast = useToast();
@@ -103,8 +97,7 @@ export const useHsgDeploy = ({
       console.log(error);
       onError();
       if (
-        (error.name === 'TransactionExecutionError' ||
-          error.name === 'ContractFunctionExecutionError') &&
+        (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
         error.message.includes('User rejected the request')
       ) {
         toast.error({
@@ -125,7 +118,7 @@ export const useHsgDeploy = ({
 
   const deployHsgAndSafe = useCallback(async () => {
     const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig);
+    const walletClient = await getWalletClient(wagmiConfig());
 
     if (!client || !walletClient?.account) {
       // eslint-disable-next-line no-console
@@ -165,7 +158,7 @@ export const useHsgDeploy = ({
 
   const deployHsgOnly = useCallback(async () => {
     const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig);
+    const walletClient = await getWalletClient(wagmiConfig());
 
     if (!client || !walletClient?.account) {
       // eslint-disable-next-line no-console
@@ -207,7 +200,7 @@ export const useHsgDeploy = ({
 
   const deployMhsgAndSafe = useCallback(async () => {
     const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig);
+    const walletClient = await getWalletClient(wagmiConfig());
 
     if (!client || !walletClient?.account) {
       // eslint-disable-next-line no-console
@@ -246,7 +239,7 @@ export const useHsgDeploy = ({
 
   const deployMhsgOnly = useCallback(async () => {
     const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig);
+    const walletClient = await getWalletClient(wagmiConfig());
 
     if (!client || !walletClient?.account) {
       // eslint-disable-next-line no-console

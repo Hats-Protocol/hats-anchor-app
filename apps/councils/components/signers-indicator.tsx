@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { isNumber, map } from 'lodash';
 // bg-gray-700
 const SignerIndicator = ({
   index,
@@ -9,7 +9,7 @@ const SignerIndicator = ({
   threshold: number | undefined;
   signers: number | undefined;
 }) => {
-  if (!signers || !threshold) return null;
+  if (!isNumber(signers) || !isNumber(threshold)) return null;
 
   if (signers < index) {
     if (index <= threshold) {
@@ -31,7 +31,7 @@ const SignerIndicator = ({
 };
 
 export const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorProps) => {
-  if (!threshold || !signers || !maxSigners) return null;
+  if (!isNumber(threshold) || !isNumber(signers) || !isNumber(maxSigners)) return null;
 
   return (
     <div className='flex w-fit flex-col gap-2'>
@@ -47,7 +47,8 @@ export const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndi
         </p>
       ) : (
         <p className='text-center'>
-          {signers} signer{signers > 1 ? 's' : ''} of {threshold} required
+          {signers > 0 ? signers : 'No'} signer{signers > 1 || signers === 0 ? 's' : ''} of {threshold} required and{' '}
+          {maxSigners} max
         </p>
       )}
     </div>

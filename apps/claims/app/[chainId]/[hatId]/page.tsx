@@ -8,7 +8,7 @@ import { ClaimsHelperButtons, StandaloneBottomMenu } from 'organisms';
 import { Claims } from 'pages';
 import { SupportedChains } from 'types';
 import { HatDeco } from 'ui';
-import { fetchHatsDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh, logger } from 'utils';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
@@ -81,8 +81,7 @@ export async function generateMetadata({ params }: TreeDetailsProps): Promise<Me
       };
     })
     .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
+      logger.error(err);
       return {};
     });
 }

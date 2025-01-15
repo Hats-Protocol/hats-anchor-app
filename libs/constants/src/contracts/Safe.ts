@@ -352,9 +352,7 @@ export const SAFE_ABI = [
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'bytes32', name: 'hashToApprove', type: 'bytes32' },
-    ],
+    inputs: [{ internalType: 'bytes32', name: 'hashToApprove', type: 'bytes32' }],
     name: 'approveHash',
     outputs: [],
     stateMutability: 'nonpayable',

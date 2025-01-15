@@ -70,7 +70,7 @@ const Providers = ({ children }: Props) => {
 
   return (
     <ChakraBaseProvider theme={theme}>
-      <WagmiProvider config={wagmiConfig}>
+      <WagmiProvider config={wagmiConfig()}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider>
             <ReactQueryDevtools initialIsOpen={false} />

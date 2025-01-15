@@ -4,19 +4,15 @@ import { Button, Checkbox, Icon, Tooltip } from '@chakra-ui/react';
 import { Ruleset, WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
-import { filter, find, first, flatten, get, map, split, toLower } from 'lodash';
+import { filter, find, first, flatten, get, isEmpty, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
-import { BsCheckSquareFill, BsPencilSquare } from 'react-icons/bs';
+import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
 import { Skeleton } from 'ui';
-import { formatAddress, parseCouncilSlug } from 'utils';
+import { formatAddress, logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
 import { AddUserModal } from './add-user-modal';
-
-// TODO hardcode
-const selectionModuleAddress = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
-const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
 const MemberRow = ({
   member,
@@ -52,12 +48,12 @@ const MemberRow = ({
   // TODO member is missing profile data for details edit form
 
   return (
-    <div className='flex h-16 justify-between border-b border-gray-200' key={member.address}>
+    <div className='flex h-16 justify-between border-b border-gray-200'>
       <div className='flex items-center'>
         <div className='flex w-12 items-center justify-center'>
           <Checkbox />
         </div>
-        <div className='flex h-full w-[250px] items-center p-2' key={member.address}>
+        <div className='flex h-full w-[250px] items-center p-2'>
           <p>{formatAddress(member.address)}</p>
         </div>
       </div>
@@ -81,7 +77,7 @@ const MemberRow = ({
               ) : (
                 <>
                   <p className='text-red-700'>No</p>
-                  <Icon as={BsCheckSquareFill} color='red.500' key={`${rule.address}-${member.address}`} />
+                  <Icon as={BsXSquareFill} color='red.500' key={`${rule.address}-${member.address}`} />
                 </>
               )}
             </div>
@@ -121,27 +117,28 @@ const MembersPage = ({ slug }: { slug: string }) => {
     address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
-  const { data: offchainCouncilData, isLoading: isLoadingOffchainCouncilData } = useOffchainCouncilDetails({
-    id: address,
+  const { data: offchainCouncilData } = useOffchainCouncilDetails({
+    hsg: address,
     chainId: chainId ?? 11155111,
   });
-  console.log('offchainCouncilData', offchainCouncilData);
+  // console.log('offchainCouncilData', offchainCouncilData);
 
   // TODO fetch module labels
   // TODO more profile data about allowlist members
   const { data: allowlist } = useAllowlist({
-    id: selectionModuleAddress,
+    id: offchainCouncilData?.membersSelectionModule,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
+  logger.debug('Selection Allowlist', allowlist);
 
   const remainingModules = filter(
-    first(eligibilityRules), // TODO hardcode "flatten" outer Rulesets
-    (rule) => toLower(rule.address) !== toLower(selectionModuleAddress),
+    flatten(eligibilityRules), // TODO hardcoded "flatten" outer Rulesets
+    (rule) => toLower(rule.address) !== toLower(offchainCouncilData?.membersSelectionModule),
   );
 
   const selectionModule = find(
     flatten(eligibilityRules),
-    (rule) => toLower(rule.address) === toLower(selectionModuleAddress),
+    (rule) => toLower(rule.address) === toLower(offchainCouncilData?.membersSelectionModule),
   );
   const addAccount = find(
     get(selectionModule, 'module.writeFunctions'),
@@ -154,6 +151,12 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   const addUserToCouncil = async (user: CouncilMember | undefined) => {
     if (!user?.address || !addAccount) return;
+    // console.log({
+    //   moduleId: get(selectionModule, 'module.implementationAddress'),
+    //   instance: get(selectionModule, 'address'),
+    //   func: addAccount as ModuleFunction,
+    //   args: { Account: user.address },
+    // });
     // TODO handle pending tx state
     await callModuleFn({
       moduleId: get(selectionModule, 'module.implementationAddress'),
@@ -193,7 +196,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
           </div>
 
           {map(remainingModules, (rule) => {
-            if (toLower(rule.address) === toLower(criteriaModule)) {
+            if (toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule)) {
               return (
                 <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
                   <p className='text-center'>Compliance</p>
@@ -214,16 +217,22 @@ const MembersPage = ({ slug }: { slug: string }) => {
         </div>
       </div>
 
-      {map(allowlist, (member: CouncilMember) => (
-        <MemberRow
-          key={member.address}
-          member={member}
-          remainingModules={remainingModules}
-          chainId={chainId as SupportedChains}
-          signerHat={primarySignerHat as AppHat}
-          eligibilityRules={eligibilityRules || undefined}
-        />
-      ))}
+      {!isEmpty(allowlist) ? (
+        map(allowlist, (member: CouncilMember) => (
+          <MemberRow
+            key={member.address}
+            member={member}
+            remainingModules={remainingModules}
+            chainId={chainId as SupportedChains}
+            signerHat={primarySignerHat as AppHat}
+            eligibilityRules={eligibilityRules || undefined}
+          />
+        ))
+      ) : (
+        <div className='flex h-20 items-center justify-center gap-4'>
+          <p>No members found</p>
+        </div>
+      )}
 
       <div className='flex pt-8'>
         <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>

@@ -4,7 +4,7 @@ import { first, get, pick, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { TreePage, TreePageMobile } from 'pages';
 import { SearchParamsProps } from 'types';
-import { fetchHatsDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh, logger } from 'utils';
 
 const TreeDetails = ({ params }: TreeDetailsProps) => {
   const { chainId, treeId } = params;
@@ -58,9 +58,8 @@ export async function generateMetadata({ params }: TreeDetailsProps): Promise<Me
         ...includeDescription,
       };
     })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
+    .catch((error) => {
+      logger.error(error);
       return {};
     });
 }

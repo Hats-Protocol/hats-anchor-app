@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 export const ERC1155_ABI = [
   {
     anonymous: false,

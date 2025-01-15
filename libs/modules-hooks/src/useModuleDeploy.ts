@@ -1,8 +1,4 @@
-import {
-  CONFIG,
-  CONTROLLER_TYPES,
-  DEPLOYMENT_TYPES,
-} from '@hatsprotocol/constants';
+import { CONFIG, CONTROLLER_TYPES, DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   deployClaimsHatter,
@@ -17,16 +13,9 @@ import { useToast } from 'hooks';
 import _, { get, pick } from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import {
-  AppHat,
-  DeploymentType,
-  FormData,
-  HandlePendingTx,
-  ModuleDetails,
-  SupportedChains,
-} from 'types';
+import { AppHat, DeploymentType, FormData, HandlePendingTx, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useWalletClient } from 'wagmi';
 
 import useHatsModules from './useHatsModules';
 import useMultiClaimsHatterCheck from './useMultiClaimsHatterCheck';
@@ -87,13 +76,12 @@ const useModuleDeploy = ({
   const queryClient = useQueryClient();
   const { modules } = useHatsModules({ chainId });
   const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
   const hatId = selectedHat ? BigInt(selectedHat?.id) : BigInt(0);
   const adminHat = values?.adminHat as Hex | undefined;
   const incrementWearers = values?.incrementWearers as string | undefined;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
-  const claimabilityType = values?.initialClaimabilityType as
-    | number
-    | undefined;
+  const claimabilityType = values?.initialClaimabilityType as number | undefined;
   const claimsHatterModule = _.find(modules, {
     name: CONFIG.modules.claimsHatter,
   });
@@ -117,14 +105,13 @@ const useModuleDeploy = ({
   //   hatId,
   //   claimabilityType,
   // );
-  const deployModuleAndRegisterWithClaimsHatterArgs =
-    prepareDeployModuleAndRegisterWithClaimsHatterArgs({
-      selectedModuleDetails,
-      isLocalFormValid: localForm.formState.isValid,
-      values,
-      hatId,
-      claimabilityType,
-    });
+  const deployModuleAndRegisterWithClaimsHatterArgs = prepareDeployModuleAndRegisterWithClaimsHatterArgs({
+    selectedModuleDetails,
+    isLocalFormValid: localForm.formState.isValid,
+    values,
+    hatId,
+    claimabilityType,
+  });
 
   const adminHatData = useMemo(() => {
     const storedHat = _.find(storedData, ['id', adminHat]);
@@ -166,8 +153,7 @@ const useModuleDeploy = ({
       const hatIds = _.uniq(_.map(moduleHats, 'id'));
       const updatedHats: any[] = _.map(
         hatIds,
-        (id: Hex) =>
-          _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
+        (id: Hex) => _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
       );
       setStoredData?.(updatedHats);
       toast.success({
@@ -178,14 +164,7 @@ const useModuleDeploy = ({
 
       onAllSuccess();
     },
-    [
-      storedData,
-      selectedHat,
-      setStoredData,
-      toast,
-      selectedModuleDetails,
-      onAllSuccess,
-    ],
+    [storedData, selectedHat, setStoredData, toast, selectedModuleDetails, onAllSuccess],
   );
 
   const moduleAndClaimsHatterDeploySuccess = useCallback(
@@ -206,12 +185,7 @@ const useModuleDeploy = ({
         adminHat: adminHatData,
         incrementWearers,
       });
-      const hatIds = _.uniq(
-        _.concat(
-          _.map(updatedHatsWithModule, 'id'),
-          _.map(updatedHatsWithClaimsHatter, 'id'),
-        ),
-      );
+      const hatIds = _.uniq(_.concat(_.map(updatedHatsWithModule, 'id'), _.map(updatedHatsWithClaimsHatter, 'id')));
       const updatedHats: any[] = _.map(hatIds, (id: Hex) => {
         const hatterHat = _.find(updatedHatsWithClaimsHatter, {
           id,
@@ -244,21 +218,17 @@ const useModuleDeploy = ({
     ],
   );
 
-  const {
-    writeAsync: deployModuleAndRegisterWithClaimsHatter,
-    isLoading: isLoadingMultiClaimsHatter,
-  } = useMultiClaimsHatterContractWrite({
-    functionName: 'setHatClaimabilityAndCreateModule',
-    address: instanceAddress,
-    enabled:
-      !!instanceAddress &&
-      !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
-    args: deployModuleAndRegisterWithClaimsHatterArgs,
-    chainId,
-    handlePendingTx,
-    afterSuccess: onlyModuleDeploySuccess,
-    hatId: selectedHat?.id,
-  });
+  const { writeAsync: deployModuleAndRegisterWithClaimsHatter, isLoading: isLoadingMultiClaimsHatter } =
+    useMultiClaimsHatterContractWrite({
+      functionName: 'setHatClaimabilityAndCreateModule',
+      address: instanceAddress,
+      enabled: !!instanceAddress && !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
+      args: deployModuleAndRegisterWithClaimsHatterArgs,
+      chainId,
+      handlePendingTx,
+      afterSuccess: onlyModuleDeploySuccess,
+      hatId: selectedHat?.id,
+    });
 
   const onlyClaimsHatterDeploySuccess = useCallback(
     (newInstance?: Hex | null) => {
@@ -281,25 +251,14 @@ const useModuleDeploy = ({
 
       onAllSuccess();
     },
-    [
-      storedData,
-      adminHatData,
-      incrementWearers,
-      setStoredData,
-      toast,
-      onAllSuccess,
-    ],
+    [storedData, adminHatData, incrementWearers, setStoredData, toast, onAllSuccess],
   );
 
   const { mutateAsync } = useMutation({
     mutationFn: async () => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
-          if (
-            instanceAddress &&
-            isPermissionlesslyClaimable === 'Yes' &&
-            _.isEmpty(selectedHat?.claimableBy)
-          ) {
+          if (instanceAddress && isPermissionlesslyClaimable === 'Yes' && _.isEmpty(selectedHat?.claimableBy)) {
             return deployModuleAndRegisterWithClaimsHatter();
           }
 
@@ -310,6 +269,7 @@ const useModuleDeploy = ({
             values,
             chainId,
             hatId,
+            walletClient,
           }).then((resultData) => {
             const newInstance = get(resultData, 'newInstance');
             if (!newInstance) return;
@@ -329,6 +289,7 @@ const useModuleDeploy = ({
             chainId,
             hatId,
             adminHatId: BigInt(adminHat),
+            walletClient,
           }).then((resultData) => {
             const newInstances = get(resultData, 'newInstances');
             if (!newInstances) return;
@@ -345,6 +306,7 @@ const useModuleDeploy = ({
             values,
             chainId,
             adminHatId: BigInt(adminHat),
+            walletClient,
           }).then((resultData) => {
             const newInstance = get(resultData, 'newInstance');
             if (!newInstance) return;
@@ -365,8 +327,7 @@ const useModuleDeploy = ({
   return {
     deploy: mutateAsync,
     isLoading: isLoadingMultiClaimsHatter,
-    isBlocked:
-      isPermissionlesslyClaimable === 'Yes' && !adminHat && !hatterIsAdmin,
+    isBlocked: isPermissionlesslyClaimable === 'Yes' && !adminHat && !hatterIsAdmin,
   };
 };
 

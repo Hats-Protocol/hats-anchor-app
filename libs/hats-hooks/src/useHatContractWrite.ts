@@ -3,12 +3,7 @@ import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import { useState } from 'react';
-import {
-  AsyncTxHandler,
-  HandlePendingTx,
-  SyncTxHandler,
-  ToastProps,
-} from 'types';
+import { AsyncTxHandler, HandlePendingTx, SyncTxHandler, ToastProps } from 'types';
 import { formatFunctionName } from 'utils';
 import { TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
@@ -119,8 +114,7 @@ const useHatContractWrite = ({
         // eslint-disable-next-line no-console
         console.log(error);
         if (
-          (error.name === 'TransactionExecutionError' ||
-            error.name === 'ContractFunctionExecutionError') &&
+          (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
           toast.error({
