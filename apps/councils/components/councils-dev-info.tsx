@@ -2,7 +2,7 @@
 
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilDetails } from 'hooks';
-import { compact, flatten, get, map } from 'lodash';
+import { compact, get, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
@@ -10,6 +10,8 @@ import { ChakraNextLink, DevInfo } from 'ui';
 import { formatAddress, hatLink } from 'utils';
 import { explorerUrl, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
+
+import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
 
 const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
@@ -31,7 +33,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
 
   // TODO easy way to get MCH details?
 
-  const devInfo = useMemo(
+  const hatInfo = useMemo(
     () =>
       compact([
         primarySignerHat && {
@@ -42,6 +44,50 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
               decoration
             >
               {hatIdDecimalToIp(hatIdHexToDecimal(primarySignerHat.id))}
+            </ChakraNextLink>
+          ),
+        },
+        {
+          label: 'Current Wearers',
+          descriptor: <div>{size(primarySignerHat?.wearers)}</div>,
+        },
+        {
+          label: 'Safe Signers',
+          descriptor: <div>{0}</div>,
+        },
+        {
+          label: 'Max Supply',
+          descriptor: <div>{primarySignerHat?.maxSupply}</div>,
+        },
+
+        eligibilityModule && {
+          label: 'Eligibility',
+          descriptor: (
+            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${eligibilityModule}`} decoration>
+              {formatAddress(eligibilityModule)}
+            </ChakraNextLink>
+          ),
+        },
+      ]),
+    [eligibilityModule, chainId, primarySignerHat],
+  );
+
+  const hsgInfo = useMemo(
+    () =>
+      compact([
+        {
+          label: 'Safe Address',
+          descriptor: (
+            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${councilDetails?.safe}`} decoration>
+              {formatAddress(councilDetails?.safe)}
+            </ChakraNextLink>
+          ),
+        },
+        {
+          label: 'HSG Address',
+          descriptor: (
+            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${councilDetails?.id}`} decoration>
+              {formatAddress(councilDetails?.id)}
             </ChakraNextLink>
           ),
         },
@@ -61,37 +107,19 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
             </ChakraNextLink>
           ),
         },
-        eligibilityModule && {
-          label: 'Eligibility',
-          descriptor: (
-            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${eligibilityModule}`} decoration>
-              {formatAddress(eligibilityModule)}
-            </ChakraNextLink>
-          ),
-        },
       ]),
-    [eligibilityModule, chainId, primarySignerHat, ownerHat, topHatId],
+    [councilDetails, chainId, ownerHat, topHatId],
   );
 
   if (!chainId) return null;
 
   return (
     <div className='mx-auto flex w-1/2 flex-col gap-4'>
-      <DevInfo devInfos={devInfo} />
+      <DevInfo title='Hat Info' devInfos={hatInfo} />
 
-      <div className='flex flex-col gap-2'>
-        <h3 className='font-bold'>Eligibility Rules</h3>
+      <DevInfo title='HSG Info' devInfos={hsgInfo} />
 
-        {map(flatten(eligibilityRules), (rule) => (
-          <div key={rule.address}>
-            {rule.module.name} (
-            <ChakraNextLink href={`${explorerUrl(chainId)}/address/${rule.address}`} isExternal decoration>
-              {formatAddress(rule.address)}
-            </ChakraNextLink>
-            )
-          </div>
-        ))}
-      </div>
+      <EligibilityRulesDevInfo chainId={chainId} eligibilityRules={eligibilityRules || undefined} />
     </div>
   );
 };

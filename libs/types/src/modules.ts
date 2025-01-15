@@ -49,3 +49,10 @@ export interface EligibilityRule {
   address: `0x${string}`;
   liveParams?: ModuleParameter[] | undefined;
 }
+
+export interface CurrentEligibility {
+  [key: Hex]: {
+    eligible: boolean;
+    goodStanding: boolean;
+  };
+}

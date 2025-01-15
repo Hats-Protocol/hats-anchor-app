@@ -1,38 +1,47 @@
 import { Button } from '@chakra-ui/react';
-import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { find, get, map } from 'lodash';
+import { find, get, map, size, split } from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
 import { ManagerAvatar } from 'ui';
+import { logger } from 'utils';
+import { Hex } from 'viem';
 
 import { AddUserModal } from '../add-user-modal';
 
 interface ModuleManagerProps {
   m: ModuleDetails;
   chainId: number | undefined;
+  criteriaModule: Hex;
 }
 
-const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
-
-const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
+const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
   const managerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
+  const isAdminHat = size(split(hatIdDecimalToIp(managerHatId), '.')) === 2;
+  logger.debug('isAdminHat', { managerHatId: managerHatId ? hatIdDecimalToIp(managerHatId) : undefined, isAdminHat });
 
   const { data: managerHat } = useHatDetails({
     chainId: chainId as SupportedChains,
     hatId: managerHatId ? hatIdDecimalToHex(managerHatId) : undefined,
   });
+  // const hatDetails = managerHat?.detailsMetadata;
+  // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
 
   if (!m) return null;
+  logger.debug('criteriaModule', { instanceAddress: m.instanceAddress, criteriaModule });
 
   if (m.instanceAddress === criteriaModule) {
     return (
       <div className='flex flex-col gap-4' key={m.id}>
-        <h2 className='text-lg font-semibold'>{m.name}</h2>
+        <h2 className='text-lg font-semibold'>Compliance Management</h2>
 
         <div className='flex flex-col gap-2'>
-          <h2 className='text-sm font-semibold'>Compliance Managers</h2>
+          <div className='flex items-center gap-1'>
+            <h2 className='text-sm font-semibold'>Compliance Managers</h2>
+            {isAdminHat && <p className='text-xs italic text-gray-500'>(Delegated to Council Managers)</p>}
+          </div>
 
           <div className='flex flex-col gap-2'>
             {map(get(managerHat, 'wearers'), (wearer) => (
@@ -42,7 +51,7 @@ const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
         </div>
 
         <div className='flex'>
-          <Button variant='outline' onClick={() => setModals?.({ 'addUser-compliance': true })}>
+          <Button variant='outline' onClick={() => setModals?.({ 'addUser-compliance': true })} isDisabled>
             Add Compliance Manager
           </Button>
         </div>
@@ -57,7 +66,10 @@ const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
       <h2 className='text-lg font-semibold'>{m.name}</h2>
 
       <div className='flex flex-col gap-2'>
-        <h2 className='text-sm font-semibold'>Allowlist Managers</h2>
+        <div className='flex items-center gap-1'>
+          <h2 className='text-sm font-semibold'>Allowlist Managers</h2>
+          {isAdminHat && <p className='text-xs italic text-gray-500'>(Delegated to Council Managers)</p>}
+        </div>
 
         <div className='flex flex-col gap-2'>
           {map(get(managerHat, 'wearers'), (wearer) => (
@@ -67,7 +79,7 @@ const AllowlistManager = ({ m, chainId }: ModuleManagerProps) => {
       </div>
 
       <div className='flex'>
-        <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })}>
+        <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })} isDisabled>
           Add Allowlist Manager
         </Button>
       </div>

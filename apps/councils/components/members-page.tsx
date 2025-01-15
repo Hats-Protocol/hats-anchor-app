@@ -7,12 +7,13 @@ import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, isEmpty, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
-import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
+import { AppHat, CouncilMember, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { formatAddress, logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
 import { AddUserModal } from './add-user-modal';
+import { RemoveUserModal } from './remove-user-modal';
 
 const MemberRow = ({
   member,
@@ -20,12 +21,14 @@ const MemberRow = ({
   chainId,
   signerHat,
   eligibilityRules,
+  offchainCouncilData,
 }: {
   member: CouncilMember;
   remainingModules: Ruleset | undefined;
   chainId: SupportedChains;
   signerHat: AppHat | undefined;
   eligibilityRules: Ruleset[] | undefined;
+  offchainCouncilData: OffchainCouncilData | undefined;
 }) => {
   const { setModals } = useOverlay();
   const { data: currentEligibility } = useCurrentEligibility({
@@ -42,7 +45,7 @@ const MemberRow = ({
   };
 
   const removeUser = () => {
-    // TODO
+    setModals?.({ [`removeUser-member-${member.address}`]: true });
   };
 
   // TODO member is missing profile data for details edit form
@@ -101,6 +104,15 @@ const MemberRow = ({
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
       />
+      <RemoveUserModal
+        type='member'
+        user={member}
+        userLabel='Council Member'
+        chainId={chainId as SupportedChains}
+        eligibilityRules={eligibilityRules || undefined}
+        currentEligibility={currentEligibility || undefined}
+        offchainCouncilData={offchainCouncilData}
+      />
     </div>
   );
 };
@@ -121,7 +133,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
     hsg: address,
     chainId: chainId ?? 11155111,
   });
-  // console.log('offchainCouncilData', offchainCouncilData);
 
   // TODO fetch module labels
   // TODO more profile data about allowlist members
@@ -151,12 +162,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   const addUserToCouncil = async (user: CouncilMember | undefined) => {
     if (!user?.address || !addAccount) return;
-    // console.log({
-    //   moduleId: get(selectionModule, 'module.implementationAddress'),
-    //   instance: get(selectionModule, 'address'),
-    //   func: addAccount as ModuleFunction,
-    //   args: { Account: user.address },
-    // });
     // TODO handle pending tx state
     await callModuleFn({
       moduleId: get(selectionModule, 'module.implementationAddress'),
@@ -226,6 +231,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
             chainId={chainId as SupportedChains}
             signerHat={primarySignerHat as AppHat}
             eligibilityRules={eligibilityRules || undefined}
+            offchainCouncilData={offchainCouncilData || undefined}
           />
         ))
       ) : (

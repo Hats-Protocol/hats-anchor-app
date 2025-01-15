@@ -1,14 +1,35 @@
 'use client';
 
 import { Flex, HStack, Image, Text } from '@chakra-ui/react';
-import { usePathname } from 'next/navigation';
+import { useHatDetails } from 'hats-hooks';
+import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
+import { get } from 'lodash';
+import { useParams, usePathname } from 'next/navigation';
+import { SupportedChains } from 'types';
 import { ChakraNextLink } from 'ui';
+import { logger, parseCouncilSlug } from 'utils';
 
 import Login from './login';
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const { slug } = useParams<{ slug: string }>();
+  const { chainId, address } = parseCouncilSlug(slug);
   const isJoinLink = pathname.includes('join');
+
+  const { data: councilDetails } = useCouncilDetails({
+    chainId: chainId as SupportedChains,
+    address,
+  });
+  const { data: offchainDetails } = useOffchainCouncilDetails({
+    chainId: chainId as SupportedChains,
+    hsg: address,
+  });
+  const { details } = useHatDetails({
+    chainId: chainId as SupportedChains,
+    hatId: get(councilDetails, 'signerHats[0].id'),
+  });
+  logger.debug('nav', { offchainDetails, details });
 
   return (
     <Flex w='100%' justify='space-between' align='center' zIndex={10} px={2} minH='56px'>
@@ -19,7 +40,7 @@ export const Navbar = () => {
 
         {isJoinLink ? (
           <Text size='lg' fontWeight='bold'>
-            Join Group A Council
+            Join {offchainDetails?.creationForm.councilName || details?.name}
           </Text>
         ) : null}
       </HStack>

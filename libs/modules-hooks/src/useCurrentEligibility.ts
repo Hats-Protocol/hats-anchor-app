@@ -2,7 +2,7 @@ import { MODULE_INTERFACE } from '@hatsprotocol/constants';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { flatten, forEach, isEmpty, map } from 'lodash';
-import { AppHat, SupportedChains } from 'types';
+import type { AppHat, CurrentEligibility, SupportedChains } from 'types';
 import { viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 
@@ -38,7 +38,7 @@ const getCurrentEligibility = async ({
   });
   const eligibleResults = map(results, 'result') as [boolean, boolean][];
 
-  const newObj: { [key: Hex]: { eligible: boolean; goodStanding: boolean } } = {};
+  const newObj: CurrentEligibility = {};
 
   forEach(moduleAddresses, (moduleAddress, index) => {
     newObj[moduleAddress] = {

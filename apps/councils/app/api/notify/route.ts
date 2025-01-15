@@ -9,7 +9,8 @@ export const GET = async (request: Request) => {
   const message = pick(body, ['message']);
 
   try {
-    const url = `https://api.telegram.org/bot${ALERTS_TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${ALERTS_TELEGRAM_CHAT_ID}&text=${message}`;
+    const baseUrl = `https://api.telegram.org/bot${ALERTS_TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${ALERTS_TELEGRAM_CHAT_ID}`;
+    const url = `${baseUrl}&text=${message}`;
 
     fetch(url);
   } catch (error) {

@@ -1,10 +1,11 @@
 import { Button } from '@chakra-ui/react';
-import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { find, get, map } from 'lodash';
+import { find, get, map, size, split } from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
 import { ManagerAvatar } from 'ui';
+import { logger } from 'utils';
 
 import { AddUserModal } from '../add-user-modal';
 import { UpdateAgreementModal } from '../update-agreement-modal';
@@ -17,11 +18,15 @@ interface ModuleManagerProps {
 const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
   const ownerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
+  const isAdminHat = size(split(hatIdDecimalToIp(ownerHatId), '.')) === 2;
+  logger.debug('isAdminHat', { ownerHatId: ownerHatId ? hatIdDecimalToIp(ownerHatId) : undefined, isAdminHat });
 
   const { data: ownerHat } = useHatDetails({
     chainId: chainId as SupportedChains,
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
   });
+  // const hatDetails = ownerHat?.detailsMetadata;
+  // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
 
   if (!m) return null;
 
@@ -30,7 +35,10 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
       <h2 className='text-lg font-semibold'>{m.name}</h2>
 
       <div className='flex flex-col gap-2'>
-        <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+        <div className='flex items-center gap-1'>
+          <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+          {isAdminHat && <p className='text-xs italic text-gray-500'>(Delegated to Council Managers)</p>}
+        </div>
 
         <div className='flex flex-col gap-2'>
           {map(get(ownerHat, 'wearers'), (wearer) => (
@@ -44,7 +52,7 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
           Edit Agreement
         </Button>
 
-        <Button variant='outline' onClick={() => setModals?.({ 'addUser-agreement': true })}>
+        <Button variant='outline' onClick={() => setModals?.({ 'addUser-agreement': true })} isDisabled>
           Add Agreement Manager
         </Button>
       </div>

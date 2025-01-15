@@ -5,7 +5,7 @@ const SignerIndicator = ({
   threshold,
   signers,
 }: {
-  index: number;
+  index: number; // 1-indexed
   threshold: number | undefined;
   signers: number | undefined;
 }) => {
@@ -32,6 +32,7 @@ const SignerIndicator = ({
 
 export const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorProps) => {
   if (!isNumber(threshold) || !isNumber(signers) || !isNumber(maxSigners)) return null;
+  // TODO better loading state
 
   return (
     <div className='flex w-fit flex-col gap-2'>

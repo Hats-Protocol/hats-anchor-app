@@ -1,6 +1,6 @@
 'use client';
 
-import { Heading, Link, Stack } from '@chakra-ui/react';
+import { Heading, Stack } from '@chakra-ui/react';
 import { isEmpty, map } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
@@ -15,15 +15,14 @@ export interface DevInfoUnit {
   link?: string;
 }
 
-export const DevInfo = ({ devInfos }: DevInfoProps) => {
-  const devFlag =
-    posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
+  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
   if (!devInfos || isEmpty(devInfos) || !devFlag) return null;
 
   return (
     <Stack>
-      <Heading size='sm'>Dev Info</Heading>
+      <Heading size='sm'>{title || 'Dev Info'}</Heading>
 
       {map(devInfos, ({ label, descriptor }) => {
         return (
@@ -39,5 +38,6 @@ export const DevInfo = ({ devInfos }: DevInfoProps) => {
 };
 
 interface DevInfoProps {
+  title?: string;
   devInfos: DevInfoUnit[];
 }

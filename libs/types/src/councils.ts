@@ -25,6 +25,17 @@ export type StepProps = {
   onNext(): void;
 };
 
+export type OffchainCouncilData = {
+  id: string;
+  hsg: string;
+  membersSelectionModule: string;
+  membersCriteriaModule: string;
+  creationForm: CouncilFormData;
+  organization: {
+    name: string;
+  };
+};
+
 export interface CouncilFormData {
   // step 1
   organizationName: string;

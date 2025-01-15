@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get } from 'lodash';
-// import { CouncilMember } from 'types';
+import type { OffchainCouncilData } from 'types';
 import { councilsGraphqlClient } from 'utils';
 
 // TODO support safe or id
@@ -12,20 +12,16 @@ const GET_COUNCIL = gql`
       hsg
       membersSelectionModule
       membersCriteriaModule
-      # org {
-      #   name
-      # }
-      # // council form fields
+      creationForm {
+        councilName
+        councilDescription
+      }
+      organization {
+        name
+      }
     }
   }
 `;
-
-type OffchainCouncilData = {
-  id: string;
-  hsg: string;
-  membersSelectionModule: string;
-  membersCriteriaModule: string;
-};
 
 const getOffchainCouncilData = async ({
   hsg,

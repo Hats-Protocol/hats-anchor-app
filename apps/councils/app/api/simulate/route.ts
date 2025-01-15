@@ -1,3 +1,5 @@
+import { logger } from 'utils';
+
 interface SimulationRequest {
   chainId: string;
   from: string;
@@ -42,6 +44,7 @@ export async function POST(request: Request) {
     .then(async (response) => {
       if (!response.ok) {
         const error = await response.json();
+        logger.error('Unknown error', error);
         return Response.json({ error }, { status: response.status });
       }
 
@@ -49,7 +52,7 @@ export async function POST(request: Request) {
       return Response.json(simulationResult, { status: 200 });
     })
     .catch((error) => {
-      console.error('Simulation error:', error);
+      logger.error('Simulation error:', error);
       return Response.json({ error: 'Failed to simulate transaction' }, { status: 500 });
     });
 }

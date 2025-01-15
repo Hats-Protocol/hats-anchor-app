@@ -22,6 +22,7 @@ import { AiOutlineInfoCircle } from 'react-icons/ai';
 interface RadioOption {
   value: string;
   label: string;
+  isDisabled?: boolean;
 }
 
 interface RadioBoxProps extends BoxProps {
@@ -70,20 +71,8 @@ const RadioBox = ({
               </FormLabel>
             )}
             {tooltip && (
-              <Tooltip
-                label={tooltip}
-                shouldWrapChildren
-                hasArrow
-                placement='end'
-              >
-                <Flex
-                  h='24px'
-                  w='24px'
-                  bg='primary.500'
-                  borderRadius='full'
-                  align='center'
-                  justify='center'
-                >
+              <Tooltip label={tooltip} shouldWrapChildren hasArrow placement='end'>
+                <Flex h='24px' w='24px' bg='primary.500' borderRadius='full' align='center' justify='center'>
                   <Icon as={AiOutlineInfoCircle} w={4} h={4} />
                 </Flex>
               </Tooltip>
@@ -97,14 +86,10 @@ const RadioBox = ({
           control={control}
           name={name}
           render={({ field }) => (
-            <RadioGroup
-              isDisabled={isDisabled}
-              defaultValue={defaultValue}
-              {...field}
-            >
+            <RadioGroup isDisabled={isDisabled} defaultValue={defaultValue} {...field}>
               <HStack spacing={4}>
                 {options?.map((option) => (
-                  <Radio key={option.value} value={option.value} maxW={maxW}>
+                  <Radio key={option.value} value={option.value} maxW={maxW} isDisabled={option.isDisabled}>
                     <Text size={textSize}>{option.label}</Text>
                   </Radio>
                 ))}
@@ -113,9 +98,7 @@ const RadioBox = ({
           )}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
-        {typeof error === 'string' && (
-          <FormErrorMessage>{error}</FormErrorMessage>
-        )}
+        {typeof error === 'string' && <FormErrorMessage>{error}</FormErrorMessage>}
       </Stack>
     </FormControl>
   );

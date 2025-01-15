@@ -2,7 +2,7 @@
 
 import { Button, Icon } from '@chakra-ui/react';
 import { safeUrl } from 'hats-utils';
-import { useCouncilDetails, useSafesInfo } from 'hooks';
+import { useCouncilDetails, useOffchainCouncilDetails, useSafesInfo } from 'hooks';
 import { capitalize, first, get, nth, size } from 'lodash';
 import { toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
@@ -37,6 +37,10 @@ export const CouncilHeader = () => {
     chainId: chainId ?? 11155111,
     address,
   });
+  const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
+    hsg: address,
+    chainId: chainId ?? 11155111,
+  });
   const { data: safesDetails } = useSafesInfo({
     chainId: chainId ?? 11155111,
     safes: [councilDetails?.safe as unknown as Hex],
@@ -44,6 +48,10 @@ export const CouncilHeader = () => {
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);
   const safe = first(safesDetails);
+
+  const offchainCouncilName = get(offchainCouncilDetails, 'creationForm.councilName');
+  const offchainCouncilDescription = get(offchainCouncilDetails, 'creationForm.councilDescription');
+  const organizationName = get(offchainCouncilDetails, 'organization.name');
 
   // TODO check signers vs hat wearers
   // TODO better loading state/check
@@ -59,9 +67,9 @@ export const CouncilHeader = () => {
     <div className='bg-slate-200 py-10'>
       <div className='mx-auto flex w-[90%] max-w-[1000px] justify-between rounded-lg border border-black bg-slate-50 p-4'>
         <div className='flex w-[30%] flex-col gap-2'>
-          <div>Back to Circle DAO councils</div>
-          <h1 className='text-2xl font-bold'>{get(signerHatDetails, 'name')}</h1>
-          <p className='truncate text-sm'>{get(signerHatDetails, 'description')}</p>
+          <div>Back to {organizationName}</div>
+          <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
+          <p className='truncate text-sm'>{offchainCouncilDescription || get(signerHatDetails, 'description')}</p>
         </div>
 
         <div className='flex w-auto items-center'>
@@ -100,7 +108,7 @@ export const CouncilHeader = () => {
           )}
 
           <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
-          <div>by Circle DAO</div>
+          <div>by {organizationName}</div>
         </div>
       </div>
     </div>

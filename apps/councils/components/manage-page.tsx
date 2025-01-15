@@ -4,12 +4,12 @@ import { Button } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { useCouncilDetails } from 'hooks';
+import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { concat, filter, flatten, get, map, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { HatWearer, SupportedChains } from 'types';
 import { ManagerAvatar } from 'ui';
-import { parseCouncilSlug } from 'utils';
+import { logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
 import { AddUserModal } from './add-user-modal';
@@ -35,10 +35,6 @@ const OWNER_SECTIONS = [
   },
 ];
 
-// TODO hardcode
-const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
-const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
-
 const SectionMenu = ({ sections }: { sections: { value: string; label: string }[] }) => {
   return (
     <div className='flex flex-col gap-4'>
@@ -59,6 +55,10 @@ const ManagePage = ({ slug }: { slug: string }) => {
     chainId: chainId ?? 11155111,
     address,
   });
+  const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
+    chainId: chainId ?? 11155111,
+    hsg: address,
+  });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
   const topHatId = ownerHat?.id && treeIdToTopHatId(hatIdToTreeId(BigInt(ownerHat.id)));
@@ -66,19 +66,22 @@ const ManagePage = ({ slug }: { slug: string }) => {
     address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
-  const rulesWithoutSelectionModule = filter(flatten(eligibilityRules), (rule) => rule.address !== selectionModule);
+  const rulesWithoutSelectionModule = filter(
+    flatten(eligibilityRules),
+    (rule) => rule.address !== offchainCouncilDetails?.membersSelectionModule,
+  );
   const { data: topHatDetails, isLoading: topHatDetailsLoading } = useHatDetails({
     chainId: (chainId ?? 11155111) as SupportedChains,
     hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
   });
-  console.log(councilDetails, eligibilityRules);
-  console.log(topHatDetails);
+  logger.debug('offchainCouncilDetails', offchainCouncilDetails);
 
   const sections = concat(
     DEFAULT_SECTIONS,
     map(rulesWithoutSelectionModule, (rule) => ({
       value: rule.address,
-      label: rule.module.name,
+      label:
+        rule.address === offchainCouncilDetails?.membersCriteriaModule ? 'Compliance Management' : rule.module.name,
       module: rule.module,
     })),
     OWNER_SECTIONS,
@@ -130,7 +133,12 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
         {/* MANAGERS CAN MANAGE OTHER MODULES */}
         {map(rulesWithoutSelectionModule, (rule) => (
-          <ModuleManager rule={rule} chainId={chainId ?? 11155111} key={rule.address} />
+          <ModuleManager
+            rule={rule}
+            chainId={chainId ?? 11155111}
+            key={rule.address}
+            criteriaModule={offchainCouncilDetails?.membersCriteriaModule as Hex}
+          />
         ))}
 
         {/* TOP HAT CAN TRANSFER */}

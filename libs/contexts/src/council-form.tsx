@@ -945,7 +945,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // Find the safe proxy address from simulation logs
       let safeProxyAddress: Address | undefined;
 
-      if (!simulationResult.transaction.status) {
+      if (!simulationResult?.transaction?.status) {
         logger.error('Simulation failed');
         throw new Error('Simulation failed');
       }
@@ -1139,8 +1139,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           // TODO email notification
 
           const redirectUrl = `/councils/${toLower(chainsMap(chainId)?.name)}:${hsgAddress}/members`;
+
           logger.debug('redirecting to ', redirectUrl);
-          // router.push(redirectUrl);
+          router.push(redirectUrl);
         },
       });
     },

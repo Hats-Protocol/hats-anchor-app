@@ -14,10 +14,7 @@ export const getCustomModuleFunction = (authority: Authority | undefined) => {
     ),
   );
 
-  if (
-    !authority?.moduleAddress ||
-    !customImplementationAddresses.includes(authority.moduleAddress)
-  ) {
+  if (!authority?.moduleAddress || !customImplementationAddresses.includes(authority.moduleAddress)) {
     return undefined;
   }
 
@@ -26,9 +23,7 @@ export const getCustomModuleFunction = (authority: Authority | undefined) => {
 
 export const getKnownEligibilityModule = (implementationAddress: Hex) => {
   const knownModuleKeys = keys(KNOWN_ELIGIBILITY_MODULES);
-  const knownModuleKey = find(knownModuleKeys, (key) =>
-    KNOWN_ELIGIBILITY_MODULES[key].includes(implementationAddress),
-  );
+  const knownModuleKey = find(knownModuleKeys, (key) => KNOWN_ELIGIBILITY_MODULES[key].includes(implementationAddress));
 
   return knownModuleKey;
 };

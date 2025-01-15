@@ -13,9 +13,11 @@ import AllowlistManager from './allowlist-manager';
 export type ModuleManagerComponent = ({
   m,
   chainId,
+  criteriaModule,
 }: {
   m: ModuleDetails;
   chainId: number | undefined;
+  criteriaModule: Hex;
 }) => ReactNode | undefined;
 
 type Rule = {
@@ -29,23 +31,32 @@ export const MODULE_MANAGERS: { [key: string]: ModuleManagerComponent } = {
   agreement: AgreementManager,
 };
 
-const ModuleManager = ({ rule, chainId }: { rule: Rule; chainId: number | undefined }) => {
+const ModuleManager = ({
+  rule,
+  chainId,
+  criteriaModule,
+}: {
+  rule: Rule;
+  chainId: number | undefined;
+  criteriaModule: Hex;
+}) => {
   const knownModule = getKnownEligibilityModule(rule.module?.implementationAddress as Hex);
 
-  if (knownModule && has(MODULE_MANAGERS, knownModule)) {
-    const moduleDetailsFn = MODULE_MANAGERS[knownModule];
-    if (!moduleDetailsFn || !rule || !chainId) return undefined;
-    return moduleDetailsFn({
-      m: {
-        ...rule.module,
-        liveParameters: rule.liveParams,
-        instanceAddress: rule.address,
-      } as ModuleDetails,
-      chainId: chainId as SupportedChains,
-    });
+  if (!knownModule || !has(MODULE_MANAGERS, knownModule)) {
+    return null;
   }
 
-  return null;
+  const moduleDetailsFn = MODULE_MANAGERS[knownModule];
+  if (!moduleDetailsFn || !rule || !chainId) return undefined;
+  return moduleDetailsFn({
+    m: {
+      ...rule.module,
+      liveParameters: rule.liveParams,
+      instanceAddress: rule.address,
+    } as ModuleDetails,
+    chainId: chainId as SupportedChains,
+    criteriaModule,
+  });
 };
 
 export default ModuleManager;
