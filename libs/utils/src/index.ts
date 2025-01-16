@@ -15,6 +15,7 @@ export * from './logs';
 export * from './mesh';
 export * from './mobile';
 export * from './modules';
+export * from './notifications';
 export * from './platform';
 export * from './route';
 export * from './subgraph';

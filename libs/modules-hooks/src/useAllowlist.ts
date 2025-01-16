@@ -16,26 +16,15 @@ const ALLOWLIST_QUERY = gql`
   }
 `;
 
-const fetchAllowlist = async ({
-  id,
-  chainId,
-}: {
-  id: string | undefined;
-  chainId: SupportedChains | undefined;
-}) => {
+const fetchAllowlist = async ({ id, chainId }: { id: string | undefined; chainId: SupportedChains | undefined }) => {
   if (!id || !chainId) return null;
 
   try {
     const client = ancillarySubgraphClient(chainId);
     if (!client) return null;
-    const response = await client.request<HatAuthorityResponse>(
-      ALLOWLIST_QUERY,
-      { id: toLower(id) },
-    );
+    const response = await client.request<HatAuthorityResponse>(ALLOWLIST_QUERY, { id: toLower(id) });
 
-    const result = get(response, 'allowListEligibility.eligibilityData') as
-      | AllowlistProfile[]
-      | undefined;
+    const result = get(response, 'allowListEligibility.eligibilityData') as AllowlistProfile[] | undefined;
 
     if (!result) return null;
 
@@ -47,13 +36,7 @@ const fetchAllowlist = async ({
   }
 };
 
-const useAllowlist = ({
-  id,
-  chainId,
-}: {
-  id: string | undefined;
-  chainId: SupportedChains | undefined;
-}) => {
+const useAllowlist = ({ id, chainId }: { id: string | undefined; chainId: SupportedChains | undefined }) => {
   return useQuery({
     queryKey: ['allowlistDetails', { id, chainId }],
     queryFn: () => fetchAllowlist({ id, chainId }),

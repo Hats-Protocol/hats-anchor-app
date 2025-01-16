@@ -34,6 +34,7 @@ const useCouncilDetails = ({ chainId, address }: { chainId: number | undefined; 
   return useQuery({
     queryKey: ['councilDetails', chainId, address],
     queryFn: () => fetchCouncilDetails({ chainId, address }),
+    enabled: !!chainId && !!address,
   });
 };
 

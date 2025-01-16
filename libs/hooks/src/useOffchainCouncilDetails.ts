@@ -51,5 +51,6 @@ export const useOffchainCouncilDetails = ({ hsg, chainId }: { hsg: string; chain
   return useQuery({
     queryKey: ['offchainCouncilData', { chainId, hsg }],
     queryFn: () => getOffchainCouncilData({ hsg, chainId }),
+    enabled: !!hsg && !!chainId,
   });
 };
