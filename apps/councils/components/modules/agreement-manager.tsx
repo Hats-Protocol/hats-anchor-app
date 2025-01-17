@@ -21,12 +21,12 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
   const isAdminHat = size(split(hatIdDecimalToIp(ownerHatId), '.')) === 2;
   logger.debug('isAdminHat', { ownerHatId: ownerHatId ? hatIdDecimalToIp(ownerHatId) : undefined, isAdminHat });
 
-  const { data: ownerHat } = useHatDetails({
+  const { data: ownerHat, details: ownerHatDetails } = useHatDetails({
     chainId: chainId as SupportedChains,
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
   });
   // const hatDetails = ownerHat?.detailsMetadata;
-  // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
+  const hatName = ownerHatDetails?.name;
 
   if (!m) return null;
 
@@ -57,7 +57,7 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
         </Button>
       </div>
 
-      <UpdateAgreementModal />
+      <UpdateAgreementModal moduleDetails={m} chainId={chainId} />
 
       <AddUserModal type='agreement' userLabel='Agreement Manager' chainId={chainId as SupportedChains} />
     </div>

@@ -1,6 +1,7 @@
 'use client';
 
-import { CHAIN_IDS, chainsList } from '@hatsprotocol/constants';
+import { CHAIN_IDS, chainsList, councilsChainsList } from '@hatsprotocol/constants';
+import { createConfig as privyCreateConfig } from '@privy-io/wagmi';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
   argentWallet,
@@ -96,6 +97,22 @@ export const wagmiConfig = (overrideChains?: Chain[]) => {
 
   return createConfig({
     connectors: concat(connectors, safe()),
+    chains: chains as unknown as readonly [Chain, ...Chain[]],
+    transports: transports(),
+    ssr: true,
+  });
+};
+
+export const privyConfig = (overrideChains?: Chain[]) => {
+  let chains = map(
+    keys(councilsChainsList),
+    (c) => councilsChainsList[toNumber(c) as keyof typeof councilsChainsList],
+  ) as Chain[];
+  if (overrideChains) {
+    chains = overrideChains;
+  }
+
+  return privyCreateConfig({
     chains: chains as unknown as readonly [Chain, ...Chain[]],
     transports: transports(),
     ssr: true,

@@ -5,7 +5,7 @@ import { Modal } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
 import { capitalize, map, some, toLower } from 'lodash';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
 import { chainsMap, isValidEmail, logger } from 'utils';
@@ -30,10 +30,11 @@ type AddAdminModalProps = {
   type: 'admin' | 'compliance' | 'member' | 'allowlist' | 'agreement' | 'election' | 'subscription';
   userLabel: string;
   editingUser?: CouncilMember | null;
-  afterSuccess?: (user: CouncilMember | undefined) => Promise<void>;
+  afterSuccess?: (user: CouncilMember | undefined) => Promise<void> | Promise<(() => void) | undefined>;
 };
 
 export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser, afterSuccess }: AddAdminModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<UserFormProps>();
   const { getValues, setValue, setError, handleSubmit, reset } = form;
 
@@ -114,6 +115,7 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser,
             <label className='font-bold'>
               Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
             </label>
+
             <Input
               name='email'
               localForm={form}
@@ -137,7 +139,7 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser,
 
         <div className='mt-8'>
           <div className='flex justify-end'>
-            <Button type='submit' disabled={!isFormValid()} variant='primary'>
+            <Button type='submit' isDisabled={!isFormValid()} isLoading={isLoading} variant='primary'>
               {editingUser ? 'Save Changes' : `Add ${userLabel || 'Council Member'}`}
             </Button>
           </div>

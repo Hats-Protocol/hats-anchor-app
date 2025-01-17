@@ -11,7 +11,7 @@ import { useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { CouncilMember, CurrentEligibility, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
-import { getKnownEligibilityModule, logger } from 'utils';
+import { formatAddress, getKnownEligibilityModule, logger, sendTelegramMessage } from 'utils';
 import { Hex } from 'viem';
 
 interface RemoveReasonFormProps {
@@ -77,7 +77,6 @@ export function RemoveUserModal({
   const form = useForm<RemoveReasonFormProps>();
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
-  const { user: privyUser, logout, connectWallet } = usePrivy();
   const { handleSubmit, reset } = form;
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
@@ -90,25 +89,18 @@ export function RemoveUserModal({
     const removeFunctionArgs = getRemoveFunctionArgs(rule?.module, user || undefined);
     if (!rule || !removeFunction) return;
 
-    if (!privyUser) {
-      setFormPending(false);
-      setTimeout(() => {
-        logout();
-
-        setTimeout(() => {
-          connectWallet();
-        }, 200);
-      }, 200);
-
-      return;
-    }
-
     callModuleFn({
       moduleId: rule.module.implementationAddress,
       instance: data.reason,
       func: removeFunction,
       args: removeFunctionArgs,
       onSuccess: () => {
+        if (user) {
+          sendTelegramMessage(
+            `${userLabel} ${user.name} (${formatAddress(user.address)}) removed from council via ${rule.module.name}`,
+          );
+        }
+
         logger.info('successfully removed user');
         setModals?.({});
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
@@ -175,7 +167,7 @@ export function RemoveUserModal({
         <div className='mt-8'>
           <div className='flex justify-end'>
             <Button type='submit' isLoading={formPending} variant='primary'>
-              {formPending ? 'Removing...' : 'Remove'}
+              Remove
             </Button>
           </div>
         </div>

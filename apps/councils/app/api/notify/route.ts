@@ -1,8 +1,12 @@
 import { pick } from 'lodash';
 import { logger } from 'utils';
 
-const ALERTS_TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const ALERTS_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const ALERTS_TELEGRAM_CHAT_ID = process.env.ALERTS_TELEGRAM_CHAT_ID;
+const ALERTS_TELEGRAM_BOT_TOKEN = process.env.ALERTS_TELEGRAM_BOT_TOKEN;
+
+if (!ALERTS_TELEGRAM_CHAT_ID || !ALERTS_TELEGRAM_BOT_TOKEN) {
+  throw new Error('ALERTS_TELEGRAM_CHAT_ID or ALERTS_TELEGRAM_BOT_TOKEN is not set');
+}
 
 export const POST = async (request: Request) => {
   const body = await request.json();

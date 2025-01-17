@@ -15,7 +15,7 @@ import { values } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
 import { theme } from 'ui';
-import { wagmiConfig } from 'utils';
+import { privyConfig } from 'utils';
 
 // TODO use standalone & fix exporting of waitForTransaction
 declare global {
@@ -85,7 +85,7 @@ const Providers = ({ children }: ProvidersProps) => {
     >
       <ChakraBaseProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <WagmiProvider config={wagmiConfig(values(councilsChainsList))}>
+          <WagmiProvider config={privyConfig()}>
             <ReactQueryDevtools initialIsOpen={false} />
             <OverlayContextProvider>{children}</OverlayContextProvider>
           </WagmiProvider>

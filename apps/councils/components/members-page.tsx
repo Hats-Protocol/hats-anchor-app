@@ -131,7 +131,6 @@ const MemberRow = ({
 const MembersPage = ({ slug }: { slug: string }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
-  const { user: privyUser, logout, connectWallet } = usePrivy();
   const queryClient = useQueryClient();
   const { chainId, address } = parseCouncilSlug(slug);
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
@@ -177,20 +176,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   const addUserToCouncil = async (user: CouncilMember | undefined) => {
     if (!user?.address || !addAccount) return;
-
-    if (!userAddress || userAddress !== privyUser?.wallet?.address) {
-      setModals?.({});
-      setTimeout(() => {
-        logout();
-
-        setTimeout(() => {
-          connectWallet({
-            suggestedAddress: user.address,
-          });
-        }, 200);
-      }, 200);
-      return;
-    }
 
     console.log(user, user.address);
     // TODO handle pending tx state

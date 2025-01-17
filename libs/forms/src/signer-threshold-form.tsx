@@ -1,22 +1,22 @@
-import { NumberInput } from './components';
-
 import { RadioBox } from 'forms';
 import { UseFormReturn } from 'react-hook-form';
+
+import { NumberInput } from './components';
 
 // TO BE USED WITHIN A FORM
 export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormReturn<any>; isDisabled?: boolean }) {
   const { watch } = form;
-  const thresholdType = watch('thresholdType');
-  const percentageRequired = watch('percentageRequired');
-  const minConfirmations = watch('minConfirmations');
-  const maxMembers = watch('maxMembers');
+  const { thresholdType, target, min, maxMembers } = watch();
 
   const calculateConfirmations = (total: number) => {
     if (thresholdType === 'RELATIVE') {
-      return Math.ceil((total * (percentageRequired || 0)) / 100);
+      return Math.ceil((total * (target || 0)) / 100);
     }
     return watch('confirmationsRequired');
   };
+  console.log(thresholdType);
+
+  if (!thresholdType) return null;
 
   return (
     <>
@@ -42,7 +42,7 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
           <div className='flex flex-col gap-2'>
             <label className='font-bold'>Confirmations required</label>
             <NumberInput
-              name='confirmationsRequired'
+              name='min'
               localForm={form}
               options={{
                 min: 1,
@@ -59,7 +59,7 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
               name='maxMembers'
               localForm={form}
               options={{
-                min: 1,
+                min: min,
                 required: true,
               }}
               isDisabled={isDisabled}
@@ -75,7 +75,7 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
                 <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>%</div>
                 <div className='flex-1'>
                   <NumberInput
-                    name='percentageRequired'
+                    name='target'
                     localForm={form}
                     options={{
                       min: 1,
@@ -90,7 +90,7 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
             <div className='flex w-full flex-col gap-y-2'>
               <label className='font-bold'>Minimum confirmations</label>
               <NumberInput
-                name='minConfirmations'
+                name='min'
                 localForm={form}
                 options={{
                   min: 1,
@@ -107,9 +107,9 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
             <NumberInput
               name='maxMembers'
               localForm={form}
-              helperText={`${calculateConfirmations(maxMembers)} Confirmations required`}
+              helperText={`${calculateConfirmations(maxMembers)} confirmation${calculateConfirmations(maxMembers) > 1 ? 's' : ''} required`}
               options={{
-                min: minConfirmations,
+                min: min,
                 required: true,
               }}
               isDisabled={isDisabled}

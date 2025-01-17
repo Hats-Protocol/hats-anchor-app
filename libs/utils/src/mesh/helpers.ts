@@ -32,6 +32,7 @@ export const getCouncilData = async ({ id, chainId }: { id: string; chainId: num
         minThreshold: true,
         targetThreshold: true,
         id: true,
+        thresholdType: true,
       },
     ],
   });
