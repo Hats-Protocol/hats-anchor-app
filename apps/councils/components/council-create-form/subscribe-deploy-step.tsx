@@ -183,9 +183,9 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             <Link className='h-4 w-4' /> Copy link
           </button>
         </div>
-        <div className='text-center'>
+        <div className='flex flex-col items-center gap-1'>
           <h2 className='text-3xl font-medium'>{formData.councilName}</h2>
-          <div className='mt-1 flex gap-1'>
+          <div className='flex gap-1'>
             <span className='text-gray-900'>by</span>{' '}
             <span className='text-gray-500'>
               {firstAdmin?.name || <MemberItem member={firstAdmin || { address: '' }} />}

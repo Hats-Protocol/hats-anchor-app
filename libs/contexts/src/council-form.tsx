@@ -42,6 +42,7 @@ import {
   createHatsClient,
   createHatsModulesClient,
   createOrganization,
+  explorerUrl,
   fetchToken,
   GET_COUNCIL_FORM,
   logger,
@@ -1135,7 +1136,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           });
           logger.debug('council form updated with council id:', councilId);
 
-          // TODO TG notification
+          fetch('/api/notify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: `New HSG council deployed on ${toLower(chainsMap(chainId)?.name)}: [View HSG (${hsgAddress})](${explorerUrl(chainId)}/address/${hsgAddress}) [View Council](https://hats-pro.vercel.app/councils/${toLower(chainsMap(chainId)?.name)}:${hsgAddress}/members)`,
+            }),
+          });
+          logger.debug('Telegram notification sent');
           // TODO email notification
 
           const redirectUrl = `/councils/${toLower(chainsMap(chainId)?.name)}:${hsgAddress}/members`;

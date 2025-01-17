@@ -1,6 +1,6 @@
-import { Hat } from "@hatsprotocol/sdk-v1-subgraph";
-import { get } from "lodash";
-import { AppHat } from "types";
+import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
+import { get } from 'lodash';
+import { AppHat } from 'types';
 
 export const parseMetadata = (hat: Hat): AppHat => {
   const detailsMetadata = get(hat, 'detailsMetadata');

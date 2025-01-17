@@ -2,14 +2,16 @@
 
 import { Button } from '@chakra-ui/react';
 import { Module, Ruleset } from '@hatsprotocol/modules-sdk';
-import { Modal } from 'contexts';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQueryClient } from '@tanstack/react-query';
+import { Modal, useOverlay } from 'contexts';
 import { RadioBox } from 'forms';
 import { find, flatten, forEach, get, has, map } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { CouncilMember, CurrentEligibility, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
-import { getKnownEligibilityModule } from 'utils';
+import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
 interface RemoveReasonFormProps {
@@ -71,18 +73,35 @@ export function RemoveUserModal({
   offchainCouncilData,
   afterSuccess,
 }: RemoveUserModalProps) {
+  const [formPending, setFormPending] = useState(false);
   const form = useForm<RemoveReasonFormProps>();
+  const queryClient = useQueryClient();
+  const { setModals } = useOverlay();
+  const { user: privyUser, logout, connectWallet } = usePrivy();
   const { handleSubmit, reset } = form;
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
   const removeFunctions = removeFunctionsForModules(eligibilityRules);
 
   const onSubmit = async (data: any) => {
-    console.log('data', data);
+    setFormPending(true);
     const rule = find(flatten(eligibilityRules), { address: data.reason }); // TODO hardcode flatten(eligibilityRules)
     const removeFunction = rule?.address ? get(removeFunctions, rule?.address) : null;
     const removeFunctionArgs = getRemoveFunctionArgs(rule?.module, user || undefined);
     if (!rule || !removeFunction) return;
+
+    if (!privyUser) {
+      setFormPending(false);
+      setTimeout(() => {
+        logout();
+
+        setTimeout(() => {
+          connectWallet();
+        }, 200);
+      }, 200);
+
+      return;
+    }
 
     callModuleFn({
       moduleId: rule.module.implementationAddress,
@@ -90,15 +109,15 @@ export function RemoveUserModal({
       func: removeFunction,
       args: removeFunctionArgs,
       onSuccess: () => {
-        // TODO handle success
-        console.log('success');
+        logger.info('successfully removed user');
+        setModals?.({});
+        queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['allowlistDetails'] });
+        setFormPending(false);
       },
     });
   };
-  // console.log('eligibilityRules', eligibilityRules);
-  // console.log('currentEligibility', currentEligibility);
 
-  console.log('removeFunctions', removeFunctions);
   const reasonOptions = useMemo(() => {
     if (!eligibilityRules || !offchainCouncilData || !currentEligibility) return [];
 
@@ -155,8 +174,8 @@ export function RemoveUserModal({
 
         <div className='mt-8'>
           <div className='flex justify-end'>
-            <Button type='submit' isDisabled={false} variant='primary'>
-              Remove
+            <Button type='submit' isLoading={formPending} variant='primary'>
+              {formPending ? 'Removing...' : 'Remove'}
             </Button>
           </div>
         </div>

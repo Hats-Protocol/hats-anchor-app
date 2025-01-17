@@ -1,36 +1,20 @@
 import _, { get, isString, isUndefined, map, omit } from 'lodash';
 import { createHierarchy, idToIp } from 'shared';
-import {
-  AppHat,
-  FieldItem,
-  FormData,
-  FormFieldKeys,
-  HatsCalls,
-  InputObject,
-} from 'types';
+import { AppHat, FieldItem, FormData, FormFieldKeys, HatsCalls, InputObject } from 'types';
 import { Hex } from 'viem';
 
 export * from './misc';
 export * from './multicall';
 
-export const removeAndHandleSiblings = (
-  storedData: Partial<FormData>[],
-  hatId: Hex,
-) => {
+export const removeAndHandleSiblings = (storedData: Partial<FormData>[], hatId: Hex) => {
   const storedHat = _.find(storedData, ['id', hatId]);
-  const hierarchy = createHierarchy(
-    storedData as unknown as InputObject[],
-    hatId,
-  );
+  const hierarchy = createHierarchy(storedData as unknown as InputObject[], hatId);
 
   const noEmptyChanges = _.reject(storedData, (d: Partial<FormData>) =>
     _.isEmpty(_.reject(_.keys(d), (k: string) => k === 'id')),
   );
 
-  const newSiblings = _.filter(noEmptyChanges, [
-    'parentId',
-    storedHat?.parentId,
-  ]);
+  const newSiblings = _.filter(noEmptyChanges, ['parentId', storedHat?.parentId]);
 
   const updateSiblings = _.map(newSiblings, (child: { id: Hex }, i: number) => {
     const childId = child.id;
@@ -47,10 +31,7 @@ export const removeAndHandleSiblings = (
   );
   const filterCurrentHat = _.reject(filterSiblings, { id: hatId });
 
-  return _.concat(
-    filterCurrentHat,
-    _.compact(updateSiblings) as unknown as Partial<FormData>[],
-  );
+  return _.concat(filterCurrentHat, _.compact(updateSiblings) as unknown as Partial<FormData>[]);
 };
 
 export const removeAndHandleSiblingsOrgChart = (hats: AppHat[], hatId: Hex) => {
@@ -95,33 +76,33 @@ export const getDirtyFields = (
   return _.filter(_.keys(formValues), (key: FormFieldKeys) => {
     if (_.includes(localKeys, key)) return false;
     if (key === 'imageUrl') {
-      return (
-        formValues.imageUrl !== defaultFormValues.imageUrl &&
-        formValues.imageUrl !== undefined
-      );
+      return formValues.imageUrl !== defaultFormValues.imageUrl && formValues.imageUrl !== undefined;
     }
 
     const initialDefaultVal = get(defaultFormValues, key);
-    const defaultVal = isString(initialDefaultVal) || typeof initialDefaultVal === 'number' || typeof initialDefaultVal === 'boolean' || isUndefined(initialDefaultVal)
-      ? initialDefaultVal
-      : JSON.stringify(map(initialDefaultVal, (item: any) => omit(item, ['moduleInfo'])));
+    const defaultVal =
+      isString(initialDefaultVal) ||
+        typeof initialDefaultVal === 'number' ||
+        typeof initialDefaultVal === 'boolean' ||
+        isUndefined(initialDefaultVal)
+        ? initialDefaultVal
+        : JSON.stringify(map(initialDefaultVal, (item: any) => omit(item, ['moduleInfo'])));
     const initialFormVal = get(formValues, key);
-    const compareVal = isString(initialFormVal) || typeof initialFormVal === 'number' || typeof initialFormVal === 'boolean' || isUndefined(initialFormVal)
-      ? initialFormVal
-      : JSON.stringify(map(initialFormVal, (item: any) => omit(item, ['moduleInfo'])));
+    const compareVal =
+      isString(initialFormVal) ||
+        typeof initialFormVal === 'number' ||
+        typeof initialFormVal === 'boolean' ||
+        isUndefined(initialFormVal)
+        ? initialFormVal
+        : JSON.stringify(map(initialFormVal, (item: any) => omit(item, ['moduleInfo'])));
 
     return defaultVal !== compareVal;
   }) as string[];
 };
 
-export const fieldsAreDirty = (
-  fieldsArray: FieldItem[],
-  dirtyFields: string[],
-) => {
+export const fieldsAreDirty = (fieldsArray: FieldItem[], dirtyFields: string[]) => {
   return _.map(
-    _.filter(fieldsArray, (field: FieldItem) =>
-      _.includes(dirtyFields, field.name as string),
-    ),
+    _.filter(fieldsArray, (field: FieldItem) => _.includes(dirtyFields, field.name as string)),
     'label',
   );
 };
@@ -149,9 +130,7 @@ export function summarizeActions(data: HatsCalls[]) {
         case 'batchMintHats':
           {
             const hatChanges = _.get(item, 'hatChanges');
-            const wearersCount = hatChanges
-              ? _.size(_.get(hatChanges as { wearers: unknown[] }, 'wearers'))
-              : 0;
+            const wearersCount = hatChanges ? _.size(_.get(hatChanges as { wearers: unknown[] }, 'wearers')) : 0;
             mintCount += wearersCount;
           }
           break;
@@ -175,25 +154,16 @@ export function summarizeActions(data: HatsCalls[]) {
       message += `Updated details of hat #${idToIp(data[0].hatId)}`;
     }
     if (mintCount > 0) {
-      const wearers = `${mintCount === 1 ? '1 wearer' : `${mintCount} wearers`
-        }`;
-      message +=
-        updateCount > 0 ? `& minted to ${wearers}` : `Minted to ${wearers}`;
+      const wearers = `${mintCount === 1 ? '1 wearer' : `${mintCount} wearers`}`;
+      message += updateCount > 0 ? `& minted to ${wearers}` : `Minted to ${wearers}`;
     }
     return message;
   }
 
   const actionParts: string[] = [];
-  if (updateCount > 0)
-    actionParts.push(
-      `Updated ${updateCount} ${updateCount === 1 ? 'hat' : 'hats'}`,
-    );
-  if (createCount > 0)
-    actionParts.push(
-      `Created ${createCount} ${createCount === 1 ? 'hat' : 'hats'}`,
-    );
-  if (mintCount > 0)
-    actionParts.push(`Minted ${mintCount} ${mintCount === 1 ? 'hat' : 'hats'}`);
+  if (updateCount > 0) actionParts.push(`Updated ${updateCount} ${updateCount === 1 ? 'hat' : 'hats'}`);
+  if (createCount > 0) actionParts.push(`Created ${createCount} ${createCount === 1 ? 'hat' : 'hats'}`);
+  if (mintCount > 0) actionParts.push(`Minted ${mintCount} ${mintCount === 1 ? 'hat' : 'hats'}`);
   const multiMessage = `${actionParts.join(' & ')} (Multicall)`;
 
   return multiMessage;

@@ -3,12 +3,20 @@
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
-import { toNumber } from 'lodash';
+import { capitalize, compact, get, keys, map, reject, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, SupportedChains } from 'types';
-import { chainsMap, councilsGraphqlClient, CREATE_USER, isValidEmail, logger, UPDATE_PAYER } from 'utils';
+import {
+  chainsMap,
+  councilsGraphqlClient,
+  CREATE_USER,
+  isValidEmail,
+  logger,
+  sendTelegramMessage,
+  UPDATE_PAYER,
+} from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 
@@ -26,6 +34,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
   const selectedChain = parentForm.watch('chain');
   const chainId = toNumber(selectedChain);
   const { modals, setModals } = useOverlay();
+  const councilName = parentForm.watch('councilName');
 
   const modalForm = useForm({
     defaultValues: {
@@ -80,6 +89,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
     //   setFormError('Please enter a valid Ethereum address');
     //   return;
     // }
+    console.log('data', data);
 
     try {
       const userData = await createUserMutation.mutateAsync(data);
@@ -88,6 +98,17 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         id: draftId,
         payer: userData,
       });
+
+      const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} | `;
+      const councilLink = `[View Council](https://hats-pro.vercel.app/councils/new/payment?draftId=${draftId}) 💰`;
+      const userKeys = reject(keys(userData), (key) => key === 'id');
+      const userDetails = compact(
+        map(userKeys, (key) =>
+          get(userData, key) ? `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}` : undefined,
+        ),
+      );
+
+      await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`);
 
       parentForm.setValue('payer', userData);
       setFormError(null);

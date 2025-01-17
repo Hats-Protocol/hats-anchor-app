@@ -1,9 +1,10 @@
 'use client';
 
-import { Center, Spinner } from '@chakra-ui/react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import { CouncilMember } from 'types';
+import { Skeleton } from 'ui';
 import { councilsGraphqlClient, CREATE_INITIAL_FORM, CREATE_USER, logger } from 'utils';
 import { useChainId } from 'wagmi';
 
@@ -26,12 +27,7 @@ const NewCouncil = () => {
 
         // First create or update the user
         const userResult: {
-          createUser: {
-            id: string;
-            address: string;
-            email: string;
-            name: string;
-          };
+          createUser: CouncilMember;
         } = await councilsGraphqlClient.request(CREATE_USER, {
           address: user!.wallet!.address,
           email: user!.email!.address,
@@ -40,9 +36,7 @@ const NewCouncil = () => {
 
         // Then create the council form
         const result: {
-          createCouncilCreationForm: {
-            id: string;
-          };
+          createCouncilCreationForm: { id: string };
         } = await councilsGraphqlClient.request(CREATE_INITIAL_FORM, {
           creator: user!.wallet!.address,
           chain: chainId,
@@ -68,9 +62,15 @@ const NewCouncil = () => {
   }, [ready, authenticated, user, chainId, router]);
 
   return (
-    <Center minH='100vh'>
-      <Spinner size='xl' />
-    </Center>
+    <div className='grid-cols-20 grid pb-24 pt-24'>
+      <div className='col-span-10 col-start-3 grid'>
+        <Skeleton className='w-100 min-h-[500px] p-4' />
+      </div>
+
+      <div className='col-start-14 col-span-6 grid'>
+        <Skeleton className='h-100 w-100' />
+      </div>
+    </div>
   );
 };
 

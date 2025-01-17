@@ -8,6 +8,7 @@ interface SimulationRequest {
   value?: string;
   gas?: string;
   gasPrice?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stateOverrides?: Record<string, any>;
 }
 

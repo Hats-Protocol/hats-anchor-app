@@ -67,10 +67,20 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
           return;
         }
 
+        toast.info({
+          title: 'Transaction pending',
+          description: 'Waiting for transaction to be confirmed',
+        });
+
         // TODO prefer passing to `handlePendingTx`?
         const txResult = await waitForTransactionReceipt(wagmiConfig(), {
           chainId,
           hash: result.transactionHash,
+        });
+
+        toast.info({
+          title: 'Transaction confirmed',
+          description: 'Waiting for the indexer to update',
         });
 
         await waitForSubgraph(txResult);

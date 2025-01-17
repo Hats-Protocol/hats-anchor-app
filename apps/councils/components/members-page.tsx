@@ -2,6 +2,8 @@
 
 import { Button, Checkbox, Icon, Tooltip } from '@chakra-ui/react';
 import { Ruleset, WriteFunction } from '@hatsprotocol/modules-sdk';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, isEmpty, map, split, toLower } from 'lodash';
@@ -11,6 +13,7 @@ import { AppHat, CouncilMember, ModuleFunction, OffchainCouncilData, SupportedCh
 import { Skeleton } from 'ui';
 import { formatAddress, logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
 import { RemoveUserModal } from './remove-user-modal';
@@ -31,6 +34,7 @@ const MemberRow = ({
   offchainCouncilData: OffchainCouncilData | undefined;
 }) => {
   const { setModals } = useOverlay();
+  const { address: userAddress } = useAccount();
   const { data: currentEligibility } = useCurrentEligibility({
     chainId: (chainId ?? 11155111) as SupportedChains,
     selectedHat: signerHat,
@@ -39,6 +43,8 @@ const MemberRow = ({
   });
 
   if (!member) return null;
+
+  const canEdit = !!userAddress && true; // TODO handle who can edit users details (admins/themselves)
 
   const viewUser = () => {
     setModals?.({ [`editUser-member-${member.address}`]: true });
@@ -88,11 +94,16 @@ const MemberRow = ({
         })}
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
-          <Button variant='link' color='blue.500' leftIcon={<Icon as={BsPencilSquare} />} onClick={viewUser}>
-            Details
+          <Button
+            variant='link'
+            color='blue.500'
+            leftIcon={canEdit ? <Icon as={BsPencilSquare} /> : undefined}
+            onClick={viewUser}
+          >
+            {canEdit ? 'Edit' : 'Details'}
           </Button>
 
-          <Button variant='link' color='Functional-Error' onClick={removeUser}>
+          <Button variant='link' color='Functional-Error' onClick={removeUser} isDisabled={!userAddress}>
             Remove
           </Button>
         </div>
@@ -119,6 +130,9 @@ const MemberRow = ({
 
 const MembersPage = ({ slug }: { slug: string }) => {
   const { setModals } = useOverlay();
+  const { address: userAddress } = useAccount();
+  const { user: privyUser, logout, connectWallet } = usePrivy();
+  const queryClient = useQueryClient();
   const { chainId, address } = parseCouncilSlug(slug);
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -136,10 +150,11 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   // TODO fetch module labels
   // TODO more profile data about allowlist members
-  const { data: allowlist } = useAllowlist({
+  const { data: rawAllowlist } = useAllowlist({
     id: offchainCouncilData?.membersSelectionModule,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
+  const allowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
   logger.debug('Selection Allowlist', allowlist);
 
   const remainingModules = filter(
@@ -162,6 +177,22 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   const addUserToCouncil = async (user: CouncilMember | undefined) => {
     if (!user?.address || !addAccount) return;
+
+    if (!userAddress || userAddress !== privyUser?.wallet?.address) {
+      setModals?.({});
+      setTimeout(() => {
+        logout();
+
+        setTimeout(() => {
+          connectWallet({
+            suggestedAddress: user.address,
+          });
+        }, 200);
+      }, 200);
+      return;
+    }
+
+    console.log(user, user.address);
     // TODO handle pending tx state
     await callModuleFn({
       moduleId: get(selectionModule, 'module.implementationAddress'),
@@ -169,7 +200,11 @@ const MembersPage = ({ slug }: { slug: string }) => {
       func: addAccount as ModuleFunction,
       args: { Account: user.address },
       onSuccess: () => {
+        logger.info('added user to council');
         // TODO close modal
+        setModals?.({});
+        queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['allowlistDetails'] });
       },
     });
   };
@@ -242,7 +277,11 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
       <div className='flex pt-8'>
         <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
-          <Button variant='outline' onClick={() => setModals?.({ 'addUser-member': true })} isDisabled={!addAccount}>
+          <Button
+            variant='outline'
+            onClick={() => setModals?.({ 'addUser-member': true })}
+            isDisabled={!addAccount || !userAddress}
+          >
             Add Member
           </Button>
         </Tooltip>
