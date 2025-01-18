@@ -1,44 +1,20 @@
 'use client';
 
-import {
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Button, Divider, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
-import {
-  concat,
-  find,
-  get,
-  isEmpty,
-  map,
-  reject,
-  size,
-  subtract,
-} from 'lodash';
+import { concat, find, get, isEmpty, map, reject, size, subtract } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { Card } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  AboutModule,
-  EligibilityRow,
-  ModuleHistory,
-  ModuleModal,
-} from '../../module-modal';
-
-const Card = dynamic(() => import('ui').then((mod) => mod.Card));
+import { AboutModule, EligibilityRow, ModuleHistory, ModuleModal } from '../../module-modal';
 
 export const StakingModal = ({
   eligibilityHatId,
@@ -110,29 +86,16 @@ export const StakingModal = ({
     <ModuleModal
       name={`${moduleInfo.instanceAddress}-stakingManager`}
       title='Manage Stakers'
-      about={
-        <AboutModule
-          heading='About this Staking Module'
-          moduleDescriptors={[]}
-        />
-      }
+      about={<AboutModule heading='About this Staking Module' moduleDescriptors={[]} />}
       history={<ModuleHistory />}
     >
       <Heading size='md'>
-        Staking for Hat{' '}
-        {eligibilityHatId
-          ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))
-          : ''}{' '}
-        - {details?.name || hat?.details}
+        Staking for Hat {eligibilityHatId ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId)) : ''} -{' '}
+        {details?.name || hat?.details}
       </Heading>
 
       <Flex>
-        <Input
-          name='search'
-          minW='350px'
-          placeholder='Find by address (0x) or ENS (.eth)'
-          localForm={localForm}
-        />
+        <Input name='search' minW='350px' placeholder='Find by address (0x) or ENS (.eth)' localForm={localForm} />
       </Flex>
 
       <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
@@ -173,20 +136,10 @@ export const StakingModal = ({
         {!adding && !updating && (
           <Flex w='full' justify='center' align='center'>
             <HStack>
-              <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
-                size='sm'
-                onClick={() => setAdding(true)}
-              >
+              <Button variant='outlineMatch' colorScheme='blue.500' size='sm' onClick={() => setAdding(true)}>
                 Add Address
               </Button>
-              <Button
-                variant='outlineMatch'
-                colorScheme='red.500'
-                size='sm'
-                onClick={() => setUpdating(true)}
-              >
+              <Button variant='outlineMatch' colorScheme='red.500' size='sm' onClick={() => setUpdating(true)}>
                 Remove Address
               </Button>
             </HStack>
@@ -198,12 +151,7 @@ export const StakingModal = ({
             <Stack spacing={1}>
               <Heading size='md'>Add an address</Heading>
 
-              <AddressInput
-                name='addresses'
-                chainId={chainId}
-                localForm={localForm}
-                hideAddressButtons
-              />
+              <AddressInput name='addresses' chainId={chainId} localForm={localForm} hideAddressButtons />
             </Stack>
 
             <Flex justify='space-between' w='full'>
@@ -260,12 +208,7 @@ export const StakingModal = ({
               >
                 Cancel
               </Button>
-              <Button
-                variant='filled'
-                colorScheme='red.500'
-                size='sm'
-                isDisabled={isEmpty(updateList)}
-              >
+              <Button variant='filled' colorScheme='red.500' size='sm' isDisabled={isEmpty(updateList)}>
                 Remove
               </Button>
             </Flex>

@@ -2,17 +2,10 @@
 
 import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
 import { ConnectWallet } from 'molecules';
-import dynamic from 'next/dynamic';
 import { AppHat } from 'types';
+import { Link } from 'ui';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
-
-export const StandaloneNavbar = ({
-  heading,
-  hatData,
-}: StandaloneNavbarProps) => {
+export const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
   return (
     <Flex
       w='100%'
@@ -25,9 +18,9 @@ export const StandaloneNavbar = ({
       bg={hatData ? 'whiteAlpha.900' : 'transparent'}
     >
       <HStack>
-        <ChakraNextLink href='/'>
+        <Link href='/'>
           <Image src='/hats.png' boxSize={10} alt='Hats Logo' />
-        </ChakraNextLink>
+        </Link>
 
         {heading && (
           <Heading size='lg' variant='medium'>

@@ -6,26 +6,14 @@ import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { get, includes, toLower } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import dynamic from 'next/dynamic';
-import {
-  BsCheckSquare,
-  BsCheckSquareFill,
-  BsFillXOctagonFill,
-} from 'react-icons/bs';
+import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Link } from 'ui';
 import { claimsLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 import { SubscriptionClaimsModal } from './subscription-claims';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
-
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const SUBSCRIPTION_MODAL_NAME = 'subscriptionManager';
 const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
@@ -54,8 +42,7 @@ export const UnlockEligibilityRule = ({
   });
 
   const isOneTime = duration && duration >= MIN_ONE_TIME_DURATION;
-  const hasAllowance =
-    !!tokenAllowance && !!keyPrice && tokenAllowance >= keyPrice;
+  const hasAllowance = !!tokenAllowance && !!keyPrice && tokenAllowance >= keyPrice;
   const isReadyToClaim =
     isOneTime &&
     hasAllowance &&
@@ -68,10 +55,7 @@ export const UnlockEligibilityRule = ({
     wearerIds,
     chainId: chainId as SupportedChains,
   });
-  const isEligible = includes(
-    get(wearerStatus, 'eligibleWearers'),
-    toLower(wearer),
-  );
+  const isEligible = includes(get(wearerStatus, 'eligibleWearers'), toLower(wearer));
   const renewSoon = isEligible && !hasAllowance;
 
   let modalName = SUBSCRIPTION_MODAL_NAME;
@@ -125,17 +109,9 @@ export const UnlockEligibilityRule = ({
   if (IS_CLAIMS_APP) {
     return (
       <>
-        <SubscriptionClaimsModal
-          moduleDetails={moduleDetails}
-          moduleParameters={moduleParameters}
-        />
+        <SubscriptionClaimsModal moduleDetails={moduleDetails} moduleParameters={moduleParameters} />
 
-        <EligibilityRuleDetails
-          rule={claimsAppRule}
-          status={status}
-          displayStatus={displayStatus}
-          icon={icon}
-        />
+        <EligibilityRuleDetails rule={claimsAppRule} status={status} displayStatus={displayStatus} icon={icon} />
       </>
     );
   }
@@ -145,12 +121,9 @@ export const UnlockEligibilityRule = ({
       rule={
         <Text>
           Pay the{' '}
-          <ChakraNextLink
-            color='gray.500'
-            href={claimsLink({ chainId, hatId: selectedHat?.id })}
-          >
+          <Link href={claimsLink({ chainId, hatId: selectedHat?.id })} className='gray.50'>
             {isOneTime ? 'fee' : 'subscription'}
-          </ChakraNextLink>
+          </Link>
         </Text>
       }
       status={status}

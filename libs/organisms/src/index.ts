@@ -1,7 +1,12 @@
 export * from './AuthoritiesList';
 export * from './bottom-menu';
+export { default as Claims } from './Claims';
 export { default as Controllers } from './Controllers';
 export { default as HatDetailsChanges } from './HatDetailsChanges';
+export { default as HatDrawer } from './HatDrawer';
 export { default as MainAction } from './MainAction';
 export * from './standalone-navbar';
+export { default as TreeDrawer } from './TreeDrawer';
+export { default as TreePage } from './TreePage';
+export { default as TreePageMobile } from './TreePageMobile';
 export { default as TreesList } from './TreesList';

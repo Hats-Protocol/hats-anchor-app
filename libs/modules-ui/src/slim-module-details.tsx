@@ -21,19 +21,15 @@ import { Modal, useEligibility, useOverlay } from 'contexts';
 import { ModuleArgsForm } from 'forms';
 import _ from 'lodash';
 import { useCallModuleFunction, useModuleDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
 import { LinkObject, ModuleFunction } from 'types';
+import { Link } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 // import ModuleParameters from './ModuleParameters';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 export const SlimModuleDetails = ({ type }: { type: string }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
@@ -41,10 +37,7 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
   const { setModals } = localOverlay;
   const { chainId, selectedHat } = useEligibility();
 
-  const controllerAddress = useMemo(
-    () => _.get(selectedHat, _.toLower(type)),
-    [selectedHat, type],
-  );
+  const controllerAddress = useMemo(() => _.get(selectedHat, _.toLower(type)), [selectedHat, type]);
 
   const { details: moduleDetails, parameters } = useModuleDetails({
     address: controllerAddress,
@@ -58,15 +51,12 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
   const { formState, handleSubmit } = formMethods;
 
   const tokenAddress = _.get(
-    _.find(parameters, (param: any) =>
-      _.includes(TOKEN_ARG_TYPES, param.displayType),
-    ),
+    _.find(parameters, (param: any) => _.includes(TOKEN_ARG_TYPES, param.displayType)),
     'value',
   );
 
-  const moduleActions = _.filter(
-    _.get(moduleDetails, 'writeFunctions'),
-    (fn: ModuleFunction) => _.includes(fn.roles, 'public'),
+  const moduleActions = _.filter(_.get(moduleDetails, 'writeFunctions'), (fn: ModuleFunction) =>
+    _.includes(fn.roles, 'public'),
   );
 
   const { mutate: callModuleFunction } = useCallModuleFunction({
@@ -107,14 +97,10 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
         <>
           <Modal
             name='functionCall-module'
-            title={`Interact with ${moduleDetails?.name} (${formatAddress(
-              controllerAddress,
-            )})`}
+            title={`Interact with ${moduleDetails?.name} (${formatAddress(controllerAddress)})`}
           >
             <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-              {_.get(selectedFunction, 'description') && (
-                <Text mb={3}>{_.get(selectedFunction, 'description')}</Text>
-              )}
+              {_.get(selectedFunction, 'description') && <Text mb={3}>{_.get(selectedFunction, 'description')}</Text>}
               <Stack>
                 {_.get(selectedFunction, 'args') && (
                   <ModuleArgsForm
@@ -218,16 +204,12 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
         <AccordionPanel px={0}>
           <Stack>
             {_.map(moduleDetails.links, (link: LinkObject) => (
-              <ChakraNextLink
-                href={link.link || '#'}
-                key={link.link}
-                isExternal
-              >
+              <Link href={link.link || '#'} key={link.link} isExternal>
                 <Flex justify='space-between'>
                   <Text size='sm'>{link.label}</Text>
                   <Icon as={FiExternalLink} h='14px' color='gray.500' />
                 </Flex>
-              </ChakraNextLink>
+              </Link>
             ))}
           </Stack>
         </AccordionPanel>

@@ -7,28 +7,18 @@ import { find, get, includes, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Link } from 'ui';
 import { hatLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((i) => i.ChakraNextLink),
-);
 
-export const HatWearingEligibilityRule = ({
-  moduleParameters,
-  wearer,
-  chainId,
-}: ModuleDetailsHandler) => {
+export const HatWearingEligibilityRule = ({ moduleParameters, wearer, chainId }: ModuleDetailsHandler) => {
   const hatParam = find(moduleParameters, { displayType: 'hat' });
 
-  const localHatId =
-    hatParam?.value && hatIdDecimalToHex(hatParam.value as bigint);
+  const localHatId = hatParam?.value && hatIdDecimalToHex(hatParam.value as bigint);
   const { details: hatDetails, data: mainDetails } = useHatDetails({
     hatId: localHatId as Hex,
     chainId: chainId as SupportedChains,
@@ -48,12 +38,9 @@ export const HatWearingEligibilityRule = ({
         rule={
           <Text>
             Wear the {hatName} Hat (
-            <ChakraNextLink
-              href={hatLink({ chainId, hatId: mainDetails?.id })}
-              decoration
-            >
+            <Link href={hatLink({ chainId, hatId: mainDetails?.id })} className='underline'>
               ID: {ipId}
-            </ChakraNextLink>
+            </Link>
             )
           </Text>
         }
@@ -69,12 +56,9 @@ export const HatWearingEligibilityRule = ({
       rule={
         <Text noOfLines={1}>
           Wear the {hatName} Hat (
-          <ChakraNextLink
-            href={hatLink({ chainId, hatId: mainDetails?.id })}
-            decoration
-          >
+          <Link href={hatLink({ chainId, hatId: mainDetails?.id })} className='underline'>
             ID: {ipId}
-          </ChakraNextLink>
+          </Link>
           )
         </Text>
       }

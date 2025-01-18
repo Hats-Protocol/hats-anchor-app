@@ -1,29 +1,13 @@
 'use client';
 
-import {
-  Badge,
-  Box,
-  Button,
-  Flex,
-  Grid,
-  Heading,
-  HStack,
-  Icon,
-  Stack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Badge, Box, Button, Flex, Grid, Heading, HStack, Icon, Stack, Text, VStack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { Link } from 'ui';
 import { eligibilityRuleToModuleDetails, explorerUrl } from 'utils';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 interface TimeUntilStart {
   days: number;
@@ -38,12 +22,7 @@ interface ProposalCountdownProps {
   spaceId: string;
 }
 
-export const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
-  start,
-  title,
-  proposalId,
-  spaceId,
-}) => {
+export const ProposalCountdown: React.FC<ProposalCountdownProps> = ({ start, title, proposalId, spaceId }) => {
   const [timeUntilStart, setTimeUntilStart] = useState<TimeUntilStart>();
   const { chainId, activeRule } = useEligibility();
   const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
@@ -56,9 +35,7 @@ export const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
         return;
       }
       const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(
-        (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-      );
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
       setTimeUntilStart({ days, hours, minutes });
@@ -78,34 +55,21 @@ export const ProposalCountdown: React.FC<ProposalCountdownProps> = ({
           <Heading size='md'>{title}</Heading>
         </Stack>
         {moduleDetails && (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${
-              moduleDetails?.implementationAddress
-            }`}
-            isExternal
-          >
+          <Link href={`${explorerUrl(chainId)}/address/${moduleDetails?.implementationAddress}`} isExternal>
             <HStack gap={1}>
               <Icon as={BsFileCode} w={4} h={4} color='teal' />
               <Text color='teal' size='sm'>
                 Election
               </Text>
             </HStack>
-          </ChakraNextLink>
+          </Link>
         )}
       </Flex>
       <Grid templateColumns='repeat(3, 1fr)' gap={4}>
         {_.map(_.keys(timeUntilStart), (key) => (
           <VStack key={key} gap={1}>
-            <Box
-              border='1px solid'
-              borderColor='gray.200'
-              px={3}
-              py={4}
-              borderRadius='md'
-            >
-              <Text size='4xl'>
-                {_.toString(timeUntilStart?.[key as keyof TimeUntilStart])}
-              </Text>
+            <Box border='1px solid' borderColor='gray.200' px={3} py={4} borderRadius='md'>
+              <Text size='4xl'>{_.toString(timeUntilStart?.[key as keyof TimeUntilStart])}</Text>
             </Box>
             <Text size='sm'>{key}</Text>
           </VStack>

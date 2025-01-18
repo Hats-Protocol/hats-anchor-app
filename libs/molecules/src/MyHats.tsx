@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Card,
-  Flex,
-  Heading,
-  HStack,
-  SimpleGrid,
-  Skeleton,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Card, Flex, Heading, HStack, SimpleGrid, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
@@ -20,7 +9,7 @@ import { ReactNode, useMemo } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
@@ -43,26 +32,18 @@ const MyHatsCard = ({
 
   return (
     <>
-      <Flex
-        direction={{ base: 'column', md: 'row' }}
-        justifyContent='space-between'
-        gap={10}
-      >
+      <Flex direction={{ base: 'column', md: 'row' }} justifyContent='space-between' gap={10}>
         <Stack>
           <Skeleton isLoaded={!!name} minH='45px' minW='300px'>
             <Heading variant='medium'>gm {name} 👋</Heading>
           </Skeleton>
 
-          {hasHats && (
-            <Text size='lg'>
-              Here&apos;s what&apos;s happening with your hats
-            </Text>
-          )}
+          {hasHats && <Text size='lg'>Here&apos;s what&apos;s happening with your hats</Text>}
         </Stack>
 
         {!isMobile && (
           <Box>
-            <ChakraNextLink href='/trees/new'>
+            <Link href='/trees/new'>
               <Button colorScheme='blue' py={6} px={8}>
                 <HStack gap={3}>
                   <BsDiagram3 />
@@ -71,7 +52,7 @@ const MyHatsCard = ({
                   </Text>
                 </HStack>
               </Button>
-            </ChakraNextLink>
+            </Link>
           </Box>
         )}
       </Flex>
@@ -85,21 +66,17 @@ const MyHats = () => {
   const { address: currentUser } = useAccount();
   const { isMobile } = useMediaStyles();
 
-  const { data: currentHats, isLoading: wearerDetailsLoading } =
-    useWearerDetails({
-      wearerAddress: currentUser as Hex,
-      chainId: 'all',
-    });
+  const { data: currentHats, isLoading: wearerDetailsLoading } = useWearerDetails({
+    wearerAddress: currentUser as Hex,
+    chainId: 'all',
+  });
 
   const sortedActiveHats = useMemo(() => {
     const sortedHats = sortBy(compact(currentHats), (hat: AppHat) => {
       return indexOf(ORDERED_CHAINS, hat?.chainId);
     });
     const filtered = filter(sortedHats, { status: true });
-    const sliced = filtered.slice(
-      0,
-      isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW,
-    );
+    const sliced = filtered.slice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW);
 
     return sliced;
   }, [currentHats, isMobile]);
@@ -152,17 +129,13 @@ const MyHats = () => {
         <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
           <Flex justifyContent='space-between' alignItems='center'>
             <Heading>Your hats</Heading>
-            {size(sortedActiveHats) >
-              (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
-              <ChakraNextLink
-                as={ChakraNextLink}
-                href={`/wearers/${currentUser}`}
-              >
+            {size(sortedActiveHats) > (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
+              <Link href={`/wearers/${currentUser}`}>
                 <HStack alignItems='center'>
                   <Text>View {!isMobile ? 'all of ' : ''}your hats</Text>
                   <FaArrowRight />
                 </HStack>
-              </ChakraNextLink>
+              </Link>
             )}
           </Flex>
           <SimpleGrid
@@ -174,11 +147,7 @@ const MyHats = () => {
             spacing={6}
           >
             {map(sortedActiveHats, (hat: AppHat, i: number) => (
-              <Skeleton
-                isLoaded={!!hat.id && !wearerDetailsLoading}
-                borderRadius='md'
-                key={i}
-              >
+              <Skeleton isLoaded={!!hat.id && !wearerDetailsLoading} borderRadius='md' key={i}>
                 <DashboardHatCard hat={hat} />
               </Skeleton>
             ))}
@@ -192,14 +161,7 @@ const MyHats = () => {
 
   return (
     <MyHatsCard name={ensName || formatAddress(currentUser)}>
-      <Card
-        py={8}
-        px={9}
-        background='whiteAlpha.600'
-        gap={4}
-        justifyContent='center'
-        alignItems='center'
-      >
+      <Card py={8} px={9} background='whiteAlpha.600' gap={4} justifyContent='center' alignItems='center'>
         <Stack align='center'>
           <Heading size='lg'>Your hats will appear here!</Heading>
           <Text>Create a tree or check out one of the featured trees.</Text>

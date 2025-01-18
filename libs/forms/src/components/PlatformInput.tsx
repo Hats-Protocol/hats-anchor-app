@@ -46,13 +46,7 @@ type PlatformInputProps = {
   fieldsLength: number;
 };
 
-const PlatformInput = ({
-  type,
-  name,
-  remove,
-  index,
-  fieldsLength,
-}: PlatformInputProps) => {
+const PlatformInput = ({ type, name, remove, index, fieldsLength }: PlatformInputProps) => {
   const [inputValue, setInputValue] = useState('');
   const { localForm } = useHatForm();
   const { setValue } = pick(localForm, ['setValue']);
@@ -63,10 +57,7 @@ const PlatformInput = ({
     isLoading,
   } = useQuery({
     queryKey: [`${type}Exists`, inputValue],
-    queryFn:
-      type === 'guild'
-        ? () => fetchGuild(inputValue)
-        : () => fetchSpace(inputValue),
+    queryFn: type === 'guild' ? () => fetchGuild(inputValue) : () => fetchSpace(inputValue),
     enabled: false,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
   });
@@ -96,11 +87,7 @@ const PlatformInput = ({
       <Input
         name={name}
         localForm={localForm}
-        placeholder={
-          type === 'guild'
-            ? 'Guild name (e.g. hats-protocol)'
-            : 'Space ID (e.g. hatsprotocol.eth)'
-        }
+        placeholder={type === 'guild' ? 'Guild name (e.g. hats-protocol)' : 'Space ID (e.g. hatsprotocol.eth)'}
         isDisabled={index !== fieldsLength - 1}
         onChange={handleChange}
         variant='outline'

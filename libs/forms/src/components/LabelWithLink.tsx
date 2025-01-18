@@ -63,10 +63,7 @@ const LabelWithLink = ({
           variant='ghost'
           borderColor='blackAlpha.300'
         />
-        <Modal
-          name={`editLabel-${title}`}
-          title={`Edit ${title.toLowerCase()} Link`}
-        >
+        <Modal name={`editLabel-${title}`} title={`Edit ${title.toLowerCase()} Link`}>
           <LinkInput
             inputLink={inputLink}
             setInputLink={setInputLink}

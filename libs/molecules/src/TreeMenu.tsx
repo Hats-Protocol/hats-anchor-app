@@ -36,7 +36,7 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import { Controls } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { chainsMap, explorerUrl } from 'utils';
 
 import EventHistory from './EventHistory';
@@ -69,9 +69,7 @@ const TreeMenu = () => {
     setLocalLastTimestamp(
       `${
         _.get(_.first(treeEvents), 'timestamp') &&
-        formatDistanceToNow(
-          new Date(Number(_.get(_.first(treeEvents), 'timestamp')) * 1000),
-        )
+        formatDistanceToNow(new Date(Number(_.get(_.first(treeEvents), 'timestamp')) * 1000))
       } ago`,
     );
   }, [treeEvents, isClient]);
@@ -104,13 +102,7 @@ const TreeMenu = () => {
             border='1px solid #0987A0'
             background='#C4F1F9'
             color='#065666'
-            leftIcon={
-              editMode ? (
-                <Icon as={IoCloseCircleOutline} />
-              ) : (
-                <Icon as={BsPencil} color='#065666' />
-              )
-            }
+            leftIcon={editMode ? <Icon as={IoCloseCircleOutline} /> : <Icon as={BsPencil} color='#065666' />}
             isDisabled={!treeToDisplay || !!treeError}
             onClick={toggleEditMode}
           >
@@ -135,11 +127,7 @@ const TreeMenu = () => {
             <PopoverContent w='250px'>
               <PopoverArrow />
               <PopoverBody p={6}>
-                <RadioGroup
-                  onChange={setSelectedOption}
-                  value={selectedOption}
-                  w='100%'
-                >
+                <RadioGroup onChange={setSelectedOption} value={selectedOption} w='100%'>
                   <Stack direction='column' spacing={3}>
                     {initialControls.map((control: Controls) => (
                       <Radio value={control.value} key={control.value}>
@@ -152,10 +140,7 @@ const TreeMenu = () => {
                   </Stack>
                 </RadioGroup>
                 <Divider my={4} />
-                <Checkbox
-                  isChecked={showInactiveHats}
-                  onChange={(e) => setShowInactiveHats?.(e.target.checked)}
-                >
+                <Checkbox isChecked={showInactiveHats} onChange={(e) => setShowInactiveHats?.(e.target.checked)}>
                   <HStack>
                     <Icon as={BsToggle2Off} w={4} h={4} color='gray.500' />
                     <Text>Inactive Hats</Text>
@@ -201,12 +186,7 @@ const TreeMenu = () => {
                 <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
                   <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 
-                  <ChakraNextLink
-                    href={`${explorerUrl(chainId)}/address/${
-                      CONFIG.hatsAddress
-                    }`}
-                    isExternal
-                  >
+                  <Link href={`${explorerUrl(chainId)}/address/${CONFIG.hatsAddress}`} isExternal>
                     <HStack spacing={1}>
                       <Text variant='medium'>{chain?.name}</Text>
                       <IconButton
@@ -216,7 +196,7 @@ const TreeMenu = () => {
                         variant='ghost'
                       />
                     </HStack>
-                  </ChakraNextLink>
+                  </Link>
                 </Flex>
               </Skeleton>
               <Skeleton
@@ -228,12 +208,7 @@ const TreeMenu = () => {
                 {!treeError && (
                   <Popover trigger='hover'>
                     <PopoverTrigger>
-                      <Flex
-                        align='center'
-                        gap={1}
-                        fontSize='sm'
-                        cursor='pointer'
-                      >
+                      <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
                         <Text>Last event: </Text>
                         <Text mr={2} variant='medium'>
                           {localLastTimestamp || '-'}
@@ -247,23 +222,14 @@ const TreeMenu = () => {
                       <PopoverBody>
                         <Stack>
                           <Box>
-                            <Heading
-                              size='sm'
-                              variant='medium'
-                              textTransform='uppercase'
-                              mb={1}
-                            >
+                            <Heading size='sm' variant='medium' textTransform='uppercase' mb={1}>
                               Event history
                             </Heading>
                             <EventHistory type='tree' count={6} />
                             {_.gt(_.size(treeEvents), 4) && (
                               <>
                                 <Divider my={2} />
-                                <Button
-                                  onClick={() => setModals?.({ events: true })}
-                                  variant='link'
-                                  colorScheme='blue'
-                                >
+                                <Button onClick={() => setModals?.({ events: true })} variant='link' colorScheme='blue'>
                                   View Full History
                                 </Button>
                               </>

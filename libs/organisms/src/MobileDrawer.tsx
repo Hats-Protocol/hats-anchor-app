@@ -10,13 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { ConnectWallet } from 'molecules';
 
-const StandaloneMobileDrawer = ({
-  isOpen,
-  onToggle,
-}: {
-  isOpen: boolean;
-  onToggle: () => void;
-}) => (
+const StandaloneMobileDrawer = ({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) => (
   <Drawer placement='right' isOpen={isOpen} onClose={onToggle}>
     <DrawerOverlay>
       <DrawerContent>

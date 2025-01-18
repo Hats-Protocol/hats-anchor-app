@@ -2,28 +2,21 @@
 
 import { Heading, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
 import { DocsLink } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 
 const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
   const { url, name, icon, image, description } = docsData;
 
   let displayIcon;
   if (image) {
-    displayIcon = (
-      <Image
-        src={image}
-        alt={`${name} featured icon`}
-        fit='cover'
-        boxSize={8}
-      />
-    );
+    displayIcon = <Image src={image} alt={`${name} featured icon`} fit='cover' boxSize={8} />;
   } else {
     if (!icon) return null;
     displayIcon = <Icon as={icon} boxSize={6} />;
   }
 
   return (
-    <ChakraNextLink href={url} _hover={{}} isExternal>
+    <Link href={url} isExternal>
       <HStack
         alignItems='start'
         p={5}
@@ -41,7 +34,7 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
           <Text size='sm'>{description}</Text>
         </Stack>
       </HStack>
-    </ChakraNextLink>
+    </Link>
   );
 };
 

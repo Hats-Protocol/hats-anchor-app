@@ -6,16 +6,10 @@ import { useHatDetails, useHatDetailsField } from 'hats-hooks';
 import { getTreeId } from 'hats-utils';
 import _ from 'lodash';
 import { AppHat, SupportedChains } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 
 // TODO optimize top hat fetch
-const WearerHatCard = ({
-  hat,
-  chainId,
-}: {
-  hat: AppHat;
-  chainId: SupportedChains | undefined;
-}) => {
+const WearerHatCard = ({ hat, chainId }: { hat: AppHat; chainId: SupportedChains | undefined }) => {
   const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
 
   // TODO need topHatId from hatId
@@ -25,28 +19,17 @@ const WearerHatCard = ({
   });
   const { data: topHatDetails } = useHatDetailsField(_.get(topHat, 'details'));
 
-  const hatName =
-    hatDetails?.type === '1.0'
-      ? _.get(hatDetails, 'data.name')
-      : _.get(hat, 'details');
+  const hatName = hatDetails?.type === '1.0' ? _.get(hatDetails, 'data.name') : _.get(hat, 'details');
 
-  const topHatName =
-    topHatDetails?.type === '1.0'
-      ? _.get(topHatDetails, 'data.name')
-      : _.get(topHat, 'details');
+  const topHatName = topHatDetails?.type === '1.0' ? _.get(topHatDetails, 'data.name') : _.get(topHat, 'details');
 
   return (
-    <ChakraNextLink
+    <Link
       href={`/trees/${_.get(hat, 'chainId')}/${Number(
         hatIdToTreeId(BigInt(_.get(hat, 'id'))),
       )}?hatId=${hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}`}
     >
-      <Card
-        key={_.get(hat, 'id')}
-        overflow='hidden'
-        border='2px solid'
-        borderColor='gray.600'
-      >
+      <Card key={_.get(hat, 'id')} overflow='hidden' border='2px solid' borderColor='gray.600'>
         <Box
           bgImage={_.get(hat, 'imageUrl') || '/icon.jpeg'}
           bgSize='cover'
@@ -58,13 +41,7 @@ const WearerHatCard = ({
           border='1px solid'
           borderColor='gray.200'
         />
-        <Box
-          borderY='1px solid'
-          borderColor='gray.600'
-          p={2}
-          mt={-1}
-          bg='white'
-        >
+        <Box borderY='1px solid' borderColor='gray.600' p={2} mt={-1} bg='white'>
           <Flex justify='space-between' gap={2}>
             <Heading size='xs' noOfLines={1}>
               {topHatName}
@@ -79,7 +56,7 @@ const WearerHatCard = ({
           </Heading>
         </Box>
       </Card>
-    </ChakraNextLink>
+    </Link>
   );
 };
 

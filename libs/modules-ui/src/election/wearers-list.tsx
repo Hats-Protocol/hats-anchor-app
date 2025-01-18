@@ -8,13 +8,10 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { SupportedChains } from 'types';
+import { Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 const WearerCard = ({ account }: { account: Hex }) => {
   const { chainId, selectedHat } = useEligibility();
@@ -36,12 +33,9 @@ const WearerCard = ({ account }: { account: Hex }) => {
 
   return (
     <Flex justify='space-between' w='100%'>
-      <ChakraNextLink
-        href={`${explorerUrl(chainId)}/address/${account}`}
-        decoration
-      >
+      <Link href={`${explorerUrl(chainId)}/address/${account}`} className='underline'>
         <Text size='sm'>{name || formatAddress(account)}</Text>
-      </ChakraNextLink>
+      </Link>
 
       {isWearing && (
         <Tooltip label='is wearing hat' shouldWrapChildren>

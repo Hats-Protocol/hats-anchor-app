@@ -33,12 +33,7 @@ const LinkInput = ({
         placeholder='https://example.com'
       />
       <HStack justifyContent='end'>
-        <Button
-          colorScheme='blue'
-          mr={3}
-          onClick={handleSave}
-          isDisabled={!isLinkValid}
-        >
+        <Button colorScheme='blue' mr={3} onClick={handleSave} isDisabled={!isLinkValid}>
           Ok
         </Button>
         <Button

@@ -1,13 +1,10 @@
 'use client';
 
-import {
-  BorderProps,
-  Box,
-  ImageProps,
-  Skeleton,
-  SkeletonProps,
-} from '@chakra-ui/react';
+// TODO [high] remove chakra
+import { BorderProps, Box, ImageProps, Skeleton, SkeletonProps } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+
+import { cn } from './lib/utils';
 
 interface LazyImageProps extends ImageProps {
   alt: string;
@@ -70,6 +67,10 @@ export const LazyImage = ({
     };
   }, [src, imageLoaded]);
 
+  if (!imageLoaded && !useFallback) {
+    return <Skeleton className={cn('h-full w-full')} />;
+  }
+
   return (
     <Skeleton
       isLoaded={imageLoaded || useFallback}
@@ -86,17 +87,13 @@ export const LazyImage = ({
         border={withBorder ? '1px solid' : undefined}
         borderColor={withBorder ? 'blackAlpha.200' : undefined}
         boxSize={imageSize}
-        borderRadius={
-          noMobileRadius ? { base: 0, md: 'lg' } : { base: 'md', md: 'lg' }
-        }
+        borderRadius={noMobileRadius ? { base: 0, md: 'lg' } : { base: 'md', md: 'lg' }}
         boxShadow='sm'
         h={h || height}
         maxW='100%'
         maxH={maxH || maxHeight}
         minH={
-          !maxH && !maxHeight && !h && !height && !boxSize
-            ? { base: '100vw', md: `${boxSize || 400}px` }
-            : undefined
+          !maxH && !maxHeight && !h && !height && !boxSize ? { base: '100vw', md: `${boxSize || 400}px` } : undefined
         }
         {...borderProps}
       >

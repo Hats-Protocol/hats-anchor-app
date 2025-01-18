@@ -70,8 +70,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
     chainId: 1,
   });
 
-  const showResolvedAddress =
-    !!resolvedAddress && resolvedAddress !== inputValue;
+  const showResolvedAddress = !!resolvedAddress && resolvedAddress !== inputValue;
   const showResolvedEnsName = !!ensName && ensName !== inputValue;
 
   useEffect(() => {
@@ -113,9 +112,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
     chainId,
   });
   // TODO bring this up to actual contract lookup
-  const isContract =
-    (contractData && contractData?.contractName !== 'MetaMultiSigWallet') ||
-    moduleDetails;
+  const isContract = (contractData && contractData?.contractName !== 'MetaMultiSigWallet') || moduleDetails;
 
   return (
     <Stack spacing='2px' w='100%'>
@@ -124,14 +121,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         label={label}
         subLabel={subLabel}
         placeholder={placeholder}
-        leftElement={
-          <Icon
-            as={isContract ? CodeIcon : BsPersonBadge}
-            w={4}
-            h={4}
-            color='gray.500'
-          />
-        }
+        leftElement={<Icon as={isContract ? CodeIcon : BsPersonBadge} w={4} h={4} color='gray.500' />}
         localForm={localForm}
         isDisabled={isDisabled}
         options={options}

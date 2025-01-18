@@ -9,13 +9,10 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": [],
+    "types": ["node"],
+    "lib": ["ES2021"],
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "plugins": [{ "name": "next" }]
   },
   "references": [
     {
@@ -38,9 +35,6 @@
     },
     {
       "path": "../../libs/modules-ui/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/pages/tsconfig.lib.json"
     },
     {
       "path": "../../libs/shared/tsconfig.lib.json"

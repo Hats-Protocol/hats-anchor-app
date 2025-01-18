@@ -39,9 +39,6 @@
       "path": "../../libs/modules-ui/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/pages/tsconfig.lib.json"
-    },
-    {
       "path": "../../libs/shared/tsconfig.lib.json"
     },
     {

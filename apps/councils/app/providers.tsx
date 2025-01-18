@@ -1,8 +1,12 @@
 'use client';
 
-import '../public/style.css';
+// import '../public/style.css';
+// import './global.css';
+// import '@rainbow-me/rainbowkit/styles.css';
 import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';
+import '@uiw/react-md-editor/markdown-editor.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
 import { councilsChainsList } from '@hatsprotocol/constants';

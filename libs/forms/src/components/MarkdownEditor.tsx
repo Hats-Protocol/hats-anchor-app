@@ -1,7 +1,5 @@
 'use client';
 
-import '@uiw/react-md-editor/markdown-editor.css';
-
 import MDEditor from '@uiw/react-md-editor';
 import { pick } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';

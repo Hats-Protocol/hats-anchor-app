@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
@@ -16,18 +8,12 @@ import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { explorerUrl, parseEventName } from 'utils';
 
 const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
 
-const EventHistory = ({
-  type,
-  count,
-}: {
-  type: 'tree' | 'hat';
-  count?: number;
-}) => {
+const EventHistory = ({ type, count }: { type: 'tree' | 'hat'; count?: number }) => {
   const { chainId, treeEvents } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const { isClient } = useMediaStyles();
@@ -55,11 +41,7 @@ const EventHistory = ({
   return (
     <Box>
       {_.map(displayedEvents, (event: HatsEvent) => (
-        <Event
-          key={`${event.transactionID}-${event.id}`}
-          event={event}
-          chainId={chainId}
-        />
+        <Event key={`${event.transactionID}-${event.id}`} event={event} chainId={chainId} />
       ))}
 
       {shouldCollapse && !isOpen && (
@@ -68,9 +50,7 @@ const EventHistory = ({
         </Flex>
       )}
 
-      {shouldCollapse && lastEvent && !isOpen && (
-        <Event event={lastEvent} chainId={chainId} />
-      )}
+      {shouldCollapse && lastEvent && !isOpen && <Event event={lastEvent} chainId={chainId} />}
 
       {shouldCollapse && (
         <Button onClick={onToggle} size='sm' variant='outline'>
@@ -88,28 +68,15 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
   const eventDisplayName = parseEventName(eventName);
 
   return (
-    <Flex
-      key={`${event.transactionID}-${event.id}`}
-      align='center'
-      justify='space-between'
-      py={2}
-    >
+    <Flex key={`${event.transactionID}-${event.id}`} align='center' justify='space-between' py={2}>
       <Text color='blackAlpha.800'>{eventDisplayName}</Text>
 
-      <ChakraNextLink
-        isExternal
-        href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`}
-        display='block'
-      >
+      <Link href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`} className='block' isExternal>
         <HStack color='blue.500' justify='center'>
-          <Text>
-            {`${formatDistanceToNow(
-              new Date(Number(event.timestamp) * 1000),
-            )} ago`}
-          </Text>
+          <Text>{`${formatDistanceToNow(new Date(Number(event.timestamp) * 1000))} ago`}</Text>
           <Icon as={Etherscan} />
         </HStack>
-      </ChakraNextLink>
+      </Link>
     </Flex>
   );
 };

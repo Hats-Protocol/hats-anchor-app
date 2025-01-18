@@ -10,7 +10,7 @@ import { daohausUrl, safeUrl } from './authorities';
 const EXCLUDE_CONTRACT_NAMES = ['MetaMultiSigWallet'];
 
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
-const Group = dynamic(() => import('icons').then((i) => i.Group));
+const Group = dynamic(() => import('icons').then((i) => i.GroupIcon));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 /**
@@ -31,10 +31,7 @@ export const getControllerNameAndLink = ({
 }) => {
   // default values
   const icon = extendedController?.isContract ? CodeIcon : WearerIcon;
-  const link = `${explorerUrl(chainId)}/address/${get(
-    extendedController,
-    'id',
-  )}`;
+  const link = `${explorerUrl(chainId)}/address/${get(extendedController, 'id')}`;
 
   // override for safe
   if (extendedController?.contractName === 'GnosisSafeProxy') {
@@ -49,10 +46,7 @@ export const getControllerNameAndLink = ({
   if (extendedController?.contractName === 'Baal') {
     return {
       name: extendedController?.contractName,
-      link: daohausUrl(
-        chainId as SupportedChains,
-        get(extendedController, 'id'),
-      ),
+      link: daohausUrl(chainId as SupportedChains, get(extendedController, 'id')),
       icon,
     };
   }
@@ -80,10 +74,7 @@ export const getControllerNameAndLink = ({
     };
   }
 
-  if (
-    extendedController?.contractName &&
-    !includes(EXCLUDE_CONTRACT_NAMES, extendedController.contractName)
-  ) {
+  if (extendedController?.contractName && !includes(EXCLUDE_CONTRACT_NAMES, extendedController.contractName)) {
     // contract (etherscan) name, if verified
     return {
       name: extendedController.contractName,

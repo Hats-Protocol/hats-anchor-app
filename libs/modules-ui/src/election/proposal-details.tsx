@@ -1,30 +1,14 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Progress,
-  Stack,
-  Tag,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, HStack, Icon, Progress, Stack, Tag, Text, VStack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
+import { Link } from 'ui';
 import { eligibilityRuleToModuleDetails, explorerUrl } from 'utils';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 export const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const { chainId, activeRule } = useEligibility();
@@ -37,10 +21,7 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
     return [
       {
         label: 'Strategies:',
-        value:
-          proposal.strategies.length === 1
-            ? '1 strategy'
-            : `${proposal.strategies.length} strategies`,
+        value: proposal.strategies.length === 1 ? '1 strategy' : `${proposal.strategies.length} strategies`,
       },
       {
         label: 'Voting system:',
@@ -65,8 +46,7 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
     const totalVotes = proposal.scores_total;
     const choices = _.map(proposal.choices, (choice: string, index: number) => {
       const votes = _.toNumber(proposal.scores[index].toFixed(2));
-      const percentage =
-        totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(2) : 0;
+      const percentage = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(2) : 0;
       return { choice, votes, percentage };
     });
 
@@ -82,16 +62,11 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
           {proposal.state}
         </Tag>
       </Box>
-      <Flex
-        gap={6}
-        align='start'
-        w='full'
-        direction={{ base: 'column', md: 'row' }}
-      >
+      <Flex gap={6} align='start' w='full' direction={{ base: 'column', md: 'row' }}>
         <VStack spacing={4} align='start' flex='1'>
-          <ChakraNextLink href={snapshotLink} isExternal>
+          <Link href={snapshotLink} isExternal>
             <Heading size='lg'>{proposal.title}</Heading>
-          </ChakraNextLink>
+          </Link>
           <Text noOfLines={[3, 5]} size='sm'>
             {proposal.body}
           </Text>
@@ -100,28 +75,18 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
           <HStack justify='space-between' w='full'>
             <Heading size='sm'>About</Heading>
             {moduleDetails && (
-              <ChakraNextLink
-                href={`${explorerUrl(chainId)}/address/${
-                  moduleDetails?.implementationAddress
-                }`}
-                isExternal
-              >
+              <Link href={`${explorerUrl(chainId)}/address/${moduleDetails?.implementationAddress}`} isExternal>
                 <HStack gap={1}>
                   <Icon as={BsFileCode} w={4} h={4} color='teal' />
                   <Text color='teal' size='sm'>
                     Election
                   </Text>
                 </HStack>
-              </ChakraNextLink>
+              </Link>
             )}
           </HStack>
           {_.map(_.compact(proposalDetails), (detail: any) => (
-            <Flex
-              justifyContent='space-between'
-              width='100%'
-              gap={1}
-              key={detail.label}
-            >
+            <Flex justifyContent='space-between' width='100%' gap={1} key={detail.label}>
               <Text size='sm'>{detail.label}</Text>
               <Text size='sm' variant='medium'>
                 {detail.value}
@@ -140,46 +105,27 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
               <HStack justify='space-between' w='full'>
                 <Text>{result.choice}</Text>
                 {!isMobile ? (
-                  <Text
-                    color='gray.500'
-                    fontSize='sm'
-                    fontWeight='medium'
-                    textAlign='right'
-                  >
+                  <Text color='gray.500' fontSize='sm' fontWeight='medium' textAlign='right'>
                     {result.votes} VOTES ({result.percentage}%)
                   </Text>
                 ) : (
-                  <Text
-                    color='gray.500'
-                    fontSize='sm'
-                    fontWeight='medium'
-                    textAlign='right'
-                  >
+                  <Text color='gray.500' fontSize='sm' fontWeight='medium' textAlign='right'>
                     {result.percentage}%
                   </Text>
                 )}
               </HStack>
-              <Progress
-                colorScheme='blue'
-                borderRadius={4}
-                size='sm'
-                value={Number(result.percentage)}
-              />
+              <Progress colorScheme='blue' borderRadius={4} size='sm' value={Number(result.percentage)} />
             </Stack>
           ))}
         </VStack>
       )}
 
       <Box alignSelf='center'>
-        <ChakraNextLink href={snapshotLink}>
-          <Button
-            colorScheme='blue'
-            size='sm'
-            rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}
-          >
+        <Link href={snapshotLink}>
+          <Button colorScheme='blue' size='sm' rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}>
             {!hasProposalEnded ? 'Vote now' : 'View'} on Snapshot
           </Button>
-        </ChakraNextLink>
+        </Link>
       </Box>
     </Stack>
   );

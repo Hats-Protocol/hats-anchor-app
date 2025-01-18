@@ -79,9 +79,7 @@ export const MultiHatsSelect = ({
         name={name}
         value={watch(name)}
         options={localHatOptions}
-        placeholder={
-          placeholder || (allowMultiple ? 'Choose hats' : 'Choose a hat')
-        }
+        placeholder={placeholder || (allowMultiple ? 'Choose hats' : 'Choose a hat')}
         onChange={(e) => {
           setValue(name, e);
         }}

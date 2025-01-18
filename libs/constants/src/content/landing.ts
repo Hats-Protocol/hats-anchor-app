@@ -7,7 +7,7 @@ import {
   Farcaster,
   HatIcon,
   JokeRaceShort,
-  PeopleIcon,
+  People,
   Sablier,
   Safe,
   Snapshot,
@@ -31,15 +31,13 @@ export const LEARN_MORE = [
   {
     url: `${DOCS_URL}/getting-started-with-hats`,
     name: 'For Operators',
-    description:
-      'Everything you need to know to start structuring your organization with hats',
+    description: 'Everything you need to know to start structuring your organization with hats',
     icon: CheckSquare,
   },
   {
     url: `${DOCS_URL}/for-developers/hats-protocol-overview`,
     name: 'For Developers',
-    description:
-      'Protocol and SDK docs for building on top of the open-source protocol',
+    description: 'Protocol and SDK docs for building on top of the open-source protocol',
     icon: CodeIcon,
   },
   {
@@ -47,7 +45,7 @@ export const LEARN_MORE = [
     name: 'Request Support',
     description:
       "We've available to help with org design, setting up your Hats, and custom development. Contact us here.",
-    icon: PeopleIcon,
+    icon: People,
   },
 ];
 
@@ -64,11 +62,7 @@ export type TemplateData = {
 };
 
 // ! CURRENTLY UNUSED ON LANDING PAGE
-export const FEATURED_TEMPLATES = ({
-  ipfsUrl,
-}: {
-  ipfsUrl: (hash: string | undefined) => string | null;
-}) => {
+export const FEATURED_TEMPLATES = ({ ipfsUrl }: { ipfsUrl: (hash: string | undefined) => string | null }) => {
   return [
     {
       chainId: 5,
@@ -76,9 +70,7 @@ export const FEATURED_TEMPLATES = ({
       name: 'Elected Roles',
       // description:
       //   'Delegate roles and authorities automatically based on election results',
-      image: `${ipfsUrl(
-        'bafybeibsxnaoo7bsuyp4dm3ce752lf7q2ruvnor4zuqfaerw4kt7dki6h4',
-      )}`,
+      image: `${ipfsUrl('bafybeibsxnaoo7bsuyp4dm3ce752lf7q2ruvnor4zuqfaerw4kt7dki6h4')}`,
     },
     {
       chainId: 5,
@@ -86,9 +78,7 @@ export const FEATURED_TEMPLATES = ({
       name: 'DAO-controlled Multisig & Signers',
       // description:
       //   'Give and revoke multisig signing authority based on having a hat',
-      image: `${ipfsUrl(
-        'bafybeief2r46xuo4whpingntuntm4yoafedrfr7ky5cu4n2ydurgbnnbne',
-      )}`,
+      image: `${ipfsUrl('bafybeief2r46xuo4whpingntuntm4yoafedrfr7ky5cu4n2ydurgbnnbne')}`,
     },
     {
       chainId: 5,
@@ -96,18 +86,12 @@ export const FEATURED_TEMPLATES = ({
       name: 'Permissionless Contribution Levels',
       // description:
       //   'Members can level up and claim new authorities as they increase their reputation in your org',
-      image: `${ipfsUrl(
-        'bafybeifne2l5kflemqffegryh7ameo3mw72jw2j4erky2xmyzmw3uspsei',
-      )}`,
+      image: `${ipfsUrl('bafybeifne2l5kflemqffegryh7ameo3mw72jw2j4erky2xmyzmw3uspsei')}`,
     },
   ];
 };
 
-export const FEATURED_TREES = ({
-  ipfsUrl,
-}: {
-  ipfsUrl: (hash: string | undefined) => string | null;
-}) => {
+export const FEATURED_TREES = ({ ipfsUrl }: { ipfsUrl: (hash: string | undefined) => string | null }) => {
   return [
     {
       chainId: 8453,

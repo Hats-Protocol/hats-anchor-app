@@ -1,48 +1,25 @@
 'use client';
 
 import { Box, Heading, HStack, Image, Stack, Text } from '@chakra-ui/react';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 
 const ForkableTemplateCard = ({ treeData }: FeatureTreeCardProps) => {
   const { id, name, chainId, image, description } = treeData;
 
   return (
-    <ChakraNextLink href={`/trees/${chainId}/${id}`} _hover={{}}>
-      <HStack
-        bg='white'
-        maxW='400px'
-        borderRadius={6}
-        border='1px'
-        borderColor='gray.600'
-        h='full'
-      >
-        <Stack
-          px={4}
-          py={4}
-          zIndex={1}
-          position='relative'
-          borderRight='1px'
-          borderColor='gray.200'
-          w='full'
-          h='full'
-        >
+    <Link href={`/trees/${chainId}/${id}`}>
+      <HStack bg='white' maxW='400px' borderRadius={6} border='1px' borderColor='gray.600' h='full'>
+        <Stack px={4} py={4} zIndex={1} position='relative' borderRight='1px' borderColor='gray.200' w='full' h='full'>
           <Heading size='md'>{name}</Heading>
           <Text variant='medium' size='sm'>
             {description}
           </Text>
         </Stack>
         <Box bg='#EDF1F7' borderTopRadius={6} mr={1}>
-          <Image
-            loading='lazy'
-            src={image}
-            alt={`${name} featured image`}
-            w='175px'
-            fit='cover'
-            borderTopRadius={6}
-          />
+          <Image loading='lazy' src={image} alt={`${name} featured image`} w='175px' fit='cover' borderTopRadius={6} />
         </Box>
       </HStack>
-    </ChakraNextLink>
+    </Link>
   );
 };
 

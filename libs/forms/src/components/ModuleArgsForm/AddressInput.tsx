@@ -7,7 +7,7 @@ import { useTreeForm } from 'contexts';
 import _ from 'lodash';
 import { ChangeEvent, ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { explorerUrl } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useToken } from 'wagmi';
@@ -31,10 +31,7 @@ const ModuleAddressInput = ({
   const { setValue, watch } = localForm;
   const { chainId } = useTreeForm();
 
-  const handleChangeAddress = (
-    e: ChangeEvent<HTMLInputElement>,
-    name: string,
-  ) => {
+  const handleChangeAddress = (e: ChangeEvent<HTMLInputElement>, name: string) => {
     const trimmedValue = e.target.value.trim();
     setValue(name, trimmedValue, { shouldDirty: true });
   };
@@ -62,21 +59,14 @@ const ModuleAddressInput = ({
   ) {
     let argHelper: ReactNode | null = null;
     // TODO [low] separate ArgHelper?
-    if (
-      arg.displayType === 'erc20' &&
-      !tokenDetails &&
-      (localTokenAddress || tokenAddress)
-    ) {
+    if (arg.displayType === 'erc20' && !tokenDetails && (localTokenAddress || tokenAddress)) {
       if (tokenDetails) {
         argHelper = (
-          <ChakraNextLink
-            href={`${explorerUrl(chainId)}/address/${tokenAddress}`}
-            isExternal
-          >
+          <Link href={`${explorerUrl(chainId)}/address/${tokenAddress}`} isExternal>
             <Text size='sm' variant='gray'>
               {tokenLabel}
             </Text>
-          </ChakraNextLink>
+          </Link>
         );
       }
     }

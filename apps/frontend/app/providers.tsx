@@ -1,4 +1,5 @@
 'use client';
+
 import '../public/styles/style.css';
 import 'react-datepicker/dist/react-datepicker.css';
 

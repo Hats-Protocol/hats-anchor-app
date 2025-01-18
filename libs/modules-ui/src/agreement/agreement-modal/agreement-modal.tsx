@@ -3,23 +3,20 @@
 import { Heading, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { Textarea } from 'forms';
+import { ControlledRadioBox, Textarea } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
 import { compact, concat, filter, find, includes, map, pick, reject, toString } from 'lodash';
 import { useAgreementDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { Markdown } from 'ui';
 import { filterProfiles } from 'utils';
 import { Hex } from 'viem';
 
 import { AboutModule, FILTER, Filter, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AgreementForms } from './agreement-forms';
-
-const ControlledRadioBox = dynamic(() => import('ui').then((ui) => ui.ControlledRadioBox));
-const Markdown = dynamic(() => import('ui').then((ui) => ui.Markdown));
 
 export const AgreementModal = ({
   eligibilityHatId,

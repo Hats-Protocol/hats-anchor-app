@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from '@chakra-ui/react';
+import { Button, Icon, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
@@ -15,17 +8,13 @@ import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import { AgreementContent } from 'molecules';
-import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { Link } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 import { ClaimsHelperButtons } from './claims-helper-buttons';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
@@ -47,8 +36,7 @@ export const BottomMoreMenu = () => {
   const link = hatLink({ hatId: selectedHat?.id, chainId });
 
   const hasAgreement =
-    selectedHat?.id === CONFIG.agreementV0.communityHatId ||
-    moduleDetails?.name === ELIGIBILITY_MODULES.agreement; // TODO match on implementation address/module key
+    selectedHat?.id === CONFIG.agreementV0.communityHatId || moduleDetails?.name === ELIGIBILITY_MODULES.agreement; // TODO match on implementation address/module key
 
   const { agreement } = useAgreementClaim({
     moduleParameters: moduleDetails?.liveParameters,
@@ -62,9 +50,7 @@ export const BottomMoreMenu = () => {
 
   const handleDownload = useCallback(() => {
     const newWindow = window.open('', '_blank');
-    const markdownContent = (
-      <AgreementContent agreement={agreement || agreementV0} />
-    );
+    const markdownContent = <AgreementContent agreement={agreement || agreementV0} />;
     const htmlString = ReactDOMServer.renderToStaticMarkup(markdownContent);
 
     if (!newWindow) return;
@@ -91,13 +77,11 @@ export const BottomMoreMenu = () => {
           More
         </MenuButton>
         <MenuList>
-          <ChakraNextLink href={link} isExternal>
+          <Link href={link} isExternal>
             <MenuItem>View full role</MenuItem>
-          </ChakraNextLink>
+          </Link>
 
-          {hasAgreement && (
-            <MenuItem onClick={handleDownload}>Download Agreement</MenuItem>
-          )}
+          {hasAgreement && <MenuItem onClick={handleDownload}>Download Agreement</MenuItem>}
         </MenuList>
       </Menu>
     );

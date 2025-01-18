@@ -1,18 +1,6 @@
 'use client';
 
-import {
-  As,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
+import { As, Button, Flex, HStack, Icon, Menu, MenuButton, MenuItem, MenuList, Text, Tooltip } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
@@ -21,22 +9,8 @@ import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { ModuleAuthorityModal } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { formHatUrl, safeUrl } from 'hats-utils';
-import {
-  capitalize,
-  filter,
-  find,
-  forEach,
-  get,
-  includes,
-  isEmpty,
-  map,
-  size,
-} from 'lodash';
-import {
-  useCallHsgFunction,
-  useCallModuleFunction,
-  useHsgSigner,
-} from 'modules-hooks';
+import { capitalize, filter, find, forEach, get, includes, isEmpty, map, size } from 'lodash';
+import { useCallHsgFunction, useCallModuleFunction, useHsgSigner } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo, useState } from 'react';
@@ -44,23 +18,14 @@ import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
-import {
-  explorerUrl,
-  getCustomModuleFunction,
-  getDisabledReason,
-  getHostnameFromURL,
-} from 'utils';
+import { Link } from 'ui';
+import { explorerUrl, getCustomModuleFunction, getDisabledReason, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import CustomFunction from './CustomFunction';
 
-const BoxArrowUpRightOut = dynamic(() =>
-  import('icons').then((i) => i.BoxArrowUpRightOut),
-);
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((i) => i.ChakraNextLink),
-);
+const BoxArrowUpRightOut = dynamic(() => import('icons').then((i) => i.BoxArrowUpRightOut));
 
 const ModuleAuthorityToolbar = ({
   authority,
@@ -94,10 +59,7 @@ const ModuleAuthorityToolbar = ({
 
   const customFunction = getCustomModuleFunction(authority);
   const primaryFunction = find(get(authority, 'functions'), 'primary');
-  const otherFunctions = filter(
-    get(authority, 'functions', []),
-    (func: WriteFunction) => !func.primary,
-  );
+  const otherFunctions = filter(get(authority, 'functions', []), (func: WriteFunction) => !func.primary);
 
   const otherLinks = useMemo(() => {
     const links: { link: string; label: string; icon?: IconType }[] = [];
@@ -121,9 +83,7 @@ const ModuleAuthorityToolbar = ({
       if (authority.hsgConfig?.ownerHat) {
         links.push({
           link: formHatUrl({ hatId: authority.hsgConfig.ownerHat.id, chainId }),
-          label: `Go to Owner Hat (#${hatIdDecimalToIp(
-            BigInt(authority.hsgConfig.ownerHat.id),
-          )})`,
+          label: `Go to Owner Hat (#${hatIdDecimalToIp(BigInt(authority.hsgConfig.ownerHat.id))})`,
           icon: FaExternalLinkAlt,
         });
       }
@@ -202,10 +162,7 @@ const ModuleAuthorityToolbar = ({
 
   const isDisabled = !isWearer || !isSameChain || !address;
   const isPrimaryFunctionDisabled =
-    isDisabled ||
-    (primaryFunction?.functionName === 'claimSigner' &&
-      claimed &&
-      !primaryFunction?.isCustom);
+    isDisabled || (primaryFunction?.functionName === 'claimSigner' && claimed && !primaryFunction?.isCustom);
   const primaryDisabledReason = getDisabledReason({
     isNotConnected: !address,
     isOnWrongNetwork: !isSameChain,
@@ -229,9 +186,7 @@ const ModuleAuthorityToolbar = ({
 
   return (
     <HStack wrap='wrap'>
-      {customFunction && eligibilityModalFlag ? (
-        <CustomFunction authority={customFunction} />
-      ) : null}
+      {customFunction && eligibilityModalFlag ? <CustomFunction authority={customFunction} /> : null}
 
       {primaryFunction && (!customFunction || !eligibilityModalFlag) && (
         <Tooltip label={primaryDisabledReason}>
@@ -255,18 +210,14 @@ const ModuleAuthorityToolbar = ({
       )}
       <HStack>
         {authority.type === AUTHORITY_TYPES.hsg && (
-          <ChakraNextLink
-            href={safeUrl(chainId, authority.hsgConfig?.safe)}
-            onClick={trackSafeClick}
-            isExternal
-          >
+          <Link href={safeUrl(chainId, authority.hsgConfig?.safe)} onClick={trackSafeClick} isExternal>
             <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
               <HStack>
                 <Text>Safe</Text>
                 <Icon as={BoxArrowUpRightOut} boxSize={3} />
               </HStack>
             </Button>
-          </ChakraNextLink>
+          </Link>
         )}
         {(!isEmpty(otherFunctions) || !isEmpty(otherLinks)) && (
           <Menu>
@@ -290,10 +241,7 @@ const ModuleAuthorityToolbar = ({
                 });
 
                 return (
-                  <Tooltip
-                    label={localDisabledReason}
-                    key={`${func.label}-${i}`}
-                  >
+                  <Tooltip label={localDisabledReason} key={`${func.label}-${i}`}>
                     <MenuItem
                       onClick={() => {
                         posthog.capture('Called Module Function', {
@@ -304,44 +252,25 @@ const ModuleAuthorityToolbar = ({
                         if (func.isCustom) func.onClick();
                         else handleFunctionCall(func);
                       }}
-                      isDisabled={
-                        isDisabled && !func.isCustom && !publicFunction
-                      }
+                      isDisabled={isDisabled && !func.isCustom && !publicFunction}
                     >
-                      <Flex
-                        justify='space-between'
-                        align='center'
-                        w='100%'
-                        gap={1}
-                      >
+                      <Flex justify='space-between' align='center' w='100%' gap={1}>
                         <Text>{func.label}</Text>
-                        <Icon
-                          as={(func.icon || FiPlusSquare) as As}
-                          boxSize={4}
-                        />
+                        <Icon as={(func.icon || FiPlusSquare) as As} boxSize={4} />
                       </Flex>
                     </MenuItem>
                   </Tooltip>
                 );
               })}
               {map(otherLinks, (link: LinkObject) => (
-                <ChakraNextLink
-                  href={link.link}
-                  isExternal={!!getHostnameFromURL(link.link)}
-                  key={link.link}
-                >
+                <Link href={link.link} isExternal={!!getHostnameFromURL(link.link)} key={link.link}>
                   <MenuItem>
-                    <Flex
-                      justify='space-between'
-                      align='center'
-                      w='100%'
-                      gap={1}
-                    >
+                    <Flex justify='space-between' align='center' w='100%' gap={1}>
                       <Text>{link.label}</Text>
                       <Icon as={link.icon || FaExternalLinkAlt} boxSize={3} />
                     </Flex>
                   </MenuItem>
-                </ChakraNextLink>
+                </Link>
               ))}
             </MenuList>
           </Menu>

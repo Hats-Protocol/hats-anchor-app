@@ -6,11 +6,7 @@ const Button = {
   },
   variants: {
     filled: (props: StyleFunctionProps) => ({
-      background:
-        props.background ||
-        props.bg ||
-        props.colorScheme ||
-        'Functional-LinkPrimary',
+      background: props.background || props.bg || props.colorScheme || 'Functional-LinkPrimary',
       color: 'white',
       _hover: {
         background: props.hoverBackground || props.hoverBg || 'blue.700',

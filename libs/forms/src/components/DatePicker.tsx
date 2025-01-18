@@ -37,13 +37,7 @@ const DatePicker = ({
   const formDate = new Date();
   const formDefaultValue =
     defaultValue || setToZeroUTC
-      ? new Date(
-          Date.UTC(
-            formDate.getUTCFullYear(),
-            formDate.getUTCMonth(),
-            formDate.getUTCDate() + 1,
-          ),
-        )
+      ? new Date(Date.UTC(formDate.getUTCFullYear(), formDate.getUTCMonth(), formDate.getUTCDate() + 1))
       : formDate;
   const [currentValue, setCurrentValue] = useState(formDefaultValue);
 
@@ -53,9 +47,7 @@ const DatePicker = ({
 
   const handleChange = (d: Date) => {
     if (setToZeroUTC) {
-      const utcDate = new Date(
-        Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
-      );
+      const utcDate = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
       setCurrentValue(utcDate);
       setValue(name, utcDate, { shouldDirty: true });
     } else {
@@ -94,11 +86,7 @@ const DatePicker = ({
         </Box>
 
         <Stack spacing={1}>
-          <DatePickerComponent
-            wrapperClassName='chakra-datepicker'
-            selected={currentValue}
-            onChange={handleChange}
-          />
+          <DatePickerComponent wrapperClassName='chakra-datepicker' selected={currentValue} onChange={handleChange} />
 
           {showLocalConversion && (
             <HStack color='blackAlpha.800' fontSize='xs' spacing={1}>

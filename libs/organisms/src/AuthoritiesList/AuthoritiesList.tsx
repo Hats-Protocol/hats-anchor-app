@@ -4,7 +4,7 @@ import { Accordion, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { combineAuthorities } from 'hats-utils';
-import { useHatGuildRoles, useHatSnapshotRoles } from 'hooks';
+import { useHatSnapshotRoles } from 'hooks';
 import { get, isEmpty, map, size } from 'lodash';
 import { useAncillaryModules } from 'modules-hooks';
 import { Authority, AuthorityType } from 'types';
@@ -22,16 +22,14 @@ const LOADING_AUTHORITIES: Authority[] = Array(LOADING_COUNT).fill({
 
 const AuthoritiesList = () => {
   const { orgChartTree, snapshotData } = useTreeForm();
-  const { chainId, selectedHat, selectedHatDetails, hatLoading } =
-    useSelectedHat();
+  const { chainId, selectedHat, selectedHatDetails, hatLoading } = useSelectedHat();
 
-  const { modulesAuthorities, isLoading: ancillaryModulesLoading } =
-    useAncillaryModules({
-      id: selectedHat?.id,
-      chainId,
-      editMode: false,
-      tree: orgChartTree,
-    });
+  const { modulesAuthorities, isLoading: ancillaryModulesLoading } = useAncillaryModules({
+    id: selectedHat?.id,
+    chainId,
+    editMode: false,
+    tree: orgChartTree,
+  });
 
   // const { data: guildRoles, isLoading: guildsLoading } = useHatGuildRoles({
   //   hatId: selectedHat?.id,
@@ -47,14 +45,10 @@ const AuthoritiesList = () => {
     authorities: get(selectedHatDetails, 'authorities'),
     guildRoles: [],
     spaces,
-    modulesAuthorities: ancillaryModulesLoading
-      ? undefined
-      : modulesAuthorities,
+    modulesAuthorities: ancillaryModulesLoading ? undefined : modulesAuthorities,
   });
   const localAuthorities =
-    !hatLoading && !ancillaryModulesLoading && !spacesLoading
-      ? combinedAuthorities
-      : LOADING_AUTHORITIES;
+    !hatLoading && !ancillaryModulesLoading && !spacesLoading ? combinedAuthorities : LOADING_AUTHORITIES;
   const allLoaded = !hatLoading && !ancillaryModulesLoading && !spacesLoading;
 
   if ((allLoaded && isEmpty(combinedAuthorities)) || !selectedHatDetails) {
@@ -72,14 +66,9 @@ const AuthoritiesList = () => {
     <Accordion px={{ base: 0, md: 16 }} allowMultiple>
       <Stack>
         <Skeleton isLoaded={allLoaded}>
-          <Heading
-            size='md'
-            mx={{ base: 4, md: 0 }}
-            variant={{ base: 'medium', md: 'default' }}
-          >
-            {size(combinedAuthorities)}{' '}
-            {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'}{' '}
-            granted by this Hat
+          <Heading size='md' mx={{ base: 4, md: 0 }} variant={{ base: 'medium', md: 'default' }}>
+            {size(combinedAuthorities)} {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'} granted by this
+            Hat
           </Heading>
         </Skeleton>
 

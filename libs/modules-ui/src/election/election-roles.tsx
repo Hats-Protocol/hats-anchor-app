@@ -6,14 +6,10 @@ import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { get } from 'lodash';
 import { useAncillaryElection } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { idToIp } from 'shared';
 import { SupportedChains } from 'types';
+import { Link } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 export const ElectionRoles = () => {
   const { selectedHat, activeRule } = useEligibility();
@@ -25,9 +21,7 @@ export const ElectionRoles = () => {
   });
 
   const chainId = selectedHat?.chainId;
-  const treeId = selectedHat
-    ? hatIdToTreeId(BigInt(selectedHat?.id))
-    : undefined;
+  const treeId = selectedHat ? hatIdToTreeId(BigInt(selectedHat?.id)) : undefined;
   const adminHatId = idToIp(get(electionsAuthority, 'adminHat[0].id'));
   const ballotBoxHatId = idToIp(get(electionsAuthority, 'ballotBoxHat.id'));
 
@@ -38,27 +32,23 @@ export const ElectionRoles = () => {
         {adminHatId && (
           <Text>
             Set up by Hat{' '}
-            <ChakraNextLink
-              href={`${CONFIG.APP_URL}/trees/${chainId}/${treeId}${
-                adminHatId ? `?hatId=${adminHatId}` : ''
-              }`}
-              decoration
+            <Link
+              href={`${CONFIG.APP_URL}/trees/${chainId}/${treeId}${adminHatId ? `?hatId=${adminHatId}` : ''}`}
+              className='underline'
             >
               #{adminHatId}
-            </ChakraNextLink>
+            </Link>
           </Text>
         )}
         {ballotBoxHatId && (
           <Text>
             Results submitted by{' '}
-            <ChakraNextLink
-              href={`${CONFIG.APP_URL}/${chainId}/${treeId}${
-                ballotBoxHatId ? `?hatId=${ballotBoxHatId}` : ''
-              }`}
-              decoration
+            <Link
+              href={`${CONFIG.APP_URL}/${chainId}/${treeId}${ballotBoxHatId ? `?hatId=${ballotBoxHatId}` : ''}`}
+              className='underline'
             >
               #{ballotBoxHatId}
-            </ChakraNextLink>
+            </Link>
           </Text>
         )}
       </Stack>

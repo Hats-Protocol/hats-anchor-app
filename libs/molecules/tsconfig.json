@@ -19,6 +19,6 @@
     { "path": "../types/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "../types/**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "**/*.d.ts", "../types/**/*.d.ts", "tailwind.config.ts"],
   "extends": "../../tsconfig.base.json"
 }

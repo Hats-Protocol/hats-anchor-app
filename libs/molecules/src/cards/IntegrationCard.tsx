@@ -3,13 +3,13 @@
 import { Box, Card, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { IntegrationCard as IntegrationCardType } from '@hatsprotocol/constants';
 import { map, pick } from 'lodash';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 
 const IntegrationCard = ({ integration }: { integration: IntegrationCardType }) => {
   const { label, icons, link } = pick(integration, ['label', 'icons', 'link']);
 
   return (
-    <ChakraNextLink href={link} isExternal w={{ base: '100%', md: '48%', xl: '23%' }}>
+    <Link href={link} className='w-full md:w-[48%] xl:w-[23%]' isExternal>
       <Card border='1px solid' minW='200px'>
         <Flex
           h='100px'
@@ -40,7 +40,7 @@ const IntegrationCard = ({ integration }: { integration: IntegrationCardType }) 
           </Text>
         </Flex>
       </Card>
-    </ChakraNextLink>
+    </Link>
   );
 };
 

@@ -17,7 +17,7 @@ import { get, map } from 'lodash';
 import posthog from 'posthog-js';
 import React from 'react';
 import { SafeTransaction } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import {
   explorerUrl,
   filterSafeTransactions,
@@ -46,9 +46,7 @@ const TransactionRecord = ({ tx, chainId }: { tx: SafeTransaction; chainId: numb
       </Flex>
 
       <Box>
-        <ChakraNextLink href={`${explorerUrl(chainId)}/tx/${txHash}`}>
-          {shortDateFormatter(new Date(tx.executionDate))}
-        </ChakraNextLink>
+        <Link href={`${explorerUrl(chainId)}/tx/${txHash}`}>{shortDateFormatter(new Date(tx.executionDate))}</Link>
       </Box>
     </Flex>
   );

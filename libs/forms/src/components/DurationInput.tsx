@@ -1,14 +1,7 @@
 'use client';
 
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { FormControl, FormHelperText, FormLabel, HStack, Stack, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
@@ -94,12 +87,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
               isRequired={isRequired}
               options={options}
               rightAddon={
-                <Select
-                  name={`${name}-time-unit`}
-                  localForm={localForm}
-                  defaultValue='seconds'
-                  w='100%'
-                >
+                <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds' w='100%'>
                   {timeUnits.map(({ unit, value }) => (
                     <option key={unit} value={unit}>
                       {unit}

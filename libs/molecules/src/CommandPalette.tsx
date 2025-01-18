@@ -6,22 +6,11 @@ import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useSearchResults } from 'hooks';
 import _ from 'lodash';
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import CmdkCommandPalette, {
-  filterItems,
-  getItemIndex,
-  useHandleOpenCommandPalette,
-} from 'react-cmdk';
+import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react';
+import CmdkCommandPalette, { filterItems, getItemIndex, useHandleOpenCommandPalette } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
 import { Group, SearchResults } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { chainsMap } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -34,21 +23,17 @@ const CommandPaletteInternalLink = ({
   children: React.ReactNode;
   handleClose?: () => void;
 }) => (
-  <ChakraNextLink href={href} onClick={handleClose}>
+  <Link href={href} onClick={handleClose}>
     <Flex w='100%' justify='space-between' p={2}>
       {children}
     </Flex>
-  </ChakraNextLink>
+  </Link>
 );
 
 const CommandPalette = () => {
   const { address } = useAccount();
   const [page] = useState('root');
-  const {
-    commandPalette: isOpen,
-    setCommandPalette: setOpen,
-    recentlyVisitedTrees,
-  } = useOverlay();
+  const { commandPalette: isOpen, setCommandPalette: setOpen, recentlyVisitedTrees } = useOverlay();
   const [search, setSearch] = useState('');
   const [serverSearch, setServerSearch] = useState<string | undefined>();
   const [localResults, setLocalResults] = useState<{
@@ -151,15 +136,12 @@ const CommandPalette = () => {
   // TODO should be filterable also
   const recentlyVisitedTreesItems = useMemo(
     () =>
-      _.map(
-        _.compact(recentlyVisitedTrees),
-        ({ treeId, chainId }: { treeId: number; chainId: number }) => ({
-          id: `recent-${treeId}-${chainId}`,
-          children: `Tree #${treeId} on ${chainsMap(chainId)?.name}`,
-          href: `/trees/${chainId}/${treeId}`,
-          icon: FaSitemap,
-        }),
-      ),
+      _.map(_.compact(recentlyVisitedTrees), ({ treeId, chainId }: { treeId: number; chainId: number }) => ({
+        id: `recent-${treeId}-${chainId}`,
+        children: `Tree #${treeId} on ${chainsMap(chainId)?.name}`,
+        href: `/trees/${chainId}/${treeId}`,
+        icon: FaSitemap,
+      })),
     [recentlyVisitedTrees],
   );
 
@@ -175,24 +157,18 @@ const CommandPalette = () => {
       <CmdkCommandPalette.Page id='root'>
         {!_.isEmpty(recentlyVisitedTrees) && (
           <CmdkCommandPalette.List heading='Recently Visited Trees'>
-            {_.map(
-              recentlyVisitedTreesItems,
-              ({ id, ...rest }: any, index: number) => (
-                <CmdkCommandPalette.ListItem
-                  key={id}
-                  index={index}
-                  renderLink={({ href, children }) => (
-                    <CommandPaletteInternalLink
-                      href={href ?? ''}
-                      handleClose={handleClose}
-                    >
-                      {children}
-                    </CommandPaletteInternalLink>
-                  )}
-                  {...rest}
-                />
-              ),
-            )}
+            {_.map(recentlyVisitedTreesItems, ({ id, ...rest }: any, index: number) => (
+              <CmdkCommandPalette.ListItem
+                key={id}
+                index={index}
+                renderLink={({ href, children }) => (
+                  <CommandPaletteInternalLink href={href ?? ''} handleClose={handleClose}>
+                    {children}
+                  </CommandPaletteInternalLink>
+                )}
+                {...rest}
+              />
+            ))}
           </CmdkCommandPalette.List>
         )}
         {filteredItems.length ? (
@@ -203,10 +179,7 @@ const CommandPalette = () => {
                   key={id}
                   index={getItemIndex(filteredItems, id)}
                   renderLink={({ href, children }) => (
-                    <CommandPaletteInternalLink
-                      href={href ?? ''}
-                      handleClose={handleClose}
-                    >
+                    <CommandPaletteInternalLink href={href ?? ''} handleClose={handleClose}>
                       {children}
                     </CommandPaletteInternalLink>
                   )}
@@ -218,24 +191,18 @@ const CommandPalette = () => {
         ) : localResults ? (
           _.map(searchResults, (group: Group) => (
             <CmdkCommandPalette.List key={group.id} heading={group.heading}>
-              {_.map(
-                _.get(group, 'items'),
-                ({ id, ...rest }: { id: string }) => (
-                  <CmdkCommandPalette.ListItem
-                    key={id}
-                    index={getItemIndex(searchResults, id)}
-                    renderLink={({ href, children }) => (
-                      <CommandPaletteInternalLink
-                        href={href ?? ''}
-                        handleClose={handleClose}
-                      >
-                        {children}
-                      </CommandPaletteInternalLink>
-                    )}
-                    {...rest}
-                  />
-                ),
-              )}
+              {_.map(_.get(group, 'items'), ({ id, ...rest }: { id: string }) => (
+                <CmdkCommandPalette.ListItem
+                  key={id}
+                  index={getItemIndex(searchResults, id)}
+                  renderLink={({ href, children }) => (
+                    <CommandPaletteInternalLink href={href ?? ''} handleClose={handleClose}>
+                      {children}
+                    </CommandPaletteInternalLink>
+                  )}
+                  {...rest}
+                />
+              ))}
             </CmdkCommandPalette.List>
           ))
         ) : isValid ? (

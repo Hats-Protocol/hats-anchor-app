@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { useRef } from 'react';
 import { ToastBaseProps, ToastProps, UseCustomToastReturn } from 'types';
 
-import Toast from './components/Toast';
+import { Toast } from './components/toast';
 
 const ToastBase = ({
   toast,

@@ -1,4 +1,5 @@
 export { default as AddressInput } from './AddressInput';
+export * from './controlled-radio-box';
 export { default as DatePicker } from './DatePicker';
 export { default as DurationInput } from './DurationInput';
 export * from './dynamic-threshold';

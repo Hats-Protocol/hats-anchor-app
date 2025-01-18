@@ -20,6 +20,6 @@
     { "path": "../ui/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "**/*.d.ts", "tailwind.config.ts"],
   "extends": "../../tsconfig.base.json"
 }

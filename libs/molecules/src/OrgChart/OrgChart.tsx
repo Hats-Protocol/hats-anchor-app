@@ -18,12 +18,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { CONFIG, DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
-import {
-  hatIdDecimalToHex,
-  hatIdDecimalToIp,
-  hatIdHexToDecimal,
-  hatIdIpToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
@@ -41,19 +36,12 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { buttonContent } from './buttons';
 import { selectedOptionContent } from './options';
-import {
-  adjustAfterNodeExpanded,
-  centerChart,
-  checkParentElementForClass,
-  recreateNodesCollapse,
-} from './utils';
+import { adjustAfterNodeExpanded, centerChart, checkParentElementForClass, recreateNodesCollapse } from './utils';
 
 function OrgChartComponent() {
   const params = useSearchParams();
   const hatId = params.get('hatId');
-  const selectedHatId = hatId
-    ? hatIdDecimalToHex(hatIdIpToDecimal(hatId || ''))
-    : undefined;
+  const selectedHatId = hatId ? hatIdDecimalToHex(hatIdIpToDecimal(hatId || '')) : undefined;
   const userChain = useChainId();
   const { address } = useAccount();
   const {
@@ -180,10 +168,7 @@ function OrgChartComponent() {
           if (!chainId || !orgChartTree) return;
           d3.select(this).on('click.node-update', (event: any, data: any) => {
             if (checkParentElementForClass(event, `click-${data.data.name}`)) {
-              const nextChildId = calculateNextChildId(
-                data.data.id,
-                orgChartTree,
-              );
+              const nextChildId = calculateNextChildId(data.data.id, orgChartTree);
               const newId = ipToHatId(nextChildId);
 
               const newHat = {
@@ -252,8 +237,7 @@ function OrgChartComponent() {
           const currentName = find(chartNodes, {
             id: d.data.id,
           })?.displayName;
-          const detailsName =
-            currentName || detailsObject?.data?.name || details;
+          const detailsName = currentName || detailsObject?.data?.name || details;
           const isSelected = selectedHatId === d.id;
           const extendedEligibility = find(orgChartWearers, {
             id: eligibility,
@@ -261,9 +245,7 @@ function OrgChartComponent() {
           const extendedToggle = find(orgChartWearers, {
             id: toggle,
           });
-          const nodeIpUnderScore = hatIdDecimalToIp(
-            hatIdHexToDecimal(d.data.id),
-          ).replaceAll('.', '_');
+          const nodeIpUnderScore = hatIdDecimalToIp(hatIdHexToDecimal(d.data.id)).replaceAll('.', '_');
 
           return `
             <div style='
@@ -305,23 +287,14 @@ function OrgChartComponent() {
                     border: ${isSelected ? '3px' : '1px'} solid #4A5568;
                     left: ${isSelected ? -12 : 1}px;
                     top: ${isSelected ? -12 : 0}px;
-                    ${
-                      isSelected
-                        ? 'border-radius: 4px;'
-                        : 'border-top-left-radius: 4px;'
-                    }
+                    ${isSelected ? 'border-radius: 4px;' : 'border-top-left-radius: 4px;'}
                     overflow: hidden;
                     ${isSelected && 'background: white;'}
                   ">
                     <img
                       loading="lazy"
                       src="${
-                        imageUrl &&
-                        imageUrl !== '' &&
-                        imageUrl !== '#' &&
-                        imageUrl !== null
-                          ? imageUrl
-                          : '/icon.jpeg'
+                        imageUrl && imageUrl !== '' && imageUrl !== '#' && imageUrl !== null ? imageUrl : '/icon.jpeg'
                       }"
                       style="
                         background: white;
@@ -497,11 +470,7 @@ function OrgChartComponent() {
 
       if (!initialLoad.current) return;
 
-      if (
-        selectedHatId &&
-        selectedHatId !== ZERO_ID &&
-        selectedHatId !== '0x'
-      ) {
+      if (selectedHatId && selectedHatId !== ZERO_ID && selectedHatId !== '0x') {
         onOpenHatDrawer?.(selectedHatId);
         centerChart(chart, selectedHatId);
       } else {
@@ -543,7 +512,7 @@ function OrgChartComponent() {
             <Heading textAlign='center'>Tree not found</Heading>
 
             {/* <Flex>
-                <ChakraNextLink href='/'>
+                <Link href='/'>
                   <Button
                     variant='outline'
                     bg='white'
@@ -554,7 +523,7 @@ function OrgChartComponent() {
                     </span>{' '}
                     Head home
                   </Button>
-                </ChakraNextLink>
+                </Link>
               </Flex> */}
           </Stack>
 
@@ -602,13 +571,7 @@ function OrgChartComponent() {
         >
           Show full {CONFIG.TERMS.tree}
         </Button>
-        <Tooltip
-          label={
-            !isEmpty(collapsedNodes)
-              ? `Show full tree to ${compact ? 'expand' : 'compact'} view`
-              : ''
-          }
-        >
+        <Tooltip label={!isEmpty(collapsedNodes) ? `Show full tree to ${compact ? 'expand' : 'compact'} view` : ''}>
           <Button
             onClick={() => {
               posthog.capture('Toggled Compact View', {
@@ -625,9 +588,7 @@ function OrgChartComponent() {
             {compact ? 'Full View' : 'Compact View'}
           </Button>
         </Tooltip>
-        <Tooltip
-          label={!isEmpty(collapsedNodes) ? 'Show full tree to flip view' : ''}
-        >
+        <Tooltip label={!isEmpty(collapsedNodes) ? 'Show full tree to flip view' : ''}>
           <Button
             onClick={() => {
               posthog.capture('Toggled Flip View', {

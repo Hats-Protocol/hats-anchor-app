@@ -4,29 +4,15 @@ import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { find, first, get, pick } from 'lodash';
 import { useErc1155Details } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
+import { Link } from 'ui';
 import { explorerUrl, formatAddress, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
-
-export const Erc1155EligibilityRule = ({
-  moduleParameters,
-  wearer,
-  chainId,
-}: ModuleDetailsHandler) => {
-  const tokenParam = find(
-    moduleParameters,
-    (p: ModuleParameter) => p.displayType === 'erc1155',
-  );
+export const Erc1155EligibilityRule = ({ moduleParameters, wearer, chainId }: ModuleDetailsHandler) => {
+  const tokenParam = find(moduleParameters, (p: ModuleParameter) => p.displayType === 'erc1155');
   // Multi ERC1155 handles multiple tokens and balances
   // TODO handle multiple tokenIds
   const minBalances = find(moduleParameters, {
@@ -43,10 +29,7 @@ export const Erc1155EligibilityRule = ({
     tokenId,
     chainId,
   });
-  const { userBalance, userBalanceDisplay } = pick(erc1155Details, [
-    'userBalance',
-    'userBalanceDisplay',
-  ]);
+  const { userBalance, userBalanceDisplay } = pick(erc1155Details, ['userBalance', 'userBalanceDisplay']);
 
   // check eligibility
   if (userBalance && minBalance && userBalance >= minBalance) {
@@ -57,12 +40,9 @@ export const Erc1155EligibilityRule = ({
           <HStack spacing={1}>
             <Text>
               Hold at least {amountValueDisplay}{' '}
-              <ChakraNextLink
-                href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}
-                decoration
-              >
+              <Link href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`} className='underline'>
                 {formatAddress(tokenParam?.value as Hex)}
-              </ChakraNextLink>{' '}
+              </Link>{' '}
               token with ID
             </Text>
             <Tooltip label={tokenId?.toString()}>
@@ -86,12 +66,9 @@ export const Erc1155EligibilityRule = ({
         <HStack spacing={1}>
           <Text>
             Hold at least {amountValueDisplay}{' '}
-            <ChakraNextLink
-              href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`}
-              decoration
-            >
+            <Link href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`} className='underline'>
               {formatAddress(tokenParam?.value as Hex)}
-            </ChakraNextLink>{' '}
+            </Link>{' '}
             token with ID
           </Text>
           <Tooltip label={tokenId?.toString()}>

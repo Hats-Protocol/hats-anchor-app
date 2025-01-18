@@ -28,11 +28,7 @@ export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
         </Box>
 
         {!dynamicThreshold ? (
-          <Button
-            variant='outline'
-            minW='30%'
-            onClick={() => setValue('dynamicThreshold', true)}
-          >
+          <Button variant='outline' minW='30%' onClick={() => setValue('dynamicThreshold', true)}>
             Use a dynamic threshold
           </Button>
         ) : (
@@ -50,12 +46,7 @@ export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
 
       {dynamicThreshold && (
         <Stack spacing={4}>
-          <Box
-            borderRadius='md'
-            border='1px solid'
-            borderColor='gray.200'
-            p={4}
-          >
+          <Box borderRadius='md' border='1px solid' borderColor='gray.200' p={4}>
             <Stack>
               <Heading size='md'>Dynamic multisig thresholds</Heading>
 
@@ -92,11 +83,7 @@ export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
           </Box>
 
           <Flex justify='end'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setValue('dynamicThreshold', false)}
-            >
+            <Button variant='outline' size='sm' onClick={() => setValue('dynamicThreshold', false)}>
               Use a static threshold
             </Button>
           </Flex>

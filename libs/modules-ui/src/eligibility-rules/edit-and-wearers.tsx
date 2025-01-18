@@ -24,16 +24,14 @@ import dynamic from 'next/dynamic';
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { AppHat, HatWearer, SupportedChains } from 'types';
+import { Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
-const GroupIcon = dynamic(() => import('icons').then((i) => i.Group));
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((i) => i.ChakraNextLink),
-);
+const GroupIcon = dynamic(() => import('icons').then((i) => i.GroupIcon));
 
 const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   const { chainId, orgChartWearers } = useTreeForm();
@@ -45,9 +43,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   ) as HatWearer[];
 
   const contractWearers = filter(wearers, 'isContract');
-  const safeWearers = filter(contractWearers, (w: HatWearer) =>
-    w?.contractName?.includes('GnosisSafeProxy'),
-  );
+  const safeWearers = filter(contractWearers, (w: HatWearer) => w?.contractName?.includes('GnosisSafeProxy'));
   const wearerCount = {
     code: size(contractWearers) - size(safeWearers) || 0,
     groups: size(safeWearers) || 0,
@@ -66,11 +62,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
       </div>
 
       <div>
-        <WearerBreakdown
-          wearers={wearers}
-          wearerCount={wearerCount}
-          chainId={chainId}
-        />
+        <WearerBreakdown wearers={wearers} wearerCount={wearerCount} chainId={chainId} />
       </div>
     </div>
   );
@@ -78,12 +70,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
 
 const AdminWearersPanel = () => {
   const { treeToDisplay, orgChartWearers } = useTreeForm();
-  const {
-    selectedHat,
-    chainId,
-    isClaimable,
-    hatLoading: selectedHatLoading,
-  } = useSelectedHat();
+  const { selectedHat, chainId, isClaimable, hatLoading: selectedHatLoading } = useSelectedHat();
   const { isMobile } = useMediaStyles();
   const [expandedBackground, setExpandedBackground] = useState(false);
   const isMounted = useRef(false);
@@ -108,15 +95,7 @@ const AdminWearersPanel = () => {
   });
 
   if (size(adminHats) === 0 || selectedHatLoading) {
-    return (
-      <Skeleton
-        h='1.5rem'
-        w='full'
-        mx={{ base: 4, md: 0 }}
-        my={2}
-        isLoaded={!selectedHatLoading}
-      />
-    );
+    return <Skeleton h='1.5rem' w='full' mx={{ base: 4, md: 0 }} my={2} isLoaded={!selectedHatLoading} />;
   }
 
   if (size(admins) === 1) {
@@ -128,11 +107,7 @@ const AdminWearersPanel = () => {
           {!isClaimable?.for ? ' and choose Wearers' : ''}
         </Text>
 
-        <WearerBreakdown
-          wearers={admins}
-          wearerCount={adminCount}
-          chainId={chainId}
-        />
+        <WearerBreakdown wearers={admins} wearerCount={adminCount} chainId={chainId} />
       </Flex>
     );
   }
@@ -146,13 +121,9 @@ const AdminWearersPanel = () => {
         w={{ base: '100%', md: 'calc(100% + 32px)' }}
         ml={{ md: -4 }}
         boxShadow={
-          expandedBackground
-            ? '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)'
-            : undefined
+          expandedBackground ? '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)' : undefined
         }
-        borderRadius={
-          expandedBackground ? { base: 'none', md: 'md' } : { base: 'none' }
-        }
+        borderRadius={expandedBackground ? { base: 'none', md: 'md' } : { base: 'none' }}
       >
         {({ isExpanded }: { isExpanded: boolean }) => {
           if (isMounted.current && isExpanded !== expandedBackground) {
@@ -170,11 +141,7 @@ const AdminWearersPanel = () => {
                   borderRadius: !isExpanded ? 'md' : undefined,
                   borderColor: !isExpanded && 'blue.300',
                 }}
-                background={
-                  isExpanded
-                    ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)'
-                    : undefined
-                }
+                background={isExpanded ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)' : undefined}
                 borderTopRadius={isExpanded ? 'md' : undefined}
                 borderColor={isExpanded ? 'gray.100' : 'transparent'}
                 borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
@@ -185,22 +152,11 @@ const AdminWearersPanel = () => {
                     {!isClaimable?.for ? ' and choose Wearers' : ''}
                   </Box>
 
-                  <WearerBreakdown
-                    wearers={admins}
-                    wearerCount={adminCount}
-                    chainId={chainId}
-                  />
+                  <WearerBreakdown wearers={admins} wearerCount={adminCount} chainId={chainId} />
                 </Flex>
               </AccordionButton>
 
-              <AccordionPanel
-                p={0}
-                overflow='visible'
-                borderBottomRadius='lg'
-                pb={1}
-                bg='white'
-                border='gray'
-              >
+              <AccordionPanel p={0} overflow='visible' borderBottomRadius='lg' pb={1} bg='white' border='gray'>
                 <Stack px={4}>
                   {map(adminHats, (adminHat: AppHat) => (
                     <AdminHatRow key={adminHat.id} hatId={adminHat.id} />
@@ -234,22 +190,15 @@ const WearerBreakdown = ({
 
   if (size(wearers) === 1) {
     return (
-      <ChakraNextLink href={link}>
+      <Link href={link}>
         <HStack
-          color={
-            wearer?.isContract && !name.includes('Safe')
-              ? 'Informative-Code'
-              : 'Informative-Human'
-          }
+          color={wearer?.isContract && !name.includes('Safe') ? 'Informative-Code' : 'Informative-Human'}
           spacing={1}
         >
           <Text>{name || formatAddress(wearer?.id)}</Text>
-          <Icon
-            as={icon ?? (wearer?.isContract ? CodeIcon : WearerIcon)}
-            boxSize={4}
-          />
+          <Icon as={icon ?? (wearer?.isContract ? CodeIcon : WearerIcon)} boxSize={4} />
         </HStack>
-      </ChakraNextLink>
+      </Link>
     );
   }
 
@@ -289,15 +238,12 @@ const Claimable = ({
   if (!address || !chainId) return null;
 
   return (
-    <ChakraNextLink
-      href={`${explorerUrl(chainId)}/address/${address}`}
-      isExternal
-    >
+    <Link href={`${explorerUrl(chainId)}/address/${address}`} isExternal>
       <HStack color='blue.500' spacing={1}>
         <Text>{claimFor ? 'Free Claim' : 'Self Claim'}</Text>
         <Icon as={CodeIcon} boxSize={4} />
       </HStack>
-    </ChakraNextLink>
+    </Link>
   );
 };
 
@@ -312,13 +258,8 @@ export const EditAndWearers = () => {
     chainId,
   });
 
-  const claimableAddress = get(first(get(selectedHat, 'claimableBy')), 'id') as
-    | Hex
-    | undefined;
-  const claimableForAddress = get(
-    first(get(selectedHat, 'claimableForBy')),
-    'id',
-  ) as Hex | undefined;
+  const claimableAddress = get(first(get(selectedHat, 'claimableBy')), 'id') as Hex | undefined;
+  const claimableForAddress = get(first(get(selectedHat, 'claimableForBy')), 'id') as Hex | undefined;
 
   const canAddWearers = useBreakpointValue({
     base: 'Anyone can add eligible Wearers',
@@ -340,11 +281,7 @@ export const EditAndWearers = () => {
         <Flex justify='space-between'>
           <Text>Admins can add Wearers</Text>
 
-          <WearerBreakdown
-            wearers={admins}
-            wearerCount={adminCount}
-            chainId={chainId}
-          />
+          <WearerBreakdown wearers={admins} wearerCount={adminCount} chainId={chainId} />
         </Flex>
       </Stack>
     );
@@ -359,21 +296,13 @@ export const EditAndWearers = () => {
           <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
             <Text>{canAddWearers}</Text>
 
-            <Claimable
-              address={claimableForAddress}
-              chainId={chainId}
-              claimFor={isClaimable.for}
-            />
+            <Claimable address={claimableForAddress} chainId={chainId} claimFor={isClaimable.for} />
           </Flex>
         ) : (
           <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
             <Text>Eligible addresses can claim a Hat</Text>
 
-            <Claimable
-              address={claimableAddress}
-              chainId={chainId}
-              claimFor={isClaimable.for}
-            />
+            <Claimable address={claimableAddress} chainId={chainId} claimFor={isClaimable.for} />
           </Flex>
         ))}
     </Stack>

@@ -57,4 +57,4 @@ const theme = extendTheme({
   },
 });
 
-export default theme;
+export { theme };

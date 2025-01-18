@@ -2,7 +2,7 @@
 
 import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
 
@@ -12,9 +12,9 @@ const LookingForHat = () => (
     <Text maxW='60%'>
       You&apos;re probably looking for a specific hat. Look out for a link here with a specific hat ID on it, like the
       Hats Protocol Community Hat:{' '}
-      <ChakraNextLink href='/10/1.2.1.1' decoration fontFamily='monospace' display='inline-block'>
+      <Link href='/10/1.2.1.1' className='inline-block font-mono underline'>
         /10/1.2.1.1
-      </ChakraNextLink>
+      </Link>
     </Text>
   </Stack>
 );

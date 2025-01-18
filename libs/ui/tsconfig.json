@@ -5,7 +5,16 @@
     "esModuleInterop": false,
     "declaration": true,
     "declarationMap": true,
-    "strict": true
+    "strict": true,
+    "target": "es2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "references": [
     { "path": "../constants/tsconfig.lib.json" },
@@ -18,6 +27,6 @@
     { "path": "../types/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "../types/**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "**/*.d.ts", "../types/**/*.d.ts", "tailwind.config.ts"],
   "extends": "../../tsconfig.base.json"
 }

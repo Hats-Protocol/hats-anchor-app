@@ -138,4 +138,4 @@ const Toast: React.FC<ToastProps> = ({
     </Flex>
   );
 };
-export default Toast;
+export { Toast, type ToastProps };

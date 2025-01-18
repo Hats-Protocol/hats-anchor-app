@@ -6,7 +6,7 @@ import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
-import OblongAvatar from './OblongAvatar';
+import { OblongAvatar } from './oblong-avatar';
 
 // type Member = CouncilMember & HatWearer; // TODO this type?
 

@@ -25,17 +25,7 @@ import { FaRegQuestionCircle } from 'react-icons/fa';
  * @returns Select component
  *
  */
-const Select = ({
-  label,
-  name,
-  options,
-  localForm,
-  children,
-  subLabel,
-  info,
-  onChange,
-  ...props
-}: SelectProps) => {
+const Select = ({ label, name, options, localForm, children, subLabel, info, onChange, ...props }: SelectProps) => {
   if (!localForm) return null;
   const { register, setValue } = localForm;
 

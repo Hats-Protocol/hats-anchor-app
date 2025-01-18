@@ -4,14 +4,12 @@ import { Skeleton } from '@chakra-ui/react';
 import { EligibilityContextProvider } from 'contexts';
 import { useCouncilDetails } from 'hooks';
 import { get } from 'lodash';
-import dynamic from 'next/dynamic';
 import { SupportedChains } from 'types';
+import { HatDeco } from 'ui';
 import { Hex } from 'viem';
 
 import { ModuleChainClaimsCard } from './module-chain-claim-card';
 import ModuleChainClaimHeader from './module-chain-claim-header';
-
-const HatDeco = dynamic(() => import('ui').then((mod) => mod.HatDeco));
 
 export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undefined; address: Hex | undefined }) => {
   const { data: councilDetails, isLoading } = useCouncilDetails({

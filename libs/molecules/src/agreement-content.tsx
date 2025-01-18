@@ -1,7 +1,4 @@
-'use client';
-
-import { Box } from '@chakra-ui/react';
-import ReactMarkdown from 'react-markdown';
+import { Markdown } from 'ui';
 
 // TODO can we use `Markdown` from 'ui/atoms' here?
 
@@ -13,9 +10,9 @@ export const AgreementContent = ({ agreement }: { agreement: string }) => {
     .replace(/\]\*\]|\]\]/g, ']'); // replace escaped brackets
 
   return (
-    <Box className='markdown-content'>
-      <ReactMarkdown>{formattedAgreement}</ReactMarkdown>
-    </Box>
+    <div className='markdown-content'>
+      <Markdown>{formattedAgreement}</Markdown>
+    </div>
   );
 };
 export default AgreementContent;

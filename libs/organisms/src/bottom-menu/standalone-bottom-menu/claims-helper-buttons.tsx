@@ -7,16 +7,12 @@ import { useEligibility } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import { AgreementContent } from 'molecules';
-import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload } from 'react-icons/bs';
 import { FiExternalLink } from 'react-icons/fi';
+import { Link } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
@@ -30,23 +26,14 @@ const handleFetchIpfs = async (ipfsHash: string) => {
     });
 };
 
-export const ClaimsHelperButtons = ({
-  stackVertically = false,
-}: ClaimsHelperButtonsProps) => {
-  const {
-    selectedHat,
-    chainId,
-    activeRule,
-    isHatDetailsLoading,
-    isEligibilityRulesLoading,
-  } = useEligibility();
+export const ClaimsHelperButtons = ({ stackVertically = false }: ClaimsHelperButtonsProps) => {
+  const { selectedHat, chainId, activeRule, isHatDetailsLoading, isEligibilityRulesLoading } = useEligibility();
   const link = hatLink({ hatId: selectedHat?.id, chainId });
   const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
   // TODO use last rule to complete rather than active rule
 
   const hasAgreement =
-    selectedHat?.id === CONFIG.agreementV0.communityHatId ||
-    moduleDetails?.name === ELIGIBILITY_MODULES.agreement;
+    selectedHat?.id === CONFIG.agreementV0.communityHatId || moduleDetails?.name === ELIGIBILITY_MODULES.agreement;
 
   const { agreement } = useAgreementClaim({
     moduleParameters: moduleDetails?.liveParameters,
@@ -60,9 +47,7 @@ export const ClaimsHelperButtons = ({
 
   const handleDownload = useCallback(() => {
     const newWindow = window.open('', '_blank');
-    const markdownContent = (
-      <AgreementContent agreement={agreement || agreementV0} />
-    );
+    const markdownContent = <AgreementContent agreement={agreement || agreementV0} />;
     const htmlString = ReactDOMServer.renderToStaticMarkup(markdownContent);
 
     if (!newWindow) return;
@@ -80,7 +65,7 @@ export const ClaimsHelperButtons = ({
   return (
     <Skeleton isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
       <HStack flexDir={stackVertically ? 'column' : 'row'}>
-        <ChakraNextLink href={link} isExternal>
+        <Link href={link} isExternal>
           <Button
             variant='outline'
             rightIcon={<Icon as={FiExternalLink} boxSize={4} />}
@@ -88,14 +73,10 @@ export const ClaimsHelperButtons = ({
           >
             View full role
           </Button>
-        </ChakraNextLink>
+        </Link>
 
         {hasAgreement && (
-          <Button
-            onClick={handleDownload}
-            variant='outline'
-            leftIcon={<Icon as={BsDownload} />}
-          >
+          <Button onClick={handleDownload} variant='outline' leftIcon={<Icon as={BsDownload} />}>
             Download agreement
           </Button>
         )}

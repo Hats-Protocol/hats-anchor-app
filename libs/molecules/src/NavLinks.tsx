@@ -1,22 +1,13 @@
 'use client';
 
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Button, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { capitalize, get, includes, isNaN, startsWith, toLower } from 'lodash';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { containsUpperCase, getPathParams } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -29,25 +20,17 @@ const NavLinks = () => {
 
   // Get the top hat name
   const { data: topHat, details } = useHatDetails({
-    hatId:
-      treeId && !isNaN(treeId)
-        ? hatIdDecimalToHex(treeIdToTopHatId(treeId))
-        : undefined,
+    hatId: treeId && !isNaN(treeId) ? hatIdDecimalToHex(treeIdToTopHatId(treeId)) : undefined,
     chainId,
   });
-  const textDetails = !startsWith(get(topHat, 'details'), 'ipfs://')
-    ? get(topHat, 'details')
-    : undefined;
+  const textDetails = !startsWith(get(topHat, 'details'), 'ipfs://') ? get(topHat, 'details') : undefined;
   const tabName = get(details, 'name', textDetails);
 
-  const devMode =
-    posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const devMode = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
   return (
     <>
-      <ChakraNextLink
-        href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`}
-      >
+      <Link href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`}>
         <Button
           h='75px'
           minW='125px'
@@ -70,10 +53,10 @@ const NavLinks = () => {
             </Stack>
           )}
         </Button>
-      </ChakraNextLink>
+      </Link>
 
       {address && (
-        <ChakraNextLink href={`/${CONFIG.TERMS.wearers}/${address}`}>
+        <Link href={`/${CONFIG.TERMS.wearers}/${address}`}>
           <Button
             h='75px'
             minW='125px'
@@ -85,7 +68,7 @@ const NavLinks = () => {
           >
             {`My ${capitalize(CONFIG.TERMS.hats)}`}
           </Button>
-        </ChakraNextLink>
+        </Link>
       )}
 
       {devMode && (

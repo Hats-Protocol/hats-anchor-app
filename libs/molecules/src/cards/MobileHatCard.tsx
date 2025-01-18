@@ -7,55 +7,29 @@ import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HatWithDepth, SupportedChains } from 'types';
-import { ChakraNextLink, LazyImage } from 'ui';
+import { cn, LazyImage, Link } from 'ui';
 import { paddingForMaxDepth } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
-const MobileHatCard = ({
-  hat,
-  chainId,
-  isWearing,
-  ensName,
-  maxDepth,
-}: HatCardProps) => {
+const MobileHatCard = ({ hat, chainId, isWearing, ensName, maxDepth }: HatCardProps) => {
   const { data: hatDetails } = useHatDetailsField(
     get(hat, 'name') ? undefined : get(hat, 'details'), // don't attempt to lookup if name already found for hat
   );
-  const detailsName = get(
-    hatDetails,
-    'data.name',
-    get(hat, 'name', get(hat, 'details')),
-  );
+  const detailsName = get(hatDetails, 'data.name', get(hat, 'name', get(hat, 'details')));
 
   // trying to match the right value in `VerticalDividers` (4), 3 seems to be best here
-  const padding = maxDepth
-    ? (get(hat, 'depth', 0) - 1) * paddingForMaxDepth(maxDepth) + 1
-    : undefined;
+  const padding = maxDepth ? (get(hat, 'depth', 0) - 1) * paddingForMaxDepth(maxDepth) + 1 : undefined;
   if (!get(hat, 'id')) return null;
 
   return (
-    <ChakraNextLink
-      display='block'
-      href={`/trees/${chainId || hat.chainId}/${hatIdToTreeId(
-        BigInt(hat.id),
-      )}/${hatIdDecimalToIp(BigInt(hat.id))}`}
+    <Link
+      href={`/trees/${chainId || hat.chainId}/${hatIdToTreeId(BigInt(hat.id))}/${hatIdDecimalToIp(BigInt(hat.id))}`}
       // don't adjust top hat (or hat used throughout the app) width
-      w={
-        !maxDepth || (hat?.depth || 0) <= 1
-          ? '100%'
-          : `calc(100% - ${padding}px)`
-      } // subtract left margin from card width
+      className={cn('block', `${!maxDepth || (hat?.depth || 0) <= 1 ? 'w-full' : `calc(100% - ${padding}px)`}`)} // subtract left margin from card width
     >
       <Skeleton isLoaded={!!hat.details} w='full' h='100%'>
-        <Card
-          overflow='hidden'
-          boxShadow='md'
-          border='1px solid'
-          borderColor='gray.600'
-          borderRadius={6}
-          h='72px'
-        >
+        <Card overflow='hidden' boxShadow='md' border='1px solid' borderColor='gray.600' borderRadius={6} h='72px'>
           <HStack align='start' position='relative'>
             <LazyImage
               src={get(hat, 'imageUrl')}
@@ -92,19 +66,14 @@ const MobileHatCard = ({
             )}
           </HStack>
           {isWearing && (
-            <HStack
-              borderTop='1px solid'
-              borderColor='gray.600'
-              p={1}
-              bg='green.50'
-            >
+            <HStack borderTop='1px solid' borderColor='gray.600' p={1} bg='green.50'>
               <Icon as={BsPersonBadge} w={4} h={4} />
               <Text>{ensName || 'You are wearing this hat'}</Text>
             </HStack>
           )}
         </Card>
       </Skeleton>
-    </ChakraNextLink>
+    </Link>
   );
 };
 

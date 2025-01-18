@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Spinner,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Icon, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
@@ -17,7 +8,7 @@ import { isEmpty, map, take } from 'lodash';
 import dynamic from 'next/dynamic';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { Transaction } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { explorerUrl } from 'utils';
 
 const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
@@ -43,11 +34,7 @@ const TransactionHistoryRow = ({
   const { isMobile } = useMediaStyles();
 
   return (
-    <ChakraNextLink
-      isExternal
-      href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'}
-      display='block'
-    >
+    <Link href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'} className='block' isExternal>
       <Stack key={hash} py={2} spacing={1}>
         <HStack>
           {status === 'pending' ? (
@@ -60,20 +47,13 @@ const TransactionHistoryRow = ({
 
         <Flex justify='space-between' pl={5}>
           <HStack>
-            {!hideHash && !isMobile && (
-              <Text
-                size='sm'
-                variant='gray'
-              >{`(${abbreviateHash(hash)})`}</Text>
-            )}
-            <Text size={{ base: 'xs', md: 'sm' }}>
-              {formatDistanceToNow(new Date(timestamp))} ago
-            </Text>
+            {!hideHash && !isMobile && <Text size='sm' variant='gray'>{`(${abbreviateHash(hash)})`}</Text>}
+            <Text size={{ base: 'xs', md: 'sm' }}>{formatDistanceToNow(new Date(timestamp))} ago</Text>
             <Icon as={Etherscan} w={3} color='blue.500' />
           </HStack>
         </Flex>
       </Stack>
-    </ChakraNextLink>
+    </Link>
   );
 };
 
@@ -98,12 +78,7 @@ const TransactionHistory = ({
   if (events.length === 0) {
     return (
       <Flex align='center' justify='center' py={2}>
-        <Text
-          fontSize='sm'
-          color='gray.500'
-          textAlign='center'
-          fontWeight='medium'
-        >
+        <Text fontSize='sm' color='gray.500' textAlign='center' fontWeight='medium'>
           No recent transactions
         </Text>
       </Flex>
@@ -127,26 +102,17 @@ const TransactionHistory = ({
           </Flex>
         )}
 
-        {map(
-          events,
-          ({
-            hash,
-            txChainId,
-            status,
-            timestamp,
-            txDescription,
-          }: Transaction) => (
-            <TransactionHistoryRow
-              hash={hash}
-              hideHash={hideHash}
-              txChainId={txChainId}
-              status={status}
-              timestamp={timestamp}
-              txDescription={txDescription}
-              key={hash}
-            />
-          ),
-        )}
+        {map(events, ({ hash, txChainId, status, timestamp, txDescription }: Transaction) => (
+          <TransactionHistoryRow
+            hash={hash}
+            hideHash={hideHash}
+            txChainId={txChainId}
+            status={status}
+            timestamp={timestamp}
+            txDescription={txDescription}
+            key={hash}
+          />
+        ))}
       </Stack>
     </Box>
   );

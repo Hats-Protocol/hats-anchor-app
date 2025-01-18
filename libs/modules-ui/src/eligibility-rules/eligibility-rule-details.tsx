@@ -1,6 +1,6 @@
 'use client';
 
-import { As, Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
+import { Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
@@ -8,9 +8,9 @@ import { useAccount } from 'wagmi';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetailsProps, TOGGLE_STATUS } from './utils';
 
-const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
+const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 
-const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 
 const EligibilityRuleWrapper = ({ rule, children }: { rule: ReactNode; children: ReactNode }) => {
   return (
@@ -51,12 +51,12 @@ export const EligibilityRuleDetails = ({
   if (displayStatusLink) {
     return (
       <EligibilityRuleWrapper rule={rule}>
-        <ChakraNextLink href={displayStatusLink}>
+        <Link href={displayStatusLink}>
           <HStack spacing={1}>
             <Text>{displayStatus}</Text>
             <Icon as={icon} boxSize={{ base: '14px', md: 4 }} />
           </HStack>
-        </ChakraNextLink>
+        </Link>
       </EligibilityRuleWrapper>
     );
   }
@@ -66,7 +66,7 @@ export const EligibilityRuleDetails = ({
       <EligibilityRuleWrapper rule={rule}>
         <HStack spacing={1} color={statusColor}>
           <Text>{displayStatus}</Text>
-          <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />
+          <Icon as={icon as any} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       </EligibilityRuleWrapper>
     );
@@ -77,7 +77,7 @@ export const EligibilityRuleDetails = ({
       <EligibilityRuleWrapper rule={rule}>
         <HStack spacing={1} color={statusColor}>
           <Text>{displayStatus}</Text>
-          <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />
+          <Icon as={icon as any} boxSize={{ base: '14px', md: 4 }} />
         </HStack>
       </EligibilityRuleWrapper>
     );

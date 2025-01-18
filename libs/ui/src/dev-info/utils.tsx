@@ -1,26 +1,18 @@
 'use client';
 
-import { Icon, IconButton, Link } from '@chakra-ui/react';
 import { useClipboard } from 'hooks';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { explorerUrl, formatAddress, hatLink } from 'utils';
 import { Hex } from 'viem';
 
-const CopyAddress = dynamic(() =>
-  import('icons').then((mod) => mod.CopyAddress),
-);
+import { Button } from '../button';
 
-export const DefaultInfo = ({ children }: { children: string }) => (
-  <div className='text-sm'>{children}</div>
-);
+const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
 
-export const LinkInfo = ({
-  link,
-  children,
-}: {
-  link: string;
-  children: string;
-}) => (
+export const DefaultInfo = ({ children }: { children: string }) => <div className='text-sm'>{children}</div>;
+
+export const LinkInfo = ({ link, children }: { link: string; children: string }) => (
   <Link className='text-sm' href={link}>
     {children}
   </Link>
@@ -44,33 +36,20 @@ export const HatInfo = ({
   );
 };
 
-export const AddressInfo = ({
-  address,
-  chainId,
-}: {
-  address: string;
-  chainId: number | undefined;
-}) => {
+export const AddressInfo = ({ address, chainId }: { address: string; chainId: number | undefined }) => {
   const { onCopy: copyAddress } = useClipboard(address, {
     toastData: { title: 'Copied address' },
   });
   if (!chainId || !address) return null;
   return (
     <div className='flex gap-2'>
-      <Link
-        className='text-sm'
-        href={`${explorerUrl(chainId)}/address/${address}`}
-      >
+      <Link className='text-sm' href={`${explorerUrl(chainId)}/address/${address}`}>
         {formatAddress(address)}
       </Link>
 
-      <IconButton
-        icon={<Icon as={CopyAddress} />}
-        minW={5}
-        variant='link'
-        onClick={copyAddress}
-        aria-label='Copy address'
-      />
+      <Button variant='link' onClick={copyAddress} className='min-w-5' aria-label='Copy address'>
+        <CopyAddress />
+      </Button>
     </div>
   );
 };

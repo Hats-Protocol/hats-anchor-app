@@ -6,7 +6,7 @@ import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { get } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
 import { SupportedChains } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
 
 import Login from './login';
@@ -34,9 +34,9 @@ export const Navbar = () => {
   return (
     <Flex w='100%' justify='space-between' align='center' zIndex={10} px={2} minH='56px'>
       <HStack spacing={4}>
-        <ChakraNextLink href='/'>
+        <Link href='/'>
           <Image src='/hats.png' boxSize={10} alt='Hats Logo' />
-        </ChakraNextLink>
+        </Link>
 
         {isJoinLink ? (
           <Text size='lg' fontWeight='bold'>

@@ -8,10 +8,10 @@ import { useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { flatten, get, size } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Link } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
@@ -19,8 +19,6 @@ import { EligibilityRuleDetails } from '../eligibility-rules/eligibility-rule-de
 import { ELIGIBILITY_STATUS } from '../eligibility-rules/utils';
 import { AgreementContentModal } from './agreement-content-modal';
 import { AgreementModal } from './agreement-modal';
-
-const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
 
 const MODAL_NAME = 'agreementManager';
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
@@ -77,9 +75,13 @@ export const AgreementEligibilityRule = ({
   let rule = (
     <Text>
       Sign the{' '}
-      <ChakraNextLink href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(BigInt(hatId))}`} isExternal decoration>
+      <Link
+        href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(BigInt(hatId))}`}
+        className='underline'
+        isExternal
+      >
         Agreement
-      </ChakraNextLink>
+      </Link>
     </Text>
   );
   if ((eligibilityModalFlag && !IS_CLAIMS_APP) || (IS_CLAIMS_APP && isMobile)) {

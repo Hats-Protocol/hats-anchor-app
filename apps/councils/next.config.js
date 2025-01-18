@@ -43,7 +43,6 @@ const nextConfig = {
     optimizePackageImports: [
       // external pkgs
       '@chakra-ui/react',
-      '@rainbow-me/rainbowkit',
       '@tanstack/react-query',
       'd3-org-chart',
       'react-datepicker',

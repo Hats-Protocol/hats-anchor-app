@@ -1,18 +1,7 @@
 'use client';
 
-import {
-  Box,
-  Flex,
-  HStack,
-  Icon,
-  Image,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
-import {
-  AUTHORITY_ENFORCEMENT,
-  AUTHORITY_PLATFORMS,
-} from '@hatsprotocol/constants';
+import { Box, Flex, HStack, Icon, Image, Text, Tooltip } from '@chakra-ui/react';
+import { AUTHORITY_ENFORCEMENT, AUTHORITY_PLATFORMS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useAllWearers, useHatDetails } from 'hats-hooks';
@@ -23,13 +12,11 @@ import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
-import { ChakraNextLink, IconHandler } from 'ui';
+import { IconHandler, Link } from 'ui';
 import { authorityImageHandler, getHostnameFromURL, validateURL } from 'utils';
 import { Hex } from 'viem';
 
-const BoxArrowUpRightOut = dynamic(() =>
-  import('icons').then((i) => i.BoxArrowUpRightOut),
-);
+const BoxArrowUpRightOut = dynamic(() => import('icons').then((i) => i.BoxArrowUpRightOut));
 
 const HOSTNAME_LABELS = {
   'charmverse.io': 'Charmverse',
@@ -45,24 +32,13 @@ const HOSTNAME_LABELS = {
 };
 
 const getHostnameLabel = (hostname: string) => {
-  const hostnameLabel = find(keys(HOSTNAME_LABELS), (k: string) =>
-    hostname.includes(k),
-  );
+  const hostnameLabel = find(keys(HOSTNAME_LABELS), (k: string) => hostname.includes(k));
   if (!hostnameLabel) return undefined;
   return HOSTNAME_LABELS[hostnameLabel as keyof typeof HOSTNAME_LABELS];
 };
 
-const AuthorityHeader = ({
-  authority,
-  editingItem,
-  isExpanded,
-}: AuthorityHeaderProps) => {
-  const { label, link, type, hsgConfig } = pick(authority, [
-    'label',
-    'link',
-    'type',
-    'hsgConfig',
-  ]);
+const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeaderProps) => {
+  const { label, link, type, hsgConfig } = pick(authority, ['label', 'link', 'type', 'hsgConfig']);
   const {
     label: currentLabel,
     imageUrl: currentImageUrl,
@@ -78,8 +54,7 @@ const AuthorityHeader = ({
     : AUTHORITY_ENFORCEMENT.manual;
   const authorityEnforcementLabel = find(
     keys(AUTHORITY_PLATFORMS),
-    (k: string) =>
-      localLink?.includes(toLower(k)) || localLink?.includes(toLower(k)),
+    (k: string) => localLink?.includes(toLower(k)) || localLink?.includes(toLower(k)),
   );
   const currentAuthorityEnforcement = authorityEnforcementLabel
     ? AUTHORITY_PLATFORMS[authorityEnforcementLabel as string]
@@ -105,14 +80,9 @@ const AuthorityHeader = ({
   const eligibleSigners = useMemo(() => {
     if (!safeOwners || !allWearers) return undefined;
 
-    const wearersLowercased = map(allWearers, (wearer: HatWearer) =>
-      toLower(wearer.id),
-    ) as unknown as Hex[];
+    const wearersLowercased = map(allWearers, (wearer: HatWearer) => toLower(wearer.id)) as unknown as Hex[];
 
-    return reject(
-      safeOwners,
-      (owner: Hex) => !includes(wearersLowercased, toLower(owner)),
-    );
+    return reject(safeOwners, (owner: Hex) => !includes(wearersLowercased, toLower(owner)));
   }, [safeOwners, allWearers]);
 
   const hsgThresholdText = currentHsgThreshold({
@@ -133,9 +103,7 @@ const AuthorityHeader = ({
   }, [signerHatDetails]);
 
   const enforcementIcon =
-    authority?.type &&
-    AUTHORITY_ENFORCEMENT[authority.type as keyof typeof AUTHORITY_ENFORCEMENT]
-      .enforcementIcon;
+    authority?.type && AUTHORITY_ENFORCEMENT[authority.type as keyof typeof AUTHORITY_ENFORCEMENT].enforcementIcon;
 
   return (
     <Flex gap={4} w='100%' justify='space-between' align='center'>
@@ -153,9 +121,7 @@ const AuthorityHeader = ({
 
           <IconHandler
             icon={icon}
-            authorityEnforcement={
-              currentAuthorityEnforcement || authorityEnforcement
-            }
+            authorityEnforcement={currentAuthorityEnforcement || authorityEnforcement}
             imageUrl={imageUrl}
             isExpanded={isExpanded || false}
           />
@@ -168,27 +134,23 @@ const AuthorityHeader = ({
             ) : (
               <Text
                 // TODO should be a Heading component when expanded
-                fontWeight={
-                  isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'
-                }
+                fontWeight={isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'}
                 noOfLines={2}
               >
                 {hsgThresholdText || currentLabel || label || 'New Authority'}
                 {signerHatName &&
                   firstSignerHatId &&
-                  ` for ${signerHatName} (${hatIdDecimalToIp(
-                    hatIdHexToDecimal(firstSignerHatId),
-                  )})`}
+                  ` for ${signerHatName} (${hatIdDecimalToIp(hatIdHexToDecimal(firstSignerHatId))})`}
               </Text>
             )}
           </HStack>
         </Box>
       </HStack>
       {!isExpanded && !isMobile && localLink && validateURL(localLink) && (
-        <ChakraNextLink
+        <Link
           isExternal
           href={localLink}
-          display='block'
+          className='block'
           onClick={() => {
             posthog.capture('Clicked Authority Link', {
               authority: label,
@@ -199,13 +161,11 @@ const AuthorityHeader = ({
         >
           <Tooltip label={getHostnameFromURL(localLink)}>
             <HStack spacing={1} color='blue.500'>
-              <Text size='sm'>
-                {getHostnameLabel(getHostnameFromURL(localLink))}
-              </Text>
+              <Text size='sm'>{getHostnameLabel(getHostnameFromURL(localLink))}</Text>
               <Icon as={BoxArrowUpRightOut} boxSize={3} />
             </HStack>
           </Tooltip>
-        </ChakraNextLink>
+        </Link>
       )}
     </Flex>
   );

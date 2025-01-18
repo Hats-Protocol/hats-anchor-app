@@ -17,7 +17,7 @@ import { useAccount } from 'wagmi';
 const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
-const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
+const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 const DevInfo = dynamic(() => import('ui').then((mod) => mod.DevInfo));
 const MemberAvatar = dynamic(() => import('ui').then((mod) => mod.MemberAvatar));
 
@@ -71,9 +71,9 @@ export const AllowlistClaims = ({ activeModule }: { activeModule: ModuleDetails 
       {
         label: 'Module Address',
         descriptor: (
-          <ChakraNextLink href={`${explorerUrl(chainId)}/address/${activeModule.instanceAddress}`} isExternal>
+          <Link href={`${explorerUrl(chainId)}/address/${activeModule.instanceAddress}`} isExternal>
             {formatAddress(activeModule.instanceAddress)}
-          </ChakraNextLink>
+          </Link>
         ),
       },
     ];

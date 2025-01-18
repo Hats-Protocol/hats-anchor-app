@@ -1,9 +1,4 @@
-import {
-  hatIdDecimalToHex,
-  hatIdDecimalToIp,
-  hatIdHexToDecimal,
-  hatIdIpToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import _ from 'lodash';
 import { Hex } from 'viem';
 
@@ -36,10 +31,7 @@ export function idToPrettyId(id: Hex | undefined): string {
   if (id.length === 10) return treeId;
   const children = id?.slice(10);
   const childArray = children?.match(/.{1,4}/g);
-  const dropEmpty = _.dropRightWhile(
-    childArray,
-    (child: string) => child === '0000',
-  );
+  const dropEmpty = _.dropRightWhile(childArray, (child: string) => child === '0000');
   return _.join([treeId, ...dropEmpty], '.');
 }
 
@@ -126,9 +118,6 @@ export function ipToHatId(id: string | undefined): Hex {
 export const getDefaultAdminId = (hatId: string) => {
   const currentIpId = hatIdDecimalToIp(BigInt(hatId));
   const splitIpId = _.split(currentIpId, '.');
-  const defaultAdminId = _.join(
-    _.concat(_.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1))),
-    '.',
-  );
+  const defaultAdminId = _.join(_.concat(_.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1))), '.');
   return ipToHatId(defaultAdminId);
 };

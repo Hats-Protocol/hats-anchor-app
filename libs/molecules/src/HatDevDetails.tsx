@@ -1,13 +1,13 @@
 'use client';
 
-import { Button, HStack, Link, Stack, Text } from '@chakra-ui/react';
+import { Button, HStack, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 
 const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
@@ -40,19 +40,19 @@ const HatDevDetails = () => {
         <Stack>
           <HStack>
             <Text variant='medium'>Image URI:</Text>
-            <ChakraNextLink href={ipfsUrl(selectedHat?.imageUri)} isExternal>
+            <Link href={ipfsUrl(selectedHat?.imageUri)} isExternal>
               <Text maxW={['250px', null, null, '350px']} isTruncated>
                 {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
               </Text>
-            </ChakraNextLink>
+            </Link>
           </HStack>
           <HStack>
             <Text variant='medium'>Details URI:</Text>
-            <ChakraNextLink href={ipfsUrl(selectedHat?.details)} isExternal>
+            <Link href={ipfsUrl(selectedHat?.details)} isExternal>
               <Text maxW={['250px', null, null, '350px']} isTruncated>
                 {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
               </Text>
-            </ChakraNextLink>
+            </Link>
           </HStack>
 
           <HStack>
@@ -73,11 +73,7 @@ const HatDevDetails = () => {
           return (
             <div className='flex gap-2' key={`${get(data, 'label')}-${get(data, 'value')}`}>
               <span className='font-medium'>{get(data, 'label')}:</span>{' '}
-              <Link
-                href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`}
-                target='_blank'
-                rel='noopener noreferrer'
-              >
+              <Link href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`} isExternal>
                 {formatAddress(get(data, 'value'))}
               </Link>
               <button onClick={devDataClick}>
@@ -99,9 +95,9 @@ const HatDevDetails = () => {
               map(ruleSet, (rule) => (
                 <div key={rule.address}>
                   {rule.module.name} (
-                  <ChakraNextLink href={`${explorerUrl(chainId)}/address/${rule.address}`} isExternal decoration>
+                  <Link href={`${explorerUrl(chainId)}/address/${rule.address}`} className='underline' isExternal>
                     {formatAddress(rule.address)}
-                  </ChakraNextLink>
+                  </Link>
                   )
                 </div>
               )),
@@ -111,11 +107,11 @@ const HatDevDetails = () => {
       )}
 
       <div className='flex gap-2'>
-        <ChakraNextLink href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
+        <Link href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
           <Button size='sm' variant='outline'>
             View Details Changes
           </Button>
-        </ChakraNextLink>
+        </Link>
       </div>
     </div>
   );

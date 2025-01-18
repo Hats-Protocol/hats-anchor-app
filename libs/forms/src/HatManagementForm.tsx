@@ -8,16 +8,10 @@ import _ from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import { ReactNode, useEffect, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
-import {
-  BsFileCode,
-  BsListTask,
-  BsPersonBadge,
-  BsPlusCircle,
-  BsShieldLock,
-} from 'react-icons/bs';
+import { BsFileCode, BsListTask, BsPersonBadge, BsPlusCircle, BsShieldLock } from 'react-icons/bs';
 import { FaCode } from 'react-icons/fa';
 import { DetailsItem } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { explorerUrl } from 'utils';
 
 import ClaimsHandler from './ClaimsHandler';
@@ -54,12 +48,7 @@ const HatManagementForm = ({
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const { localForm: hatForm } = useHatForm();
-  const { watch, control, setValue, getValues } = _.pick(hatForm, [
-    'watch',
-    'control',
-    'setValue',
-    'getValues',
-  ]);
+  const { watch, control, setValue, getValues } = _.pick(hatForm, ['watch', 'control', 'setValue', 'getValues']);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -71,13 +60,9 @@ const HatManagementForm = ({
   const controllerInput = getValues?.(`${_.toLower(title)}-input`);
 
   // TODO is extended controller working here? was removed in above context I think
-  const { eligibility, toggle } = _.pick(selectedHat, [
-    'eligibility',
-    'toggle',
-  ]);
+  const { eligibility, toggle } = _.pick(selectedHat, ['eligibility', 'toggle']);
 
-  const controller =
-    title === CONTROLLER_TYPES.eligibility ? eligibility : toggle;
+  const controller = title === CONTROLLER_TYPES.eligibility ? eligibility : toggle;
 
   const { details: moduleDetails } = useModuleDetails({
     address: controllerInput,
@@ -137,15 +122,9 @@ const HatManagementForm = ({
           <Stack>
             <AddressInput
               name={`${_.toLower(title)}`}
-              label={`${inputConfig.label} ${
-                isActionManual === TRIGGER_OPTIONS.MANUALLY
-                  ? 'ADDRESS'
-                  : 'MODULE'
-              }`}
+              label={`${inputConfig.label} ${isActionManual === TRIGGER_OPTIONS.MANUALLY ? 'ADDRESS' : 'MODULE'}`}
               subLabel={
-                isActionManual === TRIGGER_OPTIONS.MANUALLY
-                  ? inputConfig.description[0]
-                  : inputConfig.description[1]
+                isActionManual === TRIGGER_OPTIONS.MANUALLY ? inputConfig.description[0] : inputConfig.description[1]
               }
               localForm={hatForm}
               isDisabled={!isMutable(selectedHat)}
@@ -154,12 +133,7 @@ const HatManagementForm = ({
             />
             <HStack spacing={8}>
               {moduleDetails && (
-                <ChakraNextLink
-                  href={`${explorerUrl(chainId)}/address/${
-                    newAddress || controller
-                  }`}
-                  isExternal
-                >
+                <Link href={`${explorerUrl(chainId)}/address/${newAddress || controller}`} isExternal>
                   <HStack maxW='200px'>
                     {moduleDetails ? (
                       <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
@@ -170,27 +144,21 @@ const HatManagementForm = ({
                       {moduleDetails?.name}
                     </Text>
                   </HStack>
-                </ChakraNextLink>
+                </Link>
               )}
-              <Button
-                leftIcon={<BsFileCode />}
-                variant='outline'
-                fontWeight='normal'
-                onClick={onOpenModuleDrawer}
-              >
+              <Button leftIcon={<BsFileCode />} variant='outline' fontWeight='normal' onClick={onOpenModuleDrawer}>
                 Add Module
               </Button>
             </HStack>
           </Stack>
         </FormRowWrapper>
-        {title === CONTROLLER_TYPES.eligibility &&
-          isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
-            <ClaimsHandler
-              localForm={hatForm}
-              onOpenModuleDrawer={onOpenModuleDrawer}
-              setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
-            />
-          )}
+        {title === CONTROLLER_TYPES.eligibility && isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
+          <ClaimsHandler
+            localForm={hatForm}
+            onOpenModuleDrawer={onOpenModuleDrawer}
+            setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
+          />
+        )}
         <FormRowWrapper>
           <Icon as={BsListTask} boxSize={4} mt='2px' />
           <Stack>
@@ -224,9 +192,7 @@ const HatManagementForm = ({
             <Flex>
               <Button
                 onClick={() => append({ link: '', label: '' })}
-                isDisabled={items?.some(
-                  (item: DetailsItem) => item.label === '',
-                )}
+                isDisabled={items?.some((item: DetailsItem) => item.label === '')}
                 gap={2}
                 variant='outline'
                 fontWeight='normal'

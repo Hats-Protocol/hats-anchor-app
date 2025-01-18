@@ -1,16 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Image,
-  Skeleton,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Button, Flex, Heading, HStack, Icon, Image, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { NETWORK_IMAGES } from '@hatsprotocol/constants';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
@@ -20,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { ChakraNextLink, OblongAvatar } from 'ui';
+import { Link, OblongAvatar } from 'ui';
 import { chainsMap, formatAddress, formatRoundedDecimals } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
@@ -94,12 +84,7 @@ const WalletProfile = ({
                 {balance?.symbol}
               </Text>
             </Skeleton>
-            <Button
-              variant='link'
-              rightIcon={<Icon as={CopyAddress} />}
-              color='blue.500'
-              onClick={onCopy}
-            >
+            <Button variant='link' rightIcon={<Icon as={CopyAddress} />} color='blue.500' onClick={onCopy}>
               {formatAddress(address)}
             </Button>
           </HStack>
@@ -108,36 +93,25 @@ const WalletProfile = ({
       <Flex justify='space-between' gap={2} mb={2}>
         <Button w='full' variant='outline' onClick={toggleNetworkModal}>
           <HStack>
-            <Image
-              src={NETWORK_IMAGES[chainId as SupportedChains]}
-              boxSize={5}
-            />
+            <Image src={NETWORK_IMAGES[chainId as SupportedChains]} boxSize={5} />
             <Text>{chainsMap(chainId)?.name}</Text>
           </HStack>
         </Button>
         {!hideProfileButton && (
-          <ChakraNextLink
-            href={`/wearers/${address}`}
-            onClick={() => setModals?.({})}
-            w='full'
-          >
+          <Link href={`/wearers/${address}`} onClick={() => setModals?.({})} className='w-full'>
             <Button w='100%' variant='outline'>
               <HStack>
                 <Icon as={WearerIcon} color='blackAlpha.700' />
                 <Text>Profile</Text>
               </HStack>
             </Button>
-          </ChakraNextLink>
+          </Link>
         )}
       </Flex>
       {!isEmpty(transactions) && (
         <Stack>
           <Heading size='md'>Transaction History</Heading>
-          <TransactionHistory
-            count={2}
-            transactions={transactions || []}
-            hideHash
-          />
+          <TransactionHistory count={2} transactions={transactions || []} hideHash />
           {size(transactions) > 2 && (
             <Flex>
               <Button

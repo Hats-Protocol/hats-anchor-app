@@ -30,7 +30,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
   const callModuleFunction = useCallback(
     async ({ moduleId, instance, func, args, onSuccess, onDecline }: CallModuleFunction) => {
       console.log('callModuleFunction', { moduleId, instance, func, args, onSuccess, onDecline });
-      // TODO errors thrown here are not being caught well
+      // TODO errors thrown here are not being caught well (log and toast instead?)
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('User address is undefined');
       if (!walletClient) throw new Error('Wallet client is undefined');

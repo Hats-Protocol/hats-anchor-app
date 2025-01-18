@@ -18,14 +18,10 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import {
-  AUTHORITY_ENFORCEMENT,
-  AUTHORITY_TYPES,
-} from '@hatsprotocol/constants';
+import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _, { get, pick } from 'lodash';
-import { HSGDetails, ModuleCardDetails } from 'modules-ui';
 import { AuthorityHeader } from 'molecules';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
@@ -33,21 +29,16 @@ import { startTransition, useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
+import { Link, Markdown } from 'ui';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import ModuleAuthorityToolbar from './ModuleAuthorityToolbar';
 
-const BoxArrowUpRightOut = dynamic(() =>
-  import('icons').then((mod) => mod.BoxArrowUpRightOut),
-);
-const CheckCircle = dynamic(() =>
-  import('icons').then((mod) => mod.CheckCircle),
-);
+const BoxArrowUpRightOut = dynamic(() => import('icons').then((mod) => mod.BoxArrowUpRightOut));
+const CheckCircle = dynamic(() => import('icons').then((mod) => mod.CheckCircle));
 const Collapse = dynamic(() => import('icons').then((mod) => mod.Collapse));
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
-const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
+const HSGDetails = dynamic(() => import('modules-ui').then((mod) => mod.HSGDetails));
+const ModuleCardDetails = dynamic(() => import('modules-ui').then((mod) => mod.ModuleCardDetails));
 
 const AuthoritiesListCard = ({
   authority,
@@ -58,10 +49,14 @@ const AuthoritiesListCard = ({
   type: AuthorityType;
   index: number;
 }) => {
-  const { label, description, link, gate, strategies, hatId } = pick(
-    authority,
-    ['label', 'description', 'link', 'gate', 'strategies', 'hatId'],
-  );
+  const { label, description, link, gate, strategies, hatId } = pick(authority, [
+    'label',
+    'description',
+    'link',
+    'gate',
+    'strategies',
+    'hatId',
+  ]);
 
   const gateHostName = getHostnameFromURL(gate);
   const linkHostName = getHostnameFromURL(link);
@@ -85,13 +80,9 @@ const AuthoritiesListCard = ({
   }
 
   const displayModulesToolbar =
-    type === AUTHORITY_TYPES.modules ||
-    type === AUTHORITY_TYPES.hsg ||
-    type === AUTHORITY_TYPES.account;
+    type === AUTHORITY_TYPES.modules || type === AUTHORITY_TYPES.hsg || type === AUTHORITY_TYPES.account;
 
-  const authorityEnforcement = type
-    ? AUTHORITY_ENFORCEMENT[type]
-    : AUTHORITY_ENFORCEMENT.manual;
+  const authorityEnforcement = type ? AUTHORITY_ENFORCEMENT[type] : AUTHORITY_ENFORCEMENT.manual;
 
   // set tooltip info
   // TODO refactor to util/hook
@@ -121,17 +112,9 @@ const AuthoritiesListCard = ({
     };
   }, []);
 
-  if (
-    !gate &&
-    !description &&
-    type !== AUTHORITY_TYPES.modules &&
-    type !== AUTHORITY_TYPES.hsg
-  ) {
+  if (!gate && !description && type !== AUTHORITY_TYPES.modules && type !== AUTHORITY_TYPES.hsg) {
     return (
-      <Skeleton
-        isLoaded={authority?.label !== 'Loading...'}
-        h={authority?.label === 'Loading...' ? '25px' : 'auto'}
-      >
+      <Skeleton isLoaded={authority?.label !== 'Loading...'} h={authority?.label === 'Loading...' ? '25px' : 'auto'}>
         <Flex py={2} px={{ base: 4, md: 0 }}>
           <AuthorityHeader authority={authority} />
         </Flex>
@@ -181,16 +164,8 @@ const AuthoritiesListCard = ({
                 }}
                 position='relative'
               >
-                <AuthorityHeader
-                  authority={authority}
-                  isExpanded={isExpanded}
-                />
-                {isMobile && (
-                  <AccordionIcon
-                    mr={isExpanded ? 1 : 0}
-                    color='blackAlpha.600'
-                  />
-                )}
+                <AuthorityHeader authority={authority} isExpanded={isExpanded} />
+                {isMobile && <AccordionIcon mr={isExpanded ? 1 : 0} color='blackAlpha.600' />}
                 {isExpanded && !isMobile && (
                   <Icon
                     as={Collapse}
@@ -208,31 +183,17 @@ const AuthoritiesListCard = ({
                 // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
                 bg={isExpanded ? 'white' : undefined}
                 borderBottomRadius={{ md: 'md' }}
-                boxShadow={
-                  isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'
-                }
+                boxShadow={isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'}
               >
                 <Stack px={4}>
                   <Box>
                     <HStack>
-                      <Image
-                        src={authorityEnforcement.enforcementIcon}
-                        alt='Hat'
-                        boxSize={6}
-                      />
+                      <Image src={authorityEnforcement.enforcementIcon} alt='Hat' boxSize={6} />
                       <HStack spacing={1}>
                         <Text>{authorityEnforcement.label}</Text>
                         {!isMobile && (
-                          <Tooltip
-                            label={tooltipInfo}
-                            shouldWrapChildren
-                            placement='top'
-                          >
-                            <Icon
-                              as={BsInfoCircle}
-                              boxSize={4}
-                              cursor='pointer'
-                            />
+                          <Tooltip label={tooltipInfo} shouldWrapChildren placement='top'>
+                            <Icon as={BsInfoCircle} boxSize={4} cursor='pointer' />
                           </Tooltip>
                         )}
                       </HStack>
@@ -240,20 +201,14 @@ const AuthoritiesListCard = ({
                   </Box>
 
                   {displayModulesToolbar ? (
-                    <ModuleAuthorityToolbar
-                      authority={authority}
-                      index={index}
-                      isExpanded={isExpanded}
-                    />
+                    <ModuleAuthorityToolbar authority={authority} index={index} isExpanded={isExpanded} />
                   ) : (
                     <HStack mb={!description ? 4 : 0}>
                       {link && validateURL(link) && (
-                        <ChakraNextLink isExternal href={link} display='block'>
+                        <Link href={link} className='block' isExternal>
                           {linkName || linkHostName ? (
                             <Button
-                              rightIcon={
-                                <Icon as={BoxArrowUpRightOut} boxSize={3} />
-                              }
+                              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
                               onClick={() => {
                                 posthog.capture('Clicked Authority Link', {
                                   authority: label,
@@ -270,9 +225,7 @@ const AuthoritiesListCard = ({
                             </Button>
                           ) : (
                             <IconButton
-                              icon={
-                                <Icon as={BoxArrowUpRightOut} boxSize={3} />
-                              }
+                              icon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
                               onClick={() => {
                                 posthog.capture('Clicked Authority Link', {
                                   authority: label,
@@ -287,10 +240,10 @@ const AuthoritiesListCard = ({
                               variant='filled'
                             />
                           )}
-                        </ChakraNextLink>
+                        </Link>
                       )}
                       {gate && validateURL(gate) && (
-                        <ChakraNextLink isExternal href={gate} display='block'>
+                        <Link href={gate} className='block' isExternal>
                           <Button
                             rightIcon={<Icon as={FaExternalLinkAlt} />}
                             color='Functional-LinkPrimary'
@@ -308,17 +261,13 @@ const AuthoritiesListCard = ({
                           >
                             {gateHostName}
                           </Button>
-                        </ChakraNextLink>
+                        </Link>
                       )}
                     </HStack>
                   )}
                   {type === AUTHORITY_TYPES.hsg && authority?.hsgConfig && (
                     <Box pt={2} pb={3}>
-                      <HSGDetails
-                        hsgConfig={authority.hsgConfig}
-                        selectedHat={selectedHat}
-                        chainId={chainId}
-                      />
+                      <HSGDetails hsgConfig={authority.hsgConfig} selectedHat={selectedHat} chainId={chainId} />
                     </Box>
                   )}
                   {type === AUTHORITY_TYPES.modules && (
@@ -343,15 +292,7 @@ const AuthoritiesListCard = ({
                     ))}
                 </Stack>
                 {displayModulesToolbar && (
-                  <Flex
-                    w='100%'
-                    bg='green.50'
-                    color='green.600'
-                    px={4}
-                    py={1}
-                    mt={2}
-                    borderBottomRadius='md'
-                  >
+                  <Flex w='100%' bg='green.50' color='green.600' px={4} py={1} mt={2} borderBottomRadius='md'>
                     <HStack>
                       <Icon as={CheckCircle} boxSize='14px' />
                       <Text size='sm' variant='medium'>

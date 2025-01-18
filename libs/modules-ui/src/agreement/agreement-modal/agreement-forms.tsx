@@ -4,19 +4,19 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { DurationInput } from 'forms';
 import { useAllWearers, useWearerDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
-import { compact, find, first, get, isEmpty, map, pick, size, subtract, toLower } from 'lodash';
+import { compact, find, first, get, isEmpty, map, pick, size, subtract } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { AllowlistProfile, AppHat, ModuleDetails, SupportedChains } from 'types';
+import { Card } from 'ui';
 import { fetchToken, formatAddress, pinFileToIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
 import { ManageBar } from '../../module-modal';
 
-const Card = dynamic(() => import('ui').then((ui) => ui.Card));
 const TransactionButton = dynamic(() => import('molecules').then((mod) => mod.TransactionButton));
 
 const DEFAULT_GRACE_PERIOD = 4;

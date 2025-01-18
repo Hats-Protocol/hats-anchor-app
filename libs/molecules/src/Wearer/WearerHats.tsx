@@ -1,31 +1,13 @@
 'use client';
 
-import {
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  HStack,
-  SimpleGrid,
-  Stack,
-} from '@chakra-ui/react';
+import { Button, Divider, Flex, Heading, HStack, SimpleGrid, Stack } from '@chakra-ui/react';
 import { ORDERED_CHAINS } from '@hatsprotocol/constants';
 import { useWearerDetails } from 'hats-hooks';
 import { useImageURIs, useMediaStyles } from 'hooks';
-import {
-  filter,
-  get,
-  groupBy,
-  includes,
-  isEmpty,
-  keys,
-  map,
-  size,
-  subtract,
-} from 'lodash';
+import { filter, get, groupBy, includes, isEmpty, keys, map, size, subtract } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { AppHat, SupportedChains } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 
@@ -34,10 +16,7 @@ import { MobileHatCard, WearerHatCard as CoreHat } from '../cards';
 const WearerHats = () => {
   const pathname = usePathname();
   const parsedPathname = pathname.split('/');
-  const wearerAddress = get(
-    parsedPathname,
-    subtract(size(parsedPathname), 1),
-  ) as Hex;
+  const wearerAddress = get(parsedPathname, subtract(size(parsedPathname), 1)) as Hex;
 
   const { data: currentHats } = useWearerDetails({
     wearerAddress,
@@ -50,9 +29,7 @@ const WearerHats = () => {
   });
 
   const groupedHats = groupBy(currentHatsWithImagesData, 'chainId');
-  const localOrderedChains = filter(ORDERED_CHAINS, (k: number) =>
-    includes(keys(groupedHats), String(k)),
-  );
+  const localOrderedChains = filter(ORDERED_CHAINS, (k: number) => includes(keys(groupedHats), String(k)));
 
   if (isEmpty(localOrderedChains)) {
     return (
@@ -62,12 +39,12 @@ const WearerHats = () => {
             Not wearing any hats
           </Heading>
           <HStack>
-            <ChakraNextLink href='/'>
+            <Link href='/'>
               <Button variant='outline'>Home</Button>
-            </ChakraNextLink>
-            <ChakraNextLink href='/trees/new'>
+            </Link>
+            <Link href='/trees/new'>
               <Button variant='primary'>Create a new tree</Button>
-            </ChakraNextLink>
+            </Link>
           </HStack>
         </Stack>
       </Flex>
@@ -87,17 +64,9 @@ const WearerHats = () => {
               }),
               (hat: AppHat) =>
                 isMobile ? (
-                  <MobileHatCard
-                    hat={hat}
-                    key={`${chainId}-${hat.id}`}
-                    chainId={chainId}
-                  />
+                  <MobileHatCard hat={hat} key={`${chainId}-${hat.id}`} chainId={chainId} />
                 ) : (
-                  <CoreHat
-                    hat={hat}
-                    key={`${chainId}-${hat.id}`}
-                    chainId={chainId}
-                  />
+                  <CoreHat hat={hat} key={`${chainId}-${hat.id}`} chainId={chainId} />
                 ),
             )}
           </SimpleGrid>

@@ -6,7 +6,7 @@ import { compact, get, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
-import { ChakraNextLink, DevInfo } from 'ui';
+import { DevInfo, Link } from 'ui';
 import { formatAddress, hatLink } from 'utils';
 import { explorerUrl, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
@@ -39,12 +39,12 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
         primarySignerHat && {
           label: 'Primary Signer Hat',
           descriptor: (
-            <ChakraNextLink
+            <Link
               href={hatLink({ chainId: chainId as SupportedChains, hatId: primarySignerHat.id })}
-              decoration
+              className='underline'
             >
               {hatIdDecimalToIp(hatIdHexToDecimal(primarySignerHat.id))}
-            </ChakraNextLink>
+            </Link>
           ),
         },
         {
@@ -63,9 +63,9 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
         eligibilityModule && {
           label: 'Eligibility',
           descriptor: (
-            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${eligibilityModule}`} decoration>
+            <Link href={`${explorerUrl(chainId || undefined)}/address/${eligibilityModule}`} className='underline'>
               {formatAddress(eligibilityModule)}
-            </ChakraNextLink>
+            </Link>
           ),
         },
       ]),
@@ -78,33 +78,33 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
         {
           label: 'Safe Address',
           descriptor: (
-            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${councilDetails?.safe}`} decoration>
+            <Link href={`${explorerUrl(chainId || undefined)}/address/${councilDetails?.safe}`} className='underline'>
               {formatAddress(councilDetails?.safe)}
-            </ChakraNextLink>
+            </Link>
           ),
         },
         {
           label: 'HSG Address',
           descriptor: (
-            <ChakraNextLink href={`${explorerUrl(chainId || undefined)}/address/${councilDetails?.id}`} decoration>
+            <Link href={`${explorerUrl(chainId || undefined)}/address/${councilDetails?.id}`} className='underline'>
               {formatAddress(councilDetails?.id)}
-            </ChakraNextLink>
+            </Link>
           ),
         },
         ownerHat && {
           label: 'Owner Hat',
           descriptor: (
-            <ChakraNextLink href={hatLink({ chainId: chainId as SupportedChains, hatId: ownerHat.id })} decoration>
+            <Link href={hatLink({ chainId: chainId as SupportedChains, hatId: ownerHat.id })} className='underline'>
               {hatIdDecimalToIp(hatIdHexToDecimal(ownerHat.id))}
-            </ChakraNextLink>
+            </Link>
           ),
         },
         topHatId && {
           label: 'Top Hat',
           descriptor: (
-            <ChakraNextLink href={hatLink({ chainId: chainId as SupportedChains, hatId: topHatId })} decoration>
+            <Link href={hatLink({ chainId: chainId as SupportedChains, hatId: topHatId })} className='underline'>
               {hatIdDecimalToIp(hatIdHexToDecimal(topHatId))}
-            </ChakraNextLink>
+            </Link>
           ),
         },
       ]),
