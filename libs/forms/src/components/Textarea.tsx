@@ -25,16 +25,7 @@ import { GrUndo } from 'react-icons/gr';
 /**
  * Primary UI component for Textarea Input
  */
-const Textarea = ({
-  label,
-  name,
-  localForm,
-  helperText,
-  tooltip,
-  headerNote,
-  subLabel,
-  ...props
-}: TextareaProps) => {
+const Textarea = ({ label, name, localForm, helperText, tooltip, headerNote, subLabel, ...props }: TextareaProps) => {
   const {
     register,
     resetField,
@@ -60,20 +51,8 @@ const Textarea = ({
             </FormLabel>
           )}
           {tooltip && (
-            <Tooltip
-              label={tooltip}
-              shouldWrapChildren
-              hasArrow
-              placement='end'
-            >
-              <Flex
-                h='24px'
-                w='24px'
-                bg='primary.500'
-                borderRadius='full'
-                align='center'
-                justify='center'
-              >
+            <Tooltip label={tooltip} shouldWrapChildren hasArrow placement='end'>
+              <Flex h='24px' w='24px' bg='primary.500' borderRadius='full' align='center' justify='center'>
                 <Icon as={AiOutlineInfoCircle} w='12px' h='12px' />
               </Flex>
             </Tooltip>
@@ -91,13 +70,7 @@ const Textarea = ({
               />
               {isDirty && (
                 <InputRightElement>
-                  <IconButton
-                    icon={<GrUndo />}
-                    aria-label='Reset'
-                    onClick={onReset}
-                    size='xs'
-                    colorScheme='cyan'
-                  />
+                  <IconButton icon={<GrUndo />} aria-label='Reset' onClick={onReset} size='xs' colorScheme='cyan' />
                 </InputRightElement>
               )}
             </InputGroup>
@@ -105,9 +78,7 @@ const Textarea = ({
         </Stack>
 
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
-        {typeof error === 'string' && (
-          <FormErrorMessage>Error Message</FormErrorMessage>
-        )}
+        {typeof error === 'string' && <FormErrorMessage>Error Message</FormErrorMessage>}
       </Stack>
     </FormControl>
   );
@@ -119,7 +90,7 @@ interface TextareaProps extends ChakraTextareaProps {
   label?: string;
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
+  localForm: any; // UseFormReturn<any>;
   helperText?: string;
   tooltip?: string;
   placeholder?: string;

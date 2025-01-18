@@ -1,13 +1,12 @@
 import { Button } from '@chakra-ui/react';
-import { WriteFunction } from '@hatsprotocol/modules-sdk';
-import { Modal } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
 import { DatePicker, MarkdownEditor } from 'forms';
-import useAgreement from 'libs/modules-hooks/src/useAgreementDetails';
 import { find } from 'lodash';
-import { useAgreementClaim, useAgreementDetails, useCallModuleFunction } from 'modules-hooks';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useAgreementClaim, useCallModuleFunction } from 'modules-hooks';
+import { useEffect, useState } from 'react';
+import { FieldValues, useForm } from 'react-hook-form';
 import { ModuleDetails, ModuleFunction, SupportedChains } from 'types';
+import { fetchToken, handleAgreementPin, logger } from 'utils';
 
 export function UpdateAgreementModal({
   moduleDetails,
@@ -16,9 +15,12 @@ export function UpdateAgreementModal({
   moduleDetails: ModuleDetails;
   chainId: number | undefined;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm();
   const { handleSubmit, reset, watch } = form;
+  const { setModals } = useOverlay();
   const updatedAgreement = watch('agreement');
+  console.log(moduleDetails);
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
 
@@ -26,15 +28,29 @@ export function UpdateAgreementModal({
     moduleParameters: moduleDetails.liveParameters,
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
-    const localGracePeriod = new Date(data.gracePeriod).getTime() / 1000;
+  const onSubmit = async (data: FieldValues) => {
+    setIsLoading(true);
+    const localGracePeriod = Math.floor(new Date(data.gracePeriod).getTime() / 1000);
+    const token = await fetchToken();
+    const agreementHash = await handleAgreementPin({
+      agreement: data.agreement,
+      address: moduleDetails.instanceAddress,
+      chainId,
+      token,
+    });
+    logger.debug({ agreementHash, gracePeriod: data.gracePeriod });
 
     callModuleFn({
       moduleId: moduleDetails.implementationAddress,
       instance: moduleDetails.instanceAddress,
-      func: find(moduleDetails.writeFunctions, (f: WriteFunction) => f.label === 'setAgreement') as ModuleFunction,
-      args: [data.agreement, BigInt(localGracePeriod)],
+      func: find(moduleDetails.writeFunctions, { functionName: 'setAgreement' }) as ModuleFunction,
+      args: { Agreement: agreementHash, 'Grace Period': BigInt(localGracePeriod) },
+      onSuccess: () => {
+        console.log('success');
+        setIsLoading(false);
+        // invalidate agreement claim query
+        setModals?.({});
+      },
     });
   };
 
@@ -43,6 +59,8 @@ export function UpdateAgreementModal({
     const thirtyDaysFromNow = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30).toISOString();
 
     reset({ agreement, gracePeriod: thirtyDaysFromNow });
+    // intentionally exclude reset from dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agreement]);
 
   return (
@@ -63,7 +81,7 @@ export function UpdateAgreementModal({
         </div>
 
         <div className='mt-6 flex justify-end'>
-          <Button type='submit' variant='primary' isDisabled={agreement === updatedAgreement}>
+          <Button type='submit' variant='primary' isDisabled={agreement === updatedAgreement} isLoading={isLoading}>
             Update Agreement
           </Button>
         </div>

@@ -1,27 +1,13 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  HStack,
-  Icon as IconWrapper,
-  Stack,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
-import {
-  Modal,
-  useHatForm,
-  useOverlay,
-  useSelectedHat,
-  useTreeForm,
-} from 'contexts';
+import { Box, Button, HStack, Icon as IconWrapper, Stack, Text, useDisclosure } from '@chakra-ui/react';
+import { Modal, useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { get, pick, some } from 'lodash';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import posthog from 'posthog-js';
 import { ReactNode, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle } from 'react-icons/bs';
 
@@ -42,13 +28,7 @@ interface AuthoritiesFormListProps {
 
 const ENABLE_HSG_DEPLOY = false;
 
-export const AuthoritiesListForm = ({
-  formName,
-  title,
-  Icon,
-  subtitle,
-  label,
-}: AuthoritiesFormListProps) => {
+export const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: AuthoritiesFormListProps) => {
   // CONTEXTS
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
@@ -72,17 +52,12 @@ export const AuthoritiesListForm = ({
     control: hatControl,
   } = pick(hatForm, ['getValues', 'watch', 'control']);
   const localForm = useForm();
-  const { setValue, reset, watch } = pick(localForm, [
-    'setValue',
-    'reset',
-    'handleSubmit',
-    'watch',
-  ]);
+  const { setValue, reset, watch } = pick(localForm, ['setValue', 'reset', 'handleSubmit', 'watch']);
   const items = hatWatch?.(formName);
   const item = watch();
 
   const { fields, append, remove } = useFieldArray({
-    control: hatControl,
+    control: hatControl as Control<any, any>,
     name: formName,
   });
 
@@ -103,9 +78,7 @@ export const AuthoritiesListForm = ({
     onOpen();
   };
 
-  const hsgEnabled =
-    posthog.isFeatureEnabled('hsg-deploy') ||
-    process.env.NODE_ENV === 'development';
+  const hsgEnabled = posthog.isFeatureEnabled('hsg-deploy') || process.env.NODE_ENV === 'development';
 
   if (!localForm || !hatForm) return null;
 
@@ -119,11 +92,7 @@ export const AuthoritiesListForm = ({
               {title}
             </Text>
           </HStack>
-          {subtitle && typeof subtitle !== 'string' ? (
-            subtitle
-          ) : (
-            <Text variant='gray'>{subtitle}</Text>
-          )}
+          {subtitle && typeof subtitle !== 'string' ? subtitle : <Text variant='gray'>{subtitle}</Text>}
         </Box>
         {fields.map((field, i) => (
           <AuthoritiesFormItem
@@ -183,10 +152,7 @@ export const AuthoritiesListForm = ({
                     rel='noreferrer noopener'
                     passHref
                   >
-                    <Button
-                      variant='outline'
-                      leftIcon={<IconWrapper as={Safe} />}
-                    >
+                    <Button variant='outline' leftIcon={<IconWrapper as={Safe} />}>
                       Add a Safe
                     </Button>
                   </Link>

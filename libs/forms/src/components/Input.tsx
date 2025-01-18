@@ -113,8 +113,7 @@ const Input = ({
   const handleChange = onChange || defaultHandleChange;
 
   const inputLength = watch(name)?.length || 0;
-  const maxLength =
-    (options?.maxLength?.valueOf() as { value: number })?.value || 0;
+  const maxLength = (options?.maxLength?.valueOf() as { value: number })?.value || 0;
 
   let rightElementWidth = 0;
   if (isDirty) rightElementWidth += 35;
@@ -122,11 +121,7 @@ const Input = ({
   if (maxLength > 0) rightElementWidth += 30;
 
   return (
-    <FormControl
-      isDisabled={isDisabled}
-      isInvalid={!!isError || isInvalid}
-      {...props}
-    >
+    <FormControl isDisabled={isDisabled} isInvalid={!!isError || isInvalid} {...props}>
       <Stack spacing={1} w='full'>
         {label && (
           // disabled input lessens opacity of FormLabel
@@ -164,22 +159,12 @@ const Input = ({
             <Flex justify='flex-end'>
               <HStack>
                 {/* {showNull && ( */}
-                <Button
-                  size='xs'
-                  variant='outline'
-                  colorScheme='blue.500'
-                  onClick={setFallback}
-                >
+                <Button size='xs' variant='outline' colorScheme='blue.500' onClick={setFallback}>
                   Null
                 </Button>
                 {/* )} */}
                 {address && (
-                  <Button
-                    size='xs'
-                    variant='outline'
-                    colorScheme='blue.500'
-                    onClick={setMe}
-                  >
+                  <Button size='xs' variant='outline' colorScheme='blue.500' onClick={setMe}>
                     Me
                   </Button>
                 )}
@@ -201,9 +186,7 @@ const Input = ({
             borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
             variant='outline'
           />
-          <InputRightElement
-            w={rightElementWidth ? `${rightElementWidth}px` : undefined}
-          >
+          <InputRightElement w={rightElementWidth ? `${rightElementWidth}px` : undefined}>
             <Flex w='100%' align='center' justify='space-between' pr={4}>
               {rightElement && <Box>{rightElement}</Box>}
               {isDirty && (
@@ -217,11 +200,7 @@ const Input = ({
                 />
               )}
               {maxLength > 0 && (
-                <Text
-                  size='xs'
-                  color={maxLength - inputLength < 0 ? 'red.500' : 'inherit'}
-                  variant='light'
-                >
+                <Text size='xs' color={maxLength - inputLength < 0 ? 'red.500' : 'inherit'} variant='light'>
                   {maxLength - inputLength}
                 </Text>
               )}
@@ -256,7 +235,7 @@ interface InputProps extends ChakraInputProps {
   type?: string;
   options?: RegisterOptions;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
+  localForm: any; // UseFormReturn<any>;
   placeholder?: string;
   rightElement?: React.ReactNode;
   leftElement?: React.ReactNode;

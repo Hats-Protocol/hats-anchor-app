@@ -6,17 +6,7 @@ import { useTreeForm } from 'contexts';
 import { Textarea } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
-import {
-  compact,
-  concat,
-  filter,
-  find,
-  includes,
-  map,
-  pick,
-  reject,
-  toString,
-} from 'lodash';
+import { compact, concat, filter, find, includes, map, pick, reject, toString } from 'lodash';
 import { useAgreementDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useCallback, useMemo, useState } from 'react';
@@ -25,19 +15,10 @@ import { AllowlistProfile, ModuleDetails } from 'types';
 import { filterProfiles } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  AboutModule,
-  FILTER,
-  Filter,
-  ModuleHistory,
-  ModuleModal,
-  ProfileList,
-} from '../../module-modal';
+import { AboutModule, FILTER, Filter, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AgreementForms } from './agreement-forms';
 
-const ControlledRadioBox = dynamic(() =>
-  import('ui').then((ui) => ui.ControlledRadioBox),
-);
+const ControlledRadioBox = dynamic(() => import('ui').then((ui) => ui.ControlledRadioBox));
 const Markdown = dynamic(() => import('ui').then((ui) => ui.Markdown));
 
 export const AgreementModal = ({
@@ -74,10 +55,7 @@ export const AgreementModal = ({
   const liveParams = get(moduleInfo, 'liveParameters');
   const ownerHat = get(find(liveParams, { label: 'Owner Hat' }), 'value');
   const judgeHat = get(find(liveParams, { label: 'Arbitrator Hat' }), 'value');
-  const currentAgreement = get(
-    find(liveParams, { label: 'Current Agreement' }),
-    'value',
-  );
+  const currentAgreement = get(find(liveParams, { label: 'Current Agreement' }), 'value');
   const { data: agreementData } = useIpfsData(currentAgreement);
   const agreementContent = get(agreementData, 'data');
 
@@ -97,10 +75,7 @@ export const AgreementModal = ({
   });
   const currentFilteredProfiles = filter(
     filteredProfiles[activeFilter],
-    (p) =>
-      !searchInput ||
-      includes(toString(p.id), searchInput) ||
-      includes(toString(p.ensName), searchInput),
+    (p) => !searchInput || includes(toString(p.id), searchInput) || includes(toString(p.ensName), searchInput),
   );
 
   const handleAdd = useCallback(
@@ -144,12 +119,7 @@ export const AgreementModal = ({
     <ModuleModal
       name={`${moduleInfo.instanceAddress}-agreementManager`}
       title='Agreement Signers'
-      about={
-        <AboutModule
-          heading='About this Agreement'
-          moduleDescriptors={moduleDescriptors}
-        />
-      }
+      about={<AboutModule heading='About this Agreement' moduleDescriptors={moduleDescriptors} />}
       history={<ModuleHistory />}
     >
       <ControlledRadioBox
@@ -164,11 +134,7 @@ export const AgreementModal = ({
           <Stack w='100%'>
             <Heading size='md'>Update Agreement</Heading>
 
-            <Textarea
-              name='agreementContent'
-              localForm={localForm}
-              minH='350px'
-            />
+            <Textarea name='agreementContent' localForm={localForm} minH='350px' />
           </Stack>
         ) : (
           <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>

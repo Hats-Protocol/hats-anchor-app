@@ -113,6 +113,25 @@ export const handleDetailsPin = async ({ chainId, hatId, details, token }: handl
   return cid;
 };
 
+export const handleAgreementPin = async ({
+  agreement,
+  address,
+  chainId,
+  token,
+}: {
+  agreement: string;
+  address: string | undefined;
+  chainId: number | undefined;
+  token: string;
+}) => {
+  const cid = await pinFileToIpfs({
+    file: agreement,
+    fileName: `agreement_${address}_${chainId}`,
+    token,
+  });
+  return cid;
+};
+
 export const pinFileToIpfs = async ({ file, fileName, token }: { file: string; fileName: string; token: string }) => {
   const formData = new FormData();
 
