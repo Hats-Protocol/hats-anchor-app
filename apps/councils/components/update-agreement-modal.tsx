@@ -20,6 +20,7 @@ export function UpdateAgreementModal({
   const { handleSubmit, reset, watch } = form;
   const { setModals } = useOverlay();
   const updatedAgreement = watch('agreement');
+  console.log(moduleDetails);
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
 
