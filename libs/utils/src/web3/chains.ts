@@ -1,6 +1,6 @@
 'use client';
 
-import { CHAIN_IDS, chainsList, councilsChainsList } from '@hatsprotocol/constants';
+import { CHAIN_IDS, chainsList, councilsChainsList } from '@hatsprotocol/config';
 import { createConfig as privyCreateConfig } from '@privy-io/wagmi';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {

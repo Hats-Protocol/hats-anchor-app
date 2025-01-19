@@ -1,6 +1,5 @@
-/* eslint-disable import/prefer-default-export */
-import { CONFIG } from '@hatsprotocol/constants';
-
+import { CONFIG } from '@hatsprotocol/config';
+// TODO move constant value/dependency back here
 /**
  * For a given maxDepth, return the padding needed to accommodate the depth
  *   higher max depth needs less padding to fit long names well

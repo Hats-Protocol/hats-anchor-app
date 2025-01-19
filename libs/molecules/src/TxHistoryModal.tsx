@@ -1,7 +1,8 @@
 'use client';
 
 import { Modal } from 'contexts';
-import { TransactionHistory } from 'molecules';
+
+import TransactionHistory from './TransactionHistory';
 
 const TxHistoryModal = () => {
   return (

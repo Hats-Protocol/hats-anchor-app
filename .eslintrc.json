@@ -29,6 +29,13 @@
         ],
         "@typescript-eslint/no-explicit-any": "warn"
       }
+    },
+    {
+      "files": ["*.json"],
+      "parser": "jsonc-eslint-parser",
+      "rules": {
+        "@nx/dependency-checks": "error"
+      }
     }
   ],
   "ignorePatterns": ["node_modules/*", ".nx/*", "dist/*", "tmp/*"],

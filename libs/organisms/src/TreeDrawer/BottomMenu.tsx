@@ -18,8 +18,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
@@ -65,7 +64,7 @@ const BottomMenu = ({
   const { onCopy: copyCallData } = useClipboard(callData || '', {
     toastData: { title: 'Successfully copied hex code to clipboard' },
   });
-  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress, {
+  const { onCopy: copyContractAddress } = useClipboard(HATS_V1, {
     toastData: {
       title: 'Successfully copied contract address to clipboard',
       status: 'info',
@@ -190,7 +189,7 @@ const BottomMenu = ({
                   <Text variant='light'>Hats contract address</Text>
                   <HStack spacing={4}>
                     <Input
-                      value={CONFIG.hatsAddress}
+                      value={HATS_V1}
                       background='white'
                       color='blackAlpha.600'
                       isReadOnly

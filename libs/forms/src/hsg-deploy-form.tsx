@@ -1,12 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Flex,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Button, Checkbox, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { useOverlay, useTreeForm } from 'contexts';
 import { first, get } from 'lodash';
 import { useHsgDeploy } from 'modules-hooks';
@@ -14,20 +6,14 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { chainsMap } from 'utils';
 
-import {
-  AddressInput,
-  DynamicThreshold,
-  MultiHatsSelect,
-  NumberInput,
-  RadioBox,
-} from './components';
+import { AddressInput, DynamicThreshold, MultiHatsSelect, NumberInput, RadioBox } from './components';
 
 const SAFE_ATTACH_OPTIONS = [
   { label: 'Deploy a new Safe', value: 'deploy' },
   { label: 'Connect an existing Safe', value: 'connect' },
 ];
 
-export const HsgDeployForm = () => {
+const HsgDeployForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { chainId, treeToDisplay } = useTreeForm();
   const { setModals, handlePendingTx } = useOverlay();
@@ -95,11 +81,7 @@ export const HsgDeployForm = () => {
   return (
     <Stack as='form' spacing={10} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <RadioBox
-          name='safe'
-          options={SAFE_ATTACH_OPTIONS}
-          localForm={localForm}
-        />
+        <RadioBox name='safe' options={SAFE_ATTACH_OPTIONS} localForm={localForm} />
 
         {watch('safe') === 'connect' && (
           <AddressInput
@@ -145,15 +127,11 @@ export const HsgDeployForm = () => {
             </Text>
           </HStack>
           <Text size='sm' color='gray.600'>
-            When not set, the maximum number of signers on the Safe will be the
-            sum of max wearers for all signer hats.
+            When not set, the maximum number of signers on the Safe will be the sum of max wearers for all signer hats.
           </Text>
         </Stack>
 
-        <Checkbox
-          isChecked={!defaultMaxSigners}
-          onChange={(e) => setValue('defaultMaxSigners', !e.target.checked)}
-        >
+        <Checkbox isChecked={!defaultMaxSigners} onChange={(e) => setValue('defaultMaxSigners', !e.target.checked)}>
           Limit the amount of signers on this multisig
         </Checkbox>
 
@@ -171,12 +149,7 @@ export const HsgDeployForm = () => {
           <Button variant='outline' onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            variant='primary'
-            type='submit'
-            isLoading={isLoading}
-            isDisabled={isDisabled}
-          >
+          <Button variant='primary' type='submit' isLoading={isLoading} isDisabled={isDisabled}>
             Create
           </Button>
         </HStack>
@@ -184,3 +157,5 @@ export const HsgDeployForm = () => {
     </Stack>
   );
 };
+
+export { HsgDeployForm };

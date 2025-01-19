@@ -1,30 +1,11 @@
 'use client';
 
-import {
-  Button,
-  Checkbox,
-  FormControl,
-  FormLabel,
-  Icon,
-  Input as ChakraInput,
-} from '@chakra-ui/react';
-import { chainsList, FALLBACK_ADDRESS } from '@hatsprotocol/constants';
-import {
-  hatIdDecimalToIp,
-  hatIdHexToDecimal,
-  HATS_V1,
-} from '@hatsprotocol/sdk-v1-core';
+import { Button, Checkbox, FormControl, FormLabel, Icon, Input as ChakraInput } from '@chakra-ui/react';
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { chainsList } from '@hatsprotocol/config';
 import { useTreeDetails } from 'hats-hooks';
-import {
-  concat,
-  filter,
-  get,
-  isEmpty,
-  map,
-  range,
-  toNumber,
-  values,
-} from 'lodash';
+import { concat, filter, get, isEmpty, map, range, toNumber, values } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
@@ -42,9 +23,7 @@ export const DeactivationForm = () => {
   const [multicallCallData, setMulticallCallData] = useState<Hex | null>(null);
   const [allCalls, setAllCalls] = useState<any[]>([]);
 
-  const hasSelectedHats = !isEmpty(
-    filter(Object.keys(watch()), (key) => key.startsWith('hat-')),
-  );
+  const hasSelectedHats = !isEmpty(filter(Object.keys(watch()), (key) => key.startsWith('hat-')));
   const { data: treeDetails } = useTreeDetails({
     chainId: watch('chainId'),
     treeId: watch('treeId'),
@@ -87,9 +66,7 @@ export const DeactivationForm = () => {
       map(resetToggleCalls, (call: { callData: Hex }) => call.callData),
     ) as unknown as Hex[];
 
-    setMulticallCallData(
-      get(hatsClient.multicallCallData(allCalls), 'callData'),
-    );
+    setMulticallCallData(get(hatsClient.multicallCallData(allCalls), 'callData'));
     setAllCalls(concat(setToggleCalls, deactivateCalls, resetToggleCalls));
   };
 
@@ -113,8 +90,7 @@ export const DeactivationForm = () => {
     setValue('useTopHatWearer', true);
   }, []);
 
-  const notTopHatWearerOrWearer =
-    watch('wearer') !== address && topHatWearer !== address;
+  const notTopHatWearerOrWearer = watch('wearer') !== address && topHatWearer !== address;
 
   return (
     <div>
@@ -139,10 +115,7 @@ export const DeactivationForm = () => {
                 isChecked={watch('useTopHatWearer')}
                 onChange={(e) => setValue('useTopHatWearer', e.target.checked)}
               />
-              <FormLabel mb={0}>
-                Use Top Hat Wearer{' '}
-                {topHatWearer && `(${formatAddress(topHatWearer)})`}
-              </FormLabel>
+              <FormLabel mb={0}>Use Top Hat Wearer {topHatWearer && `(${formatAddress(topHatWearer)})`}</FormLabel>
             </FormControl>
           </div>
 
@@ -157,19 +130,14 @@ export const DeactivationForm = () => {
           )}
         </div>
 
-        <p className='text-sm text-gray-500'>
-          Hats below inactive Hats are generally hidden
-        </p>
+        <p className='text-sm text-gray-500'>Hats below inactive Hats are generally hidden</p>
 
         {treeDetails ? (
           <div className='flex flex-col justify-center gap-2'>
             {map(get(treeDetails, 'hats', []), (hat: AppHat) => {
               let hatName = get(hat, 'details');
               if (get(hat, 'detailsMetadata') !== '') {
-                hatName = get(
-                  JSON.parse(get(hat, 'detailsMetadata') as string),
-                  'data.name',
-                );
+                hatName = get(JSON.parse(get(hat, 'detailsMetadata') as string), 'data.name');
               }
 
               return (

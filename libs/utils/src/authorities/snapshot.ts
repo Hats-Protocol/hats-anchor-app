@@ -1,5 +1,6 @@
-import { AUTHORITY_PLATFORMS, AUTHORITY_TYPES, SNAPSHOT_API_URLS } from '@hatsprotocol/constants';
+import { AUTHORITY_PLATFORMS, AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import { SNAPSHOT_API_URLS } from '@hatsprotocol/config';
 import { gql, GraphQLClient } from 'graphql-request';
 import { concat, eq, filter, flatMap, get, includes, isEmpty, isEqual, toNumber, uniqWith } from 'lodash';
 import { Authority, SnapshotSpace, SnapshotStrategy, SupportedChains } from 'types';

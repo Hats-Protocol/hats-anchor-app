@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 export const SAFE_ABI = [
   {
     anonymous: false,
@@ -658,4 +657,4 @@ export const SAFE_ABI = [
     type: 'function',
   },
   { stateMutability: 'payable', type: 'receive' },
-];
+] as const;

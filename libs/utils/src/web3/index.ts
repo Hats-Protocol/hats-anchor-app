@@ -1,9 +1,9 @@
-import { NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
 import { HatsAccount1ofNClient } from '@hatsprotocol/hats-account-sdk';
 import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
+import { NETWORK_ENDPOINTS } from '@hatsprotocol/config';
 import { createPublicClient, http, PublicClient, WalletClient } from 'viem';
 import { getWalletClient } from 'wagmi/actions';
 

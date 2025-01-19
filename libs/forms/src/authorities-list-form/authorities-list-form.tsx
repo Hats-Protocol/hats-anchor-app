@@ -13,7 +13,7 @@ import { BsPlusCircle } from 'react-icons/bs';
 
 import { HsgDeployForm } from '../hsg-deploy-form';
 import { AuthoritiesForm } from './authorities-form';
-import AuthoritiesFormItem from './authorities-form-item';
+import { AuthoritiesFormItem } from './authorities-form-item';
 
 const Safe = dynamic(() => import('icons').then((mod) => mod.Safe));
 
@@ -28,7 +28,7 @@ interface AuthoritiesFormListProps {
 
 const ENABLE_HSG_DEPLOY = false;
 
-export const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: AuthoritiesFormListProps) => {
+const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: AuthoritiesFormListProps) => {
   // CONTEXTS
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
@@ -175,3 +175,5 @@ export const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: 
     </>
   );
 };
+
+export { AuthoritiesListForm };

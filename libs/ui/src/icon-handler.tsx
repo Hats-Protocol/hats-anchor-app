@@ -1,7 +1,7 @@
 import { Icon, Image } from '@chakra-ui/react';
-import { AuthorityInfo } from '@hatsprotocol/constants';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
+import { AuthorityInfo } from 'types';
 
 const Key = dynamic(() => import('icons').then((i) => i.Key));
 

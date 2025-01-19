@@ -14,13 +14,11 @@ import {
   Text,
   UnorderedList,
 } from '@chakra-ui/react';
-import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { DetailsItem } from 'types';
+import { Link } from 'ui';
 import { validateURL } from 'utils';
-
-const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 
 const AccordionWrap = ({
   title,

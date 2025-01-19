@@ -1,5 +1,5 @@
-export { default as useErc20Details } from './useErc20Details';
-export { default as useErc721Details } from './useErc721Details';
-export { default as useErc1155Details } from './useErc1155Details';
-export { default as useJokeRace } from './useJokeRace';
-export { default as useStakingDetails } from './useStakingDetails';
+export * from './use-erc20-details';
+export * from './use-erc721-details';
+export * from './use-erc1155-details';
+export * from './use-joke-race';
+export * from './use-staking-details';

@@ -10,11 +10,10 @@ import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
+import { HatDeco, Link } from 'ui';
 
-const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 const MobileHatCard = dynamic(() => import('molecules').then((mod) => mod.MobileHatCard));
 const VerticalDividers = dynamic(() => import('molecules').then((mod) => mod.VerticalDividers));
-const HatDeco = dynamic(() => import('ui').then((mod) => mod.HatDeco));
 
 const DEFAULT_LOADING_CARDS = 8;
 

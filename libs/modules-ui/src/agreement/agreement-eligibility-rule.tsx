@@ -1,9 +1,9 @@
 'use client';
 
 import { Button, Text } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG } from '@hatsprotocol/config';
 import { useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { flatten, get, size } from 'lodash';

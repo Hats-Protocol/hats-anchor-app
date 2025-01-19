@@ -7,7 +7,6 @@ import {
   ERC20_ELIGIBILITY_ADDRESS,
   FALLBACK_ADDRESS,
   getTokenDecimals,
-  HATS_ADDRESS,
   HATS_MODULES_FACTORY_ABI,
   HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ABI,
@@ -25,6 +24,7 @@ import {
   hatIdIpToDecimal,
   hatIdToTreeId,
   HATS_ABI,
+  HATS_V1,
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
@@ -70,7 +70,7 @@ import {
 } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
-import { useOverlay } from './OverlayContext';
+import { useOverlay } from './overlay-context';
 
 interface CouncilFormContextType {
   form: UseFormReturn<CouncilFormData>;
@@ -1056,7 +1056,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         callData: `0x${string}`;
       }[] = [
         {
-          target: HATS_ADDRESS,
+          target: HATS_V1,
           allowFailure: false,
           callData: hatsProtocolMulticallCallData.callData,
         },
@@ -1071,7 +1071,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           callData: createHsgV2Calldata,
         },
         {
-          target: HATS_ADDRESS,
+          target: HATS_V1,
           allowFailure: false,
           callData: transferTopHatCallData.callData,
         },

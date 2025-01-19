@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Button, Card, Flex, Heading, HStack, SimpleGrid, Skeleton, Stack, Text } from '@chakra-ui/react';
-import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/constants';
+import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { compact, filter, indexOf, isEmpty, map, size, sortBy } from 'lodash';

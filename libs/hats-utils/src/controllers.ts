@@ -1,4 +1,4 @@
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { get, includes } from 'lodash';
 import dynamic from 'next/dynamic';
@@ -9,6 +9,7 @@ import { daohausUrl, safeUrl } from './authorities';
 
 const EXCLUDE_CONTRACT_NAMES = ['MetaMultiSigWallet'];
 
+// TODO remove dynamic imports, next imports
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const Group = dynamic(() => import('icons').then((i) => i.GroupIcon));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));

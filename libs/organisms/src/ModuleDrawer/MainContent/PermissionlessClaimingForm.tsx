@@ -8,15 +8,13 @@ import { Select } from 'forms';
 import { useHatDetails, useHatDetailsField, useIsAdmin } from 'hats-hooks';
 import { includes, map, pick, sortBy } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChartLine, BsInfoCircle, BsPersonAdd, BsPersonCheck, BsPuzzle } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
+import { Link } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
-
-const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 
 const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseFormReturn; parentHats?: AppHat[] }) => {
   const { onchainHats, treeToDisplay, chainId, storedData, editMode } = useTreeForm();

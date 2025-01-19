@@ -1,7 +1,7 @@
 'use client';
 
 import { Flex, Icon, Text } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
 import _ from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
@@ -42,17 +42,11 @@ const WearerRow = ({ wearer }: WearerRowProps) => {
       <Flex
         alignItems='center'
         gap={2}
-        backgroundColor={
-          isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
-        }
+        backgroundColor={isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'}
       >
         {icon}
 
-        <Text>
-          {_.get(wearer, 'ensName') ||
-            moduleName ||
-            formatAddress(_.get(wearer, 'id'))}
-        </Text>
+        <Text>{_.get(wearer, 'ensName') || moduleName || formatAddress(_.get(wearer, 'id'))}</Text>
       </Flex>
     </Flex>
   );

@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { Config } from 'tailwindcss';
+import type { Config } from 'tailwindcss';
 import { fontFamily, screens } from 'tailwindcss/defaultTheme';
 
 const config: Config = {

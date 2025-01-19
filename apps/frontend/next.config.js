@@ -1,13 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable no-param-reassign */
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 const { composePlugins, withNx } = require('@nx/next');
-
-// eslint-disable-next-line import/no-extraneous-dependencies
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
 
 /**
  * @type {import('next').NextConfig}
@@ -45,10 +37,6 @@ const nextConfig = {
   },
 };
 
-const plugins = [
-  withBundleAnalyzer,
-  // Add more Next.js plugins to this list if needed.
-  withNx,
-];
+const plugins = [withNx];
 
 module.exports = composePlugins(...plugins)(nextConfig);

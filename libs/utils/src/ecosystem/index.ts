@@ -1,4 +1,4 @@
-export * from './jokeRace';
+export * from './joke-race';
 export * from './safe';
 export * from './superfluid';
 export * from './unlock';

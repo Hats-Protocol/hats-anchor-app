@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 export const ERC721_ABI = [
   {
     anonymous: false,
@@ -386,4 +385,4 @@ export const ERC721_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-];
+] as const;

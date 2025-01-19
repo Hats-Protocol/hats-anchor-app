@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, HStack, Icon, Skeleton } from '@chakra-ui/react';
-import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
+import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';

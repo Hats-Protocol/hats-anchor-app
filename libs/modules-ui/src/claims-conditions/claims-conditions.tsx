@@ -1,7 +1,8 @@
 'use client';
 
 import { Box, Flex, Heading, Skeleton, Text } from '@chakra-ui/react';
-import { CONFIG, NULL_ADDRESSES } from '@hatsprotocol/constants';
+import { NULL_ADDRESSES } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
 import { first, flatten, gt, includes, pick, size } from 'lodash';
 import { eligibilityRuleToModuleDetails } from 'utils';

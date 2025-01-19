@@ -1,4 +1,4 @@
-import { chainsList } from '@hatsprotocol/constants';
+import { chainsList } from '@hatsprotocol/config';
 import { keys, map, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { Card } from 'ui';

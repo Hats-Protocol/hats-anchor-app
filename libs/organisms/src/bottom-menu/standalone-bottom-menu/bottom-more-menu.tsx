@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, Icon, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
-import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
+import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';

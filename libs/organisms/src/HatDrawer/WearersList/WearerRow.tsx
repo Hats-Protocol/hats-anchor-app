@@ -11,6 +11,7 @@ import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { idToIp } from 'shared';
 import { ControllerData } from 'types';
+import { Link } from 'ui';
 import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar } from 'wagmi';
@@ -19,7 +20,6 @@ const CodeIcon = dynamic(() => import('icons').then((mod) => mod.CodeIcon));
 const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
 const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
 const TooltipWrapper = dynamic(() => import('molecules').then((mod) => mod.TooltipWrapper));
-const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 
 const WearerRow = ({
   wearer,

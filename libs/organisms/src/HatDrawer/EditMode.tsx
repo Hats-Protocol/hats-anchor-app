@@ -1,24 +1,22 @@
 'use client';
 
 import { Flex, HStack, Icon, IconButton, Slide, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { CONFIG, CONTROLLER_TYPES, FORM_FIELDS } from '@hatsprotocol/constants';
+import { CONTROLLER_TYPES, FORM_FIELDS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG } from '@hatsprotocol/config';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { AuthoritiesListForm, HatBasicsForm, HatManagementForm, HatWearerForm, ResponsibilitiesForm } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import { useClipboard } from 'hooks';
 import _ from 'lodash';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
+import { Accordion, Link } from 'ui';
 import { ipfsUrl } from 'utils';
 
 import ModuleDrawer from '../ModuleDrawer';
-
-const Accordion = dynamic(() => import('ui').then((mod) => mod.Accordion));
-const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 
 const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();

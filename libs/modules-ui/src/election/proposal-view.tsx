@@ -1,7 +1,7 @@
 'use client';
 
 import { Spinner, Stack, Text } from '@chakra-ui/react';
-import { PROPOSALS } from '@hatsprotocol/constants';
+import { PROPOSALS } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
 import { useProposalDetails } from 'hooks';
 import _ from 'lodash';

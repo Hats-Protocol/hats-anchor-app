@@ -1,4 +1,4 @@
-export const MODULE_FACTORY_ABI = [
+export const ZODIAC_MODULE_PROXY_FACTORY_ABI = [
   { inputs: [], name: 'FailedInitialization', type: 'error' },
   { inputs: [{ internalType: 'address', name: 'address_', type: 'address' }], name: 'TakenAddress', type: 'error' },
   { inputs: [{ internalType: 'address', name: 'target', type: 'address' }], name: 'TargetHasNoCode', type: 'error' },
@@ -23,4 +23,4 @@ export const MODULE_FACTORY_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-];
+] as const;

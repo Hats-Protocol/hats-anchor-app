@@ -5,17 +5,15 @@ import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { HatFormContextProvider, useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { find, get } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { BottomMenu } from 'organisms';
 import { useState } from 'react';
+import { LazyImage } from 'ui';
 
+import BottomMenu from './bottom-menu';
 import EditMode from './EditMode';
 import MainContent from './MainContent';
 import TopMenu from './TopMenu';
-
-const LazyImage = dynamic(() => import('ui').then((mod) => mod.LazyImage));
 
 const SelectedHatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);

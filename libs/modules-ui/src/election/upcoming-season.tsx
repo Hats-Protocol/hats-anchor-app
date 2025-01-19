@@ -1,42 +1,15 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, HStack, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { WriteFunction } from '@hatsprotocol/hsg-sdk';
-import {
-  Modal,
-  useEligibility,
-  useStandaloneOverlay as useOverlay,
-} from 'contexts';
+import { Modal, useEligibility, useOverlay } from 'contexts';
 import { ModuleArgsForm } from 'forms';
-import {
-  capitalize,
-  filter,
-  find,
-  includes,
-  isEmpty,
-  map,
-  pick,
-  some,
-} from 'lodash';
+import { capitalize, filter, find, includes, isEmpty, map, pick, some } from 'lodash';
 import { useAncillaryElection, useCallModuleFunction } from 'modules-hooks';
 import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
-import {
-  eligibilityRuleToModuleDetails,
-  formatAddress,
-  getDisabledReason,
-  parsedSeconds,
-} from 'utils';
+import { eligibilityRuleToModuleDetails, formatAddress, getDisabledReason, parsedSeconds } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
 import { DateInfo } from './date-info';
@@ -69,17 +42,13 @@ export const UpcomingSeason = () => {
   const formMethods = useForm({ mode: 'onChange' });
   const { formState, handleSubmit } = formMethods;
   const { isValid } = pick(formState, ['isValid']);
-  const moduleActions: WriteFunction[] | undefined = get(
-    moduleDetails,
-    'writeFunctions',
-  );
+  const moduleActions: WriteFunction[] | undefined = get(moduleDetails, 'writeFunctions');
 
   const accessibleActions = useMemo(() => {
     return filter(moduleActions, (action: WriteFunction) => {
       if (
         action.functionName === 'setNextTerm' &&
-        ((nextTermEnd?.value && nextTermEnd.value === BigInt(0)) ||
-          (nextTermEndDate && nextTermEndDate > new Date()))
+        ((nextTermEnd?.value && nextTermEnd.value === BigInt(0)) || (nextTermEndDate && nextTermEndDate > new Date()))
       ) {
         return false;
       }
@@ -99,19 +68,11 @@ export const UpcomingSeason = () => {
       return (
         some(
           action.roles,
-          (role: string) =>
-            includes(electionsAuthority.userRoles, role) ||
-            (role === 'public' && canStartNextTerm),
+          (role: string) => includes(electionsAuthority.userRoles, role) || (role === 'public' && canStartNextTerm),
         ) || canElect
       );
     });
-  }, [
-    moduleActions,
-    electionsAuthority,
-    nextTermEnd?.value,
-    nextTermEndDate,
-    currentTermEndDate,
-  ]);
+  }, [moduleActions, electionsAuthority, nextTermEnd?.value, nextTermEndDate, currentTermEndDate]);
 
   const { mutateAsync: callModuleFunction } = useCallModuleFunction({
     chainId,
@@ -184,15 +145,11 @@ export const UpcomingSeason = () => {
 
       <Modal
         name='functionCall-module'
-        title={`Interact with ${moduleDetails?.name} (${formatAddress(
-          controllerAddress,
-        )})`}
+        title={`Interact with ${moduleDetails?.name} (${formatAddress(controllerAddress)})`}
       >
         <Box as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={4}>
-            {get(selectedFunction, 'description') && (
-              <Text>{get(selectedFunction, 'description')}</Text>
-            )}
+            {get(selectedFunction, 'description') && <Text>{get(selectedFunction, 'description')}</Text>}
             <Stack>
               <ModuleArgsForm
                 selectedModuleArgs={get(selectedFunction, 'args', [])}

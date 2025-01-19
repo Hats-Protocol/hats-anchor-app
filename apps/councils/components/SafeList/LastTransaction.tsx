@@ -1,7 +1,7 @@
 'use client';
 
 import { Heading, HStack, Icon, Image, Link, Stack, Text } from '@chakra-ui/react';
-import { NETWORK_CURRENCY } from '@hatsprotocol/constants';
+import { NETWORK_CURRENCY } from '@hatsprotocol/config';
 import { useTreasury } from 'contexts';
 import { useApprovedTokens, useSafeTransactions, useTokenDetails, useTokenPrices } from 'hooks';
 import { find, first, get, toLower, toUpper } from 'lodash';

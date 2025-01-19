@@ -2,7 +2,7 @@ import { Markdown } from 'ui';
 
 // TODO can we use `Markdown` from 'ui/atoms' here?
 
-export const AgreementContent = ({ agreement }: { agreement: string }) => {
+export const AgreementContent = ({ agreement }: { agreement: string | undefined }) => {
   if (!agreement) return null;
   const formattedAgreement = agreement
     .replace(/{\.underline}/g, '') // replace weird format provided in original agreement copy

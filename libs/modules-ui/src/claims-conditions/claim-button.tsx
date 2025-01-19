@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Flex, HStack, Icon, Link, Text, Tooltip } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';

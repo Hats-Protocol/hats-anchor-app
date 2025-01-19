@@ -9,6 +9,7 @@
     "strict": true
   },
   "references": [
+    { "path": "../config/tsconfig.lib.json" },
     { "path": "../constants/tsconfig.lib.json" },
     { "path": "../contexts/tsconfig.lib.json" },
     { "path": "../hats-hooks/tsconfig.lib.json" },

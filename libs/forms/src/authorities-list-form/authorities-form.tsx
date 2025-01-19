@@ -14,7 +14,8 @@ import {
   ModalOverlay,
   Stack,
 } from '@chakra-ui/react';
-import { AUTHORITY_TYPES, CONFIG } from '@hatsprotocol/constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { usePinImageIpfs } from 'hooks';
 import { pick, some } from 'lodash';
 import { AuthorityHeader } from 'molecules';
@@ -29,20 +30,7 @@ import { Hex } from 'viem';
 
 import { Input, Textarea } from '../components';
 
-interface AuthoritiesFormProps {
-  formName: string;
-  isOpen: boolean;
-  onClose: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
-  index: number | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  hatForm: UseFormReturn<any>;
-  chainId: number | undefined;
-  hatId: Hex | undefined;
-}
-
-export const AuthoritiesForm = ({
+const AuthoritiesForm = ({
   formName,
   isOpen,
   onClose,
@@ -52,17 +40,8 @@ export const AuthoritiesForm = ({
   chainId,
   hatId,
 }: AuthoritiesFormProps) => {
-  const { getValues: hatGetValues, setValue: hatSetValue } = pick(hatForm, [
-    'getValues',
-    'setValue',
-  ]);
-  const {
-    gate,
-    link,
-    type,
-    label: authorityLabel,
-    imageUrl,
-  } = hatGetValues?.(`${formName}.${index}`) ?? {};
+  const { getValues: hatGetValues, setValue: hatSetValue } = pick(hatForm, ['getValues', 'setValue']);
+  const { gate, link, type, label: authorityLabel, imageUrl } = hatGetValues?.(`${formName}.${index}`) ?? {};
   const { setValue, reset, handleSubmit, watch, formState } = pick(localForm, [
     'setValue',
     'reset',
@@ -73,14 +52,7 @@ export const AuthoritiesForm = ({
   const item = watch();
   const { errors } = pick(formState, ['errors']);
 
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
+  const { acceptedFiles, getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({
     accept: { 'image/*': [] },
   });
 
@@ -93,8 +65,7 @@ export const AuthoritiesForm = ({
   });
 
   useEffect(() => {
-    const hatImageURI =
-      imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
+    const hatImageURI = imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
 
     if (hatImageURI && hatImageURI !== '') setValue('imageUrl', hatImageURI);
     // intentionally exclude `setValue`
@@ -115,10 +86,7 @@ export const AuthoritiesForm = ({
 
   const isGate = type === AUTHORITY_TYPES.gate;
   const guildOrSnapshot = useMemo(() => {
-    return (
-      getHostnameFromURL(gate) === 'guild.xyz' ||
-      getHostnameFromURL(link) === 'snapshot.org'
-    );
+    return getHostnameFromURL(gate) === 'guild.xyz' || getHostnameFromURL(link) === 'snapshot.org';
   }, [gate, link]);
 
   return (
@@ -135,9 +103,7 @@ export const AuthoritiesForm = ({
                   authority={{
                     label: authorityLabel,
                     link,
-                    type: isGate
-                      ? AUTHORITY_TYPES.gate
-                      : AUTHORITY_TYPES.manual,
+                    type: isGate ? AUTHORITY_TYPES.gate : AUTHORITY_TYPES.manual,
                     imageUrl,
                   }}
                   editingItem={item as Authority}
@@ -145,11 +111,7 @@ export const AuthoritiesForm = ({
               </Card>
             </Flex>
 
-            <Stack
-              as='form'
-              onSubmit={handleSubmit(saveEditedItem)}
-              spacing={4}
-            >
+            <Stack as='form' onSubmit={handleSubmit(saveEditedItem)} spacing={4}>
               <Input
                 label='Authority Name'
                 name='label'
@@ -205,11 +167,7 @@ export const AuthoritiesForm = ({
                 isDragReject={isDragReject}
                 isFullWidth
                 image={item?.imageUrl || imageUrl}
-                imageUrl={
-                  item?.imageUrl
-                    ? formatImageUrl(item.imageUrl)
-                    : formatImageUrl(imageUrl)
-                }
+                imageUrl={item?.imageUrl ? formatImageUrl(item.imageUrl) : formatImageUrl(imageUrl)}
               />
 
               <Flex mt={4} justify='flex-end'>
@@ -217,12 +175,7 @@ export const AuthoritiesForm = ({
                   <Button colorScheme='gray' color='gray.600' onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button
-                    colorScheme='blue'
-                    leftIcon={<BsSave />}
-                    isDisabled={some(errors)}
-                    type='submit'
-                  >
+                  <Button colorScheme='blue' leftIcon={<BsSave />} isDisabled={some(errors)} type='submit'>
                     Save
                   </Button>
                 </HStack>
@@ -235,3 +188,18 @@ export const AuthoritiesForm = ({
     </ChakraModal>
   );
 };
+
+interface AuthoritiesFormProps {
+  formName: string;
+  isOpen: boolean;
+  onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  localForm: UseFormReturn<any>;
+  index: number | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  hatForm: UseFormReturn<any>;
+  chainId: number | undefined;
+  hatId: Hex | undefined;
+}
+
+export { AuthoritiesForm, type AuthoritiesFormProps };

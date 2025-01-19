@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Button, Flex, Heading, Icon, Stack, Tooltip } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
@@ -20,7 +20,7 @@ const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.Agr
 type FetchIpfsResponse = {
   details: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: HatDetails;
+  data: HatDetails | null;
 } | null;
 
 const handleFetchIpfs = async (ipfsHash: string) => {
@@ -163,7 +163,7 @@ export const AgreementClaims = ({ activeModule }: { activeModule: ModuleDetails 
           </Flex>
         </Flex>
 
-        <AgreementContent agreement={agreement || agreementV0} />
+        <AgreementContent agreement={agreement || agreementV0 || undefined} />
       </Box>
 
       <Flex>

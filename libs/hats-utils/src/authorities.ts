@@ -1,11 +1,6 @@
-/* eslint-disable import/prefer-default-export */
-import {
-  AUTHORITY_TYPES,
-  DAOHAUS_URL,
-  SAFE_CHAIN_MAP,
-  SAFE_URL,
-} from '@hatsprotocol/constants';
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { DAOHAUS_URL, SAFE_CHAIN_MAP, SAFE_URL } from '@hatsprotocol/config';
 import _ from 'lodash';
 import { Authority, AuthorityType, SupportedChains } from 'types';
 import { Hex } from 'viem';
@@ -39,44 +34,31 @@ export const combineAuthorities = ({
   const matchingAuthorities = _.filter(
     socialAuthorities,
     (authority: Authority) =>
-      _.includes(_.map(guildRoles, 'link'), authority.link) ||
-      _.includes(_.map(spaces, 'link'), authority.link),
+      _.includes(_.map(guildRoles, 'link'), authority.link) || _.includes(_.map(spaces, 'link'), authority.link),
   );
-  const mergedAuthorities = _.map(
-    matchingAuthorities,
-    (authority: Authority) => {
-      const guildRole = _.find(guildRoles, ['link', authority.link]);
-      const guildProps = _.pick(guildRole, ['gate', 'type']);
-      const space = _.find(spaces, ['link', authority.link]);
-      const spaceProps = _.pick(space, ['gate', 'type']);
-      return {
-        ...authority,
-        ...guildProps,
-        ...spaceProps,
-      };
-    },
-  );
+  const mergedAuthorities = _.map(matchingAuthorities, (authority: Authority) => {
+    const guildRole = _.find(guildRoles, ['link', authority.link]);
+    const guildProps = _.pick(guildRole, ['gate', 'type']);
+    const space = _.find(spaces, ['link', authority.link]);
+    const spaceProps = _.pick(space, ['gate', 'type']);
+    return {
+      ...authority,
+      ...guildProps,
+      ...spaceProps,
+    };
+  });
   // authorities without matching link
-  const ecosystemAuthorities = _.reject(
-    _.concat(guildRoles, spaces),
-    (authority: Authority) =>
-      _.includes(_.map(socialAuthorities, 'link'), authority?.link),
+  const ecosystemAuthorities = _.reject(_.concat(guildRoles, spaces), (authority: Authority) =>
+    _.includes(_.map(socialAuthorities, 'link'), authority?.link),
   );
 
   // authorities that aren't in guildRoles or spaces
-  const filteredAuthorities = _.reject(
-    socialAuthorities,
-    (authority: Authority) =>
-      _.includes(_.map(matchingAuthorities, 'link'), authority.link),
+  const filteredAuthorities = _.reject(socialAuthorities, (authority: Authority) =>
+    _.includes(_.map(matchingAuthorities, 'link'), authority.link),
   );
 
   // combine authorities
-  const combined = _.concat(
-    modulesAuthorities,
-    mergedAuthorities,
-    ecosystemAuthorities,
-    filteredAuthorities,
-  );
+  const combined = _.concat(modulesAuthorities, mergedAuthorities, ecosystemAuthorities, filteredAuthorities);
 
   return { data: _.compact(combined) as Authority[] };
 };
@@ -89,12 +71,8 @@ export const combineAuthorities = ({
  */
 export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
   if (!parameters) return null;
-  const currentTermEndObj = parameters.find(
-    (param) => param.label === 'Current Term End',
-  );
-  return currentTermEndObj
-    ? new Date(Number(currentTermEndObj.value) * 1000)
-    : null;
+  const currentTermEndObj = parameters.find((param) => param.label === 'Current Term End');
+  return currentTermEndObj ? new Date(Number(currentTermEndObj.value) * 1000) : null;
 };
 
 /**
@@ -103,10 +81,7 @@ export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
  * @param address the address of the Safe
  * @returns a string URL for the Safe app
  */
-export const safeUrl = (
-  chainId: SupportedChains | undefined,
-  address: Hex | undefined,
-) => {
+export const safeUrl = (chainId: SupportedChains | undefined, address: Hex | undefined) => {
   if (!chainId || !address) return '';
   return `${SAFE_URL}/home?safe=${SAFE_CHAIN_MAP[chainId]}:${address}`;
 };
@@ -117,10 +92,7 @@ export const safeUrl = (
  * @param address the address of the DAO
  * @returns a string URL for the DaoHaus app
  */
-export const daohausUrl = (
-  chainId: SupportedChains,
-  address: Hex | undefined,
-) => {
+export const daohausUrl = (chainId: SupportedChains, address: Hex | undefined) => {
   if (!chainId || !address) return '';
   return `${DAOHAUS_URL}/#/molochv3/0x${chainId.toString(16)}/${address}`;
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Heading, HStack, Image, Stack, Text } from '@chakra-ui/react';
-import { NETWORK_CURRENCY, OVERRIDE_TOKEN_IMAGE } from '@hatsprotocol/constants';
+import { NETWORK_CURRENCY, OVERRIDE_TOKEN_IMAGE } from '@hatsprotocol/config';
 import { useApprovedTokens, useSafeTokens, useTokenDetails, useTokenPrices } from 'hooks';
 import { find, get, includes, isEmpty, map, toLower, toUpper } from 'lodash';
 import {

@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Flex, Heading, HStack, Image, Stack } from '@chakra-ui/react';
-import { NETWORK_IMAGES } from '@hatsprotocol/constants';
+import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useTreasury } from 'contexts';
 import { get } from 'lodash';
 import { chainsMap, ipfsUrl } from 'utils';

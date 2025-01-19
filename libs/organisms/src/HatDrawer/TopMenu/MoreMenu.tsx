@@ -23,8 +23,8 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { CONFIG, MUTABILITY } from '@hatsprotocol/constants';
-import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { MUTABILITY } from '@hatsprotocol/constants';
+import { hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatMakeImmutable, useHatStatusCheck, useWearerDetails } from 'hats-hooks';
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
@@ -112,7 +112,7 @@ const MoreMenu = () => {
       },
     },
   );
-  const { onCopy: copyContractAddress } = useClipboard(CONFIG.hatsAddress, {
+  const { onCopy: copyContractAddress } = useClipboard(HATS_V1, {
     toastData: { title: 'Successfully copied contract address to clipboard' },
   });
 

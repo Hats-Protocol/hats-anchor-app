@@ -1,5 +1,3 @@
-/* eslint-disable import/prefer-default-export */
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getOperatingSystem(window: any) {
   if (!window) return '';

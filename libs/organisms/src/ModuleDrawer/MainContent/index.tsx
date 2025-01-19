@@ -5,16 +5,14 @@ import { useSelectedHat, useTreeForm } from 'contexts';
 import { getAllParents } from 'hats-utils';
 import { filter, toNumber } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { prettyIdToIp } from 'shared';
 import { AppHat } from 'types';
+import { Accordion } from 'ui';
 
 import ModuleDetailsForm from './ModuleDetailsForm';
 import PermissionlessClaimingForm from './PermissionlessClaimingForm';
-
-const Accordion = dynamic(() => import('ui').then((mod) => mod.Accordion));
 
 const MainContent = ({
   localForm,
@@ -26,15 +24,7 @@ const MainContent = ({
   title: string;
   isStandaloneHatterDeploy?: boolean;
 }) => {
-  const {
-    onchainHats,
-    treeToDisplay,
-    topHat,
-    topHatDetails,
-    chainId,
-    storedData,
-    editMode,
-  } = useTreeForm();
+  const { onchainHats, treeToDisplay, topHat, topHatDetails, chainId, storedData, editMode } = useTreeForm();
   const { selectedHat, selectedHatDetails } = useSelectedHat();
 
   const eligibleParentHats = useMemo(() => {
@@ -45,8 +35,7 @@ const MainContent = ({
       (parent: AppHat) =>
         parent.id !== topHat?.id &&
         parent.id !== selectedHat?.id && // not top hat or selected hat
-        (parent.mutable ||
-          toNumber(parent.maxSupply) > toNumber(parent.currentSupply)),
+        (parent.mutable || toNumber(parent.maxSupply) > toNumber(parent.currentSupply)),
     ) as AppHat[];
   }, [selectedHat, treeToDisplay, topHat]);
 
@@ -58,9 +47,7 @@ const MainContent = ({
     editMode,
   });
 
-  const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${
-    selectedHatDetails?.name
-  })`;
+  const hatTitle = `${prettyIdToIp(selectedHat?.prettyId)} (${selectedHatDetails?.name})`;
 
   if (!onchainHats || !treeToDisplay) return null;
 
@@ -90,11 +77,7 @@ const MainContent = ({
       </Stack>
 
       {!isStandaloneHatterDeploy && (
-        <Accordion
-          title='Module Basics'
-          subtitle='The fundamentals of the module, including type and details.'
-          open
-        >
+        <Accordion title='Module Basics' subtitle='The fundamentals of the module, including type and details.' open>
           <ModuleDetailsForm localForm={localForm} title={title} />
         </Accordion>
       )}
@@ -104,10 +87,7 @@ const MainContent = ({
           subtitle='Make this hat claimable by deploying a new hatter contract.'
           open
         >
-          <PermissionlessClaimingForm
-            localForm={localForm}
-            parentHats={eligibleParentHats}
-          />
+          <PermissionlessClaimingForm localForm={localForm} parentHats={eligibleParentHats} />
         </Accordion>
       )}
     </Stack>

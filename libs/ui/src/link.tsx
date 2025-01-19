@@ -1,6 +1,3 @@
-'use client';
-
-/* eslint-disable react/jsx-props-no-spreading */
 import NextLink from 'next/link';
 import { ReactNode } from 'react';
 

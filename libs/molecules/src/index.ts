@@ -12,7 +12,7 @@ export { default as Navbar } from './Navbar';
 export { default as NavLinks } from './NavLinks';
 export { default as NetworkFilter } from './NetworkFilter';
 export { default as NetworkSwitcher } from './NetworkSwitcher';
-export { default as OrgChart } from './OrgChart';
+export * from './org-chart';
 export { default as ResponsibilitiesList } from './ResponsibilitiesList';
 export { default as ResponsibilitiesListCard } from './ResponsibilitiesListCard';
 export { default as ResponsibilityHeader } from './ResponsibilityHeader';

@@ -1,4 +1,4 @@
-import { MetadataConfig } from '@hatsprotocol/constants';
+import { MetadataConfig } from '@hatsprotocol/config';
 // import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
 // import Script from 'next/script';

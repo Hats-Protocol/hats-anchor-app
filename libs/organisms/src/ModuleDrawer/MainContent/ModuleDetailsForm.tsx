@@ -6,13 +6,11 @@ import { useTreeForm } from 'contexts';
 import { FormRowWrapper, ModuleArgsForm, Select } from 'forms';
 import _ from 'lodash';
 import { useHatsModules } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsPuzzle, BsTextLeft } from 'react-icons/bs';
 import { ModuleDetails } from 'types';
-
-const Link = dynamic(() => import('ui').then((mod) => mod.Link));
+import { Link } from 'ui';
 
 const ModuleDetailsForm = ({
   localForm,

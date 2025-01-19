@@ -1,11 +1,6 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { FiCopy } from 'react-icons/fi';
-import {
-  HatsAccount1ofN,
-  ModuleFunction,
-  SupportedChains,
-  UseCustomToastReturn,
-} from 'types';
+import { HatsAccount1ofN, ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 

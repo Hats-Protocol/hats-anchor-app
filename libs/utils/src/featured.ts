@@ -1,5 +1,5 @@
-import { FEATURED_TREES } from '@hatsprotocol/constants';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
+import { FEATURED_TREES } from '@hatsprotocol/config';
 import _ from 'lodash';
 import { prettyIdToIp } from 'shared';
 import { AppHat } from 'types';
@@ -8,11 +8,7 @@ import { removeInactiveHatsAndDescendants } from './hats';
 import { ipfsUrl } from './image';
 import { fetchTreeDetailsMesh, fetchTreesByIdMesh } from './subgraph';
 
-export const fetchFeaturedTreesData = async ({
-  featuredTrees,
-}: {
-  featuredTrees: any[];
-}) => {
+export const fetchFeaturedTreesData = async ({ featuredTrees }: { featuredTrees: any[] }) => {
   const chainIds = _.uniq(_.map(featuredTrees, 'chainId'));
 
   const promises = _.map(chainIds, (chainId: number) => {
@@ -34,9 +30,7 @@ export const fetchFeaturedTreesData = async ({
       hats: _.size(onlyActiveHats),
       // try to get unique wearers across active hats
       // TODO doesn't account well for hats with many (100+) wearers
-      wearers: _.size(
-        _.uniq(_.flatten(_.map(onlyActiveHats, (hat: AppHat) => hat.wearers))),
-      ),
+      wearers: _.size(_.uniq(_.flatten(_.map(onlyActiveHats, (hat: AppHat) => hat.wearers)))),
     };
   });
 

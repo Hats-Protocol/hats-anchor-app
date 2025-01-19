@@ -23,7 +23,9 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { CONFIG, initialControls } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
+import { initialControls } from '@hatsprotocol/constants';
+import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
@@ -186,7 +188,7 @@ const TreeMenu = () => {
                 <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
                   <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
 
-                  <Link href={`${explorerUrl(chainId)}/address/${CONFIG.hatsAddress}`} isExternal>
+                  <Link href={`${explorerUrl(chainId)}/address/${HATS_V1}`} isExternal>
                     <HStack spacing={1}>
                       <Text variant='medium'>{chain?.name}</Text>
                       <IconButton

@@ -9,10 +9,11 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["node"],
+    "types": ["node", "next", "react", "react-dom"],
     "lib": ["ES2021"],
     "incremental": true,
-    "plugins": [{ "name": "next" }]
+    "plugins": [{ "name": "next" }],
+    "outDir": "../../dist/apps/anchor"
   },
   "references": [
     {

@@ -1,6 +1,7 @@
 'use client';
 
-import { CONFIG, SHOW_KEY } from '@hatsprotocol/constants';
+import { SHOW_KEY } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { useSearchParams } from 'next/navigation';
 import { LinkButton } from 'ui';
 import { useAccount } from 'wagmi';
@@ -15,11 +16,7 @@ const ShowTreesButton = ({ chainId }: { chainId: number }) => {
 
   return (
     <LinkButton
-      href={
-        showKey === SHOW_KEY.me || !showKey
-          ? `/trees/${chainId}?show=all`
-          : `/trees/${chainId}?show=me`
-      }
+      href={showKey === SHOW_KEY.me || !showKey ? `/trees/${chainId}?show=all` : `/trees/${chainId}?show=me`}
       variant='ghostBg'
     >
       Show {showKey === SHOW_KEY.all && address ? 'my' : 'all'}

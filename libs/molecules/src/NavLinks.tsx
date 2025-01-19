@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG } from '@hatsprotocol/config';
 import { useHatDetails } from 'hats-hooks';
 import { capitalize, get, includes, isNaN, startsWith, toLower } from 'lodash';
 import { usePathname } from 'next/navigation';

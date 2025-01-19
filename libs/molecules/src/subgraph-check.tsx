@@ -1,6 +1,6 @@
 'use client';
 
-import { chainsList } from '@hatsprotocol/constants';
+import { chainsList } from '@hatsprotocol/config';
 import { useSubgraphCheck } from 'hooks';
 import { first, map, pick, values } from 'lodash';
 import { useMemo } from 'react';
@@ -10,19 +10,11 @@ import { Chain } from 'viem';
 
 // TODO why isn't this importing from utils?
 const chainsMap = (chainId?: number) =>
-  chainId
-    ? chainsList[chainId as SupportedChains]
-    : (first(values(chainsList)) as Chain);
+  chainId ? chainsList[chainId as SupportedChains] : (first(values(chainsList)) as Chain);
 
 export const SubgraphCheck = ({ chainId }: { chainId: number }) => {
   const { data } = useSubgraphCheck(chainId);
-  const {
-    mainSubgraph,
-    mainSubgraphOutOfSync,
-    ancillarySubgraph,
-    ancillarySubgraphOutOfSync,
-    chain,
-  } = pick(data, [
+  const { mainSubgraph, mainSubgraphOutOfSync, ancillarySubgraph, ancillarySubgraphOutOfSync, chain } = pick(data, [
     'mainSubgraph',
     'mainSubgraphOutOfSync',
     'ancillarySubgraph',
@@ -43,21 +35,13 @@ export const SubgraphCheck = ({ chainId }: { chainId: number }) => {
         outOfSync: ancillarySubgraphOutOfSync,
       },
     ],
-    [
-      mainSubgraph,
-      mainSubgraphOutOfSync,
-      ancillarySubgraph,
-      ancillarySubgraphOutOfSync,
-    ],
+    [mainSubgraph, mainSubgraphOutOfSync, ancillarySubgraph, ancillarySubgraphOutOfSync],
   );
 
   if (!data) return <Skeleton className='h-[100px] w-full' />;
 
   return (
-    <div
-      key={chainId}
-      className='flex flex-col items-center gap-2 border-b border-black pb-4'
-    >
+    <div key={chainId} className='flex flex-col items-center gap-2 border-b border-black pb-4'>
       <div className='flex w-full justify-between gap-4'>
         <h3 className='text-lg font-semibold'>{chainsMap(chainId)?.name}</h3>
 
@@ -69,14 +53,7 @@ export const SubgraphCheck = ({ chainId }: { chainId: number }) => {
           <div className='flex w-full justify-between gap-4' key={name}>
             <h5 className='w-[150px] text-sm'>{name}</h5>
 
-            <div
-              className={cn(
-                'w-[100px] text-right',
-                outOfSync ? 'font-medium text-red-500' : '',
-              )}
-            >
-              {value}
-            </div>
+            <div className={cn('w-[100px] text-right', outOfSync ? 'font-medium text-red-500' : '')}>{value}</div>
           </div>
         );
       })}

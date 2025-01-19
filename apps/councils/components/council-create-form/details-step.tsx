@@ -1,7 +1,7 @@
 'use client';
 
 import { Spinner } from '@chakra-ui/react';
-import { councilsChainsList } from '@hatsprotocol/constants';
+import { councilsChainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { Input, Textarea } from 'forms';
 import { map, values } from 'lodash';

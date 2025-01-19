@@ -1,5 +1,4 @@
-import { CONFIG } from '@hatsprotocol/constants';
-import { HATS_ABI } from '@hatsprotocol/sdk-v1-core';
+import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { filter, flatten, get, isEmpty, map, toLower } from 'lodash';
 import { HatWearer } from 'types';
 import { isSameAddress, viemPublicClient } from 'utils';
@@ -21,13 +20,13 @@ export const fetchWearersEligibilities = async (wearerIds: Hex[], hatId: Hex, ch
   const eligibilityQueries = flatten(
     map(wearerIds, (wearer: Hex) => [
       {
-        address: CONFIG.hatsAddress,
+        address: HATS_V1,
         abi: HATS_ABI,
         functionName: 'isEligible',
         args: [wearer, hatId],
       },
       {
-        address: CONFIG.hatsAddress,
+        address: HATS_V1,
         abi: HATS_ABI,
         functionName: 'isInGoodStanding',
         args: [wearer, hatId],

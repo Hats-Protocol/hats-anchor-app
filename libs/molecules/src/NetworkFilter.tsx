@@ -1,21 +1,8 @@
 'use client';
 
-import {
-  HStack,
-  Icon,
-  IconButton,
-  Image,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Text,
-} from '@chakra-ui/react';
-import {
-  NETWORK_IMAGES,
-  ORDERED_CHAINS,
-  SHOW_KEY,
-} from '@hatsprotocol/constants';
+import { HStack, Icon, IconButton, Image, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react';
+import { SHOW_KEY } from '@hatsprotocol/constants';
+import { NETWORK_IMAGES, ORDERED_CHAINS } from '@hatsprotocol/config';
 import { map } from 'lodash';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';

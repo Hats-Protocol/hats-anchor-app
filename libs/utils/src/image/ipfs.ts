@@ -1,20 +1,13 @@
-import {
-  AUTHORITY_PLATFORMS,
-  AUTHORITY_TYPES,
-  AuthorityInfo,
-  GATEWAY_TOKEN,
-  GATEWAY_URL,
-  GUILD_PLATFORMS,
-} from '@hatsprotocol/constants';
+import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/config';
+import { AUTHORITY_PLATFORMS, AUTHORITY_TYPES, GUILD_PLATFORMS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import axios from 'axios';
 import { find, get, keys, pick, startsWith, toLower, toString, trim } from 'lodash';
 import { CID } from 'multiformats/cid';
 import * as json from 'multiformats/codecs/json';
 import * as raw from 'multiformats/codecs/raw';
 import { sha256 } from 'multiformats/hashes/sha2';
 import { ReactNode } from 'react';
-import { Authority, FormDataDetails } from 'types';
+import { Authority, AuthorityInfo, FormDataDetails } from 'types';
 
 export const calculateCid = async (data: object): Promise<string> => {
   const bytes = json.encode(data);
@@ -40,9 +33,9 @@ export const pinJson = async (data: object, metadata: object, token: string) => 
     pinataContent: { ...data },
   });
 
+  const url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
   const config = {
     method: 'post',
-    url: 'https://api.pinata.cloud/pinning/pinJSONToIPFS',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -50,7 +43,7 @@ export const pinJson = async (data: object, metadata: object, token: string) => 
     data: pinataData,
   };
 
-  const res = await axios(config);
+  const res = await fetch(url, config);
 
   return get(res, 'data.IpfsHash');
 };
@@ -74,26 +67,24 @@ export const pinImage = async ({
   const options = JSON.stringify({ cidVersion: 1 });
   formData.append('pinataOptions', options);
 
-  const res = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
-    maxBodyLength: undefined,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  const res = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
   });
+  const data = await res.json();
 
-  return res.data.IpfsHash;
+  return get(data, 'IpfsHash');
 };
 
 export const unpinImage = async (cid: string, token: string) => {
+  const url = `https://api.pinata.cloud/pinning/unpin/${cid}`;
   const config = {
     method: 'delete',
-    url: `https://api.pinata.cloud/pinning/unpin/${cid}`,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
   };
 
-  const res = await axios(config);
+  const res = await fetch(url, config);
   return res;
 };
 
@@ -166,13 +157,18 @@ export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!url) return null;
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
-  return axios
-    .get(url, { timeout: 5000 })
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout after 5 seconds
+
+  return fetch(url, { signal: controller.signal })
     .then((res) => Promise.resolve({ details: detailsField, data: get(res, 'data') }))
     .catch((err) => {
       // eslint-disable-next-line no-console
       console.log(err);
       return null;
+    })
+    .finally(() => {
+      clearTimeout(timeoutId); // Clear the timeout
     });
 };
 
@@ -191,7 +187,7 @@ export const fetchToken = async (count: number = 0) => {
 };
 
 export const fetchIpfs = async (value: string | undefined) => {
-  if (!value) return null;
+  if (!value) return Promise.resolve({ details: '', data: null });
 
   let hash = value;
   if (hash.startsWith('ipfs://')) {
@@ -199,11 +195,25 @@ export const fetchIpfs = async (value: string | undefined) => {
   }
 
   const url = ipfsUrl(hash);
-  if (!url) return null;
+  if (!url) return Promise.reject({ details: hash, data: null });
 
   // timeout is due to Pinata's gateway taking long time to return an error when file doesn't exist
-  const res = await axios.get(url, { timeout: 5000 });
-  return Promise.resolve({ details: hash, data: get(res, 'data') });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout after 5 seconds
+
+  return fetch(url, { signal: controller.signal })
+    .then(async (res) => {
+      const result = await res.json();
+      return Promise.resolve({ details: hash, data: result || null });
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log(err);
+      return Promise.reject({ details: hash, data: null });
+    })
+    .finally(() => {
+      clearTimeout(timeoutId); // Clear the timeout
+    });
 };
 
 export const authorityImageHandler = ({

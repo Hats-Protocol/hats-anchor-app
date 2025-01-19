@@ -1,16 +1,8 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Icon,
-  Stack,
-  Tooltip,
-} from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { Box, Button, Flex, Heading, Icon, Stack, Tooltip } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import { CONFIG } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { capitalize, get, includes, map, toNumber } from 'lodash';
@@ -22,9 +14,7 @@ import { eligibilityRuleToModuleDetails, fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-const AgreementContent = dynamic(() =>
-  import('molecules').then((mod) => mod.AgreementContent),
-);
+const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 const handleFetchIpfs: any = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
@@ -56,14 +46,9 @@ const AgreementButton = () => {
     chainId,
   });
 
-  const isWearing = useMemo(
-    () => includes(map(wearerHats, 'id'), selectedHat?.id),
-    [wearerHats, selectedHat?.id],
-  );
+  const isWearing = useMemo(() => includes(map(wearerHats, 'id'), selectedHat?.id), [wearerHats, selectedHat?.id]);
   const hasSupply = useMemo(
-    () =>
-      toNumber(selectedHat?.maxSupply) - toNumber(selectedHat?.currentSupply) >
-      0,
+    () => toNumber(selectedHat?.maxSupply) - toNumber(selectedHat?.currentSupply) > 0,
     [selectedHat],
   );
   const isReadyToClaim = useMemo(() => {
@@ -76,21 +61,15 @@ const AgreementButton = () => {
   if (isWearing) {
     buttonTooltip = 'You are wearing this hat.';
   } else if (!hasSupply) {
-    buttonTooltip =
-      'No hats left to claim. If this hat is mutable an admin could increase the supply.';
-  } else if (
-    !isClaimableFor &&
-    selectedHat?.id !== CONFIG.agreementV0.communityHatId
-  ) {
-    buttonTooltip =
-      'Please allow any account to claim this Hat on behalf of eligible users.';
+    buttonTooltip = 'No hats left to claim. If this hat is mutable an admin could increase the supply.';
+  } else if (!isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId) {
+    buttonTooltip = 'Please allow any account to claim this Hat on behalf of eligible users.';
   }
   // else if (!isReadyToClaim) {
   //   buttonTooltip = 'Review the hat details and conditions to claim.';
   // }
 
-  const localClaimable =
-    !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
+  const localClaimable = !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
 
   return (
     <Tooltip label={buttonTooltip} placement='top'>
@@ -107,9 +86,7 @@ const AgreementButton = () => {
           background: isReadyToClaim ? 'transparent' : 'blue.600',
         }}
         isDisabled={localClaimable || !hasSupply || isWearing || isReadyToClaim}
-        leftIcon={
-          <Icon as={isReadyToClaim ? BsCheckSquare : BsCheckCircleFill} />
-        }
+        leftIcon={<Icon as={isReadyToClaim ? BsCheckSquare : BsCheckCircleFill} />}
         py={4}
       >
         {isReadyToClaim ? 'Accepted' : 'Accept Agreement'}
@@ -135,18 +112,10 @@ export const AgreementClaims = () => {
 
   return (
     <Stack spacing={4} w='100%' display={{ base: 'none', md: 'flex' }}>
-      <Box
-        py={5}
-        px={10}
-        flex='1'
-        backgroundColor='white'
-        border='1px solid #cbcbcb'
-        minH='500px'
-      >
+      <Box py={5} px={10} flex='1' backgroundColor='white' border='1px solid #cbcbcb' minH='500px'>
         <Flex justify='space-between' mb={8} gap={10}>
           <Heading>
-            Sign the agreement to claim the {get(selectedHatDetails, 'name')}{' '}
-            {capitalize(CONFIG.TERMS.hat)}
+            Sign the agreement to claim the {get(selectedHatDetails, 'name')} {capitalize(CONFIG.TERMS.hat)}
           </Heading>
 
           <Flex minW='175px' justify='end'>

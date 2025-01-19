@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Divider, Flex, Heading, HStack, SimpleGrid, Stack } from '@chakra-ui/react';
-import { ORDERED_CHAINS } from '@hatsprotocol/constants';
+import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useWearerDetails } from 'hats-hooks';
 import { useImageURIs, useMediaStyles } from 'hooks';
 import { filter, get, groupBy, includes, isEmpty, keys, map, size, subtract } from 'lodash';

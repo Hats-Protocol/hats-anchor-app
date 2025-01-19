@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '@uiw/react-md-editor/markdown-editor.css';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
-import { councilsChainsList } from '@hatsprotocol/constants';
+import { councilsChainsList } from '@hatsprotocol/config';
 import { PrivyProvider } from '@privy-io/react-auth';
 import { WagmiProvider } from '@privy-io/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

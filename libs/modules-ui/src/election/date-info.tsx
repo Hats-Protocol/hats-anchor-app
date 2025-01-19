@@ -3,13 +3,7 @@
 import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { format, formatDistanceToNow } from 'date-fns';
 
-export const DateInfo = ({
-  date,
-  label,
-}: {
-  date: Date | string | undefined;
-  label: string;
-}) => {
+export const DateInfo = ({ date, label }: { date: Date | string | undefined; label: string }) => {
   let dateValue: Date | undefined;
 
   if (date) {

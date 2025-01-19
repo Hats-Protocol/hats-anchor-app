@@ -7,7 +7,7 @@ import { ControlledRadioBox, Textarea } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
 import { compact, concat, filter, find, includes, map, pick, reject, toString } from 'lodash';
-import { useAgreementDetails } from 'modules-hooks';
+import { useAgreementEligibility } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
@@ -41,7 +41,7 @@ export const AgreementModal = ({
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
   const searchInput = watch('search');
-  const { data: agreementDetails } = useAgreementDetails({
+  const { data: agreementDetails } = useAgreementEligibility({
     id: moduleInfo.instanceAddress,
     chainId,
   });

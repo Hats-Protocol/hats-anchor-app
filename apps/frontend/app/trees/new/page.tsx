@@ -1,4 +1,4 @@
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { NewTreeForm } from 'forms';
 import { capitalize } from 'lodash';
 

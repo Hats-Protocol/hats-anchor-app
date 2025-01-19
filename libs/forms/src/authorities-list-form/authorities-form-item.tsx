@@ -82,4 +82,4 @@ interface AuthoritiesFormItemProps {
   onOpen: () => void;
 }
 
-export default AuthoritiesFormItem;
+export { AuthoritiesFormItem, type AuthoritiesFormItemProps };

@@ -311,4 +311,4 @@ export const ERC1155_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-];
+] as const;

@@ -9,14 +9,12 @@ import { useAdminOfHats } from 'hats-hooks';
 import { getProposedChangesCount, handleExportBranch, isTopHatOrMutable } from 'hats-utils';
 import { useMediaStyles, useToast } from 'hooks';
 import { filter, first, get, gt, includes, last, map, startsWith } from 'lodash';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { AiOutlineDownload, AiOutlineUpload } from 'react-icons/ai';
 import { BsChevronRight } from 'react-icons/bs';
 import { AppHat } from 'types';
+import { Markdown } from 'ui';
 import { Hex } from 'viem';
-
-const Markdown = dynamic(() => import('ui').then((mod) => mod.Markdown));
 
 const isDraft = (hatId: string, onchainHats: AppHat[]) => !includes(map(onchainHats, 'id'), hatId);
 

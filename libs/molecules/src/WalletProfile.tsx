@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Flex, Heading, HStack, Icon, Image, Skeleton, Stack, Text } from '@chakra-ui/react';
-import { NETWORK_IMAGES } from '@hatsprotocol/constants';
+import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';

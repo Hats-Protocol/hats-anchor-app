@@ -9,9 +9,9 @@ import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { Hex } from 'viem';
 
-import Input from './Input';
+import { Input } from './input';
 
-export const MultiHatsSelect = ({
+const MultiHatsSelect = ({
   name,
   label,
   subLabel,
@@ -22,18 +22,7 @@ export const MultiHatsSelect = ({
   localForm,
   allowMultiple = false,
   includeCustomOption = true,
-}: {
-  name: string;
-  label: string;
-  subLabel?: string;
-  hatOptions: AppHat[] | undefined;
-  options?: RegisterOptions;
-  placeholder?: string;
-  info?: string;
-  localForm: UseFormReturn;
-  allowMultiple?: boolean;
-  includeCustomOption?: boolean;
-}) => {
+}: MultiHatsSelectProps) => {
   const { watch, setValue } = localForm;
 
   const useCustomHat = watch(name)?.value === 'custom';
@@ -99,3 +88,18 @@ export const MultiHatsSelect = ({
     </Stack>
   );
 };
+
+interface MultiHatsSelectProps {
+  name: string;
+  label: string;
+  subLabel?: string;
+  hatOptions: AppHat[] | undefined;
+  options?: RegisterOptions;
+  placeholder?: string;
+  info?: string;
+  localForm: UseFormReturn;
+  allowMultiple?: boolean;
+  includeCustomOption?: boolean;
+}
+
+export { MultiHatsSelect, type MultiHatsSelectProps };

@@ -3,9 +3,9 @@
 import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { UseFormReturn } from 'react-hook-form';
 
-import NumberInput from './NumberInput';
+import { NumberInput } from './number-input';
 
-export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
+const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
   const { watch, setValue } = localForm;
   const dynamicThreshold = watch('dynamicThreshold');
 
@@ -96,3 +96,5 @@ export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
 interface DynamicThresholdProps {
   localForm: UseFormReturn;
 }
+
+export { DynamicThreshold, type DynamicThresholdProps };

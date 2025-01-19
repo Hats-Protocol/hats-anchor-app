@@ -1,5 +1,5 @@
-import { chainsList } from '@hatsprotocol/constants';
 import { DEFAULT_ENDPOINTS_CONFIG, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
+import { chainsList } from '@hatsprotocol/config';
 import { gql, GraphQLClient } from 'graphql-request';
 import { compact, flatten, get, keys, map, toLower, toNumber } from 'lodash';
 import { mapWithChainId } from 'shared';

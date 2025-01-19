@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, Text } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG } from '@hatsprotocol/config';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';

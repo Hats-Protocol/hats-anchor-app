@@ -14,6 +14,7 @@ export * from './link';
 export * from './link-button';
 export * from './markdown';
 export * from './member-avatar';
+export * from './not-found';
 export * from './oblong-avatar';
 export * from './popover';
 export * from './skeleton';

@@ -1,25 +1,8 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { Role, WriteFunction } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import {
-  compact,
-  filter,
-  find,
-  flatten,
-  get,
-  includes,
-  map,
-  omit,
-  pick,
-} from 'lodash';
-import {
-  AppHat,
-  Authority,
-  HatAuthority,
-  ModuleDetails,
-  ModuleFunction,
-  ModuleRole,
-} from 'types';
+import { compact, filter, find, flatten, get, includes, map, omit, pick } from 'lodash';
+import { AppHat, Authority, HatAuthority, ModuleDetails, ModuleFunction, ModuleRole } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
@@ -83,9 +66,8 @@ const mapModuleAuthority = ({
 }): Authority | Authority[] => {
   const matchingRole = find(moduleInfo?.customRoles, { id: authorityKey });
   if (!matchingRole) return [];
-  const matchingFunctions = filter(
-    moduleInfo?.writeFunctions,
-    (func: ModuleFunction) => includes(func.roles, matchingRole?.id),
+  const matchingFunctions = filter(moduleInfo?.writeFunctions, (func: ModuleFunction) =>
+    includes(func.roles, matchingRole?.id),
   ) as ModuleFunction[];
   // TODO this doesn't handle chained module authorities
 
@@ -165,15 +147,12 @@ const mapModuleAuthorities = ({
   hatDetails: AppHat[];
 }): Authority[] => {
   // extra flatten here to handle the case where a module is both eligibility and toggle
-  const moduleFetchData = map(
-    authorityEntries,
-    ({ id, hatId }: AuthorityEntry) => {
-      const moduleInfo = find(modulesDetails, { id });
-      const hatInfo = find(hatDetails, { id: hatId });
-      if (!moduleInfo || !hatInfo) return null; // TODO handle hats outside the current tree!
-      return mapModuleAuthority({ authorityKey, moduleInfo, hatInfo });
-    },
-  );
+  const moduleFetchData = map(authorityEntries, ({ id, hatId }: AuthorityEntry) => {
+    const moduleInfo = find(modulesDetails, { id });
+    const hatInfo = find(hatDetails, { id: hatId });
+    if (!moduleInfo || !hatInfo) return null; // TODO handle hats outside the current tree!
+    return mapModuleAuthority({ authorityKey, moduleInfo, hatInfo });
+  });
 
   return flatten(compact(moduleFetchData));
 };
@@ -187,21 +166,15 @@ export function populateModulesAuthorities({
   modulesDetails: ModuleDetails[];
   hatDetails?: AppHat[];
 }) {
-  const filteredAuthorities = omit(hatAuthorities, [
-    'hsgOwner',
-    'hsgSigner',
-    'hatsAccount1ofN',
-  ]);
+  const filteredAuthorities = omit(hatAuthorities, ['hsgOwner', 'hsgSigner', 'hatsAccount1ofN']);
   if (!hatDetails || !modulesDetails) return [];
-  const updatedHatAuthorities = map(
-    filteredAuthorities,
-    (authorityEntries: AuthorityEntry[], authorityKey: string) =>
-      mapModuleAuthorities({
-        authorityEntries,
-        authorityKey,
-        modulesDetails,
-        hatDetails,
-      }),
+  const updatedHatAuthorities = map(filteredAuthorities, (authorityEntries: AuthorityEntry[], authorityKey: string) =>
+    mapModuleAuthorities({
+      authorityEntries,
+      authorityKey,
+      modulesDetails,
+      hatDetails,
+    }),
   );
 
   return flatten(updatedHatAuthorities);

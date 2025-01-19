@@ -1,8 +1,10 @@
-import { ComponentWithAs, IconProps } from '@chakra-ui/react';
-import { ReactNode } from 'react';
-import { IconName } from 'react-cmdk';
-import { IconType } from 'react-icons';
-import { Hex } from 'viem';
+import type { ComponentWithAs, IconProps } from '@chakra-ui/react';
+import type { ReactNode } from 'react';
+import type { IconName } from 'react-cmdk';
+import type { IconType } from 'react-icons';
+import type { Hex } from 'viem';
+
+import { HatDetails } from './hat';
 
 export type ValueOf<T> = T[keyof T];
 
@@ -82,3 +84,10 @@ export interface Group {
 export type SearchParamsProps = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
+
+export interface HatPinDetails {
+  chainId: number;
+  localChainId?: number;
+  hatId: Hex;
+  details: HatDetails;
+}

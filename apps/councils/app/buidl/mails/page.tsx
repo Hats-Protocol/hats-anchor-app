@@ -1,6 +1,6 @@
 import posthog from 'posthog-js';
-import { NotFound } from 'ui';
 
+// import { NotFound } from 'ui';
 import { MailForm } from '../../../components/mail-form';
 
 const Mails = () => {

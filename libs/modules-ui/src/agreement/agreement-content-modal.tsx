@@ -1,8 +1,8 @@
 'use client';
 
 import { Box, Button, Flex, Heading, Icon } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { CONFIG } from '@hatsprotocol/config';
 import { Modal, useOverlay } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
