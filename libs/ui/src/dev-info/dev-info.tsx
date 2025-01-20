@@ -1,6 +1,3 @@
-'use client';
-
-import { Heading, Stack } from '@chakra-ui/react';
 import { isEmpty, map } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
@@ -21,8 +18,8 @@ export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
   if (!devInfos || isEmpty(devInfos) || !devFlag) return null;
 
   return (
-    <Stack>
-      <Heading size='sm'>{title || 'Dev Info'}</Heading>
+    <div className='flex flex-col gap-2'>
+      <h2 className='text-sm'>{title || 'Dev Info'}</h2>
 
       {map(devInfos, ({ label, descriptor }) => {
         return (
@@ -33,7 +30,7 @@ export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
           </div>
         );
       })}
-    </Stack>
+    </div>
   );
 };
 

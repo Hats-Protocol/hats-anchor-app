@@ -1,6 +1,5 @@
 'use client';
 
-import { Icon, Stack, Text } from '@chakra-ui/react';
 import { useContractData } from 'hooks';
 import _ from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
@@ -115,13 +114,19 @@ const AddressInput: React.FC<AddressInputProps> = ({
   const isContract = (contractData && contractData?.contractName !== 'MetaMultiSigWallet') || moduleDetails;
 
   return (
-    <Stack spacing='2px' w='100%'>
+    <div className='flex w-full flex-col gap-1'>
       <Input
         name={`${name}-input`}
         label={label}
         subLabel={subLabel}
         placeholder={placeholder}
-        leftElement={<Icon as={isContract ? CodeIcon : BsPersonBadge} w={4} h={4} color='gray.500' />}
+        leftElement={
+          isContract ? (
+            <CodeIcon className='text-gray.500 h-4 w-4' />
+          ) : (
+            <BsPersonBadge className='text-gray.500 h-4 w-4' />
+          )
+        }
         localForm={localForm}
         isDisabled={isDisabled}
         options={options}
@@ -130,16 +135,10 @@ const AddressInput: React.FC<AddressInputProps> = ({
         onChange={onChange}
       />
       {showResolvedAddress && resolvedAddress && (
-        <Text size='sm' variant='gray' mt={1}>
-          Resolved address: {resolvedAddress}
-        </Text>
+        <p className='mt-1 text-sm text-gray-500'>Resolved address: {resolvedAddress}</p>
       )}
-      {showResolvedEnsName && ensName && (
-        <Text size='sm' variant='gray' mt={1}>
-          a.k.a. {ensName}
-        </Text>
-      )}
-    </Stack>
+      {showResolvedEnsName && ensName && <p className='mt-1 text-sm text-gray-500'>a.k.a. {ensName}</p>}
+    </div>
   );
 };
 

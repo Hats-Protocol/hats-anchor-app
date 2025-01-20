@@ -13,7 +13,13 @@
     "councils:start": "nx run hats-councils-app:serve:production",
     "councils:build": "nx run hats-councils-app:build",
     "test": "nx test",
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "contexts": "pnpm --filter contexts",
+    "forms": "pnpm --filter forms",
+    "modules": "pnpm --filter modules-ui",
+    "molecules": "pnpm --filter molecules",
+    "organisms": "pnpm --filter organisms",
+    "ui": "pnpm --filter ui"
   },
   "private": true,
   "devDependencies": {

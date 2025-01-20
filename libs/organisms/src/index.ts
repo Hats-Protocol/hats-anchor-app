@@ -1,7 +1,7 @@
 export * from './authorities-list';
 export * from './bottom-menu';
 export * from './claims';
-export * from './controllers';
+// export * from './controllers';
 export * from './hat-details-changes';
 export * from './hat-drawer';
 export * from './main-action';

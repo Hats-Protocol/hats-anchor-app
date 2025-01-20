@@ -1,10 +1,10 @@
 'use client';
 
-import { Button, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
 import { UseFormReturn } from 'react-hook-form';
 import { BsLink45Deg } from 'react-icons/bs';
 import { FaRegTrashAlt } from 'react-icons/fa';
+import { Button } from 'ui';
 
 import { Input } from './input';
 import { LinkInput } from './link-input';
@@ -43,26 +43,16 @@ const LabelWithLink = ({
   const linkValue = watch(linkName);
 
   return (
-    <Stack>
-      <HStack alignItems='center' justifyContent='space-between'>
+    <div className='flex flex-col gap-2'>
+      <div className='flex items-center justify-between'>
         <Input name={labelName} localForm={localForm} placeholder='Label' />
-        <Button
-          leftIcon={<BsLink45Deg />}
-          onClick={handleEdit}
-          px={8}
-          variant='outline'
-          fontWeight='normal'
-          colorScheme='blackAlpha.300'
-        >
+        <Button className='text-normal text-muted-foreground px-8' onClick={handleEdit}>
+          <BsLink45Deg />
           {linkValue ? 'Edit' : 'Add'} a Link
         </Button>
-        <IconButton
-          onClick={handleRemoveItem}
-          icon={<FaRegTrashAlt />}
-          aria-label='Remove'
-          variant='ghost'
-          borderColor='blackAlpha.300'
-        />
+        <Button onClick={handleRemoveItem} aria-label='Remove'>
+          <FaRegTrashAlt />
+        </Button>
         <Modal name={`editLabel-${title}`} title={`Edit ${title.toLowerCase()} Link`}>
           <LinkInput
             inputLink={inputLink}
@@ -74,14 +64,10 @@ const LabelWithLink = ({
             setModals={setModals}
           />
         </Modal>
-      </HStack>
+      </div>
 
-      {linkValue && (
-        <Text size='sm' variant='gray'>
-          {linkValue}
-        </Text>
-      )}
-    </Stack>
+      {linkValue && <p className='text-muted-foreground text-sm'>{linkValue}</p>}
+    </div>
   );
 };
 

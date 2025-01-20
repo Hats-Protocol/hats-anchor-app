@@ -1,80 +1,71 @@
 'use client';
 
-import {
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  HStack,
-  Select as ChakraSelect,
-  SelectFieldProps as ChakraSelectProps,
-  Stack,
-  Tooltip,
-} from '@chakra-ui/react';
 import { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
+import { BaseSelect, SelectContent, SelectLabel, SelectTrigger, SelectValue, Tooltip } from 'ui';
+
+import { FormControl, FormField, FormItem } from './form';
 
 /**
  * Primary Select component for React Hook Form
  *
- * @param label - Label for the select
- * @param name - Name of the select
- * @param options - Options for the select (e.g. required)
+ * @param label - Label to appear above the select
+ * @param name - Name used to identify the field in the form state
+ * @param options - Register options for the React Hook Form register function (e.g. required, min, max, etc.)
  * @param localForm - React Hook Form object
- * @param children - Select options as JSX elements
+ * @param children - Select options as `SelectItem` elements
  * @returns Select component
  *
  */
 const Select = ({ label, name, options, localForm, children, subLabel, info, onChange, ...props }: SelectProps) => {
   if (!localForm) return null;
-  const { register, setValue } = localForm;
+  // const { register, setValue } = localForm;
 
-  const handleChange = (e: any) => {
-    if (onChange) {
-      onChange(e);
-    }
-    setValue(name, e.target.value);
-  };
+  // const handleChange = (e: any) => {
+  //   if (onChange) {
+  //     onChange(e);
+  //   }
+  //   setValue(name, e.target.value);
+  // };
 
   return (
-    <FormControl isRequired={!!options?.required}>
-      <Stack w='100%'>
-        {label && (
-          <HStack>
-            <FormLabel mb={0} fontSize='sm'>
-              {label.toUpperCase()}
-            </FormLabel>
+    <FormField
+      control={localForm.control}
+      name='email'
+      render={({ field }) => (
+        <FormItem>
+          <div className='w-full'>
+            {label && (
+              <div className='flex items-center gap-2'>
+                <SelectLabel className='mb-0 text-sm'>{label.toUpperCase()}</SelectLabel>
 
-            {info && (
-              <Tooltip shouldWrapChildren label={info}>
-                <FaRegQuestionCircle />
-              </Tooltip>
+                {info && (
+                  <Tooltip label={info}>
+                    <FaRegQuestionCircle />
+                  </Tooltip>
+                )}
+              </div>
             )}
-          </HStack>
-        )}
-        {typeof subLabel !== 'string' ? (
-          subLabel
-        ) : (
-          <FormHelperText mt={0} color='blackAlpha.700'>
-            {subLabel}
-          </FormHelperText>
-        )}
-        <ChakraSelect
-          {...register(name, { ...options, validate: options?.validate })}
-          bg='white'
-          color='gray.700'
-          iconColor='gray.400'
-          onChange={handleChange}
-          {...props}
-        >
-          {children}
-        </ChakraSelect>
-      </Stack>
-    </FormControl>
+
+            {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-sm text-slate-700'>{subLabel}</p>}
+
+            <BaseSelect onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger className='w-[180px]'>
+                  <SelectValue placeholder='Theme' />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>{children}</SelectContent>
+            </BaseSelect>
+          </div>
+        </FormItem>
+      )}
+    />
   );
 };
 
-interface SelectProps extends ChakraSelectProps {
+interface SelectProps {
   label?: string;
   name: string;
   options?: RegisterOptions;

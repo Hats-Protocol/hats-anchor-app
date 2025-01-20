@@ -1,11 +1,8 @@
-import { Icon, Image } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { AuthorityInfo } from 'types';
 
 const Key = dynamic(() => import('icons').then((i) => i.Key));
-
-// TODO [high] tricky component to remove chakra dependency
 
 const IconHandler = ({
   icon,
@@ -19,36 +16,27 @@ const IconHandler = ({
   isExpanded: boolean;
 }) => {
   if (icon) {
-    return <Icon as={icon as any} boxSize='14px' color='blackAlpha.800' zIndex={5} />;
+    const IconComponent = icon as any;
+    return <IconComponent className='z-[5] h-[14px] w-[14px] text-slate-800' />;
   }
 
   if (authorityEnforcement?.icon) {
-    return (
-      <Icon
-        as={authorityEnforcement?.icon as any}
-        boxSize='14px'
-        color={isExpanded ? 'blackAlpha.900' : 'blackAlpha.800'}
-        zIndex={5}
-      />
-    );
+    const IconComponent = authorityEnforcement?.icon as any;
+    return <IconComponent className='z-[5] h-[14px] w-[14px] text-slate-800' />;
   }
 
   if (imageUrl || authorityEnforcement.imageUri) {
     // already handling ipfs url
     return (
-      <Image
+      <img
         src={imageUrl || authorityEnforcement.imageUri}
-        boxSize='18px'
-        border='1px solid'
-        borderColor='blackAlpha.300'
-        borderRadius='full'
-        alt='authority image'
-        zIndex={5}
+        className='z-[5] h-[18px] w-[18px] rounded-full border border-slate-300'
+        alt='authority enforcement type'
       />
     );
   }
 
-  return <Icon as={Key} boxSize='14px' color='blackAlpha.700' zIndex={5} />;
+  return <Key className='z-[5] h-[14px] w-[14px] text-slate-800' />;
 };
 
 export { IconHandler };

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, HStack, Input as ChakraInput, Stack } from '@chakra-ui/react';
+import { Button } from 'ui';
 import { validateURL } from 'utils';
 
 interface LinkInputProps {
@@ -23,8 +23,8 @@ const LinkInput = ({
   setModals,
 }: LinkInputProps) => {
   return (
-    <Stack>
-      <ChakraInput
+    <div className='flex flex-col gap-4'>
+      <input
         value={inputLink}
         onChange={(e) => {
           setInputLink(e.target.value);
@@ -32,10 +32,12 @@ const LinkInput = ({
         }}
         placeholder='https://example.com'
       />
-      <HStack justifyContent='end'>
-        <Button colorScheme='blue' mr={3} onClick={handleSave} isDisabled={!isLinkValid}>
+
+      <div className='flex justify-end gap-3'>
+        <Button onClick={handleSave} disabled={!isLinkValid}>
           Ok
         </Button>
+
         <Button
           variant='ghost'
           onClick={() =>
@@ -46,8 +48,8 @@ const LinkInput = ({
         >
           Cancel
         </Button>
-      </HStack>
-    </Stack>
+      </div>
+    </div>
   );
 };
 

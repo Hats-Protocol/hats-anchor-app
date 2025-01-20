@@ -1,14 +1,8 @@
-'use client';
-
-import { HStack } from '@chakra-ui/react';
 import { ReactNode } from 'react';
+import { cn } from 'ui';
 
 const FormRowWrapper = ({ noMargin, children }: FormRowWrapperProps) => {
-  return (
-    <HStack ml={noMargin ? 0 : -6} alignItems='flex-start'>
-      {children}
-    </HStack>
-  );
+  return <div className={cn('flex flex-col gap-4', noMargin ? 'ml-0' : '-ml-6')}>{children}</div>;
 };
 
 interface FormRowWrapperProps {

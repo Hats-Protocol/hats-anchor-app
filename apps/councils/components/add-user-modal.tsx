@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { Modal } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
@@ -8,6 +7,7 @@ import { capitalize, map, some, toLower } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
+import { Button } from 'ui';
 import { chainsMap, isValidEmail, logger } from 'utils';
 import { isAddress } from 'viem';
 
@@ -155,8 +155,14 @@ export function AddUserModal({
 
         <div className='mt-8'>
           <div className='flex justify-end'>
-            <Button type='submit' isDisabled={!isFormValid()} isLoading={isLoading} variant='primary'>
-              {editingUser ? 'Save Changes' : `Add ${userLabel || 'Council Member'}`}
+            <Button type='submit' disabled={!isFormValid() || isLoading}>
+              {editingUser
+                ? isLoading
+                  ? 'Saving...'
+                  : 'Save Changes'
+                : isLoading
+                  ? 'Adding...'
+                  : `Add ${userLabel || 'Council Member'}`}
             </Button>
           </div>
         </div>

@@ -1,30 +1,16 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  HStack,
-  IconButton,
-  Input as ChakraInput,
-  InputGroup,
-  InputLeftElement,
-  InputProps as ChakraInputProps,
-  InputRightElement,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
+import { BaseInput, Button, Tooltip } from 'ui';
 import { catchEnterKey } from 'utils';
 import { useAccount } from 'wagmi';
+
+import { FormControl, FormField, FormItem, FormLabel } from './form';
 
 // TODO errors aren't being bubbled up to formState for some reason
 
@@ -68,6 +54,7 @@ const Input = ({
     resetField,
     setValue,
     watch,
+    control,
     formState: { dirtyFields, errors },
   } = localForm;
 
@@ -121,110 +108,102 @@ const Input = ({
   if (maxLength > 0) rightElementWidth += 30;
 
   return (
-    <FormControl isDisabled={isDisabled} isInvalid={!!isError || isInvalid} {...props}>
-      <Stack spacing={1} w='full'>
-        {label && (
-          // disabled input lessens opacity of FormLabel
-          <FormLabel mb={0} fontSize='sm'>
-            <HStack>
-              <Box fontWeight='normal'>{_.toUpper(label)}</Box>
+    <FormField
+      control={control}
+      name='username'
+      render={({ field }) => (
+        <FormItem>
+          <FormControl>
+            <div className='flex w-full flex-col gap-1'>
+              {label && (
+                // disabled input lessens opacity of FormLabel
+                <FormLabel className='mb-0 text-sm'>
+                  <div className='flex items-center gap-1'>
+                    <span className='font-normal'>{_.toUpper(label)}</span>
 
-              {options?.required && (
-                <Box as='span' color='red.500'>
-                  {' '}
-                  *
-                </Box>
-              )}
+                    {options?.required && <span className='text-red-500'> *</span>}
 
-              {tooltip && (
-                <Tooltip shouldWrapChildren label={tooltip}>
-                  <FaRegQuestionCircle />
-                </Tooltip>
+                    {tooltip && (
+                      <Tooltip label={tooltip}>
+                        <FaRegQuestionCircle />
+                      </Tooltip>
+                    )}
+                  </div>
+                </FormLabel>
               )}
-            </HStack>
-          </FormLabel>
-        )}
-        {/* ADDRESS BUTTONS PRIMARILY FOR ADDRESS INPUT */}
-        <Flex align='end' gap={10} justify='space-between'>
-          <Box>
-            {typeof subLabel !== 'string' ? (
-              subLabel
-            ) : (
-              <Text size='sm' variant='light'>
-                {subLabel}
-              </Text>
-            )}
-          </Box>
-          {addressButtons && (
-            <Flex justify='flex-end'>
-              <HStack>
-                {/* {showNull && ( */}
-                <Button size='xs' variant='outline' colorScheme='blue.500' onClick={setFallback}>
-                  Null
-                </Button>
-                {/* )} */}
-                {address && (
-                  <Button size='xs' variant='outline' colorScheme='blue.500' onClick={setMe}>
-                    Me
-                  </Button>
+              {/* ADDRESS BUTTONS PRIMARILY FOR ADDRESS INPUT */}
+              <div className='flex items-end justify-between gap-10'>
+                <div>
+                  {typeof subLabel !== 'string' ? (
+                    subLabel
+                  ) : (
+                    <p className='text-muted-foreground text-xs'>{subLabel}</p>
+                  )}
+                </div>
+                {addressButtons && (
+                  <div className='flex justify-end'>
+                    <div className='flex gap-2'>
+                      {/* {showNull && ( */}
+                      <Button size='xs' variant='outline-blue' onClick={setFallback}>
+                        Null
+                      </Button>
+                      {/* )} */}
+                      {address && (
+                        <Button size='xs' variant='outline-blue' onClick={setMe}>
+                          Me
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 )}
-              </HStack>
-            </Flex>
-          )}
-        </Flex>
+              </div>
 
-        <InputGroup {...props}>
-          {leftElement && <InputLeftElement>{leftElement}</InputLeftElement>}
-          <ChakraInput
-            type={type}
-            {...register(name, options)}
-            onChange={handleChange}
-            onPaste={handlePaste}
-            onKeyDown={catchEnterKey} // prevent form submission on enter
-            {...props}
-            placeholder={placeholder}
-            borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
-            variant='outline'
-          />
-          <InputRightElement w={rightElementWidth ? `${rightElementWidth}px` : undefined}>
-            <Flex w='100%' align='center' justify='space-between' pr={4}>
-              {rightElement && <Box>{rightElement}</Box>}
-              {isDirty && (
-                <IconButton
-                  icon={<GrUndo />}
-                  aria-label='Reset'
-                  onClick={onReset}
-                  size='xs'
-                  isDisabled={isDisabled}
-                  colorScheme='cyan'
+              <div>
+                {/* {leftElement && <InputLeftElement>{leftElement}</InputLeftElement>} */}
+                <BaseInput
+                  type={type}
+                  {...register(name, options)}
+                  onChange={handleChange}
+                  // onPaste={handlePaste}
+                  // onKeyDown={catchEnterKey} // prevent form submission on enter
+                  {...props}
+                  placeholder={placeholder}
+                  // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
+                  // variant='outline'
                 />
-              )}
-              {maxLength > 0 && (
-                <Text size='xs' color={maxLength - inputLength < 0 ? 'red.500' : 'inherit'} variant='light'>
-                  {maxLength - inputLength}
-                </Text>
-              )}
-            </Flex>
-          </InputRightElement>
-        </InputGroup>
-        {typeof subInput !== 'string' ? (
-          subInput
-        ) : (
-          <Text size='xs' variant='light'>
-            {subInput}
-          </Text>
-        )}
-        {getErrorMessage() && (
-          <Text color='red.500' size='xs'>
-            {getErrorMessage()}
-          </Text>
-        )}
-      </Stack>
-    </FormControl>
+                {/* <InputRightElement w={rightElementWidth ? `${rightElementWidth}px` : undefined}>
+                  <Flex w='100%' align='center' justify='space-between' pr={4}>
+                    {rightElement && <Box>{rightElement}</Box>}
+                    {isDirty && (
+                      <IconButton
+                        icon={<GrUndo />}
+                        aria-label='Reset'
+                        onClick={onReset}
+                        size='xs'
+                        isDisabled={isDisabled}
+                        colorScheme='cyan'
+                      />
+                    )}
+                    {maxLength > 0 && (
+                      <Text size='xs' color={maxLength - inputLength < 0 ? 'red.500' : 'inherit'} variant='light'>
+                        {maxLength - inputLength}
+                      </Text>
+                    )}
+                  </Flex>
+                </InputRightElement> */}
+                {/* </InputGroup> */}
+                {typeof subInput !== 'string' ? subInput : <p className='text-muted-foreground text-xs'>{subInput}</p>}
+                {getErrorMessage() && <p className='text-xs text-red-500'>{getErrorMessage()}</p>}
+              </div>
+            </div>
+          </FormControl>
+        </FormItem>
+      )}
+    />
   );
 };
 
-interface InputProps extends ChakraInputProps {
+interface InputProps {
   label?: string;
   subLabel?: string | ReactNode;
   subInput?: string | ReactNode;
@@ -239,6 +218,7 @@ interface InputProps extends ChakraInputProps {
   leftElement?: React.ReactNode;
   defaultValue?: string | number;
   isDisabled?: boolean;
+  isInvalid?: boolean;
   resetValue?: string | number;
   addressButtons?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;

@@ -1,6 +1,5 @@
 'use client';
 
-import { Card, CardBody, Heading, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
@@ -8,7 +7,7 @@ import { useMediaStyles } from 'hooks';
 import { first, flatten, get, size } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { Link } from 'ui';
+import { Card, Link, Skeleton } from 'ui';
 import { chainsMap, eligibilityRuleToModuleDetails, hatLink } from 'utils';
 
 const AgreementClaims = dynamic(() => import('modules-ui').then((mod) => mod.AgreementClaims));
@@ -44,7 +43,7 @@ const Claims = () => {
     !selectedHat?.id ||
     (!activeModule && !communityHat)
   ) {
-    return <Skeleton w='full' h='500px' borderRadius='lg' />;
+    return <Skeleton className='h-[500px] w-full rounded-lg' />;
   }
 
   if (size(eligibilityRules) > 1) {
@@ -73,7 +72,7 @@ const Claims = () => {
   }
 
   // handle specific modules found
-  // TODO migrate to ID and CONSTs
+  // TODO migrate to ID and KNOWN_ELIGIBILITY_MODULES
   if (activeModule?.name === 'Hats Election Eligibility') return <ElectionClaims />;
   if (activeModule?.name.includes('Unlock Protocol')) return <SubscriptionClaims />;
 
@@ -83,20 +82,19 @@ const Claims = () => {
   // fallback for unknown modules
   return (
     <Card>
-      <CardBody>
-        <Stack>
-          <Heading size='xl'>No compatible module found</Heading>
-          <Text>
-            No compatible module found for hat{' '}
-            <Link href={hatLink({ chainId, hatId: selectedHat?.id })} className='decoration'>
-              #{hatIdDecimalToIp(BigInt(selectedHat?.id))}
-            </Link>{' '}
-            on {chainsMap(chainId)?.name}
-          </Text>
-        </Stack>
-      </CardBody>
+      <div className='flex flex-col gap-2'>
+        <h2 className='text-2xl font-bold'>No compatible module found</h2>
+
+        <p>
+          No compatible module found for hat{' '}
+          <Link href={hatLink({ chainId, hatId: selectedHat?.id })} className='decoration'>
+            #{hatIdDecimalToIp(BigInt(selectedHat?.id))}
+          </Link>{' '}
+          on {chainsMap(chainId)?.name}
+        </p>
+      </div>
     </Card>
   );
 };
 
-export default Claims;
+export { Claims };

@@ -1,11 +1,11 @@
 'use client';
 
-/* eslint-disable react-hooks/exhaustive-deps */
-import { FormControl, FormHelperText, FormLabel, HStack, Stack, Text } from '@chakra-ui/react';
-import _ from 'lodash';
+import { find, get, pick, toNumber } from 'lodash';
 import React, { useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
+import { SelectItem } from 'ui';
 
+import { FormControl, FormLabel } from './form';
 import { NumberInput } from './number-input';
 import { Select } from './select';
 
@@ -29,9 +29,9 @@ const DurationInput: React.FC<DurationInputProps> = ({
   subLabel,
   // defaultTimeUnit,
 }) => {
-  const { setValue, watch } = _.pick(localForm, ['setValue', 'watch']);
+  const { setValue, watch } = pick(localForm, ['setValue', 'watch']);
   const calculateSeconds = (value: number, timeUnit: string) => {
-    const unitValue = timeUnits.find((tu) => tu.unit === timeUnit)?.value || 1;
+    const unitValue = get(find(timeUnits, { unit: timeUnit }), 'value', 1);
     return String(value * unitValue);
   };
 
@@ -41,31 +41,27 @@ const DurationInput: React.FC<DurationInputProps> = ({
 
   useEffect(() => {
     if (timeValue && timeUnit !== 'seconds') {
-      const res = calculateSeconds(_.toNumber(timeValue), timeUnit);
+      const res = calculateSeconds(toNumber(timeValue), timeUnit);
       setValue(name, res, { shouldDirty: true });
     }
-  }, [timeValue, timeUnit]);
+    // intentionally not including `setValue` in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeValue, timeUnit, name]);
 
   return (
     <FormControl>
-      <Stack w='100%'>
+      <div className='w-full'>
         {label && (
-          <FormLabel mb={0}>
-            <Text size='sm'>
+          <FormLabel className='mb-0'>
+            <p className='text-sm'>
               {label.toUpperCase()}
               {isRequired && '*'}
-            </Text>
+            </p>
           </FormLabel>
         )}
-        {typeof subLabel !== 'string' ? (
-          subLabel
-        ) : (
-          <FormHelperText mt={0} color='blackAlpha.700'>
-            {subLabel}
-          </FormHelperText>
-        )}
-        <Stack spacing={1}>
-          <HStack alignItems='end'>
+        {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-gray-700'>{subLabel}</p>}
+        <div className='flex flex-col gap-2 space-y-1'>
+          <div className='flex items-end'>
             <NumberInput
               name={`${name}-time-value`}
               localForm={localForm}
@@ -75,23 +71,19 @@ const DurationInput: React.FC<DurationInputProps> = ({
               isRequired={isRequired}
               options={options}
               rightAddon={
-                <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds' w='100%'>
+                <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds'>
                   {timeUnits.map(({ unit, value }) => (
-                    <option key={unit} value={unit}>
+                    <SelectItem key={unit} value={unit}>
                       {unit}
-                    </option>
+                    </SelectItem>
                   ))}
                 </Select>
               }
             />
-          </HStack>
-          {timeUnit !== 'seconds' && finalValue && (
-            <Text size='xs' variant='gray'>
-              ({finalValue} seconds)
-            </Text>
-          )}
-        </Stack>
-      </Stack>
+          </div>
+          {timeUnit !== 'seconds' && finalValue && <p className='text-xs text-gray-700'>({finalValue} seconds)</p>}
+        </div>
+      </div>
     </FormControl>
   );
 };

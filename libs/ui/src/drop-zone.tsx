@@ -1,7 +1,5 @@
 'use client';
 
-/* eslint-disable react/jsx-props-no-spreading */
-import { Box, Flex, FormLabel, Image, Input, Stack, Text } from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 import { ImageFile } from 'types';
 
@@ -78,42 +76,36 @@ function DropZone({
   }, []);
 
   return (
-    <Stack spacing={2} w='full'>
-      {label && (
-        <FormLabel size='sm' mb={0}>
-          {label.toUpperCase()}
-        </FormLabel>
-      )}
-      <Flex gap={3}>
+    <div className='flex w-full flex-col gap-2'>
+      {label && <h2 className='text-sm'>{label.toUpperCase()}</h2>}
+      <div className='flex gap-3'>
         {(image || imageUrl) && (
-          <Flex wrap='wrap'>
-            <Box style={thumb}>
-              <Flex minWidth={0} overflow='hidden'>
-                <Image
+          <div className='flex flex-wrap'>
+            <div style={thumb}>
+              <div className='min-w-0 overflow-hidden'>
+                <img
                   src={image?.preview ?? (imageUrl || undefined)}
-                  display='block'
-                  width='auto'
-                  height='100%'
+                  className='block h-full w-auto'
                   onLoad={() => {
                     if (image?.preview) URL.revokeObjectURL(image.preview);
                   }}
                   alt='Uploaded item from user'
                 />
-              </Flex>
-            </Box>
-          </Flex>
+              </div>
+            </div>
+          </div>
         )}
 
-        <Box {...getRootProps({ style })}>
-          <Input {...getInputProps()} display='none' />{' '}
-          <Text>
+        <div {...getRootProps({ style })}>
+          <input {...getInputProps()} type='file' className='hidden' />{' '}
+          <p>
             {image
               ? 'Image uploaded! For another image, drag n drop, or click to select'
               : 'Drag n drop, or click to select'}
-          </Text>
-        </Box>
-      </Flex>
-    </Stack>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 

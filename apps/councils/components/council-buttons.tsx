@@ -1,10 +1,10 @@
 'use client';
 
-import { Button, ButtonGroup } from '@chakra-ui/react';
 import { map, nth } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
+import { Button, ButtonGroup } from 'ui';
 
 const LINKS = [
   { label: 'Transactions', href: 'transactions' },
@@ -23,12 +23,10 @@ export const CouncilButtons = () => {
   const links = [...LINKS, ...devLink];
 
   return (
-    <ButtonGroup isAttached position='absolute' top={-5} bg='white'>
+    <ButtonGroup className='absolute top-[-5px] bg-white' orientation='horizontal'>
       {map(links, ({ label, href }) => (
         <Link href={`/councils/${slug}/${href}`} passHref key={href}>
-          <Button variant={pathname.includes(href) ? 'primary' : 'outlineMatch'} colorScheme='blue.500'>
-            {label}
-          </Button>
+          <Button variant={pathname.includes(href) ? 'default' : 'outline-blue'}>{label}</Button>
         </Link>
       ))}
     </ButtonGroup>

@@ -1,16 +1,15 @@
-import { Button, ButtonGroup, ButtonProps } from '@chakra-ui/react';
 import { map } from 'lodash';
 import { Dispatch, SetStateAction } from 'react';
+import { Button, ButtonGroup, ButtonProps } from 'ui';
 
 const ControlledRadioBox = ({ options, selectedOption, setSelectedOption, size }: ControlledRadioBoxProps) => {
   return (
-    <ButtonGroup isAttached>
+    <ButtonGroup>
       {map(options, (option) => (
         <Button
           key={option}
-          variant={option === selectedOption ? 'filled' : 'outlineMatch'}
-          size={size || 'md'}
-          colorScheme='blue.500'
+          variant={option === selectedOption ? 'default' : 'outline-blue'}
+          size={size || ('md' as ButtonProps['size'])}
           onClick={() => setSelectedOption(option)}
         >
           {option}
@@ -24,7 +23,7 @@ interface ControlledRadioBoxProps {
   options: string[];
   selectedOption: string;
   setSelectedOption: Dispatch<SetStateAction<string>>;
-  size?: ButtonProps['size'];
+  size?: ButtonProps['size'] | null | undefined;
 }
 
 export { ControlledRadioBox, type ControlledRadioBoxProps };

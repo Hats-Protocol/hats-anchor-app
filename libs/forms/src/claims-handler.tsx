@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Code, Flex, HStack, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { MULTI_CLAIMS_HATTER_V1_ABI } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
@@ -11,6 +10,7 @@ import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
 import { AppHat } from 'types';
+import { Button, Tooltip } from 'ui';
 import { formatAddress } from 'utils';
 import { useWriteContract } from 'wagmi';
 
@@ -18,16 +18,14 @@ import { FormRowWrapper, Select } from './components';
 
 const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
   <FormRowWrapper>
-    <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
-    <Stack>
-      <HStack>
-        <Text variant='lightMedium' fontSize='sm'>
-          HAT CLAIMING
-        </Text>
-      </HStack>
+    <BsPersonAdd className='mt-1 h-4 w-4' />
+    <div className='flex flex-col'>
+      <div className='flex items-center'>
+        <p className='text-sm font-medium text-gray-500'>HAT CLAIMING</p>
+      </div>
 
       {children}
-    </Stack>
+    </div>
   </FormRowWrapper>
 );
 
@@ -111,14 +109,14 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   if (!_.includes(claimableHats, selectedHat?.id) && hatterIsAdmin) {
     return (
       <ClaimsHandlerWrapper>
-        <Stack mt={1}>
-          <Text variant='lightMedium'>There is a claims hatter in the tree, but this hat is not set claimable.</Text>
-          <Flex>
-            <Button variant='outlineMatch' onClick={registerHat}>
+        <div className='mt-1'>
+          <p className='text-sm font-light'>There is a claims hatter in the tree, but this hat is not set claimable.</p>
+          <div>
+            <Button variant='outline' onClick={registerHat}>
               Make Claimable
             </Button>
-          </Flex>
-        </Stack>
+          </div>
+        </div>
       </ClaimsHandlerWrapper>
     );
   }
@@ -126,21 +124,18 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   if (hatterIsAdmin) {
     return (
       <ClaimsHandlerWrapper>
-        <Stack mt={1}>
-          <Text size='sm' color='blackAlpha.600'>
+        <div className='mt-1'>
+          <p className='text-sm text-gray-500'>
             This hat has a claims hatter contract deployed, and permissionless claiming is enabled. Potential wearers
             will be able to claim this hat if they meet the requirements in this hat&quot;s accountability module.
-          </Text>
+          </p>
           {wearingHat && instanceAddress && (
-            <Text>
-              Claims hatter contract (
-              <Box as='span' fontFamily='mono'>
-                {formatAddress(instanceAddress)}
-              </Box>
-              ) is wearing Hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} ({get(wearingHat, 'detailsObject.data.name')})
-            </Text>
+            <p>
+              Claims hatter contract (<span className='font-mono'>{formatAddress(instanceAddress)}</span>) is wearing
+              Hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} ({get(wearingHat, 'detailsObject.data.name')})
+            </p>
           )}
-        </Stack>
+        </div>
       </ClaimsHandlerWrapper>
     );
   }
@@ -148,10 +143,11 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   if (!hatterIsAdmin && instanceAddress) {
     return (
       <ClaimsHandlerWrapper>
-        <Stack>
-          <Text>
-            A claims hatter exists at <Code>{formatAddress(instanceAddress)}</Code>, but it is not an admin of this hat.
-          </Text>
+        <div className='mt-1'>
+          <p>
+            A claims hatter exists at <span className='font-mono'>{formatAddress(instanceAddress)}</span>, but it is not
+            an admin of this hat.
+          </p>
           <Select localForm={localForm} name='hatToMintTo'>
             {_.map(availableAdmins, (a: AppHat) => (
               <option value={a.id} key={a.id}>
@@ -160,51 +156,47 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
             ))}
           </Select>
           {(hatToMintTo || hatToMintPended) && (
-            <Flex justify='end'>
+            <div className='flex justify-end'>
               <Tooltip
                 label={
                   hatToMintPended &&
                   `Mint pended for hatter on hat #${hatIdDecimalToIp(BigInt(hatToMintPended || hatToMintTo))}`
                 }
-                placement='left'
               >
                 <Button
                   size='xs'
-                  colorScheme='blue.500'
-                  variant='outline'
-                  isDisabled={!hatToMintTo || !!hatToMintPended}
+                  variant='outline-blue'
+                  disabled={!hatToMintTo || !!hatToMintPended}
                   onClick={pendMintHatForHatter}
                 >
                   Mint {hatIdDecimalToIp(BigInt(hatToMintPended || hatToMintTo))} to {formatAddress(instanceAddress)}
                 </Button>
               </Tooltip>
-            </Flex>
+            </div>
           )}
-        </Stack>
+        </div>
       </ClaimsHandlerWrapper>
     );
   }
 
   return (
     <ClaimsHandlerWrapper>
-      <Text size='sm' variant='gray' mt={1}>
+      <p className='text-sm text-gray-500'>
         To enable permissionless claiming of this hat, deploy a claims hatter contract and give that contract an admin
         hat in this tree.
-      </Text>
-      <Box>
+      </p>
+      <div>
         <Button
-          leftIcon={<BsFileCode />}
           variant='outline'
-          fontWeight='normal'
-          borderColor='blackAlpha.300'
+          className='text-normal'
           onClick={() => {
             onOpenModuleDrawer();
             setIsStandAloneHatterDeploy(true);
           }}
         >
-          Deploy Claims Hatter
+          <BsFileCode /> Deploy Claims Hatter
         </Button>
-      </Box>
+      </div>
     </ClaimsHandlerWrapper>
   );
 };

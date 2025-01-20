@@ -1,4 +1,3 @@
-import type { ComponentWithAs, IconProps } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 import type { IconName } from 'react-cmdk';
 import type { IconType } from 'react-icons';
@@ -8,7 +7,7 @@ import { HatDetails } from './hat';
 
 export type ValueOf<T> = T[keyof T];
 
-export type MixedIcon = IconType | ComponentWithAs<'svg', IconProps>;
+export type MixedIcon = any; // TODO update with new icon-handler.tsx
 
 export type ImageFile = {
   path: string;

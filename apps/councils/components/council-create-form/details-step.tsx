@@ -1,11 +1,7 @@
 'use client';
 
-import { Spinner } from '@chakra-ui/react';
-import { councilsChainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { Input, Textarea } from 'forms';
-import { map, values } from 'lodash';
-import { useMemo } from 'react';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
 
@@ -17,15 +13,7 @@ export function DetailsStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const requirements = form.watch('requirements');
 
-  const chainOptions = useMemo(() => {
-    return map(values(councilsChainsList), (chain) => ({
-      value: chain.id.toString(),
-      label: chain.name,
-      icon: chain.iconUrl,
-    }));
-  }, []);
-
-  if (isLoading || !chainOptions) {
+  if (isLoading) {
     return <Skeleton className='h-100 w-100' />;
   }
 
@@ -63,13 +51,7 @@ export function DetailsStep({ onNext }: StepProps) {
         <div className='space-y-2'>
           <label className='font-bold'>Choose a Chain</label>
           <p className='text-gray-600'>The chain you deploy the Safe Multisig and Hats Council to.</p>
-          <ChainSelect
-            name='chain'
-            form={form}
-            options={chainOptions}
-            placeholder='Select a chain'
-            isDisabled={!canEdit}
-          />
+          <ChainSelect name='chain' form={form} placeholder='Select a chain' isDisabled={!canEdit} />
         </div>
 
         <div className='space-y-2'>

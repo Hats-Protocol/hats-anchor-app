@@ -1,10 +1,11 @@
 'use client';
 
 // TODO chakra
-import { Box, Collapse, Flex, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import posthog from 'posthog-js';
 import React, { useState } from 'react';
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './collapsible';
 
 const Accordion = ({ title, subtitle, dirtyFieldsList, open = false, children }: AccordionProps) => {
   const [isOpen, setIsOpen] = useState(open);
@@ -19,36 +20,28 @@ const Accordion = ({ title, subtitle, dirtyFieldsList, open = false, children }:
   };
 
   return (
-    <Flex direction='column' w='100%'>
-      <Flex direction='column' onClick={handleToggle} _hover={{ cursor: 'pointer' }}>
-        <Flex alignItems='center'>
-          <HStack>
-            <Icon as={isOpen ? AiOutlineMinusSquare : AiOutlinePlusSquare} boxSize={5} />
-            <Heading variant='lightMedium'>{title}</Heading>
-          </HStack>
-        </Flex>
-        <Stack>
-          {subtitle && (
-            <Text size='md' ml={7} variant='light'>
-              {subtitle}
-            </Text>
-          )}
-        </Stack>
-      </Flex>
+    <Collapsible className='flex w-full flex-col' open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger className='flex flex-col hover:cursor-pointer' onClick={handleToggle}>
+        <div className='flex items-center'>
+          <div className='flex items-center'>
+            {isOpen ? <AiOutlineMinusSquare className='h-5 w-5' /> : <AiOutlinePlusSquare className='h-5 w-5' />}
+            <h2 className='text-lg font-medium text-slate-900'>{title}</h2>
+          </div>
+        </div>
+        <div className='flex flex-col'>{subtitle && <p className='ml-7 text-sm text-slate-500'>{subtitle}</p>}</div>
+      </CollapsibleTrigger>
 
       {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
-        <Box fontSize='sm' ml={7} color='cyan.900' mt={2}>
-          <Text size='medium'>Edits:</Text>
-          {dirtyFieldsList?.map((field) => <Text key={field}>- {field} changed</Text>)}
-        </Box>
+        <div className='font-sm ml-7 mt-2 text-cyan-900'>
+          <p className='text-medium'>Edits:</p>
+          {dirtyFieldsList?.map((field) => <p key={field}>- {field} changed</p>)}
+        </div>
       )}
 
-      <Collapse in={isOpen} animateOpacity>
-        <Flex pl={7} mr={0} pr={0} mt={8} pb={0}>
-          {children}
-        </Flex>
-      </Collapse>
-    </Flex>
+      <CollapsibleContent>
+        <div className='mr-0 mt-8 pb-0 pl-7 pr-0'>{children}</div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
