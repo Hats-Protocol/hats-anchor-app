@@ -3,7 +3,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
-import { capitalize, compact, get, keys, map, reject, toNumber } from 'lodash';
+import { capitalize, compact, get, keys, map, reject, size, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -100,7 +100,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
       });
 
       const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} | `;
-      const councilLink = `[View Council](https://hats-pro.vercel.app/councils/new/payment?draftId=${draftId}) 💰`;
+      const councilLink = `[View Council](${window.location.origin}/councils/new/payment?draftId=${draftId}) 💰`;
       const userKeys = reject(keys(userData), (key) => key === 'id');
       const userDetails = compact(
         map(userKeys, (key) =>

@@ -1,6 +1,12 @@
 import { logger } from '../logs';
 
+/**
+ * Send a message to the Telegram Alerts channel
+ * @param message - The message to send
+ * @returns The response from the Telegram API
+ */
 export const sendTelegramMessage = async (message: string) => {
+  // TODO better sanitation on the message, catch invalid characters (period, et al)
   const result = await fetch('/api/notify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

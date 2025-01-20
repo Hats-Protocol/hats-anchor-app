@@ -1,4 +1,4 @@
-import { As, Icon, Image } from '@chakra-ui/react';
+import { Icon, Image } from '@chakra-ui/react';
 import { AuthorityInfo } from '@hatsprotocol/constants';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
@@ -17,15 +17,13 @@ const IconHandler = ({
   isExpanded: boolean;
 }) => {
   if (icon) {
-    return (
-      <Icon as={icon as As} boxSize='14px' color='blackAlpha.800' zIndex={5} />
-    );
+    return <Icon as={icon as any} boxSize='14px' color='blackAlpha.800' zIndex={5} />;
   }
 
   if (authorityEnforcement?.icon) {
     return (
       <Icon
-        as={authorityEnforcement?.icon as As}
+        as={authorityEnforcement?.icon as any}
         boxSize='14px'
         color={isExpanded ? 'blackAlpha.900' : 'blackAlpha.800'}
         zIndex={5}

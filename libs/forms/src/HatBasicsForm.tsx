@@ -17,13 +17,7 @@ import { ImageFile } from 'types';
 import { DropZone } from 'ui';
 import { formatImageUrl } from 'utils';
 
-import {
-  FormRowWrapper,
-  Input,
-  PlatformInput,
-  RadioBox,
-  Textarea,
-} from './components';
+import { FormRowWrapper, Input, PlatformInput, RadioBox, Textarea } from './components';
 
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
@@ -38,19 +32,11 @@ const MUTABILITY_OPTIONS = [
 const HatBasicsForm = () => {
   const { chainId, treeToDisplay } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const {
-    localForm,
-    formValues,
-    setFormLoading,
-    isLoading: hatFormLoading,
-  } = useHatForm();
+  const { localForm, formValues, setFormLoading, isLoading: hatFormLoading } = useHatForm();
   const [image, setImage] = useState<ImageFile>();
   const { control, setValue } = _.pick(localForm, ['control', 'setValue']);
 
-  const currentImageUrl = _.get(
-    _.find(treeToDisplay, ['id', selectedHat?.id]),
-    'imageUrl',
-  );
+  const currentImageUrl = _.get(_.find(treeToDisplay, ['id', selectedHat?.id]), 'imageUrl');
 
   const {
     append: appendGuild,
@@ -70,14 +56,7 @@ const HatBasicsForm = () => {
     name: 'spaces',
   });
 
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
+  const { acceptedFiles, getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({
     accept: { 'image/*': [] },
     onDrop: (a) => {
       setImage(
@@ -168,10 +147,7 @@ const HatBasicsForm = () => {
                 <Box mb={2}>
                   <Button
                     onClick={() => appendGuild('')}
-                    isDisabled={_.some(
-                      formValues?.guilds,
-                      (item: string) => item === '',
-                    )}
+                    isDisabled={_.some(formValues?.guilds, (item: string) => item === '')}
                     gap={2}
                     variant='outlineMatch'
                     colorScheme='blue.500'
@@ -204,10 +180,7 @@ const HatBasicsForm = () => {
                 <Box mb={2}>
                   <Button
                     onClick={() => appendSpace('')}
-                    isDisabled={_.some(
-                      formValues?.spaces,
-                      (item: string) => item === '',
-                    )}
+                    isDisabled={_.some(formValues?.spaces, (item: string) => item === '')}
                     gap={2}
                     variant='outlineMatch'
                     colorScheme='blue.500'
@@ -232,13 +205,11 @@ const HatBasicsForm = () => {
                 options={MUTABILITY_OPTIONS}
                 tooltip='Choose whether the hat should be editable or not'
               />
-              {localForm.watch('mutable') === MUTABILITY.IMMUTABLE &&
-                !isTopHat(selectedHat) && (
-                  <Text color='red.500' size='sm'>
-                    Warning: This will make the hat immutable. It can never be
-                    changed again. This cannot be undone.
-                  </Text>
-                )}
+              {localForm.watch('mutable') === MUTABILITY.IMMUTABLE && !isTopHat(selectedHat) && (
+                <Text color='red.500' size='sm'>
+                  Warning: This will make the hat immutable. It can never be changed again. This cannot be undone.
+                </Text>
+              )}
             </Stack>
           </FormRowWrapper>
         </Stack>

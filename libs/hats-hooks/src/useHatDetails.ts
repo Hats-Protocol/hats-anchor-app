@@ -1,7 +1,7 @@
 import { ZERO_ID } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { first, get } from 'lodash';
-import { AppHat, SupportedChains } from 'types';
+import { AppHat, HatDetails, SupportedChains } from 'types';
 import { fetchHatsDetailsMesh } from 'utils';
 
 const useHatDetails = ({
@@ -33,7 +33,7 @@ const useHatDetails = ({
   const fullDetails = metadata ? JSON.parse(metadata) : {};
   const details = get(fullDetails, 'data');
 
-  return { data: first(data), details, isLoading, error };
+  return { data: first(data), details: details as HatDetails, isLoading, error };
 };
 
 export default useHatDetails;

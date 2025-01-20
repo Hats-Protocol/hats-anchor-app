@@ -3,11 +3,11 @@
 import { Button } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
-import { useHatDetails } from 'hats-hooks';
-import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
+import { useHatContractWrite, useHatDetails } from 'hats-hooks';
+import { useCouncilDetails, useOffchainCouncilDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, flatten, get, map, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
-import { HatWearer, SupportedChains } from 'types';
+import { CouncilMember, HatWearer, SupportedChains } from 'types';
 import { ManagerAvatar } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
@@ -49,7 +49,8 @@ const SectionMenu = ({ sections }: { sections: { value: string; label: string }[
 
 const ManagePage = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
-  const { setModals } = useOverlay();
+  const { setModals, handlePendingTx } = useOverlay();
+  const waitForSubgraph = useWaitForSubgraph({ chainId: chainId ?? 11155111 });
 
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -58,6 +59,13 @@ const ManagePage = ({ slug }: { slug: string }) => {
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
     chainId: chainId ?? 11155111,
     hsg: address,
+  });
+  const { writeAsync } = useHatContractWrite({
+    functionName: 'mintHat',
+    args: [BigInt(1)],
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    handlePendingTx,
+    waitForSubgraph,
   });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
@@ -87,6 +95,11 @@ const ManagePage = ({ slug }: { slug: string }) => {
     OWNER_SECTIONS,
   );
 
+  const onAddManagerSuccess = async (user: CouncilMember | undefined) => {
+    if (!user) return;
+    await writeAsync();
+  };
+
   return (
     <div className='flex gap-4 pt-10'>
       <div className='flex w-1/5'>
@@ -109,7 +122,11 @@ const ManagePage = ({ slug }: { slug: string }) => {
             </Button>
           </div>
 
-          <SignerThresholdModal signer={councilDetails || undefined} signerHat={primarySignerHat} />
+          <SignerThresholdModal
+            signer={councilDetails || undefined}
+            signerHat={primarySignerHat}
+            chainId={chainId ?? 11155111}
+          />
         </div>
 
         {/* TOP HAT CAN EDIT MANAGERS */}
@@ -128,7 +145,12 @@ const ManagePage = ({ slug }: { slug: string }) => {
             </Button>
           </div>
 
-          <AddUserModal type='admin' userLabel='Council Manager' chainId={chainId as SupportedChains} />
+          <AddUserModal
+            type='admin'
+            userLabel='Council Manager'
+            chainId={chainId as SupportedChains}
+            afterSuccess={onAddManagerSuccess}
+          />
         </div>
 
         {/* MANAGERS CAN MANAGE OTHER MODULES */}

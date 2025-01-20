@@ -47,6 +47,7 @@ import {
   GET_COUNCIL_FORM,
   logger,
   pinFileToIpfs,
+  sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
   updateCouncilForm,
   viemPublicClient,
@@ -1136,19 +1137,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           });
           logger.debug('council form updated with council id:', councilId);
 
-          fetch('/api/notify', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              message: `New HSG council deployed on ${toLower(chainsMap(chainId)?.name)}: [View HSG (${hsgAddress})](${explorerUrl(chainId)}/address/${hsgAddress}) [View Council](https://hats-pro.vercel.app/councils/${toLower(chainsMap(chainId)?.name)}:${hsgAddress}/members)`,
-            }),
-          });
+          const chainName = toLower(chainsMap(chainId)?.name);
+          const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainName}: `;
+          const links = `[View HSG (${hsgAddress})](${explorerUrl(chainId)}/address/${hsgAddress}) [View Council](${window.location.origin}/councils/${chainName}:${hsgAddress}/members)`;
+
+          sendTelegramMessage(`${message} ${links}`);
           logger.debug('Telegram notification sent');
           // TODO email notification
 
-          const redirectUrl = `/councils/${toLower(chainsMap(chainId)?.name)}:${hsgAddress}/members`;
+          const redirectUrl = `/councils/${chainName}:${hsgAddress}/members`;
 
           logger.debug('redirecting to ', redirectUrl);
           router.push(redirectUrl);

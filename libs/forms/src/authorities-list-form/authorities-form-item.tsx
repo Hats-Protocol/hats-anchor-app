@@ -1,33 +1,15 @@
 'use client';
 
-import {
-  Box,
-  HStack,
-  IconButton,
-  Link,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
+import { Box, HStack, IconButton, Link, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useHatForm } from 'contexts';
 import _ from 'lodash';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 import { getHostnameFromURL } from 'utils';
 
-const NON_EDIT_AUTHORITIES = [
-  AUTHORITY_TYPES.hsg,
-  AUTHORITY_TYPES.modules,
-  AUTHORITY_TYPES.account,
-];
+const NON_EDIT_AUTHORITIES = [AUTHORITY_TYPES.hsg, AUTHORITY_TYPES.modules, AUTHORITY_TYPES.account];
 
-const AuthoritiesFormItem = ({
-  index,
-  formName,
-  remove,
-  setIndex,
-  onOpen,
-}: AuthoritiesFormItemProps) => {
+const AuthoritiesFormItem = ({ index, formName, remove, setIndex, onOpen }: AuthoritiesFormItemProps) => {
   const { localForm } = useHatForm();
   const { getValues } = _.pick(localForm, ['getValues']);
   const { gate, type, label, link } = getValues?.(`${formName}.${index}`) ?? {};
@@ -74,9 +56,7 @@ const AuthoritiesFormItem = ({
           />
         </Tooltip>
 
-        <Tooltip
-          label={isNonEditAuthority ? 'Cannot remove this authority' : ''}
-        >
+        <Tooltip label={isNonEditAuthority ? 'Cannot remove this authority' : ''}>
           <IconButton
             onClick={() => {
               if (isNonEditAuthority) return;

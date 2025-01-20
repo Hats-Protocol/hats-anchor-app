@@ -2,11 +2,9 @@
 
 import '@uiw/react-md-editor/markdown-editor.css';
 
+import MDEditor from '@uiw/react-md-editor';
 import { pick } from 'lodash';
-import dynamic from 'next/dynamic';
 import { UseFormReturn } from 'react-hook-form';
-
-const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 // Custom styles to match the design
 const editorStyles = {
@@ -52,7 +50,7 @@ const MarkdownEditor = ({
         className='!border-0'
         textareaProps={{ placeholder, disabled: isDisabled }}
         hideToolbar={false}
-        toolbarHeight={40}
+        // toolbarHeight={40} // deprecated?
       />
     </div>
   );

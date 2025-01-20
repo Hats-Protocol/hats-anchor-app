@@ -1,31 +1,15 @@
-import { Button, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+import { Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { DurationInput } from 'forms';
 import { useAllWearers, useWearerDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
-import {
-  compact,
-  find,
-  first,
-  get,
-  isEmpty,
-  map,
-  pick,
-  size,
-  subtract,
-  toLower,
-} from 'lodash';
+import { compact, find, first, get, isEmpty, map, pick, size, subtract, toLower } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useCallback, useMemo } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import {
-  AllowlistProfile,
-  AppHat,
-  ModuleDetails,
-  SupportedChains,
-} from 'types';
+import { UseFormReturn } from 'react-hook-form';
+import { AllowlistProfile, AppHat, ModuleDetails, SupportedChains } from 'types';
 import { fetchToken, formatAddress, pinFileToIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
@@ -33,9 +17,7 @@ import { useAccount, useWriteContract } from 'wagmi';
 import { ManageBar } from '../../module-modal';
 
 const Card = dynamic(() => import('ui').then((ui) => ui.Card));
-const TransactionButton = dynamic(() =>
-  import('molecules').then((mod) => mod.TransactionButton),
-);
+const TransactionButton = dynamic(() => import('molecules').then((mod) => mod.TransactionButton));
 
 const DEFAULT_GRACE_PERIOD = 4;
 const DEFAULT_GRACE_PERIOD_UNIT = 'weeks';
@@ -58,10 +40,7 @@ export const AgreementForms = ({
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
 
-  const currentAgreement = get(
-    find(moduleParameters, { label: 'Current Agreement' }),
-    'value',
-  );
+  const currentAgreement = get(find(moduleParameters, { label: 'Current Agreement' }), 'value');
   const { data: agreementData } = useIpfsData(currentAgreement as string);
   const agreementContent = get(agreementData, 'data');
 
@@ -87,10 +66,7 @@ export const AgreementForms = ({
   const isWearing = !!find(wearers, { id: hat?.id });
 
   const ownerHat = get(find(moduleParameters, { label: 'Owner Hat' }), 'value');
-  const judgeHat = get(
-    find(moduleParameters, { label: 'Arbitrator Hat' }),
-    'value',
-  );
+  const judgeHat = get(find(moduleParameters, { label: 'Arbitrator Hat' }), 'value');
 
   const isJudge = !!find(wearerHats, {
     id: hatIdDecimalToHex(judgeHat as bigint),
@@ -258,11 +234,7 @@ export const AgreementForms = ({
         hasRole: isOwner,
         section: (
           <Stack w='full' px={{ base: 4, md: 10 }} spacing={4}>
-            <DurationInput
-              name='gracePeriod'
-              label='Grace Period'
-              localForm={localForm}
-            />
+            <DurationInput name='gracePeriod' label='Grace Period' localForm={localForm} />
 
             <Flex w='full' justify='space-between'>
               <Button
