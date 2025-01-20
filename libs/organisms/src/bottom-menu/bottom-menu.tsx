@@ -7,22 +7,14 @@ import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
 
-import MobileBottomMenu from './mobile';
+import { MobileBottomMenu } from './mobile';
 
-const BoxArrowDown = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareDown),
-);
-const BoxArrowLeft = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareLeft),
-);
-const BoxArrowRight = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareRight),
-);
-const BoxArrowUp = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareUp),
-);
+const BoxArrowDown = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareDown));
+const BoxArrowLeft = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareLeft));
+const BoxArrowRight = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareRight));
+const BoxArrowUp = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareUp));
 
-export const BottomMenu = ({ show }: { show?: boolean }) => {
+const BottomMenu = ({ show }: { show?: boolean }) => {
   const { hierarchy, handleSelectHat } = useSelectedHat();
   const { isMobile } = useMediaStyles();
 
@@ -36,28 +28,15 @@ export const BottomMenu = ({ show }: { show?: boolean }) => {
   };
 
   return (
-    <Box
-      w='100%'
-      position='absolute'
-      bottom={0}
-      zIndex={14}
-      bg='whiteAlpha.900'
-    >
-      <Flex
-        justify='space-between'
-        p={4}
-        borderTop='1px solid'
-        borderColor='gray.200'
-      >
+    <Box w='100%' position='absolute' bottom={0} zIndex={14} bg='whiteAlpha.900'>
+      <Flex justify='space-between' p={4} borderTop='1px solid' borderColor='gray.200'>
         {hierarchy?.leftSibling ? (
           <Button
             variant='outline'
             onClick={() => selectHat('leftSibling')}
             leftIcon={<Icon as={BoxArrowLeft} boxSize={5} />}
           >
-            <Text variant='medium'>
-              {hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}
-            </Text>
+            <Text variant='medium'>{hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}</Text>
           </Button>
         ) : (
           <Box w={16} />
@@ -70,9 +49,7 @@ export const BottomMenu = ({ show }: { show?: boolean }) => {
               onClick={() => selectHat('parentId')}
               leftIcon={<Icon as={BoxArrowUp} boxSize={5} />}
             >
-              <Text variant='medium'>
-                {hatIdDecimalToIp(BigInt(hierarchy?.parentId))}
-              </Text>
+              <Text variant='medium'>{hatIdDecimalToIp(BigInt(hierarchy?.parentId))}</Text>
             </Button>
           ) : (
             <Box w={16} />
@@ -84,9 +61,7 @@ export const BottomMenu = ({ show }: { show?: boolean }) => {
               onClick={() => selectHat('firstChild')}
               rightIcon={<Icon as={BoxArrowDown} boxSize={5} />}
             >
-              <Text variant='medium'>
-                {hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}
-              </Text>
+              <Text variant='medium'>{hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}</Text>
             </Button>
           ) : (
             <Box w={16} />
@@ -99,9 +74,7 @@ export const BottomMenu = ({ show }: { show?: boolean }) => {
             onClick={() => selectHat('rightSibling')}
             rightIcon={<Icon as={BoxArrowRight} boxSize={5} />}
           >
-            <Text variant='medium'>
-              {hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}
-            </Text>
+            <Text variant='medium'>{hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}</Text>
           </Button>
         ) : (
           <Box w={16} />
@@ -110,3 +83,5 @@ export const BottomMenu = ({ show }: { show?: boolean }) => {
     </Box>
   );
 };
+
+export { BottomMenu };

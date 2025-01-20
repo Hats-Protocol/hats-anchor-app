@@ -86,6 +86,7 @@ export function AddUserModal({
   }, [editingUser, reset]);
 
   const onSubmit = async (data: CouncilMemberDetails) => {
+    setIsLoading(true);
     if (!isAddress(data.address)) {
       setError('address', { message: 'Please enter a valid Ethereum address' });
       return;
@@ -111,6 +112,7 @@ export function AddUserModal({
     logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
     afterSuccess?.(createdOrUpdatedUser);
+    setIsLoading(false);
   };
 
   return (

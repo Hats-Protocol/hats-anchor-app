@@ -1,7 +1,5 @@
 import { Markdown } from 'ui';
 
-// TODO can we use `Markdown` from 'ui/atoms' here?
-
 export const AgreementContent = ({ agreement }: { agreement: string | undefined }) => {
   if (!agreement) return null;
   const formattedAgreement = agreement

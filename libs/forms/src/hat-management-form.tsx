@@ -17,25 +17,6 @@ import { explorerUrl } from 'utils';
 import { ClaimsHandler } from './claims-handler';
 import { AddressInput, FormRowWrapper, LabelWithLink } from './components';
 
-interface HatManagementFormProps {
-  title: string;
-  formName: string;
-  radioBoxConfig: {
-    name: string;
-    label: string;
-    subLabel: string;
-  };
-  inputConfig: {
-    label: string;
-    description: ReactNode[];
-  };
-  criteriaConfig: {
-    label: string;
-    description: string;
-  };
-  onOpenModuleDrawer: () => void;
-  setIsStandAloneHatterDeploy: (value: boolean) => void;
-}
 const HatManagementForm = ({
   title,
   formName,
@@ -208,4 +189,24 @@ const HatManagementForm = ({
   );
 };
 
-export default HatManagementForm;
+interface HatManagementFormProps {
+  title: string;
+  formName: string;
+  radioBoxConfig: {
+    name: string;
+    label: string;
+    subLabel: string;
+  };
+  inputConfig: {
+    label: string;
+    description: ReactNode[];
+  };
+  criteriaConfig: {
+    label: string;
+    description: string;
+  };
+  onOpenModuleDrawer: () => void;
+  setIsStandAloneHatterDeploy: (value: boolean) => void;
+}
+
+export { HatManagementForm };

@@ -12,7 +12,7 @@ import { Chain } from 'viem';
 const chainsMap = (chainId?: number) =>
   chainId ? chainsList[chainId as SupportedChains] : (first(values(chainsList)) as Chain);
 
-export const SubgraphCheck = ({ chainId }: { chainId: number }) => {
+const SubgraphCheck = ({ chainId }: { chainId: number }) => {
   const { data } = useSubgraphCheck(chainId);
   const { mainSubgraph, mainSubgraphOutOfSync, ancillarySubgraph, ancillarySubgraphOutOfSync, chain } = pick(data, [
     'mainSubgraph',
@@ -60,3 +60,5 @@ export const SubgraphCheck = ({ chainId }: { chainId: number }) => {
     </div>
   );
 };
+
+export { SubgraphCheck };

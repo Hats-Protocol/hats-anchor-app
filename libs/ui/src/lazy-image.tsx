@@ -14,7 +14,7 @@ interface LazyImageProps extends ImageProps {
   noMobileRadius?: boolean;
   // pass extra props
   borderProps?: BorderProps;
-  skeletonProps?: SkeletonProps;
+  skeletonClassName?: string;
 }
 
 export const LazyImage = ({
@@ -35,7 +35,7 @@ export const LazyImage = ({
   width,
   noMobileRadius = false,
   borderProps,
-  skeletonProps,
+  skeletonClassName,
   ...props
 }: LazyImageProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -68,7 +68,7 @@ export const LazyImage = ({
   }, [src, imageLoaded]);
 
   if (!imageLoaded && !useFallback) {
-    return <Skeleton className={cn('h-full w-full')} />;
+    return <Skeleton className={cn('h-full w-full', skeletonClassName)} />;
   }
 
   return (
@@ -77,7 +77,6 @@ export const LazyImage = ({
       boxSize={boxSize ? `${boxSize}px` : undefined}
       minH={minH || minHeight}
       w={w || width}
-      {...skeletonProps}
     >
       <Box
         overflow='hidden'

@@ -6,7 +6,6 @@ const config: Config = {
   presets: [baseConfig],
   darkMode: ['class'],
 
-  // TODO do we still need glob for libs?
   content: [join(__dirname, 'src/**/*.{ts,tsx}')],
   exclude: ['node_modules', 'dist', 'coverage', 'tmp', 'public', 'cypress'],
   theme: {

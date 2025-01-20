@@ -37,11 +37,7 @@ const MobileHatCard = ({ hat, chainId, isWearing, ensName, maxDepth }: HatCardPr
               objectFit='cover'
               bgPosition='center'
               boxSize={72}
-              skeletonProps={{
-                position: 'absolute',
-                top: '-2px',
-                left: '-2px',
-              }}
+              skeletonClassName='absolute top-[-2px] left-[-2px]'
             />
 
             <Stack gap={1} pt={1} pl='78px'>

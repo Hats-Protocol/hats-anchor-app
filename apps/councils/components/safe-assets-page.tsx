@@ -4,7 +4,7 @@ import { useCouncilDetails } from 'hooks';
 import { pick } from 'lodash';
 import { Hex } from 'viem';
 
-import SafeAssets from './SafeList/SafeAssets';
+import { SafeAssets } from './safe-list/safe-assets';
 
 const SafeAssetsPage = ({ chainId, hsg }: { chainId: number; hsg: Hex }) => {
   const { data } = useCouncilDetails({ chainId, address: hsg });

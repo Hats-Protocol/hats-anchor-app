@@ -14,7 +14,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
-const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
+const MobileBottomMenu = ({ show = false }: { show: boolean | undefined }) => {
   const { handlePendingTx } = useOverlay();
   const currentNetworkId = useChainId();
   const { chainId } = useTreeForm();
@@ -82,4 +82,4 @@ const BottomMenu = ({ show = false }: { show: boolean | undefined }) => {
   );
 };
 
-export default BottomMenu;
+export { MobileBottomMenu };

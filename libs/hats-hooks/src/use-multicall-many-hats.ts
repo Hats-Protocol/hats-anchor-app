@@ -188,4 +188,4 @@ interface UseMulticallManyHatsProps {
   onCloseTreeDrawer: (() => void) | undefined;
 }
 
-export default useMulticallManyHats;
+export { useMulticallManyHats };

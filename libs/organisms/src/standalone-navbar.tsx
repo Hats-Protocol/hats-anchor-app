@@ -1,9 +1,11 @@
 'use client';
 
 import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
-import { ConnectWallet } from 'molecules';
+import dynamic from 'next/dynamic';
 import { AppHat } from 'types';
 import { Link } from 'ui';
+
+const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
 
 export const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
   return (

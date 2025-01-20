@@ -2,12 +2,14 @@
 
 import { Box, Flex, Skeleton } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import { ClaimButton } from 'modules-ui';
-import { NetworkSwitcher } from 'molecules';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { useChainId } from 'wagmi';
 
 import { BottomMoreMenu } from './bottom-more-menu';
+
+const ClaimButton = dynamic(() => import('modules-ui').then((mod) => mod.ClaimButton));
+const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -34,30 +36,14 @@ const MenuWrapper = ({ children }: { children: React.ReactNode }) => {
 
 export const StandaloneBottomMenu = () => {
   const currentNetworkId = useChainId();
-  const { chainId, isHatDetailsLoading, isEligibilityRulesLoading } =
-    useEligibility();
+  const { chainId, isHatDetailsLoading, isEligibilityRulesLoading } = useEligibility();
 
-  if (
-    !currentNetworkId ||
-    !chainId ||
-    isHatDetailsLoading ||
-    isEligibilityRulesLoading
-  ) {
+  if (!currentNetworkId || !chainId || isHatDetailsLoading || isEligibilityRulesLoading) {
     return (
       <MenuWrapper>
-        <Skeleton
-          w={{ base: '25%', md: '250px' }}
-          h='full'
-          minH='40px'
-          borderRadius='md'
-        />
+        <Skeleton w={{ base: '25%', md: '250px' }} h='full' minH='40px' borderRadius='md' />
 
-        <Skeleton
-          w={{ base: '25%', md: '100px' }}
-          h='full'
-          minH='40px'
-          borderRadius='md'
-        />
+        <Skeleton w={{ base: '25%', md: '100px' }} h='full' minH='40px' borderRadius='md' />
       </MenuWrapper>
     );
   }
