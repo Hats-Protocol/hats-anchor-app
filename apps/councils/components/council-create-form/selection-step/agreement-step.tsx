@@ -1,35 +1,17 @@
 'use client';
 
-import '@uiw/react-md-editor/markdown-editor.css';
-
-import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { MarkdownEditor, RadioBox } from 'forms';
 import { FileText } from 'lucide-react';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import { MemberAvatar, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddAgreementAdminModal } from './add-agreement-admin-modal';
 import { AgreementAdminsList } from './agreement-admins-list';
-
-function AdminDisplay({ admin }: { admin: CouncilMember }) {
-  const { data: ensName } = useEnsName({
-    address: admin.address as `0x${string}`,
-    chainId: 1,
-  });
-
-  return (
-    <div key={admin.id} className='text-sm text-gray-600'>
-      {admin.name && <span className='font-medium text-gray-900'>{admin.name} </span>}
-      <span className='text-gray-500'>{ensName || formatAddress(admin.address)}</span>
-    </div>
-  );
-}
 
 export function SelectionAgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
@@ -44,11 +26,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'agreement', requirements);
 
   if (isLoading) {
-    return (
-      <div className='flex h-full items-center justify-center'>
-        <Spinner size='xl' color='blue.500' />
-      </div>
-    );
+    return <Skeleton className='h-full w-full' />;
   }
 
   return (
@@ -96,7 +74,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
             </p>
             <div className='mt-4 space-y-2'>
               {admins.map((admin) => (
-                <AdminDisplay key={admin.id} admin={admin} />
+                <MemberAvatar key={admin.id} member={admin} />
               ))}
             </div>
           </div>
@@ -128,7 +106,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                 type='button'
                 onClick={() => setModals?.({ addAgreementAdminModal: true })}
                 disabled={!canEdit}
-                className={`inline-flex items-center rounded-full border border-blue-500 px-4 py-2 text-sm font-medium text-blue-500 ${
+                className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
                   !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'
                 }`}
               >

@@ -3,8 +3,8 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map, size, split } from 'lodash';
-import { ModuleDetails, SupportedChains } from 'types';
-import { ManagerAvatar } from 'ui';
+import type { CouncilMember, ModuleDetails, SupportedChains } from 'types';
+import { MemberAvatar } from 'ui';
 import { logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -45,7 +45,7 @@ const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) =>
 
           <div className='flex flex-col gap-2'>
             {map(get(managerHat, 'wearers'), (wearer) => (
-              <ManagerAvatar manager={wearer} key={wearer.id} />
+              <MemberAvatar member={wearer as CouncilMember} key={wearer.id} />
             ))}
           </div>
         </div>
@@ -73,7 +73,7 @@ const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) =>
 
         <div className='flex flex-col gap-2'>
           {map(get(managerHat, 'wearers'), (wearer) => (
-            <ManagerAvatar manager={wearer} key={wearer.id} />
+            <MemberAvatar member={wearer as CouncilMember} key={wearer.id} />
           ))}
         </div>
       </div>

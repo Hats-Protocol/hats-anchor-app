@@ -217,14 +217,14 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         <div className='space-y-2'>
           <h4 className='text-babse font-bold text-gray-900'>
             {formData.thresholdType === 'ABSOLUTE'
-              ? `Deploy a new ${formData.confirmationsRequired}/${formData.maxMembers} Safe Multisig`
-              : `Deploy a new ${formData.percentageRequired}% Safe Multisig`}
+              ? `Deploy a new ${formData.min}/${formData.maxMembers} Safe Multisig`
+              : `Deploy a new ${formData.target}% Safe Multisig`}
           </h4>
           <div className='text-gray-900'>
             <p className='text-base'>
               {formData.thresholdType === 'ABSOLUTE'
-                ? `${formData.confirmationsRequired} confirmations required`
-                : `${formData.percentageRequired}% confimations required`}
+                ? `${formData.min} confirmations required`
+                : `${formData.target}% confimations required`}
             </p>
             <p className='text-base'>{`From up to ${formData.maxMembers} Council Members`}</p>
           </div>

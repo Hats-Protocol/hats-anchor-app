@@ -127,9 +127,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       chain: 'optimism',
       councilDescription: '',
       thresholdType: 'ABSOLUTE',
-      confirmationsRequired: 4,
-      percentageRequired: 51,
-      minConfirmations: 2,
+      // confirmationsRequired: 4,
+      target: 4, // 4 is the default value for ABSOLUTE threshold
+      min: 2,
       maxMembers: 7,
       membershipType: 'APPOINTED',
       requirements: {
@@ -169,6 +169,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     },
     payment: false,
   });
+  logger.debug({ stepValidation });
 
   const setStepValidation = useCallback(
     (step: keyof StepValidation, isValid: boolean | Partial<StepValidation[keyof StepValidation]>) => {
@@ -231,48 +232,49 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   }, [authenticated, user?.wallet?.address, data]);
 
   useEffect(() => {
-    if (data) {
-      logger.debug('API Response data:', data);
-      const currentValues = form.getValues();
-      logger.info('Current form values:', currentValues);
+    if (!data) return;
 
-      const newValues: CouncilFormData = {
-        organizationName: data.organizationName || '',
-        councilName: data.councilName || '',
-        chain: toString(data.chain) || '',
-        councilDescription: data.councilDescription || '',
-        thresholdType: data.thresholdType || 'ABSOLUTE',
-        confirmationsRequired: data.thresholdTarget || 4,
-        percentageRequired: data.thresholdTarget || 51,
-        minConfirmations: data.thresholdMin || 2,
-        maxMembers: data.maxCouncilMembers || 7,
-        membershipType: data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
-        requirements: data.memberRequirements || {
-          signAgreement: false,
-          holdTokens: false,
-          passCompliance: false,
-        },
-        members: data.members || [],
-        admins: data.admins || [],
-        complianceAdmins: data.complianceAdmins || [],
-        createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
-        agreement: data.agreement || '',
-        createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
-        agreementAdmins: data.agreementAdmins || [],
-        payer: data.payer || undefined,
-        acceptedTerms: false,
-        tokenRequirement: {
-          address: data.tokenAddress || '',
-          minimum: data.tokenAmount || 0,
-        },
-      };
-      logger.info('Setting form to:', newValues);
-      form.reset(newValues);
+    logger.debug('API Response data:', data);
+    const currentValues = form.getValues();
+    logger.info('Current form values:', currentValues);
 
-      // Compute validation state here
-      const validation = computeStepValidation(data);
-      setStepValidationState(validation);
-    }
+    const newValues: CouncilFormData = {
+      organizationName: data.organizationName || '',
+      councilName: data.councilName || '',
+      chain: toString(data.chain) || '',
+      councilDescription: data.councilDescription || '',
+      thresholdType: data.thresholdType || 'ABSOLUTE',
+      // confirmationsRequired: data.thresholdTarget || 4,
+      target: data.thresholdTarget || 51,
+      min: data.thresholdMin || 2,
+      maxMembers: data.maxCouncilMembers || 7,
+      membershipType: data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
+      requirements: data.memberRequirements || {
+        signAgreement: false,
+        holdTokens: false,
+        passCompliance: false,
+      },
+      members: data.members || [],
+      admins: data.admins || [],
+      complianceAdmins: data.complianceAdmins || [],
+      createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
+      agreement: data.agreement || '',
+      createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
+      agreementAdmins: data.agreementAdmins || [],
+      payer: data.payer || undefined,
+      acceptedTerms: false,
+      tokenRequirement: {
+        address: data.tokenAddress || '',
+        minimum: data.tokenAmount || 0,
+      },
+      creator: data.creator || '',
+    };
+    logger.info('Setting form to:', newValues);
+    form.reset(newValues);
+
+    // Compute validation state here
+    const validation = computeStepValidation(data);
+    setStepValidationState(validation);
   }, [data, form]);
 
   const queryClient = useQueryClient();
@@ -319,14 +321,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             ...payload,
             thresholdType: formData.thresholdType,
             maxCouncilMembers: parseInt(formData.maxMembers.toString()),
-            thresholdTarget:
-              formData.thresholdType === 'ABSOLUTE'
-                ? parseInt(formData.confirmationsRequired.toString())
-                : parseInt(formData.percentageRequired.toString()),
-            thresholdMin:
-              formData.thresholdType === 'ABSOLUTE'
-                ? parseInt(formData.confirmationsRequired.toString())
-                : parseInt(formData.minConfirmations.toString()),
+            thresholdTarget: formData.target,
+            thresholdMin: formData.min,
           };
           break;
 
@@ -341,6 +337,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         case 'selection':
           switch (subStep) {
             case 'members':
+              console.log('members', formData.members);
               payload = {
                 ...payload,
                 members: formData.members,
@@ -382,10 +379,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           break;
       }
 
+      logger.debug('payload', payload);
       return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
     },
     onSuccess: (data: UpdateCouncilFormResponse) => {
+      console.log('onSuccess', data);
       queryClient.setQueryData(['councilForm', draftId], data.updateCouncilCreationForm);
+    },
+    onError: (error: Error) => {
+      console.error('onError', error);
     },
   });
 
@@ -897,14 +899,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             safe: zeroAddress,
             thresholdConfig: {
               thresholdType: formData.thresholdType === 'ABSOLUTE' ? 0 : 1,
-              min:
-                formData.thresholdType === 'ABSOLUTE'
-                  ? BigInt(formData.confirmationsRequired)
-                  : BigInt(formData.minConfirmations),
-              target:
-                formData.thresholdType === 'ABSOLUTE'
-                  ? BigInt(formData.confirmationsRequired)
-                  : BigInt(formData.percentageRequired * 10000),
+              min: BigInt(formData.min),
+              target: formData.thresholdType === 'ABSOLUTE' ? BigInt(formData.target) : BigInt(formData.target * 100),
             },
             locked: false,
             claimableFor: true,

@@ -10,7 +10,7 @@ import { filter, find, first, flatten, get, isEmpty, map, split, toLower } from 
 import { useAllowlist, useCallModuleFunction, useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
-import { Skeleton } from 'ui';
+import { MemberAvatar, Skeleton } from 'ui';
 import { formatAddress, logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -63,7 +63,7 @@ const MemberRow = ({
           <Checkbox />
         </div>
         <div className='flex h-full w-[250px] items-center p-2'>
-          <p>{formatAddress(member.address)}</p>
+          <MemberAvatar member={member} stack />
         </div>
       </div>
 

@@ -44,9 +44,9 @@ export interface CouncilFormData {
   councilDescription?: string;
   // step 2
   thresholdType: 'ABSOLUTE' | 'RELATIVE';
-  confirmationsRequired: number; // used if thresholdType is ABSOLUTE
-  percentageRequired: number; // used if thresholdType is RELATIVE
-  minConfirmations: number; // used if thresholdType is RELATIVE
+  // confirmationsRequired: number; // used if thresholdType is ABSOLUTE
+  target: number; // used if thresholdType is RELATIVE
+  min: number; // used if thresholdType is RELATIVE
   maxMembers: number;
   // step 3
   membershipType: 'APPOINTED' | 'ELECTED';
@@ -75,6 +75,7 @@ export interface CouncilFormData {
     address: string;
     minimum: number;
   };
+  creator: string;
 }
 
 export interface CouncilFormResponse {

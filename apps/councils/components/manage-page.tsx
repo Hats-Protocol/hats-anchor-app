@@ -7,8 +7,8 @@ import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, flatten, get, map, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
-import { CouncilMember, HatWearer, SupportedChains } from 'types';
-import { ManagerAvatar } from 'ui';
+import { CouncilMember, SupportedChains } from 'types';
+import { MemberAvatar } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
@@ -135,7 +135,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
           <div className='flex flex-col gap-2'>
             {map(ownerHat?.wearers, (owner) => (
-              <ManagerAvatar manager={owner as HatWearer} key={owner?.id} />
+              <MemberAvatar member={owner as CouncilMember} key={owner?.id} />
             ))}
           </div>
 
@@ -169,7 +169,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
           <div className='flex flex-col gap-2'>
             {map(topHatDetails?.wearers, (owner) => (
-              <ManagerAvatar manager={owner} key={owner.id} />
+              <MemberAvatar member={owner as CouncilMember} key={owner.id} />
             ))}
           </div>
 

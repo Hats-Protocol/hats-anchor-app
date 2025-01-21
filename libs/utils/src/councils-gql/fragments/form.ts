@@ -8,6 +8,7 @@ export const FORM_FRAGMENT = gql`
     councilName
     chain
     councilDescription
+    creator
     membersSelectionType
     thresholdType
     maxCouncilMembers

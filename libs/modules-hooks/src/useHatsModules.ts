@@ -4,13 +4,7 @@ import _ from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 
-const useHatsModules = ({
-  chainId,
-  editMode,
-}: {
-  chainId: SupportedChains | undefined;
-  editMode?: boolean;
-}) => {
+const useHatsModules = ({ chainId, editMode }: { chainId: SupportedChains | undefined; editMode?: boolean }) => {
   const fetchModules = async () => {
     const hatsClient = await createHatsModulesClient(chainId);
     if (!hatsClient) {
@@ -19,6 +13,10 @@ const useHatsModules = ({
 
     // filter out inactive and meta modules
     const modulesFilter = (module: Module) => {
+      // ! temp workaround
+      if (module.implementationAddress === '0x6AE5a62698f23dB7CAca13FFa7391ac782a94116') {
+        return false;
+      }
       for (let tagIndex = 0; tagIndex < module.tags.length; tagIndex += 1) {
         const tag = module.tags[tagIndex];
         if (tag.value === 'deprecated' || tag.value === 'meta') {

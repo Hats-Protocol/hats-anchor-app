@@ -1,38 +1,18 @@
 'use client';
 
-import {
-  As,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Skeleton,
-  Text,
-} from '@chakra-ui/react';
+import { As, Button, Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { useAccount } from 'wagmi';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetailsProps,
-  TOGGLE_STATUS,
-} from './utils';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetailsProps, TOGGLE_STATUS } from './utils';
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
 
-const EligibilityRuleWrapper = ({
-  rule,
-  children,
-}: {
-  rule: ReactNode;
-  children: ReactNode;
-}) => {
+const EligibilityRuleWrapper = ({ rule, children }: { rule: ReactNode; children: ReactNode }) => {
   return (
     <Skeleton isLoaded={!!rule} py={2} px={{ base: 4, md: 0 }}>
       <Flex justify='space-between'>

@@ -14,7 +14,6 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
     }
     return watch('confirmationsRequired');
   };
-  console.log(thresholdType);
 
   if (!thresholdType) return null;
 
@@ -71,6 +70,7 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
           <div className='flex w-full gap-4'>
             <div className='flex w-full flex-col gap-y-2'>
               <label className='font-bold'>Confirmations required</label>
+
               <div className='flex'>
                 <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>%</div>
                 <div className='flex-1'>
@@ -87,8 +87,10 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
                 </div>
               </div>
             </div>
+
             <div className='flex w-full flex-col gap-y-2'>
               <label className='font-bold'>Minimum confirmations</label>
+
               <NumberInput
                 name='min'
                 localForm={form}

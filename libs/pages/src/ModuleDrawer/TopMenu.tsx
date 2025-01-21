@@ -11,11 +11,10 @@ import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { ModuleDetails } from 'types';
+import { logger } from 'utils';
 import { useChainId } from 'wagmi';
 
-const NetworkSwitcher = dynamic(() =>
-  import('molecules').then((mod) => mod.NetworkSwitcher),
-);
+const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const TopMenu = ({
   localForm,
@@ -30,8 +29,7 @@ const TopMenu = ({
   isStandaloneHatterDeploy?: boolean;
 }) => {
   const currentNetworkId = useChainId();
-  const { chainId, storedData, onchainHats, editMode, setStoredData } =
-    useTreeForm();
+  const { chainId, storedData, onchainHats, editMode, setStoredData } = useTreeForm();
   const { selectedHat } = useSelectedHat();
 
   const { instanceAddress } = useMultiClaimsHatterCheck({
@@ -54,20 +52,11 @@ const TopMenu = ({
     if (isStandaloneHatterDeploy) {
       return DEPLOYMENT_TYPES.ONLY_CLAIMS_HATTER;
     }
-    if (
-      moduleType &&
-      !instanceAddress &&
-      isPermissionlesslyClaimable === 'Yes'
-    ) {
+    if (moduleType && !instanceAddress && isPermissionlesslyClaimable === 'Yes') {
       return DEPLOYMENT_TYPES.MODULE_AND_CLAIMS_HATTER;
     }
     return DEPLOYMENT_TYPES.ONLY_MODULE;
-  }, [
-    isStandaloneHatterDeploy,
-    moduleType,
-    isPermissionlesslyClaimable,
-    instanceAddress,
-  ]);
+  }, [isStandaloneHatterDeploy, moduleType, isPermissionlesslyClaimable, instanceAddress]);
 
   const {
     deploy,
@@ -89,34 +78,21 @@ const TopMenu = ({
   const isChainCorrect = currentNetworkId === chainId;
 
   const cannotDeployWithoutIncrement = useMemo(() => {
-    const storedSupply = _.get(
-      _.find(storedData, ['id', adminHat]),
-      'maxSupply',
-    );
-    const supplyExhausted =
-      (storedSupply || adminHatDetails?.currentSupply) ===
-      adminHatDetails?.maxSupply;
+    const storedSupply = _.get(_.find(storedData, ['id', adminHat]), 'maxSupply');
+    const supplyExhausted = (storedSupply || adminHatDetails?.currentSupply) === adminHatDetails?.maxSupply;
     return incrementWearers === 'No' && supplyExhausted;
-  }, [
-    adminHat,
-    adminHatDetails?.currentSupply,
-    adminHatDetails?.maxSupply,
-    incrementWearers,
-    storedData,
-  ]);
+  }, [adminHat, adminHatDetails?.currentSupply, adminHatDetails?.maxSupply, incrementWearers, storedData]);
 
-  const requiresModuleTypeCheck = !(
-    isStandaloneHatterDeploy && isPermissionlesslyClaimable === 'Yes'
-  );
+  const requiresModuleTypeCheck = !(isStandaloneHatterDeploy && isPermissionlesslyClaimable === 'Yes');
 
-  // console.log({
-  //   formValid: localForm?.formState.isValid,
-  //   isChainCorrect,
-  //   requiresModuleTypeCheck,
-  //   moduleType,
-  //   cannotDeployWithoutIncrement,
-  //   moduleDeployIsBlocked,
-  // });
+  logger.debug({
+    formValid: localForm?.formState.isValid,
+    isChainCorrect,
+    requiresModuleTypeCheck,
+    moduleType,
+    cannotDeployWithoutIncrement,
+    moduleDeployIsBlocked,
+  });
 
   const isButtonDisabled =
     !localForm?.formState.isValid ||
@@ -139,12 +115,7 @@ const TopMenu = ({
       top={0}
       zIndex={16}
     >
-      <Button
-        variant='outline'
-        borderColor='gray.300'
-        onClick={onCloseModuleDrawer}
-        leftIcon={<Icon as={BsXSquare} />}
-      >
+      <Button variant='outline' borderColor='gray.300' onClick={onCloseModuleDrawer} leftIcon={<Icon as={BsXSquare} />}>
         Cancel
       </Button>
 

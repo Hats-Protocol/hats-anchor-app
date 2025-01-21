@@ -235,7 +235,7 @@ interface InputProps extends ChakraInputProps {
   type?: string;
   options?: RegisterOptions;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: any; // UseFormReturn<any>;
+  localForm: UseFormReturn<any>;
   placeholder?: string;
   rightElement?: React.ReactNode;
   leftElement?: React.ReactNode;

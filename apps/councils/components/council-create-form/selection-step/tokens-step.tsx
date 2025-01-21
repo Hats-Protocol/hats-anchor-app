@@ -1,11 +1,11 @@
 'use client';
 
-import { Spinner } from '@chakra-ui/react';
 import { getChainTokens } from '@hatsprotocol/constants';
 import { useCouncilForm } from 'contexts';
 import { toNumber } from 'lodash';
 import { GemIcon } from 'lucide-react';
 import { StepProps } from 'types';
+import { Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { TokenNumberInput } from '../../token-number-input';
@@ -22,11 +22,7 @@ export function SelectionTokensStep({ onNext }: StepProps) {
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
 
   if (isLoading) {
-    return (
-      <div className='flex h-full items-center justify-center'>
-        <Spinner size='xl' color='blue.500' />
-      </div>
-    );
+    return <Skeleton className='h-full w-full' />;
   }
 
   return (

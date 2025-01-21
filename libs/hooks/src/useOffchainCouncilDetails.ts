@@ -4,6 +4,13 @@ import { get } from 'lodash';
 import type { OffchainCouncilData } from 'types';
 import { councilsGraphqlClient } from 'utils';
 
+const MEMBER_FRAGMENT = gql`
+  fragment MemberFragment on User {
+    id
+    name
+  }
+`;
+
 // TODO support safe or id
 const GET_COUNCIL = gql`
   query getCouncil($hsg: String, $chainId: Int!) {
@@ -15,12 +22,25 @@ const GET_COUNCIL = gql`
       creationForm {
         councilName
         councilDescription
+        members {
+          ...MemberFragment
+        }
+        admins {
+          ...MemberFragment
+        }
+        agreementAdmins {
+          ...MemberFragment
+        }
+        complianceAdmins {
+          ...MemberFragment
+        }
       }
       organization {
         name
       }
     }
   }
+  ${MEMBER_FRAGMENT}
 `;
 
 const getOffchainCouncilData = async ({

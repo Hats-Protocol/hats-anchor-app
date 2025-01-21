@@ -91,7 +91,7 @@ export function SignerThresholdModal({ signer, signerHat, chainId }: SignerThres
         maxMembers,
       });
     }
-  }, [thresholdType, min, maxMembers, target]);
+  }, [thresholdType]);
 
   const onSubmit = (data: SignerThresholdData) => {
     if (!signer) return;

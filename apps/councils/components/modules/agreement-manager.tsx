@@ -3,8 +3,8 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map, size, split } from 'lodash';
-import { ModuleDetails, SupportedChains } from 'types';
-import { ManagerAvatar } from 'ui';
+import { CouncilMember, ModuleDetails, SupportedChains } from 'types';
+import { MemberAvatar } from 'ui';
 import { logger } from 'utils';
 
 import { AddUserModal } from '../add-user-modal';
@@ -36,13 +36,14 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
 
       <div className='flex flex-col gap-2'>
         <div className='flex items-center gap-1'>
-          <h2 className='text-sm font-semibold'>Agreement Managers</h2>
-          {isAdminHat && <p className='text-xs italic text-gray-500'>(Delegated to Council Managers)</p>}
+          <h2 className='text-sm font-semibold'>
+            {isAdminHat ? 'Delegated to Council Managers' : 'Agreement Managers'}
+          </h2>
         </div>
 
         <div className='flex flex-col gap-2'>
           {map(get(ownerHat, 'wearers'), (wearer) => (
-            <ManagerAvatar manager={wearer} key={wearer.id} />
+            <MemberAvatar member={wearer as CouncilMember} key={wearer.id} />
           ))}
         </div>
       </div>

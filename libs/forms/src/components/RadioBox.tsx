@@ -29,7 +29,7 @@ interface RadioBoxProps extends BoxProps {
   name: string;
   label?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: any; // UseFormReturn<any>;
+  localForm: UseFormReturn<any>;
   options?: RadioOption[];
   textSize?: string;
   defaultValue?: string;

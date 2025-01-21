@@ -7,6 +7,7 @@ import { Input, Textarea } from 'forms';
 import { map, values } from 'lodash';
 import { useMemo } from 'react';
 import { StepProps } from 'types';
+import { Skeleton } from 'ui';
 
 import { ChainSelect } from '../chain-select';
 import { NextStepButton } from '../next-step-button';
@@ -25,11 +26,7 @@ export function DetailsStep({ onNext }: StepProps) {
   }, []);
 
   if (isLoading || !chainOptions) {
-    return (
-      <div className='flex h-full items-center justify-center'>
-        <Spinner size='xl' color='blue.500' />
-      </div>
-    );
+    return <Skeleton className='h-100 w-100' />;
   }
 
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
