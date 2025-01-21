@@ -31,6 +31,7 @@ import { useCallback } from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { AppHat } from 'types';
 import { useAccount } from 'wagmi';
 
 const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
@@ -95,8 +96,6 @@ const BottomMenu = ({
 
   const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
 
-  // console.log(simulationResponse);
-
   return (
     <Box w='100%' position='absolute' bottom={0} zIndex={14}>
       <Flex justify='space-between' borderTop='1px solid' borderColor='gray.200' bg='cyan.50'>
@@ -113,15 +112,16 @@ const BottomMenu = ({
               <Stack>
                 {isDev && (
                   <>
-                    <Stack maxH={400} overflow='auto'>
+                    <Stack maxH={250} overflow='auto'>
                       <Heading size='sm' variant='medium'>
                         Combined Call Data
                       </Heading>
 
-                      {map(allCalls, (hat: { hatId: string; calls: { functionName: string }[] }) => {
+                      {map(allCalls, (hat: { hatChanges: AppHat; calls: { functionName: string }[] }) => {
+                        if (!hat.hatChanges.id) return null;
                         return (
-                          <Stack spacing={1}>
-                            <Heading size='sm'>{hatIdDecimalToIp(hatIdHexToDecimal(hat.hatId))}</Heading>
+                          <Stack spacing={1} key={hat.hatChanges.id}>
+                            <Heading size='sm'>{hatIdDecimalToIp(hatIdHexToDecimal(hat.hatChanges.id))}</Heading>
                             {map(hat.calls, (call) => (
                               <Text fontSize='sm'>-- {call.functionName}</Text>
                             ))}
