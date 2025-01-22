@@ -90,7 +90,7 @@ interface TextareaProps extends ChakraTextareaProps {
   label?: string;
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: any; // UseFormReturn<any>;
+  localForm: UseFormReturn<any>;
   helperText?: string;
   tooltip?: string;
   placeholder?: string;

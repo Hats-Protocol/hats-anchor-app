@@ -42,7 +42,7 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
     eligibilityRules: rawEligibilityRules || undefined,
   });
 
-  const ruleSets = flatten(rawEligibilityRules);
+  const ruleSets = !!rawEligibilityRules ? flatten(rawEligibilityRules) : undefined;
   const multipleModules = gt(size(ruleSets), 1);
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup
 

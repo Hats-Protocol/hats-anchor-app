@@ -318,11 +318,11 @@ const useModuleDeploy = ({
       }
     },
   });
-  console.log({
-    adminHat,
-    isPermissionlesslyClaimable: isPermissionlesslyClaimable === 'Yes',
-    hatterIsAdmin,
-  });
+  // console.log({
+  //   adminHat,
+  //   isPermissionlesslyClaimable: isPermissionlesslyClaimable === 'Yes',
+  //   hatterIsAdmin,
+  // });
 
   return {
     deploy: mutateAsync,

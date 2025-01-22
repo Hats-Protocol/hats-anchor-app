@@ -60,6 +60,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
+        jbMono: ['JetBrains Mono Variable', ...fontFamily.sans],
       },
       keyframes: {
         'accordion-down': {

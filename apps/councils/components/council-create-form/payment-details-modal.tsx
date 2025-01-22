@@ -108,7 +108,9 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         ),
       );
 
-      await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`);
+      await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
+        logger.error('Error sending telegram message:', error);
+      });
 
       parentForm.setValue('payer', userData);
       setFormError(null);

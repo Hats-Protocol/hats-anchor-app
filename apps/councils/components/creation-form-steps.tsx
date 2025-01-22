@@ -58,9 +58,9 @@ function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: St
     case 'threshold':
       const thresholdType = form.watch('thresholdType');
       if (thresholdType === 'ABSOLUTE') {
-        return `${form.watch('confirmationsRequired')} out of ${form.watch('maxMembers')} members`;
+        return `${form.watch('min')} out of ${form.watch('maxMembers')} members`;
       } else {
-        return `${form.watch('percentageRequired')}% of members`;
+        return `${form.watch('target')}% of members`;
       }
     case 'onboarding':
       const requirements = form.watch('requirements');

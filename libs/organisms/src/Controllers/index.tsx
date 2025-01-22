@@ -2,12 +2,7 @@
 
 import { Box, Flex, Heading } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
-import {
-  CheckEligibilityForm,
-  EditAndWearers,
-  Eligibility,
-  Toggle,
-} from 'modules-ui';
+import { CheckEligibilityForm, EditAndWearers, Eligibility, Toggle } from 'modules-ui';
 
 const Controllers = () => {
   const { selectedHat } = useSelectedHat();

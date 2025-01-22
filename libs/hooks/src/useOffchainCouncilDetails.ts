@@ -2,25 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get } from 'lodash';
 import type { OffchainCouncilData } from 'types';
-import { councilsGraphqlClient } from 'utils';
+import { COUNCIL_FRAGMENT, councilsGraphqlClient } from 'utils';
 
 // TODO support safe or id
 const GET_COUNCIL = gql`
   query getCouncil($hsg: String, $chainId: Int!) {
     councils(where: { hsg: $hsg, chain: $chainId }) {
-      id
-      hsg
-      membersSelectionModule
-      membersCriteriaModule
-      creationForm {
-        councilName
-        councilDescription
-      }
-      organization {
-        name
-      }
+      ...CouncilFragment
     }
   }
+  ${COUNCIL_FRAGMENT}
 `;
 
 const getOffchainCouncilData = async ({

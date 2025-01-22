@@ -5,8 +5,8 @@ import { SquarePen, Trash2 } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilMember } from 'types';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import { cn } from 'ui';
+import { MemberAvatar } from 'ui';
 
 import { AddAdminModal } from './add-admin-modal';
 
@@ -22,6 +22,8 @@ interface AdminsListProps {
 
 export function AdminsList({ admins, form, canEdit = true, editingAdmin, setEditingAdmin }: AdminsListProps) {
   const { setModals } = useOverlay();
+  const { watch } = form;
+  const creator = watch('creator');
 
   const handleRemove = (adminId: string) => {
     const currentAdmins = form.getValues('admins') || [];
@@ -37,15 +39,19 @@ export function AdminsList({ admins, form, canEdit = true, editingAdmin, setEdit
   return (
     <>
       <div className='space-y-4'>
-        {admins.map((admin) => (
-          <AdminCard
-            key={admin.id}
-            admin={admin}
-            onRemove={handleRemove}
-            onEdit={() => handleEdit(admin)}
-            canEdit={canEdit}
-          />
-        ))}
+        {admins.map((admin) => {
+          const isCreator = creator === admin.address;
+          return (
+            <AdminCard
+              key={admin.id}
+              admin={admin}
+              onRemove={handleRemove}
+              onEdit={() => handleEdit(admin)}
+              canEdit={canEdit}
+              isCreator={isCreator}
+            />
+          );
+        })}
       </div>
 
       <AddAdminModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
@@ -58,23 +64,18 @@ function AdminCard({
   onRemove,
   onEdit,
   canEdit = true,
+  isCreator,
 }: {
   admin: CouncilMember;
   onRemove: (id: string) => void;
   onEdit: () => void;
   canEdit?: boolean;
+  isCreator?: boolean;
 }) {
-  const { data: ensName } = useEnsName({
-    address: admin.address as `0x${string}`,
-    chainId: 1,
-  });
-
   return (
     <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-2'>
-        {admin.name && <span className='text-sm font-medium text-gray-900'>{admin.name}</span>}
-        <span className='text-sm text-gray-600'>{ensName || formatAddress(admin.address)}</span>
-      </div>
+      <MemberAvatar member={admin} />
+
       {canEdit && (
         <div className='flex items-center gap-3'>
           <button
@@ -85,8 +86,8 @@ function AdminCard({
             <SquarePen className='h-4 w-4 text-sky-600' />
             Edit
           </button>
-          <button type='button' onClick={() => onRemove(admin.id)}>
-            <Trash2 className='h-4 w-4 text-red-700' />
+          <button type='button' onClick={() => onRemove(admin.id)} disabled={isCreator}>
+            <Trash2 className={cn('h-4 w-4 text-red-700', isCreator && 'cursor-not-allowed opacity-50')} />
           </button>
         </div>
       )}

@@ -1,14 +1,12 @@
 'use client';
 
-import { Icon, Spinner } from '@chakra-ui/react';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { RadioBox } from 'forms';
 import { useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { StepProps } from 'types';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import { MemberAvatar, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -33,31 +31,13 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'compliance', form.watch('requirements'));
 
   if (isLoading) {
-    return (
-      <div className='flex h-full items-center justify-center'>
-        <Spinner size='xl' color='blue.500' />
-      </div>
-    );
-  }
-
-  function AdminDisplay({ admin }: { admin: CouncilMember }) {
-    const { data: ensName } = useEnsName({
-      address: admin.address as `0x${string}`,
-      chainId: 1,
-    });
-
-    return (
-      <div key={admin.id} className='text-sm text-gray-600'>
-        {admin.name && <span className='font-medium text-gray-900'>{admin.name} </span>}
-        <span className='text-gray-500'>{ensName || formatAddress(admin.address)}</span>
-      </div>
-    );
+    return <Skeleton className='h-full w-full' />;
   }
 
   return (
     <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='flex items-center gap-2'>
-        <Icon as={BsPersonCheck} boxSize={6} />
+        <BsPersonCheck className='h-6 w-6' />
         <h2 className='text-2xl font-bold'>Pass Compliance Check</h2>
       </div>
 
@@ -93,7 +73,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
             </p>
             <div className='mt-4 space-y-2'>
               {admins.map((admin) => (
-                <AdminDisplay key={admin.id} admin={admin} />
+                <MemberAvatar key={admin.id} member={admin} />
               ))}
             </div>
           </div>

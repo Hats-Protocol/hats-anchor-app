@@ -5,8 +5,7 @@ import { SquarePen, Trash2 } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember } from 'types';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import { MemberAvatar } from 'ui';
 
 import { AddComplianceModal } from './add-compliance-modal';
 
@@ -68,17 +67,9 @@ function ComplianceCard({
   onEdit: () => void;
   canEdit?: boolean;
 }) {
-  const { data: ensName } = useEnsName({
-    address: admin.address as `0x${string}`,
-    chainId: 1,
-  });
-
   return (
     <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-2'>
-        {admin.name && <span className='text-sm font-medium text-gray-900'>{admin.name}</span>}
-        <span className='text-sm text-gray-600'>{ensName || formatAddress(admin.address)}</span>
-      </div>
+      <MemberAvatar member={admin} />
 
       {canEdit && (
         <div className='flex items-center gap-3'>

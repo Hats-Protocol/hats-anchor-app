@@ -101,6 +101,8 @@ export function RemoveUserModal({
           );
         }
 
+        // TODO handle removing user from offchain council records
+
         logger.info('successfully removed user');
         setModals?.({});
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });

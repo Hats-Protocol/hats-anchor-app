@@ -6,13 +6,7 @@ import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 import { Hex } from 'viem';
 
-const fetchModulesData = async ({
-  chainId,
-  moduleIds,
-}: {
-  chainId: number | undefined;
-  moduleIds: Hex[] | null;
-}) => {
+const fetchModulesData = async ({ chainId, moduleIds }: { chainId: number | undefined; moduleIds: Hex[] | null }) => {
   if (!chainId || !moduleIds) {
     return [];
   }
@@ -55,10 +49,7 @@ const useModulesDetails = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const isLoading = useMemo(
-    () => modulesLoading && fetchStatus !== 'idle',
-    [modulesLoading, fetchStatus],
-  );
+  const isLoading = useMemo(() => modulesLoading && fetchStatus !== 'idle', [modulesLoading, fetchStatus]);
 
   return {
     modulesDetails: !isLoading ? data : [],

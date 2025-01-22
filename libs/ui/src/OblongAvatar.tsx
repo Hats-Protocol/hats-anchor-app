@@ -11,14 +11,7 @@ import { Avatar } from '@chakra-ui/react';
  */
 const OblongAvatar = ({ src, height = 96 }: OblongAvatarProps) => {
   if (!src) return null;
-  return (
-    <Avatar
-      src={src}
-      h={`${height}px`}
-      w={`${height * 0.75}px`}
-      borderRadius='md'
-    />
-  );
+  return <Avatar src={src} h={`${height}px`} w={`${height * 0.75}px`} borderRadius={height < 20 ? 'sm' : 'md'} />;
 };
 
 interface OblongAvatarProps {

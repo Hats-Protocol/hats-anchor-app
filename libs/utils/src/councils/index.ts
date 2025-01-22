@@ -1,4 +1,5 @@
-import { includes, toNumber } from 'lodash';
+import { compact, concat, get, includes, toNumber, uniqBy } from 'lodash';
+import { OffchainCouncilData } from 'types';
 
 import { chainStringToId } from '../chains';
 
@@ -38,4 +39,20 @@ export const parseCouncilSlug = (slug: string) => {
   }
 
   return { chainId: null, address: slug };
+};
+
+export const getAllWearers = (offchainCouncilDetails: OffchainCouncilData | undefined) => {
+  if (!offchainCouncilDetails) return [];
+
+  return uniqBy(
+    compact(
+      concat(
+        get(offchainCouncilDetails, 'creationForm.admins'),
+        get(offchainCouncilDetails, 'creationForm.complianceAdmins'),
+        get(offchainCouncilDetails, 'creationForm.agreementAdmins'),
+        get(offchainCouncilDetails, 'creationForm.members'),
+      ),
+    ),
+    'address',
+  );
 };

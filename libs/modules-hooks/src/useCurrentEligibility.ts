@@ -20,7 +20,7 @@ const getCurrentEligibility = async ({
   if (!chainId || !selectedHat || !wearerAddress || isEmpty(moduleAddresses)) {
     // eslint-disable-next-line no-console
     console.log('no selectedHat or wearerAddress or moduleAddresses');
-    return null;
+    return Promise.resolve(null);
   }
 
   const client = viemPublicClient(chainId);
@@ -47,7 +47,7 @@ const getCurrentEligibility = async ({
     };
   });
 
-  return newObj;
+  return Promise.resolve(newObj);
 };
 
 const useCurrentEligibility = ({
@@ -72,7 +72,7 @@ const useCurrentEligibility = ({
         moduleAddresses,
         selectedHat,
       }),
-    enabled: !!chainId && !!selectedHat && !!wearerAddress && !!moduleAddresses,
+    enabled: !!chainId && !!selectedHat?.id && !!wearerAddress && !!moduleAddresses && !isEmpty(moduleAddresses),
   });
 };
 

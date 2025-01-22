@@ -1,10 +1,10 @@
 'use client';
 
-import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
+import { Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -21,11 +21,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', requirements);
 
   if (isLoading) {
-    return (
-      <div className='flex h-full items-center justify-center'>
-        <Spinner size='xl' color='blue.500' />
-      </div>
-    );
+    return <Skeleton className='h-full w-full' />;
   }
 
   return (
