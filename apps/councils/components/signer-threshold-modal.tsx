@@ -39,15 +39,6 @@ export function SignerThresholdModal({ signer, signerHat, chainId }: SignerThres
 
   const hasHsgChanges = useMemo(() => {
     if (!signer) return false;
-    console.log({
-      thresholdType,
-      tValue: thresholdType !== signer?.thresholdType,
-      min,
-      minValue: toNumber(min) !== toNumber(signer?.minThreshold),
-      target,
-      targetValue: toNumber(target) !== toNumber(signer?.targetThreshold),
-      signer,
-    });
     return (
       thresholdType !== signer?.thresholdType ||
       toNumber(min) !== toNumber(signer?.minThreshold) ||

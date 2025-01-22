@@ -1,7 +1,7 @@
 import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { has } from 'lodash';
 import { ReactNode } from 'react';
-import { ModuleDetails, SupportedChains } from 'types';
+import { ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 
@@ -14,10 +14,12 @@ export type ModuleManagerComponent = ({
   m,
   chainId,
   criteriaModule,
+  offchainCouncilDetails,
 }: {
   m: ModuleDetails;
   chainId: number | undefined;
   criteriaModule: Hex;
+  offchainCouncilDetails: OffchainCouncilData | undefined;
 }) => ReactNode | undefined;
 
 type Rule = {
@@ -35,10 +37,12 @@ const ModuleManager = ({
   rule,
   chainId,
   criteriaModule,
+  offchainCouncilDetails,
 }: {
   rule: Rule;
   chainId: number | undefined;
   criteriaModule: Hex;
+  offchainCouncilDetails: OffchainCouncilData | undefined;
 }) => {
   const knownModule = getKnownEligibilityModule(rule.module?.implementationAddress as Hex);
 
@@ -56,6 +60,7 @@ const ModuleManager = ({
     } as ModuleDetails,
     chainId: chainId as SupportedChains,
     criteriaModule,
+    offchainCouncilDetails,
   });
 };
 

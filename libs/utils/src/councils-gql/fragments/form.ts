@@ -1,6 +1,8 @@
 import { gql } from 'graphql-request';
 
-import { USER_FRAGMENT } from './user';
+import { COUNCIL_FRAGMENT } from './council';
+// import { USER_FRAGMENT } from './user';
+
 export const FORM_FRAGMENT = gql`
   fragment FormFragment on CouncilCreationForm {
     id
@@ -40,6 +42,9 @@ export const FORM_FRAGMENT = gql`
     }
     tokenAmount
     tokenAddress
+    council {
+      ...CouncilFragment
+    }
   }
-  ${USER_FRAGMENT}
+  ${COUNCIL_FRAGMENT}
 `;

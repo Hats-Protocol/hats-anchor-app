@@ -3,9 +3,10 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map, size, split } from 'lodash';
-import { CouncilMember, ModuleDetails, SupportedChains } from 'types';
+import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { MemberAvatar } from 'ui';
-import { logger } from 'utils';
+import { getAllWearers, logger } from 'utils';
+import { getAddress } from 'viem';
 
 import { AddUserModal } from '../add-user-modal';
 import { UpdateAgreementModal } from '../update-agreement-modal';
@@ -13,9 +14,10 @@ import { UpdateAgreementModal } from '../update-agreement-modal';
 interface ModuleManagerProps {
   m: ModuleDetails;
   chainId: number | undefined;
+  offchainCouncilDetails: OffchainCouncilData | undefined;
 }
 
-const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
+const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
   const ownerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(ownerHatId), '.')) === 2;
@@ -27,6 +29,9 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
   });
   // const hatDetails = ownerHat?.detailsMetadata;
   const hatName = ownerHatDetails?.name;
+  const allWearers = getAllWearers(offchainCouncilDetails);
+
+  console.log('allWearers', allWearers);
 
   if (!m) return null;
 
@@ -36,15 +41,19 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
 
       <div className='flex flex-col gap-2'>
         <div className='flex items-center gap-1'>
-          <h2 className='text-sm font-semibold'>
-            {isAdminHat ? 'Delegated to Council Managers' : 'Agreement Managers'}
-          </h2>
+          {isAdminHat ? (
+            <h2 className='text-sm font-medium'>Delegated to Council Managers</h2>
+          ) : (
+            <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+          )}
         </div>
 
         <div className='flex flex-col gap-2'>
-          {map(get(ownerHat, 'wearers'), (wearer) => (
-            <MemberAvatar member={wearer as CouncilMember} key={wearer.id} />
-          ))}
+          {map(get(ownerHat, 'wearers'), (wearer) => {
+            const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
+
+            return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
+          })}
         </div>
       </div>
 
@@ -60,7 +69,13 @@ const AgreementManager = ({ m, chainId }: ModuleManagerProps) => {
 
       <UpdateAgreementModal moduleDetails={m} chainId={chainId} />
 
-      <AddUserModal type='agreement' userLabel='Agreement Manager' chainId={chainId as SupportedChains} />
+      <AddUserModal
+        type='agreement'
+        userLabel='Agreement Manager'
+        chainId={chainId as SupportedChains}
+        councilId={offchainCouncilDetails?.creationForm?.id}
+        existingUsers={allWearers as CouncilMember[]}
+      />
     </div>
   );
 };

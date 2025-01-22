@@ -1,17 +1,21 @@
-import { toLower } from 'lodash';
+import { pick, toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
-import { CouncilMember } from 'types';
+import { CouncilMember, HatWearer } from 'types';
 import { formatAddress } from 'utils';
+import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import OblongAvatar from './OblongAvatar';
 
-const MemberAvatar = ({ member, stack = false }: { member: CouncilMember; stack?: boolean }) => {
-  console.log(member);
-  const { name, address, id } = member;
+type Member = CouncilMember & HatWearer; // TODO this type?
+
+const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean }) => {
+  const { name, address, id } = pick(member, ['name', 'address', 'id']);
+  const localAddress = toLower(address || id) as Hex;
+
   const { data: ensName } = useEnsName({
-    address: (address || id) as `0x${string}`,
+    address: localAddress,
     chainId: 1,
   });
   const { data: avatar } = useEnsAvatar({
@@ -21,7 +25,7 @@ const MemberAvatar = ({ member, stack = false }: { member: CouncilMember; stack?
   const fallbackAvatar = useMemo(() => {
     if (!address && !id) return undefined;
     return createIcon({
-      seed: toLower(address || id),
+      seed: localAddress,
       size: 64,
     }).toDataURL();
   }, [address, id]);
@@ -32,9 +36,9 @@ const MemberAvatar = ({ member, stack = false }: { member: CouncilMember; stack?
         <OblongAvatar src={avatar || fallbackAvatar} height={40} />
 
         <div className='flex flex-col gap-1'>
-          <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>
-          <span className='text-sm text-gray-600'>
-            {name ? ensName || formatAddress(address || id) : formatAddress(address || id)}
+          {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
+          <span className='font-jbMono text-sm text-gray-600'>
+            {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
           </span>
         </div>
       </div>
@@ -44,8 +48,10 @@ const MemberAvatar = ({ member, stack = false }: { member: CouncilMember; stack?
   return (
     <div className='flex items-center gap-2'>
       <OblongAvatar src={avatar || fallbackAvatar} height={16} />
-      {name && <span className='text-sm font-medium text-gray-900'>{name}</span>}
-      <span className='text-sm text-gray-600'>{ensName || formatAddress(address || id)}</span>
+      {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
+      <span className='font-jbMono text-sm text-gray-600'>
+        {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
+      </span>
     </div>
   );
 };

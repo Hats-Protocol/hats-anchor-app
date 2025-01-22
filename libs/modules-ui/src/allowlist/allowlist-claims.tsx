@@ -19,7 +19,7 @@ const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
 const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
 const DevInfo = dynamic(() => import('ui').then((mod) => mod.DevInfo));
-const ManagerAvatar = dynamic(() => import('ui').then((mod) => mod.ManagerAvatar));
+const MemberAvatar = dynamic(() => import('ui').then((mod) => mod.MemberAvatar));
 
 const ALLOWLIST_COPY = {
   compliance: {
@@ -124,7 +124,7 @@ export const AllowlistClaims = ({ activeModule }: { activeModule: ModuleDetails 
           </div>
 
           {map(get(ownerHatDetails, 'wearers'), (wearer) => (
-            <ManagerAvatar manager={wearer} key={wearer.id} />
+            <MemberAvatar member={wearer} key={wearer.id} />
           ))}
         </div>
       </Box>

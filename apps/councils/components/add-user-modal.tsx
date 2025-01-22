@@ -31,9 +31,19 @@ type AddAdminModalProps = {
   userLabel: string;
   editingUser?: CouncilMember | null;
   afterSuccess?: (user: CouncilMember | undefined) => Promise<void> | Promise<(() => void) | undefined>;
+  councilId: string | undefined; // Specifically the `creationForm.id`
+  existingUsers: CouncilMember[];
 };
 
-export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser, afterSuccess }: AddAdminModalProps) {
+export function AddUserModal({
+  chainId = 11155111,
+  type,
+  userLabel,
+  editingUser,
+  afterSuccess,
+  councilId,
+  existingUsers,
+}: AddAdminModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<UserFormProps>();
   const { getValues, setValue, setError, handleSubmit, reset } = form;
@@ -45,6 +55,9 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser,
 
   const { createOrUpdateUser } = useCreateOrUpdateUser({
     editingId: editingUser?.id,
+    councilId,
+    memberType: type as 'admin' | 'complianceAdmin' | 'member' | 'agreementAdmin', // TODO breakout this type
+    existingUsers,
     onAddSuccess: (userData) => {
       const currentAdmins = getValues('admins') || [];
       const updatedAdmins = map(currentAdmins, (admin: CouncilMember) =>

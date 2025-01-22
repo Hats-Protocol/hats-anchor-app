@@ -122,6 +122,42 @@ export const UPDATE_USER = gql`
   ${USER_FRAGMENT}
 `;
 
+export const UPDATE_COUNCIL_MEMBERS = gql`
+  mutation updateCouncilMembers($id: ID!, $members: [UserInput!]) {
+    updateCouncilCreationForm(id: $id, members: $members) {
+      ...FormFragment
+    }
+  }
+  ${FORM_FRAGMENT}
+`;
+
+export const UPDATE_COUNCIL_ADMINS = gql`
+  mutation updateCouncilAdmins($id: ID!, $admins: [UserInput!]) {
+    updateCouncilCreationForm(id: $id, admins: $admins) {
+      ...FormFragment
+    }
+  }
+  ${FORM_FRAGMENT}
+`;
+
+export const UPDATE_COUNCIL_COMPLIANCE_ADMINS = gql`
+  mutation updateCouncilComplianceAdmins($id: ID!, $complianceAdmins: [UserInput!]) {
+    updateCouncilCreationForm(id: $id, complianceAdmins: $complianceAdmins) {
+      ...FormFragment
+    }
+  }
+  ${FORM_FRAGMENT}
+`;
+
+export const UPDATE_COUNCIL_AGREEMENT_ADMINS = gql`
+  mutation updateCouncilAgreementAdmins($id: ID!, $agreementAdmins: [UserInput!]) {
+    updateCouncilCreationForm(id: $id, agreementAdmins: $agreementAdmins) {
+      ...FormFragment
+    }
+  }
+  ${FORM_FRAGMENT}
+`;
+
 export const CREATE_INITIAL_FORM = gql`
   mutation CreateInitialForm($creator: String, $chain: Int, $admins: [UserInput!]) {
     createCouncilCreationForm(creator: $creator, chain: $chain, admins: $admins) {

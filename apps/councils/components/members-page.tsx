@@ -1,132 +1,20 @@
 'use client';
 
-import { Button, Checkbox, Icon, Tooltip } from '@chakra-ui/react';
-import { Ruleset, WriteFunction } from '@hatsprotocol/modules-sdk';
-import { usePrivy } from '@privy-io/react-auth';
+import { Button, Tooltip } from '@chakra-ui/react';
+import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, isEmpty, map, split, toLower } from 'lodash';
-import { useAllowlist, useCallModuleFunction, useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
-import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
-import { AppHat, CouncilMember, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
-import { MemberAvatar, Skeleton } from 'ui';
-import { formatAddress, logger, parseCouncilSlug } from 'utils';
-import { Hex } from 'viem';
+import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
+import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
+import { Skeleton } from 'ui';
+import { logger, parseCouncilSlug } from 'utils';
+import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
-import { RemoveUserModal } from './remove-user-modal';
-
-const MemberRow = ({
-  member,
-  remainingModules,
-  chainId,
-  signerHat,
-  eligibilityRules,
-  offchainCouncilData,
-}: {
-  member: CouncilMember;
-  remainingModules: Ruleset | undefined;
-  chainId: SupportedChains;
-  signerHat: AppHat | undefined;
-  eligibilityRules: Ruleset[] | undefined;
-  offchainCouncilData: OffchainCouncilData | undefined;
-}) => {
-  const { setModals } = useOverlay();
-  const { address: userAddress } = useAccount();
-  const { data: currentEligibility } = useCurrentEligibility({
-    chainId: (chainId ?? 11155111) as SupportedChains,
-    selectedHat: signerHat,
-    wearerAddress: member.address as Hex,
-    eligibilityRules,
-  });
-
-  if (!member) return null;
-
-  const canEdit = !!userAddress && true; // TODO handle who can edit users details (admins/themselves)
-
-  const viewUser = () => {
-    setModals?.({ [`editUser-member-${member.address}`]: true });
-  };
-
-  const removeUser = () => {
-    setModals?.({ [`removeUser-member-${member.address}`]: true });
-  };
-
-  // TODO member is missing profile data for details edit form
-
-  return (
-    <div className='flex h-16 justify-between border-b border-gray-200'>
-      <div className='flex items-center'>
-        <div className='flex w-12 items-center justify-center'>
-          <Checkbox />
-        </div>
-        <div className='flex h-full w-[250px] items-center p-2'>
-          <MemberAvatar member={member} stack />
-        </div>
-      </div>
-
-      <div className='flex items-center'>
-        <div className='flex h-full w-28 items-center justify-center gap-1'>
-          <p className='text-green-700'>Yes</p>
-          <Icon as={BsCheckSquareFill} color='green.500' />
-        </div>
-
-        {map(remainingModules, (rule) => {
-          const moduleEligibility = get(currentEligibility, rule.address);
-          const isEligible = get(moduleEligibility, 'eligible') && get(moduleEligibility, 'goodStanding');
-          return (
-            <div className='flex h-full w-28 items-center justify-center gap-1' key={rule.address}>
-              {isEligible ? (
-                <>
-                  <p className='text-green-700'>Yes</p>
-                  <Icon as={BsCheckSquareFill} color='green.500' key={`${rule.address}-${member.address}`} />
-                </>
-              ) : (
-                <>
-                  <p className='text-red-700'>No</p>
-                  <Icon as={BsXSquareFill} color='red.500' key={`${rule.address}-${member.address}`} />
-                </>
-              )}
-            </div>
-          );
-        })}
-
-        <div className='flex h-full w-48 items-center justify-center gap-4'>
-          <Button
-            variant='link'
-            color='blue.500'
-            leftIcon={canEdit ? <Icon as={BsPencilSquare} /> : undefined}
-            onClick={viewUser}
-          >
-            {canEdit ? 'Edit' : 'Details'}
-          </Button>
-
-          <Button variant='link' color='Functional-Error' onClick={removeUser} isDisabled={!userAddress}>
-            Remove
-          </Button>
-        </div>
-      </div>
-
-      <AddUserModal
-        type='member'
-        editingUser={member}
-        userLabel='Council Member'
-        chainId={chainId as SupportedChains}
-      />
-      <RemoveUserModal
-        type='member'
-        user={member}
-        userLabel='Council Member'
-        chainId={chainId as SupportedChains}
-        eligibilityRules={eligibilityRules || undefined}
-        currentEligibility={currentEligibility || undefined}
-        offchainCouncilData={offchainCouncilData}
-      />
-    </div>
-  );
-};
+import { MemberRow } from './member-row';
 
 const MembersPage = ({ slug }: { slug: string }) => {
   const { setModals } = useOverlay();
@@ -243,17 +131,23 @@ const MembersPage = ({ slug }: { slug: string }) => {
       </div>
 
       {!isEmpty(allowlist) ? (
-        map(allowlist, (member: CouncilMember) => (
-          <MemberRow
-            key={member.address}
-            member={member}
-            remainingModules={remainingModules}
-            chainId={chainId as SupportedChains}
-            signerHat={primarySignerHat as AppHat}
-            eligibilityRules={eligibilityRules || undefined}
-            offchainCouncilData={offchainCouncilData || undefined}
-          />
-        ))
+        map(allowlist, (member: CouncilMember) => {
+          const offchainDetails = find(get(offchainCouncilData, 'creationForm.members'), {
+            address: getAddress(member.address),
+          });
+
+          return (
+            <MemberRow
+              key={member.address}
+              member={{ ...member, ...offchainDetails }}
+              remainingModules={remainingModules}
+              chainId={chainId as SupportedChains}
+              signerHat={primarySignerHat as AppHat}
+              eligibilityRules={eligibilityRules || undefined}
+              offchainCouncilData={offchainCouncilData || undefined}
+            />
+          );
+        })
       ) : (
         <div className='flex h-20 items-center justify-center gap-4'>
           <p>No members found</p>
@@ -277,6 +171,8 @@ const MembersPage = ({ slug }: { slug: string }) => {
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
         afterSuccess={addUserToCouncil}
+        councilId={offchainCouncilData?.creationForm?.id}
+        existingUsers={offchainCouncilData?.creationForm?.members || []}
       />
     </div>
   );

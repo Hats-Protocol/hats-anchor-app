@@ -34,9 +34,18 @@ export type OffchainCouncilData = {
   organization: {
     name: string;
   };
+  members: CouncilMember[];
+  admins: CouncilMember[];
+  complianceAdmins: CouncilMember[];
+  payer: CouncilPayer;
+  tokenRequirement: {
+    address: string;
+    minimum: number;
+  };
 };
 
 export interface CouncilFormData {
+  id?: string;
   // step 1
   organizationName: string;
   councilName: string;

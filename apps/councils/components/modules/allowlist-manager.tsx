@@ -3,10 +3,10 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map, size, split } from 'lodash';
-import type { CouncilMember, ModuleDetails, SupportedChains } from 'types';
+import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { MemberAvatar } from 'ui';
-import { logger } from 'utils';
-import { Hex } from 'viem';
+import { getAllWearers, logger } from 'utils';
+import { getAddress, Hex } from 'viem';
 
 import { AddUserModal } from '../add-user-modal';
 
@@ -14,9 +14,10 @@ interface ModuleManagerProps {
   m: ModuleDetails;
   chainId: number | undefined;
   criteriaModule: Hex;
+  offchainCouncilDetails: OffchainCouncilData | undefined;
 }
 
-const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) => {
+const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
   const managerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(managerHatId), '.')) === 2;
@@ -28,6 +29,7 @@ const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) =>
   });
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
+  const allWearers = getAllWearers(offchainCouncilDetails);
 
   if (!m) return null;
   logger.debug('criteriaModule', { instanceAddress: m.instanceAddress, criteriaModule });
@@ -39,14 +41,19 @@ const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) =>
 
         <div className='flex flex-col gap-2'>
           <div className='flex items-center gap-1'>
-            <h2 className='text-sm font-semibold'>Compliance Managers</h2>
-            {isAdminHat && <p className='text-xs italic text-gray-500'>(Delegated to Council Managers)</p>}
+            {isAdminHat ? (
+              <h2 className='text-sm font-medium'>Delegated to Council Managers</h2>
+            ) : (
+              <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+            )}
           </div>
 
           <div className='flex flex-col gap-2'>
-            {map(get(managerHat, 'wearers'), (wearer) => (
-              <MemberAvatar member={wearer as CouncilMember} key={wearer.id} />
-            ))}
+            {map(get(managerHat, 'wearers'), (wearer) => {
+              const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
+
+              return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
+            })}
           </div>
         </div>
 
@@ -56,7 +63,13 @@ const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) =>
           </Button>
         </div>
 
-        <AddUserModal type='compliance' userLabel='Compliance Manager' chainId={chainId as SupportedChains} />
+        <AddUserModal
+          type='compliance'
+          userLabel='Compliance Manager'
+          chainId={chainId as SupportedChains}
+          councilId={offchainCouncilDetails?.creationForm?.id}
+          existingUsers={allWearers as CouncilMember[]}
+        />
       </div>
     );
   }
@@ -72,9 +85,11 @@ const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) =>
         </div>
 
         <div className='flex flex-col gap-2'>
-          {map(get(managerHat, 'wearers'), (wearer) => (
-            <MemberAvatar member={wearer as CouncilMember} key={wearer.id} />
-          ))}
+          {map(get(managerHat, 'wearers'), (wearer) => {
+            const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
+
+            return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
+          })}
         </div>
       </div>
 
@@ -84,7 +99,13 @@ const AllowlistManager = ({ m, chainId, criteriaModule }: ModuleManagerProps) =>
         </Button>
       </div>
 
-      <AddUserModal type='allowlist' userLabel='Allowlist Manager' chainId={chainId as SupportedChains} />
+      <AddUserModal
+        type='allowlist'
+        userLabel='Allowlist Manager'
+        chainId={chainId as SupportedChains}
+        councilId={offchainCouncilDetails?.creationForm?.id}
+        existingUsers={allWearers as CouncilMember[]}
+      />
     </div>
   );
 };
