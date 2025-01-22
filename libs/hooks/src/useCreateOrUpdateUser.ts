@@ -45,6 +45,7 @@ export function useCreateOrUpdateUser({
       return result.createUser;
     },
     onSuccess: async (data) => {
+      // TODO is there a better way to attach the user to the council?
       if (!councilId) {
         console.error('No councilId provided');
         return;
@@ -90,7 +91,7 @@ export function useCreateOrUpdateUser({
       }
 
       const userData = await createUserMutation(data as CouncilMember);
-      console.log('create success', userData);
+
       onAddSuccess(userData);
       return userData;
     } catch (error) {

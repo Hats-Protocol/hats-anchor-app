@@ -26,7 +26,7 @@ export function SelectionTokensStep({ onNext }: StepProps) {
   }
 
   return (
-    <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
+    <form className='mx-auto flex w-full flex-col space-y-8' onSubmit={form.handleSubmit(onNext)}>
       <div className='space-y-2'>
         <div className='flex items-center gap-3'>
           <GemIcon />

@@ -43,7 +43,7 @@ export function MembersList({ members, form, editingMember, setEditingMember, ca
 
   return (
     <>
-      <div className='space-y-4'>
+      <div className='w-full space-y-4'>
         {members.map((member) => (
           <MemberCard
             key={member.address}

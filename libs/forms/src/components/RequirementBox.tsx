@@ -13,6 +13,7 @@ interface RequirementOption {
 
 interface RequirementBoxProps {
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   options: RequirementOption[];
   isDisabled?: boolean;
@@ -46,18 +47,17 @@ const RequirementBox = ({ name, localForm, options, isDisabled }: RequirementBox
               onClick={isDisabled ? undefined : () => field.onChange(!field.value)}
               opacity={isDisabled ? 0.6 : 1}
             >
-              <HStack justify='space-between' width='100%'>
+              <HStack justify='space-between' width='100%' align='center'>
                 <HStack spacing={4}>
-                  <Icon as={item.icon} boxSize={6} color={field.value ? 'blue.500' : 'gray.400'} />
+                  <Icon as={item.icon} boxSize={6} color={field.value ? 'blue.500' : 'gray.900'} />
                   <Stack spacing={0.5}>
                     <Text fontWeight='semibold' color='gray.900'>
                       {item.title}
                     </Text>
-                    <Text fontSize='sm' color='gray.500'>
-                      {item.description}
-                    </Text>
+                    <Text color='gray.900'>{item.description}</Text>
                   </Stack>
                 </HStack>
+
                 <Box onClick={(e) => e.stopPropagation()}>
                   <Checkbox
                     isChecked={field.value}

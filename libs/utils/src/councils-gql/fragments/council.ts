@@ -8,6 +8,7 @@ export const COUNCIL_FRAGMENT = gql`
     treeId
     organization {
       id
+      name
     }
     membersSelectionModule
     membersCriteriaModule
@@ -53,4 +54,14 @@ export const COUNCIL_FRAGMENT = gql`
     }
   }
   ${USER_FRAGMENT}
+`;
+
+// TODO support safe or id
+export const GET_COUNCIL_BY_HSG = gql`
+  query getCouncilByHsg($hsg: String, $chainId: Int!) {
+    councils(where: { hsg: $hsg, chain: $chainId }) {
+      ...CouncilFragment
+    }
+  }
+  ${COUNCIL_FRAGMENT}
 `;

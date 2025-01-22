@@ -30,7 +30,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   }
 
   return (
-    <form className='mx-auto flex w-[600px] flex-col space-y-6 p-8' onSubmit={form.handleSubmit(onNext)}>
+    <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
       <div className='space-y-4'>
         <div className='flex items-center gap-2'>
           <FileText />
@@ -122,8 +122,8 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
         <NextStepButton
           disabled={
             !canEdit ||
-            !agreement ||
-            agreement.trim().length === 0 ||
+            // !agreement ||
+            // agreement.trim().length === 0 ||
             (createAgreementAdminRole === 'true' && agreementAdmins.length === 0)
           }
         >

@@ -134,7 +134,7 @@ export function AddMemberModal({
       onClose={handleClose}
       size='2xl'
     >
-      <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='p-8'>
+      <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
         <div className='space-y-6'>
           <div className='space-y-2'>
             <label className='font-bold'>{chainsMap(chainId).name} Account</label>

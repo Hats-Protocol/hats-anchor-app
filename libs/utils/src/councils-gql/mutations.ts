@@ -105,8 +105,8 @@ export const UPDATE_PAYER = gql`
 `;
 
 export const CREATE_USER = gql`
-  mutation CreateUser($address: String!, $email: String!, $name: String) {
-    createUser(address: $address, email: $email, name: $name) {
+  mutation CreateUser($address: String!, $email: String!, $name: String, $telegram: String) {
+    createUser(address: $address, email: $email, name: $name, telegram: $telegram) {
       ...UserFragment
     }
   }
@@ -114,8 +114,8 @@ export const CREATE_USER = gql`
 `;
 
 export const UPDATE_USER = gql`
-  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String) {
-    updateUser(id: $id, address: $address, email: $email, name: $name) {
+  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String, $telegram: String) {
+    updateUser(id: $id, address: $address, email: $email, name: $name, telegram: $telegram) {
       ...UserFragment
     }
   }

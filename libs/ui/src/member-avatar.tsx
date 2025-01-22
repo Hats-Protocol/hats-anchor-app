@@ -1,14 +1,14 @@
 import { pick, toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
-import { CouncilMember, HatWearer } from 'types';
+// import { CouncilMember, HatWearer } from 'types';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import OblongAvatar from './OblongAvatar';
 
-type Member = CouncilMember & HatWearer; // TODO this type?
+// type Member = CouncilMember & HatWearer; // TODO this type?
 
 const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean }) => {
   const { name, address, id } = pick(member, ['name', 'address', 'id']);
@@ -23,12 +23,12 @@ const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean 
     chainId: 1,
   });
   const fallbackAvatar = useMemo(() => {
-    if (!address && !id) return undefined;
+    if (!localAddress) return undefined;
     return createIcon({
       seed: localAddress,
       size: 64,
     }).toDataURL();
-  }, [address, id]);
+  }, [localAddress]);
 
   if (stack) {
     return (

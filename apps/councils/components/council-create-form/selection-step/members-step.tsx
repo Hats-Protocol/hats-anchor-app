@@ -25,7 +25,7 @@ export function SelectionMembersStep({ onNext }: StepProps) {
   }
 
   return (
-    <form className='mx-auto flex w-[600px] flex-col space-y-8 p-8' onSubmit={form.handleSubmit(onNext)}>
+    <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
       <h1 className='text-2xl font-bold'>Council Members</h1>
 
       <div className='space-y-8 bg-white'>

@@ -16,9 +16,11 @@ const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
     <CouncilFormProvider draftId={draftId}>
       <div className='grid-cols-20 grid pb-24 pt-24'>
         <div className='col-span-10 col-start-3 grid'>
-          <Card className='w-100 min-h-[500px] p-4'>
-            <CouncilCreateForm step={step} subStep={subStep} draftId={draftId} />
-          </Card>
+          <div>
+            <Card className='min-h-[300px] w-full px-16 py-10'>
+              <CouncilCreateForm step={step} subStep={subStep} draftId={draftId} />
+            </Card>
+          </div>
         </div>
 
         <div className='col-start-14 col-span-6 grid'>

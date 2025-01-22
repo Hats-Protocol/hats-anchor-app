@@ -104,7 +104,7 @@ const computeStepValidation = (data: CouncilFormResponse['councilCreationForm'])
       members: !!data.members,
       management: !!(data.admins && data.admins.length > 0),
       compliance: data.createComplianceAdminRole !== null,
-      agreement: data.createAgreementAdminRole !== null && !!data.agreement && data.agreement !== '',
+      agreement: data.createAgreementAdminRole !== null, // && !!data.agreement && data.agreement !== '',
       tokens:
         data.tokenAddress !== null && data.tokenAddress !== '' && data.tokenAmount !== null && data.tokenAmount > 0,
     },
@@ -321,8 +321,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             ...payload,
             thresholdType: formData.thresholdType,
             maxCouncilMembers: parseInt(formData.maxMembers.toString()),
-            thresholdTarget: formData.target,
-            thresholdMin: formData.min,
+            thresholdTarget: parseInt(formData.target.toString()),
+            thresholdMin: parseInt(formData.min.toString()),
           };
           break;
 

@@ -81,7 +81,11 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
       <div className='flex flex-col gap-2'>
         <div className='flex items-center gap-1'>
           <h2 className='text-sm font-semibold'>Allowlist Managers</h2>
-          {isAdminHat && <p className='text-xs italic text-gray-500'>(Delegated to Council Managers)</p>}
+          {isAdminHat ? (
+            <h2 className='text-sm font-medium'>Delegated to Council Managers</h2>
+          ) : (
+            <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+          )}
         </div>
 
         <div className='flex flex-col gap-2'>

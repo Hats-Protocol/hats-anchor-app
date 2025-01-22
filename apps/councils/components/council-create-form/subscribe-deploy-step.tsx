@@ -4,11 +4,11 @@ import { Icon } from '@chakra-ui/react';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import { get, map, toNumber } from 'lodash';
-import { FileText, GemIcon, Link, SquareCheck, SquarePen, SquareX } from 'lucide-react';
+import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
-import { BsPersonCheck } from 'react-icons/bs';
+import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
 import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useEnsName, useReadContracts, useSwitchChain } from 'wagmi';
@@ -33,12 +33,12 @@ const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps)
       <div className='flex items-center gap-1'>
         {isCompleted ? (
           <>
-            <SquareCheck className='h-4 w-4 text-green-600' />
+            <BsCheckSquareFill className='h-4 w-4 text-green-600' />
             <span className='text-sm font-medium text-green-600'>Ready</span>
           </>
         ) : (
           <>
-            <SquareX className='h-4 w-4 text-red-600' />
+            <BsXSquareFill className='h-4 w-4 text-red-600' />
             <span className='text-sm font-medium text-red-600'>Incomplete</span>
           </>
         )}

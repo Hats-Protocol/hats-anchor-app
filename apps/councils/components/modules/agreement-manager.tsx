@@ -31,8 +31,6 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
   const hatName = ownerHatDetails?.name;
   const allWearers = getAllWearers(offchainCouncilDetails);
 
-  console.log('allWearers', allWearers);
-
   if (!m) return null;
 
   return (

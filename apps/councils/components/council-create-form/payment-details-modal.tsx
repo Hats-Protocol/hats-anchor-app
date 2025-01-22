@@ -3,7 +3,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
-import { capitalize, compact, get, keys, map, reject, size, toNumber } from 'lodash';
+import { capitalize, compact, get, keys, map, reject, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -30,11 +30,15 @@ interface PaymentDetailsModalProps {
   canEdit?: boolean;
 }
 
+const PRO_URL = 'https://hats-pro.vercel.app';
+
 export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true }: PaymentDetailsModalProps) {
+  const [loading, setLoading] = useState(false);
   const selectedChain = parentForm.watch('chain');
   const chainId = toNumber(selectedChain);
   const { modals, setModals } = useOverlay();
   const councilName = parentForm.watch('councilName');
+  console.log(parentForm.watch('payer'));
 
   const modalForm = useForm({
     defaultValues: {
@@ -84,6 +88,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
   });
 
   const handleSubmit = async (data: { address: string; email: string; name?: string; telegram?: string }) => {
+    setLoading(true);
     if (!canEdit) return;
     // if (!isAddress(data.address)) {
     //   setFormError('Please enter a valid Ethereum address');
@@ -98,27 +103,32 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         id: draftId,
         payer: userData,
       });
+      const url = window.location.origin !== 'http://localhost:3000' ? PRO_URL : window.location.origin;
 
-      const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} | `;
-      const councilLink = `[View Council](${window.location.origin}/councils/new/payment?draftId=${draftId}) 💰`;
-      const userKeys = reject(keys(userData), (key) => key === 'id');
-      const userDetails = compact(
-        map(userKeys, (key) =>
-          get(userData, key) ? `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}` : undefined,
-        ),
-      );
+      if (!parentForm.getValues('payer')) {
+        const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} \\| `;
+        const councilLink = `[View Council](${url}/councils/new/payment?draftId=${draftId}) 💰`;
+        const userKeys = reject(keys(userData), (key) => key === 'id');
+        const userDetails = compact(
+          map(userKeys, (key) =>
+            get(userData, key) ? `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}` : undefined,
+          ),
+        );
 
-      await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
-        logger.error('Error sending telegram message:', error);
-      });
+        await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
+          logger.error('Error sending telegram message:', error);
+        });
+      }
 
       parentForm.setValue('payer', userData);
       setFormError(null);
+      setLoading(false);
       modalForm.reset();
       setModals?.({});
     } catch (error) {
       setFormError('Failed to save payment details. Please try again.');
       logger.error('Error saving payment details:', error);
+      setLoading(false);
     }
   };
 
@@ -197,8 +207,8 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
           <div className='mt-8'>
             {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
             <div className='flex justify-end'>
-              <NextStepButton type='submit' disabled={!isFormValid() || !canEdit} withIcon={false}>
-                Submit details
+              <NextStepButton type='submit' disabled={!isFormValid() || !canEdit || loading} withIcon={false}>
+                {loading ? 'Submitting...' : 'Submit details'}
               </NextStepButton>
             </div>
           </div>

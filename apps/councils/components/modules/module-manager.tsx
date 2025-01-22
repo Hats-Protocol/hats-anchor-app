@@ -7,8 +7,6 @@ import { Hex } from 'viem';
 
 import AgreementManager from './agreement-manager';
 import AllowlistManager from './allowlist-manager';
-// TODO add election manager
-// TODO add subscription manager
 
 export type ModuleManagerComponent = ({
   m,

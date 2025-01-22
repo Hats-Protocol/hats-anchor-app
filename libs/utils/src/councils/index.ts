@@ -2,6 +2,7 @@ import { compact, concat, get, includes, toNumber, uniqBy } from 'lodash';
 import { OffchainCouncilData } from 'types';
 
 import { chainStringToId } from '../chains';
+import { councilsGraphqlClient, GET_COUNCIL_BY_HSG } from '../councils-gql';
 
 const checkChainId = (chain: string) => {
   const attemptNumber = toNumber(chain);
@@ -55,4 +56,28 @@ export const getAllWearers = (offchainCouncilDetails: OffchainCouncilData | unde
     ),
     'address',
   );
+};
+
+export const getOffchainCouncilData = async ({
+  hsg,
+  safe,
+  chainId,
+}: {
+  hsg?: string;
+  safe?: string;
+  chainId: number;
+}): Promise<OffchainCouncilData | null> => {
+  // TODO handle safe
+  return councilsGraphqlClient
+    .request<{
+      councils: OffchainCouncilData[];
+    }>(GET_COUNCIL_BY_HSG, { hsg, chainId })
+    .then((data) => {
+      return get(data, 'councils[0]', null);
+    })
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching offchain council data', error);
+      return null;
+    });
 };

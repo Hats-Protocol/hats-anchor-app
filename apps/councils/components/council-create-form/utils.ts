@@ -79,7 +79,7 @@ export function getNextStepButtonText(nextStep: NextStep): string {
         case 'compliance':
           return 'Select Compliance Managers';
         case 'tokens':
-          return 'Select Token Requirement';
+          return 'Set Token Requirement';
         default:
           return 'Continue';
       }
