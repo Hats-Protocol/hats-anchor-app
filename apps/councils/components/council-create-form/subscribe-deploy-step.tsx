@@ -3,15 +3,16 @@
 import { Icon } from '@chakra-ui/react';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
-import { get, map, toNumber } from 'lodash';
+import { get, isEmpty, map, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
-import { chainsMap, formatAddress } from 'utils';
+import { MemberAvatar } from 'ui';
+import { chainsMap } from 'utils';
 import { erc20Abi } from 'viem';
-import { useChainId, useEnsName, useReadContracts, useSwitchChain } from 'wagmi';
+import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
 import { NextStepButton } from '../next-step-button';
 import { PaymentDetailsModal } from './payment-details-modal';
@@ -90,27 +91,18 @@ const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
       <h4 className='text-base font-bold text-gray-900'>{title}</h4>
       {description && <p className='text-sm text-gray-600'>{description}</p>}
     </div>
-    <div className='space-y-2'>
-      {members.map((member) => (
-        <MemberItem key={member.id} member={member} />
-      ))}
-    </div>
+
+    {!isEmpty(members) ? (
+      <div className='space-y-2'>
+        {members.map((member) => (
+          <MemberAvatar key={member.id} member={member} />
+        ))}
+      </div>
+    ) : (
+      <div className='text-sm text-gray-600'>No members</div>
+    )}
   </div>
 );
-
-const MemberItem = ({ member }: { member: { address: string; name?: string } }) => {
-  const { data: ensName } = useEnsName({
-    address: member.address as `0x${string}`,
-    chainId: 1,
-  });
-
-  return (
-    <div className='flex items-center gap-2'>
-      {member.name && <span className='text-base font-medium text-gray-900'>{member.name}</span>}
-      <span className='text-base text-gray-600'>{ensName || formatAddress(member.address)}</span>
-    </div>
-  );
-};
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { form, stepValidation, deployCouncil, isDeploying, canEdit } = useCouncilForm();
@@ -188,7 +180,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <div className='flex gap-1'>
             <span className='text-gray-900'>by</span>{' '}
             <span className='text-gray-500'>
-              {firstAdmin?.name || <MemberItem member={firstAdmin || { address: '' }} />}
+              {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />}
             </span>
           </div>
         </div>

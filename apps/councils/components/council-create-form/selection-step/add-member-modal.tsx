@@ -79,7 +79,7 @@ export function AddMemberModal({
     }
 
     try {
-      let userData;
+      let userData: CouncilMember;
 
       if (editingMember) {
         userData = await updateUserMutation.mutateAsync({
@@ -88,19 +88,16 @@ export function AddMemberModal({
           email: data.email,
           name: data.name,
         });
+        const updatedMembers = currentMembers.map((member) => (member.id === editingMember.id ? userData : member));
+        parentForm.setValue('members', updatedMembers);
       } else {
         userData = await createUserMutation.mutateAsync(localData);
+        parentForm.setValue('members', [...currentMembers, userData]);
         if (!userData.id) {
           throw new Error('Created user is missing ID');
         }
       }
-
-      if (editingMember) {
-        const updatedMembers = currentMembers.map((member) => (member.id === editingMember.id ? userData : member));
-        parentForm.setValue('members', updatedMembers);
-      } else {
-        parentForm.setValue('members', [...currentMembers, userData]);
-      }
+      logger.debug('userData', userData);
 
       modalForm.clearErrors();
       modalForm.reset();

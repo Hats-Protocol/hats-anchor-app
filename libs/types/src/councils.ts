@@ -44,6 +44,13 @@ export type OffchainCouncilData = {
   };
 };
 
+export interface CompletedOptionalSteps {
+  members: boolean;
+  management: boolean;
+  agreement: boolean;
+  compliance: boolean;
+}
+
 export interface CouncilFormData {
   id?: string;
   // step 1
@@ -85,6 +92,7 @@ export interface CouncilFormData {
     minimum: number;
   };
   creator: string;
+  completedOptionalSteps: CompletedOptionalSteps;
 }
 
 export interface CouncilFormResponse {

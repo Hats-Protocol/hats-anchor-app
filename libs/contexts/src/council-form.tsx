@@ -29,12 +29,18 @@ import {
 } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useWaitForSubgraph } from 'hooks';
+import { useLocalStorage, useWaitForSubgraph } from 'hooks';
 import { find, first, get, map, toLower, toNumber, toString } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { CouncilFormData, CouncilFormResponse, StepValidation, UpdateCouncilFormResponse } from 'types';
+import {
+  CompletedOptionalSteps,
+  CouncilFormData,
+  CouncilFormResponse,
+  StepValidation,
+  UpdateCouncilFormResponse,
+} from 'types';
 import {
   addCouncilForForm,
   chainsMap,
@@ -78,11 +84,16 @@ interface CouncilFormContextType {
   deployCouncil: () => void;
   isDeploying: boolean;
   canEdit: boolean;
+  toggleOptionalStep: (step: keyof CompletedOptionalSteps) => void;
 }
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(undefined);
 
-const computeStepValidation = (data: CouncilFormResponse['councilCreationForm']): StepValidation => {
+type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
+  completedOptionalSteps: CompletedOptionalSteps;
+};
+
+const computeStepValidation = (data: StepValidationData): StepValidation => {
   return {
     details: !!(
       data.organizationName &&
@@ -101,10 +112,10 @@ const computeStepValidation = (data: CouncilFormResponse['councilCreationForm'])
     onboarding: !!data.membersSelectionType,
     selection: false, // Main step validity will be computed from sub-steps
     selectionSubSteps: {
-      members: !!data.members,
-      management: !!(data.admins && data.admins.length > 0),
-      compliance: data.createComplianceAdminRole !== null,
-      agreement: data.createAgreementAdminRole !== null, // && !!data.agreement && data.agreement !== '',
+      members: !!data.members && data.completedOptionalSteps.members,
+      management: !!(data.admins && data.admins.length > 0) && data.completedOptionalSteps.management, // admins are required, but creator is added by default
+      compliance: data.createComplianceAdminRole !== null && data.completedOptionalSteps.compliance,
+      agreement: data.createAgreementAdminRole !== null && data.completedOptionalSteps.agreement, // agreement is optional
       tokens:
         data.tokenAddress !== null && data.tokenAddress !== '' && data.tokenAmount !== null && data.tokenAmount > 0,
     },
@@ -119,6 +130,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { data: walletClient } = useWalletClient();
   const { handlePendingTx } = useOverlay();
   const router = useRouter();
+  const [optionalSteps, setOptionalSteps] = useLocalStorage<CompletedOptionalSteps>(`${draftId}-optionalSteps`, {
+    members: false,
+    management: false,
+    agreement: false,
+    compliance: false,
+  });
 
   const form = useForm<CouncilFormData>({
     defaultValues: {
@@ -150,6 +167,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         address: '',
         minimum: 0,
       },
+      completedOptionalSteps: optionalSteps,
     },
   });
   const chainId = toNumber(form.watch('chain'));
@@ -232,7 +250,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   }, [authenticated, user?.wallet?.address, data]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || !optionalSteps) return;
 
     logger.debug('API Response data:', data);
     const currentValues = form.getValues();
@@ -268,16 +286,27 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         minimum: data.tokenAmount || 0,
       },
       creator: data.creator || '',
+      completedOptionalSteps: {
+        members: optionalSteps.members || false,
+        management: optionalSteps.management || false,
+        agreement: optionalSteps.agreement || false,
+        compliance: optionalSteps.compliance || false,
+      },
     };
     logger.info('Setting form to:', newValues);
     form.reset(newValues);
+    console.log('optionalSteps', optionalSteps);
 
     // Compute validation state here
-    const validation = computeStepValidation(data);
+    const validation = computeStepValidation({ ...data, completedOptionalSteps: optionalSteps });
     setStepValidationState(validation);
-  }, [data, form]);
+  }, [data, form, optionalSteps]);
 
   const queryClient = useQueryClient();
+
+  const toggleOptionalStep = (step: keyof CompletedOptionalSteps) => {
+    setOptionalSteps((prev) => ({ ...prev, [step]: !prev[step] }));
+  };
 
   const { mutateAsync: persistForm } = useMutation<
     UpdateCouncilFormResponse,
@@ -337,7 +366,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         case 'selection':
           switch (subStep) {
             case 'members':
-              console.log('members', formData.members);
               payload = {
                 ...payload,
                 members: formData.members,
@@ -1165,6 +1193,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         deployCouncil,
         isDeploying,
         canEdit,
+        toggleOptionalStep,
       }}
     >
       {children}
