@@ -35,7 +35,7 @@
     "generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx graphql-zeus https://hats-api-development.up.railway.app/graphql ./libs/utils/src/mesh"
+        "command": "npx zeus https://hats-api-development.up.railway.app/graphql ./libs/utils/src/mesh"
       }
     }
   }
