@@ -19,6 +19,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
   const requirements = form.watch('requirements');
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', requirements);
+  console.log('stepValidation', stepValidation, requirements, nextStep);
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;

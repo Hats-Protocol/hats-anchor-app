@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { Modal, useOverlay } from 'contexts';
+import { Modal, useCouncilForm, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { Variables } from 'graphql-request';
 import { Dispatch, SetStateAction, useEffect } from 'react';
@@ -24,6 +24,7 @@ export function AddMemberModal({
   canEdit = true,
 }: AddMemberModalProps) {
   const { modals, setModals } = useOverlay();
+  const { persistForm } = useCouncilForm();
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
 
@@ -97,6 +98,7 @@ export function AddMemberModal({
           throw new Error('Created user is missing ID');
         }
       }
+      persistForm('selection', 'members');
       logger.debug('userData', userData);
 
       modalForm.clearErrors();

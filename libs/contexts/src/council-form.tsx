@@ -295,7 +295,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     };
     logger.info('Setting form to:', newValues);
     form.reset(newValues);
-    console.log('optionalSteps', optionalSteps);
 
     // Compute validation state here
     const validation = computeStepValidation({ ...data, completedOptionalSteps: optionalSteps });
@@ -305,7 +304,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const queryClient = useQueryClient();
 
   const toggleOptionalStep = (step: keyof CompletedOptionalSteps) => {
-    setOptionalSteps((prev) => ({ ...prev, [step]: !prev[step] }));
+    setOptionalSteps((prev) => ({ ...prev, [step]: true }));
   };
 
   const { mutateAsync: persistForm } = useMutation<
@@ -366,6 +365,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         case 'selection':
           switch (subStep) {
             case 'members':
+              console.log('submitting members', formData.members);
               payload = {
                 ...payload,
                 members: formData.members,

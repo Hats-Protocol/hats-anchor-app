@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { Modal, useOverlay } from 'contexts';
+import { Modal, useCouncilForm, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -25,6 +25,7 @@ export function AddAgreementAdminModal({
   const selectedChain = parentForm.watch('chain');
   const chainId = getChainId(selectedChain);
   const { modals, setModals } = useOverlay();
+  const { persistForm } = useCouncilForm();
   const modalForm = useForm({
     defaultValues: {
       address: editingAdmin?.address || '',
@@ -93,6 +94,7 @@ export function AddAgreementAdminModal({
         userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('agreementAdmins', [...currentAdmins, userData]);
       }
+      persistForm('selection', 'agreement');
 
       setFormError(null);
       modalForm.reset();

@@ -76,6 +76,8 @@ export function getNextStepButtonText(nextStep: NextStep): string {
           return 'Select Members';
         case 'management':
           return 'Select Council Managers';
+        case 'agreement':
+          return 'Manage Agreement';
         case 'compliance':
           return 'Select Compliance Managers';
         case 'tokens':
