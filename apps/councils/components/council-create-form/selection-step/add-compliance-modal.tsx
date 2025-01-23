@@ -83,7 +83,7 @@ export function AddComplianceModal({
     }
 
     try {
-      let userData;
+      let userData: CouncilMember;
 
       if (editingAdmin) {
         userData = await updateUserMutation.mutateAsync({
@@ -92,14 +92,10 @@ export function AddComplianceModal({
           email: data.email,
           name: data.name,
         });
-      } else {
-        userData = await createUserMutation.mutateAsync(data);
-      }
-
-      if (editingAdmin) {
         const updatedAdmins = currentAdmins.map((admin) => (admin.id === editingAdmin.id ? userData : admin));
         parentForm.setValue('complianceAdmins', updatedAdmins);
       } else {
+        userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('complianceAdmins', [...currentAdmins, userData]);
       }
 

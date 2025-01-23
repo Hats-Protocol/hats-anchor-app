@@ -78,7 +78,7 @@ export function AddAgreementAdminModal({
     }
 
     try {
-      let userData;
+      let userData: CouncilMember;
 
       if (editingAdmin) {
         userData = await updateUserMutation.mutateAsync({
@@ -87,14 +87,10 @@ export function AddAgreementAdminModal({
           email: data.email,
           name: data.name,
         });
-      } else {
-        userData = await createUserMutation.mutateAsync(data);
-      }
-
-      if (editingAdmin) {
         const updatedAdmins = currentAdmins.map((admin) => (admin.id === editingAdmin.id ? userData : admin));
         parentForm.setValue('agreementAdmins', updatedAdmins);
       } else {
+        userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('agreementAdmins', [...currentAdmins, userData]);
       }
 
