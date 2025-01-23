@@ -555,13 +555,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       let agreementModuleImmutableArgs: `0x${string}`;
       let agreementModuleHatId: bigint;
       let predictedAgreementModuleAddress: `0x${string}` | undefined;
-      if (formData.requirements.signAgreement && formData.agreement) {
-        // pin agreement file to ipfs
-        const agreementCid = await pinFileToIpfs({
-          file: formData.agreement,
-          fileName: `agreement_${formData.organizationName}_${formData.councilName}_${chainId}`,
-          token: pinningKey as string,
-        });
+      if (formData.requirements.signAgreement) {
+        let agreementCid: string = '';
+        if (formData.agreement) {
+          // pin agreement file to ipfs
+          agreementCid = await pinFileToIpfs({
+            file: formData.agreement,
+            fileName: `agreement_${formData.organizationName}_${formData.councilName}_${chainId}`,
+            token: pinningKey as string,
+          });
+        }
 
         agreementModuleInitArgs = encodeAbiParameters(
           [{ type: 'uint256' }, { type: 'uint256' }, { type: 'string' }],
@@ -573,12 +576,14 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         );
         agreementModuleImmutableArgs = '0x' as `0x${string}`;
         agreementModuleHatId = councilMemberHatId;
-        predictedAgreementModuleAddress = (await publicClient.readContract({
-          address: HATS_MODULES_FACTORY_ADDRESS,
-          abi: HATS_MODULES_FACTORY_ABI,
-          functionName: 'getHatsModuleAddress',
-          args: [AGREEMENT_ELIGIBILITY_ADDRESS, agreementModuleHatId, agreementModuleImmutableArgs, saltNonce],
-        })) as `0x${string}`;
+        predictedAgreementModuleAddress = (await publicClient
+          .readContract({
+            address: HATS_MODULES_FACTORY_ADDRESS,
+            abi: HATS_MODULES_FACTORY_ABI,
+            functionName: 'getHatsModuleAddress',
+            args: [AGREEMENT_ELIGIBILITY_ADDRESS, agreementModuleHatId, agreementModuleImmutableArgs, saltNonce],
+          })
+          .catch((err) => console.log(err))) as `0x${string}`;
         implementations.push(AGREEMENT_ELIGIBILITY_ADDRESS);
         hatIds.push(agreementModuleHatId);
         immutableArgs.push(agreementModuleImmutableArgs);
@@ -614,6 +619,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         initArgs.push(erc20ModuleInitArgs);
         saltNonces.push(saltNonce);
       }
+      console.log(formData.requirements);
+      console.log({
+        predictedCouncilMemberAllowlistAddress,
+        predictedComplianceAllowlistAddress,
+        predictedAgreementModuleAddress,
+        predictedErc20ModuleAddress,
+      });
 
       // eligibility chain
       let eligibilityChainInitArgs: `0x${string}`;
@@ -639,6 +651,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           chainLength += 1;
           chainModules.push(predictedErc20ModuleAddress as `0x${string}`);
         }
+        logger.debug('chainModules', chainModules);
         eligibilityChainInitArgs = '0x' as `0x${string}`;
         eligibilityChainImmutableArgs = encodePacked(
           ['uint256', 'uint256[]', ...Array(chainLength).fill('address')],
@@ -1161,9 +1174,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           });
           logger.debug('council form updated with council id:', councilId);
 
+          const appUrl = window.location.origin || 'https://hats-app.vercel.app';
           const chainName = toLower(chainsMap(chainId)?.name);
           const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainName}: `;
-          const links = `[View HSG (${hsgAddress})](${explorerUrl(chainId)}/address/${hsgAddress}) [View Council](${window.location.origin}/councils/${chainName}:${hsgAddress}/members)`;
+          const links = `[View Council](${appUrl}/councils/${chainName}:${hsgAddress}/members)\n[View HSG \\(${hsgAddress}\\)](${explorerUrl(chainId)}/address/${hsgAddress}) `;
 
           sendTelegramMessage(`${message} ${links}`);
           logger.debug('Telegram notification sent');
