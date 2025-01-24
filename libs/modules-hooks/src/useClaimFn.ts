@@ -158,6 +158,7 @@ export const useClaimFn = ({
     subscriptionDisableClaim,
     subscriptionDisableReason,
     isReadyToClaim,
+    isEligible,
   ]);
 
   const handleClaim = async () => {

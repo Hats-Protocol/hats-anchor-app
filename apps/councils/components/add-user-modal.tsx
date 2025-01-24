@@ -59,6 +59,7 @@ export function AddUserModal({
     memberType: type as 'admin' | 'complianceAdmin' | 'member' | 'agreementAdmin', // TODO breakout this type
     existingUsers,
     onAddSuccess: (userData) => {
+      // TODO handle the correct type here
       const currentAdmins = getValues('admins') || [];
       const updatedAdmins = map(currentAdmins, (admin: CouncilMember) =>
         admin.id === editingUser?.id ? userData : admin,

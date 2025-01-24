@@ -1,4 +1,5 @@
 import { Button, HStack, Icon, Text } from '@chakra-ui/react';
+import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { useEligibility, useOverlay } from 'contexts';
 import { filter, find, first, flatten, get, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
@@ -6,15 +7,11 @@ import { useEffect } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Hex } from 'viem';
-import { useAccount, useChainId, useSwitchChain } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
 import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
-const ModuleChainClaimHeader = ({
-  // activeRule,
-  // setActiveRule,
-  chainId,
-}: ModuleChainClaimHeaderProps) => {
+const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
   const currentChainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -26,6 +23,7 @@ const ModuleChainClaimHeader = ({
     isReadyToClaim: aggregateIsReadyToClaim,
     activeRule,
     setActiveRule,
+    isWearing,
   } = useEligibility();
   const eligibilityRules = flatten(rawEligibilityRules);
 
@@ -64,10 +62,26 @@ const ModuleChainClaimHeader = ({
     ...aggregateIsReadyToClaim,
   };
 
+  const { writeContractAsync } = useWriteContract();
+
   if (!activeRule?.address || !chainId) return null;
 
-  const handleClaimClick = () => {
-    handleClaim();
+  const handleClaimClick = async () => {
+    if (isWearing) {
+      if (!hsgAddress) return;
+      const tx = await writeContractAsync({
+        address: hsgAddress,
+        abi: HSG_V2_ABI,
+        functionName: 'claimSignerFor',
+        args: [selectedHat?.id ? BigInt(selectedHat?.id) : BigInt(0), address as Hex],
+      });
+      // redirect to council page
+      console.log('tx', tx);
+      // TODO handlePendingTx
+    } else {
+      handleClaim();
+    }
+
     // TODO success? is overlay context available?
   };
 
@@ -106,7 +120,7 @@ const ModuleChainClaimHeader = ({
             onClick={handleClaimClick}
             variant='primary'
           >
-            Claim
+            Claim {isWearing ? 'Signer' : ''}
           </Button>
         )}
       </div>
@@ -115,8 +129,7 @@ const ModuleChainClaimHeader = ({
 };
 
 interface ModuleChainClaimHeaderProps {
-  // activeRule: EligibilityRule | undefined;
-  // setActiveRule: (rule: EligibilityRule | undefined) => void;
+  hsgAddress: Hex | undefined;
   chainId: number | undefined;
 }
 

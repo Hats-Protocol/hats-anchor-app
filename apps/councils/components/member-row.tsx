@@ -5,6 +5,7 @@ import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useOverlay } from 'contexts';
 import { get, map } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
+import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, OffchainCouncilData, SupportedChains } from 'types';
 import { MemberAvatar } from 'ui';
@@ -21,6 +22,7 @@ const MemberRow = ({
   signerHat,
   eligibilityRules,
   offchainCouncilData,
+  form,
 }: {
   member: CouncilMember;
   remainingModules: Ruleset | undefined;
@@ -28,6 +30,7 @@ const MemberRow = ({
   signerHat: AppHat | undefined;
   eligibilityRules: Ruleset[] | undefined;
   offchainCouncilData: OffchainCouncilData | undefined;
+  form: UseFormReturn;
 }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
@@ -37,6 +40,8 @@ const MemberRow = ({
     wearerAddress: member.address as Hex,
     eligibilityRules,
   });
+  const { watch, setValue } = form;
+  const isSelected = watch(member.address);
 
   if (!member) return null;
 
@@ -56,7 +61,11 @@ const MemberRow = ({
     <div className='flex h-16 justify-between border-b border-gray-200'>
       <div className='flex items-center'>
         <div className='flex w-12 items-center justify-center'>
-          <Checkbox />
+          <Checkbox
+            name={member.address}
+            isChecked={isSelected}
+            onChange={() => setValue(member.address, !isSelected)}
+          />
         </div>
         <div className='flex h-full w-[250px] items-center p-2'>
           <MemberAvatar member={member} stack />

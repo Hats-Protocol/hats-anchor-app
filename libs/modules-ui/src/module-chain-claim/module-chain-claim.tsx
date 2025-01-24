@@ -32,7 +32,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
     <EligibilityContextProvider hatId={hatId} chainId={(chainId || undefined) as SupportedChains}>
       <div className='flex min-h-[600px] justify-center pt-10'>
         <div className='flex w-full max-w-screen-md flex-col gap-4'>
-          <ModuleChainClaimHeader chainId={chainId || undefined} />
+          <ModuleChainClaimHeader chainId={chainId || undefined} hsgAddress={address || undefined} />
 
           <ModuleChainClaimsCard />
         </div>

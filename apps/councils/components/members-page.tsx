@@ -1,12 +1,12 @@
 'use client';
 
 import { Button, Tooltip } from '@chakra-ui/react';
-import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
-import { filter, find, first, flatten, get, isEmpty, map, split, toLower } from 'lodash';
+import { filter, find, first, flatten, get, isEmpty, keys, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
+import { useForm } from 'react-hook-form';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
@@ -20,6 +20,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
   const queryClient = useQueryClient();
+  const form = useForm();
   const { chainId, address } = parseCouncilSlug(slug);
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -53,19 +54,45 @@ const MembersPage = ({ slug }: { slug: string }) => {
     flatten(eligibilityRules),
     (rule) => toLower(rule.address) === toLower(offchainCouncilData?.membersSelectionModule),
   );
-  const addAccount = find(
-    get(selectionModule, 'module.writeFunctions'),
-    (fn: WriteFunction) => fn.functionName === 'addAccount',
+  const complianceModule = find(
+    flatten(eligibilityRules),
+    (rule) => toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule),
   );
+  const addAccount = find(get(selectionModule, 'module.writeFunctions'), {
+    functionName: 'addAccount',
+  });
+  const addAccounts = find(get(complianceModule, 'module.writeFunctions'), {
+    functionName: 'addAccounts',
+  });
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({
     chainId: chainId as SupportedChains,
   });
 
+  const updateComplianceForSelected = async () => {
+    console.log(form.getValues());
+    // TODO
+    const values = form.getValues();
+    const onlyAddresses = keys(values).filter((key) => values[key]);
+
+    await callModuleFn({
+      moduleId: get(complianceModule, 'module.implementationAddress'),
+      instance: get(complianceModule, 'address'),
+      func: addAccounts as ModuleFunction,
+      args: { Accounts: onlyAddresses },
+      onSuccess: () => {
+        logger.info('updated compliance for selected users');
+        setModals?.({});
+        queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['eligibilityRules'] });
+        // reset form values
+      },
+    });
+  };
+
   const addUserToCouncil = async (user: CouncilMember | undefined) => {
     if (!user?.address || !addAccount) return;
 
-    console.log(user, user.address);
     // TODO handle pending tx state
     await callModuleFn({
       moduleId: get(selectionModule, 'module.implementationAddress'),
@@ -145,6 +172,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
               signerHat={primarySignerHat as AppHat}
               eligibilityRules={eligibilityRules || undefined}
               offchainCouncilData={offchainCouncilData || undefined}
+              form={form}
             />
           );
         })
@@ -154,7 +182,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
         </div>
       )}
 
-      <div className='flex pt-8'>
+      <div className='flex gap-2 pt-8'>
         <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
           <Button
             variant='outline'
@@ -164,6 +192,10 @@ const MembersPage = ({ slug }: { slug: string }) => {
             Add Member
           </Button>
         </Tooltip>
+
+        <Button variant='outline' isDisabled={!userAddress} onClick={updateComplianceForSelected}>
+          Update Compliance
+        </Button>
       </div>
 
       <AddUserModal

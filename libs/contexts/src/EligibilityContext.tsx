@@ -2,6 +2,7 @@
 
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
+import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useTreeDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
 import { first, flatten, get, includes, toLower, toNumber } from 'lodash';
@@ -9,7 +10,7 @@ import { useCurrentEligibility, useEligibilityRules, useMultiClaimsHatterCheck }
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppHat, EligibilityRule, HatDetails, SupportedChains, WearerStatus } from 'types';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 
 export interface EligibilityContextProps {
   chainId: SupportedChains | undefined;
@@ -18,6 +19,7 @@ export interface EligibilityContextProps {
   eligibilityRules: Ruleset[] | undefined;
   controllerAddress: Hex | undefined;
   currentEligibility: { [key: Hex]: WearerStatus } | undefined;
+  isWearing: boolean;
   // loading
   isHatDetailsLoading: boolean | undefined;
   isEligibilityRulesLoading: boolean | undefined;
@@ -40,6 +42,7 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   eligibilityRules: undefined,
   controllerAddress: undefined,
   currentEligibility: undefined,
+  isWearing: false,
   // loading
   isHatDetailsLoading: true,
   isEligibilityRulesLoading: true,
@@ -100,6 +103,14 @@ export const EligibilityContextProvider = ({
     selectedHat,
   });
 
+  const { data: balanceOf } = useReadContract({
+    address: HATS_V1,
+    abi: HATS_ABI,
+    functionName: 'balanceOf',
+    args: [address as Hex, selectedHat?.id ? BigInt(selectedHat?.id) : BigInt(0)],
+  });
+  const isWearing = balanceOf ? balanceOf > BigInt(0) : false;
+
   const { claimableForHats, hatterIsAdmin } = useMultiClaimsHatterCheck({
     selectedHat,
     chainId,
@@ -128,6 +139,7 @@ export const EligibilityContextProvider = ({
       eligibilityRules: eligibilityRules || undefined,
       controllerAddress,
       currentEligibility: currentEligibility || undefined,
+      isWearing,
       // loading
       isHatDetailsLoading: isHatDetailsLoading || isImageURIsLoading,
       isEligibilityRulesLoading,
@@ -150,6 +162,7 @@ export const EligibilityContextProvider = ({
       eligibilityRules,
       controllerAddress,
       currentEligibility,
+      isWearing,
       // loading
       isHatDetailsLoading,
       isImageURIsLoading,

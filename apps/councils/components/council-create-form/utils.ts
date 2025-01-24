@@ -85,6 +85,8 @@ export function getNextStepButtonText(nextStep: NextStep): string {
         default:
           return 'Continue';
       }
+    case 'payment':
+      return 'Subscribe and Deploy';
     default:
       return 'Continue';
   }

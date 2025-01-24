@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Modal, useCouncilForm, useOverlay } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { Variables } from 'graphql-request';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember, FormMember } from 'types';
 import { chainsMap, councilsGraphqlClient, CREATE_USER, getChainId, isValidEmail, logger, UPDATE_USER } from 'utils';
@@ -23,6 +23,7 @@ export function AddMemberModal({
   setEditingMember,
   canEdit = true,
 }: AddMemberModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();
   const selectedChain = parentForm.watch('chain');
@@ -60,6 +61,7 @@ export function AddMemberModal({
   });
 
   const handleSubmit = async (data: FormMember) => {
+    setIsLoading(true);
     if (!canEdit) return;
     const localData = data as unknown as Variables;
 
@@ -103,10 +105,12 @@ export function AddMemberModal({
 
       modalForm.clearErrors();
       modalForm.reset();
+      setIsLoading(false);
       setModals?.({});
     } catch (error) {
       modalForm.setError('root', { message: 'Failed to save user. Please try again.' });
       logger.error('Error saving user:', error);
+      setIsLoading(false);
     }
   };
 
@@ -175,8 +179,8 @@ export function AddMemberModal({
             <p className='mb-4 text-sm text-red-500'>{modalForm.formState.errors.root.message}</p>
           )}
           <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
-              {editingMember ? 'Save Changes' : 'Add Member'}
+            <NextStepButton type='submit' disabled={!canEdit || !isFormValid() || isLoading} withIcon={false}>
+              {isLoading ? 'Submitting...' : editingMember ? 'Save Changes' : 'Add Member'}
             </NextStepButton>
           </div>
         </div>
