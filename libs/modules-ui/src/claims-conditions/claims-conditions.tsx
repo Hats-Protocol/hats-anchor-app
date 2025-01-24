@@ -75,6 +75,7 @@ const EligibilityConditions = () => {
         isReadyToClaim={isReadyToClaim}
         setIsReadyToClaim={setIsReadyToClaim}
         wearerEligibility={currentEligibility}
+        ruleSets={eligibilityRules}
       />
     );
   }

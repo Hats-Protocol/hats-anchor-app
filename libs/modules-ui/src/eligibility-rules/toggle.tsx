@@ -22,23 +22,15 @@ export const Toggle = () => {
     id: toggle as Hex,
   };
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
-  const { data: ruleSets, isLoading: moduleDetailsLoading } =
-    useEligibilityRules({
-      address: toggle,
-      chainId,
-      enabled: toggleData?.isContract, // ? is this reliable enough?
-    });
+  const { data: ruleSets, isLoading: moduleDetailsLoading } = useEligibilityRules({
+    address: toggle,
+    chainId,
+    enabled: toggleData?.isContract, // ? is this reliable enough?
+  });
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
   if (ruleSets) {
-    return (
-      <KnownToggleModule
-        ruleSets={ruleSets}
-        chainId={chainId}
-        wearer={toggle}
-        selectedHat={selectedHat}
-      />
-    );
+    return <KnownToggleModule ruleSets={ruleSets} chainId={chainId} wearer={toggle} selectedHat={selectedHat} />;
   }
 
   if (isHatsAccount) {
@@ -57,10 +49,7 @@ export const Toggle = () => {
   return (
     <Skeleton isLoaded={!moduleDetailsLoading} my={2} mx={{ base: 4, md: 0 }}>
       <Flex justify='space-between'>
-        <Text>
-          {includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'}{' '}
-          can deactivate this Hat
-        </Text>
+        <Text>{includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'} can deactivate this Hat</Text>
 
         <ControllerWearer controllerData={toggleData} />
       </Flex>

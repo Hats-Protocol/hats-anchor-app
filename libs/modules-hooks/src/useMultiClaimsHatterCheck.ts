@@ -28,10 +28,7 @@ const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
   return res as unknown as Promise<AppHat[]>;
 };
 
-const fetchHatters = async (
-  chainId: number | undefined,
-  allHatIds: Hex[] | undefined,
-) => {
+const fetchHatters = async (chainId: number | undefined, allHatIds: Hex[] | undefined) => {
   if (!chainId || !allHatIds || isEmpty(allHatIds)) return undefined;
   const result = await fetchHattersHelper(chainId, allHatIds);
   return result;
@@ -45,9 +42,7 @@ const getHatterHat = async (
 ) => {
   if (!chainId) return {};
 
-  const onchainHatId = _.first(
-    _.compact(_.map(claimsHatterData, 'claimableBy[0].id')),
-  );
+  const onchainHatId = _.first(_.compact(_.map(claimsHatterData, 'claimableBy[0].id')));
 
   const claimsHatterIndex = _.findIndex(
     storedModuleDetails,
@@ -115,12 +110,7 @@ const useMultiClaimsHatterCheck = ({
   }, [selectedHat, claimableHats, claimableForHats]);
 
   const storedAddresses = _.uniq(
-    _.compact(
-      _.flatMap(storedData, ({ eligibility, toggle }: Partial<FormData>) => [
-        eligibility,
-        toggle,
-      ]),
-    ),
+    _.compact(_.flatMap(storedData, ({ eligibility, toggle }: Partial<FormData>) => [eligibility, toggle])),
   );
 
   const { modulesDetails, isLoading: modulesLoading } = useModulesDetails({
@@ -156,8 +146,7 @@ const useMultiClaimsHatterCheck = ({
       { chainId, hats: _.map(claimsHatterData, 'id') },
       { storedModulesDetailsData: modulesDetails, storedData },
     ],
-    queryFn: () =>
-      getHatterHat(claimsHatterData, modulesDetails, storedData, chainId),
+    queryFn: () => getHatterHat(claimsHatterData, modulesDetails, storedData, chainId),
     enabled: !!chainId && !!claimsHatterData,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });

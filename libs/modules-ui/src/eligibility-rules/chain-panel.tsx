@@ -187,6 +187,7 @@ export const ChainPanel = ({
                           isReadyToClaim={aggregateIsReadyToClaim}
                           setIsReadyToClaim={setIsReadyToClaim}
                           wearerEligibility={currentEligibility}
+                          ruleSets={ruleSets}
                         />
                       );
                     }),

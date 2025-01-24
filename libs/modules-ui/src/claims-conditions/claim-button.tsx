@@ -1,28 +1,11 @@
 'use client';
 
-import {
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Link,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
+import { Button, Flex, HStack, Icon, Link, Text, Tooltip } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/constants';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import {
-  capitalize,
-  filter,
-  first,
-  flatten,
-  get,
-  includes,
-  map,
-  size,
-} from 'lodash';
+import { capitalize, filter, first, flatten, get, includes, map, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
@@ -33,12 +16,8 @@ import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
-const NetworkSwitcher = dynamic(() =>
-  import('molecules').then((mod) => mod.NetworkSwitcher),
-);
-const ConnectWallet = dynamic(() =>
-  import('molecules').then((mod) => mod.ConnectWallet),
-);
+const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
+const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
 
 export const ClaimButton = () => {
   const { address } = useAccount();
@@ -61,31 +40,29 @@ export const ClaimButton = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
+  const multipleRules = size(eligibilityRules) > 1;
   const rulesNotAlreadyClaimed = filter(flatten(eligibilityRules), (rule) => {
     return (
-      !get(currentEligibility, `${rule.address}.eligible`) ||
-      !get(currentEligibility, `${rule.address}.goodStanding`)
+      !get(currentEligibility, `${rule.address}.eligible`) || !get(currentEligibility, `${rule.address}.goodStanding`)
     );
   });
   const multipleModulesRemaining = size(rulesNotAlreadyClaimed) > 1;
 
   const moduleDetails = eligibilityRuleToModuleDetails(
-    first(rulesNotAlreadyClaimed), // TODO assuming there is only 1 rule remaining to claim
+    multipleRules ? first(rulesNotAlreadyClaimed) : first(flatten(eligibilityRules)), // TODO assuming there is only 1 rule remaining to claim
   );
-  const { handleClaim, disableClaim, disableReason, isLoading, isEligible } =
-    useClaimFn({
-      selectedHat: selectedHat as AppHat,
-      handlePendingTx,
-      moduleParameters: get(moduleDetails, 'liveParameters'),
-      moduleDetails,
-      chainId,
-      isReadyToClaim,
-    });
+
+  const { handleClaim, disableClaim, disableReason, isLoading, isEligible } = useClaimFn({
+    selectedHat: selectedHat as AppHat,
+    handlePendingTx,
+    moduleParameters: get(moduleDetails, 'liveParameters'),
+    moduleDetails,
+    chainId,
+    isReadyToClaim,
+  });
 
   const hatUrl = selectedHat?.id
-    ? `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(
-        BigInt(selectedHat.id),
-      )}?hatId=${idToIp(selectedHat.id)}`
+    ? `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(BigInt(selectedHat.id))}?hatId=${idToIp(selectedHat.id)}`
     : '#';
 
   if (isWearing && isEligible) {
@@ -110,7 +87,7 @@ export const ClaimButton = () => {
   if (requireHatter) {
     // hatter must be an admin wearer
     // can't claim if not claimable for - module claims on behalf of user
-    hatterIfNeeded = !hatterIsAdmin || !isClaimableFor;
+    hatterIfNeeded = !hatterIsAdmin || !isClaimableFor || false;
   }
 
   let tooltip = '';
@@ -141,12 +118,7 @@ export const ClaimButton = () => {
       <Button
         variant='primary'
         // won't hit this flow if wrong network
-        isDisabled={
-          hatterIfNeeded ||
-          disableClaim ||
-          (isWearing && isEligible) ||
-          currentChainId !== chainId
-        } // handle isReadyToClaim on respective disableClaims
+        isDisabled={hatterIfNeeded || disableClaim || (isWearing && isEligible) || currentChainId !== chainId} // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
         isLoading={isLoading}
       >

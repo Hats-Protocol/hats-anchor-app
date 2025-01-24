@@ -30,7 +30,7 @@ import {
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useWaitForSubgraph } from 'hooks';
-import { find, first, get, map, toLower, toNumber, toString } from 'lodash';
+import { capitalize, find, first, get, map, toLower, toNumber, toString } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -1176,7 +1176,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           const appUrl = window.location.origin || 'https://hats-app.vercel.app';
           const chainName = toLower(chainsMap(chainId)?.name);
-          const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainName}: `;
+          const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${capitalize(chainName)}: `;
           const links = `[View Council](${appUrl}/councils/${chainName}:${hsgAddress}/members)\n[View HSG \\(${hsgAddress}\\)](${explorerUrl(chainId)}/address/${hsgAddress}) `;
 
           sendTelegramMessage(`${message} ${links}`);

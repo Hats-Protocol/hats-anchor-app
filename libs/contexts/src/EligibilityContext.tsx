@@ -5,26 +5,9 @@ import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useHatDetails, useTreeDetails } from 'hats-hooks';
 import { useImageURIs } from 'hooks';
 import { first, flatten, get, includes, toLower, toNumber } from 'lodash';
-import {
-  useCurrentEligibility,
-  useEligibilityRules,
-  useMultiClaimsHatterCheck,
-} from 'modules-hooks';
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import {
-  AppHat,
-  EligibilityRule,
-  HatDetails,
-  SupportedChains,
-  WearerStatus,
-} from 'types';
+import { useCurrentEligibility, useEligibilityRules, useMultiClaimsHatterCheck } from 'modules-hooks';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AppHat, EligibilityRule, HatDetails, SupportedChains, WearerStatus } from 'types';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -92,28 +75,23 @@ export const EligibilityContextProvider = ({
     hatId,
   });
   const treeId = toNumber(get(selectedHat, 'tree.id'));
-  const requireHatter = false;
+  const requireHatter = true;
   const { data: treeDetails } = useTreeDetails({
     treeId,
     chainId,
   });
   const { address } = useAccount();
 
-  const controllerAddress = get(
-    selectedHat,
-    toLower(CONTROLLER_TYPES.eligibility),
-  );
+  const controllerAddress = get(selectedHat, toLower(CONTROLLER_TYPES.eligibility));
 
-  const { data: selectedHatWithImageUrl, isLoading: isImageURIsLoading } =
-    useImageURIs({
-      hats: selectedHat ? [selectedHat] : [],
-    });
+  const { data: selectedHatWithImageUrl, isLoading: isImageURIsLoading } = useImageURIs({
+    hats: selectedHat ? [selectedHat] : [],
+  });
 
-  const { data: eligibilityRules, isLoading: isEligibilityRulesLoading } =
-    useEligibilityRules({
-      chainId,
-      address: controllerAddress,
-    });
+  const { data: eligibilityRules, isLoading: isEligibilityRulesLoading } = useEligibilityRules({
+    chainId,
+    address: controllerAddress,
+  });
 
   const { data: currentEligibility } = useCurrentEligibility({
     chainId,
@@ -127,10 +105,7 @@ export const EligibilityContextProvider = ({
     chainId,
     onchainHats: get(treeDetails, 'hats', []),
   });
-  const isClaimableFor = useMemo(
-    () => includes(claimableForHats, selectedHat?.id),
-    [claimableForHats, selectedHat],
-  );
+  const isClaimableFor = useMemo(() => includes(claimableForHats, selectedHat?.id), [claimableForHats, selectedHat]);
 
   const setIsReadyToClaim = useCallback(
     (address: Hex) => {
@@ -192,11 +167,7 @@ export const EligibilityContextProvider = ({
     ],
   );
 
-  return (
-    <EligibilityContext.Provider value={value}>
-      {children}
-    </EligibilityContext.Provider>
-  );
+  return <EligibilityContext.Provider value={value}>{children}</EligibilityContext.Provider>;
 };
 
 export const useEligibility = () => useContext(EligibilityContext);

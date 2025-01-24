@@ -129,7 +129,7 @@ export const useClaimFn = ({
     if (moduleDetails?.name === ELIGIBILITY_MODULES.agreement) {
       return {
         claimFn: agreementClaim,
-        disableClaim: !get(isReadyToClaim, moduleDetails?.instanceAddress, false),
+        disableClaim: !get(isReadyToClaim, moduleDetails?.instanceAddress, false) && !isEligible,
       };
     }
 

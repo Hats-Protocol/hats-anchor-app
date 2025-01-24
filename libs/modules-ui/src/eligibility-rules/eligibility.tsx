@@ -69,6 +69,7 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
         chainId={chainId}
         modalSuffix={modalSuffix}
         wearerEligibility={currentEligibility || undefined}
+        ruleSets={rawEligibilityRules || undefined}
       />
     );
   }
