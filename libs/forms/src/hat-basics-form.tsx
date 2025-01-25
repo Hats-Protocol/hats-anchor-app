@@ -1,11 +1,10 @@
 'use client';
 
-import { Box, Button, FormControl, Icon, Stack, Text } from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
 import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { isMutable, isTopHat } from 'hats-utils';
 import { usePinImageIpfs } from 'hooks';
-import _ from 'lodash';
+import { find, get, pick, some, toString } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -14,7 +13,7 @@ import { BsImage, BsTextParagraph } from 'react-icons/bs';
 import { FaCube, FaHouseUser, FaPlus } from 'react-icons/fa';
 import { GrEdit } from 'react-icons/gr';
 import { ImageFile } from 'types';
-import { DropZone } from 'ui';
+import { Button, DropZone } from 'ui';
 import { formatImageUrl } from 'utils';
 
 import { Form, FormRowWrapper, Input, PlatformInput, RadioBox, Textarea } from './components';
@@ -34,9 +33,9 @@ const HatBasicsForm = () => {
   const { selectedHat } = useSelectedHat();
   const { localForm, formValues, setFormLoading, isLoading: hatFormLoading } = useHatForm();
   const [image, setImage] = useState<ImageFile>();
-  const { control, setValue } = _.pick(localForm, ['control', 'setValue']);
+  const { control, setValue } = pick(localForm, ['control', 'setValue']);
 
-  const currentImageUrl = _.get(_.find(treeToDisplay, ['id', selectedHat?.id]), 'imageUrl');
+  const currentImageUrl = get(find(treeToDisplay, ['id', selectedHat?.id]), 'imageUrl');
 
   const {
     append: appendGuild,
@@ -70,7 +69,7 @@ const HatBasicsForm = () => {
   const { data: imagePinData } = usePinImageIpfs({
     imageFile: acceptedFiles[0],
     enabled: true,
-    metadata: { name: `image_${_.toString(chainId)}_hat_${selectedHat?.id}` },
+    metadata: { name: `image_${toString(chainId)}_hat_${selectedHat?.id}` },
     setLoading: setFormLoading,
   });
 
@@ -87,134 +86,135 @@ const HatBasicsForm = () => {
   return (
     <Form {...localForm}>
       <form>
-        <FormControl>
-          <Stack spacing={8}>
-            <FormRowWrapper>
-              <Icon as={BsImage} boxSize={4} mt='2px' />
-              <Stack w='100%'>
-                <Text size='sm' variant='medium'>
-                  IMAGE
-                </Text>
-                <DropZone
-                  getRootProps={getRootProps}
-                  getInputProps={getInputProps}
-                  isFocused={isFocused}
-                  isDragAccept={isDragAccept}
-                  isDragReject={isDragReject}
-                  isFullWidth
-                  image={image}
-                  imageUrl={currentImageUrl}
-                  isNewImage={isNewImage}
-                />
-              </Stack>
-            </FormRowWrapper>
-            <FormRowWrapper>
-              <Icon as={HatIcon} boxSize={4} mt='2px' />
-              <Input
-                name='name'
-                label='Hat Name'
-                placeholder='Hat name'
-                isDisabled={hatFormLoading}
-                localForm={localForm}
-              />
-            </FormRowWrapper>
-            <FormRowWrapper>
-              <Icon as={BsTextParagraph} boxSize={4} mt='2px' />
-              <Textarea
-                name='description'
-                label='Description'
-                placeholder='Add a brief description (or a link to one) for this hat'
-                isDisabled={hatFormLoading}
-                localForm={localForm}
-              />
-            </FormRowWrapper>
-            {isTopHat(selectedHat) && (
-              <FormRowWrapper>
-                <FaHouseUser />
-                <Stack w='full'>
-                  <Text size='sm' textTransform='uppercase'>
-                    Guilds
-                  </Text>
-                  {fieldsGuilds.map((field, index) => (
-                    <PlatformInput
-                      key={field.id}
-                      name={`guilds.${index}`}
-                      remove={removeGuild}
-                      index={index}
-                      fieldsLength={fieldsGuilds.length}
-                      type='guild'
-                    />
-                  ))}
-                  <Box mb={2}>
-                    <Button
-                      onClick={() => appendGuild('')}
-                      isDisabled={_.some(formValues?.guilds, (item: string) => item === '')}
-                      gap={2}
-                      variant='outlineMatch'
-                      colorScheme='blue.500'
-                    >
-                      <FaPlus />
-                      Add {formValues?.guilds?.length ? 'another' : 'a'} Guild
-                    </Button>
-                  </Box>
-                </Stack>
-              </FormRowWrapper>
-            )}
+        <div className='flex flex-col gap-8'>
+          <FormRowWrapper>
+            <BsImage className='mt-2 h-4 w-4' />
 
-            {isTopHat(selectedHat) && (
-              <FormRowWrapper>
-                <Icon as={FaCube} boxSize={4} mt='2px' />
-                <Stack w='full'>
-                  <Text size='sm' textTransform='uppercase'>
-                    Snapshot Spaces
-                  </Text>
-                  {fieldsSpaces.map((field, index) => (
-                    <PlatformInput
-                      key={field.id}
-                      name={`spaces.${index}`}
-                      remove={removeSpace}
-                      index={index}
-                      fieldsLength={fieldsSpaces.length}
-                      type='snapshot'
-                    />
-                  ))}
-                  <Box mb={2}>
-                    <Button
-                      onClick={() => appendSpace('')}
-                      isDisabled={_.some(formValues?.spaces, (item: string) => item === '')}
-                      gap={2}
-                      variant='outlineMatch'
-                      colorScheme='blue.500'
-                    >
-                      <FaPlus />
-                      Add {formValues?.spaces?.length ? 'another' : 'a'} Space
-                    </Button>
-                  </Box>
-                </Stack>
-              </FormRowWrapper>
-            )}
+            <div className='flex w-full flex-col gap-1'>
+              <p className='text-sm font-medium'>IMAGE</p>
 
+              <DropZone
+                getRootProps={getRootProps}
+                getInputProps={getInputProps}
+                isFocused={isFocused}
+                isDragAccept={isDragAccept}
+                isDragReject={isDragReject}
+                isFullWidth
+                image={image}
+                imageUrl={currentImageUrl}
+                isNewImage={isNewImage}
+              />
+            </div>
+          </FormRowWrapper>
+
+          <FormRowWrapper>
+            <HatIcon className='mt-2 h-4 w-4' />
+
+            <Input
+              name='name'
+              label='Hat Name'
+              placeholder='Hat name'
+              isDisabled={hatFormLoading}
+              localForm={localForm}
+            />
+          </FormRowWrapper>
+
+          <FormRowWrapper>
+            <BsTextParagraph className='mt-2 h-4 w-4' />
+
+            <Textarea
+              name='description'
+              label='Description'
+              placeholder='Add a brief description (or a link to one) for this hat'
+              isDisabled={hatFormLoading}
+              localForm={localForm}
+            />
+          </FormRowWrapper>
+
+          {isTopHat(selectedHat) && (
             <FormRowWrapper>
-              <Icon as={GrEdit} boxSize={4} mt='2px' />
-              <Stack spacing={3}>
-                <RadioBox
-                  name='mutable'
-                  label='EDITABLE'
-                  isDisabled={!isMutable(selectedHat)}
-                  subLabel='Should it be possible for an admin to make changes to this hat?'
-                  localForm={localForm}
-                  options={MUTABILITY_OPTIONS}
-                  tooltip='Choose whether the hat should be editable or not'
-                />
-                {localForm.watch('mutable') === MUTABILITY.IMMUTABLE && !isTopHat(selectedHat) && (
-                  <Text color='red.500' size='sm'>
-                    Warning: This will make the hat immutable. It can never be changed again. This cannot be undone.
-                  </Text>
-                )}
-              </Stack>
+              <FaHouseUser className='mt-2 h-4 w-4' />
+              <div className='flex w-full flex-col gap-1'>
+                <p className='text-sm font-medium'>Guilds</p>
+
+                {fieldsGuilds.map((field, index) => (
+                  <PlatformInput
+                    key={field.id}
+                    name={`guilds.${index}`}
+                    remove={removeGuild}
+                    index={index}
+                    fieldsLength={fieldsGuilds.length}
+                    type='guild'
+                  />
+                ))}
+
+                <div className='mb-2'>
+                  <Button
+                    onClick={() => appendGuild('')}
+                    disabled={some(formValues?.guilds, (item: string) => item === '')}
+                    variant='outline-blue'
+                  >
+                    <FaPlus />
+                    Add {formValues?.guilds?.length ? 'another' : 'a'} Guild
+                  </Button>
+                </div>
+              </div>
             </FormRowWrapper>
-          </Stack>
-        </FormControl>
+          )}
+
+          {isTopHat(selectedHat) && (
+            <FormRowWrapper>
+              <FaCube className='mt-2 h-4 w-4' />
+              <div className='flex w-full flex-col gap-1'>
+                <p className='text-sm font-medium'>Snapshot Spaces</p>
+
+                {fieldsSpaces.map((field, index) => (
+                  <PlatformInput
+                    key={field.id}
+                    name={`spaces.${index}`}
+                    remove={removeSpace}
+                    index={index}
+                    fieldsLength={fieldsSpaces.length}
+                    type='snapshot'
+                  />
+                ))}
+
+                <div className='mb-2'>
+                  <Button
+                    onClick={() => appendSpace('')}
+                    disabled={some(formValues?.spaces, (item: string) => item === '')}
+                    variant='outline-blue'
+                  >
+                    <FaPlus />
+                    Add {formValues?.spaces?.length ? 'another' : 'a'} Space
+                  </Button>
+                </div>
+              </div>
+            </FormRowWrapper>
+          )}
+
+          <FormRowWrapper>
+            <GrEdit className='mt-2 h-4 w-4' />
+            <div className='flex w-full flex-col gap-1'>
+              <p className='text-sm font-medium'>MUTABILITY</p>
+
+              <RadioBox
+                name='mutable'
+                label='EDITABLE'
+                isDisabled={!isMutable(selectedHat)}
+                subLabel='Should it be possible for an admin to make changes to this hat?'
+                localForm={localForm}
+                options={MUTABILITY_OPTIONS}
+                tooltip='Choose whether the hat should be editable or not'
+              />
+              {localForm.watch('mutable') === MUTABILITY.IMMUTABLE && !isTopHat(selectedHat) && (
+                <p className='text-sm text-red-500'>
+                  Warning: This will make the hat immutable. It can never be changed again. This cannot be undone.
+                </p>
+              )}
+            </div>
+          </FormRowWrapper>
+        </div>
       </form>
     </Form>
   );

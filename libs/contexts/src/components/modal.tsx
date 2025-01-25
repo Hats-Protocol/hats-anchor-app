@@ -1,32 +1,24 @@
 'use client';
 
-import {
-  Heading,
-  Modal as ChakraModal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
-import _ from 'lodash';
+import { get } from 'lodash';
 import { ReactNode } from 'react';
+import { BsX } from 'react-icons/bs';
 
 import { useOverlay } from '../overlay-context';
+import { BaseModal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader } from './base-modal';
 
 // type ModalName = keyof Partial<ClaimsModals> | keyof Partial<AppModals>;
 
 // TODO migrate modal to tailwind
 /**
  * Modal component, wraps Chakra's default Modal
- * @param {string} name name of modal `setModals?.({ modalName: true })`
- * @param {string} title title of modal used in header
- * @param {React.ReactNode} content content of modal
- * @param {string} size size of modal, defaults to 2xl
- * @note Include either `isOpen && onClose` or `localOverlay`
- * @param {boolean} isOpen whether modal is open, fallback to OverlayContext
- * @param {function} onClose function to close modal, fallback to OverlayContext
+ * @param name - name of modal `setModals?.({ modalName: true })`
+ * @param title - title of modal used in header
+ * @param content - content of modal
+ * @param size - size of modal, defaults to `2xl`
+ *   note include either `isOpen && onClose` or `localOverlay`
+ * @param isOpen - whether modal is open, fallback to OverlayContext
+ * @param onClose - function to close modal, fallback to OverlayContext
  * @returns Modal component and handlers
  */
 const Modal = ({ name, title, content, footer, customHeader, isOpen, onClose, size = '2xl', children }: ModalProps) => {
@@ -41,29 +33,23 @@ const Modal = ({ name, title, content, footer, customHeader, isOpen, onClose, si
   };
 
   return (
-    <ChakraModal isOpen={isOpen || _.get(modals, name) || false} onClose={handleClose} size={size} id={name}>
-      <ModalOverlay />
-      <ModalContent
-        // background={props.bgColor ? props.bgColor : 'gray.800'}
-        minWidth='20vw'
-        padding={4}
-        display='flex'
-        flexDirection='column'
-        // set mobile modal fixed to bottom of screen
-        marginTop={{ base: 'auto', md: '3.75rem' }}
-        marginBottom={{ base: '0', md: 'auto' }}
-        borderBottomRadius={{ base: '0', md: 'md' }}
-      >
+    <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
+      <ModalContent className='min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-gray-800 p-4 md:mb-auto md:mt-4 md:rounded-b-md'>
         {customHeader || (
           <ModalHeader>
-            <Heading size={size}>{title}</Heading>
+            <h2 className='text-2xl font-bold'>{title}</h2>
           </ModalHeader>
         )}
-        <ModalCloseButton />
+
+        <ModalCloseButton>
+          <BsX className='h-4 w-4' />
+        </ModalCloseButton>
+
         <ModalBody>{content || children}</ModalBody>
+
         {footer && <ModalFooter>{footer}</ModalFooter>}
       </ModalContent>
-    </ChakraModal>
+    </BaseModal>
   );
 };
 

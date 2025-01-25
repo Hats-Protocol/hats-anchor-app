@@ -1,11 +1,11 @@
 'use client';
 
-import { Button, Icon } from '@chakra-ui/react';
 import { compact, get, map, size } from 'lodash';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
+import { Button } from 'ui';
 import { chainsMap, createHatsModulesClient, explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
@@ -68,6 +68,7 @@ export const ChainModuleForm = () => {
     reset(DEFAULT_VALUES, { keepDefaultValues: false });
     setNewInstance(undefined);
   }, []);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4'>
       <div className='flex flex-col gap-4'>
@@ -120,7 +121,7 @@ export const ChainModuleForm = () => {
               >
                 <span>{formatAddress(newInstance)}</span>
 
-                <Icon as={FiExternalLink} />
+                <FiExternalLink className='h-4 w-4' />
               </Link>
             </div>
           )}

@@ -13,6 +13,7 @@ export * from './use-image-uris';
 export * from './use-ipfs-data';
 export * from './use-is-same-chain';
 export * from './use-local-storage';
+export * from './use-media-query';
 export * from './use-media-styles';
 export * from './use-offchain-council-details';
 export * from './use-org-chart-tree';

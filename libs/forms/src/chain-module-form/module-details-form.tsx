@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { UseFormReturn } from 'react-hook-form';
+import { Button } from 'ui';
 
 import { Input } from '../components';
 

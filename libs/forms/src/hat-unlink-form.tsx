@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
 import { map } from 'lodash';
 import { useForm } from 'react-hook-form';
+import { Button } from 'ui';
 import { Hex } from 'viem';
 
 import { Select } from './components';
@@ -53,8 +53,8 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={4}>
-        <Text>Relinquish admin rights over the linked Top Hat, completely disconnecting it from the current tree.</Text>
+      <div className='flex flex-col gap-4'>
+        <p>Relinquish admin rights over the linked Top Hat, completely disconnecting it from the current tree.</p>
 
         <Select label='Enter domain of the Top Hat to be unlinked' name='topHatPrettyId' localForm={localForm}>
           {map(parentOfTrees, (hat: Hex) => (
@@ -64,12 +64,12 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
           ))}
         </Select>
 
-        <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || isLoading}>
+        <div className='flex justify-end'>
+          <Button type='submit' disabled={!writeAsync || isLoading}>
             Unlink
           </Button>
-        </Flex>
-      </Stack>
+        </div>
+      </div>
     </form>
   );
 };

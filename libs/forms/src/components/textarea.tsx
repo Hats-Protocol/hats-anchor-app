@@ -9,17 +9,28 @@ import { BaseTextarea, Button, cn, Tooltip } from 'ui';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
 /**
- * Primary UI component for Textarea Input
- * @param {TextareaProps} props
- * @param props.label - The label for the textarea
- * @param props.name - The name of the textarea
- * @param props.localForm - The local form
- * @param props.helperText - The helper text for the textarea
- * @param props.tooltip - The tooltip for the textarea
- * @param props.headerNote - The header note for the textarea
- * @param props.subLabel - The sub label for the textarea
+ * Textarea Input form component
+ * @param props - `TextareaProps`
+ * @param label - The label for the textarea
+ * @param name - The name of the textarea
+ * @param localForm - The local form
+ * @param helperText - The helper text for the textarea
+ * @param tooltip - The tooltip for the textarea
+ * @param headerNote - The header note for the textarea
+ * @param subLabel - The sub label for the textarea
+ * @param isDisabled - Whether the textarea is disabled
  */
-const Textarea = ({ label, name, localForm, helperText, tooltip, headerNote, subLabel, ...props }: TextareaProps) => {
+const Textarea = ({
+  label,
+  name,
+  localForm,
+  helperText,
+  tooltip,
+  headerNote,
+  subLabel,
+  isDisabled,
+  ...props
+}: TextareaProps) => {
   const {
     control,
     // register,
@@ -59,7 +70,11 @@ const Textarea = ({ label, name, localForm, helperText, tooltip, headerNote, sub
           <div className='flex flex-col gap-1'>
             {subLabel && <FormDescription>{subLabel}</FormDescription>}
             <FormControl className='flex w-full flex-grow'>
-              <BaseTextarea {...field} className={cn(isDirty ? 'border-cyan-500' : undefined, 'outline outline-1')} />
+              <BaseTextarea
+                {...field}
+                className={cn(isDirty ? 'border-cyan-500' : undefined, 'outline outline-1')}
+                disabled={isDisabled}
+              />
 
               {isDirty && (
                 <div className='absolute right-2 top-2'>
@@ -89,6 +104,7 @@ interface TextareaProps {
   placeholder?: string;
   headerNote?: string;
   subLabel?: string;
+  isDisabled?: boolean;
 }
 
 export { Textarea, type TextareaProps };

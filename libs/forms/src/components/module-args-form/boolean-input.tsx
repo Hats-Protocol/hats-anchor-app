@@ -7,7 +7,13 @@ import { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { RadioGroup, RadioGroupItem } from 'ui';
 
-const BooleanInput = ({ arg, localForm }: { arg: ModuleCreationArg; localForm: UseFormReturn }) => {
+/**
+ * BooleanInput component for Module Argument Form
+ * @param arg - ModuleCreationArg
+ * @param localForm - UseFormReturn
+ * @returns JSX.Element
+ */
+const BooleanInput = ({ arg, localForm }: BooleanInputProps) => {
   const booleanOptions =
     MODULE_ARG_BOOLEAN_OPTION_SETS[toLower(arg.name) as keyof typeof MODULE_ARG_BOOLEAN_OPTION_SETS] ||
     FALLBACK_ARG_EXAMPLES.booleanOption;
@@ -31,7 +37,7 @@ const BooleanInput = ({ arg, localForm }: { arg: ModuleCreationArg; localForm: U
 
       <RadioGroup name={arg.name} defaultValue={first(booleanOptions)} onChange={(value) => setValue(arg.name, value)}>
         <div className='flex gap-4'>
-          {map(booleanOptions, (option: any) => (
+          {map(booleanOptions, (option: string) => (
             <RadioGroupItem value={option} key={option}>
               {option}
             </RadioGroupItem>
@@ -41,5 +47,10 @@ const BooleanInput = ({ arg, localForm }: { arg: ModuleCreationArg; localForm: U
     </div>
   );
 };
+
+interface BooleanInputProps {
+  arg: ModuleCreationArg;
+  localForm: UseFormReturn;
+}
 
 export { BooleanInput };

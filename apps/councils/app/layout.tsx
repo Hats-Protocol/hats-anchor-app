@@ -3,6 +3,7 @@ import { MetadataConfig } from '@hatsprotocol/config';
 import { Metadata } from 'next';
 // import Script from 'next/script';
 import { ReactNode } from 'react';
+import { Toaster } from 'ui';
 
 import { Navbar } from '../components/navbar';
 import Providers from './providers';
@@ -37,6 +38,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <div className='w-screen'>{children}</div>
 
           {/*<TxHistoryModal />*/}
+          <Toaster />
         </Providers>
       </div>
     </body>

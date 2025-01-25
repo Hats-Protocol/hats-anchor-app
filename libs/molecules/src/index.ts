@@ -5,6 +5,7 @@ export * from './check-has-hat';
 export * from './cmdk-button';
 export * from './command-palette';
 export * from './connect-wallet';
+export * from './dev-info';
 export * from './event-history';
 export * from './hat-dev-details';
 export * from './my-hats';

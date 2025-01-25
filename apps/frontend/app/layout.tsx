@@ -6,6 +6,7 @@ import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import { ReactNode } from 'react';
+import { Toaster } from 'ui';
 
 import Providers from './providers';
 
@@ -37,6 +38,8 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <TxHistoryModal />
 
           <CommandPalette />
+
+          <Toaster />
         </Providers>
       </div>
     </body>

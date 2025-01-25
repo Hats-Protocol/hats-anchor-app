@@ -7,6 +7,7 @@ import { Metadata } from 'next';
 import Script from 'next/script';
 import { StandaloneNavbar as Navbar } from 'organisms';
 import { ReactNode } from 'react';
+import { Toaster } from 'ui';
 
 import Providers from './providers';
 
@@ -36,6 +37,8 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <div className='w-screen'>{children}</div>
 
           <TxHistoryModal />
+
+          <Toaster />
         </Providers>
 
         <div className='fixed left-0 top-0 z-[-5] size-full bg-gray-50' />

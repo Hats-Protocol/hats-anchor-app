@@ -1,27 +1,9 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Card,
-  Flex,
-  HStack,
-  Icon as IconWrapper,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Stack,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
-import { useHatForm, useSelectedHat, useTreeForm } from 'contexts';
+import { Modal, useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { usePinImageIpfs } from 'hooks';
-import _ from 'lodash';
+import { pick, some, toString } from 'lodash';
 import { ResponsibilityHeader } from 'molecules';
 import { ReactNode, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -29,10 +11,10 @@ import { FieldValues, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle, BsSave } from 'react-icons/bs';
 import { Authority } from 'types';
-import { DropZone } from 'ui';
+import { Button, Card, DropZone } from 'ui';
 import { formatImageUrl } from 'utils';
 
-import { Input, Textarea } from './components';
+import { Form, Input, Textarea } from './components';
 import { ResponsibilitiesFormItem } from './responsibilities-form-item';
 
 interface ItemDetailsFormProps {
@@ -47,16 +29,17 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const { localForm: hatForm } = useHatForm();
+  const { setModals } = useOverlay();
   const {
     setValue: hatSetValue,
     getValues: hatGetValues,
     watch: hatWatch,
     control: hatControl,
-  } = _.pick(hatForm, ['setValue', 'getValues', 'watch', 'control']);
+  } = pick(hatForm, ['setValue', 'getValues', 'watch', 'control']);
   const [index, setIndex] = useState<number>();
   const { imageUrl, label: responsibilityLabel, link } = hatGetValues?.(`${formName}.${index}`) ?? {};
   const localForm = useForm();
-  const { setValue, reset, handleSubmit, watch, formState } = _.pick(localForm, [
+  const { setValue, reset, handleSubmit, watch, formState } = pick(localForm, [
     'setValue',
     'reset',
     'handleSubmit',
@@ -65,17 +48,11 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
   ]);
   const items = hatWatch?.(formName);
   const item = watch();
-  const { errors, isDirty } = _.pick(formState, ['errors', 'isDirty']);
+  const { errors, isDirty } = pick(formState, ['errors', 'isDirty']);
 
   const { fields, append, remove } = useFieldArray({
     control: hatControl,
     name: formName,
-  });
-  const { isOpen, onOpen, onClose } = useDisclosure({
-    onClose: () => {
-      reset();
-      if (item.label === '') remove(index);
-    },
   });
 
   const openEditModal = (i: number) => {
@@ -89,12 +66,12 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
     setValue('description', localDescription, { shouldDirty: false });
     setValue('link', localLink, { shouldDirty: false });
     setValue('imageUrl', localImageUrl, { shouldDirty: false });
-    onOpen();
+    setModals?.({ 'responsibilities-edit': true });
   };
 
   const saveEditedItem = (values: FieldValues) => {
     hatSetValue?.(`${formName}.${index}`, values);
-    onClose();
+    setModals?.({});
 
     reset();
   };
@@ -107,7 +84,7 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
     imageFile: acceptedFiles[0],
     enabled: true,
     metadata: {
-      name: `image_${_.toString(chainId)}_hat_${selectedHat?.id}_responsibilities_${index}`,
+      name: `image_${toString(chainId)}_hat_${selectedHat?.id}_responsibilities_${index}`,
     },
   });
 
@@ -120,16 +97,15 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
   if (!localForm) return null;
 
   return (
-    <Stack>
-      <Box mb={3}>
-        <HStack alignItems='center' ml={-6}>
-          {Icon && <IconWrapper as={Icon} boxSize={4} mt='2px' />}
-          <Text size='sm' variant='lightMedium'>
-            {title}
-          </Text>
-        </HStack>
-        {subtitle && typeof subtitle !== 'string' ? subtitle : <Text variant='light'>{subtitle}</Text>}
-      </Box>
+    <div className='flex flex-col gap-2'>
+      <div className='mb-3'>
+        <div className='flex items-center'>
+          {Icon && <Icon className='mt-2 h-4 w-4' />}
+          <p className='text-sm font-medium'>{title}</p>
+        </div>
+
+        {subtitle && typeof subtitle !== 'string' ? subtitle : <p className='text-sm text-gray-500'>{subtitle}</p>}
+      </div>
       {fields.map((field, i) => (
         <ResponsibilitiesFormItem
           key={field.id}
@@ -141,85 +117,78 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
         />
       ))}
 
-      <Box my={2}>
+      <div className='my-2'>
         <Button
           onClick={() => {
             append({ link: '', label: '', description: '', imageUrl: '' });
             setIndex(fields.length);
-            onOpen();
+            setModals?.({ 'responsibilities-edit': true });
           }}
-          isDisabled={_.some(items, ['label', ''])}
-          gap={2}
+          disabled={some(items, ['label', ''])}
+          className='flex items-center gap-2 border-slate-600'
           variant='outline'
-          borderColor='blackAlpha.300'
         >
           <BsPlusCircle />
           Add {items?.length ? 'another' : 'a'} {label}
         </Button>
-      </Box>
+      </div>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent minW='800px' px={3} py={2}>
-          <ModalHeader>Edit Responsibility</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack spacing={4} as='form' onSubmit={handleSubmit(saveEditedItem)}>
-              <Flex w='full' justifyContent='center'>
-                <Card borderRadius='4px' boxShadow='md' w='80%' p={3}>
-                  <ResponsibilityHeader editingItem={item as Authority} label={responsibilityLabel} link={link} />
-                </Card>
-              </Flex>
+      <Modal name='responsibilities-edit' title='Edit Responsibility'>
+        <Form {...localForm}>
+          <form onSubmit={handleSubmit(saveEditedItem)} className='space-y-4'>
+            <div className='flex w-full justify-center'>
+              <Card className='w-[4/5] p-4'>
+                <ResponsibilityHeader editingItem={item as Authority} label={responsibilityLabel} link={link} />
+              </Card>
+            </div>
 
-              <Input
-                label='Responsibility Name'
-                name='label'
-                placeholder='Name'
-                localForm={localForm}
-                options={{
-                  required: 'Responsibility name is required',
-                  maxLength: {
-                    value: CONFIG.SHADE_HEADING_LENGTH,
-                    message: 'Responsibility name is too long',
-                  },
-                }}
-              />
+            <Input
+              label='Responsibility Name'
+              name='label'
+              placeholder='Name'
+              localForm={localForm}
+              options={{
+                required: 'Responsibility name is required',
+                maxLength: {
+                  value: CONFIG.SHADE_HEADING_LENGTH,
+                  message: 'Responsibility name is too long',
+                },
+              }}
+            />
 
-              <Textarea
-                label='Description'
-                name='description'
-                placeholder='Enter a description here (supports Markdown)'
-                localForm={localForm}
-              />
+            <Textarea
+              label='Description'
+              name='description'
+              placeholder='Enter a description here (supports Markdown)'
+              localForm={localForm}
+            />
 
-              <Input label='Responsibility Link' name='link' placeholder='https://example.com' localForm={localForm} />
+            <Input label='Responsibility Link' name='link' placeholder='https://example.com' localForm={localForm} />
 
-              <DropZone
-                label='Image'
-                getRootProps={getRootProps}
-                getInputProps={getInputProps}
-                isFocused={isFocused}
-                isDragAccept={isDragAccept}
-                isDragReject={isDragReject}
-                isFullWidth
-                image={imageUrl}
-                imageUrl={formatImageUrl(item?.imageUrl)}
-              />
+            <DropZone
+              label='Image'
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+              isFocused={isFocused}
+              isDragAccept={isDragAccept}
+              isDragReject={isDragReject}
+              isFullWidth
+              image={imageUrl}
+              imageUrl={formatImageUrl(item?.imageUrl)}
+            />
 
-              <Flex mt={6} justify='flex-end'>
-                <Button colorScheme='gray' color='gray.600' mr={3} onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button colorScheme='blue' leftIcon={<BsSave />} isDisabled={_.some(errors) || !isDirty} type='submit'>
-                  Save
-                </Button>
-              </Flex>
-            </Stack>
-          </ModalBody>
-          <ModalFooter />
-        </ModalContent>
+            <div className='mt-6 flex justify-end'>
+              <Button variant='outline' className='mr-3' onClick={saveEditedItem}>
+                Cancel
+              </Button>
+              <Button disabled={some(errors) || !isDirty} type='submit'>
+                <BsSave /> Save
+              </Button>
+            </div>
+          </form>
+        </Form>
       </Modal>
-    </Stack>
+    </div>
   );
 };
 

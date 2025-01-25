@@ -1,31 +1,33 @@
-import { useClipboard as useChakraClipboard } from '@chakra-ui/react';
-import { pick } from 'lodash';
-import { ToastProps } from 'types';
+import { useCallback, useState } from 'react';
+import { logger } from 'utils';
 
-import { useToast } from './use-toast';
+type CopiedValue = string | null;
 
-interface UseClipboardOptions {
-  toastData?: ToastProps;
+type CopyFn = (text: string) => Promise<boolean>;
+
+export function useClipboard(): [CopiedValue, CopyFn] {
+  const [copiedText, setCopiedText] = useState<CopiedValue>(null);
+  const { toast } = useToast();
+
+  const copy: CopyFn = useCallback(async (text) => {
+    if (!navigator?.clipboard) {
+      logger.warn('Clipboard not supported');
+      toast({ title: 'Clipboard not supported', variant: 'destructive' });
+      return false;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedText(text);
+      toast({ title: 'Copied to clipboard', variant: 'success' });
+      return true;
+    } catch (error) {
+      logger.warn('Copy failed', error);
+      toast({ title: 'Copy failed', variant: 'destructive' });
+      setCopiedText(null);
+      return false;
+    }
+  }, []);
+
+  return [copiedText, copy];
 }
-
-const useClipboard = (value: string, options?: UseClipboardOptions) => {
-  const fullReturn = useChakraClipboard(value);
-  const toast = useToast();
-
-  const { onCopy } = pick(fullReturn, ['onCopy']);
-  const { toastData } = pick(options, ['toastData']);
-  const { status } = pick(toastData, ['status']);
-
-  const handleCopy = () => {
-    onCopy();
-    toast[status || 'success'](toastData || { title: 'Copied to clipboard' });
-  };
-
-  return {
-    ...fullReturn,
-    chakraOnCopy: onCopy,
-    onCopy: handleCopy,
-  };
-};
-
-export { useClipboard };

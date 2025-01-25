@@ -1,12 +1,12 @@
 'use client';
 
-import { Flex, Spinner } from '@chakra-ui/react';
+import { Skeleton } from 'ui';
 
 const Suspender = () => {
   return (
-    <Flex w='100%' h='100%' justify='center' align='center'>
-      <Spinner />
-    </Flex>
+    <div className='flex h-full w-full items-center justify-center'>
+      <Skeleton className='h-full w-full' />
+    </div>
   );
 };
 

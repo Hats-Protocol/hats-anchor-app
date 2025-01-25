@@ -1,6 +1,5 @@
 'use client';
 
-import { useDisclosure } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
@@ -188,18 +187,16 @@ export const TreeFormContextProvider = ({ children }: { children: ReactNode }) =
     collapsed?: string[];
   }>(`${localStorageKey}-config`, {});
 
-  const treeDisclosure = useDisclosure();
+  const [isTreeDrawerOpen, setIsTreeDrawerOpen] = useState(false);
   const hatDisclosure = useSelectedHatDisclosure({ treeId, chainId });
-  const {
-    isOpen: isTreeDrawerOpen,
-    onOpen: onOpenTreeDrawer,
-    onClose: onCloseTreeDrawer,
-  } = _.pick(treeDisclosure, ['isOpen', 'onOpen', 'onClose']);
   const {
     isOpen: isHatDrawerOpen,
     onOpen: onOpenHatDrawer,
     onClose: onCloseHatDrawer,
   } = _.pick(hatDisclosure, ['isOpen', 'onOpen', 'onClose']);
+
+  const onOpenTreeDrawer = useCallback(() => setIsTreeDrawerOpen(true), []);
+  const onCloseTreeDrawer = useCallback(() => setIsTreeDrawerOpen(false), []);
 
   // existing tree
   const {

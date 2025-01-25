@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Checkbox, FormControl, FormLabel, Icon, Input as ChakraInput } from '@chakra-ui/react';
 import { chainsList } from '@hatsprotocol/config';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
@@ -10,17 +9,19 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { AppHat } from 'types';
+import { BaseCheckbox, BaseInput, Button } from 'ui';
 import { createHatsClient, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-import { Form, Input, NumberInput, Select } from './components';
+import { Form, FormControl, FormLabel, Input, NumberInput, Select } from './components';
 
 export const DeactivationForm = () => {
   const localForm = useForm();
   const { handleSubmit, watch, setValue } = localForm;
   const { address } = useAccount();
   const [multicallCallData, setMulticallCallData] = useState<Hex | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [allCalls, setAllCalls] = useState<any[]>([]);
 
   const hasSelectedHats = !isEmpty(filter(Object.keys(watch()), (key) => key.startsWith('hat-')));
@@ -110,13 +111,15 @@ export const DeactivationForm = () => {
 
           <div className='flex flex-col gap-2'>
             <div>
-              <FormControl display='flex' alignItems='center' gap={2}>
-                <Checkbox
+              <FormControl className='flex items-center gap-2'>
+                <BaseCheckbox
                   name='useTopHatWearer'
-                  isChecked={watch('useTopHatWearer')}
-                  onChange={(e) => setValue('useTopHatWearer', e.target.checked)}
+                  checked={watch('useTopHatWearer')}
+                  onChange={() => setValue('useTopHatWearer', !watch('useTopHatWearer'))}
                 />
-                <FormLabel mb={0}>Use Top Hat Wearer {topHatWearer && `(${formatAddress(topHatWearer)})`}</FormLabel>
+                <FormLabel className='mb-0'>
+                  Use Top Hat Wearer {topHatWearer && `(${formatAddress(topHatWearer)})`}
+                </FormLabel>
               </FormControl>
             </div>
 
@@ -144,18 +147,18 @@ export const DeactivationForm = () => {
                 return (
                   <div className='flex items-center gap-2 px-2' key={hat.id}>
                     {map(range(0, get(hat, 'levelAtLocalTree')), () => '-')}
-                    <Checkbox
+                    <BaseCheckbox
                       value={hat.id}
                       name={`hat-${hat.id}`}
-                      onChange={(e) => {
-                        setValue(`hat-${hat.id}`, e.target.checked);
+                      onChange={() => {
+                        setValue(`hat-${hat.id}`, !watch(`hat-${hat.id}`));
                       }}
                     />
                     <div>
                       {get(hat, 'status') === true ? (
-                        <Icon as={FiCheckCircle} color='green.500' />
+                        <FiCheckCircle className='text-green-500' />
                       ) : (
-                        <Icon as={FiXCircle} color='red.500' />
+                        <FiXCircle className='text-red-500' />
                       )}
                     </div>
                     <p>{hatName}</p>
@@ -169,7 +172,7 @@ export const DeactivationForm = () => {
           )}
 
           <div className='flex justify-end'>
-            <Button type='submit' variant='primary' isDisabled={!hasSelectedHats}>
+            <Button type='submit' disabled={!hasSelectedHats}>
               Submit
             </Button>
           </div>
@@ -177,14 +180,14 @@ export const DeactivationForm = () => {
           {multicallCallData && (
             <div className='flex flex-col gap-2'>
               <p>Hats Contract</p>
-              <ChakraInput value={HATS_V1} isReadOnly />
+              <BaseInput value={HATS_V1} readOnly />
               <p>Contract Function</p>
-              <ChakraInput value={'multicall'} isReadOnly />
+              <BaseInput value={'multicall'} readOnly />
               <p>Multicall Call Data</p>
-              <ChakraInput value={multicallCallData} isReadOnly />
+              <BaseInput value={multicallCallData} readOnly />
 
               <div className='flex justify-end'>
-                <Button onClick={onSendTx} isDisabled={notTopHatWearerOrWearer}>
+                <Button onClick={onSendTx} disabled={notTopHatWearerOrWearer}>
                   Send Transaction
                 </Button>
               </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, HStack, Icon as IconWrapper, Stack, Text, useDisclosure } from '@chakra-ui/react';
 import { Modal, useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { get, pick, some } from 'lodash';
 import dynamic from 'next/dynamic';
@@ -10,6 +9,7 @@ import { ReactNode, useState } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { BsPlusCircle } from 'react-icons/bs';
+import { Button } from 'ui';
 
 import { HsgDeployForm } from '../hsg-deploy-form';
 import { AuthoritiesForm } from './authorities-form';
@@ -37,14 +37,6 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
   // LOCAL STATE
   const [editingIndex, setEditingIndex] = useState<number>();
 
-  // MODAL DISCLOSURE
-  const { isOpen, onOpen, onClose } = useDisclosure({
-    onClose: () => {
-      reset();
-      if (item.label === '') remove(editingIndex);
-    },
-  });
-
   // FORMS
   const {
     getValues: hatGetValues,
@@ -52,11 +44,11 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
     control: hatControl,
   } = pick(hatForm, ['getValues', 'watch', 'control']);
   const localForm = useForm();
-  const { setValue, reset, watch } = pick(localForm, ['setValue', 'reset', 'handleSubmit', 'watch']);
+  const { setValue } = pick(localForm, ['setValue']);
   const items = hatWatch?.(formName);
-  const item = watch();
 
   const { fields, append, remove } = useFieldArray({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     control: hatControl as Control<any, any>,
     name: formName,
   });
@@ -75,7 +67,7 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
     setValue('link', localLink, { shouldDirty: false });
     setValue('gate', localGate, { shouldDirty: false });
     setValue('imageUrl', localImageUrl, { shouldDirty: false });
-    onOpen();
+    setModals?.({ 'authorities-edit': true });
   };
 
   const hsgEnabled = posthog.isFeatureEnabled('hsg-deploy') || process.env.NODE_ENV === 'development';
@@ -84,16 +76,15 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
 
   return (
     <>
-      <Stack>
-        <Box mb={3}>
-          <HStack alignItems='center' ml={-6}>
-            {Icon && <IconWrapper as={Icon} boxSize={4} mt='2px' />}
-            <Text size='sm' variant='lightMedium'>
-              {title}
-            </Text>
-          </HStack>
-          {subtitle && typeof subtitle !== 'string' ? subtitle : <Text variant='gray'>{subtitle}</Text>}
-        </Box>
+      <div className='flex flex-col gap-3'>
+        <div className='mb-3'>
+          <div className='flex items-center'>
+            {Icon && <Icon className='mt-0.5 h-4 w-4' />}
+            <p className='text-sm font-medium'>{title}</p>
+          </div>
+
+          {subtitle && typeof subtitle !== 'string' ? subtitle : <p className='text-sm text-gray-500'>{subtitle}</p>}
+        </div>
         {fields.map((field, i) => (
           <AuthoritiesFormItem
             key={field.id}
@@ -105,8 +96,8 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
           />
         ))}
 
-        <Box my={2}>
-          <HStack>
+        <div className='my-2'>
+          <div className='flex items-center'>
             <Button
               onClick={() => {
                 append({
@@ -117,13 +108,12 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
                   imageUrl: '',
                 });
                 setEditingIndex(fields.length);
-                onOpen();
+                setModals?.({ 'authorities-edit': true });
               }}
-              isDisabled={some(items, ['label', ''])}
+              disabled={some(items, ['label', ''])}
               variant='outline'
-              borderColor='blackAlpha.300'
-              leftIcon={<IconWrapper as={BsPlusCircle} />}
             >
+              <BsPlusCircle className='h-4 w-4' />
               Add {items?.length ? 'another' : 'an'} {label}
             </Button>
 
@@ -132,11 +122,8 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
             {get(selectedHat, 'levelAtLocalTree', 0) > 0 &&
               (hsgEnabled ? (
                 <>
-                  <Button
-                    variant='outline'
-                    onClick={() => setModals?.({ 'hsg-deploy-modal': true })}
-                    leftIcon={<IconWrapper as={Safe} />}
-                  >
+                  <Button variant='outline' onClick={() => setModals?.({ 'hsg-deploy-modal': true })}>
+                    <Safe className='h-4 w-4' />
                     Add a Safe
                   </Button>
 
@@ -152,20 +139,19 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
                     rel='noreferrer noopener'
                     passHref
                   >
-                    <Button variant='outline' leftIcon={<IconWrapper as={Safe} />}>
+                    <Button variant='outline'>
+                      <Safe className='h-4 w-4' />
                       Add a Safe
                     </Button>
                   </Link>
                 )
               ))}
-          </HStack>
-        </Box>
-      </Stack>
+          </div>
+        </div>
+      </div>
 
       <AuthoritiesForm
         formName={formName}
-        isOpen={isOpen}
-        onClose={onClose}
         index={editingIndex}
         localForm={localForm}
         hatForm={hatForm}

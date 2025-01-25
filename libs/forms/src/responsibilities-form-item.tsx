@@ -1,9 +1,9 @@
 'use client';
 
-import { Box, HStack, IconButton, Stack, Text } from '@chakra-ui/react';
 import { useHatForm } from 'contexts';
-import _ from 'lodash';
+import { pick } from 'lodash';
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
+import { Button } from 'ui';
 
 interface ResponsibilitiesFormItemProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,38 +16,33 @@ interface ResponsibilitiesFormItemProps {
 
 const ResponsibilitiesFormItem = ({ index, formName, remove, setIndex, onOpen }: ResponsibilitiesFormItemProps) => {
   const { localForm } = useHatForm();
-  const { getValues } = _.pick(localForm, ['getValues']);
+  const { getValues } = pick(localForm, ['getValues']);
   const { label } = getValues?.(`${formName}.${index}`) ?? {};
 
   if (!localForm) return null;
 
   return (
-    <Box borderBottom='1px solid' borderColor='blackAlpha.300' pb={2}>
-      <HStack justifyContent='space-between' alignItems='center'>
-        <Stack flex={1}>
-          <Text mb={0} size='sm' variant='lightMedium'>
-            {label || 'New Responsibility'}
-          </Text>
-        </Stack>
-        <IconButton
+    <div className='border-blackAlpha-300 border-b pb-2'>
+      <div className='flex w-full items-center justify-between'>
+        <div className='flex flex-1'>
+          <p className='text-sm font-light'>{label || 'New Responsibility'}</p>
+        </div>
+
+        <Button
           onClick={() => {
             onOpen();
             setIndex(index);
           }}
-          icon={<FaRegEdit />}
           aria-label='Edit'
-          variant='ghost'
-          borderColor='blackAlpha.300'
-        />
-        <IconButton
-          onClick={() => remove(index)}
-          icon={<FaRegTrashAlt />}
-          aria-label='Remove'
-          variant='ghost'
-          borderColor='blackAlpha.300'
-        />
-      </HStack>
-    </Box>
+        >
+          <FaRegEdit />
+        </Button>
+
+        <Button onClick={() => remove(index)} aria-label='Remove'>
+          <FaRegTrashAlt />
+        </Button>
+      </div>
+    </div>
   );
 };
 
