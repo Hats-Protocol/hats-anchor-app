@@ -1,23 +1,11 @@
 'use client';
 
-import {
-  Box,
-  BoxProps,
-  Checkbox,
-  FormControl,
-  FormErrorMessage,
-  FormHelperText,
-  FormLabel,
-  HStack,
-  Icon,
-  RadioGroup,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
-import { Controller, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
+import { BaseCheckbox, cn, RadioGroup, Tooltip } from 'ui';
+
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
 interface RadioCardOption {
   value: string;
@@ -27,7 +15,7 @@ interface RadioCardOption {
   disabled?: boolean;
 }
 
-interface RadioCardProps extends BoxProps {
+interface RadioCardProps {
   name: string;
   label?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,106 +49,82 @@ const RadioCard = ({
   const error = localForm.formState.errors[name]?.message;
 
   return (
-    <FormControl isRequired={isRequired} isInvalid={!!error}>
-      <Stack>
-        <Box>
-          <HStack align='center'>
-            {label && (
-              <FormLabel m='0' fontSize='sm'>
-                {label.toUpperCase()}
-              </FormLabel>
-            )}
-            {tooltip && (
-              <Tooltip label={tooltip} shouldWrapChildren hasArrow placement='end'>
-                <Box
-                  h='24px'
-                  w='24px'
-                  bg='primary.500'
-                  borderRadius='full'
-                  display='flex'
-                  alignItems='center'
-                  justifyContent='center'
-                >
-                  <Icon as={AiOutlineInfoCircle} w={4} h={4} />
-                </Box>
-              </Tooltip>
-            )}
-          </HStack>
-          {subLabel && <FormHelperText>{subLabel}</FormHelperText>}
-        </Box>
+    <FormField
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <FormItem>
+          <div className='flex flex-col gap-2'>
+            <div>
+              <div className='flex items-center'>
+                {label && <FormLabel className='m-0 text-sm'>{label.toUpperCase()}</FormLabel>}
+                {tooltip && (
+                  <Tooltip label={tooltip}>
+                    <div className='bg-primary-500 flex h-6 w-6 items-center justify-center rounded-full'>
+                      <AiOutlineInfoCircle className='h-4 w-4' />
+                    </div>
+                  </Tooltip>
+                )}
+              </div>
 
-        <Controller
-          control={control}
-          name={name}
-          render={({ field }) => (
-            <RadioGroup isDisabled={isDisabled} defaultValue={defaultValue} {...field}>
-              <Stack spacing={4}>
-                {options?.map((option) => (
-                  <Box
-                    key={option.value}
-                    borderWidth='1px'
-                    borderRadius='lg'
-                    px={6}
-                    py={4}
-                    cursor={option.disabled ? 'not-allowed' : 'pointer'}
-                    borderColor={field.value === option.value ? 'blue.500' : 'gray.200'}
-                    bg={field.value === option.value ? 'blue.50' : 'white'}
-                    _hover={{
-                      borderColor: option.disabled ? 'gray.200' : 'blue.500',
-                    }}
-                    onClick={() => !option.disabled && field.onChange(option.value)}
-                  >
-                    <HStack justify='space-between' width='100%'>
-                      <HStack spacing={4} opacity={option.disabled ? 0.5 : 1}>
-                        {option.icon && (
-                          <Icon
-                            as={option.icon}
-                            boxSize={6}
-                            color={field.value === option.value ? 'blue.500' : 'gray.400'}
-                          />
+              {subLabel && <FormDescription>{subLabel}</FormDescription>}
+            </div>
+
+            <FormControl>
+              <RadioGroup disabled={isDisabled} defaultValue={defaultValue} {...field}>
+                <div className='flex flex-col gap-4'>
+                  {options?.map((option) => {
+                    const RawIcon = option.icon;
+
+                    return (
+                      <div
+                        key={option.value}
+                        className={cn(
+                          'cursor-pointer rounded-lg border border-gray-200 px-6 py-4',
+                          option.disabled && 'cursor-not-allowed',
+                          field.value === option.value && 'border-blue-500 bg-blue-50',
                         )}
-                        <Stack spacing={0.5}>
-                          <Text fontWeight='semibold' fontSize={textSize}>
-                            {option.label}
-                          </Text>
-                          {option.description && (
-                            <Text fontSize='sm' color='gray.500'>
-                              {option.description}
-                            </Text>
+                        onClick={() => !option.disabled && field.onChange(option.value)}
+                      >
+                        <div className='flex w-full justify-between'>
+                          <div className={cn('flex gap-4 opacity-100', option.disabled && 'opacity-50')}>
+                            {RawIcon && (
+                              <RawIcon
+                                className='h-6 w-6'
+                                // color={field.value === option.value ? 'blue.500' : 'gray.400'}
+                              />
+                            )}
+                            <div className='flex flex-col gap-0.5'>
+                              <p className={cn('text-sm font-semibold', textSize === 'sm' && 'text-base')}>
+                                {option.label}
+                              </p>
+                              {option.description && <p className='text-sm text-gray-500'>{option.description}</p>}
+                            </div>
+                          </div>
+                          {!option.disabled ? (
+                            <BaseCheckbox
+                              checked={field.value === option.value}
+                              className='pointer-none text-blue-500'
+                            />
+                          ) : (
+                            <p className='flex min-h-5 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
+                              coming soon
+                            </p>
                           )}
-                        </Stack>
-                      </HStack>
-                      {!option.disabled ? (
-                        <Checkbox isChecked={field.value === option.value} pointerEvents='none' colorScheme='blue' />
-                      ) : (
-                        <Text
-                          fontSize='2xs'
-                          bg='red.50'
-                          color='red.500'
-                          px={2}
-                          py={1}
-                          borderRadius='full'
-                          fontWeight='medium'
-                          display='flex'
-                          alignItems='center'
-                          justifyContent='center'
-                          minHeight='20px'
-                          whiteSpace='nowrap'
-                        >
-                          coming soon
-                        </Text>
-                      )}
-                    </HStack>
-                  </Box>
-                ))}
-              </Stack>
-            </RadioGroup>
-          )}
-        />
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
-        {typeof error === 'string' && <FormErrorMessage>{error}</FormErrorMessage>}
-      </Stack>
-    </FormControl>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </RadioGroup>
+            </FormControl>
+
+            {helperText && <FormDescription>{helperText}</FormDescription>}
+            {typeof error === 'string' && <FormDescription className='text-destructive'>{error}</FormDescription>}
+          </div>
+        </FormItem>
+      )}
+    />
   );
 };
 

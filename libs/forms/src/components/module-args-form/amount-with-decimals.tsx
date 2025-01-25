@@ -1,16 +1,17 @@
 'use client';
 
-import { Stack, Text } from '@chakra-ui/react';
 import { FALLBACK_ARG_EXAMPLES, TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { useTreeForm } from 'contexts';
-import _ from 'lodash';
+import { find, includes, isFinite, isNaN } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { transformAndVerify } from 'utils';
 import { Hex, parseUnits } from 'viem';
 import { useToken } from 'wagmi';
 
 import { NumberInput } from '../number-input';
+
+// TODO replace deprecated useToken hook
 
 const AmountWithDecimals = ({
   arg,
@@ -27,7 +28,7 @@ const AmountWithDecimals = ({
   const { watch, setValue } = localForm;
 
   let tokenArgName = '';
-  const tokenArg = _.find(fullArgs, (a: ModuleCreationArg) => _.includes(TOKEN_ARG_TYPES, a.displayType));
+  const tokenArg = find(fullArgs, (a: ModuleCreationArg) => includes(TOKEN_ARG_TYPES, a.displayType));
   if (tokenArg) tokenArgName = tokenArg.name;
 
   // watch() by default returns whole object, so not good fallback
@@ -52,7 +53,7 @@ const AmountWithDecimals = ({
     // Remove any non-numeric characters except for a single decimal point
     value = value.replace(/[^\d.]/g, '');
 
-    if (!_.isNaN(parseFloat(value)) && _.isFinite(parseFloat(value))) {
+    if (!isNaN(parseFloat(value)) && isFinite(parseFloat(value))) {
       setValue(`${argName}-parsed`, parseUnits(value, tokenDecimals || 18), {
         shouldDirty: true,
       });
@@ -60,7 +61,7 @@ const AmountWithDecimals = ({
   };
 
   return (
-    <Stack w='100%' spacing={1}>
+    <div className='flex w-full flex-col gap-1'>
       <NumberInput
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
@@ -76,7 +77,7 @@ const AmountWithDecimals = ({
 
             if (!tokenDecimals) return 'No token selected';
 
-            if (!_.isNaN(numericValue) && numericValue > 0) {
+            if (!isNaN(numericValue) && numericValue > 0) {
               try {
                 return transformAndVerify(parseUnits(value, tokenDecimals || 18), arg.type);
               } catch (error) {
@@ -93,15 +94,13 @@ const AmountWithDecimals = ({
         localForm={localForm}
       />
       {tokenDetails ? (
-        <Text size='sm' variant='gray'>
-          ${tokenDetails?.symbol} uses {tokenDecimals} decimals
-        </Text>
+        <p className='text-sm text-gray-500'>
+          {tokenDetails?.symbol} uses {tokenDecimals} decimals
+        </p>
       ) : (
-        <Text size='sm' variant='gray'>
-          Input token address
-        </Text>
+        <p className='text-sm text-gray-500'>Input token address</p>
       )}
-    </Stack>
+    </div>
   );
 };
 

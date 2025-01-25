@@ -1,8 +1,10 @@
 'use client';
 
-import { Box, Checkbox, HStack, Icon, Stack, Text } from '@chakra-ui/react';
-import { Controller, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { IconType } from 'react-icons';
+import { BaseCheckbox, cn } from 'ui';
+
+import { FormControl, FormField, FormItem } from './form';
 
 interface RequirementOption {
   key: string;
@@ -20,58 +22,54 @@ interface RequirementBoxProps {
 }
 
 const RequirementBox = ({ name, localForm, options, isDisabled }: RequirementBoxProps) => {
-  return (
-    <Stack spacing={4}>
-      {options.map((item) => (
-        <Controller
-          key={item.key}
-          name={`${name}.${item.key}`}
-          control={localForm.control}
-          defaultValue={false}
-          render={({ field }) => (
-            <Box
-              borderWidth='1px'
-              borderRadius='lg'
-              px={6}
-              py={4}
-              borderColor={field.value ? 'blue.500' : 'gray.200'}
-              bg={field.value ? 'blue.50' : 'white'}
-              _hover={
-                !isDisabled
-                  ? {
-                      borderColor: 'blue.500',
-                    }
-                  : undefined
-              }
-              cursor={isDisabled ? 'not-allowed' : 'pointer'}
-              onClick={isDisabled ? undefined : () => field.onChange(!field.value)}
-              opacity={isDisabled ? 0.6 : 1}
-            >
-              <HStack justify='space-between' width='100%' align='center'>
-                <HStack spacing={4}>
-                  <Icon as={item.icon} boxSize={6} color={field.value ? 'blue.500' : 'gray.900'} />
-                  <Stack spacing={0.5}>
-                    <Text fontWeight='semibold' color='gray.900'>
-                      {item.title}
-                    </Text>
-                    <Text color='gray.900'>{item.description}</Text>
-                  </Stack>
-                </HStack>
+  const { control } = localForm;
 
-                <Box onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    isChecked={field.value}
-                    onChange={isDisabled ? undefined : (e) => field.onChange(e.target.checked)}
-                    colorScheme='blue'
-                    isDisabled={isDisabled}
-                  />
-                </Box>
-              </HStack>
-            </Box>
-          )}
-        />
-      ))}
-    </Stack>
+  return (
+    <div className='flex flex-col gap-4'>
+      {options.map((item) => {
+        const Icon = item.icon;
+
+        return (
+          <FormField
+            key={item.key}
+            name={`${name}.${item.key}`}
+            control={control}
+            defaultValue={false}
+            render={({ field }) => (
+              <FormItem>
+                <div
+                  className={cn(
+                    'flex flex-col rounded-lg border border-gray-200 px-6 py-4',
+                    field.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white',
+                    !isDisabled && 'cursor-pointer hover:border-blue-500',
+                  )}
+                >
+                  <div className='flex w-full items-center justify-between'>
+                    <div className='flex gap-4'>
+                      <Icon className='h-6 w-6' color={field.value ? 'blue.500' : 'gray.900'} />
+                      <div className='flex flex-col gap-0.5'>
+                        <p className='font-semibold text-gray-900'>{item.title}</p>
+                        <p className='text-gray-900'>{item.description}</p>
+                      </div>
+                    </div>
+
+                    <FormControl>
+                      <BaseCheckbox
+                        checked={field.value}
+                        // TODO check if this works. e.target.value wasn't working in the type
+                        onChange={isDisabled ? undefined : () => field.onChange(!field.value)}
+                        className='text-blue-500'
+                        disabled={isDisabled}
+                      />
+                    </FormControl>
+                  </div>
+                </div>
+              </FormItem>
+            )}
+          />
+        );
+      })}
+    </div>
   );
 };
 

@@ -1,8 +1,7 @@
 'use client';
 
-import { Stack } from '@chakra-ui/react';
 import { useTreeForm } from 'contexts';
-import _ from 'lodash';
+import { find, map } from 'lodash';
 import { ChangeEvent, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { idToIp } from 'shared';
@@ -37,7 +36,7 @@ const HatInput = ({ arg, localForm }: { arg: any; localForm: UseFormReturn }) =>
   };
 
   return (
-    <Stack w='100%'>
+    <div className='flex w-full flex-col gap-1'>
       <Select
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
@@ -52,8 +51,8 @@ const HatInput = ({ arg, localForm }: { arg: any; localForm: UseFormReturn }) =>
         onChange={(e) => handleChangeHat(e, arg.name)}
       >
         <option value='custom'>Custom</option>
-        {_.map(treeToDisplay, ({ id, detailsObject }: AppHat) => {
-          const currentName = _.find(treeToDisplay, ['id', id])?.displayName;
+        {map(treeToDisplay, ({ id, detailsObject }: AppHat) => {
+          const currentName = find(treeToDisplay, ['id', id])?.displayName;
           const detailsName = currentName || detailsObject?.data?.name;
 
           return (
@@ -63,6 +62,7 @@ const HatInput = ({ arg, localForm }: { arg: any; localForm: UseFormReturn }) =>
           );
         })}
       </Select>
+
       {customHatSelections[arg.name] && (
         <Input
           name={`${arg.name}_custom`}
@@ -75,7 +75,7 @@ const HatInput = ({ arg, localForm }: { arg: any; localForm: UseFormReturn }) =>
           }}
         />
       )}
-    </Stack>
+    </div>
   );
 };
 

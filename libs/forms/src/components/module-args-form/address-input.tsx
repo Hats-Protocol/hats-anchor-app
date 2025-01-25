@@ -1,6 +1,5 @@
 'use client';
 
-import { Stack, Text } from '@chakra-ui/react';
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { useTreeForm } from 'contexts';
@@ -63,16 +62,14 @@ const ModuleAddressInput = ({
       if (tokenDetails) {
         argHelper = (
           <Link href={`${explorerUrl(chainId)}/address/${tokenAddress}`} isExternal>
-            <Text size='sm' variant='gray'>
-              {tokenLabel}
-            </Text>
+            <p className='text-sm text-gray-500'>{tokenLabel}</p>
           </Link>
         );
       }
     }
 
     return (
-      <Stack w='100%'>
+      <div className='flex w-full flex-col gap-2'>
         <Input
           name={arg.name}
           label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
@@ -93,12 +90,12 @@ const ModuleAddressInput = ({
           onChange={(e) => handleChangeAddress(e, arg.name)}
         />
         {argHelper}
-      </Stack>
+      </div>
     );
   }
 
   return (
-    <Stack w='100%' spacing={1}>
+    <div className='flex w-full flex-col gap-1'>
       <AddressInput
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
@@ -115,7 +112,7 @@ const ModuleAddressInput = ({
         onChange={(e) => handleChangeAddress(e, arg.name)}
         chainId={chainId}
       />
-    </Stack>
+    </div>
   );
 };
 

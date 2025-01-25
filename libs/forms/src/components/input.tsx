@@ -6,11 +6,11 @@ import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
-import { BaseInput, Button, Tooltip } from 'ui';
+import { BaseInput, Button, cn, Tooltip } from 'ui';
 import { catchEnterKey } from 'utils';
 import { useAccount } from 'wagmi';
 
-import { FormControl, FormField, FormItem, FormLabel } from './form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
 // TODO errors aren't being bubbled up to formState for some reason
 
@@ -131,15 +131,11 @@ const Input = ({
                   </div>
                 </FormLabel>
               )}
+
               {/* ADDRESS BUTTONS PRIMARILY FOR ADDRESS INPUT */}
               <div className='flex items-end justify-between gap-10'>
-                <div>
-                  {typeof subLabel !== 'string' ? (
-                    subLabel
-                  ) : (
-                    <p className='text-muted-foreground text-xs'>{subLabel}</p>
-                  )}
-                </div>
+                <div>{typeof subLabel !== 'string' ? subLabel : <FormDescription>{subLabel}</FormDescription>}</div>
+
                 {addressButtons && (
                   <div className='flex justify-end'>
                     <div className='flex gap-2'>
@@ -159,7 +155,7 @@ const Input = ({
               </div>
 
               <div>
-                {/* {leftElement && <InputLeftElement>{leftElement}</InputLeftElement>} */}
+                {leftElement && <div>{leftElement}</div>}
                 <BaseInput
                   type={type}
                   {...register(name, options)}
@@ -171,29 +167,38 @@ const Input = ({
                   // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
                   // variant='outline'
                 />
-                {/* <InputRightElement w={rightElementWidth ? `${rightElementWidth}px` : undefined}>
-                  <Flex w='100%' align='center' justify='space-between' pr={4}>
-                    {rightElement && <Box>{rightElement}</Box>}
+
+                <div className={cn('w-full', { 'w-[100%]': rightElementWidth })}>
+                  <div className='flex w-full items-center justify-between pr-4'>
+                    {rightElement && <div>{rightElement}</div>}
                     {isDirty && (
-                      <IconButton
-                        icon={<GrUndo />}
+                      <Button
                         aria-label='Reset'
                         onClick={onReset}
                         size='xs'
-                        isDisabled={isDisabled}
-                        colorScheme='cyan'
-                      />
+                        disabled={isDisabled}
+                        className='bg-cyan-500'
+                      >
+                        <GrUndo />
+                      </Button>
                     )}
+
                     {maxLength > 0 && (
-                      <Text size='xs' color={maxLength - inputLength < 0 ? 'red.500' : 'inherit'} variant='light'>
+                      <p
+                        className={cn('text-xs', {
+                          'text-red-500': maxLength - inputLength < 0,
+                        })}
+                      >
                         {maxLength - inputLength}
-                      </Text>
+                      </p>
                     )}
-                  </Flex>
-                </InputRightElement> */}
-                {/* </InputGroup> */}
-                {typeof subInput !== 'string' ? subInput : <p className='text-muted-foreground text-xs'>{subInput}</p>}
-                {getErrorMessage() && <p className='text-xs text-red-500'>{getErrorMessage()}</p>}
+                  </div>
+                </div>
+
+                {typeof subInput !== 'string' ? subInput : <FormDescription>{subInput}</FormDescription>}
+                {getErrorMessage() && (
+                  <FormDescription className='text-destructive'>{getErrorMessage()}</FormDescription>
+                )}
               </div>
             </div>
           </FormControl>

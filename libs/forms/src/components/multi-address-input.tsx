@@ -1,37 +1,18 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  ButtonProps,
-  Collapse,
-  Flex,
-  FormControl,
-  FormLabel,
-  HStack,
-  Icon,
-  IconButton,
-  Input as ChakraInput,
-  InputGroup,
-  InputLeftElement,
-  Stack,
-  Text,
-  Tooltip,
-  useDisclosure,
-  VStack,
-} from '@chakra-ui/react';
 import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
+import { FormControl, FormLabel, Input } from 'forms';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import Papa from 'papaparse';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { AppHat, FormWearer, HatWearer } from 'types';
-import { DropZone } from 'ui';
+import { DropZone, Button, ButtonProps, Tooltip, Collapsible, CollapsibleTrigger, CollapsibleContent } from 'ui';
 import { viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
 
@@ -58,6 +39,19 @@ interface MultiAddressInputProps {
   btnSize?: ButtonProps['size'];
 }
 
+/**
+ * @param props - The props of the component
+ * @param props.name - The name of the field in the form
+ * @param props.localForm - The form context `UseFormReturn` from `react-hook-form`
+ * @param props.label - The label positioned above the field
+ * @param props.subLabel - The sublabel positioned between the label and the field
+ * @param props.placeholder - The placeholder of the field
+ * @param props.holdOnAdd - Whether to hold on add, used in forms that are standalone (mint hat)
+ * @param props.overrideMaxSupply - Whether to override the max supply
+ * @param props.btnSize - The size of the button, passed to the Upload CSV button
+ * @param props.checkEligibility - Whether or not to check eligibility for a Hat before adding a wearer to the list
+ * @returns
+ */
 const MultiAddressInput = ({
   name,
   localForm,
@@ -85,7 +79,7 @@ const MultiAddressInput = ({
   const currentMaxSupply = watch?.('maxSupply');
   const isCancelled = useRef(false);
   const { selectedHat, chainId } = useSelectedHat();
-  const { isOpen: collapseIsOpen, onToggle: toggleCollapse } = useDisclosure();
+  const [collapseIsOpen, setCollapseIsOpen] = useState(false);
   const { fields, append, remove } = useFieldArray({
     control,
     name,
@@ -265,6 +259,10 @@ const MultiAddressInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, currentInput]);
 
+  const toggleCollapse = () => {
+    setCollapseIsOpen(!collapseIsOpen);
+  };
+
   const handleAddWearer = () => {
     if (!currentResolvedAddress && !isAddress(currentInput)) return;
     if (isAddress(currentInput)) {
@@ -348,45 +346,42 @@ const MultiAddressInput = ({
   if (!localForm) return null;
 
   return (
-    <VStack borderRadius={8} alignItems='start' spacing={3} w='full'>
+    <div className='flex w-full flex-col items-start gap-3 rounded-lg'>
       {label && (
-        <FormLabel mb={0}>
-          <HStack>
-            <Text size='sm' textTransform='uppercase'>
-              {label}
-            </Text>
-          </HStack>
+        <FormLabel className='mb-0'>
+          <div className='flex items-center gap-1'>
+            <p className='text-sm uppercase'>{label}</p>
+          </div>
         </FormLabel>
       )}
       {_.map(fields, ({ address, ens }: FormWearer, index: number) => (
-        <Box key={address} w='full'>
-          <Flex w='full' justifyContent='space-between'>
-            <Stack spacing='2px' w='full'>
-              <InputGroup flexGrow={1}>
-                <InputLeftElement>
-                  <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
-                </InputLeftElement>
+        <div key={address} className='w-full'>
+          <div className='flex w-full justify-between'>
+            <div className='flex flex-col gap-0.5'>
+              <div className='flex w-full flex-grow'>
+                <div className='flex items-center gap-1'>
+                  <BsPersonBadge className='h-4 w-4 text-slate-600' />
+                </div>
 
-                <ChakraInput value={address} bg='whiteAlpha.600' readOnly w='calc(100% - 2rem)' />
-              </InputGroup>
-              {ens && (
-                <Text size='sm' color='blackAlpha.600'>
-                  {ens}
-                </Text>
-              )}
-            </Stack>
-            <IconButton
+                <input value={address} className='bg-whiteAlpha-600 w-full' readOnly />
+              </div>
+
+              {ens && <p className='text-sm text-slate-600'>{ens}</p>}
+            </div>
+
+            <Button
               type='button'
               onClick={() => handleRemoveWearer(index)}
-              icon={<FaRegTrashAlt />}
               aria-label='Remove'
-              bg='transparent'
-              border='1px solid #d6d6d6'
-              w={10}
-            />
-          </Flex>
-        </Box>
+              variant='outline'
+              className='border-1 border-slate-300 bg-transparent'
+            >
+              <FaRegTrashAlt />
+            </Button>
+          </div>
+        </div>
       ))}
+
       <AddressInput
         name={`${name}-currentAddress`}
         localForm={localForm}
@@ -395,51 +390,50 @@ const MultiAddressInput = ({
         isDisabled={wouldExceedMaxSupply}
         chainId={chainId}
       />
+
       {selectedHat && chainId && (
-        <>
-          <HStack>
+        <Collapsible open={collapseIsOpen}>
+          <div className='flex items-center gap-1'>
             {holdOnAdd && (
-              <Tooltip label={undefined} shouldWrapChildren>
+              <Tooltip label={undefined}>
                 <Button
-                  isDisabled={
+                  disabled={
                     !!errors?.[`${name}-currentAddress`] ||
                     !currentResolvedAddress ||
                     _.includes(currentWearerList.current, _.toLower(currentResolvedAddress))
                   }
                   onClick={handleAddWearer}
                   aria-label='Add Another Wallet'
-                  variant='outlineMatch'
-                  colorScheme='gray.500'
+                  variant='outline'
                 >
-                  <HStack>
-                    <Icon as={BsPersonBadge} w={4} h={4} />
-                    <Text>Add Another Wallet</Text>
-                  </HStack>
+                  <div className='flex items-center gap-1'>
+                    <BsPersonBadge className='h-4 w-4' />
+                    <p>Add Another Wallet</p>
+                  </div>
                 </Button>
               </Tooltip>
             )}
 
-            <Button
-              aria-label='Toggle CSV Input'
-              onClick={toggleCollapse}
-              size={btnSize || 'md'}
-              variant='outlineMatch'
-              colorScheme='blue.500'
-              leftIcon={<Icon as={FaUpload} />}
-            >
-              Upload CSV
-            </Button>
-          </HStack>
-
-          <Collapse in={collapseIsOpen}>
-            <FormControl id='csvFile'>
-              <Text size='sm' textTransform='uppercase' fontWeight='medium' mt={4}>
+            <CollapsibleTrigger>
+              <Button
+                aria-label='Toggle CSV Input'
+                onClick={toggleCollapse}
+                size={btnSize || 'default'}
+                variant='outline-blue'
+              >
+                <FaUpload />
                 Upload CSV
-              </Text>
-              <Text size='sm' mt={1} variant='light' mb={4}>
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+
+          <CollapsibleContent>
+            <FormControl id='csvFile'>
+              <p className='mt-4 text-sm font-medium uppercase'>Upload CSV</p>
+              <p className='text-muted-foreground mb-4 mt-1 text-sm'>
                 The CSV file must only contain Ethereum addresses, one per line. ENS is currently not supported. Any
                 additional data will be ignored.
-              </Text>
+              </p>
               <DropZone
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}
@@ -448,10 +442,10 @@ const MultiAddressInput = ({
                 isFullWidth
               />
             </FormControl>
-          </Collapse>
-        </>
+          </CollapsibleContent>
+        </Collapsible>
       )}
-    </VStack>
+    </div>
   );
 };
 

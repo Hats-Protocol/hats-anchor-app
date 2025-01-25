@@ -1,8 +1,7 @@
 'use client';
 
-import { Icon, Stack } from '@chakra-ui/react';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
-import _ from 'lodash';
+import { map } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { BsTextLeft } from 'react-icons/bs';
 import { Hex } from 'viem';
@@ -29,10 +28,10 @@ const ModuleArgsForm = ({
   if (!selectedModuleArgs) return null;
 
   return (
-    <Stack spacing={3}>
-      {_.map(selectedModuleArgs, (arg: ModuleCreationArg) => (
+    <div className='flex flex-col gap-3'>
+      {map(selectedModuleArgs, (arg: ModuleCreationArg) => (
         <FormRowWrapper key={arg.name} noMargin={noMargin}>
-          {!hideIcon && <Icon as={BsTextLeft} boxSize={4} mt={1} />}
+          {!hideIcon && <BsTextLeft className='mt-1 h-4 w-4' />}
           <ModuleFormInput
             arg={arg}
             fullArgs={selectedModuleArgs}
@@ -42,7 +41,7 @@ const ModuleArgsForm = ({
           />
         </FormRowWrapper>
       ))}
-    </Stack>
+    </div>
   );
 };
 

@@ -1,11 +1,11 @@
 'use client';
 
-import { HStack, IconButton, Spinner } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useHatForm } from 'contexts';
 import { debounce, pick } from 'lodash';
 import { useEffect, useState } from 'react';
 import { FaCheck, FaTrash } from 'react-icons/fa';
+import { Button, Skeleton } from 'ui';
 
 import { Input } from './input';
 
@@ -83,35 +83,33 @@ const PlatformInput = ({ type, name, remove, index, fieldsLength }: PlatformInpu
   if (!localForm) return null;
 
   return (
-    <HStack>
+    <div className='flex items-center gap-2'>
       <Input
         name={name}
         localForm={localForm}
         placeholder={type === 'guild' ? 'Guild name (e.g. hats-protocol)' : 'Space ID (e.g. hatsprotocol.eth)'}
         isDisabled={index !== fieldsLength - 1}
         onChange={handleChange}
-        variant='outline'
+        // variant='outline'
         rightElement={
           // eslint-disable-next-line no-nested-ternary
           dataExists ? (
             <FaCheck color='green' />
           ) : isLoading && inputValue ? (
-            <Spinner size='sm' color='blue.500' />
+            <Skeleton className='h-9 w-9 bg-blue-500' />
           ) : null
         }
       />
-      <IconButton
+      <Button
         type='button'
         onClick={() => remove(index)}
-        icon={<FaTrash />}
         aria-label='Remove'
         variant='outline'
-        color='blackAlpha.400'
-        borderColor='blackAlpha.400'
-        height={9}
-        w={16}
-      />
-    </HStack>
+        className='h-9 w-9 bg-slate-400'
+      >
+        <FaTrash />
+      </Button>
+    </div>
   );
 };
 

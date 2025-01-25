@@ -1,15 +1,15 @@
 'use client';
 
-import { HStack, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { FALLBACK_ARG_EXAMPLES, MODULE_ARG_BOOLEAN_OPTION_SETS } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
-import _ from 'lodash';
+import { first, map, toLower } from 'lodash';
 import { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { RadioGroup, RadioGroupItem } from 'ui';
 
 const BooleanInput = ({ arg, localForm }: { arg: ModuleCreationArg; localForm: UseFormReturn }) => {
   const booleanOptions =
-    MODULE_ARG_BOOLEAN_OPTION_SETS[_.toLower(arg.name) as keyof typeof MODULE_ARG_BOOLEAN_OPTION_SETS] ||
+    MODULE_ARG_BOOLEAN_OPTION_SETS[toLower(arg.name) as keyof typeof MODULE_ARG_BOOLEAN_OPTION_SETS] ||
     FALLBACK_ARG_EXAMPLES.booleanOption;
 
   useEffect(() => {
@@ -21,30 +21,24 @@ const BooleanInput = ({ arg, localForm }: { arg: ModuleCreationArg; localForm: U
   const { setValue } = localForm;
 
   return (
-    <Stack spacing={1}>
-      <Stack alignItems='start' spacing={1}>
-        <HStack>
-          <Text textTransform='uppercase'>{arg.name}</Text>
-        </HStack>
-        <Text size='sm' variant='gray'>
-          {arg.description}
-        </Text>
-      </Stack>
+    <div className='flex flex-col gap-1'>
+      <div className='flex flex-col items-start gap-1'>
+        <div className='flex'>
+          <p className='text-sm text-gray-500'>{arg.name}</p>
+        </div>
+        <p className='text-sm text-gray-500'>{arg.description}</p>
+      </div>
 
-      <RadioGroup
-        name={arg.name}
-        defaultValue={_.first(booleanOptions)}
-        onChange={(value) => setValue(arg.name, value)}
-      >
-        <HStack spacing={4}>
-          {_.map(booleanOptions, (option: any) => (
-            <Radio value={option} key={option}>
+      <RadioGroup name={arg.name} defaultValue={first(booleanOptions)} onChange={(value) => setValue(arg.name, value)}>
+        <div className='flex gap-4'>
+          {map(booleanOptions, (option: any) => (
+            <RadioGroupItem value={option} key={option}>
               {option}
-            </Radio>
+            </RadioGroupItem>
           ))}
-        </HStack>
+        </div>
       </RadioGroup>
-    </Stack>
+    </div>
   );
 };
 

@@ -35,7 +35,7 @@ const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean 
       <div className='flex items-center gap-2'>
         <OblongAvatar src={avatar || fallbackAvatar} className='h-10 w-8' />
 
-        <div className='flex flex-col gap-1'>
+        <div className='flex flex-col gap-0.5'>
           {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
 
           <span className='font-jb-mono text-sm text-gray-600'>

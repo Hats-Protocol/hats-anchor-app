@@ -1,12 +1,12 @@
 'use client';
 
-import { Box, HStack, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { Select } from 'chakra-react-select';
 import { compact, concat, get, isEmpty, map, sortBy } from 'lodash';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
+import Select from 'react-select';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
+import { Tooltip } from 'ui';
 import { Hex } from 'viem';
 
 import { Input } from './input';
@@ -43,27 +43,19 @@ const MultiHatsSelect = ({
   );
 
   return (
-    <Stack>
+    <div className='flex flex-col gap-2'>
       {label && (
-        <HStack>
-          <Text mb={0} fontSize='sm' textTransform='uppercase'>
-            {label}
-          </Text>
+        <div className='flex items-center gap-1'>
+          <p className='mb-0 text-sm uppercase'>{label}</p>
 
           {info && (
-            <Tooltip shouldWrapChildren label={info}>
+            <Tooltip label={info}>
               <FaRegQuestionCircle />
             </Tooltip>
           )}
-        </HStack>
+        </div>
       )}
-      {typeof subLabel !== 'string' ? (
-        subLabel
-      ) : (
-        <Text size='sm' mt={0} color='blackAlpha.700'>
-          {subLabel}
-        </Text>
-      )}
+      {typeof subLabel !== 'string' ? subLabel : <p className='text-blackAlpha-700 mt-0 text-sm'>{subLabel}</p>}
       <Select
         name={name}
         value={watch(name)}
@@ -76,16 +68,16 @@ const MultiHatsSelect = ({
       />
 
       {useCustomHat && (
-        <Box pt={2}>
+        <div className='pt-2'>
           <Input
             name={`${name}-custom`}
             label='Custom Hat'
             placeholder='0x0000012300010001000...'
             localForm={localForm}
           />
-        </Box>
+        </div>
       )}
-    </Stack>
+    </div>
   );
 };
 

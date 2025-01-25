@@ -1,32 +1,21 @@
 'use client';
 
-import {
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  IconButton,
-  InputGroup,
-  InputProps as ChakraInputProps,
-  InputRightAddon,
-  InputRightElement,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput as ChakraNumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import _ from 'lodash';
 import { ChangeEvent, ReactNode } from 'react';
-import { Controller, RegisterOptions, UseFormReturn } from 'react-hook-form';
+import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { GrUndo } from 'react-icons/gr';
+import { BaseInput, Button, cn } from 'ui';
 
-export interface CustomNumberInputProps {
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
+
+// TODO re-add stepper controls
+
+export interface NumberInputProps {
   label?: string;
   subLabel?: string;
   helperText?: string;
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   options?: RegisterOptions;
   numOptions?: {
@@ -39,9 +28,8 @@ export interface CustomNumberInputProps {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   isDisabled?: boolean;
   rightAddon?: ReactNode;
+  enableReset?: boolean;
 }
-
-type NumberInputProps = ChakraInputProps & CustomNumberInputProps;
 
 /**
  * Primary UI component for Heading
@@ -60,6 +48,7 @@ const NumberInput = ({
   onChange,
   isDisabled,
   rightAddon,
+  enableReset = true,
 }: NumberInputProps) => {
   if (!localForm) return null;
 
@@ -87,58 +76,50 @@ const NumberInput = ({
   };
 
   const handleChange = onChange || defaultHandleChange;
-
+  // isInvalid={!!errors[name]} isRequired={!!_.get(options, 'required')}
   return (
-    <FormControl isInvalid={!!errors[name]} isRequired={!!_.get(options, 'required')}>
-      <Stack spacing={2} w='full'>
-        {label && (
-          <FormLabel mb={0} as={Text} fontSize='sm' fontWeight='normal'>
-            {label.toUpperCase()}
-          </FormLabel>
-        )}
-        {subLabel && <FormHelperText mt={0}>{subLabel}</FormHelperText>}
-        <Controller
-          control={control}
-          name={name}
-          rules={options}
-          render={({ field: { ref, ...restField } }) => (
-            <InputGroup>
-              <ChakraNumberInput
-                w='full'
-                variant={variant}
+    <FormField
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <FormItem>
+          <div className='flex w-full flex-col gap-2'>
+            {label && <FormLabel className='mb-0 text-sm font-normal'>{label.toUpperCase()}</FormLabel>}
+            {subLabel && <FormDescription>{subLabel}</FormDescription>}
+
+            <FormControl className='flex'>
+              <BaseInput
+                className={cn('w-full', {
+                  'border-destructive': isError,
+                  'border-cyan-500': isDirty,
+                })}
+                // variant={variant}
                 step={step}
                 min={numOptions?.min !== undefined ? numOptions.min : 0}
                 max={numOptions?.max}
-                borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
-                isDisabled={isDisabled}
-                {...restField}
-              >
-                <NumberInputField ref={ref} onChange={handleChange} name={restField.name} placeholder={placeholder} />
-                {isDirty && !isDisabled && (
-                  <InputRightElement mr={6}>
-                    <IconButton icon={<GrUndo />} aria-label='Reset' onClick={onReset} size='xs' colorScheme='cyan' />
-                  </InputRightElement>
-                )}
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </ChakraNumberInput>
+                disabled={isDisabled}
+                {...field}
+                onChange={handleChange}
+              />
+              {/* <NumberInputField ref={ref} onChange={handleChange} name={restField.name} placeholder={placeholder} /> */}
+              {isDirty && !isDisabled && enableReset && (
+                <div className='mr-6'>
+                  <Button aria-label='Reset' onClick={onReset} size='xs' className='bg-cyan-500'>
+                    <GrUndo />
+                  </Button>
+                </div>
+              )}
 
-              {rightAddon && <InputRightAddon px={0}>{rightAddon}</InputRightAddon>}
-            </InputGroup>
-          )}
-        />
+              {rightAddon && <div className='px-0'>{rightAddon}</div>}
+            </FormControl>
 
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
+            {helperText && <FormDescription>{helperText}</FormDescription>}
 
-        {getErrorMessage() && (
-          <Text color='red.500' size='xs'>
-            {getErrorMessage()}
-          </Text>
-        )}
-      </Stack>
-    </FormControl>
+            {getErrorMessage() && <FormDescription className='text-destructive'>{getErrorMessage()}</FormDescription>}
+          </div>
+        </FormItem>
+      )}
+    />
   );
 };
 
