@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { composePlugins, withNx } = require('@nx/next');
+import { composePlugins, withNx } from '@nx/next';
 
 /**
  * @type {import('next').NextConfig}
@@ -12,11 +12,7 @@ const nextConfig = {
   },
   reactStrictMode: false,
   eslint: {
-    dirs: [
-      'app',
-      'components',
-      // You might need to adjust these paths based on the actual paths in your Nx workspace
-    ],
+    dirs: ['app', 'components'],
   },
   transpilePackages: ['d3-org-chart'],
   webpack: (config) => {
@@ -54,4 +50,4 @@ const nextConfig = {
 
 const plugins = [withNx];
 
-module.exports = composePlugins(...plugins)(nextConfig);
+export default composePlugins(...plugins)(nextConfig);

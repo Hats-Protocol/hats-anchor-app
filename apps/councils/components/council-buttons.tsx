@@ -4,7 +4,7 @@ import { map, nth } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
-import { Button, ButtonGroup } from 'ui';
+import { Button, cn } from 'ui';
 
 const LINKS = [
   { label: 'Transactions', href: 'transactions' },
@@ -22,13 +22,27 @@ export const CouncilButtons = () => {
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
   const links = [...LINKS, ...devLink];
 
+  // ! ButtonGroup is not compatible with LinkButton
+
   return (
-    <ButtonGroup className='absolute top-[-5px] bg-white' orientation='horizontal'>
-      {map(links, ({ label, href }) => (
-        <Link href={`/councils/${slug}/${href}`} passHref key={href}>
-          <Button variant={pathname.includes(href) ? 'default' : 'outline-blue'}>{label}</Button>
-        </Link>
-      ))}
-    </ButtonGroup>
+    <div className='absolute top-[-20px] flex rounded-full bg-white'>
+      {map(links, ({ label, href }, i) => {
+        const isFirst = i === 0;
+        const isLast = i === links.length - 1;
+        return (
+          <Link href={`/councils/${slug}/${href}`} key={href} className='-ml-[1px]'>
+            <Button
+              variant={pathname.includes(href) ? 'default' : 'outline'}
+              className={cn(
+                'rounded-none border border-black',
+                isFirst ? 'rounded-l-full' : isLast ? 'rounded-r-full' : '',
+              )}
+            >
+              {label}
+            </Button>
+          </Link>
+        );
+      })}
+    </div>
   );
 };

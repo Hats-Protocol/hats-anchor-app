@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@chakra-ui/react';
-import { Input } from 'forms';
+import { Form, Input } from 'forms';
 import { useForm } from 'react-hook-form';
 
 export const MailForm = () => {
@@ -36,18 +36,20 @@ export const MailForm = () => {
 
   return (
     <div className='flex flex-col gap-4'>
-      <form>
-        <Input
-          name='to'
-          label='Email'
-          placeholder='v@hatsprotocol.xyz'
-          localForm={localForm}
-          options={{
-            required: true,
-            validate: (value) => value.endsWith('@hatsprotocol.xyz') || 'Must be a Hats Protocol email',
-          }}
-        />
-      </form>
+      <Form {...localForm}>
+        <form>
+          <Input
+            name='to'
+            label='Email'
+            placeholder='v@hatsprotocol.xyz'
+            localForm={localForm}
+            options={{
+              required: true,
+              validate: (value) => value.endsWith('@hatsprotocol.xyz') || 'Must be a Hats Protocol email',
+            }}
+          />
+        </form>
+      </Form>
 
       <div>
         <Button variant='outline' onClick={handleSubmit(handleSendInvite)} isDisabled={!isValid}>

@@ -33,11 +33,12 @@ const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean 
   if (stack) {
     return (
       <div className='flex items-center gap-2'>
-        <OblongAvatar src={avatar || fallbackAvatar} height={40} />
+        <OblongAvatar src={avatar || fallbackAvatar} className='h-10 w-8' />
 
         <div className='flex flex-col gap-1'>
           {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
-          <span className='font-jbMono text-sm text-gray-600'>
+
+          <span className='font-jb-mono text-sm text-gray-600'>
             {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
           </span>
         </div>
@@ -47,9 +48,11 @@ const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean 
 
   return (
     <div className='flex items-center gap-2'>
-      <OblongAvatar src={avatar || fallbackAvatar} height={16} />
+      <OblongAvatar src={avatar || fallbackAvatar} className='h-5 w-4 rounded-sm' />
+
       {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
-      <span className='font-jbMono text-sm text-gray-600'>
+
+      <span className='font-jb-mono text-sm text-gray-600'>
         {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
       </span>
     </div>

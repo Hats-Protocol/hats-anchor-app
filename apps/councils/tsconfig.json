@@ -57,7 +57,6 @@
     "**/*.tsx",
     "../../libs/types/src/*.d.ts",
     "../../dist/apps/councils/.next/types/**/*.ts",
-    "tailwind.config.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": []

@@ -64,7 +64,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
-        'jb-mono': ['var(--font-jbMono)', ...fontFamily.mono],
+        'jb-mono': ['JetBrains Mono Variable', ...fontFamily.mono],
       },
       keyframes: {
         'accordion-down': {

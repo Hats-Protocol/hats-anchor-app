@@ -3,6 +3,7 @@ export * from './controlled-radio-box';
 export * from './date-picker';
 export * from './duration-input';
 export * from './dynamic-threshold';
+export * from './form';
 export * from './form-row-wrapper';
 export * from './input';
 export * from './label-with-link';

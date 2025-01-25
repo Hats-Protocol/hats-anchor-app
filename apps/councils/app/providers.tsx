@@ -1,8 +1,8 @@
 'use client';
 
-// import '../public/style.css';
-// import './global.css';
-// import '@rainbow-me/rainbowkit/styles.css';
+import '../public/style.css';
+import './global.css';
+import '@rainbow-me/rainbowkit/styles.css';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';

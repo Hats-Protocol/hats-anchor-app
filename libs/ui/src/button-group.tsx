@@ -9,6 +9,8 @@ interface ButtonGroupProps {
   children: ReactElement<ButtonProps>[];
 }
 
+// ! currently isn't compatible with LinkButton, link button classes are not on the immediate child
+
 export const ButtonGroup = ({ className, orientation = 'horizontal', children }: ButtonGroupProps) => {
   const totalButtons = Children.count(children);
   const isHorizontal = orientation === 'horizontal';
