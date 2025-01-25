@@ -152,7 +152,10 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
           <div className='space-y-6'>
             <div className='space-y-2'>
               <h3 className='text-base font-bold text-gray-900'>Monthly</h3>
-              <p className='text-gray-600'>Here&apos;s some text that explains how invoices work.</p>
+              <p className='text-gray-600'>
+                Provide invoice contact information here and we&apos;ll reach out to setup a recurring payment system
+                that fits your preferences.
+              </p>
               <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
                 <UsdcIcon />
                 299 USDC / month
