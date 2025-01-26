@@ -1,6 +1,5 @@
-// apps/councils/components/council-create-form/onboarding-step.tsx
 'use client';
-import { Spinner, Stack, Text } from '@chakra-ui/react';
+
 import { useCouncilForm } from 'contexts';
 import { RadioCard, RequirementBox } from 'forms';
 import { FileText, GemIcon } from 'lucide-react';
@@ -8,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
 import { BsPersonCheck } from 'react-icons/bs';
 import { StepProps } from 'types';
+import { Skeleton } from 'ui';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -23,23 +23,20 @@ export function OnboardingStep({ onNext }: StepProps) {
 
   if (isLoading) {
     return (
-      <Stack height='100%' justify='center' align='center'>
-        <Spinner size='xl' color='blue.500' />
-      </Stack>
+      <div className='flex h-full items-center justify-center'>
+        <Skeleton className='h-10 w-10' />
+      </div>
     );
   }
 
   return (
-    <Stack spacing={8} height='100%' as='form' onSubmit={form.handleSubmit(onNext)}>
-      <Stack spacing={8} flex={1}>
-        <Text fontSize='2xl' fontWeight='bold'>
-          Council Membership
-        </Text>
+    <form className='flex h-full flex-col gap-8' onSubmit={form.handleSubmit(onNext)}>
+      <div className='flex flex-col gap-6'>
+        <h2 className='text-2xl font-bold'>Council Membership</h2>
 
-        <Stack spacing={6}>
-          <Text fontSize='lg' fontWeight='semibold'>
-            How is the Council selected?
-          </Text>
+        <div className='flex flex-col gap-6'>
+          <h3 className='text-lg font-semibold'>How is the Council selected?</h3>
+
           <RadioCard
             name='membershipType'
             localForm={form}
@@ -61,12 +58,11 @@ export function OnboardingStep({ onNext }: StepProps) {
             ]}
             textSize='md'
           />
-        </Stack>
+        </div>
 
-        <Stack spacing={6}>
-          <Text fontSize='lg' fontWeight='semibold'>
-            What is required to join the Council?
-          </Text>
+        <div className='flex flex-col gap-6'>
+          <h3 className='text-lg font-semibold'>What is required to join the Council?</h3>
+
           <RequirementBox
             name='requirements'
             localForm={form}
@@ -92,14 +88,14 @@ export function OnboardingStep({ onNext }: StepProps) {
               },
             ]}
           />
-        </Stack>
-      </Stack>
+        </div>
+      </div>
 
       <div className='flex justify-end py-6'>
         <NextStepButton disabled={!form.formState.isValid || !canEdit}>
           {getNextStepButtonText(nextStep)}
         </NextStepButton>
       </div>
-    </Stack>
+    </form>
   );
 }

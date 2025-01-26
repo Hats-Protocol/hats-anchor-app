@@ -1,8 +1,6 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { Module, Ruleset } from '@hatsprotocol/modules-sdk';
-import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { RadioBox } from 'forms';
@@ -11,6 +9,7 @@ import { useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { CouncilMember, CurrentEligibility, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { formatAddress, getKnownEligibilityModule, logger, sendTelegramMessage } from 'utils';
 import { Hex } from 'viem';
 
@@ -73,7 +72,7 @@ export function RemoveUserModal({
   offchainCouncilData,
   afterSuccess,
 }: RemoveUserModalProps) {
-  const [formPending, setFormPending] = useState(false);
+  const [formPending, setFormPending] = useState(false); // TODO handle loading state
   const form = useForm<RemoveReasonFormProps>();
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
@@ -168,9 +167,7 @@ export function RemoveUserModal({
 
         <div className='mt-8'>
           <div className='flex justify-end'>
-            <Button type='submit' isLoading={formPending} variant='primary'>
-              Remove
-            </Button>
+            <Button type='submit'>Remove</Button>
           </div>
         </div>
       </form>

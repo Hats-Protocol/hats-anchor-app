@@ -1,23 +1,13 @@
 'use client';
 
-import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Flex,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import { useTreasury } from 'contexts';
 import { useApprovedTokens, useSafeTransactions } from 'hooks';
 import { get, map } from 'lodash';
+import { ChevronDown } from 'lucide-react';
 import posthog from 'posthog-js';
 import React from 'react';
 import { SafeTransaction } from 'types';
-import { Link } from 'ui';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger, Link } from 'ui';
 import {
   explorerUrl,
   filterSafeTransactions,
@@ -34,21 +24,21 @@ const TransactionRecord = ({ tx, chainId }: { tx: SafeTransaction; chainId: numb
   const txHash = get(tx, 'transactionHash', get(tx, 'txHash'));
 
   return (
-    <Flex justify='space-between'>
-      <Flex gap={1}>
-        <Text>
+    <div className='flex justify-between'>
+      <div className='flex gap-1'>
+        <p>
           {formatRoundedDecimals({
             value: BigInt(value),
             decimals: get(tx, 'transfers.0.tokenInfo.decimals', 18),
           })}
-        </Text>
-        <Text>{get(tx, 'transfers.0.tokenInfo.symbol')}</Text>
-      </Flex>
+        </p>
+        <p>{get(tx, 'transfers.0.tokenInfo.symbol')}</p>
+      </div>
 
-      <Box>
+      <div>
         <Link href={`${explorerUrl(chainId)}/tx/${txHash}`}>{shortDateFormatter(new Date(tx.executionDate))}</Link>
-      </Box>
-    </Flex>
+      </div>
+    </div>
   );
 };
 
@@ -68,34 +58,37 @@ const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
   if (!isDev) return null;
 
   return (
-    <Accordion w='full' allowMultiple pt={4}>
-      <AccordionItem>
-        <AccordionButton display='flex' justifyContent='space-between'>
-          <Text>Inbound Transactions</Text>
-          <AccordionIcon />
-        </AccordionButton>
-        <AccordionPanel>
-          <Stack spacing={1}>
+    <div className='w-full space-y-4'>
+      <Collapsible>
+        <CollapsibleTrigger className='flex justify-between'>
+          <p>Inbound Transactions</p>
+          <ChevronDown />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className='space-y-1'>
             {map(onlyInboundTransactions(filteredSafeTransactions, safeAddress), (tx) => (
               <TransactionRecord tx={tx} chainId={chainId} key={tx.transactionHash} />
-            )) || <Text>No inbound transactions</Text>}
-          </Stack>
-        </AccordionPanel>
-      </AccordionItem>
-      <AccordionItem>
-        <AccordionButton display='flex' justifyContent='space-between'>
-          <Text>Outbound Transactions</Text>
-          <AccordionIcon />
-        </AccordionButton>
-        <AccordionPanel>
-          <Stack spacing={1}>
+            )) || <p>No inbound transactions</p>}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Collapsible>
+        <CollapsibleTrigger className='flex justify-between'>
+          <p>Outbound Transactions</p>
+          <ChevronDown />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className='space-y-1'>
             {map(onlyOutboundTransactions(filteredSafeTransactions, safeAddress), (tx) => (
               <TransactionRecord tx={tx} chainId={chainId} key={tx.transactionHash} />
-            )) || <Text>No outbound transactions</Text>}
-          </Stack>
-        </AccordionPanel>
-      </AccordionItem>
-    </Accordion>
+            )) || <p>No outbound transactions</p>}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 };
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { Form, Input } from 'forms';
 import { useForm } from 'react-hook-form';
+import { Button } from 'ui';
 
 export const MailForm = () => {
   const localForm = useForm();
@@ -52,17 +52,17 @@ export const MailForm = () => {
       </Form>
 
       <div>
-        <Button variant='outline' onClick={handleSubmit(handleSendInvite)} isDisabled={!isValid}>
+        <Button variant='outline' onClick={handleSubmit(handleSendInvite)} disabled={!isValid}>
           Send &quot;You&apos;ve been invited&quot;
         </Button>
       </div>
       <div>
-        <Button variant='outline' onClick={handleSubmit(handleSendAdded)} isDisabled={!isValid}>
+        <Button variant='outline' onClick={handleSubmit(handleSendAdded)} disabled={!isValid}>
           Send &quot;You&apos;ve been added to a council&quot;
         </Button>
       </div>
       <div>
-        <Button variant='outline' onClick={handleSubmit(handleSendRemoved)} isDisabled={!isValid}>
+        <Button variant='outline' onClick={handleSubmit(handleSendRemoved)} disabled={!isValid}>
           Send &quot;You&apos;ve been removed from a council&quot;
         </Button>
       </div>

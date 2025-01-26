@@ -1,10 +1,9 @@
-import { Button } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map, size, split } from 'lodash';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
-import { MemberAvatar } from 'ui';
+import { Button, MemberAvatar } from 'ui';
 import { getAllWearers, logger } from 'utils';
 import { getAddress, Hex } from 'viem';
 
@@ -58,7 +57,7 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
         </div>
 
         <div className='flex'>
-          <Button variant='outline' onClick={() => setModals?.({ 'addUser-compliance': true })} isDisabled>
+          <Button variant='outline' onClick={() => setModals?.({ 'addUser-compliance': true })} disabled>
             Add Compliance Manager
           </Button>
         </div>
@@ -98,7 +97,7 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
       </div>
 
       <div className='flex'>
-        <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })} isDisabled>
+        <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })} disabled>
           Add Allowlist Manager
         </Button>
       </div>

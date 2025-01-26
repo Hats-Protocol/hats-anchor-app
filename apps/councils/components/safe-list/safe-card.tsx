@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Card, CardBody, Divider, Flex, Heading, HStack, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { SafeInfoResponse } from '@safe-global/api-kit';
 import { formHatUrl, safeUrl } from 'hats-utils';
@@ -9,6 +8,7 @@ import Link from 'next/link';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
 import { AppHat, HatSignerGate, SupportedChains } from 'types';
+import { Button, Card, Skeleton } from 'ui';
 import { formatAddress, ipfsUrl } from 'utils';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -55,81 +55,68 @@ const SafeCard = ({
 
   if (!firstHat || !chainId) return null;
 
+  if (!get(signerSafe, 'safe')) {
+    return <Skeleton className='h-full w-full' />;
+  }
+
   return (
-    <Skeleton isLoaded={!!get(signerSafe, 'safe')}>
-      <Card w='100%'>
-        <CardBody>
-          <Stack spacing={4}>
-            <Flex justify='space-between' gap={4}>
-              <HStack maxW='80%'>
-                <Box
-                  boxSize='50px'
-                  minW='50px'
-                  backgroundImage={imageUrl !== '#' ? imageUrl : '/icon.jpeg'}
-                  backgroundSize='cover'
-                  border='1px gray.400'
-                  borderRadius='md'
+    <Card className='w-full'>
+      <div className='flex flex-col gap-4'>
+        <div className='flex items-center justify-between gap-4'>
+          <div className='flex max-w-[80%] items-center gap-2'>
+            <div
+              className='h-[50px] w-[50px] overflow-hidden rounded-md border border-gray-400 bg-cover bg-clip-content bg-center'
+              style={{ backgroundImage: imageUrl !== '#' ? imageUrl : '/icon.jpeg' }}
+            />
+
+            <h2 className='text-lg font-medium'>{firstHatName}</h2>
+          </div>
+
+          <SafeTotal safeAddress={safeAddress} />
+        </div>
+
+        <SafeAssets safeAddress={safeAddress} chainId={chainId} />
+
+        <hr className='mx-auto w-[70%]' />
+
+        <ActiveStreams safeAddress={safeAddress} />
+
+        <div className='flex items-center justify-between'>
+          <LastTransaction safeAddress={safeAddress} type={'inbound'} />
+
+          <LastTransaction safeAddress={safeAddress} type={'outbound'} />
+        </div>
+
+        <SafeTransactions safeAddress={safeAddress} />
+
+        <div className='flex items-center justify-between pt-4'>
+          <Link href={safeUrl(chainId as SupportedChains, get(signerSafe, 'safe'))}>
+            <Button variant='link' className='m-0 p-0'>
+              <div className='flex items-center gap-2'>
+                <div
+                  className='h-[26px] w-[16px] overflow-hidden rounded-sm bg-cover bg-clip-content bg-center'
+                  style={{
+                    backgroundImage: ensAvatar || safeAvatar,
+                  }}
                 />
-                <Heading variant='medium' size='lg' noOfLines={2}>
-                  {firstHatName}
-                </Heading>
-              </HStack>
+                <p className='size-sm font-normal'>{ensName || formatAddress(get(signerSafe, 'safe'))}</p>
+              </div>
+            </Button>
+          </Link>
 
-              <SafeTotal safeAddress={safeAddress} />
-            </Flex>
-
-            <SafeAssets safeAddress={safeAddress} chainId={chainId} />
-
-            <Divider w='70%' mx='auto' />
-
-            <ActiveStreams safeAddress={safeAddress} />
-
-            <Flex justify='space-between'>
-              <LastTransaction safeAddress={safeAddress} type={'inbound'} />
-
-              <LastTransaction safeAddress={safeAddress} type={'outbound'} />
-            </Flex>
-
-            <SafeTransactions safeAddress={safeAddress} />
-
-            <Flex justify='space-between' align='center' pt={4}>
-              <Link href={safeUrl(chainId as SupportedChains, get(signerSafe, 'safe'))}>
-                <Button variant='link' p={0} m={0}>
-                  <HStack>
-                    <Box
-                      height='26px'
-                      width='16px'
-                      overflow='hidden'
-                      backgroundImage={ensAvatar || safeAvatar}
-                      backgroundSize='cover'
-                      backgroundClip='content-box'
-                      backgroundPosition='center'
-                      borderRadius='sm'
-                    />
-                    <Text size='sm' fontWeight={400}>
-                      {ensName || formatAddress(get(signerSafe, 'safe'))}
-                    </Text>
-                  </HStack>
-                </Button>
-              </Link>
-
-              <Link
-                href={formHatUrl({
-                  chainId: chainId as SupportedChains,
-                  hatId: firstHat.id,
-                })}
-              >
-                <Button variant='link' p={0} m={0}>
-                  <Text size='sm' fontWeight={400}>
-                    #{hatIdDecimalToIp(hatIdHexToDecimal(firstHat.id))}
-                  </Text>
-                </Button>
-              </Link>
-            </Flex>
-          </Stack>
-        </CardBody>
-      </Card>
-    </Skeleton>
+          <Link
+            href={formHatUrl({
+              chainId: chainId as SupportedChains,
+              hatId: firstHat.id,
+            })}
+          >
+            <Button variant='link' className='m-0 p-0'>
+              <p className='size-sm font-normal'>#{hatIdDecimalToIp(hatIdHexToDecimal(firstHat.id))}</p>
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </Card>
   );
 };
 

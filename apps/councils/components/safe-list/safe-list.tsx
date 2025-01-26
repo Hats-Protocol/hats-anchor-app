@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Divider, Heading, HStack, Stack } from '@chakra-ui/react';
 import { useTreasury } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { get, groupBy, map } from 'lodash';
@@ -9,13 +8,13 @@ import { ipfsUrl } from 'utils';
 
 import { SafeCard } from './safe-card';
 
-const LOADING_SAFES = [
-  { hats: [{ id: '1' }] },
-  { hats: [{ id: '2' }] },
-  { hats: [{ id: '3' }] },
-  { hats: [{ id: '4' }] },
-  { hats: [{ id: '5' }] },
-];
+// const LOADING_SAFES = [
+//   { hats: [{ id: '1' }] },
+//   { hats: [{ id: '2' }] },
+//   { hats: [{ id: '3' }] },
+//   { hats: [{ id: '4' }] },
+//   { hats: [{ id: '5' }] },
+// ];
 
 const AdminHatHeader = ({ adminId, chainId }: { adminId: string; chainId: number | undefined }) => {
   const { data: adminHat } = useHatDetails({
@@ -28,18 +27,13 @@ const AdminHatHeader = ({ adminId, chainId }: { adminId: string; chainId: number
 
   if (!chainId) return null;
   return (
-    <HStack pb={4}>
-      <Box
-        boxSize='35px'
-        backgroundImage={adminHatImage !== '#' ? adminHatImage : '/icon.jpeg'}
-        backgroundSize='cover'
-        border='1px gray.400'
-        borderRadius='md'
+    <div className='flex items-center space-x-2'>
+      <div
+        className='h-10 w-10 rounded-md border border-gray-400 bg-cover'
+        style={{ backgroundImage: adminHatImage !== '#' ? adminHatImage : '/icon.jpeg' }}
       />
-      <Heading size='lg' variant='medium'>
-        {adminHatName}
-      </Heading>
-    </HStack>
+      <h4 className='text-lg font-medium'>{adminHatName}</h4>
+    </div>
   );
 };
 
@@ -49,12 +43,12 @@ const SafeList = () => {
   const groupedByAdmin = groupBy(hatsWithSafesInfo, (h: any) => get(h, 'hats.[0].admin.id'));
 
   return (
-    <Stack w={{ base: '90%', md: '60%' }} mx='auto' spacing={4}>
+    <div className='mx-auto w-[90%] space-y-4 md:w-[60%]'>
       {map(groupedByAdmin, (hats, adminId) => (
-        <Stack key={adminId}>
+        <div key={adminId}>
           <AdminHatHeader adminId={adminId} chainId={chainId} />
 
-          <Stack spacing={4}>
+          <div className='space-y-4'>
             {map(hats, (h: any) => (
               <SafeCard
                 key={get(h, 'hats.[0].id')}
@@ -64,12 +58,12 @@ const SafeList = () => {
                 chainId={chainId}
               />
             ))}
-          </Stack>
+          </div>
 
-          <Divider my={6} />
-        </Stack>
+          {/* <Divider my={6} /> */}
+        </div>
       ))}
-    </Stack>
+    </div>
   );
 };
 

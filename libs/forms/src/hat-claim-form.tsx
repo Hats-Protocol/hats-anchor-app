@@ -1,10 +1,10 @@
 'use client';
 
-import { Button, Flex, Stack } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useDebounce } from 'hooks';
 import { useHatClaimFor } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
+import { Button } from 'ui';
 import { Hex } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
@@ -43,7 +43,7 @@ const HatClaimForForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={4}>
+      <div className='space-y-4'>
         <AddressInput
           name='address'
           label='Hat Wearer Address'
@@ -58,16 +58,12 @@ const HatClaimForForm = () => {
           chainId={chainId}
         />
 
-        <Flex justify='flex-end'>
-          <Button
-            type='submit'
-            isLoading={isLoading}
-            isDisabled={!canClaimForAccount || isLoadingAddressResolvedAddress}
-          >
+        <div className='flex justify-end'>
+          <Button type='submit' disabled={!canClaimForAccount || isLoadingAddressResolvedAddress}>
             Claim
           </Button>
-        </Flex>
-      </Stack>
+        </div>
+      </div>
     </form>
   );
 };

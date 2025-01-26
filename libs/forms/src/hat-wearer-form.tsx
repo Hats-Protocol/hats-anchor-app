@@ -1,17 +1,17 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Stack, Text, VStack } from '@chakra-ui/react';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { isMutable } from 'hats-utils';
 import { useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { add, find, get, gt, map, pick, size, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart } from 'react-icons/bs';
 import { idToIp, toTreeId } from 'shared';
+import { Button, cn } from 'ui';
 import { chainsMap, formatAddress, formatScientificWhole } from 'utils';
 import { isAddress } from 'viem';
 
@@ -34,15 +34,15 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
 
   const { localForm: hatForm } = useHatForm();
   const form = localForm || hatForm;
-  const { handleSubmit, watch, formState } = _.pick(form, ['handleSubmit', 'watch', 'formState']);
-  const { errors } = _.pick(formState, ['errors']);
+  const { handleSubmit, watch, formState } = pick(form, ['handleSubmit', 'watch', 'formState']);
+  const { errors } = pick(formState, ['errors']);
 
-  const hatId = _.get(selectedHat, 'id');
+  const hatId = get(selectedHat, 'id');
   const hatIdDecimal = hatId && hatIdHexToDecimal(hatId);
-  const detailsObject = _.get(selectedHat, 'detailsObject');
-  const currentSupply = _.get(selectedHat, 'currentSupply');
+  const detailsObject = get(selectedHat, 'detailsObject');
+  const currentSupply = get(selectedHat, 'currentSupply');
   // TODO handle more than 100 wearers
-  const currentWearers = _.get(selectedHat, 'wearers');
+  const currentWearers = get(selectedHat, 'wearers');
   let hatName = selectedHat?.details;
   if (detailsObject?.data) {
     hatName = detailsObject.data.name;
@@ -53,20 +53,20 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
     if (currentMaxSupply) {
       return currentMaxSupply;
     }
-    const storedHat = _.find(storedData, { id: hatId });
-    if (_.get(storedHat, 'maxSupply')) {
-      return _.get(storedHat, 'maxSupply');
+    const storedHat = find(storedData, { id: hatId });
+    if (get(storedHat, 'maxSupply')) {
+      return get(storedHat, 'maxSupply');
     }
-    return _.get(selectedHat, 'maxSupply');
+    return get(selectedHat, 'maxSupply');
   }, [selectedHat, storedData, currentMaxSupply, hatId]);
 
-  const currentWearerList = _.map(currentWearers, 'id');
+  const currentWearerList = map(currentWearers, 'id');
   const localWearers = watch?.('wearers', []);
   const currentInput = watch?.('wearers-currentAddress-input');
   const currentResolvedAddress = watch?.('wearers-currentAddress');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const batchMintArgs: any[] = [new Array(localWearers.length).fill(hatIdDecimal), _.map(localWearers, 'address')];
+  const batchMintArgs: any[] = [new Array(localWearers.length).fill(hatIdDecimal), map(localWearers, 'address')];
   if (currentResolvedAddress && hatId && isAddress(currentResolvedAddress)) {
     batchMintArgs[0].push(hatIdDecimal);
     batchMintArgs[1].push(currentResolvedAddress);
@@ -75,7 +75,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
   const txDescriptionBatch =
     currentResolvedAddress &&
     `Minted hat ${idToIp(selectedHat?.id)} to ${
-      _.size(localWearers) + (isAddress(currentResolvedAddress) ? 1 : 0)
+      size(localWearers) + (isAddress(currentResolvedAddress) ? 1 : 0)
     } wearers`;
 
   const waitForSubgraph = useWaitForSubgraph({ chainId });
@@ -127,7 +127,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
   const onSubmit = async () => {
     // eslint-disable-next-line no-console
     console.log(currentResolvedAddress, localWearers);
-    if (currentResolvedAddress && isAddress(currentResolvedAddress) && _.size(localWearers) === 0) {
+    if (currentResolvedAddress && isAddress(currentResolvedAddress) && size(localWearers) === 0) {
       await writeAsyncMintHat?.();
     } else {
       await writeAsyncBatchMintHats?.();
@@ -138,21 +138,21 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
 
   return (
     <form onSubmit={handleSubmit?.(onSubmit)}>
-      <Stack spacing={editMode ? 4 : 2}>
+      <div className={cn(editMode ? 'space-y-4' : 'space-y-2')}>
         {editMode && (
           <FormRowWrapper>
-            <Icon as={BsBarChart} boxSize={4} mt='2px' />
+            <BsBarChart className='mt-1 h-4 w-4' />
+
             <NumberInput
               name='maxSupply'
               label='MAX WEARERS'
               subLabel='Total number of addresses that can wear this hat at the same time.'
               localForm={form}
               options={{
-                min: _.toNumber(selectedHat?.currentSupply),
+                min: toNumber(selectedHat?.currentSupply),
                 validate: {
                   maxWearers: (v) =>
-                    !_.gt(_.add(_.size(currentWearerList), _.size(localWearers)), _.toNumber(v)) ||
-                    'Max supply exceeded',
+                    !gt(add(size(currentWearerList), size(localWearers)), toNumber(v)) || 'Max supply exceeded',
                 },
               }}
               isDisabled={!isMutable(selectedHat)}
@@ -160,46 +160,44 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
             />
           </FormRowWrapper>
         )}
-        <Flex justify='space-between' align='flex-end'>
-          <Stack gap={0}>
-            <HStack>
-              <Text size='sm' textTransform='uppercase'>
-                New Wearer Addresses
-              </Text>
-            </HStack>
-            <Text size='sm' variant='light'>
+        <div className='flex items-end justify-between'>
+          <div className='space-y-0'>
+            <div className='flex items-center'>
+              <p className='text-sm uppercase'>New Wearer Addresses</p>
+            </div>
+            <p className='text-sm text-gray-600'>
               This address will receive a {hatName} hat token on {chainId && chainsMap(chainId).name}
-            </Text>
-          </Stack>
+            </p>
+          </div>
           {!editMode && (
-            <Text size='sm' variant='light'>
-              {_.toNumber(currentSupply) + _.size(localWearers)} of {formatScientificWhole(maxSupply)} wearers
-            </Text>
+            <p className='text-sm text-gray-600'>
+              {toNumber(currentSupply) + size(localWearers)} of {formatScientificWhole(maxSupply)} wearers
+            </p>
           )}
-        </Flex>
-        <VStack borderRadius={8} alignItems='start' spacing={3}>
+        </div>
+        <div className='rounded-lg border'>
           <MultiAddressInput name='wearers' localForm={form} holdOnAdd={!editMode} />
-        </VStack>
+        </div>
 
         {!editMode && (
-          <Flex justify='flex-end'>
+          <div className='flex justify-end'>
             <Button
               type='submit'
-              isLoading={isLoadingMintHat || isLoadingBatchMintHats}
-              colorScheme='blue'
-              isDisabled={
+              // isLoading={isLoadingMintHat || isLoadingBatchMintHats}
+              variant='default'
+              disabled={
                 (!writeAsyncBatchMintHats && !writeAsyncMintHat) ||
                 isLoadingMintHat ||
                 isLoadingBatchMintHats ||
                 !!errors?.[`wearers-currentAddress`]
               }
-              leftIcon={<Icon as={BoxArrowUpRightIn} boxSize={4} mr={2} />}
             >
-              Mint Hat{_.size(localWearers) > 0 && 's'}
+              <BoxArrowUpRightIn className='h-4 w-4' />
+              Mint Hat{size(localWearers) > 0 && 's'}
             </Button>
-          </Flex>
+          </div>
         )}
-      </Stack>
+      </div>
     </form>
   );
 };

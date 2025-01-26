@@ -1,4 +1,3 @@
-import { Button } from '@chakra-ui/react';
 import { Modal, useOverlay } from 'contexts';
 import { DatePicker, MarkdownEditor } from 'forms';
 import { find } from 'lodash';
@@ -6,6 +5,7 @@ import { useAgreementClaim, useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { ModuleDetails, ModuleFunction, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { fetchToken, handleAgreementPin, logger } from 'utils';
 
 export function UpdateAgreementModal({
@@ -20,7 +20,6 @@ export function UpdateAgreementModal({
   const { handleSubmit, reset, watch } = form;
   const { setModals } = useOverlay();
   const updatedAgreement = watch('agreement');
-  console.log(moduleDetails);
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
 
@@ -81,7 +80,7 @@ export function UpdateAgreementModal({
         </div>
 
         <div className='mt-6 flex justify-end'>
-          <Button type='submit' variant='primary' isDisabled={agreement === updatedAgreement} isLoading={isLoading}>
+          <Button type='submit' disabled={agreement === updatedAgreement}>
             Update Agreement
           </Button>
         </div>

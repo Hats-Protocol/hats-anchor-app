@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Flex, Heading, HStack, Image, Stack } from '@chakra-ui/react';
 import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useTreasury } from 'contexts';
 import { get } from 'lodash';
@@ -16,27 +15,24 @@ const TreeOverview = () => {
   if (!chainId) return null;
 
   return (
-    <Flex py={16} justify='center' bg='blackAlpha.100'>
-      <Stack justifyContent='center'>
-        <HStack mx='auto'>
-          <Box w={7}>&nbsp;</Box>
-          <Box backgroundColor='white'>
-            <Box
-              backgroundImage={topHatImage ? ipfsUrl(topHatImage) : '/icon.jpeg'}
-              backgroundSize='cover'
-              boxSize='100px'
-              borderRadius='lg'
-              border='2px solid black'
+    <div className='flex justify-center bg-gray-200 py-16'>
+      <div className='flex flex-col items-center'>
+        <div className='mx-auto flex gap-2'>
+          <div className='w-7'>&nbsp;</div>
+          <div className='bg-white'>
+            <div
+              className='rounded-lg border-2 border-black bg-cover bg-center'
+              style={{
+                backgroundImage: topHatImage ? `url(${ipfsUrl(topHatImage)})` : '/icon.jpeg',
+              }}
             />
-          </Box>
-          <Image src={NETWORK_IMAGES[chainId]} alt={`${chain?.name}`} boxSize={7} />
-        </HStack>
-        <Heading textAlign='center'>{topHatName}</Heading>
-        {/* <Text textAlign='center' fontStyle='italic'>
-              Roles with budgets
-            </Text> */}
-      </Stack>
-    </Flex>
+          </div>
+          <img src={NETWORK_IMAGES[chainId]} alt={`${chain?.name}`} className='h-7 w-7' />
+        </div>
+        <h1 className='text-center'>{topHatName}</h1>
+        {/* <p className='text-center italic'>Roles with budgets</p> */}
+      </div>
+    </div>
   );
 };
 

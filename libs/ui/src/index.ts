@@ -1,5 +1,6 @@
 export { default as baseConfig } from '../tailwind.config';
 export * from './accordion';
+export * from './alert';
 export * from './button';
 export * from './button-group';
 export * from './calendar';
@@ -27,6 +28,7 @@ export * from './popover';
 export * from './radio-group';
 export * from './select';
 export * from './skeleton';
+export * from './switch';
 export * from './textarea';
 export { theme } from './theme';
 export * from './tooltip';

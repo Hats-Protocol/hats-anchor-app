@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
@@ -10,6 +9,7 @@ import { concat, filter, find, flatten, get, map, size, toLower, toNumber } from
 import { useEligibilityRules } from 'modules-hooks';
 import { idToIp } from 'shared';
 import { CouncilMember, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { MemberAvatar } from 'ui';
 import { createHatsClient, formatAddress, getAllWearers, logger, parseCouncilSlug, sendTelegramMessage } from 'utils';
 import { getAddress, Hex } from 'viem';
@@ -214,7 +214,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           </div>
 
           <div className='flex'>
-            <Button variant='outline' isDisabled>
+            <Button variant='outline' disabled>
               Transfer Ownership
             </Button>
           </div>

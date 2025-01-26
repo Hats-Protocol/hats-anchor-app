@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Flex, Heading, HStack, Image, Stack, Text } from '@chakra-ui/react';
 import { NETWORK_CURRENCY, OVERRIDE_TOKEN_IMAGE } from '@hatsprotocol/config';
 import { useApprovedTokens, useSafeTokens, useTokenDetails, useTokenPrices } from 'hooks';
 import { find, get, includes, isEmpty, map, toLower, toUpper } from 'lodash';
@@ -39,37 +38,38 @@ const SafeAssetRow = ({ token, chainId }: { token: any; chainId: number }) => {
   });
 
   return (
-    <Flex justify='space-between'>
+    <div className='flex justify-between'>
       {formatBalanceValue({
         price: get(priceDetails, 'priceUsd'),
         balance: token.balance,
         decimals: get(token, 'token.decimals', 18),
       }) ? (
-        <Heading size='xl'>
+        <h2 className='text-xl'>
           $
           {formatBalanceValue({
             price: get(priceDetails, 'priceUsd'),
             balance: token.balance,
             decimals: get(token, 'token.decimals', 18),
           })}
-        </Heading>
+        </h2>
       ) : (
-        <Box>&nbsp;</Box>
+        <span>&nbsp;</span>
       )}
 
-      <HStack key={token.address}>
-        <Heading size='lg' variant='medium'>
+      <div className='flex gap-2' key={token.address}>
+        <h2 className='text-lg font-medium'>
           {formatRoundedDecimals({
             value: token.balance,
             decimals: get(token, 'token.decimals'),
           })}
-        </Heading>
-        <HStack spacing={1}>
-          <Image src={tokenImage} boxSize={4} alt='token image' />
-          <Text size='sm'>{get(token, 'token.symbol', get(NETWORK_CURRENCY, chainId || 1))}</Text>
-        </HStack>
-      </HStack>
-    </Flex>
+        </h2>
+
+        <div className='flex gap-1'>
+          <img src={tokenImage} className='h-4 w-4' alt='token image' />
+          <p className='text-sm'>{get(token, 'token.symbol', get(NETWORK_CURRENCY, chainId || 1))}</p>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -89,30 +89,26 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
   if (isEmpty(filteredSafeTokens)) {
     return (
-      <Flex w='full'>
-        <Stack w='full'>
-          <Heading variant='medium' size='sm'>
-            Assets
-          </Heading>
+      <div className='flex w-full'>
+        <div className='flex w-full flex-col gap-2'>
+          <h2 className='text-sm font-medium'>Assets</h2>
 
-          <Text>None found</Text>
-        </Stack>
-      </Flex>
+          <p>None found</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Flex w='full'>
-      <Stack w='full'>
-        <Heading variant='medium' size='sm'>
-          Assets
-        </Heading>
+    <div className='flex w-full'>
+      <div className='flex w-full flex-col gap-2'>
+        <h2 className='text-sm font-medium'>Assets</h2>
 
         {map(filteredSafeTokens, (token: any) => (
           <SafeAssetRow token={token} chainId={chainId} key={token.tokenAddress || 'native currency'} />
         ))}
-      </Stack>
-    </Flex>
+      </div>
+    </div>
   );
 };
 

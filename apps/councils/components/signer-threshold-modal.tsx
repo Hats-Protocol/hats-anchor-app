@@ -1,4 +1,5 @@
-import { Button } from '@chakra-ui/react';
+'use client';
+
 import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import { get, size, toNumber, toString } from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppHat, HatSignerGateV2 } from 'types';
+import { Button } from 'ui';
 import { logger } from 'utils';
 import { useAccount, useWriteContract } from 'wagmi';
 
@@ -152,11 +154,11 @@ export function SignerThresholdModal({ signer, signerHat, chainId }: SignerThres
         <div className='flex justify-end py-6'>
           <div className='flex gap-2'>
             {!!signerHat?.maxSupply && toNumber(maxMembers) !== toNumber(signerHat?.maxSupply) && (
-              <Button variant='outlineMatch' onClick={setMaxMembers} colorScheme='blue.500'>
+              <Button variant='outline-blue' onClick={setMaxMembers}>
                 Set max members
               </Button>
             )}
-            <Button type='submit' variant='primary' isDisabled={!hasHsgChanges || !address}>
+            <Button type='submit' disabled={!hasHsgChanges || !address}>
               Update Threshold
             </Button>
           </div>

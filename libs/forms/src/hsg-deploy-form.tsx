@@ -1,12 +1,16 @@
-import { Button, Checkbox, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
+'use client';
+
 import { useOverlay, useTreeForm } from 'contexts';
 import { first, get } from 'lodash';
 import { useHsgDeploy } from 'modules-hooks';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { BaseCheckbox, Button } from 'ui';
 import { chainsMap } from 'utils';
 
 import { AddressInput, DynamicThreshold, MultiHatsSelect, NumberInput, RadioBox } from './components';
+
+// TODO handle loading state
 
 const SAFE_ATTACH_OPTIONS = [
   { label: 'Deploy a new Safe', value: 'deploy' },
@@ -79,8 +83,8 @@ const HsgDeployForm = () => {
   const isDisabled = !isValid;
 
   return (
-    <Stack as='form' spacing={10} onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={4}>
+    <form className='space-y-10' onSubmit={handleSubmit(onSubmit)}>
+      <div className='space-y-4'>
         <RadioBox name='safe' options={SAFE_ATTACH_OPTIONS} localForm={localForm} />
 
         {watch('safe') === 'connect' && (
@@ -93,7 +97,7 @@ const HsgDeployForm = () => {
             hideAddressButtons
           />
         )}
-      </Stack>
+      </div>
 
       <MultiHatsSelect
         name='owner'
@@ -116,24 +120,22 @@ const HsgDeployForm = () => {
 
       <DynamicThreshold localForm={localForm} />
 
-      <Stack>
-        <Stack>
-          <HStack align='center'>
-            <Heading size='sm' textTransform='uppercase' fontWeight='normal'>
-              Maximum amount of signers
-            </Heading>
-            <Text size='xs' color='red.500'>
-              Immutable
-            </Text>
-          </HStack>
-          <Text size='sm' color='gray.600'>
-            When not set, the maximum number of signers on the Safe will be the sum of max wearers for all signer hats.
-          </Text>
-        </Stack>
+      <div className='space-y-4'>
+        <div className='space-y-2'>
+          <div className='flex items-center'>
+            <p className='text-sm font-normal uppercase'>Maximum amount of signers</p>
 
-        <Checkbox isChecked={!defaultMaxSigners} onChange={(e) => setValue('defaultMaxSigners', !e.target.checked)}>
+            <p className='text-xs text-red-500'>Immutable</p>
+          </div>
+
+          <p className='text-sm text-gray-600'>
+            When not set, the maximum number of signers on the Safe will be the sum of max wearers for all signer hats.
+          </p>
+        </div>
+
+        <BaseCheckbox checked={!defaultMaxSigners} onChange={(e) => setValue('defaultMaxSigners', !defaultMaxSigners)}>
           Limit the amount of signers on this multisig
-        </Checkbox>
+        </BaseCheckbox>
 
         {!defaultMaxSigners && (
           <NumberInput
@@ -142,19 +144,20 @@ const HsgDeployForm = () => {
             localForm={localForm}
           />
         )}
-      </Stack>
+      </div>
 
-      <Flex justify='flex-end'>
-        <HStack>
+      <div className='flex justify-end'>
+        <div className='flex gap-2'>
           <Button variant='outline' onClick={onClose}>
             Cancel
           </Button>
-          <Button variant='primary' type='submit' isLoading={isLoading} isDisabled={isDisabled}>
+
+          <Button type='submit' disabled={isDisabled}>
             Create
           </Button>
-        </HStack>
-      </Flex>
-    </Stack>
+        </div>
+      </div>
+    </form>
   );
 };
 

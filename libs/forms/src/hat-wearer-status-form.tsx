@@ -1,13 +1,13 @@
 'use client';
 
-import { Button, Flex, HStack, Radio, RadioGroup, Stack, Text, VStack } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { toNumber } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
+import { Button, RadioGroup, RadioGroupItem } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useEnsName } from 'wagmi';
@@ -55,7 +55,7 @@ const HatWearerStatusForm = ({
     chainId,
     queryKeys: [
       ['hatDetails', { id: hatId, chainId }],
-      ['treeDetails', _.toNumber(toTreeId(hatId))],
+      ['treeDetails', toNumber(toTreeId(hatId))],
     ],
     txDescription,
     handlePendingTx,
@@ -74,55 +74,54 @@ const HatWearerStatusForm = ({
   });
 
   const onSubmit = async () => {
+    // TODO handle loading state
     await writeAsync?.();
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={8}>
-        <Text>Are you sure? The revoked Hats will lose all permissions instantly.</Text>
+      <div className='space-y-8'>
+        <p>Are you sure? The revoked Hats will lose all permissions instantly.</p>
 
-        <VStack alignItems='start'>
-          <Text size='sm' textTransform='uppercase'>
-            Revoking hat of:
-          </Text>
-          <HStack>
+        <div className='flex flex-col items-start'>
+          <p className='text-sm uppercase'>Revoking hat of:</p>
+          <div className='flex items-center gap-2'>
             <FaRegUserCircle />
-            <Text>{wearerName || formatAddress(wearer)}</Text>
-            {wearerName && <Text size='sm'>({formatAddress(wearer)})</Text>}
-          </HStack>
-        </VStack>
+            <p>{wearerName || formatAddress(wearer)}</p>
+            {wearerName && <p className='text-sm'>({formatAddress(wearer)})</p>}
+          </div>
+        </div>
 
-        <VStack alignItems='start'>
-          <HStack>
-            <Text>WEARER STANDING</Text>
+        <div className='flex flex-col items-start'>
+          <div className='flex items-center gap-2'>
+            <p>WEARER STANDING</p>
             <FaRegQuestionCircle />
-          </HStack>
-          <Text variant='gray'>
+          </div>
+          <p className='text-sm text-gray-600'>
             Changes of wearer standing are being recorded on chain. To change it back to good you will have to submit a
             smart contract transaction.
-          </Text>
-        </VStack>
+          </p>
+        </div>
 
         <RadioGroup name='standing' defaultValue='Good Standing' onChange={(value) => setValue('standing', value)}>
-          <HStack spacing={4}>
-            <Radio value='Good Standing'>Good Standing</Radio>
-            <Radio value='Bad Standing'>Bad Standing</Radio>
-          </HStack>
+          <div className='flex gap-4'>
+            <RadioGroupItem value='Good Standing'>Good Standing</RadioGroupItem>
+            <RadioGroupItem value='Bad Standing'>Bad Standing</RadioGroupItem>
+          </div>
         </RadioGroup>
 
-        <Flex justify='flex-end' gap='3'>
+        <div className='flex justify-end gap-3'>
           <Button onClick={() => setModals?.({})}>Cancel</Button>
+
           <Button
             type='submit'
-            isDisabled={!wearer || isLoading || !writeAsync}
-            isLoading={isLoading}
-            colorScheme={standing === 'Good Standing' ? 'blue' : 'red'}
+            disabled={!wearer || isLoading || !writeAsync}
+            variant={standing === 'Good Standing' ? 'default' : 'destructive'}
           >
             Revoke Hat Token in {standing}
           </Button>
-        </Flex>
-      </Stack>
+        </div>
+      </div>
     </form>
   );
 };

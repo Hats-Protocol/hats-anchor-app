@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Tooltip } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
@@ -8,6 +7,7 @@ import { filter, find, first, flatten, get, isEmpty, keys, map, split, toLower }
 import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
+import { Button, Tooltip } from 'ui';
 import { Skeleton } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
 import { getAddress, Hex } from 'viem';
@@ -187,13 +187,13 @@ const MembersPage = ({ slug }: { slug: string }) => {
           <Button
             variant='outline'
             onClick={() => setModals?.({ 'addUser-member': true })}
-            isDisabled={!addAccount || !userAddress}
+            disabled={!addAccount || !userAddress}
           >
             Add Member
           </Button>
         </Tooltip>
 
-        <Button variant='outline' isDisabled={!userAddress} onClick={updateComplianceForSelected}>
+        <Button variant='outline' disabled={!userAddress} onClick={updateComplianceForSelected}>
           Update Compliance
         </Button>
       </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { Divider, Flex, Stack, Text } from '@chakra-ui/react';
 import { useTreasury } from 'contexts';
 import { useSuperfluidStreams } from 'hooks';
 import { isEmpty, map, toLower } from 'lodash';
@@ -23,36 +22,34 @@ const ActiveStreams = ({ safeAddress }: { safeAddress: Hex }) => {
   if (isEmpty(streams)) return null;
 
   return (
-    <Stack>
+    <div className='flex flex-col gap-4'>
       {map(streams, (stream: any) => (
-        <Flex align='center' justify='space-between' gap={2}>
-          <Text maxW='60px' size='sm'>
-            Inbound Stream
-          </Text>
+        <div className='flex items-center justify-between gap-2'>
+          <p className='max-w-[60px] text-sm'>Inbound Stream</p>
 
-          <Stack spacing={0} align='center'>
-            <Text variant='medium'>
+          <div className='flex flex-col items-center'>
+            <p className='text-sm font-medium'>
               {formatRoundedDecimals({
                 value: BigInt(stream.currentFlowRate) * BigInt(SECONDS_IN_MONTH),
                 decimals: stream.token.decimals,
               })}{' '}
               {stream.token.symbol}
-            </Text>
+            </p>
 
-            <Text size='xs'>per month</Text>
-          </Stack>
+            <p className='text-xs'>per month</p>
+          </div>
 
-          <Stack spacing={0} align='center' maxW='100px'>
-            <Text size='xs'>from</Text>
-            <Text size='sm' variant='medium' textAlign='center'>
+          <div className='flex max-w-[100px] flex-col items-center'>
+            <p className='text-xs'>from</p>
+            <p className='text-center text-sm font-medium'>
               {CUSTOM_NAMES[toLower(stream.sender.id)] || formatAddress(stream.sender.id)}
-            </Text>
-          </Stack>
-        </Flex>
+            </p>
+          </div>
+        </div>
       ))}
 
-      <Divider maxW='40%' mx='auto' pt={4} />
-    </Stack>
+      <hr className='mx-auto max-w-[40%] pt-4' />
+    </div>
   );
 };
 

@@ -1,15 +1,15 @@
 'use client';
 
-import { Alert, AlertIcon, Button, Flex, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { checkMissingParents, checkMissingSiblings, flattenHatData, prepareDraftHats } from 'hats-utils';
-import _ from 'lodash';
+import { first, get, nth, split } from 'lodash';
+import { AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FileError, useDropzone } from 'react-dropzone';
 import { AiOutlineUpload } from 'react-icons/ai';
 import { HatExport } from 'types';
-import { DropZone } from 'ui';
+import { Alert, Button, DropZone } from 'ui';
 
 interface validateTreeImportProps {
   file: File;
@@ -22,13 +22,13 @@ const validateTreeImport = ({ file, treeId, chainId }: validateTreeImportProps):
   const localTreeId = treeId && treeIdDecimalToHex(treeId);
   if (!localTreeId || !chainId) return null;
   const fileName = file.name;
-  const splitFileName = _.split(fileName, '-');
-  let fileTreeId = _.nth(splitFileName, 3);
+  const splitFileName = split(fileName, '-');
+  let fileTreeId = nth(splitFileName, 3);
   if (fileTreeId?.includes(' ')) {
-    fileTreeId = _.first(_.split(fileTreeId, ' '));
+    fileTreeId = first(split(fileTreeId, ' '));
   }
   if (fileTreeId?.includes('.')) {
-    fileTreeId = _.first(_.split(fileTreeId, '.'));
+    fileTreeId = first(split(fileTreeId, '.'));
   }
   return null;
 };
@@ -115,53 +115,42 @@ const ImportTreeForm = () => {
   };
 
   return (
-    <Stack spacing={8}>
-      <Text>Upload a Draft Hat Tree to continue editing or deployment</Text>
-      <Text>
+    <div className='space-y-8'>
+      <p>Upload a Draft Hat Tree to continue editing or deployment</p>
+      <p>
         Any local changes in your workspace will be overwritten and cannot be restored. Make sure to export these
         changes before importing.
-      </Text>
+      </p>
 
-      <Alert status='info'>
-        <AlertIcon />
+      <Alert className='bg-blue-500 text-white'>
+        <AlertCircle />
         Wearers are not considered on import due to mechanistic eligibility. Upload new wearers separately.
       </Alert>
 
-      <Stack>
-        <Heading fontSize='xs' textTransform='uppercase'>
-          Upload JSON File
-        </Heading>
-        <Text>Add a JSON file exported by you or someone else in your organization</Text>
-        <Stack spacing={1}>
+      <div className='space-y-2'>
+        <p className='text-xs uppercase'>Upload JSON File</p>
+        <p>Add a JSON file exported by you or someone else in your organization</p>
+        <div className='space-y-1'>
           <DropZone getRootProps={getRootProps} getInputProps={getInputProps} isFullWidth />
           {!validImport ? (
-            <Text size='sm' color='red.500' maxW='70%'>
-              <b>Error:</b> {_.get(_.first(fileRejections), 'errors[0].message') || importErrorMessage}
-            </Text>
+            <p className='max-w-70% text-sm text-red-500'>
+              <b>Error:</b> {get(first(fileRejections), 'errors[0].message') || importErrorMessage}
+            </p>
           ) : (
-            treeFile && (
-              <Text size='sm' variant='gray'>
-                {_.get(treeFile, 'name')}
-              </Text>
-            )
+            treeFile && <p className='text-sm text-gray-500'>{get(treeFile, 'name')}</p>
           )}
-        </Stack>
-        <Flex justify='flex-end'>
-          <HStack>
+        </div>
+        <div className='flex justify-end'>
+          <div className='flex gap-2'>
             <Button onClick={handleCancel}>Cancel</Button>
-            <Button
-              onClick={handleImport}
-              bgColor='blue.500'
-              color='white'
-              isDisabled={!treeFile || !validImport}
-              leftIcon={<Icon as={AiOutlineUpload} color='white' />}
-            >
+            <Button onClick={handleImport} className='bg-blue-500 text-white' disabled={!treeFile || !validImport}>
+              <AiOutlineUpload className='text-white' />
               Import
             </Button>
-          </HStack>
-        </Flex>
-      </Stack>
-    </Stack>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { Heading, Stack, Text } from '@chakra-ui/react';
 import { NETWORK_CURRENCY } from '@hatsprotocol/config';
 import { useTreasury } from 'contexts';
 import { useApprovedTokens, useSafeTokens, useTokenPrices } from 'hooks';
@@ -42,15 +41,15 @@ const SafeTotal = ({ safeAddress }: { safeAddress: Hex }) => {
   }, [filteredSafeTokens, prices, chainId]);
 
   return (
-    <Stack align='center' spacing={0}>
-      <Text size='sm'>Total</Text>
-      <Heading variant='medium'>
+    <div className='flex flex-col items-center space-y-0'>
+      <p className='text-sm'>Total</p>
+      <h4 className='text-lg font-medium'>
         $
         {formatRound({
           value: toString(total),
         })}
-      </Heading>
-    </Stack>
+      </h4>
+    </div>
   );
 };
 

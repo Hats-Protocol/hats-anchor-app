@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Code, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
 import { includes } from 'lodash';
 import { useForm } from 'react-hook-form';
+import { Button } from 'ui';
 import { formatAddress } from 'utils';
 import { useChainId, useEnsAddress } from 'wagmi';
 
@@ -65,27 +65,23 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={4}>
-        <Text>Transfer the selected hat to another address.</Text>
-        <Stack>
-          <Text>Tree Domain</Text>
-          {hatId && (
-            <Heading size='md' variant='mono'>
-              #{hatIdDecimalToIp(BigInt(hatId))}
-            </Heading>
-          )}
-        </Stack>
-        <HStack>
-          <Text>Current wearer address: </Text>
-          <Code>{currentWearerAddress}</Code>
-        </HStack>
+      <div className='space-y-4'>
+        <p>Transfer the selected hat to another address.</p>
+        <div>
+          <p>Tree Domain</p>
+          {hatId && <p className='font-mono'>#{hatIdDecimalToIp(BigInt(hatId))}</p>}
+        </div>
+        <div>
+          <p>Current wearer address: </p>
+          <pre>{currentWearerAddress}</pre>
+        </div>
         <AddressInput label='New Wearer Address' name='newWearer' localForm={localForm} chainId={chainId} />
-        <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={isDisabled} isLoading={txPending}>
+        <div className='flex justify-end'>
+          <Button type='submit' disabled={isDisabled}>
             Transfer
           </Button>
-        </Flex>
-      </Stack>
+        </div>
+      </div>
     </form>
   );
 };

@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
@@ -10,6 +9,7 @@ import { capitalize, filter, get, isEmpty, pick } from 'lodash';
 import { useCallHsgFunction, useCallModuleFunction } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
 import { Authority, ModuleFunction } from 'types';
+import { Button } from 'ui';
 import { Hex } from 'viem';
 
 import { ModuleArgsForm } from './components';
@@ -78,12 +78,12 @@ const ModuleAuthorityModal = ({
       title={`${capitalize(get(selectedFunction, 'label'))} for Hat #${authorityHatId}`}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={6}>
-          <Stack spacing={1}>
-            {get(selectedFunction, 'description') && <Text>{get(selectedFunction, 'description')}</Text>}
-          </Stack>
+        <div className='space-y-6'>
+          <div className='space-y-1'>
+            {get(selectedFunction, 'description') && <p>{get(selectedFunction, 'description')}</p>}
+          </div>
 
-          <Stack>
+          <div className='space-y-6'>
             <ModuleArgsForm
               selectedModuleArgs={get(selectedFunction, 'args', []) as ModuleCreationArg[]}
               localForm={localForm}
@@ -92,24 +92,20 @@ const ModuleAuthorityModal = ({
               isDeploy={false}
               // ? need `tokenAddress` ?
             />
-          </Stack>
-          <Flex justify='flex-end'>
-            <HStack>
+          </div>
+
+          <div className='flex justify-end'>
+            <div className='flex gap-2'>
               <Button variant='outline' onClick={onCloseModal}>
                 Cancel
               </Button>
-              <Button
-                colorScheme='blue'
-                type='submit'
-                isDisabled={!isValid}
-                // TODO alternative for loading here?
-                // isLoading={isModuleLoading || isHsgLoading}
-              >
+
+              <Button type='submit' disabled={!isValid}>
                 {capitalize(get(selectedFunction, 'label'))}
               </Button>
-            </HStack>
-          </Flex>
-        </Stack>
+            </div>
+          </div>
+        </div>
       </form>
     </Modal>
   );

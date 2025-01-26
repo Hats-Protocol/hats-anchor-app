@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Icon } from '@chakra-ui/react';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafesInfo } from 'hooks';
 import { capitalize, first, get, nth, size } from 'lodash';
@@ -10,7 +9,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Skeleton } from 'ui';
+import { Button, Skeleton } from 'ui';
 import { chainsMap, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
@@ -78,12 +77,10 @@ export const CouncilHeader = () => {
               href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
               target='_blank'
             >
-              <Button
-                variant='outline'
-                leftIcon={<Icon as={SafeIcon} />}
-                rightIcon={<Icon as={FaExternalLinkAlt} boxSize={3} />}
-              >
+              <Button variant='outline'>
+                <SafeIcon className='h-3 w-3' />
                 Safe Wallet
+                <FaExternalLinkAlt className='h-3 w-3' />
               </Button>
             </Link>
           ) : (

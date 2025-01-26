@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, FormControl, FormLabel, HStack, Stack, Switch, Text } from '@chakra-ui/react';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
@@ -12,12 +11,12 @@ import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
 import { FaCheck } from 'react-icons/fa';
 import { AppHat, ImageFile } from 'types';
-import { DropZone } from 'ui';
+import { Button, DropZone, Switch } from 'ui';
 import { fetchToken, pinJson } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
 
-import { Input, Select, Textarea } from './components';
+import { FormControl, FormLabel, Input, Select, Textarea } from './components';
 
 // TODO [low] update links to use new docs links constants
 
@@ -135,15 +134,15 @@ const HatRelinkForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={6}>
-        <Text>
+      <div className='space-y-6'>
+        <p>
           Link this Top Hat to your tree by making the selected Hat its new admin. Optionally update details, image,
           eligibility, and toggle of the Top Hat now that it will be a child hat.
-        </Text>
-        <HStack>
-          <Text variant='medium'>Hat to be relinked:</Text>
-          <Text>ID {hatIdDecimalToIp(BigInt(hatData?.id))}</Text>
-        </HStack>
+        </p>
+        <div className='flex items-center gap-2'>
+          <p className='font-medium'>Hat to be relinked:</p>
+          <p>ID {hatIdDecimalToIp(BigInt(hatData?.id))}</p>
+        </div>
 
         <Select label='Select new Admin Hat' name='newAdmin' localForm={localForm}>
           {map(parentTreeHats, (hat: AppHat) => (
@@ -152,25 +151,29 @@ const HatRelinkForm = ({
             </option>
           ))}
         </Select>
+
         <FormControl>
-          <Stack>
-            <HStack>
-              <Switch isChecked={newDetails} onChange={() => setNewDetails(!newDetails)} />
+          <div className='space-y-2'>
+            <div className='flex items-center gap-2'>
+              <Switch checked={newDetails} onChange={() => setNewDetails(!newDetails)} />
               <FormLabel>New Details</FormLabel>
-            </HStack>
+            </div>
+
             {newDetails && (
-              <Stack spacing={2}>
+              <div className='space-y-2'>
                 <Textarea localForm={localForm} name='description' label='Description' placeholder='Hat description' />
-              </Stack>
+              </div>
             )}
-          </Stack>
+          </div>
         </FormControl>
+
         <FormControl>
-          <Stack spacing={2}>
-            <HStack>
-              <Switch isChecked={newImage} onChange={() => setNewImage(!newImage)} />
+          <div className='space-y-2'>
+            <div className='flex items-center gap-2'>
+              <Switch checked={newImage} onChange={() => setNewImage(!newImage)} />
               <FormLabel>New Image</FormLabel>
-            </HStack>
+            </div>
+
             {newImage && (
               <DropZone
                 getRootProps={getRootProps}
@@ -181,14 +184,15 @@ const HatRelinkForm = ({
                 image={image}
               />
             )}
-          </Stack>
+          </div>
         </FormControl>
+
         <FormControl>
-          <HStack>
-            <Switch isChecked={eligibilityChecked} onChange={() => setEligibilityChecked(!eligibilityChecked)} />
+          <div className='flex items-center gap-2'>
+            <Switch checked={eligibilityChecked} onChange={() => setEligibilityChecked(!eligibilityChecked)} />
             {!eligibilityChecked && <FormLabel>New Eligibility</FormLabel>}
             {eligibilityChecked && (
-              <Stack spacing={1}>
+              <div className='space-y-1'>
                 <Input
                   name='eligibility'
                   label='Eligibility — https://docs.hatsprotocol.xyz/#eligibility'
@@ -197,20 +201,19 @@ const HatRelinkForm = ({
                   localForm={localForm}
                 />
                 {showEligilityResolvedAddress && (
-                  <Text size='sm' variant='gray'>
-                    Resolved address: {eligibilityResolvedAddress}
-                  </Text>
+                  <p className='text-sm text-gray-500'>Resolved address: {eligibilityResolvedAddress}</p>
                 )}
-              </Stack>
+              </div>
             )}
-          </HStack>
+          </div>
         </FormControl>
+
         <FormControl>
-          <HStack>
-            <Switch isChecked={toggleChecked} onChange={() => setToggleChecked(!toggleChecked)} />
+          <div className='flex items-center gap-2'>
+            <Switch checked={toggleChecked} onChange={() => setToggleChecked(!toggleChecked)} />
             {!toggleChecked && <FormLabel>New Toggle</FormLabel>}
             {toggleChecked && (
-              <Stack spacing={1}>
+              <div className='space-y-1'>
                 <Input
                   name='toggle'
                   label='Toggle — https://docs.hatsprotocol.xyz/#toggle'
@@ -218,26 +221,24 @@ const HatRelinkForm = ({
                   rightElement={showToggleResolvedAddress && <FaCheck color='green' />}
                   localForm={localForm}
                 />
+
                 {showToggleResolvedAddress && (
-                  <Text size='sm' variant='gray'>
-                    Resolved address: {toggleResolvedAddress}
-                  </Text>
+                  <p className='text-sm text-gray-500'>Resolved address: {toggleResolvedAddress}</p>
                 )}
-              </Stack>
+              </div>
             )}
-          </HStack>
+          </div>
         </FormControl>
-        <Flex justify='flex-end'>
+
+        <div className='flex justify-end'>
           <Button
             type='submit'
-            isDisabled={
-              !writeAsync || isLoading || isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress
-            }
+            disabled={!writeAsync || isLoading || isLoadingEligibilityResolvedAddress || isLoadingToggleResolvedAddress}
           >
             Relink
           </Button>
-        </Flex>
-      </Stack>
+        </div>
+      </div>
     </form>
   );
 };

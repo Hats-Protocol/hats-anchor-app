@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
 import { first, isEmpty, map } from 'lodash';
 import { useForm } from 'react-hook-form';
+import { Button } from 'ui';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
@@ -59,27 +59,27 @@ const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats }: { newAdmin: strin
 
   if (isEmpty(wearerTopHats)) {
     return (
-      <Stack spacing={4}>
-        <Text>
+      <div className='space-y-4'>
+        <p>
           Ask the wearer of this hat to become the admin of a Top Hat that you are wearing. You will lose admin control
           of this Top Hat!
-        </Text>
-        <Text>You are not wearing any Top Hats that can be linked to this tree.</Text>
-      </Stack>
+        </p>
+        <p>You are not wearing any Top Hats that can be linked to this tree.</p>
+      </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={4}>
-        <Text>
+      <div className='space-y-4'>
+        <p>
           Ask the wearer of this hat to become the admin of a Top Hat that you are wearing. You will lose admin control
           of this Top Hat!
-        </Text>
-        <HStack>
-          <Text variant='medium'>New Admin:</Text>
-          <Text>ID {hatIdDecimalToIp(BigInt(newAdmin))}</Text>
-        </HStack>
+        </p>
+        <div className='flex items-center gap-2'>
+          <p className='font-medium'>New Admin:</p>
+          <p>ID {hatIdDecimalToIp(BigInt(newAdmin))}</p>
+        </div>
         <Select label='Enter domain of the Top Hat to be linked' name='topHatDomain' localForm={localForm}>
           {map(wearerTopHats, (hat: Hex) => (
             <option value={hat} key={hat}>
@@ -88,12 +88,12 @@ const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats }: { newAdmin: strin
           ))}
         </Select>
 
-        <Flex justify='flex-end'>
-          <Button type='submit' isDisabled={!writeAsync || chainId !== currentChainId} isLoading={isLoading}>
+        <div className='flex justify-end'>
+          <Button type='submit' disabled={!writeAsync || chainId !== currentChainId}>
             Request
           </Button>
-        </Flex>
-      </Stack>
+        </div>
+      </div>
     </form>
   );
 };

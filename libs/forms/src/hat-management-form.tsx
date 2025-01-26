@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { isMutable } from 'hats-utils';
@@ -11,7 +10,7 @@ import { useFieldArray } from 'react-hook-form';
 import { BsFileCode, BsListTask, BsPersonBadge, BsPlusCircle, BsShieldLock } from 'react-icons/bs';
 import { FaCode } from 'react-icons/fa';
 import { DetailsItem } from 'types';
-import { Link } from 'ui';
+import { Button, Link } from 'ui';
 import { explorerUrl } from 'utils';
 
 import { ClaimsHandler } from './claims-handler';
@@ -97,10 +96,11 @@ const HatManagementForm = ({
 
   return (
     <form>
-      <Stack spacing={8}>
+      <div className='space-y-8'>
         <FormRowWrapper>
-          <Icon as={BsShieldLock} boxSize={4} mt='2px' />
-          <Stack>
+          <BsShieldLock className='mt-1 h-4 w-4' />
+
+          <div className='space-y-2'>
             <AddressInput
               name={`${_.toLower(title)}`}
               label={`${inputConfig.label} ${isActionManual === TRIGGER_OPTIONS.MANUALLY ? 'ADDRESS' : 'MODULE'}`}
@@ -112,27 +112,29 @@ const HatManagementForm = ({
               chainId={chainId}
               originalValue={controller}
             />
-            <HStack spacing={8}>
+
+            <div className='flex items-center gap-8'>
               {moduleDetails && (
                 <Link href={`${explorerUrl(chainId)}/address/${newAddress || controller}`} isExternal>
-                  <HStack maxW='200px'>
+                  <div className='max-w-48'>
                     {moduleDetails ? (
-                      <Icon as={FaCode} ml={2} w={4} h={4} color='gray.500' />
+                      <FaCode className='ml-2 h-4 w-4 text-gray-500' />
                     ) : (
-                      <Icon as={BsPersonBadge} w={4} h={4} color='gray.500' />
+                      <BsPersonBadge className='h-4 w-4 text-gray-500' />
                     )}
-                    <Text fontSize='sm' variant='gray'>
-                      {moduleDetails?.name}
-                    </Text>
-                  </HStack>
+                    <p className='text-sm text-gray-500'>{moduleDetails?.name}</p>
+                  </div>
                 </Link>
               )}
-              <Button leftIcon={<BsFileCode />} variant='outline' fontWeight='normal' onClick={onOpenModuleDrawer}>
+
+              <Button variant='outline' className='font-normal' onClick={onOpenModuleDrawer}>
+                <BsFileCode />
                 Add Module
               </Button>
-            </HStack>
-          </Stack>
+            </div>
+          </div>
         </FormRowWrapper>
+
         {title === CONTROLLER_TYPES.eligibility && isActionManual === TRIGGER_OPTIONS.AUTOMATICALLY && (
           <ClaimsHandler
             localForm={hatForm}
@@ -140,20 +142,16 @@ const HatManagementForm = ({
             setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
           />
         )}
+
         <FormRowWrapper>
-          <Icon as={BsListTask} boxSize={4} mt='2px' />
-          <Stack>
-            <HStack>
-              <Text variant='lightMedium' fontSize='sm'>
-                {criteriaConfig.label}
-              </Text>
-              <Text variant='light' fontSize='sm'>
-                optional
-              </Text>
-            </HStack>
-            <Text fontSize='sm' variant='light'>
-              {criteriaConfig.description}
-            </Text>
+          <BsListTask className='mt-1 h-4 w-4' />
+          <div className='space-y-2'>
+            <div className='flex items-center gap-2'>
+              <p className='text-sm text-gray-500'>{criteriaConfig.label}</p>
+              <p className='text-sm text-gray-500'>optional</p>
+            </div>
+
+            <p className='text-sm text-gray-500'>{criteriaConfig.description}</p>
             {fields.map((field, index) => (
               <LabelWithLink
                 key={field.id}
@@ -170,21 +168,21 @@ const HatManagementForm = ({
                 linkName={`${formName}.${index}.link`}
               />
             ))}
-            <Flex>
+
+            <div className='flex items-center gap-2'>
               <Button
                 onClick={() => append({ link: '', label: '' })}
-                isDisabled={items?.some((item: DetailsItem) => item.label === '')}
-                gap={2}
+                disabled={items?.some((item: DetailsItem) => item.label === '')}
                 variant='outline'
-                fontWeight='normal'
+                className='font-normal'
               >
                 <BsPlusCircle />
                 Add {items?.length ? 'another' : 'a'} Requirement
               </Button>
-            </Flex>
-          </Stack>
+            </div>
+          </div>
         </FormRowWrapper>
-      </Stack>
+      </div>
     </form>
   );
 };

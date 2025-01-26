@@ -1,15 +1,8 @@
 'use client';
 
-import {
-  InputGroup,
-  InputLeftAddon,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput as ChakraNumberInput,
-  NumberInputField,
-  NumberInputStepper,
-} from '@chakra-ui/react';
-import { Controller, UseFormReturn } from 'react-hook-form';
+import { FormControl, FormField, FormItem } from 'forms';
+import { UseFormReturn } from 'react-hook-form';
+import { BaseInput } from 'ui';
 
 interface TokenNumberInputProps {
   name: string;
@@ -22,33 +15,24 @@ interface TokenNumberInputProps {
   disabled?: boolean;
 }
 
+// TODO handle label, tooltip, etc
+
 export function TokenNumberInput({ name, form, options, disabled }: TokenNumberInputProps) {
   return (
-    <InputGroup size='md'>
-      <InputLeftAddon bg='gray.50' color='gray.600' borderRightRadius='0' px={4} display='flex' alignItems='center'>
-        Minimum:
-      </InputLeftAddon>
-      <Controller
-        control={form.control}
-        name={name}
-        rules={options}
-        render={({ field: { ref, ...restField } }) => (
-          <ChakraNumberInput
-            flex={1}
-            min={options?.min}
-            max={options?.max}
-            size='md'
-            isDisabled={disabled}
-            {...restField}
-          >
-            <NumberInputField ref={ref} borderLeftRadius='0' />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </ChakraNumberInput>
-        )}
-      />
-    </InputGroup>
+    <FormField
+      name={name}
+      control={form.control}
+      render={({ field: { ref, ...restField } }) => (
+        <FormItem>
+          <FormControl>
+            <div className='flex items-center'>
+              <div className='flex items-center rounded-l-md border border-gray-200 bg-gray-50 px-4'>Minimum:</div>
+
+              <BaseInput className='flex-1' min={options?.min} max={options?.max} disabled={disabled} {...restField} />
+            </div>
+          </FormControl>
+        </FormItem>
+      )}
+    />
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { Icon } from '@chakra-ui/react';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import { get, isEmpty, map, toNumber } from 'lodash';
@@ -125,7 +124,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     if (typeof window === 'undefined') return '';
     return `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
   }, [draftId]);
-  const { onCopy: onCopyUrl } = useClipboard(draftUrl, { toastData: { title: 'Copied URL to clipboard' } });
+  const [, copy] = useClipboard();
 
   // Helper function to determine if selection step is valid
   const isSelectionStepValid = () => {
@@ -170,7 +169,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <button
             type='button'
             className='inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-sky-600 hover:bg-gray-50'
-            onClick={onCopyUrl}
+            onClick={() => copy(draftUrl)}
           >
             <Link className='h-4 w-4' /> Copy link
           </button>
@@ -240,7 +239,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             />
             {formData.requirements.passCompliance && (
               <RequirementItem
-                icon={<Icon as={BsPersonCheck} boxSize={6} />}
+                icon={<BsPersonCheck className='h-6 w-6' />}
                 title='Pass Compliance Checks'
                 description='Passed the compliance check'
               />

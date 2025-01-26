@@ -1,6 +1,6 @@
 'use client';
 
-import { Heading, HStack, Icon, Image, Link, Stack, Text } from '@chakra-ui/react';
+import { Heading, HStack, Image, Link, Stack, Text } from '@chakra-ui/react';
 import { NETWORK_CURRENCY } from '@hatsprotocol/config';
 import { useTreasury } from 'contexts';
 import { useApprovedTokens, useSafeTransactions, useTokenDetails, useTokenPrices } from 'hooks';
@@ -71,9 +71,9 @@ const LastTransaction = ({ safeAddress, type }: { safeAddress: Hex; type: string
         </Heading>
 
         {type === TRANSACTION_TYPE.inbound ? (
-          <Icon as={BsFillArrowDownRightCircleFill} boxSize={6} color='green.200' />
+          <BsFillArrowDownRightCircleFill className='h-6 w-6 text-green-200' />
         ) : (
-          <Icon as={BsFillArrowUpRightCircleFill} boxSize={6} color='red.200' />
+          <BsFillArrowUpRightCircleFill className='h-6 w-6 text-red-200' />
         )}
 
         <Text size='xs'>{shortDateFormatter(new Date(get(transaction, 'executionDate')))}</Text>
