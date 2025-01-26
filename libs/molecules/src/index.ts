@@ -8,6 +8,7 @@ export * from './connect-wallet';
 export * from './dev-info';
 export * from './event-history';
 export * from './hat-dev-details';
+export * from './hat-form-accordion';
 export * from './my-hats';
 export * from './nav-links';
 export * from './navbar';

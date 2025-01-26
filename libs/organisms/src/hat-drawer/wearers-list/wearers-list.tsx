@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Collapse,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Skeleton,
-  Stack,
-  Text,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { Modal, useSelectedHat, useTreeForm } from 'contexts';
 import { HatClaimForForm as HatClaimForm, HatTransferForm, HatWearerForm, HatWearerStatusForm } from 'forms';
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
@@ -24,6 +11,7 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ControllerData, HatWearer } from 'types';
+import { Button, Collapsible, CollapsibleContent, CollapsibleTrigger, Skeleton, Tooltip } from 'ui';
 import { commify, formatScientificWhole } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -100,31 +88,25 @@ const WearersList = () => {
   const currentUserIsIneligible = includes(map(ineligibleWearers, 'id'), toLower(address));
 
   // TODO fetch additional details if wearer not found in orgChartWearers
-  // console.log({ currentWearerDetails });
 
   return (
     <>
-      <Stack>
-        <Stack spacing={4} px={{ base: 4, md: 16 }}>
-          <Flex justify='space-between' alignItems='center'>
-            <HStack spacing={1}>
-              <Skeleton isLoaded={!!eligibleWearers}>
-                <Heading variant={{ base: 'medium', md: 'default' }} size='md'>
-                  {get(selectedHat, 'currentSupply')}{' '}
-                  {toNumber(get(selectedHat, 'currentSupply')) === 1 ? 'Wearer' : 'Wearers'} of this Hat
-                </Heading>
-              </Skeleton>
-              <Tooltip
-                label={maxSupply && formatScientificWhole(maxSupply) !== toString(maxSupply) && commify(maxSupply)}
-                placement='left'
-                hasArrow
-              >
-                <Text size='sm' color='blackAlpha.500'>
-                  of {formatScientificWhole(maxSupply)} max
-                </Text>
-              </Tooltip>
-            </HStack>
-          </Flex>
+      <div className='flex flex-col gap-4 px-4 md:px-16'>
+        <div className='flex items-center justify-between'>
+          <div className='flex gap-1'>
+            <h2 className='text-md font-medium'>
+              {get(selectedHat, 'currentSupply')}{' '}
+              {toNumber(get(selectedHat, 'currentSupply')) === 1 ? 'Wearer' : 'Wearers'} of this Hat
+            </h2>
+
+            <Tooltip
+              label={
+                maxSupply && formatScientificWhole(maxSupply) !== toString(maxSupply) ? commify(maxSupply) : undefined
+              }
+            >
+              <p className='text-sm text-black/50'>of {formatScientificWhole(maxSupply)} max</p>
+            </Tooltip>
+          </div>
           {/* TEMP HIDDEN SINCE FETCHING INCOMPLETE LIST OF WEARERS */}
           {/* {_.gt(_.size(extendedWearers), 4) && (
             <InputGroup>
@@ -152,44 +134,49 @@ const WearersList = () => {
               setWearerToTransferFrom={setWearerToTransferFrom}
             />
           )}
-          {map(!hatLoading ? filteredWearers : loadingWearers, (w: HatWearer, index: number) => (
-            <Skeleton isLoaded={typeof w.id === 'string'} key={index}>
+          {map(!hatLoading ? filteredWearers : loadingWearers, (w: HatWearer, index: number) => {
+            if (typeof w.id !== 'string') {
+              return <Skeleton className='h-5 w-full' />;
+            }
+            return (
               <WearerRow
                 wearer={w}
                 currentUserIsAdmin={currentUserIsAdmin}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
+                key={index}
               />
-            </Skeleton>
-          ))}
+            );
+          })}
           {!hatLoading && isEmpty(filteredWearers) && (
-            <Box>
-              <Flex h='70px' align='center'>
-                <Text>No wearers currently</Text>
-              </Flex>
-              {/* <Divider /> */}
-            </Box>
+            <div className='flex h-14 items-center'>
+              <p>No wearers currently</p>
+            </div>
           )}
-        </Stack>
+        </div>
+
         {!isEmpty(ineligibleWearers) && (
-          <Collapse startingHeight={25} in={ineligibleWearersExpanded}>
-            <Stack px={{ base: 4, md: 16 }}>
-              <Flex justify='space-between'>
-                <HStack spacing={1} color='Functional-LinkSecondary'>
-                  <Icon as={RemovedWearer} />
-                  <Text>{size(ineligibleWearers)} recently removed wearers</Text>
-                </HStack>
-                <Button
-                  size='xs'
-                  variant='ghost'
-                  fontWeight='medium'
-                  color='blue.500'
-                  onClick={onToggleIneligibleWearers}
-                >
-                  {ineligibleWearersExpanded ? 'Hide' : 'Review'}
-                </Button>
-              </Flex>
-              <Stack>
+          <Collapsible>
+            <div className='space-y-4 px-4 md:px-16'>
+              <CollapsibleTrigger>
+                <div className='flex justify-between'>
+                  <div className='flex items-center gap-1 text-blue-500'>
+                    <RemovedWearer />
+                    <p>{size(ineligibleWearers)} recently removed wearers</p>
+                  </div>
+
+                  <Button
+                    size='xs'
+                    variant='ghost'
+                    className='font-medium text-blue-500'
+                    onClick={onToggleIneligibleWearers}
+                  >
+                    {ineligibleWearersExpanded ? 'Hide' : 'Review'}
+                  </Button>
+                </div>
+              </CollapsibleTrigger>
+
+              <CollapsibleContent>
                 {map(ineligibleWearers, (w: HatWearer) => (
                   <WearerRow
                     wearer={w}
@@ -200,13 +187,13 @@ const WearersList = () => {
                     setWearerToTransferFrom={setWearerToTransferFrom}
                   />
                 ))}
-              </Stack>
-            </Stack>
-          </Collapse>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
         )}
 
         <WearerButtons />
-      </Stack>
+      </div>
 
       <FullWearersListModal
         setChangeStatusWearer={setChangeStatusWearer}

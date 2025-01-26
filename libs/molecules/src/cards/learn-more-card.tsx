@@ -1,39 +1,30 @@
 'use client';
 
-import { Heading, HStack, Icon, Image, Stack, Text } from '@chakra-ui/react';
+import { IconType } from 'react-icons';
 import { DocsLink } from 'types';
-import { Link } from 'ui';
+import { Card, Link } from 'ui';
 
 const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
   const { url, name, icon, image, description } = docsData;
 
   let displayIcon;
   if (image) {
-    displayIcon = <Image src={image} alt={`${name} featured icon`} fit='cover' boxSize={8} />;
+    displayIcon = <img src={image} alt={`${name} featured icon`} className='fit-cover size-8' />;
   } else {
     if (!icon) return null;
-    displayIcon = <Icon as={icon} boxSize={6} />;
+    const Icon = icon as IconType;
+    displayIcon = <Icon className='size-6' />;
   }
 
   return (
     <Link href={url} isExternal>
-      <HStack
-        alignItems='start'
-        p={5}
-        spacing={6}
-        borderRadius={6}
-        border='1px'
-        borderColor='gray.600'
-        background='whiteAlpha.700'
-        boxShadow='md'
-        h='full'
-      >
+      <Card className='bg-whiteAlpha-700 flex h-full items-start gap-6 border-gray-600 p-5'>
         {displayIcon}
-        <Stack>
-          <Heading size='md'>{name}</Heading>
-          <Text size='sm'>{description}</Text>
-        </Stack>
-      </HStack>
+        <div>
+          <p className='text-md'>{name}</p>
+          <p className='text-sm'>{description}</p>
+        </div>
+      </Card>
     </Link>
   );
 };

@@ -1,11 +1,11 @@
 'use client';
 
-import { Heading, HStack, Image, Link, Stack, Text } from '@chakra-ui/react';
 import { NETWORK_CURRENCY } from '@hatsprotocol/config';
 import { useTreasury } from 'contexts';
 import { useApprovedTokens, useSafeTransactions, useTokenDetails, useTokenPrices } from 'hooks';
 import { find, first, get, toLower, toUpper } from 'lodash';
 import { BsFillArrowDownRightCircleFill, BsFillArrowUpRightCircleFill } from 'react-icons/bs';
+import { Link } from 'ui';
 import {
   explorerUrl,
   filterSafeTransactions,
@@ -64,11 +64,9 @@ const LastTransaction = ({ safeAddress, type }: { safeAddress: Hex; type: string
   });
 
   return (
-    <HStack spacing={4}>
-      <Stack align='center' spacing={1}>
-        <Heading variant='medium' size='xs'>
-          {type === TRANSACTION_TYPE.inbound ? 'Last In' : 'Last Out'}
-        </Heading>
+    <div className='flex items-center gap-4'>
+      <div className='flex flex-col items-center gap-1'>
+        <p className='text-xs font-medium'>{type === TRANSACTION_TYPE.inbound ? 'Last In' : 'Last Out'}</p>
 
         {type === TRANSACTION_TYPE.inbound ? (
           <BsFillArrowDownRightCircleFill className='h-6 w-6 text-green-200' />
@@ -76,12 +74,12 @@ const LastTransaction = ({ safeAddress, type }: { safeAddress: Hex; type: string
           <BsFillArrowUpRightCircleFill className='h-6 w-6 text-red-200' />
         )}
 
-        <Text size='xs'>{shortDateFormatter(new Date(get(transaction, 'executionDate')))}</Text>
-      </Stack>
+        <p className='text-xs'>{shortDateFormatter(new Date(get(transaction, 'executionDate')))}</p>
+      </div>
 
       <Link href={`${explorerUrl(chainId)}/tx/${get(transaction, 'transactionHash', get(transaction, 'txHash'))}`}>
-        <Stack align='center' spacing={0}>
-          <Heading size='lg' variant='medium'>
+        <div className='flex flex-col items-center gap-0'>
+          <p className='text-lg font-medium'>
             $
             {formatBalanceValue({
               price: get(priceDetails, 'priceUsd'),
@@ -89,22 +87,22 @@ const LastTransaction = ({ safeAddress, type }: { safeAddress: Hex; type: string
               decimals: get(firstTransfer, 'tokenInfo.decimals', 18),
               dropDecimals: true,
             })}
-          </Heading>
+          </p>
 
-          <Text size='sm'>
+          <p className='text-sm'>
             {formatRoundedDecimals({
               value: BigInt(get(firstTransfer, 'value', '0')),
               decimals: get(firstTransfer, 'tokenInfo.decimals', 18),
             })}
-          </Text>
+          </p>
 
-          <HStack spacing={1}>
-            <Image boxSize={4} src={tokenImage} alt={`${get(firstTransfer, 'tokenInfo.symbol')} logo`} />
-            <Text size='sm'>{get(firstTransfer, 'tokenInfo.symbol') || NETWORK_CURRENCY[chainId || 1]}</Text>
-          </HStack>
-        </Stack>
+          <div className='flex items-center gap-1'>
+            <img src={tokenImage} alt={`${get(firstTransfer, 'tokenInfo.symbol')} logo`} className='h-4 w-4' />
+            <p className='text-sm'>{get(firstTransfer, 'tokenInfo.symbol') || NETWORK_CURRENCY[chainId || 1]}</p>
+          </div>
+        </div>
       </Link>
-    </HStack>
+    </div>
   );
 };
 

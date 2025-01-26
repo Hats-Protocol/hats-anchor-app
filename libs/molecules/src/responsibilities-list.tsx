@@ -1,9 +1,9 @@
 'use client';
 
-import { Accordion, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
-import _ from 'lodash';
+import { get, isEmpty, map, size } from 'lodash';
 import { DetailsItem } from 'types';
+import { Accordion } from 'ui';
 
 import { ResponsibilitiesListCard } from './responsibilities-list-card';
 
@@ -16,10 +16,10 @@ const LOADING_RESPONSIBILITIES: DetailsItem[] = Array(3).fill({
 
 const ResponsibilitiesList = () => {
   const { selectedHatDetails, hatLoading } = useSelectedHat();
-  const responsibilities = _.get(selectedHatDetails, 'responsibilities');
+  const responsibilities = get(selectedHatDetails, 'responsibilities');
   const localResponsibilities = responsibilities || LOADING_RESPONSIBILITIES;
 
-  if ((!hatLoading && _.isEmpty(responsibilities)) || !selectedHatDetails) {
+  if ((!hatLoading && isEmpty(responsibilities)) || !selectedHatDetails) {
     return null;
     // return (
     //   <Flex px={{ base: 0, md: 10 }} py={4}>
@@ -35,21 +35,19 @@ const ResponsibilitiesList = () => {
   }
 
   return (
-    <Accordion px={{ base: 0, md: 16 }} allowMultiple>
-      <Stack>
-        <Skeleton isLoaded={!hatLoading && !!responsibilities}>
-          <Heading size='md' mx={{ base: 4, md: 0 }} variant={{ base: 'medium', md: 'default' }}>
-            {_.size(responsibilities)} {_.size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'} expected
-            of Hat Wearers
-          </Heading>
-        </Skeleton>
+    <Accordion type='multiple' className='px-0 md:px-16'>
+      <div>
+        <p className='text-md mx-4 md:mx-0'>
+          {size(responsibilities)} {size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'} expected of Hat
+          Wearers
+        </p>
 
-        <Stack spacing={1}>
-          {_.map(localResponsibilities, (responsibility: DetailsItem, index: number) => (
+        <div className='space-y-1'>
+          {map(localResponsibilities, (responsibility: DetailsItem, index: number) => (
             <ResponsibilitiesListCard key={`${responsibility.label}-${index}`} responsibility={responsibility} />
           ))}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
     </Accordion>
   );
 };

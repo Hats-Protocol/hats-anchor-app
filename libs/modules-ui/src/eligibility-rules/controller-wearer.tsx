@@ -1,13 +1,13 @@
 'use client';
 
-import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat } from 'contexts';
 import { getControllerNameAndLink } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { IconType } from 'react-icons';
 import { ControllerData } from 'types';
-import { Link } from 'ui';
+import { cn, Link, Tooltip } from 'ui';
 import { formatAddress } from 'utils';
 
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
@@ -25,20 +25,27 @@ export const ControllerWearer = ({ controllerData }: { controllerData: Controlle
 
   if (_.includes(NULL_ADDRESSES, address)) {
     return (
-      <HStack color='blackAlpha.600' spacing={1}>
-        <Text>Null</Text>
-        <Icon as={EmptyWearer} boxSize={4} />
-      </HStack>
+      <div className='flex items-center gap-1 text-slate-600'>
+        <p>Null</p>
+        <EmptyWearer className='h-4 w-4' />
+      </div>
     );
   }
 
+  const Icon = icon ?? ((isContract ? CodeIcon : WearerIcon) as IconType);
+
   return (
     <Link href={link}>
-      <Tooltip label={name !== formatAddress(address) && address} placement='left' minW='380px' hasArrow>
-        <HStack color={!isContract || name?.includes('Safe') ? 'Informative-Human' : 'Informative-Code'} spacing={1}>
-          <Text>{name}</Text>
-          <Icon as={icon ?? (isContract ? CodeIcon : WearerIcon)} boxSize={4} />
-        </HStack>
+      <Tooltip label={name !== formatAddress(address) ? address : undefined}>
+        <div
+          className={cn(
+            'flex items-center gap-1',
+            !isContract || name?.includes('Safe') ? 'text-informative-human' : 'text-informative-code',
+          )}
+        >
+          <p>{name}</p>
+          <Icon className='h-4 w-4' />
+        </div>
       </Tooltip>
     </Link>
   );

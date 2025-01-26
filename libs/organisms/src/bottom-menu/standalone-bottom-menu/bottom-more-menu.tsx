@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Icon, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/config';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
@@ -11,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { Link } from 'ui';
+import { Button, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger, Link } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 import { ClaimsHelperButtons } from './claims-helper-buttons';
@@ -69,23 +68,22 @@ export const BottomMoreMenu = () => {
 
   if (isMobile) {
     return (
-      <Menu>
-        <MenuButton
-          as={Button}
-          variant='outline'
-          rightIcon={<Icon as={BsThreeDotsVertical} boxSize={4} />}
-          display={{ base: 'flex', md: 'none' }}
-        >
-          More
-        </MenuButton>
-        <MenuList>
+      <DropdownMenu>
+        <DropdownMenuTrigger className='block md:hidden'>
+          <Button variant='outline'>
+            More
+            <BsThreeDotsVertical className='ml-1 size-4' />
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuPortal>
           <Link href={link} isExternal>
-            <MenuItem>View full role</MenuItem>
+            <DropdownMenuItem>View full role</DropdownMenuItem>
           </Link>
 
-          {hasAgreement && <MenuItem onClick={handleDownload}>Download Agreement</MenuItem>}
-        </MenuList>
-      </Menu>
+          {hasAgreement && <DropdownMenuItem onClick={handleDownload}>Download Agreement</DropdownMenuItem>}
+        </DropdownMenuPortal>
+      </DropdownMenu>
     );
   }
 

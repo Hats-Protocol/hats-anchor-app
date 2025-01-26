@@ -1,6 +1,5 @@
 'use client';
 
-import { Flex, HStack, Icon, IconButton, Slide, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
 import { CONTROLLER_TYPES, FORM_FIELDS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
@@ -8,15 +7,18 @@ import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { AuthoritiesListForm, HatBasicsForm, HatManagementForm, HatWearerForm, ResponsibilitiesForm } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import { useClipboard } from 'hooks';
-import _ from 'lodash';
+import { find, get, map, toLower } from 'lodash';
+import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
-import { Accordion, Link } from 'ui';
+import { Button, Drawer, DrawerContent, Link, Tooltip } from 'ui';
 import { ipfsUrl } from 'utils';
 
 import { ModuleDrawer } from '../module-drawer';
+
+const HatFormAccordion = dynamic(() => import('molecules').then((i) => i.HatFormAccordion));
 
 const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();
@@ -29,126 +31,121 @@ const EditMode = () => {
     toastData: { title: 'Copied Hat ID to clipboard' },
   });
 
-  const name = _.get(_.find(treeToDisplay, ['id', selectedHat?.id]), 'displayName');
+  const name = get(find(treeToDisplay, { id: selectedHat?.id }), 'displayName');
 
   if (!selectedHat) return null;
 
   const openModuleDrawer = (type: string) => {
     onSave(false);
-    setDrawers?.({ [_.toLower(type) || 'eligibility']: true });
+    setDrawers?.({ [toLower(type) || 'eligibility']: true });
   };
 
   return (
     <>
-      <Stack w='100%' overflow='scroll' height='calc(100% - 150px)' position='relative' p={10} spacing={10}>
-        <Stack>
-          <Flex justify='space-between' align='center'>
-            <Text size='3xl' variant='medium'>
+      <div className='relative h-[calc(100%-150px)] w-full space-y-10 overflow-scroll p-10'>
+        <div className='flex flex-col'>
+          <div className='flex items-center justify-between'>
+            <h2 className='text-3xl font-medium'>
               {name ||
                 (isDraft
                   ? `Add hat ${hatIdDecimalToIp(BigInt(selectedHat?.id))} to this tree`
                   : selectedHat?.detailsObject?.data?.name ||
                     selectedHat?.details ||
                     (selectedHat && hatIdDecimalToIp(BigInt(selectedHat?.id))))}
-            </Text>
-            <Tooltip label='Copy Hat ID' placement='left' hasArrow>
-              <IconButton
-                onClick={copyHatId}
-                icon={<Icon as={FaCopy} color='blue.500' />}
-                aria-label='Copy Hat ID'
-                variant='outline'
-                colorScheme='blue.500'
-                size='sm'
-              />
+            </h2>
+            <Tooltip label='Copy Hat ID'>
+              <Button onClick={copyHatId} aria-label='Copy Hat ID' variant='outline-blue' size='sm'>
+                <FaCopy className='size-4' />
+              </Button>
             </Tooltip>
-          </Flex>
-          <Text>All changes are local until you deploy to chain.</Text>
-        </Stack>
+          </div>
+          <p>All changes are local until you deploy to chain.</p>
+        </div>
 
         {isTopHatOrMutable(selectedHat) && (
-          <Accordion
+          <HatFormAccordion
             title='Hat Basics'
             subtitle='The fundamentals of the hat, including name, image, and description.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
             open
           >
-            <Stack spacing={4} w='100%'>
+            <div className='w-full space-y-4'>
               <HatBasicsForm />
-            </Stack>
-          </Accordion>
+            </div>
+          </HatFormAccordion>
         )}
 
         {!isTopHat(selectedHat) && (
-          <Accordion
+          <HatFormAccordion
             title='Wearers'
             subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.wearer)}
           >
-            <Stack spacing={4} w='100%'>
+            <div className='w-full space-y-4'>
               <HatWearerForm />
-            </Stack>
-          </Accordion>
+            </div>
+          </HatFormAccordion>
         )}
 
         {isTopHatOrMutable(selectedHat) && (
-          <Accordion
+          <HatFormAccordion
             title='Responsibilities'
             subtitle='Specific work that wearers of this hat will be held accountable for.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.responsibilities)}
           >
-            <Stack spacing={4} w='100%'>
+            <div className='w-full space-y-4'>
               <ResponsibilitiesForm
                 formName='responsibilities'
                 title='RESPONSIBILITIES'
                 label='Responsibility'
                 subtitle={
-                  <Text>
+                  <p>
                     Tasks and responsibilities associated with this hat. More details in the{' '}
                     <Link href={CONFIG.docsLinks.authorities} className='underline' isExternal>
                       docs
                     </Link>
                     .
-                  </Text>
+                  </p>
                 }
                 Icon={BsListUl}
               />
-            </Stack>
-          </Accordion>
+            </div>
+          </HatFormAccordion>
         )}
 
         {isTopHatOrMutable(selectedHat) && (
-          <Accordion
+          <HatFormAccordion
             title='Authorities'
             subtitle='Authorities and rights that are controlled by wearers of this hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
           >
-            <Stack spacing={4} w='100%'>
+            <div className='w-full space-y-4'>
               <AuthoritiesListForm
                 formName='authorities'
                 title='AUTHORITIES'
                 subtitle={
-                  <Text size='sm' variant='light'>
+                  <p className='text-sm text-gray-500'>
                     Actions this hat enables its wearer to take. More details in the{' '}
                     <Link href={CONFIG.docsLinks.authorities} className='underline' isExternal>
                       docs
                     </Link>
                     .
-                  </Text>
+                  </p>
                 }
                 label='Authority'
                 Icon={BsKey}
               />
-            </Stack>
-          </Accordion>
+            </div>
+          </HatFormAccordion>
         )}
 
         {isMutableNotTopHat(selectedHat) && (
-          <Accordion
+          <HatFormAccordion
             title='Revocation & Eligibility'
             subtitle='The people or logic that determine when a wearer should have a hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
           >
-            <Stack spacing={4} w='100%'>
+            <div className='w-full space-y-4'>
               <HatManagementForm
                 title={CONTROLLER_TYPES.eligibility}
                 formName='revocationsCriteria'
@@ -160,22 +157,22 @@ const EditMode = () => {
                 inputConfig={{
                   label: 'ACCOUNTABILITY',
                   description: [
-                    <Text key='manual' size='sm' variant='light'>
+                    <p key='manual' className='text-sm text-gray-500'>
                       The address of the person or group that can manually revoke this hat from specific wearers. More
                       details in the{' '}
                       <Link href={CONFIG.docsLinks.eligibility} className='underline' isExternal>
                         docs
                       </Link>
                       .
-                    </Text>,
-                    <Text key='automatic' size='sm' variant='light'>
+                    </p>,
+                    <p key='automatic' className='text-sm text-gray-500'>
                       The address of the smart contract containing the logic about when a wearer should have this hat.
                       More details in the{' '}
                       <Link href={CONFIG.docsLinks.eligibility} className='underline' isExternal>
                         docs
                       </Link>
                       .
-                    </Text>,
+                    </p>,
                   ],
                 }}
                 criteriaConfig={{
@@ -185,17 +182,17 @@ const EditMode = () => {
                 onOpenModuleDrawer={() => openModuleDrawer(CONTROLLER_TYPES.eligibility)}
                 setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
               />
-            </Stack>
-          </Accordion>
+            </div>
+          </HatFormAccordion>
         )}
 
         {isMutableNotTopHat(selectedHat) && (
-          <Accordion
+          <HatFormAccordion
             title='Deactivation & Reactivation'
             subtitle='The people and contracts that control this Hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
           >
-            <Stack spacing={4} w='100%'>
+            <div className='w-full space-y-4'>
               <HatManagementForm
                 title={CONTROLLER_TYPES.toggle}
                 formName='deactivationsCriteria'
@@ -207,22 +204,22 @@ const EditMode = () => {
                 inputConfig={{
                   label: 'DEACTIVATOR',
                   description: [
-                    <Text fontSize='sm' variant='light' key='manual'>
+                    <p key='manual' className='text-sm text-gray-500'>
                       The address of the person or group that can manually deactivate and reactive this hat. More
                       details in the{' '}
                       <Link href={CONFIG.docsLinks.toggle} className='underline' isExternal>
                         docs
                       </Link>
                       .
-                    </Text>,
-                    <Text fontSize='sm' variant='light' key='automatic'>
+                    </p>,
+                    <p key='automatic' className='text-sm text-gray-500'>
                       The address of the smart contract containing the logic about when this hat should be active. More
                       details in the{' '}
                       <Link href={CONFIG.docsLinks.toggle} className='underline' isExternal>
                         docs
                       </Link>
                       .
-                    </Text>,
+                    </p>,
                   ],
                 }}
                 criteriaConfig={{
@@ -233,41 +230,41 @@ const EditMode = () => {
                 onOpenModuleDrawer={() => openModuleDrawer(CONTROLLER_TYPES.toggle)}
                 setIsStandAloneHatterDeploy={setIsStandAloneHatterDeploy}
               />
-            </Stack>
-          </Accordion>
+            </div>
+          </HatFormAccordion>
         )}
 
         {posthog?.isFeatureEnabled('dev') && (
-          <Stack>
-            <HStack>
-              <Text variant='medium'>Image URI:</Text>
+          <div className='w-full space-y-4'>
+            <div className='flex items-center'>
+              <p className='text-lg font-medium'>Image URI:</p>
               <Link href={ipfsUrl(selectedHat?.imageUri)} className='underline' isExternal>
-                <Text maxW='350px' isTruncated>
+                <p className='max-w-[350px] truncate'>
                   {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
-                </Text>
+                </p>
               </Link>
-            </HStack>
-            <HStack>
-              <Text variant='medium'>Details URI:</Text>
+            </div>
+            <div className='flex items-center'>
+              <p className='text-lg font-medium'>Details URI:</p>
               <Link href={ipfsUrl(selectedHat?.details)} className='underline' isExternal>
-                <Text maxW='350px' isTruncated>
-                  {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
-                </Text>
+                <p className='max-w-[350px] truncate'>{selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}</p>
               </Link>
-            </HStack>
-          </Stack>
+            </div>
+          </div>
         )}
-      </Stack>
+      </div>
 
-      <Slide direction='right' in={drawers?.eligibility || drawers?.toggle} style={{ zIndex: 1001, width: '100%' }}>
+      <Drawer direction='right' open={drawers?.eligibility || drawers?.toggle}>
         {(drawers?.eligibility || drawers?.toggle) && (
-          <ModuleDrawer
-            onCloseModuleDrawer={() => setDrawers?.({})}
-            isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-            title={drawers?.eligibility ? 'eligibility' : drawers?.toggle ? 'toggle' : undefined}
-          />
+          <DrawerContent style={{ zIndex: 1001, width: '100%' }}>
+            <ModuleDrawer
+              onCloseModuleDrawer={() => setDrawers?.({})}
+              isStandaloneHatterDeploy={isStandaloneHatterDeploy}
+              title={drawers?.eligibility ? 'eligibility' : drawers?.toggle ? 'toggle' : undefined}
+            />
+          </DrawerContent>
         )}
-      </Slide>
+      </Drawer>
     </>
   );
 };

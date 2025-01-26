@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Card, Flex, Heading, HStack, SimpleGrid, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
@@ -9,7 +8,7 @@ import { ReactNode, useMemo } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat } from 'types';
-import { Link } from 'ui';
+import { Button, Card, Link, Skeleton } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
@@ -32,30 +31,24 @@ const MyHatsCard = ({
 
   return (
     <>
-      <Flex direction={{ base: 'column', md: 'row' }} justifyContent='space-between' gap={10}>
-        <Stack>
-          <Skeleton isLoaded={!!name} minH='45px' minW='300px'>
-            <Heading variant='medium'>gm {name} 👋</Heading>
-          </Skeleton>
+      <div className='flex flex-col gap-10 md:flex-row'>
+        <div>
+          {!!name ? <Skeleton className='h-10 w-32' /> : <p className='text-xl'>gm {name} 👋</p>}
 
-          {hasHats && <Text size='lg'>Here&apos;s what&apos;s happening with your hats</Text>}
-        </Stack>
+          {hasHats && <p className='text-lg'>Here&apos;s what&apos;s happening with your hats</p>}
+        </div>
 
         {!isMobile && (
-          <Box>
+          <div>
             <Link href='/trees/new'>
-              <Button colorScheme='blue' py={6} px={8}>
-                <HStack gap={3}>
-                  <BsDiagram3 />
-                  <Text size='lg' variant='medium' noOfLines={1}>
-                    Create a new {CONFIG.TERMS.tree}
-                  </Text>
-                </HStack>
+              <Button className='flex items-center gap-3'>
+                <BsDiagram3 className='h-4 w-4' />
+                <p className='line-clamp-1 text-lg font-medium'>Create a new {CONFIG.TERMS.tree}</p>
               </Button>
             </Link>
-          </Box>
+          </div>
         )}
-      </Flex>
+      </div>
 
       {children}
     </>
@@ -85,15 +78,15 @@ const MyHats = () => {
 
   if (!currentUser) {
     return (
-      <Stack>
-        <Heading variant='medium'>
+      <div className='flex flex-col gap-2'>
+        <h2 className='text-xl'>
           Welcome to Hats Protocol!{' '}
           <span role='img' aria-label='Hats ball cap'>
             🧢
           </span>
-        </Heading>
-        <Text size='lg'>Please connect your wallet to get started.</Text>
-      </Stack>
+        </h2>
+        <p className='text-lg'>Please connect your wallet to get started.</p>
+      </div>
     );
   }
 
@@ -101,22 +94,16 @@ const MyHats = () => {
     // hats loading
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
-        <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-          <Skeleton height='40px' />
-          <SimpleGrid
-            columns={{
-              base: 1,
-              sm: 2,
-              md: 3,
-            }}
-            spacing={6}
-          >
+        <Card className='bg-white/60 p-8'>
+          <Skeleton className='h-10' />
+
+          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3'>
             {Array(isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)
               .fill(0)
               .map((_, i) => (
-                <Skeleton key={i} borderRadius='md' height='100px' />
+                <Skeleton key={i} className='h-24 rounded-md' />
               ))}
-          </SimpleGrid>
+          </div>
         </Card>
       </MyHatsCard>
     );
@@ -126,32 +113,23 @@ const MyHats = () => {
     // some hats loaded
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
-        <Card py={8} px={9} background='whiteAlpha.600' gap={4}>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Heading>Your hats</Heading>
+        <Card className='bg-white/60 p-8'>
+          <div className='flex items-center justify-between'>
+            <h2 className='text-xl'>Your hats</h2>
             {size(sortedActiveHats) > (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
               <Link href={`/wearers/${currentUser}`}>
-                <HStack alignItems='center'>
-                  <Text>View {!isMobile ? 'all of ' : ''}your hats</Text>
+                <div className='flex items-center gap-2'>
+                  <p>View {!isMobile ? 'all of ' : ''}your hats</p>
                   <FaArrowRight />
-                </HStack>
+                </div>
               </Link>
             )}
-          </Flex>
-          <SimpleGrid
-            columns={{
-              base: 1,
-              sm: 2,
-              md: 3,
-            }}
-            spacing={6}
-          >
+          </div>
+          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3'>
             {map(sortedActiveHats, (hat: AppHat, i: number) => (
-              <Skeleton isLoaded={!!hat.id && !wearerDetailsLoading} borderRadius='md' key={i}>
-                <DashboardHatCard hat={hat} />
-              </Skeleton>
+              <DashboardHatCard hat={hat} />
             ))}
-          </SimpleGrid>
+          </div>
         </Card>
       </MyHatsCard>
     );
@@ -161,11 +139,12 @@ const MyHats = () => {
 
   return (
     <MyHatsCard name={ensName || formatAddress(currentUser)}>
-      <Card py={8} px={9} background='whiteAlpha.600' gap={4} justifyContent='center' alignItems='center'>
-        <Stack align='center'>
-          <Heading size='lg'>Your hats will appear here!</Heading>
-          <Text>Create a tree or check out one of the featured trees.</Text>
-        </Stack>
+      <Card className='bg-white/60 p-8'>
+        <div className='flex flex-col items-center justify-center'>
+          <h2 className='text-xl'>Your hats will appear here!</h2>
+
+          <p>Create a tree or check out one of the featured trees.</p>
+        </div>
       </Card>
     </MyHatsCard>
   );

@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Flex, Heading, Spinner } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat } from 'contexts';
 import { useAllWearers, useHatPaginatedWearers } from 'hats-hooks';
 import { exportToCsv } from 'hats-utils';
-import _ from 'lodash';
+import { get, map, size } from 'lodash';
 import { FaFileCsv } from 'react-icons/fa';
 import { HatWearer } from 'types';
+import { Button, Spinner } from 'ui';
 import { wearersPerPage } from 'utils';
 import { Hex } from 'viem';
 
@@ -30,32 +30,29 @@ const FullWearersListModal = ({
   const { wearers: exportWearers } = useAllWearers({
     selectedHat,
     chainId,
-    enabled: _.get(modals, 'hatWearers') || false,
+    enabled: get(modals, 'hatWearers') || false,
   });
 
   return (
     <Modal
       name='hatWearers'
       customHeader={
-        <Flex justify='space-between' alignItems='center' mt={8} px={6} pb={4}>
-          <Heading size='2xl'>Hat Wearers</Heading>
-          <Button
-            onClick={() => exportWearers && exportToCsv(exportWearers, selectedHatDetails?.name)}
-            leftIcon={<FaFileCsv />}
-            colorScheme='blue'
-          >
+        <div className='mt-8 flex items-center justify-between px-6 pb-4'>
+          <h2 className='text-2xl'>Hat Wearers</h2>
+          <Button onClick={() => exportWearers && exportToCsv(exportWearers, selectedHatDetails?.name)}>
+            <FaFileCsv />
             Export
           </Button>
-        </Flex>
+        </div>
       }
       footer={
-        <Flex justify='center' px={6} pb={6} w='full'>
+        <div className='flex w-full justify-center px-6 pb-6'>
           <Button
             variant='ghost'
             onClick={() => {
               prevPage();
             }}
-            isDisabled={currentPage === 0}
+            disabled={currentPage === 0}
           >
             {currentPage > 1 ? `Previous (${currentPage - 1})` : 'Previous'}
           </Button>
@@ -64,18 +61,18 @@ const FullWearersListModal = ({
             onClick={() => {
               nextPage();
             }}
-            isDisabled={_.size(paginatedWearers) < wearersPerPage}
+            disabled={size(paginatedWearers) < wearersPerPage}
           >
             {`Next (${currentPage + 1})`}
           </Button>
-        </Flex>
+        </div>
       }
     >
-      <Flex direction='column' gap={4}>
+      <div className='flex flex-col gap-4'>
         {isLoading || isFetching ? (
           <Spinner />
         ) : (
-          paginatedWearers?.map((w: HatWearer) => (
+          map(paginatedWearers, (w: HatWearer) => (
             <WearerRow
               key={w.id}
               wearer={w}
@@ -84,7 +81,7 @@ const FullWearersListModal = ({
             />
           ))
         )}
-      </Flex>
+      </div>
     </Modal>
   );
 };

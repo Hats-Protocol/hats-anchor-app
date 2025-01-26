@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Flex, HStack, Image, Skeleton, Text } from '@chakra-ui/react';
 import { ConnectButton as RainbowConnectButton } from '@rainbow-me/rainbowkit';
 import { Modal, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
@@ -8,6 +7,7 @@ import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import posthog from 'posthog-js';
 import { useEffect, useMemo } from 'react';
+import { Button, Skeleton } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
@@ -72,13 +72,13 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
           };
 
           if (!ready) {
-            return <Skeleton w={{ base: '100px', md: '200px' }} h='40px' borderRadius='md' />;
+            return <Skeleton className='h-10 w-[110px] rounded md:w-[200px]' />;
           }
 
           return (() => {
             if (!connected) {
               return (
-                <Button onClick={trackedOpenConnectModal} variant='whiteFilled'>
+                <Button onClick={trackedOpenConnectModal} variant='outline'>
                   Connect{!isMobile && ' Wallet'}
                 </Button>
               );
@@ -86,51 +86,33 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
 
             if (chain.unsupported) {
               return (
-                <Button onClick={trackedOpenChainModal} type='button' variant='whiteFilled'>
+                <Button variant='outline' onClick={trackedOpenChainModal} type='button'>
                   Wrong network
                 </Button>
               );
             }
 
             return (
-              <Flex gap={2}>
-                <Button onClick={openChainModal} display='flex' alignItems='center' px={2} variant='whiteFilled'>
+              <div className='flex gap-2'>
+                <Button variant='outline' className='flex items-center px-2' onClick={openChainModal}>
                   {chain.hasIcon && chain.iconUrl && (
-                    <Image
-                      alt={chain.name ?? 'Chain icon'}
-                      src={chain.iconUrl}
-                      borderRadius='50%'
-                      width={25}
-                      height={25}
-                    />
+                    <img alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} className='h-6 w-6 rounded-full' />
                   )}
                 </Button>
 
-                <Button variant='whiteFilled' onClick={openAccountModal} px={{ base: 2, md: 4 }}>
-                  <HStack spacing={2} align='center'>
+                <Button variant='outline' className='px-2 md:px-4' onClick={openAccountModal}>
+                  <div className='flex items-center gap-2'>
                     {ensAvatar || fallbackAvatar ? (
-                      <Box
-                        height='26px'
-                        width='16px'
-                        overflow='hidden'
-                        backgroundImage={ensAvatar || fallbackAvatar}
-                        backgroundSize='cover'
-                        backgroundClip='content-box'
-                        backgroundPosition='center'
-                        borderRadius='sm'
+                      <div
+                        className='bg-position-center h-6 w-6 overflow-hidden rounded-sm bg-cover bg-clip-content'
+                        style={{ backgroundImage: ensAvatar || fallbackAvatar }}
                       />
-                    ) : (
-                      <Box height='14px' width='14px' borderRadius='50%' bg='green.700' />
-                    )}
+                    ) : null}
 
-                    {!isMobile && (
-                      <Text variant='medium' noOfLines={1}>
-                        {ensName || account.displayName}
-                      </Text>
-                    )}
-                  </HStack>
+                    {!isMobile && <p className='line-clamp-1 font-medium'>{ensName || account.displayName}</p>}
+                  </div>
                 </Button>
-              </Flex>
+              </div>
             );
           })();
         }}

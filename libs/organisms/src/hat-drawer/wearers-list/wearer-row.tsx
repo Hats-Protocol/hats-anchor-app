@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, Icon, IconButton, Image, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite } from 'hats-hooks';
@@ -11,7 +10,7 @@ import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { idToIp } from 'shared';
 import { ControllerData } from 'types';
-import { Link } from 'ui';
+import { Button, cn, Link, OblongAvatar, Tooltip } from 'ui';
 import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar } from 'wagmi';
@@ -36,7 +35,7 @@ const WearerRow = ({
   const { onCopy: copyAddress } = useClipboard(wearer.id, {
     toastData: {
       title: 'Copied address',
-      description: 'Successfully copied address to clipboard',
+      // description: 'Successfully copied address to clipboard',
     },
   });
 
@@ -100,44 +99,33 @@ const WearerRow = ({
   });
 
   let bgColor = 'transparent';
-  let color = 'Informative-Human';
+  let color = 'informative-human';
   if (isIneligible) {
-    color = 'gray.500';
+    color = 'gray-500';
   } else if (isSameAddress(wearer.id, address)) {
-    bgColor = 'green.100';
-    color = 'green.800';
+    bgColor = 'green-100';
+    color = 'green-800';
   } else if (wearer.isContract && !controllerName.includes('Safe')) {
-    color = 'Informative-Code';
+    color = 'informative-code';
   }
 
   const displayName = get(wearer, 'ensName') || controllerName || formatAddress(get(wearer, 'id'));
   const wearerNameIsAddress = displayName === formatAddress(wearer.id);
+  const Icon = controllerIcon || icon;
 
   return (
-    <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
+    <div className='flex items-center justify-between' key={wearer.id}>
       <Link href={`/wearers/${wearer.id}`}>
-        <Tooltip label={!wearerNameIsAddress && wearer.id} minW='380px'>
-          <Flex alignItems='center' gap={1} backgroundColor={bgColor} pr={1}>
-            {ensAvatar ? (
-              <Image
-                w={{ base: '11px', md: 3 }}
-                h={{ base: '14px', md: 4 }}
-                ml='2px'
-                mr={{ base: '1px', md: 1 }} // sometimes only ml? oh when the current user isn't a wearer in the list?
-                src={ensAvatar}
-                borderRadius='2px'
-                objectFit='cover'
-              />
-            ) : (
-              <Icon as={controllerIcon || icon} color={color} boxSize={{ base: '14px', md: 4 }} />
-            )}
+        <Tooltip label={!wearerNameIsAddress ? wearer.id : undefined}>
+          <div className={cn('flex items-center gap-1 pr-1', bgColor)}>
+            {ensAvatar ? <OblongAvatar src={ensAvatar} /> : <Icon className={cn('size-4', color)} />}
 
-            <Text color={color}>{displayName}</Text>
-          </Flex>
+            <p className={cn('text-sm', color)}>{displayName}</p>
+          </div>
         </Tooltip>
       </Link>
 
-      <Flex alignItems='center' gap={1}>
+      <div className='flex items-center gap-1'>
         {!isIneligible && // don't transfer when you can revoke
           currentUserIsAdmin && // admins can transfer
           (wearer.id !== toLower(address) || isTopHat(selectedHat)) && ( // prefer to renounce if wearer, unless top hat
@@ -145,8 +133,8 @@ const WearerRow = ({
               <Button
                 variant='link'
                 size='xs'
-                color='Functional-LinkSecondary'
-                isDisabled={!isSameChain}
+                className='text-functional-link-secondary'
+                disabled={!isSameChain}
                 onClick={() => {
                   setModals?.({ transferHat: true });
                   setWearerToTransferFrom(wearer.id);
@@ -161,9 +149,8 @@ const WearerRow = ({
           <Button
             variant='link'
             size='xs'
-            color='red.500'
-            fontWeight='medium'
-            isLoading={isLoading}
+            className='font-medium text-red-500'
+            disabled={isLoading}
             onClick={updateEligibility}
           >
             Reconcile
@@ -175,9 +162,9 @@ const WearerRow = ({
             <TooltipWrapper isSameChain={isSameChain} label="You can't revoke a hat on a different chain">
               <Button
                 variant='link'
-                color='red.500'
+                className='text-red-500'
                 size='xs'
-                isDisabled={!isSameChain}
+                disabled={!isSameChain}
                 onClick={() => {
                   setModals?.({ hatWearerStatus: true });
                   setChangeStatusWearer(wearer.id);
@@ -189,14 +176,10 @@ const WearerRow = ({
           )}
 
         {!isSameAddress(wearer.id, address) ? ( // if not current user, show copy button
-          <IconButton
-            icon={<Icon as={CopyAddress} boxSize={4} color='blue.500' />}
-            p={0}
-            size='xs'
-            variant='link'
-            aria-label='Copy wearer address'
-            onClick={copyAddress}
-          />
+          <Button className='p-0' size='xs' variant='link' aria-label='Copy wearer address' onClick={copyAddress}>
+            <CopyAddress className='mr-1 size-4 text-blue-500' />
+            Copy
+          </Button>
         ) : (
           !isTopHat(selectedHat) && // don't allow top hats to renounce
           !isIneligible && ( // prefer revoke to renounce when ineligible
@@ -204,10 +187,8 @@ const WearerRow = ({
               <Button
                 variant='link'
                 size='xs'
-                color='red.500'
-                fontWeight='medium'
-                bg='transparent'
-                isDisabled={!isSameChain || !renounceHat}
+                className='bg-transparent font-medium text-red-500'
+                disabled={!isSameChain || !renounceHat}
                 onClick={handleRenounceHat}
               >
                 Renounce
@@ -215,8 +196,8 @@ const WearerRow = ({
             </TooltipWrapper>
           )
         )}
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   );
 };
 

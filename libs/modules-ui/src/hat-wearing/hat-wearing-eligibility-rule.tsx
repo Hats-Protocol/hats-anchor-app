@@ -1,6 +1,5 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useWearerDetails } from 'hats-hooks';
 import { find, get, includes, map } from 'lodash';
@@ -36,13 +35,13 @@ export const HatWearingEligibilityRule = ({ moduleParameters, wearer, chainId }:
     return (
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <p>
             Wear the {hatName} Hat (
             <Link href={hatLink({ chainId, hatId: mainDetails?.id })} className='underline'>
               ID: {ipId}
             </Link>
             )
-          </Text>
+          </p>
         }
         status={ELIGIBILITY_STATUS.eligible}
         displayStatus='Wearer'
@@ -54,13 +53,13 @@ export const HatWearingEligibilityRule = ({ moduleParameters, wearer, chainId }:
   return (
     <EligibilityRuleDetails
       rule={
-        <Text noOfLines={1}>
+        <p className='line-clamp-1'>
           Wear the {hatName} Hat (
           <Link href={hatLink({ chainId, hatId: mainDetails?.id })} className='underline'>
             ID: {ipId}
           </Link>
           )
-        </Text>
+        </p>
       }
       status={ELIGIBILITY_STATUS.ineligible}
       displayStatus='Not Wearing'

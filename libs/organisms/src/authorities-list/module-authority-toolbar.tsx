@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Menu, MenuButton, MenuItem, MenuList, Text, Tooltip } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
@@ -18,7 +17,7 @@ import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
-import { Link } from 'ui';
+import { Button, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger, Link, Tooltip } from 'ui';
 import { explorerUrl, getCustomModuleFunction, getDisabledReason, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -185,14 +184,13 @@ const ModuleAuthorityToolbar = ({
   // process.env.NODE_ENV === 'development';
 
   return (
-    <HStack wrap='wrap'>
+    <div className='flex flex-wrap'>
       {customFunction && eligibilityModalFlag ? <CustomFunction authority={customFunction} /> : null}
 
       {primaryFunction && (!customFunction || !eligibilityModalFlag) && (
         <Tooltip label={primaryDisabledReason}>
           <Button
-            colorScheme='blue'
-            isDisabled={!!isPrimaryFunctionDisabled}
+            disabled={!!isPrimaryFunctionDisabled}
             size='sm'
             onClick={() => {
               posthog.capture('Called Module Function', {
@@ -202,35 +200,33 @@ const ModuleAuthorityToolbar = ({
               });
               handleFunctionCall(primaryFunction);
             }}
-            rightIcon={<Icon as={FiPlusSquare} />}
           >
             {capitalize(primaryFunction.label)}
+            <FiPlusSquare className='ml-1 size-4' />
           </Button>
         </Tooltip>
       )}
-      <HStack>
+
+      <div className='flex gap-2'>
         {authority.type === AUTHORITY_TYPES.hsg && (
           <Link href={safeUrl(chainId, authority.hsgConfig?.safe)} onClick={trackSafeClick} isExternal>
-            <Button variant='outlineMatch' colorScheme='blue.500' size='sm'>
-              <HStack>
-                <Text>Safe</Text>
-                <Icon as={BoxArrowUpRightOut} boxSize={3} />
-              </HStack>
+            <Button variant='outline-blue' size='sm'>
+              <div className='flex items-center gap-1'>
+                <p>Safe</p>
+                <BoxArrowUpRightOut className='size-3' />
+              </div>
             </Button>
           </Link>
         )}
         {(!isEmpty(otherFunctions) || !isEmpty(otherLinks)) && (
-          <Menu>
-            <MenuButton
-              as={Button}
-              rightIcon={<Icon as={FaEllipsisV} w={2} color='blue.500' />}
-              colorScheme='blue.500'
-              variant='outlineMatch'
-              size='sm'
-            >
-              More
-            </MenuButton>
-            <MenuList>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant='outline-blue' size='sm'>
+                More
+                <FaEllipsisV className='ml-1 size-2 text-blue-500' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuPortal>
               {map(otherFunctions, (func: ModuleFunction, i: number) => {
                 const publicFunction = includes(func.roles, 'public');
                 const localDisabledReason = getDisabledReason({
@@ -240,9 +236,11 @@ const ModuleAuthorityToolbar = ({
                   publicFunction,
                 });
 
+                const Icon = (func.icon || FiPlusSquare) as IconType;
+
                 return (
                   <Tooltip label={localDisabledReason} key={`${func.label}-${i}`}>
-                    <MenuItem
+                    <DropdownMenuItem
                       onClick={() => {
                         posthog.capture('Called Module Function', {
                           type: 'Other',
@@ -252,30 +250,33 @@ const ModuleAuthorityToolbar = ({
                         if (func.isCustom) func.onClick();
                         else handleFunctionCall(func);
                       }}
-                      isDisabled={isDisabled && !func.isCustom && !publicFunction}
+                      disabled={isDisabled && !func.isCustom && !publicFunction}
                     >
-                      <Flex justify='space-between' align='center' w='100%' gap={1}>
-                        <Text>{func.label}</Text>
-                        <Icon as={(func.icon || FiPlusSquare) as any} boxSize={4} />
-                      </Flex>
-                    </MenuItem>
+                      <div className='flex w-full items-center justify-between gap-1'>
+                        <p>{func.label}</p>
+                        <Icon className='size-4' />
+                      </div>
+                    </DropdownMenuItem>
                   </Tooltip>
                 );
               })}
-              {map(otherLinks, (link: LinkObject) => (
-                <Link href={link.link} isExternal={!!getHostnameFromURL(link.link)} key={link.link}>
-                  <MenuItem>
-                    <Flex justify='space-between' align='center' w='100%' gap={1}>
-                      <Text>{link.label}</Text>
-                      <Icon as={link.icon || FaExternalLinkAlt} boxSize={3} />
-                    </Flex>
-                  </MenuItem>
-                </Link>
-              ))}
-            </MenuList>
-          </Menu>
+              {map(otherLinks, (link: LinkObject) => {
+                const Icon = link.icon || FaExternalLinkAlt;
+                return (
+                  <Link href={link.link} isExternal={!!getHostnameFromURL(link.link)} key={link.link}>
+                    <DropdownMenuItem>
+                      <div className='flex w-full items-center justify-between gap-1'>
+                        <p>{link.label}</p>
+                        <Icon className='size-3' />
+                      </div>
+                    </DropdownMenuItem>
+                  </Link>
+                );
+              })}
+            </DropdownMenuPortal>
+          </DropdownMenu>
         )}
-      </HStack>
+      </div>
 
       <ModuleAuthorityModal
         authority={authority}
@@ -283,7 +284,7 @@ const ModuleAuthorityToolbar = ({
         setSelectedFunction={setSelectedFunction}
         index={index}
       />
-    </HStack>
+    </div>
   );
 };
 

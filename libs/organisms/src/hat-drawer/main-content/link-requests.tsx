@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Flex, Heading, HStack, Stack } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestApproveForm } from 'forms';
-import _ from 'lodash';
+import { some } from 'lodash';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { prettyIdToIp } from 'shared';
+import { Button } from 'ui';
 
 // TODO RQ hook this
 
@@ -28,24 +28,21 @@ const LinkRequests = () => {
   const enableLinking = posthog.isFeatureEnabled('linking');
 
   if (
-    !_.some(linkRequestFromTree, (linkRequest) => linkRequest?.requestedLinkToHat?.id === selectedHat?.id) ||
+    !some(linkRequestFromTree, (linkRequest) => linkRequest?.requestedLinkToHat?.id === selectedHat?.id) ||
     !enableLinking
   )
     return null;
 
   return (
     <>
-      <Stack wrap='wrap' px={16}>
-        <Heading size='md' variant={{ base: 'medium', md: 'default' }}>
-          Link Requests
-        </Heading>
-        <Flex justifyContent='space-between'>
-          <HStack>
+      <div className='space-y-1 px-16'>
+        <h2 className='text-lg font-medium'>Link Requests</h2>
+        <div className='flex justify-between'>
+          <div className='flex flex-wrap'>
             {linkRequestFromTree?.map((linkRequest) => (
               <Button
-                variant='outlineMatch'
+                variant='outline-blue'
                 size='sm'
-                colorScheme='blue.500'
                 onClick={() => {
                   if (!linkRequest.id || !linkRequest.requestedLinkToHat?.id) return;
 
@@ -56,9 +53,9 @@ const LinkRequests = () => {
                 Link Request to {prettyIdToIp(linkRequest.id)}
               </Button>
             ))}
-          </HStack>
-        </Flex>
-      </Stack>
+          </div>
+        </div>
+      </div>
 
       <Modal name='linkResponse' title='Approve Link Request'>
         <HatLinkRequestApproveForm topHatDomain={linkFrom} newAdmin={linkTo} />

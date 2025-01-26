@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, Heading, HStack, Icon, Image, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
@@ -10,7 +9,7 @@ import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Link, OblongAvatar } from 'ui';
+import { Button, Link, OblongAvatar } from 'ui';
 import { chainsMap, formatAddress, formatRoundedDecimals } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
@@ -68,77 +67,70 @@ const WalletProfile = ({
   };
 
   return (
-    <Stack>
-      <HStack spacing={6}>
+    <div className='flex flex-col'>
+      <div className='flex items-center gap-6'>
         {avatar && <OblongAvatar src={avatar} />}
-        <Stack>
-          <Heading size='xl'>{name}</Heading>
-          <HStack gap={4}>
-            <Skeleton isLoaded={!!balance}>
-              <Text>
-                {formatRoundedDecimals({
-                  value: balance?.value,
-                  decimals: balance?.decimals || 18,
-                  rounded: 2,
-                })}{' '}
-                {balance?.symbol}
-              </Text>
-            </Skeleton>
-            <Button variant='link' rightIcon={<Icon as={CopyAddress} />} color='blue.500' onClick={onCopy}>
+        <div className='flex flex-col'>
+          <h3 className='text-xl'>{name}</h3>
+          <div className='flex items-center gap-4'>
+            <p>
+              {formatRoundedDecimals({
+                value: balance?.value,
+                decimals: balance?.decimals || 18,
+                rounded: 2,
+              })}{' '}
+              {balance?.symbol}
+            </p>
+
+            <Button variant='link' className='text-blue-500' onClick={onCopy}>
               {formatAddress(address)}
+              <CopyAddress className='ml-1 h-4 w-4' />
             </Button>
-          </HStack>
-        </Stack>
-      </HStack>
-      <Flex justify='space-between' gap={2} mb={2}>
-        <Button w='full' variant='outline' onClick={toggleNetworkModal}>
-          <HStack>
-            <Image src={NETWORK_IMAGES[chainId as SupportedChains]} boxSize={5} />
-            <Text>{chainsMap(chainId)?.name}</Text>
-          </HStack>
+          </div>
+        </div>
+      </div>
+      <div className='mb-2 flex justify-between gap-2'>
+        <Button className='w-full' variant='outline' onClick={toggleNetworkModal}>
+          <div className='flex items-center gap-2'>
+            <img src={NETWORK_IMAGES[chainId as SupportedChains]} className='h-5 w-5' />
+            <p>{chainsMap(chainId)?.name}</p>
+          </div>
         </Button>
+
         {!hideProfileButton && (
           <Link href={`/wearers/${address}`} onClick={() => setModals?.({})} className='w-full'>
-            <Button w='100%' variant='outline'>
-              <HStack>
-                <Icon as={WearerIcon} color='blackAlpha.700' />
-                <Text>Profile</Text>
-              </HStack>
+            <Button className='w-full' variant='outline'>
+              <div className='flex items-center gap-2'>
+                <WearerIcon className='h-4 w-4' />
+                <p>Profile</p>
+              </div>
             </Button>
           </Link>
         )}
-      </Flex>
+      </div>
+
       {!isEmpty(transactions) && (
-        <Stack>
-          <Heading size='md'>Transaction History</Heading>
+        <div>
+          <h3 className='text-md'>Transaction History</h3>
           <TransactionHistory count={2} transactions={transactions || []} hideHash />
           {size(transactions) > 2 && (
-            <Flex>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={toggleTransactionHistoryModal}
-                rightIcon={<Icon as={FaCaretRight} />}
-              >
-                Show full history
+            <div className='flex'>
+              <Button variant='ghost' size='sm' onClick={toggleTransactionHistoryModal}>
+                Show full History
+                <FaCaretRight className='ml-1 h-4 w-4' />
               </Button>
-            </Flex>
+            </div>
           )}
-        </Stack>
+        </div>
       )}
 
-      <Flex>
-        <Button
-          variant='outlineMatch'
-          colorScheme='red.500'
-          onClick={handleDisconnect}
-          leftIcon={<Icon as={BsBoxArrowRight} />}
-          w='full'
-        >
+      <div className='flex'>
+        <Button variant='destructive' onClick={handleDisconnect} className='w-full'>
           Sign Out
+          <BsBoxArrowRight className='ml-1 h-4 w-4' />
         </Button>
-      </Flex>
-    </Stack>
+      </div>
+    </div>
   );
 };
 

@@ -1,13 +1,13 @@
 'use client';
 
-import { Button, ButtonProps as ChakraButtonProps } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWaitForSubgraph } from 'hooks';
 import { useState } from 'react';
 import { SyncTxHandler } from 'types';
+import { Button, type ButtonProps } from 'ui';
 import { TransactionReceipt } from 'viem';
 
-interface TransactionButtonProps extends ChakraButtonProps {
+interface TransactionButtonProps extends ButtonProps {
   sendTx: () => Promise<`0x${string}`>;
   children: React.ReactNode;
   chainId: number | undefined;
@@ -54,8 +54,8 @@ const TransactionButton = ({
   };
 
   return (
-    <Button isLoading={isLoading} onClick={handleAsyncTx} {...props}>
-      {children}
+    <Button disabled={isLoading} onClick={handleAsyncTx} {...props}>
+      {isLoading ? 'Submitting...' : children}
     </Button>
   );
 };

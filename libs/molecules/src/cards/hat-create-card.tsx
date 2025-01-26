@@ -1,14 +1,13 @@
 'use client';
 
-import { Box, Flex, Heading, Icon, Image, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
 import { toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { SupportedChains } from 'types';
+import { LazyImage, Skeleton } from 'ui';
 import { ipfsUrl } from 'utils';
 import { Hex } from 'viem';
-
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 const HatCreateCard = ({ id, chainId }: { id: Hex; chainId: SupportedChains }) => {
@@ -26,82 +25,43 @@ const HatCreateCard = ({ id, chainId }: { id: Hex; chainId: SupportedChains }) =
   const { imageUri, currentSupply, maxSupply } = data;
   const imageUrl = ipfsUrl(imageUri?.slice(7));
 
-  return (
-    <Skeleton isLoaded={!!name && !!maxSupply && !!currentSupply}>
-      <Flex
-        direction='column'
-        alignItems='center'
-        justifyContent='center'
-        backgroundColor='white'
-        border='1px'
-        borderColor='#4A5568'
-        borderRadius='4px'
-        boxShadow='0px 2px 4px -1px rgba(0, 0, 0, 0.06), 0px 4px 6px -1px rgba(0, 0, 0, 0.10)'
-        w='250px'
-      >
-        <Stack width='100%' alignItems='center' position='relative'>
-          <Box
-            position='absolute'
-            boxSize='70px'
-            top='-1px'
-            left='-1px'
-            border='1px'
-            borderColor='#4A5568'
-            borderRadius='4px'
-            zIndex={1}
-            background='white'
-          >
-            <Image
-              borderRadius='4px'
-              alt='Hat'
-              loading='lazy'
-              src={imageUri !== '' && imageUrl !== '#' ? imageUrl : '/icon.jpeg'}
-            />
-          </Box>
-          <Flex direction='column' height='100%' width='70%' position='relative' marginLeft='30%'>
-            <Flex direction='column' position='absolute' overflow='hidden' mt={1}>
-              <Text size='xs'>{hatIdDecimalToIp(BigInt(id))}</Text>
-              <Heading variant='medium' size='lg'>
-                {name}
-              </Heading>
-            </Flex>
-          </Flex>
+  if (!name || !maxSupply || !currentSupply) {
+    return <Skeleton className='w-250px h-250px' />;
+  }
 
-          <HatFooter wearers={currentSupply} total={maxSupply} />
-        </Stack>
-      </Flex>
-    </Skeleton>
+  return (
+    <div className='border-1 rounded-4px flex flex-col items-center justify-center border-solid border-gray-400 bg-white shadow-sm'>
+      <div className='relative flex w-full items-center'>
+        <div className='w-70px h-70px border-1 rounded-4px absolute left-[-1px] top-[-1px] border-solid border-gray-400'>
+          <LazyImage alt='Hat' src={imageUri !== '' && imageUrl !== '#' ? imageUrl : '/icon.jpeg'} />
+        </div>
+
+        <div className='w-70% ml-30% relative flex h-full flex-col'>
+          <div className='absolute mt-1 flex flex-col overflow-hidden'>
+            <p className='text-xs'>{hatIdDecimalToIp(BigInt(id))}</p>
+            <h3 className='text-xl font-medium'>{name}</h3>
+          </div>
+        </div>
+
+        <HatFooter wearers={currentSupply} total={maxSupply} />
+      </div>
+    </div>
   );
 };
 
 const HatFooter = ({ wearers, total }: { wearers: string | undefined; total: string | undefined }) => {
   return (
-    <Flex
-      marginTop='60px'
-      width='100%'
-      height='36px'
-      borderTop='1px solid #4A5568'
-      padding='6px'
-      background='#FFFFF0'
-      alignItems='center'
-      justifyContent='space-between'
-      borderBottomRadius={4}
-    >
-      <Flex gap={1} alignItems='center'>
-        <Icon as={WearerIcon} boxSize={4} color='blackAlpha.700' />
+    <div className='border-bottom-radius-4 mt-60px w-100% h-36px border-top-1 flex items-center justify-between border-solid border-gray-400 bg-white'>
+      <div className='flex items-center gap-1'>
+        <WearerIcon className='h-4 text-black/70' />
 
-        <Skeleton isLoaded={!!wearers}>
-          <Text fontSize='15px' fontWeight='550' opacity='0.8' overflow='hidden' width='115px'>
-            {toNumber(wearers) > 0 ? `${wearers} Wallets` : `${wearers} Wallet`}
-          </Text>
-        </Skeleton>
-      </Flex>
-      <Skeleton isLoaded={!!total}>
-        <Text display='inline-block' textAlign='right' minWidth='62px' opacity='0.6'>
-          {`out of ${total}`}
-        </Text>
-      </Skeleton>
-    </Flex>
+        <span className='w-115px overflow-hidden text-sm font-medium opacity-80'>
+          {toNumber(wearers) > 0 ? `${wearers} Wallets` : `${wearers} Wallet`}
+        </span>
+      </div>
+
+      <span className='inline-block min-w-[62px] text-right opacity-60'>{`out of ${total}`}</span>
+    </div>
   );
 };
 

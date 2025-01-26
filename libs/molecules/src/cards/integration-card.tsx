@@ -1,44 +1,31 @@
 'use client';
 
-import { Box, Card, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { IntegrationCard as IntegrationCardType } from '@hatsprotocol/config';
 import { map, pick } from 'lodash';
-import { Link } from 'ui';
+import { Card, Link } from 'ui';
 
 const IntegrationCard = ({ integration }: { integration: IntegrationCardType }) => {
   const { label, icons, link } = pick(integration, ['label', 'icons', 'link']);
 
   return (
     <Link href={link} className='w-full md:w-[48%] xl:w-[23%]' isExternal>
-      <Card border='1px solid' minW='200px'>
-        <Flex
-          h='100px'
-          justify='center'
-          align='center'
-          position='relative'
-          bg='gray.50'
-          overflow='hidden'
-          borderTopRadius='md'
-        >
-          <Box
-            position='absolute'
-            w='100%'
-            h='100%'
-            bgImage='/bg-topography.svg'
-            bgRepeat='repeat'
-            bgClip='border-box'
+      <Card className='border-1 min-w-[200px] border-solid'>
+        <div className='h-100px border-top-radius-md relative flex items-center justify-center overflow-hidden bg-gray-50'>
+          <div
+            className='h-100% w-100% bg-image absolute bg-clip-border bg-repeat'
+            style={{ backgroundImage: '/bg-topography.svg' }}
           />
-          <HStack spacing={8}>
-            {map(icons, (icon: any, i: number) => (
-              <Icon as={icon} key={i} w='50px' minH='40px' color='blackAlpha.800' />
-            ))}
-          </HStack>
-        </Flex>
-        <Flex p={2}>
-          <Text size='xl' variant='medium'>
-            {label}
-          </Text>
-        </Flex>
+
+          <div className='flex gap-8'>
+            {map(icons, (icon: any, i: number) => {
+              const Icon = icon;
+              return <Icon key={i} className='h-50px min-h-40px text-black/80' />;
+            })}
+          </div>
+        </div>
+        <div className='p-2'>
+          <p className='text-xl font-medium'>{label}</p>
+        </div>
       </Card>
     </Link>
   );

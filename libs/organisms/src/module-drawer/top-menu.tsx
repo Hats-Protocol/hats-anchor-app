@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Tooltip } from '@chakra-ui/react';
 import { DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
@@ -11,6 +10,7 @@ import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { ModuleDetails } from 'types';
+import { Button, Tooltip } from 'ui';
 import { logger } from 'utils';
 import { useChainId } from 'wagmi';
 
@@ -102,44 +102,22 @@ const TopMenu = ({
     moduleDeployIsBlocked;
 
   return (
-    <Flex
-      w='100%'
-      borderBottom='1px solid'
-      borderColor='gray.200'
-      h='75px'
-      bg='whiteAlpha.900'
-      align='center'
-      justify='space-between'
-      px={4}
-      position='absolute'
-      top={0}
-      zIndex={16}
-    >
-      <Button variant='outline' borderColor='gray.300' onClick={onCloseModuleDrawer} leftIcon={<Icon as={BsXSquare} />}>
+    <div className='z-16 bg-whiteAlpha-900 absolute top-0 flex h-[75px] w-full items-center justify-between px-4'>
+      <Button variant='outline' className='border-gray-300' onClick={onCloseModuleDrawer}>
+        <BsXSquare className='mr-2' />
         Cancel
       </Button>
 
-      <HStack>
+      <div className='flex items-center'>
         {!isChainCorrect && <NetworkSwitcher />}
-        <Tooltip
-          label={!isChainCorrect ? 'Please switch to the correct network' : ''}
-          isDisabled={isChainCorrect}
-          hasArrow
-          placement='top'
-        >
-          <Button
-            leftIcon={<BsBoxArrowRight />}
-            colorScheme='twitter'
-            variant='solid'
-            isDisabled={isButtonDisabled}
-            isLoading={isLoading}
-            onClick={() => deploy()}
-          >
+        <Tooltip label={!isChainCorrect ? 'Please switch to the correct network' : undefined}>
+          <Button className='bg-twitter' disabled={isButtonDisabled || isLoading} onClick={() => deploy()}>
+            <BsBoxArrowRight className='mr-1' />
             Deploy & Return
           </Button>
         </Tooltip>
-      </HStack>
-    </Flex>
+      </div>
+    </div>
   );
 };
 

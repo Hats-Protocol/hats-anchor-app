@@ -1,12 +1,11 @@
 'use client';
 
-import { Badge, Box, Button, Flex, Grid, Heading, HStack, Icon, Stack, Text, VStack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
-import _ from 'lodash';
+import { keys, map, toString } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { Link } from 'ui';
+import { Badge, Link, LinkButton } from 'ui';
 import { eligibilityRuleToModuleDetails, explorerUrl } from 'utils';
 
 interface TimeUntilStart {
@@ -48,44 +47,35 @@ export const ProposalCountdown: React.FC<ProposalCountdownProps> = ({ start, tit
   }, [start]);
 
   return (
-    <VStack spacing={4}>
-      <Flex justify='space-between' w='full'>
-        <Stack>
-          <Badge textTransform='uppercase'>Upcoming</Badge>
-          <Heading size='md'>{title}</Heading>
-        </Stack>
+    <div className='space-y-4'>
+      <div className='flex w-full justify-between'>
+        <div>
+          <Badge className='uppercase'>Upcoming</Badge>
+          <h3 className='text-md'>{title}</h3>
+        </div>
         {moduleDetails && (
           <Link href={`${explorerUrl(chainId)}/address/${moduleDetails?.implementationAddress}`} isExternal>
-            <HStack gap={1}>
-              <Icon as={BsFileCode} w={4} h={4} color='teal' />
-              <Text color='teal' size='sm'>
-                Election
-              </Text>
-            </HStack>
+            <div className='flex gap-1'>
+              <BsFileCode className='text-teal-500' />
+              <p className='text-sm text-teal-500'>Election</p>
+            </div>
           </Link>
         )}
-      </Flex>
-      <Grid templateColumns='repeat(3, 1fr)' gap={4}>
-        {_.map(_.keys(timeUntilStart), (key) => (
-          <VStack key={key} gap={1}>
-            <Box border='1px solid' borderColor='gray.200' px={3} py={4} borderRadius='md'>
-              <Text size='4xl'>{_.toString(timeUntilStart?.[key as keyof TimeUntilStart])}</Text>
-            </Box>
-            <Text size='sm'>{key}</Text>
-          </VStack>
+      </div>
+      <div className='grid grid-cols-3 gap-4'>
+        {map(keys(timeUntilStart), (key) => (
+          <div key={key} className='flex flex-col gap-1'>
+            <div className='rounded-md border border-gray-200 px-3 py-4'>
+              <p className='text-4xl'>{toString(timeUntilStart?.[key as keyof TimeUntilStart])}</p>
+            </div>
+            <p className='text-sm'>{key}</p>
+          </div>
         ))}
-      </Grid>
-      <Button
-        as='a'
-        href={`https://snapshot.org/#/${spaceId}/proposal/${proposalId}`}
-        target='_blank'
-        borderColor='blackAlpha.300'
-        variant='outline'
-        size='sm'
-        rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}
-      >
+      </div>
+      <LinkButton variant='link' href={`https://snapshot.org/#/${spaceId}/proposal/${proposalId}`} isExternal size='sm'>
         Preview on Snapshot
-      </Button>
-    </VStack>
+        <FaExternalLinkAlt className='ml-1 h-4 w-4' />
+      </LinkButton>
+    </div>
   );
 };

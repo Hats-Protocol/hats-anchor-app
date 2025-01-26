@@ -1,16 +1,14 @@
 'use client';
 
-import { Button, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { concat, first, flatten, get, map, pick } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
 import { ReactNode } from 'react';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule } from 'types';
-
-// TODO hardcode
-const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
-const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
+import { cn } from 'ui';
+import { Button } from 'ui';
+import { Hex } from 'viem';
 
 const EligibilityStatus = ({
   isReadyToClaim,
@@ -25,31 +23,31 @@ const EligibilityStatus = ({
 
   if (isEligible) {
     return (
-      <HStack spacing={1}>
-        <Icon as={BsCheckSquareFill} color='green.500' />
+      <div className='flex items-center gap-1'>
+        <BsCheckSquareFill className='h-6 w-6 text-green-500' />
 
-        <Text color='green.500'>{yes || 'Yes'}</Text>
-      </HStack>
+        <p className='text-green-500'>{yes || 'Yes'}</p>
+      </div>
     );
   }
 
   // TODO handle subscription allowance as Pending state
   if (isReadyToClaim) {
     return (
-      <HStack spacing={1}>
-        <Icon as={BsCheckSquare} color='green.500' />
+      <div className='flex items-center gap-1'>
+        <BsCheckSquare className='h-6 w-6 text-green-500' />
 
-        <Text color='green.500'>Pending</Text>
-      </HStack>
+        <p className='text-green-500'>Pending</p>
+      </div>
     );
   }
 
   return (
-    <HStack spacing={1}>
-      <Icon as={BsFillXOctagonFill} color='red.500' />
+    <div className='flex items-center gap-1'>
+      <BsFillXOctagonFill className='h-6 w-6 text-red-500' />
 
-      <Text color='red.500'>{no || 'No'}</Text>
-    </HStack>
+      <p className='text-red-500'>{no || 'No'}</p>
+    </div>
   );
 };
 
@@ -87,24 +85,21 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
     <Button
       variant='outline'
       onClick={() => setActiveRule(rule)}
-      whiteSpace='normal'
-      height='auto'
-      blockSize='auto'
-      p={4}
-      bg={activeRule?.address === rule.address ? 'white' : 'gray.50'}
-      border={activeRule?.address === rule.address ? '2px solid' : '1px solid'}
-      borderColor={activeRule?.address === rule.address ? 'gray.800' : 'gray.300'}
+      className={cn('block-size-auto h-auto w-full whitespace-normal bg-white p-4', {
+        'border-2 border-gray-800': activeRule?.address === rule.address,
+        'border border-gray-300': activeRule?.address !== rule.address,
+      })}
       key={rule.address}
     >
-      <Stack spacing={1}>
-        <Text textAlign='left'>{children}</Text>
+      <div className='flex flex-col gap-1'>
+        <p className='text-left'>{children}</p>
 
         <EligibilityStatus
           isEligible={isEligible}
           isReadyToClaim={hasAllowance || get(isReadyToClaim, rule.address, false)}
           customYesNo={customYesNo || yesNoForRule}
         />
-      </Stack>
+      </div>
     </Button>
   );
 };
@@ -116,15 +111,12 @@ interface WrapperButtonProps {
   children: ReactNode;
 }
 
-const ModuleChainClaimButton = ({
-  rule,
-  // TODO pass through module labels
-}: ModuleChainClaimButtonProps) => {
-  if (rule.address === selectionModule) {
+const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButtonProps) => {
+  if (rule.address === get(labeledModules, 'selection')) {
     return <WrapperButton rule={rule}>Appointed</WrapperButton>;
   }
 
-  if (rule.address === criteriaModule) {
+  if (rule.address === get(labeledModules, 'criteria')) {
     return <WrapperButton rule={rule}>Compliant</WrapperButton>;
   }
 
@@ -135,6 +127,7 @@ const ModuleChainClaimButton = ({
 
 interface ModuleChainClaimButtonProps {
   rule: EligibilityRule;
+  labeledModules?: LabeledModules;
 }
 
 const sortRulesForClaims = (rules: EligibilityRule[]) => {
@@ -152,7 +145,7 @@ const sortRulesForClaims = (rules: EligibilityRule[]) => {
   );
 };
 
-export const ModuleChainClaimButtons = () => {
+const ModuleChainClaimButtons = ({ labeledModules }: ModuleChainClaimButtonsProps) => {
   const { eligibilityRules } = useEligibility();
 
   const flatRules = flatten(eligibilityRules); // TODO only handling AND chains currently
@@ -161,8 +154,18 @@ export const ModuleChainClaimButtons = () => {
   return (
     <div className='flex gap-2'>
       {map(sortedRules, (rule) => (
-        <ModuleChainClaimButton key={`${rule.module.id}-${rule.address}`} rule={rule} />
+        <ModuleChainClaimButton key={`${rule.module.id}-${rule.address}`} rule={rule} labeledModules={labeledModules} />
       ))}
     </div>
   );
 };
+
+interface LabeledModules {
+  [key: string]: Hex;
+}
+
+interface ModuleChainClaimButtonsProps {
+  labeledModules?: LabeledModules;
+}
+
+export { ModuleChainClaimButtons };

@@ -21,7 +21,7 @@ import {
 import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _, { get, pick } from 'lodash';
+import { get, includes, pick, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { startTransition, useEffect, useRef, useState } from 'react';
@@ -69,7 +69,7 @@ const AuthoritiesListCard = ({
   // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
   let linkName = '';
-  if (_.includes(discordHosts, linkHostName)) {
+  if (includes(discordHosts, linkHostName)) {
     linkName = 'Go to Discord';
   } else if (linkHostName === 'docs.google.com') {
     linkName = 'Open Doc';
@@ -88,9 +88,9 @@ const AuthoritiesListCard = ({
   // TODO refactor to util/hook
   let tooltipInfo = authorityEnforcement?.info;
   if (strategies) {
-    tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${_.size(
+    tooltipInfo = `Automatically pulled in from Snapshot. Voting weight in ${size(
       strategies,
-    )} ${_.size(strategies) === 1 ? 'strategy.' : 'strategies.'}`;
+    )} ${size(strategies) === 1 ? 'strategy.' : 'strategies.'}`;
   }
   if (type === AUTHORITY_TYPES.modules && hatId) {
     tooltipInfo = `Connected onchain via the ${label}`; //  module for Hat #${hatIdDecimalToIp(BigInt(hatId))}

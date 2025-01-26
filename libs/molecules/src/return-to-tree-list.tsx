@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Icon, Text } from '@chakra-ui/react';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { get } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BsArrowLeft } from 'react-icons/bs';
+import { Button } from 'ui';
 import { getPathParams } from 'utils';
 
 const ReturnToTreeList = () => {
@@ -22,10 +22,10 @@ const ReturnToTreeList = () => {
 
   return (
     <Link href={`/trees/${chainId}/${treeId}`}>
-      <Button leftIcon={<Icon as={BsArrowLeft} />} h='40px' maxW='180px' variant='outline'>
-        <Text as='span' isTruncated>
-          {get(topHatDetails, 'name', get(topHat, 'details'))}
-        </Text>
+      <Button className='h-10 max-w-40' variant='outline'>
+        <BsArrowLeft className='mr-1' />
+
+        <span className='line-clamp-1'>{get(topHatDetails, 'name', get(topHat, 'details'))}</span>
       </Button>
     </Link>
   );

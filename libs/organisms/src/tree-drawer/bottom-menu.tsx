@@ -1,42 +1,35 @@
 'use client';
 
-import {
-  Accordion,
-  AccordionButton,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Input,
-  Spinner,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import { useClipboard, useSimulateTransaction } from 'hooks';
 import { get, map } from 'lodash';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useCallback } from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { AppHat } from 'types';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  BaseInput as Input,
+  Button,
+  Link,
+  Spinner,
+  Tooltip,
+} from 'ui';
 import { useAccount } from 'wagmi';
-
-const Link = dynamic(() => import('ui').then((mod) => mod.Link));
 
 // TODO use ui/Input component
 const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';
+
+const CALLDATA_TOOLTIP_COPY =
+  'To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.';
 
 const BottomMenu = ({
   isExpanded,
@@ -67,7 +60,7 @@ const BottomMenu = ({
   const { onCopy: copyContractAddress } = useClipboard(HATS_V1, {
     toastData: {
       title: 'Successfully copied contract address to clipboard',
-      status: 'info',
+      // status: 'info',
     },
   });
   const { handleSimulate, isSimulating, simulationResponse } = useSimulateTransaction({
@@ -95,161 +88,130 @@ const BottomMenu = ({
 
   const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
 
+  // index={isExpanded ? [0] : []}
   return (
-    <Box w='100%' position='absolute' bottom={0} zIndex={14}>
-      <Flex justify='space-between' borderTop='1px solid' borderColor='gray.200' bg='cyan.50'>
-        <Accordion allowToggle w='full' mt='-1px' index={isExpanded ? [0] : []}>
-          <AccordionItem isDisabled={!hasUpdates}>
-            <AccordionButton px={8} py={4} onClick={openCalldataMenu}>
-              <Box flex='1' textAlign='left'>
-                Transaction Call Data
-              </Box>
-              <Icon as={isExpanded ? IoIosArrowDown : IoIosArrowUp} />
-            </AccordionButton>
+    <div className='z-14 absolute bottom-0 w-full'>
+      <div className='flex justify-between border-t border-gray-200 bg-cyan-50'>
+        <Accordion type='single' className='mt-[-1px] w-full'>
+          <AccordionItem value='bottom-menu' aria-disabled={!hasUpdates}>
+            <AccordionTrigger className='px-8 py-4' onClick={openCalldataMenu}>
+              <div className='flex-1 text-left'>Transaction Call Data</div>
+              {isExpanded ? <IoIosArrowDown /> : <IoIosArrowUp />}
+            </AccordionTrigger>
 
-            <AccordionPanel pb={8} px={8}>
-              <Stack>
+            <AccordionContent className='px-8 pb-8'>
+              <div className='flex flex-col gap-2'>
                 {isDev && (
                   <>
-                    <Stack maxH={250} overflow='auto'>
-                      <Heading size='sm' variant='medium'>
-                        Combined Call Data
-                      </Heading>
+                    <div className='max-h-[250px] overflow-auto'>
+                      <h3 className='text-sm font-medium'>Combined Call Data</h3>
 
                       {map(allCalls, (hat: { hatChanges: AppHat; calls: { functionName: string }[] }) => {
                         if (!hat.hatChanges.id) return null;
                         return (
-                          <Stack spacing={1} key={hat.hatChanges.id}>
-                            <Heading size='sm'>{hatIdDecimalToIp(hatIdHexToDecimal(hat.hatChanges.id))}</Heading>
+                          <div className='flex flex-col gap-1' key={hat.hatChanges.id}>
+                            <h3 className='text-sm font-medium'>
+                              {hatIdDecimalToIp(hatIdHexToDecimal(hat.hatChanges.id))}
+                            </h3>
                             {map(hat.calls, (call) => (
-                              <Text fontSize='sm'>-- {call.functionName}</Text>
+                              <p className='text-sm'>-- {call.functionName}</p>
                             ))}
-                          </Stack>
+                          </div>
                         );
                       })}
-                    </Stack>
+                    </div>
 
-                    <Divider borderColor='gray.500' />
+                    <div className='border-t border-gray-500' />
                   </>
                 )}
 
                 {enableSimulation && (
                   <>
-                    <Stack spacing={1} my={2}>
-                      <Text variant='light'>Simulate transaction</Text>
+                    <div className='my-2 flex flex-col gap-1'>
+                      <p className='text-sm font-light'>Simulate transaction</p>
 
-                      <Flex gap={2}>
+                      <div className='flex gap-2'>
                         <Button
                           size='sm'
-                          variant='outlineMatch'
-                          colorScheme='blue.500'
-                          isDisabled={!callData}
-                          isLoading={isSimulating}
+                          variant='outline-blue'
+                          disabled={!callData || isSimulating}
                           onClick={handleSimulateMe}
                         >
-                          Simulate Me
+                          {isSimulating ? 'Simulating...' : 'Simulate Me'}
                         </Button>
 
                         <Button
                           size='sm'
-                          variant='outlineMatch'
-                          colorScheme='blue.500'
-                          isDisabled={!callData}
-                          isLoading={isSimulating}
+                          variant='outline-blue'
+                          disabled={!callData || isSimulating}
                           onClick={handleSimulateTopHat}
                         >
-                          Simulate Top Hat
+                          {isSimulating ? 'Simulating...' : 'Simulate Top Hat'}
                         </Button>
 
                         {simulationResponse && (
-                          <HStack>
-                            <Text size='sm'>
+                          <div className='flex gap-2'>
+                            <p className='text-sm'>
                               {get(simulationResponse, 'transaction.status')
                                 ? 'Simulation successful!'
                                 : 'Simulation failed!'}
-                            </Text>
+                            </p>
 
                             <Link
                               href={TENDERLY_SIMULATION_URL + get(simulationResponse, 'simulation.id')}
                               className='underline'
                               isExternal
                             >
-                              <Text size='sm'>View on Tenderly</Text>
+                              <p className='text-sm'>View on Tenderly</p>
                             </Link>
-                          </HStack>
+                          </div>
                         )}
-                      </Flex>
-                    </Stack>
+                      </div>
+                    </div>
 
-                    <Divider borderColor='gray.500' />
+                    <div className='border-t border-gray-500' />
                   </>
                 )}
 
-                <Stack spacing={1}>
-                  <Text variant='light'>Hats contract address</Text>
-                  <HStack spacing={4}>
-                    <Input
-                      value={HATS_V1}
-                      background='white'
-                      color='blackAlpha.600'
-                      isReadOnly
-                      placeholder='Loading...'
-                    />
-                    <Button
-                      leftIcon={<FiCopy />}
-                      onClick={copyContractAddress}
-                      variant='outline'
-                      borderColor='gray.300'
-                    >
+                <div className='flex flex-col gap-1'>
+                  <p className='text-sm font-light'>Hats contract address</p>
+                  <div className='flex gap-4'>
+                    <Input value={HATS_V1} className='text-blackAlpha-600 bg-white' readOnly placeholder='Loading...' />
+                    <Button onClick={copyContractAddress} variant='outline' className='border-gray-300'>
+                      <FiCopy className='mr-1 h-4 w-4' />
                       Copy
                     </Button>
-                  </HStack>
-                </Stack>
+                  </div>
+                </div>
 
-                <Stack spacing={1}>
-                  <HStack>
-                    <Text variant='light'>Transaction call data (hex encoded)</Text>
-                    <Tooltip
-                      label='To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.'
-                      hasArrow
-                    >
-                      <Box h={5}>
-                        <Icon as={AiOutlineInfoCircle} color='blackAlpha.700' />
-                      </Box>
-                    </Tooltip>
-                  </HStack>
+                <div className='flex flex-col gap-1'>
+                  <p className='text-sm font-light'>Transaction call data (hex encoded)</p>
+                  <Tooltip label={CALLDATA_TOOLTIP_COPY}>
+                    <div className='h-5'>
+                      <AiOutlineInfoCircle className='text-black/70' />
+                    </div>
+                  </Tooltip>
+                </div>
 
-                  {!isLoading ? (
-                    <HStack spacing={4}>
-                      <Input
-                        value={isLoading ? '' : callData || ''}
-                        background='white'
-                        color='blackAlpha.600'
-                        isReadOnly
-                        placeholder='Loading...'
-                      />
-                      <Button
-                        leftIcon={<FiCopy />}
-                        onClick={copyCallData}
-                        isDisabled={!callData}
-                        variant='outline'
-                        borderColor='gray.300'
-                      >
-                        Copy
-                      </Button>
-                    </HStack>
-                  ) : (
-                    <Flex justify='center' align='center'>
-                      <Spinner />
-                    </Flex>
-                  )}
-                </Stack>
-              </Stack>
-            </AccordionPanel>
+                {!isLoading ? (
+                  <div className='flex gap-4'>
+                    <Input value={isLoading ? '' : callData || ''} readOnly placeholder='Loading...' />
+                    <Button onClick={copyCallData} disabled={!callData} variant='outline' className='border-gray-300'>
+                      Copy
+                      <FiCopy className='ml-1 h-4 w-4' />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className='flex items-center justify-center'>
+                    <Spinner />
+                  </div>
+                )}
+              </div>
+            </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </Flex>
-    </Box>
+      </div>
+    </div>
   );
 };
 

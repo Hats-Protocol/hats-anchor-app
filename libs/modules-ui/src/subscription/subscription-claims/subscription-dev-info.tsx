@@ -1,13 +1,16 @@
 'use client';
 
-import { Box } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
 import { compact, isUndefined } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-import { AddressInfo, DefaultInfo, DevInfo } from 'ui';
 import { formatUnits } from 'viem';
+
+const AddressInfo = dynamic(() => import('molecules').then((mod) => mod.AddressInfo), { ssr: false });
+const DefaultInfo = dynamic(() => import('molecules').then((mod) => mod.DefaultInfo), { ssr: false });
+const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo), { ssr: false });
 
 export const SubscriptionDevInfo = ({ moduleParameters, chainId }: SubscriptionDevInfoProps) => {
   const { selectedHat } = useEligibility();
@@ -62,9 +65,9 @@ export const SubscriptionDevInfo = ({ moduleParameters, chainId }: SubscriptionD
   ]);
 
   return (
-    <Box maxW='350px'>
+    <div className='max-w-[350px]'>
       <DevInfo devInfos={moduleDescriptors} />
-    </Box>
+    </div>
   );
 };
 

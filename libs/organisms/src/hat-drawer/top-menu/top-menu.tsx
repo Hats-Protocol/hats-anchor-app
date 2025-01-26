@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Modal, useHatForm, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestCreateForm } from 'forms';
@@ -12,6 +11,7 @@ import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
+import { Button, cn, Tooltip } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -72,76 +72,56 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   };
 
   return (
-    <Flex
-      w='100%'
-      borderBottom='1px solid'
-      borderColor='gray.200'
-      h='75px'
-      bg='whiteAlpha.900'
-      align='center'
-      justify={editMode ? 'space-between' : 'flex-end'}
-      px={4}
-      top={0}
-      zIndex={16}
+    <div
+      className={cn(
+        'flex-end bg-whiteAlpha-900 z-[16] flex w-full items-center border-b border-gray-200 px-4 py-4',
+        editMode ? 'justify-between' : 'justify-end',
+      )}
     >
       {editMode ? (
         <Tooltip label='Save and return to list'>
-          <Button onClick={handleReturnToList} variant='outline' isLoading={hatFormLoading}>
-            <HStack>
-              <Icon as={BsArrowLeft} />
-              <Text>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</Text>
-            </HStack>
+          <Button onClick={handleReturnToList} variant='outline' disabled={hatFormLoading}>
+            <div className='flex items-center gap-1'>
+              <BsArrowLeft className='size-4' />
+
+              <p>{hatIdDecimalToIp(BigInt(selectedHat?.id))}</p>
+            </div>
           </Button>
         </Tooltip>
       ) : (
-        <Button
-          onClick={closeHatDrawer}
-          leftIcon={<BsXSquare />}
-          variant='outline'
-          aria-label='Close'
-          marginRight='auto'
-        >
+        <Button onClick={closeHatDrawer} variant='outline' aria-label='Close' className='mr-auto'>
+          <BsXSquare className='mr-1 size-4' />
           Close
         </Button>
       )}
 
-      <HStack spacing={3} justifyContent='flex-end'>
+      <div className='flex items-center justify-end gap-3'>
         {!editMode ? (
-          <HStack spacing={3} w='full' justifyContent='flex-end'>
+          <div className='flex w-full items-center justify-end gap-3'>
             <MainAction />
             <MoreMenu />
-          </HStack>
+          </div>
         ) : (
-          <HStack>
+          <div className='flex items-center justify-end gap-3'>
             {hatHasChanges &&
               (onchainHat ? (
-                <Button onClick={handleClearChanges} variant='outline' colorScheme='red.500'>
+                <Button onClick={handleClearChanges} variant='destructive'>
                   Clear changes
                 </Button>
               ) : (
-                <Tooltip label={draftWithChildren && "Can't delete draft hats with children"} hasArrow>
-                  <Button
-                    onClick={handleRemoveHat}
-                    variant='outline'
-                    colorScheme='red.500'
-                    isDisabled={draftWithChildren}
-                  >
+                <Tooltip label={draftWithChildren ? "Can't delete draft hats with children" : undefined}>
+                  <Button onClick={handleRemoveHat} variant='destructive' disabled={draftWithChildren}>
                     Delete Hat
                   </Button>
                 </Tooltip>
               ))}
-            <Button
-              leftIcon={<FiSave />}
-              colorScheme='twitter'
-              variant='solid'
-              onClick={handleSave}
-              isLoading={hatFormLoading}
-            >
+            <Button className='bg-twitter-500' onClick={handleSave} disabled={hatFormLoading}>
+              <FiSave className='mr-1 size-4' />
               Save
             </Button>
-          </HStack>
+          </div>
         )}
-      </HStack>
+      </div>
 
       <Modal name='requestLink' title='Request to Link'>
         <HatLinkRequestCreateForm
@@ -149,7 +129,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
           wearerTopHats={filter(wearerTopHats, (hat: string | undefined) => hat !== selectedHat.admin?.id) as Hex[]}
         />
       </Modal>
-    </Flex>
+    </div>
   );
 };
 

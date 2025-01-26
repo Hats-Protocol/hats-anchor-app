@@ -1,14 +1,14 @@
 'use client';
 
-import { Button, Flex, HStack, Text, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { find, get, gt, gte, includes, map, pick, size, toNumber } from 'lodash';
 import { useHatClaimBy, useMultiClaimsHatterCheck } from 'modules-hooks';
 import { useMemo } from 'react';
 import { FaPlus } from 'react-icons/fa';
+import { Button, Tooltip } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -52,7 +52,7 @@ const WearerButtons = () => {
     chainId,
   });
   const { eligibleWearers: eligibleWearerIds } = useMemo(
-    () => _.pick(wearersEligibility, ['eligibleWearers']),
+    () => pick(wearersEligibility, ['eligibleWearers']),
     [wearersEligibility],
   );
 
@@ -61,7 +61,7 @@ const WearerButtons = () => {
     chainId,
     editMode: false, // change if used in edit mode
   });
-  const currentUserIsWearing = useMemo(() => _.find(wearer, { id: selectedHat?.id }), [selectedHat?.id, wearer]);
+  const currentUserIsWearing = useMemo(() => find(wearer, { id: selectedHat?.id }), [selectedHat?.id, wearer]);
 
   const wearerIds = address ? ([address] as Hex[]) : [];
   const { data: currentUserEligibility } = useWearersEligibilityStatus({
@@ -69,7 +69,7 @@ const WearerButtons = () => {
     selectedHat,
     chainId,
   });
-  const currentUserIsEligible = _.includes(_.get(currentUserEligibility, 'eligibleWearers'), address);
+  const currentUserIsEligible = includes(get(currentUserEligibility, 'eligibleWearers'), address);
 
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
@@ -86,9 +86,9 @@ const WearerButtons = () => {
     storedData,
   });
 
-  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
+  const isAdminUser = isWearingAdminHat(map(wearer, 'id'), selectedHat?.id);
 
-  const maxWearersReached = _.gte(_.size(eligibleWearerIds), _.toNumber(selectedHat?.maxSupply));
+  const maxWearersReached = gte(size(eligibleWearerIds), toNumber(selectedHat?.maxSupply));
 
   // order of button priority
   // 0. show all wearers
@@ -97,19 +97,16 @@ const WearerButtons = () => {
   // 3. claim hat
 
   return (
-    <Flex justify='space-between' align='center' px={{ base: 4, md: 16 }} pt={2}>
-      {_.gt(_.size(eligibleWearerIds), 4) && (
-        <Text
+    <div className='flex items-center justify-between px-4 pt-2 md:px-16'>
+      {gt(size(eligibleWearerIds), 4) && (
+        <Button
           onClick={() => setModals?.({ hatWearers: true })}
-          cursor='pointer'
-          _hover={{
-            textDecor: 'underline',
-          }}
-          color='Functional-LinkSecondary'
+          className='text-functional-link-secondary'
+          variant='link'
           // TODO technically not taking into account eligibility here
         >
-          Show all {_.get(selectedHat, 'currentSupply')} wearers
-        </Text>
+          Show all {get(selectedHat, 'currentSupply')} wearers
+        </Button>
       )}
 
       {!isMobile && (
@@ -121,19 +118,16 @@ const WearerButtons = () => {
                 sameChain: chainId === currentNetworkId,
                 hatterIsAdmin: hatterIsAdmin as boolean,
               })}
-              fontSize='md'
-              shouldWrapChildren
             >
               <Button
                 variant='link'
-                isDisabled={maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
+                disabled={maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
                 // isLoading={isLoading}
                 onClick={() => (!maxWearersReached ? setModals?.({ claimFor: true }) : {})}
+                className='flex gap-2 text-blue-500'
               >
-                <HStack color='blue.500'>
-                  <FaPlus />
-                  <Text>Claim hat for wearer</Text>
-                </HStack>
+                <FaPlus />
+                <p>Claim hat for wearer</p>
               </Button>
             </Tooltip>
           )}
@@ -148,46 +142,36 @@ const WearerButtons = () => {
                   sameChain: chainId === currentNetworkId,
                   hatterIsAdmin: hatterIsAdmin as boolean,
                 })}
-                fontSize='md'
-                shouldWrapChildren
               >
                 <Button
                   variant='link'
-                  isDisabled={!claimHat || maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
+                  disabled={!claimHat || maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
                   onClick={claimHat}
                 >
-                  <HStack color='blue.500'>
+                  <div className='flex gap-2 text-blue-500'>
                     <FaPlus />
-                    <Text>Claim Hat</Text>
-                  </HStack>
+                    <p>Claim Hat</p>
+                  </div>
                 </Button>
               </Tooltip>
             )}
           {isAdminUser && (
-            <Tooltip
-              label={addWearerTooltip(chainId === currentNetworkId, maxWearersReached)}
-              fontSize='md'
-              isDisabled={!maxWearersReached && chainId === currentNetworkId}
-              shouldWrapChildren
-            >
+            <Tooltip label={addWearerTooltip(chainId === currentNetworkId, maxWearersReached)}>
               <Button
                 variant='link'
-                isDisabled={maxWearersReached || chainId !== currentNetworkId}
+                disabled={maxWearersReached || chainId !== currentNetworkId}
                 onClick={() => (!maxWearersReached ? setModals?.({ newWearer: true }) : {})}
               >
-                <HStack
-                  cursor={maxWearersReached ? 'not-allowed' : 'pointer'}
-                  color={maxWearersReached ? 'gray.500' : 'blue.500'}
-                >
+                <div className='flex cursor-pointer gap-2 text-blue-500'>
                   <FaPlus />
-                  <Text>Add a wearer</Text>
-                </HStack>
+                  <p>Add a wearer</p>
+                </div>
               </Button>
             </Tooltip>
           )}
         </>
       )}
-    </Flex>
+    </div>
   );
 };
 

@@ -1,11 +1,10 @@
 'use client';
 
-import { Box, Icon, Stack, Text } from '@chakra-ui/react';
 import { CONTACT_URL } from '@hatsprotocol/config';
 import { TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { FormRowWrapper, ModuleArgsForm, Select } from 'forms';
-import _ from 'lodash';
+import { filter, find, get, includes, keys, map, pickBy, toLower } from 'lodash';
 import { useHatsModules } from 'modules-hooks';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -26,20 +25,20 @@ const ModuleDetailsForm = ({
   const { watch } = localForm;
   const selectedModuleField = watch('moduleType', '');
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
-    const modulesForType = _.filter(modules, (m: ModuleDetails) => {
-      const types = _.keys(_.pickBy(m.type, (value: ModuleDetails) => value));
+    const modulesForType = filter(modules, (m: ModuleDetails) => {
+      const types = keys(pickBy(m.type, (value: ModuleDetails) => value));
 
-      return _.includes(types, _.toLower(title));
+      return includes(types, toLower(title));
     });
 
     return modulesForType;
   }, [modules, title]);
 
   const selectedModule = useMemo(() => {
-    return _.find(modulesToDisplay, { id: selectedModuleField });
+    return find(modulesToDisplay, { id: selectedModuleField });
   }, [modulesToDisplay, selectedModuleField]);
   const selectedModuleDetails = useMemo(() => {
-    return _.find(modules, { id: selectedModuleField });
+    return find(modules, { id: selectedModuleField });
   }, [modules, selectedModuleField]);
   const selectedModuleArgs = useMemo(() => {
     return (
@@ -51,8 +50,8 @@ const ModuleDetailsForm = ({
     );
   }, [selectedModule]);
 
-  const tokenArgName = _.get(
-    _.find(selectedModuleArgs, (a) => _.includes(TOKEN_ARG_TYPES, a.displayType)),
+  const tokenArgName = get(
+    find(selectedModuleArgs, (a) => includes(TOKEN_ARG_TYPES, a.displayType)),
     'name',
   );
   // watch() by default returns whole object, so not good fallback
@@ -61,10 +60,10 @@ const ModuleDetailsForm = ({
   if (!onchainTree || !treeToDisplay) return null;
 
   return (
-    <Stack spacing={12} w='100%'>
+    <div className='w-full space-y-12'>
       <FormRowWrapper>
-        <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-        <Box w='100%'>
+        <BsPuzzle className='mt-2 size-4' />
+        <div className='w-full'>
           <Select
             label='Module Type'
             subLabel='The category of prewritten module to connect to this hat.'
@@ -73,40 +72,39 @@ const ModuleDetailsForm = ({
             placeholder='Select a module type'
             localForm={localForm}
           >
-            {_.map(modulesToDisplay, ({ name, id }) => (
+            {map(modulesToDisplay, ({ name, id }) => (
               <option value={id} key={name}>
                 {name}
               </option>
             ))}
           </Select>
+
           <Link href={CONTACT_URL} className='mt-2 text-center text-sm text-blue-500 underline' isExternal>
             Not finding a module you&apos;re looking for? Let us know here.
           </Link>
-        </Box>
+        </div>
       </FormRowWrapper>
 
       {selectedModuleDetails && (
         <FormRowWrapper>
-          <Icon as={BsTextLeft} boxSize={4} mt='2px' />
-          <Stack spacing={3}>
-            <Text size='sm' variant='medium'>
-              MODULE TYPE DETAILS
-            </Text>
+          <BsTextLeft className='mt-2 size-4' />
+          <div className='space-y-3'>
+            <p className='text-sm font-medium'>MODULE TYPE DETAILS</p>
             {selectedModuleDetails.details.map((detail: string) => (
-              <Text key={detail}>{detail}</Text>
+              <p key={detail}>{detail}</p>
             ))}
-          </Stack>
+          </div>
         </FormRowWrapper>
       )}
 
-      <Stack spacing={6}>
+      <div className='space-y-6'>
         <ModuleArgsForm
           selectedModuleArgs={selectedModuleArgs || undefined}
           localForm={localForm}
           tokenAddress={tokenAddress}
         />
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 };
 

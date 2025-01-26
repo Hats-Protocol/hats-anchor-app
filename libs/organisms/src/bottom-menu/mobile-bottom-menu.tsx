@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Flex, Icon, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
@@ -9,6 +8,7 @@ import { includes, map } from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { FaCopy, FaEllipsisV } from 'react-icons/fa';
+import { Button, cn, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -41,44 +41,46 @@ const MobileBottomMenu = ({ show = false }: { show: boolean | undefined }) => {
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
   return (
-    <Box w='100%' position='fixed' bottom={0} zIndex={14} bg='whiteAlpha.900' display={show ? 'block' : 'none'}>
-      <Flex
-        justify={isClaimable && !isWearing && hatterIsAdmin ? 'space-between' : 'end'}
-        p={2}
-        borderTop='1px solid'
-        borderColor='gray.200'
+    <div className={cn('z-14 bg-whiteAlpha-900 fixed bottom-0 w-full', show ? 'block' : 'hidden')}>
+      <div
+        className={cn(
+          'flex items-center justify-between border-t border-gray-200 p-2',
+          isClaimable && !isWearing && hatterIsAdmin ? 'justify-between' : 'justify-end',
+        )}
       >
         {!!isClaimable && !isWearing && !!hatterIsAdmin && (
           <Button
-            variant='outlineMatch'
-            colorScheme='blue.500'
-            isDisabled={!claimHat || !hatterIsAdmin || chainId !== currentNetworkId}
+            variant='outline-blue'
+            disabled={!claimHat || !hatterIsAdmin || chainId !== currentNetworkId}
             onClick={claimHat}
-            leftIcon={<Icon as={HatIcon} color='white' />}
           >
+            <HatIcon className='mr-1 size-4 text-white' />
             Claim Hat
           </Button>
         )}
 
-        <Flex>
-          <Menu>
-            <MenuButton as={Button} leftIcon={<FaEllipsisV />} variant='outline'>
-              More
-            </MenuButton>
-            <MenuList>
-              <MenuItem gap={2} onClick={copyHatId}>
-                <FaCopy />
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant='outline'>
+                <FaEllipsisV />
+                More
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuItem onClick={copyHatId}>
+                <FaCopy className='mr-2' />
                 Copy hat ID
-              </MenuItem>
-              <MenuItem gap={2} onClick={copyContractAddress}>
-                <FaCopy />
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={copyContractAddress}>
+                <FaCopy className='mr-2' />
                 Copy contract ID
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        </Flex>
-      </Flex>
-    </Box>
+              </DropdownMenuItem>
+            </DropdownMenuPortal>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
   );
 };
 

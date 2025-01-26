@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, HStack, Icon, Link, Text, Tooltip } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
@@ -11,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
+import { Button, LinkButton, Tooltip } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -67,18 +67,13 @@ export const ClaimButton = () => {
 
   if (isWearing && isEligible) {
     return (
-      <Flex>
-        <Button
-          as={Link}
-          href={hatUrl}
-          colorScheme='green'
-          leftIcon={<Icon as={HatIcon} color='white' />}
-          rightIcon={<Icon as={BsArrowRight} color='white' />}
-          isExternal
-        >
+      <div className='flex'>
+        <LinkButton href={hatUrl} className='bg-green-500' isExternal>
+          <HatIcon className='h-4 w-4' />
           View your hat
-        </Button>
-      </Flex>
+          <BsArrowRight className='h-4 w-4' />
+        </LinkButton>
+      </div>
     );
   }
 
@@ -116,16 +111,15 @@ export const ClaimButton = () => {
   return (
     <Tooltip label={tooltip || disableReason}>
       <Button
-        variant='primary'
         // won't hit this flow if wrong network
-        isDisabled={hatterIfNeeded || disableClaim || (isWearing && isEligible) || currentChainId !== chainId} // handle isReadyToClaim on respective disableClaims
+        disabled={hatterIfNeeded || disableClaim || (isWearing && isEligible) || currentChainId !== chainId} // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
-        isLoading={isLoading}
+        // isLoading={isLoading}
       >
-        <HStack>
-          <HatIcon />
-          <Text>Claim this {capitalize(CONFIG.TERMS.hat)}</Text>
-        </HStack>
+        <div className='space-x-2'>
+          <HatIcon className='h-4 w-4' />
+          <span>Claim this {capitalize(CONFIG.TERMS.hat)}</span>
+        </div>
       </Button>
     </Tooltip>
   );

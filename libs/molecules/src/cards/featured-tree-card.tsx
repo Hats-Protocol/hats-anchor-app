@@ -1,69 +1,54 @@
 'use client';
 
-import { Box, HStack, Icon, Skeleton, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { TemplateData } from '@hatsprotocol/config';
 import dynamic from 'next/dynamic';
 import { BsPeopleFill } from 'react-icons/bs';
-import { LazyImage, Link } from 'ui';
+import { LazyImage, Link, Skeleton, Tooltip } from 'ui';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const FeaturedTreeCard = ({ treeData, hatsAndWearers }: FeatureTreeCardProps) => {
   const { id, name, chainId, image, avatar } = treeData;
 
+  if (!treeData) {
+    return <Skeleton className='h-full min-h-[207px]' />;
+  }
+
   return (
     <Link href={`/trees/${chainId}/${id}`} className='h-full min-h-[207px]'>
-      <Skeleton isLoaded={!!name}>
-        <Stack
-          bg='white'
-          borderRadius={6}
-          border='1px'
-          borderColor='gray.600'
-          justify='space-between'
-          spacing={0}
-          height='100%'
-        >
-          <Box bg='gray.100' borderTopRadius={6} flex='1' height='150px'>
-            <LazyImage src={image} alt={`${name} featured image`} h='200px' w='full' />
-          </Box>
-          <HStack px={4} py={2} zIndex={1} position='relative' boxShadow='0px -1px 4px rgba(0, 0, 0, 0.14)' w='full'>
-            <Box display='inline-block' mt={-8}>
-              <LazyImage src={avatar} alt={`${name} featured avatar`} boxSize={75} />
-            </Box>
+      <div className='border-6 rounded-6 flex h-full justify-between border-gray-600 bg-white'>
+        <div className='border-t-6 rounded-t-6 h-48 flex-1 bg-gray-100'>
+          <LazyImage src={image} alt={`${name} featured image`} containerClassName='h-48 w-full' />
+        </div>
 
-            <HStack justifyContent='space-between' w='full' h='full' ml={2}>
-              <Skeleton isLoaded={!!name}>
-                <Text variant='medium' size='xl'>
-                  {name}
-                </Text>
-              </Skeleton>
+        <div className='relative z-10 w-full px-4 py-2 shadow-md'>
+          <div className='mt-[-37.5px] inline-block'>
+            <LazyImage src={avatar} alt={`${name} featured avatar`} containerClassName='size-18' />
+          </div>
 
-              <Stack align='flex-end' spacing='0.2rem'>
-                <Tooltip label={hatsAndWearers?.hats && `${hatsAndWearers?.hats} hats`} placement='left' hasArrow>
-                  <HStack spacing='5px'>
-                    <Icon as={HatIcon} boxSize={3} />
-                    <Skeleton isLoaded={!!hatsAndWearers?.hats}>
-                      <Text size='xs'>{treeData?.hats || hatsAndWearers?.hats || '--'}</Text>
-                    </Skeleton>
-                  </HStack>
-                </Tooltip>
-                <Tooltip
-                  label={hatsAndWearers?.wearers && `${hatsAndWearers?.wearers} wearers`}
-                  placement='left'
-                  hasArrow
-                >
-                  <HStack spacing='5px'>
-                    <Icon as={BsPeopleFill} boxSize={3} />
-                    <Skeleton isLoaded={!!hatsAndWearers?.wearers}>
-                      <Text size='xs'>{treeData?.wearers || hatsAndWearers?.wearers || '--'}</Text>
-                    </Skeleton>
-                  </HStack>
-                </Tooltip>
-              </Stack>
-            </HStack>
-          </HStack>
-        </Stack>
-      </Skeleton>
+          <div className='ml-2 flex h-full w-full justify-between'>
+            <p className='text-xl font-medium'>{name}</p>
+
+            <div className='flex flex-col items-end gap-0.5'>
+              <Tooltip label={!!hatsAndWearers?.hats ? `${hatsAndWearers?.hats} hats` : undefined}>
+                <div className='flex items-center gap-1'>
+                  <HatIcon className='size-3' />
+
+                  <p className='text-xs'>{treeData?.hats || hatsAndWearers?.hats || '--'}</p>
+                </div>
+              </Tooltip>
+
+              <Tooltip label={!!hatsAndWearers?.wearers ? `${hatsAndWearers?.wearers} wearers` : undefined}>
+                <div className='flex items-center gap-1'>
+                  <BsPeopleFill className='size-3' />
+
+                  <p className='text-xs'>{treeData?.wearers || hatsAndWearers?.wearers}</p>
+                </div>
+              </Tooltip>
+            </div>
+          </div>
+        </div>
+      </div>
     </Link>
   );
 };

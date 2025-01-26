@@ -1,39 +1,27 @@
-import { Button, Flex, Heading, Stack } from '@chakra-ui/react';
 import { MultiAddressInput } from 'forms';
 import { isEmpty, pick } from 'lodash';
 import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { HatWearer } from 'types';
+import { Button } from 'ui';
 
-export const AddForm = ({
-  localForm,
-  setUpdateList,
-  setAdding,
-  handleAddWearers,
-  isLoading,
-}: AddFormProps) => {
+const AddForm = ({ localForm, setUpdateList, setAdding, handleAddWearers, isLoading }: AddFormProps) => {
   const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
   const addressesToAdd = watch?.('addresses');
   const isDisabled = isEmpty(addressesToAdd);
 
   return (
-    <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-      <Stack spacing={1}>
-        <Heading size='md'>Add an address</Heading>
+    <div className='w-full space-y-6 px-4 md:px-10'>
+      <div className='space-y-1'>
+        <h3 className='text-md'>Add an address</h3>
 
-        <MultiAddressInput
-          name='addresses'
-          localForm={localForm}
-          checkEligibility={false}
-          btnSize='xs'
-        />
-      </Stack>
+        <MultiAddressInput name='addresses' localForm={localForm} checkEligibility={false} btnSize='xs' />
+      </div>
 
-      <Flex justify='space-between' w='full'>
+      <div className='flex w-full justify-between'>
         <Button
           size='sm'
-          variant='outlineMatch'
-          colorScheme='blue.500'
+          variant='outline-blue'
           onClick={() => {
             setUpdateList([]);
             setValue?.('addresses', []);
@@ -43,17 +31,11 @@ export const AddForm = ({
           Cancel
         </Button>
 
-        <Button
-          variant='primary'
-          size='sm'
-          onClick={handleAddWearers}
-          isDisabled={isDisabled}
-          isLoading={isLoading}
-        >
+        <Button size='sm' onClick={handleAddWearers} disabled={isDisabled || isLoading}>
           Add
         </Button>
-      </Flex>
-    </Stack>
+      </div>
+    </div>
   );
 };
 
@@ -65,3 +47,5 @@ interface AddFormProps {
   handleAddWearers: () => void;
   isLoading: boolean;
 }
+
+export { AddForm };

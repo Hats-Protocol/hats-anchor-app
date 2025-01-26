@@ -1,13 +1,13 @@
 'use client';
 
-import { Box, Button, Flex, Heading, Icon } from '@chakra-ui/react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CONFIG } from '@hatsprotocol/config';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { ModuleDetails, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { fetchIpfs } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
@@ -70,30 +70,33 @@ export const AgreementContentModal = ({
 
   return (
     <Modal name={`${moduleDetails?.instanceAddress}-agreementManagerClaims`}>
-      <Flex flexDirection='column' gap={4}>
-        <Flex>
-          <Heading>Sign the Agreement</Heading>
-        </Flex>
-        <Box overflowY='scroll' maxHeight='70vh'>
-          <Box>
+      <div className='flex flex-col gap-4'>
+        <div>
+          <h3 className='text-lg font-bold'>Sign the Agreement</h3>
+        </div>
+
+        <div className='max-h-[70vh] overflow-y-scroll'>
+          <div>
             <AgreementContent agreement={agreement || agreementV0} />
-          </Box>
-        </Box>
-        <Flex gap={4} justifyContent='end'>
+          </div>
+        </div>
+
+        <div className='flex justify-end gap-4'>
           {/* <Button
             variant='link'
-            color='blue.500'
+            className='text-blue-500'
             onClick={handleDownload}
-            isDisabled={!agreement}
+            disabled={!agreement}
           >
             Download agreement
           </Button> */}
 
-          <Button colorScheme='blue' onClick={handleReviewed} leftIcon={<Icon as={HatIcon} color='white' />}>
+          <Button onClick={handleReviewed}>
+            <HatIcon className='mr-1 h-4 w-4 text-white' />
             {onlyModule ? 'Reviewed' : 'Sign Agreement'}
           </Button>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </Modal>
   );
 };

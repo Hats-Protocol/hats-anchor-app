@@ -1,13 +1,12 @@
 'use client';
 
-import { Box, Button, Flex, Heading, HStack, Icon, Progress, Stack, Tag, Text, VStack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import _ from 'lodash';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { Link } from 'ui';
+import { Badge, Button, Link } from 'ui';
 import { eligibilityRuleToModuleDetails, explorerUrl } from 'utils';
 
 export const ProposalDetails = ({ proposal }: { proposal: any }) => {
@@ -56,77 +55,72 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const snapshotLink = `https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`;
 
   return (
-    <Stack spacing={4}>
-      <Box>
-        <Tag borderRadius={0} size='sm' textTransform='uppercase'>
-          {proposal.state}
-        </Tag>
-      </Box>
-      <Flex gap={6} align='start' w='full' direction={{ base: 'column', md: 'row' }}>
-        <VStack spacing={4} align='start' flex='1'>
+    <div className='space-y-4'>
+      <div>
+        <Badge className='uppercase'>{proposal.state}</Badge>
+      </div>
+
+      <div className='flex w-full flex-col items-start gap-6 md:flex-row'>
+        <div className='flex-1 space-y-4'>
           <Link href={snapshotLink} isExternal>
-            <Heading size='lg'>{proposal.title}</Heading>
+            <h3 className='text-lg'>{proposal.title}</h3>
           </Link>
-          <Text noOfLines={[3, 5]} size='sm'>
-            {proposal.body}
-          </Text>
-        </VStack>
-        <VStack align='start' flex='1' w={{ base: '100%', md: 'auto' }}>
-          <HStack justify='space-between' w='full'>
-            <Heading size='sm'>About</Heading>
-            {moduleDetails && (
-              <Link href={`${explorerUrl(chainId)}/address/${moduleDetails?.implementationAddress}`} isExternal>
-                <HStack gap={1}>
-                  <Icon as={BsFileCode} w={4} h={4} color='teal' />
-                  <Text color='teal' size='sm'>
-                    Election
-                  </Text>
-                </HStack>
-              </Link>
-            )}
-          </HStack>
-          {_.map(_.compact(proposalDetails), (detail: any) => (
-            <Flex justifyContent='space-between' width='100%' gap={1} key={detail.label}>
-              <Text size='sm'>{detail.label}</Text>
-              <Text size='sm' variant='medium'>
-                {detail.value}
-              </Text>
-            </Flex>
-          ))}
-        </VStack>
-      </Flex>
+
+          <p className='text-sm'>{proposal.body}</p>
+        </div>
+
+        <div className='w-full flex-1 md:w-auto'>
+          <h3 className='text-sm'>About</h3>
+          {moduleDetails && (
+            <Link href={`${explorerUrl(chainId)}/address/${moduleDetails?.implementationAddress}`} isExternal>
+              <div className='flex gap-1'>
+                <BsFileCode className='text-teal-500' />
+
+                <p className='text-sm text-teal-500'>Election</p>
+              </div>
+            </Link>
+          )}
+        </div>
+
+        {_.map(_.compact(proposalDetails), (detail: any) => (
+          <div className='flex w-full justify-between gap-1' key={detail.label}>
+            <p className='text-sm'>{detail.label}</p>
+
+            <p className='text-sm'>{detail.value}</p>
+          </div>
+        ))}
+      </div>
 
       {!_.isEmpty(voteResults) && (
-        <VStack spacing={2} align='stretch'>
-          <Heading size='sm'>Current Results</Heading>
+        <div className='space-y-2'>
+          <h3 className='text-sm'>Current Results</h3>
 
           {_.map(voteResults, (result: any) => (
-            <Stack key={result.choice} width='100%' gap={1}>
-              <HStack justify='space-between' w='full'>
-                <Text>{result.choice}</Text>
+            <div key={result.choice} className='w-full space-y-1'>
+              <div className='flex w-full justify-between'>
+                <p>{result.choice}</p>
                 {!isMobile ? (
-                  <Text color='gray.500' fontSize='sm' fontWeight='medium' textAlign='right'>
+                  <p className='text-right text-sm font-medium text-gray-500'>
                     {result.votes} VOTES ({result.percentage}%)
-                  </Text>
+                  </p>
                 ) : (
-                  <Text color='gray.500' fontSize='sm' fontWeight='medium' textAlign='right'>
-                    {result.percentage}%
-                  </Text>
+                  <p className='text-right text-sm font-medium text-gray-500'>{result.percentage}%</p>
                 )}
-              </HStack>
-              <Progress colorScheme='blue' borderRadius={4} size='sm' value={Number(result.percentage)} />
-            </Stack>
+              </div>
+              {/* <Progress colorScheme='blue' borderRadius={4} size='sm' value={Number(result.percentage)} /> */}
+            </div>
           ))}
-        </VStack>
+        </div>
       )}
 
-      <Box alignSelf='center'>
+      <div className='flex justify-center'>
         <Link href={snapshotLink}>
-          <Button colorScheme='blue' size='sm' rightIcon={<Icon as={FaExternalLinkAlt} w='12px' />}>
+          <Button size='sm'>
             {!hasProposalEnded ? 'Vote now' : 'View'} on Snapshot
+            <FaExternalLinkAlt className='ml-1 h-4 w-4' />
           </Button>
         </Link>
-      </Box>
-    </Stack>
+      </div>
+    </div>
   );
 };

@@ -1,16 +1,15 @@
 'use client';
 
-import { Stack } from '@chakra-ui/react';
 import { useSelectedHat } from 'contexts';
 import { useScrollPosition } from 'hooks';
 import dynamic from 'next/dynamic';
-import { Controllers } from 'organisms';
 
+import { AuthoritiesList } from '../../authorities-list';
+import { Controllers } from '../../controllers';
 import { WearersList } from '../wearers-list';
 import { HatHistory } from './hat-history';
 import { Header } from './header';
 import { LinkRequests } from './link-requests';
-import { AuthoritiesList } from '../../authorities-list';
 
 const ResponsibilitiesList = dynamic(() => import('molecules').then((mod) => mod.ResponsibilitiesList));
 const HatDevDetails = dynamic(() => import('molecules').then((mod) => mod.HatDevDetails));
@@ -37,17 +36,7 @@ const MainContent = ({
   if (!selectedHat) return null;
 
   return (
-    <Stack
-      // apply x padding on components for section background handling
-      spacing={8}
-      w='100%'
-      overflowY={{ base: 'auto', md: 'scroll' }}
-      height={{ base: 'auto', md: 'calc(100% - 150px)' }}
-      pb={{ base: 100, md: 400 }}
-      color='blackAlpha.800'
-      bg={{ base: 'gray.50', md: 'whiteAlpha.200' }}
-      backdropFilter={{ base: 'none', md: 'blur(2px)' }}
-    >
+    <div className='h-auto w-full overflow-y-auto bg-gray-50 pb-[100px] text-black/80 md:h-[calc-(100%-150px)] md:overflow-y-scroll md:bg-white/20 md:pb-[400px] md:backdrop-blur-[2px]'>
       <Header />
 
       <AuthoritiesList />
@@ -63,7 +52,7 @@ const MainContent = ({
       <HatHistory />
 
       <HatDevDetails />
-    </Stack>
+    </div>
   );
 };
 

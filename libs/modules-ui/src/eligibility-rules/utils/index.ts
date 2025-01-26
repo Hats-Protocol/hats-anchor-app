@@ -1,5 +1,4 @@
-import { IconProps, MergeWithAs } from '@chakra-ui/react';
-import { ComponentType, ReactNode, SVGProps } from 'react';
+import { ComponentType, ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { ValueOf } from 'types';
 
@@ -23,7 +22,7 @@ export const TOKEN_PARAM_DISPLAY_TYPES = {
   erc1155: 'erc1155',
 };
 
-type RuleIcon = ComponentType<MergeWithAs<SVGProps<SVGSVGElement>, object, IconProps, any>> | IconType | undefined;
+type RuleIcon = IconType | undefined;
 
 export interface EligibilityRuleDetailsProps {
   rule: ReactNode | undefined;

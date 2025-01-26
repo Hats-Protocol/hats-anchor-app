@@ -1,12 +1,12 @@
 'use client';
 
-import { Slide } from '@chakra-ui/react';
 import { Modal, SelectedHatContextProvider, useTreeForm } from 'contexts';
 import dynamic from 'next/dynamic';
 import { twJoin } from 'tailwind-merge';
+import { Drawer, DrawerContent } from 'ui';
 
-import HatDrawer from './HatDrawer';
-import TreeDrawer from './TreeDrawer';
+import { HatDrawer } from './hat-drawer';
+import { TreeDrawer } from './tree-drawer';
 
 const EventHistory = dynamic(() => import('molecules').then((mod) => mod.EventHistory));
 const OrgChart = dynamic(() => import('molecules').then((mod) => mod.OrgChart));
@@ -51,23 +51,18 @@ const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; 
   return (
     <>
       <SelectedHatContextProvider>
-        <Slide
-          direction='right'
-          in={!!treeToDisplay && !!isHatDrawerOpen}
-          style={{
-            zIndex: 1000,
-            maxWidth: '55%',
-            width: '864px',
-            display: isHatDrawerOpen ? 'block' : 'none',
-          }}
-        >
-          <HatDrawer returnToList={returnToTreeList} />
-        </Slide>
+        <Drawer direction='right' open={!!treeToDisplay && !!isHatDrawerOpen}>
+          <DrawerContent className='z-[500] w-[843px] max-w-[43%]'>
+            <HatDrawer returnToList={returnToTreeList} />
+          </DrawerContent>
+        </Drawer>
       </SelectedHatContextProvider>
 
-      <Slide direction='right' in={!!isTreeDrawerOpen} style={{ zIndex: 1000, maxWidth: '43%', width: '650px' }}>
-        <TreeDrawer />
-      </Slide>
+      <Drawer direction='right' open={!!isTreeDrawerOpen}>
+        <DrawerContent className='z-[1000] w-[650px] max-w-[43%]'>
+          <TreeDrawer />
+        </DrawerContent>
+      </Drawer>
 
       <TreeMenu />
 

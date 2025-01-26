@@ -1,6 +1,5 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
 import { find, pick } from 'lodash';
 import { useErc721Details } from 'modules-hooks';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
@@ -32,12 +31,12 @@ export const Erc721EligibilityRule = ({ moduleParameters, wearer, chainId }: Mod
   return (
     <EligibilityRuleDetails
       rule={
-        <Text>
+        <p>
           Hold at least {amountParameterDisplay}{' '}
           <Link href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`} className='underline'>
             {tokenDetails?.name || formatAddress(tokenParam?.value as Hex)}
           </Link>
-        </Text>
+        </p>
       }
       status={
         userBalance && userBalance >= (amountParameter?.value as bigint)

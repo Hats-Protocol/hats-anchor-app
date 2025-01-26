@@ -1,14 +1,13 @@
 'use client';
 
-import { Flex, Heading, Icon, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useEligibility, useOverlay } from 'contexts';
 import _ from 'lodash';
 import { useAncillaryElection, useHatClaimBy } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Link } from 'ui';
+import { Tooltip } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
@@ -32,28 +31,22 @@ const WearerCard = ({ account }: { account: Hex }) => {
   });
 
   return (
-    <Flex justify='space-between' w='100%'>
+    <div className='flex w-full justify-between'>
       <Link href={`${explorerUrl(chainId)}/address/${account}`} className='underline'>
-        <Text size='sm'>{name || formatAddress(account)}</Text>
+        <p className='text-sm'>{name || formatAddress(account)}</p>
       </Link>
 
       {isWearing && (
-        <Tooltip label='is wearing hat' shouldWrapChildren>
-          <Icon as={FaRegCheckCircle} color='green.500' />
+        <Tooltip label='is wearing hat'>
+          <FaRegCheckCircle className='text-green-500' />
         </Tooltip>
       )}
       {!isWearing && isUser && (
-        <Text
-          size='sm'
-          onClick={claimHat}
-          color='blue.500'
-          textDecoration='underline'
-          _hover={{ color: 'blue.400', cursor: 'pointer' }}
-        >
+        <p className='cursor-pointer text-sm text-blue-500 underline hover:text-blue-400' onClick={claimHat}>
           Claim
-        </Text>
+        </p>
       )}
-    </Flex>
+    </div>
   );
 };
 
@@ -74,17 +67,17 @@ export const WearersList = () => {
   // }, [electionsAuthority.currentTerm]);
 
   return (
-    <Stack spacing={4}>
-      <Heading size='md'>Current Electees</Heading>
+    <div className='space-y-4'>
+      <h3 className='text-md'>Current Electees</h3>
       {!_.isEmpty(electedAccounts) ? (
-        <Stack spacing={2} align='start' w='100%'>
+        <div className='space-y-2'>
           {_.map(electedAccounts, (account: Hex) => (
             <WearerCard key={account} account={account} />
           ))}
-        </Stack>
+        </div>
       ) : (
-        <Text>No elected accounts currently</Text>
+        <p>No elected accounts currently</p>
       )}
-    </Stack>
+    </div>
   );
 };

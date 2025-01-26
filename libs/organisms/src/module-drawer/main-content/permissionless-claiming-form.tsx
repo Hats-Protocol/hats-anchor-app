@@ -1,6 +1,5 @@
 'use client';
 
-import { Code, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { FormRowWrapper, RadioBox } from 'forms';
@@ -50,22 +49,22 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
 
   if (isClaimable) {
     return (
-      <Stack spacing={12}>
-        <Text>
+      <div className='flex flex-col gap-12'>
+        <p>
           This hat is already claimable via{' '}
           <Link href={`/wearers/${instanceAddress}`} isExternal>
-            <Code>{formatAddress(instanceAddress)}</Code>
+            <pre>{formatAddress(instanceAddress)}</pre>
           </Link>
-        </Text>
-      </Stack>
+        </p>
+      </div>
     );
   }
 
   return (
-    <Stack spacing={12}>
+    <div className='flex flex-col gap-12'>
       <FormRowWrapper>
-        <Icon as={BsPersonAdd} boxSize={4} mt='2px' />
-        <Stack>
+        <BsPersonAdd className='mt-2 h-4 w-4' />
+        <div className='flex flex-col'>
           <RadioBox
             name='isPermissionlesslyClaimable'
             label='Hat Claiming'
@@ -83,32 +82,32 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
             ]}
             isDisabled={!parentHats?.length}
           />
-        </Stack>
+        </div>
       </FormRowWrapper>
       {!(parentHats && parentHats.length > 0) && (
         <FormRowWrapper>
-          <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
-          <Text color='blue.500'>
+          <BsInfoCircle className='mt-2 h-4 w-4' />
+          <p className='text-blue-500'>
             Permissionless claiming is currently unavailable as there are no eligible hats present. To enable this
             option, there must be at least one non-top hat admin of this hat available.
-          </Text>
+          </p>
         </FormRowWrapper>
       )}
 
       {isPermissionlesslyClaimable === 'Yes' && (
-        <Stack spacing={12}>
+        <div className='flex flex-col gap-12'>
           {multiClaimsHatter && !isClaimable && isAdmin && isPermissionlesslyClaimable === 'Yes' ? (
             <FormRowWrapper>
-              <Icon as={BsInfoCircle} boxSize={4} mt={1} color='blue.500' />
-              <Text color='blue.500'>
-                A claims hatter for this tree has already been set up at <Code>{formatAddress(instanceAddress)}</Code>.
+              <BsInfoCircle className='mt-2 h-4 w-4' />
+              <p className='text-blue-500'>
+                A claims hatter for this tree has already been set up at <pre>{formatAddress(instanceAddress)}</pre>.
                 We&apos;ll register this hat with the hatter during the module deploy transaction.
-              </Text>
+              </p>
             </FormRowWrapper>
           ) : (
             <FormRowWrapper>
-              <Icon as={BsPuzzle} boxSize={4} mt='2px' />
-              <Stack>
+              <BsPuzzle className='mt-2 h-4 w-4' />
+              <div className='flex flex-col'>
                 <Select
                   name='adminHat'
                   label='ADMIN HAT'
@@ -130,17 +129,17 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
                   })}
                 </Select>
                 {selectedHat && (
-                  <Text variant='light'>
+                  <p className='text-sm text-gray-500'>
                     Potential wearers will be able to claim this hat (#
                     {hatIdDecimalToIp(BigInt(selectedHat.id))}) if they meet the requirements in new module above.
-                  </Text>
+                  </p>
                 )}
-              </Stack>
+              </div>
             </FormRowWrapper>
           )}
           <FormRowWrapper>
-            <Icon as={BsPersonCheck} boxSize={4} mt='2px' />
-            <Stack>
+            <BsPersonCheck className='mt-2 h-4 w-4' />
+            <div className='flex flex-col'>
               <RadioBox
                 name='initialClaimabilityType'
                 label='CLAIM FOR ACCOUNT'
@@ -157,15 +156,15 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
                   },
                 ]}
               />
-            </Stack>
+            </div>
           </FormRowWrapper>
-        </Stack>
+        </div>
       )}
 
       {wearingHatDetails?.wearers?.length === Number(wearingHatDetails?.maxSupply) && !instanceAddress && (
         <FormRowWrapper>
-          <Icon as={BsBarChartLine} boxSize={4} mt='2px' />
-          <Stack>
+          <BsBarChartLine className='mt-2 h-4 w-4' />
+          <div className='flex flex-col'>
             <RadioBox
               name='incrementWearers'
               label='Increment Max Wearers by 1'
@@ -185,12 +184,11 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
                   value: 'No',
                 },
               ]}
-              maxW='50%'
             />
-          </Stack>
+          </div>
         </FormRowWrapper>
       )}
-    </Stack>
+    </div>
   );
 };
 

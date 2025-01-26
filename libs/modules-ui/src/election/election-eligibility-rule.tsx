@@ -1,8 +1,7 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/config';
+import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
@@ -10,7 +9,7 @@ import { get, includes, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
-import { Link } from 'ui';
+import { Button, Link } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
@@ -66,7 +65,7 @@ export const ElectionEligibilityRule = ({
         </Button>
       );
     } else {
-      rule = <Text>Be elected by voters</Text>;
+      rule = <p>Be elected by voters</p>;
     }
   }
   if (!IS_CLAIMS_APP && eligibilityModalFlag) {

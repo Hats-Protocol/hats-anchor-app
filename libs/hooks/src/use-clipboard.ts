@@ -5,13 +5,19 @@ import { logger } from 'utils';
 
 type CopiedValue = string | null;
 
-type CopyFn = (text: string) => Promise<boolean>;
+type CopyFn = () => Promise<boolean>;
 
-export function useClipboard(): [CopiedValue, CopyFn] {
-  const [copiedText, setCopiedText] = useState<CopiedValue>(null);
+interface UseClipboardProps {
+  toastData?: { title?: string; variant?: 'success' | 'destructive' };
+}
+
+export function useClipboard(value: string, { toastData }: UseClipboardProps = {}): { onCopy: CopyFn } {
+  const [, setCopiedText] = useState<CopiedValue>(null);
+
+  // TODO handle toast
   // const { toast } = useToast();
 
-  const copy: CopyFn = useCallback(async (text) => {
+  const copy: CopyFn = useCallback(async () => {
     if (!navigator?.clipboard) {
       logger.warn('Clipboard not supported');
 
@@ -20,8 +26,8 @@ export function useClipboard(): [CopiedValue, CopyFn] {
     }
 
     try {
-      await navigator.clipboard.writeText(text);
-      setCopiedText(text);
+      await navigator.clipboard.writeText(value);
+      setCopiedText(value);
 
       // toast({ title: 'Copied to clipboard', variant: 'success' });
       return true;
@@ -32,7 +38,7 @@ export function useClipboard(): [CopiedValue, CopyFn] {
       setCopiedText(null);
       return false;
     }
-  }, []);
+  }, [value]);
 
-  return [copiedText, copy];
+  return { onCopy: copy };
 }

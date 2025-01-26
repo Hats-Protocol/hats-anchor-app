@@ -1,6 +1,5 @@
 'use client';
 
-import { Heading, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { ControlledRadioBox, Textarea } from 'forms';
@@ -128,15 +127,15 @@ export const AgreementModal = ({
 
       {selectedOption === 'Agreement' &&
         (updatingAgreement ? (
-          <Stack w='100%'>
-            <Heading size='md'>Update Agreement</Heading>
+          <div className='w-full space-y-2'>
+            <h3 className='text-md'>Update Agreement</h3>
 
-            <Textarea name='agreementContent' localForm={localForm} minH='350px' />
-          </Stack>
+            <Textarea name='agreementContent' localForm={localForm} />
+          </div>
         ) : (
-          <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
+          <div className='w-full space-y-2'>
             <Markdown>{agreementContent as string}</Markdown>
-          </Stack>
+          </div>
         ))}
 
       {selectedOption === 'Signatures' && (

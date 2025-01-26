@@ -1,11 +1,11 @@
 'use client';
 
-import { Spinner, Stack, Text } from '@chakra-ui/react';
 import { PROPOSALS } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
 import { useProposalDetails } from 'hooks';
-import _ from 'lodash';
+import { get, pick } from 'lodash';
 import { idToIp } from 'shared';
+import { Skeleton } from 'ui';
 
 import { ProposalCountdown } from './proposal-countdown';
 import { ProposalDetails } from './proposal-details';
@@ -16,10 +16,10 @@ export const ProposalView = () => {
   const { selectedHat, chainId } = useEligibility();
 
   // Assuming the structure of PROPOSALS is corrected as needed
-  const { execute, elect } = _.pick(
-    _.get(
-      _.get(
-        _.get(PROPOSALS, chainId as number), // chain first
+  const { execute, elect } = pick(
+    get(
+      get(
+        get(PROPOSALS, chainId as number), // chain first
         idToIp(selectedHat?.id), // then hat id
       ),
       107187481, // followed by proposal id
@@ -31,11 +31,11 @@ export const ProposalView = () => {
   const { data: proposal, isLoading, error } = useProposalDetails(proposalId);
   const hasProposalStarted = proposal && proposal.start * 1000 <= Date.now();
 
-  if (isLoading) return <Spinner />;
-  if (error || !proposal) return <Text>Failed to load proposal details.</Text>;
+  if (isLoading) return <Skeleton className='min-h-[500px] w-full rounded-lg' />;
+  if (error || !proposal) return <p>Failed to load proposal details.</p>;
 
   return (
-    <Stack spacing={4}>
+    <div className='flex flex-col gap-4'>
       {!hasProposalStarted && (
         <ProposalCountdown
           start={proposal.start}
@@ -45,6 +45,6 @@ export const ProposalView = () => {
         />
       )}
       {hasProposalStarted && <ProposalDetails proposal={proposal} />}
-    </Stack>
+    </div>
   );
 };

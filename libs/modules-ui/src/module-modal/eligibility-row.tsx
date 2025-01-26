@@ -1,8 +1,8 @@
-import { Checkbox, Flex, HStack, Icon, Image, Text } from '@chakra-ui/react';
 import { get, includes, map, toLower } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import { AllowlistProfile, HatWearer } from 'types';
+import { BaseCheckbox, cn } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsAvatar } from 'wagmi';
@@ -20,24 +20,17 @@ const AddressProfile = ({
   isCurrentUser: boolean;
   color: string;
 }) => (
-  <HStack color={color} bg={isCurrentUser ? 'green.100' : 'transparent'}>
+  <div className={cn('flex items-center gap-1 text-sm', color, isCurrentUser ? 'bg-green-100' : 'bg-transparent')}>
     {ensAvatar ? (
-      <Image
-        w={{ base: '11px', md: 3 }}
-        h={{ base: '14px', md: 4 }}
-        ml='2px'
-        mr={{ base: '1px', md: 1 }} // sometimes only ml? oh when the current user isn't a wearer in the list?
+      <img
+        className='ml-[2px] mr-[1px] h-[14px] w-[11px] rounded-[2px] object-cover md:mr-1 md:h-4 md:w-3' // sometimes only ml? oh when the current user isn't a wearer in the list?
         src={ensAvatar}
-        borderRadius='2px'
-        objectFit='cover'
       />
     ) : (
-      <Icon as={WearerIcon} boxSize={{ base: '14px', md: 4 }} />
+      <WearerIcon className='h-[14px] w-[14px] md:h-4 md:w-4' />
     )}
-    <Text size='sm'>
-      {eligibilityAccount.ensName || formatAddress(eligibilityAccount.id)}
-    </Text>
-  </HStack>
+    <p className='text-sm'>{eligibilityAccount.ensName || formatAddress(eligibilityAccount.id)}</p>
+  </div>
 );
 
 export const EligibilityRow = ({
@@ -77,16 +70,16 @@ export const EligibilityRow = ({
   }, [isChecked, handleAdd, handleRemove, eligibilityAccount.id]);
 
   return (
-    <Flex justify='space-between'>
+    <div className='flex justify-between'>
       {updating ? (
-        <Checkbox isChecked={isChecked} onChange={handleRemoveToggle}>
+        <BaseCheckbox checked={isChecked} onChange={handleRemoveToggle}>
           <AddressProfile
             eligibilityAccount={eligibilityAccount}
             ensAvatar={ensAvatar || undefined}
             isCurrentUser={isCurrentUser}
             color={color}
           />
-        </Checkbox>
+        </BaseCheckbox>
       ) : (
         <AddressProfile
           eligibilityAccount={eligibilityAccount}
@@ -96,9 +89,9 @@ export const EligibilityRow = ({
         />
       )}
 
-      <HStack spacing={1} color={isWearer ? 'Informative-Human' : 'gray.500'}>
-        <Text size='sm'>{isWearer ? 'Wearer' : 'Unclaimed'}</Text>
-      </HStack>
-    </Flex>
+      <div className='flex items-center gap-1 text-sm'>
+        <p className={isWearer ? 'text-Informative-Human' : 'text-gray-500'}>{isWearer ? 'Wearer' : 'Unclaimed'}</p>
+      </div>
+    </div>
   );
 };

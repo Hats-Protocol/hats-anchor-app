@@ -2,15 +2,15 @@
 
 import 'react-cmdk/dist/cmdk.css';
 
-import { Flex, Heading, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useSearchResults } from 'hooks';
-import _ from 'lodash';
+import { compact, get, map } from 'lodash';
+import { isEmpty } from 'lodash';
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react';
 import CmdkCommandPalette, { filterItems, getItemIndex, useHandleOpenCommandPalette } from 'react-cmdk';
 import { FaSitemap } from 'react-icons/fa';
 import { Group, SearchResults } from 'types';
-import { Link } from 'ui';
+import { Link, Skeleton } from 'ui';
 import { chainsMap } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -24,9 +24,7 @@ const CommandPaletteInternalLink = ({
   handleClose?: () => void;
 }) => (
   <Link href={href} onClick={handleClose}>
-    <Flex w='100%' justify='space-between' p={2}>
-      {children}
-    </Flex>
+    <div className='flex w-full justify-between p-2'>{children}</div>
   </Link>
 );
 
@@ -98,12 +96,12 @@ const CommandPalette = () => {
       {
         heading: 'Trees',
         id: 'trees',
-        items: _.get(localResults, 'trees', []),
+        items: get(localResults, 'trees', []),
       },
       {
         heading: 'Hats',
         id: 'hats',
-        items: _.get(localResults, 'hats', []),
+        items: get(localResults, 'hats', []),
       },
     ],
     searchKey || '',
@@ -114,7 +112,7 @@ const CommandPalette = () => {
       {
         heading: 'Navigate',
         id: 'navigation',
-        items: _.compact([
+        items: compact([
           {
             id: 'dashboard',
             children: 'Dashboard',
@@ -136,7 +134,7 @@ const CommandPalette = () => {
   // TODO should be filterable also
   const recentlyVisitedTreesItems = useMemo(
     () =>
-      _.map(_.compact(recentlyVisitedTrees), ({ treeId, chainId }: { treeId: number; chainId: number }) => ({
+      map(compact(recentlyVisitedTrees), ({ treeId, chainId }: { treeId: number; chainId: number }) => ({
         id: `recent-${treeId}-${chainId}`,
         children: `Tree #${treeId} on ${chainsMap(chainId)?.name}`,
         href: `/trees/${chainId}/${treeId}`,
@@ -155,9 +153,9 @@ const CommandPalette = () => {
       page={page}
     >
       <CmdkCommandPalette.Page id='root'>
-        {!_.isEmpty(recentlyVisitedTrees) && (
+        {!isEmpty(recentlyVisitedTrees) && (
           <CmdkCommandPalette.List heading='Recently Visited Trees'>
-            {_.map(recentlyVisitedTreesItems, ({ id, ...rest }: any, index: number) => (
+            {map(recentlyVisitedTreesItems, ({ id, ...rest }: any, index: number) => (
               <CmdkCommandPalette.ListItem
                 key={id}
                 index={index}
@@ -189,9 +187,9 @@ const CommandPalette = () => {
             </CmdkCommandPalette.List>
           ))
         ) : localResults ? (
-          _.map(searchResults, (group: Group) => (
+          map(searchResults, (group: Group) => (
             <CmdkCommandPalette.List key={group.id} heading={group.heading}>
-              {_.map(_.get(group, 'items'), ({ id, ...rest }: { id: string }) => (
+              {map(get(group, 'items'), ({ id, ...rest }: { id: string }) => (
                 <CmdkCommandPalette.ListItem
                   key={id}
                   index={getItemIndex(searchResults, id)}
@@ -206,23 +204,21 @@ const CommandPalette = () => {
             </CmdkCommandPalette.List>
           ))
         ) : isValid ? (
-          <Flex justify='center' p={4}>
-            <Spinner />
-          </Flex>
+          <div className='flex justify-center p-4'>
+            <Skeleton className='h-10 w-10' />
+          </div>
         ) : (
-          <Flex justify='center' p={4}>
-            <Stack align='center' color='whiteAlpha.600'>
-              <Heading size='xl' color='whiteAlpha.700'>
-                Unsupported query!
-              </Heading>
-              <Stack spacing='2px' textAlign='center'>
-                <Text size='sm'>Try using the Hat or Tree ID to search</Text>
-                <Text size='sm' variant='mono'>
-                  (e.g. 1, 3.1, 0x123..., 5674234...)
-                </Text>
-              </Stack>
-            </Stack>
-          </Flex>
+          <div className='flex justify-center p-4'>
+            <div className='text-whiteAlpha-600 flex flex-col items-center'>
+              <h3 className='text-whiteAlpha-700 text-xl'>Unsupported query!</h3>
+
+              <div className='flex flex-col gap-1 text-center'>
+                <p className='text-sm'>Try using the Hat or Tree ID to search</p>
+
+                <p className='font-mono text-sm'>(e.g. 1, 3.1, 0x123..., 5674234...)</p>
+              </div>
+            </div>
+          </div>
         )}
       </CmdkCommandPalette.Page>
     </CmdkCommandPalette>

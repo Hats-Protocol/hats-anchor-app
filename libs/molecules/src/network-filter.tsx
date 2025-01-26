@@ -1,6 +1,5 @@
 'use client';
 
-import { HStack, Icon, IconButton, Image, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react';
 import { NETWORK_IMAGES, ORDERED_CHAINS } from '@hatsprotocol/config';
 import { SHOW_KEY } from '@hatsprotocol/constants';
 import { map } from 'lodash';
@@ -8,6 +7,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { FaFilter } from 'react-icons/fa';
 import { SupportedChains } from 'types';
+import { Button, cn, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger } from 'ui';
 import { chainsMap, getPathParams } from 'utils';
 
 const NetworkFilter = () => {
@@ -19,50 +19,43 @@ const NetworkFilter = () => {
   const showKey = showParam === SHOW_KEY.all ? '?show=all' : '';
 
   return (
-    <Menu isLazy>
-      <MenuButton
-        as={IconButton}
-        aria-label='Filter networks'
-        bg='gray.300'
-        border='1px solid'
-        borderColor='gray.500'
-        p={2}
-      >
-        <HStack spacing={4}>
-          <Image src={NETWORK_IMAGES[chainId]} alt='chain' w={6} h={6} />
-          <Icon as={FaFilter} />
-        </HStack>
-      </MenuButton>
-      <MenuList>
-        {map(ORDERED_CHAINS, (localChainId: number) => (
-          <MenuItem
-            as={Link}
-            key={localChainId}
-            href={`/trees/${localChainId}${showKey}`}
-            isDisabled={localChainId === chainId}
-            color={localChainId === chainId ? 'blue' : 'black'}
-            opacity='1 !important'
-            bg={localChainId === chainId ? 'blackAlpha.100' : undefined}
-            my={1}
-            justifyContent='space-between'
-            fontWeight={localChainId === chainId ? 600 : 'normal'}
-          >
-            <HStack spacing={1}>
-              <Image
-                loading='lazy'
-                src={NETWORK_IMAGES[localChainId as SupportedChains]}
-                alt='chain'
-                w={6}
-                h={6}
-                mr={4}
-              />
-              <Text>{chainsMap(localChainId)?.name}</Text>
-            </HStack>
-            <Text>{localChainId === chainId ? ' ✓' : ''}</Text>
-          </MenuItem>
-        ))}
-      </MenuList>
-    </Menu>
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button aria-label='Filter networks' className='border border-gray-500 bg-gray-300 p-2'>
+          <div className='flex items-center gap-4'>
+            <img src={NETWORK_IMAGES[chainId]} alt='chain' className='size-6' />
+            <FaFilter className='ml-1 size-4' />
+          </div>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuPortal>
+        <div className='space-y-2'>
+          {map(ORDERED_CHAINS, (localChainId: number) => (
+            <DropdownMenuItem disabled={localChainId === chainId} asChild key={localChainId}>
+              <Link
+                key={localChainId}
+                href={`/trees/${localChainId}${showKey}`}
+                className={cn(
+                  'my-1 flex items-center justify-between bg-black/10 opacity-100',
+                  localChainId === chainId ? 'font-medium text-blue-500' : 'text-black',
+                )}
+              >
+                <div className='flex items-center gap-4'>
+                  <img
+                    loading='lazy'
+                    src={NETWORK_IMAGES[localChainId as SupportedChains]}
+                    alt={chainsMap(localChainId)?.name}
+                    className='mr-4 size-6'
+                  />
+                  <p>{chainsMap(localChainId)?.name}</p>
+                </div>
+                <p>{localChainId === chainId ? ' ✓' : ''}</p>
+              </Link>
+            </DropdownMenuItem>
+          ))}
+        </div>
+      </DropdownMenuPortal>
+    </DropdownMenu>
   );
 };
 

@@ -1,13 +1,12 @@
 'use client';
 
-import { Button, Divider, Flex, Heading, HStack, SimpleGrid, Stack } from '@chakra-ui/react';
 import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useWearerDetails } from 'hats-hooks';
 import { useImageURIs, useMediaStyles } from 'hooks';
 import { filter, get, groupBy, includes, isEmpty, keys, map, size, subtract } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { AppHat, SupportedChains } from 'types';
-import { Link } from 'ui';
+import { Button, Link } from 'ui';
 import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 
@@ -33,31 +32,29 @@ const WearerHats = () => {
 
   if (isEmpty(localOrderedChains)) {
     return (
-      <Flex w='100%' justify='center' pt='100px'>
-        <Stack align='center' gap={10}>
-          <Heading size='xl' variant='medium'>
-            Not wearing any hats
-          </Heading>
-          <HStack>
+      <div className='pt-100 flex w-full justify-center'>
+        <div className='flex flex-col items-center gap-10'>
+          <p className='text-xl font-medium'>Not wearing any hats</p>
+          <div className='flex gap-2'>
             <Link href='/'>
               <Button variant='outline'>Home</Button>
             </Link>
             <Link href='/trees/new'>
-              <Button variant='primary'>Create a new tree</Button>
+              <Button>Create a new tree</Button>
             </Link>
-          </HStack>
-        </Stack>
-      </Flex>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Stack>
+    <div className='flex flex-col'>
       {map(localOrderedChains, (chainId: SupportedChains) => (
-        <Stack mt={4} spacing={4} key={chainId}>
-          <Heading size='sm'>{chainsMap(Number(chainId)).name}</Heading>
+        <div className='mt-4 flex flex-col gap-4' key={chainId}>
+          <p className='text-sm'>{chainsMap(Number(chainId)).name}</p>
 
-          <SimpleGrid columns={{ base: 1, md: 4 }} gap={5} key={chainId}>
+          <div className='grid grid-cols-1 gap-5 md:grid-cols-4'>
             {map(
               filter(currentHatsWithImagesData, {
                 chainId: Number(chainId),
@@ -69,11 +66,11 @@ const WearerHats = () => {
                   <CoreHat hat={hat} key={`${chainId}-${hat.id}`} chainId={chainId} />
                 ),
             )}
-          </SimpleGrid>
-          <Divider border='1px solid' borderColor='gray.400' />
-        </Stack>
+          </div>
+          <div className='border-1 border-gray-400' />
+        </div>
       ))}
-    </Stack>
+    </div>
   );
 };
 

@@ -1,13 +1,12 @@
 'use client';
 
-import { Card, CardBody, Flex, Heading, HStack, Image as ChakraImage, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { NETWORK_IMAGES } from '@hatsprotocol/config';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
 import { AppHat } from 'types';
-import { LazyImage, Link } from 'ui';
-import { ipfsUrl } from 'utils';
+import { Card, LazyImage, Link, Tooltip } from 'ui';
+import { chainsMap, ipfsUrl } from 'utils';
 
 const DashboardHatCard = ({ hat }: HatCardProps) => {
   const { isMobile } = useMediaStyles();
@@ -22,32 +21,28 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
 
   return (
     <Link href={hatLink}>
-      <Card h='100px' overflow='hidden'>
-        <CardBody p={4}>
-          <HStack spacing={4}>
-            <LazyImage
-              src={hat ? image : undefined}
-              alt={`${get(hatDetails, 'name', get(hat, 'details'))} image`}
-              boxSize={72}
-            />
+      <Card className='h-24 overflow-hidden p-4'>
+        <div className='flex items-center gap-4'>
+          <LazyImage
+            src={hat ? image : undefined}
+            alt={`${get(hatDetails, 'name', get(hat, 'details'))} image`}
+            // boxSize={72}
+          />
 
-            <Stack maxW='calc(100% - 72px - 16px)'>
-              <Tooltip label={get(hatDetails, 'name', get(hat, 'details'))} placement='top'>
-                <Heading as='h1' size='md' variant='medium' noOfLines={1}>
-                  {get(hatDetails, 'name', get(hat, 'details'))}
-                </Heading>
-              </Tooltip>
-              <HStack spacing={4}>
-                <Flex boxSize='30px' p={1} bg='blackAlpha.100' borderRadius='md'>
-                  <ChakraImage src={NETWORK_IMAGES[hat.chainId || 1]} />
-                </Flex>
-                <Text size='md' variant='medium' noOfLines={1}>
-                  #{Number(hatIdToTreeId(BigInt(hat.id)))}
-                </Text>
-              </HStack>
-            </Stack>
-          </HStack>
-        </CardBody>
+          <div className='max-w-[calc(100% - 72px - 16px)]'>
+            <Tooltip label={get(hatDetails, 'name', get(hat, 'details'))}>
+              <h1 className='text-md font-medium'>{get(hatDetails, 'name', get(hat, 'details'))}</h1>
+            </Tooltip>
+
+            <div className='flex items-center gap-4'>
+              <div className='bg-blackAlpha-100 flex h-8 w-8 items-center justify-center rounded-md'>
+                <img src={NETWORK_IMAGES[hat.chainId || 1]} alt={`${chainsMap(hat.chainId)?.name}`} />
+              </div>
+
+              <p className='text-md font-medium'>#{Number(hatIdToTreeId(BigInt(hat.id)))}</p>
+            </div>
+          </div>
+        </div>
       </Card>
     </Link>
   );

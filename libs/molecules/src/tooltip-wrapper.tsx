@@ -1,20 +1,26 @@
-'use client';
-
-import { Tooltip } from '@chakra-ui/react';
+import { ReactNode } from 'react';
+import { Tooltip } from 'ui';
 
 // TooltipWrapper component
 const TooltipWrapper = ({
   children,
   label,
-  isSameChain,
+  isSameChain = true,
+  isConnected = true,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   label: string;
-  isSameChain: boolean;
-}) => (
-  <Tooltip label={!isSameChain ? label : ''} shouldWrapChildren>
-    {children}
-  </Tooltip>
-);
+  isSameChain?: boolean;
+  isConnected?: boolean;
+}) => {
+  if (!isConnected) {
+    return <Tooltip label='Please connect your wallet'>{children}</Tooltip>;
+  }
+  if (!isSameChain) {
+    return <Tooltip label='Please connect to the correct chain'>{children}</Tooltip>;
+  }
+
+  return <Tooltip label={label}>{children}</Tooltip>;
+};
 
 export { TooltipWrapper };

@@ -1,8 +1,7 @@
 'use client';
 
-import { Heading, Stack, Text } from '@chakra-ui/react';
-import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/config';
+import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { get } from 'lodash';
 import { useAncillaryElection } from 'modules-hooks';
@@ -26,11 +25,11 @@ export const ElectionRoles = () => {
   const ballotBoxHatId = idToIp(get(electionsAuthority, 'ballotBoxHat.id'));
 
   return (
-    <Stack gap={4}>
-      <Heading size='md'>Election Roles</Heading>
-      <Stack fontSize='sm'>
+    <div className='space-y-4'>
+      <h3 className='text-md'>Election Roles</h3>
+      <div className='text-sm'>
         {adminHatId && (
-          <Text>
+          <p>
             Set up by Hat{' '}
             <Link
               href={`${CONFIG.APP_URL}/trees/${chainId}/${treeId}${adminHatId ? `?hatId=${adminHatId}` : ''}`}
@@ -38,10 +37,10 @@ export const ElectionRoles = () => {
             >
               #{adminHatId}
             </Link>
-          </Text>
+          </p>
         )}
         {ballotBoxHatId && (
-          <Text>
+          <p>
             Results submitted by{' '}
             <Link
               href={`${CONFIG.APP_URL}/${chainId}/${treeId}${ballotBoxHatId ? `?hatId=${ballotBoxHatId}` : ''}`}
@@ -49,9 +48,9 @@ export const ElectionRoles = () => {
             >
               #{ballotBoxHatId}
             </Link>
-          </Text>
+          </p>
         )}
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 };

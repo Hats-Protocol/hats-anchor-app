@@ -1,10 +1,10 @@
 'use client';
 
-import { Icon, IconButton, Tooltip } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
-import _ from 'lodash';
+import { includes } from 'lodash';
 import { useMemo } from 'react';
 import { BsSearch } from 'react-icons/bs';
+import { Button, Tooltip } from 'ui';
 import { getOperatingSystem } from 'utils';
 
 const CommandPaletteButton = () => {
@@ -12,17 +12,14 @@ const CommandPaletteButton = () => {
 
   const isCtrl = useMemo(() => {
     if (typeof window === 'undefined') return false;
-    return _.includes(['Windows', 'Linux', 'Unix'], getOperatingSystem(window));
+    return includes(['Windows', 'Linux', 'Unix'], getOperatingSystem(window));
   }, []);
 
   return (
     <Tooltip label={`Search with ${isCtrl ? 'Ctrl' : 'Cmd'} + K`}>
-      <IconButton
-        icon={<Icon as={BsSearch} h='25px' w='25px' />}
-        onClick={() => setOpen?.(true)}
-        aria-label='Search'
-        variant='ghost'
-      />
+      <Button onClick={() => setOpen?.(true)} aria-label='Search' variant='ghost'>
+        <BsSearch className='h-5 w-5' />
+      </Button>
     </Tooltip>
   );
 };

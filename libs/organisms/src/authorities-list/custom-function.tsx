@@ -1,12 +1,12 @@
 'use client';
 
-import { Button, Icon } from '@chakra-ui/react';
 import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { includes } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsPencil } from 'react-icons/bs';
 import { Authority } from 'types';
+import { Button } from 'ui';
 
 const AgreementModal = dynamic(() => import('modules-ui').then((mod) => mod.AgreementModal));
 const AllowlistModal = dynamic(() => import('modules-ui').then((mod) => mod.AllowlistModal));
@@ -22,15 +22,14 @@ const CustomFunction = ({ authority }: { authority: Authority | undefined }) => 
     return (
       <>
         <Button
-          leftIcon={<Icon as={BsPencil} />}
           size='sm'
-          variant='primary'
           onClick={() =>
             setModals?.({
               [`${authority.moduleInfo?.id}-agreementManager`]: true,
             })
           }
         >
+          <BsPencil className='mr-2' />
           View Signers
         </Button>
 
@@ -44,15 +43,14 @@ const CustomFunction = ({ authority }: { authority: Authority | undefined }) => 
     return (
       <>
         <Button
-          leftIcon={<Icon as={BsPencil} />}
           size='sm'
-          variant='primary'
           onClick={() =>
             setModals?.({
               [`${authority.moduleInfo?.id}-allowlistManager`]: true,
             })
           }
         >
+          <BsPencil className='mr-2' />
           Edit Allowlist
         </Button>
 
@@ -64,12 +62,8 @@ const CustomFunction = ({ authority }: { authority: Authority | undefined }) => 
   if (includes(KNOWN_ELIGIBILITY_MODULES.election, authority.moduleAddress)) {
     return (
       <>
-        <Button
-          leftIcon={<Icon as={BsPencil} />}
-          size='sm'
-          variant='primary'
-          onClick={() => setModals?.({ electionManager: true })}
-        >
+        <Button size='sm' onClick={() => setModals?.({ electionManager: true })}>
+          <BsPencil className='mr-2' />
           View Electees
         </Button>
 
@@ -82,15 +76,14 @@ const CustomFunction = ({ authority }: { authority: Authority | undefined }) => 
     return (
       <>
         <Button
-          leftIcon={<Icon as={BsPencil} />}
           size='sm'
-          variant='primary'
           onClick={() =>
             setModals?.({
               [`${authority.moduleInfo?.id}-jokeRaceManager`]: true,
             })
           }
         >
+          <BsPencil className='mr-2' />
           View Electees
         </Button>
 
@@ -102,12 +95,8 @@ const CustomFunction = ({ authority }: { authority: Authority | undefined }) => 
   if (includes(KNOWN_ELIGIBILITY_MODULES.staking, authority.moduleAddress)) {
     return (
       <>
-        <Button
-          leftIcon={<Icon as={BsPencil} />}
-          size='sm'
-          variant='primary'
-          onClick={() => setModals?.({ stakingManager: true })}
-        >
+        <Button size='sm' onClick={() => setModals?.({ stakingManager: true })}>
+          <BsPencil className='mr-2' />
           View Stakers
         </Button>
 

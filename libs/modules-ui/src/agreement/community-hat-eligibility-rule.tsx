@@ -1,13 +1,12 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { get, includes, toLower } from 'lodash';
 import { BsCheckSquare, BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
-import { Link } from 'ui';
+import { Button, Link } from 'ui';
 import { claimsLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
@@ -58,9 +57,9 @@ export const CommunityHatEligibilityRule = ({
     return (
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <p>
             Sign the <Link href={claimsLink({ chainId, hatId: selectedHat?.id })}>Agreement</Link>
-          </Text>
+          </p>
         }
         status={status}
         displayStatus={displayStatus}
@@ -74,7 +73,7 @@ export const CommunityHatEligibilityRule = ({
     return (
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <div>
             Sign the{' '}
             <Button
               onClick={() => {
@@ -86,7 +85,7 @@ export const CommunityHatEligibilityRule = ({
             >
               Agreement
             </Button>
-          </Text>
+          </div>
         }
         status={status}
         displayStatus={displayStatus}
@@ -99,7 +98,7 @@ export const CommunityHatEligibilityRule = ({
   // desktop handled in card section
   return (
     <EligibilityRuleDetails
-      rule={<Text>Sign the Agreement</Text>}
+      rule={<p>Sign the Agreement</p>}
       status={status}
       displayStatus={displayStatus}
       icon={icon}

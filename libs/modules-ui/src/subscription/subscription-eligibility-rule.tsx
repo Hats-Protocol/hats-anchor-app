@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
@@ -8,12 +7,13 @@ import { get, includes, toLower } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
-import { Link } from 'ui';
+import { Button, Link } from 'ui';
 import { claimsLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 import { SubscriptionClaimsModal } from './subscription-claims';
+
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const SUBSCRIPTION_MODAL_NAME = 'subscriptionManager';
 const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
@@ -63,13 +63,13 @@ export const UnlockEligibilityRule = ({
     modalName = `${SUBSCRIPTION_MODAL_NAME}${modalSuffix}`;
   }
 
-  let claimsAppRule = <Text>Pay the {isOneTime ? 'fee' : 'subscription'}</Text>;
+  let claimsAppRule = <p>Pay the {isOneTime ? 'fee' : 'subscription'}</p>;
   let status = ELIGIBILITY_STATUS.ineligible;
   let displayStatus = 'Not Paid';
   let icon = BsFillXOctagonFill;
   if (isMobile) {
     claimsAppRule = (
-      <Text>
+      <span>
         Pay the{' '}
         <Button
           variant='link'
@@ -82,7 +82,7 @@ export const UnlockEligibilityRule = ({
         >
           {isOneTime ? 'fee' : 'subscription'}
         </Button>
-      </Text>
+      </span>
     );
   }
   if (isReadyToClaim || hasAllowance) {
@@ -119,12 +119,12 @@ export const UnlockEligibilityRule = ({
   return (
     <EligibilityRuleDetails
       rule={
-        <Text>
+        <p>
           Pay the{' '}
           <Link href={claimsLink({ chainId, hatId: selectedHat?.id })} className='gray.50'>
             {isOneTime ? 'fee' : 'subscription'}
           </Link>
-        </Text>
+        </p>
       }
       status={status}
       displayStatus={displayStatus}

@@ -1,9 +1,11 @@
 'use client';
 
-import { Card, CardBody, Heading, HStack, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useControllerList, useHatsAdminOf, useWearerDetails } from 'hats-hooks';
-import _ from 'lodash';
+import { filter, get, map, size, subtract, toLower } from 'lodash';
 import { usePathname } from 'next/navigation';
+import { Skeleton } from 'ui';
+import { cn } from 'ui';
+import { Card } from 'ui';
 import { Hex } from 'viem';
 type HeadlineStat = {
   label: string;
@@ -14,7 +16,7 @@ type HeadlineStat = {
 const WearerStats = () => {
   const pathname = usePathname();
   const parsedPathname = pathname.split('/');
-  const wearerAddress = _.get(parsedPathname, _.subtract(_.size(parsedPathname), 1)) as Hex;
+  const wearerAddress = get(parsedPathname, subtract(size(parsedPathname), 1)) as Hex;
 
   const { data: currentHats } = useWearerDetails({
     wearerAddress,
@@ -31,41 +33,44 @@ const WearerStats = () => {
   const headlineStats = [
     {
       label: 'Wearer of',
-      value: _.size(currentHats),
+      value: size(currentHats),
       loading: !!currentHats,
     },
     {
       label: 'Admin of',
-      value: _.size(adminOfHats),
+      value: size(adminOfHats),
       loading: !!adminOfHats,
     },
     {
       label: 'Eligibility for',
-      value: _.size(_.filter(controllerHats, ['eligibility', _.toLower(wearerAddress)])),
+      value: size(filter(controllerHats, ['eligibility', toLower(wearerAddress)])),
       loading: !!controllerHats,
     },
     {
       label: 'Toggle for',
-      value: _.size(_.filter(controllerHats, ['toggle', _.toLower(wearerAddress)])),
+      value: size(filter(controllerHats, ['toggle', toLower(wearerAddress)])),
       loading: !!controllerHats,
     },
   ];
 
   return (
-    <HStack wrap='wrap' justify='center'>
-      {_.map(headlineStats, (stat: HeadlineStat) => (
-        <Card w={{ base: '22%', md: '135px' }} key={stat.label}>
-          <CardBody px={{ base: 0, md: 6 }} py={{ base: 2, md: 4 }}>
-            <Stack align='center'>
-              <Text size={{ base: 'xs', md: 'sm' }}>{stat.label}</Text>
-              <Skeleton isLoaded={stat.loading}>
-                <Heading size={{ base: 'md', md: '2xl' }}>{stat.value}</Heading>
-              </Skeleton>
-            </Stack>
-          </CardBody>
-        </Card>
-      ))}
-    </HStack>
+    <div className='flex flex-wrap justify-center'>
+      {map(headlineStats, (stat: HeadlineStat) => {
+        if (stat.loading) {
+          return <Skeleton className='w-1/4 px-0 py-2 md:w-[135px] md:px-6 md:py-4' />;
+        }
+
+        return (
+          <Card className={cn('w-1/4 px-0 py-2 md:w-[135px] md:px-6 md:py-4')} key={stat.label}>
+            <div className='flex items-center'>
+              <p className='text-xs md:text-sm'>{stat.label}</p>
+
+              <h3 className='text-xl md:text-2xl'>{stat.value}</h3>
+            </div>
+          </Card>
+        );
+      })}
+    </div>
   );
 };
 

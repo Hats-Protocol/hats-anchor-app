@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Tooltip } from '@chakra-ui/react';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
@@ -8,6 +7,7 @@ import _ from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
+import { Button, Tooltip } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -68,16 +68,10 @@ const MainAction = () => {
     }
 
     return (
-      <Tooltip
-        label={adminTooltip}
-        fontSize='md'
-        isDisabled={!maxWearersReached && chainId === currentNetworkId}
-        shouldWrapChildren
-      >
+      <Tooltip label={adminTooltip}>
         <Button
-          variant='outlineMatch'
-          colorScheme='blue.500'
-          isDisabled={maxWearersReached || chainId !== currentNetworkId}
+          variant='outline-blue'
+          disabled={maxWearersReached || chainId !== currentNetworkId}
           onClick={() => (!maxWearersReached ? setModals?.({ newWearer: true }) : {})}
         >
           Add wearer
@@ -88,15 +82,10 @@ const MainAction = () => {
 
   if ((currentUserIsEligible as boolean) && isClaimable && !currentUserIsWearing)
     return (
-      <Tooltip
-        label={!hatterIsAdmin ? 'Hatter must be wearing an admin hat to claim this hat.' : undefined}
-        fontSize='md'
-        shouldWrapChildren
-      >
+      <Tooltip label={!hatterIsAdmin ? 'Hatter must be wearing an admin hat to claim this hat.' : undefined}>
         <Button
-          variant='outlineMatch'
-          colorScheme='blue.500'
-          isDisabled={!claimHat || !hatterIsAdmin || chainId !== currentNetworkId}
+          variant='outline-blue'
+          disabled={!claimHat || !hatterIsAdmin || chainId !== currentNetworkId}
           onClick={claimHat}
         >
           Claim Hat

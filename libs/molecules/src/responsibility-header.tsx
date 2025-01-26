@@ -1,11 +1,11 @@
 'use client';
 
-import { Box, Flex, HStack, Icon, IconButton, Image, Link, Text, Tooltip } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { pick } from 'lodash';
 import posthog from 'posthog-js';
 import { BsBoxArrowUpRight, BsCheck2Square } from 'react-icons/bs';
 import { Authority } from 'types';
+import { Button, cn, Link, Tooltip } from 'ui';
 import { getHostnameFromURL, ipfsUrl } from 'utils';
 
 const ResponsibilityHeader = ({
@@ -25,38 +25,38 @@ const ResponsibilityHeader = ({
 
   const localImageUrl = editingItem ? editingItem.imageUrl : imageUrl;
   const isIpfs = localImageUrl?.startsWith('ipfs://');
-  const { label: currentLabel, link: currentLink } = _.pick(editingItem, ['label', 'link']);
+  const { label: currentLabel, link: currentLink } = pick(editingItem, ['label', 'link']);
   const hostname = getHostnameFromURL(currentLink || link);
 
   return (
-    <HStack w='100%' align='center'>
+    <div className='flex w-full items-center'>
       {localImageUrl ? (
-        <Image
+        <img
           src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
-          boxSize={6}
-          borderRadius='full'
-          alt='authority image'
+          className='size-6 rounded-full'
+          alt='responsibility'
         />
       ) : (
-        <Flex borderRadius='full' boxSize={6} alignItems='center' justifyContent='center' bg='white'>
-          <Icon as={BsCheck2Square} boxSize={4} color='gray.500' />
-        </Flex>
+        <div className='flex size-6 items-center justify-center rounded-full bg-white'>
+          <BsCheck2Square className='size-4 text-gray-500' />
+        </div>
       )}
-      <Box flex={1} minW={0} w='full'>
-        <Text
+      <div className='w-full min-w-0 flex-1'>
+        <p
           // TODO ideally this is a heading when expanded
           // eslint-disable-next-line no-nested-ternary
-          fontWeight={isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'}
-          noOfLines={2}
-          textAlign='left'
+          className={cn(
+            'line-clamp-2 text-left',
+            isExpanded ? (isMobile ? 'font-bold' : 'font-medium') : 'font-normal',
+          )}
         >
           {currentLabel || label || 'New Responsibility'}
-        </Text>
-      </Box>
+        </p>
+      </div>
       {!isMobile && (currentLink || link) && (
         // TODO convert to text
         <Link
-          href={currentLink || link}
+          href={currentLink || link || ''}
           isExternal
           onClick={() => {
             posthog.capture('Clicked Responsibility Link', {
@@ -67,18 +67,13 @@ const ResponsibilityHeader = ({
           }}
         >
           <Tooltip label={hostname}>
-            <IconButton
-              as='span'
-              icon={<Icon as={BsBoxArrowUpRight} />}
-              variant='ghost'
-              aria-label='Responsibility Link'
-              color='Functional-LinkPrimary'
-              size='xs'
-            />
+            <Button variant='ghost' aria-label='Responsibility Link' className='text-functional-link-primary' size='xs'>
+              <BsBoxArrowUpRight className='size-4' />
+            </Button>
           </Tooltip>
         </Link>
       )}
-    </HStack>
+    </div>
   );
 };
 

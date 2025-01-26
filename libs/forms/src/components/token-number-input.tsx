@@ -17,7 +17,7 @@ interface TokenNumberInputProps {
 
 // TODO handle label, tooltip, etc
 
-export function TokenNumberInput({ name, form, options, disabled }: TokenNumberInputProps) {
+function TokenNumberInput({ name, form, options, disabled }: TokenNumberInputProps) {
   return (
     <FormField
       name={name}
@@ -36,3 +36,5 @@ export function TokenNumberInput({ name, form, options, disabled }: TokenNumberI
     />
   );
 }
+
+export { TokenNumberInput };

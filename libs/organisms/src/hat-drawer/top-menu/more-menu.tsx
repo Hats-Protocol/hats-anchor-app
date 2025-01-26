@@ -1,31 +1,8 @@
 'use client';
 
-import {
-  Button,
-  Divider,
-  HStack,
-  Icon,
-  Link,
-  Menu,
-  MenuButton,
-  MenuGroup,
-  MenuItem,
-  MenuList,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Stack,
-  Text,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react';
 import { MUTABILITY } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatMakeImmutable, useHatStatusCheck, useWearerDetails } from 'hats-hooks';
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
 import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
@@ -34,6 +11,16 @@ import posthog from 'posthog-js';
 import { FaCopy, FaDoorOpen, FaEllipsisV, FaExclamationCircle, FaLink, FaLock, FaPowerOff } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
 import { idToIp } from 'shared';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuTrigger,
+  Link,
+  Tooltip,
+} from 'ui';
 import { getDisabledReason, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -41,7 +28,6 @@ import { useAccount, useChainId } from 'wagmi';
 const MoreMenu = () => {
   const localOverlay = useOverlay();
   const { setModals } = localOverlay;
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { chainId, treeToDisplayWithInactiveHats, storedData, linkedHatIds, onchainHats } = useTreeForm();
   const { selectedHat, isClaimable } = useSelectedHat();
@@ -100,7 +86,7 @@ const MoreMenu = () => {
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
     toastData: {
       title: 'Copied Hat Hex ID',
-      description: `Copied ${selectedHat?.id?.slice(0, 25)}`,
+      // description: `Copied ${selectedHat?.id?.slice(0, 25)}`,
     },
   });
   const { onCopy: copyHatDecimalId } = useClipboard(
@@ -108,7 +94,7 @@ const MoreMenu = () => {
     {
       toastData: {
         title: 'Copied Hat Decimal ID',
-        description: selectedHat?.id ? `Copied ${hatIdHexToDecimal(selectedHat.id).toString().slice(0, 25)}...` : '',
+        // description: selectedHat?.id ? `Copied ${hatIdHexToDecimal(selectedHat.id).toString().slice(0, 25)}...` : '',
       },
     },
   );
@@ -132,175 +118,179 @@ const MoreMenu = () => {
 
   return (
     <>
-      <Menu isLazy>
-        <MenuButton as={Button} variant='outline'>
-          <HStack>
-            <Icon as={FaEllipsisV} />
-            <Text>More</Text>
-          </HStack>
-        </MenuButton>
-        <MenuList gap={5}>
-          {/* OFF-CHAIN ACTIONS */}
-          <MenuGroup title='Off-chain Actions'>
-            <MenuItem icon={<TbChartDots3 />} onClick={handleExport}>
-              Export branch {idToIp(selectedHat?.id)}
-            </MenuItem>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <div className='flex items-center gap-1'>
+            <FaEllipsisV />
+            <p>More</p>
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuPortal>
+          <div className='gap-5'>
+            {/* OFF-CHAIN ACTIONS */}
+            <DropdownMenuGroup title='Off-chain Actions'>
+              <DropdownMenuItem onClick={handleExport}>
+                <TbChartDots3 className='mr-2' />
+                Export branch {idToIp(selectedHat?.id)}
+              </DropdownMenuItem>
 
-            <MenuItem icon={<FaCopy />} onClick={copyHatId}>
-              Copy Hat Hex ID
-            </MenuItem>
+              <DropdownMenuItem onClick={copyHatId}>
+                <FaCopy className='mr-2' />
+                Copy Hat Hex ID
+              </DropdownMenuItem>
 
-            <MenuItem icon={<FaCopy />} onClick={copyHatDecimalId}>
-              Copy Hat Decimal ID
-            </MenuItem>
+              <DropdownMenuItem onClick={copyHatDecimalId}>
+                <FaCopy className='mr-2' />
+                Copy Hat Decimal ID
+              </DropdownMenuItem>
 
-            <MenuItem onClick={copyContractAddress} icon={<FaCopy />}>
-              Copy Hats Contract
-            </MenuItem>
-          </MenuGroup>
+              <DropdownMenuItem onClick={copyContractAddress}>
+                <FaCopy className='mr-2' />
+                Copy Hats Contract
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
 
-          <Divider />
+            <hr className='border-gray-200' />
 
-          {/* ONCHAIN ACTIONS */}
-          <MenuGroup title='On-chain Actions'>
-            <Stack spacing={0}>
-              {address && isClaimable?.by && !isClaimable?.for && (
-                <Tooltip
-                  label={getDisabledReason({
-                    isNotConnected: !address,
-                    isOnWrongNetwork: chainId !== currentNetworkId,
-                  })}
-                >
-                  <MenuItem
-                    onClick={() => setModals?.({ checkEligibility: true })}
-                    icon={<Icon as={FaExclamationCircle} />}
-                    isDisabled={chainId !== currentNetworkId}
+            {/* ONCHAIN ACTIONS */}
+            <DropdownMenuGroup title='On-chain Actions'>
+              <div className='flex flex-col gap-0'>
+                {address && isClaimable?.by && !isClaimable?.for && (
+                  <Tooltip
+                    label={getDisabledReason({
+                      isNotConnected: !address,
+                      isOnWrongNetwork: chainId !== currentNetworkId,
+                    })}
                   >
-                    Check Eligibility
-                  </MenuItem>
-                </Tooltip>
-              )}
+                    <DropdownMenuItem
+                      onClick={() => setModals?.({ checkEligibility: true })}
+                      disabled={chainId !== currentNetworkId}
+                    >
+                      <FaExclamationCircle />
+                      Check Eligibility
+                    </DropdownMenuItem>
+                  </Tooltip>
+                )}
 
-              <Tooltip
-                label={
-                  !toggleIsContract
-                    ? 'The toggle is "humanistic"'
-                    : chainId !== currentNetworkId
-                      ? "You can't test status of a hat on a different chain"
-                      : ''
-                }
-                shouldWrapChildren
-              >
-                <MenuItem
-                  onClick={() => checkHatStatus?.()}
-                  isDisabled={
-                    isLoadingCheckHatStatus || !checkHatStatus || !toggleIsContract || chainId !== currentNetworkId
+                <Tooltip
+                  label={
+                    !toggleIsContract
+                      ? 'The toggle is "humanistic"'
+                      : chainId !== currentNetworkId
+                        ? "You can't test status of a hat on a different chain"
+                        : ''
                   }
-                  icon={<FaDoorOpen />}
                 >
-                  Test hat status
-                </MenuItem>
-              </Tooltip>
-
-              {address && enableLinking && (
-                <Tooltip
-                  label={getDisabledReason({
-                    isNotConnected: !address,
-                    isOnWrongNetwork: chainId !== currentNetworkId,
-                  })}
-                  shouldWrapChildren
-                >
-                  <MenuItem
-                    onClick={() => setModals?.({ requestLink: true })}
-                    isDisabled={chainId !== currentNetworkId}
-                    icon={<FaLink />}
-                  >
-                    Request to link tree here
-                  </MenuItem>
-                </Tooltip>
-              )}
-
-              {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
-                <Tooltip
-                  label={getDisabledReason({
-                    isNotConnected: !address,
-                    isOnWrongNetwork: chainId !== currentNetworkId,
-                  })}
-                  shouldWrapChildren
-                >
-                  <MenuItem
-                    onClick={toggleHat}
-                    isDisabled={
-                      !isSameAddress(selectedHat?.toggle, address) ||
-                      isLoadingToggleHat ||
-                      chainId !== currentNetworkId ||
-                      !toggleHat
+                  <DropdownMenuItem
+                    onClick={() => checkHatStatus?.()}
+                    disabled={
+                      isLoadingCheckHatStatus || !checkHatStatus || !toggleIsContract || chainId !== currentNetworkId
                     }
-                    icon={<FaPowerOff />}
                   >
-                    {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
-                  </MenuItem>
+                    <FaDoorOpen />
+                    Test hat status
+                  </DropdownMenuItem>
                 </Tooltip>
-              )}
 
-              {isAdminUser && (
-                <Tooltip
-                  label={getDisabledReason({
-                    isNotConnected: !address,
-                    isOnWrongNetwork: chainId !== currentNetworkId,
-                  })}
-                  shouldWrapChildren
-                >
-                  <MenuItem
-                    onClick={onOpen}
-                    isDisabled={
-                      mutableStatus === MUTABILITY.IMMUTABLE ||
-                      !updateImmutability ||
-                      chainId !== currentNetworkId ||
-                      isLoadingUpdateImmutability
-                    }
-                    icon={<FaLock />}
+                {address && enableLinking && (
+                  <Tooltip
+                    label={getDisabledReason({
+                      isNotConnected: !address,
+                      isOnWrongNetwork: chainId !== currentNetworkId,
+                    })}
                   >
-                    Make immutable
-                  </MenuItem>
-                </Tooltip>
-              )}
-            </Stack>
-          </MenuGroup>
+                    <DropdownMenuItem
+                      onClick={() => setModals?.({ requestLink: true })}
+                      disabled={chainId !== currentNetworkId}
+                    >
+                      <FaLink />
+                      Request to link tree here
+                    </DropdownMenuItem>
+                  </Tooltip>
+                )}
 
-          <Divider />
+                {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
+                  <Tooltip
+                    label={getDisabledReason({
+                      isNotConnected: !address,
+                      isOnWrongNetwork: chainId !== currentNetworkId,
+                    })}
+                  >
+                    <DropdownMenuItem
+                      onClick={toggleHat}
+                      disabled={
+                        !isSameAddress(selectedHat?.toggle, address) ||
+                        isLoadingToggleHat ||
+                        chainId !== currentNetworkId ||
+                        !toggleHat
+                      }
+                    >
+                      <FaPowerOff />
+                      {selectedHat?.status ? 'Deactivate' : 'Activate'} hat
+                    </DropdownMenuItem>
+                  </Tooltip>
+                )}
 
-          {/* REPORT */}
-          <MenuItem as={Link} href='mailto:support@hatsprotocol.xyz' gap={2}>
-            <FaExclamationCircle />
-            Report this hat
-          </MenuItem>
-        </MenuList>
-      </Menu>
+                {isAdminUser && (
+                  <Tooltip
+                    label={getDisabledReason({
+                      isNotConnected: !address,
+                      isOnWrongNetwork: chainId !== currentNetworkId,
+                    })}
+                  >
+                    <DropdownMenuItem
+                      onClick={() => setModals?.({ 'make-hat-immutable': true })}
+                      disabled={
+                        mutableStatus === MUTABILITY.IMMUTABLE ||
+                        !updateImmutability ||
+                        chainId !== currentNetworkId ||
+                        isLoadingUpdateImmutability
+                      }
+                    >
+                      <FaLock />
+                      Make immutable
+                    </DropdownMenuItem>
+                  </Tooltip>
+                )}
+              </div>
+            </DropdownMenuGroup>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Make Hat #{idToIp(selectedHat?.id)} Immutable</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>Are you sure you want to make this hat immutable? This is not reversible.</Text>
-          </ModalBody>
-          <ModalFooter>
+            <hr className='border-gray-200' />
+
+            {/* REPORT */}
+
+            <DropdownMenuItem asChild>
+              <Link href='mailto:support@hatsprotocol.xyz' className='flex gap-2'>
+                <FaExclamationCircle />
+                Report this hat
+              </Link>
+            </DropdownMenuItem>
+          </div>
+        </DropdownMenuPortal>
+      </DropdownMenu>
+
+      <Modal name='make-hat-immutable' title={`Make Hat #${idToIp(selectedHat?.id)} Immutable`}>
+        <div>
+          <div>
+            <p>Are you sure you want to make this hat immutable? This is not reversible.</p>
+          </div>
+
+          <div>
+            <Button onClick={() => setModals?.({})}>Cancel</Button>
+
             <Button
-              colorScheme='red'
-              mr={3}
+              variant='destructive'
+              className='mr-3'
               onClick={() => {
                 updateImmutability?.();
-                onClose();
+                setModals?.({});
               }}
-              isLoading={isLoadingUpdateImmutability}
+              disabled={isLoadingUpdateImmutability}
             >
               Confirm
             </Button>
-            <Button onClick={onClose}>Cancel</Button>
-          </ModalFooter>
-        </ModalContent>
+          </div>
+        </div>
       </Modal>
     </>
   );

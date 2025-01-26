@@ -3,23 +3,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  IconButton,
-  Image,
-  // Spinner,
-  Stack,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
+import { CONFIG } from '@hatsprotocol/config';
 import { DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG } from '@hatsprotocol/config';
 import { useTreeForm } from 'contexts';
 import * as d3 from 'd3';
 import { OrgChart } from 'd3-org-chart';
@@ -32,6 +19,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
 import type { OrgChartHat } from 'types';
+import { Button, cn, Tooltip } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -504,15 +492,14 @@ function OrgChartComponent() {
   if (treeError) {
     // TODO check more specific error message
     return (
-      <Flex justify='center' align='center' w='full' h='full' pt='175px'>
-        <Stack spacing={8} align='center'>
-          <Stack>
-            <Heading size='4xl' textAlign='center'>
-              404
-            </Heading>
-            <Heading textAlign='center'>Tree not found</Heading>
+      <div className='flex h-full w-full items-center justify-center pt-[175px]'>
+        <div className='flex flex-col items-center gap-8'>
+          <div className='flex flex-col'>
+            <h1 className='text-center text-4xl'>404</h1>
+            <h1 className='text-center text-4xl'>Tree not found</h1>
+          </div>
 
-            {/* <Flex>
+          {/* <Flex>
                 <Link href='/'>
                   <Button
                     variant='outline'
@@ -526,11 +513,10 @@ function OrgChartComponent() {
                   </Button>
                 </Link>
               </Flex> */}
-          </Stack>
 
-          <Image src='/tree-not-found.png' alt='No hats found' h='500px' />
-        </Stack>
-      </Flex>
+          <img src='/tree-not-found.png' alt='No hats found' className='h-500px' />
+        </div>
+      </div>
     );
   }
 
@@ -550,20 +536,13 @@ function OrgChartComponent() {
   // }
 
   return (
-    <Box position='relative' pt='145px' minH='100vh' h='calc(100% + 5px)'>
-      <div
-        style={{
-          overflow: 'hidden',
-          height: '100%',
-        }}
-        ref={d3Container}
-        id='d3Container'
-      />
+    <div className='pt-145px relative h-[calc(100%+5px)] min-h-full'>
+      <div className='h-full overflow-hidden' ref={d3Container} id='d3Container' />
 
-      <HStack position='absolute' bottom={4} left={85}>
+      <div className='left-85 absolute bottom-4 flex'>
         <Button
           variant='outline'
-          bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+          className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
           onClick={() => {
             chart?.expandAll();
             chart?.fit();
@@ -582,9 +561,9 @@ function OrgChartComponent() {
               toggleCompact();
               handleSetCompact?.(compact);
             }}
-            isDisabled={!isEmpty(collapsedNodes)} // add edit mode here?
+            disabled={!isEmpty(collapsedNodes)} // add edit mode here?
             variant='outline'
-            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
           >
             {compact ? 'Full View' : 'Compact View'}
           </Button>
@@ -601,31 +580,33 @@ function OrgChartComponent() {
                 chart?.fit();
               }, 50);
             }}
-            isDisabled={!isEmpty(collapsedNodes)} // add edit mode here?
+            disabled={!isEmpty(collapsedNodes)} // add edit mode here?
             variant='outline'
-            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
           >
             Flip Tree
           </Button>
         </Tooltip>
-        <HStack>
-          <IconButton
-            icon={<Icon as={FaMinus} />}
+        <div className='flex gap-2'>
+          <Button
             variant='ghost'
-            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
             aria-label='zoom out'
             onClick={() => chart?.zoomOut()}
-          />
-          <IconButton
-            icon={<Icon as={FaPlus} />}
+          >
+            <FaMinus />
+          </Button>
+          <Button
             variant='ghost'
-            bg={editMode ? '#C4F1F9' : 'whiteAlpha.800'}
+            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
             aria-label='zoom in'
             onClick={() => chart?.zoomIn()}
-          />
-        </HStack>
-      </HStack>
-    </Box>
+          >
+            <FaPlus />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
 

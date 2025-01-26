@@ -1,13 +1,12 @@
 'use client';
 
-import { Card, HStack, Icon, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
 import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HatWithDepth, SupportedChains } from 'types';
-import { cn, LazyImage, Link } from 'ui';
+import { Card, cn, LazyImage, Link, Skeleton } from 'ui';
 import { paddingForMaxDepth } from 'utils';
 
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
@@ -22,53 +21,42 @@ const MobileHatCard = ({ hat, chainId, isWearing, ensName, maxDepth }: HatCardPr
   const padding = maxDepth ? (get(hat, 'depth', 0) - 1) * paddingForMaxDepth(maxDepth) + 1 : undefined;
   if (!get(hat, 'id')) return null;
 
+  if (!hat.details) {
+    return <Skeleton className='h-full min-h-[72px]' />;
+  }
+
   return (
     <Link
       href={`/trees/${chainId || hat.chainId}/${hatIdToTreeId(BigInt(hat.id))}/${hatIdDecimalToIp(BigInt(hat.id))}`}
       // don't adjust top hat (or hat used throughout the app) width
       className={cn('block', `${!maxDepth || (hat?.depth || 0) <= 1 ? 'w-full' : `calc(100% - ${padding}px)`}`)} // subtract left margin from card width
     >
-      <Skeleton isLoaded={!!hat.details} w='full' h='100%'>
-        <Card overflow='hidden' boxShadow='md' border='1px solid' borderColor='gray.600' borderRadius={6} h='72px'>
-          <HStack align='start' position='relative'>
-            <LazyImage
-              src={get(hat, 'imageUrl')}
-              alt={`${detailsName} image`}
-              objectFit='cover'
-              bgPosition='center'
-              boxSize={72}
-              skeletonClassName='absolute top-[-2px] left-[-2px]'
-            />
+      <Card className='border-1 rounded-6 flex h-72 overflow-hidden border-gray-600'>
+        <div className='flex w-full items-center justify-between'>
+          <LazyImage
+            src={get(hat, 'imageUrl')}
+            alt={`${detailsName} image`}
+            containerClassName='size-72'
+            imageClassName='absolute top-[-2px] left-[-2px]'
+          />
 
-            <Stack gap={1} pt={1} pl='78px'>
-              <Text size='xs' noOfLines={1} fontWeight='medium'>
-                {hatIdDecimalToIp(BigInt(hat.id))}
-              </Text>
-              <Text size='md' variant='medium' noOfLines={2} lineHeight={5}>
-                {detailsName}
-              </Text>
-            </Stack>
+          <div className='pl-78 flex flex-col gap-1 pt-1'>
+            <p className='text-xs font-medium'>{hatIdDecimalToIp(BigInt(hat.id))}</p>
 
-            {isWearing && (
-              <Icon
-                as={HatIcon}
-                // alt='Hat'
-                boxSize={4}
-                color='green'
-                position='absolute'
-                top={2}
-                right={2}
-              />
-            )}
-          </HStack>
-          {isWearing && (
-            <HStack borderTop='1px solid' borderColor='gray.600' p={1} bg='green.50'>
-              <Icon as={BsPersonBadge} w={4} h={4} />
-              <Text>{ensName || 'You are wearing this hat'}</Text>
-            </HStack>
-          )}
-        </Card>
-      </Skeleton>
+            <p className='text-md'>{detailsName}</p>
+          </div>
+
+          {isWearing && <HatIcon className='absolute right-2 top-2 size-4 text-green-500' />}
+        </div>
+
+        {isWearing && (
+          <div className='border-t-1 flex items-center gap-2 border-gray-600 bg-green-50 p-1'>
+            <BsPersonBadge className='size-4' />
+
+            <p>{ensName || 'You are wearing this hat'}</p>
+          </div>
+        )}
+      </Card>
     </Link>
   );
 };

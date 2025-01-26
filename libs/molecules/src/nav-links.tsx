@@ -1,13 +1,12 @@
 'use client';
 
-import { Button, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { capitalize, get, includes, isNaN, startsWith, toLower } from 'lodash';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
-import { Link } from 'ui';
+import { Button, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger, Link } from 'ui';
 import { containsUpperCase, getPathParams } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -32,25 +31,16 @@ const NavLinks = () => {
     <>
       <Link href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`}>
         <Button
-          h='75px'
-          minW='125px'
-          maxW='200px'
-          borderRadius={0}
-          background='transparent'
-          _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-          isActive={includes(pathname, CONFIG.TERMS.trees)}
+          className='h-16 min-w-40 max-w-60 rounded-none bg-transparent active:border-b-2 active:bg-gray-100'
+          data-active={includes(pathname, CONFIG.TERMS.trees)}
         >
           {!tabName ? (
-            <Text size='lg'>{capitalize(CONFIG.TERMS.trees)}</Text>
+            <p className='text-lg'>{capitalize(CONFIG.TERMS.trees)}</p>
           ) : (
-            <Stack align='start' w='90%' mx={2}>
-              <Text size='sm' textTransform='uppercase'>
-                {CONFIG.TERMS.trees}
-              </Text>
-              <Text size='lg' variant='gray' maxW='170px' isTruncated>
-                {containsUpperCase(tabName) ? tabName : capitalize(tabName)}
-              </Text>
-            </Stack>
+            <div className='flex flex-col gap-2'>
+              <p className='text-sm uppercase'>{CONFIG.TERMS.trees}</p>
+              <p className='text-lg'>{containsUpperCase(tabName) ? tabName : capitalize(tabName)}</p>
+            </div>
           )}
         </Button>
       </Link>
@@ -58,13 +48,8 @@ const NavLinks = () => {
       {address && (
         <Link href={`/${CONFIG.TERMS.wearers}/${address}`}>
           <Button
-            h='75px'
-            minW='125px'
-            borderRadius={0}
-            fontSize='lg'
-            background='transparent'
-            _active={{ borderBottom: '2px solid', bg: 'gray.100' }}
-            isActive={includes(toLower(pathname), toLower(address))}
+            className='h-16 min-w-40 max-w-60 rounded-none bg-transparent active:border-b-2 active:bg-gray-100'
+            data-active={includes(toLower(pathname), toLower(address))}
           >
             {`My ${capitalize(CONFIG.TERMS.hats)}`}
           </Button>
@@ -72,22 +57,29 @@ const NavLinks = () => {
       )}
 
       {devMode && (
-        <Menu>
-          <MenuButton>Dev</MenuButton>
-          <MenuList>
-            <Link href='/subgraphs' passHref>
-              <MenuItem>Subgraphs</MenuItem>
-            </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button>Dev</Button>
+          </DropdownMenuTrigger>
 
-            <Link href='/buidl/chain' passHref>
-              <MenuItem>Chain Module Deploy</MenuItem>
-            </Link>
+          <DropdownMenuPortal>
+            <DropdownMenuItem asChild>
+              <Link href='/subgraphs'>Subgraphs</Link>
+            </DropdownMenuItem>
 
-            <Link href='/buidl/active' passHref>
-              <MenuItem>Deactivate Hats</MenuItem>
-            </Link>
-          </MenuList>
-        </Menu>
+            <DropdownMenuItem asChild>
+              <Link href='/buidl/chain'>
+                <p>Chain Module Deploy</p>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link href='/buidl/active'>
+                <p>Deactivate Hats</p>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuPortal>
+        </DropdownMenu>
       )}
     </>
   );

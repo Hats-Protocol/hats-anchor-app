@@ -1,60 +1,44 @@
 'use client';
 
-import { Box, Card, Flex, Heading, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
 import { getTreeId } from 'hats-utils';
-import _ from 'lodash';
+import { get } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
-import { Link } from 'ui';
+import { Card, Link } from 'ui';
 
 // TODO optimize top hat fetch
 const WearerHatCard = ({ hat, chainId }: { hat: AppHat; chainId: SupportedChains | undefined }) => {
-  const { data: hatDetails } = useHatDetailsField(_.get(hat, 'details'));
+  const { data: hatDetails } = useHatDetailsField(get(hat, 'details'));
 
   // TODO need topHatId from hatId
   const { data: topHat } = useHatDetails({
-    hatId: getTreeId(_.get(hat, 'id'), true),
+    hatId: getTreeId(get(hat, 'id'), true),
     chainId,
   });
-  const { data: topHatDetails } = useHatDetailsField(_.get(topHat, 'details'));
+  const { data: topHatDetails } = useHatDetailsField(get(topHat, 'details'));
 
-  const hatName = hatDetails?.type === '1.0' ? _.get(hatDetails, 'data.name') : _.get(hat, 'details');
+  const hatName = hatDetails?.type === '1.0' ? get(hatDetails, 'data.name') : get(hat, 'details');
 
-  const topHatName = topHatDetails?.type === '1.0' ? _.get(topHatDetails, 'data.name') : _.get(topHat, 'details');
+  const topHatName = topHatDetails?.type === '1.0' ? get(topHatDetails, 'data.name') : get(topHat, 'details');
 
   return (
     <Link
-      href={`/trees/${_.get(hat, 'chainId')}/${Number(
-        hatIdToTreeId(BigInt(_.get(hat, 'id'))),
-      )}?hatId=${hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}`}
+      href={`/trees/${get(hat, 'chainId')}/${Number(hatIdToTreeId(BigInt(get(hat, 'id'))))}?hatId=${hatIdDecimalToIp(BigInt(get(hat, 'id')))}`}
     >
-      <Card key={_.get(hat, 'id')} overflow='hidden' border='2px solid' borderColor='gray.600'>
-        <Box
-          bgImage={_.get(hat, 'imageUrl') || '/icon.jpeg'}
-          bgSize='cover'
-          bgPosition='center'
-          w='110%'
-          ml={-3}
-          mt={-1}
-          h='250px'
-          border='1px solid'
-          borderColor='gray.200'
+      <Card key={get(hat, 'id')} className='overflow-hidden border-2 border-gray-600'>
+        <div
+          style={{ backgroundImage: get(hat, 'imageUrl') || '/icon.jpeg' }}
+          className='w-110% h-250px border-1 ml-[-3px] mt-[-1px] border-gray-200 bg-cover bg-center'
         />
-        <Box borderY='1px solid' borderColor='gray.600' p={2} mt={-1} bg='white'>
-          <Flex justify='space-between' gap={2}>
-            <Heading size='xs' noOfLines={1}>
-              {topHatName}
-            </Heading>
-            <Text size='xs' variant='gray'>
-              {hatIdDecimalToIp(BigInt(_.get(hat, 'id')))}
-            </Text>
-          </Flex>
+        <div className='border-y-1 mt-[-1px] border-gray-600 bg-white p-2'>
+          <div className='flex justify-between gap-2'>
+            <p className='text-xs'>{topHatName}</p>
+            <p className='text-xs text-gray-500'>{hatIdDecimalToIp(BigInt(get(hat, 'id')))}</p>
+          </div>
 
-          <Heading size='md' noOfLines={1}>
-            {hatName}
-          </Heading>
-        </Box>
+          <p className='text-md line-clamp-1'>{hatName}</p>
+        </div>
       </Card>
     </Link>
   );

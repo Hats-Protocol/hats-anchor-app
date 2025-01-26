@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Flex, Heading, HStack, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { WriteFunction } from '@hatsprotocol/hsg-sdk';
 import { Modal, useEligibility, useOverlay } from 'contexts';
 import { ModuleArgsForm } from 'forms';
@@ -9,6 +8,7 @@ import { useAncillaryElection, useCallModuleFunction } from 'modules-hooks';
 import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
+import { Button, Tooltip } from 'ui';
 import { eligibilityRuleToModuleDetails, formatAddress, getDisabledReason, parsedSeconds } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -106,14 +106,14 @@ export const UpcomingSeason = () => {
   };
 
   return (
-    <Stack gap={4}>
-      <Heading size='md'>Upcoming Season</Heading>
-      <Box w='full'>
+    <div className='flex flex-col gap-4'>
+      <h2 className='text-lg font-medium'>Upcoming Season</h2>
+      <div className='w-full'>
         <DateInfo date={nextTermEndDate} label='Next Season End' />
-      </Box>
+      </div>
 
       {!isEmpty(accessibleActions) && (
-        <Flex gap={2} wrap='wrap' justifyContent='center'>
+        <div className='flex flex-wrap justify-center gap-2'>
           {map(accessibleActions, (action: WriteFunction) => (
             <Tooltip
               label={getDisabledReason({
@@ -125,10 +125,9 @@ export const UpcomingSeason = () => {
             >
               <Button
                 variant='outline'
-                borderColor='blackAlpha.300'
-                fontWeight='medium'
+                className='font-medium'
                 size='sm'
-                isDisabled={
+                disabled={
                   !!getDisabledReason({
                     isNotConnected: !address,
                     isOnWrongNetwork: !isSameChain,
@@ -140,37 +139,37 @@ export const UpcomingSeason = () => {
               </Button>
             </Tooltip>
           ))}
-        </Flex>
+        </div>
       )}
 
       <Modal
         name='functionCall-module'
         title={`Interact with ${moduleDetails?.name} (${formatAddress(controllerAddress)})`}
       >
-        <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-          <Stack spacing={4}>
-            {get(selectedFunction, 'description') && <Text>{get(selectedFunction, 'description')}</Text>}
-            <Stack>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className='flex flex-col gap-4'>
+            {get(selectedFunction, 'description') && <p>{get(selectedFunction, 'description')}</p>}
+            <div className='flex flex-col gap-4'>
               <ModuleArgsForm
                 selectedModuleArgs={get(selectedFunction, 'args', [])}
                 localForm={formMethods}
                 hideIcon
                 noMargin
               />
-            </Stack>
-            <Flex justify='flex-end'>
-              <HStack>
+            </div>
+            <div className='flex justify-end'>
+              <div className='flex gap-2'>
                 <Button variant='outline' onClick={() => setModals?.({})}>
                   Cancel
                 </Button>
-                <Button colorScheme='blue' type='submit' isDisabled={!isValid}>
+                <Button type='submit' disabled={!isValid}>
                   {capitalize(get(selectedFunction, 'label'))}
                 </Button>
-              </HStack>
-            </Flex>
-          </Stack>
-        </Box>
+              </div>
+            </div>
+          </div>
+        </form>
       </Modal>
-    </Stack>
+    </div>
   );
 };

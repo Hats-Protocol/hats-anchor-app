@@ -1,14 +1,13 @@
 'use client';
 
-import { Badge, Box, Button, Flex, Heading, HStack, Icon, Skeleton, Stack, Tooltip } from '@chakra-ui/react';
 import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatStatus, useWearerDetails } from 'hats-hooks';
 import { useClipboard, useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { find, get, includes, map, pick } from 'lodash';
 import dynamic from 'next/dynamic';
-import { LazyImage, Markdown } from 'ui';
+import { Badge, Button, cn, LazyImage, Markdown, Skeleton, Tooltip } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -22,20 +21,20 @@ const Header = () => {
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
     toastData: {
       title: 'Successfully copied hat ID to clipboard',
-      status: 'info',
+      // status: 'info',
     },
   });
   const { isMobile } = useMediaStyles();
 
-  const { name, description } = _.pick(selectedHatDetails, ['name', 'description']);
-  const imageUrl = _.get(_.find(treeToDisplay, { id: selectedHat?.id }), 'imageUrl');
+  const { name, description } = pick(selectedHatDetails, ['name', 'description']);
+  const imageUrl = get(find(treeToDisplay, { id: selectedHat?.id }), 'imageUrl');
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
     editMode,
   });
-  const isCurrentWearer = _.includes(_.map(wearer, 'id'), selectedHat?.id);
+  const isCurrentWearer = includes(map(wearer, 'id'), selectedHat?.id);
 
   const levelAtLocalTree = selectedHat?.levelAtLocalTree || 0;
   const mutableStatus = selectedHat?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE;
@@ -49,67 +48,55 @@ const Header = () => {
   if (!selectedHat) return null;
 
   return (
-    <Stack spacing={4} px={{ base: 4, md: 16 }} pb={4} bg={{ base: 'white', md: 'transparent' }}>
-      <Stack gap={1} w='100%'>
-        <HStack spacing={4} minH={{ base: '150px', md: 'auto' }} pt={{ md: '50px' }} align='end' w='100%'>
-          {isMobile && <LazyImage src={imageUrl} alt='hat image' boxSize={120} />}
+    <div className='space-y-4 bg-white px-4 pb-4 md:bg-transparent md:px-16'>
+      <div className='w-full gap-1 space-y-2'>
+        <div className='min-h-150 md:min-h-auto pt-50 align-end flex w-full flex-col md:flex-row md:pt-0'>
+          {isMobile && <LazyImage src={imageUrl} alt='hat image' containerClassName='size-120' />}
 
-          <Flex
-            justify='space-between'
-            gap={2}
-            direction={{ base: 'column', md: 'row' }}
-            w='100%'
-            maxW={{ base: '60%', md: '100%' }}
-          >
+          <div className='max-w-2/3 flex w-full flex-col justify-between gap-2 md:max-w-full md:flex-row'>
             <Tooltip label={name || selectedHat?.details}>
-              <Heading noOfLines={{ base: 2, md: 1 }}>{name || selectedHat?.details}</Heading>
+              <h2 className='line-clamp-2 text-2xl font-medium md:line-clamp-1'>{name || selectedHat?.details}</h2>
             </Tooltip>
 
-            <Box>
-              <Button
-                variant='link'
-                color='Functional-LinkPrimary'
-                onClick={copyHatId}
-                rightIcon={<Icon as={CopyHash} />}
-              >
+            <div>
+              <Button variant='link' color='Functional-LinkPrimary' onClick={copyHatId}>
                 {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
+                <CopyHash className='ml-1 size-4' />
               </Button>
-            </Box>
-          </Flex>
-        </HStack>
+            </div>
+          </div>
+        </div>
         {description && (
-          <Box opacity={0.6}>
+          <div className='opacity-60'>
             <Markdown>{description}</Markdown>
-          </Box>
+          </div>
         )}
-      </Stack>
+      </div>
 
-      <Flex justify={isMobile ? 'center' : 'start'}>
-        <HStack>
-          {isCurrentWearer && (
-            <Skeleton isLoaded={!hatLoading}>
-              <Badge colorScheme='green'>My Hat</Badge>
-            </Skeleton>
-          )}
-          <Skeleton isLoaded={!hatLoading}>
-            <Badge colorScheme={mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0 ? 'blue' : 'red'}>
-              {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
-            </Badge>
-          </Skeleton>
+      <div className='flex justify-center md:justify-start'>
+        <div className='flex flex-col gap-2'>
+          {isCurrentWearer && <Badge className='bg-green-500'>My Hat</Badge>}
+
+          <Badge
+            className={cn(
+              mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0 ? 'bg-blue-500' : 'bg-red-500',
+            )}
+          >
+            {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
+          </Badge>
+
           {levelAtLocalTree > 0 && (
             <>
-              <Skeleton isLoaded={!hatLoading && !!activeStatus}>
-                <Badge colorScheme={activeStatus === STATUS.ACTIVE ? 'green' : 'red'}>{activeStatus}</Badge>
-              </Skeleton>
+              <Badge className={cn(activeStatus === STATUS.ACTIVE ? 'bg-green-500' : 'bg-red-500')}>
+                {activeStatus}
+              </Badge>
 
-              <Skeleton isLoaded={!hatLoading}>
-                <Badge>Level {levelAtLocalTree}</Badge>
-              </Skeleton>
+              <Badge>Level {levelAtLocalTree}</Badge>
             </>
           )}
-        </HStack>
-      </Flex>
-    </Stack>
+        </div>
+      </div>
+    </div>
   );
 };
 

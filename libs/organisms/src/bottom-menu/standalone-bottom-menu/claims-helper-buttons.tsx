@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, HStack, Icon, Skeleton } from '@chakra-ui/react';
 import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/config';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
@@ -11,7 +10,7 @@ import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload } from 'react-icons/bs';
 import { FiExternalLink } from 'react-icons/fi';
-import { Link } from 'ui';
+import { Button, cn, Link, Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
@@ -64,26 +63,26 @@ export const ClaimsHelperButtons = ({ stackVertically = false }: ClaimsHelperBut
     };
   }, [agreement, agreementV0]);
 
-  return (
-    <Skeleton isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
-      <HStack flexDir={stackVertically ? 'column' : 'row'}>
-        <Link href={link} isExternal>
-          <Button
-            variant='outline'
-            rightIcon={<Icon as={FiExternalLink} boxSize={4} />}
-            display={{ base: 'none', md: 'flex' }}
-          >
-            View full role
-          </Button>
-        </Link>
+  if (!isHatDetailsLoading && !isEligibilityRulesLoading) {
+    return <Skeleton />;
+  }
 
-        {hasAgreement && (
-          <Button onClick={handleDownload} variant='outline' leftIcon={<Icon as={BsDownload} />}>
-            Download agreement
-          </Button>
-        )}
-      </HStack>
-    </Skeleton>
+  return (
+    <div className={cn('flex flex-row', stackVertically && 'flex-col')}>
+      <Link href={link} isExternal>
+        <Button variant='outline' className='hidden md:flex'>
+          View full role
+          <FiExternalLink className='ml-1 size-4' />
+        </Button>
+      </Link>
+
+      {hasAgreement && (
+        <Button onClick={handleDownload} variant='outline'>
+          <BsDownload className='size-4' />
+          Download agreement
+        </Button>
+      )}
+    </div>
   );
 };
 

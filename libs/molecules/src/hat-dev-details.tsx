@@ -1,13 +1,12 @@
 'use client';
 
-import { Button, HStack, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { Link } from 'ui';
+import { Button, Link } from 'ui';
 import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 
 const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
@@ -37,29 +36,29 @@ const HatDevDetails = () => {
       <h2 className='font-bold'>Dev Info</h2>
 
       <div className='flex flex-col gap-2'>
-        <Stack>
-          <HStack>
-            <Text variant='medium'>Image URI:</Text>
+        <div className='flex flex-col gap-2'>
+          <div className='flex items-center gap-2'>
+            <p className='font-medium'>Image URI:</p>
             <Link href={ipfsUrl(selectedHat?.imageUri)} isExternal>
-              <Text maxW={['250px', null, null, '350px']} isTruncated>
+              <p className='max-w-[250px] truncate lg:max-w-[350px]'>
                 {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
-              </Text>
+              </p>
             </Link>
-          </HStack>
-          <HStack>
-            <Text variant='medium'>Details URI:</Text>
+          </div>
+          <div className='flex items-center gap-2'>
+            <p className='font-medium'>Details URI:</p>
             <Link href={ipfsUrl(selectedHat?.details)} isExternal>
-              <Text maxW={['250px', null, null, '350px']} isTruncated>
+              <p className='max-w-[250px] truncate lg:max-w-[350px]'>
                 {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
-              </Text>
+              </p>
             </Link>
-          </HStack>
+          </div>
 
-          <HStack>
-            <Text variant='medium'>Claimable:</Text>
-            <Text>{isClaimable?.for ? 'For' : isClaimable?.by ? 'Any' : 'None'}</Text>
-          </HStack>
-        </Stack>
+          <div className='flex items-center gap-2'>
+            <p className='font-medium'>Claimable:</p>
+            <p>{isClaimable?.for ? 'For' : isClaimable?.by ? 'Any' : 'None'}</p>
+          </div>
+        </div>
 
         {map(devData, (data) => {
           const devDataClick = () => {
@@ -76,9 +75,9 @@ const HatDevDetails = () => {
               <Link href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`} isExternal>
                 {formatAddress(get(data, 'value'))}
               </Link>
-              <button onClick={devDataClick}>
+              <Button variant='outline' onClick={devDataClick}>
                 <CopyAddress />
-              </button>
+              </Button>
             </div>
           );
         })}

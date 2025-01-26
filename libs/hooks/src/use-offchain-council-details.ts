@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getOffchainCouncilData } from 'utils';
-
-const useOffchainCouncilDetails = ({ hsg, chainId }: { hsg: string; chainId: number }) => {
+import { Hex } from 'viem';
+const useOffchainCouncilDetails = ({ hsg, chainId }: { hsg: Hex | undefined; chainId: number | undefined }) => {
   return useQuery({
     queryKey: ['offchainCouncilData', { chainId, hsg }],
     queryFn: () => getOffchainCouncilData({ hsg, chainId }),

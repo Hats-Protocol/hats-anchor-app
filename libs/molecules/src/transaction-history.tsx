@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Flex, HStack, Icon, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
@@ -8,7 +7,7 @@ import { isEmpty, map, take } from 'lodash';
 import dynamic from 'next/dynamic';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { Transaction } from 'types';
-import { Link } from 'ui';
+import { Button, Link, Spinner } from 'ui';
 import { explorerUrl } from 'utils';
 
 const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
@@ -35,24 +34,24 @@ const TransactionHistoryRow = ({
 
   return (
     <Link href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'} className='block' isExternal>
-      <Stack key={hash} py={2} spacing={1}>
-        <HStack>
+      <div className='flex flex-col gap-1'>
+        <div className='flex items-center gap-2'>
           {status === 'pending' ? (
-            <Spinner color='blue.500' size='xs' />
+            <Spinner className='text-blue-500' />
           ) : (
-            <Icon color='green.500' as={FaRegCheckCircle} w={3} />
+            <FaRegCheckCircle className='w-3 text-green-500' />
           )}
-          <Text wordBreak='break-word'>{txDescription}</Text>
-        </HStack>
+          <p className='break-word'>{txDescription}</p>
+        </div>
 
-        <Flex justify='space-between' pl={5}>
-          <HStack>
-            {!hideHash && !isMobile && <Text size='sm' variant='gray'>{`(${abbreviateHash(hash)})`}</Text>}
-            <Text size={{ base: 'xs', md: 'sm' }}>{formatDistanceToNow(new Date(timestamp))} ago</Text>
-            <Icon as={Etherscan} w={3} color='blue.500' />
-          </HStack>
-        </Flex>
-      </Stack>
+        <div className='flex justify-between pl-5'>
+          <div className='flex items-center gap-2'>
+            {!hideHash && !isMobile && <p className='text-sm text-gray-500'>{`(${abbreviateHash(hash)})`}</p>}
+            <p className='text-xs md:text-sm'>{formatDistanceToNow(new Date(timestamp))} ago</p>
+            <Etherscan className='w-3 text-blue-500' />
+          </div>
+        </div>
+      </div>
     </Link>
   );
 };
@@ -77,44 +76,34 @@ const TransactionHistory = ({
 
   if (events.length === 0) {
     return (
-      <Flex align='center' justify='center' py={2}>
-        <Text fontSize='sm' color='gray.500' textAlign='center' fontWeight='medium'>
-          No recent transactions
-        </Text>
-      </Flex>
+      <div className='flex items-center justify-center py-2'>
+        <p className='text-sm text-gray-500'>No recent transactions</p>
+      </div>
     );
   }
 
   return (
-    <Box>
-      <Stack spacing={1}>
-        {showClear && (
-          <Flex justify='flex-end'>
-            <Button
-              size='xs'
-              variant='outlineMatch'
-              colorScheme='blue.500'
-              onClick={clearAllTransactions}
-              isDisabled={isEmpty(events)}
-            >
-              Clear
-            </Button>
-          </Flex>
-        )}
+    <div className='flex flex-col gap-1'>
+      {showClear && (
+        <div className='flex justify-end'>
+          <Button size='xs' variant='outline-blue' onClick={clearAllTransactions} disabled={isEmpty(events)}>
+            Clear
+          </Button>
+        </div>
+      )}
 
-        {map(events, ({ hash, txChainId, status, timestamp, txDescription }: Transaction) => (
-          <TransactionHistoryRow
-            hash={hash}
-            hideHash={hideHash}
-            txChainId={txChainId}
-            status={status}
-            timestamp={timestamp}
-            txDescription={txDescription}
-            key={hash}
-          />
-        ))}
-      </Stack>
-    </Box>
+      {map(events, ({ hash, txChainId, status, timestamp, txDescription }: Transaction) => (
+        <TransactionHistoryRow
+          hash={hash}
+          hideHash={hideHash}
+          txChainId={txChainId}
+          status={status}
+          timestamp={timestamp}
+          txDescription={txDescription}
+          key={hash}
+        />
+      ))}
+    </div>
   );
 };
 

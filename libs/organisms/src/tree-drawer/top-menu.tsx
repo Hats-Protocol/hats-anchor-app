@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  IconButton,
-  Modal as ChakraModal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import _ from 'lodash';
@@ -25,6 +9,7 @@ import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
+import { Button, Tooltip } from 'ui';
 import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -34,8 +19,7 @@ const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.Netw
 const TopMenu = () => {
   const currentChain = useChainId();
   const { address } = useAccount();
-  const { handlePendingTx } = useOverlay();
-  const { isOpen, onOpen, onClose: closeModal } = useDisclosure();
+  const { handlePendingTx, setModals } = useOverlay();
   const {
     chainId,
     treeId,
@@ -87,7 +71,7 @@ const TopMenu = () => {
 
   const promptForReset = () => {
     if (editHasUpdates(storedData)) {
-      onOpen();
+      setModals?.({ resetChanges: true });
     } else {
       setEditMode?.(!editMode);
       onCloseTreeDrawer?.();
@@ -101,7 +85,7 @@ const TopMenu = () => {
       chain_id: chainId,
     });
     resetTree?.();
-    closeModal();
+    setModals?.({});
   };
 
   const getDeployTooltipLabel = useMemo(() => {
@@ -126,70 +110,50 @@ const TopMenu = () => {
   );
 
   return (
-    <Flex
-      w='100%'
-      borderBottom='1px solid'
-      borderColor='gray.200'
-      h='75px'
-      bg='whiteAlpha.900'
-      align='center'
-      justify='space-between'
-      px={4}
-      position='absolute'
-      top={0}
-      zIndex={16}
-    >
-      <HStack>
-        <Button variant='outline' onClick={promptForReset} leftIcon={<Icon as={BsXSquare} />}>
+    <div className='bg-whiteAlpha-900 top-0 z-[16] flex w-full items-center justify-between border-b border-gray-200 px-4 py-4'>
+      <div className='flex items-center justify-between'>
+        <Button variant='outline' onClick={promptForReset}>
+          <BsXSquare className='mr-2' />
           Cancel
         </Button>
         {chainId === selectedHat?.chainId ? (
-          <Button variant='outline' onClick={onCloseTreeDrawer} rightIcon={<Icon as={BsChevronDoubleRight} />}>
+          <Button variant='outline' onClick={onCloseTreeDrawer}>
+            <BsChevronDoubleRight className='mr-2' />
             Close
           </Button>
         ) : (
           <Tooltip label='Close'>
-            <IconButton
-              variant='outline'
-              onClick={onCloseTreeDrawer}
-              aria-label='Close'
-              icon={<Icon as={BsChevronDoubleRight} />}
-            />
+            <Button variant='outline' onClick={onCloseTreeDrawer} aria-label='Close'>
+              <BsChevronDoubleRight />
+            </Button>
           </Tooltip>
         )}
-      </HStack>
-      <HStack>
+      </div>
+      <div className='flex items-center justify-between'>
         <NetworkSwitcher />
-        <Tooltip label={isDeployDisabled ? getDeployTooltipLabel : ''} placement='left' hasArrow>
-          <Button
-            leftIcon={<IoExitOutline />}
-            colorScheme='blue'
-            variant='solid'
-            isDisabled={isDeployDisabled}
-            onClick={handleDeploy}
-          >
+        <Tooltip label={isDeployDisabled ? getDeployTooltipLabel : ''}>
+          <Button className='bg-blue-500' disabled={isDeployDisabled} onClick={handleDeploy}>
+            <IoExitOutline className='mr-2' />
             Deploy
           </Button>
         </Tooltip>
-      </HStack>
+      </div>
 
-      <ChakraModal isOpen={isOpen} onClose={closeModal}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Reset Changes</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>Are you sure you want to reset all current changes?</ModalBody>
-          <ModalFooter>
-            <Button colorScheme='red' mr={3} onClick={confirmReset}>
-              Confirm
-            </Button>
-            <Button variant='ghost' onClick={closeModal}>
+      <Modal name='reset-changes' title='Reset Changes'>
+        <div>
+          <p>Are you sure you want to reset all current changes?</p>
+
+          <div className='flex justify-end'>
+            <Button variant='outline' onClick={() => setModals?.({})}>
               Cancel
             </Button>
-          </ModalFooter>
-        </ModalContent>
-      </ChakraModal>
-    </Flex>
+            <Button className='bg-destructive' onClick={confirmReset}>
+              Confirm
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 };
 

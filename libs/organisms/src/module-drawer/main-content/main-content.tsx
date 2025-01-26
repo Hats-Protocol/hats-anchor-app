@@ -1,18 +1,19 @@
 'use client';
 
-import { Heading, Stack, Text } from '@chakra-ui/react';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { getAllParents } from 'hats-utils';
 import { filter, toNumber } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { prettyIdToIp } from 'shared';
 import { AppHat } from 'types';
-import { Accordion } from 'ui';
 
 import { ModuleDetailsForm } from './module-details-form';
 import { PermissionlessClaimingForm } from './permissionless-claiming-form';
+
+const HatFormAccordion = dynamic(() => import('molecules').then((mod) => mod.HatFormAccordion));
 
 const MainContent = ({
   localForm,
@@ -52,45 +53,35 @@ const MainContent = ({
   if (!onchainHats || !treeToDisplay) return null;
 
   return (
-    <Stack
-      p={10}
-      pt={8}
-      spacing={10}
-      w='100%'
-      overflow='scroll'
-      height='calc(100% - 75px)'
-      pb={400}
-      top={75}
-      pos='relative'
-    >
-      <Stack>
-        <Heading size='2xl' variant='lightMedium'>
+    <div className='pb-400 top-75 relative h-[calc(100%-75px)] w-full space-y-10 overflow-scroll p-10 pt-8'>
+      <div className='space-y-2'>
+        <h2 className='text-2xl font-medium'>
           {isStandaloneHatterDeploy
             ? `Deploy a Claims Hatter contract to make hat ${hatTitle} claimable`
             : `Create a new Accountability Module for hat ${hatTitle}`}
-        </Heading>
-        {topHatDetails?.description && (
-          <Text variant='light' noOfLines={2}>
-            {topHatDetails?.description}
-          </Text>
-        )}
-      </Stack>
+        </h2>
+        {topHatDetails?.description && <p className='text-sm text-gray-500'>{topHatDetails?.description}</p>}
+      </div>
 
       {!isStandaloneHatterDeploy && (
-        <Accordion title='Module Basics' subtitle='The fundamentals of the module, including type and details.' open>
+        <HatFormAccordion
+          title='Module Basics'
+          subtitle='The fundamentals of the module, including type and details.'
+          open
+        >
           <ModuleDetailsForm localForm={localForm} title={title} />
-        </Accordion>
+        </HatFormAccordion>
       )}
       {claimableHats && title !== 'toggle' && (
-        <Accordion
+        <HatFormAccordion
           title='Permissionless Claiming'
           subtitle='Make this hat claimable by deploying a new hatter contract.'
           open
         >
           <PermissionlessClaimingForm localForm={localForm} parentHats={eligibleParentHats} />
-        </Accordion>
+        </HatFormAccordion>
       )}
-    </Stack>
+    </div>
   );
 };
 

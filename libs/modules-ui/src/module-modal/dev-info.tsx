@@ -1,4 +1,3 @@
-import { Heading, Stack } from '@chakra-ui/react';
 import { isEmpty, map } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
@@ -14,27 +13,24 @@ interface ModuleDescriptor {
 }
 
 export const DevInfo = ({ moduleDescriptors }: DevInfoProps) => {
-  const devFlag =
-    posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
   if (!moduleDescriptors || isEmpty(moduleDescriptors) || !devFlag) return null;
 
   return (
-    <Stack>
-      <Heading size='sm'>Dev Info</Heading>
+    <div>
+      <h2 className='text-sm'>Dev Info</h2>
 
       {map(moduleDescriptors, (descriptor) => {
         return (
           <div className='flex w-full justify-between' key={descriptor.label}>
             <div className='text-sm'>{descriptor.label}</div>
 
-            <div className='text-sm'>
-              {descriptor.descriptor || descriptor.hatId}
-            </div>
+            <div className='text-sm'>{descriptor.descriptor || descriptor.hatId}</div>
           </div>
         );
       })}
-    </Stack>
+    </div>
   );
 };
 

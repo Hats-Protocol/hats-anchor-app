@@ -1,56 +1,53 @@
 'use client';
 
-// TODO chakra
-import posthog from 'posthog-js';
-import React, { useState } from 'react';
-import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
+import * as AccordionPrimitive from '@radix-ui/react-accordion';
+import { ChevronDown } from 'lucide-react';
+import * as React from 'react';
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './collapsible';
+import { cn } from './lib/utils';
 
-const Accordion = ({ title, subtitle, dirtyFieldsList, open = false, children }: AccordionProps) => {
-  const [isOpen, setIsOpen] = useState(open);
+const Accordion = AccordionPrimitive.Root;
 
-  const handleToggle = () => {
-    posthog.capture('Toggled Hat Form', {
-      title,
-      dirty_fields: dirtyFieldsList,
-      is_open: !isOpen,
-    });
-    setIsOpen(!isOpen);
-  };
+const AccordionItem = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
+>(({ className, ...props }, ref) => (
+  <AccordionPrimitive.Item ref={ref} className={cn('border-b', className)} {...props} />
+));
+AccordionItem.displayName = 'AccordionItem';
 
-  return (
-    <Collapsible className='flex w-full flex-col' open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className='flex flex-col hover:cursor-pointer' onClick={handleToggle}>
-        <div className='flex items-center'>
-          <div className='flex items-center'>
-            {isOpen ? <AiOutlineMinusSquare className='h-5 w-5' /> : <AiOutlinePlusSquare className='h-5 w-5' />}
-            <h2 className='text-lg font-medium text-slate-900'>{title}</h2>
-          </div>
-        </div>
-        <div className='flex flex-col'>{subtitle && <p className='ml-7 text-sm text-slate-500'>{subtitle}</p>}</div>
-      </CollapsibleTrigger>
-
-      {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
-        <div className='font-sm ml-7 mt-2 text-cyan-900'>
-          <p className='text-medium'>Edits:</p>
-          {dirtyFieldsList?.map((field) => <p key={field}>- {field} changed</p>)}
-        </div>
+const AccordionTrigger = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
+>(({ className, children, ...props }, ref) => (
+  <AccordionPrimitive.Header className='flex'>
+    <AccordionPrimitive.Trigger
+      ref={ref}
+      className={cn(
+        'flex flex-1 items-center justify-between py-4 text-left text-sm font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180',
+        className,
       )}
+      {...props}
+    >
+      {children}
+      <ChevronDown className='text-muted-foreground h-4 w-4 shrink-0 transition-transform duration-200' />
+    </AccordionPrimitive.Trigger>
+  </AccordionPrimitive.Header>
+));
+AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
 
-      <CollapsibleContent>
-        <div className='mr-0 mt-8 pb-0 pl-7 pr-0'>{children}</div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-};
+const AccordionContent = React.forwardRef<
+  React.ElementRef<typeof AccordionPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <AccordionPrimitive.Content
+    ref={ref}
+    className='data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm'
+    {...props}
+  >
+    <div className={cn('pb-4 pt-0', className)}>{children}</div>
+  </AccordionPrimitive.Content>
+));
+AccordionContent.displayName = AccordionPrimitive.Content.displayName;
 
-interface AccordionProps {
-  title: string;
-  subtitle?: string;
-  dirtyFieldsList?: string[];
-  open?: boolean;
-  children: React.ReactNode;
-}
-
-export { Accordion, type AccordionProps };
+export { Accordion, AccordionContent, AccordionItem, AccordionTrigger };

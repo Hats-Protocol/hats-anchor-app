@@ -1,6 +1,5 @@
 'use client';
 
-import { Accordion, Heading, Skeleton, Stack } from '@chakra-ui/react';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { combineAuthorities } from 'hats-utils';
@@ -8,6 +7,7 @@ import { useHatSnapshotRoles } from 'hooks';
 import { get, isEmpty, map, size } from 'lodash';
 import { useAncillaryModules } from 'modules-hooks';
 import { Authority, AuthorityType } from 'types';
+import { Accordion, Skeleton } from 'ui';
 
 import { AuthoritiesListCard } from './authorities-list-card';
 
@@ -62,17 +62,24 @@ const AuthoritiesList = () => {
     // );
   }
 
-  return (
-    <Accordion px={{ base: 0, md: 16 }} allowMultiple>
-      <Stack>
-        <Skeleton isLoaded={allLoaded}>
-          <Heading size='md' mx={{ base: 4, md: 0 }} variant={{ base: 'medium', md: 'default' }}>
-            {size(combinedAuthorities)} {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'} granted by this
-            Hat
-          </Heading>
-        </Skeleton>
+  if (!allLoaded) {
+    return (
+      <div className='space-y-4'>
+        <Skeleton />
+        <Skeleton />
+      </div>
+    );
+  }
 
-        <Stack spacing={allLoaded && !isEmpty(localAuthorities) ? 1 : 2}>
+  return (
+    <Accordion className='px-0 md:px-16' type='multiple'>
+      <div className='space-y-4'>
+        <h2 className='text-lg font-medium'>
+          {size(combinedAuthorities)} {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'} granted by this
+          Hat
+        </h2>
+
+        <div className='space-y-1'>
           {map(localAuthorities, (authority: Authority, index: number) => (
             <AuthoritiesListCard
               index={index}
@@ -81,8 +88,8 @@ const AuthoritiesList = () => {
               type={authority.type as AuthorityType}
             />
           ))}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
     </Accordion>
   );
 };

@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Flex, HStack, Icon, Image, Text, Tooltip } from '@chakra-ui/react';
 import { AUTHORITY_ENFORCEMENT, AUTHORITY_PLATFORMS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
@@ -12,7 +11,7 @@ import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
-import { IconHandler, Link } from 'ui';
+import { cn, IconHandler, Link, Tooltip } from 'ui';
 import { authorityImageHandler, getHostnameFromURL, validateURL } from 'utils';
 import { Hex } from 'viem';
 
@@ -106,17 +105,11 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeader
     authority?.type && AUTHORITY_ENFORCEMENT[authority.type as keyof typeof AUTHORITY_ENFORCEMENT].enforcementIcon;
 
   return (
-    <Flex gap={4} w='100%' justify='space-between' align='center'>
-      <HStack align='start'>
-        <Flex boxSize={6} justify='center' align='center' position='relative'>
+    <div className='flex w-full items-center justify-between gap-4'>
+      <div className='flex items-start gap-2'>
+        <div className='relative flex h-6 w-6 items-center justify-center'>
           {!isExpanded && (
-            <Image
-              src={enforcementIcon}
-              alt='authority enforcement indicator'
-              position='absolute'
-              top='1px' // slightly offset to align with icon/image
-              left={0}
-            />
+            <img src={enforcementIcon} alt='authority enforcement indicator' className='absolute left-0 top-[1px]' />
           )}
 
           <IconHandler
@@ -125,27 +118,23 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeader
             imageUrl={imageUrl}
             isExpanded={isExpanded || false}
           />
-        </Flex>
+        </div>
 
-        <Box textAlign='left'>
-          <HStack>
+        <div className='text-left'>
+          <div className='flex items-center gap-1'>
             {typeof label !== 'string' ? (
               label
             ) : (
-              <Text
-                // TODO should be a Heading component when expanded
-                fontWeight={isExpanded ? (isMobile ? 'bold' : 'medium') : 'normal'}
-                noOfLines={2}
-              >
+              <p className={cn('font-normal', isExpanded ? (isMobile ? 'font-bold' : 'font-medium') : undefined)}>
                 {hsgThresholdText || currentLabel || label || 'New Authority'}
                 {signerHatName &&
                   firstSignerHatId &&
                   ` for ${signerHatName} (${hatIdDecimalToIp(hatIdHexToDecimal(firstSignerHatId))})`}
-              </Text>
+              </p>
             )}
-          </HStack>
-        </Box>
-      </HStack>
+          </div>
+        </div>
+      </div>
       {!isExpanded && !isMobile && localLink && validateURL(localLink) && (
         <Link
           isExternal
@@ -160,14 +149,14 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeader
           }}
         >
           <Tooltip label={getHostnameFromURL(localLink)}>
-            <HStack spacing={1} color='blue.500'>
-              <Text size='sm'>{getHostnameLabel(getHostnameFromURL(localLink))}</Text>
-              <Icon as={BoxArrowUpRightOut} boxSize={3} />
-            </HStack>
+            <div className='flex items-center gap-1 text-blue-500'>
+              <p className='text-sm'>{getHostnameLabel(getHostnameFromURL(localLink))}</p>
+              <BoxArrowUpRightOut className='h-3 w-3' />
+            </div>
           </Tooltip>
         </Link>
       )}
-    </Flex>
+    </div>
   );
 };
 

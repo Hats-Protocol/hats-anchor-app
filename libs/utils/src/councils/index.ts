@@ -65,19 +65,20 @@ export const getOffchainCouncilData = async ({
 }: {
   hsg?: string;
   safe?: string;
-  chainId: number;
+  chainId: number | undefined;
 }): Promise<OffchainCouncilData | null> => {
+  if (!hsg || !chainId) return Promise.resolve(null);
   // TODO handle safe
   return councilsGraphqlClient
     .request<{
       councils: OffchainCouncilData[];
     }>(GET_COUNCIL_BY_HSG, { hsg, chainId })
     .then((data) => {
-      return get(data, 'councils[0]', null);
+      return Promise.resolve(get(data, 'councils[0]', null));
     })
     .catch((error) => {
       // eslint-disable-next-line no-console
       console.error('Error fetching offchain council data', error);
-      return null;
+      return Promise.resolve(null);
     });
 };

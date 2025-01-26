@@ -1,19 +1,17 @@
-import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
-
 export const ModuleHistory = () => {
   return null;
 
   // TODO get history from ancillary subgraph
 
   return (
-    <Stack>
-      <Heading size='sm'>History</Heading>
+    <div>
+      <h2 className='text-sm'>History</h2>
 
-      <Flex justify='space-between'>
-        <Text size='sm'>10 addresses added</Text>
+      <div className='flex justify-between'>
+        <p className='text-sm'>10 addresses added</p>
 
-        <Text size='sm'>4 days ago</Text>
-      </Flex>
-    </Stack>
+        <p className='text-sm'>4 days ago</p>
+      </div>
+    </div>
   );
 };

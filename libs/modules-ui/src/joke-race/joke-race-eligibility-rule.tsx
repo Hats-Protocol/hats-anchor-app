@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower, toNumber } from 'lodash';
@@ -8,7 +7,7 @@ import { useJokeRace } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
-import { Link } from 'ui';
+import { Button, Link } from 'ui';
 import { getJokeRaceModuleParameters, jokeRaceUrl, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
@@ -57,7 +56,7 @@ export const JokeRaceEligibilityRule = ({
 
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <span>
             {toNumber(topK) > 1 ? `Finish top ${topK}` : 'Finish first'} in the{' '}
             {eligibilityModalFlag ? (
               <Button
@@ -75,7 +74,7 @@ export const JokeRaceEligibilityRule = ({
                 JokeRace
               </Link>
             )}
-          </Text>
+          </span>
         }
         status={isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible}
         displayStatus={isEligible ? 'Selected' : 'Not Selected'}

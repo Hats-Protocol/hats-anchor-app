@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Flex, Heading, Icon, Image, Skeleton, Stack, Text, VStack } from '@chakra-ui/react';
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { useTreeForm } from 'contexts';
 import { prepareMobileTreeHats } from 'hats-utils';
@@ -10,7 +9,7 @@ import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
-import { HatDeco, Link } from 'ui';
+import { Button, HatDeco, Link, Skeleton } from 'ui';
 
 const MobileHatCard = dynamic(() => import('molecules').then((mod) => mod.MobileHatCard));
 const VerticalDividers = dynamic(() => import('molecules').then((mod) => mod.VerticalDividers));
@@ -41,77 +40,87 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
 
   if (!exists) {
     return (
-      <Flex justify='center' align='center' w='full' flexGrow={1} bg='white'>
-        <Stack spacing={8} align='center'>
-          <Heading size='md'>Tree not found!</Heading>
-          <Image src='/tree-not-found.svg' alt='No hats found' h='600px' />
+      <div className='flex w-full flex-grow items-center justify-center bg-white'>
+        <div className='flex flex-col items-center gap-8'>
+          <h2 className='text-md'>Tree not found!</h2>
+
+          <img src='/tree-not-found.svg' alt='No hats found' className='h-[600px]' />
+
           <Link href='/' passHref>
-            <Button variant='outline' rightIcon={<Icon as={BsArrowRight} />}>
+            <Button variant='outline'>
               <span aria-label='Ball cap' role='img'>
                 🧢
               </span>{' '}
               Head home
+              <BsArrowRight className='ml-1 size-4' />
             </Button>
           </Link>
-        </Stack>
-      </Flex>
+        </div>
+      </div>
     );
   }
 
   if (!treeIsLoading && size(sortedTree) === 1) {
     return (
-      <Flex direction='column' w='full' h='full' pt={16}>
-        <Box px={2} zIndex='sticky' pb={2} boxShadow='0px 2px 4px 0px rgba(0,0,0,0.75);'>
-          <Skeleton isLoaded={get(first(sortedTree), 'id')} minH='72px' borderRadius='md'>
-            <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} />
-          </Skeleton>
-        </Box>
+      <div className='flex h-full w-full flex-col pt-16'>
+        <div className='z-sticky box-shadow-[0px 2px 4px 0px rgba(0,0,0,0.75)] px-2 pb-2'>
+          <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} />
+        </div>
 
-        <Flex boxSize='100%' justify='center' align='center' bg='white'>
-          <Stack align='center' spacing={6} maxW='60%'>
-            <Heading size='lg'>
+        <div className='flex w-full flex-grow items-center justify-center bg-white'>
+          <div className='max-w-60% flex flex-col items-center gap-6'>
+            <h2 className='text-lg'>
               No hats found
               <span aria-label='Top hat' role='img'>
                 🎩
               </span>
-            </Heading>
-            <Text textAlign='center'>Get started creating hats for your tree on a desktop.</Text>
-          </Stack>
-        </Flex>
-      </Flex>
+            </h2>
+            <p className='text-center'>Get started creating hats for your tree on a desktop.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ~isLoading
+  if (!get(first(sortedTree), 'id')) {
+    return (
+      <div className='flex h-full w-full flex-col pt-16'>
+        <div className='z-sticky box-shadow-[0px 2px 4px 0px rgba(0,0,0,0.75)] bg-white px-2 pb-2'>
+          <Skeleton className='rounded-6 min-h-[72px]' />
+        </div>
+
+        <div className='relative flex flex-grow flex-col overflow-y-auto bg-white'>
+          {(size(sortedTree) > 1 || !sortedTree) && <VerticalDividers count={maxDepth + 2} />}
+          <div className='mt-80px h-full w-full max-w-full gap-2 px-2 py-2'>
+            {map(sortedTree.slice(1), (hat: HatWithDepth) => (
+              <Skeleton className='border-radius-6 flex min-h-72 w-full justify-end' key={hat.id} />
+            ))}
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Flex direction='column' w='full' h='full' pt={16}>
-      <Box p={2} zIndex={5} mt={-2} position='fixed' w='100%' boxShadow='0px 2px 4px 0px rgba(0,0,0,0.75);' bg='white'>
-        <Skeleton isLoaded={get(first(sortedTree), 'id')} minH='72px' borderRadius={6}>
-          <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} key={get(first(sortedTree), 'id')} />
-        </Skeleton>
-      </Box>
+    <div className='flex h-full w-full flex-col pt-16'>
+      <div className='z-sticky box-shadow-[0px 2px 4px 0px rgba(0,0,0,0.75)] bg-white px-2 pb-2'>
+        <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} key={get(first(sortedTree), 'id')} />
+      </div>
 
-      <Flex direction='column' overflowY='auto' flexGrow={1} bg='white' position='relative'>
+      <div className='relative flex flex-grow flex-col overflow-y-auto bg-white'>
         {(size(sortedTree) > 1 || !sortedTree) && <VerticalDividers count={maxDepth + 2} />}
-        <VStack w='full' maxW='100%' h='100%' px={2} py={2} mt='80px' spacing={2}>
+
+        <div className='h-100% mt-80px w-full max-w-full gap-2 px-2 py-2'>
           {map(sortedTree.slice(1), (hat: HatWithDepth) => (
-            <Skeleton
-              display='flex'
-              justifyContent='end'
-              borderRadius={6}
-              w='100%'
-              minH='72px'
-              isLoaded={!!sortedTree && !!hat.id}
-              key={hat.id}
-            >
-              <MobileHatCard hat={hat} maxDepth={maxDepth} />
-            </Skeleton>
+            <MobileHatCard hat={hat} maxDepth={maxDepth} />
           ))}
 
           <HatDeco />
-        </VStack>
-      </Flex>
-    </Flex>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default TreePageMobile;
+export { TreePageMobile };

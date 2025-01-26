@@ -1,8 +1,8 @@
 'use client';
 
-import { Divider } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
 import { map, range } from 'lodash';
+import { cn } from 'ui';
 import { paddingForMaxDepth } from 'utils';
 
 const VerticalDividers = ({ count }: { count: number }) =>
@@ -16,16 +16,7 @@ const VerticalDividers = ({ count }: { count: number }) =>
       padding = (index - 2) * paddingForMaxDepth(count - 2) + CONFIG.DEFAULT_PADDING * CONFIG.CHAKRA_SPACING; // add default padding to match card padding
     }
 
-    return (
-      <Divider
-        key={index}
-        h='100%'
-        orientation='vertical'
-        position='fixed'
-        left={`${padding}px`}
-        borderColor='gray.400'
-      />
-    );
+    return <hr key={index} className={cn('h-100% fixed absolute w-[1px] border-gray-400', `left-[${padding}px]`)} />;
   });
 
 export { VerticalDividers };

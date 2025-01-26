@@ -1,11 +1,10 @@
 'use client';
 
-import { HStack, Text, Tooltip } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { find, first, get, pick } from 'lodash';
 import { useErc1155Details } from 'modules-hooks';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { Link } from 'ui';
+import { Link, Tooltip } from 'ui';
 import { explorerUrl, formatAddress, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
@@ -37,20 +36,18 @@ export const Erc1155EligibilityRule = ({ moduleParameters, wearer, chainId }: Mo
     return (
       <EligibilityRuleDetails
         rule={
-          <HStack spacing={1}>
-            <Text>
+          <div className='flex items-center gap-1'>
+            <p>
               Hold at least {amountValueDisplay}{' '}
               <Link href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`} className='underline'>
                 {formatAddress(tokenParam?.value as Hex)}
               </Link>{' '}
               token with ID
-            </Text>
+            </p>
             <Tooltip label={tokenId?.toString()}>
-              <Text maxW='50px' isTruncated>
-                {tokenId?.toString()}
-              </Text>
+              <p className='max-w-50px line-clamp-1'>{tokenId?.toString()}</p>
             </Tooltip>
-          </HStack>
+          </div>
         }
         status={ELIGIBILITY_STATUS.eligible}
         displayStatus={userBalanceDisplay}
@@ -63,20 +60,18 @@ export const Erc1155EligibilityRule = ({ moduleParameters, wearer, chainId }: Mo
   return (
     <EligibilityRuleDetails
       rule={
-        <HStack spacing={1}>
-          <Text>
+        <div className='flex items-center gap-1'>
+          <p>
             Hold at least {amountValueDisplay}{' '}
             <Link href={`${explorerUrl(chainId)}/address/${tokenParam?.value}`} className='underline'>
               {formatAddress(tokenParam?.value as Hex)}
             </Link>{' '}
             token with ID
-          </Text>
+          </p>
           <Tooltip label={tokenId?.toString()}>
-            <Text maxW='50px' isTruncated>
-              {tokenId?.toString()}
-            </Text>
+            <p className='max-w-50px line-clamp-1'>{tokenId?.toString()}</p>
           </Tooltip>
-        </HStack>
+        </div>
       }
       status={ELIGIBILITY_STATUS.ineligible}
       displayStatus={userBalanceDisplay}
