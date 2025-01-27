@@ -1,9 +1,9 @@
 import { MetadataConfig } from '@hatsprotocol/config';
+import { Toaster } from 'molecules';
 // import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
 // import Script from 'next/script';
 import { ReactNode } from 'react';
-import { Toaster } from 'ui';
 
 import { Navbar } from '../components/navbar';
 import Providers from './providers';
@@ -30,7 +30,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
       <meta name='viewport' content='width=device-width, initial-scale=1' />
     </head>
 
-    <body>
+    <body className='font-inter'>
       <div className='relative min-h-screen bg-gray-50'>
         <Providers>
           <Navbar />

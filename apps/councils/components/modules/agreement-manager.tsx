@@ -77,4 +77,4 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
   );
 };
 
-export default AgreementManager;
+export { AgreementManager };

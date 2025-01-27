@@ -77,4 +77,4 @@ const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; 
   );
 };
 
-export default TreePage;
+export { TreePage };

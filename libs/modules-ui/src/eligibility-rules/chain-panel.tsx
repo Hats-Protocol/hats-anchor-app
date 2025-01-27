@@ -187,4 +187,4 @@ interface ChainPanelProps {
   defaultOpen?: boolean;
 }
 
-export default ChainPanel;
+export { ChainPanel };

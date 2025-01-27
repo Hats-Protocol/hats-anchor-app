@@ -2,10 +2,18 @@
 
 import { get } from 'lodash';
 import { ReactNode } from 'react';
-import { BsX } from 'react-icons/bs';
+import { VisuallyHidden } from 'ui';
 
 import { useOverlay } from '../overlay-context';
-import { BaseModal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader } from './base-modal';
+import {
+  BaseModal,
+  ModalBody,
+  ModalContent,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
+} from './base-modal';
 
 // type ModalName = keyof Partial<ClaimsModals> | keyof Partial<AppModals>;
 
@@ -21,7 +29,18 @@ import { BaseModal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, Moda
  * @param onClose - function to close modal, fallback to OverlayContext
  * @returns Modal component and handlers
  */
-const Modal = ({ name, title, content, footer, customHeader, isOpen, onClose, size = '2xl', children }: ModalProps) => {
+const Modal = ({
+  name,
+  title,
+  description,
+  content,
+  footer,
+  customHeader,
+  isOpen,
+  onClose,
+  size = '2xl',
+  children,
+}: ModalProps) => {
   const { modals, closeModals } = useOverlay();
 
   const handleClose = () => {
@@ -34,16 +53,15 @@ const Modal = ({ name, title, content, footer, customHeader, isOpen, onClose, si
 
   return (
     <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
-      <ModalContent className='min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-gray-800 p-4 md:mb-auto md:mt-4 md:rounded-b-md'>
+      <ModalContent className='min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white p-4 md:mb-auto md:mt-4 md:rounded-b-md'>
         {customHeader || (
           <ModalHeader>
-            <h2 className='text-2xl font-bold'>{title}</h2>
+            <ModalTitle className='text-2xl font-bold'>{title}</ModalTitle>
           </ModalHeader>
         )}
-
-        <ModalCloseButton>
-          <BsX className='h-4 w-4' />
-        </ModalCloseButton>
+        <VisuallyHidden>
+          <ModalDescription>{description || title}</ModalDescription>
+        </VisuallyHidden>
 
         <ModalBody>{content || children}</ModalBody>
 
@@ -56,6 +74,7 @@ const Modal = ({ name, title, content, footer, customHeader, isOpen, onClose, si
 interface ModalProps {
   name: string;
   title?: string;
+  description?: string;
   content?: string;
   footer?: ReactNode;
   customHeader?: ReactNode;

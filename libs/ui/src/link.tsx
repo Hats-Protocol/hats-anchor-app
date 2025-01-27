@@ -6,7 +6,7 @@ import { cn } from './lib/utils';
 const Link = ({ href, children, onClick, className, isExternal = false, passHref = false }: LinkProps) => (
   <NextLink
     href={href}
-    className={cn('text-sky-600', className)}
+    className={cn('text-functional-link-primary', className)}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noopener noreferrer' : undefined}
     onClick={onClick}

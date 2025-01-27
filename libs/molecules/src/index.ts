@@ -20,6 +20,7 @@ export * from './responsibilities-list-card';
 export * from './responsibility-header';
 export * from './show-trees-button';
 export * from './subgraph-check';
+export * from './toaster';
 export * from './tooltip-wrapper';
 export * from './transaction-button';
 export * from './transaction-history';

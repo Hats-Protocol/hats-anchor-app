@@ -2,6 +2,8 @@
 
 import '../public/styles/style.css';
 import 'react-datepicker/dist/react-datepicker.css';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

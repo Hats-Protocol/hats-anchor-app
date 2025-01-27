@@ -21,4 +21,4 @@ const SafeAssetsPage = ({ chainId, hsg }: { chainId: number; hsg: Hex }) => {
   );
 };
 
-export default SafeAssetsPage;
+export { SafeAssetsPage };

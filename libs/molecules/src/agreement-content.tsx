@@ -1,6 +1,6 @@
 import { Markdown } from 'ui';
 
-export const AgreementContent = ({ agreement }: { agreement: string | undefined }) => {
+const AgreementContent = ({ agreement }: { agreement: string | undefined }) => {
   if (!agreement) return null;
   const formattedAgreement = agreement
     .replace(/{\.underline}/g, '') // replace weird format provided in original agreement copy
@@ -13,4 +13,4 @@ export const AgreementContent = ({ agreement }: { agreement: string | undefined 
     </div>
   );
 };
-export default AgreementContent;
+export { AgreementContent };

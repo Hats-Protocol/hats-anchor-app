@@ -2,6 +2,7 @@
 
 import '../public/style.css';
 import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -10,7 +11,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
-import { theme } from 'ui';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
 

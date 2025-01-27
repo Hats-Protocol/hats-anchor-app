@@ -5,8 +5,8 @@ import { ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 
-import AgreementManager from './agreement-manager';
-import AllowlistManager from './allowlist-manager';
+import { AgreementManager } from './agreement-manager';
+import { AllowlistManager } from './allowlist-manager';
 
 export type ModuleManagerComponent = ({
   m,
@@ -62,4 +62,4 @@ const ModuleManager = ({
   });
 };
 
-export default ModuleManager;
+export { ModuleManager };

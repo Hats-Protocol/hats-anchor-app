@@ -119,7 +119,7 @@ const NewTreeForm = () => {
               label='Assign to'
               placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
               localForm={localForm}
-              rightElement={receiverResolvedAddress && <FaCheck className='h-4 w-4 text-green-500' />}
+              rightElement={receiverResolvedAddress && <FaCheck className='text-functional-success h-4 w-4' />}
             />
             {receiverResolvedAddress && (
               <p className='text-gray text-sm'>Resolved address: {receiverResolvedAddress}</p>

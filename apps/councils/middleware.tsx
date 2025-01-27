@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const DISABLE_POSTHOG = process.env.DISABLE_POSTHOG ? process.env.DISABLE_POSTHOG === 'true' : true;
 
 export function middleware(request: NextRequest) {
-  if (DISABLE_POSTHOG) return NextResponse.next();
+  // if (DISABLE_POSTHOG) return NextResponse.next();
 
   const url = request.nextUrl.clone();
   const hostname = url.pathname.startsWith('/ingest/static/') ? 'us-assets.i.posthog.com' : 'us.i.posthog.com';

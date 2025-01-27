@@ -7,10 +7,11 @@ import { useParams, usePathname } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { Link } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
+import { Hex } from 'viem';
 
-import Login from './login';
+import { Login } from './login';
 
-export const Navbar = () => {
+const Navbar = () => {
   const pathname = usePathname();
   const { slug } = useParams<{ slug: string }>();
   const { chainId, address } = parseCouncilSlug(slug);
@@ -22,13 +23,13 @@ export const Navbar = () => {
   });
   const { data: offchainDetails } = useOffchainCouncilDetails({
     chainId: chainId as SupportedChains,
-    hsg: address,
+    hsg: address as Hex,
   });
   const { details } = useHatDetails({
     chainId: chainId as SupportedChains,
     hatId: get(councilDetails, 'signerHats[0].id'),
   });
-  logger.debug('nav', { offchainDetails, details });
+  // logger.debug('nav', { offchainDetails, details });
 
   return (
     <div className='flex min-h-[56px] w-full items-center justify-between px-2'>
@@ -46,3 +47,5 @@ export const Navbar = () => {
     </div>
   );
 };
+
+export { Navbar };

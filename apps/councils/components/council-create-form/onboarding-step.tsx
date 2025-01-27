@@ -1,7 +1,7 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
-import { RadioCard, RequirementBox } from 'forms';
+import { Form, RadioCard, RequirementBox } from 'forms';
 import { FileText, GemIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
@@ -30,72 +30,74 @@ export function OnboardingStep({ onNext }: StepProps) {
   }
 
   return (
-    <form className='flex h-full flex-col gap-8' onSubmit={form.handleSubmit(onNext)}>
-      <div className='flex flex-col gap-6'>
-        <h2 className='text-2xl font-bold'>Council Membership</h2>
-
+    <Form {...form}>
+      <form className='flex h-full flex-col gap-8' onSubmit={form.handleSubmit(onNext)}>
         <div className='flex flex-col gap-6'>
-          <h3 className='text-lg font-semibold'>How is the Council selected?</h3>
+          <h2 className='text-2xl font-bold'>Council Membership</h2>
 
-          <RadioCard
-            name='membershipType'
-            localForm={form}
-            isDisabled={!canEdit}
-            options={[
-              {
-                label: 'Appoint Council Members',
-                value: 'APPOINTED',
-                description: 'Create an agreement council members have to sign and abide',
-                icon: DocumentChecks as IconType,
-              },
-              {
-                label: 'Elect Council Members',
-                value: 'ELECTED',
-                description: 'Specify an amount of coins council members need to hold',
-                icon: BallotBox as IconType,
-                disabled: true,
-              },
-            ]}
-            textSize='md'
-          />
+          <div className='flex flex-col gap-6'>
+            <h3 className='text-lg font-semibold'>How is the Council selected?</h3>
+
+            <RadioCard
+              name='membershipType'
+              localForm={form}
+              isDisabled={!canEdit}
+              options={[
+                {
+                  label: 'Appoint Council Members',
+                  value: 'APPOINTED',
+                  description: 'Create an agreement council members have to sign and abide',
+                  icon: DocumentChecks as IconType,
+                },
+                {
+                  label: 'Elect Council Members',
+                  value: 'ELECTED',
+                  description: 'Specify an amount of coins council members need to hold',
+                  icon: BallotBox as IconType,
+                  disabled: true,
+                },
+              ]}
+              textSize='md'
+            />
+          </div>
+
+          <div className='flex flex-col gap-6'>
+            <h3 className='text-lg font-semibold'>What is required to join the Council?</h3>
+
+            <RequirementBox
+              name='requirements'
+              localForm={form}
+              isDisabled={!canEdit}
+              options={[
+                {
+                  key: 'signAgreement',
+                  icon: FileText as IconType,
+                  title: 'Sign Agreement',
+                  description: 'Create an agreement council members have to sign and abide',
+                },
+                {
+                  key: 'holdTokens',
+                  icon: GemIcon as IconType,
+                  title: 'Hold Tokens',
+                  description: 'Specify an amount of coins council members need to hold',
+                },
+                {
+                  key: 'passCompliance',
+                  icon: BsPersonCheck as IconType,
+                  title: 'Pass Compliance Check',
+                  description: 'Choose a trusted onchain provider that gathers KYC data securely',
+                },
+              ]}
+            />
+          </div>
         </div>
 
-        <div className='flex flex-col gap-6'>
-          <h3 className='text-lg font-semibold'>What is required to join the Council?</h3>
-
-          <RequirementBox
-            name='requirements'
-            localForm={form}
-            isDisabled={!canEdit}
-            options={[
-              {
-                key: 'signAgreement',
-                icon: FileText as IconType,
-                title: 'Sign Agreement',
-                description: 'Create an agreement council members have to sign and abide',
-              },
-              {
-                key: 'holdTokens',
-                icon: GemIcon as IconType,
-                title: 'Hold Tokens',
-                description: 'Specify an amount of coins council members need to hold',
-              },
-              {
-                key: 'passCompliance',
-                icon: BsPersonCheck as IconType,
-                title: 'Pass Compliance Check',
-                description: 'Choose a trusted onchain provider that gathers KYC data securely',
-              },
-            ]}
-          />
+        <div className='flex justify-end py-6'>
+          <NextStepButton disabled={!form.formState.isValid || !canEdit}>
+            {getNextStepButtonText(nextStep)}
+          </NextStepButton>
         </div>
-      </div>
-
-      <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
-          {getNextStepButtonText(nextStep)}
-        </NextStepButton>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 }

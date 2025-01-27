@@ -8,7 +8,7 @@ import { ModuleDetails, ModuleFunction, SupportedChains } from 'types';
 import { Button } from 'ui';
 import { fetchToken, handleAgreementPin, logger } from 'utils';
 
-export function UpdateAgreementModal({
+function UpdateAgreementModal({
   moduleDetails,
   chainId,
 }: {
@@ -88,3 +88,5 @@ export function UpdateAgreementModal({
     </Modal>
   );
 }
+
+export { UpdateAgreementModal };

@@ -2,6 +2,10 @@ import { join } from 'path';
 import type { Config } from 'tailwindcss';
 import { fontFamily, screens } from 'tailwindcss/defaultTheme';
 
+interface TwStyleProps {
+  opacityValue: number;
+}
+
 const config: Config = {
   darkMode: ['class'],
   content: [join(__dirname, 'src/**/*.{ts,tsx}')],
@@ -19,6 +23,7 @@ const config: Config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         'edit-bg': '#C4F1F9',
+
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
@@ -28,7 +33,7 @@ const config: Config = {
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
+          DEFAULT: 'rgb(var(--functional-error))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
         muted: {
@@ -49,13 +54,31 @@ const config: Config = {
         },
 
         // INFORMATIVE
-        'informative-human': 'var(--informative-human)',
-        'informative-code': 'var(--informative-code)',
+        'informative-human': ({ opacityValue }: any) => {
+          if (!opacityValue) return 'rgb(var(--informative-human))';
+          return `rgba(var(--informative-human), ${opacityValue})`;
+        },
+        'informative-code': ({ opacityValue }: any) => {
+          if (!opacityValue) return 'rgb(var(--informative-code))';
+          return `rgba(var(--informative-code), ${opacityValue})`;
+        },
         // FUNCTIONAL
-        'functional-success': 'var(--functional-success)',
-        'functional-error': 'var(--functional-error)',
-        'functional-link-primary': 'var(--functional-link-primary)',
-        'functional-link-secondary': 'var(--functional-link-secondary)',
+        'functional-success': ({ opacityValue }: any) => {
+          if (!opacityValue) return 'rgb(var(--functional-success))';
+          return `rgba(var(--functional-success), ${opacityValue})`;
+        },
+        'functional-error': ({ opacityValue }: any) => {
+          if (!opacityValue) return 'rgb(var(--functional-error))';
+          return `rgba(var(--functional-error), ${opacityValue})`;
+        },
+        'functional-link-primary': ({ opacityValue }: any) => {
+          if (!opacityValue) return 'rgb(var(--functional-link-primary))';
+          return `rgba(var(--functional-link-primary), ${opacityValue})`;
+        },
+        'functional-link-secondary': ({ opacityValue }: any) => {
+          if (!opacityValue) return 'rgb(var(--functional-link-secondary))';
+          return `rgba(var(--functional-link-secondary), ${opacityValue})`;
+        },
       },
       borderRadius: {
         lg: `var(--radius)`,
@@ -64,6 +87,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
+        inter: ['Inter Variable', ...fontFamily.sans],
         'jb-mono': ['JetBrains Mono Variable', ...fontFamily.mono],
       },
       keyframes: {

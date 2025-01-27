@@ -13,7 +13,7 @@ const LINKS = [
   { label: 'Manage', href: 'manage' },
 ];
 
-export const CouncilButtons = () => {
+const CouncilButtons = () => {
   const pathname = usePathname();
   const slug = nth(pathname.split('/'), 2);
 
@@ -46,3 +46,5 @@ export const CouncilButtons = () => {
     </div>
   );
 };
+
+export { CouncilButtons };

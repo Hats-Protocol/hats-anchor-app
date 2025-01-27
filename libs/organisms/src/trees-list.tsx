@@ -104,4 +104,4 @@ interface TreeListProps {
   // initialTrees: any[];
 }
 
-export default TreesList;
+export { TreesList };

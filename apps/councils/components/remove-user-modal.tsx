@@ -62,7 +62,7 @@ const getRemoveFunctionArgs = (module: Module | undefined, user: CouncilMember |
   return { Account: user?.address };
 };
 
-export function RemoveUserModal({
+function RemoveUserModal({
   chainId = 11155111,
   type,
   userLabel,
@@ -174,3 +174,5 @@ export function RemoveUserModal({
     </Modal>
   );
 }
+
+export { RemoveUserModal };

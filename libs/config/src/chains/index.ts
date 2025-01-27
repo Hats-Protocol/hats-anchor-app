@@ -48,8 +48,8 @@ const extendIcon = (chain: Chain) => ({
 });
 
 export const councilsChainsList = {
-  1: extendIcon(mainnet),
   10: extendIcon(optimism),
+  1: extendIcon(mainnet),
   100: extendIcon(gnosis),
   137: extendIcon(polygon),
   8453: extendIcon(base),

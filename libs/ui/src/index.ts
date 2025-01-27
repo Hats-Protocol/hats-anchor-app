@@ -1,3 +1,5 @@
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 export { default as baseConfig } from '../tailwind.config';
 export * from './accordion';
 export * from './alert';
@@ -33,6 +35,7 @@ export * from './skeleton';
 export * from './spinner';
 export * from './switch';
 export * from './textarea';
-export { theme } from './theme';
 export * from './toast';
 export * from './tooltip';
+
+export { VisuallyHidden };

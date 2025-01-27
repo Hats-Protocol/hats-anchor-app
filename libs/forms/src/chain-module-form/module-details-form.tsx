@@ -74,4 +74,4 @@ const ModuleDetailsForm = ({
   );
 };
 
-export default ModuleDetailsForm;
+export { ModuleDetailsForm };

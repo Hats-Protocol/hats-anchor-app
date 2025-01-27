@@ -1,6 +1,6 @@
 'use client';
 
-import _ from 'lodash';
+import { toUpper } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { GrUndo } from 'react-icons/gr';
@@ -29,6 +29,7 @@ const Textarea = ({
   headerNote,
   subLabel,
   isDisabled,
+  placeholder,
   ...props
 }: TextareaProps) => {
   const {
@@ -55,7 +56,7 @@ const Textarea = ({
           <div className='flex items-center gap-1'>
             {label && (
               <FormLabel className='m-0 flex items-baseline text-sm'>
-                {_.toUpper(label)}
+                {toUpper(label)}
                 <p className='text-gray-500'>{headerNote}</p>
               </FormLabel>
             )}
@@ -67,22 +68,26 @@ const Textarea = ({
               </Tooltip>
             )}
           </div>
-          <div className='flex flex-col gap-1'>
+
+          <div className='relative flex flex-col gap-1'>
             {subLabel && <FormDescription>{subLabel}</FormDescription>}
             <FormControl className='flex w-full flex-grow'>
-              <BaseTextarea
-                {...field}
-                className={cn(isDirty ? 'border-cyan-500' : undefined, 'outline outline-1')}
-                disabled={isDisabled}
-              />
+              <>
+                <BaseTextarea
+                  className={cn(isDirty && 'border-2 border-cyan-500')}
+                  disabled={isDisabled}
+                  placeholder={placeholder}
+                  {...field}
+                />
 
-              {isDirty && (
-                <div className='absolute right-2 top-2'>
-                  <Button aria-label='Reset' onClick={onReset} size='xs' className='bg-cyan-500'>
-                    <GrUndo />
-                  </Button>
-                </div>
-              )}
+                {isDirty && (
+                  <div className='absolute right-2 top-2'>
+                    <Button aria-label='Reset' onClick={onReset} size='xs' className='bg-cyan-500'>
+                      <GrUndo />
+                    </Button>
+                  </div>
+                )}
+              </>
             </FormControl>
           </div>
 

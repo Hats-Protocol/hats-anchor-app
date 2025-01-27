@@ -77,21 +77,24 @@ const RadioCard = ({
                     const RawIcon = option.icon;
 
                     return (
-                      <div
+                      <FormLabel
                         key={option.value}
                         className={cn(
-                          'cursor-pointer rounded-lg border border-gray-200 px-6 py-4',
+                          'flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4',
                           option.disabled && 'cursor-not-allowed',
-                          field.value === option.value && 'border-blue-500 bg-blue-50',
+                          field.value === option.value &&
+                            'border-functional-link-primary bg-functional-link-primary/10',
                         )}
                         onClick={() => !option.disabled && field.onChange(option.value)}
                       >
-                        <div className='flex w-full justify-between'>
+                        <div className='flex w-full items-center justify-between'>
                           <div className={cn('flex gap-4 opacity-100', option.disabled && 'opacity-50')}>
                             {RawIcon && (
                               <RawIcon
-                                className='h-6 w-6'
-                                // color={field.value === option.value ? 'blue.500' : 'gray.400'}
+                                className={cn(
+                                  'my-auto h-6 w-6 text-gray-900',
+                                  field.value === option.value && 'text-functional-link-primary',
+                                )}
                               />
                             )}
                             <div className='flex flex-col gap-0.5'>
@@ -103,16 +106,19 @@ const RadioCard = ({
                           </div>
                           {!option.disabled ? (
                             <BaseCheckbox
+                              onCheckedChange={(v) => {
+                                field.onChange(option.value);
+                              }}
                               checked={field.value === option.value}
-                              className='pointer-none text-blue-500'
+                              className='pointer-none text-functional-link-primary'
                             />
                           ) : (
-                            <p className='flex min-h-5 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
+                            <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
                               coming soon
-                            </p>
+                            </span>
                           )}
                         </div>
-                      </div>
+                      </FormLabel>
                     );
                   })}
                 </div>

@@ -1,10 +1,9 @@
-import { RadioBox } from 'forms';
 import { UseFormReturn } from 'react-hook-form';
 
-import { NumberInput } from './components';
+import { NumberInput, RadioBox } from './components';
 
 // TO BE USED WITHIN A FORM
-export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormReturn<any>; isDisabled?: boolean }) {
+function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProps) {
   const { watch } = form;
   const { thresholdType, target, min, maxMembers } = watch();
 
@@ -19,7 +18,7 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
 
   return (
     <>
-      <div>
+      <div className='space-y-2'>
         <label className='font-bold'>What&apos;s the Signer Threshold logic</label>
         <RadioBox
           name='thresholdType'
@@ -83,6 +82,7 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
                       required: true,
                     }}
                     isDisabled={isDisabled}
+                    inputClassName='rounded-l-none'
                   />
                 </div>
               </div>
@@ -122,3 +122,11 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
     </>
   );
 }
+
+interface SignerThresholdSubFormProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
+  isDisabled?: boolean;
+}
+
+export { SignerThresholdSubForm };

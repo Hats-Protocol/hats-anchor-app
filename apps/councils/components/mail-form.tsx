@@ -4,7 +4,7 @@ import { Form, Input } from 'forms';
 import { useForm } from 'react-hook-form';
 import { Button } from 'ui';
 
-export const MailForm = () => {
+const MailForm = () => {
   const localForm = useForm();
   const {
     formState: { isValid },
@@ -69,3 +69,5 @@ export const MailForm = () => {
     </div>
   );
 };
+
+export { MailForm };

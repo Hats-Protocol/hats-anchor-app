@@ -17,7 +17,6 @@ import { OverlayContextProvider } from 'contexts';
 import { values } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
-import { theme } from 'ui';
 import { privyConfig } from 'utils';
 
 // TODO use standalone & fix exporting of waitForTransaction

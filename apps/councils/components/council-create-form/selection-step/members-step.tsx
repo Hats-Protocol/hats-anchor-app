@@ -54,8 +54,8 @@ export function SelectionMembersStep({ onNext }: StepProps) {
               type='button'
               onClick={() => setModals?.({ addMemberModal: true })}
               disabled={!canEdit}
-              className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
-                !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-sky-50'
+              className={`border-functional-link-primary text-functional-link-primary inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium ${
+                !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-functional-link-primary/10'
               }`}
             >
               <FiUserPlus className='mr-2 h-4 w-4' />

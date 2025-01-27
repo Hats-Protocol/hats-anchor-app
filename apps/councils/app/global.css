@@ -5,13 +5,13 @@
 @layer base {
   :root {
     /* INFORMATIVE */
-    --Informative-Human: #b83280;
-    --Informative-Code: #2c7a7b;
+    --informative-human: 184, 50, 128; /* rgb(184, 50, 128) */
+    --informative-code: 44, 122, 123; /* rgb(44, 122, 123) */
     /* FUNCTIONAL */
-    --Functional-Success: #25855a;
-    --Functional-Error: #c53030;
-    --Functional-LinkPrimary: #2b6cb0;
-    --Functional-LinkSecondary: #718096;
+    --functional-success: 37, 133, 90; /* rgb(37, 133, 90) */
+    --functional-error: 197, 48, 48; /* rgb(197, 48, 48) */
+    --functional-link-primary: 43, 108, 176; /* rgb(43, 108, 176) */
+    --functional-link-secondary: 113, 128, 150; /* rgb(113, 128, 150) */
 
     --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
@@ -76,6 +76,10 @@
     --ring: 216 34% 17%;
 
     --radius: 0.5rem;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 }
 

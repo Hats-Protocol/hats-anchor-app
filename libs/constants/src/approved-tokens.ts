@@ -2664,16 +2664,11 @@ export function getChainTokens(chainId: number): TokenInfo[] {
   return CHAIN_TOKENS[chainId] || [];
 }
 
-export function getTokenDecimals(
-  chainId: number,
-  tokenAddress: string,
-): number | undefined {
+export function getTokenDecimals(chainId: number, tokenAddress: string): number | undefined {
   const chainTokens = CHAIN_TOKENS[chainId];
   if (!chainTokens) return undefined;
 
-  const token = chainTokens.find(
-    (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
-  );
+  const token = chainTokens.find((token) => token.address.toLowerCase() === tokenAddress.toLowerCase());
 
   return token?.decimals;
 }

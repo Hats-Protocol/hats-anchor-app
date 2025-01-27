@@ -1,4 +1,5 @@
 export * from './address-input';
+export * from './chain-select';
 export * from './controlled-radio-box';
 export * from './date-picker';
 export * from './duration-input';

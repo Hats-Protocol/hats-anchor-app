@@ -150,4 +150,4 @@ const MyHats = () => {
   );
 };
 
-export default MyHats;
+export { MyHats };

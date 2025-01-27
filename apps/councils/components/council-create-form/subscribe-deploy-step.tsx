@@ -33,13 +33,13 @@ const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps)
       <div className='flex items-center gap-1'>
         {isCompleted ? (
           <>
-            <BsCheckSquareFill className='h-4 w-4 text-green-600' />
-            <span className='text-sm font-medium text-green-600'>Ready</span>
+            <BsCheckSquareFill className='text-functional-success h-4 w-4' />
+            <span className='text-functional-success text-sm font-medium'>Ready</span>
           </>
         ) : (
           <>
-            <BsXSquareFill className='h-4 w-4 text-red-600' />
-            <span className='text-sm font-medium text-red-600'>Incomplete</span>
+            <BsXSquareFill className='text-functional-error h-4 w-4' />
+            <span className='text-functional-error text-sm font-medium'>Incomplete</span>
           </>
         )}
       </div>
@@ -51,7 +51,7 @@ const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps)
       <div className='w-[100px] shrink-0 text-right'>
         <button
           type='button'
-          className='inline-flex items-center gap-2 text-sky-600 hover:text-sky-700'
+          className='text-functional-link-primary hover:text-functional-link-primary/60 inline-flex items-center gap-2'
           onClick={onEdit}
         >
           <SquarePen className='h-4 w-4' />
@@ -124,7 +124,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     if (typeof window === 'undefined') return '';
     return `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
   }, [draftId]);
-  const [, copy] = useClipboard();
+  const { onCopy } = useClipboard(draftUrl);
 
   // Helper function to determine if selection step is valid
   const isSelectionStepValid = () => {
@@ -148,11 +148,11 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const tokenFields = ['symbol', 'name', 'decimals'];
   const { data: tokenData } = useReadContracts({
     contracts: map(tokenFields, (field: string) => ({
-      address: formData.tokenRequirement.address,
+      address: formData.tokenRequirement.address?.value,
       abi: erc20Abi,
       functionName: field,
-      chainId: toNumber(formData.chain),
-    })),
+      chainId: toNumber(formData.chain.value),
+    })) as any,
   });
   const [symbol, name] = map(tokenData, 'result');
 
@@ -168,8 +168,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         <div className='absolute right-0 top-0'>
           <button
             type='button'
-            className='inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-sky-600 hover:bg-gray-50'
-            onClick={() => copy(draftUrl)}
+            className='text-functional-link-primary inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50'
+            onClick={onCopy}
           >
             <Link className='h-4 w-4' /> Copy link
           </button>
@@ -206,7 +206,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         onEdit={canEdit ? () => setCurrentStep('threshold') : undefined}
       >
         <div className='space-y-2'>
-          <h4 className='text-babse font-bold text-gray-900'>
+          <h4 className='font-bold text-gray-900'>
             {formData.thresholdType === 'ABSOLUTE'
               ? `Deploy a new ${formData.min}/${formData.maxMembers} Safe Multisig`
               : `Deploy a new ${formData.target}% Safe Multisig`}
@@ -327,7 +327,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                   type='button'
                   onClick={() => setModals?.({ paymentDetailsModal: true })}
                   disabled={!canEdit}
-                  className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
+                  className={`border-functional-link-primary text-functional-link-primary inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium ${
                     !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'
                   }`}
                 >
@@ -362,13 +362,13 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             checked={form.watch('acceptedTerms')}
             onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
             disabled={!canEdit}
-            className={`h-4 w-4 rounded border-gray-300 accent-sky-600 ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`accent-functional-link-primary h-4 w-4 rounded border-gray-300 ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
           />
           <label htmlFor='agreement' className='text-sm text-gray-600'>
             I agree to the{' '}
             <a
               href='https://docs.hatsprotocol.xyz/legal/terms/privacy-policy'
-              className='text-sky-600'
+              className='text-functional-link-primary'
               target='_blank'
               rel='noreferrer'
             >

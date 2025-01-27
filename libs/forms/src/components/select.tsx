@@ -7,6 +7,8 @@ import { BaseSelect, SelectContent, SelectLabel, SelectTrigger, SelectValue, Too
 
 import { FormControl, FormField, FormItem } from './form';
 
+// TODO migrate to react-select
+
 /**
  * Primary Select component for React Hook Form
  *
@@ -20,45 +22,45 @@ import { FormControl, FormField, FormItem } from './form';
  */
 const Select = ({ label, name, options, localForm, children, subLabel, info, onChange, ...props }: SelectProps) => {
   if (!localForm) return null;
-  // const { register, setValue } = localForm;
+  const { setValue, control, watch } = localForm;
+  const value = watch(name);
 
-  // const handleChange = (e: any) => {
-  //   if (onChange) {
-  //     onChange(e);
-  //   }
-  //   setValue(name, e.target.value);
-  // };
+  const handleChange = (value: string) => {
+    // TODO handle custom onChange
+    // if (onChange) {
+    //   onChange(value);
+    // }
+    setValue(name, value);
+  };
 
   return (
     <FormField
-      control={localForm.control}
-      name='email'
+      control={control}
+      name={name}
       render={({ field }) => (
-        <FormItem>
-          <div className='w-full'>
-            {label && (
-              <div className='flex items-center gap-2'>
-                <SelectLabel className='mb-0 text-sm'>{label.toUpperCase()}</SelectLabel>
+        <FormItem className='w-full'>
+          {label && (
+            <div className='flex items-center gap-2'>
+              <SelectLabel className='mb-0 text-sm'>{label.toUpperCase()}</SelectLabel>
 
-                {info && (
-                  <Tooltip label={info}>
-                    <FaRegQuestionCircle />
-                  </Tooltip>
-                )}
-              </div>
-            )}
+              {info && (
+                <Tooltip label={info}>
+                  <FaRegQuestionCircle />
+                </Tooltip>
+              )}
+            </div>
+          )}
 
-            {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-sm text-slate-700'>{subLabel}</p>}
+          {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-sm text-slate-700'>{subLabel}</p>}
 
-            <BaseSelect onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger className='w-[180px]'>
-                  <SelectValue placeholder='Theme' />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>{children}</SelectContent>
-            </BaseSelect>
-          </div>
+          <BaseSelect onValueChange={handleChange} value={value}>
+            <FormControl>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Select chain' />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>{children}</SelectContent>
+          </BaseSelect>
         </FormItem>
       )}
     />

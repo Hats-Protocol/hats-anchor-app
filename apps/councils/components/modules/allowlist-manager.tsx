@@ -113,4 +113,4 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
   );
 };
 
-export default AllowlistManager;
+export { AllowlistManager };

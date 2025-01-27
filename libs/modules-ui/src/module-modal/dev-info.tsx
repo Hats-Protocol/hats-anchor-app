@@ -4,6 +4,8 @@ import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
 
+// TODO combine with molecules/dev-info
+
 // canonical in about
 interface ModuleDescriptor {
   label?: string;

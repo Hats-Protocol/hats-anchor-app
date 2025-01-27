@@ -32,7 +32,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const { data: offchainCouncilData } = useOffchainCouncilDetails({
-    hsg: address,
+    hsg: address as Hex,
     chainId: chainId ?? 11155111,
   });
 
@@ -210,4 +210,4 @@ const MembersPage = ({ slug }: { slug: string }) => {
   );
 };
 
-export default MembersPage;
+export { MembersPage };

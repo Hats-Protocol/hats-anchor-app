@@ -30,7 +30,7 @@ const AuthoritiesFormItem = ({ index, formName, remove, setIndex, onOpen }: Auth
                 // TODO this override is only necessary because snapshot gate should be equal to the link, probably?
                 href={hostname === 'snapshot.org' ? link : gate}
                 isExternal
-                className='text-xs text-blue-500'
+                className='text-functional-link-primary text-xs'
               >
                 {hostname}
               </Link>

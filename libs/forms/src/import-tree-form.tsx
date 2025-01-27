@@ -122,7 +122,7 @@ const ImportTreeForm = () => {
         changes before importing.
       </p>
 
-      <Alert className='bg-blue-500 text-white'>
+      <Alert className='bg-functional-link-primary text-white'>
         <AlertCircle />
         Wearers are not considered on import due to mechanistic eligibility. Upload new wearers separately.
       </Alert>
@@ -143,7 +143,11 @@ const ImportTreeForm = () => {
         <div className='flex justify-end'>
           <div className='flex gap-2'>
             <Button onClick={handleCancel}>Cancel</Button>
-            <Button onClick={handleImport} className='bg-blue-500 text-white' disabled={!treeFile || !validImport}>
+            <Button
+              onClick={handleImport}
+              className='bg-functional-link-primary text-white'
+              disabled={!treeFile || !validImport}
+            >
               <AiOutlineUpload className='text-white' />
               Import
             </Button>

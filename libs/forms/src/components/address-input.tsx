@@ -135,7 +135,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         onChange={onChange}
       />
       {showResolvedAddress && resolvedAddress && (
-        <p className='mt-1 text-sm text-gray-500'>Resolved address: {resolvedAddress}</p>
+        <p className='mt-1 text-xs text-gray-500'>Resolved address: {resolvedAddress}</p>
       )}
       {showResolvedEnsName && ensName && <p className='mt-1 text-sm text-gray-500'>a.k.a. {ensName}</p>}
     </div>

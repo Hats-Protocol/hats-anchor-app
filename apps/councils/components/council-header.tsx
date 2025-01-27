@@ -27,7 +27,7 @@ const handleHatDetails = (detailsMetadata: string | undefined) => {
   return get(parsedDetailsMetadata, 'data');
 };
 
-export const CouncilHeader = () => {
+const CouncilHeader = () => {
   const pathname = usePathname();
   const slug = nth(pathname.split('/'), 2);
   const { chainId, address } = parseCouncilSlug(slug ?? '');
@@ -111,3 +111,5 @@ export const CouncilHeader = () => {
     </div>
   );
 };
+
+export { CouncilHeader };

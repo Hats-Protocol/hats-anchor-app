@@ -73,8 +73,8 @@ const MemberRow = ({
 
       <div className='flex items-center'>
         <div className='flex h-full w-28 items-center justify-center gap-1'>
-          <p className='text-green-700'>Yes</p>
-          <BsCheckSquareFill className='text-green-500' />
+          <p className='text-functional-success'>Yes</p>
+          <BsCheckSquareFill className='text-functional-success' />
         </div>
 
         {map(remainingModules, (rule) => {
@@ -84,8 +84,8 @@ const MemberRow = ({
             <div className='flex h-full w-28 items-center justify-center gap-1' key={rule.address}>
               {isEligible ? (
                 <>
-                  <p className='text-green-700'>Yes</p>
-                  <BsCheckSquareFill className='text-green-500' key={`${rule.address}-${member.address}`} />
+                  <p className='text-functional-success'>Yes</p>
+                  <BsCheckSquareFill className='text-functional-success' key={`${rule.address}-${member.address}`} />
                 </>
               ) : (
                 <>
@@ -99,12 +99,12 @@ const MemberRow = ({
         })}
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
-          <Button variant='link' className='text-sky-600' onClick={viewUser}>
+          <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
             {canEdit && <BsPencilSquare />}
             {canEdit ? 'Edit' : 'Details'}
           </Button>
 
-          <Button variant='link' color='Functional-Error' onClick={removeUser} disabled={!userAddress}>
+          <Button variant='link' size='link' className='text-destructive' onClick={removeUser} disabled={!userAddress}>
             Remove
           </Button>
         </div>

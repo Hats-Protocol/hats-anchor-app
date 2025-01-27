@@ -52,4 +52,4 @@ const AboutAllowlist = ({
   );
 };
 
-export default AboutAllowlist;
+export { AboutAllowlist };

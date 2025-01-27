@@ -16,7 +16,7 @@ import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
-import ModuleManager from './modules/module-manager';
+import { ModuleManager } from './modules/module-manager';
 import { SignerThresholdModal } from './signer-threshold-modal';
 import { SignersIndicator } from './signers-indicator';
 
@@ -42,9 +42,9 @@ const SectionMenu = ({ sections }: { sections: { value: string; label: string }[
   return (
     <div className='flex flex-col gap-4'>
       {map(sections, (section) => (
-        <div key={section.value} className='text-sm'>
+        <a key={section.value} href={`#${section.value}`} className='text-sm'>
           {section.label}
-        </div>
+        </a>
       ))}
     </div>
   );
@@ -64,7 +64,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
   });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
     chainId: chainId ?? 11155111,
-    hsg: address,
+    hsg: address as Hex,
   });
   const allWearers = getAllWearers(offchainCouncilDetails || undefined);
 
@@ -137,7 +137,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
       </div>
 
       <div className='flex w-4/5 flex-col gap-8'>
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' id='threshold'>
           <h2 className='text-lg font-semibold'>Signer Threshold</h2>
 
           <SignersIndicator
@@ -160,7 +160,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
         </div>
 
         {/* TOP HAT CAN EDIT MANAGERS */}
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' id='admin'>
           <h2 className='text-lg font-semibold'>Council Management</h2>
 
           <div className='flex flex-col gap-2'>
@@ -200,7 +200,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
         ))}
 
         {/* TOP HAT CAN TRANSFER */}
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' id='ownership'>
           <h2 className='text-lg font-semibold'>Ownership</h2>
 
           <div className='flex flex-col gap-2'>
@@ -224,4 +224,4 @@ const ManagePage = ({ slug }: { slug: string }) => {
   );
 };
 
-export default ManagePage;
+export { ManagePage };

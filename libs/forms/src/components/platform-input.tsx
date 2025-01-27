@@ -93,11 +93,7 @@ const PlatformInput = ({ type, name, remove, index, fieldsLength }: PlatformInpu
         // variant='outline'
         rightElement={
           // eslint-disable-next-line no-nested-ternary
-          dataExists ? (
-            <FaCheck color='green' />
-          ) : isLoading && inputValue ? (
-            <Skeleton className='h-9 w-9 bg-blue-500' />
-          ) : null
+          dataExists ? <FaCheck color='green' /> : isLoading && inputValue ? <Skeleton className='h-9 w-9' /> : null
         }
       />
       <Button

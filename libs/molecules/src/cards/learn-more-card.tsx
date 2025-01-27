@@ -33,4 +33,4 @@ interface FeatureDocsCardProps {
   docsData: DocsLink;
 }
 
-export default { LearnMoreCard };
+export { LearnMoreCard };

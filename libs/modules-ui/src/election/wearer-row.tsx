@@ -47,8 +47,8 @@ const WearerRow = ({ wearer }: WearerRowProps) => {
   );
 };
 
-export default WearerRow;
-
 interface WearerRowProps {
   wearer: HatWearer;
 }
+
+export { WearerRow };

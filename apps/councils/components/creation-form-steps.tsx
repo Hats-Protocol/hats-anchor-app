@@ -113,7 +113,7 @@ function getStepValidation(step: Step, stepValidation: StepValidation, requireme
   return stepValidation[step.id];
 }
 
-export function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
+function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
   const { form, stepValidation, persistForm } = useCouncilForm();
   const router = useRouter();
   const requirements = form.watch('requirements');
@@ -172,7 +172,9 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                     getStepValidation(step, stepValidation, requirements)
                       ? 'bg-white'
                       : 'border-2 ' +
-                        (index === currentStepIndex ? 'border-sky-600 bg-sky-100' : 'border-gray-200 bg-white')
+                        (index === currentStepIndex
+                          ? 'border-functional-link-primary bg-sky-100'
+                          : 'border-gray-200 bg-white')
                   } `}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
@@ -201,7 +203,9 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                 {step.id === 'payment' || (step.id === 'selection' && currentStep === 'selection') ? null : (
                   <div
                     className={`my-3 h-12 w-[2px] ${
-                      getStepValidation(step, stepValidation, requirements) ? 'bg-sky-600' : 'bg-gray-200'
+                      getStepValidation(step, stepValidation, requirements)
+                        ? 'bg-functional-link-primary'
+                        : 'bg-gray-200'
                     }`}
                   />
                 )}
@@ -224,12 +228,14 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                     key={subStep.id}
                     onClick={() => handleStepNavigation('selection', subStep.id)}
                     className={`flex w-full items-center gap-3 border-l-[2px] ${
-                      status === 'completed' ? 'border-l-sky-600' : 'border-l-gray-200'
+                      status === 'completed' ? 'border-l-functional-link-primary' : 'border-l-gray-200'
                     }`}
                   >
                     <div
                       className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
-                        status === 'current' ? 'border border-sky-600 bg-sky-100' : 'border border-gray-200 bg-white'
+                        status === 'current'
+                          ? 'border-functional-link-primary bg-functional-link-primary/10 border'
+                          : 'border border-gray-200 bg-white'
                       }`}
                     >
                       {status === 'completed' ? (
@@ -264,3 +270,5 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
     </div>
   );
 }
+
+export { CreationFormSteps };

@@ -1,13 +1,13 @@
 import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
-import { MetadataConfig } from '@hatsprotocol/constants';
+import { MetadataConfig } from '@hatsprotocol/config';
 import { TxHistoryModal } from 'molecules';
+import { Toaster } from 'molecules';
 import { Metadata } from 'next';
 import Script from 'next/script';
 import { StandaloneNavbar as Navbar } from 'organisms';
 import { ReactNode } from 'react';
-import { Toaster } from 'ui';
 
 import Providers from './providers';
 

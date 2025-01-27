@@ -11,7 +11,7 @@ import { Hex } from 'viem';
 import { useAccount, useChainId, useWalletClient } from 'wagmi';
 
 import { Input, RadioBox } from '../components';
-import ModuleDetailsForm from './module-details-form';
+import { ModuleDetailsForm } from './module-details-form';
 
 const DEFAULT_VALUES = {
   modules: [{ address: '' }],

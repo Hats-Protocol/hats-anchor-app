@@ -4,11 +4,11 @@ import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } 
 import { useCouncilDetails } from 'hooks';
 import { compact, get, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
+import { DevInfo } from 'molecules';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
-import { DevInfo, Link } from 'ui';
-import { formatAddress, hatLink } from 'utils';
-import { explorerUrl, parseCouncilSlug } from 'utils';
+import { Link } from 'ui';
+import { explorerUrl, formatAddress, hatLink, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
 import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
@@ -124,4 +124,4 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   );
 };
 
-export default CouncilsDevInfo;
+export { CouncilsDevInfo };

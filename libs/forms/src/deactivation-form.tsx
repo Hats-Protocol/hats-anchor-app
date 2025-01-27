@@ -156,9 +156,9 @@ export const DeactivationForm = () => {
                     />
                     <div>
                       {get(hat, 'status') === true ? (
-                        <FiCheckCircle className='text-green-500' />
+                        <FiCheckCircle className='text-functional-success' />
                       ) : (
-                        <FiXCircle className='text-red-500' />
+                        <FiXCircle className='text-destructive' />
                       )}
                     </div>
                     <p>{hatName}</p>
@@ -168,7 +168,7 @@ export const DeactivationForm = () => {
               })}
             </div>
           ) : (
-            <p className='text-blue-500'>Input tree details above to continue</p>
+            <p className='text-functional-link-primary'>Input tree details above to continue</p>
           )}
 
           <div className='flex justify-end'>

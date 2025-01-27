@@ -2,9 +2,9 @@
 
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { RadioGroup, RadioGroupItem, Tooltip } from 'ui';
+import { Label, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
 
-import { FormControl, FormDescription, FormField, FormLabel } from './form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
 interface RadioOption {
   value: string;
@@ -52,38 +52,47 @@ const RadioBox = ({
       name={name}
       control={control}
       render={({ field }) => (
-        <div className='flex flex-col gap-2'>
-          <div>
-            <div className='flex items-center gap-2'>
-              {label && <FormLabel className='mb-0 text-sm font-normal'>{label.toUpperCase()}</FormLabel>}
+        <FormItem>
+          <div className='flex flex-col gap-2'>
+            {label && (
+              <div>
+                <div className='flex items-center gap-2'>
+                  {label && <FormLabel className='mb-0 text-sm font-normal'>{label.toUpperCase()}</FormLabel>}
 
-              {tooltip && (
-                <Tooltip label={tooltip}>
-                  <div className='bg-primary-500 flex h-6 w-6 items-center justify-center rounded-full'>
-                    <AiOutlineInfoCircle className='h-4 w-4' />
-                  </div>
-                </Tooltip>
-              )}
-            </div>
+                  {tooltip && (
+                    <Tooltip label={tooltip}>
+                      <div className='bg-primary-500 flex h-6 w-6 items-center justify-center rounded-full'>
+                        <AiOutlineInfoCircle className='h-4 w-4' />
+                      </div>
+                    </Tooltip>
+                  )}
+                </div>
 
-            {subLabel && <FormDescription>{subLabel}</FormDescription>}
-          </div>
-
-          <FormControl>
-            <RadioGroup disabled={isDisabled} defaultValue={defaultValue} {...field}>
-              <div className='flex gap-4'>
-                {options?.map((option) => (
-                  <RadioGroupItem key={option.value} value={option.value} disabled={option.isDisabled}>
-                    <p className='text-sm'>{option.label}</p>
-                  </RadioGroupItem>
-                ))}
+                {subLabel && <FormDescription>{subLabel}</FormDescription>}
               </div>
-            </RadioGroup>
-          </FormControl>
+            )}
 
-          {helperText && <FormDescription>{helperText}</FormDescription>}
-          {typeof error === 'string' && <FormDescription className='text-destructive'>{error}</FormDescription>}
-        </div>
+            <FormControl>
+              <RadioGroup disabled={isDisabled} onValueChange={field.onChange} value={field.value}>
+                <div className='flex flex-wrap gap-4'>
+                  {options?.map((option) => (
+                    <FormItem className='flex items-center gap-2 space-y-0 hover:cursor-pointer' key={option.value}>
+                      <FormControl>
+                        <RadioGroupItem value={option.value} id={option.value} disabled={option.isDisabled} />
+                      </FormControl>
+                      <FormLabel className='text-sm hover:cursor-pointer' htmlFor={option.value}>
+                        {option.label}
+                      </FormLabel>
+                    </FormItem>
+                  ))}
+                </div>
+              </RadioGroup>
+            </FormControl>
+
+            {helperText && <FormDescription>{helperText}</FormDescription>}
+            {typeof error === 'string' && <FormDescription className='text-destructive'>{error}</FormDescription>}
+          </div>
+        </FormItem>
       )}
     />
   );

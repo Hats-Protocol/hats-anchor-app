@@ -154,8 +154,12 @@ const Input = ({
                 )}
               </div>
 
-              <div>
-                {leftElement && <div>{leftElement}</div>}
+              <div className='relative'>
+                {leftElement && (
+                  <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
+                    {leftElement}
+                  </div>
+                )}
                 <BaseInput
                   type={type}
                   {...register(name, options)}
@@ -164,20 +168,25 @@ const Input = ({
                   // onKeyDown={catchEnterKey} // prevent form submission on enter
                   {...props}
                   placeholder={placeholder}
+                  className={cn(!!leftElement && 'pl-8', !!rightElement && 'pr-10')}
                   // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
                   // variant='outline'
                 />
 
                 <div className={cn('w-full', { 'w-[100%]': rightElementWidth })}>
                   <div className='flex w-full items-center justify-between pr-4'>
-                    {rightElement && <div>{rightElement}</div>}
+                    {rightElement && (
+                      <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
+                        {rightElement}
+                      </div>
+                    )}
                     {isDirty && (
                       <Button
                         aria-label='Reset'
                         onClick={onReset}
                         size='xs'
                         disabled={isDisabled}
-                        className='bg-cyan-500'
+                        className='absolute inset-y-0 right-1 top-1 bg-cyan-500'
                       >
                         <GrUndo />
                       </Button>

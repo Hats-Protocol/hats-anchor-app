@@ -3,10 +3,9 @@
 import { useClipboard } from 'hooks';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { Button } from 'ui';
 import { explorerUrl, formatAddress, hatLink } from 'utils';
 import { Hex } from 'viem';
-
-import { Button } from '../button';
 
 const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
 

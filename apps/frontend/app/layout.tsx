@@ -1,18 +1,18 @@
 import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 
-import { MetadataConfig } from '@hatsprotocol/constants';
+import { MetadataConfig } from '@hatsprotocol/config';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import { ReactNode } from 'react';
-import { Toaster } from 'ui';
 
 import Providers from './providers';
 
 const CommandPalette = dynamic(() => import('molecules').then((mod) => mod.CommandPalette), { ssr: false });
 const Navbar = dynamic(() => import('molecules').then((mod) => mod.Navbar));
 const TxHistoryModal = dynamic(() => import('molecules').then((mod) => mod.TxHistoryModal), { ssr: false });
+const Toaster = dynamic(() => import('molecules').then((mod) => mod.Toaster), { ssr: false });
 
 const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
 

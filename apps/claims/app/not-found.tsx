@@ -8,7 +8,7 @@ const NotFound = () => {
         </p>
 
         <a href='/'>
-          <button className='rounded-md bg-blue-500 px-4 py-2 text-white'>Go Home</button>
+          <button className='bg-functional-link-primary rounded-md px-4 py-2 text-white'>Go Home</button>
         </a>
       </div>
     </main>
