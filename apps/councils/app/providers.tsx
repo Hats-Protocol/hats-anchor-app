@@ -8,7 +8,6 @@ import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';
 import '@uiw/react-md-editor/markdown-editor.css';
 
-import { ChakraBaseProvider } from '@chakra-ui/react';
 import { councilsChainsList } from '@hatsprotocol/config';
 import { PrivyProvider } from '@privy-io/react-auth';
 import { WagmiProvider } from '@privy-io/wagmi';
@@ -87,14 +86,12 @@ const Providers = ({ children }: ProvidersProps) => {
         },
       }}
     >
-      <ChakraBaseProvider theme={theme}>
-        <QueryClientProvider client={queryClient}>
-          <WagmiProvider config={privyConfig()}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <OverlayContextProvider>{children}</OverlayContextProvider>
-          </WagmiProvider>
-        </QueryClientProvider>
-      </ChakraBaseProvider>
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={privyConfig()}>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <OverlayContextProvider>{children}</OverlayContextProvider>
+        </WagmiProvider>
+      </QueryClientProvider>
     </PrivyProvider>
   );
 };

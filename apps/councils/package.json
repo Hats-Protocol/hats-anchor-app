@@ -8,9 +8,6 @@
     "serve": "next start"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.1",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
     "@fontsource-variable/inter": "^5.0.19",
     "@fontsource-variable/jetbrains-mono": "^5.1.0",
     "@hatsprotocol/config": "workspace:*",
@@ -28,7 +25,6 @@
     "contexts": "workspace:*",
     "customerio-node": "^4.1.1",
     "forms": "workspace:*",
-    "framer-motion": "^10.16.15",
     "graphql": "^16.6.0",
     "graphql-request": "^5.1.0",
     "hats-hooks": "workspace:*",

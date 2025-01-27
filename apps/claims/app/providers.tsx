@@ -4,7 +4,6 @@ import '../public/style.css';
 import '@fontsource-variable/inter';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -70,16 +69,14 @@ const Providers = ({ children }: ProvidersProps) => {
   }, []);
 
   return (
-    <ChakraBaseProvider theme={theme}>
-      <WagmiProvider config={wagmiConfig()}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <OverlayContextProvider>{children}</OverlayContextProvider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ChakraBaseProvider>
+    <WagmiProvider config={wagmiConfig()}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <OverlayContextProvider>{children}</OverlayContextProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 

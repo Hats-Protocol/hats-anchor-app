@@ -1,44 +1,31 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Checkbox,
-  Divider,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  IconButton,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverTrigger,
-  Radio,
-  RadioGroup,
-  Skeleton,
-  Stack,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
 import { initialControls } from '@hatsprotocol/constants';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { first, get, gt, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
 import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { IoCloseCircleOutline } from 'react-icons/io5';
 import { Controls } from 'types';
-import { Link } from 'ui';
+import {
+  BaseCheckbox,
+  Button,
+  cn,
+  Link,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  RadioGroup,
+  RadioGroupItem,
+} from 'ui';
 import { chainsMap, explorerUrl } from 'utils';
 
 import { EventHistory } from './event-history';
@@ -62,16 +49,16 @@ const TreeMenu = () => {
     onOpenTreeDrawer,
     treeError,
   } = useTreeForm();
-  const { onOpen, onClose, isOpen } = useDisclosure();
+  const [isOpen, setIsOpen] = useState<string | boolean>(false); // TODO CheckedState is string | boolean
   const [localLastTimestamp, setLocalLastTimestamp] = React.useState<string>();
   const { isClient } = useMediaStyles();
 
   useEffect(() => {
-    if (!isClient || !_.get(_.first(treeEvents), 'timestamp')) return;
+    if (!isClient || !get(first(treeEvents), 'timestamp')) return;
     setLocalLastTimestamp(
       `${
-        _.get(_.first(treeEvents), 'timestamp') &&
-        formatDistanceToNow(new Date(Number(_.get(_.first(treeEvents), 'timestamp')) * 1000))
+        get(first(treeEvents), 'timestamp') &&
+        formatDistanceToNow(new Date(Number(get(first(treeEvents), 'timestamp')) * 1000))
       } ago`,
     );
   }, [treeEvents, isClient]);
@@ -85,85 +72,72 @@ const TreeMenu = () => {
   // );
 
   return (
-    <Flex
-      bg='whiteAlpha.700'
-      align='center'
-      justify='space-between'
-      px={3}
-      mb={5}
-      position='absolute'
-      top='75px'
-      height='70px'
-      w='100%'
-      zIndex={4}
-    >
-      <Flex justify='space-between' align='center' w='100%'>
-        <HStack>
+    <div className='top-75 absolute z-[4] mb-5 flex h-[70px] w-full items-center justify-between bg-white/70 px-3'>
+      <div className='flex w-full items-center justify-between'>
+        <div className='flex items-center'>
           <Button
-            fontWeight='medium'
-            border='1px solid #0987A0'
-            background='#C4F1F9'
-            color='#065666'
-            leftIcon={editMode ? <Icon as={IoCloseCircleOutline} /> : <Icon as={BsPencil} color='#065666' />}
-            isDisabled={!treeToDisplay || !!treeError}
+            className='border border-[#0987A0] bg-[#C4F1F9] text-[#065666]'
+            disabled={!treeToDisplay || !!treeError}
             onClick={toggleEditMode}
           >
+            {editMode ? (
+              <IoCloseCircleOutline className='mr-1 size-4' />
+            ) : (
+              <BsPencil className='mr-1 size-4 text-[#065666]' />
+            )}
             {editMode ? 'Leave Edit Mode' : 'Edit Tree'}
           </Button>
           {/* <Button colorScheme="teal" mr={3}>
                 Table View
               </Button> */}
-          <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose} matchWidth>
+          <Popover open={isOpen as boolean} onOpenChange={(open) => setIsOpen(open)}>
             <PopoverTrigger>
               <Button
-                leftIcon={<Icon as={BsToggles} />}
-                isDisabled={editMode || !!treeError}
-                variant={isOpen ? 'filled' : 'whiteFilled'}
-                rightIcon={isOpen ? <FaChevronUp /> : <FaChevronDown />}
-                fontWeight='medium'
-                colorScheme={isOpen ? 'blue.500' : '#2D3748'}
+                disabled={editMode || !!treeError}
+                variant={isOpen ? 'default' : 'outline'}
+                className={cn('font-medium', isOpen ? 'bg-blue-500' : 'bg-white')}
               >
+                <BsToggles className='mr-1 size-4' />
                 View Controls
+                {isOpen ? <FaChevronUp className='ml-1 size-4' /> : <FaChevronDown className='ml-1 size-4' />}
               </Button>
             </PopoverTrigger>
-            <PopoverContent w='250px'>
-              <PopoverArrow />
-              <PopoverBody p={6}>
-                <RadioGroup onChange={setSelectedOption} value={selectedOption} w='100%'>
-                  <Stack direction='column' spacing={3}>
+            <PopoverContent className='w-80'>
+              <div className='p-6'>
+                <RadioGroup
+                  onChange={(e) => setSelectedOption?.(e.currentTarget)}
+                  value={selectedOption}
+                  className='w-full'
+                >
+                  <div className='flex flex-col gap-3'>
                     {initialControls.map((control: Controls) => (
-                      <Radio value={control.value} key={control.value}>
-                        <HStack>
+                      <RadioGroupItem value={control.value} key={control.value}>
+                        <div className='flex items-center gap-2'>
                           {control.icon}
-                          <Text>{control.label}</Text>
-                        </HStack>
-                      </Radio>
+                          <p>{control.label}</p>
+                        </div>
+                      </RadioGroupItem>
                     ))}
-                  </Stack>
+                  </div>
                 </RadioGroup>
-                <Divider my={4} />
-                <Checkbox isChecked={showInactiveHats} onChange={(e) => setShowInactiveHats?.(e.target.checked)}>
-                  <HStack>
-                    <Icon as={BsToggle2Off} w={4} h={4} color='gray.500' />
-                    <Text>Inactive Hats</Text>
-                  </HStack>
-                </Checkbox>
-              </PopoverBody>
+                <hr className='my-4' />
+                <BaseCheckbox checked={showInactiveHats} onCheckedChange={(checked) => setShowInactiveHats?.(checked)}>
+                  <div className='flex items-center gap-2'>
+                    <BsToggle2Off className='size-4 text-gray-500' />
+                    <p>Inactive Hats</p>
+                  </div>
+                </BaseCheckbox>
+              </div>
             </PopoverContent>
           </Popover>
-        </HStack>
+        </div>
         {editMode ? (
-          <Button
-            variant='outline'
-            bg='whiteAlpha.900'
-            borderColor='gray.700'
-            leftIcon={<Icon as={AiOutlineDoubleLeft} />}
-            onClick={() => onOpenTreeDrawer?.()}
-          >
+          <Button variant='outline' className='border-gray-700 bg-white/90' onClick={() => onOpenTreeDrawer?.()}>
+            <AiOutlineDoubleLeft className='mr-1 size-4' />
             Draft Changes List
           </Button>
         ) : (
-          <HStack spacing={4}>
+          <div className='flex items-center gap-4'>
             {/* {!_.isEmpty(treeToDisplay) && (
               <Stack minH='55px' spacing={1}>
                 <Text color='blue.500'>
@@ -183,71 +157,60 @@ const TreeMenu = () => {
               </Stack>
             )} */}
 
-            <Stack align='center' alignItems='flex-end' spacing={1}>
-              <Skeleton isLoaded={!!chain && !!treeToDisplay}>
-                <Flex align='center' mr={-1.5} gap={1} fontSize='sm'>
-                  <Text>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</Text>
+            <div className='flex items-center gap-1'>
+              <div className='font-sm flex items-center gap-1'>
+                <p>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</p>
 
-                  <Link href={`${explorerUrl(chainId)}/address/${HATS_V1}`} isExternal>
-                    <HStack spacing={1}>
-                      <Text variant='medium'>{chain?.name}</Text>
-                      <IconButton
-                        aria-label='Explorer contract address'
-                        icon={<Icon as={FiExternalLink} />}
-                        size='xs'
-                        variant='ghost'
-                      />
-                    </HStack>
-                  </Link>
-                </Flex>
-              </Skeleton>
-              <Skeleton
-                isLoaded={(isClient && !!localLastTimestamp) || !!treeError}
-                minW='235px'
-                display='flex'
-                justifyContent='flex-end'
-              >
-                {!treeError && (
-                  <Popover trigger='hover'>
-                    <PopoverTrigger>
-                      <Flex align='center' gap={1} fontSize='sm' cursor='pointer'>
-                        <Text>Last event: </Text>
-                        <Text mr={2} variant='medium'>
-                          {localLastTimestamp || '-'}
-                        </Text>
-                        <Icon as={History} boxSize={4} />
-                      </Flex>
-                    </PopoverTrigger>
-                    <PopoverContent width='400px' mr={4}>
-                      <PopoverArrow />
-                      <PopoverCloseButton />
-                      <PopoverBody>
-                        <Stack>
-                          <Box>
-                            <Heading size='sm' variant='medium' textTransform='uppercase' mb={1}>
-                              Event history
-                            </Heading>
-                            <EventHistory type='tree' count={6} />
-                            {_.gt(_.size(treeEvents), 4) && (
-                              <>
-                                <Divider my={2} />
-                                <Button onClick={() => setModals?.({ events: true })} variant='link' colorScheme='blue'>
-                                  View Full History
-                                </Button>
-                              </>
-                            )}
-                          </Box>
-                        </Stack>
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
-                )}
-              </Skeleton>
-            </Stack>
-          </HStack>
+                <Link href={`${explorerUrl(chainId)}/address/${HATS_V1}`} isExternal>
+                  <div className='flex items-center gap-1'>
+                    <p className='font-medium'>{chain?.name}</p>
+                    <Button aria-label='Explorer contract address' size='xs' variant='ghost'>
+                      <FiExternalLink className='size-4' />
+                    </Button>
+                  </div>
+                </Link>
+              </div>
+
+              {!treeError && (
+                <Popover>
+                  <PopoverTrigger>
+                    <div className='flex cursor-pointer items-center gap-1 text-sm'>
+                      <p>Last event: </p>
+                      <p className='mr-2 font-medium'>{localLastTimestamp || '-'}</p>
+
+                      <History className='size-4' />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className='mr-4 w-80'>
+                    <div className='space-y-2'>
+                      <div>
+                        <h4 className='mb-1 text-sm font-medium uppercase'>Event history</h4>
+
+                        <EventHistory type='tree' count={6} />
+
+                        {gt(size(treeEvents), 4) && (
+                          <>
+                            <hr className='my-2' />
+
+                            <Button
+                              onClick={() => setModals?.({ events: true })}
+                              variant='link'
+                              className='text-blue-500'
+                            >
+                              View Full History
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
+          </div>
         )}
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   );
 };
 

@@ -8,9 +8,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.1",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
     "@fontsource-variable/inter": "^5.0.19",
     "@fontsource-variable/jetbrains-mono": "^5.1.0",
     "@hatsprotocol/config": "workspace:*",
@@ -22,7 +19,6 @@
     "@tanstack/react-query-devtools": "^5.64.2",
     "contexts": "workspace:*",
     "forms": "workspace:*",
-    "framer-motion": "^10.16.15",
     "hats-hooks": "workspace:*",
     "hats-utils": "workspace:*",
     "hooks": "workspace:*",

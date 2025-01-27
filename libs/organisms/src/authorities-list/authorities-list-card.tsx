@@ -1,34 +1,27 @@
 'use client';
 
-import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  IconButton,
-  Image,
-  Skeleton,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
 import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { get, includes, pick, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
-import { Link, Markdown } from 'ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Button,
+  cn,
+  Link,
+  Markdown,
+  Skeleton,
+  Tooltip,
+} from 'ui';
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ModuleAuthorityToolbar } from './module-authority-toolbar';
@@ -112,199 +105,157 @@ const AuthoritiesListCard = ({
     };
   }, []);
 
+  if (authority?.label === 'Loading...') {
+    return <Skeleton className='h-6' />;
+  }
+
   if (!gate && !description && type !== AUTHORITY_TYPES.modules && type !== AUTHORITY_TYPES.hsg) {
     return (
-      <Skeleton isLoaded={authority?.label !== 'Loading...'} h={authority?.label === 'Loading...' ? '25px' : 'auto'}>
-        <Flex py={2} px={{ base: 4, md: 0 }}>
-          <AuthorityHeader authority={authority} />
-        </Flex>
-      </Skeleton>
+      <div className='flex px-4 py-2 md:px-0'>
+        <AuthorityHeader authority={authority} />
+      </div>
     );
   }
 
   // TODO make enforcement tooltip work as a popover on mobile
 
   return (
-    <Accordion allowToggle>
+    <Accordion type='single' collapsible value={expanded ? 'authority' : undefined}>
       <AccordionItem
-        border='none'
-        w={{ base: '100%', md: 'calc(100% + 32px)' }}
-        ml={{ md: -4 }}
-        boxShadow={expanded ? 'md' : 'none'}
-        borderRadius={{ md: 'md' }}
+        value='authority'
+        className={cn(
+          'ml-[-16px] w-full border-none md:w-[calc(100%+32px)] md:rounded-md',
+          expanded ? 'box-shadow-md' : undefined,
+        )}
+        onClick={handleToggle}
       >
-        {({ isExpanded }) => {
-          if (isMounted.current && expanded !== isExpanded) {
-            startTransition(() => handleToggle());
-          }
+        <AccordionTrigger
+          className={cn(
+            'relative rounded-none border-t border-none border-transparent hover:border-t-gray-100 hover:bg-white focus:border-transparent md:rounded-md',
+            !expanded ? 'hover:border-blue-300' : 'hover:border-t-gray-100',
+            expanded && 'rounded-none border-t-gray-100 bg-white pb-0 md:rounded-t-md',
+          )}
+        >
+          <AuthorityHeader authority={authority} isExpanded={expanded} />
+          {/* {isMobile && <AccordionIcon mr={expanded ? 1 : 0} color='blackAlpha.600' />} */}
+          {expanded && !isMobile && <Collapse className='absolute bottom-[-2px] right-4 h-4 w-4' />}
+        </AccordionTrigger>
+        <AccordionContent
+          // TODO mb-4 on expanded giving a weird jumping effect on transition
+          className={cn(
+            'p-0',
+            expanded ? 'shadow-expanded-accordion rounded-b-md border-b-2 border-b-gray-100 bg-white' : undefined,
+          )}
+        >
+          <div className='flex flex-col gap-2 px-4'>
+            <div>
+              <div className='flex items-center gap-2'>
+                <img src={authorityEnforcement.enforcementIcon} alt='Hat' className='size-6' />
+                <div className='flex items-center gap-1'>
+                  <p>{authorityEnforcement.label}</p>
+                  {!isMobile && (
+                    <Tooltip label={tooltipInfo}>
+                      <BsInfoCircle className='size-4 cursor-pointer' />
+                    </Tooltip>
+                  )}
+                </div>
+              </div>
+            </div>
 
-          return (
-            <>
-              <AccordionButton
-                borderY='1px solid'
-                borderColor='transparent'
-                _hover={{
-                  borderColor: !isExpanded && 'blue.300',
-                  borderTopColor: isExpanded ? 'gray.100' : 'transparent',
-                  bg: 'white',
-                  borderRadius: !isMobile ? 'md' : 0,
-                }}
-                _focus={{
-                  borderBottomColor: 'transparent',
-                }}
-                _expanded={{
-                  bg: 'white',
-                  pb: 0,
-                  borderTopColor: 'gray.100',
-                  // boxShadow: isMobile
-                  //   ? '0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 5px 0px rgba(0, 0, 0, 0.15)'
-                  //   : 'none',
-                  borderRadius: 0,
-                  borderTopRadius: !isMobile ? 'md' : 0,
-                }}
-                position='relative'
-              >
-                <AuthorityHeader authority={authority} isExpanded={isExpanded} />
-                {isMobile && <AccordionIcon mr={isExpanded ? 1 : 0} color='blackAlpha.600' />}
-                {isExpanded && !isMobile && (
-                  <Icon
-                    as={Collapse}
-                    w='14px'
-                    position='absolute'
-                    color='Functional-LinkSecondary'
-                    zIndex={10}
-                    bottom={-2}
-                    right={4}
-                  />
-                )}
-              </AccordionButton>
-              <AccordionPanel
-                p={0}
-                // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
-                bg={isExpanded ? 'white' : undefined}
-                borderBottomRadius={{ md: 'md' }}
-                boxShadow={isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'}
-              >
-                <Stack px={4}>
-                  <Box>
-                    <HStack>
-                      <Image src={authorityEnforcement.enforcementIcon} alt='Hat' boxSize={6} />
-                      <HStack spacing={1}>
-                        <Text>{authorityEnforcement.label}</Text>
-                        {!isMobile && (
-                          <Tooltip label={tooltipInfo} shouldWrapChildren placement='top'>
-                            <Icon as={BsInfoCircle} boxSize={4} cursor='pointer' />
-                          </Tooltip>
-                        )}
-                      </HStack>
-                    </HStack>
-                  </Box>
-
-                  {displayModulesToolbar ? (
-                    <ModuleAuthorityToolbar authority={authority} index={index} isExpanded={isExpanded} />
-                  ) : (
-                    <HStack mb={!description ? 4 : 0}>
-                      {link && validateURL(link) && (
-                        <Link href={link} className='block' isExternal>
-                          {linkName || linkHostName ? (
-                            <Button
-                              rightIcon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-                              onClick={() => {
-                                posthog.capture('Clicked Authority Link', {
-                                  authority: label,
-                                  link,
-                                  link_name: linkName || linkHostName,
-                                  is_gate: false,
-                                });
-                              }}
-                              colorScheme='Functional-LinkPrimary'
-                              size='sm'
-                              variant='filled'
-                            >
-                              {linkName || linkHostName}
-                            </Button>
-                          ) : (
-                            <IconButton
-                              icon={<Icon as={BoxArrowUpRightOut} boxSize={3} />}
-                              onClick={() => {
-                                posthog.capture('Clicked Authority Link', {
-                                  authority: label,
-                                  link,
-                                  label: linkName || linkHostName,
-                                  is_gate: false,
-                                });
-                              }}
-                              colorScheme='Functional-LinkPrimary'
-                              aria-label='Authority Link'
-                              size='sm'
-                              variant='filled'
-                            />
-                          )}
-                        </Link>
-                      )}
-                      {gate && validateURL(gate) && (
-                        <Link href={gate} className='block' isExternal>
-                          <Button
-                            rightIcon={<Icon as={FaExternalLinkAlt} />}
-                            color='Functional-LinkPrimary'
-                            borderColor='Functional-LinkPrimary'
-                            variant='outlineMatch'
-                            size='sm'
-                            onClick={() => {
-                              posthog.capture('Clicked Authority Link', {
-                                authority: label,
-                                link,
-                                link_name: linkName || linkHostName,
-                                is_gate: true,
-                              });
-                            }}
-                          >
-                            {gateHostName}
-                          </Button>
-                        </Link>
-                      )}
-                    </HStack>
-                  )}
-                  {type === AUTHORITY_TYPES.hsg && authority?.hsgConfig && (
-                    <Box pt={2} pb={3}>
-                      <HSGDetails hsgConfig={authority.hsgConfig} selectedHat={selectedHat} chainId={chainId} />
-                    </Box>
-                  )}
-                  {type === AUTHORITY_TYPES.modules && (
-                    <Box pt={2} pb={3}>
-                      <ModuleCardDetails
-                        hat={selectedHat}
-                        moduleInfo={get(authority, 'moduleInfo')}
-                        chainId={chainId}
-                      />
-                    </Box>
-                  )}
-                  {type !== AUTHORITY_TYPES.modules &&
-                    description &&
-                    (typeof description === 'string' ? (
-                      <Box>
-                        <Markdown>{description}</Markdown>
-                      </Box>
+            {displayModulesToolbar ? (
+              <ModuleAuthorityToolbar authority={authority} index={index} isExpanded={expanded} />
+            ) : (
+              <div className={cn('mb-4', description && 'mb-0')}>
+                {link && validateURL(link) && (
+                  <Link href={link} className='block' isExternal>
+                    {linkName || linkHostName ? (
+                      <Button
+                        variant='outline'
+                        className='border-functional-link-primary'
+                        onClick={() => {
+                          posthog.capture('Clicked Authority Link', {
+                            authority: label,
+                            link,
+                            link_name: linkName || linkHostName,
+                            is_gate: false,
+                          });
+                        }}
+                        size='sm'
+                      >
+                        {linkName || linkHostName}
+                        <BoxArrowUpRightOut className='ml-1 size-3' />
+                      </Button>
                     ) : (
-                      <Box pt={link || gate ? 2 : 0} pb={3}>
-                        {description}
-                      </Box>
-                    ))}
-                </Stack>
-                {displayModulesToolbar && (
-                  <Flex w='100%' bg='green.50' color='green.600' px={4} py={1} mt={2} borderBottomRadius='md'>
-                    <HStack>
-                      <Icon as={CheckCircle} boxSize='14px' />
-                      <Text size='sm' variant='medium'>
-                        Verified Module
-                      </Text>
-                    </HStack>
-                  </Flex>
+                      <Button
+                        variant='outline'
+                        className='border-functional-link-primary'
+                        onClick={() => {
+                          posthog.capture('Clicked Authority Link', {
+                            authority: label,
+                            link,
+                            label: linkName || linkHostName,
+                            is_gate: false,
+                          });
+                        }}
+                        aria-label='Authority Link'
+                        size='sm'
+                      >
+                        <BoxArrowUpRightOut className='ml-1 size-3' />
+                      </Button>
+                    )}
+                  </Link>
                 )}
-              </AccordionPanel>
-            </>
-          );
-        }}
+                {gate && validateURL(gate) && (
+                  <Link href={gate} className='block' isExternal>
+                    <Button
+                      variant='outline'
+                      className='border-functional-link-primary'
+                      size='sm'
+                      onClick={() => {
+                        posthog.capture('Clicked Authority Link', {
+                          authority: label,
+                          link,
+                          link_name: linkName || linkHostName,
+                          is_gate: true,
+                        });
+                      }}
+                    >
+                      {gateHostName}
+                      <FaExternalLinkAlt className='ml-1 size-3' />
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            )}
+            {type === AUTHORITY_TYPES.hsg && authority?.hsgConfig && (
+              <div className='pb-3 pt-2'>
+                <HSGDetails hsgConfig={authority.hsgConfig} selectedHat={selectedHat} chainId={chainId} />
+              </div>
+            )}
+            {type === AUTHORITY_TYPES.modules && (
+              <div className='pb-3 pt-2'>
+                <ModuleCardDetails hat={selectedHat} moduleInfo={get(authority, 'moduleInfo')} chainId={chainId} />
+              </div>
+            )}
+            {type !== AUTHORITY_TYPES.modules &&
+              description &&
+              (typeof description === 'string' ? (
+                <div>
+                  <Markdown>{description}</Markdown>
+                </div>
+              ) : (
+                <div className={cn('pb-3 pt-2', link || gate ? 'pt-2' : 'pb-3')}>{description}</div>
+              ))}
+          </div>
+          {displayModulesToolbar && (
+            <div className='border-b-md mt-2 w-full bg-green-50 px-4 py-1 text-green-600'>
+              <div className='flex items-center'>
+                <CheckCircle className='size-4' />
+                <p className='text-sm font-medium'>Verified Module</p>
+              </div>
+            </div>
+          )}
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   );

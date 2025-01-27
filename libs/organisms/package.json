@@ -16,9 +16,6 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.1",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
     "@hatsprotocol/config": "workspace:*",
     "@hatsprotocol/constants": "workspace:*",
     "@hatsprotocol/hsg-sdk": "^0.0.15",
@@ -35,7 +32,6 @@
     "clsx": "^2.1.0",
     "contexts": "workspace:*",
     "date-fns": "^2.29.3",
-    "framer-motion": "^10.16.15",
     "forms": "workspace:*",
     "hats-hooks": "workspace:*",
     "hats-utils": "workspace:*",

@@ -78,6 +78,7 @@ const config: Config = {
       },
       shadow: {
         'accordion-trigger': '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)',
+        'expanded-accordion': '0px 10px 6px -6px rgba(0, 0, 0, 0.10)',
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',

@@ -1,23 +1,9 @@
 'use client';
 
-import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Flex,
-  Heading,
-  Icon,
-  ListItem,
-  Stack,
-  Text,
-  UnorderedList,
-} from '@chakra-ui/react';
 import { ReactNode } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { DetailsItem } from 'types';
-import { Link } from 'ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link } from 'ui';
 import { validateURL } from 'utils';
 
 const AccordionWrap = ({
@@ -28,19 +14,20 @@ const AccordionWrap = ({
   title?: string;
   children: ReactNode;
   inline?: boolean;
-}) => (
-  <Accordion allowToggle px={{ base: 4, md: 10 }}>
-    <AccordionItem border={inline ? '0' : undefined}>
-      <AccordionButton px={inline ? 0 : undefined}>
-        <Heading size={inline ? 'xs' : 'sm'} variant='medium' textTransform='uppercase'>
-          {title || 'Qualifications'}
-        </Heading>
-        <AccordionIcon />
-      </AccordionButton>
-      <AccordionPanel>{children}</AccordionPanel>
-    </AccordionItem>
-  </Accordion>
-);
+}) => {
+  if (!title) return children; // check this? idk when it wouldn't have a title
+
+  return (
+    <Accordion type='single' className='px-4 md:px-10'>
+      <AccordionItem value={title}>
+        <AccordionTrigger className={cn(inline ? 'px-0' : undefined)}>
+          <h3 className={cn('text-sm font-medium uppercase')}>{title || 'Qualifications'}</h3>
+        </AccordionTrigger>
+        <AccordionContent>{children}</AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+};
 
 const DetailList = ({
   title,
@@ -54,37 +41,33 @@ const DetailList = ({
   const toggleOrEligibility = title === 'Eligibility Criteria' || title === 'Toggle Criteria';
 
   const renderDetails = () => (
-    <Stack px={{ base: 4, md: 0 }}>
-      {!toggleOrEligibility && (
-        <Heading size={toggleOrEligibility ? 'xs' : 'sm'} variant='medium' textTransform='uppercase'>
-          {title}
-        </Heading>
-      )}
-      <UnorderedList>
+    <div className='flex flex-col gap-2'>
+      {!toggleOrEligibility && <h3 className={cn('text-sm font-medium uppercase')}>{title}</h3>}
+      <ul>
         {details?.length ? (
           details.map(({ label, link }: DetailsItem) => (
-            <ListItem key={label}>
-              <Flex justifyContent='space-between'>
+            <li key={label}>
+              <div className='flex justify-between'>
                 {link && validateURL(link) ? (
                   <Link isExternal href={link}>
-                    <Text size='sm'>{label}</Text>
+                    <p className='text-sm'>{label}</p>
                   </Link>
                 ) : (
-                  <Text size='sm'>{label}</Text>
+                  <p className='text-sm'>{label}</p>
                 )}
                 {link && validateURL(link) && (
                   <Link href={link} className='block' isExternal>
-                    <Icon as={FaExternalLinkAlt} w='12px' color='blue.500' />
+                    <FaExternalLinkAlt className='h-4 w-4 text-blue-500' />
                   </Link>
                 )}
-              </Flex>
-            </ListItem>
+              </div>
+            </li>
           ))
         ) : (
-          <ListItem>None</ListItem>
+          <li>None</li>
         )}
-      </UnorderedList>
-    </Stack>
+      </ul>
+    </div>
   );
 
   // TODO stable component render

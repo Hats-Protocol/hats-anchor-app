@@ -3,7 +3,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-underscore-dangle */
-import { useDisclosure } from '@chakra-ui/react';
 import { CONFIG } from '@hatsprotocol/config';
 import { DEFAULT_HAT, ZERO_ID } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
@@ -64,8 +63,8 @@ function OrgChartComponent() {
     editMode,
   });
 
-  const initialCompact = get(queryParams, 'compact') || storedConfig?.compact;
-  const initialFlipped = get(queryParams, 'flipped') || storedConfig?.flipped;
+  const initialCompact = get(queryParams, 'compact') || storedConfig?.compact || false;
+  const initialFlipped = get(queryParams, 'flipped') || storedConfig?.flipped || false;
 
   const collapsedNodes = useMemo(() => {
     let collapsed = get(queryParams, 'collapsed')
@@ -78,12 +77,10 @@ function OrgChartComponent() {
     return collapsed ?? [];
   }, [queryParams, storedConfig]);
 
-  const { isOpen: compact, onToggle: toggleCompact } = useDisclosure({
-    defaultIsOpen: initialCompact,
-  });
-  const { isOpen: flipped, onToggle: toggleFlip } = useDisclosure({
-    defaultIsOpen: initialFlipped,
-  });
+  const [compact, setCompact] = useState(initialCompact);
+  const [flipped, setFlipped] = useState(initialFlipped);
+  const toggleCompact = () => setCompact(!compact);
+  const toggleFlip = () => setFlipped(!flipped);
 
   // update chartNodes each time treeToDisplay is changed, but keep the internal org chart state variables (properties that start with "_")
   useEffect(() => {

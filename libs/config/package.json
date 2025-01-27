@@ -17,13 +17,9 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.1",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
     "@hatsprotocol/constants": "workspace:*",
     "@hatsprotocol/sdk-v1-core": "^0.10.0",
     "@hatsprotocol/sdk-v1-subgraph": "^1.0.0",
-    "framer-motion": "^10.16.15",
     "lodash": "^4.17.21",
     "next": "^14.2.14",
     "viem": "2.21.32",

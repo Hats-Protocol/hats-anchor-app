@@ -9,7 +9,6 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: [
-    '@chakra-ui/react',
     '@hatsprotocol/details-sdk',
     '@privy-io/react-auth',
     'react',

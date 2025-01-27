@@ -1,6 +1,5 @@
 'use client';
 
-import { useDisclosure } from '@chakra-ui/react';
 import { Modal, useSelectedHat, useTreeForm } from 'contexts';
 import { HatClaimForForm as HatClaimForm, HatTransferForm, HatWearerForm, HatWearerStatusForm } from 'forms';
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
@@ -32,7 +31,8 @@ const WearersList = () => {
   const { address } = useAccount();
   const { editMode, orgChartWearers } = useTreeForm();
   const { selectedHat, chainId, hatLoading } = useSelectedHat();
-  const { isOpen: ineligibleWearersExpanded, onToggle: onToggleIneligibleWearers } = useDisclosure();
+  const [ineligibleWearersExpanded, setIneligibleWearersExpanded] = useState(false);
+  const onToggleIneligibleWearers = () => setIneligibleWearersExpanded(!ineligibleWearersExpanded);
 
   const { data: wearersEligibility, isLoading: wearerEligibilityLoading } = useWearersEligibilityStatus({
     selectedHat,

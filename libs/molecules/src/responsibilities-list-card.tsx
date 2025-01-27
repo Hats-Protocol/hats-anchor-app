@@ -1,33 +1,21 @@
 'use client';
 
-import {
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Button,
-  Collapse,
-  Flex,
-  Icon,
-  Link,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { pick } from 'lodash';
+import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsBoxArrowUpRight } from 'react-icons/bs';
 import { DetailsItem } from 'types';
-import { Markdown } from 'ui';
+import { AccordionContent, AccordionItem, AccordionTrigger, Button, cn, Link, Markdown, Tooltip } from 'ui';
 import { getHostnameFromURL } from 'utils';
 
 import { ResponsibilityHeader } from './responsibility-header';
 
+const Collapse = dynamic(() => import('icons').then((mod) => mod.Collapse));
+
 const ResponsibilitiesListCard = ({ responsibility }: { responsibility?: DetailsItem }) => {
-  const { label, description, link, imageUrl } = _.pick(responsibility, ['label', 'description', 'link', 'imageUrl']);
+  const { label, description, link, imageUrl } = pick(responsibility, ['label', 'description', 'link', 'imageUrl']);
   const { isMobile } = useMediaStyles();
   const hostname = getHostnameFromURL(link);
   const [expanded, setExpanded] = useState(false);
@@ -42,9 +30,9 @@ const ResponsibilitiesListCard = ({ responsibility }: { responsibility?: Details
 
   if (!link && !description) {
     return (
-      <Flex py={2} px={{ base: 4, md: 0 }}>
+      <div className='flex px-4 py-2 md:px-0'>
         <ResponsibilityHeader label={label} link={link} imageUrl={imageUrl} />
-      </Flex>
+      </div>
     );
   }
 
@@ -61,105 +49,65 @@ const ResponsibilitiesListCard = ({ responsibility }: { responsibility?: Details
 
   return (
     <AccordionItem
-      border='none'
-      w={{ base: '100%', md: 'calc(100% + 32px)' }}
-      boxShadow={expanded ? 'md' : 'none'}
-      borderRadius={{ md: 'md' }}
-      ml={{ md: -4 }}
+      value={`${label}-${link}`}
+      className={cn(
+        'ml-[-16px] w-full border-none md:w-[calc(100%+32px)] md:rounded-md',
+        expanded ? 'box-shadow-md' : undefined,
+      )}
+      onClick={handleToggle}
     >
-      {({ isExpanded }) => {
-        if (isMounted.current && isExpanded !== expanded) {
-          startTransition(() => handleToggle());
-        }
+      <AccordionTrigger
+        className={cn(
+          'relative rounded-none border-t border-none border-transparent hover:border-t-gray-100 hover:bg-white focus:border-transparent md:rounded-md',
+          !expanded ? 'hover:border-blue-300' : 'hover:border-t-gray-100',
+          expanded && 'rounded-none border-t-gray-100 bg-white pb-0 md:rounded-t-md',
+        )}
+      >
+        <div className='flex-1 text-left'>
+          <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} isExpanded={expanded} />
+        </div>
+        {/* {isMobile && <AccordionIcon mr={isExpanded ? 1 : 0} color='blackAlpha.600' />} */}
+        {expanded && !isMobile && <Collapse className='absolute bottom-[-2px] right-4 h-4 w-4' />}
+      </AccordionTrigger>
+      <AccordionContent
+        className={cn(
+          'p-0',
+          expanded ? 'shadow-expanded-accordion rounded-b-md border-b-2 border-b-gray-100 bg-white' : undefined,
+        )}
+      >
+        <div className='flex flex-col gap-2 px-4'>
+          {link && (
+            <div>
+              <Link href={link} isExternal>
+                <Tooltip label={hostname}>
+                  <Button
+                    className='bg-blue-500'
+                    onClick={() => {
+                      posthog.capture('Clicked Responsibility Link', {
+                        authority: label,
+                        link,
+                        label: hostname,
+                      });
+                    }}
+                    size='sm'
+                  >
+                    <p className='size-sm'>{hostname}</p>
+                    <BsBoxArrowUpRight className='ml-1 size-4' />
+                  </Button>
+                </Tooltip>
+              </Link>
+            </div>
+          )}
 
-        return (
-          <>
-            <AccordionButton
-              // TODO share these styles with AuthoritiesListCard
-              borderY='1px solid'
-              borderColor='transparent'
-              _hover={{
-                borderColor: !isExpanded && 'blue.300',
-                borderTopColor: 'transparent',
-                bg: 'white',
-                borderRadius: !isMobile ? 'md' : 0,
-              }}
-              _focus={{
-                borderBottomColor: 'transparent',
-              }}
-              _expanded={{
-                bg: 'white',
-                borderTopColor: 'gray.100',
-                pb: 0,
-                borderTopRadius: !isMobile ? 'md' : 0,
-                _hover: {
-                  borderRadius: 0,
-                  borderTopRadius: !isMobile ? 'md' : 0,
-                },
-              }}
-              position='relative'
-            >
-              <Box flex='1' textAlign='left'>
-                <ResponsibilityHeader label={label} imageUrl={imageUrl} link={link} isExpanded={isExpanded} />
-              </Box>
-              {isMobile && <AccordionIcon mr={isExpanded ? 1 : 0} color='blackAlpha.600' />}
-              {isExpanded && !isMobile && (
-                <Icon
-                  as={Collapse}
-                  w='14px'
-                  position='absolute'
-                  color='Functional-LinkSecondary'
-                  zIndex={10}
-                  bottom={-2}
-                  right={4}
-                />
-              )}
-            </AccordionButton>
-            <AccordionPanel
-              px={4}
-              pb={2}
-              // mb={isExpanded ? 4 : 0} // TODO giving a weird jumping effect on transition
-              bg={isExpanded ? 'white' : undefined}
-              borderBottomRadius={{ md: 'md' }}
-              boxShadow={isExpanded ? '0px 10px 6px -6px rgba(0, 0, 0, 0.10)' : 'none'}
-            >
-              <Stack>
-                {link && (
-                  <Flex>
-                    <Link href={link} isExternal>
-                      <Tooltip label={hostname}>
-                        <Button
-                          rightIcon={<Icon boxSize={3} as={BsBoxArrowUpRight} />}
-                          variant='filled'
-                          size='sm'
-                          colorScheme='blue.500'
-                          onClick={() => {
-                            posthog.capture('Clicked Responsibility Link', {
-                              authority: label,
-                              link,
-                              label: hostname,
-                            });
-                          }}
-                        >
-                          <Text size='sm'>{hostname}</Text>
-                        </Button>
-                      </Tooltip>
-                    </Link>
-                  </Flex>
-                )}
-
-                <Flex>
-                  {description && (
-                    <Box>
-                      <Markdown>{description}</Markdown>
-                    </Box>
-                  )}
-                </Flex>
-              </Stack>
-            </AccordionPanel>
-          </>
-        );
-      }}
+          <div>
+            {description && (
+              <div>
+                <Markdown>{description}</Markdown>
+              </div>
+            )}
+          </div>
+        </div>
+      </AccordionContent>
     </AccordionItem>
   );
 };
