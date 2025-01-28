@@ -4,7 +4,7 @@ import { useCouncilForm, useOverlay } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
-import { Skeleton } from 'ui';
+import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -29,7 +29,7 @@ export function SelectionMembersStep({ onNext }: StepProps) {
       <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
         <h1 className='text-2xl font-bold'>Council Members</h1>
 
-        <div className='space-y-8 bg-white'>
+        <div className='space-y-8'>
           <div>
             <h2 className='font-semibold'>
               Initial Council Members
@@ -50,17 +50,16 @@ export function SelectionMembersStep({ onNext }: StepProps) {
           )}
 
           <div className='flex items-center justify-between'>
-            <button
-              type='button'
+            <Button
+              variant='outline-blue'
+              rounded='full'
               onClick={() => setModals?.({ addMemberModal: true })}
               disabled={!canEdit}
-              className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
-                !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-sky-50'
-              }`}
+              type='button'
             >
               <FiUserPlus className='mr-2 h-4 w-4' />
               Add Council Member
-            </button>
+            </Button>
           </div>
         </div>
 

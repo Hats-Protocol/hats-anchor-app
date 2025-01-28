@@ -1,0 +1,97 @@
+'use client';
+
+import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
+import { useSelectedHat, useTreeForm } from 'contexts';
+import { combineAuthorities } from 'hats-utils';
+import { useHatSnapshotRoles } from 'hooks';
+import { get, isEmpty, map, size } from 'lodash';
+import { useAncillaryModules } from 'modules-hooks';
+import { Authority, AuthorityType } from 'types';
+import { Accordion, Skeleton } from 'ui';
+
+import { AuthoritiesListCard } from './authorities-list-card';
+
+const LOADING_COUNT = 2;
+const LOADING_AUTHORITIES: Authority[] = Array(LOADING_COUNT).fill({
+  label: 'Loading...',
+  info: 'Loading...',
+  type: AUTHORITY_TYPES.manual,
+});
+
+// TODO need to handle case for automated integrations when using plaintext details
+
+const AuthoritiesList = () => {
+  const { orgChartTree, snapshotData } = useTreeForm();
+  const { chainId, selectedHat, selectedHatDetails, hatLoading } = useSelectedHat();
+
+  const { modulesAuthorities, isLoading: ancillaryModulesLoading } = useAncillaryModules({
+    id: selectedHat?.id,
+    chainId,
+    editMode: false,
+    tree: orgChartTree,
+  });
+
+  // const { data: guildRoles, isLoading: guildsLoading } = useHatGuildRoles({
+  //   hatId: selectedHat?.id,
+  //   guildData,
+  //   chainId,
+  // });
+  const { data: spaces, isLoading: spacesLoading } = useHatSnapshotRoles({
+    spaces: snapshotData,
+    hatId: selectedHat?.id,
+    chainId,
+  });
+  const { data: combinedAuthorities } = combineAuthorities({
+    authorities: get(selectedHatDetails, 'authorities'),
+    guildRoles: [],
+    spaces,
+    modulesAuthorities: ancillaryModulesLoading ? undefined : modulesAuthorities,
+  });
+  const localAuthorities =
+    !hatLoading && !ancillaryModulesLoading && !spacesLoading ? combinedAuthorities : LOADING_AUTHORITIES;
+  const allLoaded = !hatLoading && !ancillaryModulesLoading && !spacesLoading;
+
+  if ((allLoaded && isEmpty(combinedAuthorities)) || !selectedHatDetails) {
+    return null;
+    // return (
+    //   <Flex px={{ base: 4, md: 10 }}>
+    //     <Heading variant='medium' size='md'>
+    //       No Authorities granted to Wearers
+    //     </Heading>
+    //   </Flex>
+    // );
+  }
+
+  if (!allLoaded) {
+    return (
+      <div className='space-y-4'>
+        <Skeleton />
+        <Skeleton />
+      </div>
+    );
+  }
+
+  return (
+    <Accordion className='px-0 md:px-16' type='multiple'>
+      <div className='space-y-4'>
+        <h2 className='text-lg font-medium'>
+          {size(combinedAuthorities)} {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'} granted by this
+          Hat
+        </h2>
+
+        <div className='space-y-1'>
+          {map(localAuthorities, (authority: Authority, index: number) => (
+            <AuthoritiesListCard
+              index={index}
+              key={`${authority.label}-${index}`}
+              authority={authority}
+              type={authority.type as AuthorityType}
+            />
+          ))}
+        </div>
+      </div>
+    </Accordion>
+  );
+};
+
+export { AuthoritiesList };

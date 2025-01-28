@@ -20,6 +20,7 @@
     "target": "ES2020",
     "types": ["node"],
     "paths": {
+      "@hatsprotocol/config": ["./libs/config/src/index.ts"],
       "@hatsprotocol/constants": ["./libs/constants/src/index.ts"],
       "contexts": ["./libs/contexts/src/index.ts"],
       "forms": ["./libs/forms/src/index.ts"],
@@ -31,7 +32,6 @@
       "modules-ui": ["./libs/modules-ui/src/index.ts"],
       "molecules": ["./libs/molecules/src/index.ts"],
       "organisms": ["./libs/organisms/src/index.ts"],
-      "pages": ["./libs/pages/src/index.ts"],
       "shared": ["./libs/shared/src/index.ts"],
       "types": ["./libs/types/src/index.ts"],
       "ui": ["./libs/ui/src/index.ts"],

@@ -1,0 +1,88 @@
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
+import { useQueries } from '@tanstack/react-query';
+import _ from 'lodash';
+import { AppHat, HatWearer } from 'types';
+import { checkAddressIsContract, viemPublicClient } from 'utils';
+import { Hex, isAddress, zeroAddress } from 'viem';
+
+// !! LIKELY DEPRECATED
+
+const fetchWearerAndControllerDetails = async (wearer: Hex, chainId: number | undefined) => {
+  if (!wearer || !chainId) return null;
+
+  if (wearer === FALLBACK_ADDRESS || wearer === zeroAddress) {
+    return {
+      id: wearer,
+      isContract: false,
+      ensName: '',
+    };
+  }
+
+  const data = await Promise.all([
+    checkAddressIsContract(wearer, chainId),
+    viemPublicClient(1).getEnsName({
+      address: wearer,
+    }),
+  ]).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.log(err);
+  });
+
+  if (!data) return null;
+
+  const [isContract, ensName] = data as [boolean, string];
+
+  return {
+    id: wearer,
+    isContract,
+    ensName: ensName || '',
+  };
+};
+
+const useWearersControllersDetails = ({
+  hats,
+  editMode,
+  onchain = false,
+}: {
+  hats: AppHat[] | undefined;
+  editMode?: boolean;
+  onchain?: boolean;
+}) => {
+  const chainId = _.get(_.first(hats), 'chainId');
+  // Don't spam the RPC with requests for wearers on individual hats. Handle OrgChart wearers + controllers
+  const hatsWithIndividualWearers = _.filter(hats, (hat: AppHat) => _.eq(_.size(_.get(hat, 'wearers')), 1));
+
+  const wAndCs = _.uniq(
+    _.compact(
+      _.reject(
+        _.concat(
+          _.map(_.flatten(_.map(hatsWithIndividualWearers, 'wearers')), 'id'),
+          _.flatten(_.map(hats, 'toggle')), // not nested in objects here
+          _.flatten(_.map(hats, 'eligibility')), // not nested in objects here
+        ),
+        zeroAddress || FALLBACK_ADDRESS,
+      ),
+    ),
+  );
+
+  // TODO separate queries by hat instead of by wearer
+  const wearerAndControllerDetails = useQueries({
+    queries: _.compact(
+      _.map(wAndCs, (wearer: Hex) => ({
+        queryKey: ['wearerAndControllerDetails', { wearer, chainId, onchain }],
+        queryFn: () => fetchWearerAndControllerDetails(wearer, chainId),
+        enabled: !!wearer && isAddress(wearer) && wearer !== zeroAddress && !!chainId,
+        refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
+        // ? any better way to type this?
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      })) as any[],
+    ),
+  });
+  const isLoaded = _.every(wearerAndControllerDetails, ['fetchStatus', 'idle']);
+
+  if (!isLoaded || !_.eq(_.size(wearerAndControllerDetails), _.size(wAndCs))) return undefined;
+
+  return _.compact(_.map(wearerAndControllerDetails, 'data')) as HatWearer[];
+};
+
+export { useWearersControllersDetails };

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { StepValidation } from 'types';
+import { cn } from 'ui';
 import { logger } from 'utils';
 
 interface Step {
@@ -113,7 +114,7 @@ function getStepValidation(step: Step, stepValidation: StepValidation, requireme
   return stepValidation[step.id];
 }
 
-export function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
+function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
   const { form, stepValidation, persistForm } = useCouncilForm();
   const router = useRouter();
   const requirements = form.watch('requirements');
@@ -168,12 +169,13 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
               <div className='flex flex-col items-center'>
                 {/* Main step circle */}
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                  className={cn(
+                    'flex h-12 w-12 items-center justify-center rounded-full shadow-sm',
                     getStepValidation(step, stepValidation, requirements)
-                      ? 'bg-white'
-                      : 'border-2 ' +
-                        (index === currentStepIndex ? 'border-sky-600 bg-sky-100' : 'border-gray-200 bg-white')
-                  } `}
+                      ? 'bg-white shadow-sm'
+                      : 'border-2 border-gray-200',
+                    index === currentStepIndex && 'border-functional-link-primary bg-sky-100',
+                  )}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
                     <svg
@@ -182,7 +184,7 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                       viewBox='0 0 44 44'
                       fill='none'
                       xmlns='http://www.w3.org/2000/svg'
-                      className='text-white'
+                      className='h-12 w-12 text-white'
                     >
                       <g id='check-circle-fill'>
                         <path
@@ -193,7 +195,7 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                       </g>
                     </svg>
                   ) : (
-                    <span className={`text-lg text-black`}>{index + 1}</span>
+                    <span className='text-lg text-black'>{index + 1}</span>
                   )}
                 </div>
 
@@ -201,7 +203,9 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                 {step.id === 'payment' || (step.id === 'selection' && currentStep === 'selection') ? null : (
                   <div
                     className={`my-3 h-12 w-[2px] ${
-                      getStepValidation(step, stepValidation, requirements) ? 'bg-sky-600' : 'bg-gray-200'
+                      getStepValidation(step, stepValidation, requirements)
+                        ? 'bg-functional-link-primary'
+                        : 'bg-gray-200'
                     }`}
                   />
                 )}
@@ -224,12 +228,14 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
                     key={subStep.id}
                     onClick={() => handleStepNavigation('selection', subStep.id)}
                     className={`flex w-full items-center gap-3 border-l-[2px] ${
-                      status === 'completed' ? 'border-l-sky-600' : 'border-l-gray-200'
+                      status === 'completed' ? 'border-l-functional-link-primary' : 'border-l-gray-200'
                     }`}
                   >
                     <div
                       className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
-                        status === 'current' ? 'border border-sky-600 bg-sky-100' : 'border border-gray-200 bg-white'
+                        status === 'current'
+                          ? 'border-functional-link-primary bg-functional-link-primary/10 border'
+                          : 'border border-gray-200 bg-white'
                       }`}
                     >
                       {status === 'completed' ? (
@@ -264,3 +270,5 @@ export function CreationFormSteps({ currentStep, currentSubStep, draftId }: Crea
     </div>
   );
 }
+
+export { CreationFormSteps };

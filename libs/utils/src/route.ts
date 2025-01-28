@@ -1,10 +1,28 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import _, { concat, first, get, has, isArray, isEmpty, isNaN, isString, isUndefined, map, omit, omitBy, split, toNumber, toPairs } from 'lodash';
+import _, {
+  concat,
+  first,
+  get,
+  has,
+  isArray,
+  isEmpty,
+  isNaN,
+  isString,
+  isUndefined,
+  map,
+  omit,
+  omitBy,
+  split,
+  toNumber,
+  toPairs,
+} from 'lodash';
 import { ReadonlyURLSearchParams } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 const EXCLUDE_ROUTES = ['_next', 'api'];
+
+// TODO remove next import
 
 export const getPathParams = (pathname: string) => {
   const pathArray = pathname.split('/');
@@ -44,12 +62,10 @@ export const getQueryParams = (params: ReadonlyURLSearchParams) => {
   const values = _.fromPairs(Array.from(params.entries()));
 
   return {
-    chainId: (_.get(values, 'chainId')
-      ? _.toNumber(_.get(values, 'chainId'))
-      : undefined) as SupportedChains | undefined,
-    treeId: _.get(values, 'treeId')
-      ? _.toNumber(_.get(values, 'treeId'))
-      : undefined,
+    chainId: (_.get(values, 'chainId') ? _.toNumber(_.get(values, 'chainId')) : undefined) as
+      | SupportedChains
+      | undefined,
+    treeId: _.get(values, 'treeId') ? _.toNumber(_.get(values, 'treeId')) : undefined,
     hatId: _.get(values, 'hatId') as Hex,
     flipped: _.get(values, 'flipped') === 'true',
     compact: _.get(values, 'compact') === 'true',
@@ -57,18 +73,12 @@ export const getQueryParams = (params: ReadonlyURLSearchParams) => {
   };
 };
 
-const handleCollapsedQueryParams = (
-  pathname: string,
-  query: object,
-  collapsed: string | Array<string> | undefined,
-) => {
+const handleCollapsedQueryParams = (pathname: string, query: object, collapsed: string | Array<string> | undefined) => {
   if (isUndefined(collapsed) || isEmpty(collapsed) || collapsed === '')
     return `${pathname}?${new URLSearchParams(toPairs(query))}`;
 
   if (isString(collapsed)) {
-    return `${pathname}?${new URLSearchParams(
-      concat(toPairs(query), [['collapsed', collapsed]]),
-    )}`;
+    return `${pathname}?${new URLSearchParams(concat(toPairs(query), [['collapsed', collapsed]]))}`;
   }
 
   const localQuery = _.concat(

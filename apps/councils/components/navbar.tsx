@@ -1,17 +1,17 @@
 'use client';
 
-import { Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { get } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
 import { SupportedChains } from 'types';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
+import { Hex } from 'viem';
 
-import Login from './login';
+import { Login } from './login';
 
-export const Navbar = () => {
+const Navbar = () => {
   const pathname = usePathname();
   const { slug } = useParams<{ slug: string }>();
   const { chainId, address } = parseCouncilSlug(slug);
@@ -23,29 +23,29 @@ export const Navbar = () => {
   });
   const { data: offchainDetails } = useOffchainCouncilDetails({
     chainId: chainId as SupportedChains,
-    hsg: address,
+    hsg: address as Hex,
   });
   const { details } = useHatDetails({
     chainId: chainId as SupportedChains,
     hatId: get(councilDetails, 'signerHats[0].id'),
   });
-  logger.debug('nav', { offchainDetails, details });
+  // logger.debug('nav', { offchainDetails, details });
 
   return (
-    <Flex w='100%' justify='space-between' align='center' zIndex={10} px={2} minH='56px'>
-      <HStack spacing={4}>
-        <ChakraNextLink href='/'>
-          <Image src='/hats.png' boxSize={10} alt='Hats Logo' />
-        </ChakraNextLink>
+    <div className='flex min-h-[56px] w-full items-center justify-between px-2'>
+      <div className='flex items-center gap-4'>
+        <Link href='/'>
+          <img src='/hats.png' className='h-10 w-10' alt='Hats Logo' />
+        </Link>
 
         {isJoinLink ? (
-          <Text size='lg' fontWeight='bold'>
-            Join {offchainDetails?.creationForm.councilName || details?.name}
-          </Text>
+          <p className='text-lg font-bold'>Join {offchainDetails?.creationForm.councilName || details?.name}</p>
         ) : null}
-      </HStack>
+      </div>
 
       <Login />
-    </Flex>
+    </div>
   );
 };
+
+export { Navbar };

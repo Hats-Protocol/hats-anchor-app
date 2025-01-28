@@ -1,8 +1,8 @@
 'use client';
 
-import { Card, CardBody, Flex, Skeleton, Stack } from '@chakra-ui/react';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
+import { Card, Skeleton } from 'ui';
 
 import { CurrentSeason } from './current-season';
 import { ElectionRoles } from './election-roles';
@@ -32,91 +32,47 @@ export const ElectionClaims = () => {
   // }
 
   // should be loaded and know if it's election eligibility
-  if (!isClient || isEligibilityRulesLoading)
-    return <Skeleton w='full' minH='500px' borderRadius='lg' />;
+  if (!isClient || isEligibilityRulesLoading) {
+    return <Skeleton className='min-h-[500px] w-full rounded-lg' />;
+  }
 
   return (
-    <Stack gap={10}>
-      <Flex gap={6} w='full'>
-        <Skeleton
-          w={{ base: '100%', md: '48%' }}
-          minH='90px'
-          isLoaded={!isEligibilityRulesLoading}
-        >
-          <Card w='full' h='full'>
-            <CardBody>
-              <CurrentSeason />
-            </CardBody>
-          </Card>
-        </Skeleton>
-
-        <Skeleton
-          w={{ base: '100%', md: '48%' }}
-          display={{ base: 'none', md: 'inherit' }}
-          minH='90px'
-          isLoaded={!isEligibilityRulesLoading}
-        >
-          <Card w='full' h='full'>
-            <CardBody>
-              <UpcomingSeason />
-            </CardBody>
-          </Card>
-        </Skeleton>
-      </Flex>
-
-      <Flex gap={6} w='full'>
-        <Skeleton
-          w={{ base: '100%', md: '48%' }}
-          minH='90px'
-          isLoaded={!isEligibilityRulesLoading}
-        >
-          <Card w='full' h='full'>
-            <CardBody>
-              <WearersList />
-            </CardBody>
-          </Card>
-        </Skeleton>
-
-        <Skeleton
-          w={{ base: '100%', md: '48%' }}
-          minH='90px'
-          isLoaded={!isEligibilityRulesLoading}
-        >
-          <Card display={{ base: 'none', md: 'inherit' }} w='full' h='full'>
-            <CardBody>
-              <ElectionRoles />
-            </CardBody>
-          </Card>
-        </Skeleton>
-      </Flex>
-
-      <Skeleton w='full' minH='300px' isLoaded={!isEligibilityRulesLoading}>
-        <Card w='full' h='full'>
-          <CardBody>
-            <ProposalView />
-          </CardBody>
+    <div className='flex flex-col gap-10'>
+      <div className='flex w-full gap-6'>
+        <Card className='min-h-[90px] w-full p-4 md:w-1/2'>
+          <CurrentSeason />
         </Card>
-      </Skeleton>
+
+        <Card className='md:inherit hidden min-h-[90px] w-full p-4 md:w-1/2'>
+          <UpcomingSeason />
+        </Card>
+      </div>
+
+      <div className='flex w-full gap-6'>
+        <Card className='h-full min-h-[90px] w-full p-4 md:w-1/2'>
+          <WearersList />
+        </Card>
+
+        <Card className='md:inherit hidden h-full min-h-[90px] w-full p-4 md:w-1/2'>
+          <ElectionRoles />
+        </Card>
+      </div>
+
+      <Card className='min-h-[300px] w-full p-4'>
+        <ProposalView />
+      </Card>
 
       {isMobile && (
         <>
-          <Skeleton w='full' minH='300px' isLoaded={!isEligibilityRulesLoading}>
-            <Card w='full' h='full'>
-              <CardBody>
-                <UpcomingSeason />
-              </CardBody>
-            </Card>
-          </Skeleton>
+          <Card className='min-h-[300px] w-full p-4'>
+            <UpcomingSeason />
+          </Card>
 
-          <Skeleton w='full' minH='300px' isLoaded={!isEligibilityRulesLoading}>
-            <Card display={{ base: 'inherit', md: 'none' }} w='full' h='full'>
-              <CardBody>
-                <ElectionRoles />
-              </CardBody>
-            </Card>
-          </Skeleton>
+          <Card className='md:inherit hidden h-full w-full p-4'>
+            <ElectionRoles />
+          </Card>
         </>
       )}
-    </Stack>
+    </div>
   );
 };

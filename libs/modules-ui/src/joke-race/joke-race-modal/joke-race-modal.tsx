@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, Flex, Heading, Icon, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, DatePicker, DurationInput, NumberInput } from 'forms';
@@ -12,11 +11,8 @@ import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import {
-  formatAddress,
-  getJokeRaceModuleParameters,
-  shortDateFormatter,
-} from 'utils';
+import { Button } from 'ui';
+import { formatAddress, getJokeRaceModuleParameters, shortDateFormatter } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
 
@@ -31,9 +27,7 @@ import {
   ProfileList,
 } from '../../module-modal';
 
-const CopyAddress = dynamic(() =>
-  import('icons').then((icons) => icons.CopyAddress),
-);
+const CopyAddress = dynamic(() => import('icons').then((icons) => icons.CopyAddress));
 
 const transitionPeriodToDuration = (transitionPeriod: string) => {
   const duration = toNumber(transitionPeriod) / 60 / 60 / 24; // convert to days
@@ -106,22 +100,18 @@ export const JokeRaceModal = ({
     addresses: get(currentTerm, 'winners', []),
     chainId,
   });
-  const jokeRaceProfiles = map(
-    get(currentTerm, 'winners', []),
-    (wearer: string) => {
-      const profile = find(profileDetails, { id: get(wearer, 'address') });
-      return {
-        id: wearer,
-        ...profile,
-      };
-    },
-  ) as AllowlistProfile[];
+  const jokeRaceProfiles = map(get(currentTerm, 'winners', []), (wearer: string) => {
+    const profile = find(profileDetails, { id: get(wearer, 'address') });
+    return {
+      id: wearer,
+      ...profile,
+    };
+  }) as AllowlistProfile[];
   const liveParams = get(moduleInfo, 'liveParameters');
-  const { contestAddress, topK, termEnd, adminHat, transitionPeriod } =
-    getJokeRaceModuleParameters({
-      moduleParameters: liveParams,
-      currentTerm: currentTerm || undefined,
-    });
+  const { contestAddress, topK, termEnd, adminHat, transitionPeriod } = getJokeRaceModuleParameters({
+    moduleParameters: liveParams,
+    currentTerm: currentTerm || undefined,
+  });
 
   const isAdmin = useMemo(() => {
     return !!find(wearerHats, { id: adminHat });
@@ -131,8 +121,7 @@ export const JokeRaceModal = ({
     toastData: { title: 'Contest Address Copied' },
   });
   // convert to seconds
-  const termExpires =
-    toNumber(termEnd?.toString()) * 1000 + toNumber(transitionPeriod) * 1000;
+  const termExpires = toNumber(termEnd?.toString()) * 1000 + toNumber(transitionPeriod) * 1000;
 
   // const filteredProfiles = filterProfiles({
   //   profiles: jokeRaceProfiles,
@@ -155,17 +144,11 @@ export const JokeRaceModal = ({
       },
       transitionPeriod && {
         label: 'Transition Period',
-        descriptor: (
-          <div className='text-sm'>
-            {transitionPeriodToDuration(transitionPeriod)}
-          </div>
-        ),
+        descriptor: <div className='text-sm'>{transitionPeriodToDuration(transitionPeriod)}</div>,
       },
       termExpires && {
         label: 'Term Expires',
-        descriptor: (
-          <div className='text-sm'>{shortDateFormatter(termExpires)}</div>
-        ),
+        descriptor: <div className='text-sm'>{shortDateFormatter(termExpires)}</div>,
       },
     ]);
   }, [adminHat, eligibilityHatId, topK, termExpires, transitionPeriod]);
@@ -175,13 +158,9 @@ export const JokeRaceModal = ({
       contestAddress && {
         label: 'Contest Address',
         descriptor: (
-          <Button
-            onClick={copyContest}
-            variant='link'
-            size='sm'
-            rightIcon={<Icon as={CopyAddress} />}
-          >
+          <Button onClick={copyContest} variant='link' size='sm'>
             {formatAddress(contestAddress as Hex)}
+            <CopyAddress />
           </Button>
         ),
       },
@@ -242,8 +221,7 @@ export const JokeRaceModal = ({
     // TODO handle success
   };
 
-  const hatId =
-    eligibilityHatId && hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
+  const hatId = eligibilityHatId && hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
   const hatName = details?.name || hat?.details;
   const heading = `JokeRace Election for Hat ${hatId} - ${hatName}`;
 
@@ -253,12 +231,7 @@ export const JokeRaceModal = ({
     <ModuleModal
       name={`${moduleInfo.instanceAddress}-jokeRaceManager`}
       title='Manage JokeRace'
-      about={
-        <AboutModule
-          heading='About this JokeRace Election'
-          moduleDescriptors={moduleDescriptors}
-        />
-      }
+      about={<AboutModule heading='About this JokeRace Election' moduleDescriptors={moduleDescriptors} />}
       history={<ModuleHistory />}
       devInfo={<DevInfo moduleDescriptors={devInfo} />}
     >
@@ -282,12 +255,12 @@ export const JokeRaceModal = ({
             value: managingNextTerm,
             hasRole: !!isAdmin,
             section: (
-              <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-                <Stack spacing={4}>
-                  <Heading size='lg'>Create next term</Heading>
+              <div className='w-full space-y-6 px-4 md:px-10'>
+                <div className='flex flex-col gap-4'>
+                  <h2 className='text-2xl font-bold'>Create next term</h2>
 
-                  <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
+                  <div className='flex flex-col gap-4 md:flex-row'>
+                    <div className='h-10 w-full md:w-1/2'>
                       <AddressInput
                         name='contestAddress'
                         label='Contest Address'
@@ -295,41 +268,28 @@ export const JokeRaceModal = ({
                         localForm={localForm}
                         hideAddressButtons
                       />
-                    </Box>
+                    </div>
 
-                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
-                      <NumberInput
-                        name='topK'
-                        label='Top K'
-                        localForm={localForm}
-                      />
-                    </Box>
-                  </Flex>
+                    <div className='h-10 w-full md:w-1/2'>
+                      <NumberInput name='topK' label='Top K' localForm={localForm} />
+                    </div>
+                  </div>
 
-                  <Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
-                      <DatePicker
-                        name='termEnd'
-                        label='Term End'
-                        localForm={localForm}
-                      />
-                    </Box>
+                  <div className='flex flex-col gap-4 md:flex-row'>
+                    <div className='h-10 w-full md:w-1/2'>
+                      <DatePicker name='termEnd' label='Term End' localForm={localForm} />
+                    </div>
 
-                    <Box h='100px' w={{ base: '100%', md: '48%' }}>
-                      <DurationInput
-                        name='transitionPeriod'
-                        label='Transition Period'
-                        localForm={localForm}
-                      />
-                    </Box>
-                  </Flex>
-                </Stack>
+                    <div className='h-10 w-full md:w-1/2'>
+                      <DurationInput name='transitionPeriod' label='Transition Period' localForm={localForm} />
+                    </div>
+                  </div>
+                </div>
 
-                <Flex justify='space-between' w='full'>
+                <div className='flex w-full justify-between'>
                   <Button
                     size='sm'
-                    variant='outlineMatch'
-                    colorScheme='blue.500'
+                    variant='outline-blue'
                     onClick={() => {
                       setManagingNextTerm(false);
                       reset();
@@ -338,16 +298,11 @@ export const JokeRaceModal = ({
                     Cancel
                   </Button>
 
-                  <Button
-                    variant='primary'
-                    size='sm'
-                    onClick={handleSetTerm}
-                    isDisabled={!canSetNextTerm}
-                  >
+                  <Button size='sm' onClick={handleSetTerm} disabled={!canSetNextTerm}>
                     Set Term
                   </Button>
-                </Flex>
-              </Stack>
+                </div>
+              </div>
             ),
           },
         ]}

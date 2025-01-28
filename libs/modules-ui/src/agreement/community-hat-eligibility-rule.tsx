@@ -1,28 +1,16 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { get, includes, toLower } from 'lodash';
-import dynamic from 'next/dynamic';
-import {
-  BsCheckSquare,
-  BsCheckSquareFill,
-  BsXOctagonFill,
-} from 'react-icons/bs';
+import { BsCheckSquare, BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Button, Link } from 'ui';
 import { claimsLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((i) => i.ChakraNextLink),
-);
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const MODAL_NAME = 'agreementManager';
@@ -45,10 +33,7 @@ export const CommunityHatEligibilityRule = ({
     wearerIds,
     chainId: chainId as SupportedChains,
   });
-  const isEligible = includes(
-    get(wearerStatus, 'eligibleWearers'),
-    toLower(wearer),
-  );
+  const isEligible = includes(get(wearerStatus, 'eligibleWearers'), toLower(wearer));
 
   let status = ELIGIBILITY_STATUS.ineligible;
   let displayStatus = 'Not Signed';
@@ -72,14 +57,9 @@ export const CommunityHatEligibilityRule = ({
     return (
       <EligibilityRuleDetails
         rule={
-          <Text>
-            Sign the{' '}
-            <ChakraNextLink
-              href={claimsLink({ chainId, hatId: selectedHat?.id })}
-            >
-              Agreement
-            </ChakraNextLink>
-          </Text>
+          <p>
+            Sign the <Link href={claimsLink({ chainId, hatId: selectedHat?.id })}>Agreement</Link>
+          </p>
         }
         status={status}
         displayStatus={displayStatus}
@@ -93,7 +73,7 @@ export const CommunityHatEligibilityRule = ({
     return (
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <div>
             Sign the{' '}
             <Button
               onClick={() => {
@@ -105,7 +85,7 @@ export const CommunityHatEligibilityRule = ({
             >
               Agreement
             </Button>
-          </Text>
+          </div>
         }
         status={status}
         displayStatus={displayStatus}
@@ -118,7 +98,7 @@ export const CommunityHatEligibilityRule = ({
   // desktop handled in card section
   return (
     <EligibilityRuleDetails
-      rule={<Text>Sign the Agreement</Text>}
+      rule={<p>Sign the Agreement</p>}
       status={status}
       displayStatus={displayStatus}
       icon={icon}

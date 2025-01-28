@@ -1,7 +1,7 @@
-import { Button, Card, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { isEmpty, map, size, subtract } from 'lodash';
 import React, { Dispatch, SetStateAction } from 'react';
 import { AllowlistProfile } from 'types';
+import { Button, Card } from 'ui';
 import { formatAddress } from 'utils';
 
 export const RemoveForm = ({
@@ -18,15 +18,15 @@ export const RemoveForm = ({
   handleRemoveWearers: () => void;
 }) => {
   return (
-    <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-      <Stack spacing={4}>
-        <Heading size='md'>Addresses selected for removal</Heading>
-        <Card>
-          <Flex m={2} mx={4}>
+    <div className='w-full px-4 md:px-10'>
+      <div className='flex flex-col gap-4'>
+        <h3 className='text-md'>Addresses selected for removal</h3>
+        <Card className='border border-gray-200'>
+          <div className='m-2 mx-4'>
             {isEmpty(updateList) ? (
-              <Text color='gray.500'>Select an address to remove</Text>
+              <p className='text-gray-500'>Select an address to remove</p>
             ) : (
-              <Text>
+              <p>
                 {map(
                   updateList,
                   (profile, index) =>
@@ -34,16 +34,15 @@ export const RemoveForm = ({
                       index < subtract(size(updateList), 1) ? ', ' : ''
                     }`,
                 )}
-              </Text>
+              </p>
             )}
-          </Flex>
+          </div>
         </Card>
-      </Stack>
+      </div>
 
-      <Flex justify='space-between' w='full'>
+      <div className='flex w-full justify-between'>
         <Button
-          variant='outlineMatch'
-          colorScheme='blue.500'
+          variant='outline-blue'
           size='sm'
           onClick={() => {
             setUpdateList([]);
@@ -54,16 +53,15 @@ export const RemoveForm = ({
         </Button>
 
         <Button
-          variant='filled'
-          colorScheme='red.500'
+          variant='destructive'
           size='sm'
-          isLoading={isLoading}
-          isDisabled={isEmpty(updateList)}
+          // isLoading={isLoading}
+          disabled={isEmpty(updateList) || isLoading}
           onClick={handleRemoveWearers}
         >
           Remove
         </Button>
-      </Flex>
-    </Stack>
+      </div>
+    </div>
   );
 };

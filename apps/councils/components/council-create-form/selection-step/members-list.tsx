@@ -79,15 +79,19 @@ function MemberCard({
         <div className='flex items-center gap-3'>
           <button
             type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700'
+            className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
             onClick={onEdit}
           >
-            <SquarePen className='h-4 w-4' />
+            <SquarePen className='text-functional-link-primary h-4 w-4' />
             Edit
           </button>
 
-          <button type='button' onClick={() => onRemove(member.id)} className='text-red-700 hover:text-red-800'>
-            <Trash2 className='h-4 w-4' />
+          <button
+            type='button'
+            onClick={() => onRemove(member.id)}
+            className='text-destructive hover:text-destructive/70'
+          >
+            <Trash2 className='text-destructive h-4 w-4' />
           </button>
         </div>
       )}

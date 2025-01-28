@@ -2,7 +2,7 @@ import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { SelectedHatContextProvider, TreeFormContextProvider } from 'contexts';
 import { first, get, pick, split, toNumber } from 'lodash';
 import { Metadata } from 'next';
-import { HatDrawer } from 'pages';
+import { HatDrawer } from 'organisms';
 import { SearchParamsProps } from 'types';
 import { fetchHatsDetailsMesh, logger } from 'utils';
 

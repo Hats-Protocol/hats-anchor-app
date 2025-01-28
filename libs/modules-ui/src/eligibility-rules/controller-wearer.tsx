@@ -1,32 +1,22 @@
 'use client';
 
-import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat } from 'contexts';
 import { getControllerNameAndLink } from 'hats-utils';
 import _ from 'lodash';
 import dynamic from 'next/dynamic';
+import { IconType } from 'react-icons';
 import { ControllerData } from 'types';
+import { cn, Link, Tooltip } from 'ui';
 import { formatAddress } from 'utils';
 
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 const EmptyWearer = dynamic(() => import('icons').then((i) => i.EmptyWearer));
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
-export const ControllerWearer = ({
-  controllerData,
-}: {
-  controllerData: ControllerData | undefined;
-}) => {
+export const ControllerWearer = ({ controllerData }: { controllerData: ControllerData | undefined }) => {
   const { chainId } = useSelectedHat();
-  const { id: address, isContract } = _.pick(controllerData, [
-    'id',
-    'isContract',
-    'ensName',
-  ]);
+  const { id: address, isContract } = _.pick(controllerData, ['id', 'isContract', 'ensName']);
 
   const { name, link, icon } = getControllerNameAndLink({
     extendedController: controllerData,
@@ -35,33 +25,28 @@ export const ControllerWearer = ({
 
   if (_.includes(NULL_ADDRESSES, address)) {
     return (
-      <HStack color='blackAlpha.600' spacing={1}>
-        <Text>Null</Text>
-        <Icon as={EmptyWearer} boxSize={4} />
-      </HStack>
+      <div className='flex items-center gap-1 text-slate-600'>
+        <p>Null</p>
+        <EmptyWearer className='h-4 w-4' />
+      </div>
     );
   }
 
+  const Icon = icon ?? ((isContract ? CodeIcon : WearerIcon) as IconType);
+
   return (
-    <ChakraNextLink href={link}>
-      <Tooltip
-        label={name !== formatAddress(address) && address}
-        placement='left'
-        minW='380px'
-        hasArrow
-      >
-        <HStack
-          color={
-            !isContract || name?.includes('Safe')
-              ? 'Informative-Human'
-              : 'Informative-Code'
-          }
-          spacing={1}
+    <Link href={link}>
+      <Tooltip label={name !== formatAddress(address) ? address : undefined}>
+        <div
+          className={cn(
+            'flex items-center gap-1',
+            !isContract || name?.includes('Safe') ? 'text-informative-human' : 'text-informative-code',
+          )}
         >
-          <Text>{name}</Text>
-          <Icon as={icon ?? (isContract ? CodeIcon : WearerIcon)} boxSize={4} />
-        </HStack>
+          <p>{name}</p>
+          <Icon className='h-4 w-4' />
+        </div>
       </Tooltip>
-    </ChakraNextLink>
+    </Link>
   );
 };

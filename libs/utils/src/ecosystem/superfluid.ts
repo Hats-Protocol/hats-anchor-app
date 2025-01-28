@@ -62,10 +62,7 @@ export const fetchSuperfluidStreams = async ({
     addresses,
   });
   const streams = get(result, 'streams');
-  const activeStreams = filter(
-    streams,
-    (stream: any) => stream.currentFlowRate > 0,
-  );
+  const activeStreams = filter(streams, (stream: any) => stream.currentFlowRate > 0);
 
   return activeStreams;
 };

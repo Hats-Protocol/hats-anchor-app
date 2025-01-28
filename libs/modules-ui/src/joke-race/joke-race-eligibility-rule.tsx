@@ -1,21 +1,18 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower, toNumber } from 'lodash';
 import { useJokeRace } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Button, Link } from 'ui';
 import { getJokeRaceModuleParameters, jokeRaceUrl, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 import { JokeRaceModal } from './joke-race-modal';
-
-const ChakraNextLink = dynamic(() => import('ui').then((i) => i.ChakraNextLink));
 
 export const JokeRaceEligibilityRule = ({
   moduleDetails,
@@ -59,7 +56,7 @@ export const JokeRaceEligibilityRule = ({
 
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <span>
             {toNumber(topK) > 1 ? `Finish top ${topK}` : 'Finish first'} in the{' '}
             {eligibilityModalFlag ? (
               <Button
@@ -73,11 +70,11 @@ export const JokeRaceEligibilityRule = ({
                 JokeRace
               </Button>
             ) : (
-              <ChakraNextLink href={jokeRaceUrl({ chainId, address: contestAddress })} decoration>
+              <Link href={jokeRaceUrl({ chainId, address: contestAddress })} className='underline'>
                 JokeRace
-              </ChakraNextLink>
+              </Link>
             )}
-          </Text>
+          </span>
         }
         status={isEligible ? ELIGIBILITY_STATUS.eligible : ELIGIBILITY_STATUS.ineligible}
         displayStatus={isEligible ? 'Selected' : 'Not Selected'}

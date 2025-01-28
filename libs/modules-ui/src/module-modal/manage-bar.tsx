@@ -1,6 +1,6 @@
-import { Button, Flex, HStack } from '@chakra-ui/react';
 import { find, map, some } from 'lodash';
 import { ReactNode, useMemo } from 'react';
+import { Button } from 'ui';
 
 interface Section {
   label: string;
@@ -27,52 +27,27 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
     return find(sections, (s) => s.value);
   }, [sections]);
   const hasAnyRole = useMemo(() => {
-    return (
-      some(sections, ({ hasRole }) => hasRole) ||
-      some(buttons, ({ hasRole }) => hasRole)
-    );
+    return some(sections, ({ hasRole }) => hasRole) || some(buttons, ({ hasRole }) => hasRole);
   }, [sections, buttons]);
 
   if (activeSection) {
     return (
-      <Flex
-        position='absolute'
-        bottom={0}
-        minH='100px'
-        bg='whiteAlpha.900'
-        w='100%'
-        borderBottomRightRadius='md'
-        borderBottomLeftRadius={{ base: 'md', md: 'none' }}
-        borderTop='1px solid'
-        borderColor='blackAlpha.200'
-        py={{ base: 4, md: 10 }}
-      >
+      <div className='bg-whiteAlpha-900 border-bottom-right-md border-bottom-left-md border-top-md border-blackAlpha-200 absolute bottom-0 min-h-[100px] w-full py-4 md:py-10'>
         {activeSection.section}
-      </Flex>
+      </div>
     );
   }
 
   if (!hasAnyRole) return null;
 
   return (
-    <Flex
-      position='absolute'
-      bottom={0}
-      minH='100px'
-      bg='whiteAlpha.900'
-      w='100%'
-      borderBottomRightRadius='md'
-      borderBottomLeftRadius={{ base: 'md', md: 'none' }}
-      borderTop='1px solid'
-      borderColor='blackAlpha.200'
-      py={{ base: 4, md: 10 }}
-    >
-      <Flex w='full' justify='center' align='center'>
-        <HStack>
+    <div className='bg-whiteAlpha-900 border-bottom-right-md border-bottom-left-md border-top-md border-blackAlpha-200 absolute bottom-0 min-h-[100px] w-full py-4 md:py-10'>
+      <div className='flex w-full items-center justify-center'>
+        <div className='flex flex-col gap-4'>
           {map(buttons, ({ onClick, label, colorScheme }) => (
             <Button
-              variant='outlineMatch'
-              colorScheme={colorScheme || 'blue.500'}
+              variant='outline-blue'
+              // colorScheme={colorScheme || 'blue.500'}
               size='sm'
               onClick={onClick}
               key={label}
@@ -80,8 +55,8 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
               {label}
             </Button>
           ))}
-        </HStack>
-      </Flex>
-    </Flex>
+        </div>
+      </div>
+    </div>
   );
 };

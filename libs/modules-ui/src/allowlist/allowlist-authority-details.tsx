@@ -1,15 +1,13 @@
 'use client';
 
-import { Box, Icon, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { find, get, keys, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsInfoCircle } from 'react-icons/bs';
 import { ModuleDetailRole, ModuleDetails, SupportedChains } from 'types';
+import { Tooltip } from 'ui';
 
-const InlineHatCard = dynamic(() =>
-  import('molecules').then((mod) => mod.InlineHatCard),
-);
+const InlineHatCard = dynamic(() => import('molecules').then((mod) => mod.InlineHatCard));
 
 const ALLOWLIST_ROLES: { [key: string]: ModuleDetailRole } = {
   owner: {
@@ -24,29 +22,23 @@ const ALLOWLIST_ROLES: { [key: string]: ModuleDetailRole } = {
   },
 };
 
-export const AllowlistEligibilityDetails = (
-  moduleInfo: ModuleDetails,
-  chainId: SupportedChains,
-) => {
+export const AllowlistEligibilityDetails = (moduleInfo: ModuleDetails, chainId: SupportedChains) => {
   const params = get(moduleInfo, 'liveParameters');
   if (!params) return undefined;
 
   return (
     <div className='flex flex-col gap-2'>
       {map(keys(ALLOWLIST_ROLES), (role: string) => {
-        const value = get(
-          find(params, { label: ALLOWLIST_ROLES[role].param }),
-          'value',
-        ) as bigint;
+        const value = get(find(params, { label: ALLOWLIST_ROLES[role].param }), 'value') as bigint;
         return (
           <div className='flex justify-between' key={role}>
             <div className='flex items-center gap-2'>
               <div>{ALLOWLIST_ROLES[role].label}</div>
 
-              <Tooltip label={ALLOWLIST_ROLES[role].tooltip} placement='top'>
-                <Box as='span' boxSize={4} position='relative'>
-                  <Icon as={BsInfoCircle} position='absolute' />
-                </Box>
+              <Tooltip label={ALLOWLIST_ROLES[role].tooltip}>
+                <span className='relative'>
+                  <BsInfoCircle className='absolute h-4 w-4' />
+                </span>
               </Tooltip>
             </div>
 

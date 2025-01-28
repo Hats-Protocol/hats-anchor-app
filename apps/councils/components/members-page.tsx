@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Tooltip } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
@@ -8,6 +7,7 @@ import { filter, find, first, flatten, get, isEmpty, keys, map, split, toLower }
 import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
 import { useForm } from 'react-hook-form';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
+import { Button, Tooltip } from 'ui';
 import { Skeleton } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
 import { getAddress, Hex } from 'viem';
@@ -32,7 +32,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const { data: offchainCouncilData } = useOffchainCouncilDetails({
-    hsg: address,
+    hsg: address as Hex,
     chainId: chainId ?? 11155111,
   });
 
@@ -122,7 +122,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   return (
     <div className='flex flex-col'>
-      <div className='flex h-12 items-center justify-between border-b border-t border-gray-200'>
+      <div className='flex h-14 items-center justify-between border-b border-gray-200'>
         <div className='flex items-center'>
           <div className='w-12' />
           <div className='flex h-full w-[250px] items-center p-2'>
@@ -150,6 +150,10 @@ const MembersPage = ({ slug }: { slug: string }) => {
               </div>
             );
           })}
+
+          <div className='flex h-full w-28 items-center justify-center'>
+            <p className='text-center'>Council Member</p>
+          </div>
 
           <div className='flex h-full w-48 items-center justify-center'>
             <p className='text-center'>Manager Controls</p>
@@ -182,32 +186,37 @@ const MembersPage = ({ slug }: { slug: string }) => {
         </div>
       )}
 
-      <div className='flex gap-2 pt-8'>
-        <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
-          <Button
-            variant='outline'
-            onClick={() => setModals?.({ 'addUser-member': true })}
-            isDisabled={!addAccount || !userAddress}
-          >
-            Add Member
-          </Button>
-        </Tooltip>
+      {userAddress && (
+        <>
+          <div className='flex gap-2 pt-8'>
+            <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
+              <Button
+                variant='outline-blue'
+                rounded='full'
+                onClick={() => setModals?.({ 'addUser-member': true })}
+                disabled={!addAccount || !userAddress}
+              >
+                Add Member
+              </Button>
+            </Tooltip>
 
-        <Button variant='outline' isDisabled={!userAddress} onClick={updateComplianceForSelected}>
-          Update Compliance
-        </Button>
-      </div>
+            <Button variant='outline' disabled={!userAddress} onClick={updateComplianceForSelected}>
+              Update Compliance
+            </Button>
+          </div>
 
-      <AddUserModal
-        type='member'
-        userLabel='Council Member'
-        chainId={chainId as SupportedChains}
-        afterSuccess={addUserToCouncil}
-        councilId={offchainCouncilData?.creationForm?.id}
-        existingUsers={offchainCouncilData?.creationForm?.members || []}
-      />
+          <AddUserModal
+            type='member'
+            userLabel='Council Member'
+            chainId={chainId as SupportedChains}
+            afterSuccess={addUserToCouncil}
+            councilId={offchainCouncilData?.creationForm?.id}
+            existingUsers={offchainCouncilData?.creationForm?.members || []}
+          />
+        </>
+      )}
     </div>
   );
 };
 
-export default MembersPage;
+export { MembersPage };

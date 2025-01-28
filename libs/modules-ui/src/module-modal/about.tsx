@@ -1,4 +1,3 @@
-import { Flex, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { map } from 'lodash';
 import dynamic from 'next/dynamic';
@@ -26,35 +25,36 @@ export const AboutModule = ({
   moduleDescriptors: ModuleDescriptor[];
 }) => {
   return (
-    <Stack>
-      <Heading size='sm'>{heading}</Heading>
+    <div className='flex flex-col gap-2'>
+      <h2 className='text-sm'>{heading}</h2>
 
       {map(moduleDescriptors, ({ label, hatId, icon, descriptor }) => {
         if (descriptor) {
           return (
-            <Flex key={label} justify='space-between'>
-              <Text size='sm'>{label}</Text>
+            <div className='flex justify-between'>
+              <p className='text-sm'>{label}</p>
 
               {descriptor}
-            </Flex>
+            </div>
           );
         }
 
         if (!hatId) return null;
 
-        return (
-          <Flex key={label} justify='space-between'>
-            <Text size='sm'>{label}</Text>
+        const Icon = icon || HatIcon;
 
-            <HStack spacing={1}>
-              <Text size='sm'>
-                {hatIdDecimalToIp(hatIdHexToDecimal(hatId))}
-              </Text>
-              <Icon as={icon || HatIcon} boxSize={4} />
-            </HStack>
-          </Flex>
+        return (
+          <div className='flex justify-between'>
+            <p className='text-sm'>{label}</p>
+
+            <div className='flex items-center gap-1'>
+              <p className='text-sm'>{hatIdDecimalToIp(hatIdHexToDecimal(hatId))}</p>
+
+              <Icon className='h-4 w-4' />
+            </div>
+          </div>
         );
       })}
-    </Stack>
+    </div>
   );
 };

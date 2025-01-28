@@ -1,14 +1,7 @@
-import {
-  Flex,
-  Heading,
-  Modal,
-  ModalCloseButton,
-  ModalContent,
-  ModalOverlay,
-  Stack,
-} from '@chakra-ui/react';
-import { useOverlay } from 'contexts';
+import { Modal } from 'contexts';
 import { ReactNode } from 'react';
+import { BsX } from 'react-icons/bs';
+import { Button } from 'ui';
 
 export const ModuleModal = ({
   name,
@@ -27,56 +20,27 @@ export const ModuleModal = ({
   children: ReactNode;
   onClose?: () => void;
 }) => {
-  const { setModals, modals } = useOverlay();
-
   return (
-    <Modal
-      isOpen={modals?.[name] || false}
-      onClose={() => {
-        onClose?.();
-        setModals?.({});
-      }}
-      size='6xl'
-    >
-      <ModalOverlay />
-      <ModalContent>
-        <Flex direction={{ base: 'column', md: 'row' }} height='700px'>
-          <Stack
-            position='relative'
-            display={{ base: 'none', md: 'flex' }}
-            w={{ md: '30%' }}
-            minW={{ md: '450px' }}
-            p={{ md: 14 }}
-            spacing={10}
-            borderRight='1px solid'
-            borderColor='blackAlpha.200'
-          >
-            <Heading size='xl'>{title}</Heading>
+    <Modal name={name} onClose={onClose}>
+      <div className='flex h-[700px] flex-col items-center gap-4 md:flex-row'>
+        <div className='border-blackAlpha-200 relative flex hidden w-[30%] gap-10 border-r p-14 md:flex md:min-w-[450px]'>
+          <h2 className='text-2xl font-bold'>{title}</h2>
 
-            {about}
+          {about}
 
-            {history}
+          {history}
 
-            {devInfo}
-          </Stack>
+          {devInfo}
+        </div>
 
-          <Stack
-            bg='cyan.50'
-            w={{ base: '100%', md: '70%' }}
-            h={{ base: '100%', md: 'auto' }}
-            borderRightRadius='md'
-            borderTopLeftRadius={{ base: 'md', md: 'none' }}
-            borderBottomLeftRadius={{ base: 'md', md: 'none' }}
-            position='relative'
-            align='center'
-            p={{ base: 6, md: 10 }}
-          >
-            <ModalCloseButton position='absolute' top={4} right={4} />
+        <div className='border-r-md border-top-left-md border-bottom-left-md relative flex h-[auto] w-[70%] flex-col items-center bg-cyan-50 p-6 md:p-10'>
+          <Button className='absolute right-4 top-4' onClick={onClose}>
+            <BsX />
+          </Button>
 
-            {children}
-          </Stack>
-        </Flex>
-      </ModalContent>
+          {children}
+        </div>
+      </div>
     </Modal>
   );
 };

@@ -1,39 +1,19 @@
 'use client';
 
-import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Stack,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
 import { TOKEN_ARG_TYPES } from '@hatsprotocol/constants';
 import { Modal, useEligibility, useOverlay } from 'contexts';
 import { ModuleArgsForm } from 'forms';
-import _ from 'lodash';
+import { filter, find, get, includes, isEmpty, map, toLower } from 'lodash';
 import { useCallModuleFunction, useModuleDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiExternalLink } from 'react-icons/fi';
 import { LinkObject, ModuleFunction } from 'types';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Link, Tooltip } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 // import ModuleParameters from './ModuleParameters';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 export const SlimModuleDetails = ({ type }: { type: string }) => {
   const [selectedFunction, setSelectedFunction] = useState(null);
@@ -41,10 +21,7 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
   const { setModals } = localOverlay;
   const { chainId, selectedHat } = useEligibility();
 
-  const controllerAddress = useMemo(
-    () => _.get(selectedHat, _.toLower(type)),
-    [selectedHat, type],
-  );
+  const controllerAddress = useMemo(() => get(selectedHat, toLower(type)), [selectedHat, type]);
 
   const { details: moduleDetails, parameters } = useModuleDetails({
     address: controllerAddress,
@@ -57,16 +34,13 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
 
   const { formState, handleSubmit } = formMethods;
 
-  const tokenAddress = _.get(
-    _.find(parameters, (param: any) =>
-      _.includes(TOKEN_ARG_TYPES, param.displayType),
-    ),
+  const tokenAddress = get(
+    find(parameters, (param: any) => includes(TOKEN_ARG_TYPES, param.displayType)),
     'value',
   );
 
-  const moduleActions = _.filter(
-    _.get(moduleDetails, 'writeFunctions'),
-    (fn: ModuleFunction) => _.includes(fn.roles, 'public'),
+  const moduleActions = filter(get(moduleDetails, 'writeFunctions'), (fn: ModuleFunction) =>
+    includes(fn.roles, 'public'),
   );
 
   const { mutate: callModuleFunction } = useCallModuleFunction({
@@ -102,94 +76,82 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
   if (!moduleDetails || !chainId) return null;
 
   return (
-    <Accordion allowMultiple>
-      {!_.isEmpty(moduleActions) && (
+    <Accordion type='multiple'>
+      {!isEmpty(moduleActions) && (
         <>
           <Modal
             name='functionCall-module'
-            title={`Interact with ${moduleDetails?.name} (${formatAddress(
-              controllerAddress,
-            )})`}
+            title={`Interact with ${moduleDetails?.name} (${formatAddress(controllerAddress)})`}
           >
-            <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-              {_.get(selectedFunction, 'description') && (
-                <Text mb={3}>{_.get(selectedFunction, 'description')}</Text>
-              )}
-              <Stack>
-                {_.get(selectedFunction, 'args') && (
+            <div className='flex flex-col gap-4'>
+              {get(selectedFunction, 'description') && <p className='mb-3'>{get(selectedFunction, 'description')}</p>}
+              <div className='flex flex-col gap-4'>
+                {get(selectedFunction, 'args') && (
                   <ModuleArgsForm
-                    selectedModuleArgs={_.get(selectedFunction, 'args', [])}
+                    selectedModuleArgs={get(selectedFunction, 'args', [])}
                     tokenAddress={tokenAddress as Hex}
                     localForm={formMethods}
                     hideIcon
                     noMargin
                   />
                 )}
-              </Stack>
-              <Flex justify='flex-end' mt={4}>
-                <HStack>
-                  <Button variant='outline' onClick={() => setModals?.({})}>
-                    Cancel
-                  </Button>
-                  <Button
-                    colorScheme='blue'
-                    type='submit'
-                    isDisabled={!formState.isValid}
-                    // isLoading={isModuleLoading}
-                  >
-                    {_.get(selectedFunction, 'label')}
-                  </Button>
-                </HStack>
-              </Flex>
-            </Box>
+              </div>
+
+              <div className='mt-4 flex justify-end'>
+                <Button variant='outline' onClick={() => setModals?.({})}>
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={!formState.isValid}
+                  // isLoading={isModuleLoading}
+                >
+                  {get(selectedFunction, 'label')}
+                </Button>
+              </div>
+            </div>
           </Modal>
-          <AccordionItem border='0'>
-            <AccordionButton px={0}>
-              <HStack>
-                <Heading size='xs' variant='medium' textTransform='uppercase'>
-                  Module Actions
-                </Heading>
-                <AccordionIcon />
-              </HStack>
-            </AccordionButton>
-            <AccordionPanel px={0}>
-              <Flex gap={2} wrap='wrap'>
-                {_.map(moduleActions, (action: any) => (
+
+          <AccordionItem value='actions'>
+            <AccordionTrigger className='p-0'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-xs font-medium uppercase'>Module Actions</h3>
+              </div>
+            </AccordionTrigger>
+
+            <AccordionContent className='p-0'>
+              <div className='flex flex-wrap gap-2'>
+                {map(moduleActions, (action: any) => (
                   <Tooltip label={action.description} key={action.label}>
-                    <Button
-                      variant='outlineMatch'
-                      colorScheme='blue.500'
-                      size='sm'
-                      onClick={() => handleFunctionCall(action)}
-                    >
+                    <Button variant='outline-blue' size='sm' onClick={() => handleFunctionCall(action)}>
                       {action.label}
                     </Button>
                   </Tooltip>
                 ))}
-              </Flex>
-            </AccordionPanel>
+              </div>
+            </AccordionContent>
           </AccordionItem>
         </>
       )}
-      <AccordionItem border='0'>
-        <AccordionButton px={0}>
-          <HStack>
-            <Heading size='xs' variant='medium' textTransform='uppercase'>
-              Module Details
-            </Heading>
-            <AccordionIcon />
-          </HStack>
-        </AccordionButton>
-        <AccordionPanel px={0}>
-          <Stack>
-            {_.map(moduleDetails.details, (detail: string) => (
-              <Text key={detail} size='sm'>
+
+      <AccordionItem value='details'>
+        <AccordionTrigger className='p-0'>
+          <div className='flex items-center justify-between'>
+            <h3 className='text-xs font-medium uppercase'>Module Details</h3>
+          </div>
+        </AccordionTrigger>
+
+        <AccordionContent className='p-0'>
+          <div className='flex flex-col gap-2'>
+            {map(moduleDetails.details, (detail: string) => (
+              <p key={detail} className='text-sm'>
                 {detail}
-              </Text>
+              </p>
             ))}
-          </Stack>
-        </AccordionPanel>
+          </div>
+        </AccordionContent>
       </AccordionItem>
+
       {/* {!_.isEmpty(parameters) && (
         <AccordionItem border='0'>
           <AccordionButton px={0}>
@@ -206,31 +168,25 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
         </AccordionItem>
       )} */}
 
-      <AccordionItem border='0'>
-        <AccordionButton px={0}>
-          <HStack>
-            <Heading size='xs' fontWeight='medium' textTransform='uppercase'>
-              Module Links
-            </Heading>
-            <AccordionIcon />
-          </HStack>
-        </AccordionButton>
-        <AccordionPanel px={0}>
-          <Stack>
-            {_.map(moduleDetails.links, (link: LinkObject) => (
-              <ChakraNextLink
-                href={link.link || '#'}
-                key={link.link}
-                isExternal
-              >
-                <Flex justify='space-between'>
-                  <Text size='sm'>{link.label}</Text>
-                  <Icon as={FiExternalLink} h='14px' color='gray.500' />
-                </Flex>
-              </ChakraNextLink>
+      <AccordionItem value='links'>
+        <AccordionTrigger className='p-0'>
+          <div className='flex items-center justify-between'>
+            <h3 className='text-xs font-medium uppercase'>Module Links</h3>
+          </div>
+        </AccordionTrigger>
+
+        <AccordionContent className='p-0'>
+          <div className='flex flex-col gap-4'>
+            {map(moduleDetails.links, (link: LinkObject) => (
+              <Link href={link.link || '#'} key={link.link} isExternal>
+                <div className='flex justify-between'>
+                  <p className='text-sm'>{link.label}</p>
+                  <FiExternalLink className='h-4 w-4 text-gray-500' />
+                </div>
+              </Link>
             ))}
-          </Stack>
-        </AccordionPanel>
+          </div>
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   );

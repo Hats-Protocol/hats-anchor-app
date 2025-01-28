@@ -3,10 +3,7 @@ import { AppHat, SupportedChains } from 'types';
 
 import { createSubgraphClient } from '../web3';
 
-export const fetchHatDetails = async (
-  hatId: string | undefined,
-  chainId?: number,
-): Promise<AppHat | null> => {
+export const fetchHatDetails = async (hatId: string | undefined, chainId?: number): Promise<AppHat | null> => {
   if (!hatId || hatId === '0x' || !chainId) return null;
 
   const subgraphClient = createSubgraphClient();
@@ -61,10 +58,7 @@ export const fetchHatDetails = async (
 };
 
 // TODO: remove this if unused
-export const fetchManyHatDetails = async (
-  hatIds: string[],
-  chainId: SupportedChains,
-): Promise<AppHat[]> => {
+export const fetchManyHatDetails = async (hatIds: string[], chainId: SupportedChains): Promise<AppHat[]> => {
   const subgraphClient = createSubgraphClient();
 
   const res = await subgraphClient.getHatsByIds({

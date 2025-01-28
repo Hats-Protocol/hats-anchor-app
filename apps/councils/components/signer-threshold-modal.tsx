@@ -1,14 +1,16 @@
-import { Button } from '@chakra-ui/react';
+'use client';
+
 import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
-import { SignerThresholdSubForm } from 'forms';
+import { Form, SignerThresholdSubForm } from 'forms';
 import { useWaitForSubgraph } from 'hooks';
 import { get, size, toNumber, toString } from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppHat, HatSignerGateV2 } from 'types';
+import { Button } from 'ui';
 import { logger } from 'utils';
 import { useAccount, useWriteContract } from 'wagmi';
 
@@ -26,12 +28,12 @@ type SignerThresholdData = {
 // Theoretically we'd like to bundle updating HSG params and Hat details in a single transaction
 // But until 7702 is available, it has to be done as two separate transactions for EOAs
 
-export function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdModalProps) {
-  const form = useForm<SignerThresholdData>();
+function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdModalProps) {
+  const localForm = useForm<SignerThresholdData>();
   const { handlePendingTx } = useOverlay();
   const { address } = useAccount();
   const queryClient = useQueryClient();
-  const { reset, handleSubmit, watch } = form;
+  const { reset, handleSubmit, watch } = localForm;
   const { thresholdType, min, target, maxMembers } = watch();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
 
@@ -144,24 +146,26 @@ export function SignerThresholdModal({ signer, signerHat, chainId }: SignerThres
 
   return (
     <Modal name='hsgThreshold' title='Signer Threshold'>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='flex flex-col gap-4'>
-          <SignerThresholdSubForm form={form} />
-        </div>
-
-        <div className='flex justify-end py-6'>
-          <div className='flex gap-2'>
-            {!!signerHat?.maxSupply && toNumber(maxMembers) !== toNumber(signerHat?.maxSupply) && (
-              <Button variant='outlineMatch' onClick={setMaxMembers} colorScheme='blue.500'>
-                Set max members
-              </Button>
-            )}
-            <Button type='submit' variant='primary' isDisabled={!hasHsgChanges || !address}>
-              Update Threshold
-            </Button>
+      <Form {...localForm}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className='flex flex-col gap-4'>
+            <SignerThresholdSubForm form={localForm} />
           </div>
-        </div>
-      </form>
+
+          <div className='flex justify-end py-6'>
+            <div className='flex gap-2'>
+              {!!signerHat?.maxSupply && toNumber(maxMembers) !== toNumber(signerHat?.maxSupply) && (
+                <Button variant='outline-blue' onClick={setMaxMembers}>
+                  Set max members
+                </Button>
+              )}
+              <Button type='submit' rounded='full' disabled={!hasHsgChanges || !address}>
+                Update Threshold
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Form>
     </Modal>
   );
 }
@@ -171,3 +175,5 @@ interface SignerThresholdModalProps {
   signerHat: AppHat | undefined;
   chainId: number | undefined;
 }
+
+export { SignerThresholdModal };

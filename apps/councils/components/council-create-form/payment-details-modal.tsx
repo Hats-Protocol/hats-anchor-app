@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { AddressInput, Form, Input } from 'forms';
 import { capitalize, compact, get, keys, map, reject, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -34,11 +34,10 @@ const PRO_URL = 'https://hats-pro.vercel.app';
 
 export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true }: PaymentDetailsModalProps) {
   const [loading, setLoading] = useState(false);
-  const selectedChain = parentForm.watch('chain');
+  const selectedChain = parentForm.watch('chain')?.value;
   const chainId = toNumber(selectedChain);
   const { modals, setModals } = useOverlay();
   const councilName = parentForm.watch('councilName');
-  console.log(parentForm.watch('payer'));
 
   const modalForm = useForm({
     defaultValues: {
@@ -94,7 +93,6 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
     //   setFormError('Please enter a valid Ethereum address');
     //   return;
     // }
-    console.log('data', data);
 
     try {
       const userData = await createUserMutation.mutateAsync(data);
@@ -149,12 +147,15 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
 
   return (
     <Modal name='paymentDetailsModal' title='Invoicing Details' size='2xl'>
-      <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='relative rounded-lg bg-white'>
-        <div className='p-6'>
+      <Form {...modalForm}>
+        <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='relative rounded-lg bg-white'>
           <div className='space-y-6'>
             <div className='space-y-2'>
               <h3 className='text-base font-bold text-gray-900'>Monthly</h3>
-              <p className='text-gray-600'>Here&apos;s some text that explains how invoices work.</p>
+              <p className='text-gray-600'>
+                Provide invoice contact information here and we&apos;ll reach out to setup a recurring payment system
+                that fits your preferences.
+              </p>
               <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
                 <UsdcIcon />
                 299 USDC / month
@@ -212,8 +213,8 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
               </NextStepButton>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { Icon } from '@chakra-ui/react';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import { get, isEmpty, map, toNumber } from 'lodash';
@@ -9,7 +8,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
-import { MemberAvatar } from 'ui';
+import { Button, MemberAvatar } from 'ui';
 import { chainsMap } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
@@ -34,13 +33,13 @@ const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps)
       <div className='flex items-center gap-1'>
         {isCompleted ? (
           <>
-            <BsCheckSquareFill className='h-4 w-4 text-green-600' />
-            <span className='text-sm font-medium text-green-600'>Ready</span>
+            <BsCheckSquareFill className='text-functional-success h-4 w-4' />
+            <span className='text-functional-success text-sm font-medium'>Ready</span>
           </>
         ) : (
           <>
-            <BsXSquareFill className='h-4 w-4 text-red-600' />
-            <span className='text-sm font-medium text-red-600'>Incomplete</span>
+            <BsXSquareFill className='text-functional-error h-4 w-4' />
+            <span className='text-functional-error text-sm font-medium'>Incomplete</span>
           </>
         )}
       </div>
@@ -52,7 +51,7 @@ const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps)
       <div className='w-[100px] shrink-0 text-right'>
         <button
           type='button'
-          className='inline-flex items-center gap-2 text-sky-600 hover:text-sky-700'
+          className='text-functional-link-primary hover:text-functional-link-primary/60 inline-flex items-center gap-2'
           onClick={onEdit}
         >
           <SquarePen className='h-4 w-4' />
@@ -125,7 +124,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     if (typeof window === 'undefined') return '';
     return `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
   }, [draftId]);
-  const { onCopy: onCopyUrl } = useClipboard(draftUrl, { toastData: { title: 'Copied URL to clipboard' } });
+  const { onCopy } = useClipboard(draftUrl);
 
   // Helper function to determine if selection step is valid
   const isSelectionStepValid = () => {
@@ -149,16 +148,15 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const tokenFields = ['symbol', 'name', 'decimals'];
   const { data: tokenData } = useReadContracts({
     contracts: map(tokenFields, (field: string) => ({
-      address: formData.tokenRequirement.address,
+      address: formData.tokenRequirement.address?.value,
       abi: erc20Abi,
       functionName: field,
-      chainId: toNumber(formData.chain),
-    })),
+      chainId: toNumber(formData.chain.value),
+    })) as any,
   });
   const [symbol, name] = map(tokenData, 'result');
-
-  const targetChainName = chainsMap(toNumber(formData.chain))?.name;
-  const targetChainId = toNumber(formData.chain) as number;
+  const targetChainId = toNumber(formData.chain?.value) as number;
+  const targetChainName = chainsMap(targetChainId)?.name;
   const firstAdmin = get(formData, 'admins.[0]');
 
   const isWrongNetwork = userChainId !== targetChainId;
@@ -167,13 +165,9 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     <div className='mx-auto max-w-4xl'>
       <div className='relative border-b border-gray-200 pb-6'>
         <div className='absolute right-0 top-0'>
-          <button
-            type='button'
-            className='inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-sky-600 hover:bg-gray-50'
-            onClick={onCopyUrl}
-          >
+          <Button type='button' variant='outline-blue' rounded='full' onClick={onCopy}>
             <Link className='h-4 w-4' /> Copy link
-          </button>
+          </Button>
         </div>
         <div className='flex flex-col items-center gap-1'>
           <h2 className='text-3xl font-medium'>{formData.councilName}</h2>
@@ -207,7 +201,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         onEdit={canEdit ? () => setCurrentStep('threshold') : undefined}
       >
         <div className='space-y-2'>
-          <h4 className='text-babse font-bold text-gray-900'>
+          <h4 className='font-bold text-gray-900'>
             {formData.thresholdType === 'ABSOLUTE'
               ? `Deploy a new ${formData.min}/${formData.maxMembers} Safe Multisig`
               : `Deploy a new ${formData.target}% Safe Multisig`}
@@ -216,7 +210,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             <p className='text-base'>
               {formData.thresholdType === 'ABSOLUTE'
                 ? `${formData.min} confirmations required`
-                : `${formData.target}% confimations required`}
+                : `${formData.target}% (at least ${formData.min}) confirmations required`}
             </p>
             <p className='text-base'>{`From up to ${formData.maxMembers} Council Members`}</p>
           </div>
@@ -240,7 +234,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             />
             {formData.requirements.passCompliance && (
               <RequirementItem
-                icon={<Icon as={BsPersonCheck} boxSize={6} />}
+                icon={<BsPersonCheck className='h-6 w-6' />}
                 title='Pass Compliance Checks'
                 description='Passed the compliance check'
               />
@@ -249,7 +243,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               <RequirementItem
                 icon={<FileText className='h-6 w-6' />}
                 title='Sign Agreement'
-                description='Signed and abides agreement'
+                description='Signed and abides by the agreement'
               />
             )}
             {formData.requirements.holdTokens && (
@@ -324,25 +318,22 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             />
             <div className='flex justify-end'>
               {payer ? (
-                <button
+                <Button
+                  rounded='full'
                   type='button'
                   onClick={() => setModals?.({ paymentDetailsModal: true })}
                   disabled={!canEdit}
-                  className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
-                    !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'
-                  }`}
                 >
                   <div className='flex items-center gap-2'>
                     <Currency />
                     <span>Edit invoice details</span>
                   </div>
-                </button>
+                </Button>
               ) : (
                 <NextStepButton
                   type='button'
                   onClick={() => setModals?.({ paymentDetailsModal: true })}
                   disabled={!canEdit}
-                  withIcon={false}
                 >
                   <div className='flex items-center gap-2'>
                     <Currency />
@@ -363,13 +354,13 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             checked={form.watch('acceptedTerms')}
             onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
             disabled={!canEdit}
-            className={`h-4 w-4 rounded border-gray-300 accent-sky-600 ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
+            className={`accent-functional-link-primary h-4 w-4 rounded border-gray-300 ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
           />
           <label htmlFor='agreement' className='text-sm text-gray-600'>
             I agree to the{' '}
             <a
               href='https://docs.hatsprotocol.xyz/legal/terms/privacy-policy'
-              className='text-sky-600'
+              className='text-functional-link-primary'
               target='_blank'
               rel='noreferrer'
             >

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useCouncilForm, useOverlay } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { AddressInput, Form, Input } from 'forms';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember, FormMember } from 'types';
@@ -17,7 +17,7 @@ interface AddAdminModalProps {
 }
 
 export function AddAdminModal({ form: parentForm, editingAdmin, setEditingAdmin, canEdit = true }: AddAdminModalProps) {
-  const selectedChain = parentForm.watch('chain');
+  const selectedChain = parentForm.watch('chain')?.value;
   const chainId = getChainId(selectedChain);
   const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();
@@ -124,54 +124,56 @@ export function AddAdminModal({ form: parentForm, editingAdmin, setEditingAdmin,
       onClose={handleClose}
       size='2xl'
     >
-      <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
-        <div className='space-y-6'>
-          <div className='space-y-2'>
-            <label className='font-bold'>{chainsMap(chainId).name} Account</label>
-            <AddressInput
-              name='address'
-              localForm={modalForm}
-              hideAddressButtons
-              chainId={chainId}
-              isDisabled={!canEdit}
-            />
+      <Form {...modalForm}>
+        <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
+          <div className='space-y-6'>
+            <div className='space-y-2'>
+              <label className='font-bold'>{chainsMap(chainId).name} Account</label>
+              <AddressInput
+                name='address'
+                localForm={modalForm}
+                hideAddressButtons
+                chainId={chainId}
+                isDisabled={!canEdit}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
+              </label>
+              <Input
+                name='email'
+                localForm={modalForm}
+                placeholder='Email that receives the admin invite'
+                options={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+                isDisabled={!canEdit}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Name <span className='text-sm font-normal text-gray-400'>Optional</span>
+              </label>
+              <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
+            </div>
           </div>
 
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-            </label>
-            <Input
-              name='email'
-              localForm={modalForm}
-              placeholder='Email that receives the admin invite'
-              options={{
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              }}
-              isDisabled={!canEdit}
-            />
+          <div className='mt-8'>
+            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
+            <div className='flex justify-end'>
+              <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
+                {editingAdmin ? 'Save Changes' : 'Add Admin'}
+              </NextStepButton>
+            </div>
           </div>
-
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-            </label>
-            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
-          </div>
-        </div>
-
-        <div className='mt-8'>
-          {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
-          <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
-              {editingAdmin ? 'Save Changes' : 'Add Admin'}
-            </NextStepButton>
-          </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 }

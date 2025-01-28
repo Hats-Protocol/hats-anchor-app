@@ -1,13 +1,14 @@
 'use client';
 
+import { councilsChainsList } from '@hatsprotocol/config';
 import {
   AGREEMENT_ELIGIBILITY_ADDRESS,
   ALLOWLIST_ELIGIBILITY_ADDRESS,
   ELIGIBILITY_CHAIN_ADDRESS,
   ERC20_ELIGIBILITY_ADDRESS,
   FALLBACK_ADDRESS,
+  getChainTokens,
   getTokenDecimals,
-  HATS_ADDRESS,
   HATS_MODULES_FACTORY_ABI,
   HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ABI,
@@ -16,6 +17,7 @@ import {
   MULTICALL3_ABI,
   MULTICALL3_ADDRESS,
   SAFE_ABI,
+  TokenInfo,
   ZODIAC_MODULE_PROXY_FACTORY_ABI,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
@@ -25,12 +27,13 @@ import {
   hatIdIpToDecimal,
   hatIdToTreeId,
   HATS_ABI,
+  HATS_V1,
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useWaitForSubgraph } from 'hooks';
-import { capitalize, find, first, get, map, toLower, toNumber, toString } from 'lodash';
+import { capitalize, find, first, get, map, toLower, toNumber, values } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -70,7 +73,7 @@ import {
 } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
-import { useOverlay } from './OverlayContext';
+import { useOverlay } from './overlay-context';
 
 interface CouncilFormContextType {
   form: UseFormReturn<CouncilFormData>;
@@ -85,7 +88,14 @@ interface CouncilFormContextType {
   isDeploying: boolean;
   canEdit: boolean;
   toggleOptionalStep: (step: keyof CompletedOptionalSteps) => void;
+  availableTokens: TokenInfo[];
 }
+
+const chainOptions = map(values(councilsChainsList), (chain) => ({
+  value: chain.id.toString(),
+  label: chain.name,
+  icon: chain.iconUrl,
+}));
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(undefined);
 
@@ -141,7 +151,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     defaultValues: {
       organizationName: '',
       councilName: '',
-      chain: 'optimism',
+      chain: first(chainOptions),
       councilDescription: '',
       thresholdType: 'ABSOLUTE',
       // confirmationsRequired: 4,
@@ -164,14 +174,19 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       payer: undefined,
       acceptedTerms: false,
       tokenRequirement: {
-        address: '',
+        address: undefined,
         minimum: 0,
       },
       completedOptionalSteps: optionalSteps,
     },
   });
-  const chainId = toNumber(form.watch('chain'));
+  const chainId = toNumber(form.watch('chain').value);
   const waitForSubgraph = useWaitForSubgraph({ chainId });
+  const availableTokens = getChainTokens(chainId as number);
+  const mappedTokens = map(availableTokens, ({ address, name, symbol }) => ({
+    value: address,
+    label: `${name} (${symbol})`,
+  }));
 
   const [stepValidation, setStepValidationState] = useState<StepValidation>({
     details: false,
@@ -187,7 +202,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     },
     payment: false,
   });
-  logger.debug({ stepValidation });
+  // logger.debug({ stepValidation });
 
   const setStepValidation = useCallback(
     (step: keyof StepValidation, isValid: boolean | Partial<StepValidation[keyof StepValidation]>) => {
@@ -250,7 +265,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   }, [authenticated, user?.wallet?.address, data]);
 
   useEffect(() => {
-    if (!data || !optionalSteps) return;
+    if (!data || !optionalSteps || !mappedTokens) return;
 
     logger.debug('API Response data:', data);
     const currentValues = form.getValues();
@@ -259,7 +274,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     const newValues: CouncilFormData = {
       organizationName: data.organizationName || '',
       councilName: data.councilName || '',
-      chain: toString(data.chain) || '',
+      chain: (find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions))) as any,
       councilDescription: data.councilDescription || '',
       thresholdType: data.thresholdType || 'ABSOLUTE',
       // confirmationsRequired: data.thresholdTarget || 4,
@@ -282,7 +297,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       payer: data.payer || undefined,
       acceptedTerms: false,
       tokenRequirement: {
-        address: data.tokenAddress || '',
+        address: (find(mappedTokens, { value: data.tokenAddress }) || first(mappedTokens)) as any, // TODO replace any, thinks it's a number
         minimum: data.tokenAmount || 0,
       },
       creator: data.creator || '',
@@ -324,13 +339,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             draftId,
           ]);
           const previousChain = previousData?.chain;
-          const newChain = toNumber(formData.chain);
+          const newChain = toNumber(formData.chain.value);
 
           payload = {
             ...payload,
             organizationName: formData.organizationName,
             councilName: formData.councilName,
-            chain: toNumber(formData.chain),
+            chain: toNumber(formData.chain.value),
             councilDescription: formData.councilDescription,
           };
 
@@ -365,7 +380,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         case 'selection':
           switch (subStep) {
             case 'members':
-              console.log('submitting members', formData.members);
               payload = {
                 ...payload,
                 members: formData.members,
@@ -393,9 +407,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               };
               break;
             case 'tokens':
+              // console.log('submitting tokens', formData.tokenRequirement);
               payload = {
                 ...payload,
-                tokenAddress: formData.tokenRequirement.address,
+                tokenAddress: formData.tokenRequirement.address?.value, // TODO hacked
                 tokenAmount: parseInt(formData.tokenRequirement.minimum.toString()),
                 memberRequirements: {
                   ...formData.requirements,
@@ -424,13 +439,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       logger.debug('Deploying council');
       const formData = form.getValues();
 
-      const chainId = toNumber(formData.chain);
+      const chainId = toNumber(formData.chain?.value);
 
       // Create public and wallet clients
       const publicClient = viemPublicClient(chainId);
 
       // Create hats client
-      const hatsClient = await createHatsClient(chainId);
+      const hatsClient = await createHatsClient(chainId).catch((err) => console.log(err));
       if (!hatsClient) {
         throw new Error('Failed to create hats client');
       }
@@ -596,13 +611,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       let erc20ModuleImmutableArgs: `0x${string}`;
       let erc20ModuleHatId: bigint;
       let predictedErc20ModuleAddress: `0x${string}` | undefined;
-      if (formData.requirements.holdTokens) {
-        const tokenDecimals = getTokenDecimals(chainId, formData.tokenRequirement.address) as number;
+      if (formData.requirements.holdTokens && formData.tokenRequirement.address?.value) {
+        const tokenDecimals = getTokenDecimals(chainId, formData.tokenRequirement.address.value) as number;
         erc20ModuleInitArgs = '0x' as `0x${string}`;
         erc20ModuleImmutableArgs = encodePacked(
           ['address', 'uint256'],
           [
-            formData.tokenRequirement.address as `0x${string}`,
+            formData.tokenRequirement.address.value as `0x${string}`,
             BigInt(formData.tokenRequirement.minimum) * 10n ** BigInt(tokenDecimals),
           ],
         );
@@ -1056,7 +1071,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         callData: `0x${string}`;
       }[] = [
         {
-          target: HATS_ADDRESS,
+          target: HATS_V1,
           allowFailure: false,
           callData: hatsProtocolMulticallCallData.callData,
         },
@@ -1071,7 +1086,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           callData: createHsgV2Calldata,
         },
         {
-          target: HATS_ADDRESS,
+          target: HATS_V1,
           allowFailure: false,
           callData: transferTopHatCallData.callData,
         },
@@ -1208,6 +1223,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         isDeploying,
         canEdit,
         toggleOptionalStep,
+        availableTokens,
       }}
     >
       {children}

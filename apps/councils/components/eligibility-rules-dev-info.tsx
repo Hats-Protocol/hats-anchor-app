@@ -1,21 +1,21 @@
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { flatten, last, map } from 'lodash';
-import { ChakraNextLink } from 'ui';
-import { explorerUrl, formatAddress, hatLink, ipfsUrl, shortDateFormatter } from 'utils';
+import { Link } from 'ui';
+import { explorerUrl, formatAddress, hatLink, shortDateFormatter } from 'utils';
 
 const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainId: number }) => {
   if (param.displayType === 'hat') {
     return (
       <div key={param.label}>
         <span className='text-sm'>{param.label}</span> -{' '}
-        <ChakraNextLink
+        <Link
           href={hatLink({ chainId, hatId: hatIdDecimalToHex(param.value as bigint) })}
+          className='underline'
           isExternal
-          decoration
         >
           {hatIdDecimalToIp(param.value as bigint)}
-        </ChakraNextLink>
+        </Link>
       </div>
     );
   }
@@ -41,9 +41,9 @@ const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainI
     return (
       <div key={param.label}>
         <span className='text-sm'>{param.label}</span> -{' '}
-        <ChakraNextLink href={localValue} isExternal decoration>
+        <Link href={localValue} className='underline' isExternal>
           {(param.value as string).slice(0, 20)}...
-        </ChakraNextLink>
+        </Link>
       </div>
     );
   }
@@ -94,9 +94,9 @@ export function EligibilityRulesDevInfo({
             <div className='flex justify-between'>
               <div className='text-sm'>{rule.module.name}</div>
 
-              <ChakraNextLink href={`${explorerUrl(chainId)}/address/${rule.address}`} isExternal decoration>
+              <Link href={`${explorerUrl(chainId)}/address/${rule.address}`} className='underline' isExternal>
                 {formatAddress(rule.address)}
-              </ChakraNextLink>
+              </Link>
             </div>
 
             <ModuleParamsDevDisplay params={rule.liveParams} chainId={chainId} moduleId={rule.address} />

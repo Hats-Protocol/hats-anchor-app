@@ -9,49 +9,28 @@ import { MemberAvatar } from 'ui';
 
 import { AddComplianceModal } from './add-compliance-modal';
 
-interface ComplianceListProps {
+type ComplianceListProps = {
   complianceAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
-  editingAdmin: CouncilMember | null;
-  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
-}
+  // editingAdmin: CouncilMember | null;
+  // setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
+};
 
-export function ComplianceList({
-  complianceAdmins,
-  form,
-  canEdit = true,
-  editingAdmin,
-  setEditingAdmin,
-}: ComplianceListProps) {
-  const { setModals } = useOverlay();
-
+export function ComplianceList({ complianceAdmins, form, canEdit = true }: ComplianceListProps) {
   const handleRemove = (adminId: string) => {
     const currentAdmins = form.getValues('complianceAdmins') || [];
     const updatedAdmins = currentAdmins.filter((admin: CouncilMember) => admin.id !== adminId);
     form.setValue('complianceAdmins', updatedAdmins);
   };
 
-  const handleEdit = (admin: CouncilMember) => {
-    setEditingAdmin(admin);
-    setModals?.({ addComplianceModal: true });
-  };
-
   return (
     <>
       <div className='space-y-4'>
         {complianceAdmins.map((admin) => (
-          <ComplianceCard
-            key={admin.id}
-            admin={admin}
-            onRemove={handleRemove}
-            onEdit={() => handleEdit(admin)}
-            canEdit={canEdit}
-          />
+          <ComplianceCard key={admin.id} admin={admin} onRemove={handleRemove} canEdit={canEdit} form={form} />
         ))}
       </div>
-
-      <AddComplianceModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
     </>
   );
 }
@@ -59,34 +38,46 @@ export function ComplianceList({
 function ComplianceCard({
   admin,
   onRemove,
-  onEdit,
   canEdit = true,
+  form,
 }: {
   admin: CouncilMember;
   onRemove: (id: string) => void;
-  onEdit: () => void;
   canEdit?: boolean;
+  form: UseFormReturn<CouncilFormData>;
 }) {
+  const { setModals } = useOverlay();
+  const handleEdit = () => {
+    setModals?.({ [`addComplianceModal-${admin.id}`]: true });
+  };
+
   return (
-    <div className='flex items-center justify-between'>
-      <MemberAvatar member={admin} />
+    <>
+      <div className='flex items-center justify-between'>
+        <MemberAvatar member={admin} />
 
-      {canEdit && (
-        <div className='flex items-center gap-3'>
-          <button
-            type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700'
-            onClick={onEdit}
-          >
-            <SquarePen className='h-4 w-4 text-sky-600' />
-            Edit
-          </button>
+        {canEdit && (
+          <div className='flex items-center gap-3'>
+            <button
+              type='button'
+              className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
+              onClick={handleEdit}
+            >
+              <SquarePen className='text-functional-link-primary h-4 w-4' />
+              Edit
+            </button>
 
-          <button type='button' onClick={() => onRemove(admin.id)} className='text-red-700 hover:text-red-800'>
-            <Trash2 className='h-4 w-4 text-red-700' />
-          </button>
-        </div>
-      )}
-    </div>
+            <button
+              type='button'
+              onClick={() => onRemove(admin.id)}
+              className='text-destructive hover:text-destructive/70'
+            >
+              <Trash2 className='text-destructive h-4 w-4' />
+            </button>
+          </div>
+        )}
+      </div>
+      <AddComplianceModal form={form} editingAdmin={admin} canEdit={canEdit} />
+    </>
   );
 }

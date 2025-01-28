@@ -10,17 +10,12 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": [],
-    "lib": [
-      "ES2021"
-    ],
+    "types": ["node", "next", "react", "react-dom"],
+    "lib": ["ES2021"],
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "strictNullChecks": true
+    "plugins": [{ "name": "next" }],
+    "strictNullChecks": true,
+    "outDir": "../../dist/apps/claims"
   },
   "references": [
     {
@@ -43,9 +38,6 @@
     },
     {
       "path": "../../libs/modules-ui/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/pages/tsconfig.lib.json"
     },
     {
       "path": "../../libs/shared/tsconfig.lib.json"

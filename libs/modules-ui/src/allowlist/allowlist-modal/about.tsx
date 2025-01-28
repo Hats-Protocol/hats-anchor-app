@@ -1,4 +1,3 @@
-import { Flex, Heading, HStack, Icon, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import dynamic from 'next/dynamic';
 import { Hex } from 'viem';
@@ -17,38 +16,40 @@ const AboutAllowlist = ({
   if (!eligibilityHat || !ownerHat || !judgeHat) return null;
 
   return (
-    <Stack>
-      <Heading size='sm'>About this Allowlist</Heading>
+    <div className='flex flex-col gap-4'>
+      <h3 className='text-lg font-bold'>About this Allowlist</h3>
 
-      <Flex justify='space-between'>
-        <Text size='sm'>Eligibility Rule for this Hat</Text>
+      <div className='flex justify-between'>
+        <p className='text-sm'>Eligibility Rule for this Hat</p>
 
-        <HStack spacing={1}>
-          <Text size='sm'>
-            {hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHat))}
-          </Text>
-          <Icon as={HatIcon} boxSize={4} />
-        </HStack>
-      </Flex>
-      <Flex justify='space-between'>
-        <Text size='sm'>Owner edits the allowlist</Text>
+        <div className='flex items-center gap-1'>
+          <p className='text-sm'>{hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHat))}</p>
 
-        <HStack spacing={1}>
-          <Text size='sm'>{hatIdDecimalToIp(hatIdHexToDecimal(ownerHat))}</Text>
-          <Icon as={HatIcon} boxSize={4} />
-        </HStack>
-      </Flex>
+          <HatIcon className='h-4 w-4' />
+        </div>
+      </div>
 
-      <Flex justify='space-between'>
-        <Text size='sm'>Judge determines wearer standing</Text>
+      <div className='flex justify-between'>
+        <p className='text-sm'>Owner edits the allowlist</p>
 
-        <HStack spacing={1}>
-          <Text size='sm'>{hatIdDecimalToIp(hatIdHexToDecimal(judgeHat))}</Text>
-          <Icon as={HatIcon} boxSize={4} />
-        </HStack>
-      </Flex>
-    </Stack>
+        <div className='flex items-center gap-1'>
+          <p className='text-sm'>{hatIdDecimalToIp(hatIdHexToDecimal(ownerHat))}</p>
+
+          <HatIcon className='h-4 w-4' />
+        </div>
+      </div>
+
+      <div className='flex justify-between'>
+        <p className='text-sm'>Judge determines wearer standing</p>
+
+        <div className='flex items-center gap-1'>
+          <p className='text-sm'>{hatIdDecimalToIp(hatIdHexToDecimal(judgeHat))}</p>
+
+          <HatIcon className='h-4 w-4' />
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default AboutAllowlist;
+export { AboutAllowlist };

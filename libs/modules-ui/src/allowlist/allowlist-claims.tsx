@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, Button, HStack, Icon, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
@@ -10,6 +9,7 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { ModuleDetails } from 'types';
+import { Button, Link, MemberAvatar, Skeleton } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { useAccount } from 'wagmi';
 
@@ -17,9 +17,7 @@ import { useAccount } from 'wagmi';
 const selectionModule = '0x8250a44405C4068430D3B3737721D47bB614E7D2';
 const criteriaModule = '0x03aB59ff1Ab959F2663C38408dD2578D149e4cd5';
 
-const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
-const DevInfo = dynamic(() => import('ui').then((mod) => mod.DevInfo));
-const MemberAvatar = dynamic(() => import('ui').then((mod) => mod.MemberAvatar));
+const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo));
 
 const ALLOWLIST_COPY = {
   compliance: {
@@ -71,9 +69,9 @@ export const AllowlistClaims = ({ activeModule }: { activeModule: ModuleDetails 
       {
         label: 'Module Address',
         descriptor: (
-          <ChakraNextLink href={`${explorerUrl(chainId)}/address/${activeModule.instanceAddress}`} isExternal>
+          <Link href={`${explorerUrl(chainId)}/address/${activeModule.instanceAddress}`} isExternal>
             {formatAddress(activeModule.instanceAddress)}
-          </ChakraNextLink>
+          </Link>
         ),
       },
     ];
@@ -83,7 +81,7 @@ export const AllowlistClaims = ({ activeModule }: { activeModule: ModuleDetails 
   const isDev = true;
 
   if (isEligibilityRulesLoading || isAllowlistLoading) {
-    return <Skeleton w='full' h='500px' />;
+    return <Skeleton className='h-[500px] w-full' />;
   }
   let copy = ALLOWLIST_COPY.allowlist;
 
@@ -94,46 +92,44 @@ export const AllowlistClaims = ({ activeModule }: { activeModule: ModuleDetails 
   }
 
   return (
-    <Stack>
-      <Box py={5} px={10} flex='1' backgroundColor='white' border='1px solid #cbcbcb' minH='500px'>
-        <div className='flex items-center justify-between'>
-          <h3 className='text-2xl font-bold'>{copy.heading}</h3>
+    <div className='flex flex-col gap-4'>
+      <div className='flex min-h-[500px] items-center justify-between rounded-lg border border-gray-200 bg-white p-4'>
+        <h3 className='text-2xl font-bold'>{copy.heading}</h3>
 
-          {isInAllowlist ? (
-            <HStack>
-              <Text color='green.500'>{copy.allowed}</Text>
-              <Icon as={BsCheckSquareFill} color='green.500' />
-            </HStack>
-          ) : (
-            <Button variant='link'>
-              <HStack>
-                <Text color='red.500'>{copy.notAllowed}</Text>
-                <Icon as={BsFillXOctagonFill} color='red' />
-              </HStack>
-            </Button>
-          )}
-        </div>
-
-        <div className='flex flex-col gap-4 pt-10'>
-          <h4 className='text-xl font-bold'>{copy.subheading}</h4>
-
-          <div className='flex flex-col gap-1'>
-            <Text fontWeight='bold'>{copy.admin}</Text>
-
-            <Text fontSize='sm'>{copy.adminLabel}</Text>
+        {isInAllowlist ? (
+          <div className='flex items-center gap-1'>
+            <p className='text-green-500'>{copy.allowed}</p>
+            <BsCheckSquareFill className='h-4 w-4 text-green-500' />
           </div>
+        ) : (
+          <Button variant='link'>
+            <div className='flex items-center gap-1'>
+              <p className='text-destructive'>{copy.notAllowed}</p>
+              <BsFillXOctagonFill className='text-destructive h-4 w-4' />
+            </div>
+          </Button>
+        )}
+      </div>
 
-          {map(get(ownerHatDetails, 'wearers'), (wearer) => (
-            <MemberAvatar member={wearer} key={wearer.id} />
-          ))}
+      <div className='flex flex-col gap-4 pt-10'>
+        <h4 className='text-xl font-bold'>{copy.subheading}</h4>
+
+        <div className='flex flex-col gap-1'>
+          <p className='font-bold'>{copy.admin}</p>
+
+          <p className='text-sm'>{copy.adminLabel}</p>
         </div>
-      </Box>
+
+        {map(get(ownerHatDetails, 'wearers'), (wearer) => (
+          <MemberAvatar member={wearer} key={wearer.id} />
+        ))}
+      </div>
 
       {isDev && (
         <div className='max-w-[300px]'>
           <DevInfo devInfos={devInfo} />
         </div>
       )}
-    </Stack>
+    </div>
   );
 };

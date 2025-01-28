@@ -1,17 +1,15 @@
 'use client';
 
-import { Box, Icon, Tooltip } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
 import { find, get, keys, map, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { BsInfoCircle } from 'react-icons/bs';
 import { ModuleDetailRole, ModuleDetails, SupportedChains } from 'types';
+import { Tooltip } from 'ui';
 import { formatDate } from 'utils';
 
-const InlineHatCard = dynamic(() =>
-  import('molecules').then((mod) => mod.InlineHatCard),
-);
+const InlineHatCard = dynamic(() => import('molecules').then((mod) => mod.InlineHatCard));
 
 const ELECTION_ROLES: { [key: string]: ModuleDetailRole } = {
   admin: {
@@ -26,29 +24,18 @@ const ELECTION_ROLES: { [key: string]: ModuleDetailRole } = {
   },
 };
 
-export const ElectionEligibilityDetails = (
-  moduleInfo: ModuleDetails,
-  chainId: SupportedChains,
-) => {
+export const ElectionEligibilityDetails = (moduleInfo: ModuleDetails, chainId: SupportedChains) => {
   const params = get(moduleInfo, 'liveParameters');
   if (!params) return undefined;
 
   // Current Term
-  const currentTermEnd = get(
-    find(params, { label: 'Current Term End' }),
-    'value',
-  ) as bigint;
-  const currentTermEndDate = new Date(
-    toNumber(currentTermEnd.toString()) * 1000,
-  );
+  const currentTermEnd = get(find(params, { label: 'Current Term End' }), 'value') as bigint;
+  const currentTermEndDate = new Date(toNumber(currentTermEnd.toString()) * 1000);
   const currentTermEndLong = formatDate(currentTermEndDate);
   const currentTermEndText = formatDistanceToNow(currentTermEndDate);
 
   // Next term
-  const nextTermEnd = get(
-    find(params, { label: 'Next Term End' }),
-    'value',
-  ) as bigint;
+  const nextTermEnd = get(find(params, { label: 'Next Term End' }), 'value') as bigint;
   const nextTermSet = nextTermEnd.toString() !== '0';
   const nextTermEndDate = new Date(toNumber(nextTermEnd.toString()) * 1000);
   const nextTermEndLong = formatDate(nextTermEndDate);
@@ -57,10 +44,7 @@ export const ElectionEligibilityDetails = (
   return (
     <div className='flex flex-col gap-2'>
       {map(keys(ELECTION_ROLES), (role: string) => {
-        const value = get(
-          find(params, { label: ELECTION_ROLES[role].param }),
-          'value',
-        ) as bigint;
+        const value = get(find(params, { label: ELECTION_ROLES[role].param }), 'value') as bigint;
 
         if (!value) return null;
 
@@ -69,10 +53,10 @@ export const ElectionEligibilityDetails = (
             <div className='flex items-center gap-2'>
               <div>{ELECTION_ROLES[role].label}</div>
 
-              <Tooltip label={ELECTION_ROLES[role].tooltip} placement='top'>
-                <Box as='span' boxSize={4} position='relative'>
-                  <Icon as={BsInfoCircle} position='absolute' />
-                </Box>
+              <Tooltip label={ELECTION_ROLES[role].tooltip}>
+                <div className='relative h-4 w-4'>
+                  <BsInfoCircle className='absolute' />
+                </div>
               </Tooltip>
             </div>
 
@@ -82,14 +66,11 @@ export const ElectionEligibilityDetails = (
       })}
 
       <div className='flex justify-between'>
-        <div>
-          Current term end{new Date() > currentTermEndDate ? 'ed' : 's'}
-        </div>
+        <div>Current term end{new Date() > currentTermEndDate ? 'ed' : 's'}</div>
 
         <Tooltip label={currentTermEndLong}>
           <div>
-            {currentTermEndText}{' '}
-            {new Date() > currentTermEndDate ? 'ago' : 'from now'}
+            {currentTermEndText} {new Date() > currentTermEndDate ? 'ago' : 'from now'}
           </div>
         </Tooltip>
       </div>
@@ -100,8 +81,7 @@ export const ElectionEligibilityDetails = (
 
           <Tooltip label={nextTermEndLong}>
             <div>
-              {nextTermEndText}{' '}
-              {new Date() > nextTermEndDate ? 'ago' : 'from now'}
+              {nextTermEndText} {new Date() > nextTermEndDate ? 'ago' : 'from now'}
             </div>
           </Tooltip>
         </div>

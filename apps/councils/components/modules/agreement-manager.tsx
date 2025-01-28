@@ -1,10 +1,9 @@
-import { Button } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map, size, split } from 'lodash';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
-import { MemberAvatar } from 'ui';
+import { Button, MemberAvatar } from 'ui';
 import { getAllWearers, logger } from 'utils';
 import { getAddress } from 'viem';
 
@@ -56,11 +55,16 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
       </div>
 
       <div className='flex gap-2'>
-        <Button variant='outline' onClick={() => setModals?.({ updateAgreement: true })}>
+        <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
           Edit Agreement
         </Button>
 
-        <Button variant='outline' onClick={() => setModals?.({ 'addUser-agreement': true })} isDisabled>
+        <Button
+          variant='outline-blue'
+          rounded='full'
+          onClick={() => setModals?.({ 'addUser-agreement': true })}
+          disabled
+        >
           Add Agreement Manager
         </Button>
       </div>
@@ -78,4 +82,4 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
   );
 };
 
-export default AgreementManager;
+export { AgreementManager };

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useCouncilForm, useOverlay } from 'contexts';
-import { AddressInput, Input } from 'forms';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { AddressInput, Form, Input } from 'forms';
+import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember } from 'types';
 import { chainsMap, councilsGraphqlClient, CREATE_USER, getChainId, logger, UPDATE_USER } from 'utils';
@@ -12,17 +12,12 @@ import { NextStepButton } from '../../next-step-button';
 interface AddComplianceModalProps {
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
-  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
+  // setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
   canEdit?: boolean;
 }
 
-export function AddComplianceModal({
-  form: parentForm,
-  editingAdmin,
-  setEditingAdmin,
-  canEdit = true,
-}: AddComplianceModalProps) {
-  const selectedChain = parentForm.watch('chain');
+export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = true }: AddComplianceModalProps) {
+  const selectedChain = parentForm.watch('chain').value;
   const chainId = getChainId(selectedChain);
   const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();
@@ -33,6 +28,7 @@ export function AddComplianceModal({
       name: editingAdmin?.name || '',
     },
   });
+  console.log(editingAdmin);
 
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -111,12 +107,11 @@ export function AddComplianceModal({
   };
 
   const handleClose = () => {
-    setEditingAdmin(null);
     setModals?.({});
   };
 
   useEffect(() => {
-    if (modals?.addComplianceModal) {
+    if (modals?.[`addComplianceModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`]) {
       setFormError(null);
       modalForm.reset({
         address: editingAdmin?.address || '',
@@ -124,63 +119,66 @@ export function AddComplianceModal({
         name: editingAdmin?.name || '',
       });
     }
-  }, [modals?.addComplianceModal, editingAdmin, modalForm]);
+  }, [modals, editingAdmin, modalForm]);
 
   return (
     <Modal
-      name='addComplianceModal'
+      name={`addComplianceModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
       title={editingAdmin ? 'Edit Compliance Manager' : 'Add Compliance Manager'}
       onClose={handleClose}
-      size='2xl'
+      // size='2xl'
     >
-      <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
-        <div className='space-y-6'>
-          <div className='space-y-2'>
-            <label className='font-bold'>{chainsMap(chainId).name} Account</label>
-            <AddressInput
-              name='address'
-              localForm={modalForm}
-              hideAddressButtons
-              chainId={chainId}
-              isDisabled={!canEdit}
-            />
+      <Form {...modalForm}>
+        <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
+          {`addComplianceModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
+          <div className='space-y-6'>
+            <div className='space-y-2'>
+              <label className='font-bold'>{chainsMap(chainId).name} Account</label>
+              <AddressInput
+                name='address'
+                localForm={modalForm}
+                hideAddressButtons
+                chainId={chainId}
+                isDisabled={!canEdit}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
+              </label>
+              <Input
+                name='email'
+                localForm={modalForm}
+                placeholder='Email that receives the invite'
+                options={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+                isDisabled={!canEdit}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Name <span className='text-sm font-normal text-gray-400'>Optional</span>
+              </label>
+              <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
+            </div>
           </div>
 
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-            </label>
-            <Input
-              name='email'
-              localForm={modalForm}
-              placeholder='Email that receives the invite'
-              options={{
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              }}
-              isDisabled={!canEdit}
-            />
+          <div className='mt-8'>
+            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
+            <div className='flex justify-end'>
+              <NextStepButton type='submit' disabled={!isFormValid() || !canEdit} withIcon={false}>
+                {editingAdmin ? 'Save Changes' : 'Add Compliance Manager'}
+              </NextStepButton>
+            </div>
           </div>
-
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-            </label>
-            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
-          </div>
-        </div>
-
-        <div className='mt-8'>
-          {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
-          <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!isFormValid() || !canEdit} withIcon={false}>
-              {editingAdmin ? 'Save Changes' : 'Add Compliance Manager'}
-            </NextStepButton>
-          </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 }

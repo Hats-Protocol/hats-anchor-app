@@ -1,9 +1,7 @@
-import { CreateToastFnReturn } from '@chakra-ui/react';
-
 type ToastStatus = 'success' | 'error' | 'loading' | 'warning' | 'info';
 
 export interface ToastBaseProps {
-  toast: CreateToastFnReturn;
+  toast: any;
   title: string;
   description?: string;
   iconName?: string;
@@ -24,10 +22,4 @@ export interface ToastProps {
   isClosable?: boolean;
 }
 
-export interface UseCustomToastReturn {
-  success: (props: ToastProps) => void;
-  error: (props: ToastProps) => void;
-  warning: (props: ToastProps) => void;
-  loading: (props: ToastProps) => void;
-  info: (props: ToastProps) => void;
-}
+export type UseCustomToastReturn = (props: ToastProps) => void;

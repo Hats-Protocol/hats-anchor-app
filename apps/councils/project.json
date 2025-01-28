@@ -1,5 +1,5 @@
 {
-  "name": "councils",
+  "name": "hats-councils-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/councils",
   "projectType": "application",
@@ -20,19 +20,16 @@
     },
     "serve": {
       "executor": "@nx/next:server",
-      "defaultConfiguration": "development",
+      "defaultConfiguration": "production",
       "options": {
-        "buildTarget": "councils:build",
-        "dev": true
+        "buildTarget": "councils:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "councils:build:development",
-          "dev": true
+          "buildTarget": "councils:build:development"
         },
         "production": {
-          "buildTarget": "councils:build:production",
-          "dev": false
+          "buildTarget": "councils:build:production"
         }
       }
     },

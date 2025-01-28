@@ -1,7 +1,6 @@
 'use client';
 
-import { Box, Button, Flex, Heading, Icon, Stack, Tooltip } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
@@ -11,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
 import { EligibilityRule, HatDetails, ModuleDetails } from 'types';
+import { Button, cn, Tooltip } from 'ui';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -20,7 +20,7 @@ const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.Agr
 type FetchIpfsResponse = {
   details: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: HatDetails;
+  data: HatDetails | null;
 } | null;
 
 const handleFetchIpfs = async (ipfsHash: string) => {
@@ -104,11 +104,10 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
   // console.log('chainHasSubscription', chainHasSubscription);
 
   return (
-    <Tooltip label={buttonTooltip} placement='top'>
+    <Tooltip label={buttonTooltip}>
       <Button
-        variant={isReadyToClaim ? 'outlineMatch' : 'filled'}
-        background={isReadyToClaim ? 'transparent' : 'blue.500'}
-        colorScheme={isReadyToClaim ? 'green.500' : 'white'}
+        variant={isReadyToClaim ? 'outline' : 'default'}
+        className={cn('py-4', isReadyToClaim ? 'border-green-500 text-green-500' : undefined)}
         size='sm'
         onClick={() => {
           if (chainHasSubscription) {
@@ -117,13 +116,9 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
             setIsReadyToClaim(moduleAddress);
           }
         }}
-        _hover={{
-          background: isReadyToClaim ? 'transparent' : 'blue.600',
-        }}
-        isDisabled={localClaimable || !hasSupply || isWearing || isReadyToClaim}
-        leftIcon={<Icon as={isReadyToClaim ? BsCheckSquare : BsCheckCircleFill} />}
-        py={4}
+        disabled={localClaimable || !hasSupply || isWearing || isReadyToClaim}
       >
+        {isReadyToClaim ? <BsCheckSquare className='mr-1 h-4 w-4' /> : <BsCheckCircleFill className='mr-1 h-4 w-4' />}
         {isReadyToClaim ? 'Accepted' : 'Accept Agreement'}
       </Button>
     </Tooltip>
@@ -150,25 +145,23 @@ export const AgreementClaims = ({ activeModule }: { activeModule: ModuleDetails 
   }
 
   return (
-    <Stack spacing={4} w='100%' display={{ base: 'none', md: 'flex' }}>
-      <Box py={5} px={10} flex='1' backgroundColor='white' border='1px solid #cbcbcb' minH='500px'>
-        <Flex justify='space-between' mb={8} gap={10}>
-          <Heading>
-            Sign the agreement
-            {onlyHat ? ` to claim the ${get(selectedHatDetails, 'name')} ${capitalize(CONFIG.TERMS.hat)}` : ''}
-          </Heading>
+    <div className='hidden w-full flex-col gap-4 md:flex'>
+      <div className='flex flex-1 items-center justify-between gap-10 rounded-lg border border-gray-200 p-10'>
+        <h3>
+          Sign the agreement
+          {onlyHat ? ` to claim the ${get(selectedHatDetails, 'name')} ${capitalize(CONFIG.TERMS.hat)}` : ''}
+        </h3>
 
-          <Flex minW='175px' justify='end'>
-            <AgreementButton activeModule={activeModule} />
-          </Flex>
-        </Flex>
+        <div className='flex min-w-[175px] justify-end'>
+          <AgreementButton activeModule={activeModule} />
+        </div>
 
-        <AgreementContent agreement={agreement || agreementV0} />
-      </Box>
+        <AgreementContent agreement={agreement || agreementV0 || undefined} />
+      </div>
 
-      <Flex>
+      <div>
         <AgreementButton activeModule={activeModule} />
-      </Flex>
-    </Stack>
+      </div>
+    </div>
   );
 };

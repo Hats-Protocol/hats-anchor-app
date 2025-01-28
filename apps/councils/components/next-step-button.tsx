@@ -6,13 +6,14 @@ interface NextStepButtonProps {
   withIcon?: boolean;
 }
 
-export function NextStepButton({ onClick, disabled, children, type = 'submit', withIcon = true }: NextStepButtonProps) {
+// TODO migrate to ui Button
+function NextStepButton({ onClick, disabled, children, type = 'submit', withIcon = true }: NextStepButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className='inline-flex items-center rounded-full bg-[#2B6CB0] px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50'
+      className='bg-functional-link-primary hover:bg-functional-link-primary/80 inline-flex items-center rounded-full px-4 py-2.5 text-sm font-medium text-white shadow disabled:opacity-50'
     >
       {children}
       {withIcon && (
@@ -28,3 +29,5 @@ export function NextStepButton({ onClick, disabled, children, type = 'submit', w
     </button>
   );
 }
+
+export { NextStepButton };

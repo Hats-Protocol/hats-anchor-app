@@ -1,4 +1,4 @@
-import { NETWORK_ENDPOINTS } from '@hatsprotocol/constants';
+import { NETWORK_ENDPOINTS } from '@hatsprotocol/config';
 import { HatsAccount1ofNClient } from '@hatsprotocol/hats-account-sdk';
 import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
 import { HatsModulesClient } from '@hatsprotocol/modules-sdk';

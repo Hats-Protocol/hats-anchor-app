@@ -1,7 +1,5 @@
-import './global.css';
-import '@rainbow-me/rainbowkit/styles.css';
-
-import { MetadataConfig } from '@hatsprotocol/constants';
+import { MetadataConfig } from '@hatsprotocol/config';
+import { Toaster } from 'molecules';
 // import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
 // import Script from 'next/script';
@@ -32,14 +30,15 @@ const RootLayout = ({ children }: RootLayoutProps) => (
       <meta name='viewport' content='width=device-width, initial-scale=1' />
     </head>
 
-    <body>
-      <div className='relative min-h-screen bg-gray-50'>
+    <body className='font-inter'>
+      <div className='relative min-h-screen bg-gray-100'>
         <Providers>
           <Navbar />
 
           <div className='w-screen'>{children}</div>
 
           {/*<TxHistoryModal />*/}
+          <Toaster />
         </Providers>
       </div>
     </body>

@@ -4,7 +4,7 @@ import { useCouncilForm, useOverlay } from 'contexts';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
-import { Skeleton } from 'ui';
+import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -27,12 +27,12 @@ export function SelectionManagementStep({ onNext }: StepProps) {
   return (
     <>
       <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
-        <h1 className='text-2xl font-bold'>Council Management</h1>
+        <h1 className='text-2xl font-bold'>Council Managers</h1>
 
-        <div className='space-y-8 bg-white'>
-          <div>
+        <div className='space-y-8'>
+          <div className='space-y-2'>
             <h2 className='font-bold'>Who can edit the council?</h2>
-            <p className='text-gray-600'>Council Admins can add and remove council members and edit the Safe.</p>
+            <p className='text-sm'>Council Admins can add and remove council members and edit the Safe.</p>
           </div>
 
           {admins.length > 0 && (
@@ -49,17 +49,16 @@ export function SelectionManagementStep({ onNext }: StepProps) {
           )}
 
           <div className='flex items-center justify-between'>
-            <button
-              type='button'
+            <Button
+              variant='outline-blue'
+              rounded='full'
               onClick={() => setModals?.({ addAdminModal: true })}
               disabled={!canEdit}
-              className={`inline-flex items-center rounded-full border border-sky-600 px-4 py-2 text-sm font-medium text-sky-600 ${
-                !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-sky-50'
-              }`}
+              type='button'
             >
               <FiUserPlus className='mr-2 h-4 w-4' />
               Add Admin
-            </button>
+            </Button>
           </div>
         </div>
 

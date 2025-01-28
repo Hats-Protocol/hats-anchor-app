@@ -1,25 +1,21 @@
 'use client';
 
-import { Heading, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { Textarea } from 'forms';
+import { ControlledRadioBox, Textarea } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
 import { compact, concat, filter, find, includes, map, pick, reject, toString } from 'lodash';
-import { useAgreementDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { useAgreementEligibility } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { Markdown } from 'ui';
 import { filterProfiles } from 'utils';
 import { Hex } from 'viem';
 
 import { AboutModule, FILTER, Filter, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AgreementForms } from './agreement-forms';
-
-const ControlledRadioBox = dynamic(() => import('ui').then((ui) => ui.ControlledRadioBox));
-const Markdown = dynamic(() => import('ui').then((ui) => ui.Markdown));
 
 export const AgreementModal = ({
   eligibilityHatId,
@@ -44,7 +40,7 @@ export const AgreementModal = ({
   const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
   const searchInput = watch('search');
-  const { data: agreementDetails } = useAgreementDetails({
+  const { data: agreementDetails } = useAgreementEligibility({
     id: moduleInfo.instanceAddress,
     chainId,
   });
@@ -131,15 +127,15 @@ export const AgreementModal = ({
 
       {selectedOption === 'Agreement' &&
         (updatingAgreement ? (
-          <Stack w='100%'>
-            <Heading size='md'>Update Agreement</Heading>
+          <div className='w-full space-y-2'>
+            <h3 className='text-md'>Update Agreement</h3>
 
-            <Textarea name='agreementContent' localForm={localForm} minH='350px' />
-          </Stack>
+            <Textarea name='agreementContent' localForm={localForm} />
+          </div>
         ) : (
-          <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
+          <div className='w-full space-y-2'>
             <Markdown>{agreementContent as string}</Markdown>
-          </Stack>
+          </div>
         ))}
 
       {selectedOption === 'Signatures' && (

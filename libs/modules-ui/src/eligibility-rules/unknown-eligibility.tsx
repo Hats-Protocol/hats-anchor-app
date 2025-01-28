@@ -1,6 +1,5 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower } from 'lodash';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
@@ -32,7 +31,7 @@ export const UnknownEligibilityRule = ({ chainId, wearer, selectedHat }: ModuleD
 
   return (
     <EligibilityRuleDetails
-      rule={<Text>Comply with 1 eligibility rule</Text>}
+      rule={<p>Comply with 1 eligibility rule</p>}
       status={status}
       displayStatus={displayStatus}
       icon={icon}

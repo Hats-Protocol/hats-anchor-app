@@ -1,8 +1,12 @@
 'use client';
-import '../public/styles/style.css';
-import 'react-datepicker/dist/react-datepicker.css';
 
-import { ChakraBaseProvider } from '@chakra-ui/react';
+import '../public/styles/style.css';
+import './global.css';
+import '@rainbow-me/rainbowkit/styles.css';
+import 'react-datepicker/dist/react-datepicker.css';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -10,7 +14,6 @@ import { OverlayContextProvider } from 'contexts';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { ReactNode, useEffect, useState } from 'react';
-import { theme } from 'ui';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
 
@@ -69,18 +72,16 @@ const Providers = ({ children }: Props) => {
   }, []);
 
   return (
-    <ChakraBaseProvider theme={theme}>
-      <WagmiProvider config={wagmiConfig()}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <PostHogProvider client={posthog}>
-              <OverlayContextProvider>{children}</OverlayContextProvider>
-            </PostHogProvider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ChakraBaseProvider>
+    <WagmiProvider config={wagmiConfig()}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <PostHogProvider client={posthog}>
+            <OverlayContextProvider>{children}</OverlayContextProvider>
+          </PostHogProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 

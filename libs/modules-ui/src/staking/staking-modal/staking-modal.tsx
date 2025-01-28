@@ -1,44 +1,19 @@
 'use client';
 
-import {
-  Button,
-  Divider,
-  Flex,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { AddressInput, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
-import {
-  concat,
-  find,
-  get,
-  isEmpty,
-  map,
-  reject,
-  size,
-  subtract,
-} from 'lodash';
+import { concat, find, get, isEmpty, map, reject, size, subtract } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { Button, Card } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  AboutModule,
-  EligibilityRow,
-  ModuleHistory,
-  ModuleModal,
-} from '../../module-modal';
-
-const Card = dynamic(() => import('ui').then((mod) => mod.Card));
+import { AboutModule, EligibilityRow, ModuleHistory, ModuleModal } from '../../module-modal';
 
 export const StakingModal = ({
   eligibilityHatId,
@@ -110,40 +85,32 @@ export const StakingModal = ({
     <ModuleModal
       name={`${moduleInfo.instanceAddress}-stakingManager`}
       title='Manage Stakers'
-      about={
-        <AboutModule
-          heading='About this Staking Module'
-          moduleDescriptors={[]}
-        />
-      }
+      about={<AboutModule heading='About this Staking Module' moduleDescriptors={[]} />}
       history={<ModuleHistory />}
     >
-      <Heading size='md'>
-        Staking for Hat{' '}
-        {eligibilityHatId
-          ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))
-          : ''}{' '}
-        - {details?.name || hat?.details}
-      </Heading>
+      <h2 className='text-lg font-medium'>
+        Staking for Hat {eligibilityHatId ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId)) : ''} -{' '}
+        {details?.name || hat?.details}
+      </h2>
 
-      <Flex>
+      <div className='flex'>
         <Input
           name='search'
-          minW='350px'
+          // className='min-w-[350px]'
           placeholder='Find by address (0x) or ENS (.eth)'
           localForm={localForm}
         />
-      </Flex>
+      </div>
 
-      <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
-        <Stack spacing={1}>
-          <Flex justify='space-between'>
-            <Text size='sm'>Address</Text>
-            <Text size='sm'>Status</Text>
-          </Flex>
+      <div className='pb-150px w-full space-y-4 overflow-y-auto pt-10'>
+        <div className='space-y-1'>
+          <div className='flex justify-between'>
+            <p className='text-sm'>Address</p>
+            <p className='text-sm'>Status</p>
+          </div>
 
-          <Divider borderColor='black' />
-        </Stack>
+          <hr className='border-black' />
+        </div>
 
         {map(filteredProfiles, (p: AllowlistProfile) => (
           <EligibilityRow
@@ -156,61 +123,34 @@ export const StakingModal = ({
             handleRemove={handleRemove}
           />
         ))}
-      </Stack>
+      </div>
 
-      <Flex
-        position='absolute'
-        bottom={0}
-        minH='100px'
-        bg='whiteAlpha.900'
-        w='100%'
-        borderBottomRightRadius='md'
-        borderBottomLeftRadius={{ base: 'md', md: 'none' }}
-        borderTop='1px solid'
-        borderColor='blackAlpha.200'
-        py={{ base: 4, md: 10 }}
-      >
+      <div className='min-h-100px bg-whiteAlpha-900 border-b-1 border-b-blackAlpha-200 absolute bottom-0 w-full rounded-b-md rounded-l-md py-4 md:py-10'>
         {!adding && !updating && (
-          <Flex w='full' justify='center' align='center'>
-            <HStack>
-              <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
-                size='sm'
-                onClick={() => setAdding(true)}
-              >
+          <div className='flex w-full items-center justify-center'>
+            <div className='flex gap-2'>
+              <Button variant='outline-blue' size='sm' onClick={() => setAdding(true)}>
                 Add Address
               </Button>
-              <Button
-                variant='outlineMatch'
-                colorScheme='red.500'
-                size='sm'
-                onClick={() => setUpdating(true)}
-              >
+              <Button variant='destructive' size='sm' onClick={() => setUpdating(true)}>
                 Remove Address
               </Button>
-            </HStack>
-          </Flex>
+            </div>
+          </div>
         )}
 
         {adding && (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-            <Stack spacing={1}>
-              <Heading size='md'>Add an address</Heading>
+          <div className='w-full space-y-6 px-4 md:px-10'>
+            <div className='space-y-1'>
+              <h2 className='text-lg font-medium'>Add an address</h2>
 
-              <AddressInput
-                name='addresses'
-                chainId={chainId}
-                localForm={localForm}
-                hideAddressButtons
-              />
-            </Stack>
+              <AddressInput name='addresses' chainId={chainId} localForm={localForm} hideAddressButtons />
+            </div>
 
-            <Flex justify='space-between' w='full'>
+            <div className='flex w-full justify-between'>
               <Button
                 size='sm'
-                variant='outlineMatch'
-                colorScheme='blue.500'
+                variant='outline-blue'
                 onClick={() => {
                   setUpdateList([]);
                   setAdding(false);
@@ -218,23 +158,21 @@ export const StakingModal = ({
               >
                 Cancel
               </Button>
-              <Button variant='primary' size='sm'>
-                Add
-              </Button>
-            </Flex>
-          </Stack>
+              <Button size='sm'>Add</Button>
+            </div>
+          </div>
         )}
 
         {updating && (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-            <Stack spacing={4}>
-              <Heading size='md'>Addresses selected for removal</Heading>
+          <div className='w-full space-y-6 px-4 md:px-10'>
+            <div className='space-y-4'>
+              <h2 className='text-lg font-medium'>Addresses selected for removal</h2>
               <Card>
-                <Flex m={2} mx={4}>
+                <div className='m-2 mx-4'>
                   {isEmpty(updateList) ? (
-                    <Text color='gray.500'>Select an address to remove</Text>
+                    <p className='text-gray-500'>Select an address to remove</p>
                   ) : (
-                    <Text>
+                    <p>
                       {map(
                         updateList,
                         (profile, index) =>
@@ -242,16 +180,15 @@ export const StakingModal = ({
                             index < subtract(size(updateList), 1) ? ', ' : ''
                           }`,
                       )}
-                    </Text>
+                    </p>
                   )}
-                </Flex>
+                </div>
               </Card>
-            </Stack>
+            </div>
 
-            <Flex justify='space-between' w='full'>
+            <div className='flex w-full justify-between'>
               <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
+                variant='outline-blue'
                 size='sm'
                 onClick={() => {
                   setUpdateList([]);
@@ -260,18 +197,13 @@ export const StakingModal = ({
               >
                 Cancel
               </Button>
-              <Button
-                variant='filled'
-                colorScheme='red.500'
-                size='sm'
-                isDisabled={isEmpty(updateList)}
-              >
+              <Button variant='destructive' size='sm' disabled={isEmpty(updateList)}>
                 Remove
               </Button>
-            </Flex>
-          </Stack>
+            </div>
+          </div>
         )}
-      </Flex>
+      </div>
     </ModuleModal>
   );
 };

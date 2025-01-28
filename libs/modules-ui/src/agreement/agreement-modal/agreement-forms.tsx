@@ -1,22 +1,21 @@
-import { Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { DurationInput } from 'forms';
 import { useAllWearers, useWearerDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
-import { compact, find, first, get, isEmpty, map, pick, size, subtract, toLower } from 'lodash';
+import { compact, find, first, get, isEmpty, map, pick, size, subtract } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { AllowlistProfile, AppHat, ModuleDetails, SupportedChains } from 'types';
+import { Button, Card } from 'ui';
 import { fetchToken, formatAddress, pinFileToIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
 import { ManageBar } from '../../module-modal';
 
-const Card = dynamic(() => import('ui').then((ui) => ui.Card));
 const TransactionButton = dynamic(() => import('molecules').then((mod) => mod.TransactionButton));
 
 const DEFAULT_GRACE_PERIOD = 4;
@@ -181,15 +180,16 @@ export const AgreementForms = ({
         value: removing,
         hasRole: isJudge,
         section: (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-            <Stack spacing={4}>
-              <Heading size='md'>Addresses selected for removal</Heading>
+          <div className='flex w-full flex-col gap-6 px-4 md:px-10'>
+            <div className='flex flex-col gap-4'>
+              <h3 className='text-lg font-semibold'>Addresses selected for removal</h3>
+
               <Card>
-                <Flex m={2} mx={4}>
+                <div className='m-2 mx-4'>
                   {isEmpty(removeList) ? (
-                    <Text color='gray.500'>Select an address to remove</Text>
+                    <p className='text-gray-500'>Select an address to remove</p>
                   ) : (
-                    <Text>
+                    <p>
                       {map(
                         removeList,
                         (profile, index) =>
@@ -197,16 +197,15 @@ export const AgreementForms = ({
                             index < subtract(size(removeList), 1) ? ', ' : ''
                           }`,
                       )}
-                    </Text>
+                    </p>
                   )}
-                </Flex>
+                </div>
               </Card>
-            </Stack>
+            </div>
 
-            <Flex justify='space-between' w='full'>
+            <div className='flex w-full justify-between'>
               <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
+                variant='outline-blue'
                 size='sm'
                 onClick={() => {
                   setRemoveList([]);
@@ -215,17 +214,11 @@ export const AgreementForms = ({
               >
                 Cancel
               </Button>
-              <Button
-                variant='filled'
-                colorScheme='red.500'
-                size='sm'
-                isDisabled={isEmpty(removeList)}
-                onClick={handleRemoveWearers}
-              >
+              <Button variant='destructive' size='sm' disabled={isEmpty(removeList)} onClick={handleRemoveWearers}>
                 Remove
               </Button>
-            </Flex>
-          </Stack>
+            </div>
+          </div>
         ),
       },
       {
@@ -233,21 +226,15 @@ export const AgreementForms = ({
         value: updatingAgreement,
         hasRole: isOwner,
         section: (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={4}>
+          <div className='flex w-full flex-col gap-4 px-4 md:px-10'>
             <DurationInput name='gracePeriod' label='Grace Period' localForm={localForm} />
 
-            <Flex w='full' justify='space-between'>
-              <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
-                size='sm'
-                onClick={() => setUpdatingAgreement(false)}
-              >
+            <div className='flex w-full justify-between'>
+              <Button variant='outline-blue' size='sm' onClick={() => setUpdatingAgreement(false)}>
                 Cancel
               </Button>
 
               <TransactionButton
-                variant='primary'
                 size='sm'
                 chainId={chainId}
                 txDescription={`Updated Agreement for ${
@@ -259,13 +246,13 @@ export const AgreementForms = ({
                 afterSuccess={() => {
                   setUpdatingAgreement(false);
                 }}
-                isDisabled={isEmpty(agreementContent)}
+                disabled={isEmpty(agreementContent)}
                 onClick={handleUpdateAgreement}
               >
                 Update Agreement
               </TransactionButton>
-            </Flex>
-          </Stack>
+            </div>
+          </div>
         ),
       },
     ];

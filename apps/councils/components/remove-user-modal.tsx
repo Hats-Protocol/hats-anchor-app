@@ -1,16 +1,15 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { Module, Ruleset } from '@hatsprotocol/modules-sdk';
-import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
-import { RadioBox } from 'forms';
+import { Form, RadioBox } from 'forms';
 import { find, flatten, forEach, get, has, map } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { CouncilMember, CurrentEligibility, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { formatAddress, getKnownEligibilityModule, logger, sendTelegramMessage } from 'utils';
 import { Hex } from 'viem';
 
@@ -63,7 +62,7 @@ const getRemoveFunctionArgs = (module: Module | undefined, user: CouncilMember |
   return { Account: user?.address };
 };
 
-export function RemoveUserModal({
+function RemoveUserModal({
   chainId = 11155111,
   type,
   userLabel,
@@ -73,7 +72,7 @@ export function RemoveUserModal({
   offchainCouncilData,
   afterSuccess,
 }: RemoveUserModalProps) {
-  const [formPending, setFormPending] = useState(false);
+  const [formPending, setFormPending] = useState(false); // TODO handle loading state
   const form = useForm<RemoveReasonFormProps>();
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
@@ -158,22 +157,26 @@ export function RemoveUserModal({
 
   return (
     <Modal name={`removeUser-${type}-${user?.address}`} title={`Remove ${userLabel || 'Council Member'}`}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <RadioBox
-          name='reason'
-          label={`Why are you removing this ${userLabel || 'Council Member'}?`}
-          options={reasonOptions}
-          localForm={form}
-        />
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <RadioBox
+            name='reason'
+            label={`Why are you removing this ${userLabel || 'Council Member'}?`}
+            options={reasonOptions}
+            localForm={form}
+          />
 
-        <div className='mt-8'>
-          <div className='flex justify-end'>
-            <Button type='submit' isLoading={formPending} variant='primary'>
-              Remove
-            </Button>
+          <div className='mt-8'>
+            <div className='flex justify-end'>
+              <Button type='submit' variant='destructive'>
+                Remove
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 }
+
+export { RemoveUserModal };

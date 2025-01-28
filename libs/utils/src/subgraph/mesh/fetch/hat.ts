@@ -4,16 +4,11 @@ import { AppHat, HatWithMetadata } from 'types';
 
 import { getHatsDetailsQuery, NETWORKS_PREFIX } from '../queries';
 
-export const fetchHatsDetailsMesh = async (
-  hatIds: string[],
-  chainId?: number,
-): Promise<AppHat[] | null> => {
+export const fetchHatsDetailsMesh = async (hatIds: string[], chainId?: number): Promise<AppHat[] | null> => {
   const localHats = compact(hatIds);
   if (isEmpty(localHats) || !chainId) return null;
 
-  const client = new GraphQLClient(
-    `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
-  );
+  const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
   const query = getHatsDetailsQuery(chainId);
 
   try {

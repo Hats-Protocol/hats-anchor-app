@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
@@ -10,13 +9,14 @@ import { concat, filter, find, flatten, get, map, size, toLower, toNumber } from
 import { useEligibilityRules } from 'modules-hooks';
 import { idToIp } from 'shared';
 import { CouncilMember, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { MemberAvatar } from 'ui';
 import { createHatsClient, formatAddress, getAllWearers, logger, parseCouncilSlug, sendTelegramMessage } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
-import ModuleManager from './modules/module-manager';
+import { ModuleManager } from './modules/module-manager';
 import { SignerThresholdModal } from './signer-threshold-modal';
 import { SignersIndicator } from './signers-indicator';
 
@@ -42,9 +42,9 @@ const SectionMenu = ({ sections }: { sections: { value: string; label: string }[
   return (
     <div className='flex flex-col gap-4'>
       {map(sections, (section) => (
-        <div key={section.value} className='text-sm'>
+        <a key={section.value} href={`#${section.value}`} className='text-sm'>
           {section.label}
-        </div>
+        </a>
       ))}
     </div>
   );
@@ -64,7 +64,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
   });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
     chainId: chainId ?? 11155111,
-    hsg: address,
+    hsg: address as Hex,
   });
   const allWearers = getAllWearers(offchainCouncilDetails || undefined);
 
@@ -137,7 +137,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
       </div>
 
       <div className='flex w-4/5 flex-col gap-8'>
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' id='threshold'>
           <h2 className='text-lg font-semibold'>Signer Threshold</h2>
 
           <SignersIndicator
@@ -147,7 +147,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           />
 
           <div className='flex'>
-            <Button variant='outline' onClick={() => setModals?.({ hsgThreshold: true })}>
+            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
               Change Threshold
             </Button>
           </div>
@@ -160,7 +160,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
         </div>
 
         {/* TOP HAT CAN EDIT MANAGERS */}
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' id='admin'>
           <h2 className='text-lg font-semibold'>Council Management</h2>
 
           <div className='flex flex-col gap-2'>
@@ -173,7 +173,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           </div>
 
           <div className='flex'>
-            <Button variant='outline' onClick={() => setModals?.({ 'addUser-admin': true })}>
+            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
               Add Council Manager
             </Button>
           </div>
@@ -200,7 +200,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
         ))}
 
         {/* TOP HAT CAN TRANSFER */}
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' id='ownership'>
           <h2 className='text-lg font-semibold'>Ownership</h2>
 
           <div className='flex flex-col gap-2'>
@@ -214,7 +214,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           </div>
 
           <div className='flex'>
-            <Button variant='outline' isDisabled>
+            <Button variant='outline-blue' rounded='full' disabled>
               Transfer Ownership
             </Button>
           </div>
@@ -224,4 +224,4 @@ const ManagePage = ({ slug }: { slug: string }) => {
   );
 };
 
-export default ManagePage;
+export { ManagePage };

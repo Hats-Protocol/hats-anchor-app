@@ -1,6 +1,5 @@
 'use client';
 
-import { Link } from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useHatDetails, useProfileDetails } from 'hats-hooks';
@@ -9,18 +8,11 @@ import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  AboutModule,
-  DevInfo,
-  FILTER,
-  Filter,
-  ModuleHistory,
-  ModuleModal,
-  ProfileList,
-} from '../../module-modal';
+import { AboutModule, DevInfo, FILTER, Filter, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AllowlistForms } from './allowlist-forms';
 
 export const AllowlistModal = ({
@@ -77,12 +69,8 @@ export const AllowlistModal = ({
   );
 
   const liveParams = get(moduleInfo, 'liveParameters');
-  const ownerHat = toString(
-    get(find(liveParams, { label: 'Owner Hat' }), 'value'),
-  );
-  const judgeHat = toString(
-    get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
-  );
+  const ownerHat = toString(get(find(liveParams, { label: 'Owner Hat' }), 'value'));
+  const judgeHat = toString(get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'));
 
   const handleClose = useCallback(() => {
     setActiveFilter(FILTER.WEARER);
@@ -115,9 +103,7 @@ export const AllowlistModal = ({
       moduleInfo.instanceAddress && {
         label: 'Allowlist Module',
         descriptor: (
-          <Link
-            href={`${explorerUrl(chainId)}/address/${moduleInfo.instanceAddress}`}
-          >
+          <Link href={`${explorerUrl(chainId)}/address/${moduleInfo.instanceAddress}`}>
             {formatAddress(moduleInfo.instanceAddress as Hex)}
           </Link>
         ),
@@ -135,12 +121,7 @@ export const AllowlistModal = ({
     <ModuleModal
       name={`${moduleInfo.instanceAddress}-allowlistManager`}
       title='Manage Allowlist'
-      about={
-        <AboutModule
-          heading='About this Allowlist'
-          moduleDescriptors={moduleDescriptors}
-        />
-      }
+      about={<AboutModule heading='About this Allowlist' moduleDescriptors={moduleDescriptors} />}
       history={<ModuleHistory />}
       devInfo={<DevInfo moduleDescriptors={devInfo} />}
       onClose={handleClose}

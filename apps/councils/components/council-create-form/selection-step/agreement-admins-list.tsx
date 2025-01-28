@@ -2,7 +2,6 @@
 
 import { useOverlay } from 'contexts';
 import { SquarePen, Trash2 } from 'lucide-react';
-import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember } from 'types';
 import { MemberAvatar } from 'ui';
@@ -13,87 +12,69 @@ interface AgreementAdminsListProps {
   agreementAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
-  editingAdmin: CouncilMember | null;
-  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
 }
 
-export function AgreementAdminsList({
-  agreementAdmins,
-  form,
-  canEdit = true,
-  editingAdmin,
-  setEditingAdmin,
-}: AgreementAdminsListProps) {
-  const { setModals } = useOverlay();
-
-  const handleRemove = (adminId: string) => {
-    if (!canEdit) return;
-    const currentAdmins = form.getValues('agreementAdmins') || [];
-    const updatedAdmins = currentAdmins.filter((admin: CouncilMember) => admin.id !== adminId);
-    form.setValue('agreementAdmins', updatedAdmins);
-  };
-
-  const handleEdit = (admin: CouncilMember) => {
-    if (!canEdit) return;
-    setEditingAdmin(admin);
-    setModals?.({ addAgreementAdminModal: true });
-  };
-
+export function AgreementAdminsList({ agreementAdmins, form, canEdit = true }: AgreementAdminsListProps) {
   return (
     <>
       <div className='space-y-4'>
         {agreementAdmins.map((admin) => (
-          <AgreementAdminCard
-            key={admin.id}
-            admin={admin}
-            onRemove={handleRemove}
-            onEdit={() => handleEdit(admin)}
-            canEdit={canEdit}
-          />
+          <AgreementAdminCard key={admin.id} admin={admin} form={form} canEdit={canEdit} />
         ))}
       </div>
-
-      <AddAgreementAdminModal
-        form={form}
-        editingAdmin={editingAdmin}
-        setEditingAdmin={setEditingAdmin}
-        canEdit={canEdit}
-      />
     </>
   );
 }
 
 function AgreementAdminCard({
   admin,
-  onRemove,
-  onEdit,
+  form,
   canEdit = true,
 }: {
   admin: CouncilMember;
-  onRemove: (id: string) => void;
-  onEdit: () => void;
+  form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
 }) {
+  const { setModals } = useOverlay();
+  const { getValues } = form;
+
+  const handleEdit = () => {
+    if (!canEdit) return;
+
+    setModals?.({ [`addAgreementAdminModal-${admin.id}`]: true });
+  };
+
+  const handleRemove = () => {
+    if (!canEdit) return;
+    const currentAdmins = getValues('agreementAdmins') || [];
+    const updatedAdmins = currentAdmins.filter((a: CouncilMember) => a.id !== admin.id);
+    form.setValue('agreementAdmins', updatedAdmins);
+  };
+
   return (
-    <div className='flex items-center justify-between'>
-      <MemberAvatar member={admin} />
+    <>
+      <div className='flex items-center justify-between'>
+        <MemberAvatar member={admin} />
 
-      {canEdit && (
-        <div className='flex items-center gap-3'>
-          <button
-            type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800'
-            onClick={onEdit}
-          >
-            <SquarePen />
-            Edit
-          </button>
+        {canEdit && (
+          <div className='flex items-center gap-3'>
+            <button
+              type='button'
+              className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
+              onClick={handleEdit}
+            >
+              <SquarePen className='h-4 w-4' />
+              Edit
+            </button>
 
-          <button type='button' onClick={() => onRemove(admin.id)} className='text-red-700 hover:text-red-800'>
-            <Trash2 />
-          </button>
-        </div>
-      )}
-    </div>
+            <button type='button' onClick={handleRemove} className='text-destructive hover:text-destructive/70'>
+              <Trash2 className='h-4 w-4' />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <AddAgreementAdminModal form={form} editingAdmin={admin} canEdit={canEdit} />
+    </>
   );
 }

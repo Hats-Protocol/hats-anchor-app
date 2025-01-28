@@ -10,10 +10,11 @@
     "skipLibCheck": true
   },
   "references": [
+    { "path": "../config/tsconfig.lib.json" },
     { "path": "../constants/tsconfig.lib.json" },
     { "path": "../shared/tsconfig.lib.json" },
     { "path": "../types/tsconfig.lib.json" }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "../../dist/libs/**/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }

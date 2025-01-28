@@ -7,6 +7,16 @@ import { ModuleDetails, ModuleFunction } from './modules';
 
 export type AuthorityType = 'protocol' | 'modules' | 'account' | 'hsg' | 'onchain' | 'gate' | 'manual';
 
+export type AuthorityInfo = {
+  label: string;
+  info: string;
+  color: string;
+  name?: string;
+  icon?: any; // ReactNode; // name of an icon to be used for fallback
+  imageUri?: string; // used for fallback if icon is not available
+  enforcementIcon: string; // actually an SVG imported currently, could migrate to Icon
+};
+
 export type HSGConfig = {
   type: HsgType;
   minThreshold: string;

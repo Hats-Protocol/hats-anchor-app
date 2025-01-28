@@ -1,13 +1,13 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { Modal } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { AddressInput, Form, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
 import { capitalize, map, some, toLower } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
+import { Button } from 'ui';
 import { chainsMap, isValidEmail, logger } from 'utils';
 import { isAddress } from 'viem';
 
@@ -35,7 +35,7 @@ type AddAdminModalProps = {
   existingUsers: CouncilMember[];
 };
 
-export function AddUserModal({
+function AddUserModal({
   chainId = 11155111,
   type,
   userLabel,
@@ -86,6 +86,7 @@ export function AddUserModal({
   }, [editingUser, reset]);
 
   const onSubmit = async (data: CouncilMemberDetails) => {
+    setIsLoading(true);
     if (!isAddress(data.address)) {
       setError('address', { message: 'Please enter a valid Ethereum address' });
       return;
@@ -111,6 +112,7 @@ export function AddUserModal({
     logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
     afterSuccess?.(createdOrUpdatedUser);
+    setIsLoading(false);
   };
 
   return (
@@ -118,47 +120,57 @@ export function AddUserModal({
       name={editingUser ? `editUser-${type}-${editingUser.address}` : `addUser-${type}`}
       title={`${editingUser ? 'Edit' : 'Add'} ${userLabel || 'Council Member'}`}
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='space-y-6'>
-          <div className='space-y-2'>
-            <label className='font-bold'>{capitalize(chainsMap(chainId).name)} Account</label>
-            <AddressInput name='address' localForm={form} hideAddressButtons chainId={chainId as SupportedChains} />
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className='space-y-6'>
+            <div className='space-y-2'>
+              <label className='font-bold'>{capitalize(chainsMap(chainId).name)} Account</label>
+              <AddressInput name='address' localForm={form} hideAddressButtons chainId={chainId as SupportedChains} />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Email Address <span className='ml-1 text-xs font-normal text-gray-400'>Hidden</span>
+              </label>
+
+              <Input
+                name='email'
+                localForm={form}
+                placeholder='Email that receives the admin invite'
+                options={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Name <span className='ml-1 text-xs font-normal text-gray-400'>Optional</span>
+              </label>
+              <Input name='name' localForm={form} placeholder='Alias or name' />
+            </div>
           </div>
 
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-            </label>
-
-            <Input
-              name='email'
-              localForm={form}
-              placeholder='Email that receives the admin invite'
-              options={{
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              }}
-            />
+          <div className='mt-8'>
+            <div className='flex justify-end'>
+              <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
+                {editingUser
+                  ? isLoading
+                    ? 'Saving...'
+                    : 'Save Changes'
+                  : isLoading
+                    ? 'Adding...'
+                    : `Add ${userLabel || 'Council Member'}`}
+              </Button>
+            </div>
           </div>
-
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-            </label>
-            <Input name='name' localForm={form} placeholder='Alias or name' />
-          </div>
-        </div>
-
-        <div className='mt-8'>
-          <div className='flex justify-end'>
-            <Button type='submit' isDisabled={!isFormValid()} isLoading={isLoading} variant='primary'>
-              {editingUser ? 'Save Changes' : `Add ${userLabel || 'Council Member'}`}
-            </Button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 }
+
+export { AddUserModal };

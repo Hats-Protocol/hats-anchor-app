@@ -1,49 +1,30 @@
-import { CONFIG } from '@hatsprotocol/constants';
-import {
-  checkAndEncodeArgs,
-  ModuleCreationArg,
-  solidityToTypescriptType,
-} from '@hatsprotocol/modules-sdk';
+import { checkAndEncodeArgs, ModuleCreationArg, solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { CONFIG } from '@hatsprotocol/config';
 import _ from 'lodash';
 import { FormValues, ModuleDetails } from 'types';
 import { getDefaultValue, transformInput } from 'utils';
 import { parseUnits } from 'viem';
 
 // TODO is `-parsed` still being used. Was previous handling for parsing ENS names
-export const prepareArgs = (
-  values: FormValues,
-  selectedModuleDetails?: ModuleDetails,
-) => {
+export const prepareArgs = (values: FormValues, selectedModuleDetails?: ModuleDetails) => {
   if (!selectedModuleDetails) {
     return { immutableArgs: [], mutableArgs: [] };
   }
-  const immutableArgs = _.map(
-    selectedModuleDetails.creationArgs.immutable,
-    ({ name, type }: ModuleCreationArg) => {
-      const valueToTransform = values[`${name}-parsed`] || values[name];
+  const immutableArgs = _.map(selectedModuleDetails.creationArgs.immutable, ({ name, type }: ModuleCreationArg) => {
+    const valueToTransform = values[`${name}-parsed`] || values[name];
 
-      const passedValue =
-        valueToTransform === 'custom'
-          ? values[`${name}_custom`]
-          : valueToTransform;
+    const passedValue = valueToTransform === 'custom' ? values[`${name}_custom`] : valueToTransform;
 
-      return transformInput(passedValue, type);
-    },
-  );
-  const mutableArgs = _.map(
-    selectedModuleDetails.creationArgs.mutable,
-    ({ name, type }: ModuleCreationArg) => {
-      const valueToTransform = values[`${name}-parsed`] || values[name];
+    return transformInput(passedValue, type);
+  });
+  const mutableArgs = _.map(selectedModuleDetails.creationArgs.mutable, ({ name, type }: ModuleCreationArg) => {
+    const valueToTransform = values[`${name}-parsed`] || values[name];
 
-      const passedValue =
-        valueToTransform === 'custom'
-          ? values[`${name}_custom`]
-          : valueToTransform;
+    const passedValue = valueToTransform === 'custom' ? values[`${name}_custom`] : valueToTransform;
 
-      return transformInput(passedValue, type);
-    },
-  );
+    return transformInput(passedValue, type);
+  });
 
   return { immutableArgs, mutableArgs };
 };
@@ -64,14 +45,10 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
 
-  const { immutableArgs, mutableArgs } = prepareArgs(
-    values,
-    selectedModuleDetails,
-  );
+  const { immutableArgs, mutableArgs } = prepareArgs(values, selectedModuleDetails);
 
   const areArgsFilled = (args: unknown[]) => _.every(args, Boolean);
-  const allArgsFilled =
-    areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
+  const allArgsFilled = areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
 
   if (selectedModuleDetails && isLocalFormValid && allArgsFilled) {
     const result = checkAndEncodeArgs({
@@ -121,11 +98,7 @@ export const processValues = ({
 
     if (arg.displayType === 'amountWithDecimals') {
       const amount = newValues[arg.name] as string;
-      if (
-        amount !== undefined &&
-        !_.isNaN(parseFloat(amount)) &&
-        tokenDecimals !== undefined
-      ) {
+      if (amount !== undefined && !_.isNaN(parseFloat(amount)) && tokenDecimals !== undefined) {
         try {
           newValues[arg.name] = parseUnits(amount, tokenDecimals);
         } catch (error) {

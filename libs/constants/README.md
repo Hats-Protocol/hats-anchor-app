@@ -4,12 +4,14 @@ App `constants` is a Node library for storing default constant values for the ap
 
 > Be careful with adding environment-specific values here. This library is cached on build and will not reliably update with changes to the environment variables. If you need to use environment variables, handle within the app itself.
 
+Prefer using `config` when environment-specific values are needed. It is rebuilt on every build.
+
 ## Usage
 
 ```ts
 // the library is imported as `@hatsprotocol/constants` since TS has some issue(s)
 // with reusing the `constants` namespace. The tsconfig paths are setup for this alias.
-import { CONFIG } from '@hatsprotocol/constants';
+import { defaultHat } from '@hatsprotocol/constants';
 ```
 
 ## Structure

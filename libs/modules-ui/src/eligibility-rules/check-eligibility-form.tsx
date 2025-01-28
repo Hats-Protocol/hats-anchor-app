@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import { Modal, useOverlay, useSelectedHat } from 'contexts';
 import { AddressInput } from 'forms';
 import { useWearersEligibilityStatus } from 'hats-hooks';
@@ -8,6 +7,7 @@ import _ from 'lodash';
 import { includes, pick, toLower } from 'lodash';
 import { ReactNode, useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Button } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
 import { useEnsAddress } from 'wagmi';
@@ -29,8 +29,7 @@ export const CheckEligibilityForm = () => {
     // enabled: _.includes(localWearer, '.eth'),
   });
 
-  const wearerAddress = (toLower(resolvedAddress || undefined) ||
-    toLower(localWearer)) as Hex;
+  const wearerAddress = (toLower(resolvedAddress || undefined) || toLower(localWearer)) as Hex;
   const { data: wearersEligible } = useWearersEligibilityStatus({
     wearerIds: [wearerAddress],
     selectedHat,
@@ -43,17 +42,9 @@ export const CheckEligibilityForm = () => {
     async (data: object) => {
       const w = _.get(data, 'wearer-input');
 
-      let eligibleStatus = (
-        <Text color='red.500'>
-          {w || formatAddress(resolvedAddress)} is not eligible
-        </Text>
-      );
+      let eligibleStatus = <p className='text-destructive'>{w || formatAddress(resolvedAddress)} is not eligible</p>;
       if (isEligible) {
-        eligibleStatus = (
-          <Text color='green.500'>
-            {w || formatAddress(resolvedAddress)} is eligible
-          </Text>
-        );
+        eligibleStatus = <p className='text-green-500'>{w || formatAddress(resolvedAddress)} is eligible</p>;
       }
       setWearerDisplay(eligibleStatus);
     },
@@ -67,45 +58,24 @@ export const CheckEligibilityForm = () => {
   };
 
   return (
-    <Modal
-      name='checkEligibility'
-      title='Check Wearer Eligibility'
-      onClose={closeModal}
-    >
-      <Stack spacing={4}>
-        <Text fontSize='sm'>
-          Check the eligibility of a wearer for this hat based on the
-          eligibility rule(s).
-        </Text>
+    <Modal name='checkEligibility' title='Check Wearer Eligibility' onClose={closeModal}>
+      <div className='space-y-4'>
+        <p className='text-sm'>Check the eligibility of a wearer for this hat based on the eligibility rule(s).</p>
 
-        <Stack
-          as='form'
-          onSubmit={handleSubmit(checkWearerEligibility)}
-          spacing={6}
-        >
-          <AddressInput
-            name='wearer'
-            label='Wearer'
-            localForm={localForm}
-            hideAddressButtons
-            chainId={chainId}
-          />
+        <form onSubmit={handleSubmit(checkWearerEligibility)} className='space-y-6'>
+          <AddressInput name='wearer' label='Wearer' localForm={localForm} hideAddressButtons chainId={chainId} />
 
-          <Flex justify='end'>
-            <HStack spacing={4}>
+          <div className='flex justify-end'>
+            <div className='flex items-center gap-4'>
               {wearerDisplay && wearerDisplay}
 
-              <Button
-                type='submit'
-                colorScheme='blue'
-                isDisabled={!resolvedAddress && !localWearerIsAddress}
-              >
+              <Button type='submit' disabled={!resolvedAddress && !localWearerIsAddress}>
                 Check Eligibility
               </Button>
-            </HStack>
-          </Flex>
-        </Stack>
-      </Stack>
+            </div>
+          </div>
+        </form>
+      </div>
     </Modal>
   );
 };

@@ -1,0 +1,218 @@
+'use client';
+
+import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { useTreeForm } from 'contexts';
+import { useMulticallCallData } from 'hats-hooks';
+import { editHasUpdates } from 'hats-utils';
+import { useClipboard, useSimulateTransaction } from 'hooks';
+import { get, map } from 'lodash';
+import posthog from 'posthog-js';
+import { useCallback } from 'react';
+import { AiOutlineInfoCircle } from 'react-icons/ai';
+import { FiCopy } from 'react-icons/fi';
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { AppHat } from 'types';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  BaseInput as Input,
+  Button,
+  Link,
+  Spinner,
+  Tooltip,
+} from 'ui';
+import { useAccount } from 'wagmi';
+
+// TODO use ui/Input component
+const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';
+
+const CALLDATA_TOOLTIP_COPY =
+  'To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.';
+
+const BottomMenu = ({
+  isExpanded,
+  setAccordionIndex,
+}: {
+  isExpanded: boolean;
+  setAccordionIndex: (index: number[]) => void;
+}) => {
+  const { storedData, chainId, treeId, onchainHats, treeToDisplay, topHat } = useTreeForm();
+  const { address } = useAccount();
+  const { data: multicallData, isLoading } = useMulticallCallData({
+    chainId,
+    treeId,
+    storedData,
+    onchainHats,
+    treeToDisplay,
+    isExpanded,
+  });
+  const callData = get(multicallData, 'callData.callData', null);
+  const allCalls = get(multicallData, 'allCalls', []);
+  const topHatWearer = get(topHat, 'wearers.0.id');
+
+  const hasUpdates = editHasUpdates(storedData);
+
+  const { onCopy: copyCallData } = useClipboard(callData || '', {
+    toastData: { title: 'Successfully copied hex code to clipboard' },
+  });
+  const { onCopy: copyContractAddress } = useClipboard(HATS_V1, {
+    toastData: {
+      title: 'Successfully copied contract address to clipboard',
+      // status: 'info',
+    },
+  });
+  const { handleSimulate, isSimulating, simulationResponse } = useSimulateTransaction({
+    chainId,
+    callData: callData || undefined,
+  });
+
+  const openCalldataMenu = () => {
+    posthog.capture('Opened Transaction Calldata Menu');
+    setAccordionIndex(isExpanded ? [] : [0]);
+  };
+
+  const enableSimulation = posthog.isFeatureEnabled('simulation') || process.env.NODE_ENV === 'development';
+
+  const handleSimulateTopHat = useCallback(() => {
+    if (!topHatWearer) return;
+    handleSimulate(topHatWearer);
+  }, [handleSimulate, topHatWearer]);
+
+  const handleSimulateMe = useCallback(() => {
+    if (!address) return;
+
+    handleSimulate(address);
+  }, [handleSimulate, address]);
+
+  const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
+
+  // index={isExpanded ? [0] : []}
+  return (
+    <div className='z-14 absolute bottom-0 w-full'>
+      <div className='flex justify-between border-t border-gray-200 bg-cyan-50'>
+        <Accordion type='single' className='mt-[-1px] w-full'>
+          <AccordionItem value='bottom-menu' aria-disabled={!hasUpdates}>
+            <AccordionTrigger className='px-8 py-4' onClick={openCalldataMenu}>
+              <div className='flex-1 text-left'>Transaction Call Data</div>
+              {isExpanded ? <IoIosArrowDown /> : <IoIosArrowUp />}
+            </AccordionTrigger>
+
+            <AccordionContent className='px-8 pb-8'>
+              <div className='flex flex-col gap-2'>
+                {isDev && (
+                  <>
+                    <div className='max-h-[250px] overflow-auto'>
+                      <h3 className='text-sm font-medium'>Combined Call Data</h3>
+
+                      {map(allCalls, (hat: { hatChanges: AppHat; calls: { functionName: string }[] }) => {
+                        if (!hat.hatChanges.id) return null;
+                        return (
+                          <div className='flex flex-col gap-1' key={hat.hatChanges.id}>
+                            <h3 className='text-sm font-medium'>
+                              {hatIdDecimalToIp(hatIdHexToDecimal(hat.hatChanges.id))}
+                            </h3>
+                            {map(hat.calls, (call) => (
+                              <p className='text-sm'>-- {call.functionName}</p>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className='border-t border-gray-500' />
+                  </>
+                )}
+
+                {enableSimulation && (
+                  <>
+                    <div className='my-2 flex flex-col gap-1'>
+                      <p className='text-sm font-light'>Simulate transaction</p>
+
+                      <div className='flex gap-2'>
+                        <Button
+                          size='sm'
+                          variant='outline-blue'
+                          disabled={!callData || isSimulating}
+                          onClick={handleSimulateMe}
+                        >
+                          {isSimulating ? 'Simulating...' : 'Simulate Me'}
+                        </Button>
+
+                        <Button
+                          size='sm'
+                          variant='outline-blue'
+                          disabled={!callData || isSimulating}
+                          onClick={handleSimulateTopHat}
+                        >
+                          {isSimulating ? 'Simulating...' : 'Simulate Top Hat'}
+                        </Button>
+
+                        {simulationResponse && (
+                          <div className='flex gap-2'>
+                            <p className='text-sm'>
+                              {get(simulationResponse, 'transaction.status')
+                                ? 'Simulation successful!'
+                                : 'Simulation failed!'}
+                            </p>
+
+                            <Link
+                              href={TENDERLY_SIMULATION_URL + get(simulationResponse, 'simulation.id')}
+                              className='underline'
+                              isExternal
+                            >
+                              <p className='text-sm'>View on Tenderly</p>
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className='border-t border-gray-500' />
+                  </>
+                )}
+
+                <div className='flex flex-col gap-1'>
+                  <p className='text-sm font-light'>Hats contract address</p>
+                  <div className='flex gap-4'>
+                    <Input value={HATS_V1} className='text-blackAlpha-600 bg-white' readOnly placeholder='Loading...' />
+                    <Button onClick={copyContractAddress} variant='outline' className='border-gray-300'>
+                      <FiCopy className='mr-1 h-4 w-4' />
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+
+                <div className='flex flex-col gap-1'>
+                  <p className='text-sm font-light'>Transaction call data (hex encoded)</p>
+                  <Tooltip label={CALLDATA_TOOLTIP_COPY}>
+                    <div className='h-5'>
+                      <AiOutlineInfoCircle className='text-black/70' />
+                    </div>
+                  </Tooltip>
+                </div>
+
+                {!isLoading ? (
+                  <div className='flex gap-4'>
+                    <Input value={isLoading ? '' : callData || ''} readOnly placeholder='Loading...' />
+                    <Button onClick={copyCallData} disabled={!callData} variant='outline' className='border-gray-300'>
+                      Copy
+                      <FiCopy className='ml-1 h-4 w-4' />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className='flex items-center justify-center'>
+                    <Spinner />
+                  </div>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    </div>
+  );
+};
+
+export { BottomMenu };

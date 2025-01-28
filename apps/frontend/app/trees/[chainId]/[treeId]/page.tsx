@@ -2,7 +2,7 @@ import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider } from 'contexts';
 import { first, get, pick, toNumber } from 'lodash';
 import { Metadata } from 'next';
-import { TreePage, TreePageMobile } from 'pages';
+import { TreePage, TreePageMobile } from 'organisms';
 import { SearchParamsProps } from 'types';
 import { fetchHatsDetailsMesh, logger } from 'utils';
 

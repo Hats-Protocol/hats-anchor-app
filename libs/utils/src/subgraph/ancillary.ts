@@ -1,4 +1,4 @@
-import { ANCILLARY_API_URL } from '@hatsprotocol/constants';
+import { ANCILLARY_API_URL } from '@hatsprotocol/config';
 import { gql, GraphQLClient } from 'graphql-request';
 import {
   ElectionsAuthority,

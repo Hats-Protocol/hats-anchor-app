@@ -4,6 +4,15 @@
 
 @layer base {
   :root {
+    /* INFORMATIVE */
+    --Informative-Human: #b83280;
+    --Informative-Code: #2c7a7b;
+    /* FUNCTIONAL */
+    --Functional-Success: #25855a;
+    --Functional-Error: #c53030;
+    --Functional-LinkPrimary: #2b6cb0;
+    --Functional-LinkSecondary: #718096;
+
     --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
 
@@ -76,6 +85,8 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }

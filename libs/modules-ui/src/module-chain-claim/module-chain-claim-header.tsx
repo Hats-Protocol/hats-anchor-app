@@ -1,11 +1,12 @@
-import { Button, HStack, Icon, Text } from '@chakra-ui/react';
 import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { useEligibility, useOverlay } from 'contexts';
+import { useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
@@ -26,6 +27,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
     isWearing,
   } = useEligibility();
   const eligibilityRules = flatten(rawEligibilityRules);
+  const { data: offchainCouncilDetails } = useOffchainCouncilDetails({ chainId, hsg: hsgAddress });
 
   // in cases where there's one module to complete the action and claim the hat, it likely has a readyToClaim status
   const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v)); // TODO check that this is the only one/not already eligible
@@ -38,6 +40,16 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
     // intentionally excluding setActiveRule from the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligibilityRules, activeRule]);
+
+  // TODO check this value ASAP
+  const labeledModules = useMemo(() => {
+    if (!offchainCouncilDetails) return undefined;
+    return {
+      selection: get(offchainCouncilDetails, 'creationForm.selectionModule', '0x') as Hex,
+      criteria: get(offchainCouncilDetails, 'creationForm.criteriaModule', '0x') as Hex,
+    };
+  }, [offchainCouncilDetails]);
+  console.log('labeledModules', labeledModules);
 
   const { handleClaim } = useClaimFn({
     selectedHat: selectedHat as AppHat,
@@ -95,31 +107,27 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
       <div className='flex justify-between'>
         <h2 className='text-2xl font-bold'>Comply with {size(eligibilityRules)} rules to claim this role</h2>
 
-        <HStack>
-          <Text color={isReadyToClaim ? 'green.500' : 'red.500'} fontWeight='semibold' size='xl'>
+        <div className='flex items-center gap-2'>
+          <p className='text-xl font-semibold'>
             {completedRules}/{size(eligibilityRules)}
-          </Text>
+          </p>
           {isReadyToClaim ? (
-            <Icon as={BsCheckSquareFill} color='green.500' />
+            <BsCheckSquareFill className='h-6 w-6 text-green-500' />
           ) : (
-            <Icon as={BsFillXOctagonFill} color='red.500' />
+            <BsFillXOctagonFill className='h-6 w-6 text-red-500' />
           )}
-        </HStack>
+        </div>
       </div>
 
       <div className='flex items-center justify-between'>
-        <ModuleChainClaimButtons />
+        <ModuleChainClaimButtons labeledModules={labeledModules} />
 
         {chainId !== currentChainId ? (
-          <Button variant='outlineMatch' colorScheme='blue.500' onClick={() => switchChain({ chainId })}>
+          <Button variant='outline-blue' onClick={() => switchChain({ chainId })}>
             Change Chain
           </Button>
         ) : (
-          <Button
-            isDisabled={!address || chainId !== currentChainId || !isReadyToClaim}
-            onClick={handleClaimClick}
-            variant='primary'
-          >
+          <Button disabled={!address || chainId !== currentChainId || !isReadyToClaim} onClick={handleClaimClick}>
             Claim {isWearing ? 'Signer' : ''}
           </Button>
         )}

@@ -30,7 +30,7 @@ const SignerIndicator = ({
   return <div className='h-2 w-12 rounded-full bg-gray-700' />;
 };
 
-export const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorProps) => {
+const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorProps) => {
   if (!isNumber(threshold) || !isNumber(signers) || !isNumber(maxSigners)) return null;
   // TODO better loading state
 
@@ -61,3 +61,5 @@ interface SignersIndicatorProps {
   signers: number | undefined;
   maxSigners: number | undefined;
 }
+
+export { SignersIndicator };

@@ -1,32 +1,17 @@
 'use client';
 
-import {
-  Avatar,
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Image,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Skeleton,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
 import { usePrivy } from '@privy-io/react-auth';
-import { useMediaStyles } from 'hooks';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
+import { Button, OblongAvatar, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
+import { useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 const Login = () => {
-  const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail, linkWallet } = usePrivy();
-  const { address } = useAccount();
+  const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail } = usePrivy();
+  // const { address } = useAccount();
   const chainId = useChainId();
   const { data: ensName } = useEnsName({ address: user?.wallet?.address ?? undefined, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
@@ -43,80 +28,47 @@ const Login = () => {
   }, [user]);
 
   if (!ready) {
-    return <Skeleton w={{ base: '100px', md: '200px' }} h='40px' borderRadius='md' />;
+    return <Skeleton className='h-10 w-[100px] rounded-md md:w-[200px]' />;
   }
 
   if (!user || !authenticated || !user.wallet) {
     return (
-      <Button onClick={login} variant='whiteFilled' size='md' height='40px'>
+      <Button onClick={login} variant='outline' className='h-10'>
         Login
       </Button>
     );
   }
 
   return (
-    <HStack spacing={1}>
+    <div className='flex items-center gap-1'>
       <Button
         disabled
-        p={0}
-        w='36px'
-        h='36px'
-        minW='36px'
-        borderWidth='1px'
-        borderColor='gray.200'
-        borderRadius='md'
-        bg='white'
-        _hover={{ bg: 'white' }}
-        _disabled={{
-          opacity: 1,
-          cursor: 'default',
-        }}
+        className='h-10 w-10 rounded-md border border-gray-200 bg-white p-0 hover:bg-white disabled:cursor-default disabled:opacity-100'
       >
-        {chainId && (
-          <Image src={chainsMap(chainId)?.iconUrl} alt='Chain Icon' width='24px' height='24px' objectFit='contain' />
-        )}
+        {chainId && <img src={chainsMap(chainId)?.iconUrl} alt='Chain Icon' className='max-w-auto size-7' />}
       </Button>
 
-      <Popover placement='bottom-end'>
+      <Popover>
         <PopoverTrigger>
-          <Button
-            p={0}
-            w='36px'
-            h='36px'
-            minW='36px'
-            borderWidth='1px'
-            borderColor='gray.200'
-            borderRadius='md'
-            bg='white'
-            _hover={{ bg: 'gray.50' }}
-          >
-            <Image
-              src={ensAvatar || fallbackAvatar}
-              alt='Profile'
-              width='24px'
-              height='24px'
-              borderRadius='full'
-              fallback={<Box bg='gray.100' w='24px' h='24px' borderRadius='full' />}
-            />
+          <Button className='h-10 w-10 rounded-md border border-gray-200 bg-white px-3 hover:bg-gray-50'>
+            <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-8 w-6' />
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent width='300px' bg='white' borderColor='gray.200'>
-          <PopoverBody py={4}>
-            <VStack spacing={4} align='stretch'>
-              <VStack align='center' spacing={2}>
-                <Box boxSize='48px' borderRadius='full' overflow='hidden'>
-                  <Image src={ensAvatar || fallbackAvatar} alt='Profile' width='100%' height='100%' objectFit='cover' />
-                </Box>
-                <Text fontWeight='medium'>{ensName || formatAddress(user.wallet.address as Hex)}</Text>
-              </VStack>
+        <PopoverContent className='border border-gray-200 bg-white'>
+          <div className='p-4'>
+            <div className='flex flex-col gap-4'>
+              <div className='flex items-center gap-2'>
+                <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-10 w-8' />
+                <p className='font-medium'>{ensName || formatAddress(user.wallet.address as Hex)}</p>
+              </div>
 
               {user.email && (
-                <VStack>
-                  <HStack justify='space-between'>
-                    <Text color='gray.500'>Email</Text>
-                    <Text>{user.email.address}</Text>
-                  </HStack>
+                <div className='flex flex-col gap-2'>
+                  <div className='flex items-center justify-between gap-1'>
+                    <p className='text-xs text-gray-500'>Email</p>
+                    <p className='text-sm'>{user.email.address}</p>
+                  </div>
                   <Button
                     size='sm'
                     variant='outline'
@@ -126,7 +78,7 @@ const Login = () => {
                   >
                     Unlink Email
                   </Button>
-                </VStack>
+                </div>
               )}
 
               {!user.email ? (
@@ -141,15 +93,15 @@ const Login = () => {
                 </Button>
               ) : null}
 
-              <Button size='sm' variant='solid' colorScheme='red' onClick={logout}>
+              <Button size='sm' variant='destructive' onClick={logout}>
                 Disconnect
               </Button>
-            </VStack>
-          </PopoverBody>
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
-    </HStack>
+    </div>
   );
 };
 
-export default Login;
+export { Login };

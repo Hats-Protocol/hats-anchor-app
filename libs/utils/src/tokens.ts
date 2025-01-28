@@ -1,5 +1,5 @@
-import { NETWORK_CURRENCY_IMAGE, TKN_ABI } from '@hatsprotocol/constants';
-import { MANUAL_EXCLUDE_TOKENS } from '@hatsprotocol/constants';
+import { TKN_ABI } from '@hatsprotocol/constants';
+import { MANUAL_EXCLUDE_TOKENS, NETWORK_CURRENCY_IMAGE } from '@hatsprotocol/config';
 import { eq, filter, get, includes, reject, toLower } from 'lodash';
 
 import { viemPublicClient } from './web3';

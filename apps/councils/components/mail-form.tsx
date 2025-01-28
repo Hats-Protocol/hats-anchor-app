@@ -1,10 +1,10 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
-import { Input } from 'forms';
+import { Form, Input } from 'forms';
 import { useForm } from 'react-hook-form';
+import { Button } from 'ui';
 
-export const MailForm = () => {
+const MailForm = () => {
   const localForm = useForm();
   const {
     formState: { isValid },
@@ -36,34 +36,38 @@ export const MailForm = () => {
 
   return (
     <div className='flex flex-col gap-4'>
-      <form>
-        <Input
-          name='to'
-          label='Email'
-          placeholder='v@hatsprotocol.xyz'
-          localForm={localForm}
-          options={{
-            required: true,
-            validate: (value) => value.endsWith('@hatsprotocol.xyz') || 'Must be a Hats Protocol email',
-          }}
-        />
-      </form>
+      <Form {...localForm}>
+        <form>
+          <Input
+            name='to'
+            label='Email'
+            placeholder='v@hatsprotocol.xyz'
+            localForm={localForm}
+            options={{
+              required: true,
+              validate: (value) => value.endsWith('@hatsprotocol.xyz') || 'Must be a Hats Protocol email',
+            }}
+          />
+        </form>
+      </Form>
 
       <div>
-        <Button variant='outline' onClick={handleSubmit(handleSendInvite)} isDisabled={!isValid}>
+        <Button variant='outline' onClick={handleSubmit(handleSendInvite)} disabled={!isValid}>
           Send &quot;You&apos;ve been invited&quot;
         </Button>
       </div>
       <div>
-        <Button variant='outline' onClick={handleSubmit(handleSendAdded)} isDisabled={!isValid}>
+        <Button variant='outline' onClick={handleSubmit(handleSendAdded)} disabled={!isValid}>
           Send &quot;You&apos;ve been added to a council&quot;
         </Button>
       </div>
       <div>
-        <Button variant='outline' onClick={handleSubmit(handleSendRemoved)} isDisabled={!isValid}>
+        <Button variant='outline' onClick={handleSubmit(handleSendRemoved)} disabled={!isValid}>
           Send &quot;You&apos;ve been removed from a council&quot;
         </Button>
       </div>
     </div>
   );
 };
+
+export { MailForm };

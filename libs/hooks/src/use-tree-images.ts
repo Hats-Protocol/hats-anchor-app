@@ -1,0 +1,60 @@
+import { useQuery } from '@tanstack/react-query';
+import { checkImageIsValid } from 'hats-utils';
+import _ from 'lodash';
+import { AppHat } from 'types';
+
+const getAncestors = (hat: AppHat, hats: AppHat[]) => {
+  const ancestors: AppHat[] = [];
+  let currentHat = hat;
+  while (currentHat.admin?.id) {
+    if (currentHat.admin?.id === currentHat.id) break;
+    const parent = _.find(hats, { id: currentHat.admin?.id });
+    if (parent) {
+      ancestors.push(parent);
+      currentHat = parent;
+    } else {
+      break;
+    }
+  }
+  return ancestors;
+};
+
+const treeImages = async (images: string[] | undefined, hats: AppHat[] | undefined) => {
+  if (!images || _.isEmpty(images) || !hats) return [];
+
+  const promises = _.map(images, (image: string) => checkImageIsValid(image).catch((e) => null));
+  const imageUrls = await Promise.all(promises);
+
+  // iterate through the hats in the tree and assign one of hat images based on ancestry
+  const hatsWithImages = _.map(hats, (hat: AppHat) => {
+    const ancestry = getAncestors(hat, hats);
+    const image = _.find(ancestry, (h: AppHat) => h.imageUri !== '');
+    // get image url from ancestor
+    const imageIndex = _.findIndex(
+      images,
+      (v: string) => v === (hat?.imageUri !== '' ? hat?.imageUri : image?.imageUri),
+    );
+    const imageUrl = imageUrls[imageIndex] || '/icon.jpeg';
+    return { ...hat, imageUrl };
+  });
+
+  return hatsWithImages;
+};
+
+// ! MOSTLY DEPRECATED IN THE MAIN APP, LEVERAGING THE MESH TO FETCH NEAREST IMAGES
+
+const useTreeImages = ({ hats, editMode }: { hats: AppHat[] | undefined; editMode?: boolean }) => {
+  const images = _.uniq(_.map(hats, 'imageUri'));
+  const actualImages = _.filter(images, (image: string) => image && image !== '') as string[];
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['treeImages', actualImages, _.map(hats, 'id')],
+    queryFn: () => treeImages(actualImages, hats),
+    enabled: !_.isEmpty(hats),
+    staleTime: editMode ? Infinity : 1000 * 60 * 60 * 24,
+  });
+
+  return { data, isLoading, error };
+};
+
+export { useTreeImages };

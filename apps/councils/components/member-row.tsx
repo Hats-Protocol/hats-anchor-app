@@ -1,6 +1,5 @@
 'use client';
 
-import { Button, Checkbox, Icon } from '@chakra-ui/react';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useOverlay } from 'contexts';
 import { get, map } from 'lodash';
@@ -8,7 +7,7 @@ import { useCurrentEligibility } from 'modules-hooks';
 import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, OffchainCouncilData, SupportedChains } from 'types';
-import { MemberAvatar } from 'ui';
+import { BaseCheckbox, Button, MemberAvatar } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -42,6 +41,7 @@ const MemberRow = ({
   });
   const { watch, setValue } = form;
   const isSelected = watch(member.address);
+  const isSigner = false;
 
   if (!member) return null;
 
@@ -61,9 +61,9 @@ const MemberRow = ({
     <div className='flex h-16 justify-between border-b border-gray-200'>
       <div className='flex items-center'>
         <div className='flex w-12 items-center justify-center'>
-          <Checkbox
+          <BaseCheckbox
             name={member.address}
-            isChecked={isSelected}
+            checked={isSelected}
             onChange={() => setValue(member.address, !isSelected)}
           />
         </div>
@@ -74,43 +74,65 @@ const MemberRow = ({
 
       <div className='flex items-center'>
         <div className='flex h-full w-28 items-center justify-center gap-1'>
-          <p className='text-green-700'>Yes</p>
-          <Icon as={BsCheckSquareFill} color='green.500' />
+          <p className='text-functional-success'>Yes</p>
+          <BsCheckSquareFill className='text-functional-success' />
         </div>
 
         {map(remainingModules, (rule) => {
           const moduleEligibility = get(currentEligibility, rule.address);
           const isEligible = get(moduleEligibility, 'eligible') && get(moduleEligibility, 'goodStanding');
           return (
-            <div className='flex h-full w-28 items-center justify-center gap-1' key={rule.address}>
+            <div
+              className='flex h-full w-28 items-center justify-center gap-1'
+              key={`${rule.address}-${member.address}`}
+            >
               {isEligible ? (
                 <>
-                  <p className='text-green-700'>Yes</p>
-                  <Icon as={BsCheckSquareFill} color='green.500' key={`${rule.address}-${member.address}`} />
+                  <p className='text-functional-success'>Yes</p>
+                  <BsCheckSquareFill className='text-functional-success' />
                 </>
               ) : (
                 <>
-                  <p className='text-red-700'>No</p>
-                  <Icon as={BsXSquareFill} color='red.500' key={`${rule.address}-${member.address}`} />
+                  <p className='text-destructive'>No</p>
+
+                  <BsXSquareFill className='text-destructive' />
                 </>
               )}
             </div>
           );
         })}
 
+        <div className='flex h-full w-28 items-center justify-center gap-1'>
+          {isSigner ? (
+            <>
+              <p className='text-functional-success'>Yes</p>
+              <BsCheckSquareFill className='text-functional-success' />
+            </>
+          ) : (
+            <>
+              <p className='text-destructive'>No</p>
+              <BsXSquareFill className='text-destructive' />
+            </>
+          )}
+        </div>
+
         <div className='flex h-full w-48 items-center justify-center gap-4'>
-          <Button
-            variant='link'
-            color='blue.500'
-            leftIcon={canEdit ? <Icon as={BsPencilSquare} /> : undefined}
-            onClick={viewUser}
-          >
+          <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
+            {canEdit && <BsPencilSquare />}
             {canEdit ? 'Edit' : 'Details'}
           </Button>
 
-          <Button variant='link' color='Functional-Error' onClick={removeUser} isDisabled={!userAddress}>
-            Remove
-          </Button>
+          {userAddress && canEdit && (
+            <Button
+              variant='link'
+              size='link'
+              className='text-destructive'
+              onClick={removeUser}
+              disabled={!userAddress}
+            >
+              Remove
+            </Button>
+          )}
         </div>
       </div>
 

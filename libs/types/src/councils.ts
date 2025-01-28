@@ -56,7 +56,7 @@ export interface CouncilFormData {
   // step 1
   organizationName: string;
   councilName: string;
-  chain: string;
+  chain: { value: string; label: string; icon: string };
   councilDescription?: string;
   // step 2
   thresholdType: 'ABSOLUTE' | 'RELATIVE';
@@ -88,7 +88,7 @@ export interface CouncilFormData {
   };
   acceptedTerms?: boolean;
   tokenRequirement: {
-    address: string;
+    address: { value: string; label: string } | undefined;
     minimum: number;
   };
   creator: string;
@@ -110,13 +110,13 @@ export interface CouncilFormResponse {
     membersSelectionType: 'ALLOWLIST' | 'ELECTION' | null;
     members: CouncilMember[];
     admins: CouncilMember[];
-    complianceAdmins: CouncilMember[];
-    createComplianceAdminRole: boolean;
     memberRequirements: {
       signAgreement: boolean;
       holdTokens: boolean;
       passCompliance: boolean;
     };
+    complianceAdmins: CouncilMember[];
+    createComplianceAdminRole: boolean;
     agreement?: string;
     createAgreementAdminRole: boolean;
     agreementAdmins: CouncilMember[];

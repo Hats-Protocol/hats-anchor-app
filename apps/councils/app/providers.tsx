@@ -1,11 +1,14 @@
 'use client';
 
 import '../public/style.css';
+import './global.css';
+import '@rainbow-me/rainbowkit/styles.css';
 import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';
+import '@uiw/react-md-editor/markdown-editor.css';
 
-import { ChakraBaseProvider } from '@chakra-ui/react';
-import { councilsChainsList } from '@hatsprotocol/constants';
+import { councilsChainsList } from '@hatsprotocol/config';
 import { PrivyProvider } from '@privy-io/react-auth';
 import { WagmiProvider } from '@privy-io/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -14,7 +17,6 @@ import { OverlayContextProvider } from 'contexts';
 import { values } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
-import { theme } from 'ui';
 import { privyConfig } from 'utils';
 
 // TODO use standalone & fix exporting of waitForTransaction
@@ -83,14 +85,12 @@ const Providers = ({ children }: ProvidersProps) => {
         },
       }}
     >
-      <ChakraBaseProvider theme={theme}>
-        <QueryClientProvider client={queryClient}>
-          <WagmiProvider config={privyConfig()}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <OverlayContextProvider>{children}</OverlayContextProvider>
-          </WagmiProvider>
-        </QueryClientProvider>
-      </ChakraBaseProvider>
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={privyConfig()}>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <OverlayContextProvider>{children}</OverlayContextProvider>
+        </WagmiProvider>
+      </QueryClientProvider>
     </PrivyProvider>
   );
 };
