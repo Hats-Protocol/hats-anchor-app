@@ -34,7 +34,7 @@ const CouncilButtons = () => {
             <Button
               variant={pathname.includes(href) ? 'default' : 'outline'}
               className={cn(
-                'rounded-none border border-black',
+                'rounded-none border border-black font-normal',
                 isFirst ? 'rounded-l-full' : isLast ? 'rounded-r-full' : '',
               )}
             >

@@ -4,6 +4,7 @@ import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { eq, find, get } from 'lodash';
 import dynamic from 'next/dynamic';
+import { IconType } from 'react-icons';
 import { hatLink, ModuleDetailsHandler } from 'utils';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetails, TOGGLE_STATUS } from '../eligibility-rules';
@@ -22,7 +23,7 @@ export const PassthroughEligibility = ({ moduleParameters, chainId }: ModuleDeta
       status={ELIGIBILITY_STATUS.hat}
       displayStatus={passthroughHatDisplay}
       displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
-      icon={HatIcon}
+      icon={HatIcon as IconType}
     />
   );
 };
@@ -38,7 +39,7 @@ export const PassthroughToggle = ({ moduleParameters, chainId }: ModuleDetailsHa
       status={TOGGLE_STATUS.hat}
       displayStatus={passthroughHatDisplay}
       displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
-      icon={HatIcon}
+      icon={HatIcon as IconType}
     />
   );
 };

@@ -33,7 +33,7 @@ const Login = () => {
 
   if (!user || !authenticated || !user.wallet) {
     return (
-      <Button onClick={login} variant='outline' size='sm' className='h-10'>
+      <Button onClick={login} variant='outline' className='h-10'>
         Login
       </Button>
     );

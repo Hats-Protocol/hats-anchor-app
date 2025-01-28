@@ -1,6 +1,6 @@
+import { chainsList } from '@hatsprotocol/config';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { chainsList } from '@hatsprotocol/config';
 import _ from 'lodash';
 import { IconName } from 'react-cmdk';
 import { idToIp } from 'shared';

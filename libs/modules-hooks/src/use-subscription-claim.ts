@@ -16,7 +16,7 @@ import { useLockFromHat } from './use-lock-from-hat';
 
 const useSubscriptionClaim = ({ moduleParameters, chainId, setStatus, handlePendingTx }: UseSubscriptionClaimProps) => {
   const { address } = useAccount();
-  const toast = useToast();
+  const { toast } = useToast();
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
   const { keyPrice, price, currencyContract, lockAddress, allowance, tokenBalance, symbol } = useLockFromHat({
@@ -58,7 +58,7 @@ const useSubscriptionClaim = ({ moduleParameters, chainId, setStatus, handlePend
       .then(async (hash) => {
         if (!chainId) return;
 
-        toast.info({
+        toast({
           title: 'Transaction pending',
           description: 'Waiting for the transaction to be accepted',
         });
@@ -75,9 +75,10 @@ const useSubscriptionClaim = ({ moduleParameters, chainId, setStatus, handlePend
         // eslint-disable-next-line no-console
         console.log(err);
         if (err.message.includes('User rejected the request')) {
-          toast.error({
+          toast({
             title: 'Transaction failed',
             description: 'User rejected the request',
+            variant: 'destructive',
           });
         }
         setStatus(CLAIM_STATUS.FAILED);

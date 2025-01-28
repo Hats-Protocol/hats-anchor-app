@@ -147,7 +147,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           />
 
           <div className='flex'>
-            <Button variant='outline' onClick={() => setModals?.({ hsgThreshold: true })}>
+            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
               Change Threshold
             </Button>
           </div>
@@ -173,7 +173,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           </div>
 
           <div className='flex'>
-            <Button variant='outline' onClick={() => setModals?.({ 'addUser-admin': true })}>
+            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
               Add Council Manager
             </Button>
           </div>
@@ -214,7 +214,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           </div>
 
           <div className='flex'>
-            <Button variant='outline' disabled>
+            <Button variant='outline-blue' rounded='full' disabled>
               Transfer Ownership
             </Button>
           </div>

@@ -187,8 +187,7 @@ export const AllowanceActions = ({
                     queryKey: ['readContracts'],
                   });
                 }}
-                variant='primary'
-                isDisabled={
+                disabled={
                   (!isUndefined(allowance) && !isUndefined(amountToApprove) && allowance >= amountToApprove) ||
                   !address ||
                   (!!isOneTime && !!keyBalance && keyBalance >= BigInt(0))
@@ -245,7 +244,7 @@ export const AllowanceActions = ({
               }, 1000);
             }}
             variant='link'
-            isDisabled={!isUndefined(allowance) && allowance === maxUint256}
+            disabled={!isUndefined(allowance) && allowance === maxUint256}
             txDescription='Cancel subscription for Hat'
             chainId={chainId}
           >

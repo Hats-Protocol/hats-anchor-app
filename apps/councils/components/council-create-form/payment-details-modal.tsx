@@ -38,7 +38,6 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
   const chainId = toNumber(selectedChain);
   const { modals, setModals } = useOverlay();
   const councilName = parentForm.watch('councilName');
-  console.log(parentForm.watch('payer'));
 
   const modalForm = useForm({
     defaultValues: {
@@ -94,7 +93,6 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
     //   setFormError('Please enter a valid Ethereum address');
     //   return;
     // }
-    console.log('data', data);
 
     try {
       const userData = await createUserMutation.mutateAsync(data);
@@ -151,67 +149,65 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
     <Modal name='paymentDetailsModal' title='Invoicing Details' size='2xl'>
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='relative rounded-lg bg-white'>
-          <div className='p-6'>
-            <div className='space-y-6'>
-              <div className='space-y-2'>
-                <h3 className='text-base font-bold text-gray-900'>Monthly</h3>
-                <p className='text-gray-600'>Here&apos;s some text that explains how invoices work.</p>
-                <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
-                  <UsdcIcon />
-                  299 USDC / month
-                </p>
-              </div>
-
-              <div className='space-y-2'>
-                <label className='font-bold'>
-                  Email <span className='text-sm font-normal text-gray-400'>Hidden</span>
-                </label>
-                <Input
-                  name='email'
-                  localForm={modalForm}
-                  placeholder='Email address'
-                  options={{
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address',
-                    },
-                  }}
-                  isDisabled={!canEdit}
-                />
-              </div>
-
-              <div className='space-y-2'>
-                <label className='font-bold'>Your Name</label>
-                <Input name='name' localForm={modalForm} placeholder='Full name' isDisabled={!canEdit} />
-              </div>
-
-              <div className='space-y-2'>
-                <label className='font-bold'>
-                  {chainsMap(chainId)?.name} Account <span className='text-sm font-normal text-gray-400'>Optional</span>
-                </label>
-                <AddressInput
-                  name='address'
-                  localForm={modalForm}
-                  hideAddressButtons
-                  chainId={chainId as SupportedChains}
-                  isDisabled={!canEdit}
-                />
-              </div>
-              <div className='space-y-2'>
-                <label className='font-bold'>
-                  Telegram Handle <span className='text-sm font-normal text-gray-400'>Optional</span>
-                </label>
-                <Input name='telegram' localForm={modalForm} placeholder='@username' isDisabled={!canEdit} />
-              </div>
+          <div className='space-y-6'>
+            <div className='space-y-2'>
+              <h3 className='text-base font-bold text-gray-900'>Monthly</h3>
+              <p className='text-gray-600'>Here&apos;s some text that explains how invoices work.</p>
+              <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
+                <UsdcIcon />
+                299 USDC / month
+              </p>
             </div>
 
-            <div className='mt-8'>
-              {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
-              <div className='flex justify-end'>
-                <NextStepButton type='submit' disabled={!isFormValid() || !canEdit || loading} withIcon={false}>
-                  {loading ? 'Submitting...' : 'Submit details'}
-                </NextStepButton>
-              </div>
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Email <span className='text-sm font-normal text-gray-400'>Hidden</span>
+              </label>
+              <Input
+                name='email'
+                localForm={modalForm}
+                placeholder='Email address'
+                options={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+                isDisabled={!canEdit}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>Your Name</label>
+              <Input name='name' localForm={modalForm} placeholder='Full name' isDisabled={!canEdit} />
+            </div>
+
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                {chainsMap(chainId)?.name} Account <span className='text-sm font-normal text-gray-400'>Optional</span>
+              </label>
+              <AddressInput
+                name='address'
+                localForm={modalForm}
+                hideAddressButtons
+                chainId={chainId as SupportedChains}
+                isDisabled={!canEdit}
+              />
+            </div>
+            <div className='space-y-2'>
+              <label className='font-bold'>
+                Telegram Handle <span className='text-sm font-normal text-gray-400'>Optional</span>
+              </label>
+              <Input name='telegram' localForm={modalForm} placeholder='@username' isDisabled={!canEdit} />
+            </div>
+          </div>
+
+          <div className='mt-8'>
+            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
+            <div className='flex justify-end'>
+              <NextStepButton type='submit' disabled={!isFormValid() || !canEdit || loading} withIcon={false}>
+                {loading ? 'Submitting...' : 'Submit details'}
+              </NextStepButton>
             </div>
           </div>
         </form>

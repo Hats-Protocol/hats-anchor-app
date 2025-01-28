@@ -37,7 +37,7 @@ const getPredictedAddress = async ({
 
 const useHatsAccounts = ({ hatId, chainId }: { hatId?: Hex; chainId: SupportedChains | undefined }) => {
   // const queryClient = useQueryClient();
-  const toast = useToast();
+  const { toast } = useToast();
   const { address } = useAccount();
 
   const {
@@ -65,7 +65,7 @@ const useHatsAccounts = ({ hatId, chainId }: { hatId?: Hex; chainId: SupportedCh
         salt: SALT,
       });
 
-      toast.info({
+      toast({
         title: 'Transaction successful',
         description: 'The hats wallet account has been successfully deployed',
       });
@@ -75,9 +75,10 @@ const useHatsAccounts = ({ hatId, chainId }: { hatId?: Hex; chainId: SupportedCh
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e);
-      toast.error({
+      toast({
         title: 'Transaction failed',
         description: 'The hats wallet account deployment failed',
+        variant: 'destructive',
       });
       return undefined;
     }

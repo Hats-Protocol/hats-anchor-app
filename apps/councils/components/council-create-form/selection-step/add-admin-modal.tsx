@@ -17,7 +17,7 @@ interface AddAdminModalProps {
 }
 
 export function AddAdminModal({ form: parentForm, editingAdmin, setEditingAdmin, canEdit = true }: AddAdminModalProps) {
-  const selectedChain = parentForm.watch('chain');
+  const selectedChain = parentForm.watch('chain')?.value;
   const chainId = getChainId(selectedChain);
   const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();

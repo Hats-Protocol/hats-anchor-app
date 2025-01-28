@@ -19,7 +19,7 @@ interface HsgFunctionCallProps {
 
 const useCallHsgFunction = ({ chainId }: { chainId: SupportedChains | undefined }) => {
   const { address } = useAccount();
-  const toast = useToast();
+  const { toast } = useToast();
 
   const callFunction = useCallback(
     async ({ type, instance, func, onSuccess, args }: HsgFunctionCallProps) => {
@@ -47,7 +47,7 @@ const useCallHsgFunction = ({ chainId }: { chainId: SupportedChains | undefined 
         });
 
         if (result?.status === 'success') {
-          toast.success({
+          toast({
             title: 'Transaction confirmed',
             description: 'Your transaction has been confirmed',
           });
@@ -56,9 +56,10 @@ const useCallHsgFunction = ({ chainId }: { chainId: SupportedChains | undefined 
         }
       } catch (error) {
         const err = error as Error;
-        toast.error({
+        toast({
           title: 'Transaction failed',
           description: err.message,
+          variant: 'destructive',
         });
         // eslint-disable-next-line no-console
         console.log(error);

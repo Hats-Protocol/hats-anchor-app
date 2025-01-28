@@ -4,6 +4,7 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useWearerDetails } from 'hats-hooks';
 import { find, get, includes, map } from 'lodash';
 import dynamic from 'next/dynamic';
+import { IconType } from 'react-icons';
 import { BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { Link } from 'ui';
@@ -45,7 +46,7 @@ export const HatWearingEligibilityRule = ({ moduleParameters, wearer, chainId }:
         }
         status={ELIGIBILITY_STATUS.eligible}
         displayStatus='Wearer'
-        icon={WearerIcon}
+        icon={WearerIcon as IconType}
       />
     );
   }

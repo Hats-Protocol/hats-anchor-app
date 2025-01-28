@@ -17,7 +17,7 @@ const ShowTreesButton = ({ chainId }: { chainId: number }) => {
   return (
     <LinkButton
       href={showKey === SHOW_KEY.me || !showKey ? `/trees/${chainId}?show=all` : `/trees/${chainId}?show=me`}
-      variant='ghostBg'
+      variant='outline-blue'
     >
       Show {showKey === SHOW_KEY.all && address ? 'my' : 'all'}
       <span className='hidden md:inline'> {CONFIG.TERMS.trees}</span>

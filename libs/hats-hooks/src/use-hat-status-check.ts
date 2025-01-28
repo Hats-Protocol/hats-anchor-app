@@ -13,7 +13,7 @@ import { useChainId, useWriteContract } from 'wagmi';
 // TODO should wrap useHatContractWrite
 
 const useHatStatusCheck = ({ hatData, chainId, handlePendingTx }: UseHatStatusCheckProps) => {
-  const toast = useToast();
+  const { toast } = useToast();
   const currentNetworkId = useChainId();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -40,7 +40,7 @@ const useHatStatusCheck = ({ hatData, chainId, handlePendingTx }: UseHatStatusCh
   const onSuccess = async (d?: TransactionReceipt) => {
     const logs = _.get(d, 'logs');
     if (logs?.length === 0) {
-      toast.success({
+      toast({
         title: txDescription,
         description: `No change: Hat Status remains ${hatStatus}`,
       });
@@ -48,7 +48,7 @@ const useHatStatusCheck = ({ hatData, chainId, handlePendingTx }: UseHatStatusCh
       const logData = _.get(_.first(logs), 'data');
       const newHatStatus = _.first(_.slice(logData, -1, _.size(logData))) === '1' ? STATUS.ACTIVE : STATUS.INACTIVE;
 
-      toast.success({
+      toast({
         title: txDescription,
         description: `Hat Status Changed to ${newHatStatus}`,
       });
@@ -75,7 +75,7 @@ const useHatStatusCheck = ({ hatData, chainId, handlePendingTx }: UseHatStatusCh
       .then((hash) => {
         setIsLoading(true);
 
-        toast.info({
+        toast({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
         });
@@ -95,14 +95,16 @@ const useHatStatusCheck = ({ hatData, chainId, handlePendingTx }: UseHatStatusCh
           (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
-          toast.error({
+          toast({
             title: 'Signature rejected!',
             description: 'Please accept the transaction in your wallet',
+            variant: 'destructive',
           });
         } else {
-          toast.error({
+          toast({
             title: 'Error occurred!',
             description: 'An error occurred while processing the transaction.',
+            variant: 'destructive',
           });
         }
       });

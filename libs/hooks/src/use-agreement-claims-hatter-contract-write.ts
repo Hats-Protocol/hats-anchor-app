@@ -31,7 +31,7 @@ const useAgreementClaimsHatterContractWrite = ({
 }: ContractInteractionProps) => {
   const localEnabled = !!address && chainId === 10 && !!functionName && enabled;
 
-  const toast = useToast();
+  const { toast } = useToast();
 
   const { writeContractAsync } = useWriteContract();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
@@ -46,7 +46,7 @@ const useAgreementClaimsHatterContractWrite = ({
       functionName,
     })
       .then(async (hash) => {
-        toast.info({
+        toast({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
         });
@@ -68,12 +68,12 @@ const useAgreementClaimsHatterContractWrite = ({
           (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
-          toast.error({
+          toast({
             title: 'Signature rejected!',
             description: 'Please accept the transaction in your wallet',
           });
         } else {
-          toast.error({
+          toast({
             title: 'Transaction failed',
             description: 'Please try again later',
           });

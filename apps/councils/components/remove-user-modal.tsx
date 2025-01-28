@@ -3,7 +3,7 @@
 import { Module, Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
-import { RadioBox } from 'forms';
+import { Form, RadioBox } from 'forms';
 import { find, flatten, forEach, get, has, map } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useMemo, useState } from 'react';
@@ -157,20 +157,24 @@ function RemoveUserModal({
 
   return (
     <Modal name={`removeUser-${type}-${user?.address}`} title={`Remove ${userLabel || 'Council Member'}`}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <RadioBox
-          name='reason'
-          label={`Why are you removing this ${userLabel || 'Council Member'}?`}
-          options={reasonOptions}
-          localForm={form}
-        />
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <RadioBox
+            name='reason'
+            label={`Why are you removing this ${userLabel || 'Council Member'}?`}
+            options={reasonOptions}
+            localForm={form}
+          />
 
-        <div className='mt-8'>
-          <div className='flex justify-end'>
-            <Button type='submit'>Remove</Button>
+          <div className='mt-8'>
+            <div className='flex justify-end'>
+              <Button type='submit' variant='destructive'>
+                Remove
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 }

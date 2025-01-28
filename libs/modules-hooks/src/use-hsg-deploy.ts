@@ -20,7 +20,7 @@ const DEPLOY_TYPE = {
 const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onError }: UseHsgDeployProps) => {
   const waitForSubgraph = useWaitForSubgraph({ chainId });
   const queryClient = useQueryClient();
-  const toast = useToast();
+  const { toast } = useToast();
 
   // Could pass through values individually if not used in a form
   const { watch } = localForm;
@@ -100,14 +100,16 @@ const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onErr
         (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
         error.message.includes('User rejected the request')
       ) {
-        toast.error({
+        toast({
           title: 'Signature rejected!',
           description: 'Please accept the transaction in your wallet',
+          variant: 'destructive',
         });
       } else {
-        toast.error({
+        toast({
           title: 'Error occurred!',
           description: 'An error occurred while processing the transaction.',
+          variant: 'destructive',
         });
       }
     },

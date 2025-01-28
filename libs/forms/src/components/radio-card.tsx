@@ -3,7 +3,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { BaseCheckbox, cn, RadioGroup, Tooltip } from 'ui';
+import { cn, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
@@ -82,8 +82,7 @@ const RadioCard = ({
                         className={cn(
                           'flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4',
                           option.disabled && 'cursor-not-allowed',
-                          field.value === option.value &&
-                            'border-functional-link-primary bg-functional-link-primary/10',
+                          field.value === option.value && 'border-functional-link-primary shadow',
                         )}
                         onClick={() => !option.disabled && field.onChange(option.value)}
                       >
@@ -105,12 +104,13 @@ const RadioCard = ({
                             </div>
                           </div>
                           {!option.disabled ? (
-                            <BaseCheckbox
-                              onCheckedChange={(v) => {
-                                field.onChange(option.value);
-                              }}
-                              checked={field.value === option.value}
+                            <RadioGroupItem
+                              // onChange={(v) => {
+                              //   field.onChange(option.value);
+                              // }}
+                              // checked={field.value === option.value}
                               className='pointer-none text-functional-link-primary'
+                              value={option.value}
                             />
                           ) : (
                             <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>

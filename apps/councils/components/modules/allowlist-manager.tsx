@@ -57,7 +57,12 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
         </div>
 
         <div className='flex'>
-          <Button variant='outline' onClick={() => setModals?.({ 'addUser-compliance': true })} disabled>
+          <Button
+            variant='outline-blue'
+            rounded='full'
+            onClick={() => setModals?.({ 'addUser-compliance': true })}
+            disabled
+          >
             Add Compliance Manager
           </Button>
         </div>

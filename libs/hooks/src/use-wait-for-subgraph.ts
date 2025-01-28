@@ -39,7 +39,7 @@ const useWaitForSubgraph = ({
   sendToast?: boolean;
   interval?: number;
 }) => {
-  const toast = useToast();
+  const { toast } = useToast();
 
   const waitForBlock = async (data: TransactionReceipt | undefined) =>
     new Promise((resolve, reject) => {
@@ -58,7 +58,7 @@ const useWaitForSubgraph = ({
 
             clearInterval(intervalId);
 
-            toast.success({
+            toast({
               title: 'Subgraph updated!',
             });
             return resolve(subgraphBlockNumber);
@@ -66,9 +66,10 @@ const useWaitForSubgraph = ({
           .catch((e) => {
             // eslint-disable-next-line no-console
             console.log(e);
-            toast.error({
+            toast({
               title: 'Error',
               description: 'An error occurred while waiting for subgraph',
+              variant: 'destructive',
             });
             clearInterval(intervalId);
             return reject(e);
@@ -79,7 +80,7 @@ const useWaitForSubgraph = ({
       checkBlockHandler();
 
       if (sendToast) {
-        toast.info({
+        toast({
           title: 'Waiting for subgraph...',
         });
       }

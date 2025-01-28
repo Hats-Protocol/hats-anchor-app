@@ -10,6 +10,7 @@ export default defineConfig({
   clean: true,
   external: [
     '@hatsprotocol/details-sdk',
+    '@uiw/react-md-editor',
     '@privy-io/react-auth',
     'react',
     'react-dom',

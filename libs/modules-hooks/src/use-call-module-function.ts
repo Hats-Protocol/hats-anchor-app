@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { get, map } from 'lodash';
 import { useCallback } from 'react';
-import { ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
+import { ModuleFunction, SupportedChains } from 'types';
 import { createHatsModulesClient, invalidateAfterTransaction, transformInput, wagmiConfig } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
@@ -22,7 +22,7 @@ interface CallModuleFunction {
 
 const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefined }) => {
   const { address } = useAccount();
-  const toast: UseCustomToastReturn = useToast();
+  const { toast } = useToast();
   const { data: walletClient } = useWalletClient();
 
   const waitForSubgraph = useWaitForSubgraph({ chainId });
@@ -68,7 +68,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
           return;
         }
 
-        toast.info({
+        toast({
           title: 'Transaction pending',
           description: 'Waiting for transaction to be confirmed',
         });
@@ -79,7 +79,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
           hash: result.transactionHash,
         });
 
-        toast.info({
+        toast({
           title: 'Transaction confirmed',
           description: 'Waiting for the indexer to update',
         });
@@ -89,7 +89,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
         await invalidateAfterTransaction(chainId, result.transactionHash);
 
         if (result?.status === 'success') {
-          toast.success({
+          toast({
             title: 'Transaction confirmed',
             description: 'Your transaction has been confirmed',
           });
@@ -104,9 +104,10 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
           onDecline?.();
           return;
         }
-        toast.error({
+        toast({
           title: 'Transaction failed',
           description: error.message,
+          variant: 'destructive',
         });
       }
     },

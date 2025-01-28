@@ -2,7 +2,6 @@
 
 import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
-import { FormControl, FormLabel, Input } from 'forms';
 import { useToast } from 'hooks';
 import _ from 'lodash';
 import Papa from 'papaparse';
@@ -12,10 +11,11 @@ import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { AppHat, FormWearer, HatWearer } from 'types';
-import { DropZone, Button, ButtonProps, Tooltip, Collapsible, CollapsibleTrigger, CollapsibleContent } from 'ui';
+import { Button, ButtonProps, Collapsible, CollapsibleContent, CollapsibleTrigger, DropZone, Tooltip } from 'ui';
 import { viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
 
+import { FormControl, FormLabel, Input } from '..';
 import { AddressInput } from './address-input';
 
 // TODO add upload input/dropzone here
@@ -84,7 +84,7 @@ const MultiAddressInput = ({
     control,
     name,
   });
-  const toast = useToast();
+  const { toast } = useToast();
 
   const currentSupply = useMemo(() => _.toNumber(_.get(selectedHat, 'currentSupply')), [selectedHat]);
   const maxSupply = useMemo(
@@ -307,7 +307,7 @@ const MultiAddressInput = ({
         eligibleAddresses = _.filter(csvAddresses, (v: Hex, i: number) => eligibilityOfAddresses[i]);
         const ineligibleWearersCount = _.size(_.filter(eligibilityOfAddresses, (v: boolean) => !v));
         if (ineligibleWearersCount > 0) {
-          toast.info({
+          toast({
             title: `${ineligibleWearersCount} wearer${ineligibleWearersCount > 1 ? 's' : ''} ${
               ineligibleWearersCount > 1 ? 'were' : 'was'
             } not eligible to be added`,

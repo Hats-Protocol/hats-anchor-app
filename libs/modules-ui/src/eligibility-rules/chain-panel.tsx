@@ -4,7 +4,7 @@ import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useMediaStyles } from 'hooks';
 import { every, filter, find, flatten, get, keys, map, size } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, SupportedChains, WearerStatus } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from 'ui';
@@ -46,7 +46,7 @@ const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean
   );
 };
 
-export const ChainPanel = ({
+const ChainPanel = ({
   selectedHat,
   ruleSets,
   chainId,

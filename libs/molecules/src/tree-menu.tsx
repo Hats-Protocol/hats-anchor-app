@@ -105,7 +105,7 @@ const TreeMenu = () => {
             <PopoverContent className='w-80'>
               <div className='p-6'>
                 <RadioGroup
-                  onChange={(e) => setSelectedOption?.(e.currentTarget)}
+                  onValueChange={(value) => setSelectedOption?.(value)}
                   value={selectedOption}
                   className='w-full'
                 >
@@ -121,7 +121,10 @@ const TreeMenu = () => {
                   </div>
                 </RadioGroup>
                 <hr className='my-4' />
-                <BaseCheckbox checked={showInactiveHats} onCheckedChange={(checked) => setShowInactiveHats?.(checked)}>
+                <BaseCheckbox
+                  checked={showInactiveHats}
+                  onCheckedChange={(checked) => setShowInactiveHats?.(checked as boolean)}
+                >
                   <div className='flex items-center gap-2'>
                     <BsToggle2Off className='size-4 text-gray-500' />
                     <p>Inactive Hats</p>

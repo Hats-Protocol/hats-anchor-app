@@ -1,7 +1,7 @@
+import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/config';
 import { DEFAULT_HAT, MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal, treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
-import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/config';
 import _, { orderBy } from 'lodash';
 import { idToPrettyId, ipToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
 import { AppHat, FormData, FormWearer, HatExport, HatWearer } from 'types';
@@ -305,7 +305,7 @@ export const handleExportBranch = ({
   link.download = `chain-${chainId}-${type}-${hatId}.json`;
   link.href = url;
   link.click();
-  toast.success({
+  toast({
     title: `Exported ${type} #${hatId} to your desktop`,
   });
 };

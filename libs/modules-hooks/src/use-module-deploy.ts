@@ -73,7 +73,7 @@ const useModuleDeploy = ({
     });
   }, [originalValues, selectedModuleDetails, balance]);
 
-  const toast = useToast();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { modules } = useHatsModules({ chainId });
   const { address } = useAccount();
@@ -157,7 +157,7 @@ const useModuleDeploy = ({
         (id: Hex) => _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
       );
       setStoredData?.(updatedHats);
-      toast.success({
+      toast({
         title: 'Saved',
         description: `${selectedModuleDetails?.name} has been successfully deployed!`,
         duration: 1500,
@@ -196,7 +196,7 @@ const useModuleDeploy = ({
       });
       setStoredData?.(updatedHats);
 
-      toast.success({
+      toast({
         title: 'Saved',
         description: instanceAddress
           ? `${selectedModuleDetails?.name} Module has been successfully deployed!`
@@ -244,7 +244,7 @@ const useModuleDeploy = ({
 
       setStoredData?.(updatedHats);
 
-      toast.success({
+      toast({
         title: 'Saved',
         description: 'Claims Hatter Module has been successfully deployed!',
         duration: 1500,

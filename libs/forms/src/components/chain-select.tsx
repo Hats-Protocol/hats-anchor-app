@@ -1,6 +1,6 @@
 import { councilsChainsList } from '@hatsprotocol/config';
 import { map, values } from 'lodash';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
 import Select from 'react-select';
 

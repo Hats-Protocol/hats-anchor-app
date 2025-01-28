@@ -51,7 +51,7 @@ export const HatFormContextProvider = ({ children }: { children: ReactNode }) =>
     isLoading: treeIsLoading,
   } = useTreeForm();
   const { selectedHat, selectedOnchainHat, selectedOnchainHatDetails, isDraft, hatLoading } = useSelectedHat();
-  const toast = useToast();
+  const { toast } = useToast();
   const localForm = useForm({
     mode: 'onChange',
   });
@@ -339,7 +339,7 @@ export const HatFormContextProvider = ({ children }: { children: ReactNode }) =>
       reset();
 
       if (sendToast) {
-        toast.success({
+        toast({
           title: 'Saved',
           description: 'Your changes have been saved.',
           duration: 1500,

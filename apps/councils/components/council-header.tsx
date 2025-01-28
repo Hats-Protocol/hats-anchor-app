@@ -37,7 +37,7 @@ const CouncilHeader = () => {
     address,
   });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
-    hsg: address,
+    hsg: address as Hex,
     chainId: chainId ?? 11155111,
   });
   const { data: safesDetails } = useSafesInfo({

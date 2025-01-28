@@ -5,7 +5,7 @@ import { CouncilHeader } from '../../../../components/council-header';
 
 const CouncilLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='flex min-h-screen flex-col bg-white'>
+    <div className='flex min-h-screen flex-col bg-gray-50'>
       <CouncilHeader />
 
       <div className='relative h-full min-h-[700px]'>

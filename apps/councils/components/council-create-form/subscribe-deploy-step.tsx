@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
-import { MemberAvatar } from 'ui';
+import { Button, MemberAvatar } from 'ui';
 import { chainsMap } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
@@ -155,9 +155,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     })) as any,
   });
   const [symbol, name] = map(tokenData, 'result');
-
-  const targetChainName = chainsMap(toNumber(formData.chain))?.name;
-  const targetChainId = toNumber(formData.chain) as number;
+  const targetChainId = toNumber(formData.chain?.value) as number;
+  const targetChainName = chainsMap(targetChainId)?.name;
   const firstAdmin = get(formData, 'admins.[0]');
 
   const isWrongNetwork = userChainId !== targetChainId;
@@ -166,13 +165,9 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     <div className='mx-auto max-w-4xl'>
       <div className='relative border-b border-gray-200 pb-6'>
         <div className='absolute right-0 top-0'>
-          <button
-            type='button'
-            className='text-functional-link-primary inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50'
-            onClick={onCopy}
-          >
+          <Button type='button' variant='outline-blue' rounded='full' onClick={onCopy}>
             <Link className='h-4 w-4' /> Copy link
-          </button>
+          </Button>
         </div>
         <div className='flex flex-col items-center gap-1'>
           <h2 className='text-3xl font-medium'>{formData.councilName}</h2>
@@ -215,7 +210,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             <p className='text-base'>
               {formData.thresholdType === 'ABSOLUTE'
                 ? `${formData.min} confirmations required`
-                : `${formData.target}% confimations required`}
+                : `${formData.target}% (at least ${formData.min}) confirmations required`}
             </p>
             <p className='text-base'>{`From up to ${formData.maxMembers} Council Members`}</p>
           </div>
@@ -248,7 +243,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               <RequirementItem
                 icon={<FileText className='h-6 w-6' />}
                 title='Sign Agreement'
-                description='Signed and abides agreement'
+                description='Signed and abides by the agreement'
               />
             )}
             {formData.requirements.holdTokens && (
@@ -323,25 +318,22 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             />
             <div className='flex justify-end'>
               {payer ? (
-                <button
+                <Button
+                  rounded='full'
                   type='button'
                   onClick={() => setModals?.({ paymentDetailsModal: true })}
                   disabled={!canEdit}
-                  className={`border-functional-link-primary text-functional-link-primary inline-flex items-center rounded-full border px-4 py-2 text-sm font-medium ${
-                    !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'
-                  }`}
                 >
                   <div className='flex items-center gap-2'>
                     <Currency />
                     <span>Edit invoice details</span>
                   </div>
-                </button>
+                </Button>
               ) : (
                 <NextStepButton
                   type='button'
                   onClick={() => setModals?.({ paymentDetailsModal: true })}
                   disabled={!canEdit}
-                  withIcon={false}
                 >
                   <div className='flex items-center gap-2'>
                     <Currency />

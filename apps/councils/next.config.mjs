@@ -19,11 +19,11 @@ const nextConfig = {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push('pino-pretty', 'lokijs', 'encoding'); // Rainbowkit polyfills
     // cache handling for Chakra components
-    config.cache = {
-      type: 'filesystem',
-      compression: 'gzip',
-      allowCollectingMemory: true,
-    };
+    // config.cache = {
+    //   type: 'filesystem',
+    //   compression: 'gzip',
+    //   allowCollectingMemory: true,
+    // };
     return config;
   },
 

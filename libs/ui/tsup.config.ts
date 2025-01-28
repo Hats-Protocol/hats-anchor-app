@@ -8,5 +8,15 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-dom', 'hooks', 'icons', 'shared', 'types', 'utils'],
+  external: [
+    'react',
+    'react-dom',
+    'hooks',
+    'icons',
+    'shared',
+    'types',
+    'utils',
+    '@uiw/react-md-editor',
+    '@rainbow-me/rainbowkit',
+  ],
 });

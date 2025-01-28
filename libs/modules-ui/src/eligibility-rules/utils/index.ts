@@ -22,14 +22,12 @@ export const TOKEN_PARAM_DISPLAY_TYPES = {
   erc1155: 'erc1155',
 };
 
-type RuleIcon = IconType | undefined;
-
 export interface EligibilityRuleDetailsProps {
   rule: ReactNode | undefined;
   status: string | undefined;
   displayStatus: string | undefined;
   displayStatusLink?: string | undefined;
-  icon: RuleIcon;
+  icon: IconType | undefined;
   isReadyToClaim?: { [key: string]: boolean } | undefined;
 }
 

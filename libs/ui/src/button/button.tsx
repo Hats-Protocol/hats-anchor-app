@@ -9,11 +9,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'text-primary-foreground bg-functional-link-primary hover:bg-functional-link-primary/90 shadow',
+        default: 'text-primary-foreground bg-functional-link-primary hover:bg-functional-link-primary/80 shadow',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm',
         outline: 'border-input bg-background hover:bg-accent hover:text-accent-foreground border shadow-sm',
         'outline-blue':
-          'bg-background hover:bg-accent-foreground border-functional-link-primary text-functional-link-primary hover:bg-functional-link-primary/10 border shadow-sm',
+          'bg-background hover:bg-functional-link-primary/10 border-functional-link-primary text-functional-link-primary border shadow',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary font-normal underline-offset-4 hover:underline',
@@ -26,10 +26,15 @@ const buttonVariants = cva(
         icon: 'h-9 w-9',
         link: 'px-0 py-0',
       },
+      rounded: {
+        default: 'rounded-md',
+        full: 'rounded-full',
+      },
     },
     defaultVariants: {
       variant: 'default',
       size: 'default',
+      rounded: 'default',
     },
   },
 );
@@ -38,12 +43,13 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  rounded?: 'full' | 'default';
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, rounded, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    return <Comp className={cn(buttonVariants({ variant, size, className, rounded }))} ref={ref} {...props} />;
   },
 );
 Button.displayName = 'Button';

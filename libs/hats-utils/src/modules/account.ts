@@ -48,7 +48,7 @@ export const populateHatsAccountsAuthorities = ({
         onClick: () => {
           if (!predictedAddress) return;
           navigator.clipboard.writeText(predictedAddress); // ? HOOK WORKAROUND HERE
-          toast.info({
+          toast({
             title: 'Successfully copied wearer address to clipboard',
           });
         },
@@ -81,7 +81,7 @@ export const populateHatsAccountsAuthorities = ({
         isCustom: true,
         onClick: () => {
           navigator.clipboard.writeText(wallet.id);
-          toast.info({
+          toast({
             title: 'Successfully copied wearer address to clipboard',
           });
         },

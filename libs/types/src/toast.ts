@@ -22,10 +22,4 @@ export interface ToastProps {
   isClosable?: boolean;
 }
 
-export interface UseCustomToastReturn {
-  success: (props: ToastProps) => void;
-  error: (props: ToastProps) => void;
-  warning: (props: ToastProps) => void;
-  loading: (props: ToastProps) => void;
-  info: (props: ToastProps) => void;
-}
+export type UseCustomToastReturn = (props: ToastProps) => void;

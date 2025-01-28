@@ -1,6 +1,3 @@
-import './global.css';
-import '@rainbow-me/rainbowkit/styles.css';
-
 import { MetadataConfig } from '@hatsprotocol/config';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';

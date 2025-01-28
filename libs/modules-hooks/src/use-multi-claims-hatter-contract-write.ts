@@ -1,6 +1,6 @@
+import { CONFIG } from '@hatsprotocol/config';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
-import { CONFIG } from '@hatsprotocol/config';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _, { first, get } from 'lodash';
 import { useState } from 'react';
@@ -33,7 +33,7 @@ const useMultiClaimsHatterContractWrite = ({
   hatId,
 }: ContractInteractionProps) => {
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] = useState(false);
-  const toast = useToast();
+  const { toast } = useToast();
   const userChainId = useChainId();
   const queryClient = useQueryClient();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
@@ -81,7 +81,7 @@ const useMultiClaimsHatterContractWrite = ({
       args,
     })
       .then((hash) => {
-        toast.info({
+        toast({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
         });
@@ -103,14 +103,16 @@ const useMultiClaimsHatterContractWrite = ({
           (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
-          toast.error({
+          toast({
             title: 'Signature rejected!',
             description: 'Please accept the transaction in your wallet',
+            variant: 'destructive',
           });
         } else {
-          toast.error({
+          toast({
             title: 'Error occurred!',
             description: 'An error occurred while processing the transaction.',
+            variant: 'destructive',
           });
         }
         setIsLoadingMultiClaimsHatter(false);

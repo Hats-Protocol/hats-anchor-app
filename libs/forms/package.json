@@ -35,6 +35,7 @@
     "hats-utils": "workspace:*",
     "hooks": "workspace:*",
     "icons": "workspace:*",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.471.0",
     "molecules": "workspace:*",
     "next": "^14.2.14",

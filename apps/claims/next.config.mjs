@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { composePlugins, withNx } = require('@nx/next');
+import { composePlugins, withNx } from '@nx/next';
 
 /**
  * @type {import('next').NextConfig}
@@ -11,8 +10,6 @@ const nextConfig = {
     svgr: false,
   },
   reactStrictMode: false,
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
   eslint: {
     dirs: [
       'app',
@@ -23,20 +20,28 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push('pino-pretty', 'lokijs', 'encoding'); // Rainbowkit polyfills
-
+    // cache handling for Chakra components
+    // config.cache = {
+    //   type: 'filesystem',
+    //   compression: 'gzip',
+    //   allowCollectingMemory: true,
+    // };
     return config;
   },
-  async redirects() {
-    return [
-      {
-        source: '/trees',
-        destination: '/trees/10', // send to optimism
-        permanent: true,
-      },
-    ];
+
+  experimental: {
+    optimizePackageImports: [
+      // external pkgs
+      '@uiw/react-md-editor',
+      '@rainbow-me/rainbowkit',
+      '@tanstack/react-query',
+      'd3-org-chart',
+      'viem',
+      'wagmi',
+    ],
   },
 };
 
 const plugins = [withNx];
 
-module.exports = composePlugins(...plugins)(nextConfig);
+export default composePlugins(...plugins)(nextConfig);

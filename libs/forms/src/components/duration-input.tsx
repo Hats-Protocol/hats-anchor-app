@@ -65,21 +65,18 @@ const DurationInput: React.FC<DurationInputProps> = ({
             <NumberInput
               name={`${name}-time-value`}
               localForm={localForm}
-              type='number'
-              defaultValue={0}
+              // defaultValue={0}
               placeholder={placeholder}
-              isRequired={isRequired}
+              // isRequired={isRequired}
               options={options}
-              rightAddon={
-                <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds'>
-                  {timeUnits.map(({ unit, value }) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>
-                  ))}
-                </Select>
-              }
             />
+            <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds'>
+              {timeUnits.map(({ unit, value }) => (
+                <SelectItem key={unit} value={unit}>
+                  {unit}
+                </SelectItem>
+              ))}
+            </Select>
           </div>
           {timeUnit !== 'seconds' && finalValue && <p className='text-xs text-gray-700'>({finalValue} seconds)</p>}
         </div>

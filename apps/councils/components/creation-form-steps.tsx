@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { StepValidation } from 'types';
+import { cn } from 'ui';
 import { logger } from 'utils';
 
 interface Step {
@@ -168,14 +169,13 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
               <div className='flex flex-col items-center'>
                 {/* Main step circle */}
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                  className={cn(
+                    'flex h-12 w-12 items-center justify-center rounded-full shadow-sm',
                     getStepValidation(step, stepValidation, requirements)
-                      ? 'bg-white'
-                      : 'border-2 ' +
-                        (index === currentStepIndex
-                          ? 'border-functional-link-primary bg-sky-100'
-                          : 'border-gray-200 bg-white')
-                  } `}
+                      ? 'bg-white shadow-sm'
+                      : 'border-2 border-gray-200',
+                    index === currentStepIndex && 'border-functional-link-primary bg-sky-100',
+                  )}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
                     <svg
@@ -184,7 +184,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                       viewBox='0 0 44 44'
                       fill='none'
                       xmlns='http://www.w3.org/2000/svg'
-                      className='text-white'
+                      className='h-12 w-12 text-white'
                     >
                       <g id='check-circle-fill'>
                         <path
@@ -195,7 +195,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                       </g>
                     </svg>
                   ) : (
-                    <span className={`text-lg text-black`}>{index + 1}</span>
+                    <span className='text-lg text-black'>{index + 1}</span>
                   )}
                 </div>
 

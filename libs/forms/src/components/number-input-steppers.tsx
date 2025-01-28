@@ -3,7 +3,7 @@ import { cn } from 'ui';
 
 const NumberInputSteppers = ({ stepUp, stepDown, upDisabled, downDisabled }: NumberInputSteppersProps) => {
   return (
-    <div className='ml-[-1px] flex h-9 flex-col items-center rounded-r-md border border-gray-200 bg-gray-50'>
+    <div className='ml-[-1px] flex h-9 flex-col items-center rounded-r-md border border-gray-200 bg-gray-100'>
       <div
         className={cn(
           'flex h-1/2 w-full cursor-pointer items-center justify-center border-b border-gray-200',

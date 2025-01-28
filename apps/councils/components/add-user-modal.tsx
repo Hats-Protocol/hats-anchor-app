@@ -156,7 +156,7 @@ function AddUserModal({
 
           <div className='mt-8'>
             <div className='flex justify-end'>
-              <Button type='submit' disabled={!isFormValid() || isLoading}>
+              <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
                 {editingUser
                   ? isLoading
                     ? 'Saving...'

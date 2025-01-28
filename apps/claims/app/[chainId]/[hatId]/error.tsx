@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Card } from 'ui';
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {

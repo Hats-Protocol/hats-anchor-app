@@ -26,7 +26,7 @@ export function AddMemberModal({
   const [isLoading, setIsLoading] = useState(false);
   const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();
-  const selectedChain = parentForm.watch('chain');
+  const selectedChain = parentForm.watch('chain')?.value;
   const chainId = getChainId(selectedChain);
 
   const modalForm = useForm({

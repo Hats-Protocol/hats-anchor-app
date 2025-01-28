@@ -29,10 +29,10 @@ function TokenNumberInput({ name, form, options, disabled }: TokenNumberInputPro
         <FormItem>
           <FormControl>
             <div className='flex items-center'>
-              <div className='flex h-9 items-center rounded-l-md border border-gray-200 bg-gray-50 px-2'>Minimum:</div>
+              <div className='flex h-9 items-center rounded-l-md border border-gray-200 bg-gray-100 px-2'>Minimum:</div>
 
               <BaseInput
-                className='ml-[-1px] flex-1 rounded-none'
+                className='ml-[-1px] flex-1 rounded-none bg-white'
                 min={options?.min}
                 max={options?.max}
                 disabled={disabled}

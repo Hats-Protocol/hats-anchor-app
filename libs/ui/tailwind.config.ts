@@ -2,10 +2,6 @@ import { join } from 'path';
 import type { Config } from 'tailwindcss';
 import { fontFamily, screens } from 'tailwindcss/defaultTheme';
 
-interface TwStyleProps {
-  opacityValue: number;
-}
-
 const config: Config = {
   darkMode: ['class'],
   content: [join(__dirname, 'src/**/*.{ts,tsx}')],
@@ -33,7 +29,7 @@ const config: Config = {
           foreground: 'hsl(var(--secondary-foreground))',
         },
         destructive: {
-          DEFAULT: 'rgb(var(--functional-error))',
+          DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
         muted: {
@@ -54,28 +50,34 @@ const config: Config = {
         },
 
         // INFORMATIVE
-        'informative-human': ({ opacityValue }: any) => {
+        // @ts-expect-error - what is the type tailwind expects here?
+        'informative-human': ({ opacityValue }) => {
           if (!opacityValue) return 'rgb(var(--informative-human))';
           return `rgba(var(--informative-human), ${opacityValue})`;
         },
-        'informative-code': ({ opacityValue }: any) => {
+        // @ts-expect-error - what is the type tailwind expects here?
+        'informative-code': ({ opacityValue }) => {
           if (!opacityValue) return 'rgb(var(--informative-code))';
           return `rgba(var(--informative-code), ${opacityValue})`;
         },
         // FUNCTIONAL
-        'functional-success': ({ opacityValue }: any) => {
+        // @ts-expect-error - what is the type tailwind expects here?
+        'functional-success': ({ opacityValue }) => {
           if (!opacityValue) return 'rgb(var(--functional-success))';
           return `rgba(var(--functional-success), ${opacityValue})`;
         },
-        'functional-error': ({ opacityValue }: any) => {
+        // @ts-expect-error - what is the type tailwind expects here?
+        'functional-error': ({ opacityValue }) => {
           if (!opacityValue) return 'rgb(var(--functional-error))';
           return `rgba(var(--functional-error), ${opacityValue})`;
         },
-        'functional-link-primary': ({ opacityValue }: any) => {
+        // @ts-expect-error - what is the type tailwind expects here?
+        'functional-link-primary': ({ opacityValue }) => {
           if (!opacityValue) return 'rgb(var(--functional-link-primary))';
           return `rgba(var(--functional-link-primary), ${opacityValue})`;
         },
-        'functional-link-secondary': ({ opacityValue }: any) => {
+        // @ts-expect-error - what is the type tailwind expects here?
+        'functional-link-secondary': ({ opacityValue }) => {
           if (!opacityValue) return 'rgb(var(--functional-link-secondary))';
           return `rgba(var(--functional-link-secondary), ${opacityValue})`;
         },

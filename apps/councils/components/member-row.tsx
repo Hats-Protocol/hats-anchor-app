@@ -41,6 +41,7 @@ const MemberRow = ({
   });
   const { watch, setValue } = form;
   const isSelected = watch(member.address);
+  const isSigner = false;
 
   if (!member) return null;
 
@@ -81,22 +82,39 @@ const MemberRow = ({
           const moduleEligibility = get(currentEligibility, rule.address);
           const isEligible = get(moduleEligibility, 'eligible') && get(moduleEligibility, 'goodStanding');
           return (
-            <div className='flex h-full w-28 items-center justify-center gap-1' key={rule.address}>
+            <div
+              className='flex h-full w-28 items-center justify-center gap-1'
+              key={`${rule.address}-${member.address}`}
+            >
               {isEligible ? (
                 <>
                   <p className='text-functional-success'>Yes</p>
-                  <BsCheckSquareFill className='text-functional-success' key={`${rule.address}-${member.address}`} />
+                  <BsCheckSquareFill className='text-functional-success' />
                 </>
               ) : (
                 <>
                   <p className='text-destructive'>No</p>
 
-                  <BsXSquareFill className='text-destructive' key={`${rule.address}-${member.address}`} />
+                  <BsXSquareFill className='text-destructive' />
                 </>
               )}
             </div>
           );
         })}
+
+        <div className='flex h-full w-28 items-center justify-center gap-1'>
+          {isSigner ? (
+            <>
+              <p className='text-functional-success'>Yes</p>
+              <BsCheckSquareFill className='text-functional-success' />
+            </>
+          ) : (
+            <>
+              <p className='text-destructive'>No</p>
+              <BsXSquareFill className='text-destructive' />
+            </>
+          )}
+        </div>
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
           <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
@@ -104,9 +122,17 @@ const MemberRow = ({
             {canEdit ? 'Edit' : 'Details'}
           </Button>
 
-          <Button variant='link' size='link' className='text-destructive' onClick={removeUser} disabled={!userAddress}>
-            Remove
-          </Button>
+          {userAddress && canEdit && (
+            <Button
+              variant='link'
+              size='link'
+              className='text-destructive'
+              onClick={removeUser}
+              disabled={!userAddress}
+            >
+              Remove
+            </Button>
+          )}
         </div>
       </div>
 

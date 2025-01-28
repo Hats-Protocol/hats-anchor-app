@@ -7,7 +7,7 @@ import { get } from 'lodash';
 import dynamic from 'next/dynamic';
 import { Button } from 'ui';
 
-import { MobileBottomMenu } from './mobile';
+import { MobileBottomMenu } from './mobile-bottom-menu';
 
 const BoxArrowDown = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareDown));
 const BoxArrowLeft = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareLeft));

@@ -55,11 +55,16 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
       </div>
 
       <div className='flex gap-2'>
-        <Button variant='outline' onClick={() => setModals?.({ updateAgreement: true })}>
+        <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
           Edit Agreement
         </Button>
 
-        <Button variant='outline' onClick={() => setModals?.({ 'addUser-agreement': true })} disabled>
+        <Button
+          variant='outline-blue'
+          rounded='full'
+          onClick={() => setModals?.({ 'addUser-agreement': true })}
+          disabled
+        >
           Add Agreement Manager
         </Button>
       </div>

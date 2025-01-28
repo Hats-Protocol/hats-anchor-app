@@ -33,7 +33,7 @@ import {
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useWaitForSubgraph } from 'hooks';
-import { capitalize, find, first, get, map, toLower, toNumber, toString, values } from 'lodash';
+import { capitalize, find, first, get, map, toLower, toNumber, values } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -265,7 +265,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   }, [authenticated, user?.wallet?.address, data]);
 
   useEffect(() => {
-    if (!data || !optionalSteps || !availableTokens) return;
+    if (!data || !optionalSteps || !mappedTokens) return;
 
     logger.debug('API Response data:', data);
     const currentValues = form.getValues();
@@ -297,7 +297,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       payer: data.payer || undefined,
       acceptedTerms: false,
       tokenRequirement: {
-        address: find(mappedTokens, { value: data.tokenAddress }) || first(mappedTokens),
+        address: (find(mappedTokens, { value: data.tokenAddress }) || first(mappedTokens)) as any, // TODO replace any, thinks it's a number
         minimum: data.tokenAmount || 0,
       },
       creator: data.creator || '',
@@ -330,7 +330,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     mutationFn: async ({ step, subStep }) => {
       const formData = form.getValues();
       let payload: Partial<CouncilFormResponse['councilCreationForm']> = { id: draftId || undefined };
-      console.log({ step, subStep });
 
       switch (step) {
         case 'details':
@@ -381,7 +380,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         case 'selection':
           switch (subStep) {
             case 'members':
-              console.log('submitting members', formData.members);
               payload = {
                 ...payload,
                 members: formData.members,
@@ -394,7 +392,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               };
               break;
             case 'compliance':
-              console.log('submitting compliance', formData.complianceAdmins, formData.createComplianceAdminRole);
               payload = {
                 ...payload,
                 complianceAdmins: formData.complianceAdmins,
@@ -442,13 +439,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       logger.debug('Deploying council');
       const formData = form.getValues();
 
-      const chainId = toNumber(formData.chain);
+      const chainId = toNumber(formData.chain?.value);
 
       // Create public and wallet clients
       const publicClient = viemPublicClient(chainId);
 
       // Create hats client
-      const hatsClient = await createHatsClient(chainId);
+      const hatsClient = await createHatsClient(chainId).catch((err) => console.log(err));
       if (!hatsClient) {
         throw new Error('Failed to create hats client');
       }

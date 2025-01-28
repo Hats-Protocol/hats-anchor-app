@@ -159,7 +159,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
                   Set max members
                 </Button>
               )}
-              <Button type='submit' disabled={!hasHsgChanges || !address}>
+              <Button type='submit' rounded='full' disabled={!hasHsgChanges || !address}>
                 Update Threshold
               </Button>
             </div>

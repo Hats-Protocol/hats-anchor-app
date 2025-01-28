@@ -1,7 +1,7 @@
+import { CONFIG } from '@hatsprotocol/config';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
-import { CONFIG } from '@hatsprotocol/config';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
@@ -14,7 +14,7 @@ const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuc
   const [claimsHatter, setClaimsHatter] = useState<Module | undefined>();
   const { address } = useAccount();
   const currentChainId = useChainId();
-  const toast = useToast();
+  const { toast } = useToast();
   const isCurrentWearer = address === wearer;
   const queryClient = useQueryClient();
   const { data: walletClient } = useWalletClient();
@@ -88,7 +88,7 @@ const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuc
       args: isCurrentWearer ? [selectedHat?.id] : [selectedHat?.id, address],
     })
       .then((hash) => {
-        toast.info({
+        toast({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
         });
@@ -112,14 +112,16 @@ const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuc
           (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
-          toast.error({
+          toast({
             title: 'Signature rejected!',
             description: 'Please accept the transaction in your wallet',
+            variant: 'destructive',
           });
         } else {
-          toast.error({
+          toast({
             title: 'Error occurred!',
             description: 'An error occurred while processing the transaction.',
+            variant: 'destructive',
           });
         }
       });

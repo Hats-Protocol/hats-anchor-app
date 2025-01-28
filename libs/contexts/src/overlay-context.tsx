@@ -51,7 +51,7 @@ interface SavedTree {
 
 export const OverlayContextProvider = ({ children }: { children: ReactNode }) => {
   // HOOKS
-  const toast = useToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   // LOCAL STATE
@@ -182,7 +182,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
         hash,
       });
 
-      toast.info({
+      toast({
         title: 'Transaction accepted',
         description: 'Waiting for the updated state to be indexed...',
         ...waitForSubgraphToastData,
@@ -199,7 +199,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       if (sendSuccessToast && successToastData) {
         // this toast is specifically the one that shows when the transaction is successful
         // we still need to wait for the subgraph to show true "success"
-        toast[(successToastData.status as keyof typeof toast) || 'info']({
+        toast({
           ...successToastData,
           title: _.get(successToastData, 'title', 'Transaction successful'),
         });

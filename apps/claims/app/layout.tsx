@@ -1,6 +1,3 @@
-import './global.css';
-import '@rainbow-me/rainbowkit/styles.css';
-
 import { MetadataConfig } from '@hatsprotocol/config';
 import { TxHistoryModal } from 'molecules';
 import { Toaster } from 'molecules';

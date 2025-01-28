@@ -1,7 +1,7 @@
+import { DAOHAUS_URL, SAFE_CHAIN_MAP, SAFE_URL } from '@hatsprotocol/config';
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
-import { DAOHAUS_URL, SAFE_CHAIN_MAP, SAFE_URL } from '@hatsprotocol/config';
-import _ from 'lodash';
+import { compact, concat, filter, find, includes, map, pick, reject } from 'lodash';
 import { Authority, AuthorityType, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
@@ -25,22 +25,22 @@ export const combineAuthorities = ({
   modulesAuthorities: Authority[] | undefined;
 }): { data: Authority[] | undefined } => {
   if (!modulesAuthorities) return { data: authorities };
-  const socialAuthorities = _.map(authorities, (authority: Authority) => ({
+  const socialAuthorities = map(authorities, (authority: Authority) => ({
     ...authority,
     type: AUTHORITY_TYPES.manual as AuthorityType,
   }));
 
   // authorities with matching link
-  const matchingAuthorities = _.filter(
+  const matchingAuthorities = filter(
     socialAuthorities,
     (authority: Authority) =>
-      _.includes(_.map(guildRoles, 'link'), authority.link) || _.includes(_.map(spaces, 'link'), authority.link),
+      includes(map(guildRoles, 'link'), authority.link) || includes(map(spaces, 'link'), authority.link),
   );
-  const mergedAuthorities = _.map(matchingAuthorities, (authority: Authority) => {
-    const guildRole = _.find(guildRoles, ['link', authority.link]);
-    const guildProps = _.pick(guildRole, ['gate', 'type']);
-    const space = _.find(spaces, ['link', authority.link]);
-    const spaceProps = _.pick(space, ['gate', 'type']);
+  const mergedAuthorities = map(matchingAuthorities, (authority: Authority) => {
+    const guildRole = find(guildRoles, ['link', authority.link]);
+    const guildProps = pick(guildRole, ['gate', 'type']);
+    const space = find(spaces, ['link', authority.link]);
+    const spaceProps = pick(space, ['gate', 'type']);
     return {
       ...authority,
       ...guildProps,
@@ -48,19 +48,19 @@ export const combineAuthorities = ({
     };
   });
   // authorities without matching link
-  const ecosystemAuthorities = _.reject(_.concat(guildRoles, spaces), (authority: Authority) =>
-    _.includes(_.map(socialAuthorities, 'link'), authority?.link),
+  const ecosystemAuthorities = reject(concat(guildRoles, spaces), (authority: Authority) =>
+    includes(map(socialAuthorities, 'link'), authority?.link),
   );
 
   // authorities that aren't in guildRoles or spaces
-  const filteredAuthorities = _.reject(socialAuthorities, (authority: Authority) =>
-    _.includes(_.map(matchingAuthorities, 'link'), authority.link),
+  const filteredAuthorities = reject(socialAuthorities, (authority: Authority) =>
+    includes(map(matchingAuthorities, 'link'), authority.link),
   );
 
   // combine authorities
-  const combined = _.concat(modulesAuthorities, mergedAuthorities, ecosystemAuthorities, filteredAuthorities);
+  const combined = concat(modulesAuthorities, mergedAuthorities, ecosystemAuthorities, filteredAuthorities);
 
-  return { data: _.compact(combined) as Authority[] };
+  return { data: compact(combined) as Authority[] };
 };
 
 // TODO this was used in election eligibility, currently unused

@@ -40,7 +40,7 @@ const useHatClaimFor = ({
   onSuccess,
 }: UseHatClaimForProps) => {
   const { address } = useAccount();
-  const toast = useToast();
+  const { toast } = useToast();
 
   const claimableForAddress: Hex | undefined = useMemo(
     () => get(first(get(selectedHat, 'claimableForBy')), 'id') as Hex,
@@ -115,9 +115,10 @@ const useHatClaimFor = ({
       // eslint-disable-next-line no-console
       console.log(error);
       const err = error as Error;
-      toast.error({
+      toast({
         title: 'Transaction failed',
         description: err.message,
+        variant: 'destructive',
       });
       // eslint-disable-next-line no-console
       console.log('Error claiming hat:', err);

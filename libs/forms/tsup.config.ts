@@ -12,6 +12,7 @@ export default defineConfig({
     'lodash',
     'react',
     'react-dom',
+    '@uiw/react-md-editor',
     // internal packages
     'hooks',
     'hats-hooks',

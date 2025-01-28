@@ -59,7 +59,7 @@ const useHatContractWrite = ({
   queryKeys = [],
   redirect,
 }: ContractInteractionProps) => {
-  const toast = useToast();
+  const { toast } = useToast();
   const userChainId = useChainId();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -79,7 +79,7 @@ const useHatContractWrite = ({
       .then((hash) => {
         setIsLoading(true);
 
-        toast.info({
+        toast({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
           duration: 5000,
@@ -116,14 +116,17 @@ const useHatContractWrite = ({
           (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
-          toast.error({
+          toast({
             title: 'Signature rejected!',
             description: 'Please accept the transaction in your wallet',
+            variant: 'destructive',
+            ...errorToastData,
           });
         } else {
-          toast.error({
+          toast({
             title: 'Transaction failed',
             description: 'Please try again later',
+            variant: 'destructive',
             ...errorToastData,
           });
         }

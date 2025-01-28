@@ -16,7 +16,6 @@ export function DetailsStep({ onNext }: StepProps) {
   if (isLoading) {
     return <Skeleton className='h-100 w-100' />;
   }
-  console.log(watch('chain'));
 
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
 

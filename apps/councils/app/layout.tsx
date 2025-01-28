@@ -31,7 +31,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     </head>
 
     <body className='font-inter'>
-      <div className='relative min-h-screen bg-gray-50'>
+      <div className='relative min-h-screen bg-gray-100'>
         <Providers>
           <Navbar />
 

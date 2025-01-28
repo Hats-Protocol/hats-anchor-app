@@ -28,7 +28,7 @@ const useMulticallManyHats = ({
   const { address } = useAccount();
   const currentChain = useChainId();
   const queryClient = useQueryClient();
-  const toast = useToast();
+  const { toast } = useToast();
 
   const hatIds = filter(map(storedData, 'id'), (hatId: string | undefined) => hatId !== undefined) as Hex[];
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
@@ -90,7 +90,7 @@ const useMulticallManyHats = ({
       args: [onlyCalls],
     })
       .then((data) => {
-        toast.info({
+        toast({
           title: 'Transaction submitted',
           description: 'Waiting for your transaction to be accepted...',
         });
@@ -113,16 +113,18 @@ const useMulticallManyHats = ({
           (error.name === 'TransactionExecutionError' || error.name === 'ContractFunctionExecutionError') &&
           error.message.includes('User rejected the request')
         ) {
-          toast.error({
+          toast({
             title: 'Signature rejected!',
             description: 'Please accept the transaction in your wallet',
+            variant: 'destructive',
           });
         } else {
           // eslint-disable-next-line no-console
           console.log(error);
-          toast.error({
+          toast({
             title: 'Error occurred!',
             description: 'An error occurred while processing the transaction.',
+            variant: 'destructive',
           });
         }
       });
