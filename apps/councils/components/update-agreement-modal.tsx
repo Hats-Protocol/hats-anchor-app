@@ -1,5 +1,5 @@
 import { Modal, useOverlay } from 'contexts';
-import { DatePicker, MarkdownEditor } from 'forms';
+import { DatePicker, Form, MarkdownEditor } from 'forms';
 import { find } from 'lodash';
 import { useAgreementClaim, useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useState } from 'react';
@@ -64,27 +64,29 @@ function UpdateAgreementModal({
 
   return (
     <Modal name='updateAgreement' title='Update Agreement'>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='flex flex-col gap-4'>
-          <MarkdownEditor name='agreement' placeholder='Agreement text' localForm={form} />
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className='flex flex-col gap-4'>
+            <MarkdownEditor name='agreement' placeholder='Agreement text' localForm={form} />
 
-          <div className='w-full md:w-1/2'>
-            <DatePicker
-              name='gracePeriod'
-              label='Grace expires'
-              info='Current wearers will have until grace expires to sign the new agreement'
-              placeholder='Grace period expires on..'
-              localForm={form}
-            />
+            <div className='w-full md:w-1/2'>
+              <DatePicker
+                name='gracePeriod'
+                label='Grace expires'
+                info='Current wearers will have until grace expires to sign the new agreement'
+                placeholder='Grace period expires on..'
+                localForm={form}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className='mt-6 flex justify-end'>
-          <Button type='submit' disabled={agreement === updatedAgreement}>
-            Update Agreement
-          </Button>
-        </div>
-      </form>
+          <div className='mt-6 flex justify-end'>
+            <Button type='submit' disabled={agreement === updatedAgreement}>
+              Update Agreement
+            </Button>
+          </div>
+        </form>
+      </Form>
     </Modal>
   );
 }

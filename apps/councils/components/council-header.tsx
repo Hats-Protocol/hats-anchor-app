@@ -63,10 +63,10 @@ const CouncilHeader = () => {
   }
 
   return (
-    <div className='bg-slate-200 py-10'>
-      <div className='mx-auto flex w-[90%] max-w-[1000px] justify-between rounded-lg border border-black bg-slate-50 p-4'>
+    <div className='border-b border-black bg-gray-200 py-10'>
+      <div className='mx-auto flex w-[90%] max-w-[1000px] justify-between rounded-2xl border border-black bg-gray-50 p-4'>
         <div className='flex w-[30%] flex-col gap-2'>
-          <div>Back to {organizationName}</div>
+          <div className='text-functional-link-primary text-xs uppercase'>{organizationName}</div>
           <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
           <p className='truncate text-sm'>{offchainCouncilDescription || get(signerHatDetails, 'description')}</p>
         </div>
@@ -77,10 +77,10 @@ const CouncilHeader = () => {
               href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
               target='_blank'
             >
-              <Button variant='outline'>
+              <Button variant='outline' rounded='full'>
                 <SafeIcon className='h-3 w-3' />
-                Safe Wallet
-                <FaExternalLinkAlt className='h-3 w-3' />
+                <p>Safe Wallet</p>
+                <FaExternalLinkAlt className='h-2 w-2' />
               </Button>
             </Link>
           ) : (
@@ -94,7 +94,7 @@ const CouncilHeader = () => {
         </div>
 
         <div className='flex w-[30%] flex-col items-end justify-center gap-2'>
-          {size(get(primarySignerHat, 'wearers')) > toNumber(get(councilDetails, 'minThreshold')) ? (
+          {size(get(primarySignerHat, 'wearers')) >= toNumber(get(councilDetails, 'minThreshold')) ? (
             <div>
               {get(safe, 'threshold')}/{size(get(safe, 'owners'))} Multisig
             </div>

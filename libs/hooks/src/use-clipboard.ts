@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { logger } from 'utils';
 
-// import useToast from './use-toast';
+import { useToast } from './use-toast';
 
 type CopiedValue = string | null;
 
@@ -15,13 +15,13 @@ export function useClipboard(value: string, { toastData }: UseClipboardProps = {
   const [, setCopiedText] = useState<CopiedValue>(null);
 
   // TODO handle toast
-  // const { toast } = useToast();
+  const { toast } = useToast();
 
   const copy: CopyFn = useCallback(async () => {
     if (!navigator?.clipboard) {
       logger.warn('Clipboard not supported');
 
-      // toast({ title: 'Clipboard not supported', variant: 'destructive' });
+      toast({ title: 'Clipboard not supported', variant: 'destructive', ...toastData });
       return false;
     }
 
@@ -29,12 +29,12 @@ export function useClipboard(value: string, { toastData }: UseClipboardProps = {
       await navigator.clipboard.writeText(value);
       setCopiedText(value);
 
-      // toast({ title: 'Copied to clipboard', variant: 'success' });
+      toast({ title: 'Copied to clipboard', variant: 'success', ...toastData });
       return true;
     } catch (error) {
       logger.warn('Copy failed', error);
 
-      // toast({ title: 'Copy failed', variant: 'destructive' });
+      toast({ title: 'Copy failed', variant: 'destructive', ...toastData });
       setCopiedText(null);
       return false;
     }

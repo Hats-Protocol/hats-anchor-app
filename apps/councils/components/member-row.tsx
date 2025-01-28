@@ -7,7 +7,7 @@ import { useCurrentEligibility } from 'modules-hooks';
 import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, OffchainCouncilData, SupportedChains } from 'types';
-import { BaseCheckbox, Button, MemberAvatar } from 'ui';
+import { Button, MemberAvatar } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -39,8 +39,6 @@ const MemberRow = ({
     wearerAddress: member.address as Hex,
     eligibilityRules,
   });
-  const { watch, setValue } = form;
-  const isSelected = watch(member.address);
   const isSigner = false;
 
   if (!member) return null;
@@ -60,13 +58,13 @@ const MemberRow = ({
   return (
     <div className='flex h-16 justify-between border-b border-gray-200'>
       <div className='flex items-center'>
-        <div className='flex w-12 items-center justify-center'>
+        {/* <div className='flex w-12 items-center justify-center'>
           <BaseCheckbox
             name={member.address}
             checked={isSelected}
             onChange={() => setValue(member.address, !isSelected)}
           />
-        </div>
+        </div> */}
         <div className='flex h-full w-[250px] items-center p-2'>
           <MemberAvatar member={member} stack />
         </div>

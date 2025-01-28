@@ -124,7 +124,9 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     if (typeof window === 'undefined') return '';
     return `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
   }, [draftId]);
-  const { onCopy } = useClipboard(draftUrl);
+  const { onCopy: copyUrl } = useClipboard(draftUrl, {
+    toastData: { variant: 'success', title: 'Copied share link to clipboard' },
+  });
 
   // Helper function to determine if selection step is valid
   const isSelectionStepValid = () => {
@@ -165,7 +167,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     <div className='mx-auto max-w-4xl'>
       <div className='relative border-b border-gray-200 pb-6'>
         <div className='absolute right-0 top-0'>
-          <Button type='button' variant='outline-blue' rounded='full' onClick={onCopy}>
+          <Button type='button' variant='outline-blue' rounded='full' onClick={copyUrl}>
             <Link className='h-4 w-4' /> Copy link
           </Button>
         </div>
@@ -209,8 +211,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <div className='text-gray-900'>
             <p className='text-base'>
               {formData.thresholdType === 'ABSOLUTE'
-                ? `${formData.min} confirmations required`
-                : `${formData.target}% (at least ${formData.min}) confirmations required`}
+                ? `${formData.min} ${formData.min > 1 ? 'confirmations' : 'confirmation'} required`
+                : `${formData.target}% (at least ${formData.min}) ${formData.min > 1 ? 'confirmations' : 'confirmation'} required`}
             </p>
             <p className='text-base'>{`From up to ${formData.maxMembers} Council Members`}</p>
           </div>

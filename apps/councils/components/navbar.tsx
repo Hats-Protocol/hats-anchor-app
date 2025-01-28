@@ -38,9 +38,7 @@ const Navbar = () => {
           <img src='/hats.png' className='h-10 w-10' alt='Hats Logo' />
         </Link>
 
-        {isJoinLink ? (
-          <p className='text-lg font-bold'>Join {offchainDetails?.creationForm.councilName || details?.name}</p>
-        ) : null}
+        <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>
       </div>
 
       <Login />

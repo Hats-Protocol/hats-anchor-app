@@ -116,7 +116,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
       });
   };
 
-  const setMaxMembers = useCallback(async () => {
+  const setMaxMembers = async () => {
     if (!signerHat?.id) return;
 
     return writeContractAsync({
@@ -140,7 +140,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
       .catch((error) => {
         logger.error(error);
       });
-  }, [signerHat, maxMembers, chainId]);
+  };
 
   if (!signer) return null;
 
@@ -155,7 +155,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
           <div className='flex justify-end py-6'>
             <div className='flex gap-2'>
               {!!signerHat?.maxSupply && toNumber(maxMembers) !== toNumber(signerHat?.maxSupply) && (
-                <Button variant='outline-blue' onClick={setMaxMembers}>
+                <Button variant='outline-blue' rounded='full' onClick={setMaxMembers}>
                   Set max members
                 </Button>
               )}
