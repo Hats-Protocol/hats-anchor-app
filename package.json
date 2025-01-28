@@ -10,7 +10,7 @@
     "claims:start": "nx run hats-claims-app:start",
     "claims:build": "nx run hats-claims-app:build",
     "councils:dev": "nx run hats-councils-app:dev",
-    "councils:start": "nx run hats-councils-app:start",
+    "councils:serve": "nx run hats-councils-app:serve:production",
     "councils:build": "nx run hats-councils-app:build",
     "test": "nx test",
     "preinstall": "npx only-allow pnpm",
