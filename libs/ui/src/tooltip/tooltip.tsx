@@ -43,7 +43,7 @@ const Tooltip = ({ label, children }: TooltipProps) => {
   return (
     <TooltipProvider>
       <TooltipRoot>
-        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipTrigger type='button'>{children}</TooltipTrigger>
         <TooltipContent>
           <p>{label}</p>
         </TooltipContent>

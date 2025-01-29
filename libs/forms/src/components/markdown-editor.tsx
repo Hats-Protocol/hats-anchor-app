@@ -3,6 +3,7 @@
 import MDEditor from '@uiw/react-md-editor';
 import { pick } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
+import { cn } from 'ui';
 
 // Custom styles to match the design
 const editorStyles = {
@@ -20,12 +21,14 @@ const editorStyles = {
 const MarkdownEditor = ({ name, placeholder, localForm, isDisabled }: MarkdownEditorProps) => {
   const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
   const value = watch(name);
+  // TODO handle form options (required, length)
 
   return (
     <div
-      className={`rounded-lg border border-gray-200 [&_.w-md-editor-input]:bg-white [&_.w-md-editor-toolbar]:rounded-t-lg [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-gray-200 [&_.w-md-editor-toolbar]:bg-gray-50 [&_.w-md-editor]:rounded-lg [&_.w-md-editor]:bg-white ${
-        isDisabled ? 'cursor-not-allowed opacity-60' : ''
-      }`}
+      className={cn(
+        'rounded-lg border border-gray-200 [&_.w-md-editor-input]:bg-white [&_.w-md-editor-toolbar]:rounded-t-lg [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-gray-200 [&_.w-md-editor-toolbar]:bg-gray-50 [&_.w-md-editor]:rounded-lg [&_.w-md-editor]:bg-white',
+        isDisabled && 'cursor-not-allowed opacity-60',
+      )}
       style={editorStyles}
       data-color-mode='light'
     >

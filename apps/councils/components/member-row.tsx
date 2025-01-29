@@ -1,7 +1,8 @@
 'use client';
 
 import { Ruleset } from '@hatsprotocol/modules-sdk';
-import { useOverlay } from 'contexts';
+import { usePrivy } from '@privy-io/react-auth';
+import { Modal, useOverlay } from 'contexts';
 import { get, map } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import { UseFormReturn } from 'react-hook-form';
@@ -33,6 +34,7 @@ const MemberRow = ({
 }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
+  const { user } = usePrivy();
   const { data: currentEligibility } = useCurrentEligibility({
     chainId: (chainId ?? 11155111) as SupportedChains,
     selectedHat: signerHat,
@@ -45,12 +47,16 @@ const MemberRow = ({
 
   const canEdit = !!userAddress && true; // TODO handle who can edit users details (admins/themselves)
 
-  const viewUser = () => {
+  const editUser = () => {
     setModals?.({ [`editUser-member-${member.address}`]: true });
   };
 
   const removeUser = () => {
     setModals?.({ [`removeUser-member-${member.address}`]: true });
+  };
+
+  const viewUser = () => {
+    setModals?.({ [`viewUser-member-${member.address}`]: true });
   };
 
   // TODO member is missing profile data for details edit form
@@ -115,12 +121,18 @@ const MemberRow = ({
         </div>
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
-          <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
-            {canEdit && <BsPencilSquare />}
-            {canEdit ? 'Edit' : 'Details'}
-          </Button>
+          {user && canEdit ? (
+            <Button variant='link' size='link' className='text-functional-link-primary' onClick={editUser}>
+              <BsPencilSquare />
+              Edit
+            </Button>
+          ) : (
+            <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
+              Details
+            </Button>
+          )}
 
-          {userAddress && canEdit && (
+          {userAddress && user && canEdit && (
             <Button
               variant='link'
               size='link'
@@ -134,6 +146,15 @@ const MemberRow = ({
         </div>
       </div>
 
+      <Modal name={`viewUser-member-${member.address}`} title='View Council Member'>
+        <div className='space-y-6'>
+          <MemberAvatar member={member} stack />
+
+          <div className='flex justify-end'>
+            <Button onClick={() => setModals?.({})}>Ok</Button>
+          </div>
+        </div>
+      </Modal>
       <AddUserModal
         type='member'
         editingUser={member}

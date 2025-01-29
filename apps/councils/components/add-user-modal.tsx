@@ -1,15 +1,17 @@
 'use client';
 
+import { usePrivy } from '@privy-io/react-auth';
 import { Modal } from 'contexts';
 import { AddressInput, Form, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
 import { capitalize, map, some, toLower } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
 import { Button } from 'ui';
 import { chainsMap, isValidEmail, logger } from 'utils';
 import { isAddress } from 'viem';
+import { useAccount } from 'wagmi';
 
 interface CouncilMemberDetails {
   address: string;
@@ -27,12 +29,13 @@ interface UserFormProps extends CouncilMember {
 
 type AddAdminModalProps = {
   chainId: number;
-  type: 'admin' | 'compliance' | 'member' | 'allowlist' | 'agreement' | 'election' | 'subscription';
+  type: 'admin' | 'member' | 'complianceAdmin' | 'allowlistAdmin' | 'agreementAdmin'; // future | 'election' | 'subscription';
   userLabel: string;
   editingUser?: CouncilMember | null;
   afterSuccess?: (user: CouncilMember | undefined) => Promise<void> | Promise<(() => void) | undefined>;
   councilId: string | undefined; // Specifically the `creationForm.id`
   existingUsers: CouncilMember[];
+  addUserLoading?: [boolean, (isLoading: boolean) => void];
 };
 
 function AddUserModal({
@@ -43,8 +46,11 @@ function AddUserModal({
   afterSuccess,
   councilId,
   existingUsers,
+  addUserLoading,
 }: AddAdminModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = addUserLoading || [false, () => {}];
+  const { address: userAddress } = useAccount();
+  const { user } = usePrivy();
   const form = useForm<UserFormProps>();
   const { getValues, setValue, setError, handleSubmit, reset } = form;
 
@@ -76,14 +82,17 @@ function AddUserModal({
   });
 
   useEffect(() => {
-    if (!editingUser) return;
+    if (!editingUser) {
+      reset();
+      return;
+    }
 
     reset({
       address: editingUser.address,
       email: editingUser.email,
       name: editingUser.name,
     });
-  }, [editingUser, reset]);
+  }, [editingUser]);
 
   const onSubmit = async (data: CouncilMemberDetails) => {
     setIsLoading(true);
@@ -112,7 +121,6 @@ function AddUserModal({
     logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
     afterSuccess?.(createdOrUpdatedUser);
-    setIsLoading(false);
   };
 
   return (
@@ -150,21 +158,21 @@ function AddUserModal({
               <label className='font-bold'>
                 Name <span className='ml-1 text-xs font-normal text-gray-400'>Optional</span>
               </label>
-              <Input name='name' localForm={form} placeholder='Alias or name' />
+              <Input name='name' localForm={form} placeholder='Alias or name' readOnly={!user} />
             </div>
           </div>
 
           <div className='mt-8'>
             <div className='flex justify-end'>
-              <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
-                {editingUser
-                  ? isLoading
-                    ? 'Saving...'
-                    : 'Save Changes'
-                  : isLoading
-                    ? 'Adding...'
-                    : `Add ${userLabel || 'Council Member'}`}
-              </Button>
+              {editingUser ? (
+                <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
+                  {isLoading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              ) : (
+                <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
+                  {isLoading ? 'Adding...' : `Add ${userLabel || 'Council Member'}`}
+                </Button>
+              )}
             </div>
           </div>
         </form>

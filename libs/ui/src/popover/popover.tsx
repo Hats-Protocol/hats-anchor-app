@@ -1,5 +1,3 @@
-'use client';
-
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import * as React from 'react';
 
@@ -9,11 +7,20 @@ const Popover = PopoverPrimitive.Root;
 
 const PopoverTrigger = PopoverPrimitive.Trigger;
 
+const PopoverAnchor = PopoverPrimitive.Anchor;
+
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
->(({ className, align = 'center', sideOffset = 4, ...props }, ref) => (
-  <PopoverPrimitive.Portal>
+>(({ className, align = 'center', sideOffset = 4, ...props }, ref) => {
+  const [shouldUsePortal, setShouldUsePortal] = React.useState(true);
+
+  React.useEffect(() => {
+    const dialogExists = document.querySelector('[role="dialog"]') !== null;
+    setShouldUsePortal(!dialogExists);
+  }, []);
+
+  const Content = (
     <PopoverPrimitive.Content
       ref={ref}
       align={align}
@@ -24,8 +31,10 @@ const PopoverContent = React.forwardRef<
       )}
       {...props}
     />
-  </PopoverPrimitive.Portal>
-));
+  );
+
+  return shouldUsePortal ? <PopoverPrimitive.Portal>{Content}</PopoverPrimitive.Portal> : Content;
+});
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
-export { Popover, PopoverContent, PopoverTrigger };
+export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };

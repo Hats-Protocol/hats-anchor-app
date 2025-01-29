@@ -1,12 +1,14 @@
 'use client';
 
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, find, flatten, get, map, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
+import { useState } from 'react';
 import { idToIp } from 'shared';
 import { CouncilMember, SupportedChains } from 'types';
 import { Button } from 'ui';
@@ -53,7 +55,8 @@ const SectionMenu = ({ sections }: { sections: { value: string; label: string }[
 const ManagePage = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
   const { setModals, handlePendingTx } = useOverlay();
-  const { address: currentUser } = useAccount();
+  const { address: userAddress } = useAccount();
+  const { user } = usePrivy();
   const { data: walletClient } = useWalletClient();
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId ?? 11155111 });
   const queryClient = useQueryClient();
@@ -100,12 +103,14 @@ const ManagePage = ({ slug }: { slug: string }) => {
     OWNER_SECTIONS,
   );
 
+  const addManagerLoading = useState(false);
+  const [, setAddManagerLoading] = addManagerLoading;
   const onAddManagerSuccess = async (user: CouncilMember | undefined) => {
-    logger.debug({ user, currentUser, ownerHat, walletClient });
-    if (!user?.address || !currentUser || !ownerHat?.id) return;
+    logger.debug({ user, userAddress, ownerHat, walletClient });
+    if (!user?.address || !userAddress || !ownerHat?.id) return;
     const hatsClient = await createHatsClient(chainId ?? 11155111, walletClient);
     const result = await hatsClient?.mintHat({
-      account: currentUser,
+      account: userAddress,
       hatId: BigInt(ownerHat?.id),
       wearer: user.address,
     });
@@ -120,7 +125,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
-
+        setAddManagerLoading(false);
         sendTelegramMessage(
           `New council manager added: ${formatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}`,
         );
@@ -148,11 +153,13 @@ const ManagePage = ({ slug }: { slug: string }) => {
             />
           </div>
 
-          <div className='mt-2 flex'>
-            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
-              Change Threshold
-            </Button>
-          </div>
+          {userAddress && user && (
+            <div className='mt-2 flex'>
+              <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
+                Change Threshold
+              </Button>
+            </div>
+          )}
 
           <SignerThresholdModal
             signer={councilDetails || undefined}
@@ -180,11 +187,13 @@ const ManagePage = ({ slug }: { slug: string }) => {
               })}
             </div>
 
-            <div className='mt-2 flex'>
-              <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
-                Add a Council Manager
-              </Button>
-            </div>
+            {userAddress && user && (
+              <div className='mt-2 flex'>
+                <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
+                  Add a Council Manager
+                </Button>
+              </div>
+            )}
           </div>
 
           <AddUserModal
@@ -194,6 +203,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
             afterSuccess={onAddManagerSuccess}
             councilId={offchainCouncilDetails?.creationForm?.id}
             existingUsers={extendedOwnerHatWearers as CouncilMember[]}
+            addUserLoading={addManagerLoading}
           />
         </div>
 
@@ -205,6 +215,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
             key={rule.address}
             criteriaModule={offchainCouncilDetails?.membersCriteriaModule as Hex}
             offchainCouncilDetails={offchainCouncilDetails || undefined}
+            slug={slug}
           />
         ))}
 
@@ -229,11 +240,13 @@ const ManagePage = ({ slug }: { slug: string }) => {
               })}
             </div>
 
-            <div className='mt-2 flex'>
-              <Button variant='outline-blue' rounded='full' disabled>
-                Transfer Ownership
-              </Button>
-            </div>
+            {userAddress && user && (
+              <div className='mt-2 flex'>
+                <Button variant='outline-blue' rounded='full' disabled>
+                  Transfer Ownership
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

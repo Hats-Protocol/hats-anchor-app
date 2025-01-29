@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { cn, Link } from 'ui';
-import { logger, parseCouncilSlug } from 'utils';
+import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
 import { Login } from './login';
@@ -16,6 +16,7 @@ const Navbar = () => {
   const { slug } = useParams<{ slug: string }>();
   const { chainId, address } = parseCouncilSlug(slug);
   const isJoinLink = pathname.includes('join');
+  const createForm = pathname.includes('councils/new');
 
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId as SupportedChains,
@@ -35,6 +36,7 @@ const Navbar = () => {
     <div
       className={cn(
         'flex min-h-[56px] w-full items-center justify-between bg-gray-50 px-2',
+        createForm && 'bg-gray-100',
         chainId && address && 'bg-gray-200',
       )}
     >

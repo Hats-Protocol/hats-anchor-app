@@ -1,11 +1,14 @@
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { usePrivy } from '@privy-io/react-auth';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get, map, size, split } from 'lodash';
+import { useState } from 'react';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
 import { getAllWearers, logger } from 'utils';
 import { getAddress, Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 import { AddUserModal } from '../add-user-modal';
 
@@ -14,10 +17,13 @@ interface ModuleManagerProps {
   chainId: number | undefined;
   criteriaModule: Hex;
   offchainCouncilDetails: OffchainCouncilData | undefined;
+  slug: string;
 }
 
-const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }: ModuleManagerProps) => {
+const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDetails }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
+  const { address: userAddress } = useAccount();
+  const { user } = usePrivy();
   const managerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(managerHatId), '.')) === 2;
   logger.debug('isAdminHat', { managerHatId: managerHatId ? hatIdDecimalToIp(managerHatId) : undefined, isAdminHat });
@@ -29,6 +35,13 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
   const allWearers = getAllWearers(offchainCouncilDetails);
+
+  const allowlistManagerLoading = useState(false);
+  const [, setManagerLoading] = allowlistManagerLoading;
+
+  const addAllowlistManager = async (data: CouncilMember | undefined) => {
+    setManagerLoading(false);
+  };
 
   if (!m) return null;
   logger.debug('criteriaModule', { instanceAddress: m.instanceAddress, criteriaModule });
@@ -56,24 +69,28 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
             })}
           </div>
 
-          <div className='flex'>
-            <Button
-              variant='outline-blue'
-              rounded='full'
-              onClick={() => setModals?.({ 'addUser-compliance': true })}
-              disabled
-            >
-              Add Compliance Manager
-            </Button>
-          </div>
+          {userAddress && user && (
+            <div className='mt-2 flex'>
+              <Button
+                variant='outline-blue'
+                rounded='full'
+                onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
+                disabled
+              >
+                Add Compliance Manager
+              </Button>
+            </div>
+          )}
         </div>
 
         <AddUserModal
-          type='compliance'
+          type='complianceAdmin'
           userLabel='Compliance Manager'
           chainId={chainId as SupportedChains}
           councilId={offchainCouncilDetails?.creationForm?.id}
           existingUsers={allWearers as CouncilMember[]}
+          afterSuccess={addAllowlistManager}
+          addUserLoading={allowlistManagerLoading}
         />
       </div>
     );
@@ -101,19 +118,23 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
           })}
         </div>
 
-        <div className='flex'>
-          <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })} disabled>
-            Add Allowlist Manager
-          </Button>
-        </div>
+        {userAddress && user && (
+          <div className='mt-2 flex'>
+            <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlistAdmin']: true })} disabled>
+              Add Allowlist Manager
+            </Button>
+          </div>
+        )}
       </div>
 
       <AddUserModal
-        type='allowlist'
+        type='allowlistAdmin'
         userLabel='Allowlist Manager'
         chainId={chainId as SupportedChains}
         councilId={offchainCouncilDetails?.creationForm?.id}
         existingUsers={allWearers as CouncilMember[]}
+        afterSuccess={addAllowlistManager}
+        addUserLoading={allowlistManagerLoading}
       />
     </div>
   );

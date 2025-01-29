@@ -43,6 +43,7 @@ const Input = ({
   // showNull = true,
   onChange,
   isInvalid,
+  readOnly,
   ...props
 }: InputProps) => {
   const { address } = useAccount();
@@ -110,7 +111,7 @@ const Input = ({
   return (
     <FormField
       control={control}
-      name='username'
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormControl>
@@ -164,13 +165,13 @@ const Input = ({
                   type={type}
                   {...register(name, options)}
                   onChange={handleChange}
-                  // onPaste={handlePaste}
-                  // onKeyDown={catchEnterKey} // prevent form submission on enter
+                  onPaste={handlePaste}
+                  onKeyDown={catchEnterKey}
                   {...props}
+                  readOnly={readOnly || isDisabled}
                   placeholder={placeholder}
                   className={cn(!!leftElement && 'pl-8', !!rightElement && 'pr-10')}
-                  // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined}
-                  // variant='outline'
+                  // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined} // TODO handle error state border
                 />
 
                 <div className={cn('w-full', { 'w-[100%]': rightElementWidth })}>
@@ -236,6 +237,7 @@ interface InputProps {
   resetValue?: string | number;
   addressButtons?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readOnly?: boolean;
 }
 
 export { Input, type InputProps };
