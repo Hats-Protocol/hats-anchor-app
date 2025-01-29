@@ -19,7 +19,7 @@ export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
 
   return (
     <div className='flex flex-col gap-2'>
-      <h2 className='text-sm'>{title || 'Dev Info'}</h2>
+      <h2 className='text-sm font-bold'>{title || 'Dev Info'}</h2>
 
       {map(devInfos, ({ label, descriptor }) => {
         return (

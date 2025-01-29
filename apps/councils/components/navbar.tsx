@@ -5,7 +5,7 @@ import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { get } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
 import { SupportedChains } from 'types';
-import { Link } from 'ui';
+import { cn, Link } from 'ui';
 import { logger, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
@@ -32,7 +32,12 @@ const Navbar = () => {
   // logger.debug('nav', { offchainDetails, details });
 
   return (
-    <div className='flex min-h-[56px] w-full items-center justify-between px-2'>
+    <div
+      className={cn(
+        'flex min-h-[56px] w-full items-center justify-between bg-gray-50 px-2',
+        chainId && address && 'bg-gray-200',
+      )}
+    >
       <div className='flex items-center gap-4'>
         <Link href='/'>
           <img src='/hats.png' className='h-10 w-10' alt='Hats Logo' />

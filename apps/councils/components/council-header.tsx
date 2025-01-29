@@ -1,5 +1,7 @@
 'use client';
 
+import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafesInfo } from 'hooks';
 import { capitalize, first, get, nth, size } from 'lodash';
@@ -7,11 +9,14 @@ import { toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { createIcon } from 'opepen-standard';
+import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Button, Skeleton } from 'ui';
-import { chainsMap, parseCouncilSlug } from 'utils';
+import { Button, OblongAvatar, Skeleton } from 'ui';
+import { chainsMap, formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
+import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import { SignersIndicator } from './signers-indicator';
 
@@ -45,8 +50,34 @@ const CouncilHeader = () => {
     safes: [councilDetails?.safe as unknown as Hex],
   });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
+  const primarySignerHatId = get(primarySignerHat, 'id');
+  const topHatId = !!primarySignerHatId
+    ? treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(primarySignerHatId)))
+    : undefined;
   const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);
   const safe = first(safesDetails);
+
+  const { data: topHatDetails } = useHatDetails({
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
+  });
+  console.log('topHatDetails', topHatDetails);
+  const { data: ensName } = useEnsName({
+    address: get(topHatDetails, 'wearers[0].id') as Hex,
+    chainId: 1,
+  });
+  const { data: ensAvatar } = useEnsAvatar({
+    name: ensName as string,
+    chainId: 1,
+  });
+  const fallbackAvatar = useMemo(() => {
+    if (!get(topHatDetails, 'wearers[0].id')) return undefined;
+    return createIcon({
+      seed: get(topHatDetails, 'wearers[0].id'),
+      size: 64,
+    }).toDataURL();
+  }, [get(topHatDetails, 'wearers[0].id')]);
+  const topHatWearer = ensName || formatAddress(get(topHatDetails, 'wearers[0].id'));
 
   const offchainCouncilName = get(offchainCouncilDetails, 'creationForm.councilName');
   const offchainCouncilDescription = get(offchainCouncilDetails, 'creationForm.councilDescription');
@@ -64,23 +95,25 @@ const CouncilHeader = () => {
 
   return (
     <div className='border-b border-black bg-gray-200 py-10'>
-      <div className='mx-auto flex w-[90%] max-w-[1000px] justify-between rounded-2xl border border-black bg-gray-50 p-4'>
+      <div className='mx-auto flex w-[90%] max-w-[1400px] justify-between rounded-2xl border border-black bg-gray-50 p-4'>
         <div className='flex w-[30%] flex-col gap-2'>
           <div className='text-functional-link-primary text-xs uppercase'>{organizationName}</div>
           <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
-          <p className='truncate text-sm'>{offchainCouncilDescription || get(signerHatDetails, 'description')}</p>
+          <p className='truncate text-sm text-black/50'>
+            {offchainCouncilDescription || get(signerHatDetails, 'description')}
+          </p>
         </div>
 
         <div className='flex w-auto items-center'>
-          {size(get(primarySignerHat, 'wearers')) === toNumber(get(primarySignerHat, 'maxSupply')) ? (
+          {size(get(primarySignerHat, 'wearers')) >= toNumber(get(councilDetails, 'minThreshold')) ? (
             <Link
               href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
               target='_blank'
             >
               <Button variant='outline' rounded='full'>
-                <SafeIcon className='h-3 w-3' />
-                <p>Safe Wallet</p>
-                <FaExternalLinkAlt className='h-2 w-2' />
+                <SafeIcon className='size-3' />
+                <p className='font-normal'>Safe Wallet</p>
+                <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
               </Button>
             </Link>
           ) : (
@@ -93,19 +126,29 @@ const CouncilHeader = () => {
           )}
         </div>
 
-        <div className='flex w-[30%] flex-col items-end justify-center gap-2'>
-          {size(get(primarySignerHat, 'wearers')) >= toNumber(get(councilDetails, 'minThreshold')) ? (
-            <div>
-              {get(safe, 'threshold')}/{size(get(safe, 'owners'))} Multisig
-            </div>
-          ) : (
-            <div>
-              Pending {get(councilDetails, 'minThreshold')}/{get(primarySignerHat, 'maxSupply')} Multisig
-            </div>
-          )}
+        <div className='font-jb-mono flex w-[30%] flex-col items-end justify-center gap-2 text-sm'>
+          <div className='flex items-center gap-2'>
+            {size(get(primarySignerHat, 'wearers')) >= toNumber(get(councilDetails, 'minThreshold')) ? (
+              <div>
+                {get(safe, 'threshold')}/{size(get(safe, 'owners'))} Multisig
+              </div>
+            ) : (
+              <div>
+                Pending {get(councilDetails, 'minThreshold')}/{get(primarySignerHat, 'maxSupply')} Multisig
+              </div>
+            )}
+            <SafeIcon className='size-4' />
+          </div>
 
-          <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
-          <div>by {organizationName}</div>
+          <div className='flex items-center gap-2'>
+            <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
+            <img src={chainsMap(chainId ?? 11155111)?.iconUrl} className='size-4' />
+          </div>
+
+          <div className='flex items-center gap-2'>
+            <div>by {topHatWearer}</div>
+            <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-5 w-4' />
+          </div>
         </div>
       </div>
     </div>

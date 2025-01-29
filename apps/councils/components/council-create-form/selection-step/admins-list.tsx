@@ -16,12 +16,9 @@ interface AdminsListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>; // CouncilFormData
   canEdit?: boolean;
-  editingAdmin: CouncilMember | null;
-  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
 }
 
-export function AdminsList({ admins, form, canEdit = true, editingAdmin, setEditingAdmin }: AdminsListProps) {
-  const { setModals } = useOverlay();
+export function AdminsList({ admins, form, canEdit = true }: AdminsListProps) {
   const { watch } = form;
   const creator = watch('creator');
 
@@ -29,11 +26,6 @@ export function AdminsList({ admins, form, canEdit = true, editingAdmin, setEdit
     const currentAdmins = form.getValues('admins') || [];
     const updatedAdmins = currentAdmins.filter((admin: CouncilMember) => admin.id !== adminId);
     form.setValue('admins', updatedAdmins);
-  };
-
-  const handleEdit = (admin: CouncilMember) => {
-    setEditingAdmin(admin);
-    setModals?.({ addAdminModal: true });
   };
 
   return (
@@ -45,16 +37,14 @@ export function AdminsList({ admins, form, canEdit = true, editingAdmin, setEdit
             <AdminCard
               key={admin.id}
               admin={admin}
+              form={form}
               onRemove={handleRemove}
-              onEdit={() => handleEdit(admin)}
               canEdit={canEdit}
               isCreator={isCreator}
             />
           );
         })}
       </div>
-
-      <AddAdminModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
     </>
   );
 }
@@ -62,35 +52,45 @@ export function AdminsList({ admins, form, canEdit = true, editingAdmin, setEdit
 function AdminCard({
   admin,
   onRemove,
-  onEdit,
+  form,
   canEdit = true,
   isCreator,
 }: {
   admin: CouncilMember;
   onRemove: (id: string) => void;
-  onEdit: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
   canEdit?: boolean;
   isCreator?: boolean;
 }) {
-  return (
-    <div className='flex items-center justify-between'>
-      <MemberAvatar member={admin} />
+  const { setModals } = useOverlay();
+  const handleEdit = () => {
+    setModals?.({ [`addComplianceModal-${admin.id}`]: true });
+  };
 
-      {canEdit && (
-        <div className='flex items-center gap-3'>
-          <button
-            type='button'
-            className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
-            onClick={onEdit}
-          >
-            <SquarePen className='text-functional-link-primary h-4 w-4' />
-            Edit
-          </button>
-          <button type='button' onClick={() => onRemove(admin.id)} disabled={isCreator}>
-            <Trash2 className={cn('h-4 w-4 text-red-700', isCreator && 'cursor-not-allowed opacity-50')} />
-          </button>
-        </div>
-      )}
-    </div>
+  return (
+    <>
+      <div className='flex items-center justify-between'>
+        <MemberAvatar member={admin} />
+
+        {canEdit && (
+          <div className='flex items-center gap-3'>
+            <button
+              type='button'
+              className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
+              onClick={handleEdit}
+            >
+              <SquarePen className='text-functional-link-primary h-4 w-4' />
+              Edit
+            </button>
+            <button type='button' onClick={() => onRemove(admin.id)} disabled={isCreator}>
+              <Trash2 className={cn('h-4 w-4 text-red-700', isCreator && 'cursor-not-allowed opacity-50')} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <AddAdminModal form={form} editingAdmin={admin} canEdit={canEdit} />
+    </>
   );
 }

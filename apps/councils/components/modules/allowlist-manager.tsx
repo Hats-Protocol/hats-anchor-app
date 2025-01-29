@@ -35,16 +35,17 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
 
   if (m.instanceAddress === criteriaModule) {
     return (
-      <div className='flex flex-col gap-4' key={m.id}>
-        <h2 className='text-lg font-semibold'>Compliance Management</h2>
+      <div className='space-y-6' id={m.instanceAddress}>
+        <h2 className='text-2xl font-bold'>Compliance Management</h2>
 
-        <div className='flex flex-col gap-2'>
-          <div className='flex items-center gap-1'>
+        <div className='space-y-4'>
+          <div className='space-y-1'>
             {isAdminHat ? (
-              <h2 className='text-sm font-medium'>Delegated to Council Managers</h2>
+              <h2 className='font-medium'>Delegated to Council Managers</h2>
             ) : (
-              <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+              <h2 className='font-bold'>Compliance Managers</h2>
             )}
+            <p className='text-sm'>Conducts compliance checks</p>
           </div>
 
           <div className='flex flex-col gap-2'>
@@ -54,17 +55,17 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
               return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
             })}
           </div>
-        </div>
 
-        <div className='flex'>
-          <Button
-            variant='outline-blue'
-            rounded='full'
-            onClick={() => setModals?.({ 'addUser-compliance': true })}
-            disabled
-          >
-            Add Compliance Manager
-          </Button>
+          <div className='flex'>
+            <Button
+              variant='outline-blue'
+              rounded='full'
+              onClick={() => setModals?.({ 'addUser-compliance': true })}
+              disabled
+            >
+              Add Compliance Manager
+            </Button>
+          </div>
         </div>
 
         <AddUserModal
@@ -79,16 +80,16 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
   }
 
   return (
-    <div className='flex flex-col gap-4' key={m.id}>
-      <h2 className='text-lg font-semibold'>{m.name}</h2>
+    <div className='flex flex-col gap-6' id={m.instanceAddress}>
+      <h2 className='text-2xl font-bold'>{m.name}</h2>
 
-      <div className='flex flex-col gap-2'>
-        <div className='flex items-center gap-1'>
-          <h2 className='text-sm font-semibold'>Allowlist Managers</h2>
+      <div className='space-y-4'>
+        <div className='space-y-1'>
+          <h2 className='font-bold'>Allowlist Management</h2>
           {isAdminHat ? (
-            <h2 className='text-sm font-medium'>Delegated to Council Managers</h2>
+            <h2 className='font-medium'>Delegated to Council Managers</h2>
           ) : (
-            <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+            <h2 className='font-bold'>Allowlist Managers</h2>
           )}
         </div>
 
@@ -99,12 +100,12 @@ const AllowlistManager = ({ m, chainId, criteriaModule, offchainCouncilDetails }
             return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
           })}
         </div>
-      </div>
 
-      <div className='flex'>
-        <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })} disabled>
-          Add Allowlist Manager
-        </Button>
+        <div className='flex'>
+          <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlist']: true })} disabled>
+            Add Allowlist Manager
+          </Button>
+        </div>
       </div>
 
       <AddUserModal

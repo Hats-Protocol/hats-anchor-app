@@ -130,7 +130,6 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
     >
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
-          {`addComplianceModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
           <div className='space-y-6'>
             <div className='space-y-2'>
               <label className='font-bold'>{chainsMap(chainId).name} Account</label>

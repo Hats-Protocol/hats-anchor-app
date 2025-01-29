@@ -33,16 +33,17 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
   if (!m) return null;
 
   return (
-    <div className='flex flex-col gap-4' key={m.id}>
-      <h2 className='text-lg font-semibold'>{m.name}</h2>
+    <div className='flex flex-col gap-6' id={m.instanceAddress}>
+      <h2 className='text-2xl font-bold'>{m.name}</h2>
 
-      <div className='flex flex-col gap-2'>
-        <div className='flex items-center gap-1'>
+      <div className='space-y-4'>
+        <div className='space-y-1'>
           {isAdminHat ? (
-            <h2 className='text-sm font-medium'>Delegated to Council Managers</h2>
+            <h2 className='font-medium'>Delegated to Council Managers</h2>
           ) : (
-            <h2 className='text-sm font-semibold'>Agreement Managers</h2>
+            <h2 className='font-bold'>Agreement Managers</h2>
           )}
+          <p className='text-sm'>Writes an agreement and controls adherence</p>
         </div>
 
         <div className='flex flex-col gap-2'>
@@ -52,21 +53,21 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
             return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
           })}
         </div>
-      </div>
 
-      <div className='flex gap-2'>
-        <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
-          Edit Agreement
-        </Button>
+        <div className='flex gap-2'>
+          <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
+            Edit Agreement
+          </Button>
 
-        <Button
-          variant='outline-blue'
-          rounded='full'
-          onClick={() => setModals?.({ 'addUser-agreement': true })}
-          disabled
-        >
-          Add Agreement Manager
-        </Button>
+          <Button
+            variant='outline-blue'
+            rounded='full'
+            onClick={() => setModals?.({ 'addUser-agreement': true })}
+            disabled
+          >
+            Add Agreement Manager
+          </Button>
+        </div>
       </div>
 
       <UpdateAgreementModal moduleDetails={m} chainId={chainId} />

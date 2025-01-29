@@ -3,11 +3,12 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { flatten, last, map } from 'lodash';
 import { Link } from 'ui';
 import { explorerUrl, formatAddress, hatLink, shortDateFormatter } from 'utils';
+import { formatEther, formatUnits } from 'viem';
 
 const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainId: number }) => {
   if (param.displayType === 'hat') {
     return (
-      <div key={param.label}>
+      <div>
         <span className='text-sm'>{param.label}</span> -{' '}
         <Link
           href={hatLink({ chainId, hatId: hatIdDecimalToHex(param.value as bigint) })}
@@ -16,6 +17,25 @@ const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainI
         >
           {hatIdDecimalToIp(param.value as bigint)}
         </Link>
+      </div>
+    );
+  }
+  console.log(param);
+  if (param.solidityType === 'address') {
+    return (
+      <div>
+        <span className='text-sm'>{param.label}</span> -{' '}
+        <Link href={`${explorerUrl(chainId)}/address/${param.value}`} className='underline' isExternal>
+          {formatAddress(param.value as string)}
+        </Link>
+      </div>
+    );
+  }
+  if (param.solidityType === 'uint256') {
+    // TODO handle decimals
+    return (
+      <div>
+        <span className='text-sm'>{param.label}</span> - {formatUnits(param.value as bigint, 6)}
       </div>
     );
   }
@@ -50,7 +70,7 @@ const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainI
 
   return (
     <div key={param.label}>
-      {param.label} - {localValue}
+      <span className='text-sm'>{param.label}</span> - {localValue}
     </div>
   );
 };

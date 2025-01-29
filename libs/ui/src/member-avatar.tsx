@@ -36,9 +36,9 @@ const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean 
         <OblongAvatar src={avatar || fallbackAvatar} className='h-10 w-8' />
 
         <div className='flex flex-col gap-0.5'>
-          {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
+          {(name || ensName) && <span className='font-medium'>{name || ensName}</span>}
 
-          <span className='font-jb-mono text-sm text-gray-600'>
+          <span className='font-jb-mono text-black/50'>
             {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
           </span>
         </div>
@@ -50,9 +50,9 @@ const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean 
     <div className='flex items-center gap-2'>
       <OblongAvatar src={avatar || fallbackAvatar} className='h-5 w-4 rounded-sm' />
 
-      {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
+      {(name || ensName) && <span className='font-medium'>{name || ensName}</span>}
 
-      <span className='font-jb-mono text-sm text-gray-600'>
+      <span className='font-jb-mono text-gray-600'>
         {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
       </span>
     </div>

@@ -124,7 +124,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
     <div className='flex flex-col'>
       <div className='flex h-14 items-center justify-between border-b border-gray-200'>
         <div className='flex items-center'>
-          <div className='w-12' />
           <div className='flex h-full w-[250px] items-center p-2'>
             <p>Council Member</p>
           </div>
@@ -188,7 +187,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
       {userAddress && (
         <>
-          <div className='flex gap-2 pt-8'>
+          <div className='flex justify-end gap-2 pt-8'>
             <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
               <Button
                 variant='outline-blue'
@@ -196,13 +195,9 @@ const MembersPage = ({ slug }: { slug: string }) => {
                 onClick={() => setModals?.({ 'addUser-member': true })}
                 disabled={!addAccount || !userAddress}
               >
-                Add Member
+                Add a Council Member
               </Button>
             </Tooltip>
-
-            <Button variant='outline' disabled={!userAddress} onClick={updateComplianceForSelected}>
-              Update Compliance
-            </Button>
           </div>
 
           <AddUserModal

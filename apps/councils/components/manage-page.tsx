@@ -136,17 +136,19 @@ const ManagePage = ({ slug }: { slug: string }) => {
         <SectionMenu sections={sections} />
       </div>
 
-      <div className='flex w-4/5 flex-col gap-8'>
+      <div className='flex w-4/5 flex-col gap-10'>
         <div className='flex flex-col gap-4' id='threshold'>
-          <h2 className='text-lg font-semibold'>Signer Threshold</h2>
+          <h2 className='text-2xl font-bold'>Signer Threshold</h2>
 
-          <SignersIndicator
-            threshold={toNumber(get(councilDetails, 'minThreshold'))}
-            signers={size(get(primarySignerHat, 'wearers'))}
-            maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
-          />
+          <div className='mt-2'>
+            <SignersIndicator
+              threshold={toNumber(get(councilDetails, 'minThreshold'))}
+              signers={size(get(primarySignerHat, 'wearers'))}
+              maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+            />
+          </div>
 
-          <div className='flex'>
+          <div className='mt-2 flex'>
             <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
               Change Threshold
             </Button>
@@ -160,22 +162,29 @@ const ManagePage = ({ slug }: { slug: string }) => {
         </div>
 
         {/* TOP HAT CAN EDIT MANAGERS */}
-        <div className='flex flex-col gap-4' id='admin'>
-          <h2 className='text-lg font-semibold'>Council Management</h2>
+        <div className='space-y-6' id='admin'>
+          <h2 className='text-2xl font-semibold'>Council Management</h2>
 
-          <div className='flex flex-col gap-2'>
-            {map(ownerHat?.wearers, (owner) => {
-              const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                address: getAddress(owner.id),
-              });
-              return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner?.id} />;
-            })}
-          </div>
+          <div className='space-y-4'>
+            <div className='space-y-1'>
+              <h3 className='font-bold'>Council Managers</h3>
+              <p className='text-sm'>Can select Council Members</p>
+            </div>
 
-          <div className='flex'>
-            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
-              Add Council Manager
-            </Button>
+            <div className='flex flex-col gap-2'>
+              {map(ownerHat?.wearers, (owner) => {
+                const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
+                  address: getAddress(owner.id),
+                });
+                return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner?.id} />;
+              })}
+            </div>
+
+            <div className='mt-2 flex'>
+              <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
+                Add a Council Manager
+              </Button>
+            </div>
           </div>
 
           <AddUserModal
@@ -200,23 +209,31 @@ const ManagePage = ({ slug }: { slug: string }) => {
         ))}
 
         {/* TOP HAT CAN TRANSFER */}
-        <div className='flex flex-col gap-4' id='ownership'>
-          <h2 className='text-lg font-semibold'>Ownership</h2>
+        <div className='space-y-6' id='ownership'>
+          <h2 className='text-2xl font-bold'>Organization Management</h2>
 
-          <div className='flex flex-col gap-2'>
-            {map(topHatDetails?.wearers, (owner) => {
-              const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                address: getAddress(owner.id),
-              });
+          <div className='space-y-4'>
+            <div className='space-y-1'>
+              <h3 className='font-bold'>Organization Manager</h3>
+              <p className='text-sm'>Can change all councils and admins</p>
+            </div>
 
-              return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner.id} />;
-            })}
-          </div>
+            <div className='space-y-2'>
+              {map(topHatDetails?.wearers, (owner) => {
+                // there will only be one wearer
+                const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
+                  address: getAddress(owner.id),
+                });
 
-          <div className='flex'>
-            <Button variant='outline-blue' rounded='full' disabled>
-              Transfer Ownership
-            </Button>
+                return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner.id} />;
+              })}
+            </div>
+
+            <div className='mt-2 flex'>
+              <Button variant='outline-blue' rounded='full' disabled>
+                Transfer Ownership
+              </Button>
+            </div>
           </div>
         </div>
       </div>

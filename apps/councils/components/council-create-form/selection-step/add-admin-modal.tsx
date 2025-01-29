@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useCouncilForm, useOverlay } from 'contexts';
 import { AddressInput, Form, Input } from 'forms';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember, FormMember } from 'types';
 import { chainsMap, councilsGraphqlClient, CREATE_USER, getChainId, isValidEmail, logger, UPDATE_USER } from 'utils';
@@ -12,11 +12,11 @@ import { NextStepButton } from '../../next-step-button';
 interface AddAdminModalProps {
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
-  setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
+  // setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
   canEdit?: boolean;
 }
 
-export function AddAdminModal({ form: parentForm, editingAdmin, setEditingAdmin, canEdit = true }: AddAdminModalProps) {
+export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }: AddAdminModalProps) {
   const selectedChain = parentForm.watch('chain')?.value;
   const chainId = getChainId(selectedChain);
   const { modals, setModals } = useOverlay();
@@ -103,7 +103,7 @@ export function AddAdminModal({ form: parentForm, editingAdmin, setEditingAdmin,
 
   const handleClose = () => {
     setModals?.({});
-    setEditingAdmin(null);
+    // setEditingAdmin(null);
   };
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export function AddAdminModal({ form: parentForm, editingAdmin, setEditingAdmin,
 
   return (
     <Modal
-      name='addAdminModal'
+      name={`addAdminModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
       title={editingAdmin ? 'Edit Council Admin' : 'Add Council Admin'}
       onClose={handleClose}
       size='2xl'

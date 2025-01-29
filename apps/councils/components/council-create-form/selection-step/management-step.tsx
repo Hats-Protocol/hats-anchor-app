@@ -1,9 +1,8 @@
 'use client';
 
 import { useCouncilForm, useOverlay } from 'contexts';
-import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { CouncilMember, StepProps } from 'types';
+import { StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
@@ -14,7 +13,6 @@ import { AdminsList } from './admins-list';
 export function SelectionManagementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit, toggleOptionalStep } = useCouncilForm();
   const { setModals } = useOverlay();
-  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const admins = form.watch('admins') || [];
   const requirements = form.watch('requirements');
 
@@ -37,14 +35,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
 
           {admins.length > 0 && (
             <div>
-              <AdminsList
-                name='admins'
-                admins={admins}
-                editingAdmin={editingAdmin}
-                setEditingAdmin={setEditingAdmin}
-                form={form}
-                canEdit={canEdit}
-              />
+              <AdminsList name='admins' admins={admins} form={form} canEdit={canEdit} />
             </div>
           )}
 
@@ -72,7 +63,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
         </div>
       </form>
 
-      <AddAdminModal form={form} editingAdmin={editingAdmin} setEditingAdmin={setEditingAdmin} canEdit={canEdit} />
+      <AddAdminModal form={form} canEdit={canEdit} />
     </>
   );
 }
