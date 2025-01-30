@@ -1,14 +1,7 @@
 import { cn } from '../lib/utils';
 
-export interface HatDecoProps {
-  /** Height of the decoration container */
-  height?: string | number;
-  /** Whether to hide the decoration on desktop */
-  hideOnDesktop?: boolean;
-}
-
 // TODO height not getting picked up
-const HatDeco = ({ height, hideOnDesktop }: HatDecoProps) => (
+const HatDeco = ({ height, hideOnDesktop }: { height?: string | number; hideOnDesktop?: boolean }) => (
   <div
     className={cn(
       'flex items-center justify-center',

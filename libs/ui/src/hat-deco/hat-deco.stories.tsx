@@ -1,15 +1,15 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import { type Meta, type StoryObj } from '@storybook/react';
 
 import { HatDeco } from './hat-deco';
 
-const meta = {
+const meta: Meta<typeof HatDeco> = {
   title: 'Components/HatDeco',
   component: HatDeco,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof HatDeco>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -20,7 +20,7 @@ export const Default: Story = {
 
 export const CustomHeight: Story = {
   args: {
-    height: '300px',
+    height: '200px',
   },
 };
 
