@@ -1,3 +1,5 @@
+import { Hex } from 'viem';
+
 export interface CouncilDraft {
   id: string;
   step: number;
@@ -143,4 +145,9 @@ export interface StepValidation {
     tokens: boolean;
   };
   payment: boolean;
+}
+
+export interface LabeledModules {
+  selection: Hex;
+  criteria: Hex;
 }

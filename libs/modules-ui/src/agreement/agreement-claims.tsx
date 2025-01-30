@@ -126,7 +126,13 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
 };
 
 // SUPPORTS v0 and v1
-export const AgreementClaims = ({ activeModule }: { activeModule: ModuleDetails }) => {
+export const AgreementClaims = ({
+  activeModule,
+  labeledModules,
+}: {
+  activeModule: ModuleDetails;
+  labeledModules: { selection: Hex; criteria: Hex } | undefined;
+}) => {
   const { selectedHatDetails, selectedHat, eligibilityRules } = useEligibility();
 
   const { agreement } = useAgreementClaim({

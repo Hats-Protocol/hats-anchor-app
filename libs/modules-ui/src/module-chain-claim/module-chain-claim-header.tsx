@@ -1,22 +1,39 @@
 import { HSG_V2_ABI } from '@hatsprotocol/constants';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
-import { useOffchainCouncilDetails } from 'hooks';
-import { filter, find, first, flatten, get, keys, mapValues, size } from 'lodash';
+import { useCouncilDetails, useSafeDetails, useToast, useWaitForSubgraph } from 'hooks';
+import { filter, find, first, flatten, get, includes, keys, mapValues, size, toLower } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
-import { useEffect, useMemo } from 'react';
-import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { AppHat, ModuleDetails, SupportedChains } from 'types';
-import { Button } from 'ui';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
+import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
+import { Button, LinkButton } from 'ui';
+import { chainsMap, logger } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
 import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
-const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderProps) => {
+const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
+
+  const [isLoading, setIsLoading] = useState(false);
   const currentChainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { handlePendingTx } = useOverlay();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: councilDetails } = useCouncilDetails({
+    chainId: chainId as SupportedChains,
+    address: hsgAddress,
+  });
+  const { data: safeDetails } = useSafeDetails({
+    safeAddress: councilDetails?.safe,
+    chainId: chainId as SupportedChains,
+  });
+  const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
+  const { toast } = useToast();
   const {
     selectedHat,
     eligibilityRules: rawEligibilityRules,
@@ -27,7 +44,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
     isWearing,
   } = useEligibility();
   const eligibilityRules = flatten(rawEligibilityRules);
-  const { data: offchainCouncilDetails } = useOffchainCouncilDetails({ chainId, hsg: hsgAddress });
+  const isSigner = includes(safeDetails, address as Hex);
 
   // in cases where there's one module to complete the action and claim the hat, it likely has a readyToClaim status
   const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v)); // TODO check that this is the only one/not already eligible
@@ -42,14 +59,6 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
   }, [eligibilityRules, activeRule]);
 
   // TODO check this value ASAP
-  const labeledModules = useMemo(() => {
-    if (!offchainCouncilDetails) return undefined;
-    return {
-      selection: get(offchainCouncilDetails, 'creationForm.selectionModule', '0x') as Hex,
-      criteria: get(offchainCouncilDetails, 'creationForm.criteriaModule', '0x') as Hex,
-    };
-  }, [offchainCouncilDetails]);
-  console.log('labeledModules', labeledModules);
 
   const { handleClaim } = useClaimFn({
     selectedHat: selectedHat as AppHat,
@@ -64,6 +73,16 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
     } as ModuleDetails,
     chainId: chainId as SupportedChains,
     isReadyToClaim: aggregateIsReadyToClaim,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['readContract'] }); // balance check for isWearing uses a generic readContract hook
+      setIsLoading(false);
+    },
+    onError: () => {
+      setIsLoading(false);
+    },
+    onDecline: () => {
+      setIsLoading(false);
+    },
   });
 
   const currentEligibilityClaim = mapValues(currentEligibility, (v: { eligible: boolean; goodStanding: boolean }) => {
@@ -79,16 +98,39 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
   if (!activeRule?.address || !chainId) return null;
 
   const handleClaimClick = async () => {
+    setIsLoading(true);
     if (isWearing) {
       if (!hsgAddress) return;
-      const tx = await writeContractAsync({
+      const hash = await writeContractAsync({
         address: hsgAddress,
         abi: HSG_V2_ABI,
         functionName: 'claimSignerFor',
         args: [selectedHat?.id ? BigInt(selectedHat?.id) : BigInt(0), address as Hex],
+      }).catch((err) => {
+        logger.error(err);
+        // TODO toast for tx decline
+        setIsLoading(false);
+        return undefined;
       });
-      // redirect to council page
-      console.log('tx', tx);
+
+      if (!hash) return;
+
+      handlePendingTx?.({
+        txChainId: chainId,
+        txDescription: 'Claiming Signer',
+        hash,
+        waitForSubgraph,
+        onSuccess: () => {
+          toast({
+            title: 'Joined Council',
+            description: 'Redirecting you to the council page',
+          });
+          queryClient.invalidateQueries({ queryKey: ['readContract'] }); // TODO trying to invalidate is safe signer check
+          setIsLoading(false);
+          // redirect to council page
+          router.push(`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`);
+        },
+      });
       // TODO handlePendingTx
     } else {
       handleClaim();
@@ -124,17 +166,28 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
       <div className='flex items-center justify-between'>
         <ModuleChainClaimButtons labeledModules={labeledModules} />
 
-        {chainId !== currentChainId ? (
+        {isSigner ? (
+          <LinkButton
+            href={`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`}
+            className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
+            variant='outline'
+          >
+            <span className='flex items-center gap-1'>
+              View Council
+              <BsArrowRight className='ml-1 h-4 w-4' />
+            </span>
+          </LinkButton>
+        ) : chainId !== currentChainId ? (
           <Button variant='outline-blue' rounded='full' onClick={() => switchChain({ chainId })}>
             Change Chain
           </Button>
         ) : (
           <Button
-            disabled={!address || chainId !== currentChainId || !isReadyToClaim}
+            disabled={!address || chainId !== currentChainId || !isReadyToClaim || isLoading}
             rounded='full'
             onClick={handleClaimClick}
           >
-            Claim {isWearing ? 'Signer' : ''}
+            {isLoading ? 'Claiming...' : isWearing ? 'Claim Signer' : 'Claim'}
           </Button>
         )}
       </div>
@@ -145,6 +198,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
 interface ModuleChainClaimHeaderProps {
   hsgAddress: Hex | undefined;
   chainId: number | undefined;
+  labeledModules: LabeledModules | undefined;
 }
 
-export default ModuleChainClaimHeader;
+export { ModuleChainClaimHeader };

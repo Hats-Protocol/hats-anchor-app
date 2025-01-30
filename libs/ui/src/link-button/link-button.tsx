@@ -17,11 +17,11 @@ interface BaseLinkButtonProps extends Omit<LinkButtonProps, 'onClick'> {
 }
 
 const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLinkButtonProps> = (
-  { onClick, href, variant, icon, isExternal, children },
+  { onClick, href, variant, icon, isExternal, children, className },
   ref,
 ) => {
   return (
-    <Button variant={variant as ButtonProps['variant']} asChild>
+    <Button variant={variant as ButtonProps['variant']} className={className} asChild>
       <a
         href={href}
         onClick={onClick}
