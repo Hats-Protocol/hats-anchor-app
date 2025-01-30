@@ -4,6 +4,9 @@
 
 @layer base {
   :root {
+    --font-sans: 'Inter Variable';
+    --font-mono: 'JetBrains Mono Variable';
+
     /* INFORMATIVE */
     --informative-human: 184, 50, 128; /* rgb(184, 50, 128) */
     --informative-code: 44, 122, 123; /* rgb(44, 122, 123) */
@@ -80,6 +83,12 @@
 
   html {
     scroll-behavior: smooth;
+    font-family: var(--font-sans);
+  }
+
+  pre,
+  code {
+    font-family: var(--font-mono);
   }
 }
 
