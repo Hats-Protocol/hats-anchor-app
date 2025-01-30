@@ -131,14 +131,14 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
 
   // TODO consider removing `sendToast` here as it's giving confusing results. Consumer should handle in `onSuccess`
   /**
-   * @param {hex} params.hash
-   * @param {number} params.txChainId
-   * @param {string} params.txDescription
-   * @param {string} params.successToastData Toast props
-   * @param {string} params.redirect URL to redirect the user to after the transaction is successful
-   * @param {boolean} params.clearModals defaults to true
-   * @param {boolean} params.sendSuccessToast defaults to true, override to false if you want to handle the toast in the onSuccess callback
-   * @param {string} params.onSuccess after the tx is successful, subgraph is synced and mesh is invalidated
+   * @param props.hash - transaction hash
+   * @param props.txChainId - transaction chain id
+   * @param props.txDescription - transaction description
+   * @param props.successToastData - toast props
+   * @param props.redirect - URL to redirect the user to after the transaction is successful
+   * @param props.clearModals defaults to true
+   * @param props.sendSuccessToast defaults to true, override to false if you want to handle the toast in the onSuccess callback
+   * @param props.onSuccess after the tx is successful, subgraph is synced and mesh is invalidated
    * @returns {Promise<void>}
    * @example
    * handlePendingTx({

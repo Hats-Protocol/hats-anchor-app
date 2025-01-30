@@ -1,6 +1,6 @@
 export const CHAIN_MAPPING = {
   '1': 'ethereum',
-  '10': 'optimism',
+  '10': 'op-mainnet',
   '42161': 'arbitrum',
   '137': 'polygon',
   '100': 'gnosis',

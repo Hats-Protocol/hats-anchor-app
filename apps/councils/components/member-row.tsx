@@ -3,11 +3,12 @@
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { usePrivy } from '@privy-io/react-auth';
 import { Modal, useOverlay } from 'contexts';
-import { find, get, map } from 'lodash';
+import { useSafeDetails } from 'hooks';
+import { find, get, includes, map } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
-import { AppHat, CouncilMember, OffchainCouncilData, SupportedChains } from 'types';
+import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
 import { getAllWearers } from 'utils';
 import { Hex } from 'viem';
@@ -23,6 +24,7 @@ const MemberRow = ({
   signerHat,
   eligibilityRules,
   offchainCouncilData,
+  councilData,
   form,
 }: {
   member: CouncilMember;
@@ -31,6 +33,7 @@ const MemberRow = ({
   signerHat: AppHat | undefined;
   eligibilityRules: Ruleset[] | undefined;
   offchainCouncilData: OffchainCouncilData | undefined;
+  councilData: ExtendedHSGV2 | undefined;
   form: UseFormReturn;
 }) => {
   const { setModals } = useOverlay();
@@ -42,11 +45,16 @@ const MemberRow = ({
     wearerAddress: member.address as Hex,
     eligibilityRules,
   });
-  const isSigner = false;
+  const { data: safeOwners } = useSafeDetails({
+    safeAddress: councilData?.safe as Hex,
+    chainId: chainId as SupportedChains,
+  });
+  const isSigner = includes(safeOwners, userAddress);
 
   if (!member) return null;
 
-  const canEdit = !!userAddress && true; // TODO handle who can edit users details (admins/themselves)
+  const canEdit = !!userAddress && member.address.toLowerCase() === userAddress.toLowerCase(); // user can edit their own details
+  // || isAdmin); // TODO or an administrative role check
 
   const editUser = () => {
     setModals?.({ [`editUser-member-${member.address}`]: true });
@@ -176,6 +184,7 @@ const MemberRow = ({
         eligibilityRules={eligibilityRules || undefined}
         currentEligibility={currentEligibility || undefined}
         offchainCouncilData={offchainCouncilData}
+        councilData={councilData}
       />
     </div>
   );

@@ -138,11 +138,11 @@ export interface StepValidation {
   onboarding: boolean;
   selection: boolean;
   selectionSubSteps: {
-    members: boolean;
     management: boolean;
     compliance: boolean;
     agreement: boolean;
     tokens: boolean;
+    members: boolean;
   };
   payment: boolean;
 }

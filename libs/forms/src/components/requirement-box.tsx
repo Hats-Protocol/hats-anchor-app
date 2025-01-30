@@ -41,7 +41,7 @@ const RequirementBox = ({ name, localForm, options, isDisabled }: RequirementBox
                   <FormLabel
                     className={cn(
                       'flex flex-col items-center rounded-lg border border-gray-200 px-6 py-4',
-                      field.value ? 'border-functional-link-primary shadow' : 'border-gray-200 bg-white',
+                      field.value ? 'border-functional-link-primary bg-white/90 shadow' : 'border-gray-200 bg-white',
                       !isDisabled && 'hover:border-functional-link-primary cursor-pointer',
                     )}
                   >

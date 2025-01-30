@@ -135,8 +135,6 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
     } else {
       handleClaim();
     }
-
-    // TODO success? is overlay context available?
   };
 
   const completedRules = size(filter(eligibilityRules, (rule) => get(combinedReadyToClaim, rule.address)));

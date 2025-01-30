@@ -4,11 +4,19 @@ import { Module, Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { Form, RadioBox } from 'forms';
-import { compact, find, flatten, forEach, get, has, map } from 'lodash';
+import { useSafeDetails } from 'hooks';
+import { compact, find, flatten, forEach, get, has, includes, map } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { CouncilMember, CurrentEligibility, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
+import type {
+  CouncilMember,
+  CurrentEligibility,
+  ExtendedHSGV2,
+  ModuleFunction,
+  OffchainCouncilData,
+  SupportedChains,
+} from 'types';
 import { Button } from 'ui';
 import { formatAddress, getKnownEligibilityModule, logger, sendTelegramMessage } from 'utils';
 import { Hex } from 'viem';
@@ -25,6 +33,7 @@ type RemoveUserModalProps = {
   eligibilityRules?: Ruleset[];
   currentEligibility?: CurrentEligibility;
   offchainCouncilData?: OffchainCouncilData;
+  councilData?: ExtendedHSGV2;
   afterSuccess?: (user: CouncilMember | undefined) => Promise<void>;
 };
 
@@ -70,6 +79,7 @@ function RemoveUserModal({
   eligibilityRules,
   currentEligibility,
   offchainCouncilData,
+  councilData,
   afterSuccess,
 }: RemoveUserModalProps) {
   const [formPending, setFormPending] = useState(false); // TODO handle loading state
@@ -77,7 +87,11 @@ function RemoveUserModal({
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
   const { handleSubmit, reset } = form;
-  const isSigner = false;
+  const { data: safeOwners } = useSafeDetails({
+    safeAddress: councilData?.safe as Hex,
+    chainId: chainId as SupportedChains,
+  });
+  const isSigner = includes(safeOwners, user?.address);
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
   const removeFunctions = removeFunctionsForModules(eligibilityRules);

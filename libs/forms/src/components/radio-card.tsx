@@ -82,7 +82,7 @@ const RadioCard = ({
                         className={cn(
                           'flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4',
                           option.disabled && 'cursor-not-allowed',
-                          field.value === option.value && 'border-functional-link-primary shadow',
+                          field.value === option.value && 'border-functional-link-primary bg-white/90 shadow',
                         )}
                         onClick={() => !option.disabled && field.onChange(option.value)}
                       >

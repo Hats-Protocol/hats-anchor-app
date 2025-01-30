@@ -183,6 +183,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
               eligibilityRules={eligibilityRules || undefined}
               offchainCouncilData={offchainCouncilData || undefined}
               form={form}
+              councilData={councilDetails || undefined}
             />
           );
         })
