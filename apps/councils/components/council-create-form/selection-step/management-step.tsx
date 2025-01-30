@@ -11,7 +11,7 @@ import { AddAdminModal } from './add-admin-modal';
 import { AdminsList } from './admins-list';
 
 export function SelectionManagementStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit, toggleOptionalStep } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
   const admins = form.watch('admins') || [];
   const requirements = form.watch('requirements');
@@ -54,10 +54,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
         </div>
 
         <div className='flex justify-end py-6'>
-          <NextStepButton
-            disabled={!form.formState.isValid || !canEdit}
-            onClick={() => toggleOptionalStep('management')}
-          >
+          <NextStepButton disabled={!form.formState.isValid || !canEdit}>
             {getNextStepButtonText(nextStep)}
           </NextStepButton>
         </div>

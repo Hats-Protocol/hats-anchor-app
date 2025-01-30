@@ -24,9 +24,9 @@ const EligibilityStatus = ({
   if (isEligible) {
     return (
       <div className='flex items-center gap-1'>
-        <BsCheckSquareFill className='h-6 w-6 text-green-500' />
+        <BsCheckSquareFill className='text-functional-success h-6 w-6' />
 
-        <p className='text-green-500'>{yes || 'Yes'}</p>
+        <p className='text-functional-success'>{yes || 'Yes'}</p>
       </div>
     );
   }
@@ -35,18 +35,18 @@ const EligibilityStatus = ({
   if (isReadyToClaim) {
     return (
       <div className='flex items-center gap-1'>
-        <BsCheckSquare className='h-6 w-6 text-green-500' />
+        <BsCheckSquare className='text-functional-success h-6 w-6' />
 
-        <p className='text-green-500'>Pending</p>
+        <p className='text-functional-success'>Pending</p>
       </div>
     );
   }
 
   return (
     <div className='flex items-center gap-1'>
-      <BsFillXOctagonFill className='h-6 w-6 text-red-500' />
+      <BsFillXOctagonFill className='text-destructive h-6 w-6' />
 
-      <p className='text-red-500'>{no || 'No'}</p>
+      <p className='text-destructive'>{no || 'No'}</p>
     </div>
   );
 };
@@ -85,7 +85,7 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
     <Button
       variant='outline'
       onClick={() => setActiveRule(rule)}
-      className={cn('block-size-auto h-auto w-full whitespace-normal bg-white p-4', {
+      className={cn('block-size-auto h-auto w-auto justify-start whitespace-normal bg-white p-4', {
         'border-2 border-gray-800': activeRule?.address === rule.address,
         'border border-gray-300': activeRule?.address !== rule.address,
       })}

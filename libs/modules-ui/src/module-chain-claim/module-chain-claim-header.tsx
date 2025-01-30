@@ -4,7 +4,7 @@ import { useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import { useEffect, useMemo } from 'react';
-import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
+import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Button } from 'ui';
 import { Hex } from 'viem';
@@ -111,10 +111,12 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
           <p className='text-xl font-semibold'>
             {completedRules}/{size(eligibilityRules)}
           </p>
-          {isReadyToClaim ? (
-            <BsCheckSquareFill className='h-6 w-6 text-green-500' />
+          {isWearing ? (
+            <BsCheckSquareFill className='text-functional-success h-6 w-6' />
+          ) : isReadyToClaim ? (
+            <BsCheckSquare className='text-functional-success h-6 w-6' />
           ) : (
-            <BsFillXOctagonFill className='h-6 w-6 text-red-500' />
+            <BsFillXOctagonFill className='text-destructive h-6 w-6' />
           )}
         </div>
       </div>
@@ -123,11 +125,15 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId }: ModuleChainClaimHeaderP
         <ModuleChainClaimButtons labeledModules={labeledModules} />
 
         {chainId !== currentChainId ? (
-          <Button variant='outline-blue' onClick={() => switchChain({ chainId })}>
+          <Button variant='outline-blue' rounded='full' onClick={() => switchChain({ chainId })}>
             Change Chain
           </Button>
         ) : (
-          <Button disabled={!address || chainId !== currentChainId || !isReadyToClaim} onClick={handleClaimClick}>
+          <Button
+            disabled={!address || chainId !== currentChainId || !isReadyToClaim}
+            rounded='full'
+            onClick={handleClaimClick}
+          >
             Claim {isWearing ? 'Signer' : ''}
           </Button>
         )}

@@ -2,7 +2,7 @@
 
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
-import { get, isEmpty, map, toNumber } from 'lodash';
+import { get, isEmpty, map, some, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -14,6 +14,7 @@ import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
 import { NextStepButton } from '../next-step-button';
+import Deploy from './deploy';
 import { PaymentDetailsModal } from './payment-details-modal';
 
 const Currency = dynamic(() => import('icons').then((mod) => mod.Currency), { ssr: false });
@@ -104,7 +105,7 @@ const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
 );
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation, deployCouncil, isDeploying, canEdit } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying, canEdit, deployStatus } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const { setModals } = useOverlay();
@@ -162,6 +163,10 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const firstAdmin = get(formData, 'admins.[0]');
 
   const isWrongNetwork = userChainId !== targetChainId;
+
+  if (some(deployStatus, (value) => value)) {
+    return <Deploy deployStatus={deployStatus} draftId={draftId} />;
+  }
 
   return (
     <div className='mx-auto max-w-4xl'>

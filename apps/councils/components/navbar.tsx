@@ -36,8 +36,8 @@ const Navbar = () => {
     <div
       className={cn(
         'flex min-h-[56px] w-full items-center justify-between bg-gray-50 px-2',
-        createForm && 'bg-gray-100',
-        chainId && address && 'bg-gray-200',
+        (createForm || isJoinLink) && 'bg-gray-100',
+        chainId && address && !isJoinLink && 'bg-gray-200',
       )}
     >
       <div className='flex items-center gap-4'>

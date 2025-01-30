@@ -3,12 +3,13 @@
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { usePrivy } from '@privy-io/react-auth';
 import { Modal, useOverlay } from 'contexts';
-import { get, map } from 'lodash';
+import { find, get, map } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
+import { getAllWearers } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -58,6 +59,9 @@ const MemberRow = ({
   const viewUser = () => {
     setModals?.({ [`viewUser-member-${member.address}`]: true });
   };
+  const offchainWearers = getAllWearers(offchainCouncilData);
+  const offChainDetails = find(offchainWearers, { address: member.address });
+  const fullMember = { ...member, ...offChainDetails };
 
   // TODO member is missing profile data for details edit form
 
@@ -72,7 +76,7 @@ const MemberRow = ({
           />
         </div> */}
         <div className='flex h-full w-[250px] items-center p-2'>
-          <MemberAvatar member={member} stack />
+          <MemberAvatar member={fullMember} stack />
         </div>
       </div>
 
@@ -132,17 +136,18 @@ const MemberRow = ({
             </Button>
           )}
 
-          {userAddress && user && canEdit && (
-            <Button
-              variant='link'
-              size='link'
-              className='text-destructive'
-              onClick={removeUser}
-              disabled={!userAddress}
-            >
-              Remove
-            </Button>
-          )}
+          {userAddress &&
+            user &&
+            canEdit &&
+            (isSigner ? (
+              <Button variant='link' size='link' className='text-destructive' onClick={removeUser}>
+                Remove
+              </Button>
+            ) : (
+              <Button variant='link' size='link' className='text-functional-link-primary' onClick={removeUser}>
+                Status
+              </Button>
+            ))}
         </div>
       </div>
 
@@ -157,7 +162,7 @@ const MemberRow = ({
       </Modal>
       <AddUserModal
         type='member'
-        editingUser={member}
+        editingUser={fullMember}
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
         councilId={offchainCouncilData?.creationForm?.id}
@@ -165,7 +170,7 @@ const MemberRow = ({
       />
       <RemoveUserModal
         type='member'
-        user={member}
+        user={fullMember}
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
         eligibilityRules={eligibilityRules || undefined}

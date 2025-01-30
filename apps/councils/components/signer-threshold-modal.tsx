@@ -7,7 +7,7 @@ import { Modal, useOverlay } from 'contexts';
 import { Form, SignerThresholdSubForm } from 'forms';
 import { useWaitForSubgraph } from 'hooks';
 import { get, size, toNumber, toString } from 'lodash';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppHat, HatSignerGateV2 } from 'types';
 import { Button } from 'ui';
@@ -30,7 +30,8 @@ type SignerThresholdData = {
 
 function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdModalProps) {
   const localForm = useForm<SignerThresholdData>();
-  const { handlePendingTx } = useOverlay();
+  const [isLoading, setIsLoading] = useState(false);
+  const { handlePendingTx, setModals } = useOverlay();
   const { address } = useAccount();
   const queryClient = useQueryClient();
   const { reset, handleSubmit, watch } = localForm;
@@ -87,6 +88,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
   }, [thresholdType]);
 
   const onSubmit = (data: SignerThresholdData) => {
+    setIsLoading(true);
     if (!signer) return;
 
     const { thresholdType, min, target } = data;
@@ -108,6 +110,8 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
           onSuccess: () => {
             // invalidate queries
             queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+            setIsLoading(false);
+            setModals?.({});
           },
         });
       })
@@ -159,8 +163,8 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
                   Set max members
                 </Button>
               )}
-              <Button type='submit' rounded='full' disabled={!hasHsgChanges || !address}>
-                Update Threshold
+              <Button type='submit' rounded='full' disabled={!hasHsgChanges || !address || isLoading}>
+                {isLoading ? 'Updating...' : 'Update Threshold'}
               </Button>
             </div>
           </div>

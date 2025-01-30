@@ -1,14 +1,16 @@
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, map, size, split } from 'lodash';
 import { useState } from 'react';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
-import { getAllWearers, logger } from 'utils';
+import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage } from 'utils';
 import { getAddress, Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from '../add-user-modal';
 
@@ -24,6 +26,12 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
   const { user } = usePrivy();
+  const { toast } = useToast();
+  const { data: walletClient } = useWalletClient();
+  const { handlePendingTx } = useOverlay();
+  const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
+  const queryClient = useQueryClient();
+
   const managerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(managerHatId), '.')) === 2;
   logger.debug('isAdminHat', { managerHatId: managerHatId ? hatIdDecimalToIp(managerHatId) : undefined, isAdminHat });
@@ -40,7 +48,60 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
   const [, setManagerLoading] = allowlistManagerLoading;
 
   const addAllowlistManager = async (data: CouncilMember | undefined) => {
-    setManagerLoading(false);
+    if (!data || !userAddress) {
+      toast({ title: 'No address or user found', variant: 'destructive' });
+      setManagerLoading(false);
+      return;
+    }
+    console.log({ user: data, userAddress });
+
+    return createHatsClient(chainId ?? 11155111, walletClient)
+      .then((hatsClient) => {
+        if (!hatsClient) {
+          toast({ title: 'Failed to create hats client', variant: 'destructive' });
+          setManagerLoading(false);
+          return;
+        }
+
+        hatsClient
+          .mintHat({
+            account: userAddress,
+            hatId: BigInt(managerHatId),
+            wearer: data.address,
+          })
+          .then((result) => {
+            if (!result?.transactionHash) return;
+
+            handlePendingTx?.({
+              hash: result?.transactionHash,
+              txChainId: chainId ?? 11155111,
+              txDescription: `Added ${data.name || formatAddress(data.address)} as an compliance manager`,
+              waitForSubgraph,
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+                queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
+                setManagerLoading(false);
+
+                sendTelegramMessage(
+                  // TODO handle allowlist copy here in those cases
+                  `New compliance manager added: ${data.name} (${formatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
+                );
+
+                setModals?.({});
+              },
+            });
+          })
+          .catch((error) => {
+            logger.debug('Failed to add compliance manager', { error });
+            toast({ title: 'Failed to add compliance manager', variant: 'destructive' });
+            setManagerLoading(false);
+          });
+      })
+      .catch((error) => {
+        logger.debug('Failed to create Hats client', { error });
+        toast({ title: 'Failed to create Hats client', variant: 'destructive' });
+        setManagerLoading(false);
+      });
   };
 
   if (!m) return null;
@@ -75,7 +136,7 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
                 variant='outline-blue'
                 rounded='full'
                 onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
-                disabled
+                disabled={isAdminHat}
               >
                 Add Compliance Manager
               </Button>

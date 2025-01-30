@@ -4,14 +4,13 @@ import { usePrivy } from '@privy-io/react-auth';
 import { Modal } from 'contexts';
 import { AddressInput, Form, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
-import { capitalize, map, some, toLower } from 'lodash';
+import { capitalize, isEmpty, keys, map, some, toLower } from 'lodash';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
 import { Button } from 'ui';
 import { chainsMap, isValidEmail, logger } from 'utils';
 import { isAddress } from 'viem';
-import { useAccount } from 'wagmi';
 
 interface CouncilMemberDetails {
   address: string;
@@ -49,13 +48,21 @@ function AddUserModal({
   addUserLoading,
 }: AddAdminModalProps) {
   const [isLoading, setIsLoading] = addUserLoading || [false, () => {}];
-  const { address: userAddress } = useAccount();
   const { user } = usePrivy();
   const form = useForm<UserFormProps>();
-  const { getValues, setValue, setError, handleSubmit, reset } = form;
+  const {
+    getValues,
+    setValue,
+    setError,
+    handleSubmit,
+    reset,
+    formState: { dirtyFields },
+  } = form;
+  const isDirty = !isEmpty(keys(dirtyFields));
 
   const isFormValid = () => {
     const values = getValues();
+    // TODO use yup resolvers
     return isAddress(values.address) && isValidEmail(values.email);
   };
 
@@ -92,6 +99,7 @@ function AddUserModal({
       email: editingUser.email,
       name: editingUser.name,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingUser]);
 
   const onSubmit = async (data: CouncilMemberDetails) => {
@@ -165,7 +173,7 @@ function AddUserModal({
           <div className='mt-8'>
             <div className='flex justify-end'>
               {editingUser ? (
-                <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
+                <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading || !isDirty}>
                   {isLoading ? 'Saving...' : 'Save Changes'}
                 </Button>
               ) : (

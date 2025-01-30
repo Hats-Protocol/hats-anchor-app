@@ -167,6 +167,10 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       if (!hash || !txChainId) {
         return Promise.resolve(undefined);
       }
+      toast({
+        title: 'Transaction submitted',
+        description: 'Waiting for the chain to confirm...',
+      });
 
       if (hash && hash !== '0x') {
         addTransaction({

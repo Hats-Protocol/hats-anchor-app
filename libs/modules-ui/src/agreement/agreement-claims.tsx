@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
 import { EligibilityRule, HatDetails, ModuleDetails } from 'types';
-import { Button, cn, Tooltip } from 'ui';
+import { Button, Card, cn, Tooltip } from 'ui';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -107,7 +107,7 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
     <Tooltip label={buttonTooltip}>
       <Button
         variant={isReadyToClaim ? 'outline' : 'default'}
-        className={cn('py-4', isReadyToClaim ? 'border-green-500 text-green-500' : undefined)}
+        className={cn('py-4', isReadyToClaim ? 'border-functional-success text-functional-success' : undefined)}
         size='sm'
         onClick={() => {
           if (chainHasSubscription) {
@@ -143,21 +143,24 @@ export const AgreementClaims = ({ activeModule }: { activeModule: ModuleDetails 
   if (selectedHat?.id === CONFIG.agreementV0.communityHatId) {
     onlyHat = true;
   }
+  // console.log('agreement', agreement, activeModule);
 
   return (
     <div className='hidden w-full flex-col gap-4 md:flex'>
-      <div className='flex flex-1 items-center justify-between gap-10 rounded-lg border border-gray-200 p-10'>
-        <h3>
-          Sign the agreement
-          {onlyHat ? ` to claim the ${get(selectedHatDetails, 'name')} ${capitalize(CONFIG.TERMS.hat)}` : ''}
-        </h3>
+      <Card className='flex flex-col justify-between gap-6 p-10'>
+        <div className='flex justify-between'>
+          <h3 className='text-xl font-semibold'>
+            Sign the agreement
+            {onlyHat ? ` to claim the ${get(selectedHatDetails, 'name')} ${capitalize(CONFIG.TERMS.hat)}` : ''}
+          </h3>
 
-        <div className='flex min-w-[175px] justify-end'>
-          <AgreementButton activeModule={activeModule} />
+          <div className='flex min-w-[175px] justify-end'>
+            <AgreementButton activeModule={activeModule} />
+          </div>
         </div>
 
         <AgreementContent agreement={agreement || agreementV0 || undefined} />
-      </div>
+      </Card>
 
       <div>
         <AgreementButton activeModule={activeModule} />

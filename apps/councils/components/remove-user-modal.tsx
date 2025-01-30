@@ -4,7 +4,7 @@ import { Module, Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { Form, RadioBox } from 'forms';
-import { find, flatten, forEach, get, has, map } from 'lodash';
+import { compact, find, flatten, forEach, get, has, map } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -77,6 +77,7 @@ function RemoveUserModal({
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
   const { handleSubmit, reset } = form;
+  const isSigner = false;
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
   const removeFunctions = removeFunctionsForModules(eligibilityRules);
@@ -115,38 +116,47 @@ function RemoveUserModal({
     if (!eligibilityRules || !offchainCouncilData || !currentEligibility) return [];
 
     // TODO check if user is respective admin
-    return map(flatten(eligibilityRules), (rule) => {
-      // check if user is admin
-      if (rule.address === offchainCouncilData?.membersSelectionModule) {
-        const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
-        return {
-          label: 'No longer a council member',
-          value: rule.address,
-          isDisabled: !moduleEligibility.eligible || !moduleEligibility.goodStanding,
-        };
-      }
+    return compact(
+      map(flatten(eligibilityRules), (rule) => {
+        // check if user is admin
+        if (rule.address === offchainCouncilData?.membersSelectionModule) {
+          const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
+          return {
+            label: 'No longer a council member',
+            value: rule.address,
+            isDisabled: !moduleEligibility.eligible || !moduleEligibility.goodStanding,
+          };
+        }
 
-      // check if user is compliance admin and selected user is compliant
-      if (rule.address === offchainCouncilData?.membersCriteriaModule) {
-        const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
-        return {
-          label: 'Violated compliance',
-          value: rule.address,
-          isDisabled: !moduleEligibility.eligible || !moduleEligibility.goodStanding,
-        };
-      }
+        // check if user is compliance admin and selected user is compliant
+        if (rule.address === offchainCouncilData?.membersCriteriaModule) {
+          const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
+          return {
+            label: 'Violated compliance',
+            value: rule.address,
+            isDisabled: !moduleEligibility.eligible || !moduleEligibility.goodStanding,
+          };
+        }
 
-      // check if user is agreement admin and has signed the agreement
-      if (getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement') {
-        const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
-        return {
-          label: 'Violated the agreement',
-          value: rule.address,
-          isDisabled: !moduleEligibility.eligible || !moduleEligibility.goodStanding,
-        };
-      }
-      return { label: rule.module.name, value: rule.address };
-    });
+        // check if user is agreement admin and has signed the agreement
+        if (getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement') {
+          const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
+          return {
+            label: 'Violated the agreement',
+            value: rule.address,
+            isDisabled: !moduleEligibility.eligible || !moduleEligibility.goodStanding,
+          };
+        }
+        if (
+          getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20' ||
+          getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc721' ||
+          getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc1155'
+        ) {
+          return undefined;
+        }
+        return { label: rule.module.name, value: rule.address };
+      }),
+    );
   }, [eligibilityRules, offchainCouncilData, currentEligibility]);
 
   useEffect(() => {
@@ -168,8 +178,13 @@ function RemoveUserModal({
 
           <div className='mt-8'>
             <div className='flex justify-end'>
-              <Button type='submit' variant='destructive'>
-                Remove
+              <Button
+                type='submit'
+                rounded='full'
+                variant={isSigner ? 'destructive' : 'default'}
+                disabled={formPending}
+              >
+                {isSigner ? (formPending ? 'Removing' : 'Remove') : formPending ? 'Updating' : 'Update'}
               </Button>
             </div>
           </div>
