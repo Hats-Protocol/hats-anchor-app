@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Skeleton } from './skeleton';
-import '../styles/global.css';
+import { Meta, StoryObj } from '@storybook/react';
 
-const meta = {
+import { Skeleton } from '../skeleton';
+
+const meta: Meta<typeof Skeleton> = {
   title: 'Components/Skeleton',
   component: Skeleton,
   parameters: {

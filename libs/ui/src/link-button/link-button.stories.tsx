@@ -28,14 +28,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    href: 'https://example.com',
+    href: 'https://hatsprotocol.xyz',
     children: 'Click me',
   },
 };
 
 export const WithIcon: Story = {
   args: {
-    href: 'https://example.com',
+    href: 'https://hatsprotocol.xyz',
     icon: (
       <svg
         xmlns='http://www.w3.org/2000/svg'
@@ -58,7 +58,7 @@ export const WithIcon: Story = {
 
 export const Secondary: Story = {
   args: {
-    href: 'https://example.com',
+    href: 'https://hatsprotocol.xyz',
     variant: 'secondary',
     children: 'Secondary Button',
   },
@@ -66,7 +66,7 @@ export const Secondary: Story = {
 
 export const Ghost: Story = {
   args: {
-    href: 'https://example.com',
+    href: 'https://hatsprotocol.xyz',
     variant: 'ghost',
     children: 'Ghost Button',
   },

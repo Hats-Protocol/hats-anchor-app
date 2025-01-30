@@ -1,7 +1,5 @@
 import { type Meta, type StoryObj } from '@storybook/react';
 
-import { MemberAvatar } from './member-avatar';
-
 // Mock component for Storybook only
 const MockMemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean }) => {
   const mockMember = {

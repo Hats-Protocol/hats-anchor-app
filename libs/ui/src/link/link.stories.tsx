@@ -28,14 +28,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    href: 'https://example.com',
+    href: 'https://hatsprotocol.xyz',
     children: 'Click me',
   },
 };
 
 export const External: Story = {
   args: {
-    href: 'https://example.com',
+    href: 'https://hatsprotocol.xyz',
     children: 'External Link',
     isExternal: true,
   },
@@ -43,7 +43,7 @@ export const External: Story = {
 
 export const CustomStyle: Story = {
   args: {
-    href: 'https://example.com',
+    href: 'https://hatsprotocol.xyz',
     children: 'Custom Styled Link',
     className: 'text-blue-500 hover:text-blue-700 underline',
   },

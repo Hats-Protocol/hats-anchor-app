@@ -1,46 +1,94 @@
-import { UploadCloud } from 'lucide-react';
+'use client';
+
 import * as React from 'react';
-import { useDropzone } from 'react-dropzone';
+import { type DropzoneInputProps, type DropzoneRootProps } from 'react-dropzone';
+import { ImageFile } from 'types';
 
 import { cn } from '../lib/utils';
 
-export interface DropZoneProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
-  disabled?: boolean;
-  onDrop?: (acceptedFiles: File[]) => void;
+interface DropZoneProps {
+  label?: string;
+  getRootProps: (props?: DropzoneRootProps) => DropzoneRootProps;
+  getInputProps: () => DropzoneInputProps;
+  isFocused?: boolean;
+  isDragAccept?: boolean;
+  isDragReject?: boolean;
+  isFullWidth?: boolean;
+  image?: ImageFile;
+  imageUrl?: string | null;
+  isNewImage?: boolean;
   maxSize?: number;
-  accept?: Record<string, string[]>;
 }
 
 const DropZone = React.forwardRef<HTMLDivElement, DropZoneProps>(
-  ({ className, disabled = false, onDrop, maxSize, accept, ...props }, ref) => {
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-      onDrop,
-      disabled,
+  (
+    {
+      label,
+      getRootProps,
+      getInputProps,
+      isFocused,
+      isDragAccept,
+      isDragReject,
+      isFullWidth,
+      image,
+      imageUrl,
+      isNewImage,
       maxSize,
-      accept,
-    });
+    },
+    ref,
+  ) => {
+    React.useEffect(() => {
+      return () => {
+        if (image?.preview) {
+          URL.revokeObjectURL(image.preview);
+        }
+      };
+    }, [image]);
 
     return (
-      <div
-        {...getRootProps()}
-        ref={ref}
-        className={cn(
-          'border-muted-foreground/25 hover:border-muted-foreground/40 group relative rounded-lg border-2 border-dashed p-12 text-center',
-          isDragActive && 'border-muted-foreground/50',
-          disabled && 'pointer-events-none opacity-60',
-          className,
-        )}
-        {...props}
-      >
-        <input {...getInputProps()} />
+      <div ref={ref} className='flex w-full flex-col gap-2'>
+        {label && <h2 className='text-muted-foreground text-sm font-medium uppercase'>{label}</h2>}
+        <div className='flex gap-3'>
+          {(image || imageUrl) && (
+            <div className='flex flex-wrap'>
+              <div
+                className={cn(
+                  'inline-flex h-[100px] w-[100px] items-center justify-center rounded-sm border p-1',
+                  isNewImage ? 'border-2 border-dashed border-cyan-500' : 'border-border',
+                )}
+              >
+                <div className='min-w-0 overflow-hidden'>
+                  <img
+                    src={image?.preview ?? imageUrl ?? undefined}
+                    className='block h-full w-auto object-cover'
+                    onLoad={() => {
+                      if (image?.preview) URL.revokeObjectURL(image.preview);
+                    }}
+                    alt='Uploaded item from user'
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
-        <div className='text-muted-foreground'>
-          <UploadCloud className='mx-auto mb-4 h-10 w-10' />
-          <p className='mb-2 text-sm'>Drag & drop files here, or click to select files</p>
-          <p className='text-xs'>
-            {maxSize ? `Maximum file size: ${Math.round(maxSize / 1024 / 1024)}MB` : 'No file size limit'}
-          </p>
+          <div
+            {...getRootProps()}
+            className={cn(
+              'flex h-[100px] flex-grow cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed bg-[#fafafa] p-5 text-[#bdbdbd] outline-none transition-colors duration-200 ease-in-out',
+              isFullWidth ? 'w-full' : 'w-[83%]',
+              isFocused && 'border-[#2196F3]',
+              isDragAccept && 'border-[#00E676]',
+              isDragReject && 'border-[#FF1744]',
+            )}
+          >
+            <input {...getInputProps()} type='file' className='hidden' />
+            <p className='text-sm'>
+              {image
+                ? 'Image uploaded! For another image, drag n drop, or click to select'
+                : 'Drag n drop, or click to select'}
+            </p>
+            {maxSize && <p className='text-xs'>Maximum file size: {Math.round(maxSize / 1024 / 1024)}MB</p>}
+          </div>
         </div>
       </div>
     );
@@ -48,4 +96,4 @@ const DropZone = React.forwardRef<HTMLDivElement, DropZoneProps>(
 );
 DropZone.displayName = 'DropZone';
 
-export { DropZone };
+export { DropZone, type DropZoneProps };
