@@ -23,7 +23,7 @@ const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
           </div>
         </div>
 
-        <div className='col-start-14 col-span-6 grid'>
+        <div className='col-start-15 col-span-5 grid'>
           <CreationFormSteps currentStep={step} currentSubStep={subStep} draftId={draftId} />
         </div>
       </div>

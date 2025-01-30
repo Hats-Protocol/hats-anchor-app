@@ -12,7 +12,7 @@ import { AddMemberModal } from './add-member-modal';
 import { MembersList } from './members-list';
 
 export function SelectionMembersStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit, toggleOptionalStep } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
   const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
   const requirements = form.watch('requirements');
@@ -64,7 +64,7 @@ export function SelectionMembersStep({ onNext }: StepProps) {
         </div>
 
         <div className='flex justify-end py-6'>
-          <NextStepButton disabled={!form.formState.isValid || !canEdit} onClick={() => toggleOptionalStep('members')}>
+          <NextStepButton disabled={!form.formState.isValid || !canEdit}>
             {getNextStepButtonText(nextStep)}
           </NextStepButton>
         </div>

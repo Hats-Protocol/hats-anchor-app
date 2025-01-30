@@ -17,6 +17,7 @@ const UPDATE_USER_MUTATIONS = {
   member: UPDATE_COUNCIL_MEMBERS,
   admin: UPDATE_COUNCIL_ADMINS,
   complianceAdmin: UPDATE_COUNCIL_COMPLIANCE_ADMINS,
+  // allowlistAdmin: UPDATE_COUNCIL_ALLOWLIST_ADMINS, // TODO handle other allowlist (?)
   agreementAdmin: UPDATE_COUNCIL_AGREEMENT_ADMINS,
 };
 
@@ -31,7 +32,7 @@ export function useCreateOrUpdateUser({
 }: {
   councilId: string | undefined;
   editingId: string | undefined;
-  memberType: 'member' | 'admin' | 'complianceAdmin' | 'agreementAdmin';
+  memberType: 'member' | 'admin' | 'complianceAdmin' | 'agreementAdmin'; // 'allowlistAdmin'; // TODO consolidate type with add-user-modal.tsx
   existingUsers: CouncilMember[];
   onAddSuccess: (data: CouncilMember) => void;
   onEditSuccess: (data: CouncilMember) => void;
@@ -47,22 +48,33 @@ export function useCreateOrUpdateUser({
     onSuccess: async (data) => {
       // TODO is there a better way to attach the user to the council?
       if (!councilId) {
-        console.error('No councilId provided');
+        logger.error('No councilId provided');
         return;
       }
       console.log('create success', data);
       const mutation = UPDATE_USER_MUTATIONS[memberType]; // TODO check if supported member type
-      console.log('mutation', councilId, existingUsers);
+      console.log('mutation', councilId, existingUsers, mutation, concat(existingUsers || [], [data]));
+      if (!mutation) {
+        logger.error('No mutation found for member type', memberType);
+        return;
+      }
       // TODO make sure the users are unique here
-      await councilsGraphqlClient.request<{
-        updateCouncilCreationForm: CouncilFormData;
-      }>(mutation, {
-        id: councilId,
-        [`${memberType}s`]: concat(existingUsers || [], [data]),
-      } as unknown as Variables);
+      return councilsGraphqlClient
+        .request<{
+          updateCouncilCreationForm: CouncilFormData;
+        }>(mutation, {
+          id: councilId,
+          [`${memberType}s`]: concat(existingUsers || [], [data]),
+        } as unknown as Variables)
+        .then((result) => {
+          console.log('result', result);
+          return result;
+        })
+        .catch((err) => {
+          console.error('Error updating council creation form', err);
+          return err;
+        });
       // TODO catch error here
-
-      return data;
     },
   });
 

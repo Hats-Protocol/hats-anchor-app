@@ -1,11 +1,16 @@
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, map, size, split } from 'lodash';
+import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
-import { Button, MemberAvatar } from 'ui';
-import { getAllWearers, logger } from 'utils';
+import { Button, MemberAvatar, Tooltip } from 'ui';
+import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage } from 'utils';
 import { getAddress } from 'viem';
+import { useAccount, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from '../add-user-modal';
 import { UpdateAgreementModal } from '../update-agreement-modal';
@@ -14,10 +19,18 @@ interface ModuleManagerProps {
   m: ModuleDetails;
   chainId: number | undefined;
   offchainCouncilDetails: OffchainCouncilData | undefined;
+  slug: string;
 }
 
-const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerProps) => {
+const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
+  const { address: userAddress } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const { handlePendingTx } = useOverlay();
+  const queryClient = useQueryClient();
+  const waitForSubgraph = useWaitForSubgraph({ chainId: chainId ?? 11155111 });
+  const { user } = usePrivy();
+  const { toast } = useToast();
   const ownerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(ownerHatId), '.')) === 2;
   logger.debug('isAdminHat', { ownerHatId: ownerHatId ? hatIdDecimalToIp(ownerHatId) : undefined, isAdminHat });
@@ -27,8 +40,67 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
   });
   // const hatDetails = ownerHat?.detailsMetadata;
+  const agreementManagers = get(ownerHat, 'wearers');
   const hatName = ownerHatDetails?.name;
   const allWearers = getAllWearers(offchainCouncilDetails);
+
+  const addAgreementManagerLoading = useState(false);
+  const [, setAddManagerLoading] = addAgreementManagerLoading;
+  const addAgreementManager = async (data: CouncilMember | undefined) => {
+    if (!data || !userAddress) {
+      toast({ title: 'No address or user found', variant: 'destructive' });
+      setAddManagerLoading(false);
+      return;
+    }
+    console.log({ user: data, userAddress });
+
+    return createHatsClient(chainId ?? 11155111, walletClient)
+      .then((hatsClient) => {
+        if (!hatsClient) {
+          toast({ title: 'Failed to create hats client', variant: 'destructive' });
+          setAddManagerLoading(false);
+          return;
+        }
+
+        hatsClient
+          .mintHat({
+            account: userAddress,
+            hatId: BigInt(ownerHatId),
+            wearer: data.address,
+          })
+          .then((result) => {
+            if (!result?.transactionHash) return;
+
+            handlePendingTx?.({
+              hash: result?.transactionHash,
+              txChainId: chainId ?? 11155111,
+              txDescription: `Added ${data.name || formatAddress(data.address)} as an agreement manager`,
+              waitForSubgraph,
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+                queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
+                setAddManagerLoading(false);
+
+                sendTelegramMessage(
+                  `New agreement manager added: ${formatAddress(data.address)} https://pro.hatsprotocol.xyz/council/${slug}`,
+                );
+
+                setModals?.({});
+              },
+            });
+          })
+          .catch((error) => {
+            logger.debug('Failed to add agreement manager', { error });
+            toast({ title: 'Failed to add agreement manager', variant: 'destructive' });
+            setAddManagerLoading(false);
+          });
+      })
+      .catch((error) => {
+        logger.debug('Failed to create Hats client', { error });
+        toast({ title: 'Failed to create Hats client', variant: 'destructive' });
+        setAddManagerLoading(false);
+      });
+  };
 
   if (!m) return null;
 
@@ -47,37 +119,51 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails }: ModuleManagerP
         </div>
 
         <div className='flex flex-col gap-2'>
-          {map(get(ownerHat, 'wearers'), (wearer) => {
+          {map(agreementManagers, (wearer) => {
             const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
 
             return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
           })}
         </div>
 
-        <div className='flex gap-2'>
-          <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
-            Edit Agreement
-          </Button>
+        {userAddress && user && (
+          <div className='mt-2 flex gap-2'>
+            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
+              Edit Agreement
+            </Button>
 
-          <Button
-            variant='outline-blue'
-            rounded='full'
-            onClick={() => setModals?.({ 'addUser-agreement': true })}
-            disabled
-          >
-            Add Agreement Manager
-          </Button>
-        </div>
+            <div className='relative'>
+              <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
+                <Button
+                  variant='outline-blue'
+                  rounded='full'
+                  onClick={() => setModals?.({ 'addUser-agreementAdmin': true })}
+                  disabled={isAdminHat}
+                >
+                  Add Agreement Manager
+                </Button>
+              </Tooltip>
+
+              {isAdminHat && (
+                <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+                  soon
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <UpdateAgreementModal moduleDetails={m} chainId={chainId} />
 
       <AddUserModal
-        type='agreement'
+        type='agreementAdmin'
         userLabel='Agreement Manager'
         chainId={chainId as SupportedChains}
         councilId={offchainCouncilDetails?.creationForm?.id}
-        existingUsers={allWearers as CouncilMember[]}
+        existingUsers={agreementManagers as CouncilMember[]}
+        afterSuccess={addAgreementManager}
+        addUserLoading={addAgreementManagerLoading}
       />
     </div>
   );

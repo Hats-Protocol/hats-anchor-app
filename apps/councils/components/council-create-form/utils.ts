@@ -16,11 +16,11 @@ export function findNextInvalidStep(
 
   // Define selection sub-steps order
   const getSelectionSubSteps = (reqs: { [key: string]: boolean } = {}) => [
-    'members',
     'management',
     ...(reqs.signAgreement ? ['agreement'] : []),
     ...(reqs.holdTokens ? ['tokens'] : []),
     ...(reqs.passCompliance ? ['compliance'] : []),
+    'members',
   ];
 
   // If we're in a selection sub-step, check next sub-step first

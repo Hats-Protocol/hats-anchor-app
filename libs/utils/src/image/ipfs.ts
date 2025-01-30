@@ -203,6 +203,10 @@ export const fetchIpfs = async (value: string | undefined) => {
 
   return fetch(url, { signal: controller.signal })
     .then(async (res) => {
+      const textBody = await res.text();
+      if (textBody) {
+        return Promise.resolve({ details: hash, data: textBody });
+      }
       const result = await res.json();
       return Promise.resolve({ details: hash, data: result || null });
     })

@@ -1,7 +1,6 @@
 'use client';
 import { useCouncilForm } from 'contexts';
 import { Form, SignerThresholdSubForm } from 'forms';
-import { useEffect } from 'react';
 import { StepProps } from 'types';
 
 import { NextStepButton } from '../next-step-button';
@@ -9,17 +8,8 @@ import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
 export function ThresholdStep({ onNext }: StepProps) {
   const { form, stepValidation, canEdit } = useCouncilForm();
-  const { watch, setValue } = form;
-  const { requirements, thresholdType, min, target } = watch();
-
-  // useEffect(() => {
-  //   if (thresholdType === 'RELATIVE') {
-  //     setValue('target', target || 51);
-  //   } else if (thresholdType === 'ABSOLUTE') {
-  //     setValue('target', min);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [thresholdType]);
+  const { watch } = form;
+  const { requirements } = watch();
 
   const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, requirements);
 

@@ -15,7 +15,7 @@ import { ComplianceList } from './compliance-list';
 // TODO migrate buttons to new Button component
 
 export function SelectionComplianceStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit, toggleOptionalStep } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
   // const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const complianceAdmins = form.watch('complianceAdmins') || [];
@@ -114,7 +114,6 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
                 (createComplianceAdminRole === 'true' && complianceAdmins.length === 0) ||
                 !canEdit
               }
-              onClick={() => toggleOptionalStep('compliance')}
             >
               {getNextStepButtonText(nextStep)}
             </NextStepButton>

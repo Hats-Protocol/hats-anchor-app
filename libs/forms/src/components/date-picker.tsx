@@ -68,14 +68,14 @@ const DatePicker = ({
     // </FormControl>
     <FormField
       control={control}
-      name='dob'
+      name={name}
       render={({ field }) => (
         <FormItem className='flex flex-col'>
-          <div className='w-full'>
-            <div>
+          <div className='w-full space-y-2'>
+            <div className='flex items-center gap-2'>
               {label && (
                 <FormLabel>
-                  <div className='flex items-center'>
+                  <div className='flex items-center gap-2'>
                     <p className='text-sm'>
                       {label.toUpperCase()}
                       {options?.required && '*'}
@@ -91,36 +91,36 @@ const DatePicker = ({
               {typeof subLabel !== 'string' ? (
                 subLabel
               ) : (
-                <p className='text-xs text-gray-500'>
+                <FormDescription>
                   {subLabel}
                   {setToZeroUTC ? '. Will use 0:00:00 UTC for timestamp.' : ''}
-                </p>
+                </FormDescription>
               )}
             </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <FormControl>
+            <FormControl>
+              <Popover>
+                <PopoverTrigger>
                   <Button
-                    variant={'outline'}
+                    variant='outline'
+                    type='button'
                     className={cn('w-[240px] pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
                   >
                     {field.value ? formatDate(field.value) : <span>Pick a date</span>}
                     <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
                   </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className='w-auto p-0' align='start'>
-                <Calendar
-                  mode='single'
-                  selected={field.value}
-                  onSelect={field.onChange}
-                  disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            <FormDescription>Your date of birth is used to calculate your age.</FormDescription>
-            <FormMessage />
+                </PopoverTrigger>
+                <PopoverContent className='w-auto p-0'>
+                  <div>
+                    <Calendar
+                      mode='single'
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      // disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </FormControl>
           </div>
         </FormItem>
       )}

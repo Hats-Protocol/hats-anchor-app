@@ -24,6 +24,9 @@ export const useClaimFn = ({
   moduleDetails,
   chainId,
   isReadyToClaim,
+  onSuccess,
+  onError,
+  onDecline,
 }: UseClaimFnProps) => {
   const [status, setStatus] = useState<(typeof CLAIM_STATUS)[keyof typeof CLAIM_STATUS]>(CLAIM_STATUS.PENDING);
   const [isOpen, setIsOpen] = useState(false);
@@ -81,13 +84,17 @@ export const useClaimFn = ({
     mchAddress,
     onSuccessfulSign: () => {
       setStatus(CLAIM_STATUS.SUCCESS);
-
+      onSuccess?.();
       queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
       queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
     },
     onDecline: () => {
       setStatus(CLAIM_STATUS.DECLINED);
+      onDecline?.();
     },
+    // onError: () => { // TODO handle these error cases
+    //   onError?.();
+    // },
   });
 
   // AGREEMENT v0
@@ -109,10 +116,15 @@ export const useClaimFn = ({
       queryClient.invalidateQueries({ queryKey: ['readContract'] });
 
       setStatus(CLAIM_STATUS.SUCCESS);
+      onSuccess?.();
     },
     onDecline: () => {
       setStatus(CLAIM_STATUS.DECLINED);
+      onDecline?.();
     },
+    // onError: () => {
+    //   onError?.();
+    // },
   });
 
   const claimHandlers = useMemo(() => {
@@ -177,7 +189,7 @@ export const useClaimFn = ({
     setStatus(CLAIM_STATUS.CLAIMING);
 
     return claimFn?.()?.then(() => {
-      // MODAL used for pending tx handler, not claiming
+      // MODAL here is used for pending tx handler, not claiming
       onOpen();
     });
   };
@@ -201,4 +213,7 @@ interface UseClaimFnProps {
   moduleDetails: ModuleDetails | undefined;
   chainId: SupportedChains | undefined;
   isReadyToClaim: { [key: string]: boolean } | undefined;
+  onSuccess: () => void;
+  onError: () => void;
+  onDecline: () => void;
 }

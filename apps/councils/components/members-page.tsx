@@ -1,10 +1,12 @@
 'use client';
 
+import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, isEmpty, keys, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
 import { Button, Tooltip } from 'ui';
@@ -18,7 +20,10 @@ import { MemberRow } from './member-row';
 
 const MembersPage = ({ slug }: { slug: string }) => {
   const { setModals } = useOverlay();
+  const addUserLoading = useState(false);
+  const [, setIsLoading] = addUserLoading;
   const { address: userAddress } = useAccount();
+  const { user } = usePrivy();
   const queryClient = useQueryClient();
   const form = useForm();
   const { chainId, address } = parseCouncilSlug(slug);
@@ -35,6 +40,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
     hsg: address as Hex,
     chainId: chainId ?? 11155111,
   });
+  console.log({ userAddress });
 
   // TODO fetch module labels
   // TODO more profile data about allowlist members
@@ -101,6 +107,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
       args: { Account: user.address },
       onSuccess: () => {
         logger.info('added user to council');
+        setIsLoading(false);
         // TODO close modal
         setModals?.({});
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
@@ -176,6 +183,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
               eligibilityRules={eligibilityRules || undefined}
               offchainCouncilData={offchainCouncilData || undefined}
               form={form}
+              councilData={councilDetails || undefined}
             />
           );
         })
@@ -185,7 +193,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
         </div>
       )}
 
-      {userAddress && (
+      {userAddress && user && (
         <>
           <div className='flex justify-end gap-2 pt-8'>
             <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
@@ -207,6 +215,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
             afterSuccess={addUserToCouncil}
             councilId={offchainCouncilData?.creationForm?.id}
             existingUsers={offchainCouncilData?.creationForm?.members || []}
+            addUserLoading={addUserLoading}
           />
         </>
       )}

@@ -5,10 +5,9 @@ import { concat, first, flatten, get, map, pick } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
 import { ReactNode } from 'react';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { EligibilityRule } from 'types';
+import { EligibilityRule, LabeledModules } from 'types';
 import { cn } from 'ui';
 import { Button } from 'ui';
-import { Hex } from 'viem';
 
 const EligibilityStatus = ({
   isReadyToClaim,
@@ -24,9 +23,9 @@ const EligibilityStatus = ({
   if (isEligible) {
     return (
       <div className='flex items-center gap-1'>
-        <BsCheckSquareFill className='h-6 w-6 text-green-500' />
+        <BsCheckSquareFill className='text-functional-success h-6 w-6' />
 
-        <p className='text-green-500'>{yes || 'Yes'}</p>
+        <p className='text-functional-success'>{yes || 'Yes'}</p>
       </div>
     );
   }
@@ -35,25 +34,30 @@ const EligibilityStatus = ({
   if (isReadyToClaim) {
     return (
       <div className='flex items-center gap-1'>
-        <BsCheckSquare className='h-6 w-6 text-green-500' />
+        <BsCheckSquare className='text-functional-success h-6 w-6' />
 
-        <p className='text-green-500'>Pending</p>
+        <p className='text-functional-success'>Pending</p>
       </div>
     );
   }
 
   return (
     <div className='flex items-center gap-1'>
-      <BsFillXOctagonFill className='h-6 w-6 text-red-500' />
+      <BsFillXOctagonFill className='text-destructive h-6 w-6' />
 
-      <p className='text-red-500'>{no || 'No'}</p>
+      <p className='text-destructive'>{no || 'No'}</p>
     </div>
   );
 };
 
-const getYesNoForRule = (rule: EligibilityRule) => {
+const getYesNoForRule = (rule: EligibilityRule, labeledModules: LabeledModules | undefined) => {
   if (rule.module.id.includes('allowlist')) {
-    return { yes: 'Allowed', no: 'Not Allowed' };
+    if (labeledModules?.selection === rule.address) {
+      return { yes: 'Appointed', no: 'Not Selected' };
+    }
+    if (labeledModules?.criteria === rule.address) {
+      return { yes: 'Compliant', no: 'Not Compliant' };
+    }
   }
   if (rule.module.id.includes('public-lock-v14')) {
     return { yes: 'Paid', no: 'Not Paid' };
@@ -65,12 +69,12 @@ const getYesNoForRule = (rule: EligibilityRule) => {
   return undefined;
 };
 
-const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
+const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperButtonProps) => {
   const { currentEligibility, activeRule, setActiveRule, isReadyToClaim, chainId } = useEligibility();
   const isEligible =
     get(currentEligibility, `[${rule.address}].eligible`) && get(currentEligibility, `[${rule.address}].goodStanding`);
 
-  const yesNoForRule = getYesNoForRule(rule); // use yes/no from rule if available
+  const yesNoForRule = getYesNoForRule(rule, labeledModules); // use yes/no from rule if available
 
   // TODO handle has key but 0 allowance
   const { hasAllowance } = useSubscriptionClaim({
@@ -85,7 +89,7 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
     <Button
       variant='outline'
       onClick={() => setActiveRule(rule)}
-      className={cn('block-size-auto h-auto w-full whitespace-normal bg-white p-4', {
+      className={cn('block-size-auto h-auto w-auto justify-start whitespace-normal bg-white p-4', {
         'border-2 border-gray-800': activeRule?.address === rule.address,
         'border border-gray-300': activeRule?.address !== rule.address,
       })}
@@ -106,6 +110,7 @@ const WrapperButton = ({ rule, customYesNo, children }: WrapperButtonProps) => {
 
 interface WrapperButtonProps {
   rule: EligibilityRule;
+  labeledModules: LabeledModules | undefined;
   customYesNo?: { yes: string; no: string };
   isReadyToClaim?: boolean;
   children: ReactNode;
@@ -113,21 +118,33 @@ interface WrapperButtonProps {
 
 const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButtonProps) => {
   if (rule.address === get(labeledModules, 'selection')) {
-    return <WrapperButton rule={rule}>Appointed</WrapperButton>;
+    return (
+      <WrapperButton rule={rule} labeledModules={labeledModules}>
+        Appointed
+      </WrapperButton>
+    );
   }
 
   if (rule.address === get(labeledModules, 'criteria')) {
-    return <WrapperButton rule={rule}>Compliant</WrapperButton>;
+    return (
+      <WrapperButton rule={rule} labeledModules={labeledModules}>
+        Compliant
+      </WrapperButton>
+    );
   }
 
   const shortName = first(get(rule, 'module.name').split(' Eligibility'));
 
-  return <WrapperButton rule={rule}>{shortName}</WrapperButton>;
+  return (
+    <WrapperButton rule={rule} labeledModules={labeledModules}>
+      {shortName}
+    </WrapperButton>
+  );
 };
 
 interface ModuleChainClaimButtonProps {
   rule: EligibilityRule;
-  labeledModules?: LabeledModules;
+  labeledModules: LabeledModules | undefined;
 }
 
 const sortRulesForClaims = (rules: EligibilityRule[]) => {
@@ -160,12 +177,8 @@ const ModuleChainClaimButtons = ({ labeledModules }: ModuleChainClaimButtonsProp
   );
 };
 
-interface LabeledModules {
-  [key: string]: Hex;
-}
-
 interface ModuleChainClaimButtonsProps {
-  labeledModules?: LabeledModules;
+  labeledModules: LabeledModules | undefined;
 }
 
 export { ModuleChainClaimButtons };

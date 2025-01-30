@@ -13,7 +13,7 @@ import { AddAgreementAdminModal } from './add-agreement-admin-modal';
 import { AgreementAdminsList } from './agreement-admins-list';
 
 export function SelectionAgreementStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit, toggleOptionalStep } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
   const requirements = form.watch('requirements');
   const agreementAdmins = form.watch('agreementAdmins') || [];
@@ -128,7 +128,6 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                 // agreement.trim().length === 0 ||
                 (createAgreementAdminRole === 'true' && agreementAdmins.length === 0)
               }
-              onClick={() => toggleOptionalStep('agreement')}
             >
               {getNextStepButtonText(nextStep)}
             </NextStepButton>

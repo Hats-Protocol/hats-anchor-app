@@ -123,11 +123,11 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
   const selectionStep = STEPS.find((step) => step.id === 'selection');
   if (selectionStep) {
     selectionStep.subSteps = [
-      { id: 'members', label: 'Council Members' },
       { id: 'management', label: 'Council Management' },
       ...(requirements?.signAgreement ? [{ id: 'agreement', label: 'Agreement' }] : []),
       ...(requirements?.holdTokens ? [{ id: 'tokens', label: 'Token Requirements' }] : []),
       ...(requirements?.passCompliance ? [{ id: 'compliance', label: 'Compliance Check' }] : []),
+      { id: 'members', label: 'Council Members' },
     ];
   }
 

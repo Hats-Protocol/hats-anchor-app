@@ -1,5 +1,6 @@
 import { Modal, useOverlay } from 'contexts';
 import { DatePicker, Form, MarkdownEditor } from 'forms';
+import { useToast } from 'hooks';
 import { find } from 'lodash';
 import { useAgreementClaim, useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useState } from 'react';
@@ -16,10 +17,14 @@ function UpdateAgreementModal({
   chainId: number | undefined;
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const form = useForm();
-  const { handleSubmit, reset, watch } = form;
+  const form = useForm(); // TODO leverage yup resolver for required validation(s)
+  const {
+    handleSubmit,
+    reset,
+    formState: { isValid },
+  } = form;
   const { setModals } = useOverlay();
-  const updatedAgreement = watch('agreement');
+  const { toast } = useToast();
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
 
@@ -30,6 +35,11 @@ function UpdateAgreementModal({
   const onSubmit = async (data: FieldValues) => {
     setIsLoading(true);
     const localGracePeriod = Math.floor(new Date(data.gracePeriod).getTime() / 1000);
+    if (!localGracePeriod) {
+      toast({ title: 'Please select a valid grace period' });
+      setIsLoading(false);
+      return;
+    }
     const token = await fetchToken();
     const agreementHash = await handleAgreementPin({
       agreement: data.agreement,
@@ -81,8 +91,8 @@ function UpdateAgreementModal({
           </div>
 
           <div className='mt-6 flex justify-end'>
-            <Button type='submit' disabled={agreement === updatedAgreement}>
-              Update Agreement
+            <Button type='submit' rounded='full' disabled={!isValid || isLoading}>
+              {isLoading ? 'Updating...' : 'Update Agreement'}
             </Button>
           </div>
         </form>

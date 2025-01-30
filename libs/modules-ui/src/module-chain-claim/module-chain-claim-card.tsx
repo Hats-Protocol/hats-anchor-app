@@ -3,7 +3,7 @@
 import { useEligibility } from 'contexts';
 import { get, includes, keys } from 'lodash';
 import { ComponentType } from 'react';
-import { ModuleDetails } from 'types';
+import { LabeledModules, ModuleDetails } from 'types';
 import { eligibilityRuleToModuleDetails, getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 
@@ -13,7 +13,7 @@ import { ElectionClaims } from '../election';
 import { SubscriptionClaims } from '../subscription';
 
 const MODULE_CLAIMS_CARD: {
-  [key: string]: ComponentType<{ activeModule: ModuleDetails }>;
+  [key: string]: ComponentType<{ activeModule: ModuleDetails; labeledModules: LabeledModules | undefined }>;
 } = {
   agreement: AgreementClaims,
   allowlist: AllowlistClaims,
@@ -21,7 +21,11 @@ const MODULE_CLAIMS_CARD: {
   unlock: SubscriptionClaims,
 };
 
-export const ModuleChainClaimsCard = () => {
+export const ModuleChainClaimsCard = ({
+  labeledModules,
+}: {
+  labeledModules: { selection: Hex; criteria: Hex } | undefined;
+}) => {
   const { activeRule } = useEligibility();
   const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
   // TODO handle loading
@@ -39,5 +43,5 @@ export const ModuleChainClaimsCard = () => {
   const ModuleClaimsCard = get(MODULE_CLAIMS_CARD, knownModule);
   if (!ModuleClaimsCard) return null;
 
-  return <ModuleClaimsCard activeModule={moduleDetails} />;
+  return <ModuleClaimsCard activeModule={moduleDetails} labeledModules={labeledModules} />;
 };

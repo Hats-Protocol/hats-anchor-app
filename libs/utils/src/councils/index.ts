@@ -18,6 +18,10 @@ const checkChainId = (chain: string) => {
   return null;
 };
 
+export const slugify = (name: string) => {
+  return name.toLowerCase().replace(/ /g, '-');
+};
+
 export const parseCouncilSlug = (slug: string) => {
   if (includes(slug, '%3A')) {
     const [chain, address] = slug.split('%3A');

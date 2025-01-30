@@ -59,6 +59,15 @@ export const ClaimButton = () => {
     moduleDetails,
     chainId,
     isReadyToClaim,
+    onSuccess: () => {
+      console.log('onSuccess');
+    },
+    onError: () => {
+      console.log('onError');
+    },
+    onDecline: () => {
+      console.log('onDecline');
+    },
   });
 
   const hatUrl = selectedHat?.id

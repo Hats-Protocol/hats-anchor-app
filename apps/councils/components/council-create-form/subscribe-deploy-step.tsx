@@ -1,8 +1,9 @@
 'use client';
 
+import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
-import { get, isEmpty, map, toNumber } from 'lodash';
+import { get, isEmpty, map, some, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -13,7 +14,9 @@ import { chainsMap } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
+import { Login } from '../login';
 import { NextStepButton } from '../next-step-button';
+import Deploy from './deploy';
 import { PaymentDetailsModal } from './payment-details-modal';
 
 const Currency = dynamic(() => import('icons').then((mod) => mod.Currency), { ssr: false });
@@ -104,13 +107,15 @@ const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
 );
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation, deployCouncil, isDeploying, canEdit } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying, canEdit, deployStatus } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const { setModals } = useOverlay();
   const payer = form.watch('payer');
+  const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
+  console.log(form.watch('tokenRequirement.address'));
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -162,6 +167,10 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const firstAdmin = get(formData, 'admins.[0]');
 
   const isWrongNetwork = userChainId !== targetChainId;
+
+  if (some(deployStatus, (value) => value)) {
+    return <Deploy deployStatus={deployStatus} draftId={draftId} />;
+  }
 
   return (
     <div className='mx-auto max-w-4xl'>
@@ -319,77 +328,84 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               }
             />
             <div className='flex justify-end'>
-              {payer ? (
-                <Button
-                  rounded='full'
-                  type='button'
-                  onClick={() => setModals?.({ paymentDetailsModal: true })}
-                  disabled={!canEdit}
-                >
-                  <div className='flex items-center gap-2'>
-                    <Currency />
-                    <span>Edit invoice details</span>
-                  </div>
-                </Button>
-              ) : (
-                <NextStepButton
-                  type='button'
-                  onClick={() => setModals?.({ paymentDetailsModal: true })}
-                  disabled={!canEdit}
-                >
-                  <div className='flex items-center gap-2'>
-                    <Currency />
-                    <span>Add invoice details</span>
-                  </div>
-                </NextStepButton>
-              )}
+              {!!user &&
+                (payer ? (
+                  <Button
+                    rounded='full'
+                    type='button'
+                    onClick={() => setModals?.({ paymentDetailsModal: true })}
+                    disabled={!canEdit}
+                  >
+                    <div className='flex items-center gap-2'>
+                      <Currency />
+                      <span>Edit invoice details</span>
+                    </div>
+                  </Button>
+                ) : (
+                  <NextStepButton
+                    type='button'
+                    onClick={() => setModals?.({ paymentDetailsModal: true })}
+                    disabled={!canEdit}
+                  >
+                    <div className='flex items-center gap-2'>
+                      <Currency />
+                      <span>Add invoice details</span>
+                    </div>
+                  </NextStepButton>
+                ))}
             </div>
           </div>
         </StepSummary>
       </div>
 
       <div className='mt-8 flex flex-col items-center gap-4'>
-        <div className='flex items-center gap-2'>
-          <input
-            type='checkbox'
-            id='agreement'
-            checked={form.watch('acceptedTerms')}
-            onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
-            disabled={!canEdit}
-            className={`accent-functional-link-primary h-4 w-4 rounded border-gray-300 ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
-          />
-          <label htmlFor='agreement' className='text-sm text-gray-600'>
-            I agree to the{' '}
-            <a
-              href='https://docs.hatsprotocol.xyz/legal/terms/privacy-policy'
-              className='text-functional-link-primary'
-              target='_blank'
-              rel='noreferrer'
-            >
-              privacy policy
-            </a>{' '}
-            and a monthly fee of $299 to be paid in USDC
-          </label>
-        </div>
+        {user ? (
+          <>
+            <div className='flex items-center gap-2'>
+              <input
+                type='checkbox'
+                id='agreement'
+                checked={form.watch('acceptedTerms')}
+                onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
+                disabled={!canEdit}
+                className={`accent-functional-link-primary h-4 w-4 rounded border-gray-300 ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
+              />
+              <label htmlFor='agreement' className='text-sm text-gray-600'>
+                I agree to the{' '}
+                <a
+                  href='https://docs.hatsprotocol.xyz/legal/terms/privacy-policy'
+                  className='text-functional-link-primary'
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  privacy policy
+                </a>{' '}
+                and a monthly fee of $299 to be paid in USDC
+              </label>
+            </div>
 
-        {isWrongNetwork ? (
-          <NextStepButton
-            onClick={() => switchChain?.({ chainId: targetChainId })}
-            disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
-          >
-            Switch to {targetChainName}
-          </NextStepButton>
+            {isWrongNetwork ? (
+              <NextStepButton
+                onClick={() => switchChain?.({ chainId: targetChainId })}
+                disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
+              >
+                Switch to {targetChainName}
+              </NextStepButton>
+            ) : (
+              <NextStepButton
+                disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
+                onClick={handleDeploy}
+              >
+                {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
+              </NextStepButton>
+            )}
+
+            <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
+          </>
         ) : (
-          <NextStepButton
-            disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
-            onClick={handleDeploy}
-          >
-            {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
-          </NextStepButton>
+          <Login />
         )}
       </div>
-
-      <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
     </div>
   );
 };

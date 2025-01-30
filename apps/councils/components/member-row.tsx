@@ -1,13 +1,16 @@
 'use client';
 
 import { Ruleset } from '@hatsprotocol/modules-sdk';
-import { useOverlay } from 'contexts';
-import { get, map } from 'lodash';
+import { usePrivy } from '@privy-io/react-auth';
+import { Modal, useOverlay } from 'contexts';
+import { useSafeDetails } from 'hooks';
+import { find, get, includes, map } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
-import { AppHat, CouncilMember, OffchainCouncilData, SupportedChains } from 'types';
+import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
+import { getAllWearers } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -21,6 +24,7 @@ const MemberRow = ({
   signerHat,
   eligibilityRules,
   offchainCouncilData,
+  councilData,
   form,
 }: {
   member: CouncilMember;
@@ -29,29 +33,43 @@ const MemberRow = ({
   signerHat: AppHat | undefined;
   eligibilityRules: Ruleset[] | undefined;
   offchainCouncilData: OffchainCouncilData | undefined;
+  councilData: ExtendedHSGV2 | undefined;
   form: UseFormReturn;
 }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
+  const { user } = usePrivy();
   const { data: currentEligibility } = useCurrentEligibility({
     chainId: (chainId ?? 11155111) as SupportedChains,
     selectedHat: signerHat,
     wearerAddress: member.address as Hex,
     eligibilityRules,
   });
-  const isSigner = false;
+  const { data: safeOwners } = useSafeDetails({
+    safeAddress: councilData?.safe as Hex,
+    chainId: chainId as SupportedChains,
+  });
+  const isSigner = includes(safeOwners, userAddress);
 
   if (!member) return null;
 
-  const canEdit = !!userAddress && true; // TODO handle who can edit users details (admins/themselves)
+  const canEdit = !!userAddress && member.address.toLowerCase() === userAddress.toLowerCase(); // user can edit their own details
+  // || isAdmin); // TODO or an administrative role check
 
-  const viewUser = () => {
+  const editUser = () => {
     setModals?.({ [`editUser-member-${member.address}`]: true });
   };
 
   const removeUser = () => {
     setModals?.({ [`removeUser-member-${member.address}`]: true });
   };
+
+  const viewUser = () => {
+    setModals?.({ [`viewUser-member-${member.address}`]: true });
+  };
+  const offchainWearers = getAllWearers(offchainCouncilData);
+  const offChainDetails = find(offchainWearers, { address: member.address });
+  const fullMember = { ...member, ...offChainDetails };
 
   // TODO member is missing profile data for details edit form
 
@@ -66,7 +84,7 @@ const MemberRow = ({
           />
         </div> */}
         <div className='flex h-full w-[250px] items-center p-2'>
-          <MemberAvatar member={member} stack />
+          <MemberAvatar member={fullMember} stack />
         </div>
       </div>
 
@@ -115,28 +133,44 @@ const MemberRow = ({
         </div>
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
-          <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
-            {canEdit && <BsPencilSquare />}
-            {canEdit ? 'Edit' : 'Details'}
-          </Button>
-
-          {userAddress && canEdit && (
-            <Button
-              variant='link'
-              size='link'
-              className='text-destructive'
-              onClick={removeUser}
-              disabled={!userAddress}
-            >
-              Remove
+          {user && canEdit ? (
+            <Button variant='link' size='link' className='text-functional-link-primary' onClick={editUser}>
+              <BsPencilSquare />
+              Edit
+            </Button>
+          ) : (
+            <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
+              Details
             </Button>
           )}
+
+          {userAddress &&
+            user &&
+            canEdit &&
+            (isSigner ? (
+              <Button variant='link' size='link' className='text-destructive' onClick={removeUser}>
+                Remove
+              </Button>
+            ) : (
+              <Button variant='link' size='link' className='text-functional-link-primary' onClick={removeUser}>
+                Status
+              </Button>
+            ))}
         </div>
       </div>
 
+      <Modal name={`viewUser-member-${member.address}`} title='View Council Member'>
+        <div className='space-y-6'>
+          <MemberAvatar member={member} stack />
+
+          <div className='flex justify-end'>
+            <Button onClick={() => setModals?.({})}>Ok</Button>
+          </div>
+        </div>
+      </Modal>
       <AddUserModal
         type='member'
-        editingUser={member}
+        editingUser={fullMember}
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
         councilId={offchainCouncilData?.creationForm?.id}
@@ -144,12 +178,13 @@ const MemberRow = ({
       />
       <RemoveUserModal
         type='member'
-        user={member}
+        user={fullMember}
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
         eligibilityRules={eligibilityRules || undefined}
         currentEligibility={currentEligibility || undefined}
         offchainCouncilData={offchainCouncilData}
+        councilData={councilData}
       />
     </div>
   );

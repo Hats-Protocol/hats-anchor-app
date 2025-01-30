@@ -90,8 +90,8 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
 
         if (result?.status === 'success') {
           toast({
-            title: 'Transaction confirmed',
-            description: 'Your transaction has been confirmed',
+            title: 'Transaction completed',
+            description: 'Your transaction has been completed',
           });
 
           onSuccess?.();
