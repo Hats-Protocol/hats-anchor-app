@@ -1,1 +1,1 @@
-export { IconHandler } from './icon-handler';
+export * from './icon-handler';

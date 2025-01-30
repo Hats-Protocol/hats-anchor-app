@@ -1,1 +1,1 @@
-export { DropZone } from './drop-zone';
+export * from './drop-zone';

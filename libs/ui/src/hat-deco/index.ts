@@ -1,1 +1,1 @@
-export { HatDeco } from './hat-deco';
+export * from './hat-deco';

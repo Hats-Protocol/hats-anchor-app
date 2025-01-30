@@ -1,1 +1,1 @@
-export { OblongAvatar, type OblongAvatarProps } from './oblong-avatar';
+export * from './oblong-avatar';
