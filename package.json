@@ -19,7 +19,8 @@
     "modules": "pnpm --filter modules-ui",
     "molecules": "pnpm --filter molecules",
     "organisms": "pnpm --filter organisms",
-    "ui": "pnpm --filter ui"
+    "ui": "pnpm --filter ui",
+    "ui:storybook": "nx run ui:storybook"
   },
   "private": true,
   "devDependencies": {
