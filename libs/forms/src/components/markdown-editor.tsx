@@ -7,7 +7,7 @@ import { cn } from 'ui';
 import StarterKit from '@tiptap/starter-kit';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from './form';
-import Toolbar from './toolbar';
+import { Toolbar } from './toolbar';
 
 // Custom styles to match the design
 const editorStyles = {
@@ -22,7 +22,7 @@ const editorStyles = {
   '--md-toolbar-border': '#E2E8F0',
 } as React.CSSProperties;
 
-const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; label: string }) => {
+const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; label?: string }) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({}),
@@ -47,7 +47,7 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; l
 
   return (
     <FormItem>
-      <FormLabel>{label}</FormLabel>
+      {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
         <div className='flex min-h-[250px] flex-col justify-stretch'>
           <Toolbar editor={editor} />
@@ -77,7 +77,7 @@ const MarkdownEditor = ({ name, label, placeholder, localForm, isDisabled }: Mar
 
 interface MarkdownEditorProps {
   name: string;
-  label: string;
+  label?: string;
   placeholder: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
