@@ -55,9 +55,9 @@ const RootPage = async () => {
                 <h2 className='text-2xl font-semibold tracking-tight'>New Integrations</h2>
 
                 <div className='flex flex-col flex-wrap justify-between gap-6 md:flex-row'>
-                  {/* {map(INTEGRATION_CARDS, (integration) => (
+                  {map(INTEGRATION_CARDS, (integration) => (
                     <IntegrationCard integration={integration} key={get(integration, 'label')} />
-                  ))} */}
+                  ))}
                 </div>
               </div>
             </Card>
@@ -68,9 +68,9 @@ const RootPage = async () => {
               <h2 className='text-2xl font-semibold tracking-tight'>Learn more about Hats</h2>
 
               <div className='grid w-full grid-cols-1 gap-6 md:grid-cols-2'>
-                {/* {map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
+                {map(LEARN_MORE, (docsLink: DocsLink, i: number) => (
                   <LearnMoreCard key={i} docsData={docsLink} />
-                ))} */}
+                ))}
               </div>
             </div>
           </Card>

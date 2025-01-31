@@ -1,5 +1,3 @@
-'use client';
-
 import { IconType } from 'react-icons';
 import { DocsLink } from 'types';
 import { Card, Link } from 'ui';

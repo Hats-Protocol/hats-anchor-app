@@ -1,4 +1,4 @@
-'use client';
+// 'use client';
 
 import { IntegrationCard as IntegrationCardType } from '@hatsprotocol/config';
 import { map, pick } from 'lodash';
