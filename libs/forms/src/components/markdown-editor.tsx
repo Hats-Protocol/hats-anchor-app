@@ -7,6 +7,7 @@ import { cn } from 'ui';
 import StarterKit from '@tiptap/starter-kit';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from './form';
+import Toolbar from './toolbar';
 
 // Custom styles to match the design
 const editorStyles = {
@@ -49,7 +50,7 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; l
       <FormLabel>{label}</FormLabel>
       <FormControl>
         <div className='flex min-h-[250px] flex-col justify-stretch'>
-          {/* <ToolBar editor={editor} /> */}
+          <Toolbar editor={editor} />
           <EditorContent editor={editor} />
         </div>
       </FormControl>
