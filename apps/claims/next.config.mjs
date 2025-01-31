@@ -16,7 +16,7 @@ const nextConfig = {
       // You might need to adjust these paths based on the actual paths in your Nx workspace
     ],
   },
-  transpilePackages: ['d3-org-chart'],
+  transpilePackages: ['d3-org-chart', '@rainbow-me/rainbowkit'],
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
     config.externals.push('pino-pretty', 'lokijs', 'encoding'); // Rainbowkit polyfills

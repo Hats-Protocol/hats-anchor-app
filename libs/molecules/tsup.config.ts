@@ -8,5 +8,17 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-dom', 'hooks', 'hats-hooks', 'hats-utils', 'icons', 'shared', 'types', 'utils', 'ui'],
+  external: [
+    'react',
+    'react-dom',
+    'hooks',
+    'hats-hooks',
+    'hats-utils',
+    'icons',
+    'shared',
+    'types',
+    'utils',
+    'ui',
+    '@rainbow-me/rainbowkit',
+  ],
 });

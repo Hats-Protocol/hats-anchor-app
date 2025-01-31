@@ -13,7 +13,15 @@ import { idToIp } from 'shared';
 import { CouncilMember, SupportedChains } from 'types';
 import { Button } from 'ui';
 import { MemberAvatar } from 'ui';
-import { createHatsClient, formatAddress, getAllWearers, logger, parseCouncilSlug, sendTelegramMessage } from 'utils';
+import {
+  createHatsClient,
+  formatAddress,
+  getAllWearers,
+  logger,
+  parseCouncilSlug,
+  sanitizeMessage,
+  sendTelegramMessage,
+} from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
@@ -120,14 +128,14 @@ const ManagePage = ({ slug }: { slug: string }) => {
     handlePendingTx?.({
       hash: result?.transactionHash,
       txChainId: chainId ?? 11155111,
-      txDescription: `Minted hat ${idToIp(ownerHat?.id)} to ${user.address}`,
+      txDescription: `Minted hat ${idToIp(ownerHat?.id)} to ${user.name || formatAddress(user.address)}`,
       waitForSubgraph,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
         setAddManagerLoading(false);
         sendTelegramMessage(
-          `New council manager added: ${formatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}`,
+          `New council manager added: ${sanitizeMessage(formatAddress(user.address))} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
         );
 
         setModals?.({});

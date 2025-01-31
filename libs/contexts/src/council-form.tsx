@@ -340,7 +340,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     // Compute validation state here
     const validation = computeStepValidation({ ...data, completedOptionalSteps: optionalSteps });
     setStepValidationState(validation);
-  }, [data, form, optionalSteps]);
+  }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
 
   const queryClient = useQueryClient();
 

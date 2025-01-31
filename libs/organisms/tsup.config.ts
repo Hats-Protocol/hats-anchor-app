@@ -20,5 +20,7 @@ export default defineConfig({
     'utils',
     'ui',
     'molecules',
+    '@rainbow-me/rainbowkit',
+    '@uiw/react-md-editor',
   ],
 });
