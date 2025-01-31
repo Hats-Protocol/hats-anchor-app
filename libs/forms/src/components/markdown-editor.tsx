@@ -1,9 +1,12 @@
 'use client';
 
-import MDEditor from '@uiw/react-md-editor';
 import { pick } from 'lodash';
-import { UseFormReturn } from 'react-hook-form';
+import { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
 import { cn } from 'ui';
+
+import StarterKit from '@tiptap/starter-kit';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from './form';
 
 // Custom styles to match the design
 const editorStyles = {
@@ -18,36 +21,62 @@ const editorStyles = {
   '--md-toolbar-border': '#E2E8F0',
 } as React.CSSProperties;
 
-const MarkdownEditor = ({ name, placeholder, localForm, isDisabled }: MarkdownEditorProps) => {
-  const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
-  const value = watch(name);
+const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; label: string }) => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({}),
+      // Heading.configure({
+      //   HTMLAttributes: {
+      //     class: 'text-xl font-bold',
+      //     levels: [2],
+      //   },
+    ],
+    content: field.value,
+    editorProps: {
+      attributes: {
+        class:
+          'rounded-md border min-h-[150px] border-input bg-backgr{ound focus:ring-offset-2 disabled:cursor-not-allows disabled:opacity-50 p-2',
+      },
+    },
+    onUpdate({ editor }) {
+      field.onChange(editor.getHTML());
+      console.log(editor.getHTML());
+    },
+  });
+
+  return (
+    <FormItem>
+      <FormLabel>{label}</FormLabel>
+      <FormControl>
+        <div className='flex min-h-[250px] flex-col justify-stretch'>
+          {/* <ToolBar editor={editor} /> */}
+          <EditorContent editor={editor} />
+        </div>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
+};
+
+const MarkdownEditor = ({ name, label, placeholder, localForm, isDisabled }: MarkdownEditorProps) => {
+  // const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
+
   // TODO handle form options (required, length)
 
   return (
-    <div
-      className={cn(
-        'rounded-lg border border-gray-200 [&_.w-md-editor-input]:bg-white [&_.w-md-editor-toolbar]:rounded-t-lg [&_.w-md-editor-toolbar]:border-b [&_.w-md-editor-toolbar]:border-gray-200 [&_.w-md-editor-toolbar]:bg-gray-50 [&_.w-md-editor]:rounded-lg [&_.w-md-editor]:bg-white',
-        isDisabled && 'cursor-not-allowed opacity-60',
-      )}
-      style={editorStyles}
-      data-color-mode='light'
-    >
-      <MDEditor
-        value={value}
-        onChange={isDisabled ? undefined : (value) => setValue(name, value || '')}
-        preview='edit'
-        height={400}
-        className='!border-0'
-        textareaProps={{ placeholder, disabled: isDisabled }}
-        hideToolbar={false}
-        // toolbarHeight={40} // deprecated?
-      />
-    </div>
+    <FormField
+      control={localForm.control}
+      name={name}
+      render={({ field }) => {
+        return <Tiptap field={field} label={label} />;
+      }}
+    />
   );
 };
 
 interface MarkdownEditorProps {
   name: string;
+  label: string;
   placeholder: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
