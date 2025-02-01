@@ -1,12 +1,11 @@
 'use client';
 
-import { pick } from 'lodash';
-import { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
-import { cn } from 'ui';
-
+import Heading from '@tiptap/extension-heading';
+import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEditor, EditorContent } from '@tiptap/react';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from './form';
+import { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
+
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './form';
 import { Toolbar } from './toolbar';
 
 // Custom styles to match the design
@@ -26,17 +25,18 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; l
   const editor = useEditor({
     extensions: [
       StarterKit.configure({}),
-      // Heading.configure({
-      //   HTMLAttributes: {
-      //     class: 'text-xl font-bold',
-      //     levels: [2],
-      //   },
+      Heading.configure({
+        HTMLAttributes: {
+          class: 'text-xl font-bold',
+          levels: [1, 2, 3],
+        },
+      }),
     ],
     content: field.value,
     editorProps: {
       attributes: {
         class:
-          'rounded-md border min-h-[150px] border-input bg-backgr{ound focus:ring-offset-2 disabled:cursor-not-allows disabled:opacity-50 p-2',
+          'rounded-md border min-h-[150px] border-input bg-background focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 p-2',
       },
     },
     onUpdate({ editor }) {
