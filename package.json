@@ -81,8 +81,10 @@
     "typescript": "5.5.3"
   },
   "resolutions": {
-    "viem": "2.21.32",
+    "@radix-ui/react-dismissable-layer": "^1.1.0",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "bs58": "^6.0.0",
     "express": "4.20.0",
-    "bs58": "^6.0.0"
+    "viem": "2.21.32"
   }
 }

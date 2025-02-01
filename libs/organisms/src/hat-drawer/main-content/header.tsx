@@ -74,7 +74,7 @@ const Header = () => {
       </div>
 
       <div className='flex justify-center md:justify-start'>
-        <div className='flex flex-col gap-2'>
+        <div className='flex gap-2'>
           {isCurrentWearer && <Badge className='bg-green-500'>My Hat</Badge>}
 
           <Badge

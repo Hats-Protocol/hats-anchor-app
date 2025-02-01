@@ -54,12 +54,12 @@ export const LazyImage = ({
   return (
     <div
       className={cn(
-        'relative overflow-hidden border border-slate-200 bg-white object-contain shadow-sm',
+        'relative min-h-10 min-w-10 overflow-hidden rounded-md border border-slate-200 bg-white object-contain shadow-sm',
         containerClassName,
       )}
     >
       <div
-        className={cn('absolute -left-1 -top-1 h-[105%] w-[105%] bg-cover bg-center', imageClassName)}
+        className={cn('absolute -left-1 -top-1 h-[110%] w-[110%] bg-cover bg-center', imageClassName)}
         style={{ backgroundImage: `url(${useFallback ? '/icon.jpeg' : src})` }}
       />
     </div>

@@ -14,9 +14,9 @@ import { idToIp } from 'shared';
 import {
   Button,
   DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuPortal,
   DropdownMenuTrigger,
   Link,
   Tooltip,
@@ -125,7 +125,7 @@ const MoreMenu = () => {
             <p>More</p>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuPortal>
+        <DropdownMenuContent>
           <div className='gap-5'>
             {/* OFF-CHAIN ACTIONS */}
             <DropdownMenuGroup title='Off-chain Actions'>
@@ -266,7 +266,7 @@ const MoreMenu = () => {
               </Link>
             </DropdownMenuItem>
           </div>
-        </DropdownMenuPortal>
+        </DropdownMenuContent>
       </DropdownMenu>
 
       <Modal name='make-hat-immutable' title={`Make Hat #${idToIp(selectedHat?.id)} Immutable`}>

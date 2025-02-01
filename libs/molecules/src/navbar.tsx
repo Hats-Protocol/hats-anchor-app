@@ -6,11 +6,13 @@ import { NavLinks } from './nav-links';
 import { ReturnToTreeList } from './return-to-tree-list';
 
 const Navbar = () => (
-  <div className='border-b-1 fixed z-[20] flex h-[58px] w-full justify-between border-gray-500 bg-white px-4 shadow-md md:h-[75px] md:px-6'>
-    <div className='flex gap-2 py-1 md:gap-6'>
-      <Link href='/' className='w-[50px] md:w-[67px]'>
-        <img src='/icon.jpeg' className='h-full' alt='Hats Logo' />
-      </Link>
+  <div className='border-b-1 fixed z-[9] flex h-[58px] w-full justify-between border-gray-500 bg-white px-4 shadow-md md:h-[75px] md:px-6'>
+    <div className='flex gap-2 md:gap-6'>
+      <div className='my-2 w-16'>
+        <Link href='/' className='w-[50px] md:w-[67px]'>
+          <img src='/icon.jpeg' className='h-full' alt='Hats Logo' />
+        </Link>
+      </div>
 
       <div className='hidden items-center gap-5 md:flex'>
         <NavLinks />

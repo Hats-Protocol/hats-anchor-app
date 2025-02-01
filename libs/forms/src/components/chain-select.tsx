@@ -1,3 +1,5 @@
+'use client';
+
 import { councilsChainsList } from '@hatsprotocol/config';
 import { map, values } from 'lodash';
 // import { useEffect } from 'react';
@@ -19,7 +21,7 @@ const chainOptions = map(values(councilsChainsList), (chain) => ({
   icon: chain.iconUrl,
 }));
 
-const ChainSelect = ({ localForm, name, placeholder, isDisabled, className }: ChainSelectProps) => {
+const ChainSelect = ({ localForm, name = 'chain', placeholder, isDisabled, className }: ChainSelectProps) => {
   const { watch } = localForm;
   const value = watch(name);
   // const selectedOption = options.find((opt: any) => opt.value === value);

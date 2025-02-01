@@ -18,7 +18,8 @@
     "dev": "tsup --watch src/index.ts",
     "lint": "eslint src/",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "start-storybook": "pnpm dlx http-server ./storybook-static"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.0.19",

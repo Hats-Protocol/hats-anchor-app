@@ -8,7 +8,7 @@ import { includes, map } from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { FaCopy, FaEllipsisV } from 'react-icons/fa';
-import { Button, cn, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger } from 'ui';
+import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -67,7 +67,7 @@ const MobileBottomMenu = ({ show = false }: { show: boolean | undefined }) => {
                 More
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuPortal>
+            <DropdownMenuContent>
               <DropdownMenuItem onClick={copyHatId}>
                 <FaCopy className='mr-2' />
                 Copy hat ID
@@ -76,7 +76,7 @@ const MobileBottomMenu = ({ show = false }: { show: boolean | undefined }) => {
                 <FaCopy className='mr-2' />
                 Copy contract ID
               </DropdownMenuItem>
-            </DropdownMenuPortal>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>

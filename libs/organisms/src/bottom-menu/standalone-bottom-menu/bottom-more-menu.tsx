@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { Button, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger, Link } from 'ui';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 import { ClaimsHelperButtons } from './claims-helper-buttons';
@@ -76,13 +76,13 @@ export const BottomMoreMenu = () => {
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuPortal>
+        <DropdownMenuContent>
           <Link href={link} isExternal>
             <DropdownMenuItem>View full role</DropdownMenuItem>
           </Link>
 
           {hasAgreement && <DropdownMenuItem onClick={handleDownload}>Download Agreement</DropdownMenuItem>}
-        </DropdownMenuPortal>
+        </DropdownMenuContent>
       </DropdownMenu>
     );
   }

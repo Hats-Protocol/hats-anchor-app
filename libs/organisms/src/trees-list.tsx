@@ -55,7 +55,7 @@ const TreesList = ({ params }: TreeListProps) => {
   ) {
     return (
       <div className='flex h-full min-h-[600px] items-center justify-center'>
-        <div className='space-y-10'>
+        <div className='flex flex-col items-center gap-10'>
           <h2 className='text-lg font-medium'>
             {!showKey || showKey === SHOW_KEY.me ? "You're not wearing any hats on this network" : 'No trees found'}
           </h2>

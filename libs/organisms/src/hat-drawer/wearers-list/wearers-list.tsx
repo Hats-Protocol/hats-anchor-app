@@ -91,9 +91,9 @@ const WearersList = () => {
 
   return (
     <>
-      <div className='flex flex-col gap-4 px-4 md:px-16'>
-        <div className='flex items-center justify-between'>
-          <div className='flex gap-1'>
+      <div className='flex w-full flex-col gap-4 px-4 md:px-16'>
+        <div className='flex w-full flex-col items-center justify-between gap-2'>
+          <div className='flex w-full gap-1'>
             <h2 className='text-md font-medium'>
               {get(selectedHat, 'currentSupply')}{' '}
               {toNumber(get(selectedHat, 'currentSupply')) === 1 ? 'Wearer' : 'Wearers'} of this Hat
@@ -136,7 +136,7 @@ const WearersList = () => {
           )}
           {map(!hatLoading ? filteredWearers : loadingWearers, (w: HatWearer, index: number) => {
             if (typeof w.id !== 'string') {
-              return <Skeleton className='h-5 w-full' />;
+              return <Skeleton className='h-5 w-full' key={index} />;
             }
             return (
               <WearerRow

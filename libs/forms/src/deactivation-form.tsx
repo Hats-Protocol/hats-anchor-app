@@ -4,22 +4,23 @@ import { chainsList } from '@hatsprotocol/config';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useTreeDetails } from 'hats-hooks';
-import { concat, filter, get, isEmpty, map, range, toNumber, values } from 'lodash';
-import { useEffect, useState } from 'react';
+import { concat, filter, get, isEmpty, map, range, toLower, toNumber, values } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { AppHat } from 'types';
-import { BaseCheckbox, BaseInput, Button } from 'ui';
+import { BaseCheckbox, BaseInput, Button, SelectItem } from 'ui';
 import { createHatsClient, formatAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 
-import { Form, FormControl, FormLabel, Input, NumberInput, Select } from './components';
+import { Form, FormControl, FormItem, FormLabel, Input, NumberInput, Select } from './components';
 
 export const DeactivationForm = () => {
   const localForm = useForm();
   const { handleSubmit, watch, setValue } = localForm;
   const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
   const [multicallCallData, setMulticallCallData] = useState<Hex | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [allCalls, setAllCalls] = useState<any[]>([]);
@@ -71,8 +72,10 @@ export const DeactivationForm = () => {
     setAllCalls(concat(setToggleCalls, deactivateCalls, resetToggleCalls));
   };
 
-  const onSendTx = async () => {
-    const hatsClient = await createHatsClient(toNumber(watch('chainId')));
+  const onSendTx = useCallback(async () => {
+    console.log(watch('wearer'), topHatWearer, address);
+    if (!walletClient) return; // TODO catch these issues, toasts
+    const hatsClient = await createHatsClient(toNumber(watch('chainId')), walletClient);
 
     if (!hatsClient || isEmpty(allCalls)) return;
 
@@ -85,43 +88,49 @@ export const DeactivationForm = () => {
         console.log('error', e);
       });
     console.log('result', result);
-  };
+  }, [address, allCalls, topHatWearer, watch]);
 
   useEffect(() => {
     setValue('useTopHatWearer', true);
   }, []);
 
-  const notTopHatWearerOrWearer = watch('wearer') !== address && topHatWearer !== address;
+  const topHatWearerOrWearer =
+    toLower(watch('wearer')) === toLower(address) || toLower(topHatWearer) === toLower(address);
+  // console.log(watch('wearer') === address || topHatWearer === address, watch('wearer'), topHatWearer, address);
 
   return (
     <div>
       <Form {...localForm}>
         <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
-          <div className='flex items-center gap-2'>
-            <Select localForm={localForm} name='chainId' label='Network'>
-              {map(values(chainsList), (chain) => (
-                <option value={chain.id} key={chain.id}>
-                  {chain.name}
-                </option>
-              ))}
-            </Select>
+          <div className='flex justify-between gap-4'>
+            <div className='w-1/2'>
+              <Select localForm={localForm} name='chainId' label='Network'>
+                {map(values(chainsList), (chain) => (
+                  <SelectItem value={chain.id.toString()} key={chain.id}>
+                    {chain.name}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
-            <NumberInput localForm={localForm} name='treeId' label='Tree' />
+            <div className='w-1/2'>
+              <NumberInput localForm={localForm} name='treeId' label='Tree' />
+            </div>
           </div>
 
           <div className='flex flex-col gap-2'>
-            <div>
-              <FormControl className='flex items-center gap-2'>
+            <FormItem className='flex items-center gap-2'>
+              <FormControl>
                 <BaseCheckbox
                   name='useTopHatWearer'
                   checked={watch('useTopHatWearer')}
-                  onChange={() => setValue('useTopHatWearer', !watch('useTopHatWearer'))}
+                  onCheckedChange={() => setValue('useTopHatWearer', !watch('useTopHatWearer'))}
                 />
-                <FormLabel className='mb-0'>
-                  Use Top Hat Wearer {topHatWearer && `(${formatAddress(topHatWearer)})`}
-                </FormLabel>
               </FormControl>
-            </div>
+              <FormLabel className='my-0' htmlFor='useTopHatWearer'>
+                Use Top Hat Wearer {topHatWearer && `(${formatAddress(topHatWearer)})`}
+              </FormLabel>
+            </FormItem>
 
             {!watch('useTopHatWearer') && (
               <Input
@@ -148,9 +157,10 @@ export const DeactivationForm = () => {
                   <div className='flex items-center gap-2 px-2' key={hat.id}>
                     {map(range(0, get(hat, 'levelAtLocalTree')), () => '-')}
                     <BaseCheckbox
-                      value={hat.id}
-                      name={`hat-${hat.id}`}
-                      onChange={() => {
+                      // value={hat.id}
+                      // name={`hat-${hat.id}`}
+                      checked={watch(`hat-${hat.id}`)}
+                      onCheckedChange={() => {
                         setValue(`hat-${hat.id}`, !watch(`hat-${hat.id}`));
                       }}
                     />
@@ -178,16 +188,22 @@ export const DeactivationForm = () => {
           </div>
 
           {multicallCallData && (
-            <div className='flex flex-col gap-2'>
-              <p>Hats Contract</p>
-              <BaseInput value={HATS_V1} readOnly />
-              <p>Contract Function</p>
-              <BaseInput value={'multicall'} readOnly />
-              <p>Multicall Call Data</p>
-              <BaseInput value={multicallCallData} readOnly />
+            <div className='flex flex-col gap-4'>
+              <div className='flex flex-col gap-2'>
+                <p className='text-sm uppercase text-black/60'>Hats Contract</p>
+                <BaseInput value={HATS_V1} readOnly />
+              </div>
+              <div className='flex flex-col gap-2'>
+                <p className='text-sm uppercase text-black/60'>Contract Function</p>
+                <BaseInput value={'multicall'} readOnly />
+              </div>
+              <div className='flex flex-col gap-2'>
+                <p className='text-sm uppercase text-black/60'>Multicall Call Data</p>
+                <BaseInput value={multicallCallData} readOnly />
+              </div>
 
               <div className='flex justify-end'>
-                <Button onClick={onSendTx} disabled={notTopHatWearerOrWearer}>
+                <Button onClick={onSendTx} disabled={!topHatWearerOrWearer}>
                   Send Transaction
                 </Button>
               </div>

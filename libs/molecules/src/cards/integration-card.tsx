@@ -9,17 +9,17 @@ const IntegrationCard = ({ integration }: { integration: IntegrationCardType }) 
 
   return (
     <Link href={link} className='w-full md:w-[48%] xl:w-[23%]' isExternal>
-      <Card className='border-1 min-w-[200px] border-solid'>
-        <div className='h-100px border-top-radius-md relative flex items-center justify-center overflow-hidden bg-gray-50'>
+      <Card className='h-full min-w-[200px] rounded-md border border-gray-600'>
+        <div className='h-100px relative flex items-center justify-center overflow-hidden rounded-t-md bg-gray-100'>
           <div
-            className='h-100% w-100% bg-image absolute bg-clip-border bg-repeat'
+            className='absolute h-full w-full bg-clip-border bg-repeat'
             style={{ backgroundImage: '/bg-topography.svg' }}
           />
 
-          <div className='flex gap-8'>
+          <div className='flex h-24 items-center gap-8'>
             {map(icons, (icon: any, i: number) => {
               const Icon = icon;
-              return <Icon key={i} className='h-50px min-h-40px text-black/80' />;
+              return <Icon key={i} className='size-[40px] text-black/80' />;
             })}
           </div>
         </div>

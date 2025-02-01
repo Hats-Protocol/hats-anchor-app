@@ -15,7 +15,7 @@ import { Button, cn } from 'ui';
 import { chainsMap, formatAddress, formatScientificWhole } from 'utils';
 import { isAddress } from 'viem';
 
-import { FormRowWrapper, MultiAddressInput, NumberInput } from './components';
+import { Form, FormRowWrapper, MultiAddressInput, NumberInput } from './components';
 
 const BoxArrowUpRightIn = dynamic(() => import('icons').then((i) => i.BoxArrowUpRightIn));
 
@@ -137,68 +137,70 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
   if (!form) return null;
 
   return (
-    <form onSubmit={handleSubmit?.(onSubmit)}>
-      <div className={cn(editMode ? 'space-y-4' : 'space-y-2')}>
-        {editMode && (
-          <FormRowWrapper>
-            <BsBarChart className='mt-1 h-4 w-4' />
+    <Form {...form}>
+      <form onSubmit={handleSubmit?.(onSubmit)}>
+        <div className={cn(editMode ? 'space-y-4' : 'space-y-2')}>
+          {editMode && (
+            <FormRowWrapper>
+              <BsBarChart className='mt-1 h-4 w-4' />
 
-            <NumberInput
-              name='maxSupply'
-              label='MAX WEARERS'
-              subLabel='Total number of addresses that can wear this hat at the same time.'
-              localForm={form}
-              options={{
-                min: toNumber(selectedHat?.currentSupply),
-                validate: {
-                  maxWearers: (v) =>
-                    !gt(add(size(currentWearerList), size(localWearers)), toNumber(v)) || 'Max supply exceeded',
-                },
-              }}
-              isDisabled={!isMutable(selectedHat)}
-              placeholder='10'
-            />
-          </FormRowWrapper>
-        )}
-        <div className='flex items-end justify-between'>
-          <div className='space-y-0'>
-            <div className='flex items-center'>
-              <p className='text-sm uppercase'>New Wearer Addresses</p>
+              <NumberInput
+                name='maxSupply'
+                label='MAX WEARERS'
+                subLabel='Total number of addresses that can wear this hat at the same time.'
+                localForm={form}
+                options={{
+                  min: toNumber(selectedHat?.currentSupply),
+                  validate: {
+                    maxWearers: (v) =>
+                      !gt(add(size(currentWearerList), size(localWearers)), toNumber(v)) || 'Max supply exceeded',
+                  },
+                }}
+                isDisabled={!isMutable(selectedHat)}
+                placeholder='10'
+              />
+            </FormRowWrapper>
+          )}
+          <div className='flex items-end justify-between'>
+            <div className='space-y-0'>
+              <div className='flex items-center'>
+                <p className='text-sm uppercase'>New Wearer Addresses</p>
+              </div>
+              <p className='text-sm text-gray-600'>
+                This address will receive a {hatName} hat token on {chainId && chainsMap(chainId).name}
+              </p>
             </div>
-            <p className='text-sm text-gray-600'>
-              This address will receive a {hatName} hat token on {chainId && chainsMap(chainId).name}
-            </p>
+            {!editMode && (
+              <p className='text-sm text-gray-600'>
+                {toNumber(currentSupply) + size(localWearers)} of {formatScientificWhole(maxSupply)} wearers
+              </p>
+            )}
           </div>
+          <div className='rounded-lg border'>
+            <MultiAddressInput name='wearers' localForm={form} holdOnAdd={!editMode} />
+          </div>
+
           {!editMode && (
-            <p className='text-sm text-gray-600'>
-              {toNumber(currentSupply) + size(localWearers)} of {formatScientificWhole(maxSupply)} wearers
-            </p>
+            <div className='flex justify-end'>
+              <Button
+                type='submit'
+                // isLoading={isLoadingMintHat || isLoadingBatchMintHats}
+                variant='default'
+                disabled={
+                  (!writeAsyncBatchMintHats && !writeAsyncMintHat) ||
+                  isLoadingMintHat ||
+                  isLoadingBatchMintHats ||
+                  !!errors?.[`wearers-currentAddress`]
+                }
+              >
+                <BoxArrowUpRightIn className='h-4 w-4' />
+                Mint Hat{size(localWearers) > 0 && 's'}
+              </Button>
+            </div>
           )}
         </div>
-        <div className='rounded-lg border'>
-          <MultiAddressInput name='wearers' localForm={form} holdOnAdd={!editMode} />
-        </div>
-
-        {!editMode && (
-          <div className='flex justify-end'>
-            <Button
-              type='submit'
-              // isLoading={isLoadingMintHat || isLoadingBatchMintHats}
-              variant='default'
-              disabled={
-                (!writeAsyncBatchMintHats && !writeAsyncMintHat) ||
-                isLoadingMintHat ||
-                isLoadingBatchMintHats ||
-                !!errors?.[`wearers-currentAddress`]
-              }
-            >
-              <BoxArrowUpRightIn className='h-4 w-4' />
-              Mint Hat{size(localWearers) > 0 && 's'}
-            </Button>
-          </div>
-        )}
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 };
 

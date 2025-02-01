@@ -16,7 +16,7 @@ const TreesList = async ({ params }: TreeListProps) => {
   return (
     <>
       <div className='px-4 py-20 md:px-20 lg:px-[100px] lg:py-[100px]'>
-        <div className='mb-3 flex items-center justify-end gap-2'>
+        <div className='mx-auto mb-3 flex max-w-[1200px] items-center justify-end gap-2'>
           <div className='flex gap-2'>
             <LinkButton href='/trees/new'>
               Create <span className='hidden md:inline'>a new </span>

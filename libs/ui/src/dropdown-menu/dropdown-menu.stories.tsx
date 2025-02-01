@@ -1,5 +1,5 @@
-import { Settings } from 'lucide-react';
 import type { Meta, StoryObj } from '@storybook/react';
+import { Settings } from 'lucide-react';
 
 import { Button } from '../button';
 import {

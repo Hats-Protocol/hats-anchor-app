@@ -9,6 +9,7 @@ interface LinkButtonProps extends ButtonProps {
   href?: string;
   icon?: ReactNode;
   isExternal?: boolean;
+  size?: 'default' | 'sm' | 'lg';
   children?: ReactNode;
 }
 
@@ -17,11 +18,11 @@ interface BaseLinkButtonProps extends Omit<LinkButtonProps, 'onClick'> {
 }
 
 const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLinkButtonProps> = (
-  { onClick, href, variant, icon, isExternal, children, className },
+  { onClick, href, variant, icon, isExternal, size, children, className },
   ref,
 ) => {
   return (
-    <Button variant={variant as ButtonProps['variant']} className={className} asChild>
+    <Button variant={variant as ButtonProps['variant']} size={size} className={className} asChild>
       <a
         href={href}
         onClick={onClick}
@@ -29,7 +30,7 @@ const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLink
         target={isExternal ? '_blank' : undefined}
         rel={isExternal ? 'noopener noreferrer' : undefined}
       >
-        <div className={cn('flex gap-3')}>
+        <div className={cn('flex items-center gap-3')}>
           {icon}
           <p className={cn('text-sm')}>{children}</p>
         </div>

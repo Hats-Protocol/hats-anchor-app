@@ -3,25 +3,14 @@
 import Heading from '@tiptap/extension-heading';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
+import { ControllerRenderProps, FieldValues, UseFormReturn } from 'react-hook-form';
+import showdown from 'showdown';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './form';
-import { Toolbar } from './toolbar';
+import { Toolbar } from './markdown-toolbar';
 
-// Custom styles to match the design
-const editorStyles = {
-  '--color-canvas-default': '#ffffff',
-  '--color-border-default': '#E2E8F0',
-  '--color-fg-default': '#1A202C',
-  '--color-canvas-subtle': '#F7FAFC',
-  '--color-neutral-muted': '#EDF2F7',
-  '--md-toolbar-height': '40px',
-  '--md-toolbar-color': '#4A5568',
-  '--md-toolbar-background': '#F7FAFC',
-  '--md-toolbar-border': '#E2E8F0',
-} as React.CSSProperties;
-
-const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; label?: string }) => {
+const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, string>; label?: string }) => {
+  const converter = new showdown.Converter();
   const editor = useEditor({
     extensions: [
       StarterKit.configure({}),
@@ -32,7 +21,7 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; l
         },
       }),
     ],
-    content: field.value,
+    content: converter.makeHtml(field.value),
     editorProps: {
       attributes: {
         class:
@@ -41,7 +30,7 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; l
     },
     onUpdate({ editor }) {
       field.onChange(editor.getHTML());
-      console.log(editor.getHTML());
+      // console.log(editor.getHTML());
     },
   });
 
@@ -49,7 +38,7 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<any, string>; l
     <FormItem>
       {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
-        <div className='flex min-h-[250px] flex-col justify-stretch'>
+        <div className='flex max-h-[400px] min-h-[250px] flex-col justify-stretch'>
           <Toolbar editor={editor} />
           <EditorContent editor={editor} />
         </div>
