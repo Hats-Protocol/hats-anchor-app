@@ -111,10 +111,12 @@ export const ClaimsConditions = () => {
   }
 
   return (
-    <div className='w-full pb-20 md:pb-0'>
-      <h3 className='my-1 px-4 text-sm'>Conditions to wear this {CONFIG.TERMS.hat}</h3>
+    <div className='flex w-full flex-col gap-4 pb-20 md:pb-0'>
+      <div className='flex flex-col gap-2'>
+        <h3 className='text-sm'>Conditions to hold this {CONFIG.TERMS.hat}</h3>
 
-      <EligibilityConditions />
+        <EligibilityConditions />
+      </div>
 
       <div className='hidden justify-center md:flex'>
         <ClaimButton />

@@ -135,18 +135,20 @@ export const useClaimFn = ({
       return {
         claimFn: agreementV0Claim,
         disableClaim: notReady,
+        requireHatter: false,
         disableReason: notReady ? 'Accept the agreement to claim' : undefined,
       };
     }
 
     if (!moduleDetails?.instanceAddress) {
-      return { claimFn: undefined, disableClaim: true };
+      return { claimFn: undefined, disableClaim: true, requireHatter: false };
     }
 
     // TODO match on implementation address/module key
     if (moduleDetails?.name === ELIGIBILITY_MODULES.agreement) {
       return {
         claimFn: agreementClaim,
+        requireHatter: true,
         disableClaim: !get(isReadyToClaim, moduleDetails?.instanceAddress, false) && !isEligible,
       };
     }
@@ -154,6 +156,7 @@ export const useClaimFn = ({
     if (moduleDetails?.name === ELIGIBILITY_MODULES.unlock) {
       return {
         claimFn: subscriptionClaim,
+        requireHatter: false, // TODO could check if subscription module is wearing appropriate admin hat
         disableClaim: subscriptionDisableClaim,
         disableReason: subscriptionDisableReason,
       };
@@ -161,11 +164,11 @@ export const useClaimFn = ({
 
     if (moduleDetails?.name === ELIGIBILITY_MODULES.election) {
       // TODO hook up
-      return { claimFn: () => undefined, disableClaim: true };
+      return { claimFn: () => undefined, disableClaim: true, requireHatter: true };
     }
 
     // TODO fallback to claim with MCH when eligible
-    return { claimFn: undefined, disableClaim: true };
+    return { claimFn: undefined, disableClaim: true, requireHatter: true };
   }, [
     moduleDetails?.name,
     moduleDetails?.instanceAddress,
@@ -198,6 +201,7 @@ export const useClaimFn = ({
     handleClaim,
     disableClaim: claimHandlers?.disableClaim,
     disableReason: claimHandlers?.disableReason,
+    requireHatter: claimHandlers?.requireHatter,
     isEligible,
     status,
     isLoading: status === CLAIM_STATUS.CLAIMING,

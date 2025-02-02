@@ -1,4 +1,5 @@
-import { ETHERSCAN_API_URLS, ETHERSCAN_KEYS, FALLBACK_ADDRESS } from '@hatsprotocol/constants';
+import { ETHERSCAN_API_URLS, ETHERSCAN_KEYS } from '@hatsprotocol/config';
+import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import _ from 'lodash';
 import { logger } from 'utils';
 import { Hex } from 'viem';

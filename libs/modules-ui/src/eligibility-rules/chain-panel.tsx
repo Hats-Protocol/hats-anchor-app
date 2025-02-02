@@ -1,7 +1,6 @@
 'use client';
 
 import { Ruleset } from '@hatsprotocol/modules-sdk';
-import { useMediaStyles } from 'hooks';
 import { every, filter, find, flatten, get, keys, map, size } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
 import { useEffect, useRef, useState } from 'react';
@@ -19,7 +18,7 @@ const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean; isReadyToClaim: boolean }) => {
   if (isEligible) {
     return (
-      <div className='flex items-center gap-1 text-green-600'>
+      <div className='text-functional-success flex items-center gap-1'>
         <p>Eligible</p>
 
         <BsCheckSquareFill className='h-4 w-4' />
@@ -29,7 +28,7 @@ const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean
 
   if (isReadyToClaim) {
     return (
-      <div className='flex items-center gap-1 text-green-600'>
+      <div className='text-functional-success flex items-center gap-1'>
         <p>Pending</p>
 
         <BsCheckSquare className='h-4 w-4' />
@@ -38,7 +37,7 @@ const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean
   }
 
   return (
-    <div className='flex items-center gap-1 text-red-600'>
+    <div className='text-destructive flex items-center gap-1'>
       <p>Ineligible</p>
 
       <BsFillXOctagonFill className='h-4 w-4' />
@@ -56,10 +55,9 @@ const ChainPanel = ({
   currentEligibility,
   defaultOpen = false,
 }: ChainPanelProps) => {
-  const [expandedBackground, setExpandedBackground] = useState(defaultOpen);
+  const [chainPanelOpen, setChainPanelOpen] = useState(defaultOpen);
   const { address } = useAccount();
   const isMounted = useRef(false);
-  const { isMobile } = useMediaStyles();
 
   const subscriptionRule = find(flatten(ruleSets), (rule) => rule.module.id.includes('public-lock-v14'));
   const { hasAllowance } = useSubscriptionClaim({
@@ -101,10 +99,10 @@ const ChainPanel = ({
 
   // TODO handle controlled accordion // defaultIndex={defaultOpen ? 0 : undefined}
   return (
-    <Accordion type='single'>
+    <Accordion type='single' className='rounded-md' collapsible>
       <AccordionItem
         className={cn(
-          '-ml-1 w-full border-none shadow',
+          'md:w-[calc(100% + 32px)] w-full rounded-md border-none bg-white/80 shadow',
           // expandedBackground && 'shadow-accordion-trigger',
           // expandedBackground && 'border-t-md border-t-gray',
         )}
@@ -118,34 +116,35 @@ const ChainPanel = ({
         value='chain'
       >
         <AccordionTrigger
-        // p={0}
-        // border={isExpanded ? '1px solid' : undefined}
-        // borderBottom={!isExpanded ? '1px solid' : undefined}
-        // _hover={{
-        //   background: !isExpanded ? 'white' : undefined,
-        //   borderRadius: !isExpanded ? 'md' : undefined,
-        //   borderColor: !isExpanded && 'blue.300',
-        // }}
-        // background={isExpanded ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)' : undefined}
-        // borderTopRadius={isExpanded ? 'md' : undefined}
-        // borderColor={isExpanded ? 'gray.100' : 'transparent'}
-        // borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
+          // p={0}
+          // border={isExpanded ? '1px solid' : undefined}
+          // borderBottom={!isExpanded ? '1px solid' : undefined}
+          // _hover={{
+          //   background: !isExpanded ? 'white' : undefined,
+          //   borderRadius: !isExpanded ? 'md' : undefined,
+          //   borderColor: !isExpanded && 'blue.300',
+          // }}
+          // background={isExpanded ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)' : undefined}
+          // borderTopRadius={isExpanded ? 'md' : undefined}
+          // borderColor={isExpanded ? 'gray.100' : 'transparent'}
+          // borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
+          className='rounded-md hover:no-underline'
         >
-          <div className={cn('flex w-full justify-between px-4 py-2', IS_CLAIMS_APP && 'md:px-6')}>
+          <div className={cn('flex w-full justify-between px-1 py-1 pl-4')}>
             <p className={cn('hidden', !IS_CLAIMS_APP && 'block')}>
               Comply with {isAndChain ? 'all' : 'any'} of {size(flatten(ruleSets))} Rules to claim this Hat
             </p>
 
-            <p className={cn('block', IS_CLAIMS_APP && 'md:hidden')}>
+            <p className={cn('block')}>
               {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))} Rules to claim
             </p>
 
-            <EligibilityStatus isEligible={isEligible} isReadyToClaim={isReadyToClaim} />
+            <EligibilityStatus isEligible={!!address && isEligible} isReadyToClaim={isReadyToClaim} />
           </div>
         </AccordionTrigger>
 
         <AccordionContent className='border-b-lg border-gray border-b-lg border-gray overflow-visible p-0'>
-          <div className={cn('mx-0 px-2 pb-2 md:mx-6', IS_CLAIMS_APP && 'md:mx-6 md:px-4')}>
+          <div className={cn('px-4 pb-2')}>
             {/* // TODO fix these nested ternaries */}
             {/* mx={{ base: 0, md: IS_CLAIMS_APP ? (!isMobile ? 6 : 4) : !isMobile ? 4 : 0 }} */}
             {map(ruleSets, (ruleSet: Ruleset, index: number) =>

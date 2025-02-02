@@ -7,7 +7,7 @@ import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import posthog from 'posthog-js';
 import { useEffect, useMemo } from 'react';
-import { Button, Skeleton } from 'ui';
+import { Button, OblongAvatar, Skeleton } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
@@ -103,10 +103,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
                 <Button variant='outline' className='px-2 md:px-4' onClick={openAccountModal}>
                   <div className='flex items-center gap-2'>
                     {ensAvatar || fallbackAvatar ? (
-                      <div
-                        className='bg-position-center h-6 w-6 overflow-hidden rounded-sm bg-cover bg-clip-content'
-                        style={{ backgroundImage: ensAvatar || fallbackAvatar }}
-                      />
+                      <OblongAvatar className='h-6 w-5 rounded-sm' src={ensAvatar || fallbackAvatar} />
                     ) : null}
 
                     {!isMobile && <p className='line-clamp-1 font-medium'>{ensName || account.displayName}</p>}
@@ -118,16 +115,16 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
         }}
       </RainbowConnectButton.Custom>
 
-      <Modal name='account' onClose={() => setModals?.({})} size='md'>
-        {address && (
+      {address && (
+        <Modal name='account' onClose={() => setModals?.({})} size='sm'>
           <WalletProfile
             address={address as Hex}
             name={ensName || formatAddress(address)}
             avatar={ensAvatar || fallbackAvatar}
             hideProfileButton={hideProfileButton}
           />
-        )}
-      </Modal>
+        </Modal>
+      )}
     </>
   );
 };

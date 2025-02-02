@@ -3,7 +3,7 @@
 import { useOverlay } from 'contexts';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
-import { Button, Link, Skeleton } from 'ui';
+import { Button, cn, Link, Skeleton } from 'ui';
 import { useAccount } from 'wagmi';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetailsProps, TOGGLE_STATUS } from './utils';
@@ -35,15 +35,15 @@ export const EligibilityRuleDetails = ({
   const { setModals } = useOverlay();
   const { address } = useAccount();
 
-  let statusColor = 'red.500';
+  let statusColor = 'text-destructive';
   if (status === ELIGIBILITY_STATUS.expiring) {
-    statusColor = 'orange.500';
+    statusColor = 'text-orange-500';
   } else if (
     status === ELIGIBILITY_STATUS.eligible ||
     status === ELIGIBILITY_STATUS.pending ||
     status === TOGGLE_STATUS.active
   ) {
-    statusColor = 'green.500';
+    statusColor = 'text-functional-success';
   }
 
   // TODO handle tooltip on displayStatus
@@ -66,7 +66,7 @@ export const EligibilityRuleDetails = ({
   if (address) {
     return (
       <EligibilityRuleWrapper rule={rule}>
-        <div className='flex items-center gap-1' color={statusColor}>
+        <div className={cn('flex items-center gap-1', statusColor)}>
           <p>{displayStatus}</p>
 
           <Icon className='h-[14px] w-[14px] md:h-4 md:w-4' />
@@ -78,7 +78,7 @@ export const EligibilityRuleDetails = ({
   if (IS_CLAIMS_APP) {
     return (
       <EligibilityRuleWrapper rule={rule}>
-        <div className='flex items-center gap-1' color={statusColor}>
+        <div className={cn('flex items-center gap-1', statusColor)}>
           <p>{displayStatus}</p>
 
           <Icon className='h-[14px] w-[14px] md:h-4 md:w-4' />
@@ -91,7 +91,7 @@ export const EligibilityRuleDetails = ({
     <EligibilityRuleWrapper rule={rule}>
       <Button
         size='xs'
-        className='font-medium text-blue-500'
+        className='text-functional-link-primary font-medium'
         variant='ghost'
         onClick={() => setModals?.({ checkEligibility: true })}
       >

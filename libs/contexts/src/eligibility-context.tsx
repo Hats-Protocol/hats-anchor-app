@@ -26,7 +26,6 @@ export interface EligibilityContextProps {
   // claiming
   isClaimableFor: boolean;
   hatterIsAdmin: boolean | undefined;
-  requireHatter: boolean;
   // current active rule
   activeRule: EligibilityRule | undefined;
   setActiveRule: (rule: EligibilityRule | undefined) => void;
@@ -49,7 +48,6 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   // claiming
   isClaimableFor: false,
   hatterIsAdmin: false,
-  requireHatter: false,
   // current active rule
   activeRule: undefined,
   setActiveRule: (rule: EligibilityRule | undefined) => {},
@@ -78,7 +76,6 @@ export const EligibilityContextProvider = ({
     hatId,
   });
   const treeId = toNumber(get(selectedHat, 'tree.id'));
-  const requireHatter = true;
   const { data: treeDetails } = useTreeDetails({
     treeId,
     chainId,
@@ -146,7 +143,7 @@ export const EligibilityContextProvider = ({
       // claiming
       isClaimableFor,
       hatterIsAdmin,
-      requireHatter,
+
       // current active rule
       activeRule,
       setActiveRule,
@@ -170,7 +167,6 @@ export const EligibilityContextProvider = ({
       // claiming
       isClaimableFor,
       hatterIsAdmin,
-      requireHatter,
       // current active rule
       activeRule,
       setActiveRule,

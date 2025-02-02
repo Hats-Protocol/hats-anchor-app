@@ -4,6 +4,7 @@ import '../public/styles/style.css';
 import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import 'react-datepicker/dist/react-datepicker.css';
+import 'react-cmdk/dist/cmdk.css';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
 

@@ -15,7 +15,7 @@ import { chainsMap, fetchToken, pinJson } from 'utils';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
-import { FormLabel, Input, Textarea } from './components';
+import { Form, FormLabel, Input, Textarea } from './components';
 
 const NewTreeForm = () => {
   const [image, setImage] = useState<ImageFile>();
@@ -81,60 +81,62 @@ const NewTreeForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='w-50%'>
-      <div className='mt-10 space-y-6'>
-        <DropZone
-          label='Top Hat Image'
-          getRootProps={getRootProps}
-          getInputProps={getInputProps}
-          isFocused={isFocused}
-          isDragAccept={isDragAccept}
-          isDragReject={isDragReject}
-          image={image}
-          isFullWidth
-        />
-        <Input name='name' label={toUpper('Top Hat name')} placeholder='Name of Top Hat' localForm={localForm} />
-        <Textarea
-          name='description'
-          label={toUpper('Top Hat description')}
-          placeholder='Describe the Tree and this Top Hat'
-          localForm={localForm}
-        />
-
-        <div className='flex items-center'>
-          <Switch
-            id='overrideReceiver'
-            checked={overrideReceiver}
-            onChange={() => setValue('overrideReceiver', !overrideReceiver)}
+    <Form {...localForm}>
+      <form onSubmit={handleSubmit(onSubmit)} className='w-50%'>
+        <div className='mt-10 space-y-6'>
+          <DropZone
+            label='Top Hat Image'
+            getRootProps={getRootProps}
+            getInputProps={getInputProps}
+            isFocused={isFocused}
+            isDragAccept={isDragAccept}
+            isDragReject={isDragReject}
+            image={image}
+            isFullWidth
           />
-          <FormLabel htmlFor='overrideReceiver' className='m-0'>
-            {toUpper('Mint to Me')}
-          </FormLabel>
-        </div>
+          <Input name='name' label={toUpper('Top Hat name')} placeholder='Name of Top Hat' localForm={localForm} />
+          <Textarea
+            name='description'
+            label={toUpper('Top Hat description')}
+            placeholder='Describe the Tree and this Top Hat'
+            localForm={localForm}
+          />
 
-        {overrideReceiver && (
-          <div>
-            <Input
-              name='receiver'
-              label='Assign to'
-              placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
-              localForm={localForm}
-              rightElement={receiverResolvedAddress && <FaCheck className='text-functional-success h-4 w-4' />}
+          <div className='flex items-center'>
+            <Switch
+              id='overrideReceiver'
+              checked={overrideReceiver}
+              onChange={() => setValue('overrideReceiver', !overrideReceiver)}
             />
-            {receiverResolvedAddress && (
-              <p className='text-gray text-sm'>Resolved address: {receiverResolvedAddress}</p>
-            )}
+            <FormLabel htmlFor='overrideReceiver' className='m-0'>
+              {toUpper('Mint to Me')}
+            </FormLabel>
           </div>
-        )}
 
-        <div className='flex justify-end'>
-          {/* isLoading={isLoading || detailsCidLoading} */}
-          <Button type='submit' disabled={!writeAsync}>
-            Create on {chainsMap(chainId)?.name}
-          </Button>
+          {overrideReceiver && (
+            <div>
+              <Input
+                name='receiver'
+                label='Assign to'
+                placeholder='Enter Wallet Address (0x…) or ENS (.eth)'
+                localForm={localForm}
+                rightElement={receiverResolvedAddress && <FaCheck className='text-functional-success h-4 w-4' />}
+              />
+              {receiverResolvedAddress && (
+                <p className='text-gray text-sm'>Resolved address: {receiverResolvedAddress}</p>
+              )}
+            </div>
+          )}
+
+          <div className='flex justify-end'>
+            {/* isLoading={isLoading || detailsCidLoading} */}
+            <Button type='submit' disabled={!writeAsync}>
+              Create on {chainsMap(chainId)?.name}
+            </Button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 };
 

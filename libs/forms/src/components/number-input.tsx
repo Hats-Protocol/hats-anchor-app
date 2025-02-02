@@ -127,8 +127,8 @@ const NumberInput = ({
                       field.onChange(field.value - 1);
                     }
                   }}
-                  upDisabled={field.value >= (numOptions?.max ?? Infinity)}
-                  downDisabled={field.value <= (numOptions?.min ?? 0)}
+                  upDisabled={field.value >= (numOptions?.max ?? Infinity) || !!isDisabled}
+                  downDisabled={field.value <= (numOptions?.min ?? 0) || !!isDisabled}
                 />
               </div>
             </FormControl>

@@ -67,32 +67,38 @@ const WalletProfile = ({
   };
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col gap-4'>
       <div className='flex items-center gap-6'>
-        {avatar && <OblongAvatar src={avatar} />}
+        {avatar && <OblongAvatar className='h-[96px] w-[72px]' src={avatar} />}
+
         <div className='flex flex-col'>
           <h3 className='text-xl'>{name}</h3>
-          <div className='flex items-center gap-4'>
-            <p>
-              {formatRoundedDecimals({
-                value: balance?.value,
-                decimals: balance?.decimals || 18,
-                rounded: 2,
-              })}{' '}
-              {balance?.symbol}
-            </p>
 
-            <Button variant='link' className='text-blue-500' onClick={onCopy}>
+          <div className='flex items-center gap-4'>
+            {balance?.value && balance.value > 0n && (
+              <p>
+                {formatRoundedDecimals({
+                  value: balance?.value,
+                  decimals: balance?.decimals || 18,
+                  rounded: 2,
+                })}{' '}
+                {balance?.symbol}
+              </p>
+            )}
+
+            <Button variant='link' className='text-functional-link-primary' onClick={onCopy}>
               {formatAddress(address)}
               <CopyAddress className='ml-1 h-4 w-4' />
             </Button>
           </div>
         </div>
       </div>
-      <div className='mb-2 flex justify-between gap-2'>
+
+      <div className='flex justify-between gap-2'>
         <Button className='w-full' variant='outline' onClick={toggleNetworkModal}>
           <div className='flex items-center gap-2'>
-            <img src={NETWORK_IMAGES[chainId as SupportedChains]} className='h-5 w-5' />
+            <img src={NETWORK_IMAGES[chainId as SupportedChains]} alt={chainsMap(chainId)?.name} className='h-5 w-5' />
+
             <p>{chainsMap(chainId)?.name}</p>
           </div>
         </Button>
@@ -113,6 +119,7 @@ const WalletProfile = ({
         <div>
           <h3 className='text-md'>Transaction History</h3>
           <TransactionHistory count={2} transactions={transactions || []} hideHash />
+
           {size(transactions) > 2 && (
             <div className='flex'>
               <Button variant='ghost' size='sm' onClick={toggleTransactionHistoryModal}>
@@ -125,7 +132,7 @@ const WalletProfile = ({
       )}
 
       <div className='flex'>
-        <Button variant='destructive' onClick={handleDisconnect} className='w-full'>
+        <Button variant='destructive-outline' onClick={handleDisconnect} className='w-full'>
           Sign Out
           <BsBoxArrowRight className='ml-1 h-4 w-4' />
         </Button>
