@@ -134,12 +134,12 @@ const MemberRow = ({
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
           {user && canEdit ? (
-            <Button variant='link' size='link' className='text-functional-link-primary' onClick={editUser}>
+            <Button variant='link' className='text-functional-link-primary' onClick={editUser}>
               <BsPencilSquare />
               Edit
             </Button>
           ) : (
-            <Button variant='link' size='link' className='text-functional-link-primary' onClick={viewUser}>
+            <Button variant='link' className='text-functional-link-primary' onClick={viewUser}>
               Details
             </Button>
           )}
@@ -148,11 +148,11 @@ const MemberRow = ({
             user &&
             canEdit &&
             (isSigner ? (
-              <Button variant='link' size='link' className='text-destructive' onClick={removeUser}>
+              <Button variant='link' className='text-destructive' onClick={removeUser}>
                 Remove
               </Button>
             ) : (
-              <Button variant='link' size='link' className='text-functional-link-primary' onClick={removeUser}>
+              <Button variant='link' className='text-functional-link-primary' onClick={removeUser}>
                 Status
               </Button>
             ))}

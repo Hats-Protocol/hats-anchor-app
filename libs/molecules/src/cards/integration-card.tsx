@@ -10,10 +10,10 @@ const IntegrationCard = ({ integration }: { integration: IntegrationCardType }) 
   return (
     <Link href={link} className='w-full md:w-[48%] xl:w-[23%]' isExternal>
       <Card className='h-full min-w-[200px] rounded-md border border-gray-600'>
-        <div className='h-100px relative flex items-center justify-center overflow-hidden rounded-t-md bg-gray-100'>
+        <div className='h-100px bg-functional-link-primary/10 relative flex items-center justify-center overflow-hidden rounded-t-md'>
           <div
             className='absolute h-full w-full bg-clip-border bg-repeat'
-            style={{ backgroundImage: '/bg-topography.svg' }}
+            style={{ backgroundImage: 'url("/bg-topography.svg")' }}
           />
 
           <div className='flex h-24 items-center gap-8'>

@@ -82,7 +82,7 @@ const NewTreeForm = () => {
 
   return (
     <Form {...localForm}>
-      <form onSubmit={handleSubmit(onSubmit)} className='w-50%'>
+      <form onSubmit={handleSubmit(onSubmit)} className='w-1/2'>
         <div className='mt-10 space-y-6'>
           <DropZone
             label='Top Hat Image'

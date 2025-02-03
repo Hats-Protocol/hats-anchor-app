@@ -17,21 +17,21 @@ function Toolbar({ editor }: Props) {
     <div className='border-input my-2 flex gap-3 rounded-lg border p-1'>
       <Toggle
         size='sm'
-        pressed={editor.isActive('heading')}
+        pressed={editor.isActive('heading', { level: 1 })}
         onPressedChange={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
       >
         <Heading1 className='h-4 w-4' />
       </Toggle>
       <Toggle
         size='sm'
-        pressed={editor.isActive('heading')}
+        pressed={editor.isActive('heading', { level: 2 })}
         onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
       >
         <Heading2 className='h-4 w-4' />
       </Toggle>
       <Toggle
         size='sm'
-        pressed={editor.isActive('heading')}
+        pressed={editor.isActive('heading', { level: 3 })}
         onPressedChange={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
       >
         <Heading3 className='h-4 w-4' />
