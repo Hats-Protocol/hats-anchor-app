@@ -69,10 +69,14 @@ export const ClaimButton = () => {
   if (isWearing && isEligible) {
     return (
       <div className='flex'>
-        <LinkButton href={hatUrl} className='flex items-center gap-1 bg-green-500' isExternal>
-          <HatIcon className='h-4 w-4' />
+        <LinkButton
+          href={hatUrl}
+          leftIcon={<HatIcon className='h-4 w-4' />}
+          rightIcon={<BsArrowRight className='h-4 w-4' />}
+          className='bg-functional-success flex items-center gap-1'
+          isExternal
+        >
           View your hat
-          <BsArrowRight className='h-4 w-4' />
         </LinkButton>
       </div>
     );

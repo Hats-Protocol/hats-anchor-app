@@ -3,6 +3,7 @@
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { usePrivy } from '@privy-io/react-auth';
 import { Modal, useOverlay } from 'contexts';
+import { useIsAdmin } from 'hats-hooks';
 import { useSafeDetails } from 'hooks';
 import { find, get, includes, map } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
@@ -11,7 +12,7 @@ import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs
 import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
 import { getAllWearers } from 'utils';
-import { Hex } from 'viem';
+import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
@@ -49,12 +50,16 @@ const MemberRow = ({
     safeAddress: councilData?.safe as Hex,
     chainId: chainId as SupportedChains,
   });
-  const isSigner = includes(safeOwners, userAddress);
+  const isAdmin = useIsAdmin({
+    chainId: chainId as SupportedChains,
+    address: userAddress as Hex,
+    hatId: signerHat?.id,
+  });
+  const isSigner = member?.id ? includes(safeOwners, getAddress(member.address)) : undefined;
 
   if (!member) return null;
 
-  const canEdit = !!userAddress && member.address.toLowerCase() === userAddress.toLowerCase(); // user can edit their own details
-  // || isAdmin); // TODO or an administrative role check
+  const canEdit = (!!userAddress && member.address.toLowerCase() === userAddress.toLowerCase()) || isAdmin; // user can edit their own details
 
   const editUser = () => {
     setModals?.({ [`editUser-member-${member.address}`]: true });
@@ -134,7 +139,11 @@ const MemberRow = ({
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
           {user && canEdit ? (
-            <Button variant='link' className='text-functional-link-primary' onClick={editUser}>
+            <Button
+              variant='link'
+              className='text-functional-link-primary hover:text-functional-link-primary/80'
+              onClick={editUser}
+            >
               <BsPencilSquare />
               Edit
             </Button>
@@ -144,8 +153,7 @@ const MemberRow = ({
             </Button>
           )}
 
-          {userAddress &&
-            user &&
+          {user &&
             canEdit &&
             (isSigner ? (
               <Button variant='link' className='text-destructive' onClick={removeUser}>

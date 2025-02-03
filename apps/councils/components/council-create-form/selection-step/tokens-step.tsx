@@ -31,13 +31,13 @@ export function SelectionTokensStep({ onNext }: StepProps) {
         <div className='space-y-2'>
           <div className='flex items-center gap-3'>
             <GemIcon />
-            <h2 className='text-2xl font-bold'>Hold Tokens</h2>
+            <h2 className='text-2xl font-bold'>Token Requirement</h2>
           </div>
         </div>
 
         <div className='grid grid-cols-2 gap-8'>
           <div className='w-full space-y-2'>
-            <FormLabel className='font-bold'>Token Limit</FormLabel>
+            <FormLabel className='font-bold'>Minimum Token Balance</FormLabel>
             <TokenNumberInput
               name='tokenRequirement.minimum'
               form={form}
@@ -50,7 +50,7 @@ export function SelectionTokensStep({ onNext }: StepProps) {
           </div>
 
           <div className='w-full space-y-2'>
-            <FormLabel className='font-bold'>Token Type</FormLabel>
+            <FormLabel className='font-bold'>Token</FormLabel>
             <TokenSelect name='tokenRequirement.address' form={form} options={availableTokens} />
           </div>
         </div>

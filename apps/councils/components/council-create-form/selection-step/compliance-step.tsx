@@ -34,7 +34,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
         <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
           <div className='flex items-center gap-4'>
             <BsPersonCheck className='h-6 w-6' />
-            <h2 className='text-2xl font-bold'>Pass Compliance Check</h2>
+            <h2 className='text-2xl font-bold'>Compliance Requirement</h2>
           </div>
 
           <div className='space-y-8'>
@@ -47,9 +47,6 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
                   { value: 'false', label: 'Council Managers' },
                   { value: 'true', label: "New 'Compliance Manager' Role" },
                 ]}
-                // onChange={(e) => {
-                //   form.setValue('createComplianceAdminRole', (e.target as HTMLInputElement).value as 'true' | 'false');
-                // }}
                 isDisabled={!canEdit}
               />
             </div>

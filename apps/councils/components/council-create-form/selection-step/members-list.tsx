@@ -82,7 +82,7 @@ function MemberCard({
             className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
             onClick={onEdit}
           >
-            <SquarePen className='text-functional-link-primary h-4 w-4' />
+            <SquarePen className='h-4 w-4' />
             Edit
           </button>
 
@@ -91,7 +91,7 @@ function MemberCard({
             onClick={() => onRemove(member.id)}
             className='text-destructive hover:text-destructive/70'
           >
-            <Trash2 className='text-destructive h-4 w-4' />
+            <Trash2 className='h-4 w-4' />
           </button>
         </div>
       )}

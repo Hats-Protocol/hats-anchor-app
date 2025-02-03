@@ -115,7 +115,6 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
-  console.log(form.watch('tokenRequirement.address'));
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -159,7 +158,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       abi: erc20Abi,
       functionName: field,
       chainId: toNumber(formData.chain.value),
-    })) as any,
+    })),
   });
   const [symbol, name] = map(tokenData, 'result');
   const targetChainId = toNumber(formData.chain?.value) as number;
@@ -277,7 +276,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <RoleSummary title='Council Members' members={formData.members || []} />
           <RoleSummary
             title='Council Managers'
-            description='Can select Council Members and manage the Safe'
+            description='Can select Council Members and manage Council settings'
             members={formData.admins || []}
           />
           {formData.requirements.passCompliance && (

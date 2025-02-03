@@ -37,7 +37,7 @@ const MyHatsCard = ({
         </div>
 
         <div className='hidden md:block'>
-          <LinkButton href='/trees/new' size='lg' className='h-12' icon={<BsDiagram3 className='h-4 w-4' />}>
+          <LinkButton href='/trees/new' size='lg' className='h-12' leftIcon={<BsDiagram3 className='h-4 w-4' />}>
             <p className='line-clamp-1 text-lg font-medium'>Create a new {CONFIG.TERMS.tree}</p>
           </LinkButton>
         </div>
