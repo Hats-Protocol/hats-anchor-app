@@ -110,7 +110,7 @@ export const HSGDetails = ({ selectedHat, hsgConfig, chainId }: HSGDetailsProps)
 
         <div className='text-informative-code flex items-center gap-1 hover:cursor-pointer' onClick={onCopy}>
           <span>{formatAddress(hsgConfig?.safe)}</span>
-          <CodeIcon />
+          <CodeIcon className='size-4' />
         </div>
       </div>
     </div>

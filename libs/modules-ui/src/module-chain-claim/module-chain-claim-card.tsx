@@ -21,11 +21,7 @@ const MODULE_CLAIMS_CARD: {
   unlock: SubscriptionClaims,
 };
 
-export const ModuleChainClaimsCard = ({
-  labeledModules,
-}: {
-  labeledModules: { selection: Hex; criteria: Hex } | undefined;
-}) => {
+export const ModuleChainClaimsCard = ({ labeledModules }: { labeledModules?: LabeledModules | undefined }) => {
   const { activeRule } = useEligibility();
   const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
   // TODO handle loading

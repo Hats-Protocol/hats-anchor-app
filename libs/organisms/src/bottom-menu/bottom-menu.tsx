@@ -28,7 +28,7 @@ const BottomMenu = ({ show }: { show?: boolean }) => {
   };
 
   return (
-    <div className='bg-white-900 absolute bottom-0 z-[14] w-full'>
+    <div className='absolute bottom-0 z-[14] w-full bg-white/90'>
       <div className='flex justify-between border-t border-gray-200 p-4'>
         {hierarchy?.leftSibling ? (
           <Button variant='outline' onClick={() => selectHat('leftSibling')}>

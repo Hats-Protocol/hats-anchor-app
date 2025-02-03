@@ -178,7 +178,7 @@ const ModuleChainClaimButtons = ({ labeledModules }: ModuleChainClaimButtonsProp
 };
 
 interface ModuleChainClaimButtonsProps {
-  labeledModules: LabeledModules | undefined;
+  labeledModules?: LabeledModules | undefined;
 }
 
 export { ModuleChainClaimButtons };

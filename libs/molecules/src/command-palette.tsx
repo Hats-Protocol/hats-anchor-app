@@ -1,6 +1,6 @@
 'use client';
 
-// import 'react-cmdk/dist/cmdk.css'; // TODO why isn't this being found?
+// import 'react-cmdk/dist/cmdk.css'; // TODO why isn't this being found? postcss
 
 import { useOverlay } from 'contexts';
 import { useSearchResults } from 'hooks';

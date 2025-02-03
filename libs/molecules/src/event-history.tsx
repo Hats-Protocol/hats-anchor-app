@@ -73,7 +73,7 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
       <p className='text-slate-800'>{eventDisplayName}</p>
 
       <Link href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`} className='block' isExternal>
-        <div className='flex items-center justify-center gap-2 text-blue-500'>
+        <div className='text-functional-link-primary flex items-center justify-center gap-2'>
           <p>{`${formatDistanceToNow(new Date(Number(event.timestamp) * 1000))} ago`}</p>
 
           <Etherscan className='h-4 w-4' />

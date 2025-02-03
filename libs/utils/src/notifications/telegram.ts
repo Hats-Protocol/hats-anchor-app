@@ -20,3 +20,8 @@ export const sendTelegramMessage = async (message: string) => {
 
   return result;
 };
+
+export const sanitizeMessage = (message: string | null | undefined) => {
+  if (!message) return undefined;
+  return message.replaceAll('.', '\\.');
+};

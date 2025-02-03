@@ -46,7 +46,7 @@ export function OnboardingStep({ onNext }: StepProps) {
                 {
                   label: 'Appoint Council Members',
                   value: 'APPOINTED',
-                  description: 'Create an agreement council members have to sign and abide',
+                  description: 'Create an onchain list of eligible Council Members',
                   icon: DocumentChecks as IconType,
                 },
                 {
@@ -73,7 +73,7 @@ export function OnboardingStep({ onNext }: StepProps) {
                   key: 'signAgreement',
                   icon: FileText as IconType,
                   title: 'Sign Agreement',
-                  description: 'Create an agreement council members have to sign and abide',
+                  description: 'Create an agreement council members have to sign and abide by',
                 },
                 {
                   key: 'holdTokens',

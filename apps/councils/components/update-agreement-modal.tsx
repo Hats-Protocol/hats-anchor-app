@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { DatePicker, Form, MarkdownEditor } from 'forms';
 import { useToast } from 'hooks';
@@ -5,6 +6,7 @@ import { find } from 'lodash';
 import { useAgreementClaim, useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
+import showdown from 'showdown';
 import { ModuleDetails, ModuleFunction, SupportedChains } from 'types';
 import { Button } from 'ui';
 import { fetchToken, handleAgreementPin, logger } from 'utils';
@@ -28,12 +30,18 @@ function UpdateAgreementModal({
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
 
+  const queryClient = useQueryClient();
   const { agreement } = useAgreementClaim({
     moduleParameters: moduleDetails.liveParameters,
   });
 
   const onSubmit = async (data: FieldValues) => {
     setIsLoading(true);
+
+    // need to convert html to markdown before pinning
+    const converter = new showdown.Converter();
+    const agreementMarkdown = converter.makeMarkdown(data.agreement);
+
     const localGracePeriod = Math.floor(new Date(data.gracePeriod).getTime() / 1000);
     if (!localGracePeriod) {
       toast({ title: 'Please select a valid grace period' });
@@ -42,7 +50,7 @@ function UpdateAgreementModal({
     }
     const token = await fetchToken();
     const agreementHash = await handleAgreementPin({
-      agreement: data.agreement,
+      agreement: agreementMarkdown,
       address: moduleDetails.instanceAddress,
       chainId,
       token,
@@ -55,11 +63,18 @@ function UpdateAgreementModal({
       func: find(moduleDetails.writeFunctions, { functionName: 'setAgreement' }) as ModuleFunction,
       args: { Agreement: agreementHash, 'Grace Period': BigInt(localGracePeriod) },
       onSuccess: () => {
-        console.log('success');
+        // console.log('success');
         setIsLoading(false);
         // invalidate agreement claim query
+        queryClient.invalidateQueries({ queryKey: ['agreement'] });
         setModals?.({});
       },
+      onDecline: () => {
+        setIsLoading(false);
+      },
+      // onError: () => {
+      //   setIsLoading(false);
+      // },
     });
   };
 

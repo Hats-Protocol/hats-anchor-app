@@ -1,7 +1,7 @@
 'use client';
 
 import { CONFIG } from '@hatsprotocol/config';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { first, flatten, get, size } from 'lodash';
@@ -35,6 +35,14 @@ const Claims = () => {
     chainId,
     address: get(selectedHat, 'eligibility'),
   });
+
+  if (selectedHat?.eligibility === FALLBACK_ADDRESS) {
+    return (
+      <div className='flex h-[500px] items-center justify-center'>
+        <p>No eligibility conditions found for this {CONFIG.TERMS.hat}</p>
+      </div>
+    );
+  }
 
   if (
     !isClient ||

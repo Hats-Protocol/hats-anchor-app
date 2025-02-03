@@ -21,11 +21,12 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
 
   return (
     <Link href={hatLink}>
-      <Card className='h-24 overflow-hidden p-4'>
+      <Card className='h-24 overflow-hidden rounded-md p-4'>
         <div className='flex items-center gap-4'>
           <LazyImage
             src={hat ? image : undefined}
             alt={`${get(hatDetails, 'name', get(hat, 'details'))} image`}
+            containerClassName='size-16'
             // boxSize={72}
           />
 

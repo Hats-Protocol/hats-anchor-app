@@ -38,7 +38,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <Toaster />
         </Providers>
 
-        <div className='fixed left-0 top-0 z-[-5] size-full bg-gray-50' />
+        <div className='bg-functional-link-primary/10 fixed left-0 top-0 z-[-5] size-full' />
       </div>
     </body>
   </html>

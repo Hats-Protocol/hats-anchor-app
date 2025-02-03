@@ -3,12 +3,12 @@
 import { CONFIG, ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useWearerDetails } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
-import { compact, filter, indexOf, isEmpty, map, size, sortBy } from 'lodash';
+import { compact, filter, indexOf, isEmpty, map, sortBy } from 'lodash';
 import { ReactNode, useMemo } from 'react';
 import { BsDiagram3 } from 'react-icons/bs';
 import { FaArrowRight } from 'react-icons/fa';
 import { AppHat } from 'types';
-import { Button, Card, Link, Skeleton } from 'ui';
+import { Card, Link, LinkButton, Skeleton } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
@@ -27,27 +27,20 @@ const MyHatsCard = ({
   hasHats?: boolean;
   children: ReactNode;
 }) => {
-  const { isMobile } = useMediaStyles();
-
   return (
     <>
-      <div className='flex flex-col gap-10 md:flex-row'>
-        <div>
-          {!!name ? <Skeleton className='h-10 w-32' /> : <p className='text-xl'>gm {name} 👋</p>}
+      <div className='flex flex-col justify-between gap-10 md:flex-row'>
+        <div className='flex flex-col gap-2'>
+          {!!name ? <p className='text-2xl'>gm {name} 👋</p> : <Skeleton className='h-10 w-32' />}
 
           {hasHats && <p className='text-lg'>Here&apos;s what&apos;s happening with your hats</p>}
         </div>
 
-        {!isMobile && (
-          <div>
-            <Link href='/trees/new'>
-              <Button className='flex items-center gap-3'>
-                <BsDiagram3 className='h-4 w-4' />
-                <p className='line-clamp-1 text-lg font-medium'>Create a new {CONFIG.TERMS.tree}</p>
-              </Button>
-            </Link>
-          </div>
-        )}
+        <div className='hidden md:block'>
+          <LinkButton href='/trees/new' size='lg' className='h-12' icon={<BsDiagram3 className='h-4 w-4' />}>
+            <p className='line-clamp-1 text-lg font-medium'>Create a new {CONFIG.TERMS.tree}</p>
+          </LinkButton>
+        </div>
       </div>
 
       {children}
@@ -71,7 +64,7 @@ const MyHats = () => {
     const filtered = filter(sortedHats, { status: true });
     const sliced = filtered.slice(0, isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW);
 
-    return sliced;
+    return { value: sliced || [], total: filtered.length };
   }, [currentHats, isMobile]);
 
   const { data: ensName } = useEnsName({ address: currentUser, chainId: 1 });
@@ -90,7 +83,7 @@ const MyHats = () => {
     );
   }
 
-  if (isEmpty(sortedActiveHats) && wearerDetailsLoading) {
+  if (isEmpty(sortedActiveHats.value) && wearerDetailsLoading) {
     // hats loading
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
@@ -109,14 +102,14 @@ const MyHats = () => {
     );
   }
 
-  if (!isEmpty(sortedActiveHats)) {
+  if (!isEmpty(sortedActiveHats.value)) {
     // some hats loaded
     return (
-      <MyHatsCard name={ensName || formatAddress(currentUser)}>
-        <Card className='bg-white/60 p-8'>
+      <MyHatsCard name={ensName || formatAddress(currentUser)} hasHats={true}>
+        <Card className='space-y-4 bg-white/60 p-8'>
           <div className='flex items-center justify-between'>
             <h2 className='text-xl'>Your hats</h2>
-            {size(sortedActiveHats) > (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
+            {sortedActiveHats.total > (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
               <Link href={`/wearers/${currentUser}`}>
                 <div className='flex items-center gap-2'>
                   <p>View {!isMobile ? 'all of ' : ''}your hats</p>
@@ -126,8 +119,8 @@ const MyHats = () => {
             )}
           </div>
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3'>
-            {map(sortedActiveHats, (hat: AppHat, i: number) => (
-              <DashboardHatCard hat={hat} />
+            {map(sortedActiveHats.value, (hat: AppHat, i: number) => (
+              <DashboardHatCard hat={hat} key={i} />
             ))}
           </div>
         </Card>

@@ -46,7 +46,7 @@ export const AddressInfo = ({ address, chainId }: { address: string; chainId: nu
         {formatAddress(address)}
       </Link>
 
-      <Button variant='link' onClick={copyAddress} className='min-w-5' aria-label='Copy address'>
+      <Button variant='link' onClick={copyAddress} aria-label='Copy address'>
         <CopyAddress />
       </Button>
     </div>

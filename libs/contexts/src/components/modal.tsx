@@ -2,7 +2,7 @@
 
 import { get } from 'lodash';
 import { ReactNode } from 'react';
-import { VisuallyHidden } from 'ui';
+import { cn, VisuallyHidden } from 'ui';
 
 import { useOverlay } from '../overlay-context';
 import {
@@ -51,14 +51,29 @@ const Modal = ({
     }
   };
 
+  const classSizes = {
+    '2xl': 'max-w-2xl',
+    xl: 'max-w-xl',
+    lg: 'max-w-lg',
+    md: 'max-w-md',
+    sm: 'max-w-sm',
+  };
+
   return (
     <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
-      <ModalContent className='min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white p-4 md:mb-auto md:mt-4 md:rounded-b-md'>
-        {customHeader || (
-          <ModalHeader>
-            <ModalTitle className='text-2xl font-bold'>{title}</ModalTitle>
-          </ModalHeader>
+      <ModalContent
+        className={cn(
+          'min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white p-4 md:mb-auto md:mt-4 md:rounded-b-md',
+          classSizes[size as keyof typeof classSizes],
         )}
+      >
+        {customHeader
+          ? customHeader
+          : title && (
+              <ModalHeader>
+                <ModalTitle className='text-2xl font-bold'>{title}</ModalTitle>
+              </ModalHeader>
+            )}
         <VisuallyHidden>
           <ModalDescription>{description || title}</ModalDescription>
         </VisuallyHidden>

@@ -2,24 +2,36 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from 'ui';
 
 const NumberInputSteppers = ({ stepUp, stepDown, upDisabled, downDisabled }: NumberInputSteppersProps) => {
+  const handleStepUp = () => {
+    if (!upDisabled) {
+      stepUp();
+    }
+  };
+
+  const handleStepDown = () => {
+    if (!downDisabled) {
+      stepDown();
+    }
+  };
+
   return (
     <div className='ml-[-1px] flex h-9 flex-col items-center rounded-r-md border border-gray-200 bg-gray-100'>
       <div
         className={cn(
-          'flex h-1/2 w-full cursor-pointer items-center justify-center border-b border-gray-200',
-          upDisabled && 'bg-gray-200 text-gray-400',
+          'flex h-1/2 w-full items-center justify-center',
+          upDisabled ? 'cursor-not-allowed bg-gray-200 text-gray-400' : 'cursor-pointer',
         )}
-        onClick={stepUp}
+        onClick={handleStepUp}
         aria-disabled={upDisabled}
       >
         <ChevronUp className='h-3' />
       </div>
       <div
         className={cn(
-          'flex h-1/2 w-full cursor-pointer items-center justify-center',
-          downDisabled && 'bg-gray-200 text-gray-400',
+          'flex h-1/2 w-full items-center justify-center',
+          downDisabled ? 'cursor-not-allowed bg-gray-200 text-gray-400' : 'cursor-pointer',
         )}
-        onClick={stepDown}
+        onClick={handleStepDown}
         aria-disabled={downDisabled}
       >
         <ChevronDown className='h-3' />

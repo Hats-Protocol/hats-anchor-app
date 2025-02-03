@@ -1,5 +1,3 @@
-'use client';
-
 import { IconType } from 'react-icons';
 import { DocsLink } from 'types';
 import { Card, Link } from 'ui';
@@ -18,7 +16,7 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
 
   return (
     <Link href={url} isExternal>
-      <Card className='bg-whiteAlpha-700 flex h-full items-start gap-6 border-gray-600 p-5'>
+      <Card className='flex h-full items-start gap-6 rounded-md border-gray-400 bg-white/70 p-5'>
         {displayIcon}
         <div>
           <p className='text-md'>{name}</p>

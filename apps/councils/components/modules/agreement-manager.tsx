@@ -8,7 +8,7 @@ import { find, get, map, size, split } from 'lodash';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
-import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage } from 'utils';
+import { createHatsClient, formatAddress, getAllWearers, logger, sanitizeMessage, sendTelegramMessage } from 'utils';
 import { getAddress } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
@@ -82,7 +82,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
                 setAddManagerLoading(false);
 
                 sendTelegramMessage(
-                  `New agreement manager added: ${formatAddress(data.address)} https://pro.hatsprotocol.xyz/council/${slug}`,
+                  `New agreement manager added: ${sanitizeMessage(formatAddress(data.address))} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
                 );
 
                 setModals?.({});

@@ -6,7 +6,7 @@ import { useHatDetails } from 'hats-hooks';
 import { capitalize, get, includes, isNaN, startsWith, toLower } from 'lodash';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
-import { Button, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger, Link } from 'ui';
+import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { containsUpperCase, getPathParams } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -29,15 +29,19 @@ const NavLinks = () => {
 
   return (
     <>
-      <Link href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`}>
+      <Link href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`} className='h-full'>
         <Button
-          className='h-16 min-w-40 max-w-60 rounded-none bg-transparent active:border-b-2 active:bg-gray-100'
-          data-active={includes(pathname, CONFIG.TERMS.trees)}
+          className={cn(
+            'h-full min-w-40 max-w-60 rounded-none bg-transparent hover:bg-gray-100 hover:no-underline',
+            includes(pathname, 'trees') && 'border-b-2 bg-gray-100',
+          )}
+          variant='link'
+          // data-active={includes(pathname, CONFIG.TERMS.trees)}
         >
           {!tabName ? (
             <p className='text-lg'>{capitalize(CONFIG.TERMS.trees)}</p>
           ) : (
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col items-start gap-2'>
               <p className='text-sm uppercase'>{CONFIG.TERMS.trees}</p>
               <p className='text-lg'>{containsUpperCase(tabName) ? tabName : capitalize(tabName)}</p>
             </div>
@@ -46,12 +50,13 @@ const NavLinks = () => {
       </Link>
 
       {address && (
-        <Link href={`/${CONFIG.TERMS.wearers}/${address}`}>
+        <Link href={`/${CONFIG.TERMS.wearers}/${address}`} className='h-full'>
           <Button
-            className='h-16 min-w-40 max-w-60 rounded-none bg-transparent active:border-b-2 active:bg-gray-100'
+            className='h-full min-w-40 max-w-60 rounded-none bg-transparent hover:bg-gray-100 active:border-b-2 active:bg-gray-100'
+            variant='link'
             data-active={includes(toLower(pathname), toLower(address))}
           >
-            {`My ${capitalize(CONFIG.TERMS.hats)}`}
+            <p className='text-lg'>{`My ${capitalize(CONFIG.TERMS.hats)}`}</p>
           </Button>
         </Link>
       )}
@@ -59,10 +64,10 @@ const NavLinks = () => {
       {devMode && (
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Button>Dev</Button>
+            <Button variant='link'>Dev</Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuPortal>
+          <DropdownMenuContent>
             <DropdownMenuItem asChild>
               <Link href='/subgraphs'>Subgraphs</Link>
             </DropdownMenuItem>
@@ -78,7 +83,7 @@ const NavLinks = () => {
                 <p>Deactivate Hats</p>
               </Link>
             </DropdownMenuItem>
-          </DropdownMenuPortal>
+          </DropdownMenuContent>
         </DropdownMenu>
       )}
     </>

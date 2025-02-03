@@ -20,7 +20,7 @@ export const Header = () => {
   const mutableStatus = selectedHat?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE;
   const activeStatus = selectedHat?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
-  if (isHatDetailsLoading) {
+  if (typeof window === 'undefined' || isHatDetailsLoading) {
     return (
       <div className='flex w-full flex-col gap-2 pb-2'>
         <div className='w-full'>
@@ -58,18 +58,25 @@ export const Header = () => {
         />
 
         <div className='relative flex justify-center'>
-          <div className='flex gap-2'>
+          <div className='-mt-3 flex gap-2'>
             {/* {isCurrentWearer && <Badge colorScheme='green'>My Hat</Badge>} */}
 
-            <Badge className={cn('shadow-sm', mutableStatus === MUTABILITY.MUTABLE ? 'bg-blue-500' : 'bg-red-500')}>
+            <Badge
+              className={cn(
+                'shadow-sm',
+                mutableStatus === MUTABILITY.MUTABLE ? 'bg-functional-link-primary' : 'bg-destructive',
+              )}
+            >
               {mutableStatus}
             </Badge>
 
-            <Badge className={cn('shadow-sm', activeStatus === STATUS.ACTIVE ? 'bg-green-500' : 'bg-red-500')}>
+            <Badge
+              className={cn('shadow-sm', activeStatus === STATUS.ACTIVE ? 'bg-functional-success' : 'bg-destructive')}
+            >
               {activeStatus}
             </Badge>
 
-            <Badge className='shadow-sm'>Level {levelAtLocalTree}</Badge>
+            <Badge className='bg-gray-400 shadow-sm'>Level {levelAtLocalTree}</Badge>
           </div>
         </div>
       </div>

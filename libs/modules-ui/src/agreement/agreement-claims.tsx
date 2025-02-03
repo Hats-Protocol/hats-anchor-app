@@ -9,7 +9,7 @@ import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
-import { EligibilityRule, HatDetails, ModuleDetails } from 'types';
+import { EligibilityRule, HatDetails, LabeledModules, ModuleDetails } from 'types';
 import { Button, Card, cn, Tooltip } from 'ui';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
@@ -85,7 +85,9 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
   );
 
   let buttonTooltip = '';
-  if (isWearing) {
+  if (!address) {
+    buttonTooltip = 'Connect your wallet to accept the agreement.';
+  } else if (isWearing && isEligible) {
     buttonTooltip = 'You are wearing this hat.';
   } else if (!hasSupply) {
     buttonTooltip = 'No hats left to claim. If this hat is mutable an admin could increase the supply.';
@@ -101,7 +103,6 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
 
   const localClaimable = !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
   const isReadyToClaim = !!get(aggregateReadyToClaim, moduleAddress) || isEligible;
-  // console.log('chainHasSubscription', chainHasSubscription);
 
   return (
     <Tooltip label={buttonTooltip}>
@@ -116,7 +117,7 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
             setIsReadyToClaim(moduleAddress);
           }
         }}
-        disabled={localClaimable || !hasSupply || isWearing || isReadyToClaim}
+        disabled={localClaimable || !hasSupply || (isWearing && isEligible) || isReadyToClaim || !address}
       >
         {isReadyToClaim ? <BsCheckSquare className='mr-1 h-4 w-4' /> : <BsCheckCircleFill className='mr-1 h-4 w-4' />}
         {isReadyToClaim ? 'Accepted' : 'Accept Agreement'}
@@ -131,7 +132,7 @@ export const AgreementClaims = ({
   labeledModules,
 }: {
   activeModule: ModuleDetails;
-  labeledModules: { selection: Hex; criteria: Hex } | undefined;
+  labeledModules?: LabeledModules | undefined;
 }) => {
   const { selectedHatDetails, selectedHat, eligibilityRules } = useEligibility();
 

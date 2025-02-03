@@ -17,7 +17,7 @@ import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
-import { Button, DropdownMenu, DropdownMenuItem, DropdownMenuPortal, DropdownMenuTrigger, Link, Tooltip } from 'ui';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link, Tooltip } from 'ui';
 import { explorerUrl, getCustomModuleFunction, getDisabledReason, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -226,7 +226,7 @@ const ModuleAuthorityToolbar = ({
                 <FaEllipsisV className='ml-1 size-2 text-blue-500' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuPortal>
+            <DropdownMenuContent>
               {map(otherFunctions, (func: ModuleFunction, i: number) => {
                 const publicFunction = includes(func.roles, 'public');
                 const localDisabledReason = getDisabledReason({
@@ -273,7 +273,7 @@ const ModuleAuthorityToolbar = ({
                   </Link>
                 );
               })}
-            </DropdownMenuPortal>
+            </DropdownMenuContent>
           </DropdownMenu>
         )}
       </div>

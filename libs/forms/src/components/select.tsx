@@ -3,9 +3,9 @@
 import { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
-import { BaseSelect, SelectContent, SelectLabel, SelectTrigger, SelectValue, Tooltip } from 'ui';
+import { BaseSelect, SelectContent, SelectTrigger, SelectValue, Tooltip } from 'ui';
 
-import { FormControl, FormField, FormItem } from './form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
 // TODO migrate to react-select
 
@@ -41,7 +41,7 @@ const Select = ({ label, name, options, localForm, children, subLabel, info, onC
         <FormItem className='w-full'>
           {label && (
             <div className='flex items-center gap-2'>
-              <SelectLabel className='mb-0 text-sm'>{label.toUpperCase()}</SelectLabel>
+              <FormLabel className='mb-0 text-sm'>{label.toUpperCase()}</FormLabel>
 
               {info && (
                 <Tooltip label={info}>
@@ -51,11 +51,11 @@ const Select = ({ label, name, options, localForm, children, subLabel, info, onC
             </div>
           )}
 
-          {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-sm text-slate-700'>{subLabel}</p>}
+          {typeof subLabel !== 'string' ? subLabel : <FormDescription>{subLabel}</FormDescription>}
 
           <BaseSelect onValueChange={handleChange} value={value}>
             <FormControl>
-              <SelectTrigger className='w-[180px]'>
+              <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Select chain' />
               </SelectTrigger>
             </FormControl>

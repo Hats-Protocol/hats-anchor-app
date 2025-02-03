@@ -4,9 +4,10 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { some } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
+import { IconType } from 'react-icons';
 import { BsCheckSquare, BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 import { MixedIcon } from 'types';
-import { Card } from 'ui';
+import { Card, cn } from 'ui';
 import { Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails, getDuration } from 'utils';
 import { Hex } from 'viem';
@@ -54,30 +55,30 @@ export const SubscriptionClaims = () => {
 
   let status = 'Not Paid';
   let icon: MixedIcon = BsXOctagonFill;
-  let color = 'red.500';
+  let color = 'text-destructive';
   if (hasAllowance && !activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
     status = isOneTime
       ? 'Authorized'
       : `Authorized for ${durationsLeft} ${durationText.noun}${durationsLeft > 1 || durationsLeft === 0 ? 's' : ''}`;
     icon = BsCheckSquare;
-    color = 'green.500';
+    color = 'text-functional-success';
   } else if (activeSubscription) {
     const durationsLeft = keyPrice ? Number(allowance / keyPrice) : 1;
     if (durationsLeft === 0 && !isOneTime) {
       status = 'Renew Soon';
       icon = BsCheckSquare;
-      color = 'orange.500';
+      color = 'text-functional-warning';
     } else {
       status = isOneTime
         ? 'Paid'
         : `${durationsLeft} ${durationText.noun}${durationsLeft > 1 || durationsLeft === 0 ? 's' : ''} left`;
       icon = BsCheckSquareFill;
-      color = 'green.500';
+      color = 'text-functional-success';
     }
   }
 
-  const IconComponent = icon as any;
+  const IconComponent = icon as IconType;
 
   return (
     <div className='space-y-8'>
@@ -87,8 +88,8 @@ export const SubscriptionClaims = () => {
             <h3 className='text-lg font-medium'>Purchase and claim this Hat</h3>
           ) : (
             <h3 className='text-lg font-medium'>
-              Authorize {durationText.adjective} fee {!activeSubscription ? `of ${price} ${symbol}` : ''} to claim this
-              Hat
+              Authorize {durationText.adjective} fee {!!price && !activeSubscription ? `of ${price} ${symbol}` : ''} to
+              claim this Hat
             </h3>
           )}
 
@@ -97,12 +98,10 @@ export const SubscriptionClaims = () => {
             <div className='flex w-full justify-between'>
               <p>Pay the {isOneTime ? 'one-time fee' : 'subscription'}</p>
 
-              <div className='flex items-center gap-2'>
-                <p className='text-sm font-medium' style={{ color }}>
-                  {status}
-                </p>
+              <div className={cn('flex items-center gap-2', color)}>
+                <p className='text-sm font-medium'>{status}</p>
 
-                <IconComponent color={color} />
+                <IconComponent />
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import { TemplateData } from '@hatsprotocol/config';
 import dynamic from 'next/dynamic';
 import { BsPeopleFill } from 'react-icons/bs';
-import { LazyImage, Link, Skeleton, Tooltip } from 'ui';
+import { Card, LazyImage, Link, Skeleton, Tooltip } from 'ui';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
@@ -15,15 +15,15 @@ const FeaturedTreeCard = ({ treeData, hatsAndWearers }: FeatureTreeCardProps) =>
   }
 
   return (
-    <Link href={`/trees/${chainId}/${id}`} className='h-full min-h-[207px]'>
-      <div className='border-6 rounded-6 flex h-full justify-between border-gray-600 bg-white'>
-        <div className='border-t-6 rounded-t-6 h-48 flex-1 bg-gray-100'>
-          <LazyImage src={image} alt={`${name} featured image`} containerClassName='h-48 w-full' />
+    <Link href={`/trees/${chainId}/${id}`} className='h-full min-h-[207px] rounded-md'>
+      <Card className='flex h-full flex-col justify-between rounded-md border border-gray-600 bg-white'>
+        <div className='h-48 flex-1 rounded-t-md border-t bg-gray-100'>
+          <LazyImage src={image} alt={`${name} featured image`} containerClassName='h-48 w-full rounded-t-md' />
         </div>
 
-        <div className='relative z-10 w-full px-4 py-2 shadow-md'>
+        <div className='relative z-[5] w-full rounded-b-md px-4 py-2 shadow-md'>
           <div className='mt-[-37.5px] inline-block'>
-            <LazyImage src={avatar} alt={`${name} featured avatar`} containerClassName='size-18' />
+            <LazyImage src={avatar} alt={`${name} featured avatar`} containerClassName='size-16' />
           </div>
 
           <div className='ml-2 flex h-full w-full justify-between'>
@@ -48,7 +48,7 @@ const FeaturedTreeCard = ({ treeData, hatsAndWearers }: FeatureTreeCardProps) =>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </Link>
   );
 };

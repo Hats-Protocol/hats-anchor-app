@@ -3,7 +3,7 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
-import { NumberInput } from 'forms';
+import { Form, NumberInput } from 'forms';
 import { useTokenDetails } from 'hooks';
 import { get, isUndefined, pick, toLower } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
@@ -46,7 +46,7 @@ export const AllowanceActions = ({
     isLoading,
     keyPrice,
     keyBalance,
-    price,
+    price, // price is queryable per address
     symbol,
     decimals,
     currencyContract,
@@ -142,117 +142,117 @@ export const AllowanceActions = ({
     <div className='space-y-2'>
       <h3 className='text-lg font-medium'>{heading}</h3>
 
-      <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
-        <div className='flex w-full justify-between gap-4 md:w-auto'>
-          {!isOneTime && (
-            <div>
-              <NumberInput
-                name='amount'
-                numOptions={{ min: allowanceInDuration }}
-                label='Authorized Duration'
-                isDisabled={isLoading}
-                localForm={localForm}
-              />
+      <Form {...localForm}>
+        <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
+          <div className='flex w-full justify-between gap-4 md:w-auto'>
+            {!isOneTime && (
+              <div>
+                <NumberInput
+                  name='amount'
+                  numOptions={{ min: allowanceInDuration }}
+                  label='Authorized Duration'
+                  isDisabled={isLoading || !address}
+                  localForm={localForm}
+                />
+              </div>
+            )}
+
+            <div className='min-w-auto md:min-w-110px flex flex-col items-center gap-2'>
+              <h2 className='text-sm uppercase'>{isOneTime ? 'One-time fee' : `${durationText.adjective} fee`}</h2>
+
+              <div className='flex items-center gap-1'>
+                <img src={tokenImage} alt={`${symbol} token`} className='h-5 w-5' />
+
+                <p className='font-jb-mono'>{price || '??'}</p>
+                <p className='font-jb-mono text-gray-500'>{symbol}</p>
+              </div>
             </div>
-          )}
+          </div>
 
-          <div className='min-w-auto md:min-w-110px flex flex-col items-center gap-2'>
-            <h2 className='text-uppercase text-sm font-medium'>
-              {isOneTime ? 'One-time fee' : `${durationText.adjective} fee`}
-            </h2>
-
-            <div className='flex items-center'>
-              <img src={tokenImage} alt={`${symbol} token image`} className='h-5 w-5' />
-
-              <p className='font-jb-mono'>{price || '0'}</p>
-              <p className='font-jb-mono text-gray-500'>{symbol}</p>
-            </div>
+          <div className='flex items-center'>
+            {address ? (
+              currentChainId === chainId ? (
+                <TransactionButton
+                  sendTx={async () => {
+                    // @ts-expect-error argument of type
+                    return writeContractAsync(approvalParams);
+                  }}
+                  afterSuccess={() => {
+                    if (!moduleDetails?.instanceAddress) return;
+                    // refetchAllowance()
+                    setIsReadyToClaim(moduleDetails.instanceAddress);
+                    setModals?.({});
+                    queryClient.invalidateQueries({
+                      queryKey: ['readContracts'],
+                    });
+                  }}
+                  disabled={
+                    (!isUndefined(allowance) && !isUndefined(amountToApprove) && allowance >= amountToApprove) ||
+                    !address ||
+                    (!!isOneTime && !!keyBalance && keyBalance >= BigInt(0))
+                  }
+                  txDescription='Approve allowance on Hat subscription'
+                  chainId={chainId}
+                >
+                  {buttonText}
+                </TransactionButton>
+              ) : (
+                <NetworkSwitcher chainId={chainId} />
+              )
+            ) : (
+              <ConnectWallet />
+            )}
           </div>
         </div>
 
-        <div className='flex items-center'>
-          {address ? (
-            currentChainId === chainId ? (
+        {address && !isOneTime && (
+          <div className='h-75px flex items-center justify-between gap-6'>
+            {hasAllowance && (
               <TransactionButton
                 sendTx={async () => {
                   // @ts-expect-error argument of type
-                  return writeContractAsync(approvalParams);
+                  return writeContractAsync(zeroApprovalParams);
                 }}
                 afterSuccess={() => {
-                  if (!moduleDetails?.instanceAddress) return;
-                  // refetchAllowance()
-                  setIsReadyToClaim(moduleDetails.instanceAddress);
-                  setModals?.({});
-                  queryClient.invalidateQueries({
-                    queryKey: ['readContracts'],
-                  });
+                  setTimeout(() => {
+                    queryClient.invalidateQueries({
+                      queryKey: ['readContracts'],
+                    });
+                    queryClient.invalidateQueries({ queryKey: ['readContract'] });
+                  }, 1000);
                 }}
-                disabled={
-                  (!isUndefined(allowance) && !isUndefined(amountToApprove) && allowance >= amountToApprove) ||
-                  !address ||
-                  (!!isOneTime && !!keyBalance && keyBalance >= BigInt(0))
-                }
-                txDescription='Approve allowance on Hat subscription'
+                variant='link'
+                color='red.500'
+                txDescription='Cancel subscription for Hat'
                 chainId={chainId}
               >
-                {buttonText}
+                <BsArrowUpRightCircle />
+                Cancel {activeSubscription ? 'Subscription' : 'Allowance'}
               </TransactionButton>
-            ) : (
-              <NetworkSwitcher chainId={chainId} />
-            )
-          ) : (
-            <ConnectWallet />
-          )}
-        </div>
-      </div>
+            )}
 
-      {!isOneTime && (
-        <div className='h-75px flex items-center justify-between gap-6'>
-          {hasAllowance && (
             <TransactionButton
               sendTx={async () => {
                 // @ts-expect-error argument of type
-                return writeContractAsync(zeroApprovalParams);
+                return writeContractAsync(unlimitedApprovalParams);
               }}
               afterSuccess={() => {
                 setTimeout(() => {
-                  queryClient.invalidateQueries({
-                    queryKey: ['readContracts'],
-                  });
+                  queryClient.invalidateQueries({ queryKey: ['readContracts'] });
                   queryClient.invalidateQueries({ queryKey: ['readContract'] });
                 }, 1000);
               }}
               variant='link'
-              color='red.500'
+              disabled={!isUndefined(allowance) && allowance === maxUint256}
               txDescription='Cancel subscription for Hat'
               chainId={chainId}
             >
               <BsArrowUpRightCircle />
-              Cancel {activeSubscription ? 'Subscription' : 'Allowance'}
+              Authorize unlimited withdrawals
             </TransactionButton>
-          )}
-
-          <TransactionButton
-            sendTx={async () => {
-              // @ts-expect-error argument of type
-              return writeContractAsync(unlimitedApprovalParams);
-            }}
-            afterSuccess={() => {
-              setTimeout(() => {
-                queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-                queryClient.invalidateQueries({ queryKey: ['readContract'] });
-              }, 1000);
-            }}
-            variant='link'
-            disabled={!isUndefined(allowance) && allowance === maxUint256}
-            txDescription='Cancel subscription for Hat'
-            chainId={chainId}
-          >
-            <BsArrowUpRightCircle />
-            Authorize unlimited withdrawals{' '}
-          </TransactionButton>
-        </div>
-      )}
+          </div>
+        )}
+      </Form>
     </div>
   );
 };

@@ -3,7 +3,7 @@
 import { Modal, SelectedHatContextProvider, useTreeForm } from 'contexts';
 import dynamic from 'next/dynamic';
 import { twJoin } from 'tailwind-merge';
-import { Drawer, DrawerContent } from 'ui';
+import { Slide } from 'ui';
 
 import { HatDrawer } from './hat-drawer';
 import { TreeDrawer } from './tree-drawer';
@@ -47,22 +47,19 @@ const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; 
   //     )} on ${chain.name}`;
   //   }
   // }
+  //
 
   return (
     <>
       <SelectedHatContextProvider>
-        <Drawer direction='right' open={!!treeToDisplay && !!isHatDrawerOpen}>
-          <DrawerContent className='z-[500] w-[843px] max-w-[43%]'>
-            <HatDrawer returnToList={returnToTreeList} />
-          </DrawerContent>
-        </Drawer>
+        <Slide open={!!treeToDisplay && !!isHatDrawerOpen}>
+          <HatDrawer returnToList={returnToTreeList} />
+        </Slide>
       </SelectedHatContextProvider>
 
-      <Drawer direction='right' open={!!isTreeDrawerOpen}>
-        <DrawerContent className='z-[1000] w-[650px] max-w-[43%]'>
-          <TreeDrawer />
-        </DrawerContent>
-      </Drawer>
+      <Slide open={!!isTreeDrawerOpen}>
+        <TreeDrawer />
+      </Slide>
 
       <TreeMenu />
 

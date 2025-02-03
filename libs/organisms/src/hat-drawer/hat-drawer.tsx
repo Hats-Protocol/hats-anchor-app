@@ -54,12 +54,12 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
       )}
     >
       <div className='relative z-[14] h-full w-full'>
-        <div className='h-100px w-100px border-3px absolute left-[-81px] top-44 z-[16] overflow-hidden rounded-md border-gray-700'>
+        <div className='absolute left-[-81px] top-44 z-[16] h-[100px] w-[100px] overflow-hidden rounded-md border-[3px] border-gray-700'>
           <LazyImage
             src={hatImage}
             alt='hat image'
-            containerClassName='w-100 h-100'
-            skeletonClassName='absolute top-[-2px] left-[-2px]'
+            containerClassName='w-[100px] h-[100px] -top-1 -left-1'
+            skeletonClassName='absolute -top-1 -left-1'
           />
         </div>
 

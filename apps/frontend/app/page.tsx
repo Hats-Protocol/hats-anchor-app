@@ -1,4 +1,4 @@
-import { INTEGRATION_CARDS, LEARN_MORE, TemplateData } from '@hatsprotocol/constants';
+import { INTEGRATION_CARDS, LEARN_MORE, TemplateData } from '@hatsprotocol/config';
 import { find, get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import { DocsLink } from 'types';

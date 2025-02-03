@@ -114,11 +114,15 @@ const WearerRow = ({
   const Icon = controllerIcon || icon;
 
   return (
-    <div className='flex items-center justify-between' key={wearer.id}>
+    <div className='flex w-full items-center justify-between' key={wearer.id}>
       <Link href={`/wearers/${wearer.id}`}>
         <Tooltip label={!wearerNameIsAddress ? wearer.id : undefined}>
           <div className={cn('flex items-center gap-1 pr-1', bgColor)}>
-            {ensAvatar ? <OblongAvatar src={ensAvatar} /> : <Icon className={cn('size-4', color)} />}
+            {ensAvatar ? (
+              <OblongAvatar src={ensAvatar} className='h-5 w-4 rounded-[2px]' />
+            ) : (
+              <Icon className={cn('size-4', color)} />
+            )}
 
             <p className={cn('text-sm', color)}>{displayName}</p>
           </div>

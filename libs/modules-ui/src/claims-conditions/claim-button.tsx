@@ -23,16 +23,8 @@ export const ClaimButton = () => {
   const { address } = useAccount();
   const currentChainId = useChainId();
   const { handlePendingTx } = useOverlay();
-  const {
-    chainId,
-    selectedHat,
-    eligibilityRules,
-    isClaimableFor,
-    hatterIsAdmin,
-    requireHatter,
-    isReadyToClaim,
-    currentEligibility,
-  } = useEligibility();
+  const { chainId, selectedHat, eligibilityRules, isClaimableFor, hatterIsAdmin, isReadyToClaim, currentEligibility } =
+    useEligibility();
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address as Hex,
@@ -52,7 +44,7 @@ export const ClaimButton = () => {
     multipleRules ? first(rulesNotAlreadyClaimed) : first(flatten(eligibilityRules)), // TODO assuming there is only 1 rule remaining to claim
   );
 
-  const { handleClaim, disableClaim, disableReason, isLoading, isEligible } = useClaimFn({
+  const { handleClaim, disableClaim, disableReason, requireHatter, isLoading, isEligible } = useClaimFn({
     selectedHat: selectedHat as AppHat,
     handlePendingTx,
     moduleParameters: get(moduleDetails, 'liveParameters'),
@@ -77,7 +69,7 @@ export const ClaimButton = () => {
   if (isWearing && isEligible) {
     return (
       <div className='flex'>
-        <LinkButton href={hatUrl} className='bg-green-500' isExternal>
+        <LinkButton href={hatUrl} className='flex items-center gap-1 bg-green-500' isExternal>
           <HatIcon className='h-4 w-4' />
           View your hat
           <BsArrowRight className='h-4 w-4' />
@@ -125,7 +117,7 @@ export const ClaimButton = () => {
         onClick={handleClaim}
         // isLoading={isLoading}
       >
-        <div className='space-x-2'>
+        <div className='flex items-center gap-2'>
           <HatIcon className='h-4 w-4' />
           <span>Claim this {capitalize(CONFIG.TERMS.hat)}</span>
         </div>
