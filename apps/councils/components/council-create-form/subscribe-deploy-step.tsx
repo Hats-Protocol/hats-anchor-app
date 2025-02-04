@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
 import { Button, MemberAvatar } from 'ui';
-import { chainsMap } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -184,7 +184,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <div className='flex gap-1'>
             <span className='text-gray-900'>by</span>{' '}
             <span className='text-gray-500'>
-              {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />}
+              {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />} (
+              {formatAddress(firstAdmin?.address)})
             </span>
           </div>
         </div>
@@ -395,7 +396,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                 disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
                 onClick={handleDeploy}
               >
-                {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
+                {isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
               </NextStepButton>
             )}
 

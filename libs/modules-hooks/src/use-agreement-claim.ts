@@ -63,7 +63,7 @@ const useAgreementClaim = ({
   };
 
   const handleSign = async () => {
-    // TODO better catch for errors?
+    // TODO better catch for errors? (added toast/logging in useCallModuleFunction)
     callModuleFunction({
       moduleId: moduleDetails?.implementationAddress,
       instance: moduleDetails?.instanceAddress as Hex,

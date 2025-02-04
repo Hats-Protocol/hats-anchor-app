@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton } from 'ui';
-import { chainsMap, logger } from 'utils';
+import { chainsMap, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
@@ -127,6 +127,15 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
             title: 'Joined Council',
             description: 'Redirecting you to the council page',
           });
+
+          // TODO better message here
+          if (address) {
+            const appUrl = get(window, 'location.origin', 'https://hats-pro.vercel.app');
+            sendTelegramMessage(
+              `${tgFormatAddress(address)} has joined the council ${tgFormatAddress(hsgAddress)} [View Council](${appUrl}/councils/${tgChainSlug(chainId)}:${hsgAddress}/members)`,
+            );
+          }
+
           queryClient.invalidateQueries({ queryKey: ['readContract'] }); // TODO trying to invalidate is safe signer check
           setIsLoading(false);
           // redirect to council page

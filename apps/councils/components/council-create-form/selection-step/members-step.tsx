@@ -1,9 +1,8 @@
 'use client';
 
 import { useCouncilForm, useOverlay } from 'contexts';
-import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { CouncilMember, StepProps } from 'types';
+import { StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
@@ -14,7 +13,6 @@ import { MembersList } from './members-list';
 export function SelectionMembersStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
-  const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
 
@@ -39,13 +37,7 @@ export function SelectionMembersStep({ onNext }: StepProps) {
 
           {members.length > 0 && (
             <div>
-              <MembersList
-                members={members}
-                form={form}
-                canEdit={canEdit}
-                editingMember={editingMember}
-                setEditingMember={setEditingMember}
-              />
+              <MembersList members={members} form={form} canEdit={canEdit} />
             </div>
           )}
 
@@ -70,7 +62,7 @@ export function SelectionMembersStep({ onNext }: StepProps) {
         </div>
       </form>
 
-      <AddMemberModal form={form} editingMember={editingMember} setEditingMember={setEditingMember} canEdit={canEdit} />
+      <AddMemberModal form={form} canEdit={canEdit} />
     </>
   );
 }

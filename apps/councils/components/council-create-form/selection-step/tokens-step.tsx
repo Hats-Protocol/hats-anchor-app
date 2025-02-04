@@ -17,7 +17,7 @@ export function SelectionTokensStep({ onNext }: StepProps) {
   // const selectedChain = form.watch('chain').value;
   // const chainId = toNumber(selectedChain);
   // const availableTokens = getChainTokens(chainId as number);
-  console.log(form.watch('tokenRequirement.address'));
+  // console.log(form.watch('tokenRequirement.address'));
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
 

@@ -120,7 +120,7 @@ export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }
   return (
     <Modal
       name={`addAdminModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
-      title={editingAdmin ? 'Edit Council Admin' : 'Add Council Admin'}
+      title={editingAdmin ? 'Edit Council Manager' : 'Add Council Manager'}
       onClose={handleClose}
       size='2xl'
     >
@@ -165,10 +165,10 @@ export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }
           </div>
 
           <div className='mt-8'>
-            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
+            {formError && <p className='text-destructive mb-4 text-sm'>{formError}</p>}
             <div className='flex justify-end'>
               <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
-                {editingAdmin ? 'Save Changes' : 'Add Admin'}
+                {editingAdmin ? 'Save Changes' : 'Add Council Manager'}
               </NextStepButton>
             </div>
           </div>

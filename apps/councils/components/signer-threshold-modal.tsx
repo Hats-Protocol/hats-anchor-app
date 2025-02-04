@@ -164,7 +164,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
                 </Button>
               )}
               <Button type='submit' rounded='full' disabled={!hasHsgChanges || !address || isLoading}>
-                {isLoading ? 'Updating...' : 'Update Threshold'}
+                {isLoading ? 'Updating…' : 'Update Threshold'}
               </Button>
             </div>
           </div>

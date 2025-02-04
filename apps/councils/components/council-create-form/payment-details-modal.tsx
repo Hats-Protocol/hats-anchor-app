@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
-import { AddressInput, Form, Input } from 'forms';
+import { AddressInput, Form, FormDescription, Input } from 'forms';
 import { capitalize, compact, get, keys, map, reject, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -206,10 +206,10 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
           </div>
 
           <div className='mt-8'>
-            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
+            {formError && <FormDescription className='text-destructive mb-4'>{formError}</FormDescription>}
             <div className='flex justify-end'>
               <NextStepButton type='submit' disabled={!isFormValid() || !canEdit || loading} withIcon={false}>
-                {loading ? 'Submitting...' : 'Submit details'}
+                {loading ? 'Submitting…' : 'Submit details'}
               </NextStepButton>
             </div>
           </div>

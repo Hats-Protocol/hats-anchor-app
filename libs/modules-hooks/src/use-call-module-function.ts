@@ -3,7 +3,7 @@ import { useToast, useWaitForSubgraph } from 'hooks';
 import { get, map } from 'lodash';
 import { useCallback } from 'react';
 import { ModuleFunction, SupportedChains } from 'types';
-import { createHatsModulesClient, invalidateAfterTransaction, transformInput, wagmiConfig } from 'utils';
+import { createHatsModulesClient, invalidateAfterTransaction, logger, transformInput, wagmiConfig } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 import { waitForTransactionReceipt } from 'wagmi/actions';
@@ -29,7 +29,6 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
 
   const callModuleFunction = useCallback(
     async ({ moduleId, instance, func, args, onSuccess, onDecline }: CallModuleFunction) => {
-      console.log('callModuleFunction', { moduleId, instance, func, args, onSuccess, onDecline });
       // TODO errors thrown here are not being caught well (log and toast instead?)
       if (!chainId) throw new Error('Chain ID is undefined');
       if (!address) throw new Error('User address is undefined');
@@ -98,6 +97,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
         }
       } catch (err: unknown) {
         const error = err as Error;
+        logger.debug(error);
         if (error.message.includes('User rejected the request')) {
           // eslint-disable-next-line no-console
           console.log('User rejected the request');

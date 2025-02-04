@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Modal, useCouncilForm, useOverlay } from 'contexts';
 import { AddressInput, Form, Input } from 'forms';
 import { Variables } from 'graphql-request';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember, FormMember } from 'types';
 import { chainsMap, councilsGraphqlClient, CREATE_USER, getChainId, isValidEmail, logger, UPDATE_USER } from 'utils';
@@ -13,16 +13,10 @@ import { NextStepButton } from '../../next-step-button';
 interface AddMemberModalProps {
   form: UseFormReturn<CouncilFormData>;
   editingMember?: CouncilMember | null;
-  setEditingMember: Dispatch<SetStateAction<CouncilMember | null>>;
   canEdit?: boolean;
 }
 
-export function AddMemberModal({
-  form: parentForm,
-  editingMember,
-  setEditingMember,
-  canEdit = true,
-}: AddMemberModalProps) {
+export function AddMemberModal({ form: parentForm, editingMember, canEdit = true }: AddMemberModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();
@@ -115,7 +109,6 @@ export function AddMemberModal({
   };
 
   const handleClose = () => {
-    setEditingMember(null);
     setModals?.({});
   };
 
@@ -132,7 +125,7 @@ export function AddMemberModal({
 
   return (
     <Modal
-      name='addMemberModal'
+      name={`addMemberModal${editingMember?.address ? `-${editingMember.address}` : ''}`}
       title={editingMember ? 'Edit Council Member' : 'Add Council Member'}
       onClose={handleClose}
       size='2xl'
@@ -181,7 +174,7 @@ export function AddMemberModal({
             )}
             <div className='flex justify-end'>
               <NextStepButton type='submit' disabled={!canEdit || !isFormValid() || isLoading} withIcon={false}>
-                {isLoading ? 'Submitting...' : editingMember ? 'Save Changes' : 'Add Member'}
+                {isLoading ? 'Submitting…' : editingMember ? 'Save Changes' : 'Add Member'}
               </NextStepButton>
             </div>
           </div>

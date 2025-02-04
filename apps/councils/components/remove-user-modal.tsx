@@ -17,8 +17,8 @@ import type {
   OffchainCouncilData,
   SupportedChains,
 } from 'types';
-import { Button } from 'ui';
-import { formatAddress, getKnownEligibilityModule, logger, sendTelegramMessage } from 'utils';
+import { Button, MemberAvatar } from 'ui';
+import { getKnownEligibilityModule, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
 import { Hex } from 'viem';
 
 interface RemoveReasonFormProps {
@@ -99,19 +99,27 @@ function RemoveUserModal({
   const onSubmit = async (data: any) => {
     setFormPending(true);
     const rule = find(flatten(eligibilityRules), { address: data.reason }); // TODO hardcode flatten(eligibilityRules)
-    const removeFunction = rule?.address ? get(removeFunctions, rule?.address) : null;
-    const removeFunctionArgs = getRemoveFunctionArgs(rule?.module, user || undefined);
-    if (!rule || !removeFunction) return;
+    if (!rule) return;
+    const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
+    const moduleEligible = moduleEligibility.eligible && moduleEligibility.goodStanding;
+
+    let updateFunction = rule?.address ? get(removeFunctions, rule?.address) : null;
+    const updateFunctionArgs = getRemoveFunctionArgs(rule?.module, user || undefined);
+    if (rule?.address === offchainCouncilData?.membersCriteriaModule && !moduleEligible) {
+      updateFunction = rule?.module.writeFunctions.find((fn) => fn.functionName === 'addAccount') as ModuleFunction;
+    }
+
+    if (!rule || !updateFunction) return;
 
     callModuleFn({
       moduleId: rule.module.implementationAddress,
       instance: data.reason,
-      func: removeFunction,
-      args: removeFunctionArgs,
+      func: updateFunction,
+      args: updateFunctionArgs,
       onSuccess: () => {
         if (user) {
           sendTelegramMessage(
-            `${userLabel} ${user.name} (${formatAddress(user.address)}) removed from council via ${rule.module.name}`,
+            `${userLabel} ${user.name} (${tgFormatAddress(user.address)}) removed from council via ${rule.module.name}`,
           );
         }
 
@@ -121,6 +129,15 @@ function RemoveUserModal({
         setModals?.({});
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
         queryClient.invalidateQueries({ queryKey: ['allowlistDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['readContract'] });
+        queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
+        setFormPending(false);
+      },
+      // onError: (error) => {
+      //   logger.error(error);
+      //   setFormPending(false);
+      // },
+      onDecline: () => {
         setFormPending(false);
       },
     });
@@ -145,10 +162,11 @@ function RemoveUserModal({
         // check if user is compliance admin and selected user is compliant
         if (rule.address === offchainCouncilData?.membersCriteriaModule) {
           const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
+          const moduleEligible = moduleEligibility.eligible && moduleEligibility.goodStanding;
           return {
-            label: 'Violated compliance',
+            label: moduleEligible ? 'Violated compliance' : 'Mark as compliant',
             value: rule.address,
-            isDisabled: !moduleEligibility.eligible || !moduleEligibility.goodStanding,
+            // isDisabled: !moduleEligible,
           };
         }
 
@@ -180,30 +198,37 @@ function RemoveUserModal({
   }, [reasonOptions, reset]);
 
   return (
-    <Modal name={`removeUser-${type}-${user?.address}`} title={`Remove ${userLabel || 'Council Member'}`}>
-      <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <RadioBox
-            name='reason'
-            label={`Why are you removing this ${userLabel || 'Council Member'}?`}
-            options={reasonOptions}
-            localForm={form}
-          />
+    <Modal
+      name={`removeUser-${type}-${user?.address}`}
+      title={`${isSigner ? 'Remove' : 'Update'} ${userLabel || 'Council Member'}`}
+    >
+      <div className='flex flex-col gap-6'>
+        <MemberAvatar member={user} stack />
 
-          <div className='mt-8'>
-            <div className='flex justify-end'>
-              <Button
-                type='submit'
-                rounded='full'
-                variant={isSigner ? 'destructive' : 'default'}
-                disabled={formPending}
-              >
-                {isSigner ? (formPending ? 'Removing' : 'Remove') : formPending ? 'Updating' : 'Update'}
-              </Button>
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <RadioBox
+              name='reason'
+              label={`Why are you ${isSigner ? 'removing' : 'updating'} this ${userLabel || 'Council Member'}?`}
+              options={reasonOptions}
+              localForm={form}
+            />
+
+            <div className='mt-8'>
+              <div className='flex justify-end'>
+                <Button
+                  type='submit'
+                  rounded='full'
+                  variant={isSigner ? 'destructive' : 'default'}
+                  disabled={formPending}
+                >
+                  {isSigner ? (formPending ? 'Removing…' : 'Remove') : formPending ? 'Updating…' : 'Update'}
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
-      </Form>
+          </form>
+        </Form>
+      </div>
     </Modal>
   );
 }

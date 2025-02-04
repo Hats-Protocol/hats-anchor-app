@@ -1,7 +1,8 @@
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
-import { Modal } from 'contexts';
+import { useQueryClient } from '@tanstack/react-query';
+import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
 import { capitalize, isEmpty, keys, map, some, toLower } from 'lodash';
@@ -49,6 +50,8 @@ function AddUserModal({
 }: AddAdminModalProps) {
   const [isLoading, setIsLoading] = addUserLoading || [false, () => {}];
   const { user } = usePrivy();
+  const { setModals } = useOverlay();
+  const queryClient = useQueryClient();
   const form = useForm<UserFormProps>();
   const {
     getValues,
@@ -128,7 +131,13 @@ function AddUserModal({
     });
     logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
-    afterSuccess?.(createdOrUpdatedUser);
+    if (afterSuccess) {
+      afterSuccess(createdOrUpdatedUser);
+    } else {
+      setIsLoading(false);
+      setModals?.({});
+      queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+    }
   };
 
   return (
@@ -174,11 +183,11 @@ function AddUserModal({
             <div className='flex justify-end'>
               {editingUser ? (
                 <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading || !isDirty}>
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isLoading ? 'Saving…' : 'Save Changes'}
                 </Button>
               ) : (
                 <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
-                  {isLoading ? 'Adding...' : `Add ${userLabel || 'Council Member'}`}
+                  {isLoading ? 'Adding…' : `Add ${userLabel || 'Council Member'}`}
                 </Button>
               )}
             </div>

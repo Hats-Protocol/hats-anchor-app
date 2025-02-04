@@ -6,8 +6,8 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { useCouncilDetails, useOffchainCouncilDetails, useWaitForSubgraph } from 'hooks';
-import { concat, filter, find, flatten, get, map, reject, size, toLower, toNumber } from 'lodash';
+import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
+import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { useState } from 'react';
 import { idToIp } from 'shared';
@@ -21,8 +21,8 @@ import {
   getKnownEligibilityModule,
   logger,
   parseCouncilSlug,
-  sanitizeMessage,
   sendTelegramMessage,
+  tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
@@ -122,6 +122,11 @@ const ManagePage = ({ slug }: { slug: string }) => {
     ...find(allWearers, { address: getAddress(wearer.id) }),
   }));
   logger.debug('offchainCouncilDetails', offchainCouncilDetails);
+  const { data: safeSigners } = useSafeDetails({
+    safeAddress: councilDetails?.safe as Hex,
+    chainId: (chainId ?? 11155111) as SupportedChains,
+  });
+  const signers = filter(safeSigners, (signer) => includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)));
 
   // TODO remove erc20 `getKnownEligibilityModule(rule.module.implementationAddress as Hex) !== 'erc20',`
   const menuOptions = concat(
@@ -159,7 +164,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
         setAddManagerLoading(false);
         sendTelegramMessage(
-          `New council manager added: ${sanitizeMessage(formatAddress(user.address))} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
+          `New council manager added: ${tgFormatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
         );
 
         setModals?.({});
@@ -180,7 +185,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           <div className='mt-2'>
             <SignersIndicator
               threshold={toNumber(get(councilDetails, 'minThreshold'))}
-              signers={size(get(primarySignerHat, 'wearers'))}
+              signers={size(signers)}
               maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
             />
           </div>
