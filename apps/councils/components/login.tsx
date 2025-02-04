@@ -4,13 +4,14 @@ import { usePrivy } from '@privy-io/react-auth';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
-import { Button, OblongAvatar, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
+import { Button, cn, OblongAvatar, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
-import { useChainId, useEnsAvatar, useEnsName } from 'wagmi';
+import { useChainId, useEnsAvatar, useEnsName, useWalletClient } from 'wagmi';
 
 const Login = () => {
   const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail } = usePrivy();
+  const walletClient = useWalletClient();
   // const { address } = useAccount();
   const chainId = useChainId();
   const { data: ensName } = useEnsName({ address: user?.wallet?.address ?? undefined, chainId: 1 });
@@ -45,12 +46,19 @@ const Login = () => {
         disabled
         className='h-10 w-10 rounded-md border border-gray-200 bg-white p-0 hover:bg-white disabled:cursor-default disabled:opacity-100'
       >
-        {chainId && <img src={chainsMap(chainId)?.iconUrl} alt='Chain Icon' className='max-w-auto size-7' />}
+        {chainId && (
+          <img src={chainsMap(chainId)?.iconUrl} alt={chainsMap(chainId)?.name} className='max-w-auto size-7' />
+        )}
       </Button>
 
       <Popover>
-        <PopoverTrigger>
-          <Button className='h-10 w-10 rounded-md border border-gray-200 bg-white px-3 hover:bg-gray-50'>
+        <PopoverTrigger asChild>
+          <Button
+            className={cn(
+              'h-10 w-10 rounded-md border border-gray-200 bg-white px-3 hover:bg-gray-50',
+              !walletClient && 'bg-functional-link-primary/20',
+            )}
+          >
             <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-8 w-6' />
           </Button>
         </PopoverTrigger>

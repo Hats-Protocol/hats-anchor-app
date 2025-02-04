@@ -19,7 +19,7 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
   return (
     <>
       <div className='space-y-2'>
-        <label className='font-bold'>What&apos;s the Signer Threshold logic</label>
+        <label className='font-bold'>How are decisions made for this council?</label>
         <RadioBox
           name='thresholdType'
           localForm={form}

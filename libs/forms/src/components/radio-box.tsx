@@ -2,7 +2,7 @@
 
 import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { Label, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
+import { cn, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
@@ -76,11 +76,14 @@ const RadioBox = ({
               <RadioGroup disabled={isDisabled} onValueChange={field.onChange} value={field.value}>
                 <div className='flex flex-wrap gap-4'>
                   {options?.map((option) => (
-                    <FormItem className='flex items-center gap-2 space-y-0 hover:cursor-pointer' key={option.value}>
+                    <FormItem className='flex items-center gap-2 space-y-0' key={option.value}>
                       <FormControl>
                         <RadioGroupItem value={option.value} id={option.value} disabled={option.isDisabled} />
                       </FormControl>
-                      <FormLabel className='text-sm hover:cursor-pointer' htmlFor={option.value}>
+                      <FormLabel
+                        className={cn('text-sm', option.isDisabled ? 'cursor-not-allowed' : 'hover:cursor-pointer')}
+                        htmlFor={option.value}
+                      >
                         {option.label}
                       </FormLabel>
                     </FormItem>

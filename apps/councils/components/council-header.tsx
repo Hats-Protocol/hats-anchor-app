@@ -3,18 +3,17 @@
 import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
-import { useCouncilDetails, useOffchainCouncilDetails, useSafesInfo } from 'hooks';
-import { capitalize, first, get, nth, size } from 'lodash';
+import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useSafesInfo } from 'hooks';
+import { capitalize, filter, first, get, includes, map, nth, size, toLower } from 'lodash';
 import { toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Button, OblongAvatar, Skeleton } from 'ui';
-import { chainsMap, formatAddress, parseCouncilSlug } from 'utils';
+import { Button, Link, OblongAvatar, Skeleton } from 'ui';
+import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -49,6 +48,10 @@ const CouncilHeader = () => {
     chainId: chainId ?? 11155111,
     safes: [councilDetails?.safe as unknown as Hex],
   });
+  const { data: safeSignersRaw } = useSafeDetails({
+    safeAddress: councilDetails?.safe as Hex,
+    chainId: (chainId ?? 11155111) as SupportedChains,
+  });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const primarySignerHatId = get(primarySignerHat, 'id');
   const topHatId = !!primarySignerHatId
@@ -56,14 +59,18 @@ const CouncilHeader = () => {
     : undefined;
   const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);
   const safe = first(safesDetails);
+  const safeSigners = filter(safeSignersRaw, (signer) =>
+    includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)),
+  );
 
   const { data: topHatDetails } = useHatDetails({
     chainId: (chainId ?? 11155111) as SupportedChains,
     hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
   });
-  console.log('topHatDetails', topHatDetails);
+
+  const topHatWearerAddress = get(topHatDetails, 'wearers[0].id');
   const { data: ensName } = useEnsName({
-    address: get(topHatDetails, 'wearers[0].id') as Hex,
+    address: topHatWearerAddress as Hex,
     chainId: 1,
   });
   const { data: ensAvatar } = useEnsAvatar({
@@ -71,13 +78,13 @@ const CouncilHeader = () => {
     chainId: 1,
   });
   const fallbackAvatar = useMemo(() => {
-    if (!get(topHatDetails, 'wearers[0].id')) return undefined;
+    if (!topHatWearerAddress) return undefined;
     return createIcon({
-      seed: get(topHatDetails, 'wearers[0].id'),
+      seed: topHatWearerAddress,
       size: 64,
     }).toDataURL();
-  }, [get(topHatDetails, 'wearers[0].id')]);
-  const topHatWearer = ensName || formatAddress(get(topHatDetails, 'wearers[0].id'));
+  }, [topHatWearerAddress]);
+  const topHatWearer = ensName || formatAddress(topHatWearerAddress);
 
   const offchainCouncilName = get(offchainCouncilDetails, 'creationForm.councilName');
   const offchainCouncilDescription = get(offchainCouncilDetails, 'creationForm.councilDescription');
@@ -105,10 +112,10 @@ const CouncilHeader = () => {
         </div>
 
         <div className='flex w-auto items-center'>
-          {size(get(primarySignerHat, 'wearers')) >= toNumber(get(councilDetails, 'minThreshold')) ? (
+          {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold')) ? (
             <Link
               href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
-              target='_blank'
+              isExternal
             >
               <Button variant='outline' rounded='full'>
                 <SafeIcon className='size-3' />
@@ -120,7 +127,7 @@ const CouncilHeader = () => {
             <SignersIndicator
               threshold={toNumber(get(councilDetails, 'minThreshold'))}
               // TODO replace with safe signers instead of hat wearers
-              signers={size(get(primarySignerHat, 'wearers'))}
+              signers={size(safeSigners)}
               maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
             />
           )}
@@ -128,26 +135,47 @@ const CouncilHeader = () => {
 
         <div className='font-jb-mono flex w-[30%] flex-col items-end justify-center gap-2 text-sm'>
           <div className='flex items-center gap-2'>
-            {size(get(primarySignerHat, 'wearers')) >= toNumber(get(councilDetails, 'minThreshold')) ? (
+            <div className='flex items-center'>
               <div>
-                {get(safe, 'threshold')}/{size(get(safe, 'owners'))} Multisig
+                {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold'))
+                  ? get(safe, 'threshold')
+                  : `Pending ${get(councilDetails, 'minThreshold')}`}
               </div>
-            ) : (
               <div>
-                Pending {get(councilDetails, 'minThreshold')}/{get(primarySignerHat, 'maxSupply')} Multisig
+                {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold'))
+                  ? `/${size(safeSigners)}`
+                  : `/${get(primarySignerHat, 'maxSupply')}`}
               </div>
-            )}
-            <SafeIcon className='size-4' />
+            </div>
+            <Link
+              className='flex items-center gap-2 text-black/80'
+              href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as Hex)}
+              isExternal
+            >
+              <div>Multisig</div>
+              <SafeIcon className='size-4' />
+            </Link>
           </div>
 
           <div className='flex items-center gap-2'>
             <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
-            <img src={chainsMap(chainId ?? 11155111)?.iconUrl} className='size-4' />
+            <img
+              src={chainsMap(chainId ?? 11155111)?.iconUrl}
+              className='size-4'
+              alt={chainsMap(chainId ?? 11155111)?.name}
+            />
           </div>
 
           <div className='flex items-center gap-2'>
-            <div>by {topHatWearer}</div>
-            <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-5 w-4' />
+            <div>by</div>
+            <Link
+              href={`${explorerUrl(chainId ?? 11155111)}/address/${topHatWearerAddress}`}
+              className='flex items-center gap-2 text-black/80'
+              isExternal
+            >
+              <div>{topHatWearer}</div>
+              <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-5 w-4' />
+            </Link>
           </div>
         </div>
       </div>

@@ -8,7 +8,7 @@ import { find, get, map, size, split } from 'lodash';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
-import { createHatsClient, formatAddress, getAllWearers, logger, sanitizeMessage, sendTelegramMessage } from 'utils';
+import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
 import { getAddress } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
@@ -35,14 +35,15 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
   const isAdminHat = size(split(hatIdDecimalToIp(ownerHatId), '.')) === 2;
   logger.debug('isAdminHat', { ownerHatId: ownerHatId ? hatIdDecimalToIp(ownerHatId) : undefined, isAdminHat });
 
-  const { data: ownerHat, details: ownerHatDetails } = useHatDetails({
+  const { data: ownerHat } = useHatDetails({
     chainId: chainId as SupportedChains,
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
   });
   // const hatDetails = ownerHat?.detailsMetadata;
   const agreementManagers = get(ownerHat, 'wearers');
-  const hatName = ownerHatDetails?.name;
+  // const hatName = ownerHatDetails?.name;
   const allWearers = getAllWearers(offchainCouncilDetails);
+  const userIsAgreementManager = find(agreementManagers, { address: userAddress });
 
   const addAgreementManagerLoading = useState(false);
   const [, setAddManagerLoading] = addAgreementManagerLoading;
@@ -52,7 +53,6 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
       setAddManagerLoading(false);
       return;
     }
-    console.log({ user: data, userAddress });
 
     return createHatsClient(chainId ?? 11155111, walletClient)
       .then((hatsClient) => {
@@ -82,7 +82,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
                 setAddManagerLoading(false);
 
                 sendTelegramMessage(
-                  `New agreement manager added: ${sanitizeMessage(formatAddress(data.address))} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
+                  `New agreement manager added: ${tgFormatAddress(data.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
                 );
 
                 setModals?.({});
@@ -106,7 +106,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
 
   return (
     <div className='flex flex-col gap-6' id={m.instanceAddress}>
-      <h2 className='text-2xl font-bold'>{m.name}</h2>
+      <h2 className='text-2xl font-bold'>Agreement Manager</h2>
 
       <div className='space-y-4'>
         <div className='space-y-1'>
@@ -126,7 +126,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
           })}
         </div>
 
-        {userAddress && user && (
+        {user && !!userIsAgreementManager && (
           <div className='mt-2 flex gap-2'>
             <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
               Edit Agreement

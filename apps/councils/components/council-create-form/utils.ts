@@ -72,16 +72,16 @@ export function getNextStepButtonText(nextStep: NextStep): string {
       return 'Set up Council Membership';
     case 'selection':
       switch (nextStep.subStep) {
-        case 'members':
-          return 'Select Members';
         case 'management':
           return 'Select Council Managers';
         case 'agreement':
-          return 'Manage Agreement';
+          return 'Configure Agreement';
         case 'compliance':
           return 'Select Compliance Managers';
         case 'tokens':
           return 'Set Token Requirement';
+        case 'members':
+          return 'Select Council Members';
         default:
           return 'Continue';
       }

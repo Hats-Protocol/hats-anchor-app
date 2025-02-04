@@ -2,9 +2,8 @@
 
 import { useOverlay } from 'contexts';
 import { SquarePen, Trash2 } from 'lucide-react';
-import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import type { CouncilMember } from 'types';
+import type { CouncilFormData, CouncilMember } from 'types';
 import { cn } from 'ui';
 import { MemberAvatar } from 'ui';
 
@@ -13,8 +12,7 @@ import { AddAdminModal } from './add-admin-modal';
 interface AdminsListProps {
   name: string;
   admins: CouncilMember[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: UseFormReturn<any>; // CouncilFormData
+  form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
 }
 
@@ -22,50 +20,38 @@ export function AdminsList({ admins, form, canEdit = true }: AdminsListProps) {
   const { watch } = form;
   const creator = watch('creator');
 
-  const handleRemove = (adminId: string) => {
-    const currentAdmins = form.getValues('admins') || [];
-    const updatedAdmins = currentAdmins.filter((admin: CouncilMember) => admin.id !== adminId);
-    form.setValue('admins', updatedAdmins);
-  };
-
   return (
-    <>
-      <div className='space-y-4'>
-        {admins.map((admin) => {
-          const isCreator = creator === admin.address;
-          return (
-            <AdminCard
-              key={admin.id}
-              admin={admin}
-              form={form}
-              onRemove={handleRemove}
-              canEdit={canEdit}
-              isCreator={isCreator}
-            />
-          );
-        })}
-      </div>
-    </>
+    <div className='space-y-4'>
+      {admins.map((admin) => {
+        return (
+          <AdminCard key={admin.id} admin={admin} form={form} canEdit={canEdit} isCreator={creator === admin.address} />
+        );
+      })}
+    </div>
   );
 }
 
 function AdminCard({
   admin,
-  onRemove,
   form,
   canEdit = true,
   isCreator,
 }: {
   admin: CouncilMember;
-  onRemove: (id: string) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
   isCreator?: boolean;
 }) {
   const { setModals } = useOverlay();
+
   const handleEdit = () => {
     setModals?.({ [`addComplianceModal-${admin.id}`]: true });
+  };
+
+  const handleRemove = () => {
+    const currentAdmins = form.getValues('admins') || [];
+    const updatedAdmins = currentAdmins.filter((a: CouncilMember) => a.id !== admin.id);
+    form.setValue('admins', updatedAdmins);
   };
 
   return (
@@ -83,8 +69,8 @@ function AdminCard({
               <SquarePen className='text-functional-link-primary h-4 w-4' />
               Edit
             </button>
-            <button type='button' onClick={() => onRemove(admin.id)} disabled={isCreator}>
-              <Trash2 className={cn('h-4 w-4 text-red-700', isCreator && 'cursor-not-allowed opacity-50')} />
+            <button type='button' onClick={handleRemove} disabled={isCreator}>
+              <Trash2 className={cn('text-destructive h-4 w-4', isCreator && 'cursor-not-allowed opacity-50')} />
             </button>
           </div>
         )}

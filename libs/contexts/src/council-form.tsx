@@ -818,35 +818,39 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
       hatsProtocolCalls.push(createCouncilAdminHatCallData.callData);
 
-      // create compliance manager hat call data
-      const complianceManagerHatCid = await hatsDetailsClient.pin({
-        type: '1.0',
-        data: { name: 'Compliance Manager' },
-      });
-      const createComplianceManagerHatCallData = hatsClient.createHatCallData({
-        admin: orgRolesGroupHatId,
-        details: `ipfs://${complianceManagerHatCid}`,
-        maxSupply: 10,
-        eligibility: FALLBACK_ADDRESS,
-        toggle: FALLBACK_ADDRESS,
-        mutable: true,
-      });
-      hatsProtocolCalls.push(createComplianceManagerHatCallData.callData);
+      if (formData.createComplianceAdminRole === 'true') {
+        // create compliance manager hat call data
+        const complianceManagerHatCid = await hatsDetailsClient.pin({
+          type: '1.0',
+          data: { name: 'Compliance Manager' },
+        });
+        const createComplianceManagerHatCallData = hatsClient.createHatCallData({
+          admin: orgRolesGroupHatId,
+          details: `ipfs://${complianceManagerHatCid}`,
+          maxSupply: 10,
+          eligibility: FALLBACK_ADDRESS,
+          toggle: FALLBACK_ADDRESS,
+          mutable: true,
+        });
+        hatsProtocolCalls.push(createComplianceManagerHatCallData.callData);
+      }
 
-      // create agreement manager hat call data
-      const agreementManagerHatCid = await hatsDetailsClient.pin({
-        type: '1.0',
-        data: { name: 'Agreement Manager' },
-      });
-      const createAgreementManagerHatCallData = hatsClient.createHatCallData({
-        admin: orgRolesGroupHatId,
-        details: `ipfs://${agreementManagerHatCid}`,
-        maxSupply: 10,
-        eligibility: FALLBACK_ADDRESS,
-        toggle: FALLBACK_ADDRESS,
-        mutable: true,
-      });
-      hatsProtocolCalls.push(createAgreementManagerHatCallData.callData);
+      if (formData.createAgreementAdminRole === 'true') {
+        // create agreement manager hat call data
+        const agreementManagerHatCid = await hatsDetailsClient.pin({
+          type: '1.0',
+          data: { name: 'Agreement Manager' },
+        });
+        const createAgreementManagerHatCallData = hatsClient.createHatCallData({
+          admin: orgRolesGroupHatId,
+          details: `ipfs://${agreementManagerHatCid}`,
+          maxSupply: 10,
+          eligibility: FALLBACK_ADDRESS,
+          toggle: FALLBACK_ADDRESS,
+          mutable: true,
+        });
+        hatsProtocolCalls.push(createAgreementManagerHatCallData.callData);
+      }
 
       // create council member hat call data
       const councilMemberHatCid = await hatsDetailsClient.pin({
@@ -898,12 +902,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
       hatsProtocolCalls.push(mintAutomationsHatCallData.callData);
 
-      // mint council member hat
-      const mintCouncilMemberHatCallData = hatsClient.batchMintHatsCallData({
-        hatIds: Array(formData.members.length).fill(councilMemberHatId),
-        wearers: formData.members.map((member) => member.address),
-      });
-      hatsProtocolCalls.push(mintCouncilMemberHatCallData.callData);
+      // ! DON'T mint council member hat on deploy
+      // const mintCouncilMemberHatCallData = hatsClient.batchMintHatsCallData({
+      //   hatIds: Array(formData.members.length).fill(councilMemberHatId),
+      //   wearers: formData.members.map((member) => member.address),
+      // });
+      // hatsProtocolCalls.push(mintCouncilMemberHatCallData.callData);
 
       // mint compliance manager hat if compliance is required
       if (formData.requirements.passCompliance && formData.createComplianceAdminRole === 'true') {

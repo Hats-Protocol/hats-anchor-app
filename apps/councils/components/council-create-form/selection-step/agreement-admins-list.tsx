@@ -16,13 +16,11 @@ interface AgreementAdminsListProps {
 
 export function AgreementAdminsList({ agreementAdmins, form, canEdit = true }: AgreementAdminsListProps) {
   return (
-    <>
-      <div className='space-y-4'>
-        {agreementAdmins.map((admin) => (
-          <AgreementAdminCard key={admin.id} admin={admin} form={form} canEdit={canEdit} />
-        ))}
-      </div>
-    </>
+    <div className='space-y-4'>
+      {agreementAdmins.map((admin) => (
+        <AgreementAdminCard key={admin.id} admin={admin} form={form} canEdit={canEdit} />
+      ))}
+    </div>
   );
 }
 

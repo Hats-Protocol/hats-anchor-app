@@ -32,10 +32,10 @@ export function OnboardingStep({ onNext }: StepProps) {
   return (
     <Form {...form}>
       <form className='flex h-full flex-col gap-8' onSubmit={form.handleSubmit(onNext)}>
-        <div className='flex flex-col gap-6'>
+        <div className='flex flex-col gap-8'>
           <h2 className='text-2xl font-bold'>Council Membership</h2>
 
-          <div className='flex flex-col gap-6'>
+          <div className='flex flex-col gap-4'>
             <h3 className='text-lg font-semibold'>How is the Council selected?</h3>
 
             <RadioCard
@@ -46,13 +46,13 @@ export function OnboardingStep({ onNext }: StepProps) {
                 {
                   label: 'Appoint Council Members',
                   value: 'APPOINTED',
-                  description: 'Create an onchain list of eligible Council Members',
+                  description: 'Council Managers manually choose the set of council members',
                   icon: DocumentChecks as IconType,
                 },
                 {
                   label: 'Elect Council Members',
                   value: 'ELECTED',
-                  description: 'Specify an amount of coins council members need to hold',
+                  description: 'Empower your community to elect the council members onchain',
                   icon: BallotBox as IconType,
                   disabled: true,
                 },
@@ -61,7 +61,7 @@ export function OnboardingStep({ onNext }: StepProps) {
             />
           </div>
 
-          <div className='flex flex-col gap-6'>
+          <div className='flex flex-col gap-4'>
             <h3 className='text-lg font-semibold'>What is required to join the Council?</h3>
 
             <RequirementBox

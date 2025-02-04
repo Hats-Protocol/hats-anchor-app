@@ -1,12 +1,13 @@
 'use client';
 
+import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { useCouncilDetails, useOffchainCouncilDetails, useWaitForSubgraph } from 'hooks';
-import { concat, filter, find, flatten, get, map, size, toLower, toNumber } from 'lodash';
+import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
+import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { useState } from 'react';
 import { idToIp } from 'shared';
@@ -17,10 +18,11 @@ import {
   createHatsClient,
   formatAddress,
   getAllWearers,
+  getKnownEligibilityModule,
   logger,
   parseCouncilSlug,
-  sanitizeMessage,
   sendTelegramMessage,
+  tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
@@ -44,9 +46,30 @@ const DEFAULT_SECTIONS = [
 const OWNER_SECTIONS = [
   {
     value: 'ownership',
-    label: 'Ownership',
+    label: 'Organization Owner',
   },
 ];
+
+const filterRulesWithoutAdmin = (rules: Ruleset) => {
+  return reject(
+    rules,
+    (rule) =>
+      getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20' ||
+      getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc721' ||
+      getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc1155',
+  );
+};
+
+const eligibilityRuleMenuLabels = (rule: any, offchainCouncilDetails: any) => {
+  if (rule.address === offchainCouncilDetails?.membersCriteriaModule) {
+    return 'Compliance Management';
+  }
+  if (getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement') {
+    return 'Agreement Management';
+  }
+
+  return rule.module.name;
+};
 
 const SectionMenu = ({ sections }: { sections: { value: string; label: string }[] }) => {
   return (
@@ -99,13 +122,19 @@ const ManagePage = ({ slug }: { slug: string }) => {
     ...find(allWearers, { address: getAddress(wearer.id) }),
   }));
   logger.debug('offchainCouncilDetails', offchainCouncilDetails);
+  const { data: safeSigners } = useSafeDetails({
+    safeAddress: councilDetails?.safe as Hex,
+    chainId: (chainId ?? 11155111) as SupportedChains,
+  });
+  const signers = filter(safeSigners, (signer) => includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)));
 
-  const sections = concat(
+  // TODO remove erc20 `getKnownEligibilityModule(rule.module.implementationAddress as Hex) !== 'erc20',`
+  const menuOptions = concat(
     DEFAULT_SECTIONS,
-    map(rulesWithoutSelectionModule, (rule) => ({
+    map(filterRulesWithoutAdmin(rulesWithoutSelectionModule), (rule) => ({
       value: rule.address,
-      label:
-        rule.address === offchainCouncilDetails?.membersCriteriaModule ? 'Compliance Management' : rule.module.name,
+      // TODO handle more mappings here
+      label: eligibilityRuleMenuLabels(rule, offchainCouncilDetails),
       module: rule.module,
     })),
     OWNER_SECTIONS,
@@ -135,7 +164,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
         setAddManagerLoading(false);
         sendTelegramMessage(
-          `New council manager added: ${sanitizeMessage(formatAddress(user.address))} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
+          `New council manager added: ${tgFormatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
         );
 
         setModals?.({});
@@ -146,7 +175,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
   return (
     <div className='flex gap-4 pt-10'>
       <div className='flex w-1/5'>
-        <SectionMenu sections={sections} />
+        <SectionMenu sections={menuOptions} />
       </div>
 
       <div className='flex w-4/5 flex-col gap-10'>
@@ -156,7 +185,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
           <div className='mt-2'>
             <SignersIndicator
               threshold={toNumber(get(councilDetails, 'minThreshold'))}
-              signers={size(get(primarySignerHat, 'wearers'))}
+              signers={size(signers)}
               maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
             />
           </div>
@@ -229,11 +258,11 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
         {/* TOP HAT CAN TRANSFER */}
         <div className='space-y-6' id='ownership'>
-          <h2 className='text-2xl font-bold'>Organization Management</h2>
+          <h2 className='text-2xl font-bold'>Organization Ownership</h2>
 
           <div className='space-y-4'>
             <div className='space-y-1'>
-              <h3 className='font-bold'>Organization Manager</h3>
+              <h3 className='font-bold'>Organization Owner</h3>
               <p className='text-sm'>Can change all councils and admins</p>
             </div>
 

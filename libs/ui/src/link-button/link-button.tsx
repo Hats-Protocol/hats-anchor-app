@@ -7,7 +7,8 @@ import { cn } from '../lib/utils';
 
 interface LinkButtonProps extends ButtonProps {
   href?: string;
-  icon?: ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
   isExternal?: boolean;
   size?: 'default' | 'sm' | 'lg';
   children?: ReactNode;
@@ -18,7 +19,7 @@ interface BaseLinkButtonProps extends Omit<LinkButtonProps, 'onClick'> {
 }
 
 const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLinkButtonProps> = (
-  { onClick, href, variant, icon, isExternal, size, children, className },
+  { onClick, href, variant, leftIcon, rightIcon, isExternal, size, children, className },
   ref,
 ) => {
   return (
@@ -31,8 +32,9 @@ const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLink
         rel={isExternal ? 'noopener noreferrer' : undefined}
       >
         <div className={cn('flex items-center gap-3')}>
-          {icon}
+          {leftIcon}
           <p className={cn('text-sm')}>{children}</p>
+          {rightIcon}
         </div>
       </a>
     </Button>
@@ -42,11 +44,26 @@ const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLink
 const ForwardedLinkButton = React.forwardRef(BaseLinkButton);
 
 // TODO [med] use button variant
-export function LinkButton({ href, icon, variant = 'default', children, onClick, ...props }: LinkButtonProps) {
+export function LinkButton({
+  href,
+  leftIcon,
+  rightIcon,
+  variant = 'default',
+  children,
+  onClick,
+  ...props
+}: LinkButtonProps) {
   if (!href) return null; // TODO handle no href
   return (
     <Link href={href} passHref legacyBehavior>
-      <ForwardedLinkButton icon={icon} variant={variant} onClick={onClick as any} {...props} children={children} />
+      <ForwardedLinkButton
+        leftIcon={leftIcon}
+        rightIcon={rightIcon}
+        variant={variant}
+        onClick={onClick as any}
+        {...props}
+        children={children}
+      />
     </Link>
   );
 }

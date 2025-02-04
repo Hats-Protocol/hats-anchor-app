@@ -107,7 +107,7 @@ function UpdateAgreementModal({
 
           <div className='mt-6 flex justify-end'>
             <Button type='submit' rounded='full' disabled={!isValid || isLoading}>
-              {isLoading ? 'Updating...' : 'Update Agreement'}
+              {isLoading ? 'Updating…' : 'Update Agreement'}
             </Button>
           </div>
         </form>

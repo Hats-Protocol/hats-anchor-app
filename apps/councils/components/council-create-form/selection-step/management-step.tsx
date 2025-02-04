@@ -30,7 +30,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
         <div className='space-y-8'>
           <div className='space-y-2'>
             <h2 className='font-bold'>Who can edit the council?</h2>
-            <p className='text-sm'>Council Admins can add and remove council members and edit the Safe.</p>
+            <p className='text-sm'>Council Members can add and remove council members and edit all Council settings.</p>
           </div>
 
           {admins.length > 0 && (
@@ -48,7 +48,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
               type='button'
             >
               <FiUserPlus className='mr-2 h-4 w-4' />
-              Add Admin
+              Add Council Manager
             </Button>
           </div>
         </div>

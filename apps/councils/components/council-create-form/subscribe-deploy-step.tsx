@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
 import { Button, MemberAvatar } from 'ui';
-import { chainsMap } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -115,7 +115,6 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
-  console.log(form.watch('tokenRequirement.address'));
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -159,7 +158,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       abi: erc20Abi,
       functionName: field,
       chainId: toNumber(formData.chain.value),
-    })) as any,
+    })),
   });
   const [symbol, name] = map(tokenData, 'result');
   const targetChainId = toNumber(formData.chain?.value) as number;
@@ -185,7 +184,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <div className='flex gap-1'>
             <span className='text-gray-900'>by</span>{' '}
             <span className='text-gray-500'>
-              {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />}
+              {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />} (
+              {formatAddress(firstAdmin?.address)})
             </span>
           </div>
         </div>
@@ -277,7 +277,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <RoleSummary title='Council Members' members={formData.members || []} />
           <RoleSummary
             title='Council Managers'
-            description='Can select Council Members and manage the Safe'
+            description='Can select Council Members and manage Council settings'
             members={formData.admins || []}
           />
           {formData.requirements.passCompliance && (
@@ -396,7 +396,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                 disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
                 onClick={handleDeploy}
               >
-                {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
+                {isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
               </NextStepButton>
             )}
 

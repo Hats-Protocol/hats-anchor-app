@@ -169,7 +169,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       }
       toast({
         title: 'Transaction submitted',
-        description: 'Waiting for the chain to confirm...',
+        description: 'Waiting for the chain to confirm…',
       });
 
       if (hash && hash !== '0x') {
@@ -188,7 +188,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
 
       toast({
         title: 'Transaction accepted',
-        description: 'Waiting for the updated state to be indexed...',
+        description: 'Waiting for the updated state to be indexed…',
         ...waitForSubgraphToastData,
       });
 

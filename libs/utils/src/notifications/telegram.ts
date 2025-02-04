@@ -1,4 +1,5 @@
 import { logger } from '../logs';
+import { chainsMap } from '../web3/chains';
 
 /**
  * Send a message to the Telegram Alerts channel
@@ -24,4 +25,12 @@ export const sendTelegramMessage = async (message: string) => {
 export const sanitizeMessage = (message: string | null | undefined) => {
   if (!message) return undefined;
   return message.replaceAll('.', '\\.');
+};
+
+export const tgFormatAddress = (address: string) => {
+  return `${address.slice(0, 6)}\\.\\.\\.${address.slice(-4)}`;
+};
+
+export const tgChainSlug = (chainId: number) => {
+  return chainsMap(chainId).name.toLowerCase().replaceAll(' ', '-');
 };

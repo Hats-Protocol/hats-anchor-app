@@ -9,11 +9,13 @@ import { useEffect, useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton } from 'ui';
-import { chainsMap, logger } from 'utils';
+import { chainsMap, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
 import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
+
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_IS_CLAIMS_APP === 'true';
 
 const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
@@ -125,6 +127,15 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
             title: 'Joined Council',
             description: 'Redirecting you to the council page',
           });
+
+          // TODO better message here
+          if (address) {
+            const appUrl = get(window, 'location.origin', 'https://hats-pro.vercel.app');
+            sendTelegramMessage(
+              `${tgFormatAddress(address)} has joined the council ${tgFormatAddress(hsgAddress)} [View Council](${appUrl}/councils/${tgChainSlug(chainId)}:${hsgAddress}/members)`,
+            );
+          }
+
           queryClient.invalidateQueries({ queryKey: ['readContract'] }); // TODO trying to invalidate is safe signer check
           setIsLoading(false);
           // redirect to council page
@@ -145,7 +156,10 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
   return (
     <>
       <div className='flex justify-between'>
-        <h2 className='text-2xl font-bold'>Comply with {size(eligibilityRules)} rules to claim this role</h2>
+        <h2 className='text-2xl font-bold'>
+          Satisfy these {size(eligibilityRules)} requirements to{' '}
+          {IS_CLAIMS_APP ? 'claim this role' : 'become a council member'}
+        </h2>
 
         <div className='flex items-center gap-2'>
           <p className='text-xl font-semibold'>
