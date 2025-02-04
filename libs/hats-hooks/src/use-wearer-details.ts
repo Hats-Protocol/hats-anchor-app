@@ -16,7 +16,7 @@ const useWearerDetails = ({ wearerAddress, chainId, initialData, editMode }: Use
   return useQuery({
     queryKey: ['wearerDetails', { wearerAddress, chainId }],
     queryFn: () => handleFetchWearerDetails(wearerAddress, chainId),
-    enabled: !!wearerAddress && !!chainId,
+    enabled: !!wearerAddress,
     initialData,
     refetchInterval: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });

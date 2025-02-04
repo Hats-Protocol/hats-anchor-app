@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import { find, get, map, size, split } from 'lodash';
+import { find, get, map, size, split, toLower } from 'lodash';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
@@ -43,7 +43,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
   const agreementManagers = get(ownerHat, 'wearers');
   // const hatName = ownerHatDetails?.name;
   const allWearers = getAllWearers(offchainCouncilDetails);
-  const userIsAgreementManager = find(agreementManagers, { address: userAddress });
+  const userIsAgreementManager = !!find(agreementManagers, { id: toLower(userAddress) });
 
   const addAgreementManagerLoading = useState(false);
   const [, setAddManagerLoading] = addAgreementManagerLoading;

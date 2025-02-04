@@ -62,13 +62,13 @@ const NewCouncil = () => {
   }, [ready, authenticated, user, chainId, router]);
 
   return (
-    <div className='grid-cols-20 grid pb-24 pt-24'>
+    <div className='grid-cols-20 grid min-h-screen w-full pb-24 pt-24'>
       <div className='col-span-10 col-start-3 grid'>
-        <Skeleton className='w-100 min-h-[500px] p-4' />
+        <Skeleton className='bg-functional-link-primary/10 min-h-[500px] w-full p-4' />
       </div>
 
       <div className='col-start-14 col-span-6 grid'>
-        <Skeleton className='h-100 w-100' />
+        <Skeleton className='bg-functional-link-primary/10 h-full w-full' />
       </div>
     </div>
   );

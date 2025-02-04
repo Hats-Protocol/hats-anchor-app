@@ -1,3 +1,4 @@
+import { ModuleChainClaim } from 'modules-ui';
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
@@ -12,6 +13,10 @@ const CouncilDetails = async ({ params: { slug, page } }: { params: { slug: stri
 
   if (page === 'transactions') {
     return <div>Transactions</div>;
+  }
+
+  if (page === 'join') {
+    return <ModuleChainClaim chainId={chainId || undefined} address={address as Hex} />;
   }
 
   if (page === 'manage') {

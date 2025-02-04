@@ -7,7 +7,7 @@ const CouncilPage = ({ params: { slug } }: { params: { slug: string } }) => {
   if (!chainId || !address) return redirect('/councils');
 
   // TODO handle chain name in slug, prefer name in canonical url
-  return redirect(`/councils/${chainId}:${address}/transactions`);
+  return redirect(`/councils/${chainId}:${address}/members`); // TODO return to transactions when relevant
 };
 
 export default CouncilPage;

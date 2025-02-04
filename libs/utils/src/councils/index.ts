@@ -1,5 +1,6 @@
 import { compact, concat, get, includes, toNumber, uniqBy } from 'lodash';
 import { OffchainCouncilData } from 'types';
+import { getAddress } from 'viem';
 
 import { chainStringToId } from '../chains';
 import { councilsGraphqlClient, GET_COUNCIL_BY_HSG } from '../councils-gql';
@@ -30,7 +31,7 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
-    return { chainId: checkChainId(chain), address };
+    return { chainId: checkChainId(chain), address: getAddress(address) };
   }
 
   if (includes(slug, ':')) {
@@ -40,7 +41,7 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
-    return { chainId: checkChainId(chain), address };
+    return { chainId: checkChainId(chain), address: getAddress(address) };
   }
 
   return { chainId: null, address: slug };

@@ -5,10 +5,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { Form, RadioBox } from 'forms';
 import { useSafeDetails } from 'hooks';
-import { compact, find, flatten, forEach, get, has, includes, map } from 'lodash';
+import { compact, find, flatten, forEach, get, has, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import type {
   CouncilMember,
   CurrentEligibility,
@@ -20,6 +20,7 @@ import type {
 import { Button, MemberAvatar } from 'ui';
 import { getKnownEligibilityModule, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
 import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 interface RemoveReasonFormProps {
   reason: Hex; // address of the rule/module used for removal // TODO handle multiple potential reasons for removal
@@ -87,16 +88,40 @@ function RemoveUserModal({
   const queryClient = useQueryClient();
   const { setModals } = useOverlay();
   const { handleSubmit, reset } = form;
+  const { address: userAddress } = useAccount();
   const { data: safeOwners } = useSafeDetails({
     safeAddress: councilData?.safe as Hex,
     chainId: chainId as SupportedChains,
   });
   const isSigner = includes(safeOwners, user?.address);
-
+  const isSelectionAdmin = includes(
+    get(
+      find(flatten(eligibilityRules), (rule) => rule.address === offchainCouncilData?.membersSelectionModule),
+      'wearers',
+    ),
+    toLower(userAddress),
+  );
+  const isComplianceAdmin = includes(
+    get(
+      find(flatten(eligibilityRules), (rule) => rule.address === offchainCouncilData?.membersCriteriaModule),
+      'wearers',
+    ),
+    toLower(userAddress),
+  );
+  const isAgreementAdmin = includes(
+    get(
+      find(
+        flatten(eligibilityRules),
+        (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement',
+      ),
+      'wearers',
+    ),
+    toLower(userAddress),
+  );
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
   const removeFunctions = removeFunctionsForModules(eligibilityRules);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: FieldValues) => {
     setFormPending(true);
     const rule = find(flatten(eligibilityRules), { address: data.reason }); // TODO hardcode flatten(eligibilityRules)
     if (!rule) return;
@@ -131,6 +156,7 @@ function RemoveUserModal({
         queryClient.invalidateQueries({ queryKey: ['allowlistDetails'] });
         queryClient.invalidateQueries({ queryKey: ['readContract'] });
         queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
+        afterSuccess?.(user || undefined);
         setFormPending(false);
       },
       // onError: (error) => {
@@ -150,7 +176,7 @@ function RemoveUserModal({
     return compact(
       map(flatten(eligibilityRules), (rule) => {
         // check if user is admin
-        if (rule.address === offchainCouncilData?.membersSelectionModule) {
+        if (rule.address === offchainCouncilData?.membersSelectionModule && isSelectionAdmin) {
           const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
           return {
             label: 'No longer a council member',
@@ -160,7 +186,7 @@ function RemoveUserModal({
         }
 
         // check if user is compliance admin and selected user is compliant
-        if (rule.address === offchainCouncilData?.membersCriteriaModule) {
+        if (rule.address === offchainCouncilData?.membersCriteriaModule && isComplianceAdmin) {
           const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
           const moduleEligible = moduleEligibility.eligible && moduleEligibility.goodStanding;
           return {
@@ -171,7 +197,7 @@ function RemoveUserModal({
         }
 
         // check if user is agreement admin and has signed the agreement
-        if (getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement') {
+        if (getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement' && isAgreementAdmin) {
           const moduleEligibility = get(currentEligibility, rule.address, { eligible: false, goodStanding: false });
           return {
             label: 'Violated the agreement',
@@ -189,7 +215,14 @@ function RemoveUserModal({
         return { label: rule.module.name, value: rule.address };
       }),
     );
-  }, [eligibilityRules, offchainCouncilData, currentEligibility]);
+  }, [
+    eligibilityRules,
+    offchainCouncilData,
+    currentEligibility,
+    isSelectionAdmin,
+    isComplianceAdmin,
+    isAgreementAdmin,
+  ]);
 
   useEffect(() => {
     if (!reasonOptions) return;

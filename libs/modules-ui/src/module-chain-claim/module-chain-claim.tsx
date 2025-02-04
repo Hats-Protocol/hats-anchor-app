@@ -6,7 +6,6 @@ import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { get } from 'lodash';
 import { useEffect, useMemo, useRef } from 'react';
 import { SupportedChains } from 'types';
-import { HatDeco } from 'ui';
 import { Skeleton } from 'ui';
 import { Hex } from 'viem';
 
@@ -83,8 +82,6 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
           <ModuleChainClaimsCard labeledModules={labeledModules} />
         </div>
       </div>
-
-      <HatDeco />
     </EligibilityContextProvider>
   );
 };

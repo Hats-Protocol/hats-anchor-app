@@ -1,5 +1,5 @@
-import { DEFAULT_ENDPOINTS_CONFIG, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import { chainsList } from '@hatsprotocol/config';
+import { DEFAULT_ENDPOINTS_CONFIG, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import { gql, GraphQLClient } from 'graphql-request';
 import { compact, flatten, get, keys, map, toLower, toNumber } from 'lodash';
 import { mapWithChainId } from 'shared';
@@ -109,6 +109,7 @@ export const fetchWearerDetailsForAllChains = async (address: string | undefined
   if (!address) return [];
   const promises = map(chains, (cId: string) => fetchWearerDetailsMesh(address, Number(cId)));
 
+  // TODO migrate to shared query at mesh
   // * let errors fall through here
   return Promise.all(map(promises, (p: Promise<() => void>) => p.catch(() => undefined))).then((data) => {
     // TODO [low] handle errors on subgraph(s) with the user

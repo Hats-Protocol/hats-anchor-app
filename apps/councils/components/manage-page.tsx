@@ -111,16 +111,18 @@ const ManagePage = ({ slug }: { slug: string }) => {
   });
   const rulesWithoutSelectionModule = filter(
     flatten(eligibilityRules),
-    (rule) => rule.address !== offchainCouncilDetails?.membersSelectionModule,
+    (rule) => toLower(rule.address) !== toLower(offchainCouncilDetails?.membersSelectionModule),
   );
   const { data: topHatDetails, isLoading: topHatDetailsLoading } = useHatDetails({
     chainId: (chainId ?? 11155111) as SupportedChains,
     hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
   });
+  const userIsTopHat = !!find(topHatDetails?.wearers, { id: toLower(userAddress) });
   const extendedOwnerHatWearers = map(ownerHat?.wearers, (wearer) => ({
     ...wearer,
     ...find(allWearers, { address: getAddress(wearer.id) }),
-  }));
+  })); // transform includes address as wearer identifier
+  const userIsManager = !!find(extendedOwnerHatWearers, { address: userAddress });
   logger.debug('offchainCouncilDetails', offchainCouncilDetails);
   const { data: safeSigners } = useSafeDetails({
     safeAddress: councilDetails?.safe as Hex,
@@ -171,6 +173,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
       },
     });
   };
+  console.log({ userIsManager, userIsTopHat });
 
   return (
     <div className='flex gap-4 pt-10'>
@@ -190,7 +193,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
             />
           </div>
 
-          {userAddress && user && (
+          {user && userIsManager && (
             <div className='mt-2 flex'>
               <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
                 Change Threshold
@@ -224,7 +227,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
               })}
             </div>
 
-            {userAddress && user && (
+            {user && userIsTopHat && (
               <div className='mt-2 flex'>
                 <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
                   Add a Council Manager
@@ -277,7 +280,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
               })}
             </div>
 
-            {userAddress && user && (
+            {user && userIsTopHat && (
               <div className='mt-2 flex'>
                 <Button variant='outline-blue' rounded='full' disabled>
                   Transfer Ownership

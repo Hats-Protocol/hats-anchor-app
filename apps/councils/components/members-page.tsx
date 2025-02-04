@@ -1,10 +1,12 @@
 'use client';
 
+import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
+import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
-import { filter, find, first, flatten, get, isEmpty, keys, map, split, toLower } from 'lodash';
+import { filter, find, first, flatten, get, includes, isEmpty, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -40,7 +42,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
     hsg: address as Hex,
     chainId: chainId ?? 11155111,
   });
-  console.log({ userAddress });
 
   // TODO fetch module labels
   // TODO more profile data about allowlist members
@@ -49,7 +50,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const allowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
-  logger.debug('Selection Allowlist', allowlist);
+  logger.debug('Selection Allowlist', allowlist, rawAllowlist, chainId, offchainCouncilData);
 
   const remainingModules = filter(
     flatten(eligibilityRules), // TODO hardcoded "flatten" outer Rulesets
@@ -60,41 +61,25 @@ const MembersPage = ({ slug }: { slug: string }) => {
     flatten(eligibilityRules),
     (rule) => toLower(rule.address) === toLower(offchainCouncilData?.membersSelectionModule),
   );
-  const complianceModule = find(
-    flatten(eligibilityRules),
-    (rule) => toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule),
-  );
   const addAccount = find(get(selectionModule, 'module.writeFunctions'), {
     functionName: 'addAccount',
   });
-  const addAccounts = find(get(complianceModule, 'module.writeFunctions'), {
-    functionName: 'addAccounts',
+
+  const allowlistManagerHatId = get(
+    find(get(selectionModule, 'liveParams'), {
+      label: 'Owner Hat',
+    }),
+    'value',
+  ) as bigint;
+  const { data: allowlistManagerHat } = useHatDetails({
+    chainId: chainId as SupportedChains,
+    hatId: allowlistManagerHatId ? hatIdDecimalToHex(allowlistManagerHatId) : undefined,
   });
+  const userIsAllowlistManager = includes(map(get(allowlistManagerHat, 'wearers'), 'id'), toLower(userAddress));
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({
     chainId: chainId as SupportedChains,
   });
-
-  const updateComplianceForSelected = async () => {
-    console.log(form.getValues());
-    // TODO
-    const values = form.getValues();
-    const onlyAddresses = keys(values).filter((key) => values[key]);
-
-    await callModuleFn({
-      moduleId: get(complianceModule, 'module.implementationAddress'),
-      instance: get(complianceModule, 'address'),
-      func: addAccounts as ModuleFunction,
-      args: { Accounts: onlyAddresses },
-      onSuccess: () => {
-        logger.info('updated compliance for selected users');
-        setModals?.({});
-        queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
-        queryClient.invalidateQueries({ queryKey: ['eligibilityRules'] });
-        // reset form values
-      },
-    });
-  };
 
   const addUserToCouncil = async (user: CouncilMember | undefined) => {
     if (!user?.address || !addAccount) return;
@@ -193,7 +178,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
         </div>
       )}
 
-      {userAddress && user && (
+      {user && userIsAllowlistManager && (
         <>
           <div className='flex justify-end gap-2 pt-8'>
             <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>

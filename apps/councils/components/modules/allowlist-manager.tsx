@@ -4,10 +4,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import { find, get, map, size, split } from 'lodash';
+import { find, get, map, size, split, toLower } from 'lodash';
 import { useState } from 'react';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
-import { Button, MemberAvatar } from 'ui';
+import { Button, MemberAvatar, Tooltip } from 'ui';
 import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
@@ -40,6 +40,8 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
     chainId: chainId as SupportedChains,
     hatId: managerHatId ? hatIdDecimalToHex(managerHatId) : undefined,
   });
+  const managers = get(managerHat, 'wearers');
+  const userIsManager = !!find(managers, { id: toLower(userAddress) });
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
   const allWearers = getAllWearers(offchainCouncilDetails);
@@ -53,7 +55,6 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
       setManagerLoading(false);
       return;
     }
-    console.log({ user: data, userAddress });
 
     return createHatsClient(chainId ?? 11155111, walletClient)
       .then((hatsClient) => {
@@ -130,16 +131,26 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
             })}
           </div>
 
-          {userAddress && user && (
+          {!!user && userIsManager && (
             <div className='mt-2 flex'>
-              <Button
-                variant='outline-blue'
-                rounded='full'
-                onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
-                disabled={isAdminHat}
-              >
-                Add Compliance Manager
-              </Button>
+              <div className='relative'>
+                <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
+                  <Button
+                    variant='outline-blue'
+                    rounded='full'
+                    onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
+                    disabled={isAdminHat}
+                  >
+                    Add Compliance Manager
+                  </Button>
+                </Tooltip>
+
+                {isAdminHat && (
+                  <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+                    soon
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -181,7 +192,12 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
 
         {userAddress && user && (
           <div className='mt-2 flex'>
-            <Button variant='outline' onClick={() => setModals?.({ ['addUser-allowlistAdmin']: true })} disabled>
+            <Button
+              variant='outline-blue'
+              rounded='full'
+              onClick={() => setModals?.({ ['addUser-allowlistAdmin']: true })}
+              disabled
+            >
               Add Allowlist Manager
             </Button>
           </div>
