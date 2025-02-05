@@ -39,7 +39,9 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         <TopMenu returnToList={returnToList} />
 
         <ScrollArea className='h-[calc(100vh-180px)]'>
-          <MainContent showBottomMenu={showBottomMenu} setShowBottomMenu={setShowBottomMenu} />
+          <div className='max-w-xl px-4'>
+            <MainContent showBottomMenu={showBottomMenu} setShowBottomMenu={setShowBottomMenu} />
+          </div>
         </ScrollArea>
 
         <BottomMenu show={showBottomMenu} />
@@ -69,7 +71,9 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           <>
             <TopMenu returnToList={returnToList} />
             <ScrollArea className='h-[calc(100vh-120px)] flex-1'>
-              <MainContent />
+              <div className='max-w-2xl px-4'>
+                <MainContent />
+              </div>
             </ScrollArea>
             <BottomMenu />
           </>
@@ -77,7 +81,9 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           <HatFormContextProvider>
             <TopMenu returnToList={returnToList} />
             <ScrollArea className='h-[calc(100vh-120px)] flex-1'>
-              <EditMode />
+              <div className='max-w-2xl px-4'>
+                <EditMode />
+              </div>
             </ScrollArea>
             <BottomMenu />
           </HatFormContextProvider>
