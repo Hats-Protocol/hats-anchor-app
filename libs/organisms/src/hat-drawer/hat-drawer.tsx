@@ -66,20 +66,15 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         {!editMode ? (
           <>
             <TopMenu returnToList={returnToList} />
-            <ScrollArea className='h-[calc(100vh-120px)] flex-1'>
-              <div className='max-w-2xl px-4'>
-                <MainContent />
-              </div>
-            </ScrollArea>
+            <MainContent />
             <BottomMenu />
           </>
         ) : (
+          // prefer wrapping like so to avoid rendering context provider when not needed
           <HatFormContextProvider>
             <TopMenu returnToList={returnToList} />
-            <ScrollArea className='h-[calc(100vh-120px)] flex-1'>
-              <div className='max-w-2xl px-4'>
-                <EditMode />
-              </div>
+            <ScrollArea className='h-[calc(100vh-180px)]'>
+              <EditMode />
             </ScrollArea>
             <BottomMenu />
           </HatFormContextProvider>
