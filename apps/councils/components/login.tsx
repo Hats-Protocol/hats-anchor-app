@@ -1,5 +1,6 @@
 'use client';
 
+import { councilsChainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
@@ -12,8 +13,8 @@ import { useChainId, useEnsAvatar, useEnsName, useWalletClient } from 'wagmi';
 const Login = () => {
   const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail } = usePrivy();
   const walletClient = useWalletClient();
-  // const { address } = useAccount();
   const chainId = useChainId();
+  // const { switchNetwork } = useSwitchNetwork();
   const { data: ensName } = useEnsName({ address: user?.wallet?.address ?? undefined, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName as string,
@@ -42,14 +43,39 @@ const Login = () => {
 
   return (
     <div className='flex items-center gap-1'>
-      <Button
-        disabled
-        className='h-10 w-10 rounded-md border border-gray-200 bg-white p-0 hover:bg-white disabled:cursor-default disabled:opacity-100'
-      >
-        {chainId && (
-          <img src={chainsMap(chainId)?.iconUrl} alt={chainsMap(chainId)?.name} className='max-w-auto size-7' />
-        )}
-      </Button>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button className='h-10 w-10 rounded-md border border-gray-200 bg-white p-0 hover:bg-white'>
+            {chainId && (
+              <img src={chainsMap(chainId)?.iconUrl} alt={chainsMap(chainId)?.name} className='max-w-auto size-7' />
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className='w-[240px] border border-gray-200 bg-white p-0'>
+          <div className='p-1'>
+            <p className='px-2 py-1.5 text-sm font-medium text-gray-500'>Switch Networks</p>
+            <div className='flex flex-col gap-1'>
+              {Object.entries(councilsChainsList).map(([id, chain]) => (
+                <Button
+                  key={id}
+                  variant='ghost'
+                  className={cn(
+                    'flex w-full items-center justify-start gap-2 px-2 py-1.5',
+                    Number(id) === chainId && 'bg-sky-100',
+                  )}
+                  // onClick={() => switchNetwork?.(Number(id))}
+                  onClick={() => {
+                    console.log('switchNetwork', Number(id));
+                  }}
+                >
+                  <img src={chain.iconUrl} alt={chain.name} className='size-6' />
+                  <span className='text-sm font-medium'>{chain.name}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       <Popover>
         <PopoverTrigger asChild>
