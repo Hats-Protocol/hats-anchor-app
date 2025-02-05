@@ -37,13 +37,9 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     return (
       <div className='relative h-[calc(100vh-58px)] pt-16'>
         <TopMenu returnToList={returnToList} />
-
         <ScrollArea className='h-[calc(100vh-180px)]'>
-          <div className='max-w-xl px-4'>
-            <MainContent showBottomMenu={showBottomMenu} setShowBottomMenu={setShowBottomMenu} />
-          </div>
+          <MainContent showBottomMenu={showBottomMenu} setShowBottomMenu={setShowBottomMenu} />
         </ScrollArea>
-
         <BottomMenu show={showBottomMenu} />
       </div>
     );
