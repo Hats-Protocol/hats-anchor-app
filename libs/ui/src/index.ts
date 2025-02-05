@@ -30,6 +30,7 @@ export * from './not-found';
 export * from './oblong-avatar';
 export * from './popover';
 export * from './radio-group';
+export * from './scroll-area';
 export * from './select';
 export * from './skeleton';
 export * from './slide';

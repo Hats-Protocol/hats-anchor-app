@@ -3,7 +3,7 @@
 import { useTreeForm } from 'contexts';
 import { includes } from 'lodash';
 import { useState } from 'react';
-import { cn } from 'ui';
+import { cn, ScrollArea } from 'ui';
 
 import { BottomMenu } from './bottom-menu';
 import { MainContent } from './main-content';
@@ -22,9 +22,9 @@ const TreeDrawer = () => {
       )}
     >
       <TopMenu />
-
-      <MainContent isExpanded={isExpanded} />
-
+      <ScrollArea className='h-[calc(100vh-180px)]'>
+        <MainContent isExpanded={isExpanded} />
+      </ScrollArea>
       <BottomMenu isExpanded={isExpanded} setAccordionIndex={setAccordionIndex} />
     </div>
   );

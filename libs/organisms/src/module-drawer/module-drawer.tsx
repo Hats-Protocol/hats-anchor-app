@@ -7,6 +7,7 @@ import { useHatsModules } from 'modules-hooks';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { ModuleDetails } from 'types';
+import { ScrollArea } from 'ui';
 
 import { MainContent } from './main-content';
 import { TopMenu } from './top-menu';
@@ -51,8 +52,9 @@ const ModuleDrawer = ({
         selectedModuleDetails={selectedModuleDetails}
         isStandaloneHatterDeploy={isStandaloneHatterDeploy}
       />
-
-      <MainContent localForm={localForm} title={title} isStandaloneHatterDeploy={isStandaloneHatterDeploy} />
+      <ScrollArea className='h-[calc(100vh-180px)]'>
+        <MainContent localForm={localForm} title={title} isStandaloneHatterDeploy={isStandaloneHatterDeploy} />
+      </ScrollArea>
     </div>
   );
 };

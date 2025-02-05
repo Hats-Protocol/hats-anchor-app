@@ -7,7 +7,7 @@ import { find, get } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { cn, LazyImage } from 'ui';
+import { cn, LazyImage, ScrollArea } from 'ui';
 
 import { BottomMenu } from '../bottom-menu';
 import { EditMode } from './edit-mode';
@@ -37,9 +37,9 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
     return (
       <div className='relative h-[calc(100vh-58px)] pt-16'>
         <TopMenu returnToList={returnToList} />
-
-        <MainContent showBottomMenu={showBottomMenu} setShowBottomMenu={setShowBottomMenu} />
-
+        <ScrollArea className='h-[calc(100vh-180px)]'>
+          <MainContent showBottomMenu={showBottomMenu} setShowBottomMenu={setShowBottomMenu} />
+        </ScrollArea>
         <BottomMenu show={showBottomMenu} />
       </div>
     );
@@ -53,7 +53,7 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
         editMode ? 'bg-cyan-50' : 'bg-whiteAlpha-900',
       )}
     >
-      <div className='relative z-[14] h-full w-full'>
+      <div className='relative z-[14] flex h-full w-full flex-col'>
         <div className='absolute left-[-81px] top-44 z-[16] h-[100px] w-[100px] overflow-hidden rounded-md border-[3px] border-gray-700'>
           <LazyImage
             src={hatImage}
@@ -73,7 +73,9 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           // prefer wrapping like so to avoid rendering context provider when not needed
           <HatFormContextProvider>
             <TopMenu returnToList={returnToList} />
-            <EditMode />
+            <ScrollArea className='h-[calc(100vh-180px)]'>
+              <EditMode />
+            </ScrollArea>
             <BottomMenu />
           </HatFormContextProvider>
         )}
