@@ -9,12 +9,14 @@ import { Button, cn, OblongAvatar, Popover, PopoverContent, PopoverTrigger, Skel
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useChainId, useEnsAvatar, useEnsName, useWalletClient } from 'wagmi';
+import { useConfig } from 'wagmi';
+import { switchChain } from 'wagmi/actions';
 
 const Login = () => {
   const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail } = usePrivy();
   const walletClient = useWalletClient();
   const chainId = useChainId();
-  // const { switchNetwork } = useSwitchNetwork();
+  const config = useConfig();
   const { data: ensName } = useEnsName({ address: user?.wallet?.address ?? undefined, chainId: 1 });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName as string,
@@ -28,6 +30,14 @@ const Login = () => {
       size: 64,
     }).toDataURL();
   }, [user]);
+
+  const handleNetworkSwitch = async (targetChainId: number) => {
+    try {
+      await switchChain(config, { chainId: targetChainId });
+    } catch (error) {
+      console.error('Failed to switch network:', error);
+    }
+  };
 
   if (!ready) {
     return <Skeleton className='h-10 w-[100px] rounded-md md:w-[200px]' />;
@@ -63,10 +73,7 @@ const Login = () => {
                     'flex w-full items-center justify-start gap-2 px-2 py-1.5',
                     Number(id) === chainId && 'bg-sky-100',
                   )}
-                  // onClick={() => switchNetwork?.(Number(id))}
-                  onClick={() => {
-                    console.log('switchNetwork', Number(id));
-                  }}
+                  onClick={() => handleNetworkSwitch(Number(id))}
                 >
                   <img src={chain.iconUrl} alt={chain.name} className='size-6' />
                   <span className='text-sm font-medium'>{chain.name}</span>
