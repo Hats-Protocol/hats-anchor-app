@@ -1,7 +1,7 @@
 'use client';
 
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
-import { useCouncilDetails } from 'hooks';
+import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { compact, get, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { DevInfo } from 'molecules';
@@ -20,6 +20,10 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     chainId: chainId ?? 11155111,
     address,
   });
+  const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
+    chainId: chainId ?? 11155111,
+    address,
+  });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
   const topHatId = primarySignerHat?.id
@@ -30,6 +34,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     chainId: chainId as SupportedChains,
     address: eligibilityModule,
   });
+  console.log({ offchainCouncilDetails });
 
   // TODO easy way to get MCH details?
 
@@ -120,6 +125,11 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
       <DevInfo title='HSG Info' devInfos={hsgInfo} />
 
       <EligibilityRulesDevInfo chainId={chainId} eligibilityRules={eligibilityRules || undefined} />
+
+      <div>
+        <h3>Offchain Council Details</h3>
+        <pre>{JSON.stringify(offchainCouncilDetails, null, 2)}</pre>
+      </div>
     </div>
   );
 };

@@ -9,52 +9,40 @@ interface DeployStatus {
 
 const deploySteps = {
   pinningRoleDetails: {
-    title: 'Pinning Role Details',
-    description: 'Creating the pinning role details',
-  },
-  calculatingRoleMetadata: {
-    title: 'Calculating Role Metadata',
-    description: 'Calculating metadata for roles, permissions and compliance',
-  },
+    title: 'Create Council',
+    description: 'Creating a Hats tree to store roles & rules alongside a Safe Multisig',
+  }, // skip `calculatingRoleMetadata`
   configuringModules: {
-    title: 'Configuring Modules',
-    description: 'Configuring the eligibility modules for accessing roles',
-  },
-  chainModules: {
-    title: 'Chain Modules',
-    description: 'Chaining modules together for compound eligibility',
-  },
+    title: 'Deploying your smart contract rules',
+    description: 'Deploying HSG, Allowlist, Compliance & Agreement',
+  }, // skip `chainModules`
   simulateSafeAddress: {
-    title: 'Simulating Safe Address',
-    description: 'Simulating the safe address',
+    title: 'Simulating Safe address',
+    description: 'Registering and reserving the Safe address',
   },
   allocatingInitialRoles: {
-    title: 'Allocating Initial Roles',
-    description: 'Allocating the initial roles',
-  },
-  compilingTxCalldata: {
-    title: 'Compiling Tx Calldata',
-    description: 'Compiling the transaction calldata',
-  },
+    title: 'Compiling Transaction Calldata',
+    description: 'Compiling a transaction that deploys the necessary contracts with allocates roles',
+  }, // bundle with `compileTxCalldata`
   deployTx: {
-    title: 'Deploying Tx',
-    description: 'Deploying the transaction',
+    title: 'Waiting for wallet confirmation',
+    description: 'You need to confirm and send the transaction',
+  },
+  confirmingTx: {
+    title: 'Waiting for blockchain confirmation',
+    description: 'Network is including this transaction into a block',
   },
   indexingTx: {
-    title: 'Indexing Tx',
-    description: 'Indexing the transaction',
+    title: 'Wait for indexing',
+    description: 'Storing blockchain information as structured metadata',
   },
   processTx: {
-    title: 'Processing Tx',
-    description: 'Processing the transaction',
-  },
-  updateMetadata: {
-    title: 'Updating Metadata',
-    description: 'Updating the metadata',
-  },
+    title: 'Processing transaction',
+    description: "We're activating your permissions",
+  }, // bundle with `updateMetadata`
   redirect: {
-    title: 'Redirecting',
-    description: 'Redirecting to the council',
+    title: 'Redirecting to the Council',
+    description: 'Constructing your Hats Pro control panel and redirecting you to it',
   },
 };
 
@@ -105,4 +93,4 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
   );
 };
 
-export default Deploy;
+export { Deploy };

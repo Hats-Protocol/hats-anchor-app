@@ -101,16 +101,22 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         id: draftId,
         payer: userData,
       });
-      const url = window.location.origin !== 'http://localhost:3000' ? PRO_URL : window.location.origin;
+      const url = includes(window.location.origin, 'localhost') ? PRO_URL : window.location.origin;
 
       if (!parentForm.getValues('payer')) {
         const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} \\| `;
         const councilLink = `[View Council](${url}/councils/new/payment?draftId=${draftId}) 💰`;
         const userKeys = reject(keys(userData), (key) => key === 'id');
         const userDetails = compact(
-          map(userKeys, (key) =>
-            get(userData, key) ? `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}` : undefined,
-          ),
+          map(userKeys, (key) => {
+            if (key === 'address') {
+              return `\n> Address: ${tgFormatAddress(get(userData, 'address'))}`;
+            }
+            if (get(userData, key)) {
+              return `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}`;
+            }
+            return undefined;
+          }),
         );
 
         await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {

@@ -11,9 +11,9 @@ import { parseCouncilSlug } from 'utils';
 const LINKS = [
   { label: 'Transactions', href: 'transactions' },
   { label: 'Assets', href: 'assets' },
+  { label: 'Join', href: 'join' },
   { label: 'Members', href: 'members' },
   { label: 'Manage', href: 'manage' },
-  { label: 'Join', href: 'join' },
 ];
 
 const CouncilButtons = () => {
@@ -43,7 +43,7 @@ const CouncilButtons = () => {
         const isLast = i === links.length - 1;
 
         // TODO check that signers are still active wearers/eligible
-        if (size(signers) === toNumber(primarySignerHat?.maxSupply)) {
+        if (href === 'join' && size(signers) === toNumber(primarySignerHat?.maxSupply)) {
           return null;
         }
 

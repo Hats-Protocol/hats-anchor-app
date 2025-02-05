@@ -97,7 +97,6 @@ export const UPDATE_PAYER = gql`
       id
       payer {
         ...UserFragment
-        telegram
       }
     }
   }

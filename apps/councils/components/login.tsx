@@ -64,7 +64,7 @@ const Login = () => {
     }
   };
 
-  if (!ready) {
+  if (!ready || isLoading) {
     return <Skeleton className='h-10 w-[100px] rounded-md md:w-[200px]' />;
   }
 
@@ -86,7 +86,7 @@ const Login = () => {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-[240px] border border-gray-200 bg-white p-0' role='menu'>
+        <PopoverContent className='w-[240px] border border-gray-200 bg-white p-0' role='menu' align='end'>
           <div className='p-1'>
             <p className='px-2 py-1.5 text-sm font-medium text-gray-500' id='network-list-title'>
               Switch Networks

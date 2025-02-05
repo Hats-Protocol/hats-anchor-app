@@ -16,7 +16,7 @@ import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
 import { Login } from '../login';
 import { NextStepButton } from '../next-step-button';
-import Deploy from './deploy';
+import { Deploy } from './deploy';
 import { PaymentDetailsModal } from './payment-details-modal';
 
 const Currency = dynamic(() => import('icons').then((mod) => mod.Currency), { ssr: false });

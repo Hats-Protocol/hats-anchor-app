@@ -1,5 +1,3 @@
-'use client';
-
 import { CouncilListPage } from '../components/council-list-page';
 
 const Home = () => {
