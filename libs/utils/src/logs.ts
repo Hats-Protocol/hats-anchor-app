@@ -56,3 +56,16 @@ export class ConsoleLogger implements Logger {
 }
 
 export const logger = new ConsoleLogger();
+
+/**
+ * Only shows logs in development -- for debugging without worrying about logs in production
+ * Use by importing logger and then `logger('some message')`
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const simpleLogger = (...args: any[]) => {
+  if (process.env.NODE_ENV !== 'production') {
+    return console.log(...args);
+  }
+};
+
+export default simpleLogger;
