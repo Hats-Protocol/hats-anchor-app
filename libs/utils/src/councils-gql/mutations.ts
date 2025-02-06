@@ -9,6 +9,7 @@ export const UPDATE_COUNCIL_FORM = gql`
     $organizationName: String
     $councilName: String
     $chain: Int
+    $deployed: Boolean
     $councilDescription: String
     $membersSelectionType: MemberSelectionType
     $thresholdType: ThresholdType
@@ -33,6 +34,7 @@ export const UPDATE_COUNCIL_FORM = gql`
       councilId: $councilId
       councilName: $councilName
       chain: $chain
+      deployed: $deployed
       councilDescription: $councilDescription
       membersSelectionType: $membersSelectionType
       thresholdType: $thresholdType
@@ -97,7 +99,6 @@ export const UPDATE_PAYER = gql`
       id
       payer {
         ...UserFragment
-        telegram
       }
     }
   }
@@ -170,4 +171,13 @@ export const CREATE_INITIAL_FORM = gql`
     }
   }
   ${USER_FRAGMENT}
+`;
+
+export const UPDATE_COUNCIL = gql`
+  mutation UpdateCouncil($id: ID!, $deployed: Boolean!) {
+    updateCouncil(id: $id, deployed: $deployed) {
+      id
+      deployed
+    }
+  }
 `;

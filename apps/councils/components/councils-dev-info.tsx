@@ -1,14 +1,15 @@
 'use client';
 
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
-import { useCouncilDetails } from 'hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCouncilDetails, useOffchainCouncilDetails, useToast } from 'hooks';
 import { compact, get, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { DevInfo } from 'molecules';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
-import { Link } from 'ui';
-import { explorerUrl, formatAddress, hatLink, parseCouncilSlug } from 'utils';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Switch } from 'ui';
+import { councilsGraphqlClient, explorerUrl, formatAddress, hatLink, parseCouncilSlug, UPDATE_COUNCIL } from 'utils';
 import { Hex } from 'viem';
 
 import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
@@ -16,9 +17,15 @@ import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
 const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
 
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
     address,
+  });
+  const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
+    chainId: chainId ?? 11155111,
+    hsg: address as Hex,
   });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
@@ -29,6 +36,32 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { data: eligibilityRules } = useEligibilityRules({
     chainId: chainId as SupportedChains,
     address: eligibilityModule,
+  });
+  console.log({ offchainCouncilDetails });
+
+  const { mutateAsync: updateIsPaid } = useMutation({
+    mutationFn: async (checked: boolean) => {
+      return councilsGraphqlClient
+        .request(UPDATE_COUNCIL, {
+          id: offchainCouncilDetails?.id,
+          deployed: checked,
+        })
+        .then(() => {
+          toast({
+            title: checked ? 'Council is now active' : 'Council is no longer active',
+            description: 'Council updated successfully',
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: 'Error updating council',
+            description: error.message,
+          });
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['offchainCouncilData'] });
+    },
   });
 
   // TODO easy way to get MCH details?
@@ -120,6 +153,28 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
       <DevInfo title='HSG Info' devInfos={hsgInfo} />
 
       <EligibilityRulesDevInfo chainId={chainId} eligibilityRules={eligibilityRules || undefined} />
+
+      <div className='flex items-center gap-2'>
+        <Switch
+          checked={offchainCouncilDetails?.deployed}
+          onCheckedChange={updateIsPaid}
+          className={cn('data-[state=checked]:bg-green-500', 'data-[state=unchecked]:bg-red-500')}
+        />
+        <p className='hover:cursor-pointer' onClick={() => updateIsPaid(!offchainCouncilDetails?.deployed)}>
+          {offchainCouncilDetails?.deployed ? 'Active' : 'Inactive'}
+        </p>
+      </div>
+
+      <Accordion type='single' collapsible>
+        <AccordionItem value='offchain-council-details'>
+          <AccordionTrigger className='flex w-full items-center justify-between'>
+            <h3>Offchain Council Details</h3>
+          </AccordionTrigger>
+          <AccordionContent className='overflow-y-scroll bg-black/80'>
+            <pre className='text-white'>{JSON.stringify(offchainCouncilDetails, null, 2)}</pre>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 };

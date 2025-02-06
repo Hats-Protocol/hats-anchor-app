@@ -6,5 +6,6 @@ export const USER_FRAGMENT = gql`
     address
     email
     name
+    telegram
   }
 `;

@@ -44,6 +44,7 @@ export type OffchainCouncilData = {
     address: string;
     minimum: number;
   };
+  deployed: boolean;
 };
 
 export interface CompletedOptionalSteps {
