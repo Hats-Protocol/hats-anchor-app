@@ -237,9 +237,11 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                   >
                     <div
                       className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
-                        status === 'current'
-                          ? 'border-functional-link-primary bg-functional-link-primary/10 border'
-                          : 'border border-gray-200 bg-white'
+                        status === 'completed'
+                          ? 'border-none bg-white'
+                          : status === 'current'
+                            ? 'border-functional-link-primary bg-functional-link-primary/10 border'
+                            : 'border border-gray-200 bg-white'
                       }`}
                     >
                       {status === 'completed' ? (
@@ -260,10 +262,10 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                           </g>
                         </svg>
                       ) : (
-                        <span className='text-sm text-gray-500'>{subIndex + 1}</span>
+                        <span className='text-sm text-gray-900'>{subIndex + 1}</span>
                       )}
                     </div>
-                    <span className='text-sm text-gray-600'>{subStep.label}</span>
+                    <span className='text-sm text-gray-900'>{subStep.label}</span>
                   </button>
                 );
               })}
