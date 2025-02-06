@@ -170,11 +170,15 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                 {/* Main step circle */}
                 <div
                   className={cn(
-                    'flex h-12 w-12 items-center justify-center rounded-full shadow-sm',
-                    getStepValidation(step, stepValidation, requirements)
-                      ? 'bg-white shadow-sm'
-                      : 'border-2 border-gray-200',
-                    index === currentStepIndex && 'border-functional-link-primary bg-sky-100',
+                    'flex h-12 w-12 items-center justify-center rounded-full',
+                    // Base case - incomplete step
+                    'border-2',
+                    // Handle the three states in order of priority
+                    index === currentStepIndex
+                      ? 'border-functional-link-primary bg-sky-100 shadow-sm' // Active state
+                      : getStepValidation(step, stepValidation, requirements)
+                        ? 'border-none bg-white shadow-sm' // Completed state using exact hex color
+                        : 'border-gray-200 bg-white', // Incomplete state
                   )}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
@@ -213,7 +217,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
 
               <div className=''>
                 <span className='text-base font-medium text-gray-900'>{step.label}</span>
-                <span className='block text-sm text-gray-500'>{getStepSummary(step, form, stepValidation)}</span>
+                <span className='block text-sm text-gray-900'>{getStepSummary(step, form, stepValidation)}</span>
               </div>
             </div>
           </button>
