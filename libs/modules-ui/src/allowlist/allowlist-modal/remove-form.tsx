@@ -1,10 +1,12 @@
 import { isEmpty, map, size, subtract } from 'lodash';
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { AllowlistProfile } from 'types';
 import { Button, Card } from 'ui';
 import { formatAddress } from 'utils';
 
-export const RemoveForm = ({
+// currently doesn't require a Form handler/context
+
+const RemoveForm = ({
   updateList,
   setUpdateList,
   setUpdating,
@@ -65,3 +67,5 @@ export const RemoveForm = ({
     </div>
   );
 };
+
+export { RemoveForm };

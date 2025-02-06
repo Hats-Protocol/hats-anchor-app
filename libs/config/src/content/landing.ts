@@ -165,7 +165,7 @@ export const INTEGRATION_CARDS: IntegrationCard[] = [
   {
     label: 'Control onchain assets and Safe signer rights',
     icons: [Safe, HatIcon, Allo],
-    link: `${LANDING_URL}/wearer/secure-safe-management-for-daos`,
+    link: `${LANDING_URL}/wearer/multisigs`,
   },
   {
     label: 'Automate contributor access & permissions',

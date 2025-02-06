@@ -101,12 +101,12 @@ const WearerRow = ({
   let bgColor = 'transparent';
   let color = 'informative-human';
   if (isIneligible) {
-    color = 'gray-500';
+    color = 'text-gray-500';
   } else if (isSameAddress(wearer.id, address)) {
-    bgColor = 'green-100';
-    color = 'green-800';
+    bgColor = 'bg-green-100';
+    color = 'text-green-800';
   } else if (wearer.isContract && !controllerName.includes('Safe')) {
-    color = 'informative-code';
+    color = 'text-informative-code';
   }
 
   const displayName = get(wearer, 'ensName') || controllerName || formatAddress(get(wearer, 'id'));
@@ -137,7 +137,7 @@ const WearerRow = ({
               <Button
                 variant='link'
                 size='xs'
-                className='text-functional-link-secondary'
+                className='text-functional-link-primary'
                 disabled={!isSameChain}
                 onClick={() => {
                   setModals?.({ transferHat: true });
@@ -180,8 +180,8 @@ const WearerRow = ({
           )}
 
         {!isSameAddress(wearer.id, address) ? ( // if not current user, show copy button
-          <Button className='p-0' size='xs' variant='link' aria-label='Copy wearer address' onClick={copyAddress}>
-            <CopyAddress className='mr-1 size-4 text-blue-500' />
+          <Button size='xs' variant='link' aria-label='Copy wearer address' onClick={copyAddress}>
+            <CopyAddress className='text-functional-link-primary mr-1 size-4' />
             Copy
           </Button>
         ) : (

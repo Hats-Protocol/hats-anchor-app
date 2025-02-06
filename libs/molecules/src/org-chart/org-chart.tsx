@@ -533,13 +533,14 @@ function OrgChartComponent() {
   // }
 
   return (
-    <div className='pt-145px relative h-[calc(100%+5px)] min-h-full'>
-      <div className='h-full overflow-hidden' ref={d3Container} id='d3Container' />
+    <div className='relative h-[calc(100%-145px)] pt-[145px]'>
+      <div style={{ height: '100%', overflow: 'hidden' }} ref={d3Container} id='d3Container' />
 
-      <div className='left-85 absolute bottom-4 flex'>
+      {/* Not totally sure why so much bottom needed here */}
+      <div className='absolute bottom-[160px] left-5 flex gap-2'>
         <Button
           variant='outline'
-          className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
+          className={cn('bg-white/80', editMode && 'bg-[#C4F1F9]')}
           onClick={() => {
             chart?.expandAll();
             chart?.fit();
@@ -560,7 +561,7 @@ function OrgChartComponent() {
             }}
             disabled={!isEmpty(collapsedNodes)} // add edit mode here?
             variant='outline'
-            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
+            className={cn('bg-white/80', editMode && 'bg-[#C4F1F9]')}
           >
             {compact ? 'Full View' : 'Compact View'}
           </Button>
@@ -579,23 +580,23 @@ function OrgChartComponent() {
             }}
             disabled={!isEmpty(collapsedNodes)} // add edit mode here?
             variant='outline'
-            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
+            className={cn('bg-white/80', editMode && 'bg-[#C4F1F9]')}
           >
             Flip Tree
           </Button>
         </Tooltip>
-        <div className='flex gap-2'>
+        <div className='flex gap-1'>
           <Button
-            variant='ghost'
-            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
+            variant='outline'
+            className={cn('bg-white/80', editMode && 'bg-[#C4F1F9]')}
             aria-label='zoom out'
             onClick={() => chart?.zoomOut()}
           >
             <FaMinus />
           </Button>
           <Button
-            variant='ghost'
-            className={cn('bg-whiteAlpha-800', editMode && 'bg-[#C4F1F9]')}
+            variant='outline'
+            className={cn('bg-white/80', editMode && 'bg-[#C4F1F9]')}
             aria-label='zoom in'
             onClick={() => chart?.zoomIn()}
           >

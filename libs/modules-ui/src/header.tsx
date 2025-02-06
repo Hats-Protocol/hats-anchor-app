@@ -10,6 +10,8 @@ import { Badge, Button, cn, LazyImage, Markdown, Skeleton, Tooltip } from 'ui';
 
 const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
+// TODO can we combine with the hat-drawer/header ?
+
 export const Header = () => {
   const { selectedHat, isHatDetailsLoading, selectedHatDetails } = useEligibility();
   const { onCopy } = useClipboard(selectedHat?.id as string); // TODO toastData: { title: 'Successfully copied hat ID to clipboard' },
@@ -87,7 +89,11 @@ export const Header = () => {
             <h2 className='text-2xl font-bold'>{name || selectedHat?.details}</h2>
           </Tooltip>
 
-          <Button variant='link' color='blue.500' onClick={onCopy}>
+          <Button
+            variant='link'
+            className='text-functional-link-primary hover:text-functional-link-primary/80'
+            onClick={onCopy}
+          >
             <p>{hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}</p>
             <CopyHash className='h-4 w-4' />
           </Button>

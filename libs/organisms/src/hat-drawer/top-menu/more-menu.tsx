@@ -119,13 +119,15 @@ const MoreMenu = () => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <div className='flex items-center gap-1'>
-            <FaEllipsisV />
-            <p>More</p>
-          </div>
+        <DropdownMenuTrigger asChild>
+          <Button variant='outline' type='button'>
+            <div className='flex items-center gap-1'>
+              <FaEllipsisV className='size-4' />
+              <p>More</p>
+            </div>
+          </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align='end'>
           <div className='gap-5'>
             {/* OFF-CHAIN ACTIONS */}
             <DropdownMenuGroup title='Off-chain Actions'>

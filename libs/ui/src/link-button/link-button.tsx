@@ -12,6 +12,7 @@ interface LinkButtonProps extends ButtonProps {
   isExternal?: boolean;
   size?: 'default' | 'sm' | 'lg';
   children?: ReactNode;
+  textClassName?: string;
 }
 
 interface BaseLinkButtonProps extends Omit<LinkButtonProps, 'onClick'> {
@@ -19,7 +20,7 @@ interface BaseLinkButtonProps extends Omit<LinkButtonProps, 'onClick'> {
 }
 
 const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLinkButtonProps> = (
-  { onClick, href, variant, leftIcon, rightIcon, isExternal, size, children, className },
+  { onClick, href, variant, leftIcon, rightIcon, isExternal, size, children, className, textClassName },
   ref,
 ) => {
   return (
@@ -31,9 +32,9 @@ const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLink
         target={isExternal ? '_blank' : undefined}
         rel={isExternal ? 'noopener noreferrer' : undefined}
       >
-        <div className={cn('flex items-center gap-3')}>
+        <div className={cn('flex items-center gap-2')}>
           {leftIcon}
-          <p className={cn('text-sm')}>{children}</p>
+          <p className={cn(textClassName || 'text-sm')}>{children}</p>
           {rightIcon}
         </div>
       </a>
@@ -43,12 +44,11 @@ const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLink
 
 const ForwardedLinkButton = React.forwardRef(BaseLinkButton);
 
-// TODO [med] use button variant
 export function LinkButton({
   href,
   leftIcon,
   rightIcon,
-  variant = 'default',
+  variant = 'default', // could this be better as `link`?
   children,
   onClick,
   ...props

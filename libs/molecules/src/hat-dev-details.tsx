@@ -2,6 +2,7 @@
 
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
+import { useToast } from 'hooks';
 import { get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
@@ -14,6 +15,7 @@ const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress)
 const HatDevDetails = () => {
   const { treeId } = useTreeForm();
   const { selectedHat, eligibilityInfo, chainId, isClaimable } = useSelectedHat();
+  const { toast } = useToast();
 
   const devData = useMemo(() => {
     return [
@@ -66,7 +68,9 @@ const HatDevDetails = () => {
 
             if (!value) return;
             navigator.clipboard.writeText(value);
-            // TODO toast
+            toast({
+              title: 'Copied to clipboard',
+            });
           };
 
           return (
@@ -75,8 +79,8 @@ const HatDevDetails = () => {
               <Link href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`} isExternal>
                 {formatAddress(get(data, 'value'))}
               </Link>
-              <Button variant='outline' onClick={devDataClick}>
-                <CopyAddress />
+              <Button variant='link' onClick={devDataClick}>
+                <CopyAddress className='size-4' />
               </Button>
             </div>
           );

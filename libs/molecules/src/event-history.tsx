@@ -8,7 +8,7 @@ import { first, get, last, map, take } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
-import { Button, Link } from 'ui';
+import { Button, LinkButton } from 'ui';
 import { explorerUrl, parseEventName } from 'utils';
 
 const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
@@ -70,15 +70,17 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
 
   return (
     <div className='flex items-center justify-between py-2' key={`${event.transactionID}-${event.id}`}>
-      <p className='text-slate-800'>{eventDisplayName}</p>
+      <p className='text-sm text-slate-800'>{eventDisplayName}</p>
 
-      <Link href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`} className='block' isExternal>
-        <div className='text-functional-link-primary flex items-center justify-center gap-2'>
-          <p>{`${formatDistanceToNow(new Date(Number(event.timestamp) * 1000))} ago`}</p>
-
-          <Etherscan className='h-4 w-4' />
-        </div>
-      </Link>
+      <LinkButton
+        href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`}
+        variant='link'
+        className='text-functional-link-primary block'
+        isExternal
+        rightIcon={<Etherscan className='h-4 w-4' />}
+      >
+        {`${formatDistanceToNow(new Date(Number(event.timestamp) * 1000))} ago`}
+      </LinkButton>
     </div>
   );
 };

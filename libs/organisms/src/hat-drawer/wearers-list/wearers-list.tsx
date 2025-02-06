@@ -93,7 +93,7 @@ const WearersList = () => {
     <>
       <div className='flex w-full flex-col gap-4 px-4 md:px-16'>
         <div className='flex w-full flex-col items-center justify-between gap-2'>
-          <div className='flex w-full gap-1'>
+          <div className='flex w-full items-center gap-1'>
             <h2 className='text-md font-medium'>
               {get(selectedHat, 'currentSupply')}{' '}
               {toNumber(get(selectedHat, 'currentSupply')) === 1 ? 'Wearer' : 'Wearers'} of this Hat

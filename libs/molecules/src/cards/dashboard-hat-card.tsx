@@ -20,7 +20,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
     : `trees/${hat.chainId}/${Number(hatIdToTreeId(BigInt(hat.id)))}?hatId=${hatIdDecimalToIp(BigInt(hat.id))}`;
 
   return (
-    <Link href={hatLink}>
+    <Link href={hatLink} className='hover:no-underline'>
       <Card className='h-24 overflow-hidden rounded-md p-4'>
         <div className='flex items-center gap-4'>
           <LazyImage

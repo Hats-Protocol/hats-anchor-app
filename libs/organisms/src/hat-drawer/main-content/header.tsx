@@ -39,7 +39,7 @@ const Header = () => {
   const levelAtLocalTree = selectedHat?.levelAtLocalTree || 0;
   const mutableStatus = selectedHat?.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE;
 
-  const { data: hatStatus } = useHatStatus({
+  const { data: hatStatus, isLoading: hatStatusLoading } = useHatStatus({
     selectedHat,
     chainId,
   });
@@ -47,11 +47,39 @@ const Header = () => {
 
   if (!selectedHat) return null;
 
+  if (hatLoading || hatStatusLoading) {
+    return (
+      <div className='space-y-4 bg-white px-4 pb-4 md:bg-transparent md:px-16'>
+        <div className='w-full space-y-2'>
+          <div className='min-h-150 md:min-h-auto pt-50 align-end flex w-full flex-col md:flex-row md:pt-0'>
+            <Skeleton className='size-120 block md:hidden' />
+
+            <div className='max-w-2/3 flex w-full flex-col justify-between gap-2 md:max-w-full md:flex-row'>
+              <Skeleton className='h-6 w-full' />
+
+              <div>
+                <Skeleton className='h-4 w-20' />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <Skeleton className='h-12 w-full' />
+          </div>
+
+          <div>
+            <Skeleton className='h-4 w-1/2' />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='space-y-4 bg-white px-4 pb-4 md:bg-transparent md:px-16'>
       <div className='w-full gap-1 space-y-2'>
         <div className='min-h-150 md:min-h-auto pt-50 align-end flex w-full flex-col md:flex-row md:pt-0'>
-          {isMobile && <LazyImage src={imageUrl} alt='hat image' containerClassName='size-120' />}
+          <LazyImage src={imageUrl} alt='hat image' containerClassName='block md:hidden size-120' />
 
           <div className='max-w-2/3 flex w-full flex-col justify-between gap-2 md:max-w-full md:flex-row'>
             <Tooltip label={name || selectedHat?.details}>
@@ -59,7 +87,11 @@ const Header = () => {
             </Tooltip>
 
             <div>
-              <Button variant='link' color='Functional-LinkPrimary' onClick={copyHatId}>
+              <Button
+                variant='link'
+                className='text-functional-link-primary hover:text-functional-link-primary/80 hover:no-underline'
+                onClick={copyHatId}
+              >
                 {hatIdDecimalToIp(BigInt(selectedHat?.id || 0))}
                 <CopyHash className='ml-1 size-4' />
               </Button>
@@ -75,11 +107,13 @@ const Header = () => {
 
       <div className='flex justify-center md:justify-start'>
         <div className='flex gap-2'>
-          {isCurrentWearer && <Badge className='bg-green-500'>My Hat</Badge>}
+          {isCurrentWearer && <Badge className='bg-functional-success'>My Hat</Badge>}
 
           <Badge
             className={cn(
-              mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0 ? 'bg-blue-500' : 'bg-red-500',
+              mutableStatus === MUTABILITY.MUTABLE || levelAtLocalTree === 0
+                ? 'bg-functional-link-primary'
+                : 'bg-destructive',
             )}
           >
             {levelAtLocalTree === 0 ? 'Top Hat' : mutableStatus}
@@ -87,11 +121,11 @@ const Header = () => {
 
           {levelAtLocalTree > 0 && (
             <>
-              <Badge className={cn(activeStatus === STATUS.ACTIVE ? 'bg-green-500' : 'bg-red-500')}>
+              <Badge className={cn(activeStatus === STATUS.ACTIVE ? 'bg-functional-success' : 'bg-destructive')}>
                 {activeStatus}
               </Badge>
 
-              <Badge>Level {levelAtLocalTree}</Badge>
+              <Badge className='bg-gray-400'>Level {levelAtLocalTree}</Badge>
             </>
           )}
         </div>

@@ -15,7 +15,7 @@ import { Hex } from 'viem';
 import { AboutModule, DevInfo, FILTER, Filter, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AllowlistForms } from './allowlist-forms';
 
-export const AllowlistModal = ({
+const AllowlistModal = ({
   eligibilityHatId,
   moduleInfo,
 }: {
@@ -153,3 +153,5 @@ export const AllowlistModal = ({
     </ModuleModal>
   );
 };
+
+export { AllowlistModal };

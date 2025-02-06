@@ -3,7 +3,7 @@
 import { CONFIG } from '@hatsprotocol/config';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
-import { capitalize, get, includes, isNaN, startsWith, toLower } from 'lodash';
+import { capitalize, get, includes, isNaN, startsWith } from 'lodash';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
 import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
@@ -32,8 +32,8 @@ const NavLinks = () => {
       <Link href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`} className='h-full'>
         <Button
           className={cn(
-            'h-full min-w-40 max-w-60 rounded-none bg-transparent hover:bg-gray-100 hover:no-underline',
-            includes(pathname, 'trees') && 'border-b-2 bg-gray-100',
+            'hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
+            includes(pathname, 'trees') && 'bg-functional-link-primary/10 border-b-2',
           )}
           variant='link'
           // data-active={includes(pathname, CONFIG.TERMS.trees)}
@@ -52,9 +52,12 @@ const NavLinks = () => {
       {address && (
         <Link href={`/${CONFIG.TERMS.wearers}/${address}`} className='h-full'>
           <Button
-            className='h-full min-w-40 max-w-60 rounded-none bg-transparent hover:bg-gray-100 active:border-b-2 active:bg-gray-100'
+            className={cn(
+              'hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
+              includes(pathname, 'wearers') && 'bg-functional-link-primary/10 border-b-2',
+            )}
             variant='link'
-            data-active={includes(toLower(pathname), toLower(address))}
+            // data-active={includes(toLower(pathname), toLower(address))}
           >
             <p className='text-lg'>{`My ${capitalize(CONFIG.TERMS.hats)}`}</p>
           </Button>
@@ -67,19 +70,21 @@ const NavLinks = () => {
             <Button variant='link'>Dev</Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent>
+          <DropdownMenuContent align='start'>
             <DropdownMenuItem asChild>
-              <Link href='/subgraphs'>Subgraphs</Link>
+              <Link href='/subgraphs' className='cursor-pointer'>
+                Subgraphs
+              </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
-              <Link href='/buidl/chain'>
+              <Link href='/buidl/chain' className='cursor-pointer'>
                 <p>Chain Module Deploy</p>
               </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
-              <Link href='/buidl/active'>
+              <Link href='/buidl/active' className='cursor-pointer'>
                 <p>Deactivate Hats</p>
               </Link>
             </DropdownMenuItem>

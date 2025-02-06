@@ -20,6 +20,7 @@ import {
   Button,
   cn,
   Link,
+  LinkButton,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -72,9 +73,9 @@ const TreeMenu = () => {
   // );
 
   return (
-    <div className='top-75 absolute z-[4] mb-5 flex h-[70px] w-full items-center justify-between bg-white/70 px-3'>
+    <div className='absolute top-[75px] z-[4] mb-5 flex h-[70px] w-full items-center justify-between bg-white/70 px-3'>
       <div className='flex w-full items-center justify-between'>
-        <div className='flex items-center'>
+        <div className='flex items-center gap-2'>
           <Button
             className='border border-[#0987A0] bg-[#C4F1F9] text-[#065666]'
             disabled={!treeToDisplay || !!treeError}
@@ -160,18 +161,20 @@ const TreeMenu = () => {
               </Stack>
             )} */}
 
-            <div className='flex items-center gap-1'>
+            <div className='flex flex-col items-end gap-1'>
               <div className='font-sm flex items-center gap-1'>
                 <p>{`${CONFIG.appName} ${CONFIG.protocolVersion}:`}</p>
 
-                <Link href={`${explorerUrl(chainId)}/address/${HATS_V1}`} isExternal>
-                  <div className='flex items-center gap-1'>
-                    <p className='font-medium'>{chain?.name}</p>
-                    <Button aria-label='Explorer contract address' size='xs' variant='ghost'>
-                      <FiExternalLink className='size-4' />
-                    </Button>
-                  </div>
-                </Link>
+                <LinkButton
+                  variant='link'
+                  href={`${explorerUrl(chainId)}/address/${HATS_V1}`}
+                  isExternal
+                  rightIcon={<FiExternalLink className='size-4' />}
+                  className='text-functional-link-primary hover:text-functional-link-primary/80 hover:no-underline'
+                  textClassName='text-base font-medium'
+                >
+                  {chain?.name}
+                </LinkButton>
               </div>
 
               {!treeError && (

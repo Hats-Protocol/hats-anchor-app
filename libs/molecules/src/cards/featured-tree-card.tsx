@@ -15,18 +15,18 @@ const FeaturedTreeCard = ({ treeData, hatsAndWearers }: FeatureTreeCardProps) =>
   }
 
   return (
-    <Link href={`/trees/${chainId}/${id}`} className='h-full min-h-[207px] rounded-md'>
+    <Link href={`/trees/${chainId}/${id}`} className='h-full min-h-[207px] rounded-md hover:no-underline'>
       <Card className='flex h-full flex-col justify-between rounded-md border border-gray-600 bg-white'>
         <div className='h-48 flex-1 rounded-t-md border-t bg-gray-100'>
           <LazyImage src={image} alt={`${name} featured image`} containerClassName='h-48 w-full rounded-t-md' />
         </div>
 
-        <div className='relative z-[5] w-full rounded-b-md px-4 py-2 shadow-md'>
-          <div className='mt-[-37.5px] inline-block'>
+        <div className='relative z-[4] w-full rounded-b-md px-4 py-2 shadow-md'>
+          <div className='absolute mt-[-37.5px]'>
             <LazyImage src={avatar} alt={`${name} featured avatar`} containerClassName='size-16' />
           </div>
 
-          <div className='ml-2 flex h-full w-full justify-between'>
+          <div className='flex w-full justify-between pl-20'>
             <p className='text-xl font-medium'>{name}</p>
 
             <div className='flex flex-col items-end gap-0.5'>

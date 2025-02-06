@@ -1,4 +1,4 @@
-import { MultiAddressInput } from 'forms';
+import { Form, MultiAddressInput } from 'forms';
 import { isEmpty, pick } from 'lodash';
 import { Dispatch, SetStateAction } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -11,31 +11,33 @@ const AddForm = ({ localForm, setUpdateList, setAdding, handleAddWearers, isLoad
   const isDisabled = isEmpty(addressesToAdd);
 
   return (
-    <div className='w-full space-y-6 px-4 md:px-10'>
-      <div className='space-y-1'>
-        <h3 className='text-md'>Add an address</h3>
+    <Form {...localForm}>
+      <div className='w-full space-y-6 px-4 md:px-10'>
+        <div className='space-y-1'>
+          <h3 className='text-md'>Add an address</h3>
 
-        <MultiAddressInput name='addresses' localForm={localForm} checkEligibility={false} btnSize='xs' />
+          <MultiAddressInput name='addresses' localForm={localForm} checkEligibility={false} btnSize='xs' />
+        </div>
+
+        <div className='flex w-full justify-between'>
+          <Button
+            size='sm'
+            variant='outline-blue'
+            onClick={() => {
+              setUpdateList([]);
+              setValue?.('addresses', []);
+              setAdding(false);
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button size='sm' onClick={handleAddWearers} disabled={isDisabled || isLoading}>
+            Add
+          </Button>
+        </div>
       </div>
-
-      <div className='flex w-full justify-between'>
-        <Button
-          size='sm'
-          variant='outline-blue'
-          onClick={() => {
-            setUpdateList([]);
-            setValue?.('addresses', []);
-            setAdding(false);
-          }}
-        >
-          Cancel
-        </Button>
-
-        <Button size='sm' onClick={handleAddWearers} disabled={isDisabled || isLoading}>
-          Add
-        </Button>
-      </div>
-    </div>
+    </Form>
   );
 };
 

@@ -36,7 +36,7 @@ const MainContent = ({
   if (!selectedHat) return null;
 
   return (
-    <div className='h-auto w-full overflow-y-auto bg-gray-50 pb-[100px] text-black/80 md:h-[calc-(100%-150px)] md:overflow-y-scroll md:bg-white/20 md:pb-[400px] md:backdrop-blur-[2px]'>
+    <div className='h-auto w-full space-y-4 overflow-y-auto bg-gray-50 pb-[100px] pt-12 text-black/80 md:h-[calc-(100%-150px)] md:overflow-y-scroll md:bg-white/20 md:pb-[400px] md:backdrop-blur-[2px]'>
       <Header />
 
       <AuthoritiesList />
