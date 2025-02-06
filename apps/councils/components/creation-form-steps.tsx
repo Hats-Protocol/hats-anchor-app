@@ -232,7 +232,11 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                     key={subStep.id}
                     onClick={() => handleStepNavigation('selection', subStep.id)}
                     className={`flex w-full items-center gap-3 border-l-[2px] ${
-                      status === 'completed' ? 'border-l-functional-link-primary' : 'border-l-gray-200'
+                      status === 'completed'
+                        ? 'border-l-functional-link-primary'
+                        : status === 'current'
+                          ? 'from-functional-link-primary border-l-transparent bg-gradient-to-b from-5% via-sky-100 via-20% to-gray-200 bg-[length:2px_100%] bg-[-2px_0] bg-no-repeat'
+                          : 'border-l-gray-200'
                     }`}
                   >
                     <div
@@ -240,7 +244,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                         status === 'completed'
                           ? 'border-none bg-white'
                           : status === 'current'
-                            ? 'border-functional-link-primary bg-functional-link-primary/10 border'
+                            ? 'border-functional-link-primary bg-functional-link-primary/10 border bg-sky-100'
                             : 'border border-gray-200 bg-white'
                       }`}
                     >
