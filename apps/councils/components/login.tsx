@@ -125,7 +125,7 @@ const Login = () => {
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className='border border-gray-200 bg-white'>
+        <PopoverContent className='border border-gray-200 bg-white' align='end'>
           <div className='p-4'>
             <div className='flex flex-col gap-4'>
               <div className='flex items-center gap-2'>

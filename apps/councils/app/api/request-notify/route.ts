@@ -7,16 +7,16 @@ if (!CUSTOMERIO_API_KEY) throw new Error('CUSTOMERIO_API_KEY is not set');
 export const POST = async (req: Request) => {
   // const { identifier } = req.body;
   const body = await req.json();
-  const { email, name, address } = pick(body, ['email', 'name', 'address']);
+  const { email, name, address, messageId, from } = pick(body, ['email', 'name', 'address', 'messageId', 'from']);
   console.log(body);
   // TODO check headers for frontend config
   // TODO submit these to a queue instead of sending immediately, check historical sends vs queue
+  // TODO check if email is hatsprotocol.xyz (or is a user)
 
   const client = new APIClient(CUSTOMERIO_API_KEY);
 
   const request = new SendEmailRequest({
-    // TODO pass message id
-    transactional_message_id: '2', // overridden by message content? (subject, body)
+    transactional_message_id: messageId, // overridden by message content? (subject, body)
     identifiers: {
       email: email,
       id: address,
@@ -26,7 +26,7 @@ export const POST = async (req: Request) => {
       address,
     },
     to: email || 'scott@hatsprotocol.xyz',
-    // from: 'scott@hatsprotocol.xyz', // ignored?
+    from: from || 'support@hatsprotocol.xyz',
     // subject: 'Test subject', // overrides transactional_message_id
     // body: 'Test body', // overrides transactional_message_id
   });
@@ -34,8 +34,10 @@ export const POST = async (req: Request) => {
   client
     .sendEmail(request)
     .then((res) => console.log(res))
-    .catch((err) => console.log(err.statusCode, err.message));
-  console.log('done');
+    .catch((err) => {
+      console.log(err.statusCode, err.message);
+      return Response.json({ message: 'Error', success: false }, { status: 500 });
+    });
 
-  return Response.json({ message: 'Hello, world!' }, { status: 200 });
+  return Response.json({ message: 'Email sent', success: true }, { status: 200 });
 };

@@ -16,6 +16,7 @@ export const FORM_FRAGMENT = gql`
     maxCouncilMembers
     thresholdTarget
     thresholdMin
+    deployed
     members {
       ...UserFragment
     }

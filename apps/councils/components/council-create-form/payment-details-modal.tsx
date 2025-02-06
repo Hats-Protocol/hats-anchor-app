@@ -3,7 +3,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, FormDescription, Input } from 'forms';
-import { capitalize, compact, get, keys, map, reject, toNumber } from 'lodash';
+import { capitalize, compact, get, includes, keys, map, reject, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -15,6 +15,7 @@ import {
   isValidEmail,
   logger,
   sendTelegramMessage,
+  tgFormatAddress,
   UPDATE_PAYER,
 } from 'utils';
 
