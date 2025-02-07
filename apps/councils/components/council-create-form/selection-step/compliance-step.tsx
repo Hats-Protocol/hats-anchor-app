@@ -34,7 +34,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
         <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
           <div className='flex items-center gap-4'>
             <BsPersonCheck className='h-6 w-6' />
-            <h2 className='text-2xl font-bold'>Compliance Requirement</h2>
+            <h2 className='text-2xl font-bold'>Configure Compliance Requirement</h2>
           </div>
 
           <div className='space-y-8'>

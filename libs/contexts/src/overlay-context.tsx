@@ -139,7 +139,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
    * @param props.clearModals defaults to true
    * @param props.sendSuccessToast defaults to true, override to false if you want to handle the toast in the onSuccess callback
    * @param props.onSuccess after the tx is successful, subgraph is synced and mesh is invalidated
-   * @returns {Promise<void>}
+   * @returns Promise<void>
    * @example
    * handlePendingTx({
    *  hash: '0x123',

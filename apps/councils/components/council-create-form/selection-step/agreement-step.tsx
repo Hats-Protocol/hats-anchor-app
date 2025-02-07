@@ -33,7 +33,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           <div className='space-y-4'>
             <div className='flex items-center gap-4'>
               <FileText />
-              <h2 className='text-2xl font-bold'>Council Member Agreement</h2>
+              <h2 className='text-2xl font-bold'>Configure Agreement</h2>
             </div>
           </div>
 

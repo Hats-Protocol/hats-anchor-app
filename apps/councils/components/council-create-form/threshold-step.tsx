@@ -1,7 +1,9 @@
 'use client';
 import { useCouncilForm } from 'contexts';
 import { Form, SignerThresholdSubForm } from 'forms';
+import { useSearchParams } from 'next/navigation';
 import { StepProps } from 'types';
+import { LinkButton } from 'ui';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -10,6 +12,8 @@ export function ThresholdStep({ onNext }: StepProps) {
   const { form, stepValidation, canEdit } = useCouncilForm();
   const { watch } = form;
   const { requirements } = watch();
+  const searchParams = useSearchParams();
+  const draftId = searchParams.get('draftId');
 
   const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, requirements);
 
@@ -25,7 +29,11 @@ export function ThresholdStep({ onNext }: StepProps) {
           <SignerThresholdSubForm form={form} isDisabled={!canEdit} />
         </div>
 
-        <div className='flex justify-end py-6'>
+        <div className='flex justify-between py-6'>
+          <LinkButton href={`/councils/new/details?draftId=${draftId}`} variant='outline' rounded='full'>
+            Back
+          </LinkButton>
+
           <NextStepButton disabled={!form.formState.isValid || !canEdit}>
             {getNextStepButtonText(nextStep)}
           </NextStepButton>

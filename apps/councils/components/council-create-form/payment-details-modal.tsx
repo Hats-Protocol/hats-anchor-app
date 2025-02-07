@@ -4,7 +4,6 @@ import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, FormDescription, Input } from 'forms';
 import { capitalize, compact, get, includes, keys, map, reject, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, SupportedChains } from 'types';
@@ -20,10 +19,6 @@ import {
 } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
-
-const UsdcIcon = dynamic(() => import('icons').then((mod) => mod.UsdcIcon), {
-  ssr: false,
-});
 
 interface PaymentDetailsModalProps {
   form: UseFormReturn<CouncilFormData>;
@@ -163,10 +158,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
                 Provide invoice contact information here and we&apos;ll reach out to setup a recurring payment system
                 that fits your preferences.
               </p>
-              <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
-                <UsdcIcon />
-                299 USDC / month
-              </p>
+              <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>0.1 ETH / month</p>
             </div>
 
             <div className='space-y-2'>

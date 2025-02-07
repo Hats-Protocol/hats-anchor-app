@@ -115,7 +115,7 @@ function getStepValidation(step: Step, stepValidation: StepValidation, requireme
 }
 
 function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
-  const { form, stepValidation, persistForm } = useCouncilForm();
+  const { form, stepValidation } = useCouncilForm();
   const router = useRouter();
   const requirements = form.watch('requirements');
 
@@ -139,7 +139,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
     async (targetStep: string, targetSubStep?: string) => {
       try {
         setIsNavigating(true);
-        await persistForm(currentStep, currentSubStep);
+        // await persistForm(currentStep, currentSubStep);
 
         if (targetStep === 'selection') {
           router.push(`/councils/new/${targetStep}?subStep=${targetSubStep || 'members'}&draftId=${draftId}`);
@@ -153,7 +153,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
         setIsNavigating(false);
       }
     },
-    [currentStep, currentSubStep, persistForm, router, draftId],
+    [router, draftId],
   );
 
   return (

@@ -45,7 +45,8 @@ const Navbar = () => {
           <img src='/hats.png' className='h-10 w-10' alt='Hats Logo' />
         </Link>
 
-        <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>
+        {chainId && address && <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>}
+        {createForm && <p className='text-lg font-bold'>New Hats Council</p>}
       </div>
 
       <Login />

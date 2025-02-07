@@ -46,7 +46,7 @@ export function OnboardingStep({ onNext }: StepProps) {
                 {
                   label: 'Appoint Council Members',
                   value: 'APPOINTED',
-                  description: 'Council Managers manually choose the set of council members',
+                  description: 'Select a list of eligible Council Members',
                   icon: DocumentChecks as IconType,
                 },
                 {

@@ -48,6 +48,7 @@ export type OffchainCouncilData = {
 };
 
 export interface CompletedOptionalSteps {
+  threshold: boolean;
   members: boolean;
   management: boolean;
   agreement: boolean;

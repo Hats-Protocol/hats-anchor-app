@@ -176,7 +176,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <div className='relative border-b border-gray-200 pb-6'>
         <div className='absolute right-0 top-0'>
           <Button type='button' variant='outline-blue' rounded='full' onClick={copyUrl}>
-            <Link className='h-4 w-4' /> Copy link
+            <Link className='h-4 w-4' /> Share Council Draft
           </Button>
         </div>
         <div className='flex flex-col items-center gap-1'>
@@ -380,7 +380,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                 >
                   privacy policy
                 </a>{' '}
-                and a monthly fee of $299 to be paid in USDC
+                and a monthly fee of 0.1 ETH to be paid via invoice
               </label>
             </div>
 

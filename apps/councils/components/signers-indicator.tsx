@@ -48,8 +48,7 @@ const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorPr
         </p>
       ) : (
         <p className='text-center'>
-          {signers > 0 ? signers : 'No'} signer{signers > 1 || signers === 0 ? 's' : ''} of {threshold} required and{' '}
-          {maxSigners} max
+          {signers > 0 ? signers : 'No'} out of {maxSigners} council members have joined
         </p>
       )}
     </div>

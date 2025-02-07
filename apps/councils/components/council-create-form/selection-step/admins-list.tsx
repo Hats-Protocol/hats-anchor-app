@@ -45,7 +45,7 @@ function AdminCard({
   const { setModals } = useOverlay();
 
   const handleEdit = () => {
-    setModals?.({ [`addComplianceModal-${admin.id}`]: true });
+    setModals?.({ [`addAdminModal-${admin.id}`]: true });
   };
 
   const handleRemove = () => {

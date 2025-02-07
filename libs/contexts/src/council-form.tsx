@@ -46,6 +46,7 @@ import {
 } from 'types';
 import {
   addCouncilForForm,
+  chainIdToString,
   chainsMap,
   councilsGraphqlClient,
   createHatsClient,
@@ -114,13 +115,14 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
       data.councilName !== '' &&
       data.chain !== null
     ),
-    threshold: !!(
-      data.maxCouncilMembers &&
-      data.maxCouncilMembers > 0 &&
-      data.thresholdType &&
-      data.thresholdTarget &&
-      data.thresholdTarget > 0
-    ),
+    threshold:
+      !!(
+        data.maxCouncilMembers &&
+        data.maxCouncilMembers > 0 &&
+        data.thresholdType &&
+        data.thresholdTarget &&
+        data.thresholdTarget > 0
+      ) && data.completedOptionalSteps.threshold,
     onboarding: !!data.membersSelectionType,
     selection: false, // Main step validity will be computed from sub-steps
     selectionSubSteps: {
@@ -162,6 +164,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { handlePendingTx } = useOverlay();
   const router = useRouter();
   const [optionalSteps, setOptionalSteps] = useLocalStorage<CompletedOptionalSteps>(`${draftId}-optionalSteps`, {
+    threshold: false,
     members: false,
     management: false,
     agreement: false,
@@ -328,6 +331,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       },
       creator: data.creator || '',
       completedOptionalSteps: {
+        threshold: optionalSteps.threshold || false,
         members: optionalSteps.members || false,
         management: optionalSteps.management || false,
         agreement: optionalSteps.agreement || false,
@@ -386,6 +390,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           break;
 
         case 'threshold':
+          toggleOptionalStep('threshold');
           payload = {
             ...payload,
             thresholdType: formData.thresholdType,
@@ -1238,15 +1243,14 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           setDeployStatus((prev) => ({ ...prev, redirect: true }));
 
           const appUrl = window.location.origin || 'https://hats-app.vercel.app';
-          const chainName = toLower(chainsMap(chainId)?.name);
-          const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${capitalize(chainName)}: `;
-          const links = `[View Council](${appUrl}/councils/${slugify(chainName)}:${hsgAddress}/members)\n[View HSG \\(${hsgAddress}\\)](${explorerUrl(chainId)}/address/${hsgAddress}) `;
+          const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainsMap(chainId)?.name}: `;
+          const links = `[View Council](${appUrl}/councils/${chainIdToString(chainId)}:${hsgAddress}/members)\n[View HSG \\(${hsgAddress}\\)](${explorerUrl(chainId)}/address/${hsgAddress}) `;
 
           sendTelegramMessage(`${message} ${links}`);
           logger.debug('Telegram notification sent');
           // TODO email notification
 
-          const redirectUrl = `/councils/${slugify(chainName)}:${hsgAddress}/members`;
+          const redirectUrl = `/councils/${chainIdToString(chainId)}:${hsgAddress}/members`;
 
           logger.debug('redirecting to ', redirectUrl);
           router.push(redirectUrl);

@@ -31,7 +31,7 @@ export function SelectionTokensStep({ onNext }: StepProps) {
         <div className='space-y-2'>
           <div className='flex items-center gap-3'>
             <GemIcon />
-            <h2 className='text-2xl font-bold'>Token Requirement</h2>
+            <h2 className='text-2xl font-bold'>Configure Token Requirement</h2>
           </div>
         </div>
 
