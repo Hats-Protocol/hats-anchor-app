@@ -144,14 +144,17 @@ export function AddMemberModal({ form: parentForm, editingMember, canEdit = true
               />
             </div>
             <div className='space-y-2'>
-              <label className='font-bold'>
+              {/* <label className='font-bold'>
                 Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-              </label>
+              </label> */}
               <Input
                 name='email'
                 localForm={modalForm}
+                tooltip={`The email addresses are only visible to Council Admins and are primarily used as contact information for council invitation and notifications`}
+                label='Email Address'
                 placeholder='Email that receives the council invite'
                 isDisabled={!canEdit}
+                variant='councils'
                 options={{
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,

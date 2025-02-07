@@ -27,7 +27,10 @@ const TooltipContent = React.forwardRef<
         className,
       )}
       {...props}
-    />
+    >
+      {props.children}
+      <TooltipPrimitive.Arrow className='fill-primary' />
+    </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
@@ -35,16 +38,18 @@ TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 interface TooltipProps extends RadixTooltipProps {
   label: string | undefined;
   children: React.ReactNode;
+  className?: string;
+  side?: 'top' | 'right' | 'bottom' | 'left';
 }
 
-const Tooltip = ({ label, children }: TooltipProps) => {
+const Tooltip = ({ label, children, className, side = 'bottom' }: TooltipProps) => {
   if (!label) return children;
 
   return (
     <TooltipProvider>
       <TooltipRoot>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent className={className} side={side}>
           <p>{label}</p>
         </TooltipContent>
       </TooltipRoot>
