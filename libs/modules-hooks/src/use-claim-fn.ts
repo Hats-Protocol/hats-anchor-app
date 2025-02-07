@@ -1,5 +1,5 @@
 import { CONFIG } from '@hatsprotocol/config';
-import { CLAIM_STATUS, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
+import { CLAIM_STATUS } from '@hatsprotocol/constants';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -8,6 +8,7 @@ import { useAgreementClaimsHatterContractWrite } from 'hooks';
 import { find, get, pick } from 'lodash';
 import { useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, ModuleDetails, SupportedChains } from 'types';
+import { getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 
@@ -128,7 +129,7 @@ export const useClaimFn = ({
   });
 
   const claimHandlers = useMemo(() => {
-    if (selectedHat?.id === CONFIG.agreementV0.communityHatId) {
+    if (chainId === 10 && selectedHat?.id === CONFIG.agreementV0.communityHatId) {
       const agreementV0 = '0xd0929e6ae5406cbee08604de99f83cf2ce52d903'; // Community Hat module, to be deprecated in season 4
       const notReady = !get(isReadyToClaim, agreementV0, false);
 
@@ -140,20 +141,19 @@ export const useClaimFn = ({
       };
     }
 
-    if (!moduleDetails?.instanceAddress) {
+    if (!moduleDetails?.implementationAddress || !moduleDetails.instanceAddress) {
       return { claimFn: undefined, disableClaim: true, requireHatter: false };
     }
 
-    // TODO match on implementation address/module key
-    if (moduleDetails?.name === ELIGIBILITY_MODULES.agreement) {
+    if (getKnownEligibilityModule(moduleDetails.implementationAddress as Hex) === 'agreement') {
       return {
         claimFn: agreementClaim,
         requireHatter: true,
-        disableClaim: !get(isReadyToClaim, moduleDetails?.instanceAddress, false) && !isEligible,
+        disableClaim: !get(isReadyToClaim, moduleDetails.instanceAddress, false) && !isEligible,
       };
     }
 
-    if (moduleDetails?.name === ELIGIBILITY_MODULES.unlock) {
+    if (getKnownEligibilityModule(moduleDetails.implementationAddress as Hex) === 'unlock') {
       return {
         claimFn: subscriptionClaim,
         requireHatter: false, // TODO could check if subscription module is wearing appropriate admin hat
@@ -162,7 +162,7 @@ export const useClaimFn = ({
       };
     }
 
-    if (moduleDetails?.name === ELIGIBILITY_MODULES.election) {
+    if (getKnownEligibilityModule(moduleDetails.implementationAddress as Hex) === 'election') {
       // TODO hook up
       return { claimFn: () => undefined, disableClaim: true, requireHatter: true };
     }
@@ -170,7 +170,7 @@ export const useClaimFn = ({
     // TODO fallback to claim with MCH when eligible
     return { claimFn: undefined, disableClaim: true, requireHatter: true };
   }, [
-    moduleDetails?.name,
+    moduleDetails?.implementationAddress,
     moduleDetails?.instanceAddress,
     selectedHat?.id,
     agreementClaim,
@@ -180,6 +180,7 @@ export const useClaimFn = ({
     subscriptionDisableReason,
     isReadyToClaim,
     isEligible,
+    chainId,
   ]);
 
   const handleClaim = async () => {

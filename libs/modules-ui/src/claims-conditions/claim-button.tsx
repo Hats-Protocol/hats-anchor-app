@@ -32,12 +32,13 @@ export const ClaimButton = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
-  const multipleRules = size(eligibilityRules) > 1;
+  const multipleRules = size(flatten(eligibilityRules)) > 1; // TODO hardcode flatten eligibilityRules (only handles single AND chains)
   const rulesNotAlreadyClaimed = filter(flatten(eligibilityRules), (rule) => {
     return (
       !get(currentEligibility, `${rule.address}.eligible`) || !get(currentEligibility, `${rule.address}.goodStanding`)
     );
   });
+
   const multipleModulesRemaining = size(rulesNotAlreadyClaimed) > 1;
 
   const moduleDetails = eligibilityRuleToModuleDetails(
