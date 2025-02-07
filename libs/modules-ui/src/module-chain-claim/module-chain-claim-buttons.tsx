@@ -97,25 +97,30 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
   };
 
   return (
-    <Button
-      variant='outline'
-      onClick={handleClick}
-      className={cn('block-size-auto h-auto w-auto justify-start whitespace-normal bg-white p-4', {
-        'border-2 border-gray-800': activeRule?.address === rule.address,
-        'border border-gray-300': activeRule?.address !== rule.address,
-      })}
-      key={rule.address}
-    >
-      <div className='flex flex-col gap-1'>
-        <p className='text-left'>{children}</p>
+    <div className='relative'>
+      <Button
+        variant='outline'
+        onClick={handleClick}
+        className={cn('block-size-auto h-auto w-auto justify-start whitespace-normal bg-white p-4', {
+          'border-2 border-gray-800': activeRule?.address === rule.address,
+          'border border-gray-300': activeRule?.address !== rule.address,
+        })}
+        key={rule.address}
+      >
+        <div className='flex flex-col gap-1'>
+          <p className='text-left'>{children}</p>
 
-        <EligibilityStatus
-          isEligible={isEligible}
-          isReadyToClaim={hasAllowance || get(isReadyToClaim, rule.address, false)}
-          customYesNo={customYesNo || yesNoForRule}
-        />
-      </div>
-    </Button>
+          <EligibilityStatus
+            isEligible={isEligible}
+            isReadyToClaim={hasAllowance || get(isReadyToClaim, rule.address, false)}
+            customYesNo={customYesNo || yesNoForRule}
+          />
+        </div>
+      </Button>
+      {activeRule?.address === rule.address && (
+        <div className='absolute bottom-0 left-1/2 h-4 w-[1px] -translate-x-1/2 translate-y-full bg-gray-300'></div>
+      )}
+    </div>
   );
 };
 
