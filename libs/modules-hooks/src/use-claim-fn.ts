@@ -6,13 +6,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
 import { useAgreementClaimsHatterContractWrite } from 'hooks';
 import { find, get, pick } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, ModuleDetails, SupportedChains } from 'types';
 import { getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 
 import { useAgreementClaim } from './use-agreement-claim';
+import { useHatClaimFor } from './use-hat-claim-for';
 import { useMultiClaimsHatterCheck } from './use-multi-claims-hatter-check';
 import { useSubscriptionClaim } from './use-subscription-claim';
 
@@ -54,13 +55,30 @@ export const useClaimFn = ({
 
   const {
     instanceAddress: mchAddress,
-    // currentHatIsClaimable,
-    // hatterIsAdmin,
+    currentHatIsClaimable,
+    hatterIsAdmin,
   } = useMultiClaimsHatterCheck({
     chainId,
     selectedHat,
     onchainHats: selectedHat ? [selectedHat] : [],
   });
+
+  const { claimHatFor } = useHatClaimFor({
+    selectedHat,
+    chainId,
+    wearer: address as Hex,
+    handlePendingTx,
+  });
+
+  const genericClaim = useCallback(async () => {
+    console.log('generic claim', address);
+    return claimHatFor(address as Hex)
+      .then((result) => {
+        console.log('generic claim result', result);
+        return result;
+      })
+      .catch((err) => console.log(err));
+  }, [claimHatFor, address]);
 
   // TODO handle check which module to enable each hook
 
@@ -129,6 +147,7 @@ export const useClaimFn = ({
   });
 
   const claimHandlers = useMemo(() => {
+    console.log('claim handlers', isReadyToClaim, moduleDetails);
     if (chainId === 10 && selectedHat?.id === CONFIG.agreementV0.communityHatId) {
       const agreementV0 = '0xd0929e6ae5406cbee08604de99f83cf2ce52d903'; // Community Hat module, to be deprecated in season 4
       const notReady = !get(isReadyToClaim, agreementV0, false);
@@ -141,19 +160,19 @@ export const useClaimFn = ({
       };
     }
 
-    if (!moduleDetails?.implementationAddress || !moduleDetails.instanceAddress) {
-      return { claimFn: undefined, disableClaim: true, requireHatter: false };
-    }
+    // if (!moduleDetails?.implementationAddress || !moduleDetails.instanceAddress) {
+    //   return { claimFn: undefined, disableClaim: true, requireHatter: false };
+    // }
 
-    if (getKnownEligibilityModule(moduleDetails.implementationAddress as Hex) === 'agreement') {
+    if (getKnownEligibilityModule(moduleDetails?.implementationAddress as Hex) === 'agreement') {
       return {
         claimFn: agreementClaim,
         requireHatter: true,
-        disableClaim: !get(isReadyToClaim, moduleDetails.instanceAddress, false) && !isEligible,
+        disableClaim: !get(isReadyToClaim, moduleDetails?.instanceAddress as Hex, false) && !isEligible,
       };
     }
 
-    if (getKnownEligibilityModule(moduleDetails.implementationAddress as Hex) === 'unlock') {
+    if (getKnownEligibilityModule(moduleDetails?.implementationAddress as Hex) === 'unlock') {
       return {
         claimFn: subscriptionClaim,
         requireHatter: false, // TODO could check if subscription module is wearing appropriate admin hat
@@ -162,13 +181,19 @@ export const useClaimFn = ({
       };
     }
 
-    if (getKnownEligibilityModule(moduleDetails.implementationAddress as Hex) === 'election') {
+    if (getKnownEligibilityModule(moduleDetails?.implementationAddress as Hex) === 'election') {
       // TODO hook up
-      return { claimFn: () => undefined, disableClaim: true, requireHatter: true };
+      return {
+        claimFn: () => undefined,
+        disableClaim: true,
+        disableReason: 'Election module not implemented',
+        requireHatter: true,
+      };
     }
+    console.log('generic claim');
 
     // TODO fallback to claim with MCH when eligible
-    return { claimFn: undefined, disableClaim: true, requireHatter: true };
+    return { claimFn: genericClaim, disableClaim: !currentHatIsClaimable || !hatterIsAdmin, requireHatter: true };
   }, [
     moduleDetails?.implementationAddress,
     moduleDetails?.instanceAddress,
@@ -181,6 +206,9 @@ export const useClaimFn = ({
     isReadyToClaim,
     isEligible,
     chainId,
+    currentHatIsClaimable,
+    hatterIsAdmin,
+    genericClaim,
   ]);
 
   const handleClaim = async () => {
