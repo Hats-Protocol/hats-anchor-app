@@ -5,7 +5,8 @@ import { concat, first, flatten, get, map, pick } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
-import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
+import React from 'react';
+import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule, LabeledModules } from 'types';
 import { cn } from 'ui';
 import { Button } from 'ui';
@@ -172,6 +173,26 @@ const sortRulesForClaims = (rules: EligibilityRule[]) => {
   );
 };
 
+const AndDecorator = () => (
+  <div className='flex items-center'>
+    <div className='relative flex h-[1px] w-16 items-center bg-gray-300'>
+      <div className='absolute left-1/2 top-1/2 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-300 bg-white text-xs font-medium text-gray-500'>
+        A
+      </div>
+    </div>
+  </div>
+);
+
+const ArrowDecorator = () => (
+  <div className='flex flex-1 items-center'>
+    <div className='relative flex h-[1px] w-full items-center bg-gray-300'>
+      <div className='absolute left-6 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full border border-gray-300 bg-white'>
+        <BsArrowRight className='h-3 w-3 text-gray-500' />
+      </div>
+    </div>
+  </div>
+);
+
 const ModuleChainClaimButtons = ({ labeledModules }: ModuleChainClaimButtonsProps) => {
   const { eligibilityRules } = useEligibility();
 
@@ -179,9 +200,12 @@ const ModuleChainClaimButtons = ({ labeledModules }: ModuleChainClaimButtonsProp
   const sortedRules = sortRulesForClaims(flatRules);
 
   return (
-    <div className='flex gap-2'>
-      {map(sortedRules, (rule) => (
-        <ModuleChainClaimButton key={`${rule.module.id}-${rule.address}`} rule={rule} labeledModules={labeledModules} />
+    <div className='flex flex-1 items-center'>
+      {map(sortedRules, (rule, index) => (
+        <React.Fragment key={`${rule.module.id}-${rule.address}`}>
+          <ModuleChainClaimButton rule={rule} labeledModules={labeledModules} />
+          {index < sortedRules.length - 1 ? <AndDecorator /> : <ArrowDecorator />}
+        </React.Fragment>
       ))}
     </div>
   );
