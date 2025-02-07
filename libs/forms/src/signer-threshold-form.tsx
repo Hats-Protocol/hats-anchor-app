@@ -19,9 +19,9 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
   return (
     <>
       <div className='space-y-2'>
-        <label className='font-bold'>How are decisions made for this council?</label>
         <RadioBox
           name='thresholdType'
+          label='How are decisions made for this council?'
           localForm={form}
           options={[
             { label: 'Fixed number of confirmations', value: 'ABSOLUTE' },
@@ -32,6 +32,7 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
           ]}
           textSize='md'
           isDisabled={isDisabled}
+          variant='councils'
         />
       </div>
 

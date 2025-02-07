@@ -1,7 +1,8 @@
 'use client';
 
+import { Info } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
-import { AiOutlineInfoCircle } from 'react-icons/ai';
+import { FaRegQuestionCircle } from 'react-icons/fa';
 import { cn, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
@@ -25,6 +26,7 @@ interface RadioBoxProps {
   tooltip?: string;
   subLabel?: string;
   isDisabled?: boolean;
+  variant?: 'default' | 'councils';
 }
 
 const RadioBox = ({
@@ -35,17 +37,36 @@ const RadioBox = ({
   defaultValue,
   isRequired,
   helperText,
-  // maxW,
   tooltip,
   subLabel,
   isDisabled,
   textSize = 'sm',
+  variant = 'default',
 }: RadioBoxProps) => {
   if (!localForm) return null;
 
   const { control } = localForm;
 
   const error = localForm.formState.errors[name]?.message;
+
+  const getVariantStyles = (variant: RadioBoxProps['variant'] = 'default') => {
+    switch (variant) {
+      case 'councils':
+        return {
+          label: 'text-base font-bold normal-case',
+          description: 'text-gray-400',
+          container: 'flex items-center justify-between w-full',
+          tooltipContainer: 'max-w-md',
+        };
+      default:
+        return {
+          label: 'text-sm font-normal uppercase',
+          description: '',
+          container: 'flex items-center gap-2',
+          tooltipContainer: 'max-w-xs',
+        };
+    }
+  };
 
   return (
     <FormField
@@ -56,19 +77,30 @@ const RadioBox = ({
           <div className='flex flex-col gap-2'>
             {label && (
               <div>
-                <div className='flex items-center gap-2'>
-                  {label && <FormLabel className='mb-0 text-sm font-normal'>{label.toUpperCase()}</FormLabel>}
+                <div className={getVariantStyles(variant).container}>
+                  <FormLabel className='mb-0'>
+                    <span className={getVariantStyles(variant).label}>
+                      {label}
+                      {isRequired && <span className='text-red-500'> *</span>}
+                      {subLabel && <span className='ml-2 text-sm font-normal text-gray-400'>{subLabel}</span>}
+                    </span>
+                  </FormLabel>
 
                   {tooltip && (
-                    <Tooltip label={tooltip}>
-                      <div className='bg-primary-500 flex h-6 w-6 items-center justify-center rounded-full'>
-                        <AiOutlineInfoCircle className='h-4 w-4' />
-                      </div>
+                    <Tooltip
+                      label={tooltip}
+                      delayDuration={100}
+                      className={getVariantStyles(variant).tooltipContainer}
+                      side={variant === 'councils' ? 'bottom' : 'top'}
+                    >
+                      {variant === 'councils' ? (
+                        <Info className='h-4 w-4 text-gray-400' />
+                      ) : (
+                        <FaRegQuestionCircle className='text-gray-400' />
+                      )}
                     </Tooltip>
                   )}
                 </div>
-
-                {subLabel && <FormDescription>{subLabel}</FormDescription>}
               </div>
             )}
 
@@ -92,7 +124,9 @@ const RadioBox = ({
               </RadioGroup>
             </FormControl>
 
-            {helperText && <FormDescription>{helperText}</FormDescription>}
+            {helperText && (
+              <FormDescription className={getVariantStyles(variant).description}>{helperText}</FormDescription>
+            )}
             {typeof error === 'string' && <FormDescription className='text-destructive'>{error}</FormDescription>}
           </div>
         </FormItem>
