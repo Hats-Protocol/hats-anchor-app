@@ -207,8 +207,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
             </Button>
           </div>
         ) : (
-          <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-300 bg-white p-4'>
-            <Tooltip label={disableReason}>
+          <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-[#2D3748] bg-white p-4'>
             <Button
                 disabled={!address || chainId !== currentChainId || !isReadyToClaim || isLoading || disableClaim}
                 rounded='full'
