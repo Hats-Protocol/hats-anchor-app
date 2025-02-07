@@ -173,11 +173,17 @@ const sortRulesForClaims = (rules: EligibilityRule[]) => {
   );
 };
 
+const AndIcon = () => (
+  <svg width='10' height='11' viewBox='0 0 10 11' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <path d='M1 10L5 2L9 10' stroke='currentColor' strokeLinecap='round' />
+  </svg>
+);
+
 const AndDecorator = () => (
   <div className='flex items-center'>
     <div className='relative flex h-[1px] w-16 items-center bg-gray-300'>
-      <div className='absolute left-1/2 top-1/2 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-300 bg-white text-xs font-medium text-gray-500'>
-        A
+      <div className='absolute left-1/2 top-1/2 flex h-4 w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-300 bg-white text-gray-300'>
+        <AndIcon />
       </div>
     </div>
   </div>
@@ -186,8 +192,8 @@ const AndDecorator = () => (
 const ArrowDecorator = () => (
   <div className='flex flex-1 items-center'>
     <div className='relative flex h-[1px] w-full items-center bg-gray-300'>
-      <div className='absolute left-6 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-full border border-gray-300 bg-white'>
-        <BsArrowRight className='h-3 w-3 text-gray-500' />
+      <div className='absolute left-6 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-300 bg-white'>
+        <BsArrowRight className='h-2.5 w-2.5 text-gray-300' />
       </div>
     </div>
   </div>
