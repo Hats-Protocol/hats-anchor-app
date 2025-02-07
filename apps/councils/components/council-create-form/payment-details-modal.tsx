@@ -105,7 +105,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         const userKeys = reject(keys(userData), (key) => key === 'id');
         const userDetails = compact(
           map(userKeys, (key) => {
-            if (key === 'address') {
+            if (key === 'address' && get(userData, 'address')) {
               return `\n> Address: ${tgFormatAddress(get(userData, 'address'))}`;
             }
             if (get(userData, key)) {

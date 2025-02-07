@@ -66,11 +66,16 @@ function AdminCard({
               className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
               onClick={handleEdit}
             >
-              <SquarePen className='text-functional-link-primary h-4 w-4' />
+              <SquarePen className='h-4 w-4' />
               Edit
             </button>
             <button type='button' onClick={handleRemove} disabled={isCreator}>
-              <Trash2 className={cn('text-destructive h-4 w-4', isCreator && 'cursor-not-allowed opacity-50')} />
+              <Trash2
+                className={cn(
+                  'text-destructive hover:text-destructive/80 h-4 w-4',
+                  isCreator && 'cursor-not-allowed opacity-50',
+                )}
+              />
             </button>
           </div>
         )}

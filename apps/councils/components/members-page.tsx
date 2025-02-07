@@ -50,7 +50,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const allowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
-  logger.debug('Selection Allowlist', allowlist, rawAllowlist, chainId, offchainCouncilData);
+  logger.debug('Selection Allowlist', allowlist);
 
   const remainingModules = filter(
     flatten(eligibilityRules), // TODO hardcoded "flatten" outer Rulesets

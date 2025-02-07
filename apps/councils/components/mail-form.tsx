@@ -158,6 +158,7 @@ const MailForm = () => {
                           label={field.label}
                           localForm={localForm}
                           placeholder={get(PLACEHOLDERS, field.name)}
+                          isDisabled={!isValid}
                         />
                       ))}
                     </div>
