@@ -9,7 +9,6 @@ export const UPDATE_COUNCIL_FORM = gql`
     $organizationName: String
     $councilName: String
     $chain: Int
-    $deployed: Boolean
     $councilDescription: String
     $membersSelectionType: MemberSelectionType
     $thresholdType: ThresholdType
@@ -34,7 +33,6 @@ export const UPDATE_COUNCIL_FORM = gql`
       councilId: $councilId
       councilName: $councilName
       chain: $chain
-      deployed: $deployed
       councilDescription: $councilDescription
       membersSelectionType: $membersSelectionType
       thresholdType: $thresholdType
