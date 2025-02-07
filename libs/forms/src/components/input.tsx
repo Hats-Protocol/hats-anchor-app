@@ -28,6 +28,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './
  */
 const Input = ({
   label,
+  sublabel,
   subLabel,
   subInput,
   name,
@@ -140,7 +141,10 @@ const Input = ({
               {label && (
                 <FormLabel className='mb-0'>
                   <div className={getVariantStyles(variant).container}>
-                    <span className={getVariantStyles(variant).label}>{label}</span>
+                    <span className={getVariantStyles(variant).label}>
+                      {label}
+                      {sublabel && <span className='ml-2 text-sm font-normal text-gray-400'>{sublabel}</span>}
+                    </span>
 
                     <div className='flex items-center gap-1'>
                       {options?.required && <span className='text-red-500'> *</span>}
@@ -251,6 +255,7 @@ const Input = ({
 
 interface InputProps {
   label?: string;
+  sublabel?: string;
   subLabel?: string | ReactNode;
   subInput?: string | ReactNode;
   name: string;
