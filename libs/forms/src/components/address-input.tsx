@@ -29,6 +29,7 @@ type AddressInputProps = {
   name: string;
   label?: string;
   subLabel?: string | ReactNode;
+  tooltip?: string;
   // docsLink?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
@@ -48,6 +49,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
   name,
   label,
   subLabel,
+  tooltip,
   localForm,
   hideAddressButtons,
   isDisabled,
@@ -121,6 +123,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         name={`${name}-input`}
         label={label}
         subLabel={subLabel}
+        tooltip={tooltip}
         placeholder={placeholder}
         leftElement={
           isContract ? (

@@ -143,12 +143,11 @@ const Input = ({
                   <div className={getVariantStyles(variant).container}>
                     <span className={getVariantStyles(variant).label}>
                       {label}
+                      {options?.required && <span className='text-red-500'> *</span>}
                       {sublabel && <span className='ml-2 text-sm font-normal text-gray-400'>{sublabel}</span>}
                     </span>
 
                     <div className='flex items-center gap-1'>
-                      {options?.required && <span className='text-red-500'> *</span>}
-
                       {tooltip && (
                         <Tooltip
                           label={tooltip}

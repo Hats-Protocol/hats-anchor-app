@@ -38,9 +38,9 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
       {thresholdType === 'ABSOLUTE' ? (
         <div className='space-y-6'>
           <div className='flex flex-col gap-2'>
-            <label className='font-bold'>Confirmations required</label>
             <NumberInput
               name='min'
+              label='Confirmations required'
               localForm={form}
               options={{
                 min: 1,
@@ -48,19 +48,22 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                 required: true,
               }}
               isDisabled={isDisabled}
+              variant='councils'
             />
           </div>
 
           <div className='flex flex-col gap-2'>
-            <label className='font-bold'>Total council members</label>
             <NumberInput
               name='maxMembers'
+              label='Total council members'
               localForm={form}
               options={{
                 min: min,
                 required: true,
               }}
               isDisabled={isDisabled}
+              tooltip='The total number of members in the council'
+              variant='councils'
             />
           </div>
         </div>
@@ -83,6 +86,7 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                     }}
                     isDisabled={isDisabled}
                     inputClassName='rounded-l-none'
+                    variant='councils'
                   />
                 </div>
               </div>
@@ -100,6 +104,7 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                   required: true,
                 }}
                 isDisabled={isDisabled}
+                variant='councils'
               />
             </div>
           </div>
@@ -115,6 +120,7 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                 required: true,
               }}
               isDisabled={isDisabled}
+              variant='councils'
             />
           </div>
         </div>
