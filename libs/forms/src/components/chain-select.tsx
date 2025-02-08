@@ -4,7 +4,7 @@ import { councilsChainsList } from '@hatsprotocol/config';
 import { map, values } from 'lodash';
 // import { useEffect } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
-import Select from 'react-select';
+import Select, { components, OptionProps, SingleValueProps } from 'react-select';
 
 interface ChainSelectProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,16 +15,39 @@ interface ChainSelectProps {
   className?: string;
 }
 
+interface ChainOption {
+  value: string;
+  label: string;
+  icon: string;
+}
+
 const chainOptions = map(values(councilsChainsList), (chain) => ({
   value: chain.id.toString(),
   label: chain.name,
   icon: chain.iconUrl,
 }));
 
+const CustomOption = ({ children, ...props }: OptionProps<ChainOption>) => (
+  <components.Option {...props}>
+    <div className='flex items-center gap-2'>
+      <img src={props.data.icon} alt={props.data.label} className='h-5 w-5' />
+      {children}
+    </div>
+  </components.Option>
+);
+
+const CustomSingleValue = ({ children, ...props }: SingleValueProps<ChainOption>) => (
+  <components.SingleValue {...props}>
+    <div className='flex items-center gap-2'>
+      <img src={props.data.icon} alt={props.data.label} className='h-5 w-5' />
+      {children}
+    </div>
+  </components.SingleValue>
+);
+
 const ChainSelect = ({ localForm, name = 'chain', placeholder, isDisabled, className }: ChainSelectProps) => {
   const { watch } = localForm;
   const value = watch(name);
-  // const selectedOption = options.find((opt: any) => opt.value === value);
 
   return (
     <Controller
@@ -39,31 +62,12 @@ const ChainSelect = ({ localForm, name = 'chain', placeholder, isDisabled, class
             console.log(value);
             field.onChange(value);
           }}
-          // sx={{
-          //   '& > option': {
-          //     paddingLeft: '2rem',
-          //     backgroundRepeat: 'no-repeat',
-          //     backgroundPosition: '8px center',
-          //     backgroundSize: '20px',
-          //   },
-          //   ...options.reduce(
-          //     (acc, opt) => ({
-          //       ...acc,
-          //       [`& option[value="${opt.value}"]`]: {
-          //         backgroundImage: `url(${opt.icon})`,
-          //       },
-          //     }),
-          //     {},
-          //   ),
-          //   '&': {
-          //     paddingLeft: selectedOption ? '2.5rem' : '1rem',
-          //     paddingRight: '2rem',
-          //     backgroundImage: selectedOption ? `url(${selectedOption.icon})` : 'none',
-          //     backgroundRepeat: 'no-repeat',
-          //     backgroundPosition: '0.5rem center',
-          //     backgroundSize: '1.25rem',
-          //   },
-          // }}
+          isDisabled={isDisabled}
+          className={className}
+          components={{
+            Option: CustomOption,
+            SingleValue: CustomSingleValue,
+          }}
         />
       )}
     />
