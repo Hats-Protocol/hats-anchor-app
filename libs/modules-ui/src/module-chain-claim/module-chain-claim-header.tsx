@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
-import { Button, LinkButton } from 'ui';
+import { Button, LinkButton, Tooltip } from 'ui';
 import { chainsMap, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
@@ -62,7 +62,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
 
   // TODO check this value ASAP
 
-  const { handleClaim } = useClaimFn({
+  const { handleClaim, disableClaim, disableReason } = useClaimFn({
     selectedHat: selectedHat as AppHat,
     handlePendingTx,
     moduleParameters: ruleToCompleteAndClaim?.liveParams,
@@ -194,13 +194,15 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
             Change Chain
           </Button>
         ) : (
-          <Button
-            disabled={!address || chainId !== currentChainId || !isReadyToClaim || isLoading}
-            rounded='full'
-            onClick={handleClaimClick}
-          >
-            {isLoading ? 'Claiming...' : isWearing ? 'Claim Signer' : 'Claim'}
-          </Button>
+          <Tooltip label={disableReason}>
+            <Button
+              disabled={!address || chainId !== currentChainId || !isReadyToClaim || isLoading || disableClaim}
+              rounded='full'
+              onClick={handleClaimClick}
+            >
+              {isLoading ? 'Claiming...' : isWearing ? 'Claim Signer' : 'Claim'}
+            </Button>
+          </Tooltip>
         )}
       </div>
     </>

@@ -142,7 +142,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
         // await persistForm(currentStep, currentSubStep);
 
         if (targetStep === 'selection') {
-          router.push(`/councils/new/${targetStep}?subStep=${targetSubStep || 'members'}&draftId=${draftId}`);
+          router.push(`/councils/new/${targetStep}?subStep=${targetSubStep || 'management'}&draftId=${draftId}`);
         } else {
           router.push(`/councils/new/${targetStep}?draftId=${draftId}`);
         }

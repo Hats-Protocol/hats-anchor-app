@@ -5,18 +5,19 @@ import { usePrivy } from '@privy-io/react-auth';
 import { Modal, useOverlay } from 'contexts';
 import { useIsAdmin } from 'hats-hooks';
 import { useSafeDetails } from 'hooks';
-import { find, get, includes, map } from 'lodash';
+import { find, get, includes, map, toLower } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
+import posthog from 'posthog-js';
 import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
-import { Button, MemberAvatar } from 'ui';
+import { Button, cn, MemberAvatar } from 'ui';
 import { getAllWearers } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
-import { RemoveUserModal } from './remove-user-modal';
+import { MemberStatusModal } from './member-status-modal';
 
 const MemberRow = ({
   member,
@@ -59,14 +60,14 @@ const MemberRow = ({
 
   if (!member) return null;
 
-  const canEdit = (!!userAddress && member.address.toLowerCase() === userAddress.toLowerCase()) || isAdmin; // user can edit their own details
+  const canEdit = (!!userAddress && toLower(member.address) === toLower(userAddress)) || isAdmin; // user can edit their own details
 
   const editUser = () => {
     setModals?.({ [`editUser-member-${member.address}`]: true });
   };
 
-  const removeUser = () => {
-    setModals?.({ [`removeUser-member-${member.address}`]: true });
+  const updateMemberStatus = () => {
+    setModals?.({ [`member-status-${member.address}`]: true });
   };
 
   const viewUser = () => {
@@ -76,10 +77,12 @@ const MemberRow = ({
   const offChainDetails = find(offchainWearers, { address: member.address });
   const fullMember = { ...member, ...offChainDetails };
 
+  const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
+
   // TODO member is missing profile data for details edit form
 
   return (
-    <div className='flex h-16 justify-between border-b border-gray-200'>
+    <div className={cn('flex h-16 justify-between border-b border-gray-200', isDev && !offChainDetails && 'bg-sky-50')}>
       <div className='flex items-center'>
         {/* <div className='flex w-12 items-center justify-center'>
           <BaseCheckbox
@@ -153,17 +156,9 @@ const MemberRow = ({
             </Button>
           )}
 
-          {user &&
-            canEdit &&
-            (isSigner ? (
-              <Button variant='link' className='text-destructive' onClick={removeUser}>
-                Remove
-              </Button>
-            ) : (
-              <Button variant='link' className='text-functional-link-primary' onClick={removeUser}>
-                Status
-              </Button>
-            ))}
+          <Button variant='link' className='text-functional-link-primary' onClick={updateMemberStatus}>
+            Status
+          </Button>
         </div>
       </div>
 
@@ -184,11 +179,11 @@ const MemberRow = ({
         councilId={offchainCouncilData?.creationForm?.id}
         existingUsers={offchainCouncilData?.members || []}
       />
-      <RemoveUserModal
-        type='member'
+      <MemberStatusModal
         user={fullMember}
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
+        selectedHat={signerHat}
         eligibilityRules={eligibilityRules || undefined}
         currentEligibility={currentEligibility || undefined}
         offchainCouncilData={offchainCouncilData}

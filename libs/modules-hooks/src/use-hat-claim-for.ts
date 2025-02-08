@@ -7,7 +7,7 @@ import { idToIp } from 'shared';
 import { AppHat, HandlePendingTx, SupportedChains, SyncTxHandler } from 'types';
 import { createHatsClient, formatAddress } from 'utils';
 import { Hex, isAddress } from 'viem';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract, useWalletClient } from 'wagmi';
 
 import { useMultiClaimsHatterCheck } from './use-multi-claims-hatter-check';
 
@@ -41,6 +41,7 @@ const useHatClaimFor = ({
 }: UseHatClaimForProps) => {
   const { address } = useAccount();
   const { toast } = useToast();
+  const { data: walletClient } = useWalletClient();
 
   const claimableForAddress: Hex | undefined = useMemo(
     () => get(first(get(selectedHat, 'claimableForBy')), 'id') as Hex,
@@ -74,7 +75,7 @@ const useHatClaimFor = ({
   });
 
   const claimHatFor = async (account: Hex) => {
-    const hatsClient = await createHatsClient(chainId);
+    const hatsClient = await createHatsClient(chainId, walletClient);
     if (!hatsClient || !address) return undefined;
 
     return hatsClient

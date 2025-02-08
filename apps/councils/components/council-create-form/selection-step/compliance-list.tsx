@@ -56,7 +56,7 @@ function ComplianceCard({
               className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
               onClick={handleEdit}
             >
-              <SquarePen className='text-functional-link-primary h-4 w-4' />
+              <SquarePen className='h-4 w-4' />
               Edit
             </button>
 

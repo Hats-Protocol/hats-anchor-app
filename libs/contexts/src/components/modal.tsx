@@ -63,14 +63,14 @@ const Modal = ({
     <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
       <ModalContent
         className={cn(
-          'min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white p-4 md:mb-auto md:mt-4 md:rounded-b-md',
+          'min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white px-10 md:mb-auto md:mt-4 md:rounded-2xl',
           classSizes[size as keyof typeof classSizes],
         )}
       >
         {customHeader
           ? customHeader
           : title && (
-              <ModalHeader>
+              <ModalHeader className='py-4'>
                 <ModalTitle className='text-2xl font-bold'>{title}</ModalTitle>
               </ModalHeader>
             )}
