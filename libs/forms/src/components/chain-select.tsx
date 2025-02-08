@@ -59,7 +59,6 @@ const ChainSelect = ({ localForm, name = 'chain', placeholder, isDisabled, class
           value={value}
           options={chainOptions}
           onChange={(value) => {
-            console.log(value);
             field.onChange(value);
           }}
           isDisabled={isDisabled}

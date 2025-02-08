@@ -3,7 +3,7 @@
 import { TokenInfo } from '@hatsprotocol/constants';
 import { map } from 'lodash';
 import { Controller, UseFormReturn } from 'react-hook-form';
-import Select from 'react-select';
+import Select, { components, OptionProps, SingleValueProps } from 'react-select';
 import { ipfsUrl } from 'utils';
 
 // TODO finish refactor with react-select
@@ -15,27 +15,38 @@ interface TokenSelectProps {
   placeholder?: string;
 }
 
+interface TokenOption {
+  value: string;
+  label: string;
+  logoURI: string;
+}
+
+const CustomOption = ({ children, ...props }: OptionProps<TokenOption>) => (
+  <components.Option {...props}>
+    <div className='flex items-center gap-2'>
+      <img src={ipfsUrl(props.data.logoURI)} alt={props.data.label} className='h-5 w-5 rounded-full' />
+      {children}
+    </div>
+  </components.Option>
+);
+
+const CustomSingleValue = ({ children, ...props }: SingleValueProps<TokenOption>) => (
+  <components.SingleValue {...props}>
+    <div className='flex items-center gap-2'>
+      <img src={ipfsUrl(props.data.logoURI)} alt={props.data.label} className='h-5 w-5 rounded-full' />
+      {children}
+    </div>
+  </components.SingleValue>
+);
+
 const TokenSelect = ({ name, options, form, placeholder }: TokenSelectProps) => {
   const { control } = form;
-  // const value = watch(name);
-  // const selectedToken = options.find((token) => token.address === value.address) || options[0];
-  // Set initial value if none exists
-  // if (!value && selectedToken) {
-  //   form.setValue(name, selectedToken.address);
-  // }
-  // console.log(value, selectedToken);
-
-  // {options.map((token) => (
-  //     <option key={token.address} value={token.address}>
-  //     {token.name} ({token.symbol})
-  //   </option>
-  // ))}
 
   const tokenOptions = map(options, (token) => ({
     value: token.address,
     label: `${token.name} (${token.symbol})`,
+    logoURI: token.logoURI,
   }));
-  console.log(tokenOptions);
 
   return (
     <Controller
@@ -46,31 +57,10 @@ const TokenSelect = ({ name, options, form, placeholder }: TokenSelectProps) => 
           options={tokenOptions}
           {...field}
           placeholder={placeholder}
-          // sx={{
-          //   '& > option': {
-          //     paddingLeft: '2rem',
-          //     backgroundRepeat: 'no-repeat',
-          //     backgroundPosition: '8px center',
-          //     backgroundSize: '20px',
-          //   },
-          //   ...options.reduce(
-          //     (acc, token) => ({
-          //       ...acc,
-          //       [`& option[value="${token.address}"]`]: {
-          //         backgroundImage: `url(${ipfsUrl(token.logoURI)})`,
-          //       },
-          //     }),
-          //     {},
-          //   ),
-          //   '&': {
-          //     paddingLeft: selectedToken ? '2.5rem' : '1rem',
-          //     paddingRight: '2rem',
-          //     backgroundImage: selectedToken ? `url(${ipfsUrl(selectedToken.logoURI)})` : 'none',
-          //     backgroundRepeat: 'no-repeat',
-          //     backgroundPosition: '0.5rem center',
-          //     backgroundSize: '1.25rem',
-          //   },
-          // }}
+          components={{
+            Option: CustomOption,
+            SingleValue: CustomSingleValue,
+          }}
         />
       )}
     />
