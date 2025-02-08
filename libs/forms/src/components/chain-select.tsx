@@ -4,11 +4,17 @@ import { councilsChainsList } from '@hatsprotocol/config';
 import { map, values } from 'lodash';
 // import { useEffect } from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
-import Select, { components, OptionProps, SingleValueProps } from 'react-select';
+import Select, {
+  components,
+  CSSObjectWithLabel,
+  GroupBase,
+  OptionProps,
+  SingleValueProps,
+  StylesConfig,
+} from 'react-select';
 
 interface ChainSelectProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  localForm: UseFormReturn<any>;
+  localForm: UseFormReturn<{ [key: string]: ChainOption }>;
   name: string;
   placeholder: string;
   isDisabled?: boolean;
@@ -21,9 +27,9 @@ interface ChainOption {
   icon: string;
 }
 
-const selectStyles = {
-  control: (base: any, state: { isFocused: boolean }) => ({
-    ...base,
+const selectStyles: StylesConfig<ChainOption, false> = {
+  control: (baseStyles: CSSObjectWithLabel, state: { isFocused: boolean }): CSSObjectWithLabel => ({
+    ...baseStyles,
     minHeight: '36px',
     backgroundColor: 'white',
     border: '1px solid hsl(var(--input))',
@@ -44,33 +50,33 @@ const selectStyles = {
       fontSize: '0.875rem',
     },
   }),
-  valueContainer: (base: any) => ({
-    ...base,
+  valueContainer: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     padding: '4px 12px',
   }),
-  input: (base: any) => ({
-    ...base,
+  input: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     margin: 0,
     padding: 0,
   }),
-  placeholder: (base: any) => ({
-    ...base,
+  placeholder: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     color: 'var(--muted-foreground)',
   }),
-  singleValue: (base: any) => ({
-    ...base,
+  singleValue: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     color: 'var(--foreground)',
   }),
-  menu: (base: any) => ({
-    ...base,
+  menu: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     borderRadius: '0.375rem',
     overflow: 'hidden',
     backgroundColor: 'white',
     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
     zIndex: 50,
   }),
-  option: (base: any, state: { isSelected: boolean; isFocused: boolean }) => ({
-    ...base,
+  option: (baseStyles: CSSObjectWithLabel, state: { isSelected: boolean; isFocused: boolean }): CSSObjectWithLabel => ({
+    ...baseStyles,
     backgroundColor: state.isSelected ? 'var(--primary)' : state.isFocused ? 'var(--accent)' : 'transparent',
     color: state.isSelected ? 'white' : 'var(--foreground)',
     cursor: 'pointer',
@@ -78,11 +84,11 @@ const selectStyles = {
       backgroundColor: state.isSelected ? 'var(--primary)' : 'var(--accent)',
     },
   }),
-  indicatorSeparator: () => ({
+  indicatorSeparator: (): CSSObjectWithLabel => ({
     display: 'none',
   }),
-  dropdownIndicator: (base: any) => ({
-    ...base,
+  dropdownIndicator: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     padding: '4px 8px',
   }),
 };
@@ -112,21 +118,19 @@ const CustomSingleValue = ({ children, ...props }: SingleValueProps<ChainOption>
 );
 
 const ChainSelect = ({ localForm, name = 'chain', placeholder, isDisabled, className }: ChainSelectProps) => {
-  const { watch } = localForm;
-  const value = watch(name);
+  const { watch, control } = localForm;
+  const currentValue = watch(name);
 
   return (
     <Controller
       name={name}
-      control={localForm.control}
+      control={control}
       render={({ field }) => (
-        <Select
+        <Select<ChainOption>
           placeholder={placeholder}
-          value={value}
+          value={chainOptions.find((option) => option.value === currentValue?.value)}
           options={chainOptions}
-          onChange={(value) => {
-            field.onChange(value);
-          }}
+          onChange={field.onChange}
           isDisabled={isDisabled}
           className={className}
           components={{

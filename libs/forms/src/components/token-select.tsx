@@ -3,7 +3,7 @@
 import { TokenInfo } from '@hatsprotocol/constants';
 import { map } from 'lodash';
 import { Controller, UseFormReturn } from 'react-hook-form';
-import Select, { components, OptionProps, SingleValueProps } from 'react-select';
+import Select, { components, CSSObjectWithLabel, OptionProps, SingleValueProps, StylesConfig } from 'react-select';
 import { ipfsUrl } from 'utils';
 
 // TODO finish refactor with react-select
@@ -11,7 +11,7 @@ import { ipfsUrl } from 'utils';
 interface TokenSelectProps {
   name: string;
   options: TokenInfo[];
-  form: UseFormReturn<any>;
+  form: UseFormReturn<{ [key: string]: TokenOption }>;
   placeholder?: string;
 }
 
@@ -21,9 +21,9 @@ interface TokenOption {
   logoURI: string;
 }
 
-const selectStyles = {
-  control: (base: any, state: { isFocused: boolean }) => ({
-    ...base,
+const selectStyles: StylesConfig<TokenOption, false> = {
+  control: (baseStyles: CSSObjectWithLabel, state: { isFocused: boolean }): CSSObjectWithLabel => ({
+    ...baseStyles,
     minHeight: '36px',
     backgroundColor: 'white',
     border: '1px solid hsl(var(--input))',
@@ -44,33 +44,33 @@ const selectStyles = {
       fontSize: '0.875rem',
     },
   }),
-  valueContainer: (base: any) => ({
-    ...base,
+  valueContainer: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     padding: '4px 12px',
   }),
-  input: (base: any) => ({
-    ...base,
+  input: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     margin: 0,
     padding: 0,
   }),
-  placeholder: (base: any) => ({
-    ...base,
+  placeholder: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     color: 'var(--muted-foreground)',
   }),
-  singleValue: (base: any) => ({
-    ...base,
+  singleValue: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     color: 'var(--foreground)',
   }),
-  menu: (base: any) => ({
-    ...base,
+  menu: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     borderRadius: '0.375rem',
     overflow: 'hidden',
     backgroundColor: 'white',
     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
     zIndex: 50,
   }),
-  option: (base: any, state: { isSelected: boolean; isFocused: boolean }) => ({
-    ...base,
+  option: (baseStyles: CSSObjectWithLabel, state: { isSelected: boolean; isFocused: boolean }): CSSObjectWithLabel => ({
+    ...baseStyles,
     backgroundColor: state.isSelected ? 'var(--primary)' : state.isFocused ? 'var(--accent)' : 'transparent',
     color: state.isSelected ? 'white' : 'var(--foreground)',
     cursor: 'pointer',
@@ -78,11 +78,11 @@ const selectStyles = {
       backgroundColor: state.isSelected ? 'var(--primary)' : 'var(--accent)',
     },
   }),
-  indicatorSeparator: () => ({
+  indicatorSeparator: (): CSSObjectWithLabel => ({
     display: 'none',
   }),
-  dropdownIndicator: (base: any) => ({
-    ...base,
+  dropdownIndicator: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
     padding: '4px 8px',
   }),
 };
