@@ -19,7 +19,6 @@ import {
   BaseCheckbox,
   Button,
   cn,
-  Link,
   LinkButton,
   Popover,
   PopoverContent,
@@ -96,7 +95,7 @@ const TreeMenu = () => {
               <Button
                 disabled={editMode || !!treeError}
                 variant={isOpen ? 'default' : 'outline'}
-                className={cn('font-medium', isOpen ? 'bg-blue-500' : 'bg-white')}
+                className={cn('font-medium', isOpen ? 'bg-functional-link-primary' : 'bg-white')}
               >
                 <BsToggles className='mr-1 size-4' />
                 View Controls
@@ -113,7 +112,7 @@ const TreeMenu = () => {
                   <div className='flex flex-col gap-3'>
                     {initialControls.map((control: Controls) => (
                       <RadioGroupItem value={control.value} key={control.value}>
-                        <div className='flex items-center gap-2'>
+                        <div className='text-foreground flex items-center gap-2'>
                           {control.icon}
                           <p>{control.label}</p>
                         </div>

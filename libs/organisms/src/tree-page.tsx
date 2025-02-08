@@ -22,6 +22,8 @@ const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; 
     isTreeDrawerOpen,
     returnToTreeList,
     isHatDrawerOpen,
+    onCloseHatDrawer,
+    onCloseTreeDrawer,
   } = useTreeForm();
 
   if (!chainId) return null;
@@ -52,12 +54,12 @@ const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; 
   return (
     <>
       <SelectedHatContextProvider>
-        <Slide open={!!treeToDisplay && !!isHatDrawerOpen}>
+        <Slide open={!!treeToDisplay && !!isHatDrawerOpen} onClose={onCloseHatDrawer} className='max-w-[864px]'>
           <HatDrawer returnToList={returnToTreeList} />
         </Slide>
       </SelectedHatContextProvider>
 
-      <Slide open={!!isTreeDrawerOpen}>
+      <Slide open={!!isTreeDrawerOpen} onClose={onCloseTreeDrawer}>
         <TreeDrawer />
       </Slide>
 

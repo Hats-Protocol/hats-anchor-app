@@ -10,13 +10,13 @@ import { Button } from 'ui';
 import { formatAddress } from 'utils';
 import { useChainId, useEnsAddress } from 'wagmi';
 
-import { AddressInput } from './components';
+import { AddressInput, Form } from './components';
 
 const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
   const currentChainId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
-  const { txPending, handlePendingTx } = useOverlay();
+  const { handlePendingTx } = useOverlay();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
 
@@ -64,25 +64,27 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
   const isDisabled = !writeAsync || isLoading || isLoadingNewWearerResolvedAddress || chainId !== currentChainId;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className='space-y-4'>
-        <p>Transfer the selected hat to another address.</p>
-        <div>
-          <p>Tree Domain</p>
-          {hatId && <p className='font-mono'>#{hatIdDecimalToIp(BigInt(hatId))}</p>}
+    <Form {...localForm}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className='space-y-4'>
+          <p>Transfer the selected hat to another address.</p>
+          <div>
+            <p>Tree Domain</p>
+            {hatId && <p className='font-mono'>#{hatIdDecimalToIp(BigInt(hatId))}</p>}
+          </div>
+          <div>
+            <p>Current wearer address: </p>
+            <pre>{currentWearerAddress}</pre>
+          </div>
+          <AddressInput label='New Wearer Address' name='newWearer' localForm={localForm} chainId={chainId} />
+          <div className='flex justify-end'>
+            <Button type='submit' disabled={isDisabled}>
+              Transfer
+            </Button>
+          </div>
         </div>
-        <div>
-          <p>Current wearer address: </p>
-          <pre>{currentWearerAddress}</pre>
-        </div>
-        <AddressInput label='New Wearer Address' name='newWearer' localForm={localForm} chainId={chainId} />
-        <div className='flex justify-end'>
-          <Button type='submit' disabled={isDisabled}>
-            Transfer
-          </Button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 };
 

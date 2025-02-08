@@ -33,7 +33,11 @@ const TransactionHistoryRow = ({
   const { isMobile } = useMediaStyles();
 
   return (
-    <Link href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'} className='block' isExternal>
+    <Link
+      href={txChainId && hash ? `${explorerUrl(txChainId)}/tx/${hash}` : '#'}
+      className='block hover:no-underline'
+      isExternal
+    >
       <div className='flex flex-col gap-1'>
         <div className='flex items-center gap-2'>
           {status === 'pending' ? (
@@ -41,14 +45,14 @@ const TransactionHistoryRow = ({
           ) : (
             <FaRegCheckCircle className='w-3 text-green-500' />
           )}
-          <p className='break-word'>{txDescription}</p>
+          <p className='break-word text-black/80'>{txDescription}</p>
         </div>
 
         <div className='flex justify-between pl-5'>
           <div className='flex items-center gap-2'>
             {!hideHash && !isMobile && <p className='text-sm text-gray-500'>{`(${abbreviateHash(hash)})`}</p>}
             <p className='text-xs md:text-sm'>{formatDistanceToNow(new Date(timestamp))} ago</p>
-            <Etherscan className='w-3 text-blue-500' />
+            <Etherscan className='text-functional-link-primary w-3' />
           </div>
         </div>
       </div>

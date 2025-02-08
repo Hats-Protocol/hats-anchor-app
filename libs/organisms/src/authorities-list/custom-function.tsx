@@ -3,16 +3,10 @@
 import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { includes } from 'lodash';
-import dynamic from 'next/dynamic';
+import { AgreementModal, AllowlistModal, ElectionModal, JokeRaceModal, StakingModal } from 'modules-ui';
 import { BsPencil } from 'react-icons/bs';
 import { Authority } from 'types';
 import { Button } from 'ui';
-
-const AgreementModal = dynamic(() => import('modules-ui').then((mod) => mod.AgreementModal));
-const AllowlistModal = dynamic(() => import('modules-ui').then((mod) => mod.AllowlistModal));
-const ElectionModal = dynamic(() => import('modules-ui').then((mod) => mod.ElectionModal));
-const JokeRaceModal = dynamic(() => import('modules-ui').then((mod) => mod.JokeRaceModal));
-const StakingModal = dynamic(() => import('modules-ui').then((mod) => mod.StakingModal));
 
 const CustomFunction = ({ authority }: { authority: Authority | undefined }) => {
   const { setModals } = useOverlay();

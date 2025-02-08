@@ -2,6 +2,7 @@
 
 import { useSelectedHat } from 'contexts';
 import { get, isEmpty, map, size } from 'lodash';
+import { useState } from 'react';
 import { DetailsItem } from 'types';
 import { Accordion } from 'ui';
 
@@ -18,6 +19,7 @@ const ResponsibilitiesList = () => {
   const { selectedHatDetails, hatLoading } = useSelectedHat();
   const responsibilities = get(selectedHatDetails, 'responsibilities');
   const localResponsibilities = responsibilities || LOADING_RESPONSIBILITIES;
+  const [openCards, setOpenCards] = useState<string[]>([]);
 
   if ((!hatLoading && isEmpty(responsibilities)) || !selectedHatDetails) {
     return null;
@@ -35,8 +37,8 @@ const ResponsibilitiesList = () => {
   }
 
   return (
-    <Accordion type='multiple' className='px-0 md:px-16'>
-      <div>
+    <Accordion type='multiple' className='px-0 md:px-16' value={openCards} onValueChange={setOpenCards}>
+      <div className='space-y-2'>
         <p className='text-md mx-4 md:mx-0'>
           {size(responsibilities)} {size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'} expected of Hat
           Wearers
@@ -44,7 +46,11 @@ const ResponsibilitiesList = () => {
 
         <div className='space-y-1'>
           {map(localResponsibilities, (responsibility: DetailsItem, index: number) => (
-            <ResponsibilitiesListCard key={`${responsibility.label}-${index}`} responsibility={responsibility} />
+            <ResponsibilitiesListCard
+              key={`${responsibility.label}-${index}`}
+              responsibility={responsibility}
+              openCards={openCards}
+            />
           ))}
         </div>
       </div>

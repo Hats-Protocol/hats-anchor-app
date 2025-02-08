@@ -92,7 +92,7 @@ const WearersList = () => {
   return (
     <>
       <div className='flex w-full flex-col gap-4 px-4 md:px-16'>
-        <div className='flex w-full flex-col items-center justify-between gap-2'>
+        <div className='flex w-full flex-col items-center justify-between gap-4'>
           <div className='flex w-full items-center gap-1'>
             <h2 className='text-md font-medium'>
               {get(selectedHat, 'currentSupply')}{' '}
@@ -157,10 +157,10 @@ const WearersList = () => {
 
         {!isEmpty(ineligibleWearers) && (
           <Collapsible>
-            <div className='space-y-4 px-4 md:px-16'>
-              <CollapsibleTrigger>
-                <div className='flex justify-between'>
-                  <div className='flex items-center gap-1 text-blue-500'>
+            <div className='space-y-4'>
+              <CollapsibleTrigger asChild>
+                <div className='flex w-full justify-between'>
+                  <div className='text-functional-link-secondary flex items-center gap-1 text-sm'>
                     <RemovedWearer />
                     <p>{size(ineligibleWearers)} recently removed wearers</p>
                   </div>
@@ -168,7 +168,7 @@ const WearersList = () => {
                   <Button
                     size='xs'
                     variant='ghost'
-                    className='font-medium text-blue-500'
+                    className='text-functional-link-primary'
                     onClick={onToggleIneligibleWearers}
                   >
                     {ineligibleWearersExpanded ? 'Hide' : 'Review'}
@@ -177,16 +177,18 @@ const WearersList = () => {
               </CollapsibleTrigger>
 
               <CollapsibleContent>
-                {map(ineligibleWearers, (w: HatWearer) => (
-                  <WearerRow
-                    wearer={w}
-                    key={w.id}
-                    isIneligible
-                    currentUserIsAdmin={currentUserIsAdmin}
-                    setChangeStatusWearer={setChangeStatusWearer}
-                    setWearerToTransferFrom={setWearerToTransferFrom}
-                  />
-                ))}
+                <div className='space-y-2'>
+                  {map(ineligibleWearers, (w: HatWearer) => (
+                    <WearerRow
+                      wearer={w}
+                      key={w.id}
+                      isIneligible
+                      currentUserIsAdmin={currentUserIsAdmin}
+                      setChangeStatusWearer={setChangeStatusWearer}
+                      setWearerToTransferFrom={setWearerToTransferFrom}
+                    />
+                  ))}
+                </div>
               </CollapsibleContent>
             </div>
           </Collapsible>

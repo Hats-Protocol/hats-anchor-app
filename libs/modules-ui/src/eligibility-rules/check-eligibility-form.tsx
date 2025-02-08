@@ -1,7 +1,7 @@
 'use client';
 
 import { Modal, useOverlay, useSelectedHat } from 'contexts';
-import { AddressInput } from 'forms';
+import { AddressInput, Form } from 'forms';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import _ from 'lodash';
 import { includes, pick, toLower } from 'lodash';
@@ -62,19 +62,21 @@ export const CheckEligibilityForm = () => {
       <div className='space-y-4'>
         <p className='text-sm'>Check the eligibility of a wearer for this hat based on the eligibility rule(s).</p>
 
-        <form onSubmit={handleSubmit(checkWearerEligibility)} className='space-y-6'>
-          <AddressInput name='wearer' label='Wearer' localForm={localForm} hideAddressButtons chainId={chainId} />
+        <Form {...localForm}>
+          <form onSubmit={handleSubmit(checkWearerEligibility)} className='space-y-6'>
+            <AddressInput name='wearer' label='Wearer' localForm={localForm} hideAddressButtons chainId={chainId} />
 
-          <div className='flex justify-end'>
-            <div className='flex items-center gap-4'>
-              {wearerDisplay && wearerDisplay}
+            <div className='flex justify-end'>
+              <div className='flex items-center gap-4'>
+                {wearerDisplay && wearerDisplay}
 
-              <Button type='submit' disabled={!resolvedAddress && !localWearerIsAddress}>
-                Check Eligibility
-              </Button>
+                <Button type='submit' disabled={!resolvedAddress && !localWearerIsAddress}>
+                  Check Eligibility
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </Modal>
   );

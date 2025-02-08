@@ -48,7 +48,7 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup
 
   if (loadingModuleDetails) {
-    return <Skeleton className='mx-4 my-2 md:mx-0' />;
+    return <Skeleton className='mx-4 my-2 h-4' />;
   }
 
   if (multipleModules) {
@@ -66,16 +66,18 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
     const moduleDetails = eligibilityRuleToModuleDetails(first(ruleSets));
 
     return (
-      <KnownEligibilityModule
-        moduleDetails={moduleDetails}
-        moduleParameters={moduleDetails?.liveParameters}
-        selectedHat={selectedHat}
-        wearer={address as Hex}
-        chainId={chainId}
-        modalSuffix={modalSuffix}
-        wearerEligibility={currentEligibility || undefined}
-        ruleSets={rawEligibilityRules || undefined}
-      />
+      <div className='mx-4'>
+        <KnownEligibilityModule
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleDetails?.liveParameters}
+          selectedHat={selectedHat}
+          wearer={address as Hex}
+          chainId={chainId}
+          modalSuffix={modalSuffix}
+          wearerEligibility={currentEligibility || undefined}
+          ruleSets={rawEligibilityRules || undefined}
+        />
+      </div>
     );
   }
 
@@ -98,7 +100,7 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
   }
 
   return (
-    <div className='mx-4 my-2 flex justify-between md:mx-0'>
+    <div className='mx-4 my-2 flex justify-between'>
       <p>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</p>
 
       <ControllerWearer controllerData={eligibilityData} />

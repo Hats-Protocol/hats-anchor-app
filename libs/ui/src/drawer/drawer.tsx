@@ -35,7 +35,7 @@ const DrawerOverlay = React.forwardRef<
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
-const drawerContentVariants = cva('bg-background fixed z-50 flex h-auto flex-col border', {
+const drawerContentVariants = cva('fixed z-50 flex h-auto flex-col border', {
   variants: {
     direction: {
       right: 'inset-y-0 right-0 ml-24 h-full rounded-l-[10px]',

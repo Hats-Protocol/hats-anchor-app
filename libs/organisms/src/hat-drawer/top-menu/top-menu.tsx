@@ -74,7 +74,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   return (
     <div
       className={cn(
-        'flex-end bg-whiteAlpha-900 z-[16] flex w-full items-center border-b border-gray-200 px-4 py-4',
+        'z-[16] flex w-full items-center justify-end border-b border-gray-200 bg-white/90 px-4 py-4',
         editMode ? 'justify-between' : 'justify-end',
       )}
     >

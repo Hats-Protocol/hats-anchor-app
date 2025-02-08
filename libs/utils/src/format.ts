@@ -1,5 +1,5 @@
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { CONFIG } from '@hatsprotocol/config';
+import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { format } from 'date-fns';
 import { eq, find, findIndex, get, map, round, size, toLower, toNumber, toString } from 'lodash';
 import { formatUnits, Hex } from 'viem';

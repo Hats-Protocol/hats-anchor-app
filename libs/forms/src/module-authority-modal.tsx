@@ -7,12 +7,12 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { Modal, useOverlay, useTreeForm } from 'contexts';
 import { capitalize, filter, get, isEmpty, pick } from 'lodash';
 import { useCallHsgFunction, useCallModuleFunction } from 'modules-hooks';
-import { useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import { Authority, ModuleFunction } from 'types';
 import { Button } from 'ui';
 import { Hex } from 'viem';
 
-import { ModuleArgsForm } from './components';
+import { Form, ModuleArgsForm } from './components';
 
 const ModuleAuthorityModal = ({
   authority,
@@ -35,7 +35,7 @@ const ModuleAuthorityModal = ({
 
   const authorityHatId = hatIdDecimalToIp(BigInt(authority?.hatId || '0'));
 
-  const onSubmit = (args: any) => {
+  const onSubmit = (args: FieldValues) => {
     if (!authority || !selectedFunction) return;
 
     if (authority.type === AUTHORITY_TYPES.modules) {
@@ -50,7 +50,7 @@ const ModuleAuthorityModal = ({
         args: localArgs,
         moduleId: authority.moduleAddress,
         onSuccess: () => {
-          setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
+          setModals?.({});
         },
       });
     } else {
@@ -60,7 +60,7 @@ const ModuleAuthorityModal = ({
         args,
         type: authority.type as HsgType,
         onSuccess: () => {
-          setModals?.({ [`functionCall-${authority.label}-${index}`]: false });
+          setModals?.({});
         },
       });
     }
@@ -77,36 +77,38 @@ const ModuleAuthorityModal = ({
       name={`functionCall-${authority?.label}-${index}`}
       title={`${capitalize(get(selectedFunction, 'label'))} for Hat #${authorityHatId}`}
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='space-y-6'>
-          <div className='space-y-1'>
-            {get(selectedFunction, 'description') && <p>{get(selectedFunction, 'description')}</p>}
-          </div>
-
+      <Form {...localForm}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className='space-y-6'>
-            <ModuleArgsForm
-              selectedModuleArgs={get(selectedFunction, 'args', []) as ModuleCreationArg[]}
-              localForm={localForm}
-              hideIcon
-              noMargin
-              isDeploy={false}
-              // ? need `tokenAddress` ?
-            />
-          </div>
+            <div className='space-y-1'>
+              {get(selectedFunction, 'description') && <p>{get(selectedFunction, 'description')}</p>}
+            </div>
 
-          <div className='flex justify-end'>
-            <div className='flex gap-2'>
-              <Button variant='outline' onClick={onCloseModal}>
-                Cancel
-              </Button>
+            <div className='space-y-6'>
+              <ModuleArgsForm
+                selectedModuleArgs={get(selectedFunction, 'args', []) as ModuleCreationArg[]}
+                localForm={localForm}
+                hideIcon
+                noMargin
+                isDeploy={false}
+                // ? need `tokenAddress` ?
+              />
+            </div>
 
-              <Button type='submit' disabled={!isValid}>
-                {capitalize(get(selectedFunction, 'label'))}
-              </Button>
+            <div className='flex justify-end'>
+              <div className='flex gap-2'>
+                <Button variant='outline' onClick={onCloseModal}>
+                  Cancel
+                </Button>
+
+                <Button type='submit' disabled={!isValid}>
+                  {capitalize(get(selectedFunction, 'label'))}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 };

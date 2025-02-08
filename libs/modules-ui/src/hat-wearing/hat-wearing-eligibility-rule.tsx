@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
 import { BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
-import { Link } from 'ui';
+import { Link, Skeleton } from 'ui';
 import { hatLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
@@ -19,11 +19,15 @@ export const HatWearingEligibilityRule = ({ moduleParameters, wearer, chainId }:
   const hatParam = find(moduleParameters, { displayType: 'hat' });
 
   const localHatId = hatParam?.value && hatIdDecimalToHex(hatParam.value as bigint);
-  const { details: hatDetails, data: mainDetails } = useHatDetails({
+  const {
+    details: hatDetails,
+    data: mainDetails,
+    isLoading: hatDetailsLoading,
+  } = useHatDetails({
     hatId: localHatId as Hex,
     chainId: chainId as SupportedChains,
   });
-  const { data: wearerDetails } = useWearerDetails({
+  const { data: wearerDetails, isLoading: wearerDetailsLoading } = useWearerDetails({
     wearerAddress: wearer,
     chainId,
   });
@@ -31,6 +35,10 @@ export const HatWearingEligibilityRule = ({ moduleParameters, wearer, chainId }:
   const isWearing = includes(map(wearerDetails, 'id'), localHatId);
   const ipId = mainDetails && hatIdDecimalToIp(BigInt(mainDetails.id));
   const hatName = get(hatDetails, 'name', get(mainDetails, 'details'));
+
+  if (hatDetailsLoading || wearerDetailsLoading) {
+    return <Skeleton className='h-4 w-full md:mx-4' />;
+  }
 
   if (isWearing) {
     return (

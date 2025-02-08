@@ -29,7 +29,7 @@ const ResponsibilityHeader = ({
   const hostname = getHostnameFromURL(currentLink || link);
 
   return (
-    <div className='flex w-full items-center'>
+    <div className='flex w-full items-center gap-1'>
       {localImageUrl ? (
         <img
           src={isIpfs ? ipfsUrl(localImageUrl?.slice(7)) || '' : localImageUrl}
@@ -67,8 +67,12 @@ const ResponsibilityHeader = ({
           }}
         >
           <Tooltip label={hostname}>
-            <Button variant='ghost' aria-label='Responsibility Link' className='text-functional-link-primary' size='xs'>
-              <BsBoxArrowUpRight className='size-4' />
+            <Button
+              variant='link'
+              aria-label='Responsibility Link'
+              className='text-functional-link-primary hover:text-functional-link-primary/80'
+            >
+              <BsBoxArrowUpRight className='!size-3' />
             </Button>
           </Tooltip>
         </Link>

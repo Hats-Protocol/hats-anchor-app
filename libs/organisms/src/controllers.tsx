@@ -1,21 +1,28 @@
 'use client';
 
-import { useSelectedHat } from 'contexts';
-import dynamic from 'next/dynamic';
-
-const CheckEligibilityForm = dynamic(() => import('modules-ui').then((mod) => mod.CheckEligibilityForm));
-const EditAndWearers = dynamic(() => import('modules-ui').then((mod) => mod.EditAndWearers));
-const Eligibility = dynamic(() => import('modules-ui').then((mod) => mod.Eligibility));
-const Toggle = dynamic(() => import('modules-ui').then((mod) => mod.Toggle));
+import { useSelectedHat, useTreeForm } from 'contexts';
+import { CheckEligibilityForm, EditAndWearers, Eligibility, Toggle } from 'modules-ui';
+import { Skeleton } from 'ui';
 
 const Controllers = () => {
+  const { isLoading: treeLoading } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  if (selectedHat?.levelAtLocalTree === 0) return null;
+
+  if (treeLoading || !selectedHat) {
+    return (
+      <div className='flex flex-col gap-2 px-4 md:px-12'>
+        <Skeleton className='h-4 w-full md:mx-4' />
+        <Skeleton className='h-4 w-full md:mx-4' />
+        <Skeleton className='h-4 w-full md:mx-4' />
+        <Skeleton className='h-4 w-full md:mx-4' />
+      </div>
+    );
+  }
 
   return (
-    <div className='flex flex-col px-0 md:px-16'>
-      <div className='px-4 md:px-0'>
-        <h2 className='text-md md:text-default pb-2 font-medium'>Control over this Hat</h2>
+    <div className='flex flex-col px-0 md:px-12'>
+      <div className='px-4 pb-2 md:px-4'>
+        <h2 className='text-md md:text-default font-medium'>Control over this Hat</h2>
       </div>
 
       <EditAndWearers />

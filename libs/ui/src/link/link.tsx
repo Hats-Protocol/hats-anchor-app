@@ -6,7 +6,7 @@ import { cn } from '../lib/utils';
 const Link = ({ href, children, onClick, className, isExternal = false, passHref = false }: LinkProps) => (
   <NextLink
     href={href}
-    className={cn('text-functional-link-primary hover:underline', className)}
+    className={cn('text-functional-link-primary hover:text-functional-link-primary/80', className)}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noopener noreferrer' : undefined}
     onClick={onClick}

@@ -28,6 +28,7 @@ const HOSTNAME_LABELS = {
   'paragraph.xyz': 'Paragraph',
   'substack.com': 'Substack',
   'mirror.xyz': 'Mirror',
+  'admin.daohaus.fun': 'DAOhaus',
 };
 
 const getHostnameLabel = (hostname: string) => {
@@ -149,7 +150,7 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeader
           }}
         >
           <Tooltip label={getHostnameFromURL(localLink)}>
-            <div className='flex items-center gap-1 text-blue-500'>
+            <div className='text-functional-link-primary flex items-center gap-1'>
               <p className='text-sm'>{getHostnameLabel(getHostnameFromURL(localLink))}</p>
               <BoxArrowUpRightOut className='h-3 w-3' />
             </div>

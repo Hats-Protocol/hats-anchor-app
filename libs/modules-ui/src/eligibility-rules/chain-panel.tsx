@@ -3,7 +3,7 @@
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { every, filter, find, flatten, get, keys, map, size } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, SupportedChains, WearerStatus } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from 'ui';
@@ -55,9 +55,9 @@ const ChainPanel = ({
   currentEligibility,
   defaultOpen = false,
 }: ChainPanelProps) => {
-  const [chainPanelOpen, setChainPanelOpen] = useState(defaultOpen);
+  const [open, setOpen] = useState<string>(defaultOpen ? 'chain' : '');
   const { address } = useAccount();
-  const isMounted = useRef(false);
+  const expanded = open === 'chain';
 
   const subscriptionRule = find(flatten(ruleSets), (rule) => rule.module.id.includes('public-lock-v14'));
   const { hasAllowance } = useSubscriptionClaim({
@@ -90,52 +90,31 @@ const ChainPanel = ({
   // TODO support deeper nested chains
   const isAndChain = size(ruleSets) === 1;
 
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
   // TODO handle controlled accordion // defaultIndex={defaultOpen ? 0 : undefined}
   return (
-    <Accordion type='single' className='rounded-md' collapsible>
+    <Accordion type='single' className='rounded-md' collapsible value={open} onValueChange={setOpen}>
       <AccordionItem
         className={cn(
-          'md:w-[calc(100% + 32px)] w-full rounded-md border-none bg-white/80 shadow',
-          // expandedBackground && 'shadow-accordion-trigger',
-          // expandedBackground && 'border-t-md border-t-gray',
+          'md:w-[calc(100% + 32px)] w-full rounded-md border-none',
+          (IS_CLAIMS_APP || expanded) && 'shadow',
+          IS_CLAIMS_APP && 'bg-white/80',
         )}
-        // border='none'
-        // w={{ base: '100%', md: 'calc(100% + 32px)' }}
-        // ml={{ md: -4 }}
-        // boxShadow={
-        //   expandedBackground ? '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)' : undefined
-        // }
-        // borderRadius={expandedBackground ? 'md' : undefined}
         value='chain'
       >
         <AccordionTrigger
-          // p={0}
-          // border={isExpanded ? '1px solid' : undefined}
-          // borderBottom={!isExpanded ? '1px solid' : undefined}
-          // _hover={{
-          //   background: !isExpanded ? 'white' : undefined,
-          //   borderRadius: !isExpanded ? 'md' : undefined,
-          //   borderColor: !isExpanded && 'blue.300',
-          // }}
-          // background={isExpanded ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)' : undefined}
-          // borderTopRadius={isExpanded ? 'md' : undefined}
-          // borderColor={isExpanded ? 'gray.100' : 'transparent'}
-          // borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
-          className='rounded-md hover:no-underline'
+          className={cn(
+            'rounded-md border-b border-b-transparent px-4 py-0 text-base font-normal hover:bg-white hover:no-underline',
+            IS_CLAIMS_APP && 'py-4',
+            !expanded ? 'hover:border-b hover:border-blue-300' : 'hover:border-t-gray-100',
+            expanded && 'bg-gradient-accordion-trigger rounded-b-none border-b-gray-400',
+          )}
         >
-          <div className={cn('flex w-full justify-between px-1 py-1 pl-4')}>
+          <div className={cn('flex w-full justify-between py-2 pr-2')}>
             <p className={cn('hidden', !IS_CLAIMS_APP && 'block')}>
               Comply with {isAndChain ? 'all' : 'any'} of {size(flatten(ruleSets))} Rules to claim this Hat
             </p>
 
-            <p className={cn('block')}>
+            <p className={cn('block: md:hidden')}>
               {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))} Rules to claim
             </p>
 
@@ -144,7 +123,7 @@ const ChainPanel = ({
         </AccordionTrigger>
 
         <AccordionContent className='border-b-lg border-gray border-b-lg border-gray overflow-visible p-0'>
-          <div className={cn('px-4 pb-2')}>
+          <div className={cn('space-y-3 px-4 pb-4 pt-1 text-base')}>
             {/* // TODO fix these nested ternaries */}
             {/* mx={{ base: 0, md: IS_CLAIMS_APP ? (!isMobile ? 6 : 4) : !isMobile ? 4 : 0 }} */}
             {map(ruleSets, (ruleSet: Ruleset, index: number) =>

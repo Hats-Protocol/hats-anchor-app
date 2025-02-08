@@ -60,6 +60,7 @@ export const AllowlistEligibilityRule = ({
                     })
                   }
                   variant='link'
+                  className='text-base'
                 >
                   Allowlist
                 </Button>

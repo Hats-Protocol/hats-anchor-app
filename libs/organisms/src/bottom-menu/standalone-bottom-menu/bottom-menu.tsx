@@ -1,6 +1,7 @@
 'use client';
 
 import { useEligibility } from 'contexts';
+import { ClaimButton } from 'modules-ui';
 import dynamic from 'next/dynamic';
 import React from 'react';
 import { Skeleton } from 'ui';
@@ -8,7 +9,6 @@ import { useChainId } from 'wagmi';
 
 import { BottomMoreMenu } from './bottom-more-menu';
 
-const ClaimButton = dynamic(() => import('modules-ui').then((mod) => mod.ClaimButton));
 const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const MenuWrapper = ({ children }: { children: React.ReactNode }) => {

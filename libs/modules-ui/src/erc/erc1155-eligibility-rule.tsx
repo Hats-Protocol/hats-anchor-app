@@ -45,7 +45,11 @@ export const Erc1155EligibilityRule = ({ moduleParameters, wearer, chainId }: Mo
               token with ID
             </p>
             <Tooltip label={tokenId?.toString()}>
-              <p className='max-w-50px line-clamp-1'>{tokenId?.toString()}</p>
+              <div className='flex items-center gap-1'>
+                {/* TODO manual workaround for weird line-clamp-1 behavior */}
+                <pre className='line-clamp-1 w-[75px]'>{tokenId?.toString()}</pre>
+                <pre>…</pre>
+              </div>
             </Tooltip>
           </div>
         }
@@ -69,7 +73,10 @@ export const Erc1155EligibilityRule = ({ moduleParameters, wearer, chainId }: Mo
             token with ID
           </p>
           <Tooltip label={tokenId?.toString()}>
-            <p className='max-w-50px line-clamp-1'>{tokenId?.toString()}</p>
+            <div className='flex items-center gap-1'>
+              <pre className='line-clamp-1 w-[75px]'>{tokenId?.toString()}</pre>
+              <pre>…</pre>
+            </div>
           </Tooltip>
         </div>
       }

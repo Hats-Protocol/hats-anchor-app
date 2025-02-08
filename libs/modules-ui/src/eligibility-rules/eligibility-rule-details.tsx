@@ -12,11 +12,11 @@ const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 
 const EligibilityRuleWrapper = ({ rule, children }: { rule: ReactNode; children: ReactNode }) => {
   if (!rule) {
-    return <Skeleton className='mx-4 my-2 md:mx-0' />;
+    return <Skeleton className='mx-4 my-2' />;
   }
 
   return (
-    <div className='mx-4 my-2 flex justify-between md:mx-0'>
+    <div className='my-2 flex justify-between'>
       {rule}
 
       {children}
@@ -90,9 +90,8 @@ export const EligibilityRuleDetails = ({
   return (
     <EligibilityRuleWrapper rule={rule}>
       <Button
-        size='xs'
         className='text-functional-link-primary font-medium'
-        variant='ghost'
+        variant='link'
         onClick={() => setModals?.({ checkEligibility: true })}
       >
         Check Eligibility

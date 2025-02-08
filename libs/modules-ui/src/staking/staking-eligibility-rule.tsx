@@ -41,7 +41,8 @@ export const StakingEligibilityRule = ({
 
   const isEligible = stakeBalance && stakeBalance >= (amountParam?.value as bigint);
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('staking-eligibility-modal') || process.env.NODE_ENV === 'development';
 
   if (!moduleDetails) return null;
 
@@ -58,7 +59,11 @@ export const StakingEligibilityRule = ({
       <EligibilityRuleDetails
         rule={
           eligibilityModalFlag ? (
-            <Button variant='link' onClick={() => setModals?.({ stakingManager: true })}>
+            <Button
+              variant='link'
+              onClick={() => setModals?.({ [`${moduleDetails.instanceAddress}-stakingManager`]: true })}
+              className='text-base'
+            >
               Stake {amountParamDisplay} {tokenDetails?.symbol}
             </Button>
           ) : (

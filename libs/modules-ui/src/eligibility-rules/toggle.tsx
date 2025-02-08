@@ -14,7 +14,7 @@ import { KnownToggleModule } from './known-toggle-module';
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 export const Toggle = () => {
-  const { orgChartWearers } = useTreeForm();
+  const { orgChartWearers, isLoading: treeLoading } = useTreeForm();
   const { selectedHat, chainId } = useSelectedHat();
 
   const { toggle } = pick(selectedHat, ['toggle']);
@@ -29,18 +29,18 @@ export const Toggle = () => {
   });
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
-  if (ruleSets) {
-    return <KnownToggleModule ruleSets={ruleSets} chainId={chainId} wearer={toggle} selectedHat={selectedHat} />;
+  if (moduleDetailsLoading || treeLoading) {
+    return <Skeleton className='mx-4 my-2 md:mx-0' />;
   }
 
-  if (moduleDetailsLoading) {
-    return <Skeleton className='mx-4 my-2 md:mx-0' />;
+  if (ruleSets) {
+    return <KnownToggleModule ruleSets={ruleSets} chainId={chainId} wearer={toggle} selectedHat={selectedHat} />;
   }
 
   if (isHatsAccount) {
     // * shouldn't be hitting this flow yet
     return (
-      <div className='mx-4 my-2 flex justify-between md:mx-0'>
+      <div className='mx-4 my-2 flex justify-between'>
         <p>Another Hat can remove wearers</p>
         <div className='flex items-center gap-1'>
           <p>Hat ID</p>
@@ -51,7 +51,7 @@ export const Toggle = () => {
   }
 
   return (
-    <div className='mx-4 my-2 flex justify-between md:mx-0'>
+    <div className='mx-4 my-2 flex justify-between'>
       <p>{includes(NULL_ADDRESSES, toggle) ? 'No addresses' : 'One address'} can deactivate this Hat</p>
 
       <ControllerWearer controllerData={toggleData} />

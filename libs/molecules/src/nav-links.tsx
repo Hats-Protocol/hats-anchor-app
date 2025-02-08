@@ -32,7 +32,7 @@ const NavLinks = () => {
       <Link href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`} className='h-full'>
         <Button
           className={cn(
-            'hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
+            'text-foreground hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
             includes(pathname, 'trees') && 'bg-functional-link-primary/10 border-b-2',
           )}
           variant='link'
@@ -53,7 +53,7 @@ const NavLinks = () => {
         <Link href={`/${CONFIG.TERMS.wearers}/${address}`} className='h-full'>
           <Button
             className={cn(
-              'hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
+              'text-foreground hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
               includes(pathname, 'wearers') && 'bg-functional-link-primary/10 border-b-2',
             )}
             variant='link'

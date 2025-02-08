@@ -69,15 +69,16 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
   const eventDisplayName = parseEventName(eventName);
 
   return (
-    <div className='flex items-center justify-between py-2' key={`${event.transactionID}-${event.id}`}>
-      <p className='text-sm text-slate-800'>{eventDisplayName}</p>
+    <div className='flex items-center justify-between py-2 text-base' key={`${event.transactionID}-${event.id}`}>
+      <p className='text-slate-800'>{eventDisplayName}</p>
 
       <LinkButton
         href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`}
         variant='link'
-        className='text-functional-link-primary block'
+        className='block'
+        textClassName='text-base'
         isExternal
-        rightIcon={<Etherscan className='h-4 w-4' />}
+        rightIcon={<Etherscan className='size-4' />}
       >
         {`${formatDistanceToNow(new Date(Number(event.timestamp) * 1000))} ago`}
       </LinkButton>

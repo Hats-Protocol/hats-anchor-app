@@ -99,7 +99,7 @@ const WearerRow = ({
   });
 
   let bgColor = 'transparent';
-  let color = 'informative-human';
+  let color = 'text-informative-human';
   if (isIneligible) {
     color = 'text-gray-500';
   } else if (isSameAddress(wearer.id, address)) {
@@ -115,7 +115,7 @@ const WearerRow = ({
 
   return (
     <div className='flex w-full items-center justify-between' key={wearer.id}>
-      <Link href={`/wearers/${wearer.id}`}>
+      <Link href={`/wearers/${wearer.id}`} className=''>
         <Tooltip label={!wearerNameIsAddress ? wearer.id : undefined}>
           <div className={cn('flex items-center gap-1 pr-1', bgColor)}>
             {ensAvatar ? (
@@ -124,12 +124,12 @@ const WearerRow = ({
               <Icon className={cn('size-4', color)} />
             )}
 
-            <p className={cn('text-sm', color)}>{displayName}</p>
+            <p className={cn(color)}>{displayName}</p>
           </div>
         </Tooltip>
       </Link>
 
-      <div className='flex items-center gap-1'>
+      <div className='flex items-center gap-2'>
         {!isIneligible && // don't transfer when you can revoke
           currentUserIsAdmin && // admins can transfer
           (wearer.id !== toLower(address) || isTopHat(selectedHat)) && ( // prefer to renounce if wearer, unless top hat
@@ -149,24 +149,12 @@ const WearerRow = ({
             </TooltipWrapper>
           )}
 
-        {isIneligible && ( // when ineligible, we use same rows
-          <Button
-            variant='link'
-            size='xs'
-            className='font-medium text-red-500'
-            disabled={isLoading}
-            onClick={updateEligibility}
-          >
-            Reconcile
-          </Button>
-        )}
-
         {!isSameAddress(wearer.id, address) &&
           currentUserIsEligibility && ( // eligibility can revoke
             <TooltipWrapper isSameChain={isSameChain} label="You can't revoke a hat on a different chain">
               <Button
                 variant='link'
-                className='text-red-500'
+                className='text-destructive hover:text-destructive/80 font-medium hover:no-underline'
                 size='xs'
                 disabled={!isSameChain}
                 onClick={() => {
@@ -180,8 +168,14 @@ const WearerRow = ({
           )}
 
         {!isSameAddress(wearer.id, address) ? ( // if not current user, show copy button
-          <Button size='xs' variant='link' aria-label='Copy wearer address' onClick={copyAddress}>
-            <CopyAddress className='text-functional-link-primary mr-1 size-4' />
+          <Button
+            size='xs'
+            variant='link'
+            aria-label='Copy wearer address'
+            className='text-functional-link-primary hover:text-functional-link-primary/80 hover:no-underline'
+            onClick={copyAddress}
+          >
+            <CopyAddress className='size-4' />
             Copy
           </Button>
         ) : (
@@ -191,7 +185,7 @@ const WearerRow = ({
               <Button
                 variant='link'
                 size='xs'
-                className='bg-transparent font-medium text-red-500'
+                className='text-destructive bg-transparent font-medium'
                 disabled={!isSameChain || !renounceHat}
                 onClick={handleRenounceHat}
               >
@@ -199,6 +193,18 @@ const WearerRow = ({
               </Button>
             </TooltipWrapper>
           )
+        )}
+
+        {isIneligible && ( // when ineligible, we use same rows
+          <Button
+            variant='link'
+            size='xs'
+            className='text-destructive font-medium'
+            disabled={isLoading}
+            onClick={updateEligibility}
+          >
+            Reconcile
+          </Button>
         )}
       </div>
     </div>

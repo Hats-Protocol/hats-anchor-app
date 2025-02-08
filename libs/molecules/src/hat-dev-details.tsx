@@ -35,12 +35,12 @@ const HatDevDetails = () => {
 
   return (
     <div className='flex flex-col gap-6 px-4 md:px-16'>
-      <h2 className='font-bold'>Dev Info</h2>
+      <h2 className='font-medium'>Dev Info</h2>
 
       <div className='flex flex-col gap-2'>
         <div className='flex flex-col gap-2'>
           <div className='flex items-center gap-2'>
-            <p className='font-medium'>Image URI:</p>
+            <p className='text-sm uppercase'>Image URI:</p>
             <Link href={ipfsUrl(selectedHat?.imageUri)} isExternal>
               <p className='max-w-[250px] truncate lg:max-w-[350px]'>
                 {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
@@ -48,7 +48,7 @@ const HatDevDetails = () => {
             </Link>
           </div>
           <div className='flex items-center gap-2'>
-            <p className='font-medium'>Details URI:</p>
+            <p className='text-sm uppercase'>Details URI:</p>
             <Link href={ipfsUrl(selectedHat?.details)} isExternal>
               <p className='max-w-[250px] truncate lg:max-w-[350px]'>
                 {selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}
@@ -57,7 +57,7 @@ const HatDevDetails = () => {
           </div>
 
           <div className='flex items-center gap-2'>
-            <p className='font-medium'>Claimable:</p>
+            <p className='text-sm uppercase'>Claimable:</p>
             <p>{isClaimable?.for ? 'For' : isClaimable?.by ? 'Any' : 'None'}</p>
           </div>
         </div>
@@ -75,9 +75,9 @@ const HatDevDetails = () => {
 
           return (
             <div className='flex gap-2' key={`${get(data, 'label')}-${get(data, 'value')}`}>
-              <span className='font-medium'>{get(data, 'label')}:</span>{' '}
+              <span className='text-sm uppercase'>{get(data, 'label')}:</span>{' '}
               <Link href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`} isExternal>
-                {formatAddress(get(data, 'value'))}
+                <pre>{formatAddress(get(data, 'value'))}</pre>
               </Link>
               <Button variant='link' onClick={devDataClick}>
                 <CopyAddress className='size-4' />
@@ -92,16 +92,19 @@ const HatDevDetails = () => {
           <hr className='border-gray-200' />
 
           <div className='flex flex-col gap-2'>
-            <h3 className='font-bold'>Eligibility Rules</h3>
+            <h3 className='font-medium'>Eligibility Rules</h3>
 
             {eligibilityInfo.map((ruleSet) =>
               map(ruleSet, (rule) => (
-                <div key={rule.address}>
-                  {rule.module.name} (
-                  <Link href={`${explorerUrl(chainId)}/address/${rule.address}`} className='underline' isExternal>
-                    {formatAddress(rule.address)}
-                  </Link>
-                  )
+                <div key={rule.address} className='flex items-center gap-1'>
+                  <p>{rule.module.name}</p>
+                  <pre>
+                    (
+                    <Link href={`${explorerUrl(chainId)}/address/${rule.address}`} className='underline' isExternal>
+                      {formatAddress(rule.address)}
+                    </Link>
+                    )
+                  </pre>
                 </div>
               )),
             )}

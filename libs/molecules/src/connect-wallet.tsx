@@ -93,7 +93,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
             }
 
             return (
-              <div className='flex gap-2'>
+              <div className='z-0 flex gap-2'>
                 <Button variant='outline' className='flex items-center px-2' onClick={openChainModal}>
                   {chain.hasIcon && chain.iconUrl && (
                     <img alt={chain.name ?? 'Chain icon'} src={chain.iconUrl} className='h-6 w-6 rounded-full' />
@@ -116,7 +116,7 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
       </RainbowConnectButton.Custom>
 
       {address && (
-        <Modal name='account' onClose={() => setModals?.({})} size='sm'>
+        <Modal name='account' onClose={() => setModals?.({})} size='md'>
           <WalletProfile
             address={address as Hex}
             name={ensName || formatAddress(address)}

@@ -10,17 +10,9 @@ import { PassthroughModuleRule } from '../hat-controlled/passthrough-eligibility
 import { SeasonToggleRule } from '../season/season-toggle-rule';
 import { UnknownToggleRule } from './unknown-toggle';
 
-export const KnownToggleModule = ({
-  ruleSets,
-  chainId,
-  wearer,
-  selectedHat,
-}: KnownModuleParameters) => {
+export const KnownToggleModule = ({ ruleSets, chainId, wearer, selectedHat }: KnownModuleParameters) => {
   const localModule = first(first(ruleSets));
-  const { module: moduleDetails, liveParams: parameters } = pick(localModule, [
-    'module',
-    'liveParams',
-  ]);
+  const { module: moduleDetails, liveParams: parameters } = pick(localModule, ['module', 'liveParams']);
 
   switch (moduleDetails?.name) {
     case TOGGLE_MODULES.season:
@@ -46,13 +38,7 @@ export const KnownToggleModule = ({
       );
   }
 
-  return (
-    <UnknownToggleRule
-      chainId={chainId}
-      wearer={wearer}
-      selectedHat={selectedHat}
-    />
-  );
+  return <UnknownToggleRule chainId={chainId} wearer={wearer} selectedHat={selectedHat} />;
 };
 
 interface KnownModuleParameters {

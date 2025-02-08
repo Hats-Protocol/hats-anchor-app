@@ -106,6 +106,11 @@ const config: Config = {
           '50%': { opacity: '.5' },
         },
       },
+
+      backgroundImage: {
+        'gradient-accordion-trigger': 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)',
+      },
+
       shadow: {
         'accordion-trigger': '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)',
         'expanded-accordion': '0px 10px 6px -6px rgba(0, 0, 0, 0.10)',

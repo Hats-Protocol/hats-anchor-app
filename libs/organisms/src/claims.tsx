@@ -6,16 +6,16 @@ import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { first, flatten, get, size } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import {
+  AgreementClaims,
+  ElectionClaims,
+  ModuleChainClaimButtons,
+  ModuleChainClaimsCard,
+  SlimModuleDetails,
+  SubscriptionClaims,
+} from 'modules-ui';
 import { Card, Link, Skeleton } from 'ui';
 import { chainsMap, eligibilityRuleToModuleDetails, hatLink } from 'utils';
-
-const AgreementClaims = dynamic(() => import('modules-ui').then((mod) => mod.AgreementClaims));
-const ElectionClaims = dynamic(() => import('modules-ui').then((mod) => mod.ElectionClaims));
-const SubscriptionClaims = dynamic(() => import('modules-ui').then((mod) => mod.SubscriptionClaims));
-const SlimModuleDetails = dynamic(() => import('modules-ui').then((mod) => mod.SlimModuleDetails));
-const ModuleChainClaimButtons = dynamic(() => import('modules-ui').then((mod) => mod.ModuleChainClaimButtons));
-const ModuleChainClaimsCard = dynamic(() => import('modules-ui').then((mod) => mod.ModuleChainClaimsCard));
 
 const Claims = () => {
   const { isClient } = useMediaStyles();

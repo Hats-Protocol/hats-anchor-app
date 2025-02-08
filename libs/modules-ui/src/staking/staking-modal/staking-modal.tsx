@@ -2,7 +2,7 @@
 
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { AddressInput, Form, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import { concat, find, get, isEmpty, map, reject, size, subtract } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
@@ -93,14 +93,16 @@ export const StakingModal = ({
         {details?.name || hat?.details}
       </h2>
 
-      <div className='flex'>
-        <Input
-          name='search'
-          // className='min-w-[350px]'
-          placeholder='Find by address (0x) or ENS (.eth)'
-          localForm={localForm}
-        />
-      </div>
+      <Form {...localForm}>
+        <div className='flex'>
+          <Input
+            name='search'
+            // className='min-w-[350px]'
+            placeholder='Find by address (0x) or ENS (.eth)'
+            localForm={localForm}
+          />
+        </div>
+      </Form>
 
       <div className='pb-150px w-full space-y-4 overflow-y-auto pt-10'>
         <div className='space-y-1'>

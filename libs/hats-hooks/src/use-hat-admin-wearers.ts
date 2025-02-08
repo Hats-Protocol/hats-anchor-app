@@ -1,5 +1,5 @@
 // import { useQuery } from '@tanstack/react-query';
-import { filter, find, flatten, map, reject, size, uniqBy } from 'lodash';
+import { filter, find, flatten, isEmpty, map, reject, size, uniqBy } from 'lodash';
 import { useMemo } from 'react';
 import { AppHat, HatWearer, SupportedChains } from 'types';
 
@@ -117,7 +117,7 @@ const useHatAdminWearers = ({
     data,
     adminHats,
     adminCount,
-    // isLoading: status === 'pending' || isLoading,
+    isLoading: isEmpty(data) || (adminCount.code === 0 && adminCount.groups === 0 && adminCount.human === 0),
     // error,
   };
 };

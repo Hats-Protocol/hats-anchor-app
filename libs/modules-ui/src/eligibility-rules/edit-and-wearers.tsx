@@ -7,7 +7,7 @@ import { getControllerNameAndLink } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import { filter, first, get, includes, map, reject, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { IconType } from 'react-icons';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { AppHat, HatWearer, SupportedChains } from 'types';
@@ -40,9 +40,9 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   if (!chainId || !hat || size(wearers) === 0) return null;
 
   return (
-    <div className='flex justify-between py-1'>
+    <div className='flex justify-between py-1 md:text-base'>
       <div className='flex items-center gap-2'>
-        <HatIcon className='h-4 w-4' />
+        <HatIcon className='size-4' />
 
         <p>
           {hatIdDecimalToIp(hatIdHexToDecimal(hatId))} {details?.name}
@@ -60,21 +60,18 @@ const AdminWearersPanel = () => {
   const { treeToDisplay, orgChartWearers } = useTreeForm();
   const { selectedHat, chainId, isClaimable, hatLoading: selectedHatLoading } = useSelectedHat();
   const { isMobile } = useMediaStyles();
-  // const [expandedBackground, setExpandedBackground] = useState(false);
-  const isMounted = useRef(false);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
+  const [open, setOpen] = useState('');
+  // const isMounted = useRef(false);
+  const expanded = open === 'admins';
+  const handleToggle = useCallback((value: string) => {
+    setOpen(value);
   }, []);
 
   const {
     data: admins,
     adminCount,
     adminHats,
-    // isLoading: adminWearersLoading,
+    isLoading: adminWearersLoading,
   } = useHatAdminWearers({
     selectedHat,
     treeToDisplay,
@@ -83,12 +80,12 @@ const AdminWearersPanel = () => {
   });
 
   if (size(adminHats) === 0 || selectedHatLoading) {
-    return <Skeleton className='mx-4 my-2 md:mx-0' />;
+    return <Skeleton className='mx-4 my-2' />;
   }
 
   if (size(admins) === 1) {
     return (
-      <div className='flex justify-between px-4 py-1 md:px-0'>
+      <div className='flex justify-between px-4 py-1'>
         <p>
           <span className='hidden md:inline'>Admins can edit this Hat</span>
           <span className='inline md:hidden'>Can edit Hat</span>
@@ -103,29 +100,16 @@ const AdminWearersPanel = () => {
   // TODO move background gradient to theme
 
   return (
-    <Accordion type='single'>
-      <AccordionItem
-        className={cn(
-          '-ml-1 w-full border-none shadow',
-          // expandedBackground && 'shadow-accordion-trigger',
-          // expandedBackground && 'border-t-md border-t-gray',
-        )}
-        value='admins'
-      >
+    <Accordion type='single' collapsible value={open} onValueChange={handleToggle}>
+      <AccordionItem className={cn('w-full rounded-md border-none', expanded && 'shadow')} value='admins'>
         <AccordionTrigger
-          className={cn('border-b-lg border-gray border-t-md border-t-gray overflow-visible bg-white p-0', 'bg-white')}
-
-          // _hover={{
-          //   background: !isExpanded ? 'white' : undefined,
-          //   borderRadius: !isExpanded ? 'md' : undefined,
-          //   borderColor: !isExpanded && 'blue.300',
-          // }}
-          // background={isExpanded ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)' : undefined}
-          // borderTopRadius={isExpanded ? 'md' : undefined}
-          // borderColor={isExpanded ? 'gray.100' : 'transparent'}
-          // borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
+          className={cn(
+            'border-gray border-t-md border-t-gray overflow-visible rounded-md border-b border-b-transparent p-0 px-4 hover:bg-white hover:no-underline',
+            !expanded ? 'hover:border-b hover:border-blue-300' : 'hover:border-t-gray-100',
+            expanded && 'bg-gradient-accordion-trigger rounded-b-none border-b-gray-400',
+          )}
         >
-          <div className='flex w-full justify-between px-4 py-2'>
+          <div className='flex w-full justify-between py-2 pr-4 text-base font-normal'>
             <p>
               Admins can edit {!isMobile ? 'this Hat' : ''}
               {!isClaimable?.for ? ' and choose Wearers' : ''}
@@ -135,11 +119,16 @@ const AdminWearersPanel = () => {
           </div>
         </AccordionTrigger>
 
-        <AccordionContent className='border-b-lg border-gray overflow-visible bg-white p-0 pb-1'>
-          <div className='space-y-2 px-4'>
-            {map(adminHats, (adminHat: AppHat) => (
-              <AdminHatRow key={adminHat.id} hatId={adminHat.id} />
-            ))}
+        <AccordionContent className='border-b-lg border-gray overflow-visible rounded-b-md bg-white p-0 pb-1'>
+          <div className='space-y-2 px-4 py-2'>
+            {adminWearersLoading ? (
+              <>
+                <Skeleton className='mx-4 my-2 md:mx-0' key='skeleton-1' />
+                <Skeleton className='mx-4 my-2 md:mx-0' key='skeleton-2' />
+              </>
+            ) : (
+              map(adminHats, (adminHat: AppHat) => <AdminHatRow key={adminHat.id} hatId={adminHat.id} />)
+            )}
           </div>
         </AccordionContent>
       </AccordionItem>
@@ -170,8 +159,11 @@ const WearerBreakdown = ({
     return (
       <Link href={link}>
         <div
-          className='flex items-center gap-1'
-          color={wearer?.isContract && !name.includes('Safe') ? 'Informative-Code' : 'Informative-Human'}
+          className={cn(
+            'flex items-center gap-1',
+            // TODO include "not name.includes('Safe')" when wearer count is updated
+            wearer?.isContract ? 'text-informative-code' : 'text-informative-human',
+          )}
         >
           <p>{name || formatAddress(wearer?.id)}</p>
 
@@ -218,7 +210,7 @@ const Claimable = ({
 
   return (
     <Link href={`${explorerUrl(chainId)}/address/${address}`} isExternal>
-      <div className='flex items-center gap-1 text-blue-500'>
+      <div className='text-functional-link-primary flex items-center gap-1'>
         <p>{claimFor ? 'Free Claim' : 'Self Claim'}</p>
         <CodeIcon className='h-4 w-4' />
       </div>
@@ -227,10 +219,14 @@ const Claimable = ({
 };
 
 export const EditAndWearers = () => {
-  const { treeToDisplay, orgChartWearers } = useTreeForm();
+  const { treeToDisplay, orgChartWearers, isLoading: treeLoading } = useTreeForm();
   const { selectedHat, chainId, isClaimable } = useSelectedHat();
 
-  const { data: admins, adminCount } = useHatAdminWearers({
+  const {
+    data: admins,
+    adminCount,
+    isLoading: adminWearersLoading,
+  } = useHatAdminWearers({
     selectedHat,
     treeToDisplay,
     orgChartWearers,
@@ -244,6 +240,14 @@ export const EditAndWearers = () => {
   //   base: 'Anyone can add eligible Wearers',
   //   md: 'Anyone can add eligible addresses as Wearers',
   // });
+
+  if (treeLoading || adminWearersLoading) {
+    return (
+      <div className='flex flex-col gap-2 px-4 md:px-12'>
+        <Skeleton className='h-4 w-full md:mx-4' />
+      </div>
+    );
+  }
 
   if (!selectedHat?.mutable) {
     return (
@@ -267,18 +271,18 @@ export const EditAndWearers = () => {
   }
 
   return (
-    <div className='space-y-2 px-4 py-1 md:px-0'>
+    <div className='space-y-1 px-4 py-1 md:px-0'>
       <AdminWearersPanel />
 
       {(isClaimable?.for || isClaimable?.by) &&
         (isClaimable?.for ? (
-          <div className='flex justify-between px-4 py-2 md:px-0'>
+          <div className='flex justify-between px-4 py-2'>
             <p>Anyone can add eligible Wearers</p>
 
             <Claimable address={claimableForAddress} chainId={chainId} claimFor={isClaimable.for} />
           </div>
         ) : (
-          <div className='flex justify-between px-4 py-2 md:px-0'>
+          <div className='flex justify-between px-4 py-2'>
             <p>Eligible addresses can claim a Hat</p>
 
             <Claimable address={claimableAddress} chainId={chainId} claimFor={isClaimable.for} />

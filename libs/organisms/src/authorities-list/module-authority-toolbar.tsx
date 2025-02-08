@@ -184,7 +184,7 @@ const ModuleAuthorityToolbar = ({
   // process.env.NODE_ENV === 'development';
 
   return (
-    <div className='flex flex-wrap'>
+    <div className='flex flex-wrap gap-2'>
       {customFunction && eligibilityModalFlag ? <CustomFunction authority={customFunction} /> : null}
 
       {primaryFunction && (!customFunction || !eligibilityModalFlag) && (
@@ -192,6 +192,7 @@ const ModuleAuthorityToolbar = ({
           <Button
             disabled={!!isPrimaryFunctionDisabled}
             size='sm'
+            className='text-sm'
             onClick={() => {
               posthog.capture('Called Module Function', {
                 type: 'Primary',
@@ -210,9 +211,10 @@ const ModuleAuthorityToolbar = ({
       <div className='flex gap-2'>
         {authority.type === AUTHORITY_TYPES.hsg && (
           <Link href={safeUrl(chainId, authority.hsgConfig?.safe)} onClick={trackSafeClick} isExternal>
-            <Button variant='outline-blue' size='sm'>
+            <Button variant='outline-blue' className='text-sm' size='sm'>
               <div className='flex items-center gap-1'>
                 <p>Safe</p>
+
                 <BoxArrowUpRightOut className='size-3' />
               </div>
             </Button>
@@ -221,12 +223,12 @@ const ModuleAuthorityToolbar = ({
         {(!isEmpty(otherFunctions) || !isEmpty(otherLinks)) && (
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Button variant='outline-blue' size='sm'>
+              <Button variant='outline-blue' size='sm' className='text-sm'>
                 More
-                <FaEllipsisV className='ml-1 size-2 text-blue-500' />
+                <FaEllipsisV className='text-functional-link-primary ml-1 size-2' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align='start'>
               {map(otherFunctions, (func: ModuleFunction, i: number) => {
                 const publicFunction = includes(func.roles, 'public');
                 const localDisabledReason = getDisabledReason({
@@ -263,7 +265,12 @@ const ModuleAuthorityToolbar = ({
               {map(otherLinks, (link: LinkObject) => {
                 const Icon = link.icon || FaExternalLinkAlt;
                 return (
-                  <Link href={link.link} isExternal={!!getHostnameFromURL(link.link)} key={link.link}>
+                  <Link
+                    href={link.link}
+                    isExternal={!!getHostnameFromURL(link.link)}
+                    key={link.link}
+                    className='text-foreground hover:no-underline'
+                  >
                     <DropdownMenuItem>
                       <div className='flex w-full items-center justify-between gap-1'>
                         <p>{link.label}</p>

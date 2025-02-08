@@ -54,7 +54,7 @@ export const EligibilityModuleRules: {
   erc20: Erc20EligibilityRule,
   erc721: Erc721EligibilityRule,
   hatWearing: HatWearingEligibilityRule,
-  jokerace: JokeRaceEligibilityRule,
+  jokeRace: JokeRaceEligibilityRule,
   passthrough: PassthroughModuleRule,
   staking: StakingEligibilityRule,
   unlock: UnlockEligibilityRule,

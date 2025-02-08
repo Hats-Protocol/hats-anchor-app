@@ -6,6 +6,7 @@ import { combineAuthorities } from 'hats-utils';
 import { useHatSnapshotRoles } from 'hooks';
 import { get, isEmpty, map, size } from 'lodash';
 import { useAncillaryModules } from 'modules-hooks';
+import { useState } from 'react';
 import { Authority, AuthorityType } from 'types';
 import { Accordion, Skeleton } from 'ui';
 
@@ -23,6 +24,7 @@ const LOADING_AUTHORITIES: Authority[] = Array(LOADING_COUNT).fill({
 const AuthoritiesList = () => {
   const { orgChartTree, snapshotData } = useTreeForm();
   const { chainId, selectedHat, selectedHatDetails, hatLoading } = useSelectedHat();
+  const [openCards, setOpenCards] = useState<string[]>([]);
 
   const { modulesAuthorities, isLoading: ancillaryModulesLoading } = useAncillaryModules({
     id: selectedHat?.id,
@@ -64,17 +66,17 @@ const AuthoritiesList = () => {
 
   if (!allLoaded) {
     return (
-      <div className='space-y-4'>
-        <Skeleton />
-        <Skeleton />
+      <div className='space-y-4 md:px-16'>
+        <Skeleton className='h-4 w-full' />
+        <Skeleton className='h-4 w-full' />
       </div>
     );
   }
 
   return (
-    <Accordion className='px-0 md:px-16' type='multiple'>
-      <div className='space-y-4'>
-        <h2 className='text-lg font-medium'>
+    <Accordion className='px-0 md:px-16' type='multiple' value={openCards} onValueChange={setOpenCards}>
+      <div className='space-y-2'>
+        <h2 className='font-medium'>
           {size(combinedAuthorities)} {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'} granted by this
           Hat
         </h2>
@@ -84,6 +86,7 @@ const AuthoritiesList = () => {
             <AuthoritiesListCard
               index={index}
               key={`${authority.label}-${index}`}
+              openCards={openCards}
               authority={authority}
               type={authority.type as AuthorityType}
             />

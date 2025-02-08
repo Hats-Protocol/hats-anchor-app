@@ -32,7 +32,7 @@ const claimTooltip = ({
   return undefined;
 };
 
-const addWearerTooltip = (sameChain: any, maxWearersReached: any) => {
+const addWearerTooltip = (sameChain: boolean, maxWearersReached: boolean) => {
   if (!sameChain) return "You can't add a wearer from a different chain.";
   if (maxWearersReached) return 'Maximum number of wearers reached.';
 
@@ -96,12 +96,23 @@ const WearerButtons = () => {
   // 2. add wearer (for admins)
   // 3. claim hat
 
+  const hatIsClaimable =
+    (currentUserIsEligible as boolean) &&
+    !!isClaimable &&
+    !currentHatIsClaimable?.for &&
+    !isAdminUser &&
+    !currentUserIsWearing;
+
+  if (!gt(size(eligibleWearerIds), 4) && !isAdminUser && !hatIsClaimable) {
+    return null;
+  }
+
   return (
-    <div className='flex items-center justify-between px-4 pt-2 md:px-16'>
+    <div className='flex items-center justify-between px-4 pt-2 md:px-0'>
       {gt(size(eligibleWearerIds), 4) && (
         <Button
           onClick={() => setModals?.({ hatWearers: true })}
-          className='text-functional-link-secondary'
+          className='text-functional-link-secondary hover:text-functional-link-secondary/80 text-base'
           variant='link'
           // TODO technically not taking into account eligibility here
         >
@@ -124,37 +135,33 @@ const WearerButtons = () => {
                 disabled={maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
                 // isLoading={isLoading}
                 onClick={() => (!maxWearersReached ? setModals?.({ claimFor: true }) : {})}
-                className='flex gap-2 text-blue-500'
+                className='text-functional-link-primary hover:text-functional-link-primary/80 flex items-center gap-2'
               >
                 <FaPlus />
-                <p>Claim hat for wearer</p>
+                <p className='text-base'>Claim hat for wearer</p>
               </Button>
             </Tooltip>
           )}
-          {(currentUserIsEligible as boolean) &&
-            !!isClaimable &&
-            !currentHatIsClaimable?.for &&
-            !isAdminUser &&
-            !currentUserIsWearing && (
-              <Tooltip
-                label={claimTooltip({
-                  claimFor: false,
-                  sameChain: chainId === currentNetworkId,
-                  hatterIsAdmin: hatterIsAdmin as boolean,
-                })}
+          {hatIsClaimable && (
+            <Tooltip
+              label={claimTooltip({
+                claimFor: false,
+                sameChain: chainId === currentNetworkId,
+                hatterIsAdmin: hatterIsAdmin as boolean,
+              })}
+            >
+              <Button
+                variant='link'
+                disabled={!claimHat || maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
+                onClick={claimHat}
               >
-                <Button
-                  variant='link'
-                  disabled={!claimHat || maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
-                  onClick={claimHat}
-                >
-                  <div className='flex gap-2 text-blue-500'>
-                    <FaPlus />
-                    <p>Claim Hat</p>
-                  </div>
-                </Button>
-              </Tooltip>
-            )}
+                <div className='text-functional-link-primary hover:text-functional-link-primary/80 flex items-center gap-2'>
+                  <FaPlus />
+                  <p>Claim Hat</p>
+                </div>
+              </Button>
+            </Tooltip>
+          )}
           {isAdminUser && (
             <Tooltip label={addWearerTooltip(chainId === currentNetworkId, maxWearersReached)}>
               <Button
@@ -162,7 +169,7 @@ const WearerButtons = () => {
                 disabled={maxWearersReached || chainId !== currentNetworkId}
                 onClick={() => (!maxWearersReached ? setModals?.({ newWearer: true }) : {})}
               >
-                <div className='flex cursor-pointer gap-2 text-blue-500'>
+                <div className='text-functional-link-primary hover:text-functional-link-primary/80 flex cursor-pointer items-center gap-2 text-base'>
                   <FaPlus />
                   <p>Add a wearer</p>
                 </div>

@@ -34,7 +34,7 @@ const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLink
       >
         <div className={cn('flex items-center gap-2')}>
           {leftIcon}
-          <p className={cn(textClassName || 'text-sm')}>{children}</p>
+          <p className={cn('text-base', textClassName)}>{children}</p>
           {rightIcon}
         </div>
       </a>
@@ -60,6 +60,7 @@ export function LinkButton({
         leftIcon={leftIcon}
         rightIcon={rightIcon}
         variant={variant}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onClick={onClick as any}
         {...props}
         children={children}
