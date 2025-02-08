@@ -41,6 +41,20 @@ export const Outline: Story = {
   },
 };
 
+export const OutlineRed: Story = {
+  args: {
+    variant: 'outline-red',
+    children: 'Outline Red',
+  },
+};
+
+export const OutlineGreen: Story = {
+  args: {
+    variant: 'outline-green',
+    children: 'Outline Green',
+  },
+};
+
 export const Ghost: Story = {
   args: {
     variant: 'ghost',
