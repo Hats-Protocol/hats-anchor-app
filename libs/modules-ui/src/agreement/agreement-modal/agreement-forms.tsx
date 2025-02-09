@@ -1,9 +1,13 @@
+'use client';
+
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { DurationInput } from 'forms';
+import { useQueryClient } from '@tanstack/react-query';
+import { useOverlay } from 'contexts';
+import { DurationInput, Form } from 'forms';
 import { useAllWearers, useWearerDetails } from 'hats-hooks';
-import { useIpfsData } from 'hooks';
-import { compact, find, first, get, isEmpty, map, pick, size, subtract } from 'lodash';
+import { useIpfsData, useWaitForSubgraph } from 'hooks';
+import { compact, find, first, get, isEmpty, map, pick, size, subtract, toLower } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useCallback, useMemo } from 'react';
@@ -37,8 +41,10 @@ export const AgreementForms = ({
   selectedOption,
 }: AgreementFormsProps) => {
   const { address } = useAccount();
+  const { handlePendingTx } = useOverlay();
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
   const { writeContractAsync } = useWriteContract();
-
+  const queryClient = useQueryClient();
   const currentAgreement = get(find(moduleParameters, { label: 'Current Agreement' }), 'value');
   const { data: agreementData } = useIpfsData(currentAgreement as string);
   const agreementContent = get(agreementData, 'data');
@@ -62,7 +68,7 @@ export const AgreementForms = ({
     onchainHats,
   });
 
-  const isWearing = !!find(wearers, { id: hat?.id });
+  const isWearing = !!find(wearers, { id: toLower(address) });
 
   const ownerHat = get(find(moduleParameters, { label: 'Owner Hat' }), 'value');
   const judgeHat = get(find(moduleParameters, { label: 'Arbitrator Hat' }), 'value');
@@ -76,15 +82,23 @@ export const AgreementForms = ({
 
   const handleRemoveWearers = useCallback(async () => {
     if (!moduleInfo.instanceAddress) return;
-    // TODO handle remove many
+    // TODO handle remove many (v0.3.0 and above)
     const removeAddresses = map(removeList, (p) => p.id);
-    const tx = await writeContractAsync({
+    const hash = await writeContractAsync({
       address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'revoke',
       args: [first(removeAddresses)],
     });
-    console.log('tx', tx);
+    handlePendingTx?.({
+      hash,
+      txChainId: chainId,
+      txDescription: `Removed Address from Agreement`,
+      waitForSubgraph,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['eligibilityRules'] });
+      },
+    });
     setRemoveList([]);
     setRemoving(false);
   }, [
@@ -98,15 +112,24 @@ export const AgreementForms = ({
 
   const handleSignAgreement = async () => {
     if (!moduleInfo.instanceAddress) return;
-    const tx = await writeContractAsync({
+    const hash = await writeContractAsync({
       address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'signAgreementAndClaimHat',
       args: [instanceAddress],
     });
 
-    console.log('tx', tx);
-    // TODO handle success
+    handlePendingTx?.({
+      hash,
+      txChainId: chainId,
+      txDescription: `Signed Agreement and claimed Hat ${
+        hat?.detailsObject ? get(hat, 'detailsObject.name') : hat?.id && `Hat ${hatIdDecimalToIp(BigInt(hat.id))}`
+      }`,
+      waitForSubgraph,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['eligibilityRules'] });
+      },
+    });
   };
 
   const prepUpdateAgreement = () => {
@@ -153,24 +176,33 @@ export const AgreementForms = ({
 
     const token = await fetchToken();
     // TODO handle error
-    console.log('token', token);
+
     const ipfsHash = await pinFileToIpfs({
       file: newAgreementContent,
       fileName: `agreement_${hatIdDecimalToIp(BigInt(hat.id))}_${chainId}`,
       token,
     });
 
-    console.log('ipfsHash', ipfsHash);
-    const tx = await writeContractAsync({
+    const hash = await writeContractAsync({
       address: moduleInfo.instanceAddress,
       abi: moduleInfo.abi,
       functionName: 'setAgreement',
       args: [ipfsHash, gracePeriod],
     });
-    console.log('tx', tx);
-    // TODO handle success
-    setUpdatingAgreement(false);
-    return tx;
+    handlePendingTx?.({
+      hash,
+      txChainId: chainId,
+      txDescription: `Updated Agreement for ${
+        hat?.detailsObject ? get(hat, 'detailsObject.name') : hat?.id && `Hat ${hatIdDecimalToIp(BigInt(hat.id))}`
+      }`,
+      waitForSubgraph,
+      onSuccess: () => {
+        setUpdatingAgreement(false);
+        queryClient.invalidateQueries({ queryKey: ['eligibilityRules'] });
+      },
+    });
+
+    return hash;
   };
 
   const sections = useMemo(() => {
@@ -184,7 +216,7 @@ export const AgreementForms = ({
             <div className='flex flex-col gap-4'>
               <h3 className='text-lg font-semibold'>Addresses selected for removal</h3>
 
-              <Card>
+              <Card className='rounded-md'>
                 <div className='m-2 mx-4'>
                   {isEmpty(removeList) ? (
                     <p className='text-gray-500'>Select an address to remove</p>
@@ -226,33 +258,35 @@ export const AgreementForms = ({
         value: updatingAgreement,
         hasRole: isOwner,
         section: (
-          <div className='flex w-full flex-col gap-4 px-4 md:px-10'>
-            <DurationInput name='gracePeriod' label='Grace Period' localForm={localForm} />
+          <Form {...localForm}>
+            <div className='flex w-full flex-col gap-4 px-4 md:px-10'>
+              <DurationInput name='gracePeriod' label='Grace Period' localForm={localForm} />
 
-            <div className='flex w-full justify-between'>
-              <Button variant='outline-blue' size='sm' onClick={() => setUpdatingAgreement(false)}>
-                Cancel
-              </Button>
+              <div className='flex w-full justify-between'>
+                <Button variant='outline-blue' size='sm' onClick={() => setUpdatingAgreement(false)}>
+                  Cancel
+                </Button>
 
-              <TransactionButton
-                size='sm'
-                chainId={chainId}
-                txDescription={`Updated Agreement for ${
-                  hat?.detailsObject
-                    ? get(hat, 'detailsObject.name')
-                    : hat?.id && `Hat ${hatIdDecimalToIp(BigInt(hat.id))}`
-                }`}
-                sendTx={handleUpdateAgreement}
-                afterSuccess={() => {
-                  setUpdatingAgreement(false);
-                }}
-                disabled={isEmpty(agreementContent)}
-                onClick={handleUpdateAgreement}
-              >
-                Update Agreement
-              </TransactionButton>
+                <TransactionButton
+                  size='sm'
+                  chainId={chainId}
+                  txDescription={`Updated Agreement for ${
+                    hat?.detailsObject
+                      ? get(hat, 'detailsObject.name')
+                      : hat?.id && `Hat ${hatIdDecimalToIp(BigInt(hat.id))}`
+                  }`}
+                  sendTx={handleUpdateAgreement}
+                  afterSuccess={() => {
+                    setUpdatingAgreement(false);
+                  }}
+                  disabled={isEmpty(agreementContent)}
+                  onClick={handleUpdateAgreement}
+                >
+                  Update Agreement
+                </TransactionButton>
+              </div>
             </div>
-          </div>
+          </Form>
         ),
       },
     ];
@@ -271,7 +305,6 @@ export const AgreementForms = ({
     agreementContent,
     // reset,
   ]);
-  console.log(agreementButtons);
 
   return <ManageBar sections={sections} buttons={agreementButtons} />;
 };

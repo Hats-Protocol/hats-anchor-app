@@ -110,8 +110,8 @@ const TopMenu = () => {
   );
 
   return (
-    <div className='bg-whiteAlpha-900 top-0 z-[16] flex w-full items-center justify-between border-b border-gray-200 px-4 py-4'>
-      <div className='flex items-center justify-between'>
+    <div className='top-0 z-[16] flex w-full items-center justify-between border-b border-gray-200 bg-white/90 px-4 py-4'>
+      <div className='flex items-center justify-between gap-2'>
         <Button variant='outline' onClick={promptForReset}>
           <BsXSquare className='mr-2' />
           Cancel
@@ -129,10 +129,10 @@ const TopMenu = () => {
           </Tooltip>
         )}
       </div>
-      <div className='flex items-center justify-between'>
+      <div className='flex items-center justify-between gap-2'>
         <NetworkSwitcher />
         <Tooltip label={isDeployDisabled ? getDeployTooltipLabel : ''}>
-          <Button className='bg-blue-500' disabled={isDeployDisabled} onClick={handleDeploy}>
+          <Button className='bg-functional-link-primary' disabled={isDeployDisabled} onClick={handleDeploy}>
             <IoExitOutline className='mr-2' />
             Deploy
           </Button>

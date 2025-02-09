@@ -60,10 +60,10 @@ const ModuleDetailsForm = ({
   if (!onchainTree || !treeToDisplay) return null;
 
   return (
-    <div className='w-full space-y-12'>
-      <FormRowWrapper>
-        <BsPuzzle className='mt-2 size-4' />
-        <div className='w-full'>
+    <div className='mx-8 mt-4 space-y-12'>
+      <FormRowWrapper noMargin>
+        <BsPuzzle className='absolute -ml-8 mt-1 size-4' />
+        <div className='w-full space-y-2'>
           <Select
             label='Module Type'
             subLabel='The category of prewritten module to connect to this hat.'
@@ -79,15 +79,19 @@ const ModuleDetailsForm = ({
             ))}
           </Select>
 
-          <Link href={CONTACT_URL} className='mt-2 text-center text-sm text-blue-500 underline' isExternal>
-            Not finding a module you&apos;re looking for? Let us know here.
-          </Link>
+          <div className='flex items-center gap-2'>
+            <p className='text-sm text-gray-500'>Not finding a module you&apos;re looking for?</p>
+            <Link href={CONTACT_URL} className='text-functional-link-primary text-sm underline' isExternal>
+              Let us know here
+            </Link>
+          </div>
         </div>
       </FormRowWrapper>
 
       {selectedModuleDetails && (
-        <FormRowWrapper>
-          <BsTextLeft className='mt-2 size-4' />
+        <FormRowWrapper noMargin>
+          <BsTextLeft className='absolute -ml-8 mt-1 size-4' />
+
           <div className='space-y-3'>
             <p className='text-sm font-medium'>MODULE TYPE DETAILS</p>
             {selectedModuleDetails.details.map((detail: string) => (

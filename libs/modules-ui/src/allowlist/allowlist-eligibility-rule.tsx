@@ -99,7 +99,7 @@ export const AllowlistEligibilityRule = ({
                   })
                 }
                 variant='link'
-                className='underline'
+                className='text-base underline'
               >
                 Allowlist
               </Button>

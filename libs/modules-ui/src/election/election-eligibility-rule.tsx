@@ -37,7 +37,8 @@ export const ElectionEligibilityRule = ({
   const isEligible = includes(get(wearerStatus, 'eligibleWearers'), toLower(wearer));
   const hatId = get(selectedHat, 'id', '0');
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag =
+    posthog.isFeatureEnabled('election-eligibility-modal') || process.env.NODE_ENV === 'development';
 
   let modalName = 'electionManager';
   if (modalSuffix) {
@@ -60,6 +61,7 @@ export const ElectionEligibilityRule = ({
             setModals?.({ [modalName]: true });
           }}
           variant='link'
+          className='text-base'
         >
           Be elected by voters
         </Button>
@@ -76,6 +78,7 @@ export const ElectionEligibilityRule = ({
           setModals?.({ [modalName]: true });
         }}
         variant='link'
+        className='text-base'
       >
         Be elected by voters
       </Button>

@@ -20,7 +20,7 @@ const RootPage = async () => {
   const chainId = 10;
 
   return (
-    <>
+    <div className='w-screen'>
       <div className='fixed z-[-5] mt-[58px] h-full w-full bg-blue-100 opacity-[0.7] md:mt-[70px]' />
 
       <div className='z-2 mx-auto flex max-w-[1400px] flex-col gap-10 px-5 py-[100px] md:px-20 md:py-[120px]'>
@@ -76,7 +76,7 @@ const RootPage = async () => {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

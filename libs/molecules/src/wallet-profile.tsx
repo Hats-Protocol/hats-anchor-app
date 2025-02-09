@@ -88,7 +88,7 @@ const WalletProfile = ({
 
             <Button variant='link' className='text-functional-link-primary' onClick={onCopy}>
               {formatAddress(address)}
-              <CopyAddress className='ml-1 h-4 w-4' />
+              <CopyAddress className='size-4' />
             </Button>
           </div>
         </div>
@@ -104,10 +104,10 @@ const WalletProfile = ({
         </Button>
 
         {!hideProfileButton && (
-          <Link href={`/wearers/${address}`} onClick={() => setModals?.({})} className='w-full'>
+          <Link href={`/wearers/${address}`} onClick={() => setModals?.({})} className='text-foreground/80 w-full'>
             <Button className='w-full' variant='outline'>
               <div className='flex items-center gap-2'>
-                <WearerIcon className='h-4 w-4' />
+                <WearerIcon className='size-4' />
                 <p>Profile</p>
               </div>
             </Button>

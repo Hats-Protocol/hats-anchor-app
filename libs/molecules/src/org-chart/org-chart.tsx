@@ -533,7 +533,7 @@ function OrgChartComponent() {
   // }
 
   return (
-    <div className='relative h-[calc(100%-145px)] pt-[145px]'>
+    <div className='relative pt-[145px]'>
       <div style={{ height: '100%', overflow: 'hidden' }} ref={d3Container} id='d3Container' />
 
       {/* Not totally sure why so much bottom needed here */}

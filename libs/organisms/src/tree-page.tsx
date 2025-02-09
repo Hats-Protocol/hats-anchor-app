@@ -3,7 +3,7 @@
 import { Modal, SelectedHatContextProvider, useTreeForm } from 'contexts';
 import dynamic from 'next/dynamic';
 import { twJoin } from 'tailwind-merge';
-import { Slide } from 'ui';
+import { ScrollArea, Slide } from 'ui';
 
 import { HatDrawer } from './hat-drawer';
 import { TreeDrawer } from './tree-drawer';
@@ -59,7 +59,7 @@ const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; 
         </Slide>
       </SelectedHatContextProvider>
 
-      <Slide open={!!isTreeDrawerOpen} onClose={onCloseTreeDrawer}>
+      <Slide open={!!isTreeDrawerOpen} onClose={onCloseTreeDrawer} className='max-w-[864px]'>
         <TreeDrawer />
       </Slide>
 
@@ -69,8 +69,10 @@ const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; 
 
       <div className={twJoin('fixed left-0 top-0 z-[-10] h-full w-full', editMode ? 'bg-edit-bg' : 'bg-gray-100')} />
 
-      <Modal name='events' title='Events' size='2xl'>
-        <EventHistory type='tree' />
+      <Modal name='events' title='Events' size='xl'>
+        <ScrollArea className='h-[600px]'>
+          <EventHistory type='tree' />
+        </ScrollArea>
       </Modal>
     </>
   );

@@ -3,7 +3,21 @@
 import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
 import { useToast } from 'hooks';
-import _ from 'lodash';
+import {
+  differenceWith,
+  endsWith,
+  filter,
+  flatten,
+  get,
+  includes,
+  isBoolean,
+  map,
+  pick,
+  size,
+  take,
+  toLower,
+  toNumber,
+} from 'lodash';
 import Papa from 'papaparse';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -11,7 +25,16 @@ import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { FaRegTrashAlt, FaUpload } from 'react-icons/fa';
 import { AppHat, FormWearer, HatWearer } from 'types';
-import { Button, ButtonProps, Collapsible, CollapsibleContent, CollapsibleTrigger, DropZone, Tooltip } from 'ui';
+import {
+  BaseInput,
+  Button,
+  ButtonProps,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  DropZone,
+  Tooltip,
+} from 'ui';
 import { viemPublicClient } from 'utils';
 import { Hex, isAddress } from 'viem';
 
@@ -63,7 +86,7 @@ const MultiAddressInput = ({
   btnSize,
   checkEligibility = true,
 }: MultiAddressInputProps) => {
-  const { setValue, watch, control, setError, formState, clearErrors } = _.pick(localForm, [
+  const { setValue, watch, control, setError, formState, clearErrors } = pick(localForm, [
     'setValue',
     'watch',
     'control',
@@ -72,7 +95,7 @@ const MultiAddressInput = ({
     'clearErrors',
   ]);
   const currentWearerList = useRef([] as Hex[]);
-  const { errors } = _.pick(formState, ['errors']);
+  const { errors } = pick(formState, ['errors']);
   const currentInput = watch?.(`${name}-currentAddress-input`) as Hex | string;
   const currentResolvedAddress = watch?.(`${name}-currentAddress`);
   const currentResolvedName = watch?.(`${name}-currentAddress-name`);
@@ -86,20 +109,20 @@ const MultiAddressInput = ({
   });
   const { toast } = useToast();
 
-  const currentSupply = useMemo(() => _.toNumber(_.get(selectedHat, 'currentSupply')), [selectedHat]);
+  const currentSupply = useMemo(() => toNumber(get(selectedHat, 'currentSupply')), [selectedHat]);
   const maxSupply = useMemo(
-    () => _.toNumber(currentMaxSupply) || _.toNumber(_.get(selectedHat, 'maxSupply')),
+    () => toNumber(currentMaxSupply) || toNumber(get(selectedHat, 'maxSupply')),
     [selectedHat, currentMaxSupply],
   );
   const currentWearerIds = useMemo(
-    () => _.map(_.get(selectedHat, 'wearers'), (h: AppHat) => _.toLower(h.id)) as unknown as Hex[],
+    () => map(get(selectedHat, 'wearers'), (h: AppHat) => toLower(h.id)) as unknown as Hex[],
     [selectedHat],
   ); // TODO handle more than N wearers
 
-  currentWearerList.current = _.map(fields, ({ address }: { address: Hex }) => _.toLower(address)) as unknown as Hex[];
+  currentWearerList.current = map(fields, ({ address }: { address: Hex }) => toLower(address)) as unknown as Hex[];
   const wouldExceedMaxSupply = overrideMaxSupply
     ? false
-    : _.size(currentWearerList.current) + 1 + currentSupply > maxSupply;
+    : size(currentWearerList.current) + 1 + currentSupply > maxSupply;
 
   // use callback to ensure `append` function is only called once
   const updateWearerList = useCallback(
@@ -123,10 +146,10 @@ const MultiAddressInput = ({
     const checkAddressEligibility = async () => {
       if (!isAddress(currentInput) && !currentResolvedAddress) return;
 
-      const localAddress = (_.toLower(currentResolvedAddress) || _.toLower(currentInput)) as Hex;
+      const localAddress = (toLower(currentResolvedAddress) || toLower(currentInput)) as Hex;
 
       // check if address is already in current wearer list
-      if (_.includes(currentWearerList.current, localAddress)) {
+      if (includes(currentWearerList.current, localAddress)) {
         // TODO message and type not getting attached when currentInput is an address
         setError?.(`${name}-currentAddress`, {
           type: 'custom',
@@ -137,7 +160,7 @@ const MultiAddressInput = ({
 
       if (checkEligibility) {
         // check if address is already in the local wearer list
-        const isInWearerList = _.includes(currentWearerIds, _.toLower(localAddress));
+        const isInWearerList = includes(currentWearerIds, toLower(localAddress));
         if (isInWearerList) {
           setError?.(`${name}-currentAddress`, {
             type: 'custom',
@@ -170,7 +193,7 @@ const MultiAddressInput = ({
         const [isInGoodStanding, isEligible] = result;
 
         // set error if not in good standing
-        if (_.isBoolean(isInGoodStanding) && !isInGoodStanding) {
+        if (isBoolean(isInGoodStanding) && !isInGoodStanding) {
           setError?.(`${name}-currentAddress`, {
             type: 'custom',
             message: 'Wearer is not in good standing',
@@ -179,7 +202,7 @@ const MultiAddressInput = ({
         }
 
         // set error if ineligible
-        if (_.isBoolean(isEligible) && !isEligible) {
+        if (isBoolean(isEligible) && !isEligible) {
           setError?.(`${name}-currentAddress`, {
             type: 'custom',
             message: 'Wearer is not eligible',
@@ -195,7 +218,7 @@ const MultiAddressInput = ({
         return;
       }
 
-      if (_.endsWith(currentInput, '.eth')) {
+      if (endsWith(currentInput, '.eth')) {
         // add to list if ENS resolved
         updateWearerList({ address: localAddress, ens: currentInput });
         return;
@@ -209,12 +232,12 @@ const MultiAddressInput = ({
     };
 
     if (
-      (!isAddress(currentInput) && !_.endsWith(currentInput, '.eth')) ||
+      (!isAddress(currentInput) && !endsWith(currentInput, '.eth')) ||
       errors?.[`${name}-currentAddress`] ||
       !currentWearerList ||
       !currentWearerIds ||
-      _.isNaN(currentSupply) ||
-      _.isNaN(maxSupply)
+      isNaN(currentSupply) ||
+      isNaN(maxSupply)
     ) {
       isCancelled.current = false;
 
@@ -282,20 +305,20 @@ const MultiAddressInput = ({
 
   const handleWearerImport = useCallback(
     async (results: { data: unknown[] }) => {
-      const csvAddresses = _.take(
-        _.differenceWith(
-          _.filter(_.flatten(results.data), isAddress),
+      const csvAddresses = take(
+        differenceWith(
+          filter(flatten(results.data), isAddress),
           currentWearerIds,
-          (csvAddress: unknown, wearer: unknown) => csvAddress === _.get(wearer as HatWearer, 'address'),
+          (csvAddress: unknown, wearer: unknown) => csvAddress === get(wearer as HatWearer, 'address'),
         ),
-        _.toNumber(maxSupply) - _.size(currentWearerList) - _.size(currentWearerIds),
+        toNumber(maxSupply) - size(currentWearerList) - size(currentWearerIds),
       );
 
       let eligibleAddresses = csvAddresses;
       if (checkEligibility) {
         const publicClient = viemPublicClient(chainId || 1);
         // TODO update to use multicall
-        const promises = _.map(csvAddresses, (a: Hex) =>
+        const promises = map(csvAddresses, (a: Hex) =>
           publicClient.readContract({
             abi: HATS_ABI,
             address: HATS_V1,
@@ -304,8 +327,8 @@ const MultiAddressInput = ({
           }),
         );
         const eligibilityOfAddresses = await Promise.all(promises);
-        eligibleAddresses = _.filter(csvAddresses, (v: Hex, i: number) => eligibilityOfAddresses[i]);
-        const ineligibleWearersCount = _.size(_.filter(eligibilityOfAddresses, (v: boolean) => !v));
+        eligibleAddresses = filter(csvAddresses, (v: Hex, i: number) => eligibilityOfAddresses[i]);
+        const ineligibleWearersCount = size(filter(eligibilityOfAddresses, (v: boolean) => !v));
         if (ineligibleWearersCount > 0) {
           toast({
             title: `${ineligibleWearersCount} wearer${ineligibleWearersCount > 1 ? 's' : ''} ${
@@ -315,7 +338,7 @@ const MultiAddressInput = ({
           });
         }
       }
-      const newWearers = _.map(eligibleAddresses, (address: unknown) => ({
+      const newWearers = map(eligibleAddresses, (address: unknown) => ({
         address,
         ens: '',
       }));
@@ -354,16 +377,17 @@ const MultiAddressInput = ({
           </div>
         </FormLabel>
       )}
-      {_.map(fields, ({ address, ens }: FormWearer, index: number) => (
+
+      {map(fields, ({ address, ens }: FormWearer, index: number) => (
         <div key={address} className='w-full'>
           <div className='flex w-full justify-between'>
-            <div className='flex flex-col gap-0.5'>
-              <div className='flex w-full flex-grow'>
-                <div className='flex items-center gap-1'>
+            <div className='flex w-2/3 flex-col'>
+              <div className='flex w-full flex-grow rounded-md border border-gray-200 bg-white/60'>
+                <div className='mx-2 flex items-center gap-1'>
                   <BsPersonBadge className='h-4 w-4 text-slate-600' />
                 </div>
 
-                <input value={address} className='bg-whiteAlpha-600 w-full' readOnly />
+                <input value={address} className='w-full rounded-md bg-transparent' readOnly />
               </div>
 
               {ens && <p className='text-sm text-slate-600'>{ens}</p>}
@@ -373,7 +397,7 @@ const MultiAddressInput = ({
               type='button'
               onClick={() => handleRemoveWearer(index)}
               aria-label='Remove'
-              variant='outline'
+              variant='outline-blue'
               className='border-1 border-slate-300 bg-transparent'
             >
               <FaRegTrashAlt />
@@ -400,7 +424,7 @@ const MultiAddressInput = ({
                   disabled={
                     !!errors?.[`${name}-currentAddress`] ||
                     !currentResolvedAddress ||
-                    _.includes(currentWearerList.current, _.toLower(currentResolvedAddress))
+                    includes(currentWearerList.current, toLower(currentResolvedAddress))
                   }
                   onClick={handleAddWearer}
                   aria-label='Add Another Wallet'
@@ -428,12 +452,12 @@ const MultiAddressInput = ({
           </div>
 
           <CollapsibleContent>
+            <p className='mt-4 text-sm font-medium uppercase'>Upload CSV</p>
+            <p className='text-muted-foreground mb-4 mt-1 text-sm'>
+              The CSV file must only contain Ethereum addresses, one per line. ENS is currently not supported. Any
+              additional data will be ignored.
+            </p>
             <FormControl id='csvFile'>
-              <p className='mt-4 text-sm font-medium uppercase'>Upload CSV</p>
-              <p className='text-muted-foreground mb-4 mt-1 text-sm'>
-                The CSV file must only contain Ethereum addresses, one per line. ENS is currently not supported. Any
-                additional data will be ignored.
-              </p>
               <DropZone
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}

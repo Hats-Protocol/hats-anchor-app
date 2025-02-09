@@ -32,11 +32,10 @@ const NavLinks = () => {
       <Link href={`/${CONFIG.TERMS.trees}/${treeId ? chainId : currentChainId || 1}`} className='h-full'>
         <Button
           className={cn(
-            'text-foreground hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
+            'text-foreground/80 hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-80 rounded-none bg-transparent px-6 hover:no-underline',
             includes(pathname, 'trees') && 'bg-functional-link-primary/10 border-b-2',
           )}
           variant='link'
-          // data-active={includes(pathname, CONFIG.TERMS.trees)}
         >
           {!tabName ? (
             <p className='text-lg'>{capitalize(CONFIG.TERMS.trees)}</p>
@@ -53,11 +52,10 @@ const NavLinks = () => {
         <Link href={`/${CONFIG.TERMS.wearers}/${address}`} className='h-full'>
           <Button
             className={cn(
-              'text-foreground hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
+              'text-foreground/80 hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
               includes(pathname, 'wearers') && 'bg-functional-link-primary/10 border-b-2',
             )}
             variant='link'
-            // data-active={includes(toLower(pathname), toLower(address))}
           >
             <p className='text-lg'>{`My ${capitalize(CONFIG.TERMS.hats)}`}</p>
           </Button>
@@ -66,25 +64,27 @@ const NavLinks = () => {
 
       {devMode && (
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant='link'>Dev</Button>
+          <DropdownMenuTrigger asChild>
+            <Button variant='link' className='text-foreground/80'>
+              Dev
+            </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align='start'>
             <DropdownMenuItem asChild>
-              <Link href='/subgraphs' className='cursor-pointer'>
+              <Link href='/subgraphs' className='text-foreground/80 cursor-pointer'>
                 Subgraphs
               </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
-              <Link href='/buidl/chain' className='cursor-pointer'>
+              <Link href='/buidl/chain' className='text-foreground/80 cursor-pointer'>
                 <p>Chain Module Deploy</p>
               </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
-              <Link href='/buidl/active' className='cursor-pointer'>
+              <Link href='/buidl/active' className='text-foreground/80 cursor-pointer'>
                 <p>Deactivate Hats</p>
               </Link>
             </DropdownMenuItem>

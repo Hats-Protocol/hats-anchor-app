@@ -73,7 +73,7 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
           // prefer wrapping like so to avoid rendering context provider when not needed
           <HatFormContextProvider>
             <TopMenu returnToList={returnToList} />
-            <ScrollArea className='h-[calc(100vh-180px)]'>
+            <ScrollArea className='h-[calc(100vh-145px)]'>
               <EditMode />
             </ScrollArea>
             <BottomMenu />

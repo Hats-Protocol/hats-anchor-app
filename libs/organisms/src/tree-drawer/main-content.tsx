@@ -60,10 +60,12 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
   if (!onchainHats || !treeToDisplay) return null;
 
   return (
-    <div className='relative top-16 h-[calc(100%-75px)] h-full w-full space-y-10 overflow-scroll p-10 pb-20 pt-8'>
+    <div className='relative top-16 h-full w-full space-y-10 overflow-scroll p-10 pb-20 pt-8'>
       <div className='flex items-start justify-between'>
-        <div className='w-3/4'>
-          <h2 className='text-lg font-medium'>{topHatDetails?.name || topHat?.details || topHat?.name || 'No Hats'}</h2>
+        <div className='w-3/4 space-y-2'>
+          <h2 className='text-2xl font-medium'>
+            {topHatDetails?.name || topHat?.details || topHat?.name || 'No Hats'}
+          </h2>
 
           {topHatDetails?.description && <Markdown>{topHatDetails?.description}</Markdown>}
 
@@ -81,7 +83,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
         </div>
 
         <div className='flex flex-col gap-2'>
-          <Button variant='outline' onClick={openImportModal}>
+          <Button variant='outline-blue' onClick={openImportModal}>
             <AiOutlineUpload className='mr-1 size-4' />
             Import
           </Button>
@@ -94,8 +96,9 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
       </div>
 
       <div className='space-y-2'>
-        <h2 className='text-lg font-medium'>Drafted Changes</h2>
-        <p>Propose changes to any hat. Deploy changes to the Hats you control.</p>
+        <h2 className='font-medium'>Drafted Changes</h2>
+
+        <p className='text-sm text-gray-500'>Propose changes to any hat. Deploy changes to the Hats you control.</p>
       </div>
 
       <div className='border-y border-gray-200'>
@@ -130,9 +133,10 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           const isAdmin = includes(adminHatIds, hat.id);
 
           return (
-            <div className='w-full border-b border-gray-300' key={hat.id}>
+            <div className='bg-functional-link-primary/10 w-full border-b border-gray-300' key={hat.id}>
               <Button
-                className='variant-ghost align-center h-10 w-full justify-between rounded-none border-0'
+                className='align-center h-10 w-full justify-between rounded-none border-0 bg-cyan-50 text-base hover:bg-gray-50'
+                variant='ghost'
                 onClick={handleHatClick}
               >
                 <div className='flex items-center gap-2'>
@@ -146,18 +150,20 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                 <div className='flex items-center gap-2'>
                   {draft ? (
                     <Badge
-                      className={cn('border border-green-500 text-sm uppercase', {
-                        'bg-green-500 text-white': isAdmin,
+                      className={cn('border-functional-success rounded-md border text-sm uppercase', {
+                        'bg-functional-success text-white': isAdmin,
                       })}
                     >
                       {isAdmin ? 'Deployable Draft' : 'New!'}
                     </Badge>
                   ) : (
-                    changes && (
+                    !!changes && (
                       <Badge
                         className={cn(
                           'text-sm uppercase',
-                          isAdmin ? 'bg-blue-500 text-white' : 'bg-cyan-500 text-white',
+                          isAdmin
+                            ? 'bg-functional-link-primary rounded-md text-white'
+                            : 'bg-functional-link-secondary text-white',
                         )}
                       >
                         {changes}
@@ -167,7 +173,7 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
                     )
                   )}
                   {!isTopHatOrMutable(hat) && (
-                    <Badge className='bg-gray-500 text-sm uppercase text-white'>IMMUTABLE</Badge>
+                    <Badge className='rounded-md bg-gray-500 text-sm uppercase text-white'>Immutable</Badge>
                   )}
 
                   <BsChevronRight />

@@ -135,8 +135,8 @@ const Input = ({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
-          <FormControl>
+        <FormItem className='flex-grow'>
+          <FormControl className='flex-grow'>
             <div className='flex w-full flex-col gap-1'>
               {label && (
                 <FormLabel className='mb-0'>

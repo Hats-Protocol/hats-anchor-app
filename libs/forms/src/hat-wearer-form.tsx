@@ -141,8 +141,8 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
       <form onSubmit={handleSubmit?.(onSubmit)}>
         <div className={cn(editMode ? 'space-y-4' : 'space-y-2')}>
           {editMode && (
-            <FormRowWrapper>
-              <BsBarChart className='mt-1 h-4 w-4' />
+            <FormRowWrapper noMargin>
+              <BsBarChart className='absolute -ml-8 mt-1 size-4' />
 
               <NumberInput
                 name='maxSupply'
@@ -176,7 +176,7 @@ const HatWearerForm = ({ localForm }: HatWearerFormProps) => {
               </p>
             )}
           </div>
-          <div className='rounded-lg border'>
+          <div>
             <MultiAddressInput name='wearers' localForm={form} holdOnAdd={!editMode} />
           </div>
 

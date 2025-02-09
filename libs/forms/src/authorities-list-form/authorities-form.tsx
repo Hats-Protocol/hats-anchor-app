@@ -16,7 +16,7 @@ import { Button, Card } from 'ui';
 import { formatImageUrl, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 
-import { Input, Textarea } from '../components';
+import { Form, Input, Textarea } from '../components';
 
 const AuthoritiesForm = ({ formName, localForm, index, hatForm, chainId, hatId }: AuthoritiesFormProps) => {
   const { setModals } = useOverlay();
@@ -86,77 +86,79 @@ const AuthoritiesForm = ({ formName, localForm, index, hatForm, chainId, hatId }
           </Card>
         </div>
 
-        <form onSubmit={handleSubmit(saveEditedItem)} className='flex flex-col gap-4'>
-          <Input
-            label='Authority Name'
-            name='label'
-            placeholder='Name'
-            localForm={localForm}
-            options={{
-              required: 'Authority name is required',
-              maxLength: {
-                value: CONFIG.SHADE_HEADING_LENGTH,
-                message: 'Authority name is too long',
-              },
-            }}
-          />
+        <Form {...localForm}>
+          <form onSubmit={handleSubmit(saveEditedItem)} className='flex flex-col gap-4'>
+            <Input
+              label='Authority Name'
+              name='label'
+              placeholder='Name'
+              localForm={localForm}
+              options={{
+                required: 'Authority name is required',
+                maxLength: {
+                  value: CONFIG.SHADE_HEADING_LENGTH,
+                  message: 'Authority name is too long',
+                },
+              }}
+            />
 
-          <Input
-            label='Authority Link'
-            name='link'
-            subLabel='The place where action is taken using this authority.'
-            placeholder='https://example.com'
-            localForm={localForm}
-            isDisabled={guildOrSnapshot}
-            options={{}}
-            // validate: {
-            //   mustBeUrl: (v) =>
-            //     !v || v === ''
-            //       ? true
-            //       : v?.match(/^https?:\/\/.+/) || 'Link must be a URL',
-            // },
-          />
+            <Input
+              label='Authority Link'
+              name='link'
+              subLabel='The place where action is taken using this authority.'
+              placeholder='https://example.com'
+              localForm={localForm}
+              isDisabled={guildOrSnapshot}
+              options={{}}
+              // validate: {
+              //   mustBeUrl: (v) =>
+              //     !v || v === ''
+              //       ? true
+              //       : v?.match(/^https?:\/\/.+/) || 'Link must be a URL',
+              // },
+            />
 
-          <Input
-            label='Token Gate Link'
-            name='gate'
-            subLabel='The place where the linkage is created between the hat token and this authority.'
-            placeholder='https://example.com'
-            localForm={localForm}
-            isDisabled={guildOrSnapshot}
-          />
+            <Input
+              label='Token Gate Link'
+              name='gate'
+              subLabel='The place where the linkage is created between the hat token and this authority.'
+              placeholder='https://example.com'
+              localForm={localForm}
+              isDisabled={guildOrSnapshot}
+            />
 
-          <Textarea
-            label='Description'
-            name='description'
-            placeholder='Enter a description here (supports Markdown)'
-            localForm={localForm}
-          />
+            <Textarea
+              label='Description'
+              name='description'
+              placeholder='Enter a description here (supports Markdown)'
+              localForm={localForm}
+            />
 
-          <DropZone
-            label='Image'
-            getRootProps={getRootProps}
-            getInputProps={getInputProps}
-            isFocused={isFocused}
-            isDragAccept={isDragAccept}
-            isDragReject={isDragReject}
-            isFullWidth
-            image={item?.imageUrl || imageUrl}
-            imageUrl={item?.imageUrl ? formatImageUrl(item.imageUrl) : formatImageUrl(imageUrl)}
-          />
+            <DropZone
+              label='Image'
+              getRootProps={getRootProps}
+              getInputProps={getInputProps}
+              isFocused={isFocused}
+              isDragAccept={isDragAccept}
+              isDragReject={isDragReject}
+              isFullWidth
+              image={item?.imageUrl || imageUrl}
+              imageUrl={item?.imageUrl ? formatImageUrl(item.imageUrl) : formatImageUrl(imageUrl)}
+            />
 
-          <div className='mt-4 flex justify-end'>
-            <div className='flex gap-2'>
-              <Button variant='outline' onClick={() => setModals?.({})}>
-                Cancel
-              </Button>
-              <Button disabled={some(errors)} type='submit'>
-                <BsSave className='h-4 w-4' />
-                Save
-              </Button>
+            <div className='mt-4 flex justify-end'>
+              <div className='flex gap-2'>
+                <Button variant='outline' onClick={() => setModals?.({})}>
+                  Cancel
+                </Button>
+                <Button disabled={some(errors)} type='submit'>
+                  <BsSave className='h-4 w-4' />
+                  Save
+                </Button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </Modal>
   );

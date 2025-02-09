@@ -66,6 +66,7 @@ export const JokeRaceEligibilityRule = ({
                   })
                 }
                 variant='link'
+                className='text-base'
               >
                 JokeRace
               </Button>

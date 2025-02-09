@@ -16,16 +16,7 @@ import { formatAddress, getJokeRaceModuleParameters, shortDateFormatter } from '
 import { Hex } from 'viem';
 import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
 
-import {
-  AboutModule,
-  DevInfo,
-  FILTER,
-  Filter,
-  ManageBar,
-  ModuleHistory,
-  ModuleModal,
-  ProfileList,
-} from '../../module-modal';
+import { AboutModule, DevInfo, ManageBar, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 
 const CopyAddress = dynamic(() => import('icons').then((icons) => icons.CopyAddress));
 
@@ -52,7 +43,6 @@ export const JokeRaceModal = ({
     },
   });
   const [managingNextTerm, setManagingNextTerm] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const { writeContractAsync } = useWriteContract();
   const { watch, reset } = pick(localForm, ['watch', 'reset']);
 
@@ -238,8 +228,6 @@ export const JokeRaceModal = ({
       <ProfileList
         hat={hat}
         heading={heading}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
         localForm={localForm}
         profiles={jokeRaceProfiles}
         handleUpdateListAdd={() => {}}

@@ -88,7 +88,7 @@ const MyHats = () => {
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)}>
         <Card className='bg-white/60 p-8'>
-          <Skeleton className='h-10' />
+          <Skeleton className='mb-4 h-6' />
 
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3'>
             {Array(isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW)

@@ -102,16 +102,16 @@ const TopMenu = ({
     moduleDeployIsBlocked;
 
   return (
-    <div className='z-16 bg-whiteAlpha-900 absolute top-0 flex h-[75px] w-full items-center justify-between px-4'>
+    <div className='absolute top-0 z-[16] flex h-[75px] w-full items-center justify-between border-b border-gray-200 bg-white/90 px-4'>
       <Button variant='outline' className='border-gray-300' onClick={onCloseModuleDrawer}>
         <BsXSquare className='mr-2' />
         Cancel
       </Button>
 
-      <div className='flex items-center'>
+      <div className='flex items-center gap-2'>
         {!isChainCorrect && <NetworkSwitcher />}
         <Tooltip label={!isChainCorrect ? 'Please switch to the correct network' : undefined}>
-          <Button className='bg-twitter' disabled={isButtonDisabled || isLoading} onClick={() => deploy()}>
+          <Button className='bg-sky-400' disabled={isButtonDisabled || isLoading} onClick={() => deploy()}>
             <BsBoxArrowRight className='mr-1' />
             Deploy & Return
           </Button>

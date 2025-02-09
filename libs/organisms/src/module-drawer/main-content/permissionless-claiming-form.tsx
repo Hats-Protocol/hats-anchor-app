@@ -49,20 +49,20 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
 
   if (isClaimable) {
     return (
-      <div className='flex flex-col gap-12'>
-        <p>
-          This hat is already claimable via{' '}
+      <div className='mx-8 mt-4 flex flex-col gap-12'>
+        <div className='flex items-center gap-2'>
+          <p>This hat is already claimable via </p>
           <Link href={`/wearers/${instanceAddress}`} isExternal>
             <pre>{formatAddress(instanceAddress)}</pre>
           </Link>
-        </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className='flex flex-col gap-12'>
-      <FormRowWrapper>
+      <FormRowWrapper noMargin>
         <BsPersonAdd className='mt-2 h-4 w-4' />
         <div className='flex flex-col'>
           <RadioBox
@@ -85,9 +85,9 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
         </div>
       </FormRowWrapper>
       {!(parentHats && parentHats.length > 0) && (
-        <FormRowWrapper>
+        <FormRowWrapper noMargin>
           <BsInfoCircle className='mt-2 h-4 w-4' />
-          <p className='text-blue-500'>
+          <p className='text-functional-text-secondary'>
             Permissionless claiming is currently unavailable as there are no eligible hats present. To enable this
             option, there must be at least one non-top hat admin of this hat available.
           </p>
@@ -97,9 +97,9 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
       {isPermissionlesslyClaimable === 'Yes' && (
         <div className='flex flex-col gap-12'>
           {multiClaimsHatter && !isClaimable && isAdmin && isPermissionlesslyClaimable === 'Yes' ? (
-            <FormRowWrapper>
+            <FormRowWrapper noMargin>
               <BsInfoCircle className='mt-2 h-4 w-4' />
-              <p className='text-blue-500'>
+              <p className='text-cyan-600'>
                 A claims hatter for this tree has already been set up at <pre>{formatAddress(instanceAddress)}</pre>.
                 We&apos;ll register this hat with the hatter during the module deploy transaction.
               </p>
@@ -137,7 +137,7 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
               </div>
             </FormRowWrapper>
           )}
-          <FormRowWrapper>
+          <FormRowWrapper noMargin>
             <BsPersonCheck className='mt-2 h-4 w-4' />
             <div className='flex flex-col'>
               <RadioBox
@@ -162,7 +162,7 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
       )}
 
       {wearingHatDetails?.wearers?.length === Number(wearingHatDetails?.maxSupply) && !instanceAddress && (
-        <FormRowWrapper>
+        <FormRowWrapper noMargin>
           <BsBarChartLine className='mt-2 h-4 w-4' />
           <div className='flex flex-col'>
             <RadioBox

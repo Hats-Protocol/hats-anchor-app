@@ -1,6 +1,6 @@
 'use client';
 
-import _ from 'lodash';
+import { get, toNumber } from 'lodash';
 import { Info } from 'lucide-react';
 import { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
@@ -66,13 +66,13 @@ const NumberInput = ({
     formState: { errors, dirtyFields },
   } = localForm;
 
-  const isDirty = _.get(dirtyFields, name);
+  const isDirty = get(dirtyFields, name);
 
   const onReset = () => {
     resetField(name, { keepDirty: false });
   };
   const getErrorMessage = () => {
-    const errorMessage = _.get(errors, name)?.message;
+    const errorMessage = get(errors, name)?.message;
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
 
@@ -169,12 +169,12 @@ const NumberInput = ({
                 <NumberInputSteppers
                   stepUp={() => {
                     if (field.value < (numOptions?.max ?? Infinity)) {
-                      field.onChange(field.value + 1);
+                      field.onChange(toNumber(field.value) + 1);
                     }
                   }}
                   stepDown={() => {
                     if (field.value > (numOptions?.min ?? 0)) {
-                      field.onChange(field.value - 1);
+                      field.onChange(toNumber(field.value) - 1);
                     }
                   }}
                   upDisabled={field.value >= (numOptions?.max ?? Infinity) || !!isDisabled}

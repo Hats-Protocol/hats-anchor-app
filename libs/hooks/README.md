@@ -6,7 +6,7 @@ App Hooks is a set of React hooks for managing specific interactions and UX in t
 - `useAgreementClaimsHatterContract` - `*DEPRECATED*` - handles claiming with Agreement Module v0
 - `useAttemptAutoConnect` - attempts to connect to a wallet provider on page load
 - `useCid` - calculates the `CID` of a JSON upload to IPFS
-- `useClipboard` - extends Chakra's `useClipboard` hook to include a default `Toast` notification
+- `useClipboard` - extended `useClipboard` hook to include a default `Toast` notifications
 - `useContractData` - fetches data from Etherscan's API about verified contracts
 - `useDebounce` - debounce values from input fields to reduce spam on RPC endpoints
 - `useDeepCompareEffect` - a `useEffect` that compares deep object values (`useOrgChartTree`)
@@ -17,7 +17,7 @@ App Hooks is a set of React hooks for managing specific interactions and UX in t
 - `useProposalDetails` - fetches details about a specific proposal from Snapshot
 - `useSafeDetails` - fetches details about a specific Safe from the Safe API
 - `useSearchResults` - processes a search query and prepares the results for displaying in the [Command Palette](../../apps/frontend/components/CommandPalette.tsx)
-- `useToast` - wrapper around Chakra's default `useToast` hook. Leverages the custom [Toast](./src/components/Toast.tsx) component also.
+- `useToast` - wrapper around Shadcn's default `useToast` hook. Leverages the custom [Toast](./src/components/Toast.tsx) component also.
 - `useWaitForSubgraph` - waits for a subgraph to be indexed before attempting to refresh data
 
 ### Landing Data Hooks

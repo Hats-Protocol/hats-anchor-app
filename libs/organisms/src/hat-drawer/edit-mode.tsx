@@ -7,13 +7,13 @@ import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { AuthoritiesListForm, HatBasicsForm, HatManagementForm, HatWearerForm, ResponsibilitiesForm } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import { useClipboard } from 'hooks';
-import { find, get, map, toLower } from 'lodash';
+import { find, get, toLower } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
-import { Button, Drawer, DrawerContent, Link, Tooltip } from 'ui';
+import { Button, Link, Slide, Tooltip } from 'ui';
 import { ipfsUrl } from 'utils';
 
 import { ModuleDrawer } from '../module-drawer';
@@ -42,7 +42,7 @@ const EditMode = () => {
 
   return (
     <>
-      <div className='relative h-[calc(100%-150px)] w-full space-y-10 overflow-scroll p-10'>
+      <div className='relative h-[calc(100%-100px)] w-full space-y-10 overflow-scroll p-10 pb-20'>
         <div className='flex flex-col'>
           <div className='flex items-center justify-between'>
             <h2 className='text-3xl font-medium'>
@@ -69,7 +69,7 @@ const EditMode = () => {
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.basics)}
             open
           >
-            <div className='w-full space-y-4'>
+            <div className='mx-8 mt-4 space-y-4'>
               <HatBasicsForm />
             </div>
           </HatFormAccordion>
@@ -81,7 +81,7 @@ const EditMode = () => {
             subtitle='Individual, multisig, DAO, or contract addresses that hold this token.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.wearer)}
           >
-            <div className='w-full space-y-4'>
+            <div className='mx-8 mt-4 space-y-4'>
               <HatWearerForm />
             </div>
           </HatFormAccordion>
@@ -93,13 +93,13 @@ const EditMode = () => {
             subtitle='Specific work that wearers of this hat will be held accountable for.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.responsibilities)}
           >
-            <div className='w-full space-y-4'>
+            <div className='mx-8 mt-4 space-y-4'>
               <ResponsibilitiesForm
                 formName='responsibilities'
                 title='RESPONSIBILITIES'
                 label='Responsibility'
                 subtitle={
-                  <p>
+                  <p className='text-sm text-gray-500'>
                     Tasks and responsibilities associated with this hat. More details in the{' '}
                     <Link href={CONFIG.docsLinks.authorities} className='underline' isExternal>
                       docs
@@ -119,7 +119,7 @@ const EditMode = () => {
             subtitle='Authorities and rights that are controlled by wearers of this hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.powers)}
           >
-            <div className='w-full space-y-4'>
+            <div className='mx-8 mt-4 space-y-4'>
               <AuthoritiesListForm
                 formName='authorities'
                 title='AUTHORITIES'
@@ -145,7 +145,7 @@ const EditMode = () => {
             subtitle='The people or logic that determine when a wearer should have a hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.revocation)}
           >
-            <div className='w-full space-y-4'>
+            <div className='mx-8 mt-4 space-y-4'>
               <HatManagementForm
                 title={CONTROLLER_TYPES.eligibility}
                 formName='revocationsCriteria'
@@ -192,7 +192,7 @@ const EditMode = () => {
             subtitle='The people and contracts that control this Hat.'
             dirtyFieldsList={getDirtyFieldsForAccordion(FORM_FIELDS.deactivation)}
           >
-            <div className='w-full space-y-4'>
+            <div className='mx-8 mt-4 space-y-4'>
               <HatManagementForm
                 title={CONTROLLER_TYPES.toggle}
                 formName='deactivationsCriteria'
@@ -254,17 +254,19 @@ const EditMode = () => {
         )}
       </div>
 
-      <Drawer direction='right' open={drawers?.eligibility || drawers?.toggle}>
+      <Slide
+        open={!!drawers?.eligibility || !!drawers?.toggle}
+        className='max-w-[864px]'
+        onClose={() => setDrawers?.({})}
+      >
         {(drawers?.eligibility || drawers?.toggle) && (
-          <DrawerContent style={{ zIndex: 1001, width: '100%' }}>
-            <ModuleDrawer
-              onCloseModuleDrawer={() => setDrawers?.({})}
-              isStandaloneHatterDeploy={isStandaloneHatterDeploy}
-              title={drawers?.eligibility ? 'eligibility' : drawers?.toggle ? 'toggle' : undefined}
-            />
-          </DrawerContent>
+          <ModuleDrawer
+            onCloseModuleDrawer={() => setDrawers?.({})}
+            isStandaloneHatterDeploy={isStandaloneHatterDeploy}
+            title={drawers?.eligibility ? 'eligibility' : drawers?.toggle ? 'toggle' : undefined}
+          />
         )}
-      </Drawer>
+      </Slide>
     </>
   );
 };

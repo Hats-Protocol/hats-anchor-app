@@ -1,6 +1,7 @@
 'use client';
 
 import { useSelectedHat, useTreeForm } from 'contexts';
+import { Form } from 'forms';
 import { getAllParents } from 'hats-utils';
 import { filter, toNumber } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
@@ -53,7 +54,7 @@ const MainContent = ({
   if (!onchainHats || !treeToDisplay) return null;
 
   return (
-    <div className='pb-400 top-75 relative h-[calc(100%-75px)] w-full space-y-10 overflow-scroll p-10 pt-8'>
+    <div className='relative h-[calc(100%-75px)] w-full space-y-10 overflow-scroll p-10 pb-[400px] pt-8'>
       <div className='space-y-2'>
         <h2 className='text-2xl font-medium'>
           {isStandaloneHatterDeploy
@@ -63,24 +64,26 @@ const MainContent = ({
         {topHatDetails?.description && <p className='text-sm text-gray-500'>{topHatDetails?.description}</p>}
       </div>
 
-      {!isStandaloneHatterDeploy && (
-        <HatFormAccordion
-          title='Module Basics'
-          subtitle='The fundamentals of the module, including type and details.'
-          open
-        >
-          <ModuleDetailsForm localForm={localForm} title={title} />
-        </HatFormAccordion>
-      )}
-      {claimableHats && title !== 'toggle' && (
-        <HatFormAccordion
-          title='Permissionless Claiming'
-          subtitle='Make this hat claimable by deploying a new hatter contract.'
-          open
-        >
-          <PermissionlessClaimingForm localForm={localForm} parentHats={eligibleParentHats} />
-        </HatFormAccordion>
-      )}
+      <Form {...localForm}>
+        {!isStandaloneHatterDeploy && (
+          <HatFormAccordion
+            title='Module Basics'
+            subtitle='The fundamentals of the module, including type and details.'
+            open
+          >
+            <ModuleDetailsForm localForm={localForm} title={title} />
+          </HatFormAccordion>
+        )}
+        {claimableHats && title !== 'toggle' && (
+          <HatFormAccordion
+            title='Permissionless Claiming'
+            subtitle='Make this hat claimable by deploying a new hatter contract.'
+            open
+          >
+            <PermissionlessClaimingForm localForm={localForm} parentHats={eligibleParentHats} />
+          </HatFormAccordion>
+        )}
+      </Form>
     </div>
   );
 };

@@ -20,8 +20,8 @@ export const DevInfo = ({ moduleDescriptors }: DevInfoProps) => {
   if (!moduleDescriptors || isEmpty(moduleDescriptors) || !devFlag) return null;
 
   return (
-    <div>
-      <h2 className='text-sm'>Dev Info</h2>
+    <div className='flex flex-col gap-2'>
+      <h2 className='text-sm font-semibold'>Dev Info</h2>
 
       {map(moduleDescriptors, (descriptor) => {
         return (

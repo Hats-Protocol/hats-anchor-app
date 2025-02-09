@@ -44,15 +44,20 @@ const LabelWithLink = ({
 
   return (
     <div className='flex flex-col gap-2'>
-      <div className='flex items-center justify-between'>
-        <Input name={labelName} localForm={localForm} placeholder='Label' />
-        <Button className='text-normal text-muted-foreground px-8' onClick={handleEdit}>
+      <div className='flex items-center gap-2'>
+        <div className='w-2/3'>
+          <Input name={labelName} localForm={localForm} placeholder='Label' />
+        </div>
+
+        <Button className='px-4' onClick={handleEdit} variant='outline'>
           <BsLink45Deg />
           {linkValue ? 'Edit' : 'Add'} a Link
         </Button>
-        <Button onClick={handleRemoveItem} aria-label='Remove'>
+
+        <Button onClick={handleRemoveItem} aria-label='Remove' variant='ghost'>
           <FaRegTrashAlt />
         </Button>
+
         <Modal name={`editLabel-${title}`} title={`Edit ${title.toLowerCase()} Link`}>
           <LinkInput
             inputLink={inputLink}

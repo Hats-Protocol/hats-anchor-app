@@ -7,8 +7,7 @@ The `contexts` library is a set of React Contexts for the app. It's specifically
 
 ### Components
 
-- `Modal` - the Chakra `<Modal />` component is extended here to include a context for the modal state
-- `Toast` - the Chakra `<Toast />` component is extended here to include a context for the toast state
+- `Modal` - the `<Modal />` component is extended here to make a universal modal component
 
 ### Contexts
 

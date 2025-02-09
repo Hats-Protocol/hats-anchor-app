@@ -78,8 +78,8 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
     <>
       <div className='flex flex-col gap-3'>
         <div className='mb-3'>
-          <div className='flex items-center'>
-            {Icon && <Icon className='mt-0.5 h-4 w-4' />}
+          <div className='-ml-7 flex items-center gap-3'>
+            {Icon && <Icon className='size-4' />}
             <p className='text-sm font-medium'>{title}</p>
           </div>
 
@@ -97,7 +97,7 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
         ))}
 
         <div className='my-2'>
-          <div className='flex items-center'>
+          <div className='flex items-center gap-2'>
             <Button
               onClick={() => {
                 append({
@@ -113,7 +113,7 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
               disabled={some(items, ['label', ''])}
               variant='outline'
             >
-              <BsPlusCircle className='h-4 w-4' />
+              <BsPlusCircle className='size-3' />
               Add {items?.length ? 'another' : 'an'} {label}
             </Button>
 
@@ -123,7 +123,7 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
               (hsgEnabled ? (
                 <>
                   <Button variant='outline' onClick={() => setModals?.({ 'hsg-deploy-modal': true })}>
-                    <Safe className='h-4 w-4' />
+                    <Safe className='size-3' />
                     Add a Safe
                   </Button>
 

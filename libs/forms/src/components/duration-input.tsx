@@ -59,9 +59,11 @@ const DurationInput: React.FC<DurationInputProps> = ({
             </p>
           </FormLabel>
         )}
+
         {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-gray-700'>{subLabel}</p>}
+
         <div className='flex flex-col gap-2 space-y-1'>
-          <div className='flex items-end'>
+          <div className='flex gap-2'>
             <NumberInput
               name={`${name}-time-value`}
               localForm={localForm}
@@ -70,14 +72,18 @@ const DurationInput: React.FC<DurationInputProps> = ({
               // isRequired={isRequired}
               options={options}
             />
-            <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds'>
-              {timeUnits.map(({ unit, value }) => (
-                <SelectItem key={unit} value={unit}>
-                  {unit}
-                </SelectItem>
-              ))}
-            </Select>
+
+            <div className='w-40'>
+              <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds'>
+                {timeUnits.map(({ unit, value }) => (
+                  <SelectItem key={unit} value={unit}>
+                    {unit}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
           </div>
+
           {timeUnit !== 'seconds' && finalValue && <p className='text-xs text-gray-700'>({finalValue} seconds)</p>}
         </div>
       </div>

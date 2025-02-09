@@ -105,7 +105,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
           <div className='flex items-center justify-end gap-3'>
             {hatHasChanges &&
               (onchainHat ? (
-                <Button onClick={handleClearChanges} variant='destructive'>
+                <Button onClick={handleClearChanges} variant='outline-red'>
                   Clear changes
                 </Button>
               ) : (
@@ -115,7 +115,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
                   </Button>
                 </Tooltip>
               ))}
-            <Button className='bg-twitter-500' onClick={handleSave} disabled={hatFormLoading}>
+            <Button className='bg-sky-400 hover:bg-sky-500' onClick={handleSave} disabled={hatFormLoading}>
               <FiSave className='mr-1 size-4' />
               Save
             </Button>

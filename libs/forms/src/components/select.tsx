@@ -20,7 +20,18 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './
  * @returns Select component
  *
  */
-const Select = ({ label, name, options, localForm, children, subLabel, info, onChange, ...props }: SelectProps) => {
+const Select = ({
+  label,
+  name,
+  options,
+  localForm,
+  children,
+  placeholder = 'Select',
+  subLabel,
+  info,
+  onChange,
+  ...props
+}: SelectProps) => {
   if (!localForm) return null;
   const { setValue, control, watch } = localForm;
   const value = watch(name);
@@ -53,10 +64,10 @@ const Select = ({ label, name, options, localForm, children, subLabel, info, onC
 
           {typeof subLabel !== 'string' ? subLabel : <FormDescription>{subLabel}</FormDescription>}
 
-          <BaseSelect onValueChange={handleChange} value={value}>
+          <BaseSelect onValueChange={field.onChange} value={field.value}>
             <FormControl>
               <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Select chain' />
+                <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>{children}</SelectContent>

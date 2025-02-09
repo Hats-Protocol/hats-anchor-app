@@ -34,11 +34,12 @@ const ResponsibilitiesFormItem = ({ index, formName, remove, setIndex, onOpen }:
             setIndex(index);
           }}
           aria-label='Edit'
+          variant='ghost'
         >
           <FaRegEdit />
         </Button>
 
-        <Button onClick={() => remove(index)} aria-label='Remove'>
+        <Button onClick={() => remove(index)} aria-label='Remove' variant='ghost'>
           <FaRegTrashAlt />
         </Button>
       </div>

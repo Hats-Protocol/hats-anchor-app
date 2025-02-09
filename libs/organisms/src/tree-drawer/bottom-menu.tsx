@@ -10,7 +10,7 @@ import posthog from 'posthog-js';
 import { useCallback } from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
-import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { IoIosArrowUp } from 'react-icons/io';
 import { AppHat } from 'types';
 import {
   Accordion,
@@ -25,7 +25,6 @@ import {
 } from 'ui';
 import { useAccount } from 'wagmi';
 
-// TODO use ui/Input component
 const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';
 
 const CALLDATA_TOOLTIP_COPY =
@@ -36,7 +35,7 @@ const BottomMenu = ({
   setAccordionIndex,
 }: {
   isExpanded: boolean;
-  setAccordionIndex: (index: number[]) => void;
+  setAccordionIndex: (index: string[]) => void;
 }) => {
   const { storedData, chainId, treeId, onchainHats, treeToDisplay, topHat } = useTreeForm();
   const { address } = useAccount();
@@ -70,7 +69,7 @@ const BottomMenu = ({
 
   const openCalldataMenu = () => {
     posthog.capture('Opened Transaction Calldata Menu');
-    setAccordionIndex(isExpanded ? [] : [0]);
+    setAccordionIndex(isExpanded ? [] : ['bottom-menu']);
   };
 
   const enableSimulation = posthog.isFeatureEnabled('simulation') || process.env.NODE_ENV === 'development';
@@ -92,11 +91,20 @@ const BottomMenu = ({
   return (
     <div className='z-14 absolute bottom-0 w-full'>
       <div className='flex justify-between border-t border-gray-200 bg-cyan-50'>
-        <Accordion type='single' className='mt-[-1px] w-full'>
+        <Accordion
+          type='single'
+          className='mt-[-1px] w-full'
+          collapsible
+          value={isExpanded ? 'bottom-menu' : ''}
+          disabled={!hasUpdates}
+        >
           <AccordionItem value='bottom-menu' aria-disabled={!hasUpdates}>
-            <AccordionTrigger className='px-8 py-4' onClick={openCalldataMenu}>
-              <div className='flex-1 text-left'>Transaction Call Data</div>
-              {isExpanded ? <IoIosArrowDown /> : <IoIosArrowUp />}
+            <AccordionTrigger
+              className='px-8 py-4 hover:no-underline'
+              onClick={openCalldataMenu}
+              customIcon={<IoIosArrowUp className='transition-transform duration-200' />}
+            >
+              <div className='text-base font-normal'>Transaction Call Data</div>
             </AccordionTrigger>
 
             <AccordionContent className='px-8 pb-8'>
@@ -121,7 +129,7 @@ const BottomMenu = ({
                       })}
                     </div>
 
-                    <div className='border-t border-gray-500' />
+                    <div className='border-t border-gray-400' />
                   </>
                 )}
 
@@ -169,25 +177,26 @@ const BottomMenu = ({
                       </div>
                     </div>
 
-                    <div className='border-t border-gray-500' />
+                    <div className='border-t border-gray-400' />
                   </>
                 )}
 
                 <div className='flex flex-col gap-1'>
                   <p className='text-sm font-light'>Hats contract address</p>
+
                   <div className='flex gap-4'>
                     <Input value={HATS_V1} className='text-blackAlpha-600 bg-white' readOnly placeholder='Loading...' />
                     <Button onClick={copyContractAddress} variant='outline' className='border-gray-300'>
-                      <FiCopy className='mr-1 h-4 w-4' />
                       Copy
+                      <FiCopy className='ml-1 size-4' />
                     </Button>
                   </div>
                 </div>
 
-                <div className='flex flex-col gap-1'>
+                <div className='flex items-center gap-1'>
                   <p className='text-sm font-light'>Transaction call data (hex encoded)</p>
                   <Tooltip label={CALLDATA_TOOLTIP_COPY}>
-                    <div className='h-5'>
+                    <div className='flex h-5 items-center'>
                       <AiOutlineInfoCircle className='text-black/70' />
                     </div>
                   </Tooltip>
@@ -198,7 +207,7 @@ const BottomMenu = ({
                     <Input value={isLoading ? '' : callData || ''} readOnly placeholder='Loading...' />
                     <Button onClick={copyCallData} disabled={!callData} variant='outline' className='border-gray-300'>
                       Copy
-                      <FiCopy className='ml-1 h-4 w-4' />
+                      <FiCopy className='ml-1 size-4' />
                     </Button>
                   </div>
                 ) : (

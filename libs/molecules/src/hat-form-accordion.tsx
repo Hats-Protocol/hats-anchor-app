@@ -1,6 +1,6 @@
 'use client';
 
-// TODO chakra
+import { isEmpty } from 'lodash';
 import posthog from 'posthog-js';
 import React, { useState } from 'react';
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
@@ -20,25 +20,25 @@ const HatFormAccordion = ({ title, subtitle, dirtyFieldsList, open = false, chil
 
   return (
     <Collapsible className='flex w-full flex-col' open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className='flex flex-col hover:cursor-pointer' onClick={handleToggle}>
-        <div className='flex items-center'>
-          <div className='flex items-center'>
-            {isOpen ? <AiOutlineMinusSquare className='h-5 w-5' /> : <AiOutlinePlusSquare className='h-5 w-5' />}
-            <h2 className='text-lg font-medium text-slate-900'>{title}</h2>
+      <CollapsibleTrigger className='flex flex-col gap-2 hover:cursor-pointer' onClick={handleToggle}>
+        <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2'>
+            {isOpen ? <AiOutlineMinusSquare className='size-5' /> : <AiOutlinePlusSquare className='size-5' />}
+            <h2 className='text-xl font-medium text-slate-900'>{title}</h2>
           </div>
         </div>
-        <div className='flex flex-col'>{subtitle && <p className='ml-7 text-sm text-slate-500'>{subtitle}</p>}</div>
+        <div className='flex'>{subtitle && <p className='ml-7 text-sm text-slate-500'>{subtitle}</p>}</div>
       </CollapsibleTrigger>
 
-      {!isOpen && dirtyFieldsList && dirtyFieldsList.length > 0 && (
-        <div className='font-sm ml-7 mt-2 text-cyan-900'>
+      {!isOpen && !isEmpty(dirtyFieldsList) && (
+        <div className='ml-7 mt-2 text-sm text-cyan-600'>
           <p className='text-medium'>Edits:</p>
           {dirtyFieldsList?.map((field) => <p key={field}>- {field} changed</p>)}
         </div>
       )}
 
       <CollapsibleContent>
-        <div className='mr-0 mt-8 pb-0 pl-7 pr-0'>{children}</div>
+        <div className=''>{children}</div>
       </CollapsibleContent>
     </Collapsible>
   );

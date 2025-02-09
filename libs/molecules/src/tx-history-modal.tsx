@@ -1,13 +1,16 @@
 'use client';
 
 import { Modal } from 'contexts';
+import { ScrollArea } from 'ui';
 
 import { TransactionHistory } from './transaction-history';
 
 const TxHistoryModal = () => {
   return (
     <Modal name='transactions' title='Transactions' size='xl'>
-      <TransactionHistory showClear />
+      <ScrollArea className='h-[600px]'>
+        <TransactionHistory showClear />
+      </ScrollArea>
     </Modal>
   );
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetails, useProfileDetails } from 'hats-hooks';
 import { compact, concat, find, map, pick, reject, toString } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
@@ -12,7 +12,7 @@ import { Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import { AboutModule, DevInfo, FILTER, Filter, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
+import { AboutModule, DevInfo, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AllowlistForms } from './allowlist-forms';
 
 const AllowlistModal = ({
@@ -23,12 +23,12 @@ const AllowlistModal = ({
   moduleInfo: ModuleDetails;
 }) => {
   const { chainId } = useTreeForm();
+  const { setModals } = useOverlay();
   const localForm = useForm();
   const [adding, setAdding] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   const [updateList, setUpdateList] = useState<AllowlistProfile[]>([]);
-  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const { setValue } = pick(localForm, ['setValue']);
 
   const { data: hat, details } = useHatDetails({
@@ -73,13 +73,13 @@ const AllowlistModal = ({
   const judgeHat = toString(get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'));
 
   const handleClose = useCallback(() => {
-    setActiveFilter(FILTER.WEARER);
     setUpdateList([]);
     setAdding(false);
     setUpdating(false);
     setValue('addresses', []);
     setValue('search', undefined);
-  }, [setValue]);
+    setModals?.({});
+  }, [setValue, setModals]);
 
   const moduleDescriptors = useMemo(() => {
     return compact([
@@ -130,8 +130,6 @@ const AllowlistModal = ({
         hat={hat}
         heading={heading}
         profiles={allowlistProfiles}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
         localForm={localForm}
         handleUpdateListAdd={handleUpdateListAdd}
         handleUpdateListRemove={handleUpdateListRemove}

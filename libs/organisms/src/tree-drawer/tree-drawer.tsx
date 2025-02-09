@@ -10,8 +10,8 @@ import { MainContent } from './main-content';
 import { TopMenu } from './top-menu';
 
 const TreeDrawer = () => {
-  const [accordionIndex, setAccordionIndex] = useState<number[]>([]);
-  const isExpanded = includes(accordionIndex, 0);
+  const [accordionIndex, setAccordionIndex] = useState<string[]>([]);
+  const isExpanded = includes(accordionIndex, 'bottom-menu');
   const { editMode } = useTreeForm();
 
   return (
@@ -22,9 +22,11 @@ const TreeDrawer = () => {
       )}
     >
       <TopMenu />
-      <ScrollArea className='h-[calc(100vh-180px)]'>
+
+      <ScrollArea className='h-[calc(100vh-125px)]'>
         <MainContent isExpanded={isExpanded} />
       </ScrollArea>
+
       <BottomMenu isExpanded={isExpanded} setAccordionIndex={setAccordionIndex} />
     </div>
   );

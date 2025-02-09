@@ -1,8 +1,7 @@
-import { Modal } from 'contexts';
+import { BaseModal, ModalContent, useOverlay } from 'contexts';
+import { get } from 'lodash';
 import { ReactNode } from 'react';
-import { BsX } from 'react-icons/bs';
-import { Button } from 'ui';
-
+import { cn } from 'ui';
 export const ModuleModal = ({
   name,
   title,
@@ -20,27 +19,36 @@ export const ModuleModal = ({
   children: ReactNode;
   onClose?: () => void;
 }) => {
+  const { modals, setModals } = useOverlay();
+  const isOpen = get(modals, name) || false;
+
+  const handleClose = () => {
+    setModals?.({});
+  };
+
   return (
-    <Modal name={name} onClose={onClose}>
-      <div className='flex h-[700px] flex-col items-center gap-4 md:flex-row'>
-        <div className='border-blackAlpha-200 relative flex hidden w-[30%] gap-10 border-r p-14 md:flex md:min-w-[450px]'>
-          <h2 className='text-2xl font-bold'>{title}</h2>
+    <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
+      <ModalContent
+        className={cn(
+          'min-w-20vw rounded-b-0 mb-0 mt-auto flex w-full max-w-[1200px] flex-col bg-white p-0 md:mb-auto md:mt-4 md:rounded-2xl',
+        )}
+      >
+        <div className='flex h-[750px] flex-col items-center md:flex-row'>
+          <div className='relative flex hidden h-full w-[30%] flex-col gap-10 border-r border-black/20 p-14 md:flex md:min-w-[450px]'>
+            <h2 className='text-2xl font-bold'>{title}</h2>
 
-          {about}
+            {about}
 
-          {history}
+            {history}
 
-          {devInfo}
+            {devInfo}
+          </div>
+
+          <div className='relative flex h-full w-full flex-col items-center rounded-r-xl bg-cyan-50 p-6 md:p-10'>
+            {children}
+          </div>
         </div>
-
-        <div className='border-r-md border-top-left-md border-bottom-left-md relative flex h-[auto] w-[70%] flex-col items-center bg-cyan-50 p-6 md:p-10'>
-          <Button className='absolute right-4 top-4' onClick={onClose}>
-            <BsX />
-          </Button>
-
-          {children}
-        </div>
-      </div>
-    </Modal>
+      </ModalContent>
+    </BaseModal>
   );
 };

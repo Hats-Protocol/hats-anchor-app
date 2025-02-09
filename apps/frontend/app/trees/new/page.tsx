@@ -3,7 +3,7 @@ import { NewTreeForm } from 'forms';
 import { capitalize } from 'lodash';
 
 const NewTree = () => (
-  <>
+  <div className='w-screen'>
     <div className='fixed z-[-5] mt-[70px] h-full w-full bg-blue-100 opacity-[0.7]' />
 
     <div className='flex flex-col items-center pt-[125px]'>
@@ -11,7 +11,7 @@ const NewTree = () => (
 
       <NewTreeForm />
     </div>
-  </>
+  </div>
 );
 
 export default NewTree;

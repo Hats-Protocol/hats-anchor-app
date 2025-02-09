@@ -1,6 +1,6 @@
-# Hats UI components
+# Hats Molecules
 
-This initial component library is built with Chakra.
+This initial component library is built with Shadcn and Tailwind.
 
 ## Component Groups
 

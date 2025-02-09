@@ -26,12 +26,12 @@ export const AboutModule = ({
 }) => {
   return (
     <div className='flex flex-col gap-2'>
-      <h2 className='text-sm'>{heading}</h2>
+      <h2 className='text-sm font-bold'>{heading}</h2>
 
       {map(moduleDescriptors, ({ label, hatId, icon, descriptor }) => {
         if (descriptor) {
           return (
-            <div className='flex justify-between'>
+            <div className='flex justify-between' key={label}>
               <p className='text-sm'>{label}</p>
 
               {descriptor}
@@ -44,7 +44,7 @@ export const AboutModule = ({
         const Icon = icon || HatIcon;
 
         return (
-          <div className='flex justify-between'>
+          <div className='flex justify-between' key={label}>
             <p className='text-sm'>{label}</p>
 
             <div className='flex items-center gap-1'>

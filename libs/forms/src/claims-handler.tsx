@@ -4,7 +4,7 @@ import { MULTI_CLAIMS_HATTER_V1_ABI } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { usePendHatterMint, useWaitForSubgraph } from 'hooks';
-import _, { get } from 'lodash';
+import { find, first, get, includes, map, pick } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -17,11 +17,11 @@ import { useWriteContract } from 'wagmi';
 import { FormRowWrapper, Select } from './components';
 
 const ClaimsHandlerWrapper = ({ children }: { children: ReactNode }) => (
-  <FormRowWrapper>
-    <BsPersonAdd className='mt-1 h-4 w-4' />
+  <FormRowWrapper noMargin>
+    <BsPersonAdd className='absolute -ml-8 mt-1 size-4' />
     <div className='flex flex-col'>
       <div className='flex items-center'>
-        <p className='text-sm font-medium text-gray-500'>HAT CLAIMING</p>
+        <p className='text-sm uppercase'>Hat Claiming</p>
       </div>
 
       {children}
@@ -45,7 +45,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
     onchainHats,
     editMode,
   });
-  const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
+  const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
   const { handlePendingTx } = useOverlay();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
 
@@ -60,7 +60,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   });
   const wearingHat = useMemo(() => {
     if (!wearingHatId) return undefined;
-    return _.find(treeToDisplay, { id: wearingHatId });
+    return find(treeToDisplay, { id: wearingHatId });
   }, [treeToDisplay, wearingHatId]);
 
   const onSuccess = () => {
@@ -100,13 +100,13 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
 
   useEffect(() => {
     if (treeToDisplay && hatToMintPended) {
-      const localHatToMintTo = _.get(_.first(availableAdmins), 'id');
+      const localHatToMintTo = get(first(availableAdmins), 'id');
       setValue('hatToMintTo', hatToMintPended || localHatToMintTo);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!_.includes(claimableHats, selectedHat?.id) && hatterIsAdmin) {
+  if (!includes(claimableHats, selectedHat?.id) && hatterIsAdmin) {
     return (
       <ClaimsHandlerWrapper>
         <div className='mt-1'>
@@ -124,13 +124,13 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   if (hatterIsAdmin) {
     return (
       <ClaimsHandlerWrapper>
-        <div className='mt-1'>
+        <div className='mt-1 space-y-2'>
           <p className='text-sm text-gray-500'>
             This hat has a claims hatter contract deployed, and permissionless claiming is enabled. Potential wearers
             will be able to claim this hat if they meet the requirements in this hat&quot;s accountability module.
           </p>
           {wearingHat && instanceAddress && (
-            <p>
+            <p className='text-cyan-600'>
               Claims hatter contract (<span className='font-mono'>{formatAddress(instanceAddress)}</span>) is wearing
               Hat {hatIdDecimalToIp(BigInt(wearingHat?.id))} ({get(wearingHat, 'detailsObject.data.name')})
             </p>
@@ -149,7 +149,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
             an admin of this hat.
           </p>
           <Select localForm={localForm} name='hatToMintTo'>
-            {_.map(availableAdmins, (a: AppHat) => (
+            {map(availableAdmins, (a: AppHat) => (
               <option value={a.id} key={a.id}>
                 {hatIdDecimalToIp(BigInt(a.id))} {get(a, 'detailsObject.data.name', get(a, 'details'))}
               </option>

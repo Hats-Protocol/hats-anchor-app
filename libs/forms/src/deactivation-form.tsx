@@ -16,7 +16,7 @@ import { useAccount, useWalletClient } from 'wagmi';
 
 import { Form, FormControl, FormItem, FormLabel, Input, NumberInput, Select } from './components';
 
-export const DeactivationForm = () => {
+const DeactivationForm = () => {
   const localForm = useForm();
   const { handleSubmit, watch, setValue } = localForm;
   const { address } = useAccount();
@@ -214,3 +214,5 @@ export const DeactivationForm = () => {
     </div>
   );
 };
+
+export { DeactivationForm };

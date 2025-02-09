@@ -2,19 +2,18 @@
 
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { ControlledRadioBox, Textarea } from 'forms';
-import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
+import { ControlledRadioBox, Form, Textarea } from 'forms';
+import { useHatDetails, useProfileDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
-import { compact, concat, filter, find, includes, map, pick, reject, toString } from 'lodash';
+import { compact, concat, find, map, reject } from 'lodash';
 import { useAgreementEligibility } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { Markdown } from 'ui';
-import { filterProfiles } from 'utils';
+import { Markdown, ScrollArea } from 'ui';
 import { Hex } from 'viem';
 
-import { AboutModule, FILTER, Filter, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
+import { AboutModule, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AgreementForms } from './agreement-forms';
 
 export const AgreementModal = ({
@@ -28,24 +27,20 @@ export const AgreementModal = ({
   const localForm = useForm();
   const [removing, setRemoving] = useState(false);
   const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
-  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const [selectedOption, setSelectedOption] = useState<string>('Agreement');
   const [updatingAgreement, setUpdatingAgreement] = useState(false);
-  const { watch } = pick(localForm, ['watch']);
 
   const { data: hat } = useHatDetails({
     hatId: eligibilityHatId,
     chainId,
   });
-  const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
-  const searchInput = watch('search');
   const { data: agreementDetails } = useAgreementEligibility({
     id: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: agreementProfiles } = useProfileDetails({
-    addresses: get(agreementDetails, 'agreements.0.signers'),
+    addresses: get(agreementDetails, 'agreements.0.signers'), // TODO Get current agreement
     chainId,
   });
   const liveParams = get(moduleInfo, 'liveParameters');
@@ -65,14 +60,14 @@ export const AgreementModal = ({
     };
   });
 
-  const filteredProfiles = filterProfiles({
-    profiles: mappedProfiles || [],
-    wearerIds: map(wearers, (wearer) => wearer.id),
-  });
-  const currentFilteredProfiles = filter(
-    filteredProfiles[activeFilter],
-    (p) => !searchInput || includes(toString(p.id), searchInput) || includes(toString(p.ensName), searchInput),
-  );
+  // const filteredProfiles = filterProfiles({
+  //   profiles: mappedProfiles || [],
+  //   wearerIds: map(wearers, (wearer) => wearer.id),
+  // });
+  // const currentFilteredProfiles = filter(
+  //   filteredProfiles[activeFilter],
+  //   (p) => !searchInput || includes(toString(p.id), searchInput) || includes(toString(p.ensName), searchInput),
+  // );
 
   const handleAdd = useCallback(
     (address: Hex) => {
@@ -127,23 +122,25 @@ export const AgreementModal = ({
 
       {selectedOption === 'Agreement' &&
         (updatingAgreement ? (
-          <div className='w-full space-y-2'>
-            <h3 className='text-md'>Update Agreement</h3>
+          <Form {...localForm}>
+            <div className='mt-8 w-full space-y-2'>
+              <h3 className='text-md'>Update Agreement</h3>
 
-            <Textarea name='agreementContent' localForm={localForm} />
-          </div>
+              <Textarea name='agreementContent' className='h-[370px]' localForm={localForm} />
+            </div>
+          </Form>
         ) : (
-          <div className='w-full space-y-2'>
-            <Markdown>{agreementContent as string}</Markdown>
-          </div>
+          <ScrollArea className='mt-8 h-3/4'>
+            <div className='prose w-full space-y-2'>
+              <Markdown>{agreementContent as string}</Markdown>
+            </div>
+          </ScrollArea>
         ))}
 
       {selectedOption === 'Signatures' && (
         <ProfileList
           hat={hat}
-          profiles={currentFilteredProfiles}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
+          profiles={mappedProfiles}
           localForm={localForm}
           handleUpdateListAdd={handleAdd}
           handleUpdateListRemove={handleRemove}

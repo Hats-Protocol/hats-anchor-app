@@ -20,11 +20,12 @@ const AddressProfile = ({
   isCurrentUser: boolean;
   color: string;
 }) => (
-  <div className={cn('flex items-center gap-1 text-sm', color, isCurrentUser ? 'bg-green-100' : 'bg-transparent')}>
+  <div className={cn('flex items-center gap-1 text-sm', color, isCurrentUser && 'bg-green-100')}>
     {ensAvatar ? (
       <img
         className='ml-[2px] mr-[1px] h-[14px] w-[11px] rounded-[2px] object-cover md:mr-1 md:h-4 md:w-3' // sometimes only ml? oh when the current user isn't a wearer in the list?
         src={ensAvatar}
+        alt={eligibilityAccount.ensName || formatAddress(eligibilityAccount.id)}
       />
     ) : (
       <WearerIcon className='h-[14px] w-[14px] md:h-4 md:w-4' />
@@ -56,9 +57,9 @@ export const EligibilityRow = ({
   const isWearer = includes(map(wearers, 'id'), eligibilityAccount.id);
   const isCurrentUser = toLower(address) === toLower(eligibilityAccount.id);
 
-  let color = 'Informative-Human';
-  if (isCurrentUser) color = 'green.800';
-  if (eligibilityAccount.isContract) color = 'Informative-Code';
+  let color = 'text-informative-human';
+  if (isCurrentUser) color = 'text-green-800';
+  if (eligibilityAccount.isContract) color = 'text-informative-code';
   const isChecked = includes(map(updateList, 'id'), eligibilityAccount.id);
 
   const handleRemoveToggle = useCallback(() => {
@@ -70,16 +71,17 @@ export const EligibilityRow = ({
   }, [isChecked, handleAdd, handleRemove, eligibilityAccount.id]);
 
   return (
-    <div className='flex justify-between'>
+    <div className='flex w-full justify-between'>
       {updating ? (
-        <BaseCheckbox checked={isChecked} onChange={handleRemoveToggle}>
+        <div onClick={handleRemoveToggle} className='flex items-center gap-2'>
+          <BaseCheckbox checked={isChecked} />
           <AddressProfile
             eligibilityAccount={eligibilityAccount}
             ensAvatar={ensAvatar || undefined}
             isCurrentUser={isCurrentUser}
             color={color}
           />
-        </BaseCheckbox>
+        </div>
       ) : (
         <AddressProfile
           eligibilityAccount={eligibilityAccount}
@@ -90,7 +92,7 @@ export const EligibilityRow = ({
       )}
 
       <div className='flex items-center gap-1 text-sm'>
-        <p className={isWearer ? 'text-Informative-Human' : 'text-gray-500'}>{isWearer ? 'Wearer' : 'Unclaimed'}</p>
+        <p className={cn(isWearer ? 'text-informative-human' : 'text-gray-500')}>{isWearer ? 'Wearer' : 'Unclaimed'}</p>
       </div>
     </div>
   );

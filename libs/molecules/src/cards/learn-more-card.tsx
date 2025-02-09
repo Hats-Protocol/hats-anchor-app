@@ -19,7 +19,7 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
       <Card className='flex h-full items-start gap-6 rounded-md border-gray-400 bg-white/70 p-5'>
         {displayIcon}
         <div>
-          <p className='text-md'>{name}</p>
+          <p className='font-medium'>{name}</p>
           <p className='text-sm'>{description}</p>
         </div>
       </Card>

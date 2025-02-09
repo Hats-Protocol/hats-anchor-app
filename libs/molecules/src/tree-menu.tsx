@@ -19,6 +19,7 @@ import {
   BaseCheckbox,
   Button,
   cn,
+  Label,
   LinkButton,
   Popover,
   PopoverContent,
@@ -76,7 +77,7 @@ const TreeMenu = () => {
       <div className='flex w-full items-center justify-between'>
         <div className='flex items-center gap-2'>
           <Button
-            className='border border-[#0987A0] bg-[#C4F1F9] text-[#065666]'
+            className='border border-[#0987A0] bg-[#C4F1F9] text-[#065666] hover:bg-[#C4F1F9]/80'
             disabled={!treeToDisplay || !!treeError}
             onClick={toggleEditMode}
           >
@@ -91,7 +92,7 @@ const TreeMenu = () => {
                 Table View
               </Button> */}
           <Popover open={isOpen as boolean} onOpenChange={(open) => setIsOpen(open)}>
-            <PopoverTrigger>
+            <PopoverTrigger asChild>
               <Button
                 disabled={editMode || !!treeError}
                 variant={isOpen ? 'default' : 'outline'}
@@ -102,34 +103,42 @@ const TreeMenu = () => {
                 {isOpen ? <FaChevronUp className='ml-1 size-4' /> : <FaChevronDown className='ml-1 size-4' />}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-80'>
-              <div className='p-6'>
-                <RadioGroup
-                  onValueChange={(value) => setSelectedOption?.(value)}
-                  value={selectedOption}
-                  className='w-full'
-                >
+            <PopoverContent align='start' className='w-60'>
+              <div className='p-2'>
+                <RadioGroup value={selectedOption}>
                   <div className='flex flex-col gap-3'>
                     {initialControls.map((control: Controls) => (
-                      <RadioGroupItem value={control.value} key={control.value}>
-                        <div className='text-foreground flex items-center gap-2'>
+                      <div
+                        className='flex items-center gap-4'
+                        onClick={() => setSelectedOption?.(control.value)}
+                        key={control.value}
+                      >
+                        <RadioGroupItem value={control.value} />
+
+                        <Label
+                          className='text-foreground flex items-center gap-3 text-base font-light hover:cursor-pointer'
+                          htmlFor={control.value}
+                        >
                           {control.icon}
                           <p>{control.label}</p>
-                        </div>
-                      </RadioGroupItem>
+                        </Label>
+                      </div>
                     ))}
                   </div>
                 </RadioGroup>
+
                 <hr className='my-4' />
-                <BaseCheckbox
-                  checked={showInactiveHats}
-                  onCheckedChange={(checked) => setShowInactiveHats?.(checked as boolean)}
-                >
+
+                <div className='flex items-center gap-2'>
+                  <BaseCheckbox
+                    checked={showInactiveHats}
+                    onCheckedChange={(checked) => setShowInactiveHats?.(checked as boolean)}
+                  />
                   <div className='flex items-center gap-2'>
                     <BsToggle2Off className='size-4 text-gray-500' />
-                    <p>Inactive Hats</p>
+                    <p className='font-light'>Inactive Hats</p>
                   </div>
-                </BaseCheckbox>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
@@ -180,13 +189,12 @@ const TreeMenu = () => {
                 <Popover>
                   <PopoverTrigger>
                     <div className='flex cursor-pointer items-center gap-1 text-sm'>
-                      <p>Last event: </p>
-                      <p className='mr-2 font-medium'>{localLastTimestamp || '-'}</p>
-
-                      <History className='size-4' />
+                      <p>Last event:</p>
+                      <p className='font-medium'>{localLastTimestamp || '-'}</p>
+                      <History className='size-[14px]' />
                     </div>
                   </PopoverTrigger>
-                  <PopoverContent className='mr-4 w-80'>
+                  <PopoverContent className='mr-4 w-[450px]'>
                     <div className='space-y-2'>
                       <div>
                         <h4 className='mb-1 text-sm font-medium uppercase'>Event history</h4>
@@ -200,7 +208,7 @@ const TreeMenu = () => {
                             <Button
                               onClick={() => setModals?.({ events: true })}
                               variant='link'
-                              className='text-blue-500'
+                              className='text-functional-link-primary'
                             >
                               View Full History
                             </Button>

@@ -87,12 +87,13 @@ const HatBasicsForm = () => {
     <Form {...localForm}>
       <form>
         <div className='flex flex-col gap-8'>
-          <FormRowWrapper>
-            <BsImage className='mt-2 h-4 w-4' />
+          <FormRowWrapper noMargin>
+            <div className='-ml-7 flex items-center gap-4'>
+              <BsImage className='h-4 w-4' />
+              <p className='text-sm font-medium uppercase'>Image</p>
+            </div>
 
             <div className='flex w-full flex-col gap-1'>
-              <p className='text-sm font-medium'>IMAGE</p>
-
               <DropZone
                 getRootProps={getRootProps}
                 getInputProps={getInputProps}
@@ -107,8 +108,8 @@ const HatBasicsForm = () => {
             </div>
           </FormRowWrapper>
 
-          <FormRowWrapper>
-            <HatIcon className='mt-2 h-4 w-4' />
+          <FormRowWrapper noMargin>
+            <HatIcon className='absolute -ml-8 mt-1 size-4' />
 
             <Input
               name='name'
@@ -119,22 +120,24 @@ const HatBasicsForm = () => {
             />
           </FormRowWrapper>
 
-          <FormRowWrapper>
-            <BsTextParagraph className='mt-2 h-4 w-4' />
+          <FormRowWrapper noMargin>
+            <BsTextParagraph className='absolute -ml-8 mt-1 size-4' />
 
             <Textarea
               name='description'
               label='Description'
               placeholder='Add a brief description (or a link to one) for this hat'
+              className='min-h-20'
               isDisabled={hatFormLoading}
               localForm={localForm}
             />
           </FormRowWrapper>
 
           {isTopHat(selectedHat) && (
-            <FormRowWrapper>
-              <FaHouseUser className='mt-2 h-4 w-4' />
-              <div className='flex w-full flex-col gap-1'>
+            <FormRowWrapper noMargin>
+              <FaHouseUser className='absolute -ml-8 mt-1 size-4' />
+
+              <div className='flex w-full flex-col gap-2'>
                 <p className='text-sm font-medium'>Guilds</p>
 
                 {fieldsGuilds.map((field, index) => (
@@ -152,7 +155,9 @@ const HatBasicsForm = () => {
                   <Button
                     onClick={() => appendGuild('')}
                     disabled={some(formValues?.guilds, (item: string) => item === '')}
-                    variant='outline-blue'
+                    variant='outline'
+                    type='button'
+                    size='sm'
                   >
                     <FaPlus />
                     Add {formValues?.guilds?.length ? 'another' : 'a'} Guild
@@ -163,9 +168,10 @@ const HatBasicsForm = () => {
           )}
 
           {isTopHat(selectedHat) && (
-            <FormRowWrapper>
-              <FaCube className='mt-2 h-4 w-4' />
-              <div className='flex w-full flex-col gap-1'>
+            <FormRowWrapper noMargin>
+              <FaCube className='absolute -ml-8 mt-1 size-4' />
+
+              <div className='flex w-full flex-col gap-2'>
                 <p className='text-sm font-medium'>Snapshot Spaces</p>
 
                 {fieldsSpaces.map((field, index) => (
@@ -183,7 +189,9 @@ const HatBasicsForm = () => {
                   <Button
                     onClick={() => appendSpace('')}
                     disabled={some(formValues?.spaces, (item: string) => item === '')}
-                    variant='outline-blue'
+                    variant='outline'
+                    type='button'
+                    size='sm'
                   >
                     <FaPlus />
                     Add {formValues?.spaces?.length ? 'another' : 'a'} Space
@@ -193,8 +201,9 @@ const HatBasicsForm = () => {
             </FormRowWrapper>
           )}
 
-          <FormRowWrapper>
-            <GrEdit className='mt-2 h-4 w-4' />
+          <FormRowWrapper noMargin>
+            <GrEdit className='absolute -ml-8 mt-1 size-4' />
+
             <div className='flex w-full flex-col gap-1'>
               <p className='text-sm font-medium'>MUTABILITY</p>
 

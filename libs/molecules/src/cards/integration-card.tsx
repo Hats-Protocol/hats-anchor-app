@@ -25,7 +25,7 @@ const IntegrationCard = ({ integration }: { integration: IntegrationCardType }) 
           </div>
         </div>
         <div className='p-2'>
-          <p className='text-xl font-medium'>{label}</p>
+          <p className='text-lg font-medium'>{label}</p>
         </div>
       </Card>
     </Link>

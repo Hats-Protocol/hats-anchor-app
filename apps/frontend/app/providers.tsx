@@ -43,7 +43,7 @@ if (typeof window !== 'undefined') {
     api_host: `/ingest` || 'https://app.posthog.com',
     // Enable debug mode in development
     loaded: (p: { debug: () => void }) => {
-      if (process.env.NODE_ENV === 'development') p.debug();
+      // if (process.env.NODE_ENV === 'development') p.debug();
     },
     ui_host: 'https://app.posthog.com',
   });

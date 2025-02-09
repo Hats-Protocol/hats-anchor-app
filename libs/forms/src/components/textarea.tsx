@@ -30,6 +30,7 @@ const Textarea = ({
   subLabel,
   isDisabled,
   placeholder,
+  className,
   ...props
 }: TextareaProps) => {
   const {
@@ -74,7 +75,7 @@ const Textarea = ({
             <FormControl className='flex w-full flex-grow'>
               <>
                 <BaseTextarea
-                  className={cn(isDirty && 'border-2 border-cyan-500')}
+                  className={cn(isDirty && 'border-2 border-cyan-500', className)}
                   disabled={isDisabled}
                   placeholder={placeholder}
                   {...field}
@@ -110,6 +111,7 @@ interface TextareaProps {
   headerNote?: string;
   subLabel?: string;
   isDisabled?: boolean;
+  className?: string;
 }
 
 export { Textarea, type TextareaProps };

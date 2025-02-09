@@ -16,7 +16,7 @@ const TreeDetails = ({ params }: TreeDetailsProps) => {
 
   return (
     <TreeFormContextProvider>
-      <div className='hidden md:block'>
+      <div className='hidden md:block md:max-h-screen'>
         <TreePage params={params} />
         <div className='fixed left-0 top-0 z-[-1] h-full w-full bg-[url("/bg-topography.svg")]' />
       </div>

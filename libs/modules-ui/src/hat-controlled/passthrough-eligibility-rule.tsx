@@ -18,13 +18,15 @@ export const PassthroughEligibility = ({ moduleParameters, chainId }: ModuleDeta
   const passthroughHatId = hatIdDecimalToHex(get(passthroughHat, 'value') as bigint);
 
   return (
-    <EligibilityRuleDetails
-      rule={<p>One Hat can choose eligible wearers</p>}
-      status={ELIGIBILITY_STATUS.hat}
-      displayStatus={passthroughHatDisplay}
-      displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
-      icon={HatIcon as IconType}
-    />
+    <div className='mx-4'>
+      <EligibilityRuleDetails
+        rule={<p>One Hat can choose eligible wearers</p>}
+        status={ELIGIBILITY_STATUS.hat}
+        displayStatus={passthroughHatDisplay}
+        displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
+        icon={HatIcon as IconType}
+      />
+    </div>
   );
 };
 
@@ -34,13 +36,15 @@ export const PassthroughToggle = ({ moduleParameters, chainId }: ModuleDetailsHa
   const passthroughHatId = hatIdDecimalToHex(get(passthroughHat, 'value') as bigint);
 
   return (
-    <EligibilityRuleDetails
-      rule={<p>One Hat can deactivate this Hat</p>}
-      status={TOGGLE_STATUS.hat}
-      displayStatus={passthroughHatDisplay}
-      displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
-      icon={HatIcon as IconType}
-    />
+    <div className='mx-4'>
+      <EligibilityRuleDetails
+        rule={<p>One Hat can deactivate this Hat</p>}
+        status={TOGGLE_STATUS.hat}
+        displayStatus={passthroughHatDisplay}
+        displayStatusLink={hatLink({ chainId, hatId: passthroughHatId })}
+        icon={HatIcon as IconType}
+      />
+    </div>
   );
 };
 

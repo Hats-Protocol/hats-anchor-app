@@ -32,7 +32,7 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
 
   if (activeSection) {
     return (
-      <div className='bg-whiteAlpha-900 border-bottom-right-md border-bottom-left-md border-top-md border-blackAlpha-200 absolute bottom-0 min-h-[100px] w-full py-4 md:py-10'>
+      <div className='absolute bottom-0 min-h-[100px] w-full border-b border-t border-black/20 bg-white/90 py-4 md:py-10'>
         {activeSection.section}
       </div>
     );
@@ -41,9 +41,9 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
   if (!hasAnyRole) return null;
 
   return (
-    <div className='bg-whiteAlpha-900 border-bottom-right-md border-bottom-left-md border-top-md border-blackAlpha-200 absolute bottom-0 min-h-[100px] w-full py-4 md:py-10'>
+    <div className='absolute bottom-0 min-h-[100px] w-full rounded-br-xl border-b border-t border-black/20 bg-white/90 py-4 md:py-10'>
       <div className='flex w-full items-center justify-center'>
-        <div className='flex flex-col gap-4'>
+        <div className='flex gap-4'>
           {map(buttons, ({ onClick, label, colorScheme }) => (
             <Button
               variant='outline-blue'

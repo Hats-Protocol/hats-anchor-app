@@ -52,7 +52,8 @@ const ModuleDrawer = ({
         selectedModuleDetails={selectedModuleDetails}
         isStandaloneHatterDeploy={isStandaloneHatterDeploy}
       />
-      <ScrollArea className='h-[calc(100vh-180px)]'>
+
+      <ScrollArea className='h-full pt-[75px]'>
         <MainContent localForm={localForm} title={title} isStandaloneHatterDeploy={isStandaloneHatterDeploy} />
       </ScrollArea>
     </div>

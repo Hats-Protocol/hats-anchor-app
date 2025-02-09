@@ -216,7 +216,7 @@ const WearersList = () => {
             <HatTransferForm currentWearerAddress={wearerToTransferFrom} />
           </Modal>
 
-          <Modal name='newWearer' title='Add a Wearer by minting a Hat token'>
+          <Modal name='newWearer' title='Add a Wearer by minting a Hat token' size='lg'>
             <HatWearerForm localForm={localForm} />
           </Modal>
         </>

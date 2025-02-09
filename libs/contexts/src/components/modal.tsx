@@ -19,7 +19,7 @@ import {
 
 // TODO migrate modal to tailwind
 /**
- * Modal component, wraps Chakra's default Modal
+ * Modal component, wraps Shadcn's default Responsive Modal
  * @param name - name of modal `setModals?.({ modalName: true })`
  * @param title - title of modal used in header
  * @param content - content of modal
@@ -52,11 +52,11 @@ const Modal = ({
   };
 
   const classSizes = {
-    '2xl': 'max-w-2xl',
-    xl: 'max-w-xl',
-    lg: 'max-w-lg',
-    md: 'max-w-md',
-    sm: 'max-w-sm',
+    '2xl': 'w-full max-w-[1200px]',
+    xl: 'w-full max-w-[800px]',
+    lg: 'w-full max-w-[600px]',
+    md: 'w-full max-w-md',
+    sm: 'w-full max-w-sm',
   };
 
   return (

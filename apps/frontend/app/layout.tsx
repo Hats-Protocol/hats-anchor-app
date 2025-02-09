@@ -30,7 +30,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
         <Providers>
           <Navbar />
 
-          <div className='w-screen'>{children}</div>
+          {children}
 
           <TxHistoryModal />
 

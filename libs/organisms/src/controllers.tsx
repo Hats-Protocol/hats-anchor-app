@@ -19,6 +19,10 @@ const Controllers = () => {
     );
   }
 
+  if (selectedHat.levelAtLocalTree === 0) {
+    return null;
+  }
+
   return (
     <div className='flex flex-col px-0 md:px-12'>
       <div className='px-4 pb-2 md:px-4'>

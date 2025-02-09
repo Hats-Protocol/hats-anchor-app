@@ -96,13 +96,7 @@ const PlatformInput = ({ type, name, remove, index, fieldsLength }: PlatformInpu
           dataExists ? <FaCheck color='green' /> : isLoading && inputValue ? <Skeleton className='h-9 w-9' /> : null
         }
       />
-      <Button
-        type='button'
-        onClick={() => remove(index)}
-        aria-label='Remove'
-        variant='outline'
-        className='h-9 w-9 bg-slate-400'
-      >
+      <Button type='button' onClick={() => remove(index)} aria-label='Remove' variant='ghost'>
         <FaTrash />
       </Button>
     </div>

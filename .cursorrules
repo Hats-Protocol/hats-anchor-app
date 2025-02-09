@@ -21,10 +21,6 @@
 - Keep files under 200 lines when possible
 - Duplicate code once, refactor and generalize on the third instance
 
-## Temporary Caveats
-
-- We're in the process of migrating from Chakra to Shadcn (Tailwind) UI. Prefer Shadcn where possible, fallback to Chakra if necessary.
-
 ## Directory Structure
 
 ```
@@ -53,7 +49,7 @@ hats-clients/
     │   └── src/
     ├── hooks/                              # Other hooks that don't fit hats-hooks or modules-hooks
     │   └── src/
-    ├── icons/                              # Chakra UI Icons
+    ├── icons/                              # Custom UI Icons
     │   └── src/
     ├── modules/                            # UI components for Hats Modules
     │   └── src/

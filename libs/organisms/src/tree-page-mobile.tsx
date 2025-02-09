@@ -113,7 +113,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
 
         <div className='h-100% mt-80px w-full max-w-full gap-2 px-2 py-2'>
           {map(sortedTree.slice(1), (hat: HatWithDepth) => (
-            <MobileHatCard hat={hat} maxDepth={maxDepth} />
+            <MobileHatCard hat={hat} maxDepth={maxDepth} key={hat.id} />
           ))}
 
           <HatDeco />

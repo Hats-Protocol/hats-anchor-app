@@ -98,9 +98,9 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
 
   return (
     <div className='flex flex-col gap-2'>
-      <div className='mb-3'>
-        <div className='flex items-center'>
-          {Icon && <Icon className='mt-2 h-4 w-4' />}
+      <div className='mb-2 space-y-1'>
+        <div className='-ml-7 flex items-center gap-3'>
+          {Icon && <Icon className='size-4' />}
           <p className='text-sm font-medium'>{title}</p>
         </div>
 
@@ -125,15 +125,16 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
             setModals?.({ 'responsibilities-edit': true });
           }}
           disabled={some(items, ['label', ''])}
-          className='flex items-center gap-2 border-slate-600'
+          className='flex items-center gap-2'
           variant='outline'
+          size='sm'
         >
           <BsPlusCircle />
           Add {items?.length ? 'another' : 'a'} {label}
         </Button>
       </div>
 
-      <Modal name='responsibilities-edit' title='Edit Responsibility'>
+      <Modal name='responsibilities-edit' title='Edit Responsibility' size='lg'>
         <Form {...localForm}>
           <form onSubmit={handleSubmit(saveEditedItem)} className='space-y-4'>
             <div className='flex w-full justify-center'>
