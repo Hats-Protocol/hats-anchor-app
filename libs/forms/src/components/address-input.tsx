@@ -29,6 +29,7 @@ type AddressInputProps = {
   name: string;
   label?: string;
   subLabel?: string | ReactNode;
+  tooltip?: string;
   // docsLink?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
@@ -39,6 +40,7 @@ type AddressInputProps = {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   chainId: SupportedChains | undefined;
   originalValue?: string;
+  variant?: 'default' | 'councils';
 };
 
 // TODO handle resolving address here
@@ -47,6 +49,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
   name,
   label,
   subLabel,
+  tooltip,
   localForm,
   hideAddressButtons,
   isDisabled,
@@ -55,6 +58,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
   onChange,
   chainId,
   originalValue,
+  variant = 'default',
 }) => {
   const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
   const inputValue = watch(`${name}-input`);
@@ -119,6 +123,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         name={`${name}-input`}
         label={label}
         subLabel={subLabel}
+        tooltip={tooltip}
         placeholder={placeholder}
         leftElement={
           isContract ? (
@@ -133,6 +138,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         addressButtons={!hideAddressButtons}
         resetValue={originalValue}
         onChange={onChange}
+        variant={variant}
       />
       {showResolvedAddress && resolvedAddress && (
         <p className='mt-1 text-xs text-gray-500'>Resolved address: {resolvedAddress}</p>

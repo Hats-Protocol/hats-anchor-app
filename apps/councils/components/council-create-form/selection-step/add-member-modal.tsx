@@ -133,39 +133,40 @@ export function AddMemberModal({ form: parentForm, editingMember, canEdit = true
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
           <div className='space-y-6'>
-            <div className='space-y-2'>
-              <label className='font-bold'>{chainsMap(chainId).name} Account</label>
-              <AddressInput
-                name='address'
-                localForm={modalForm}
-                hideAddressButtons
-                chainId={chainId}
-                isDisabled={!canEdit}
-              />
-            </div>
-            <div className='space-y-2'>
-              <label className='font-bold'>
-                Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-              </label>
-              <Input
-                name='email'
-                localForm={modalForm}
-                placeholder='Email that receives the council invite'
-                isDisabled={!canEdit}
-                options={{
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                }}
-              />
-            </div>
-            <div className='space-y-2'>
-              <label className='font-bold'>
-                Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
-              <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
-            </div>
+            <AddressInput
+              name='address'
+              localForm={modalForm}
+              label={`${chainsMap(chainId).name} Account`}
+              hideAddressButtons
+              chainId={chainId}
+              isDisabled={!canEdit}
+              variant='councils'
+            />
+            <Input
+              name='email'
+              localForm={modalForm}
+              tooltip={`The email addresses are only visible to Council Admins and are primarily used as contact information for council invitation and notifications`}
+              label='Email Address'
+              sublabel='Hidden'
+              placeholder='Email that receives the council invite'
+              isDisabled={!canEdit}
+              variant='councils'
+              options={{
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address',
+                },
+              }}
+            />
+            <Input
+              name='name'
+              localForm={modalForm}
+              label='Name'
+              sublabel='Optional'
+              placeholder='Alias or name'
+              isDisabled={!canEdit}
+              variant='councils'
+            />
           </div>
 
           <div className='mt-8'>

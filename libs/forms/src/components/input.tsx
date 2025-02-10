@@ -2,6 +2,7 @@
 
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import _ from 'lodash';
+import { Info } from 'lucide-react';
 import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
@@ -27,12 +28,14 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './
  */
 const Input = ({
   label,
+  sublabel,
   subLabel,
   subInput,
   name,
   tooltip,
   type = 'text',
   options,
+  variant = 'default',
   localForm,
   rightElement,
   leftElement,
@@ -108,6 +111,25 @@ const Input = ({
   if (rightElement) rightElementWidth += 40;
   if (maxLength > 0) rightElementWidth += 30;
 
+  const getVariantStyles = (variant: InputProps['variant'] = 'default') => {
+    switch (variant) {
+      case 'councils':
+        return {
+          label: 'font-bold normal-case text-base',
+          description: 'text-gray-400',
+          container: 'flex items-center justify-between w-full',
+          tooltipContainer: 'max-w-md',
+        };
+      default:
+        return {
+          label: 'font-normal uppercase',
+          description: '',
+          container: 'flex items-center gap-1',
+          tooltipContainer: 'max-w-xs',
+        };
+    }
+  };
+
   return (
     <FormField
       control={control}
@@ -117,18 +139,30 @@ const Input = ({
           <FormControl>
             <div className='flex w-full flex-col gap-1'>
               {label && (
-                // disabled input lessens opacity of FormLabel
-                <FormLabel className='mb-0 text-sm'>
-                  <div className='flex items-center gap-1'>
-                    <span className='font-normal'>{_.toUpper(label)}</span>
+                <FormLabel className='mb-0'>
+                  <div className={getVariantStyles(variant).container}>
+                    <span className={getVariantStyles(variant).label}>
+                      {label}
+                      {options?.required && <span className='text-red-500'> *</span>}
+                      {sublabel && <span className='ml-2 text-sm font-normal text-gray-400'>{sublabel}</span>}
+                    </span>
 
-                    {options?.required && <span className='text-red-500'> *</span>}
-
-                    {tooltip && (
-                      <Tooltip label={tooltip}>
-                        <FaRegQuestionCircle />
-                      </Tooltip>
-                    )}
+                    <div className='flex items-center gap-1'>
+                      {tooltip && (
+                        <Tooltip
+                          label={tooltip}
+                          delayDuration={100}
+                          className={getVariantStyles(variant).tooltipContainer}
+                          side={variant === 'councils' ? 'bottom' : 'top'}
+                        >
+                          {variant === 'councils' ? (
+                            <Info className='h-4 w-4 text-gray-400' />
+                          ) : (
+                            <FaRegQuestionCircle className='text-gray-400' />
+                          )}
+                        </Tooltip>
+                      )}
+                    </div>
                   </div>
                 </FormLabel>
               )}
@@ -220,12 +254,14 @@ const Input = ({
 
 interface InputProps {
   label?: string;
+  sublabel?: string;
   subLabel?: string | ReactNode;
   subInput?: string | ReactNode;
   name: string;
   tooltip?: string;
   type?: string;
   options?: RegisterOptions;
+  variant?: 'default' | 'councils';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;

@@ -1,6 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 
-import { NumberInput, RadioBox } from './components';
+import { FormLabel, NumberInput, RadioBox } from './components';
 
 // TO BE USED WITHIN A FORM
 function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProps) {
@@ -19,9 +19,9 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
   return (
     <>
       <div className='space-y-2'>
-        <label className='font-bold'>How are decisions made for this council?</label>
         <RadioBox
           name='thresholdType'
+          label='How are decisions made for this council?'
           localForm={form}
           options={[
             { label: 'Fixed number of confirmations', value: 'ABSOLUTE' },
@@ -32,15 +32,16 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
           ]}
           textSize='md'
           isDisabled={isDisabled}
+          variant='councils'
         />
       </div>
 
       {thresholdType === 'ABSOLUTE' ? (
         <div className='space-y-6'>
           <div className='flex flex-col gap-2'>
-            <label className='font-bold'>Confirmations required</label>
             <NumberInput
               name='min'
+              label='Confirmations required'
               localForm={form}
               options={{
                 min: 1,
@@ -48,19 +49,22 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                 required: true,
               }}
               isDisabled={isDisabled}
+              variant='councils'
             />
           </div>
 
           <div className='flex flex-col gap-2'>
-            <label className='font-bold'>Total council members</label>
             <NumberInput
               name='maxMembers'
+              label='Total council members'
               localForm={form}
               options={{
                 min: min,
                 required: true,
               }}
               isDisabled={isDisabled}
+              tooltip='The total number of members in the council'
+              variant='councils'
             />
           </div>
         </div>
@@ -68,8 +72,14 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
         <div className='space-y-6'>
           <div className='flex w-full gap-4'>
             <div className='flex w-full flex-col gap-y-2'>
-              <label className='font-bold'>Confirmations required</label>
-
+              <FormLabel className='mb-0'>
+                <div className='flex w-full items-center justify-between'>
+                  <span className='text-base font-bold normal-case'>
+                    Confirmations required
+                    <span className='text-red-500'> *</span>
+                  </span>
+                </div>
+              </FormLabel>
               <div className='flex'>
                 <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>%</div>
                 <div className='flex-1'>
@@ -83,16 +93,16 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                     }}
                     isDisabled={isDisabled}
                     inputClassName='rounded-l-none'
+                    variant='councils'
                   />
                 </div>
               </div>
             </div>
 
             <div className='flex w-full flex-col gap-y-2'>
-              <label className='font-bold'>Minimum confirmations</label>
-
               <NumberInput
                 name='min'
+                label='Minimum confirmations'
                 localForm={form}
                 options={{
                   min: 1,
@@ -100,14 +110,15 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                   required: true,
                 }}
                 isDisabled={isDisabled}
+                variant='councils'
               />
             </div>
           </div>
 
           <div className='flex w-full flex-col gap-2'>
-            <label className='font-bold'>Total council members</label>
             <NumberInput
               name='maxMembers'
+              label='Total council members'
               localForm={form}
               helperText={`${calculateConfirmations(maxMembers)} confirmation${calculateConfirmations(maxMembers) > 1 ? 's' : ''} required`}
               options={{
@@ -115,6 +126,8 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                 required: true,
               }}
               isDisabled={isDisabled}
+              tooltip='The total number of members in the council'
+              variant='councils'
             />
           </div>
         </div>

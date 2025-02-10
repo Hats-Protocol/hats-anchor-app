@@ -170,11 +170,15 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                 {/* Main step circle */}
                 <div
                   className={cn(
-                    'flex h-12 w-12 items-center justify-center rounded-full shadow-sm',
-                    getStepValidation(step, stepValidation, requirements)
-                      ? 'bg-white shadow-sm'
-                      : 'border-2 border-gray-200',
-                    index === currentStepIndex && 'border-functional-link-primary bg-sky-100',
+                    'flex h-12 w-12 items-center justify-center rounded-full',
+                    // Base case - incomplete step
+                    'border-2',
+                    // Handle the three states in order of priority
+                    index === currentStepIndex
+                      ? 'border-functional-link-primary bg-sky-100 shadow-sm' // Active state
+                      : getStepValidation(step, stepValidation, requirements)
+                        ? 'border-none bg-white shadow-sm' // Completed state using exact hex color
+                        : 'border-gray-200 bg-white', // Incomplete state
                   )}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
@@ -213,7 +217,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
 
               <div className=''>
                 <span className='text-base font-medium text-gray-900'>{step.label}</span>
-                <span className='block text-sm text-gray-500'>{getStepSummary(step, form, stepValidation)}</span>
+                <span className='block text-sm text-gray-900'>{getStepSummary(step, form, stepValidation)}</span>
               </div>
             </div>
           </button>
@@ -228,14 +232,20 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                     key={subStep.id}
                     onClick={() => handleStepNavigation('selection', subStep.id)}
                     className={`flex w-full items-center gap-3 border-l-[2px] ${
-                      status === 'completed' ? 'border-l-functional-link-primary' : 'border-l-gray-200'
+                      status === 'completed'
+                        ? 'border-l-functional-link-primary'
+                        : status === 'current'
+                          ? 'from-functional-link-primary border-l-transparent bg-gradient-to-b from-5% via-sky-100 via-20% to-gray-200 bg-[length:2px_100%] bg-[-2px_0] bg-no-repeat'
+                          : 'border-l-gray-200'
                     }`}
                   >
                     <div
                       className={`my-1 ml-4 flex h-6 w-6 items-center justify-center rounded-full ${
-                        status === 'current'
-                          ? 'border-functional-link-primary bg-functional-link-primary/10 border'
-                          : 'border border-gray-200 bg-white'
+                        status === 'completed'
+                          ? 'border-none bg-white'
+                          : status === 'current'
+                            ? 'border-functional-link-primary bg-functional-link-primary/10 border bg-sky-100'
+                            : 'border border-gray-200 bg-white'
                       }`}
                     >
                       {status === 'completed' ? (
@@ -256,10 +266,10 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                           </g>
                         </svg>
                       ) : (
-                        <span className='text-sm text-gray-500'>{subIndex + 1}</span>
+                        <span className='text-sm text-gray-900'>{subIndex + 1}</span>
                       )}
                     </div>
-                    <span className='text-sm text-gray-600'>{subStep.label}</span>
+                    <span className='text-sm text-gray-900'>{subStep.label}</span>
                   </button>
                 );
               })}

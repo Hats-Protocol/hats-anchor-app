@@ -1,10 +1,13 @@
 'use client';
 
 import _ from 'lodash';
+import { Info } from 'lucide-react';
 import { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
+import { FaRegQuestionCircle } from 'react-icons/fa';
 import { GrUndo } from 'react-icons/gr';
 import { BaseInput, Button, cn } from 'ui';
+import { Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 import { NumberInputSteppers } from './number-input-steppers';
@@ -16,6 +19,7 @@ export interface NumberInputProps {
   subLabel?: string;
   helperText?: string;
   name: string;
+  tooltip?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   options?: RegisterOptions;
@@ -25,7 +29,7 @@ export interface NumberInputProps {
   };
   placeholder?: string;
   step?: number;
-  variant?: string;
+  variant?: 'default' | 'councils';
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   isDisabled?: boolean;
   rightAddon?: ReactNode;
@@ -45,12 +49,13 @@ const NumberInput = ({
   subLabel,
   helperText,
   step = 1,
-  variant = 'outline',
+  variant = 'default',
   placeholder,
   onChange,
   isDisabled,
   enableReset = true,
   inputClassName,
+  tooltip,
 }: NumberInputProps) => {
   if (!localForm) return null;
 
@@ -79,6 +84,25 @@ const NumberInput = ({
 
   const handleChange = onChange || defaultHandleChange;
   // isInvalid={!!errors[name]} isRequired={!!_.get(options, 'required')}
+
+  const getVariantStyles = (variant: NumberInputProps['variant'] = 'default') => {
+    switch (variant) {
+      case 'councils':
+        return {
+          label: 'font-bold normal-case text-base',
+          description: 'text-gray-400',
+          container: 'flex items-center justify-between w-full',
+          tooltipContainer: 'flex items-center gap-1',
+        };
+      default:
+        return {
+          label: 'font-normal uppercase',
+          description: '',
+          container: 'flex items-center gap-1',
+        };
+    }
+  };
+
   return (
     <FormField
       name={name}
@@ -86,8 +110,34 @@ const NumberInput = ({
       render={({ field }) => (
         <FormItem>
           <div className='flex w-full flex-col gap-2'>
-            {label && <FormLabel className='mb-0 text-sm font-normal'>{label.toUpperCase()}</FormLabel>}
-            {subLabel && <FormDescription>{subLabel}</FormDescription>}
+            {label && (
+              <FormLabel className='mb-0'>
+                <div className={getVariantStyles(variant).container}>
+                  <span className={getVariantStyles(variant).label}>
+                    {label}
+                    {options?.required && <span className='text-red-500'> *</span>}
+                    {subLabel && <span className='ml-2 text-sm font-normal text-gray-400'>{subLabel}</span>}
+                  </span>
+
+                  <div className='flex items-center gap-1'>
+                    {tooltip && (
+                      <Tooltip
+                        label={tooltip}
+                        delayDuration={100}
+                        className={getVariantStyles(variant).tooltipContainer}
+                        side={variant === 'councils' ? 'bottom' : 'top'}
+                      >
+                        {variant === 'councils' ? (
+                          <Info className='h-4 w-4 text-gray-400' />
+                        ) : (
+                          <FaRegQuestionCircle className='text-gray-400' />
+                        )}
+                      </Tooltip>
+                    )}
+                  </div>
+                </div>
+              </FormLabel>
+            )}
 
             <FormControl className='flex'>
               <div className='relative flex items-center'>
