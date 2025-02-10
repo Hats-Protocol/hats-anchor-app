@@ -2,25 +2,25 @@
 
 import { TokenInfo } from '@hatsprotocol/constants';
 import { map } from 'lodash';
-import { Controller, UseFormReturn } from 'react-hook-form';
-import { IconSelect } from 'ui';
+import { UseFormReturn } from 'react-hook-form';
+import { ReactSelectOption } from 'ui';
 import { ipfsUrl } from 'utils';
+
+import { Select } from './select';
 
 interface TokenSelectProps {
   name: string;
   options: TokenInfo[];
-  form: UseFormReturn<{ [key: string]: TokenOption }>;
+  localForm: UseFormReturn<any>;
   placeholder?: string;
+  label?: string;
+  info?: string;
+  subLabel?: string;
 }
 
-interface TokenOption {
-  value: string;
-  label: string;
-  iconUrl: string;
-}
+interface TokenOption extends ReactSelectOption {}
 
-const TokenSelect = ({ name, options, form, placeholder }: TokenSelectProps) => {
-  const { control } = form;
+const TokenSelect = ({ name, options, localForm, placeholder, label, info, subLabel }: TokenSelectProps) => {
   const tokenOptions = map(options, (token) => ({
     value: token.address,
     label: `${token.name} (${token.symbol})`,
@@ -28,19 +28,15 @@ const TokenSelect = ({ name, options, form, placeholder }: TokenSelectProps) => 
   }));
 
   return (
-    <Controller
+    <Select<TokenOption>
       name={name}
-      control={control}
-      render={({ field: { value, onChange, ...field } }) => (
-        <IconSelect<TokenOption>
-          {...field}
-          value={tokenOptions.find((option) => option.value === value?.value)}
-          onChange={onChange}
-          options={tokenOptions}
-          placeholder={placeholder}
-          iconClassName='h-5 w-5 rounded-full'
-        />
-      )}
+      localForm={localForm}
+      options={tokenOptions}
+      placeholder={placeholder}
+      iconClassName='h-5 w-5 rounded-full'
+      label={label}
+      info={info}
+      subLabel={subLabel}
     />
   );
 };

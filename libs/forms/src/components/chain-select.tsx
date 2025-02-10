@@ -2,22 +2,23 @@
 
 import { councilsChainsList } from '@hatsprotocol/config';
 import { map, values } from 'lodash';
-import { Controller, UseFormReturn } from 'react-hook-form';
-import { IconSelect } from 'ui';
+import { UseFormReturn } from 'react-hook-form';
+import { ReactSelectOption } from 'ui';
+
+import { Select } from './select';
 
 interface ChainSelectProps {
-  localForm: UseFormReturn<{ [key: string]: ChainOption }>;
+  localForm: UseFormReturn<any>;
   name: string;
-  placeholder: string;
+  placeholder?: string;
   isDisabled?: boolean;
   className?: string;
+  label?: string;
+  info?: string;
+  subLabel?: string;
 }
 
-interface ChainOption {
-  value: string;
-  label: string;
-  iconUrl: string;
-}
+interface ChainOption extends ReactSelectOption {}
 
 const chainOptions = map(values(councilsChainsList), (chain) => ({
   value: chain.id.toString(),
@@ -25,24 +26,27 @@ const chainOptions = map(values(councilsChainsList), (chain) => ({
   iconUrl: chain.iconUrl,
 }));
 
-const ChainSelect = ({ localForm, name = 'chain', placeholder, isDisabled, className }: ChainSelectProps) => {
-  const { control } = localForm;
-
+const ChainSelect = ({
+  localForm,
+  name = 'chain',
+  placeholder = 'Select a chain',
+  isDisabled,
+  className,
+  label,
+  info,
+  subLabel,
+}: ChainSelectProps) => {
   return (
-    <Controller
+    <Select<ChainOption>
       name={name}
-      control={control}
-      render={({ field: { value, onChange, ...field } }) => (
-        <IconSelect<ChainOption>
-          {...field}
-          value={chainOptions.find((option) => option.value === value?.value)}
-          onChange={onChange}
-          options={chainOptions}
-          placeholder={placeholder}
-          isDisabled={isDisabled}
-          className={className}
-        />
-      )}
+      localForm={localForm}
+      options={chainOptions}
+      placeholder={placeholder}
+      isDisabled={isDisabled}
+      className={className}
+      label={label}
+      info={info}
+      subLabel={subLabel}
     />
   );
 };
