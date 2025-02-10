@@ -1,19 +1,29 @@
 'use client';
 
-import { components, CSSObjectWithLabel, OptionProps, SingleValueProps, StylesConfig, Theme } from 'react-select';
+import {
+  components,
+  CSSObjectWithLabel,
+  GroupBase,
+  OptionProps,
+  SingleValueProps,
+  StylesConfig,
+  Theme,
+} from 'react-select';
 import Select, { Props } from 'react-select';
 
-export interface IconOption {
+export interface ReactSelectOption {
   value: string;
   label: string;
   iconUrl: string;
 }
 
-export type IconSelectProps<T extends IconOption> = Omit<Props<T>, 'components'> & {
+type ExtendedSelectProps<T> = Props<T, false, GroupBase<T>> & {
   iconClassName?: string;
 };
 
-export const selectStyles: StylesConfig<IconOption, false> = {
+export type ReactSelectProps<T extends ReactSelectOption> = Omit<ExtendedSelectProps<T>, 'components'>;
+
+const selectStyles = <T extends ReactSelectOption>(): StylesConfig<T, false, GroupBase<T>> => ({
   control: (baseStyles: CSSObjectWithLabel, state: { isFocused: boolean }): CSSObjectWithLabel => ({
     ...baseStyles,
     minHeight: '36px',
@@ -81,36 +91,53 @@ export const selectStyles: StylesConfig<IconOption, false> = {
     ...baseStyles,
     padding: '4px 8px',
   }),
-};
+});
 
-const IconOption = ({ children, ...props }: OptionProps<IconOption>) => (
+const ReactSelectOption = <T extends ReactSelectOption>({
+  children,
+  ...props
+}: OptionProps<T, false, GroupBase<T>>) => (
   <components.Option {...props}>
     <div className='flex items-center gap-2'>
-      <img src={props.data.iconUrl} alt={props.data.label} className={props.selectProps.iconClassName || 'h-5 w-5'} />
+      {props.data.iconUrl && (
+        <img
+          src={props.data.iconUrl}
+          alt={props.data.label}
+          className={(props.selectProps as ExtendedSelectProps<T>).iconClassName || 'h-5 w-5'}
+        />
+      )}
       {children}
     </div>
   </components.Option>
 );
 
-const IconSingleValue = ({ children, ...props }: SingleValueProps<IconOption>) => (
+const ReactSelectSingleValue = <T extends ReactSelectOption>({
+  children,
+  ...props
+}: SingleValueProps<T, false, GroupBase<T>>) => (
   <components.SingleValue {...props}>
     <div className='flex items-center gap-2'>
-      <img src={props.data.iconUrl} alt={props.data.label} className={props.selectProps.iconClassName || 'h-5 w-5'} />
+      {props.data.iconUrl && (
+        <img
+          src={props.data.iconUrl}
+          alt={props.data.label}
+          className={(props.selectProps as ExtendedSelectProps<T>).iconClassName || 'h-5 w-5'}
+        />
+      )}
       {children}
     </div>
   </components.SingleValue>
 );
 
-export const IconSelect = <T extends IconOption>({ iconClassName, ...props }: IconSelectProps<T>) => {
+export const ReactSelect = <T extends ReactSelectOption>({ iconClassName, ...props }: ReactSelectProps<T>) => {
   return (
     <Select<T>
       {...props}
-      iconClassName={iconClassName}
       components={{
-        Option: IconOption,
-        SingleValue: IconSingleValue,
+        Option: ReactSelectOption,
+        SingleValue: ReactSelectSingleValue,
       }}
-      styles={selectStyles}
+      styles={selectStyles<T>()}
       theme={(theme: Theme) => ({
         ...theme,
         colors: {
@@ -125,4 +152,4 @@ export const IconSelect = <T extends IconOption>({ iconClassName, ...props }: Ic
   );
 };
 
-IconSelect.displayName = 'IconSelect';
+ReactSelect.displayName = 'ReactSelect';
