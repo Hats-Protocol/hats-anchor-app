@@ -1,6 +1,14 @@
 import { type Meta, type StoryObj } from '@storybook/react';
 
-import { BaseSelect, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './select';
+import {
+  BaseSelect,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from './icon-select';
 
 const meta: Meta<typeof BaseSelect> = {
   title: 'Components/Forms/Select',
