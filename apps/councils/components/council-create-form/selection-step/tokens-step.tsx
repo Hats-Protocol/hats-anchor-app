@@ -44,6 +44,7 @@ export function SelectionTokensStep({ onNext }: StepProps) {
               options={{
                 required: true,
                 min: 0,
+                // step: 0.1,
               }}
               disabled={!canEdit}
             />

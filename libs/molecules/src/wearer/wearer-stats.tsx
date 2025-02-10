@@ -57,11 +57,11 @@ const WearerStats = () => {
     <div className='flex h-28 flex-wrap justify-center gap-2'>
       {map(headlineStats, (stat: HeadlineStat) => {
         if (stat.loading) {
-          return <Skeleton className='w-1/4 px-0 py-2 md:w-[135px] md:px-6 md:py-4' />;
+          return <Skeleton className='h-full w-1/4 px-0 py-2 md:w-[135px] md:px-6 md:py-4' />;
         }
 
         return (
-          <Card className={cn('w-1/4 px-0 py-2 md:w-[135px] md:px-6 md:py-4')} key={stat.label}>
+          <Card className={cn('w-1/4 rounded-lg px-0 py-2 md:w-[135px] md:px-6 md:py-4')} key={stat.label}>
             <div className='flex h-full flex-col items-center justify-around'>
               <p className='text-xs md:text-sm'>{stat.label}</p>
 

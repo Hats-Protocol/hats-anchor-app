@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocalStorage, useToast } from 'hooks';
-import _ from 'lodash';
+import { compact, concat, filter, find, forEach, get, isEmpty, isEqual, slice, uniqWith } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -70,15 +70,15 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
   const updateRecentlyVisitedTrees = useCallback(
     ({ treeId: localTreeId, chainId: cId }: SavedTree) => {
       if (!localTreeId || !cId) return;
-      const localRecentTrees = _.compact(_.concat([{ treeId: localTreeId, chainId: cId }], recentlyVisitedTrees));
+      const localRecentTrees = compact(concat([{ treeId: localTreeId, chainId: cId }], recentlyVisitedTrees));
 
-      const uniqueTrees = _.uniqWith(
+      const uniqueTrees = uniqWith(
         localRecentTrees,
         (treeA: SavedTree, treeB: SavedTree) => treeA.treeId === treeB.treeId && treeA.chainId === treeB.chainId,
       );
 
-      if (!_.isEqual(uniqueTrees, recentlyVisitedTrees)) {
-        const updatedRecentTrees = _.slice(uniqueTrees, 0, MAX_TREES);
+      if (!isEqual(uniqueTrees, recentlyVisitedTrees)) {
+        const updatedRecentTrees = slice(uniqueTrees, 0, MAX_TREES);
         setRecentlyVisitedTrees(updatedRecentTrees);
       }
     },
@@ -131,14 +131,14 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
 
   // TODO consider removing `sendToast` here as it's giving confusing results. Consumer should handle in `onSuccess`
   /**
-   * @param props.hash - transaction hash
-   * @param props.txChainId - transaction chain id
-   * @param props.txDescription - transaction description
-   * @param props.successToastData - toast props
-   * @param props.redirect - URL to redirect the user to after the transaction is successful
-   * @param props.clearModals defaults to true
-   * @param props.sendSuccessToast defaults to true, override to false if you want to handle the toast in the onSuccess callback
-   * @param props.onSuccess after the tx is successful, subgraph is synced and mesh is invalidated
+   * @param hash - transaction hash
+   * @param txChainId - transaction chain id
+   * @param txDescription - transaction description
+   * @param successToastData - toast props
+   * @param redirect - URL to redirect the user to after the transaction is successful
+   * @param clearModals - defaults to true
+   * @param sendSuccessToast - defaults to true, override to false if you want to handle the toast in the onSuccess callback
+   * @param onSuccess - after the tx is successful, subgraph is synced and mesh is invalidated
    * @returns Promise<void>
    * @example
    * handlePendingTx({
@@ -198,6 +198,12 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
 
       // TODO This can be centralized a bit and doesn't require a hook
       await waitForSubgraph?.(txReceipt);
+
+      toast({
+        title: 'Transaction indexed, updating metadata...',
+        description: 'This may take a few seconds...',
+        variant: 'info',
+      });
       await invalidateAfterTransaction(txChainId, hash);
 
       if (sendSuccessToast && successToastData) {
@@ -205,7 +211,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
         // we still need to wait for the subgraph to show true "success"
         toast({
           ...successToastData,
-          title: _.get(successToastData, 'title', 'Transaction successful'),
+          title: get(successToastData, 'title', 'Transaction successful'),
         });
       }
 
@@ -226,11 +232,11 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
   );
 
   const txPending = useMemo(() => {
-    const multicallTx = _.filter(
+    const multicallTx = filter(
       transactions,
       (tx) => tx.txDescription?.includes('Updated') || tx.txDescription?.includes('Created'),
     );
-    return !_.isEmpty(_.filter(multicallTx, { status: 'pending' }));
+    return !isEmpty(filter(multicallTx, { status: 'pending' }));
   }, [transactions]);
 
   useEffect(() => {
@@ -242,8 +248,8 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
 
       const confirmedTransactions = await checkTransactionStatus(transactions);
 
-      _.forEach(transactions, (tx: Transaction) => {
-        const confirmedTx = _.find(confirmedTransactions, { hash: tx.hash });
+      forEach(transactions, (tx: Transaction) => {
+        const confirmedTx = find(confirmedTransactions, { hash: tx.hash });
 
         if (confirmedTx && tx.status !== 'completed') {
           updateTransactionStatus(tx.hash as Hex, 'completed');

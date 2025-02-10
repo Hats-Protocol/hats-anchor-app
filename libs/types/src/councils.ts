@@ -42,7 +42,7 @@ export type OffchainCouncilData = {
   payer: CouncilPayer;
   tokenRequirement: {
     address: string;
-    minimum: number;
+    minimum: string;
   };
   deployed: boolean;
 };
@@ -126,7 +126,7 @@ export interface CouncilFormResponse {
     agreementAdmins: CouncilMember[];
     payer: CouncilPayer | null;
     tokenAddress: string | null;
-    tokenAmount: number | null;
+    tokenAmount: string | null;
   };
 }
 

@@ -25,7 +25,7 @@
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tooltip": "^1.0.7",
-    "@rainbow-me/rainbowkit": "^2.2.0",
+    "@rainbow-me/rainbowkit": "^2.2.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "contexts": "workspace:*",
@@ -49,8 +49,8 @@
     "types": "workspace:*",
     "ui": "workspace:*",
     "utils": "workspace:*",
-    "viem": "2.21.32",
-    "wagmi": "^2.12.22"
+    "viem": "2.23.0",
+    "wagmi": "^2.14.11"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

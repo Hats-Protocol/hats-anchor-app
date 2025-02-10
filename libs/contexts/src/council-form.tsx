@@ -130,7 +130,10 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
       compliance: data.createComplianceAdminRole !== null && data.completedOptionalSteps.compliance,
       agreement: data.createAgreementAdminRole !== null && data.completedOptionalSteps.agreement, // agreement is optional
       tokens:
-        data.tokenAddress !== null && data.tokenAddress !== '' && data.tokenAmount !== null && data.tokenAmount > 0,
+        data.tokenAddress !== null &&
+        data.tokenAddress !== '' &&
+        data.tokenAmount !== null &&
+        toNumber(data.tokenAmount) > 0,
       members: !!data.members && data.completedOptionalSteps.members,
     },
     payment: false,
@@ -327,7 +330,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       acceptedTerms: false,
       tokenRequirement: {
         address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any, // TODO replace any, thinks it's a number
-        minimum: data.tokenAmount || 0,
+        minimum: toNumber(data.tokenAmount) || 0,
       },
       creator: data.creator || '',
       completedOptionalSteps: {
@@ -384,7 +387,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             payload = {
               ...payload,
               tokenAddress: '',
-              tokenAmount: 0,
+              tokenAmount: '0',
             };
           }
           break;
@@ -442,11 +445,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               };
               break;
             case 'tokens':
-              // console.log('submitting tokens', formData.tokenRequirement);
+              console.log('submitting tokens', formData.tokenRequirement);
+              const tokenAddress = formData.tokenRequirement.address?.value;
+              // const tokenDecimals = !!tokenAddress ? getTokenDecimals(chainId, tokenAddress) : undefined;
               payload = {
                 ...payload,
-                tokenAddress: formData.tokenRequirement.address?.value, // TODO hacked
-                tokenAmount: parseInt(formData.tokenRequirement.minimum.toString()),
+                tokenAddress, // TODO hacked
+                tokenAmount: formData.tokenRequirement.minimum.toString(), // stored in numeric value, convert at deploy
                 memberRequirements: {
                   ...formData.requirements,
                   holdTokens: true,

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import { filter, map } from 'lodash';
 import { SupportedChains } from 'types';
 import { createHatsClient } from 'utils';
 import { Hex } from 'viem';
@@ -20,7 +20,7 @@ const useAdminOfHats = ({ hatIds, chainId }: { hatIds: Hex[]; chainId: Supported
 
     // TODO convert to promise batch to multicall rpc
     const results: (Hex | null)[] = await Promise.all(
-      _.map(hatIds, async (hatId: Hex) => {
+      map(hatIds, async (hatId: Hex) => {
         try {
           const isAdmin = await hatsClient.isAdminOfHat({
             user,
@@ -35,7 +35,7 @@ const useAdminOfHats = ({ hatIds, chainId }: { hatIds: Hex[]; chainId: Supported
       }),
     );
 
-    return _.filter(results, Boolean) as Hex[];
+    return filter(results, Boolean) as Hex[];
   };
 
   const {

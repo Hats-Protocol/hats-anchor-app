@@ -128,7 +128,7 @@ export function AddMemberModal({ form: parentForm, editingMember, canEdit = true
       name={`addMemberModal${editingMember?.address ? `-${editingMember.address}` : ''}`}
       title={editingMember ? 'Edit Council Member' : 'Add Council Member'}
       onClose={handleClose}
-      size='2xl'
+      size='lg'
     >
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
@@ -142,6 +142,7 @@ export function AddMemberModal({ form: parentForm, editingMember, canEdit = true
               isDisabled={!canEdit}
               variant='councils'
             />
+
             <Input
               name='email'
               localForm={modalForm}
@@ -158,6 +159,7 @@ export function AddMemberModal({ form: parentForm, editingMember, canEdit = true
                 },
               }}
             />
+
             <Input
               name='name'
               localForm={modalForm}
@@ -171,8 +173,9 @@ export function AddMemberModal({ form: parentForm, editingMember, canEdit = true
 
           <div className='mt-8'>
             {modalForm.formState.errors.root && (
-              <p className='mb-4 text-sm text-red-500'>{modalForm.formState.errors.root.message}</p>
+              <p className='text-destructive mb-4 text-sm'>{modalForm.formState.errors.root.message}</p>
             )}
+
             <div className='flex justify-end'>
               <NextStepButton type='submit' disabled={!canEdit || !isFormValid() || isLoading} withIcon={false}>
                 {isLoading ? 'Submitting…' : editingMember ? 'Save Changes' : 'Add Member'}

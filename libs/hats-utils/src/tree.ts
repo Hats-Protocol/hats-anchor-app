@@ -1,16 +1,25 @@
-import {
-  hatIdDecimalToIp,
-  treeIdHexToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import _, { compact, size, split } from 'lodash';
 import {
-  AppHat,
-  HatDetails,
-  HatWearer,
-  HatWithDepth,
-  SupportedChains,
-} from 'types';
+  compact,
+  concat,
+  each,
+  filter,
+  find,
+  first,
+  flatten,
+  get,
+  gt,
+  includes,
+  isEmpty,
+  map,
+  orderBy,
+  pick,
+  size,
+  split,
+  toNumber,
+} from 'lodash';
+import { AppHat, HatWearer, HatWithDepth, SupportedChains } from 'types';
 import { formatAddress, formatScientificWhole, ipfsUrl } from 'utils';
 import { Hex } from 'viem';
 
@@ -40,27 +49,20 @@ export const ORG_CHART_COLORS = {
   group: '#F7FAFC', // gray.50
 };
 
-const handleOrgChartWearers = (
-  hat: AppHat,
-  orgChartWearers: HatWearer[] | undefined,
-) => {
-  const { wearers, maxSupply, currentSupply } = _.pick(hat, [
-    'wearers',
-    'maxSupply',
-    'currentSupply',
-  ]);
-  const maxSupplyText = formatScientificWhole(_.toNumber(maxSupply) || 1);
+const handleOrgChartWearers = (hat: AppHat, orgChartWearers: HatWearer[] | undefined) => {
+  const { wearers, maxSupply, currentSupply } = pick(hat, ['wearers', 'maxSupply', 'currentSupply']);
+  const maxSupplyText = formatScientificWhole(toNumber(maxSupply) || 1);
 
   // INITIALIZE WITH NO WEARERS
   let bgColor = ORG_CHART_COLORS.noWearers;
-  const wearer = _.first(wearers);
-  const extendedWearer = _.find(orgChartWearers, { id: wearer?.id });
+  const wearer = first(wearers);
+  const extendedWearer = find(orgChartWearers, { id: wearer?.id });
   let content = '0 Wearers';
   let accent = `of ${maxSupplyText}`;
   let icon = ORG_CHART_ICONS.noWearer;
 
   // HANDLE HATS WITH MANY WEARERS. GROUPS (0 SUPPLY) ARE HANDLED IN THE ORG CHART DIRECTLY
-  if (_.toNumber(currentSupply) > 1) {
+  if (toNumber(currentSupply) > 1) {
     bgColor = ORG_CHART_COLORS.many;
     content = `${currentSupply} Wearers`;
     accent = `of ${maxSupplyText}`;
@@ -68,11 +70,11 @@ const handleOrgChartWearers = (
   }
 
   // INDIVIDUAL WEARERS
-  if (_.size(wearers) === 1) {
+  if (size(wearers) === 1) {
     content =
       !!extendedWearer?.ensName && extendedWearer?.ensName !== ''
         ? extendedWearer?.ensName
-        : formatAddress(_.get(wearer, 'id'));
+        : formatAddress(get(wearer, 'id'));
     accent = `1 of ${maxSupplyText}`;
     icon = ORG_CHART_ICONS.wearer;
     if (extendedWearer?.isContract) {
@@ -85,11 +87,11 @@ const handleOrgChartWearers = (
 
   // handle wearers overflow with max supply accent
   let dims = { contentWidth: '135px', accentWidth: '35px' };
-  if (_.gt(_.toNumber(maxSupply), 999)) {
+  if (gt(toNumber(maxSupply), 999)) {
     dims = { contentWidth: '115px', accentWidth: '62px' };
-  } else if (_.gt(_.toNumber(maxSupply), 99)) {
+  } else if (gt(toNumber(maxSupply), 99)) {
     dims = { contentWidth: '115px', accentWidth: '55px' };
-  } else if (_.gt(_.toNumber(maxSupply), 9)) {
+  } else if (gt(toNumber(maxSupply), 9)) {
     dims = { contentWidth: '130px', accentWidth: '38px' };
   }
 
@@ -110,9 +112,7 @@ const mapHat = (
     parentId: hat.admin?.id === hat.id ? undefined : (hat.admin?.id as Hex),
     treeId: hat.tree?.id as Hex,
     isLinked: false,
-    url: `/trees/${chainId}/${treeIdHexToDecimal(
-      hat.tree?.id || hat.treeId || '0x',
-    )}`,
+    url: `/trees/${chainId}/${treeIdHexToDecimal(hat.tree?.id || hat.treeId || '0x')}`,
     hatChartWearers: handleOrgChartWearers(hat, orgChartWearers),
   };
 };
@@ -136,12 +136,10 @@ export async function toTreeStructure({
   if (!treeData || !hatsData) {
     return Promise.resolve(undefined);
   }
-  const onlyOnchainHats = _.filter(hatsData, (hat: AppHat) =>
-    _.includes(initialHatIds, hat?.id),
-  );
+  const onlyOnchainHats = filter(hatsData, (hat: AppHat) => includes(initialHatIds, hat?.id));
 
-  const mergedHatsData = _.map(onlyOnchainHats, (hat: AppHat) => {
-    const fullHat = _.find(hatsData, { id: hat.id });
+  const mergedHatsData = map(onlyOnchainHats, (hat: AppHat) => {
+    const fullHat = find(hatsData, { id: hat.id });
 
     if (!fullHat) return undefined;
 
@@ -149,49 +147,30 @@ export async function toTreeStructure({
       ...fullHat,
       detailsObject: JSON.parse(fullHat?.detailsMetadata || '{}'),
       imageUrl: ipfsUrl(fullHat?.nearestImage),
+      nearestImageUrl: fullHat?.nearestImage, // TODO migrate to nearestImageUrl to avoid confusion with existing usage of imageUrl and icon.jpeg fallbacks
     };
   });
 
-  const hats = _.map(initialHatIds, (hat: Hex) =>
-    mapHat(_.find(mergedHatsData, ['id', hat]), orgChartWearers, chainId),
-  );
+  const hats = map(initialHatIds, (hat: Hex) => mapHat(find(mergedHatsData, ['id', hat]), orgChartWearers, chainId));
 
   // extra sort for the list view
-  const hatsList = _.orderBy(
-    _.compact(_.concat(hats, draftHats)),
-    (h: AppHat) => size(split(h.name, '.')),
-    'asc',
-  );
+  const hatsList = orderBy(compact(concat(hats, draftHats)), (h: AppHat) => size(split(h.name, '.')), 'asc');
   const updatedHatsList = hatsList.map((hat: AppHat) =>
-    updateHatProperties(
-      hat,
-      treeData.parentOfTrees,
-      (treeData.linkedToHat as AppHat) || null,
-    ),
+    updateHatProperties(hat, treeData.parentOfTrees, (treeData.linkedToHat as AppHat) || null),
   );
 
   return Promise.resolve(updatedHatsList);
 }
 
-const isHatInParentOfTrees = (
-  hat: AppHat,
-  parentOfTrees: Tree[] | undefined,
-): boolean => {
-  return !!_.find(parentOfTrees, { id: getTreeId(hat.id) });
+const isHatInParentOfTrees = (hat: AppHat, parentOfTrees: Tree[] | undefined): boolean => {
+  return !!find(parentOfTrees, { id: getTreeId(hat.id) });
 };
 
-const isLinkedToHatFunc = (
-  hat: AppHat,
-  linkedToHat: AppHat | null,
-): boolean => {
+const isLinkedToHatFunc = (hat: AppHat, linkedToHat: AppHat | null): boolean => {
   return hat.id === linkedToHat?.id;
 };
 
-const updateHatProperties = (
-  hat: AppHat,
-  parentOfTrees: Tree[] | undefined,
-  linkedToHat: AppHat | null,
-): AppHat => {
+const updateHatProperties = (hat: AppHat, parentOfTrees: Tree[] | undefined, linkedToHat: AppHat | null): AppHat => {
   const updatedHat = { ...hat };
 
   if (isHatInParentOfTrees(hat, parentOfTrees)) {
@@ -207,20 +186,18 @@ const updateHatProperties = (
 };
 
 const getChildren = (hat: AppHat, tree: AppHat[]) => {
-  return _.filter(tree, (h: AppHat) => h.admin?.id === hat.id);
+  return filter(tree, (h: AppHat) => h.admin?.id === hat.id);
 };
 
 const checkChildrenForDescendants = (hat: AppHat, tree: AppHat[]): Hex[] => {
   const newArray = [hat.id];
-  if (!_.isEmpty(getChildren(hat, tree))) {
+  if (!isEmpty(getChildren(hat, tree))) {
     newArray.push(
-      ..._.flatten(
-        _.map(getChildren(hat, tree), (child: AppHat) => {
-          if (!_.isEmpty(getChildren(child, tree))) {
+      ...flatten(
+        map(getChildren(hat, tree), (child: AppHat) => {
+          if (!isEmpty(getChildren(child, tree))) {
             // TODO not working at 4+ levels, need recursive solution
-            return _.flatten(
-              _.concat([child.id], _.map(getChildren(child, tree), 'id')),
-            );
+            return flatten(concat([child.id], map(getChildren(child, tree), 'id')));
           }
 
           return [child.id];
@@ -229,7 +206,7 @@ const checkChildrenForDescendants = (hat: AppHat, tree: AppHat[]): Hex[] => {
     );
   }
 
-  return _.flatten(newArray);
+  return flatten(newArray);
 };
 
 const compareHatIds = (a: AppHat, b: AppHat): number => {
@@ -239,27 +216,25 @@ const compareHatIds = (a: AppHat, b: AppHat): number => {
   return 0;
 };
 
-export function prepareMobileTreeHats(
-  tree: AppHat[] | undefined,
-): HatWithDepth[] {
+export function prepareMobileTreeHats(tree: AppHat[] | undefined): HatWithDepth[] {
   if (!tree) return [];
   let newIdList: Hex[] = [];
   if (tree.length > 0) {
     // start with the top hat
-    newIdList = compact([_.get(_.first(tree), 'id')]);
+    newIdList = compact([get(first(tree), 'id')]);
   }
 
-  _.each(tree.slice(1), (hat: AppHat) => {
-    if (_.includes(newIdList, hat.id)) return;
+  each(tree.slice(1), (hat: AppHat) => {
+    if (includes(newIdList, hat.id)) return;
     const hats = checkChildrenForDescendants(hat, tree);
-    newIdList = _.concat(newIdList, ...hats);
+    newIdList = concat(newIdList, ...hats);
   });
 
   const sortedTree = tree.sort(compareHatIds);
 
-  const treeWithDepth = _.map(_.compact(sortedTree), (hat: AppHat) => ({
+  const treeWithDepth = map(compact(sortedTree), (hat: AppHat) => ({
     ...hat,
-    name: _.get(hat, 'detailsObject.data.name', hat.details),
+    name: get(hat, 'detailsObject.data.name', hat.details),
     imageUrl: hat.imageUrl || '/icon.jpeg',
     depth: hatIdDecimalToIp(BigInt(hat.id)).split('.').length - 1,
   })) as unknown as HatWithDepth[];

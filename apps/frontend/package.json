@@ -13,7 +13,7 @@
     "@hatsprotocol/config": "workspace:*",
     "@hatsprotocol/constants": "workspace:*",
     "@hatsprotocol/sdk-v1-core": "^0.10.0",
-    "@rainbow-me/rainbowkit": "^2.2.0",
+    "@rainbow-me/rainbowkit": "^2.2.3",
     "@swc/helpers": "0.5.11",
     "@tanstack/react-query": "^5.64.2",
     "@tanstack/react-query-devtools": "^5.64.2",
@@ -37,8 +37,8 @@
     "types": "workspace:*",
     "ui": "workspace:*",
     "utils": "workspace:*",
-    "viem": "2.21.32",
-    "wagmi": "^2.12.22",
+    "viem": "2.23.0",
+    "wagmi": "^2.14.11",
     "webpack": "^5.94.0"
   }
 }

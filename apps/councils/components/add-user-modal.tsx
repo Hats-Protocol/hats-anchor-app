@@ -144,6 +144,7 @@ function AddUserModal({
     <Modal
       name={editingUser ? `editUser-${type}-${editingUser.address}` : `addUser-${type}`}
       title={`${editingUser ? 'Edit' : 'Add'} ${userLabel || 'Council Member'}`}
+      size='lg'
     >
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>

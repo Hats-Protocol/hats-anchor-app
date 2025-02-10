@@ -30,8 +30,8 @@
     "react-hook-form": "^7.50.1",
     "types": "workspace:*",
     "utils": "workspace:*",
-    "viem": "2.21.32",
-    "wagmi": "^2.12.22"
+    "viem": "2.23.0",
+    "wagmi": "^2.14.11"
   },
   "devDependencies": {
     "tsup": "^8.3.0"

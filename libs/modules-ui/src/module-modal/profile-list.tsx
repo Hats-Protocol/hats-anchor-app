@@ -59,7 +59,7 @@ export const ProfileList = ({
   return (
     <Form {...localForm}>
       <div className='flex h-full w-full flex-col items-center gap-4'>
-        <h2 className='text-2xl font-bold'>{heading}</h2>
+        <h2 className='text-xl font-bold'>{heading}</h2>
 
         <div className='flex w-full items-center justify-between gap-4'>
           <div className='w-2/3'>

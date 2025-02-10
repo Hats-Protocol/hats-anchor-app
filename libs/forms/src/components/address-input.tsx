@@ -1,7 +1,7 @@
 'use client';
 
 import { useContractData } from 'hooks';
-import _ from 'lodash';
+import { endsWith, pick } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import React, { ReactNode, useEffect } from 'react';
@@ -60,7 +60,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
   originalValue,
   variant = 'default',
 }) => {
-  const { watch, setValue } = _.pick(localForm, ['watch', 'setValue']);
+  const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
   const inputValue = watch(`${name}-input`);
   const formValue = watch(name);
 
@@ -84,7 +84,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
   }, [inputValue, formValue, name]);
 
   useEffect(() => {
-    if (_.endsWith(inputValue, '.eth')) {
+    if (endsWith(inputValue, '.eth')) {
       setValue(`${name}`, resolvedAddress, { shouldValidate: true });
     } else if (inputValue === '') {
       setValue(`${name}`, '');

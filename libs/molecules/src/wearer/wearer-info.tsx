@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
 import { useMemo } from 'react';
 import { FiCopy } from 'react-icons/fi';
-import { Button, OblongAvatar } from 'ui';
+import { Button, OblongAvatar, Skeleton } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
@@ -51,12 +51,26 @@ const WearerInfo = () => {
     }).toDataURL();
   }, [wearerAddress, ensAvatar]);
 
+  if (wearerLoading) {
+    return (
+      <div className='flex items-center gap-6 pl-6'>
+        <Skeleton className='h-36 w-24 rounded-md' />
+
+        <div className='flex flex-col gap-2'>
+          <Skeleton className='h-6 w-24 rounded-md' />
+
+          <Skeleton className='h-4 w-24 rounded-md' />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='flex items-center gap-6 pl-6'>
-      {avatar && <OblongAvatar src={avatar} />}
+      <OblongAvatar src={avatar} />
 
       <div className='flex flex-col gap-2'>
-        <div className='flex items-center'>
+        <div className='flex items-center gap-2'>
           <p className='text-lg font-medium'>{name}</p>
 
           <Button variant='ghost' size='sm' onClick={onCopy} aria-label='Copy Address' color='gray.500'>

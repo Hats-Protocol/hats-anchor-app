@@ -1,12 +1,12 @@
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import { get } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 export const isTopHat = (hatData: AppHat | null | undefined) =>
-  _.get(hatData, 'levelAtLocalTree') === 0 && _.get(hatData, 'admin.id') === _.get(hatData, 'id');
+  get(hatData, 'levelAtLocalTree') === 0 && get(hatData, 'admin.id') === get(hatData, 'id');
 
-export const isMutable = (hatData?: AppHat) => _.get(hatData, 'mutable');
+export const isMutable = (hatData?: AppHat) => get(hatData, 'mutable');
 
 export const isTopHatOrMutable = (hatData: AppHat) => isTopHat(hatData) || isMutable(hatData);
 

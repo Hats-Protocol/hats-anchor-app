@@ -2,7 +2,7 @@
 
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
-import _ from 'lodash';
+import { first, pick } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { ModuleCreationArg } from 'types';
 import { transformAndVerify } from 'utils';
@@ -35,7 +35,7 @@ const ModuleFormInput = ({
   isDeploy?: boolean;
 }) => {
   if (!arg) return null;
-  const { type, name, optional, displayType, description, example } = _.pick(arg, [
+  const { type, name, optional, displayType, description, example } = pick(arg, [
     'type',
     'name',
     'optional',
@@ -55,7 +55,7 @@ const ModuleFormInput = ({
         label={`${name} (Optional)`}
         subLabel={description}
         placeholder={
-          Array.isArray(example) ? _.first(example as string[]) : (example as string) || FALLBACK_ARG_EXAMPLES.address
+          Array.isArray(example) ? first(example as string[]) : (example as string) || FALLBACK_ARG_EXAMPLES.address
         }
         localForm={localForm}
         overrideMaxSupply

@@ -1,6 +1,6 @@
 import type { EndpointsConfig } from '@hatsprotocol/sdk-v1-subgraph';
 import { DEFAULT_ENDPOINTS_CONFIG } from '@hatsprotocol/sdk-v1-subgraph';
-import _ from 'lodash';
+import { mapValues } from 'lodash';
 import { SupportedChains } from 'types';
 
 const NETWORK_ENDPOINT = 'https://gateway-arbitrum.network.thegraph.com/api';
@@ -30,7 +30,7 @@ const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
 
 export const NETWORK_ENDPOINTS: EndpointsConfig = {
   ...DEFAULT_ENDPOINTS_CONFIG,
-  ..._.mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint: string) => ({ endpoint })),
+  ...mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint: string) => ({ endpoint })),
 };
 
 export const ANCILLARY_API_URL: {

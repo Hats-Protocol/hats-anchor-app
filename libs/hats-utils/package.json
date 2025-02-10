@@ -24,7 +24,7 @@
     "lodash": "^4.17.21",
     "next": "^14.2.14",
     "react-icons": "^4.7.1",
-    "viem": "^2.0.0"
+    "viem": "2.23.0"
   },
   "devDependencies": {
     "tsup": "^8.3.0"

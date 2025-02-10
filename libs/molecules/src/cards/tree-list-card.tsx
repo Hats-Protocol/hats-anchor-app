@@ -1,7 +1,6 @@
 'use client';
 
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useMediaStyles } from 'hooks';
 import { get, size } from 'lodash';
 import dynamic from 'next/dynamic';
 // import { BsPeopleFill } from 'react-icons/bs';
@@ -34,7 +33,6 @@ const TreeStats = ({ tree }: { tree: AppTree }) => {
 };
 
 const TreeListCard = ({ tree, chainId }: { tree: AppTree; chainId: number }) => {
-  const { isMobile } = useMediaStyles();
   const topHat = get(tree, 'hats[0]');
   const metadata = get(topHat, 'metadata');
 
@@ -53,28 +51,26 @@ const TreeListCard = ({ tree, chainId }: { tree: AppTree; chainId: number }) => 
           <div className='flex h-full items-center justify-start gap-3'>
             {/* TOP HAT IMAGE */}
             <div
-              className='border-r-1 rounded-5 size-[85px] border-gray-600 bg-cover bg-center'
+              className='rounded-5 size-[85px] border-r border-gray-300 bg-cover bg-center'
               style={{ backgroundImage: nearestImage ? `url(${nearestImage})` : `url('/icon.jpeg')` }}
             />
 
             <div className='line-clamp-2 h-full max-w-[175px] flex-col justify-start md:justify-around'>
               {/* TOP HAT INFO */}
-              {isMobile ? (
-                <div className='flex h-full w-full flex-col gap-3'>
-                  <p className='text-md md:max-w-auto line-clamp-2 max-w-[270px]'>{hatName}</p>
-                  <div className='flex w-full justify-between'>
-                    <p className='text-xs'>#{treeIdHexToDecimal(get(tree, 'id'))}</p>
-                    <TreeStats tree={tree} />
-                  </div>
+              <div className='flex h-full w-full flex-col gap-3 md:hidden'>
+                <p className='text-md line-clamp-2 max-w-[270px] font-medium'>{hatName}</p>
+                <div className='flex w-full justify-between'>
+                  <p className='text-xs'>#{treeIdHexToDecimal(get(tree, 'id'))}</p>
+                  {/* <TreeStats tree={tree} /> */}
                 </div>
-              ) : (
-                <div className='flex h-full w-full items-center'>
-                  <div className='flex flex-col gap-3'>
-                    <p className='text-xs'>#{treeIdHexToDecimal(get(tree, 'id'))}</p>
-                    <p className='md:max-w-auto line-clamp-2 max-w-[270px]'>{hatName}</p>
-                  </div>
+              </div>
+
+              <div className='hidden h-full w-full items-center md:flex'>
+                <div className='flex flex-col gap-3'>
+                  <p className='text-xs'>#{treeIdHexToDecimal(get(tree, 'id'))}</p>
+                  <p className='max-w-auto line-clamp-2 max-w-[270px] font-medium'>{hatName}</p>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>

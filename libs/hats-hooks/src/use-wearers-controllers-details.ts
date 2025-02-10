@@ -1,6 +1,6 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQueries } from '@tanstack/react-query';
-import _ from 'lodash';
+import { compact, concat, eq, every, filter, first, flatten, get, map, reject, size, uniq } from 'lodash';
 import { AppHat, HatWearer } from 'types';
 import { checkAddressIsContract, viemPublicClient } from 'utils';
 import { Hex, isAddress, zeroAddress } from 'viem';
@@ -48,17 +48,17 @@ const useWearersControllersDetails = ({
   editMode?: boolean;
   onchain?: boolean;
 }) => {
-  const chainId = _.get(_.first(hats), 'chainId');
+  const chainId = get(first(hats), 'chainId');
   // Don't spam the RPC with requests for wearers on individual hats. Handle OrgChart wearers + controllers
-  const hatsWithIndividualWearers = _.filter(hats, (hat: AppHat) => _.eq(_.size(_.get(hat, 'wearers')), 1));
+  const hatsWithIndividualWearers = filter(hats, (hat: AppHat) => eq(size(get(hat, 'wearers')), 1));
 
-  const wAndCs = _.uniq(
-    _.compact(
-      _.reject(
-        _.concat(
-          _.map(_.flatten(_.map(hatsWithIndividualWearers, 'wearers')), 'id'),
-          _.flatten(_.map(hats, 'toggle')), // not nested in objects here
-          _.flatten(_.map(hats, 'eligibility')), // not nested in objects here
+  const wAndCs = uniq(
+    compact(
+      reject(
+        concat(
+          map(flatten(map(hatsWithIndividualWearers, 'wearers')), 'id'),
+          flatten(map(hats, 'toggle')), // not nested in objects here
+          flatten(map(hats, 'eligibility')), // not nested in objects here
         ),
         zeroAddress || FALLBACK_ADDRESS,
       ),
@@ -67,8 +67,8 @@ const useWearersControllersDetails = ({
 
   // TODO separate queries by hat instead of by wearer
   const wearerAndControllerDetails = useQueries({
-    queries: _.compact(
-      _.map(wAndCs, (wearer: Hex) => ({
+    queries: compact(
+      map(wAndCs, (wearer: Hex) => ({
         queryKey: ['wearerAndControllerDetails', { wearer, chainId, onchain }],
         queryFn: () => fetchWearerAndControllerDetails(wearer, chainId),
         enabled: !!wearer && isAddress(wearer) && wearer !== zeroAddress && !!chainId,
@@ -78,11 +78,11 @@ const useWearersControllersDetails = ({
       })) as any[],
     ),
   });
-  const isLoaded = _.every(wearerAndControllerDetails, ['fetchStatus', 'idle']);
+  const isLoaded = every(wearerAndControllerDetails, ['fetchStatus', 'idle']);
 
-  if (!isLoaded || !_.eq(_.size(wearerAndControllerDetails), _.size(wAndCs))) return undefined;
+  if (!isLoaded || !eq(size(wearerAndControllerDetails), size(wAndCs))) return undefined;
 
-  return _.compact(_.map(wearerAndControllerDetails, 'data')) as HatWearer[];
+  return compact(map(wearerAndControllerDetails, 'data')) as HatWearer[];
 };
 
 export { useWearersControllersDetails };

@@ -20,7 +20,7 @@ const NetworkFilter = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button aria-label='Filter networks' className='border border-gray-500 bg-transparent p-2 hover:bg-black/10'>
           <div className='flex items-center gap-4'>
             <img src={NETWORK_IMAGES[chainId]} alt='chain' className='size-6' />

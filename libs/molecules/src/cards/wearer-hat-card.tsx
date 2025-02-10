@@ -1,18 +1,23 @@
 'use client';
 
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
-import { useHatDetails, useHatDetailsField } from 'hats-hooks';
+import { useHatDetails } from 'hats-hooks';
 import { getTreeId } from 'hats-utils';
 import { get } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
-import { Card, LazyImage, Link } from 'ui';
+import { Card, LazyImage, Link, Skeleton } from 'ui';
+import { ipfsUrl } from 'utils';
 
 // TODO optimize top hat fetch
 const WearerHatCard = ({ hat, chainId }: { hat: AppHat; chainId: SupportedChains | undefined }) => {
   const hatDetails = hat.detailsMetadata ? JSON.parse(hat.detailsMetadata) : hat;
 
   // TODO need topHatId from hatId util
-  const { details: topHatDetails, data: topHat } = useHatDetails({
+  const {
+    details: topHatDetails,
+    data: topHat,
+    isLoading: isTopHatLoading,
+  } = useHatDetails({
     hatId: getTreeId(get(hat, 'id'), true),
     chainId,
   });
@@ -21,15 +26,19 @@ const WearerHatCard = ({ hat, chainId }: { hat: AppHat; chainId: SupportedChains
 
   const topHatName = get(topHatDetails, 'name', get(topHat, 'details'));
 
+  if (isTopHatLoading) {
+    return <Skeleton className='size-[323px]' />;
+  }
+
   return (
     <Link
       href={`/trees/${get(hat, 'chainId')}/${Number(hatIdToTreeId(BigInt(get(hat, 'id'))))}?hatId=${hatIdDecimalToIp(BigInt(get(hat, 'id')))}`}
     >
       <Card key={get(hat, 'id')} className='overflow-hidden rounded-md border-2 border-gray-600'>
         <LazyImage
-          src={get(hat, 'imageUrl')}
+          src={ipfsUrl(get(hat, 'nearestImage'))}
           alt={`${hatName} image`}
-          containerClassName='border border-gray-200 size-[323px]'
+          containerClassName='border border-gray-200 size-[330px] -ml-1 -mt-1'
         />
         <div className='border-y-1 mt-[-1px] border-gray-600 bg-white p-2'>
           <div className='flex justify-between gap-2'>

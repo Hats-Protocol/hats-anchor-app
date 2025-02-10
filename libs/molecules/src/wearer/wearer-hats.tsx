@@ -52,7 +52,9 @@ const WearerHats = () => {
     <div className='flex flex-col'>
       {map(localOrderedChains, (chainId: SupportedChains) => (
         <div className='mt-4 flex flex-col gap-4' key={chainId}>
-          <p className='text-sm'>{chainsMap(Number(chainId)).name}</p>
+          <div className='flex border-b border-gray-400'>
+            <p className='text-lg font-medium'>{chainsMap(Number(chainId)).name}</p>
+          </div>
 
           <div className='grid grid-cols-1 gap-5 md:grid-cols-4'>
             {map(

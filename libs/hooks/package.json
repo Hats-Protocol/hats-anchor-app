@@ -27,8 +27,8 @@
     "lucide-react": "^0.471.0",
     "react-hook-form": "^7.54.2",
     "react-icons": "^4.7.1",
-    "viem": "2.21.32",
-    "wagmi": "^2.12.22"
+    "viem": "2.23.0",
+    "wagmi": "^2.14.11"
   },
   "devDependencies": {
     "tsup": "^8.3.0"

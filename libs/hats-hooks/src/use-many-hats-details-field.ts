@@ -1,6 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import { handleNestedDetails } from 'hats-utils';
-import _ from 'lodash';
+import { compact, filter, find, get, includes, map, reject, some, startsWith } from 'lodash';
 import { AppHat } from 'types';
 import { fetchDetailsIpfs } from 'utils';
 
@@ -20,16 +20,16 @@ const useManyHatsDetailsField = ({
 }) => {
   let onlyOnchainHats = hats;
   if (onchainHats) {
-    onlyOnchainHats = _.filter(hats, (hat: AppHat) => _.includes(_.map(onchainHats, 'id'), hat?.id));
+    onlyOnchainHats = filter(hats, (hat: AppHat) => includes(map(onchainHats, 'id'), hat?.id));
   }
 
-  const filteredDetails = _.reject(
+  const filteredDetails = reject(
     onlyOnchainHats,
-    (hat: AppHat) => !_.startsWith(_.get(hat, 'details'), 'ipfs://') || _.get(hat, 'details') === '',
+    (hat: AppHat) => !startsWith(get(hat, 'details'), 'ipfs://') || get(hat, 'details') === '',
   );
 
   const detailsFields = useQueries({
-    queries: _.map(filteredDetails, (hat: AppHat) => ({
+    queries: map(filteredDetails, (hat: AppHat) => ({
       queryKey: ['hatDetailsField', hat?.details, { onchain: onchain || false }],
       queryFn: () => fetchDetailsIpfs(hat?.details),
       enabled: !!hat?.details,
@@ -38,11 +38,10 @@ const useManyHatsDetailsField = ({
   });
 
   const result = {
-    data: _.compact(
-      _.map(onlyOnchainHats, (hat: AppHat) => {
+    data: compact(
+      map(onlyOnchainHats, (hat: AppHat) => {
         const detailsData =
-          _.find(detailsFields, ['details', hat.details]) ||
-          _.find(_.map(detailsFields, 'data'), ['details', hat.details]);
+          find(detailsFields, ['details', hat.details]) || find(map(detailsFields, 'data'), ['details', hat.details]);
 
         const detailsObject = handleNestedDetails(detailsData);
         if (!detailsObject) return undefined;
@@ -53,7 +52,7 @@ const useManyHatsDetailsField = ({
         };
       }),
     ),
-    isLoading: _.some(detailsFields, 'isLoading'),
+    isLoading: some(detailsFields, 'isLoading'),
   };
   return result;
 };

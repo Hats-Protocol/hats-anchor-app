@@ -29,11 +29,7 @@ export function ThresholdStep({ onNext }: StepProps) {
           <SignerThresholdSubForm form={form} isDisabled={!canEdit} />
         </div>
 
-        <div className='flex justify-between py-6'>
-          <LinkButton href={`/councils/new/details?draftId=${draftId}`} variant='outline' rounded='full'>
-            Back
-          </LinkButton>
-
+        <div className='flex justify-end py-6'>
           <NextStepButton disabled={!form.formState.isValid || !canEdit}>
             {getNextStepButtonText(nextStep)}
           </NextStepButton>

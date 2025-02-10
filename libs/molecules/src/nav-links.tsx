@@ -33,16 +33,16 @@ const NavLinks = () => {
         <Button
           className={cn(
             'text-foreground/80 hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-80 rounded-none bg-transparent px-6 hover:no-underline',
-            includes(pathname, 'trees') && 'bg-functional-link-primary/10 border-b-2',
+            includes(pathname, 'trees') && 'bg-functional-link-primary/10 border-b-2 border-black/80',
           )}
           variant='link'
         >
           {!tabName ? (
-            <p className='text-lg'>{capitalize(CONFIG.TERMS.trees)}</p>
+            <p className='text-lg font-medium'>{capitalize(CONFIG.TERMS.trees)}</p>
           ) : (
             <div className='flex flex-col items-start gap-2'>
               <p className='text-sm uppercase'>{CONFIG.TERMS.trees}</p>
-              <p className='text-lg'>{containsUpperCase(tabName) ? tabName : capitalize(tabName)}</p>
+              <p className='text-lg font-medium'>{containsUpperCase(tabName) ? tabName : capitalize(tabName)}</p>
             </div>
           )}
         </Button>
@@ -53,11 +53,11 @@ const NavLinks = () => {
           <Button
             className={cn(
               'text-foreground/80 hover:text-foreground/80 hover:bg-functional-link-primary/10 min-h-full min-w-40 max-w-60 rounded-none bg-transparent hover:no-underline',
-              includes(pathname, 'wearers') && 'bg-functional-link-primary/10 border-b-2',
+              includes(pathname, 'wearers') && 'bg-functional-link-primary/10 border-b-2 border-black/80',
             )}
             variant='link'
           >
-            <p className='text-lg'>{`My ${capitalize(CONFIG.TERMS.hats)}`}</p>
+            <p className='text-lg font-medium'>{`My ${capitalize(CONFIG.TERMS.hats)}`}</p>
           </Button>
         </Link>
       )}

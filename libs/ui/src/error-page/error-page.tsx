@@ -1,4 +1,4 @@
-// import _ from 'lodash';
+// import { pick } from 'lodash';
 // import { useParams } from 'next/navigation';
 // import { FaArrowRight } from 'react-icons/fa';
 
@@ -6,7 +6,7 @@
 
 const ErrorPage = () => {
   // const params = useParams();
-  // const { chainId, treeId } = _.pick(params, ['chainId', 'treeId', 'hatId']);
+  // const { chainId, treeId } = pick(params, ['chainId', 'treeId', 'hatId']);
 
   // const link = `/trees/${chainId}/${treeId}`;
   // if (hatId) {

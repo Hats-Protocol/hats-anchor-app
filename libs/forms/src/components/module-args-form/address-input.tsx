@@ -3,7 +3,7 @@
 import { FALLBACK_ARG_EXAMPLES } from '@hatsprotocol/constants';
 import { ModuleCreationArg } from '@hatsprotocol/modules-sdk';
 import { useTreeForm } from 'contexts';
-import _ from 'lodash';
+import { includes } from 'lodash';
 import { ChangeEvent, ReactNode } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Link } from 'ui';
@@ -36,7 +36,7 @@ const ModuleAddressInput = ({
   };
 
   let tokenArgName = '';
-  if (_.includes(TOKEN_TYPES, arg.displayType)) {
+  if (includes(TOKEN_TYPES, arg.displayType)) {
     tokenArgName = arg.name;
   }
   // watch() by default returns whole object, so not good fallback

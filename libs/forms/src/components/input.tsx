@@ -1,7 +1,7 @@
 'use client';
 
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
-import _ from 'lodash';
+import { get } from 'lodash';
 import { Info } from 'lucide-react';
 import React, { ChangeEvent, ReactNode } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
@@ -62,7 +62,7 @@ const Input = ({
     formState: { dirtyFields, errors },
   } = localForm;
 
-  const isDirty = _.get(dirtyFields, name);
+  const isDirty = get(dirtyFields, name);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handlePaste = async (event: any) => {
@@ -84,10 +84,10 @@ const Input = ({
   };
 
   const getErrorMessage = () => {
-    const errorMessage = _.get(errors, name)?.message;
+    const errorMessage = get(errors, name)?.message;
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
-  const isError = !!getErrorMessage();
+  // const isError = !!getErrorMessage();
 
   const setFallback = async () => {
     setValue(name, FALLBACK_ADDRESS, { shouldDirty: true });

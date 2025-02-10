@@ -1,5 +1,5 @@
 import { ORG_CHART_COLORS, ORG_CHART_ICONS } from 'hats-utils';
-import _ from 'lodash';
+import { isEqual, toNumber } from 'lodash';
 import { HatWearer } from 'types';
 import { formatAddress } from 'utils';
 
@@ -46,23 +46,19 @@ export const selectedOptionContent = ({
     toggleText = extendedToggle?.ensName;
   }
 
-  let eligibilityText =
-    extendedEligibility && formatAddress(extendedEligibility?.id);
+  let eligibilityText = extendedEligibility && formatAddress(extendedEligibility?.id);
   if (levelAtLocalTree === 0) {
     eligibilityText = 'None - Top Hat';
   } else if (!extendedEligibility) {
     eligibilityText = 'None Set';
-  } else if (
-    extendedEligibility?.ensName &&
-    extendedEligibility?.ensName !== ''
-  ) {
+  } else if (extendedEligibility?.ensName && extendedEligibility?.ensName !== '') {
     eligibilityText = extendedEligibility?.ensName;
   }
 
   switch (selectedOption) {
     case CONTROL_OPTIONS.wearers:
       // handle "group" hats
-      if (_.isEqual(_.toNumber(maxSupply), 0)) {
+      if (isEqual(toNumber(maxSupply), 0)) {
         return `
             <div style="
               margin-top: 68px;
@@ -130,7 +126,7 @@ export const selectedOptionContent = ({
                 display: -webkit-box;
                 font-size: 15px;
                 font-family: 'Inter Variable', sans-serif;
-                font-weight: ${_.toNumber(maxSupply) > 0 ? 600 : 'normal'};
+                font-weight: ${toNumber(maxSupply) > 0 ? 600 : 'normal'};
                 opacity: 0.8;
                 overflow: hidden;
                 width: ${hatChartWearers?.contentWidth};

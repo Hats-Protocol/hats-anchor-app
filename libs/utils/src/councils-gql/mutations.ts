@@ -24,7 +24,7 @@ export const UPDATE_COUNCIL_FORM = gql`
     $createAgreementAdminRole: Boolean
     $agreementAdmins: [UserInput!]
     $payer: UserInput
-    $tokenAmount: Int
+    $tokenAmount: String
     $tokenAddress: String
   ) {
     updateCouncilCreationForm(

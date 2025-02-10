@@ -1,7 +1,7 @@
+import { CONFIG } from '@hatsprotocol/config';
 import { checkAndEncodeArgs, ModuleCreationArg, solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { CONFIG } from '@hatsprotocol/config';
-import _ from 'lodash';
+import { every, forEach, isNaN, map } from 'lodash';
 import { FormValues, ModuleDetails } from 'types';
 import { getDefaultValue, transformInput } from 'utils';
 import { parseUnits } from 'viem';
@@ -11,14 +11,14 @@ export const prepareArgs = (values: FormValues, selectedModuleDetails?: ModuleDe
   if (!selectedModuleDetails) {
     return { immutableArgs: [], mutableArgs: [] };
   }
-  const immutableArgs = _.map(selectedModuleDetails.creationArgs.immutable, ({ name, type }: ModuleCreationArg) => {
+  const immutableArgs = map(selectedModuleDetails.creationArgs.immutable, ({ name, type }: ModuleCreationArg) => {
     const valueToTransform = values[`${name}-parsed`] || values[name];
 
     const passedValue = valueToTransform === 'custom' ? values[`${name}_custom`] : valueToTransform;
 
     return transformInput(passedValue, type);
   });
-  const mutableArgs = _.map(selectedModuleDetails.creationArgs.mutable, ({ name, type }: ModuleCreationArg) => {
+  const mutableArgs = map(selectedModuleDetails.creationArgs.mutable, ({ name, type }: ModuleCreationArg) => {
     const valueToTransform = values[`${name}-parsed`] || values[name];
 
     const passedValue = valueToTransform === 'custom' ? values[`${name}_custom`] : valueToTransform;
@@ -47,7 +47,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
 
   const { immutableArgs, mutableArgs } = prepareArgs(values, selectedModuleDetails);
 
-  const areArgsFilled = (args: unknown[]) => _.every(args, Boolean);
+  const areArgsFilled = (args: unknown[]) => every(args, Boolean);
   const allArgsFilled = areArgsFilled(immutableArgs) && areArgsFilled(mutableArgs);
 
   if (selectedModuleDetails && isLocalFormValid && allArgsFilled) {
@@ -88,7 +88,7 @@ export const processValues = ({
     ...(selectedModuleDetails?.creationArgs?.mutable || []),
   ];
 
-  _.forEach(allArgs, (arg: ModuleCreationArg) => {
+  forEach(allArgs, (arg: ModuleCreationArg) => {
     const tsType = solidityToTypescriptType(arg.type);
     const defaultValue = getDefaultValue(tsType);
 
@@ -98,7 +98,7 @@ export const processValues = ({
 
     if (arg.displayType === 'amountWithDecimals') {
       const amount = newValues[arg.name] as string;
-      if (amount !== undefined && !_.isNaN(parseFloat(amount)) && tokenDecimals !== undefined) {
+      if (amount !== undefined && !isNaN(parseFloat(amount)) && tokenDecimals !== undefined) {
         try {
           newValues[arg.name] = parseUnits(amount, tokenDecimals);
         } catch (error) {

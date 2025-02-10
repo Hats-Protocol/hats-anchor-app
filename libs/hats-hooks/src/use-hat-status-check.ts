@@ -2,7 +2,7 @@ import { STATUS } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { first, get, size, slice } from 'lodash';
 import { useEffect, useState } from 'react';
 import { idToIp } from 'shared';
 import { AppHat, HandlePendingTx } from 'types';
@@ -19,7 +19,7 @@ const useHatStatusCheck = ({ hatData, chainId, handlePendingTx }: UseHatStatusCh
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [toggleIsContract, setToggleIsContract] = useState(false);
   const [testingToggle, setTestingToggle] = useState(false);
-  const hatDecimalId = _.get(hatData, 'id') && hatIdHexToDecimal(_.get(hatData, 'id') as string);
+  const hatDecimalId = get(hatData, 'id') && hatIdHexToDecimal(get(hatData, 'id') as string);
 
   useEffect(() => {
     const testToggle = async () => {
@@ -34,19 +34,19 @@ const useHatStatusCheck = ({ hatData, chainId, handlePendingTx }: UseHatStatusCh
   const { writeContractAsync } = useWriteContract();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
 
-  const txDescription = `Check Hat Status for ${idToIp(_.get(hatData, 'id'))}`;
+  const txDescription = `Check Hat Status for ${idToIp(get(hatData, 'id'))}`;
   const hatStatus = hatData?.status ? STATUS.ACTIVE : STATUS.INACTIVE;
 
   const onSuccess = async (d?: TransactionReceipt) => {
-    const logs = _.get(d, 'logs');
+    const logs = get(d, 'logs');
     if (logs?.length === 0) {
       toast({
         title: txDescription,
         description: `No change: Hat Status remains ${hatStatus}`,
       });
     } else {
-      const logData = _.get(_.first(logs), 'data');
-      const newHatStatus = _.first(_.slice(logData, -1, _.size(logData))) === '1' ? STATUS.ACTIVE : STATUS.INACTIVE;
+      const logData = first(logs)?.data;
+      const newHatStatus = first(slice(logData, -1, size(logData))) === '1' ? STATUS.ACTIVE : STATUS.INACTIVE;
 
       toast({
         title: txDescription,

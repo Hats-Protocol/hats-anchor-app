@@ -51,8 +51,8 @@
     "types": "workspace:*",
     "ui": "workspace:*",
     "utils": "workspace:*",
-    "viem": "2.21.32",
-    "wagmi": "^2.12.22"
+    "viem": "2.23.0",
+    "wagmi": "^2.14.11"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

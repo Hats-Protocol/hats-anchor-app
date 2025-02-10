@@ -17,7 +17,6 @@ export default defineConfig({
     'types',
     'utils',
     '@uiw/react-md-editor',
-    '@rainbow-me/rainbowkit',
     '@fontsource-variable/inter',
     '@fontsource-variable/jetbrains-mono',
   ],
