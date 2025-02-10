@@ -77,11 +77,15 @@ const selectStyles: StylesConfig<ChainOption, false> = {
   }),
   option: (baseStyles: CSSObjectWithLabel, state: { isSelected: boolean; isFocused: boolean }): CSSObjectWithLabel => ({
     ...baseStyles,
-    backgroundColor: state.isSelected ? 'var(--primary)' : state.isFocused ? 'var(--accent)' : 'transparent',
-    color: state.isSelected ? 'white' : 'var(--foreground)',
+    backgroundColor: state.isSelected
+      ? 'hsl(var(--primary) / 0.05)'
+      : state.isFocused
+        ? 'hsl(var(--accent) / 0.1)'
+        : 'transparent',
+    color: 'hsl(var(--foreground))',
     cursor: 'pointer',
     '&:active': {
-      backgroundColor: state.isSelected ? 'var(--primary)' : 'var(--accent)',
+      backgroundColor: state.isSelected ? 'hsl(var(--primary) / 0.25)' : 'hsl(var(--accent) / 0.2)',
     },
   }),
   indicatorSeparator: (): CSSObjectWithLabel => ({
