@@ -53,7 +53,7 @@ const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
 
   const filteredSafeTransactions = filterSafeTransactions(safeTransactions, approvedTokens);
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

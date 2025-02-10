@@ -41,7 +41,7 @@ const NewTreeForm = () => {
   const description = useDebounce(watch('description', ''));
   const imageUrl = useDebounce<string>(watch('imageUrl', ''));
   const receiver = useDebounce<string>(watch('receiver'));
-  const receiverResolvedAddress = useDebounce<Hex>(watch('receiverResolvedAddress'));
+  const receiverResolvedAddress = useDebounce<Hex>(watch('receiverResolvedAddress') as Hex);
   const overrideReceiver = watch('overrideReceiver');
   const {
     data: imagePinData,
@@ -102,11 +102,12 @@ const NewTreeForm = () => {
             localForm={localForm}
           />
 
-          <div className='flex items-center'>
+          <div className='flex items-center gap-2'>
             <Switch
               id='overrideReceiver'
-              checked={overrideReceiver}
-              onChange={() => setValue('overrideReceiver', !overrideReceiver)}
+              checked={!overrideReceiver}
+              defaultChecked={true}
+              onCheckedChange={() => setValue('overrideReceiver', !overrideReceiver)}
             />
             <FormLabel htmlFor='overrideReceiver' className='m-0'>
               {toUpper('Mint to Me')}
@@ -130,8 +131,8 @@ const NewTreeForm = () => {
 
           <div className='flex justify-end'>
             {/* isLoading={isLoading || detailsCidLoading} */}
-            <Button type='submit' disabled={!writeAsync}>
-              Create on {chainsMap(chainId)?.name}
+            <Button type='submit' disabled={!writeAsync || isLoading || detailsCidLoading}>
+              {isLoading ? 'Creating...' : `Create on ${chainsMap(chainId)?.name}`}
             </Button>
           </div>
         </div>

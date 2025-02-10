@@ -25,7 +25,7 @@ const NavLinks = () => {
   const textDetails = !startsWith(get(topHat, 'details'), 'ipfs://') ? get(topHat, 'details') : undefined;
   const tabName = get(details, 'name', textDetails);
 
-  const devMode = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const devMode = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   return (
     <>

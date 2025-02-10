@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { MANUAL_APPROVED_TOKENS } from '@hatsprotocol/config';
+import { useQuery } from '@tanstack/react-query';
 import { concat, keys } from 'lodash';
 
 const fetchApprovedSymbols = async () => {

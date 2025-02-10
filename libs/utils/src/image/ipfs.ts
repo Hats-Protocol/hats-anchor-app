@@ -33,6 +33,7 @@ export const pinJson = async (data: object, metadata: object, token: string) => 
     pinataContent: { ...data },
   });
 
+  console.log('pinning json', { pinataData });
   const url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
   const config = {
     method: 'post',
@@ -40,12 +41,13 @@ export const pinJson = async (data: object, metadata: object, token: string) => 
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    data: pinataData,
+    body: pinataData,
   };
 
   const res = await fetch(url, config);
-
-  return get(res, 'data.IpfsHash');
+  const resultData = await res.json();
+  console.log('resultData', { resultData });
+  return get(resultData, 'IpfsHash');
 };
 
 // TODO wrap/combine with pinFileToIpfs

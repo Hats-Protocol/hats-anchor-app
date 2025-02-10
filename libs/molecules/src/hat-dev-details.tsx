@@ -29,7 +29,7 @@ const HatDevDetails = () => {
     return hatIdDecimalToIp(hatIdHexToDecimal(selectedHat.id));
   }, [selectedHat]);
 
-  const isDev = posthog?.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const isDev = posthog.isFeatureEnabled('dev'); // || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

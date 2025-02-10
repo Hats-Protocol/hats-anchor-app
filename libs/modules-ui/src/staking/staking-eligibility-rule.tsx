@@ -42,7 +42,7 @@ export const StakingEligibilityRule = ({
   const isEligible = stakeBalance && stakeBalance >= (amountParam?.value as bigint);
 
   const eligibilityModalFlag =
-    posthog.isFeatureEnabled('staking-eligibility-modal') || process.env.NODE_ENV === 'development';
+    posthog.isFeatureEnabled('staking-eligibility-modal') || process.env.NODE_ENV !== 'production';
 
   if (!moduleDetails) return null;
 

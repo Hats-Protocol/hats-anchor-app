@@ -10,6 +10,7 @@ overrides:
   bs58: ^6.0.0
   express: 4.20.0
   viem: 2.21.32
+  posthog-js: 1.216.1
 
 importers:
 
@@ -241,8 +242,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/organisms
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -364,8 +365,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -479,8 +480,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/organisms
       posthog-js:
-        specifier: ^1.216.0
-        version: 1.216.0
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -607,8 +608,8 @@ importers:
         specifier: ^14.2.14
         version: 14.2.14(@babel/core@7.26.7)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.83.4)
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react-hook-form:
         specifier: ^7.50.1
         version: 7.54.2(react@18.3.1)
@@ -716,8 +717,8 @@ importers:
         specifier: ^5.4.1
         version: 5.4.1
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -801,8 +802,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react-hook-form:
         specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
@@ -979,8 +980,8 @@ importers:
         specifier: ^14.2.14
         version: 14.2.14(@babel/core@7.26.7)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.83.4)
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1069,8 +1070,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1202,8 +1203,8 @@ importers:
         specifier: ^14.2.14
         version: 14.2.14(@babel/core@7.26.7)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.83.4)
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1403,8 +1404,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       posthog-js:
-        specifier: ^1.188.1
-        version: 1.202.2
+        specifier: 1.216.1
+        version: 1.216.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -11301,14 +11302,8 @@ packages:
     resolution: {integrity: sha512-6oz2beyjc5VMn/KV1pPw8fliQkhBXrVn1Z3TVyqZxU8kZpzEKhBdmCFqI6ZbmGtamQvQGuU1sgPTk8ZrXDD7jQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  posthog-js@1.202.2:
-    resolution: {integrity: sha512-9p7dAWuCfoM0WrasubGwtC8i38HU3iMqK3gd0mhyAoTrEVMVozTQq64Toc2VEv8H69NGNn6ikk5t2LclHT9XFA==}
-
-  posthog-js@1.216.0:
-    resolution: {integrity: sha512-IN9MvcfqFxAGp4o2S+IBIaxJWW4Wbo/6nBxso+KatrVQbQuNfaug4S/5ts/BMDMCMUEOcCNg4XKR+bGKf6Hb/A==}
-
-  preact@10.24.0:
-    resolution: {integrity: sha512-aK8Cf+jkfyuZ0ZZRG9FbYqwmEiGQ4y/PUO4SuTWoyWL244nZZh7bd5h2APd4rSNDYTBNghg1L+5iJN3Skxtbsw==}
+  posthog-js@1.216.1:
+    resolution: {integrity: sha512-ZJxSfA1caZHxVTHfL8rNqwGGUq1JEgKq2/dIwnJ9hHaiv6ALAbc8Rm7Zda8SpTqKk/pEcwrdwY3LYAj2FF3K8w==}
 
   preact@10.25.4:
     resolution: {integrity: sha512-jLdZDb+Q+odkHJ+MpW/9U5cODzqnB+fy2EiHSZES7ldV5LK7yjlVzTp7R8Xy6W6y75kfK8iWYtFVH7lvjwrCMA==}
@@ -26676,21 +26671,12 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  posthog-js@1.202.2:
-    dependencies:
-      core-js: 3.39.0
-      fflate: 0.4.8
-      preact: 10.24.0
-      web-vitals: 4.2.3
-
-  posthog-js@1.216.0:
+  posthog-js@1.216.1:
     dependencies:
       core-js: 3.39.0
       fflate: 0.4.8
       preact: 10.25.4
       web-vitals: 4.2.3
-
-  preact@10.24.0: {}
 
   preact@10.25.4: {}
 

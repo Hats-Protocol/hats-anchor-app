@@ -88,6 +88,7 @@
     "@radix-ui/react-dialog": "^1.1.1",
     "bs58": "^6.0.0",
     "express": "4.20.0",
-    "viem": "2.21.32"
+    "viem": "2.21.32",
+    "posthog-js": "1.216.1"
   }
 }

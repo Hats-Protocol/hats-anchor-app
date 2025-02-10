@@ -15,7 +15,7 @@ interface ModuleDescriptor {
 }
 
 export const DevInfo = ({ moduleDescriptors }: DevInfoProps) => {
-  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   if (!moduleDescriptors || isEmpty(moduleDescriptors) || !devFlag) return null;
 

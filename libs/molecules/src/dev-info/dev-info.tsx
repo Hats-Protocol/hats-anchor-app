@@ -13,7 +13,7 @@ export interface DevInfoUnit {
 }
 
 export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
-  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   if (!devInfos || isEmpty(devInfos) || !devFlag) return null;
 

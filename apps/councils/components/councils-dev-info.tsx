@@ -37,7 +37,6 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     chainId: chainId as SupportedChains,
     address: eligibilityModule,
   });
-  console.log({ offchainCouncilDetails });
 
   const { mutateAsync: updateIsPaid } = useMutation({
     mutationFn: async (checked: boolean) => {

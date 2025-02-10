@@ -132,7 +132,7 @@ function MemberStatusModal({
   };
 
   return (
-    <Modal name={`member-status-${user?.address}`} title={`Edit ${userLabel || 'Council Member'} Status`}>
+    <Modal name={`member-status-${user?.address}`} title={`Edit ${userLabel || 'Council Member'} Status`} size='xl'>
       <div className='flex flex-col gap-6 pb-4'>
         <MemberAvatar member={user} stack />
 

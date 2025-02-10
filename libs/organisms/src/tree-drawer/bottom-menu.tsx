@@ -72,7 +72,7 @@ const BottomMenu = ({
     setAccordionIndex(isExpanded ? [] : ['bottom-menu']);
   };
 
-  const enableSimulation = posthog.isFeatureEnabled('simulation') || process.env.NODE_ENV === 'development';
+  const enableSimulation = posthog.isFeatureEnabled('simulation') || process.env.NODE_ENV !== 'production';
 
   const handleSimulateTopHat = useCallback(() => {
     if (!topHatWearer) return;
@@ -85,9 +85,8 @@ const BottomMenu = ({
     handleSimulate(address);
   }, [handleSimulate, address]);
 
-  const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
-  // index={isExpanded ? [0] : []}
   return (
     <div className='z-14 absolute bottom-0 w-full'>
       <div className='flex justify-between border-t border-gray-200 bg-cyan-50'>

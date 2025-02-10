@@ -66,7 +66,7 @@ export const AgreementEligibilityRule = ({
     modalName += modalSuffix;
   }
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV !== 'production';
 
   if (!moduleDetails?.instanceAddress) return null;
 

@@ -34,7 +34,11 @@ export const Toggle = () => {
   }
 
   if (ruleSets) {
-    return <KnownToggleModule ruleSets={ruleSets} chainId={chainId} wearer={toggle} selectedHat={selectedHat} />;
+    return (
+      <div className='mx-4'>
+        <KnownToggleModule ruleSets={ruleSets} chainId={chainId} wearer={toggle} selectedHat={selectedHat} />
+      </div>
+    );
   }
 
   if (isHatsAccount) {

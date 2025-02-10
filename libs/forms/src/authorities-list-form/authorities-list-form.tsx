@@ -70,7 +70,7 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
     setModals?.({ 'authorities-edit': true });
   };
 
-  const hsgEnabled = posthog.isFeatureEnabled('hsg-deploy') || process.env.NODE_ENV === 'development';
+  const hsgEnabled = posthog.isFeatureEnabled('hsg-deploy') || process.env.NODE_ENV !== 'production';
 
   if (!localForm || !hatForm) return null;
 

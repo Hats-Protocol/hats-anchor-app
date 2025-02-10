@@ -77,7 +77,7 @@ const MemberRow = ({
   const offChainDetails = find(offchainWearers, { address: member.address });
   const fullMember = { ...member, ...offChainDetails };
 
-  const isDev = process.env.NODE_ENV === 'development' || posthog.isFeatureEnabled('dev');
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   // TODO member is missing profile data for details edit form
 

@@ -45,7 +45,7 @@ const CouncilListPage = () => {
       {map(councils, (council) => (
         <Link
           href={`/councils/${chainIdToString(chainId)}:${getAddress(council.id)}/members`}
-          className='text-inherit hover:no-underline'
+          className='hover:text-foreground/80 text-inherit hover:no-underline'
           key={council.id}
         >
           <CouncilHeaderCard key={council.id} chainId={chainId} address={getAddress(council.id)} />

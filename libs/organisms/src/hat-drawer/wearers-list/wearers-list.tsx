@@ -204,15 +204,15 @@ const WearersList = () => {
 
       {!isMobile && (
         <>
-          <Modal name='claimFor' title='Claim hat for wearer' size='2xl'>
+          <Modal name='claimFor' title='Claim hat for wearer' size='lg'>
             <HatClaimForm />
           </Modal>
 
-          <Modal name='hatWearerStatus' title='Remove a Wearer by revoking their Hat token' size='3xl'>
+          <Modal name='hatWearerStatus' title='Remove a Wearer by revoking their Hat token' size='lg'>
             <HatWearerStatusForm wearer={changeStatusWearer} eligibility='Not Eligible' />
           </Modal>
 
-          <Modal name='transferHat' title='Transfer Hat to New Address'>
+          <Modal name='transferHat' title='Transfer Hat to New Address' size='lg'>
             <HatTransferForm currentWearerAddress={wearerToTransferFrom} />
           </Modal>
 

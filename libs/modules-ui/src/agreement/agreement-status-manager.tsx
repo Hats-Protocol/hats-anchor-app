@@ -50,7 +50,7 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
   };
 
   return (
-    <div className='flex items-center justify-between'>
+    <div className='flex items-center justify-between gap-8'>
       <div className='flex flex-col gap-1'>
         <h4 className='font-medium'>Signed & Abides Agreement</h4>
         <p className='text-sm'>This Member has signed and follows the Agreement</p>

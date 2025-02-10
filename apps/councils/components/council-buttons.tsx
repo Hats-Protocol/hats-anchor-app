@@ -29,7 +29,7 @@ const CouncilButtons = () => {
     safeAddress: get(councilDetails, 'safe'),
   });
 
-  const isDev = process.env.NODE_ENV !== 'production' || posthog.isFeatureEnabled('dev');
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
   const links = [...LINKS, ...devLink];

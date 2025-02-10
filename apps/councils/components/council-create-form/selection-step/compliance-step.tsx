@@ -37,6 +37,14 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
             <h2 className='text-2xl font-bold'>Configure Compliance Requirement</h2>
           </div>
 
+          <div>
+            <p>
+              Require that Council Members pass a compliance check (such as KYC) before being allowed to join the
+              Council. Compliance checks are handled by the provider of your choosing outside of Hats Pro, then verified
+              (and revoked) via an onchain transactions.
+            </p>
+          </div>
+
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who does the compliance check?</h2>

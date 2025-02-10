@@ -98,7 +98,7 @@ const MailForm = () => {
     notifyEndpoint(data, messageId); //
   };
 
-  const isDev = process.env.NODE_ENV !== 'production' || posthog.isFeatureEnabled('dev');
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

@@ -38,7 +38,7 @@ export const ElectionEligibilityRule = ({
   const hatId = get(selectedHat, 'id', '0');
 
   const eligibilityModalFlag =
-    posthog.isFeatureEnabled('election-eligibility-modal') || process.env.NODE_ENV === 'development';
+    posthog.isFeatureEnabled('election-eligibility-modal') || process.env.NODE_ENV !== 'production';
 
   let modalName = 'electionManager';
   if (modalSuffix) {

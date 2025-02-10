@@ -42,7 +42,7 @@ export const JokeRaceEligibilityRule = ({
   });
   const isEligible = includes(get(wearerStatus, 'eligibleWearers'), wearer);
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV !== 'production';
 
   // TODO fetch contest from JokeRace subgraph
   if (!moduleDetails) return null;
