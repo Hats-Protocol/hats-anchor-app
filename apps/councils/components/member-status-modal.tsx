@@ -8,8 +8,7 @@ import { useSafeDetails, useToast, useWaitForSubgraph } from 'hooks';
 import { every, flatten, get, has, includes, map } from 'lodash';
 import { AgreementStatusManager, AllowlistStatusManager, Erc20StatusManager } from 'modules-ui';
 import { useMemo } from 'react';
-import { BsCheckSquareFill, BsXSquare } from 'react-icons/bs';
-import { BsXSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsExclamationSquare, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type {
   AppHat,
   CouncilMember,
@@ -166,6 +165,11 @@ function MemberStatusModal({
               <div className='text-functional-success flex items-center gap-2'>
                 <BsCheckSquareFill className='size-4' />
                 <p>Yes</p>
+              </div>
+            ) : isSigner ? (
+              <div className='text-destructive flex items-center gap-2'>
+                <BsExclamationSquare className='size-4' />
+                <p>No</p>
               </div>
             ) : (
               <div className='text-destructive flex items-center gap-2'>

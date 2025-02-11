@@ -30,6 +30,7 @@ export const Header = () => {
             src={!isHatDetailsLoading ? get(selectedHat, 'imageUrl') : undefined}
             alt='Hat image'
             containerClassName='rounded-none md:rounded-lg md:w-auto h-full md:h-[400px]'
+            imageClassName='-left-4 -top-4'
           />
 
           <div className='relative flex justify-center'>

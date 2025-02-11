@@ -2,6 +2,7 @@ import { isEmpty, map } from 'lodash';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
+import { cn } from 'ui';
 import { Hex } from 'viem';
 
 export interface DevInfoUnit {
@@ -10,6 +11,7 @@ export interface DevInfoUnit {
   icon?: IconType;
   descriptor?: ReactNode;
   link?: string;
+  key?: string;
 }
 
 export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
@@ -21,10 +23,10 @@ export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
     <div className='flex flex-col gap-2'>
       <h2 className='text-sm font-medium'>{title || 'Dev Info'}</h2>
 
-      {map(devInfos, ({ label, descriptor }) => {
+      {map(devInfos, ({ label, descriptor, key }) => {
         return (
-          <div className='flex w-full justify-between' key={label}>
-            <div className='text-sm'>{label}</div>
+          <div className={cn('flex w-full justify-between', !label && 'justify-end')} key={label || key}>
+            {label && <div className='text-sm'>{label}</div>}
 
             {descriptor}
           </div>

@@ -44,7 +44,7 @@ const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorPr
 
       {signers > threshold ? (
         <p className='text-center'>
-          {threshold} confirmations required of {maxSigners} council members
+          {threshold} confirmation{threshold > 1 ? 's' : ''} required of {signers} council members
         </p>
       ) : (
         <p className='text-center'>

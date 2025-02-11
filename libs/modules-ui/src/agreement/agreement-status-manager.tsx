@@ -7,6 +7,7 @@ import { useHatDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
+import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
 import { Button } from 'ui';
@@ -15,6 +16,7 @@ import { useAccount } from 'wagmi';
 
 const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: StatusManagerProps) => {
   const { address: userAddress } = useAccount();
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { setModals } = useOverlay();
   const queryClient = useQueryClient();
@@ -30,6 +32,7 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
   const isAgreementManager = includes(map(get(agreementManagerHat, 'wearers'), 'id'), toLower(userAddress));
 
   const handleAgreementToggle = async () => {
+    setIsLoading(true);
     const forgiveFunction = find(rule.module.writeFunctions, { functionName: 'forgive' });
     const revokeFunction = find(rule.module.writeFunctions, { functionName: 'revoke' });
 
@@ -45,6 +48,10 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
           description: `Updated agreement compliance status for ${formatAddress(user?.address)}`,
         });
         setModals?.({});
+        setIsLoading(false);
+      },
+      onDecline: () => {
+        setIsLoading(false);
       },
     });
   };
@@ -53,7 +60,9 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
     <div className='flex items-center justify-between gap-8'>
       <div className='flex flex-col gap-1'>
         <h4 className='font-medium'>Signed & Abides Agreement</h4>
-        <p className='text-sm'>This Member has signed and follows the Agreement</p>
+        <p className='text-sm'>
+          {isEligible ? 'This Member has signed and follows the Agreement' : 'This Member has not signed the Agreement'}
+        </p>
         {isEligible ? (
           <div className='text-functional-success flex items-center gap-2'>
             <BsCheckSquareFill className='size-4' />
@@ -68,9 +77,14 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
       </div>
 
       {isEligible && (
-        <Button variant='outline-red' rounded='full' disabled={!isAgreementManager} onClick={handleAgreementToggle}>
+        <Button
+          variant='outline-red'
+          rounded='full'
+          disabled={!isAgreementManager || isLoading}
+          onClick={handleAgreementToggle}
+        >
           <BsXSquare className='size-4' />
-          {isEligible ? 'Violated the agreement' : 'Re-instate'}
+          {isLoading ? 'Updating...' : isEligible ? 'Violated the Agreement' : 'Re-instate'}
         </Button>
       )}
     </div>

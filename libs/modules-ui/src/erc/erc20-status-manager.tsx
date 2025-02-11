@@ -5,6 +5,7 @@ import { useOverlay } from 'contexts';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, includes, map } from 'lodash';
+import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { StatusManagerProps, SupportedChains } from 'types';
 import { Button, Skeleton } from 'ui';
@@ -13,6 +14,7 @@ import { useReadContracts } from 'wagmi';
 
 const Erc20StatusManager = ({ rule, user, selectedHat, chainId, currentEligibility }: StatusManagerProps) => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const { setModals, handlePendingTx } = useOverlay();
   const queryClient = useQueryClient();
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
@@ -75,7 +77,11 @@ const Erc20StatusManager = ({ rule, user, selectedHat, chainId, currentEligibili
         description: 'The wearer status has been updated successfully',
       });
       setModals?.({});
+      setIsLoading(false);
     },
+    // onDecline: () => {
+    //   setIsLoading(false);
+    // },
   });
 
   const handleUpdateWearerStatus = async () => {
@@ -125,9 +131,9 @@ const Erc20StatusManager = ({ rule, user, selectedHat, chainId, currentEligibili
       </div>
 
       {isWearing && !isEligible && (
-        <Button variant='outline-red' rounded='full' onClick={handleUpdateWearerStatus}>
+        <Button variant='outline-red' rounded='full' onClick={handleUpdateWearerStatus} disabled={isLoading}>
           <BsXSquare className='size-4' />
-          Remove
+          {isLoading ? 'Updating...' : 'Remove'}
         </Button>
       )}
     </div>

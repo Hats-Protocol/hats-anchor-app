@@ -33,7 +33,7 @@ import {
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useToast, useWaitForSubgraph } from 'hooks';
-import { capitalize, find, first, get, map, toLower, toNumber, values } from 'lodash';
+import { find, first, get, map, toNumber, values } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -58,7 +58,6 @@ import {
   logger,
   pinFileToIpfs,
   sendTelegramMessage,
-  slugify,
   UPDATE_COUNCIL_FORM,
   updateCouncilForm,
   viemPublicClient,
@@ -445,13 +444,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               };
               break;
             case 'tokens':
-              console.log('submitting tokens', formData.tokenRequirement);
               const tokenAddress = formData.tokenRequirement.address?.value;
-              // const tokenDecimals = !!tokenAddress ? getTokenDecimals(chainId, tokenAddress) : undefined;
+
               payload = {
                 ...payload,
-                tokenAddress, // TODO hacked
-                tokenAmount: formData.tokenRequirement.minimum.toString(), // stored in numeric value, convert at deploy
+                tokenAddress,
+                tokenAmount: formData.tokenRequirement.minimum.toString(), // stored in string version of numeric value, convert at deploy
                 memberRequirements: {
                   ...formData.requirements,
                   holdTokens: true,

@@ -26,7 +26,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
       <meta name='viewport' content='width=device-width, initial-scale=1' />
     </head>
 
-    <body>
+    <body className='font-light'>
       <div className='relative'>
         <Providers>
           <Navbar />

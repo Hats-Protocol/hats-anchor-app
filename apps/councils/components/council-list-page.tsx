@@ -1,5 +1,6 @@
 'use client';
 
+import { usePrivy } from '@privy-io/react-auth';
 import { useWearerDetails } from 'hats-hooks';
 import { useCouncilsList } from 'hooks';
 import { isEmpty, map } from 'lodash';
@@ -12,11 +13,12 @@ import { CouncilHeaderCard } from './council-header';
 
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
+  const { user } = usePrivy();
   const chainId = useChainId();
 
   // fetch user's hats
   const { data: wearerHats, isLoading: wearerHatsLoading } = useWearerDetails({
-    wearerAddress: userAddress as Hex,
+    wearerAddress: !!user ? (userAddress as Hex) : undefined,
     chainId, // TODO migrate to all chains
   });
   // fetch associated councils
@@ -48,7 +50,7 @@ const CouncilListPage = () => {
           className='hover:text-foreground/80 text-inherit hover:no-underline'
           key={council.id}
         >
-          <CouncilHeaderCard key={council.id} chainId={chainId} address={getAddress(council.id)} />
+          <CouncilHeaderCard key={council.id} chainId={chainId} address={getAddress(council.id)} withLinks={false} />
         </Link>
       ))}
 

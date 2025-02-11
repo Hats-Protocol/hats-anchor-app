@@ -1,9 +1,9 @@
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { flatten, last, map } from 'lodash';
+import { flatten, get, last, map, size } from 'lodash';
 import { Link } from 'ui';
 import { explorerUrl, formatAddress, hatLink, shortDateFormatter } from 'utils';
-import { formatEther, formatUnits } from 'viem';
+import { formatUnits } from 'viem';
 
 const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainId: number }) => {
   if (param.displayType === 'hat') {
@@ -20,7 +20,6 @@ const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainI
       </div>
     );
   }
-  console.log(param);
   if (param.solidityType === 'address') {
     return (
       <div>
@@ -28,14 +27,6 @@ const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainI
         <Link href={`${explorerUrl(chainId)}/address/${param.value}`} className='underline' isExternal>
           {formatAddress(param.value as string)}
         </Link>
-      </div>
-    );
-  }
-  if (param.solidityType === 'uint256') {
-    // TODO handle decimals
-    return (
-      <div>
-        <span className='text-sm'>{param.label}</span> - {formatUnits(param.value as bigint, 6)}
       </div>
     );
   }
@@ -51,6 +42,15 @@ const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainI
     return (
       <div>
         <span className='text-sm'>{param.label}</span> - {shortDateFormatter(new Date(Number(param.value) * 1000))}
+      </div>
+    );
+  }
+  // handle timestamp before uint256 since both are bigint
+  if (param.solidityType === 'uint256') {
+    // TODO handle decimals
+    return (
+      <div>
+        <span className='text-sm'>{param.label}</span> - {formatUnits(param.value as bigint, 6)}
       </div>
     );
   }
@@ -96,19 +96,30 @@ const ModuleParamsDevDisplay = ({
 export function EligibilityRulesDevInfo({
   chainId,
   eligibilityRules,
+  eligibilityAddress,
 }: {
   chainId: number;
   eligibilityRules: Ruleset[] | undefined;
+  eligibilityAddress: string | undefined;
 }) {
   if (!eligibilityRules) return null;
 
+  // TODO technically a chain could wrap a single module/rule, but this is unlikely
+  // check address of first rule against eligibility address
+  const isSingleRule =
+    size(flatten(eligibilityRules)) === 1 && get(flatten(eligibilityRules), '[0].address') === eligibilityAddress;
+
   return (
     <div className='flex flex-col gap-2'>
-      <h3 className='text-sm font-bold'>Eligibility Rules</h3>
+      <div className='flex justify-between'>
+        <h3 className='text-sm font-medium'>Eligibility Rules</h3>
+
+        <p className='text-functional-link-secondary text-sm'>
+          {!isSingleRule ? `${size(flatten(eligibilityRules))} rules` : 'No chain'}
+        </p>
+      </div>
 
       {map(flatten(eligibilityRules), (rule) => {
-        console.log(rule);
-
         return (
           <div key={rule.address} className='flex flex-col gap-1'>
             <div className='flex justify-between'>

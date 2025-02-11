@@ -39,6 +39,7 @@ const WearerHatCard = ({ hat, chainId }: { hat: AppHat; chainId: SupportedChains
           src={ipfsUrl(get(hat, 'nearestImage'))}
           alt={`${hatName} image`}
           containerClassName='border border-gray-200 size-[330px] -ml-1 -mt-1'
+          imageClassName='-left-4 -top-4'
         />
         <div className='border-y-1 mt-[-1px] border-gray-600 bg-white p-2'>
           <div className='flex justify-between gap-2'>
