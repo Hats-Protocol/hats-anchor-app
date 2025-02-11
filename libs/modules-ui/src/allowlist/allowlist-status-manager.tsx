@@ -78,7 +78,7 @@ const AllowlistStatusManager = ({
         queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
         toast({
           title: 'Allowlist updated',
-          description: `${isEligible ? 'Removed' : 'Added'} ${formatAddress(userAddress)} ${toLower(user?.address)} ${
+          description: `${isEligible ? 'Removed' : 'Added'} ${formatAddress(user?.address)} ${
             isEligible ? 'from' : 'to'
           } the allowlist`,
         });
