@@ -16,6 +16,8 @@ interface ChainSelectProps {
   label?: string;
   info?: string;
   subLabel?: string;
+  sublabel?: string;
+  variant?: 'default' | 'councils';
 }
 
 interface ChainOption extends ReactSelectOption {}
@@ -35,6 +37,8 @@ const ChainSelect = ({
   label,
   info,
   subLabel,
+  sublabel,
+  variant,
 }: ChainSelectProps) => {
   return (
     <Select<ChainOption>
@@ -47,6 +51,8 @@ const ChainSelect = ({
       label={label}
       info={info}
       subLabel={subLabel}
+      sublabel={sublabel}
+      variant={variant}
     />
   );
 };

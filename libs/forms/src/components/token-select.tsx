@@ -16,11 +16,23 @@ interface TokenSelectProps {
   label?: string;
   info?: string;
   subLabel?: string;
+  sublabel?: string;
+  variant?: 'default' | 'councils';
 }
 
 interface TokenOption extends ReactSelectOption {}
 
-const TokenSelect = ({ name, options, localForm, placeholder, label, info, subLabel }: TokenSelectProps) => {
+const TokenSelect = ({
+  name,
+  options,
+  localForm,
+  placeholder,
+  label,
+  info,
+  subLabel,
+  sublabel,
+  variant,
+}: TokenSelectProps) => {
   const tokenOptions = map(options, (token) => ({
     value: token.address,
     label: `${token.name} (${token.symbol})`,
@@ -37,6 +49,8 @@ const TokenSelect = ({ name, options, localForm, placeholder, label, info, subLa
       label={label}
       info={info}
       subLabel={subLabel}
+      sublabel={sublabel}
+      variant={variant}
     />
   );
 };
