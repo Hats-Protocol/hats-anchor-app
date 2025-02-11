@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { AppHat } from 'types';
-import { BaseCheckbox, BaseInput, Button, SelectItem } from 'ui';
+import { BaseCheckbox, BaseInput, Button } from 'ui';
 import { createHatsClient, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
@@ -104,12 +104,12 @@ const DeactivationForm = () => {
         <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
           <div className='flex justify-between gap-4'>
             <div className='w-1/2'>
-              <Select localForm={localForm} name='chainId' label='Network'>
-                {map(values(chainsList), (chain) => (
+              <Select localForm={localForm} name='chainId' label='Network' options={[]}>
+                {/* {map(values(chainsList), (chain) => (
                   <SelectItem value={chain.id.toString()} key={chain.id}>
                     {chain.name}
                   </SelectItem>
-                ))}
+                ))} */}
               </Select>
             </div>
 

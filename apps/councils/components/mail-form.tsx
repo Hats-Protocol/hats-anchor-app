@@ -25,6 +25,15 @@ const MAIL_BUTTONS = [
   {
     label: 'Initial invitation to council member',
     messageId: 'invite_council_member',
+    fields: [
+      { name: 'creator_name', label: 'Creator Name' },
+      { name: 'council_name', label: 'Council Name' },
+      { name: 'org_name', label: 'Organization Name' },
+      { name: 'chain_name', label: 'Chain Name' },
+      { name: 'council_members_link', label: 'Council Members Link' },
+      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
+      { name: 'member_title', label: 'Member Title' }, // what is council member called
+    ],
   },
   {
     label: 'Reminder to join a council for council member',
@@ -32,6 +41,11 @@ const MAIL_BUTTONS = [
     fields: [
       { name: 'creator_name', label: 'Creator Name' },
       { name: 'council_name', label: 'Council Name' },
+      { name: 'org_name', label: 'Organization Name' },
+      { name: 'chain_name', label: 'Chain Name' },
+      { name: 'council_members_link', label: 'Council Members Link' },
+      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
+      { name: 'member_title', label: 'Member Title' }, // what is council member called
     ],
   },
   {
@@ -41,6 +55,8 @@ const MAIL_BUTTONS = [
       { name: 'creator_name', label: 'Creator Name' },
       { name: 'council_name', label: 'Council Name' },
       { name: 'org_name', label: 'Organization Name' },
+      { name: 'chain_name', label: 'Chain Name' },
+      { name: 'council_members_link', label: 'Council Members Link' },
       { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
       { name: 'member_title', label: 'Member Title' }, // what is council member called
     ],
@@ -48,10 +64,28 @@ const MAIL_BUTTONS = [
   {
     label: 'Council setup is complete',
     messageId: 'council_setup_complete',
+    fields: [
+      { name: 'creator_name', label: 'Creator Name' },
+      { name: 'council_name', label: 'Council Name' },
+      { name: 'org_name', label: 'Organization Name' },
+      { name: 'chain_name', label: 'Chain Name' },
+      { name: 'council_members_link', label: 'Council Members Link' },
+      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
+      { name: 'member_title', label: 'Member Title' }, // what is council member called
+    ],
   },
   {
     label: 'Council deployed',
     messageId: 'council_deployed',
+    fields: [
+      { name: 'creator_name', label: 'Creator Name' },
+      { name: 'council_name', label: 'Council Name' },
+      { name: 'org_name', label: 'Organization Name' },
+      { name: 'chain_name', label: 'Chain Name' },
+      { name: 'council_members_link', label: 'Council Members Link' },
+      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
+      { name: 'member_title', label: 'Member Title' }, // what is council member called
+    ],
   },
 ];
 

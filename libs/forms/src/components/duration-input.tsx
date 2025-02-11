@@ -3,11 +3,11 @@
 import { find, get, pick, toNumber } from 'lodash';
 import React, { useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
-import { SelectItem } from 'ui';
+import { BaseSelect, BaseSelectItem } from 'ui';
 
 import { FormControl, FormLabel } from './form';
 import { NumberInput } from './number-input';
-import { Select } from './select';
+// import { Select } from './select';
 
 const timeUnits = [
   { unit: 'seconds', value: 1 },
@@ -74,13 +74,18 @@ const DurationInput: React.FC<DurationInputProps> = ({
             />
 
             <div className='w-40'>
-              <Select name={`${name}-time-unit`} localForm={localForm} defaultValue='seconds'>
+              <BaseSelect
+                name={`${name}-time-unit`}
+                value={timeUnit}
+                onValueChange={(value: any) => setValue(`${name}-time-unit`, value)}
+                defaultValue='seconds'
+              >
                 {timeUnits.map(({ unit, value }) => (
-                  <SelectItem key={unit} value={unit}>
+                  <BaseSelectItem key={unit} value={unit}>
                     {unit}
-                  </SelectItem>
+                  </BaseSelectItem>
                 ))}
-              </Select>
+              </BaseSelect>
             </div>
           </div>
 

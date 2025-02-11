@@ -90,16 +90,17 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
                 setManagerLoading(false);
 
                 sendTelegramMessage(
-                  // TODO handle allowlist copy here in those cases
                   `New ${isCompliance ? 'allowlist' : 'compliance'} manager added: ${data.name} (${tgFormatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
                 );
 
-                posthog.capture('Added Allowlist Manager', {
-                  councilId: offchainCouncilDetails?.id,
-                  chainId,
-                  type: isCompliance ? 'allowlistAdmin' : 'complianceAdmin',
-                  userAddress: data.address,
-                });
+                if (offchainCouncilDetails?.hsg) {
+                  posthog.capture('Added Allowlist Manager', {
+                    councilId: offchainCouncilDetails.hsg,
+                    chainId,
+                    type: isCompliance ? 'allowlistAdmin' : 'complianceAdmin',
+                    userAddress: data.address,
+                  });
+                }
 
                 setModals?.({});
               },

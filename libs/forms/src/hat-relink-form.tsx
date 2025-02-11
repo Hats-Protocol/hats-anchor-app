@@ -144,12 +144,12 @@ const HatRelinkForm = ({
           <p>ID {hatIdDecimalToIp(BigInt(hatData?.id))}</p>
         </div>
 
-        <Select label='Select new Admin Hat' name='newAdmin' localForm={localForm}>
-          {map(parentTreeHats, (hat: AppHat) => (
+        <Select label='Select new Admin Hat' name='newAdmin' localForm={localForm} options={[]}>
+          {/* {map(parentTreeHats, (hat: AppHat) => (
             <option value={hat.id} key={hat.id}>
               {hatIdDecimalToIp(BigInt(hat.id))}
             </option>
-          ))}
+          ))} */}
         </Select>
 
         <FormControl>

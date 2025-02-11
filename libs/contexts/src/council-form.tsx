@@ -33,7 +33,7 @@ import {
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useToast, useWaitForSubgraph } from 'hooks';
-import { find, first, get, map, toNumber, values } from 'lodash';
+import { find, first, get, map, toNumber, toString, values } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -71,6 +71,7 @@ import {
   encodeFunctionData,
   encodePacked,
   parseEventLogs,
+  parseUnits,
   TransactionReceipt,
   zeroAddress,
 } from 'viem';
@@ -100,6 +101,8 @@ const chainOptions = map(values(councilsChainsList), (chain) => ({
   label: chain.name,
   icon: chain.iconUrl,
 }));
+
+const converter = new showdown.Converter();
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(undefined);
 
@@ -439,7 +442,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             case 'agreement':
               toggleOptionalStep('agreement');
               // need to convert html to markdown before pinning
-              const converter = new showdown.Converter();
               const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
 
               payload = {
@@ -500,9 +502,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const pinningKey = await fetchToken(20);
       const hatsDetailsClient = new HatsDetailsClient({
         provider: 'pinata',
-        pinata: {
-          pinningKey: pinningKey as string,
-        },
+        pinata: { pinningKey: pinningKey as string },
       });
 
       const hatsProtocolCalls: `0x${string}`[] = [];
@@ -622,9 +622,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       if (formData.requirements.signAgreement) {
         let agreementCid: string = '';
         if (formData.agreement) {
+          const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
           // pin agreement file to ipfs
           agreementCid = await pinFileToIpfs({
-            file: formData.agreement,
+            file: agreementMarkdown,
             fileName: `agreement_${formData.organizationName}_${formData.councilName}_${chainId}`,
             token: pinningKey as string,
           });
@@ -660,9 +661,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       let erc20ModuleImmutableArgs: `0x${string}`;
       let erc20ModuleHatId: bigint;
       let predictedErc20ModuleAddress: `0x${string}` | undefined;
+      console.log('formData.tokenRequirement', formData.requirements, formData.tokenRequirement);
       if (formData.requirements.holdTokens && formData.tokenRequirement.address?.value) {
         const tokenDecimals = getTokenDecimals(chainId, formData.tokenRequirement.address.value) as number;
-        logger.debug('tokenDecimals', tokenDecimals);
+        logger.debug(
+          'tokenDecimals',
+          tokenDecimals,
+          formData.tokenRequirement.minimum,
+          toString(formData.tokenRequirement.minimum),
+          parseUnits(toString(formData.tokenRequirement.minimum), tokenDecimals),
+        );
         if (!tokenDecimals) {
           throw new Error('Failed to get token decimals');
         }
@@ -671,7 +679,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           ['address', 'uint256'],
           [
             formData.tokenRequirement.address.value as `0x${string}`,
-            BigInt(formData.tokenRequirement.minimum) * 10n ** BigInt(tokenDecimals),
+            parseUnits(toString(formData.tokenRequirement.minimum), tokenDecimals),
           ],
         );
         erc20ModuleHatId = councilMemberHatId;

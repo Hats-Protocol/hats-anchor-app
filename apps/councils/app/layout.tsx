@@ -30,7 +30,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
       <meta name='viewport' content='width=device-width, initial-scale=1' />
     </head>
 
-    <body className='font-inter font-light text-black/80'>
+    <body className='font-inter text-black/80'>
       <div className='relative min-h-screen bg-gray-100'>
         <Providers>
           <Navbar />

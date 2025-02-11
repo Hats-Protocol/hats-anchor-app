@@ -5,6 +5,7 @@ import { useCouncilDetails, useSafeDetails, useToast, useWaitForSubgraph } from 
 import { filter, find, first, flatten, get, includes, keys, mapValues, size, toLower } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
@@ -24,8 +25,8 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
   const currentChainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { handlePendingTx } = useOverlay();
-  const router = useRouter();
   const queryClient = useQueryClient();
+
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId as SupportedChains,
     address: hsgAddress,
@@ -60,8 +61,6 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eligibilityRules, activeRule]);
 
-  // TODO check this value ASAP
-
   const { handleClaim, disableClaim, disableReason } = useClaimFn({
     selectedHat: selectedHat as AppHat,
     handlePendingTx,
@@ -78,6 +77,12 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readContract'] }); // balance check for isWearing uses a generic readContract hook
       setIsLoading(false);
+      posthog.capture('Claimed Hat', {
+        chainId,
+        councilAddress: hsgAddress,
+        hatId: selectedHat?.id,
+        wearerAddress: address,
+      });
     },
     onError: () => {
       setIsLoading(false);
@@ -119,7 +124,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
 
       handlePendingTx?.({
         txChainId: chainId,
-        txDescription: 'Claiming Signer',
+        txDescription: 'Claimed Signer for Council',
         hash,
         waitForSubgraph,
         onSuccess: () => {
@@ -138,11 +143,15 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
 
           queryClient.invalidateQueries({ queryKey: ['readContract'] }); // TODO trying to invalidate is safe signer check
           setIsLoading(false);
+          posthog.capture('Claimed Signer', {
+            chainId,
+            councilAddress: hsgAddress,
+            wearerAddress: address,
+          });
           // redirect to council page
-          router.push(`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`);
+          // router.push(`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`);
         },
       });
-      // TODO handlePendingTx
     } else {
       handleClaim();
     }

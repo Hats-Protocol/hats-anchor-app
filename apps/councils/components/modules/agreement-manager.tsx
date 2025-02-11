@@ -5,6 +5,7 @@ import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, map, size, split, toLower } from 'lodash';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
@@ -84,6 +85,15 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
                 sendTelegramMessage(
                   `New agreement manager added: ${tgFormatAddress(data.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
                 );
+
+                if (offchainCouncilDetails?.hsg) {
+                  posthog.capture('Added Agreement Manager', {
+                    chainId,
+                    councilAddress: getAddress(offchainCouncilDetails.hsg),
+                    moduleAddress: m.instanceAddress,
+                    userAddress: data.address,
+                  });
+                }
 
                 setModals?.({});
               },

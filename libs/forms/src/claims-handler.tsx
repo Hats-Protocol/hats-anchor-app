@@ -148,12 +148,12 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
             A claims hatter exists at <span className='font-mono'>{formatAddress(instanceAddress)}</span>, but it is not
             an admin of this hat.
           </p>
-          <Select localForm={localForm} name='hatToMintTo'>
-            {map(availableAdmins, (a: AppHat) => (
+          <Select localForm={localForm} name='hatToMintTo' options={[]}>
+            {/* {map(availableAdmins, (a: AppHat) => (
               <option value={a.id} key={a.id}>
                 {hatIdDecimalToIp(BigInt(a.id))} {get(a, 'detailsObject.data.name', get(a, 'details'))}
               </option>
-            ))}
+            ))} */}
           </Select>
           {(hatToMintTo || hatToMintPended) && (
             <div className='flex justify-end'>

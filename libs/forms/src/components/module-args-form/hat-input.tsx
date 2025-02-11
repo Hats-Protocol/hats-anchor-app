@@ -44,13 +44,14 @@ const HatInput = ({ arg, localForm }: { arg: any; localForm: UseFormReturn }) =>
         localForm={localForm}
         placeholder='Select a hat'
         defaultValue={undefined}
-        options={{
-          required: !arg.optional,
-          validate: (value) => String(value) === 'custom' || transformAndVerify(value, arg.type),
-        }}
-        onChange={(e) => handleChangeHat(e, arg.name)}
+        // options={{
+        //   required: !arg.optional,
+        //   validate: (value) => String(value) === 'custom' || transformAndVerify(value, arg.type),
+        // }}
+        options={[]}
+        // onChange={(e) => handleChangeHat(e, arg.name)}
       >
-        <option value='custom'>Custom</option>
+        {/* <option value='custom'>Custom</option>
         {map(treeToDisplay, ({ id, detailsObject }: AppHat) => {
           const currentName = find(treeToDisplay, ['id', id])?.displayName;
           const detailsName = currentName || detailsObject?.data?.name;
@@ -60,7 +61,7 @@ const HatInput = ({ arg, localForm }: { arg: any; localForm: UseFormReturn }) =>
               {`${detailsName ? `${detailsName} - ` : ''}${idToIp(id)}`}
             </option>
           );
-        })}
+        })} */}
       </Select>
 
       {customHatSelections[arg.name] && (

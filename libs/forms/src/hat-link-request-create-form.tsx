@@ -80,12 +80,12 @@ const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats }: { newAdmin: strin
           <p className='font-medium'>New Admin:</p>
           <p>ID {hatIdDecimalToIp(BigInt(newAdmin))}</p>
         </div>
-        <Select label='Enter domain of the Top Hat to be linked' name='topHatDomain' localForm={localForm}>
-          {map(wearerTopHats, (hat: Hex) => (
+        <Select label='Enter domain of the Top Hat to be linked' name='topHatDomain' localForm={localForm} options={[]}>
+          {/* {map(wearerTopHats, (hat: Hex) => (
             <option value={hat} key={hat}>
               {hatIdDecimalToIp(BigInt(hat))}
             </option>
-          ))}
+          ))} */}
         </Select>
 
         <div className='flex justify-end'>

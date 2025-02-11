@@ -7,6 +7,7 @@ import { useHatDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
@@ -46,6 +47,12 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
         toast({
           title: 'Agreement compliance updated',
           description: `Updated agreement compliance status for ${formatAddress(user?.address)}`,
+        });
+        posthog.capture('Updated Agreement Compliance', {
+          chainId,
+          type: isEligible ? 'revoked' : 'forgiven',
+          moduleAddress: rule.address,
+          userAddress: user?.address,
         });
         setModals?.({});
         setIsLoading(false);

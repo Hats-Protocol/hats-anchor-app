@@ -56,12 +56,17 @@ const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
       <div className='flex flex-col gap-4'>
         <p>Relinquish admin rights over the linked Top Hat, completely disconnecting it from the current tree.</p>
 
-        <Select label='Enter domain of the Top Hat to be unlinked' name='topHatPrettyId' localForm={localForm}>
-          {map(parentOfTrees, (hat: Hex) => (
+        <Select
+          label='Enter domain of the Top Hat to be unlinked'
+          name='topHatPrettyId'
+          localForm={localForm}
+          options={[]}
+        >
+          {/* {map(parentOfTrees, (hat: Hex) => (
             <option value={hat} key={hat}>
               {hatIdDecimalToIp(BigInt(hat))}
             </option>
-          ))}
+          ))} */}
         </Select>
 
         <div className='flex justify-end'>

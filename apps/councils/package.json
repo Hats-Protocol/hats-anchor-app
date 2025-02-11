@@ -52,8 +52,5 @@
     "viem": "2.23.0",
     "wagmi": "^2.14.11",
     "webpack": "^5.94.0"
-  },
-  "devDependencies": {
-    "@types/showdown": "^2.0.6"
   }
 }
