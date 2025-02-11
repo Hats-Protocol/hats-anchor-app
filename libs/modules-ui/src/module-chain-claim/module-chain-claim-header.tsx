@@ -1,10 +1,9 @@
 import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
-import { useCouncilDetails, useSafeDetails, useToast, useWaitForSubgraph } from 'hooks';
+import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { filter, find, first, flatten, get, includes, keys, mapValues, size, toLower } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
-import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
@@ -36,7 +35,6 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
     chainId: chainId as SupportedChains,
   });
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
-  const { toast } = useToast();
   const {
     selectedHat,
     eligibilityRules: rawEligibilityRules,
@@ -128,10 +126,10 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
         hash,
         waitForSubgraph,
         onSuccess: () => {
-          toast({
-            title: 'Joined Council',
-            description: 'Redirecting you to the council page',
-          });
+          // toast({
+          //   title: 'Joined Council',
+          //   description: 'Redirecting you to the council page',
+          // });
 
           // TODO better message here
           if (address) {
@@ -142,6 +140,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
           }
 
           queryClient.invalidateQueries({ queryKey: ['readContract'] }); // TODO trying to invalidate is safe signer check
+          queryClient.invalidateQueries({ queryKey: ['safeDetails'] });
           setIsLoading(false);
           posthog.capture('Claimed Signer', {
             chainId,

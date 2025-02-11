@@ -3,12 +3,27 @@
 import { CONFIG } from '@hatsprotocol/config';
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
-import { capitalize, get, includes, isNaN, startsWith } from 'lodash';
+import { capitalize, get, includes, isNaN, keys, map, startsWith } from 'lodash';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
 import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { containsUpperCase, getPathParams } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
+
+const DEV_PAGES = {
+  subgraphs: {
+    link: '/subgraphs',
+    label: 'Subgraphs',
+  },
+  chain: {
+    link: '/buidl/chain',
+    label: 'Chain Module Deploy',
+  },
+  active: {
+    link: '/buidl/active',
+    label: 'Deactivate Hats',
+  },
+};
 
 const NavLinks = () => {
   const pathname = usePathname();
@@ -71,23 +86,11 @@ const NavLinks = () => {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align='start'>
-            <DropdownMenuItem asChild>
-              <Link href='/subgraphs' className='text-foreground/80 cursor-pointer'>
-                Subgraphs
+            {map(keys(DEV_PAGES), (page) => (
+              <Link href={DEV_PAGES[page as keyof typeof DEV_PAGES].link} className='text-foreground/80' key={page}>
+                <DropdownMenuItem>{DEV_PAGES[page as keyof typeof DEV_PAGES].label}</DropdownMenuItem>
               </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem asChild>
-              <Link href='/buidl/chain' className='text-foreground/80 cursor-pointer'>
-                <p>Chain Module Deploy</p>
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem asChild>
-              <Link href='/buidl/active' className='text-foreground/80 cursor-pointer'>
-                <p>Deactivate Hats</p>
-              </Link>
-            </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

@@ -2,14 +2,21 @@
 
 // import { useHatDetails } from 'hats-hooks';
 import { useOffchainCouncilDetails } from 'hooks';
-// import { get } from 'lodash';
+import { capitalize, keys, map } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
+import posthog from 'posthog-js';
 import { SupportedChains } from 'types';
-import { cn, Link } from 'ui';
+import { cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
 import { Login } from './login';
+
+const DEV_PAGES = {
+  mails: '/buidl/mails',
+  compliance: '/buidl/compliance',
+  payments: '/buidl/payments',
+};
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -32,6 +39,8 @@ const Navbar = () => {
   // });
   // logger.debug('nav', { offchainDetails, details });
 
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
   return (
     <div
       className={cn(
@@ -41,18 +50,31 @@ const Navbar = () => {
       )}
     >
       <div className='flex items-center gap-4'>
-        <Link href='/'>
-          <img src='/hats.png' className='h-10 w-10' alt='Hats Logo' />
-        </Link>
+        <Link href='/' className='text-foreground/80 hover:text-foreground flex items-center gap-4'>
+          <img src='/hats.png' className='size-10' alt='Hats Logo' />
 
-        {!chainId && !address && !createForm && (
-          <p className='text-lg font-bold'>
-            Hats <span className='font-normal'>Pro</span>
-          </p>
-        )}
+          {!chainId && !address && !createForm && (
+            <p className='text-lg font-bold'>
+              Hats <span className='font-normal'>Pro</span>
+            </p>
+          )}
+        </Link>
 
         {chainId && address && <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>}
         {createForm && <p className='text-lg font-bold'>New Hats Council</p>}
+
+        {isDev && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='text-sm'>Dev</DropdownMenuTrigger>
+            <DropdownMenuContent align='start'>
+              {map(keys(DEV_PAGES), (page) => (
+                <Link href={DEV_PAGES[page as keyof typeof DEV_PAGES]} className='text-foreground/80' key={page}>
+                  <DropdownMenuItem>{capitalize(page)}</DropdownMenuItem>
+                </Link>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <Login />

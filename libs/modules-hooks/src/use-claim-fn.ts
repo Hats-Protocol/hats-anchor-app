@@ -220,10 +220,15 @@ export const useClaimFn = ({
     }
     setStatus(CLAIM_STATUS.CLAIMING);
 
-    return claimFn?.()?.then(() => {
-      // MODAL here is used for pending tx handler, not claiming
-      onOpen();
-    });
+    return claimFn?.()
+      ?.then(() => {
+        // MODAL here is used for pending tx handler, not claiming
+        onOpen();
+      })
+      .catch((err) => {
+        console.log('claim error', err);
+        onError?.();
+      });
   };
 
   return {

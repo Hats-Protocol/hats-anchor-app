@@ -127,6 +127,18 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
             </Link>
           ),
         },
+        {
+          label: 'Threshold Type',
+          descriptor: <div>{councilDetails?.thresholdType}</div>,
+        },
+        {
+          label: 'Min Threshold',
+          descriptor: <div>{councilDetails?.minThreshold}</div>,
+        },
+        {
+          label: 'Target Threshold',
+          descriptor: <div>{councilDetails?.targetThreshold}</div>,
+        },
         ownerHat && {
           label: 'Owner Hat',
           descriptor: (
