@@ -9,10 +9,11 @@ import { toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
+import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Button, Link, OblongAvatar, Skeleton } from 'ui';
+import { Button, cn, Link, OblongAvatar, Skeleton } from 'ui';
 import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
@@ -31,7 +32,15 @@ const handleHatDetails = (detailsMetadata: string | undefined) => {
   return get(parsedDetailsMetadata, 'data');
 };
 
-const CouncilHeaderCard = ({ chainId, address }: { chainId?: number; address?: string }) => {
+const CouncilHeaderCard = ({
+  chainId,
+  address,
+  withLinks = true,
+}: {
+  chainId?: number;
+  address?: string;
+  withLinks?: boolean;
+}) => {
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
     address: address ?? '',
@@ -86,6 +95,8 @@ const CouncilHeaderCard = ({ chainId, address }: { chainId?: number; address?: s
   const offchainCouncilDescription = get(offchainCouncilDetails, 'creationForm.councilDescription');
   const organizationName = get(offchainCouncilDetails, 'organization.name');
 
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
   // TODO check signers vs hat wearers
   // TODO better loading state/check
   if (!safe) {
@@ -93,7 +104,12 @@ const CouncilHeaderCard = ({ chainId, address }: { chainId?: number; address?: s
   }
 
   return (
-    <div className='flex justify-between rounded-2xl border border-black bg-gray-50 p-4'>
+    <div
+      className={cn(
+        'flex justify-between rounded-2xl border border-black bg-gray-50 p-4',
+        isDev && !offchainCouncilDetails && 'bg-blue-50',
+      )}
+    >
       <div className='flex w-[30%] flex-col gap-2'>
         <div className='text-functional-link-primary text-xs uppercase'>{organizationName}</div>
         <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
@@ -103,7 +119,7 @@ const CouncilHeaderCard = ({ chainId, address }: { chainId?: number; address?: s
       </div>
 
       <div className='flex w-auto items-center'>
-        {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold')) ? (
+        {withLinks && size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold')) ? (
           <Link
             href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
             isExternal
@@ -128,7 +144,7 @@ const CouncilHeaderCard = ({ chainId, address }: { chainId?: number; address?: s
         <div className='flex items-center gap-2'>
           <div className='flex items-center'>
             <div>
-              {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold'))
+              {size(safeSigners) >= get(safe, 'threshold')
                 ? get(safe, 'threshold')
                 : `Pending ${get(councilDetails, 'minThreshold')}`}
             </div>
@@ -138,14 +154,21 @@ const CouncilHeaderCard = ({ chainId, address }: { chainId?: number; address?: s
                 : `/${get(primarySignerHat, 'maxSupply')}`}
             </div>
           </div>
-          <Link
-            className='flex items-center gap-2 text-black/80'
-            href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as Hex)}
-            isExternal
-          >
-            <div>Multisig</div>
-            <SafeIcon className='size-4' />
-          </Link>
+          {withLinks ? (
+            <Link
+              className='flex items-center gap-2 text-black/80'
+              href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as Hex)}
+              isExternal
+            >
+              <div>Multisig</div>
+              <SafeIcon className='size-4' />
+            </Link>
+          ) : (
+            <div className='flex items-center gap-2'>
+              <div>Multisig</div>
+              <SafeIcon className='size-4' />
+            </div>
+          )}
         </div>
 
         <div className='flex items-center gap-2'>
@@ -159,14 +182,21 @@ const CouncilHeaderCard = ({ chainId, address }: { chainId?: number; address?: s
 
         <div className='flex items-center gap-2'>
           <div>by</div>
-          <Link
-            href={`${explorerUrl(chainId ?? 11155111)}/address/${topHatWearerAddress}`}
-            className='flex items-center gap-2 text-black/80'
-            isExternal
-          >
-            <div>{topHatWearer}</div>
-            <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-5 w-4 rounded-sm' />
-          </Link>
+          {withLinks ? (
+            <Link
+              href={`${explorerUrl(chainId ?? 11155111)}/address/${topHatWearerAddress}`}
+              className='flex items-center gap-2 text-black/80'
+              isExternal
+            >
+              <div>{topHatWearer}</div>
+              <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-5 w-4 rounded-sm' />
+            </Link>
+          ) : (
+            <div className='flex items-center gap-2'>
+              <div>{topHatWearer}</div>
+              <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-5 w-4 rounded-sm' />
+            </div>
+          )}
         </div>
       </div>
     </div>

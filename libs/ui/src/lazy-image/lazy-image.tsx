@@ -60,7 +60,7 @@ export const LazyImage = ({
       )}
     >
       <div
-        className={cn('absolute -left-4 -top-4 h-[110%] w-[110%] bg-cover bg-center', imageClassName)}
+        className={cn('absolute -left-1 -top-1 h-[110%] w-[110%] bg-cover bg-center', imageClassName)}
         style={{ backgroundImage: `url(${useFallback ? '/icon.jpeg' : src})` }}
       />
     </div>

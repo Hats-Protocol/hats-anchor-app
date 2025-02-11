@@ -8,6 +8,7 @@ import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, includes, isEmpty, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
@@ -43,13 +44,14 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: chainId ?? 11155111,
   });
 
-  // TODO fetch module labels
-  // TODO more profile data about allowlist members
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
   const { data: rawAllowlist } = useAllowlist({
     id: offchainCouncilData?.membersSelectionModule,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
-  const allowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
+  const filteredAllowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
+  const allowlist = isDev ? rawAllowlist : filteredAllowlist;
   logger.debug('Selection Allowlist', allowlist);
 
   const remainingModules = filter(
@@ -169,6 +171,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
               offchainCouncilData={offchainCouncilData || undefined}
               form={form}
               councilData={councilDetails || undefined}
+              inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.address))}
             />
           );
         })

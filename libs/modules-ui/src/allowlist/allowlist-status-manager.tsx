@@ -7,9 +7,11 @@ import { useHatDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
+import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
 import { Button } from 'ui';
+import { formatAddress } from 'utils';
 import { useAccount } from 'wagmi';
 
 const AllowlistStatusManager = ({
@@ -21,19 +23,18 @@ const AllowlistStatusManager = ({
   currentEligibility,
 }: StatusManagerProps) => {
   const { address: userAddress } = useAccount();
+  const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
   const { toast } = useToast();
   const { setModals } = useOverlay();
   const queryClient = useQueryClient();
   const isEligible =
     get(currentEligibility, `[${rule.address}].eligible`) && get(currentEligibility, `[${rule.address}].goodStanding`);
-  console.log({ isEligible, currentEligibility });
   const { data: hatDetails } = useHatDetails({
     hatId: selectedHat?.id,
     chainId: chainId as SupportedChains,
   });
   const isWearing = !!find(get(hatDetails, 'wearers'), { id: toLower(user?.address) });
-  console.log({ hatDetails, isWearing });
 
   const allowlistManagerHatId = get(find(rule.liveParams, { label: 'Owner Hat' }), 'value') as bigint | undefined;
   const { data: allowlistManagerHat } = useHatDetails({
@@ -48,8 +49,10 @@ const AllowlistStatusManager = ({
 
   if (rule.address === labeledModules?.selection) {
     label = 'Appointed Council Member';
-    sublabel = 'This account was appointed by a Council Manager';
-    action = 'Revoke Appointment'; // re-adding is not handled via this flow
+    sublabel = isEligible
+      ? 'This account was appointed by a Council Manager'
+      : 'This account was previously a Council Member';
+    action = isEligible ? 'Revoke Appointment' : 'Appoint Member'; // re-adding is available in dev mode
   }
   if (rule.address === labeledModules?.criteria) {
     label = 'Passed Compliance Check';
@@ -60,11 +63,12 @@ const AllowlistStatusManager = ({
   }
 
   const handleAllowlistUpdate = async () => {
+    setIsLoading(true);
     const addFunction = find(rule.module.writeFunctions, { functionName: 'addAccount' });
     const removeFunction = find(rule.module.writeFunctions, { functionName: 'removeAccount' });
     const removeAndBurnFunction = find(rule.module.writeFunctions, { functionName: 'removeAccountAndBurnHat' });
 
-    const result = await callModuleFn({
+    await callModuleFn({
       func: (isEligible ? (isWearing ? removeAndBurnFunction : removeFunction) : addFunction) as ModuleFunction,
       args: { Account: user?.address },
       moduleId: rule.module.implementationAddress,
@@ -73,18 +77,29 @@ const AllowlistStatusManager = ({
         queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
         toast({
           title: 'Allowlist updated',
-          description: `Added ${userAddress} to the allowlist`,
+          description: `${isEligible ? 'Removed' : 'Added'} ${formatAddress(userAddress)} ${toLower(user?.address)} ${
+            isEligible ? 'from' : 'to'
+          } the allowlist`,
         });
         setModals?.({});
+        setIsLoading(false);
       },
+      onDecline: () => {
+        setIsLoading(false);
+      },
+      // onError: () => {
+      //   setIsLoading(false);
+      // },
     });
-
-    console.log({ result });
   };
 
+  if (isLoading) {
+    action = 'Updating...';
+  }
+
   return (
-    <div className='flex items-center justify-between gap-8'>
-      <div className='flex flex-col gap-1'>
+    <div className='flex items-center justify-between'>
+      <div className='flex w-3/5 flex-col gap-1'>
         <h4 className='font-medium'>{label}</h4>
         <p className='text-sm'>{sublabel}</p>
         {isEligible ? (
@@ -103,10 +118,14 @@ const AllowlistStatusManager = ({
       <Button
         variant={isEligible ? 'outline-red' : 'outline-green'}
         rounded='full'
-        disabled={!isAllowlistManager}
+        disabled={!isAllowlistManager || isLoading}
         onClick={handleAllowlistUpdate}
       >
-        {isEligible ? <BsXSquare className='size-4' /> : <BsCheckSquareFill className='size-4' />}
+        {isLoading ? null : isEligible ? ( // <Spinner className='size-4' />
+          <BsXSquare className='size-4' />
+        ) : (
+          <BsCheckSquareFill className='size-4' />
+        )}
         {action}
       </Button>
     </div>

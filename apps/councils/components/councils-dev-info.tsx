@@ -2,8 +2,8 @@
 
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCouncilDetails, useOffchainCouncilDetails, useToast } from 'hooks';
-import { compact, get, size } from 'lodash';
+import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useToast } from 'hooks';
+import { compact, get, map, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { DevInfo } from 'molecules';
 import { useMemo } from 'react';
@@ -36,6 +36,10 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { data: eligibilityRules } = useEligibilityRules({
     chainId: chainId as SupportedChains,
     address: eligibilityModule,
+  });
+  const { data: safeSigners } = useSafeDetails({
+    chainId: chainId as SupportedChains,
+    safeAddress: councilDetails?.safe as Hex,
   });
 
   const { mutateAsync: updateIsPaid } = useMutation({
@@ -85,7 +89,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
         },
         {
           label: 'Safe Signers',
-          descriptor: <div>{0}</div>,
+          descriptor: <div>{size(safeSigners)}</div>,
         },
         {
           label: 'Max Supply',
@@ -101,7 +105,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
           ),
         },
       ]),
-    [eligibilityModule, chainId, primarySignerHat],
+    [eligibilityModule, chainId, primarySignerHat, safeSigners],
   );
 
   const hsgInfo = useMemo(
@@ -143,6 +147,22 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     [councilDetails, chainId, ownerHat, topHatId],
   );
 
+  const safeSignersInfo = useMemo(() => {
+    return compact(
+      map(safeSigners, (signer, i) => ({
+        label: i === 0 ? `${size(safeSigners)} signer${size(safeSigners) === 1 ? '' : 's'}` : undefined,
+        key: signer,
+        descriptor: (
+          <div>
+            <Link href={`${explorerUrl(chainId || undefined)}/address/${signer}`} className='underline'>
+              {formatAddress(signer)}
+            </Link>
+          </div>
+        ),
+      })),
+    );
+  }, [safeSigners, chainId]);
+
   if (!chainId) return null;
 
   return (
@@ -151,13 +171,20 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
 
       <DevInfo title='HSG Info' devInfos={hsgInfo} />
 
-      <EligibilityRulesDevInfo chainId={chainId} eligibilityRules={eligibilityRules || undefined} />
+      <DevInfo title='Safe Signers' devInfos={safeSignersInfo} />
+
+      <EligibilityRulesDevInfo
+        chainId={chainId}
+        eligibilityRules={eligibilityRules || undefined}
+        eligibilityAddress={eligibilityModule || undefined}
+      />
 
       <div className='flex items-center gap-2'>
         <Switch
           checked={offchainCouncilDetails?.deployed}
           onCheckedChange={updateIsPaid}
-          className={cn('data-[state=checked]:bg-green-500', 'data-[state=unchecked]:bg-red-500')}
+          className={cn('data-[state=checked]:bg-functional-success', 'data-[state=unchecked]:bg-destructive')}
+          disabled={!offchainCouncilDetails}
         />
         <p className='hover:cursor-pointer' onClick={() => updateIsPaid(!offchainCouncilDetails?.deployed)}>
           {offchainCouncilDetails?.deployed ? 'Active' : 'Inactive'}
@@ -166,10 +193,15 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
 
       <Accordion type='single' collapsible>
         <AccordionItem value='offchain-council-details'>
-          <AccordionTrigger className='flex w-full items-center justify-between'>
+          <AccordionTrigger
+            className={cn(
+              'flex w-full items-center justify-between px-4 hover:no-underline',
+              !offchainCouncilDetails && 'bg-blue-50',
+            )}
+          >
             <h3>Offchain Council Details</h3>
           </AccordionTrigger>
-          <AccordionContent className='overflow-y-scroll bg-black/80'>
+          <AccordionContent className='overflow-y-scroll bg-black/80 p-4'>
             <pre className='text-white'>{JSON.stringify(offchainCouncilDetails, null, 2)}</pre>
           </AccordionContent>
         </AccordionItem>

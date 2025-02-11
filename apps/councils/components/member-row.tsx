@@ -5,11 +5,11 @@ import { usePrivy } from '@privy-io/react-auth';
 import { Modal, useOverlay } from 'contexts';
 import { useIsAdmin } from 'hats-hooks';
 import { useSafeDetails } from 'hooks';
-import { find, get, includes, map, toLower } from 'lodash';
+import { every, find, get, includes, keys, map, toLower } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { UseFormReturn } from 'react-hook-form';
-import { BsCheckSquareFill, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsExclamationSquare, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar } from 'ui';
 import { getAllWearers } from 'utils';
@@ -28,6 +28,7 @@ const MemberRow = ({
   offchainCouncilData,
   councilData,
   form,
+  inAllowlist,
 }: {
   member: CouncilMember;
   remainingModules: Ruleset | undefined;
@@ -37,6 +38,7 @@ const MemberRow = ({
   offchainCouncilData: OffchainCouncilData | undefined;
   councilData: ExtendedHSGV2 | undefined;
   form: UseFormReturn;
+  inAllowlist: boolean;
 }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
@@ -57,7 +59,10 @@ const MemberRow = ({
     hatId: signerHat?.id,
   });
   const isSigner = member?.id ? includes(safeOwners, getAddress(member.address)) : undefined;
-
+  const isEligible = every(
+    keys(currentEligibility),
+    (key) => get(currentEligibility, key)?.eligible && get(currentEligibility, key)?.goodStanding,
+  );
   if (!member) return null;
 
   const canEdit = (!!userAddress && toLower(member.address) === toLower(userAddress)) || isAdmin; // user can edit their own details
@@ -79,10 +84,14 @@ const MemberRow = ({
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
-  // TODO member is missing profile data for details edit form
-
   return (
-    <div className={cn('flex h-16 justify-between border-b border-gray-200', isDev && !offChainDetails && 'bg-sky-50')}>
+    <div
+      className={cn(
+        'flex h-16 justify-between border-b border-gray-200',
+        isDev && !offChainDetails && 'bg-sky-50',
+        isDev && !inAllowlist && 'bg-gray-200',
+      )}
+    >
       <div className='flex items-center'>
         {/* <div className='flex w-12 items-center justify-center'>
           <BaseCheckbox
@@ -98,19 +107,28 @@ const MemberRow = ({
 
       <div className='flex items-center'>
         <div className='flex h-full w-28 items-center justify-center gap-1'>
-          <p className='text-functional-success'>Yes</p>
-          <BsCheckSquareFill className='text-functional-success' />
+          {inAllowlist ? (
+            <>
+              <p className='text-functional-success'>Yes</p>
+              <BsCheckSquareFill className='text-functional-success' />
+            </>
+          ) : (
+            <>
+              <p className='text-destructive'>No</p>
+              <BsXSquareFill className='text-destructive' />
+            </>
+          )}
         </div>
 
         {map(remainingModules, (rule) => {
           const moduleEligibility = get(currentEligibility, rule.address);
-          const isEligible = get(moduleEligibility, 'eligible') && get(moduleEligibility, 'goodStanding');
+          const moduleEligible = get(moduleEligibility, 'eligible') && get(moduleEligibility, 'goodStanding');
           return (
             <div
               className='flex h-full w-28 items-center justify-center gap-1'
               key={`${rule.address}-${member.address}`}
             >
-              {isEligible ? (
+              {moduleEligible ? (
                 <>
                   <p className='text-functional-success'>Yes</p>
                   <BsCheckSquareFill className='text-functional-success' />
@@ -127,10 +145,15 @@ const MemberRow = ({
         })}
 
         <div className='flex h-full w-28 items-center justify-center gap-1'>
-          {isSigner ? (
+          {isEligible ? (
             <>
               <p className='text-functional-success'>Yes</p>
               <BsCheckSquareFill className='text-functional-success' />
+            </>
+          ) : isSigner ? (
+            <>
+              <p className='text-destructive'>No</p>
+              <BsExclamationSquare className='text-destructive' />
             </>
           ) : (
             <>

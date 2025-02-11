@@ -24,7 +24,7 @@ const UPDATE_USER_MUTATIONS = {
 export function useCreateOrUpdateUser({
   councilId,
   editingId,
-  memberType,
+  memberType = 'member',
   existingUsers,
   onAddSuccess,
   onEditSuccess,
@@ -51,9 +51,7 @@ export function useCreateOrUpdateUser({
         logger.error('No councilId provided');
         return;
       }
-      console.log('create success', data);
       const mutation = UPDATE_USER_MUTATIONS[memberType]; // TODO check if supported member type
-      console.log('mutation', councilId, existingUsers, mutation, concat(existingUsers || [], [data]));
       if (!mutation) {
         logger.error('No mutation found for member type', memberType);
         return;
@@ -67,7 +65,6 @@ export function useCreateOrUpdateUser({
           [`${memberType}s`]: concat(existingUsers || [], [data]),
         } as unknown as Variables)
         .then((result) => {
-          console.log('result', result);
           return result;
         })
         .catch((err) => {
