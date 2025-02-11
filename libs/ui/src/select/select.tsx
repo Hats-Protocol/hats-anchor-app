@@ -1,144 +1,155 @@
 'use client';
 
-import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import * as React from 'react';
+import {
+  components,
+  CSSObjectWithLabel,
+  GroupBase,
+  OptionProps,
+  SingleValueProps,
+  StylesConfig,
+  Theme,
+} from 'react-select';
+import Select, { Props } from 'react-select';
 
-import { cn } from '../lib/utils';
+export interface ReactSelectOption {
+  value: string;
+  label: string;
+  iconUrl: string;
+}
 
-const Select = SelectPrimitive.Root;
-
-const SelectGroup = SelectPrimitive.Group;
-
-const SelectValue = SelectPrimitive.Value;
-
-const SelectTrigger = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      'border-input ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
-      className,
-    )}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDown className='h-4 w-4 opacity-50' />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-));
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
-
-const SelectScrollUpButton = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollUpButton
-    ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}
-  >
-    <ChevronUp className='h-4 w-4' />
-  </SelectPrimitive.ScrollUpButton>
-));
-SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName;
-
-const SelectScrollDownButton = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollDownButton
-    ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}
-  >
-    <ChevronDown className='h-4 w-4' />
-  </SelectPrimitive.ScrollDownButton>
-));
-SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName;
-
-const SelectContent = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = 'popper', ...props }, ref) => (
-  <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      ref={ref}
-      className={cn(
-        'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border shadow-md',
-        position === 'popper' &&
-          'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-        className,
-      )}
-      position={position}
-      {...props}
-    >
-      <SelectScrollUpButton />
-      <SelectPrimitive.Viewport
-        className={cn(
-          'p-1',
-          position === 'popper' &&
-            'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]',
-        )}
-      >
-        {children}
-      </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
-    </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-));
-SelectContent.displayName = SelectPrimitive.Content.displayName;
-
-const SelectLabel = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Label>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Label ref={ref} className={cn('px-2 py-1.5 text-sm font-semibold', className)} {...props} />
-));
-SelectLabel.displayName = SelectPrimitive.Label.displayName;
-
-const SelectItem = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      className,
-    )}
-    {...props}
-  >
-    <span className='absolute right-2 flex h-3.5 w-3.5 items-center justify-center'>
-      <SelectPrimitive.ItemIndicator>
-        <Check className='h-4 w-4' />
-      </SelectPrimitive.ItemIndicator>
-    </span>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-  </SelectPrimitive.Item>
-));
-SelectItem.displayName = SelectPrimitive.Item.displayName;
-
-const SelectSeparator = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Separator>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Separator ref={ref} className={cn('bg-muted -mx-1 my-1 h-px', className)} {...props} />
-));
-SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
-
-export {
-  Select as BaseSelect,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectScrollDownButton,
-  SelectScrollUpButton,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
+type ExtendedSelectProps<T> = Props<T, false, GroupBase<T>> & {
+  iconClassName?: string;
 };
+
+export type ReactSelectProps<T extends ReactSelectOption> = Omit<ExtendedSelectProps<T>, 'components'>;
+
+const selectStyles = <T extends ReactSelectOption>(): StylesConfig<T, false, GroupBase<T>> => ({
+  control: (baseStyles: CSSObjectWithLabel, state: { isFocused: boolean }): CSSObjectWithLabel => ({
+    ...baseStyles,
+    minHeight: '36px',
+    backgroundColor: 'white',
+    border: '1px solid hsl(var(--input))',
+    borderRadius: '0.375rem',
+    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+    '&:hover': {
+      borderColor: 'hsl(var(--input))',
+    },
+    '&:focus-within': {
+      outline: 'none',
+      ring: '1px hsl(var(--ring))',
+      borderColor: 'hsl(var(--ring))',
+    },
+    padding: '1px',
+    transition: 'colors 150ms ease',
+    fontSize: '0.875rem',
+    '@media (min-width: 768px)': {
+      fontSize: '0.875rem',
+    },
+  }),
+  valueContainer: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
+    padding: '4px 12px',
+  }),
+  input: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
+    margin: 0,
+    padding: 0,
+  }),
+  placeholder: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
+    color: 'var(--muted-foreground)',
+  }),
+  singleValue: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
+    color: 'var(--foreground)',
+  }),
+  menu: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
+    borderRadius: '0.375rem',
+    overflow: 'hidden',
+    backgroundColor: 'white',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    zIndex: 50,
+  }),
+  option: (baseStyles: CSSObjectWithLabel, state: { isSelected: boolean; isFocused: boolean }): CSSObjectWithLabel => ({
+    ...baseStyles,
+    backgroundColor: state.isSelected
+      ? 'hsl(var(--primary) / 0.15)'
+      : state.isFocused
+        ? 'hsl(var(--accent) / 0.1)'
+        : 'transparent',
+    color: 'hsl(var(--foreground))',
+    cursor: 'pointer',
+    '&:active': {
+      backgroundColor: state.isSelected ? 'hsl(var(--primary) / 0.25)' : 'hsl(var(--accent) / 0.2)',
+    },
+  }),
+  indicatorSeparator: (): CSSObjectWithLabel => ({
+    display: 'none',
+  }),
+  dropdownIndicator: (baseStyles: CSSObjectWithLabel): CSSObjectWithLabel => ({
+    ...baseStyles,
+    padding: '4px 8px',
+  }),
+});
+
+const ReactSelectOption = <T extends ReactSelectOption>({
+  children,
+  ...props
+}: OptionProps<T, false, GroupBase<T>>) => (
+  <components.Option {...props}>
+    <div className='flex items-center gap-2'>
+      {props.data.iconUrl && (
+        <img
+          src={props.data.iconUrl}
+          alt={props.data.label}
+          className={(props.selectProps as ExtendedSelectProps<T>).iconClassName || 'h-5 w-5'}
+        />
+      )}
+      {children}
+    </div>
+  </components.Option>
+);
+
+const ReactSelectSingleValue = <T extends ReactSelectOption>({
+  children,
+  ...props
+}: SingleValueProps<T, false, GroupBase<T>>) => (
+  <components.SingleValue {...props}>
+    <div className='flex items-center gap-2'>
+      {props.data.iconUrl && (
+        <img
+          src={props.data.iconUrl}
+          alt={props.data.label}
+          className={(props.selectProps as ExtendedSelectProps<T>).iconClassName || 'h-5 w-5'}
+        />
+      )}
+      {children}
+    </div>
+  </components.SingleValue>
+);
+
+export const ReactSelect = <T extends ReactSelectOption>({ iconClassName, ...props }: ReactSelectProps<T>) => {
+  return (
+    <Select<T>
+      {...props}
+      components={{
+        Option: ReactSelectOption,
+        SingleValue: ReactSelectSingleValue,
+      }}
+      styles={selectStyles<T>()}
+      theme={(theme: Theme) => ({
+        ...theme,
+        colors: {
+          ...theme.colors,
+          primary: 'var(--primary)',
+          primary75: 'var(--primary-foreground)',
+          primary50: 'var(--primary-foreground)',
+          primary25: 'var(--accent)',
+        },
+      })}
+    />
+  );
+};
+
+ReactSelect.displayName = 'ReactSelect';

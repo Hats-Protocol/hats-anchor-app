@@ -52,7 +52,7 @@ export function SelectionTokensStep({ onNext }: StepProps) {
 
           <div className='w-full space-y-2'>
             <FormLabel className='font-bold'>Token</FormLabel>
-            <TokenSelect name='tokenRequirement.address' form={form} options={availableTokens} />
+            <TokenSelect name='tokenRequirement.address' localForm={form} options={availableTokens} />
           </div>
         </div>
 
