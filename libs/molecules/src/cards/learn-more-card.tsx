@@ -15,7 +15,7 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
   }
 
   return (
-    <Link href={url} className='hover:no-underline' isExternal>
+    <Link href={url} className='shadow hover:no-underline' isExternal>
       <Card className='flex h-full items-start gap-6 rounded-md border-gray-400 bg-white/70 p-5'>
         {displayIcon}
         <div>

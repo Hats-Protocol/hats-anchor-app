@@ -99,6 +99,13 @@ const MembersPage = ({ slug }: { slug: string }) => {
         setModals?.({});
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
         queryClient.invalidateQueries({ queryKey: ['allowlistDetails'] });
+
+        posthog.capture('Added Council User', {
+          councilId: offchainCouncilData?.id,
+          chainId,
+          type: 'member',
+          userAddress: user?.address,
+        });
       },
     });
   };

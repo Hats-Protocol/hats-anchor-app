@@ -30,7 +30,7 @@ export const Toggle = () => {
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup (~2.9)
 
   if (moduleDetailsLoading || treeLoading) {
-    return <Skeleton className='mx-4 my-2 md:mx-0' />;
+    return <Skeleton className='mx-4 my-2' />;
   }
 
   if (ruleSets) {

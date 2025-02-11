@@ -66,9 +66,9 @@ BigInt.prototype['toJSON'] = function () {
 
 const Providers = ({ children }: ProvidersProps) => {
   useEffect(() => {
-    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
-      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    }
+    // if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    // }
   }, []);
 
   return (

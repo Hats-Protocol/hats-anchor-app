@@ -27,7 +27,7 @@ interface UserFormProps extends CouncilMember {
   admins: CouncilMember[];
 }
 
-type AddAdminModalProps = {
+type AddUserModalProps = {
   chainId: number;
   type: 'admin' | 'member' | 'complianceAdmin' | 'allowlistAdmin' | 'agreementAdmin'; // future | 'election' | 'subscription';
   userLabel: string;
@@ -47,7 +47,7 @@ function AddUserModal({
   councilId,
   existingUsers,
   addUserLoading,
-}: AddAdminModalProps) {
+}: AddUserModalProps) {
   const [isLoading, setIsLoading] = addUserLoading || [false, () => {}];
   const { user } = usePrivy();
   const { setModals } = useOverlay();

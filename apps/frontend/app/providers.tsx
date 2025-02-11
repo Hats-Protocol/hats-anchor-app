@@ -4,7 +4,7 @@ import '../public/styles/style.css';
 import './global.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import 'react-datepicker/dist/react-datepicker.css';
-// import 'react-cmdk/dist/cmdk.css';
+import 'react-cmdk/dist/cmdk.css';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
 
@@ -67,9 +67,9 @@ const Providers = ({ children }: Props) => {
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
 
   useEffect(() => {
-    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
-      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    }
+    // if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    // }
   }, []);
 
   return (

@@ -86,7 +86,7 @@ const Providers = ({ children }: ProvidersProps) => {
     >
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={privyConfig()}>
-          <ReactQueryDevtools initialIsOpen={false} />
+          <ReactQueryDevtools initialIsOpen={false} position='left' />
           <OverlayContextProvider>{children}</OverlayContextProvider>
         </WagmiProvider>
       </QueryClientProvider>

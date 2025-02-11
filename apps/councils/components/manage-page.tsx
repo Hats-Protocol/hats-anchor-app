@@ -9,6 +9,7 @@ import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { idToIp } from 'shared';
 import { CouncilMember, SupportedChains } from 'types';
@@ -168,6 +169,13 @@ const ManagePage = ({ slug }: { slug: string }) => {
         sendTelegramMessage(
           `New council manager added: ${tgFormatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
         );
+
+        posthog.capture('Added Council Manager', {
+          councilId: offchainCouncilDetails?.id,
+          chainId,
+          type: 'admin',
+          userAddress: user.address,
+        });
 
         setModals?.({});
       },

@@ -132,7 +132,9 @@ const MailForm = () => {
           <div key={button.messageId} className='flex flex-col gap-2'>
             <Accordion type='single' collapsible>
               <AccordionItem value={button.messageId}>
-                <AccordionTrigger className='hover:no-underline'>{button.label} details</AccordionTrigger>
+                <AccordionTrigger className='px-4 hover:bg-blue-50 hover:no-underline'>
+                  {button.label} details
+                </AccordionTrigger>
                 <AccordionContent className='space-y-3 bg-white/40 p-2'>
                   <div className='flex items-center justify-between'>
                     <div className='flex gap-2'>

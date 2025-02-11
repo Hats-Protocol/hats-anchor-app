@@ -5,10 +5,11 @@ import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, map, size, split, toLower } from 'lodash';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
-import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage } from 'utils';
+import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
@@ -21,6 +22,8 @@ interface ModuleManagerProps {
   offchainCouncilDetails: OffchainCouncilData | undefined;
   slug: string;
 }
+
+// Selection Module has already been removed from the list when populating these Managers
 
 const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDetails }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
@@ -35,6 +38,7 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
   const managerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(managerHatId), '.')) === 2;
   logger.debug('isAdminHat', { managerHatId: managerHatId ? hatIdDecimalToIp(managerHatId) : undefined, isAdminHat });
+  const isCompliance = m.instanceAddress === criteriaModule;
 
   const { data: managerHat } = useHatDetails({
     chainId: chainId as SupportedChains,
@@ -76,7 +80,9 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
             handlePendingTx?.({
               hash: result?.transactionHash,
               txChainId: chainId ?? 11155111,
-              txDescription: `Added ${data.name || formatAddress(data.address)} as an compliance manager`,
+              txDescription: `Added ${data.name || formatAddress(data.address)} as an ${
+                isCompliance ? 'allowlist' : 'compliance'
+              } manager`,
               waitForSubgraph,
               onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
@@ -85,8 +91,15 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
 
                 sendTelegramMessage(
                   // TODO handle allowlist copy here in those cases
-                  `New compliance manager added: ${data.name} (${formatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
+                  `New ${isCompliance ? 'allowlist' : 'compliance'} manager added: ${data.name} (${tgFormatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
                 );
+
+                posthog.capture('Added Allowlist Manager', {
+                  councilId: offchainCouncilDetails?.id,
+                  chainId,
+                  type: isCompliance ? 'allowlistAdmin' : 'complianceAdmin',
+                  userAddress: data.address,
+                });
 
                 setModals?.({});
               },
@@ -108,7 +121,7 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
   if (!m) return null;
   logger.debug('criteriaModule', { instanceAddress: m.instanceAddress, criteriaModule });
 
-  if (m.instanceAddress === criteriaModule) {
+  if (isCompliance) {
     return (
       <div className='space-y-6' id={m.instanceAddress}>
         <h2 className='text-2xl font-bold'>Compliance Management</h2>

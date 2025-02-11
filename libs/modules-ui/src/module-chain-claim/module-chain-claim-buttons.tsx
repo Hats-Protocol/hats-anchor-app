@@ -3,6 +3,7 @@
 import { useEligibility } from 'contexts';
 import { concat, first, flatten, get, map, pick } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
+import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule, LabeledModules } from 'types';
@@ -85,10 +86,19 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
     handlePendingTx: undefined, // only needed for purchasing/claiming
   });
 
+  const handleClick = () => {
+    setActiveRule(rule);
+    posthog.capture('Viewed Module Requirements', {
+      moduleId: rule.module.id,
+      moduleAddress: rule.address,
+      chainId,
+    });
+  };
+
   return (
     <Button
       variant='outline'
-      onClick={() => setActiveRule(rule)}
+      onClick={handleClick}
       className={cn('block-size-auto h-auto w-auto justify-start whitespace-normal bg-white p-4', {
         'border-2 border-gray-800': activeRule?.address === rule.address,
         'border border-gray-300': activeRule?.address !== rule.address,

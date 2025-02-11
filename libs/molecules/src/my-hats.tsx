@@ -31,7 +31,7 @@ const MyHatsCard = ({
     <>
       <div className='flex flex-col justify-between gap-10 md:flex-row'>
         <div className='flex flex-col gap-2'>
-          {!!name ? <p className='text-2xl'>gm {name} 👋</p> : <Skeleton className='h-10 w-32' />}
+          {!!name ? <p className='text-2xl font-medium'>gm {name} 👋</p> : <Skeleton className='h-10 w-32' />}
 
           {hasHats && <p className='text-lg'>Here&apos;s what&apos;s happening with your hats</p>}
         </div>
@@ -72,7 +72,7 @@ const MyHats = () => {
   if (!currentUser) {
     return (
       <div className='flex flex-col gap-2'>
-        <h2 className='text-xl'>
+        <h2 className='text-xl font-semibold'>
           Welcome to Hats Protocol!{' '}
           <span role='img' aria-label='Hats ball cap'>
             🧢
@@ -106,9 +106,9 @@ const MyHats = () => {
     // some hats loaded
     return (
       <MyHatsCard name={ensName || formatAddress(currentUser)} hasHats={true}>
-        <Card className='space-y-4 bg-white/60 p-8'>
+        <Card className='space-y-4 bg-white/60 p-8 shadow'>
           <div className='flex items-center justify-between'>
-            <h2 className='text-xl'>Your hats</h2>
+            <h2 className='text-2xl font-semibold tracking-tight'>Your hats</h2>
             {sortedActiveHats.total > (isMobile ? MOBILE_HATS_TO_SHOW : HATS_TO_SHOW) && (
               <Link href={`/wearers/${currentUser}`}>
                 <div className='flex items-center gap-2'>
@@ -134,7 +134,7 @@ const MyHats = () => {
     <MyHatsCard name={ensName || formatAddress(currentUser)}>
       <Card className='bg-white/60 p-8'>
         <div className='flex flex-col items-center justify-center'>
-          <h2 className='text-xl'>Your hats will appear here!</h2>
+          <h2 className='text-xl font-semibold'>Your hats will appear here!</h2>
 
           <p>Create a tree or check out one of the featured trees.</p>
         </div>

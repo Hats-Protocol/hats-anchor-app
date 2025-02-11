@@ -28,7 +28,7 @@ const RootPage = async () => {
 
         <div className='flex w-full flex-col items-start gap-10'>
           <div className='flex w-full flex-1 flex-col gap-10'>
-            <Card className='min-h-[320px] bg-white bg-opacity-50 px-9 py-8'>
+            <Card className='min-h-[320px] bg-white bg-opacity-50 px-9 py-8 shadow'>
               <div className='flex w-full flex-col gap-4'>
                 <h2 className='text-2xl font-semibold tracking-tight'>Explore featured trees</h2>
 
@@ -50,7 +50,7 @@ const RootPage = async () => {
               </div>
             </Card>
 
-            <Card className='bg-white bg-opacity-50 px-9 py-8'>
+            <Card className='bg-white bg-opacity-50 px-9 py-8 shadow'>
               <div className='flex flex-col gap-4'>
                 <h2 className='text-2xl font-semibold tracking-tight'>New Integrations</h2>
 
@@ -63,7 +63,7 @@ const RootPage = async () => {
             </Card>
           </div>
 
-          <Card className='mx-auto max-w-[427px] bg-white bg-opacity-50 px-9 py-8 md:max-w-none'>
+          <Card className='mx-auto max-w-[427px] bg-white bg-opacity-50 px-9 py-8 shadow md:max-w-none'>
             <div className='flex flex-col gap-4'>
               <h2 className='text-2xl font-semibold tracking-tight'>Learn more about Hats</h2>
 
