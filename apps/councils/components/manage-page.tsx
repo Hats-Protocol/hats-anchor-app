@@ -4,7 +4,8 @@ import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
-import { useOverlay } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
+import { CouncilTransferForm } from 'forms';
 import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
@@ -13,7 +14,7 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import { idToIp } from 'shared';
 import { CouncilMember, SupportedChains } from 'types';
-import { Button } from 'ui';
+import { Button, Skeleton } from 'ui';
 import { MemberAvatar } from 'ui';
 import {
   createHatsClient,
@@ -72,7 +73,18 @@ const eligibilityRuleMenuLabels = (rule: any, offchainCouncilDetails: any) => {
   return rule.module.name;
 };
 
-const SectionMenu = ({ sections }: { sections: { value: string; label: string }[] }) => {
+const SectionMenu = ({ sections, isLoading }: { sections: { value: string; label: string }[]; isLoading: boolean }) => {
+  if (isLoading) {
+    return (
+      <div className='flex min-w-40 flex-col gap-4'>
+        <Skeleton className='h-4 w-full' />
+        <Skeleton className='h-4 w-full' />
+        <Skeleton className='h-4 w-full' />
+        <Skeleton className='h-4 w-full' />
+      </div>
+    );
+  }
+
   return (
     <div className='flex flex-col gap-4'>
       {map(sections, (section) => (
@@ -185,20 +197,32 @@ const ManagePage = ({ slug }: { slug: string }) => {
   return (
     <div className='flex gap-4 pt-10'>
       <div className='flex w-1/5'>
-        <SectionMenu sections={menuOptions} />
+        <SectionMenu
+          sections={menuOptions}
+          isLoading={councilDetailsLoading || !councilDetails || eligibilityRulesLoading}
+        />
       </div>
 
       <div className='flex w-4/5 flex-col gap-10'>
         <div className='flex flex-col gap-4' id='threshold'>
-          <h2 className='text-2xl font-bold'>Signer Threshold</h2>
+          {councilDetailsLoading ? (
+            <div className='flex flex-col gap-6'>
+              <Skeleton className='h-10 w-1/4' />
+              <Skeleton className='h-20 w-1/2' />
+            </div>
+          ) : (
+            <>
+              <h2 className='text-2xl font-bold'>Signer Threshold</h2>
 
-          <div className='mt-2'>
-            <SignersIndicator
-              threshold={toNumber(get(councilDetails, 'minThreshold'))}
-              signers={size(signers)}
-              maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
-            />
-          </div>
+              <div className='mt-2'>
+                <SignersIndicator
+                  threshold={toNumber(get(councilDetails, 'minThreshold'))}
+                  signers={size(signers)}
+                  maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                />
+              </div>
+            </>
+          )}
 
           {user && userIsManager && (
             <div className='mt-2 flex'>
@@ -217,31 +241,50 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
         {/* TOP HAT CAN EDIT MANAGERS */}
         <div className='space-y-6' id='admin'>
-          <h2 className='text-2xl font-semibold'>Council Management</h2>
-
-          <div className='space-y-4'>
-            <div className='space-y-1'>
-              <h3 className='font-bold'>Council Managers</h3>
-              <p className='text-sm'>Can select Council Members</p>
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              {map(ownerHat?.wearers, (owner) => {
-                const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                  address: getAddress(owner.id),
-                });
-                return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner?.id} />;
-              })}
-            </div>
-
-            {user && userIsTopHat && (
-              <div className='mt-2 flex'>
-                <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ 'addUser-admin': true })}>
-                  Add a Council Manager
-                </Button>
+          {councilDetailsLoading || eligibilityRulesLoading ? (
+            <div className='flex flex-col gap-6'>
+              <Skeleton className='h-10 w-1/4' />
+              <Skeleton className='h-14 w-1/2' />
+              <div className='flex flex-col gap-2'>
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <>
+              <h2 className='text-2xl font-semibold'>Council Management</h2>
+
+              <div className='space-y-4'>
+                <div className='space-y-1'>
+                  <h3 className='font-bold'>Council Managers</h3>
+                  <p className='text-sm'>Can select Council Members</p>
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  {map(ownerHat?.wearers, (owner) => {
+                    const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
+                      address: getAddress(owner.id),
+                    });
+                    return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner?.id} />;
+                  })}
+                </div>
+
+                {user && userIsTopHat && (
+                  <div className='mt-2 flex'>
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => setModals?.({ 'addUser-admin': true })}
+                    >
+                      Add a Council Manager
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 
           <AddUserModal
             type='admin'
@@ -266,36 +309,74 @@ const ManagePage = ({ slug }: { slug: string }) => {
           />
         ))}
 
+        {(councilDetailsLoading || eligibilityRulesLoading) && (
+          <div className='space-y-6'>
+            <div className='flex flex-col gap-6'>
+              <Skeleton className='h-10 w-1/4' />
+              <Skeleton className='h-14 w-1/2' />
+              <div className='flex flex-col gap-2'>
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TOP HAT CAN TRANSFER */}
         <div className='space-y-6' id='ownership'>
-          <h2 className='text-2xl font-bold'>Organization Ownership</h2>
-
-          <div className='space-y-4'>
-            <div className='space-y-1'>
-              <h3 className='font-bold'>Organization Owner</h3>
-              <p className='text-sm'>Can change all councils and admins</p>
-            </div>
-
-            <div className='space-y-2'>
-              {map(topHatDetails?.wearers, (owner) => {
-                // there will only be one wearer
-                const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                  address: getAddress(owner.id),
-                });
-
-                return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner.id} />;
-              })}
-            </div>
-
-            {user && userIsTopHat && (
-              <div className='mt-2 flex'>
-                <Button variant='outline-blue' rounded='full' disabled>
-                  Transfer Ownership
-                </Button>
+          {councilDetailsLoading || topHatDetailsLoading ? (
+            <div className='flex flex-col gap-6'>
+              <Skeleton className='h-10 w-1/4' />
+              <Skeleton className='h-14 w-1/2' />
+              <div className='flex flex-col gap-2'>
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
+                <Skeleton className='h-5 w-1/2' />
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <>
+              <h2 className='text-2xl font-bold'>Organization Ownership</h2>
+
+              <div className='space-y-4'>
+                <div className='space-y-1'>
+                  <h3 className='font-bold'>Organization Owner</h3>
+                  <p className='text-sm'>Can change all councils and admins</p>
+                </div>
+
+                <div className='space-y-2'>
+                  {map(topHatDetails?.wearers, (owner) => {
+                    // there will only be one wearer
+                    const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
+                      address: getAddress(owner.id),
+                    });
+
+                    return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner.id} />;
+                  })}
+                </div>
+
+                {user && userIsTopHat && (
+                  <div className='mt-2 flex'>
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => setModals?.({ 'transfer-ownership': true })}
+                    >
+                      Transfer Ownership
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
+
+        <Modal name='transfer-ownership' title='Transfer Ownership' size='lg'>
+          <CouncilTransferForm topHatWearerAddress={get(topHatDetails, 'wearers[0].id')} />
+        </Modal>
       </div>
     </div>
   );

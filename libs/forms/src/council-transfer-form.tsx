@@ -1,10 +1,10 @@
 'use client';
 
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
-import { includes } from 'lodash';
+import posthog from 'posthog-js';
 import { useForm } from 'react-hook-form';
 import { Button } from 'ui';
 import { formatAddress } from 'utils';
@@ -12,13 +12,14 @@ import { useChainId, useEnsAddress } from 'wagmi';
 
 import { AddressInput, Form } from './components';
 
-const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
+const CouncilTransferForm = ({ topHatWearerAddress }: CouncilTransferFormProps) => {
   const currentChainId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
   const { handlePendingTx } = useOverlay();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
+  const queryClient = useQueryClient();
 
   const hatId = selectedHat?.id;
   const newWearer = useDebounce<string>(watch('newWearer', null));
@@ -32,11 +33,11 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
 
   const newWearerAddress = newWearerResolvedAddress ?? newWearer;
 
-  const isTopHat = hatId && !includes(hatIdDecimalToIp(BigInt(hatId)), '.');
+  // const isTopHat = hatId && !includes(hatIdDecimalToIp(BigInt(hatId)), '.');
 
   const { writeAsync, isLoading } = useHatContractWrite({
     functionName: 'transferHat',
-    args: [hatId, currentWearerAddress, newWearerAddress],
+    args: [hatId, topHatWearerAddress, newWearerAddress],
     chainId,
     waitForSubgraphToastData: {
       title: 'Transaction confirmed. Waiting for indexing...',
@@ -44,16 +45,21 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
       duration: 8000,
     },
     successToastData: {
-      title: `${isTopHat ? 'Top ' : ''}Hat Transferred!`,
-      description:
-        hatId &&
-        `Successfully transferred ${isTopHat ? 'top ' : ''}Hat #${hatIdDecimalToIp(BigInt(hatId))} from ${formatAddress(
-          currentWearerAddress,
-        )} to ${formatAddress(newWearerAddress)}`,
+      title: `Council Transferred!`,
+      description: hatId && `Successfully transferred Council to ${formatAddress(newWearerAddress)}`,
     },
     queryKeys: [['hatDetails'], ['treeDetails'], ['wearerDetails'], ['orgChartTree'], ['wearerAndControllerDetails']],
     waitForSubgraph,
     handlePendingTx,
+    handleSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
+      posthog.capture('Transferred Council', {
+        chainId,
+        hatId,
+        newWearerAddress,
+      });
+    },
   });
 
   const onSubmit = async () => {
@@ -67,21 +73,18 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
     <Form {...localForm}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className='space-y-4'>
-          <p>Transfer the selected hat to another address.</p>
+          <p>Transfer the Council to another address</p>
 
-          <div>
-            <p>Tree Domain</p>
-            {hatId && <p className='font-mono'>#{hatIdDecimalToIp(BigInt(hatId))}</p>}
-          </div>
+          <AddressInput
+            label='New Owner Address'
+            subLabel='Will have total control over the Council, Admins and Safe'
+            name='newOwner'
+            localForm={localForm}
+            chainId={chainId}
+            hideAddressButtons
+          />
 
-          <div>
-            <p>Current wearer address: </p>
-            <pre>{currentWearerAddress}</pre>
-          </div>
-
-          <AddressInput label='New Wearer Address' name='newWearer' localForm={localForm} chainId={chainId} />
-
-          <div className='flex justify-end'>
+          <div className='flex justify-end pt-6'>
             <Button type='submit' disabled={isDisabled}>
               Transfer
             </Button>
@@ -92,8 +95,8 @@ const HatTransferForm = ({ currentWearerAddress }: HatTransferFormProps) => {
   );
 };
 
-interface HatTransferFormProps {
-  currentWearerAddress: string;
+interface CouncilTransferFormProps {
+  topHatWearerAddress: string;
 }
 
-export { HatTransferForm };
+export { CouncilTransferForm };

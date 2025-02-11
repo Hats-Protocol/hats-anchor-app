@@ -68,6 +68,12 @@ function UpdateAgreementModal({
         // invalidate agreement claim query
         queryClient.invalidateQueries({ queryKey: ['agreement'] });
         setModals?.({});
+        posthog.capture('Updated Agreement', {
+          chainId,
+          moduleAddress: moduleDetails.instanceAddress,
+          agreementHash,
+          gracePeriod: localGracePeriod,
+        });
       },
       onDecline: () => {
         setIsLoading(false);
@@ -88,7 +94,7 @@ function UpdateAgreementModal({
   }, [agreement]);
 
   return (
-    <Modal name='updateAgreement' title='Update Agreement'>
+    <Modal name='updateAgreement' title='Update Agreement' size='xl'>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='flex flex-col gap-4'>

@@ -1,11 +1,20 @@
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { flatten, get, last, map, size } from 'lodash';
+import { find, flatten, get, last, map, size } from 'lodash';
 import { Link } from 'ui';
 import { explorerUrl, formatAddress, hatLink, shortDateFormatter } from 'utils';
-import { formatUnits } from 'viem';
+import { erc20Abi, formatUnits } from 'viem';
+import { useReadContract } from 'wagmi';
 
-const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainId: number }) => {
+const ModuleParamDisplay = ({
+  param,
+  chainId,
+  tokenDecimals,
+}: {
+  param: ModuleParameter;
+  chainId: number;
+  tokenDecimals: number;
+}) => {
   if (param.displayType === 'hat') {
     return (
       <div>
@@ -47,10 +56,10 @@ const ModuleParamDisplay = ({ param, chainId }: { param: ModuleParameter; chainI
   }
   // handle timestamp before uint256 since both are bigint
   if (param.solidityType === 'uint256') {
-    // TODO handle decimals
+    // decimals passed in from parent
     return (
       <div>
-        <span className='text-sm'>{param.label}</span> - {formatUnits(param.value as bigint, 6)}
+        <span className='text-sm'>{param.label}</span> - {formatUnits(param.value as bigint, tokenDecimals || 18)}
       </div>
     );
   }
@@ -84,10 +93,26 @@ const ModuleParamsDevDisplay = ({
   params: ModuleParameter[] | undefined;
   chainId: number;
 }) => {
+  const tokenParam = find(params, { label: 'Token Address' });
+  const tokenAddress = tokenParam?.value as Hex;
+  const { data: tokenDecimals } = useReadContract({
+    address: tokenAddress,
+    abi: erc20Abi,
+    functionName: 'decimals',
+    chainId,
+  });
+
   return (
     <div className='flex flex-col items-end gap-1'>
       {map(params, (param) => {
-        return <ModuleParamDisplay param={param} chainId={chainId} key={`${moduleId}-${param.label}`} />;
+        return (
+          <ModuleParamDisplay
+            param={param}
+            chainId={chainId}
+            key={`${moduleId}-${param.label}`}
+            tokenDecimals={tokenDecimals}
+          />
+        );
       })}
     </div>
   );

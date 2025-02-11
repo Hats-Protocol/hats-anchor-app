@@ -7,6 +7,7 @@ import { useHatDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
@@ -80,6 +81,12 @@ const AllowlistStatusManager = ({
           description: `${isEligible ? 'Removed' : 'Added'} ${formatAddress(userAddress)} ${toLower(user?.address)} ${
             isEligible ? 'from' : 'to'
           } the allowlist`,
+        });
+        posthog.capture('Updated Allowlist', {
+          chainId,
+          type: isEligible ? 'removeFromAllowlist' : 'addToAllowlist',
+          moduleAddress: rule.address,
+          userAddress: user?.address,
         });
         setModals?.({});
         setIsLoading(false);

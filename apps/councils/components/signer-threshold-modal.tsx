@@ -110,6 +110,12 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
           onSuccess: () => {
             // invalidate queries
             queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+
+            posthog.capture('Updated Threshold', {
+              chainId,
+              councilAddress: signer.id,
+              thresholdConfig: JSON.stringify({ thresholdType, min, target }),
+            });
             setIsLoading(false);
             setModals?.({});
           },
@@ -121,6 +127,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
   };
 
   const setMaxMembers = async () => {
+    setIsLoading(true);
     if (!signerHat?.id) return;
 
     return writeContractAsync({
@@ -138,6 +145,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
           onSuccess: () => {
             // invalidate queries
             queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+            setIsLoading(false);
           },
         });
       })
@@ -149,7 +157,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
   if (!signer) return null;
 
   return (
-    <Modal name='hsgThreshold' title='Signer Threshold'>
+    <Modal name='hsgThreshold' title='Signer Threshold' size='lg'>
       <Form {...localForm}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className='flex flex-col gap-4'>

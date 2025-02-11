@@ -154,7 +154,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
   }, [modals?.paymentDetailsModal, parentForm, modalForm]);
 
   return (
-    <Modal name='paymentDetailsModal' title='Invoicing Details' size='2xl'>
+    <Modal name='paymentDetailsModal' title='Invoicing Details' size='xl'>
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='relative rounded-lg bg-white'>
           <div className='space-y-6'>
@@ -164,7 +164,11 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
                 Provide invoice contact information here and we&apos;ll reach out to setup a recurring payment system
                 that fits your preferences.
               </p>
-              <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>0.1 ETH / month</p>
+
+              <div className='mt-4 flex items-center gap-2'>
+                <img src='/chains/ethereum.svg' className='size-5' />
+                <p className='flex items-center gap-2 text-lg font-medium text-black/90'>0.1 ETH / month</p>
+              </div>
             </div>
 
             <div className='space-y-2'>

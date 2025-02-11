@@ -90,7 +90,6 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
                 setManagerLoading(false);
 
                 sendTelegramMessage(
-                  // TODO handle allowlist copy here in those cases
                   `New ${isCompliance ? 'allowlist' : 'compliance'} manager added: ${data.name} (${tgFormatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
                 );
 

@@ -5,6 +5,7 @@ import { useOverlay } from 'contexts';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, includes, map } from 'lodash';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { StatusManagerProps, SupportedChains } from 'types';
@@ -75,6 +76,11 @@ const Erc20StatusManager = ({ rule, user, selectedHat, chainId, currentEligibili
       toast({
         title: 'Wearer Status Updated',
         description: 'The wearer status has been updated successfully',
+      });
+      posthog.capture('Updated Wearer Status', {
+        chainId,
+        moduleAddress: rule.address,
+        userAddress: user?.address,
       });
       setModals?.({});
       setIsLoading(false);

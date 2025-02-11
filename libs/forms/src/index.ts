@@ -3,6 +3,7 @@ export * from './chain-module-form';
 export * from './claims-handler';
 export * from './components';
 export * from './council-create-form';
+export * from './council-transfer-form';
 export * from './deactivation-form';
 export * from './hat-basics-form';
 export * from './hat-claim-form';
