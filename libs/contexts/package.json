@@ -30,6 +30,7 @@
     "posthog-js": "^1.216.0",
     "react-hook-form": "^7.50.1",
     "react-icons": "^4.7.1",
+    "showdown": "^2.1.0",
     "types": "workspace:*",
     "viem": "2.23.0",
     "wagmi": "^2.14.11"

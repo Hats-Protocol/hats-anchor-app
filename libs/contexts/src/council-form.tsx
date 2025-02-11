@@ -38,6 +38,7 @@ import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
+import showdown from 'showdown';
 import {
   CompletedOptionalSteps,
   CouncilFormData,
@@ -437,9 +438,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               break;
             case 'agreement':
               toggleOptionalStep('agreement');
+              // need to convert html to markdown before pinning
+              const converter = new showdown.Converter();
+              const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
+
               payload = {
                 ...payload,
-                agreement: formData.agreement,
+                agreement: agreementMarkdown,
                 agreementAdmins: formData.agreementAdmins,
                 createAgreementAdminRole: formData.createAgreementAdminRole === 'true',
               };
