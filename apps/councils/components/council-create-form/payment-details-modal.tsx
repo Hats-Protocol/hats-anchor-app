@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, FormDescription, Input } from 'forms';
 import { capitalize, compact, get, includes, keys, map, reject, toNumber } from 'lodash';
+import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, SupportedChains } from 'types';
@@ -117,6 +118,11 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
 
         await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
           logger.error('Error sending telegram message:', error);
+        });
+        posthog.capture('Added Invoice Details', {
+          councilName,
+          chain: chainsMap(chainId)?.name,
+          url,
         });
       }
 

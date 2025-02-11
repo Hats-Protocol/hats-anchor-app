@@ -35,6 +35,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useToast, useWaitForSubgraph } from 'hooks';
 import { find, first, get, map, toNumber, values } from 'lodash';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import {
@@ -1252,6 +1253,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           sendTelegramMessage(`${message} ${links}`);
           logger.debug('Telegram notification sent');
           // TODO email notification
+
+          posthog.capture('Council Deployed', {
+            councilName: formData.councilName,
+            organizationName: formData.organizationName,
+            chain: chainsMap(chainId)?.name,
+            hsgAddress,
+          });
 
           const redirectUrl = `/councils/${chainIdToString(chainId)}:${hsgAddress}/members`;
 

@@ -173,7 +173,6 @@ const ManagePage = ({ slug }: { slug: string }) => {
       },
     });
   };
-  console.log({ userIsManager, userIsTopHat });
 
   return (
     <div className='flex gap-4 pt-10'>

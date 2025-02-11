@@ -7,6 +7,7 @@ import { get, isEmpty, map, some, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
 import { Button, MemberAvatar } from 'ui';
@@ -148,6 +149,11 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   };
 
   const handleDeploy = async () => {
+    posthog.capture('Initiated Council Deployment', {
+      councilName: formData.councilName,
+      organizationName: formData.organizationName,
+      chain: chainsMap(toNumber(formData.chain?.value))?.name,
+    });
     deployCouncil();
   };
 
@@ -271,7 +277,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Roles'
         isCompleted={isSelectionStepValid()}
-        onEdit={canEdit ? () => setCurrentStep('selection', 'members') : undefined}
+        onEdit={canEdit ? () => setCurrentStep('selection', 'management') : undefined}
       >
         <div className='space-y-8'>
           <RoleSummary title='Council Members' members={formData.members || []} />

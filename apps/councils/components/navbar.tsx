@@ -36,14 +36,20 @@ const Navbar = () => {
     <div
       className={cn(
         'flex min-h-[56px] w-full items-center justify-between bg-gray-50 px-2',
-        (createForm || isJoinLink) && 'bg-gray-100',
-        chainId && address && !isJoinLink && 'bg-gray-200',
+        (createForm || (!chainId && !address)) && 'bg-gray-100',
+        chainId && address && 'bg-gray-200',
       )}
     >
       <div className='flex items-center gap-4'>
         <Link href='/'>
           <img src='/hats.png' className='h-10 w-10' alt='Hats Logo' />
         </Link>
+
+        {!chainId && !address && !createForm && (
+          <p className='text-lg font-bold'>
+            Hats <span className='font-normal'>Pro</span>
+          </p>
+        )}
 
         {chainId && address && <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>}
         {createForm && <p className='text-lg font-bold'>New Hats Council</p>}
