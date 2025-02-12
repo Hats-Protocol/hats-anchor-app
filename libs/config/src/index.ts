@@ -5,6 +5,7 @@ export * from './councils';
 export * from './ecosystem';
 export * from './etherscan';
 export * from './ipfs';
+export * from './mail';
 export * from './metadata';
 export * from './modules';
 export * from './snapshot-elections';

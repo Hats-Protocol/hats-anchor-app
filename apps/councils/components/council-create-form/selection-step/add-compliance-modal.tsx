@@ -28,7 +28,6 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
       name: editingAdmin?.name || '',
     },
   });
-  console.log(editingAdmin);
 
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -126,7 +125,7 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
       name={`addComplianceModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
       title={editingAdmin ? 'Edit Compliance Manager' : 'Add Compliance Manager'}
       onClose={handleClose}
-      // size='2xl'
+      size='lg'
     >
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>

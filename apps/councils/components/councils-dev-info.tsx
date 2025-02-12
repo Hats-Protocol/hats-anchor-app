@@ -1,5 +1,11 @@
 'use client';
 
+import {
+  COUNCIL_DEPLOYED,
+  COUNCIL_SETUP_COMPLETE,
+  INITIAL_INVITE,
+  NOTIFY_COMPLIANCE_MANAGER_AFTER_DEPLOY,
+} from '@hatsprotocol/config';
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useToast } from 'hooks';
@@ -13,6 +19,9 @@ import { councilsGraphqlClient, explorerUrl, formatAddress, hatLink, parseCounci
 import { Hex } from 'viem';
 
 import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
+import { MailForm } from './mail-form';
+
+const MAIL_FORMS = [INITIAL_INVITE, NOTIFY_COMPLIANCE_MANAGER_AFTER_DEPLOY, COUNCIL_DEPLOYED, COUNCIL_SETUP_COMPLETE];
 
 const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
@@ -218,6 +227,20 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      <div className='border-b border-black/20' />
+
+      <div className='flex flex-col gap-4'>
+        <h3 className='text-sm font-medium'>Mail Options</h3>
+        {map(MAIL_FORMS, (mailForm) => (
+          <MailForm
+            key={mailForm.messageId}
+            mailForm={mailForm}
+            offchainCouncilDetails={offchainCouncilDetails || undefined}
+            councilDetails={councilDetails || undefined}
+          />
+        ))}
+      </div>
     </div>
   );
 };

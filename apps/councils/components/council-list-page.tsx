@@ -6,6 +6,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { useCouncilsList, useMediaStyles } from 'hooks';
 import { concat, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Skeleton } from 'ui';
 import { chainIdToString, fetchAllowlistEntries, ipfsUrl } from 'utils';
@@ -35,6 +36,7 @@ const EMPTY_COUNCIL_STEPS = [
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
   const { user, login } = usePrivy();
+  const router = useRouter();
   const chainId = useChainId();
   const { isClient } = useMediaStyles();
 
@@ -78,15 +80,17 @@ const CouncilListPage = () => {
           </div>
 
           <div>
-            <Button
-              size='xl'
-              rounded='full'
-              onClick={!user ? () => login() : undefined}
-              className='bg-functional-link-primary'
-            >
-              {user && !userAddress ? 'Create a Council' : 'Connect to create a Council'}
-              <ArrowRightCircle className='ml-1 !size-5 text-white' />
-            </Button>
+            <Link href={user ? '/councils/new' : '#'}>
+              <Button
+                size='xl'
+                rounded='full'
+                onClick={!user ? () => login() : undefined}
+                className='bg-functional-link-primary'
+              >
+                {user && !userAddress ? 'Create a Council' : 'Connect to create a Council'}
+                <ArrowRightCircle className='ml-1 !size-5 text-white' />
+              </Button>
+            </Link>
           </div>
         </Card>
 
@@ -100,7 +104,7 @@ const CouncilListPage = () => {
 
   if (!isEmpty(councils) && !councilsLoading && !wearerHatsLoading) {
     return (
-      <div className='min-h-screen: mx-auto mt-20 flex max-w-[1000px] flex-col gap-4'>
+      <div className='mx-auto mt-20 flex min-h-screen max-w-[1000px] flex-col gap-4'>
         {map(councils, (council) => (
           <Link
             href={`/councils/${chainIdToString(chainId)}:${getAddress(council.id)}/members`}
