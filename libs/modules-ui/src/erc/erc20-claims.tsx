@@ -56,6 +56,7 @@ export const Erc20Claims = ({
 
   const minimumBalance = amountParameter?.value as bigint;
   const minimumBalanceDisplay = minimumBalance ? formatUnits(minimumBalance, tokenDetails?.decimals || 18) : undefined;
+  const minimumBalanceNumber = minimumBalanceDisplay ? parseFloat(minimumBalanceDisplay) : 0;
 
   const hasEnoughTokens = userBalance && minimumBalance ? userBalance >= minimumBalance : false;
 
@@ -125,7 +126,7 @@ export const Erc20Claims = ({
       <Card className='flex flex-col border-[#2D3748] px-8 py-6'>
         <div className='flex items-center justify-between'>
           <h3 className='text-2xl font-bold'>
-            Hold {minimumBalanceDisplay} {tokenDetails?.symbol} Tokens
+            Hold {minimumBalanceDisplay} {tokenDetails?.symbol} {minimumBalanceNumber === 1 ? 'Token' : 'Tokens'}
           </h3>
           {hasEnoughTokens ? (
             <div className='flex items-center gap-2'>
@@ -147,9 +148,11 @@ export const Erc20Claims = ({
         <div className='mt-8 grid grid-cols-3 gap-8'>
           <div>
             <h4 className='mb-4 text-lg font-semibold'>Token Limit</h4>
-            <div className={inputClass}>
-              <div className='flex items-center gap-2'>
-                <span>Minimum:</span>
+            <div className={cn(inputClass, 'flex items-center p-0')}>
+              <div className='border-input flex items-center border-r bg-[#F8FAFC] px-3 py-2'>
+                <span className='text-gray-600'>Minimum:</span>
+              </div>
+              <div className='flex items-center px-3 py-2'>
                 <span className='font-mono'>
                   {minimumBalanceDisplay} {tokenDetails?.symbol}
                 </span>
