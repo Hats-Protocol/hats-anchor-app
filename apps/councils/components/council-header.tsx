@@ -144,7 +144,7 @@ const CouncilHeaderCard = ({
         <div className='flex items-center gap-2'>
           <div className='flex items-center'>
             <div>
-              {size(safeSigners) >= get(safe, 'threshold')
+              {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold'))
                 ? get(safe, 'threshold')
                 : `Pending ${get(councilDetails, 'minThreshold')}`}
             </div>

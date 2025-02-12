@@ -5,7 +5,7 @@ import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { useSafeDetails, useToast, useWaitForSubgraph } from 'hooks';
-import { every, flatten, get, has, includes, map } from 'lodash';
+import { every, flatten, get, has, includes, map, toLower } from 'lodash';
 import { AgreementStatusManager, AllowlistStatusManager, Erc20StatusManager } from 'modules-ui';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
@@ -94,8 +94,9 @@ function MemberStatusModal({
       return moduleEligibility.eligible && moduleEligibility.goodStanding;
     }),
   );
+  const isWearer = includes(map(get(selectedHat, 'wearers'), 'id'), toLower(user?.address));
   const isSigner = includes(safeOwners, user?.address);
-  const isEligibleSigner = isEligible && isSigner;
+  const isEligibleSigner = isEligible && isSigner && isWearer;
 
   const labeledModules = useMemo(() => {
     if (!offchainCouncilData) return undefined;

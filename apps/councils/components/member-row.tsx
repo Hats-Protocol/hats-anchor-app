@@ -63,6 +63,7 @@ const MemberRow = ({
     keys(currentEligibility),
     (key) => get(currentEligibility, key)?.eligible && get(currentEligibility, key)?.goodStanding,
   );
+  const isWearer = includes(map(get(signerHat, 'wearers'), 'id'), toLower(member.address));
   if (!member) return null;
 
   const canEdit = (!!userAddress && toLower(member.address) === toLower(userAddress)) || isAdmin; // user can edit their own details
@@ -145,7 +146,7 @@ const MemberRow = ({
         })}
 
         <div className='flex h-full w-28 items-center justify-center gap-1'>
-          {isEligible ? (
+          {isEligible && isWearer ? (
             <>
               <p className='text-functional-success'>Yes</p>
               <BsCheckSquareFill className='text-functional-success' />

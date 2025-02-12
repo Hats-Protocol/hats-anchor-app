@@ -122,7 +122,7 @@ export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }
       name={`addAdminModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
       title={editingAdmin ? 'Edit Council Manager' : 'Add Council Manager'}
       onClose={handleClose}
-      size='2xl'
+      size='lg'
     >
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>

@@ -123,7 +123,7 @@ export function AddAgreementAdminModal({
       name={`addAgreementAdminModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
       title={editingAdmin ? 'Edit Agreement Manager' : 'Add Agreement Manager'}
       onClose={handleClose}
-      size='2xl'
+      size='lg'
     >
       <Form {...modalForm}>
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>

@@ -1,12 +1,15 @@
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
+import { useQuery } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
 import { useCouncilsList, useMediaStyles } from 'hooks';
-import { isEmpty, map } from 'lodash';
+import { concat, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Skeleton } from 'ui';
-import { chainIdToString, ipfsUrl } from 'utils';
+import { chainIdToString, fetchAllowlistEntries, ipfsUrl } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -33,6 +36,7 @@ const EMPTY_COUNCIL_STEPS = [
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
   const { user, login } = usePrivy();
+  const router = useRouter();
   const chainId = useChainId();
   const { isClient } = useMediaStyles();
 
@@ -41,9 +45,17 @@ const CouncilListPage = () => {
     wearerAddress: !!user ? (userAddress as Hex) : undefined,
     chainId, // TODO migrate to all chains
   });
-  // fetch associated councils
+  // fetch allowlists that the user has been added to
+  const { data: allowlistHats, isLoading: allowlistHatsLoading } = useQuery({
+    queryKey: ['allowlistHats', { userAddress, chainId }],
+    queryFn: () => fetchAllowlistEntries(userAddress as Hex, chainId as SupportedChains),
+  });
+  const combinedHats =
+    !wearerHatsLoading && !allowlistHatsLoading ? concat(map(wearerHats, 'id'), map(allowlistHats, 'hatId')) : null;
+
+  // fetch associated councils for the combined list of hats
   const { data: councils, isLoading: councilsLoading } = useCouncilsList({
-    hatIds: map(wearerHats, 'id'),
+    hatIds: uniq(combinedHats),
     chainId,
   });
 
@@ -68,15 +80,17 @@ const CouncilListPage = () => {
           </div>
 
           <div>
-            <Button
-              size='xl'
-              rounded='full'
-              onClick={!user ? () => login() : undefined}
-              className='bg-functional-link-primary'
-            >
-              {user && !userAddress ? 'Create a Council' : 'Connect to create a Council'}
-              <ArrowRightCircle className='ml-1 !size-5 text-white' />
-            </Button>
+            <Link href={user ? '/councils/new' : '#'}>
+              <Button
+                size='xl'
+                rounded='full'
+                onClick={!user ? () => login() : undefined}
+                className='bg-functional-link-primary'
+              >
+                {user && !userAddress ? 'Create a Council' : 'Connect to create a Council'}
+                <ArrowRightCircle className='ml-1 !size-5 text-white' />
+              </Button>
+            </Link>
           </div>
         </Card>
 
@@ -90,7 +104,7 @@ const CouncilListPage = () => {
 
   if (!isEmpty(councils) && !councilsLoading && !wearerHatsLoading) {
     return (
-      <div className='mx-auto mt-20 flex max-w-[1000px] flex-col gap-4'>
+      <div className='mx-auto mt-20 flex min-h-screen max-w-[1000px] flex-col gap-4'>
         {map(councils, (council) => (
           <Link
             href={`/councils/${chainIdToString(chainId)}:${getAddress(council.id)}/members`}

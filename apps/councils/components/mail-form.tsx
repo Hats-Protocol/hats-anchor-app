@@ -1,100 +1,37 @@
 'use client';
 
+import { MailFormData, PLACEHOLDERS } from '@hatsprotocol/config';
 import { Form, Input } from 'forms';
 import { useToast } from 'hooks';
-import { get, map } from 'lodash';
+import { find, get, map } from 'lodash';
 import { posthog } from 'posthog-js';
-import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useForm, UseFormReturn } from 'react-hook-form';
+import { ExtendedHSGV2, OffchainCouncilData } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button } from 'ui';
-import { logger } from 'utils';
+import { chainsMap, chainStringToId, formatAddress, getAllWearers, logger } from 'utils';
 
-interface MailFormData {
-  to: string;
-  address: string;
-}
+// Pick<MailFormData, 'fields'>
 
-const PLACEHOLDERS = {
-  creator_name: 'Vitalik',
-  council_name: 'Protocol Council',
-  org_name: 'Ethereum',
-  member_title: 'Council Member',
-  compliance_title: 'Compliance Manager',
-};
-
-const MAIL_BUTTONS = [
-  {
-    label: 'Initial invitation to council member',
-    messageId: 'invite_council_member',
-    fields: [
-      { name: 'creator_name', label: 'Creator Name' },
-      { name: 'council_name', label: 'Council Name' },
-      { name: 'org_name', label: 'Organization Name' },
-      { name: 'chain_name', label: 'Chain Name' },
-      { name: 'council_members_link', label: 'Council Members Link' },
-      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
-      { name: 'member_title', label: 'Member Title' }, // what is council member called
-    ],
-  },
-  {
-    label: 'Reminder to join a council for council member',
-    messageId: 'reminder_to_join_council',
-    fields: [
-      { name: 'creator_name', label: 'Creator Name' },
-      { name: 'council_name', label: 'Council Name' },
-      { name: 'org_name', label: 'Organization Name' },
-      { name: 'chain_name', label: 'Chain Name' },
-      { name: 'council_members_link', label: 'Council Members Link' },
-      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
-      { name: 'member_title', label: 'Member Title' }, // what is council member called
-    ],
-  },
-  {
-    label: 'Notify compliance manager after council is deployed',
-    messageId: 'notify_compliance_manager_after_deploy',
-    fields: [
-      { name: 'creator_name', label: 'Creator Name' },
-      { name: 'council_name', label: 'Council Name' },
-      { name: 'org_name', label: 'Organization Name' },
-      { name: 'chain_name', label: 'Chain Name' },
-      { name: 'council_members_link', label: 'Council Members Link' },
-      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
-      { name: 'member_title', label: 'Member Title' }, // what is council member called
-    ],
-  },
-  {
-    label: 'Council setup is complete',
-    messageId: 'council_setup_complete',
-    fields: [
-      { name: 'creator_name', label: 'Creator Name' },
-      { name: 'council_name', label: 'Council Name' },
-      { name: 'org_name', label: 'Organization Name' },
-      { name: 'chain_name', label: 'Chain Name' },
-      { name: 'council_members_link', label: 'Council Members Link' },
-      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
-      { name: 'member_title', label: 'Member Title' }, // what is council member called
-    ],
-  },
-  {
-    label: 'Council deployed',
-    messageId: 'council_deployed',
-    fields: [
-      { name: 'creator_name', label: 'Creator Name' },
-      { name: 'council_name', label: 'Council Name' },
-      { name: 'org_name', label: 'Organization Name' },
-      { name: 'chain_name', label: 'Chain Name' },
-      { name: 'council_members_link', label: 'Council Members Link' },
-      { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
-      { name: 'member_title', label: 'Member Title' }, // what is council member called
-    ],
-  },
-];
-
-const MailForm = () => {
-  const localForm = useForm<MailFormData>();
+const MailForm = ({
+  mailForm,
+  form,
+  offchainCouncilDetails,
+  councilDetails,
+}: {
+  mailForm: MailFormData;
+  form?: UseFormReturn<any>;
+  offchainCouncilDetails?: OffchainCouncilData;
+  councilDetails?: ExtendedHSGV2;
+}) => {
+  const freshForm = useForm();
+  const localForm = form ?? freshForm;
   const { toast } = useToast();
   const {
     formState: { isValid },
     getValues,
+    reset,
+    watch,
   } = localForm;
 
   const notifyEndpoint = async (data: MailFormData, messageId: string) => {
@@ -132,79 +69,73 @@ const MailForm = () => {
     notifyEndpoint(data, messageId); //
   };
 
+  useEffect(() => {
+    if (!offchainCouncilDetails || !councilDetails) return;
+
+    const councilAddress = councilDetails.id;
+    const councilName = offchainCouncilDetails.creationForm.councilName;
+    const organizationName = offchainCouncilDetails.creationForm.organizationName;
+    const chain = offchainCouncilDetails.creationForm.chain;
+    const chainId = chainStringToId(chain?.value);
+    const allWearers = getAllWearers(offchainCouncilDetails);
+    const creator = find(allWearers, { address: offchainCouncilDetails.creationForm.creator });
+
+    reset({
+      creator_name: creator?.name || formatAddress(offchainCouncilDetails.creationForm.creator),
+      // address: councilAddress,
+      council_name: councilName,
+      org_name: organizationName,
+      chain_name: chainsMap(chainId ?? 10).name,
+      council_members_link: `https://hatsprotocol.xyz/councils/${chainsMap(chainId ?? 10).name}:${councilAddress}`,
+      compliance_title: 'Compliance Checker',
+      member_title: 'Council Member',
+    });
+  }, [offchainCouncilDetails, councilDetails]);
+
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 
   return (
-    <div className='flex flex-col gap-4'>
-      <Form {...localForm}>
-        <form className='flex flex-col gap-4'>
-          <Input
-            name='to'
-            label='Email'
-            placeholder='v@hatsprotocol.xyz'
-            localForm={localForm}
-            options={{
-              required: true,
-              validate: (value) => value.endsWith('@hatsprotocol.xyz') || 'Must be a Hats Protocol email',
-            }}
-          />
+    <div key={mailForm.messageId} className='flex flex-col gap-2'>
+      <Accordion type='single' collapsible>
+        <AccordionItem value={mailForm.messageId}>
+          <AccordionTrigger className='px-4 hover:bg-blue-50 hover:no-underline'>
+            {mailForm.label} details
+          </AccordionTrigger>
+          <AccordionContent className='space-y-3 bg-white/40 p-2'>
+            <div className='flex items-center justify-between'>
+              <div className='flex gap-2'>
+                <p>ID:</p>
+                <pre className='bg-functional-link-primary/70 px-2 text-sm text-white/80'>{mailForm.messageId}</pre>
+              </div>
 
-          <Input
-            name='address'
-            label='Address'
-            placeholder='0x123...'
-            localForm={localForm}
-            options={{ required: true }}
-          />
-        </form>
-      </Form>
+              <Button
+                variant='outline'
+                onClick={isValid ? () => handleSend(mailForm.messageId) : undefined}
+                disabled={!isValid}
+              >
+                Send
+              </Button>
+            </div>
 
-      <div className='mt-6 flex flex-col gap-4'>
-        {map(MAIL_BUTTONS, (button) => (
-          <div key={button.messageId} className='flex flex-col gap-2'>
-            <Accordion type='single' collapsible>
-              <AccordionItem value={button.messageId}>
-                <AccordionTrigger className='px-4 hover:bg-blue-50 hover:no-underline'>
-                  {button.label} details
-                </AccordionTrigger>
-                <AccordionContent className='space-y-3 bg-white/40 p-2'>
-                  <div className='flex items-center justify-between'>
-                    <div className='flex gap-2'>
-                      <p>ID:</p>
-                      <pre className='text-sm text-gray-500'>{button.messageId}</pre>
-                    </div>
-
-                    <Button
-                      variant='outline'
-                      onClick={isValid ? () => handleSend(button.messageId) : undefined}
-                      disabled={!isValid}
-                    >
-                      Send
-                    </Button>
-                  </div>
-
-                  <Form {...localForm}>
-                    <div className='flex flex-col gap-2'>
-                      {map(button.fields, (field) => (
-                        <Input
-                          key={field.name}
-                          name={field.name}
-                          label={field.label}
-                          localForm={localForm}
-                          placeholder={get(PLACEHOLDERS, field.name)}
-                          isDisabled={!isValid}
-                        />
-                      ))}
-                    </div>
-                  </Form>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        ))}
-      </div>
+            <Form {...localForm}>
+              <div className='flex flex-col gap-2'>
+                {map(mailForm.fields, (field) => (
+                  <Input
+                    key={field.name}
+                    name={field.name}
+                    label={field.label}
+                    localForm={localForm}
+                    placeholder={get(PLACEHOLDERS, field.name)}
+                    isDisabled={!isValid}
+                  />
+                ))}
+              </div>
+            </Form>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 };
