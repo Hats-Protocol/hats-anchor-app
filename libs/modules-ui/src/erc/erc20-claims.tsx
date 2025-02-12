@@ -1,6 +1,8 @@
 'use client';
 
+import { CHAIN_TOKENS } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
+import simpleLogger from 'libs/utils/src/logs';
 import { find, get, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -9,9 +11,9 @@ import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LuBarChart2, LuWallet } from 'react-icons/lu';
 import { LabeledModules, ModuleDetails } from 'types';
 import { Card, cn, Link, Skeleton } from 'ui';
-import { explorerUrl, formatAddress } from 'utils';
+import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 import { formatUnits, Hex } from 'viem';
-import { useAccount, useEnsName } from 'wagmi';
+import { useAccount, useEnsName, useToken } from 'wagmi';
 
 const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo));
 
@@ -42,6 +44,13 @@ export const Erc20Claims = ({
   const tokenParam = find(get(activeModule, 'liveParameters'), { displayType: 'erc20' });
   const amountParameter = find(get(activeModule, 'liveParameters'), ['displayType', 'amountWithDecimals']);
 
+  // Get token logo from CHAIN_TOKENS
+  const token = CHAIN_TOKENS[chainId || 1]?.find((t) => {
+    const tokenAddress = tokenParam?.value as string;
+    return tokenAddress ? t.address.toLowerCase() === tokenAddress.toLowerCase() : false;
+  });
+  const tokenLogoUrl = token?.logoURI ? ipfsUrl(token.logoURI) : '';
+
   const { data: erc20Details, isLoading: isErc20Loading } = useErc20Details({
     contractAddress: tokenParam?.value as Hex,
     wearerAddress: address as Hex,
@@ -53,6 +62,8 @@ export const Erc20Claims = ({
     'userBalanceDisplay',
     'tokenDetails',
   ]) as Partial<Erc20Details>;
+
+  simpleLogger('token details', tokenDetails);
 
   const minimumBalance = amountParameter?.value as bigint;
   const minimumBalanceDisplay = minimumBalance ? formatUnits(minimumBalance, tokenDetails?.decimals || 18) : undefined;
@@ -76,7 +87,7 @@ export const Erc20Claims = ({
         label: 'Token Address',
         descriptor: tokenParam?.value ? (
           <Link href={`${explorerUrl(chainId)}/address/${tokenParam.value}`} isExternal>
-            {formatAddress(tokenParam.value)}
+            {formatAddress(tokenParam.value as string)}
           </Link>
         ) : (
           'Not set'
@@ -126,7 +137,8 @@ export const Erc20Claims = ({
       <Card className='flex flex-col border-[#2D3748] px-8 py-6'>
         <div className='flex items-center justify-between'>
           <h3 className='text-2xl font-bold'>
-            Hold {minimumBalanceDisplay} {tokenDetails?.symbol} {minimumBalanceNumber === 1 ? 'Token' : 'Tokens'}
+            Hold {minimumBalanceNumber === 1 ? '1' : minimumBalanceDisplay} {tokenDetails?.symbol}{' '}
+            {minimumBalanceNumber === 1 ? 'Token' : 'Tokens'}
           </h3>
           {hasEnoughTokens ? (
             <div className='flex items-center gap-2'>
@@ -153,9 +165,16 @@ export const Erc20Claims = ({
                 <span className='text-gray-600'>Minimum:</span>
               </div>
               <div className='flex items-center px-3 py-2'>
-                <span className='font-mono'>
-                  {minimumBalanceDisplay} {tokenDetails?.symbol}
-                </span>
+                <div className='flex items-center gap-2'>
+                  {/* {tokenLogoUrl ? (
+                    <img src={tokenLogoUrl} alt={tokenDetails?.symbol} className='h-5 w-5 rounded-full' />
+                  ) : (
+                    <div className='h-5 w-5 rounded-full bg-black' />
+                  )} We can add this back in if we want to show the token logo here as well */}
+                  <span className='font-mono'>
+                    {minimumBalanceDisplay} {tokenDetails?.symbol}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -171,9 +190,16 @@ export const Erc20Claims = ({
                     ) : (
                       <BsFillXOctagonFill className='text-destructive h-4 w-4' />
                     )}
-                    <span className='font-mono'>
-                      {userBalanceDisplay} {tokenDetails?.symbol}
-                    </span>
+                    <div className='flex items-center gap-2'>
+                      {tokenLogoUrl ? (
+                        <img src={tokenLogoUrl} alt={tokenDetails?.symbol} className='h-5 w-5 rounded-full' />
+                      ) : (
+                        <div className='h-5 w-5 rounded-full bg-black' />
+                      )}
+                      <span className='font-mono'>
+                        {userBalanceDisplay} {tokenDetails?.symbol}
+                      </span>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -192,7 +218,11 @@ export const Erc20Claims = ({
               <div className='flex items-center gap-2'>
                 {tokenDetails ? (
                   <>
-                    <div className='h-4 w-4 rounded-full bg-[#1A1A1A]' />
+                    {tokenLogoUrl ? (
+                      <img src={tokenLogoUrl} alt={tokenDetails.symbol} className='h-5 w-5 rounded-full' />
+                    ) : (
+                      <div className='h-5 w-5 rounded-full bg-black' />
+                    )}
                     <span className='font-mono'>
                       {tokenDetails.symbol} ({tokenDetails.name})
                     </span>
@@ -208,8 +238,9 @@ export const Erc20Claims = ({
 
         <div className='mt-6 text-sm text-gray-600'>
           <span className='font-medium'>Note: </span>
-          Once you have less than {minimumBalanceDisplay} {tokenDetails?.symbol} on {userDisplay}, you will be instantly
-          removed from the council.
+          Once you have less than {minimumBalanceDisplay} {tokenDetails?.symbol} on{' '}
+          <span className='font-jb-mono text-sm text-gray-600'>{userDisplay}</span>, you will be instantly removed from
+          the council.
         </div>
       </Card>
 
