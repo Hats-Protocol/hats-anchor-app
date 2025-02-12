@@ -64,7 +64,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
 
   // TODO better loading state
   if (isLoading) {
-    return <Skeleton className='mx-auto h-[600px] w-[800px]' />;
+    return <Skeleton className='mx-auto h-[600px] w-full max-w-screen-lg' />;
   }
 
   if (!hatId) return null;
@@ -72,7 +72,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
   return (
     <EligibilityContextProvider hatId={hatId} chainId={(chainId || undefined) as SupportedChains}>
       <div className='flex min-h-[600px] justify-center pt-10'>
-        <div className='flex w-full max-w-screen-md flex-col gap-4'>
+        <div className='flex w-full max-w-screen-lg flex-col gap-4'>
           <ModuleChainClaimHeader
             chainId={chainId || undefined}
             hsgAddress={address || undefined}

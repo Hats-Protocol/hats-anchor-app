@@ -101,7 +101,7 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
       <Button
         variant='outline'
         onClick={handleClick}
-        className={cn('block-size-auto h-auto w-auto justify-start whitespace-normal bg-white p-4', {
+        className={cn('block-size-auto h-auto w-auto min-w-[120px] justify-start whitespace-normal bg-white p-4', {
           'border-2 border-[#2D3748]': activeRule?.address === rule.address,
           'border border-[#2D3748]': activeRule?.address !== rule.address,
         })}
