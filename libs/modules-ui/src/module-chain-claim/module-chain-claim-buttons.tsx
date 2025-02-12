@@ -96,6 +96,7 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
     });
   };
 
+  // TODO use an existing token value for the colors
   return (
     <div className='relative'>
       <Button
