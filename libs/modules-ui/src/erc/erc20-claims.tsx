@@ -2,7 +2,6 @@
 
 import { CHAIN_TOKENS } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
-import simpleLogger from 'libs/utils/src/logs';
 import { find, get, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -62,8 +61,6 @@ export const Erc20Claims = ({
     'userBalanceDisplay',
     'tokenDetails',
   ]) as Partial<Erc20Details>;
-
-  simpleLogger('token details', tokenDetails);
 
   const minimumBalance = amountParameter?.value as bigint;
   const minimumBalanceDisplay = minimumBalance ? formatUnits(minimumBalance, tokenDetails?.decimals || 18) : undefined;

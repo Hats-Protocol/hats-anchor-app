@@ -8,7 +8,7 @@ import { useAllowlist } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { AllowlistProfile, HatWearer, LabeledModules, ModuleDetails } from 'types';
+import { LabeledModules, ModuleDetails } from 'types';
 import { Card, Link, MemberAvatar, Skeleton } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
