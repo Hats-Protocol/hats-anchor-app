@@ -82,7 +82,7 @@ export const SubscriptionClaims = () => {
 
   return (
     <div className='space-y-8'>
-      <Card className='w-full border-[#2D3748] p-6'>
+      <Card className='w-full border-[#2D3748] px-8 py-6'>
         <div className='space-y-8'>
           {isOneTime ? (
             <h3 className='text-lg font-medium'>Purchase and claim this Hat</h3>

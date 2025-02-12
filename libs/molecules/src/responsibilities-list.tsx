@@ -39,7 +39,7 @@ const ResponsibilitiesList = () => {
   return (
     <Accordion type='multiple' className='px-0 md:px-16' value={openCards} onValueChange={setOpenCards}>
       <div className='space-y-2'>
-        <p className='text-md mx-4 md:mx-0'>
+        <p className='mx-4 font-medium md:mx-0'>
           {size(responsibilities)} {size(responsibilities) > 1 ? 'Responsibilities' : 'Responsibility'} expected of Hat
           Wearers
         </p>

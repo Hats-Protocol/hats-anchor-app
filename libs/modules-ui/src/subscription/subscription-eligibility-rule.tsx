@@ -74,7 +74,6 @@ export const UnlockEligibilityRule = ({
         <Button
           variant='link'
           onClick={() => {
-            console.log(`${moduleDetails?.instanceAddress}-${modalName}`);
             setModals?.({
               [`${moduleDetails?.instanceAddress}-${modalName}`]: true,
             });

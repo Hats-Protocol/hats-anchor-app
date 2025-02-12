@@ -45,10 +45,7 @@ const ResponsibilityHeader = ({
         <p
           // TODO ideally this is a heading when expanded
           // eslint-disable-next-line no-nested-ternary
-          className={cn(
-            'line-clamp-2 text-left',
-            isExpanded ? (isMobile ? 'font-bold' : 'font-medium') : 'font-normal',
-          )}
+          className={cn('line-clamp-2 text-left', isExpanded ? (isMobile ? 'font-bold' : 'font-normal') : 'font-light')}
         >
           {currentLabel || label || 'New Responsibility'}
         </p>

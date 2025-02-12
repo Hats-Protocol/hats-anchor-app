@@ -103,9 +103,9 @@ const ChainPanel = ({
       >
         <AccordionTrigger
           className={cn(
-            'rounded-md border-b border-b-transparent px-4 py-0 text-base font-normal hover:bg-white hover:no-underline',
+            'rounded-md border-b border-b-transparent px-4 py-0 text-base font-light hover:bg-white hover:no-underline',
             IS_CLAIMS_APP && 'py-4',
-            !expanded ? 'hover:border-b hover:border-blue-300' : 'hover:border-t-gray-100',
+            !expanded && !IS_CLAIMS_APP ? 'hover:border-b hover:border-blue-300' : 'hover:border-t-gray-100',
             expanded && 'bg-gradient-accordion-trigger rounded-b-none border-b-gray-400',
           )}
         >
@@ -114,7 +114,7 @@ const ChainPanel = ({
               Comply with {isAndChain ? 'all' : 'any'} of {size(flatten(ruleSets))} Rules to claim this Hat
             </p>
 
-            <p className={cn('block: md:hidden')}>
+            <p className={cn('block md:hidden', IS_CLAIMS_APP && 'md:block')}>
               {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))} Rules to claim
             </p>
 

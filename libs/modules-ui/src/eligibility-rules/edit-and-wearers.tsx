@@ -109,7 +109,7 @@ const AdminWearersPanel = () => {
             expanded && 'bg-gradient-accordion-trigger rounded-b-none border-b-gray-400',
           )}
         >
-          <div className='flex w-full justify-between py-2 pr-4 text-base font-normal'>
+          <div className={cn('flex w-full justify-between py-2 pr-4 text-base font-light', expanded && 'font-normal')}>
             <p>
               Admins can edit {!isMobile ? 'this Hat' : ''}
               {!isClaimable?.for ? ' and choose Wearers' : ''}

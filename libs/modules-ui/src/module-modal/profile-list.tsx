@@ -9,7 +9,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { AiOutlineFilter } from 'react-icons/ai';
 import { BsChevronDown } from 'react-icons/bs';
 import { AllowlistProfile, AppHat } from 'types';
-import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from 'ui';
+import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, ScrollArea } from 'ui';
 import { filterProfiles } from 'utils';
 
 import { EligibilityRow } from './eligibility-row';
@@ -100,17 +100,22 @@ export const ProfileList = ({
             <hr className='border-black' />
           </div>
 
-          {map(currentFilteredProfiles, (p: AllowlistProfile) => (
-            <EligibilityRow
-              key={p.id}
-              eligibilityAccount={p}
-              wearers={wearers}
-              updating={updating}
-              updateList={updateList}
-              handleAdd={handleUpdateListAdd}
-              handleRemove={handleUpdateListRemove}
-            />
-          ))}
+          <ScrollArea className='h-[calc(100vh-400px)] w-full'>
+            <div className='flex flex-col gap-4'>
+              {map(currentFilteredProfiles, (p: AllowlistProfile) => (
+                <EligibilityRow
+                  key={p.id}
+                  eligibilityAccount={p}
+                  wearers={wearers}
+                  updating={updating}
+                  updateList={updateList}
+                  handleAdd={handleUpdateListAdd}
+                  handleRemove={handleUpdateListRemove}
+                />
+              ))}
+            </div>
+          </ScrollArea>
+
           {isEmpty(currentFilteredProfiles) && (
             <div className='h-100px flex w-full items-center justify-center'>
               <p className='text-gray-500'>No addresses found</p>

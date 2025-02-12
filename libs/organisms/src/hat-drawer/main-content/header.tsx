@@ -24,12 +24,11 @@ const Header = () => {
       // status: 'info',
     },
   });
-  const { isMobile } = useMediaStyles();
 
   const { name, description } = pick(selectedHatDetails, ['name', 'description']);
   const imageUrl = get(find(treeToDisplay, { id: selectedHat?.id }), 'imageUrl');
 
-  const { data: wearer } = useWearerDetails({
+  const { data: wearer, isLoading: wearerLoading } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
     editMode,
@@ -47,7 +46,7 @@ const Header = () => {
 
   if (!selectedHat) return null;
 
-  if (hatLoading || hatStatusLoading) {
+  if (hatLoading || hatStatusLoading || wearerLoading) {
     return (
       <div className='space-y-4 bg-white px-4 pb-4 md:bg-transparent md:px-16'>
         <div className='w-full space-y-2'>

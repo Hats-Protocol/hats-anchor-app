@@ -6,7 +6,7 @@ import { exportToCsv } from 'hats-utils';
 import { get, map, size } from 'lodash';
 import { FaFileCsv } from 'react-icons/fa';
 import { HatWearer } from 'types';
-import { Button, Spinner } from 'ui';
+import { Button, ScrollArea, Spinner } from 'ui';
 import { wearersPerPage } from 'utils';
 import { Hex } from 'viem';
 
@@ -36,8 +36,9 @@ const FullWearersListModal = ({
   return (
     <Modal
       name='hatWearers'
+      size='lg'
       customHeader={
-        <div className='mt-8 flex items-center justify-between px-6 pb-4'>
+        <div className='mt-8 flex items-center justify-between pb-4'>
           <h2 className='text-2xl'>Hat Wearers</h2>
           <Button onClick={() => exportWearers && exportToCsv(exportWearers, selectedHatDetails?.name)}>
             <FaFileCsv />
@@ -68,20 +69,24 @@ const FullWearersListModal = ({
         </div>
       }
     >
-      <div className='flex flex-col gap-4'>
-        {isLoading || isFetching ? (
-          <Spinner />
-        ) : (
-          map(paginatedWearers, (w: HatWearer) => (
-            <WearerRow
-              key={w.id}
-              wearer={w}
-              setChangeStatusWearer={setChangeStatusWearer}
-              setWearerToTransferFrom={setWearerToTransferFrom}
-            />
-          ))
-        )}
-      </div>
+      <ScrollArea className='h-[600px]'>
+        <div className='flex flex-col gap-4'>
+          {isLoading || isFetching ? (
+            <div className='flex h-[600px] items-center justify-center'>
+              <Spinner />
+            </div>
+          ) : (
+            map(paginatedWearers, (w: HatWearer) => (
+              <WearerRow
+                key={w.id}
+                wearer={w}
+                setChangeStatusWearer={setChangeStatusWearer}
+                setWearerToTransferFrom={setWearerToTransferFrom}
+              />
+            ))
+          )}
+        </div>
+      </ScrollArea>
     </Modal>
   );
 };

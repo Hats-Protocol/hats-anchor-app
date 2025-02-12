@@ -96,7 +96,7 @@ const NumberInput = ({
         };
       default:
         return {
-          label: 'font-normal uppercase',
+          label: 'font-light uppercase',
           description: '',
           container: 'flex items-center gap-1',
         };

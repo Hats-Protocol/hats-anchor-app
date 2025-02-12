@@ -154,7 +154,7 @@ export const AgreementClaims = ({
 
   return (
     <div className='hidden w-full flex-col gap-4 md:flex'>
-      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] p-10'>
+      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] px-8 py-6'>
         <div className='flex justify-between'>
           <h3 className='text-xl font-semibold'>
             Sign the agreement

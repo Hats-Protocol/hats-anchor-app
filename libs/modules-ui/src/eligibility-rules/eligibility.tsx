@@ -96,7 +96,11 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
   }
 
   if (OVERRIDE_COMMUNITY_HAT && selectedHat?.id === CONFIG.agreementV0.communityHatId) {
-    return <CommunityHatEligibilityRule selectedHat={selectedHat} wearer={address as Hex} chainId={chainId} />;
+    return (
+      <div className='mx-4'>
+        <CommunityHatEligibilityRule selectedHat={selectedHat} wearer={address as Hex} chainId={chainId} />
+      </div>
+    );
   }
 
   return (
