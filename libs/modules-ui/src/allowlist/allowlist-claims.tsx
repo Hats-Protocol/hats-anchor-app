@@ -8,9 +8,10 @@ import { useAllowlist } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { LabeledModules, ModuleDetails } from 'types';
+import { AllowlistProfile, HatWearer, LabeledModules, ModuleDetails } from 'types';
 import { Card, Link, MemberAvatar, Skeleton } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
+import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo));
@@ -42,6 +43,12 @@ const ALLOWLIST_COPY = {
   },
 };
 
+interface RawAllowlistData {
+  address: string;
+  eligible: boolean;
+  badStanding: boolean;
+}
+
 export const AllowlistClaims = ({
   activeModule,
   labeledModules,
@@ -50,10 +57,18 @@ export const AllowlistClaims = ({
   labeledModules: LabeledModules | undefined;
 }) => {
   const { chainId, isEligibilityRulesLoading } = useEligibility();
-  const { data: allowlist, isLoading: isAllowlistLoading } = useAllowlist({
+  const { data: allowlistData, isLoading: isAllowlistLoading } = useAllowlist({
     id: activeModule.instanceAddress,
     chainId,
-  });
+  }) as { data: RawAllowlistData[] | null; isLoading: boolean };
+
+  // Transform the raw allowlist data to HatWearer type
+  const allowlist = useMemo(() => {
+    if (!allowlistData) return [];
+    return map(allowlistData, (profile) => ({
+      id: profile.address as Hex,
+    }));
+  }, [allowlistData]);
 
   const ownerHatId = get(find(get(activeModule, 'liveParameters'), { label: 'Owner Hat' }), 'value') as
     | bigint
@@ -79,7 +94,10 @@ export const AllowlistClaims = ({
     ];
   }, [activeModule.instanceAddress, chainId]);
 
-  const isInAllowlist = includes(map(allowlist, 'address'), toLower(address));
+  const isInAllowlist = includes(
+    map(allowlist || [], (wearer) => toLower(wearer?.id)),
+    toLower(address),
+  );
   const isDev = true;
 
   if (isEligibilityRulesLoading || isAllowlistLoading) {
@@ -97,7 +115,10 @@ export const AllowlistClaims = ({
     <div className='flex flex-col gap-4'>
       <Card className='flex min-h-[500px] flex-col border-[#2D3748] px-8 py-6'>
         <div className='flex justify-between'>
-          <h3 className='text-2xl font-bold'>{copy.heading}</h3>
+          <div>
+            <h3 className='text-2xl font-bold'>{copy.heading}</h3>
+            <p className='mt-2 text-sm text-gray-600'>Get appointed by a Council Manager to join the council</p>
+          </div>
 
           {isInAllowlist ? (
             <div className='flex items-center gap-1'>
@@ -112,18 +133,41 @@ export const AllowlistClaims = ({
           )}
         </div>
 
-        <div className='flex flex-col gap-4 pt-10'>
-          <h4 className='text-xl font-bold'>{copy.subheading}</h4>
+        <div className='flex flex-col gap-8 pt-10'>
+          {/* Council Members Section */}
+          <div className='flex flex-col gap-4'>
+            <div className='flex flex-col gap-1'>
+              <h4 className='text-xl font-bold'>Council Members</h4>
+              <p className='text-sm text-gray-600'>Current members of the council</p>
+            </div>
 
-          <div className='flex flex-col gap-1'>
-            <p className='font-bold'>{copy.admin}</p>
-
-            <p className='text-sm'>{copy.adminLabel}</p>
+            <div className='flex flex-col gap-2'>
+              {map(allowlist, (wearer) => {
+                const isCurrentUser = toLower(wearer?.id) === toLower(address || '');
+                return (
+                  <div key={wearer.id}>
+                    <div className={`inline-block rounded-lg p-1 ${isCurrentUser ? 'bg-[#22C55E]/10' : ''}`}>
+                      <MemberAvatar member={wearer} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {map(get(ownerHatDetails, 'wearers'), (wearer) => (
-            <MemberAvatar member={wearer} key={wearer.id} />
-          ))}
+          {/* Council Managers Section */}
+          <div className='flex flex-col gap-4'>
+            <div className='flex flex-col gap-1'>
+              <h4 className='text-xl font-bold'>{copy.admin}</h4>
+              <p className='text-sm text-gray-600'>{copy.adminLabel}</p>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              {map(get(ownerHatDetails, 'wearers'), (wearer) => (
+                <MemberAvatar member={wearer} key={wearer.id} />
+              ))}
+            </div>
+          </div>
         </div>
       </Card>
 
