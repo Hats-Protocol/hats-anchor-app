@@ -95,7 +95,7 @@ export const AllowlistClaims = ({
 
   return (
     <div className='flex flex-col gap-4'>
-      <Card className='flex min-h-[500px] flex-col px-8 py-6'>
+      <Card className='flex min-h-[500px] flex-col border-[#2D3748] px-8 py-6'>
         <div className='flex justify-between'>
           <h3 className='text-2xl font-bold'>{copy.heading}</h3>
 

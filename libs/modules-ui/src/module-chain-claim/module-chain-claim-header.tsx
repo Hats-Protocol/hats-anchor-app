@@ -17,7 +17,12 @@ import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_IS_CLAIMS_APP === 'true';
 
-const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleChainClaimHeaderProps) => {
+const ModuleChainClaimHeader = ({
+  hsgAddress,
+  chainId,
+  labeledModules,
+  showJoinButton = false,
+}: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -166,7 +171,7 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
       <div className='flex justify-between'>
         <h2 className='text-2xl font-bold'>
           Satisfy these {size(eligibilityRules)} requirements to{' '}
-          {IS_CLAIMS_APP ? 'claim this role' : 'become a council member'}
+          {!showJoinButton ? 'claim this role' : 'become a council member'}
         </h2>
 
         <div className='flex items-center gap-2'>
@@ -183,35 +188,42 @@ const ModuleChainClaimHeader = ({ hsgAddress, chainId, labeledModules }: ModuleC
         </div>
       </div>
 
-      <div className='flex items-center justify-between'>
-        <ModuleChainClaimButtons labeledModules={labeledModules} />
+      <div className='flex items-center'>
+        <ModuleChainClaimButtons labeledModules={labeledModules} showJoinButton={showJoinButton} />
 
-        {isSigner ? (
-          <LinkButton
-            href={`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`}
-            className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
-            variant='outline'
-          >
-            <span className='flex items-center gap-1'>
-              View Council
-              <BsArrowRight className='ml-1 h-4 w-4' />
-            </span>
-          </LinkButton>
-        ) : chainId !== currentChainId ? (
-          <Button variant='outline-blue' rounded='full' onClick={() => switchChain({ chainId })}>
-            Change Chain
-          </Button>
-        ) : (
-          <Tooltip label={disableReason}>
-            <Button
-              disabled={!address || chainId !== currentChainId || !isReadyToClaim || isLoading || disableClaim}
-              rounded='full'
-              onClick={handleClaimClick}
-            >
-              {isLoading ? 'Claiming...' : isWearing ? 'Claim Signer' : 'Claim'}
-            </Button>
-          </Tooltip>
-        )}
+        {showJoinButton &&
+          (isSigner ? (
+            <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-300 bg-white p-4'>
+              <LinkButton
+                href={`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`}
+                className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
+                variant='outline'
+              >
+                <span className='flex items-center gap-1'>
+                  View Council
+                  <BsArrowRight className='ml-1 h-4 w-4' />
+                </span>
+              </LinkButton>
+            </div>
+          ) : chainId !== currentChainId ? (
+            <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-300 bg-white p-4'>
+              <Button variant='outline-blue' rounded='full' onClick={() => switchChain({ chainId })}>
+                Change Chain
+              </Button>
+            </div>
+          ) : (
+            <Tooltip label={disableReason}>
+              <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-[#2D3748] bg-white p-4'>
+                <Button
+                  disabled={!address || chainId !== currentChainId || !isReadyToClaim || isLoading || disableClaim}
+                  rounded='full'
+                  onClick={handleClaimClick}
+                >
+                  {isLoading ? 'Claiming...' : isWearing ? 'Claim Signer' : 'Join Council'}
+                </Button>
+              </div>
+            </Tooltip>
+          ))}
       </div>
     </>
   );
@@ -221,6 +233,7 @@ interface ModuleChainClaimHeaderProps {
   hsgAddress: Hex | undefined;
   chainId: number | undefined;
   labeledModules: LabeledModules | undefined;
+  showJoinButton?: boolean;
 }
 
 export { ModuleChainClaimHeader };

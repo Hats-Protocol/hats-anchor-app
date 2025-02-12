@@ -38,7 +38,7 @@ export const ElectionClaims = () => {
 
   return (
     <div className='flex flex-col gap-10'>
-      <div className='flex w-full gap-6'>
+      <div className='flex w-full gap-6 border-[#2D3748]'>
         <Card className='min-h-[90px] w-full p-4 md:w-1/2'>
           <CurrentSeason />
         </Card>
@@ -49,26 +49,26 @@ export const ElectionClaims = () => {
       </div>
 
       <div className='flex w-full gap-6'>
-        <Card className='h-full min-h-[90px] w-full p-4 md:w-1/2'>
+        <Card className='h-full min-h-[90px] w-full border-[#2D3748] p-4 md:w-1/2'>
           <WearersList />
         </Card>
 
-        <Card className='md:inherit hidden h-full min-h-[90px] w-full p-4 md:w-1/2'>
+        <Card className='md:inherit hidden h-full min-h-[90px] w-full border-[#2D3748] p-4 md:w-1/2'>
           <ElectionRoles />
         </Card>
       </div>
 
-      <Card className='min-h-[300px] w-full p-4'>
+      <Card className='min-h-[300px] w-full border-[#2D3748] p-4'>
         <ProposalView />
       </Card>
 
       {isMobile && (
         <>
-          <Card className='min-h-[300px] w-full p-4'>
+          <Card className='min-h-[300px] w-full border-[#2D3748] p-4'>
             <UpcomingSeason />
           </Card>
 
-          <Card className='md:inherit hidden h-full w-full p-4'>
+          <Card className='md:inherit hidden h-full w-full border-[#2D3748] p-4'>
             <ElectionRoles />
           </Card>
         </>
