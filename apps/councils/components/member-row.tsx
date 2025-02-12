@@ -186,7 +186,7 @@ const MemberRow = ({
         </div>
       </div>
 
-      <Modal name={`viewUser-member-${member.address}`} title='View Council Member'>
+      <Modal name={`viewUser-member-${member.address}`} title='View Council Member' size='md'>
         <div className='space-y-6'>
           <MemberAvatar member={member} stack />
 

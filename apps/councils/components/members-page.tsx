@@ -97,7 +97,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
         setIsLoading(false);
         // TODO close modal
         setModals?.({});
-        queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
+        queryClient.invalidateQueries({ queryKey: ['offchainCouncilData'] });
         queryClient.invalidateQueries({ queryKey: ['allowlistDetails'] });
 
         posthog.capture('Added Council User', {

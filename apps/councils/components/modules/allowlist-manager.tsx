@@ -44,8 +44,14 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
     chainId: chainId as SupportedChains,
     hatId: managerHatId ? hatIdDecimalToHex(managerHatId) : undefined,
   });
+  const { data: adminHat } = useHatDetails({
+    chainId: chainId as SupportedChains,
+    hatId: managerHatId ? hatIdDecimalToHex(managerHatId) : undefined,
+  });
   const managers = get(managerHat, 'wearers');
-  const userIsManager = !!find(managers, { id: toLower(userAddress) });
+  const admins = get(adminHat, 'wearers');
+  const userIsAdmin = !!find(admins, { id: toLower(userAddress) });
+  // const userIsManager = !!find(managers, { id: toLower(userAddress) });
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
   const allWearers = getAllWearers(offchainCouncilDetails);
@@ -138,14 +144,14 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
           </div>
 
           <div className='flex flex-col gap-2'>
-            {map(get(managerHat, 'wearers'), (wearer) => {
+            {map(managers, (wearer) => {
               const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
 
               return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
             })}
           </div>
 
-          {!!user && userIsManager && (
+          {!!user && userIsAdmin && (
             <div className='mt-2 flex'>
               <div className='relative'>
                 <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
@@ -204,7 +210,7 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
           })}
         </div>
 
-        {userAddress && user && (
+        {!!user && userIsAdmin && (
           <div className='mt-2 flex'>
             <Button
               variant='outline-blue'
