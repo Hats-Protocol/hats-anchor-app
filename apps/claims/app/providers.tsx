@@ -6,7 +6,6 @@ import '@rainbow-me/rainbowkit/styles.css';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';
-import '@uiw/react-md-editor/markdown-editor.css';
 
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

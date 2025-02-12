@@ -77,6 +77,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
             chainId={chainId || undefined}
             hsgAddress={address || undefined}
             labeledModules={labeledModules}
+            showJoinButton={true}
           />
 
           <ModuleChainClaimsCard labeledModules={labeledModules} />

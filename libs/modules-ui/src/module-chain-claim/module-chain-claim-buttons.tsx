@@ -204,18 +204,22 @@ const ArrowDecorator = () => (
   </div>
 );
 
-const ModuleChainClaimButtons = ({ labeledModules }: ModuleChainClaimButtonsProps) => {
+const ModuleChainClaimButtons = ({ labeledModules, showJoinButton = false }: ModuleChainClaimButtonsProps) => {
   const { eligibilityRules } = useEligibility();
 
   const flatRules = flatten(eligibilityRules); // TODO only handling AND chains currently
   const sortedRules = sortRulesForClaims(flatRules);
 
   return (
-    <div className='flex flex-1 items-center'>
+    <div
+      className={cn('flex items-center', {
+        'flex-1': showJoinButton, // Only take up full width when showing join button
+      })}
+    >
       {map(sortedRules, (rule, index) => (
         <React.Fragment key={`${rule.module.id}-${rule.address}`}>
           <ModuleChainClaimButton rule={rule} labeledModules={labeledModules} />
-          {index < sortedRules.length - 1 ? <AndDecorator /> : <ArrowDecorator />}
+          {index < sortedRules.length - 1 ? <AndDecorator /> : showJoinButton ? <ArrowDecorator /> : null}
         </React.Fragment>
       ))}
     </div>
@@ -224,6 +228,7 @@ const ModuleChainClaimButtons = ({ labeledModules }: ModuleChainClaimButtonsProp
 
 interface ModuleChainClaimButtonsProps {
   labeledModules?: LabeledModules | undefined;
+  showJoinButton?: boolean;
 }
 
 export { ModuleChainClaimButtons };

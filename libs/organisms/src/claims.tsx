@@ -55,11 +55,9 @@ const Claims = () => {
   }
 
   if (size(eligibilityRules) > 1) {
-    // TODO handle multiple modules
     return (
       <div className='flex flex-col gap-4'>
-        <ModuleChainClaimButtons />
-
+        <ModuleChainClaimButtons showJoinButton={false} />
         <ModuleChainClaimsCard />
       </div>
     );
