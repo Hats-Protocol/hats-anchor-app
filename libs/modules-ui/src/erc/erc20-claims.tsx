@@ -26,7 +26,7 @@ interface Erc20Details {
 }
 
 const inputClass =
-  'border-input flex w-full items-center rounded-md border bg-white px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium';
+  'border-input flex w-full items-center rounded-md border bg-gray-50 px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium';
 
 export const Erc20Claims = ({
   activeModule,
@@ -147,9 +147,9 @@ export const Erc20Claims = ({
 
         <div className='mt-8 grid grid-cols-3 gap-8'>
           <div>
-            <h4 className='mb-4 text-lg font-semibold'>Token Limit</h4>
+            <h4 className='text-primary mb-4 text-base font-bold'>Token Limit</h4>
             <div className={cn(inputClass, 'flex items-center p-0')}>
-              <div className='border-input flex items-center border-r bg-[#F8FAFC] px-3 py-2'>
+              <div className='border-input flex items-center border-r bg-gray-100 px-3 py-2'>
                 <span className='text-gray-600'>Minimum:</span>
               </div>
               <div className='flex items-center px-3 py-2'>
@@ -161,7 +161,7 @@ export const Erc20Claims = ({
           </div>
 
           <div>
-            <h4 className='mb-4 text-lg font-semibold'>Your Balance</h4>
+            <h4 className='text-primary mb-4 text-base font-bold'>Your Balance</h4>
             <div className={cn(inputClass, 'justify-between')}>
               <div className='flex items-center gap-2'>
                 {userBalance ? (
@@ -187,7 +187,7 @@ export const Erc20Claims = ({
           </div>
 
           <div>
-            <h4 className='mb-4 text-lg font-semibold'>Token Type</h4>
+            <h4 className='text-primary mb-4 text-base font-bold'>Token Type</h4>
             <div className={cn(inputClass, 'justify-between')}>
               <div className='flex items-center gap-2'>
                 {tokenDetails ? (
@@ -207,7 +207,7 @@ export const Erc20Claims = ({
         </div>
 
         <div className='mt-6 text-sm text-gray-600'>
-          <span>Note: </span>
+          <span className='font-medium'>Note: </span>
           Once you have less than {minimumBalanceDisplay} {tokenDetails?.symbol} on {userDisplay}, you will be instantly
           removed from the council.
         </div>
