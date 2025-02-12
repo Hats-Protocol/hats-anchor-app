@@ -108,6 +108,7 @@ const CouncilFormContext = createContext<CouncilFormContextType | undefined>(und
 
 type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
   completedOptionalSteps: CompletedOptionalSteps;
+  deployOnly?: boolean;
 };
 
 const computeStepValidation = (data: StepValidationData): StepValidation => {
@@ -126,7 +127,9 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
         data.thresholdType &&
         data.thresholdTarget &&
         data.thresholdTarget > 0
-      ) && data.completedOptionalSteps.threshold,
+      ) && data.deployOnly === true
+        ? true
+        : data.completedOptionalSteps.threshold,
     onboarding: !!data.membersSelectionType,
     selection: false, // Main step validity will be computed from sub-steps
     selectionSubSteps: {
@@ -358,8 +361,20 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     logger.info('Setting form to:', newValues);
     form.reset(newValues);
 
+    const deployOnly = localStorage.getItem('deployOnly');
+
     // Compute validation state here
-    const validation = computeStepValidation({ ...data, completedOptionalSteps: optionalSteps });
+    const validation = computeStepValidation({
+      ...data,
+      completedOptionalSteps: optionalSteps,
+      deployOnly: deployOnly === 'true' ? true : false,
+    });
+    // deploy only == people are looking at the deploy page ONLY
+    // this would be users who are NOT the creator or a council manager (we could have an issue here if creator is a manager)
+    // do we want to have the different pages write the deployOnly flag to localStorage
+    // if details writes deployOnly = false, then the other pages would ignore and continue
+    // if loading the deploy page FIRST it would write deployOnly = true and ignore the optional
+
     setStepValidationState(validation);
   }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
 

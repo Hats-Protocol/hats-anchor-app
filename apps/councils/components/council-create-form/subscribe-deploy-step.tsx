@@ -2,7 +2,7 @@
 
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
-import { useClipboard } from 'hooks';
+import { useClipboard, useLocalStorage } from 'hooks';
 import { get, isEmpty, map, some, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -116,6 +116,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
+
+  const [deployValue, setDeployValue] = useLocalStorage('deployOnly', true);
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {

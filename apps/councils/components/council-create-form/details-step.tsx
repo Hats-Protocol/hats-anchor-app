@@ -2,6 +2,7 @@
 
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, Form, Input, Textarea } from 'forms';
+import { useLocalStorage } from 'hooks';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
 
@@ -12,6 +13,8 @@ export function DetailsStep({ onNext }: StepProps) {
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { watch, handleSubmit } = localForm;
   const requirements = watch('requirements');
+
+  useLocalStorage('deployOnly', false);
 
   if (isLoading) {
     return <Skeleton className='h-100 w-100' />;
