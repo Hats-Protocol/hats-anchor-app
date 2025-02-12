@@ -21,7 +21,7 @@ const buttonVariants = cva(
           'bg-background/80 hover:bg-functional-success/10 border-functional-success text-functional-success border shadow',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-functional-link-primary hover:text-functional-link-primary/80 !h-auto !p-0 font-normal',
+        link: 'text-functional-link-primary hover:text-functional-link-primary/80 !h-auto !p-0 font-light',
       },
       size: {
         default: 'h-9 px-4 py-2',

@@ -135,7 +135,7 @@ const WearerButtons = () => {
                 disabled={maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
                 // isLoading={isLoading}
                 onClick={() => (!maxWearersReached ? setModals?.({ claimFor: true }) : {})}
-                className='text-functional-link-primary hover:text-functional-link-primary/80 flex items-center gap-2'
+                className='text-functional-link-primary hover:text-functional-link-primary/80 flex items-center gap-2 text-base'
               >
                 <FaPlus />
                 <p className='text-base'>Claim hat for wearer</p>
@@ -155,7 +155,7 @@ const WearerButtons = () => {
                 disabled={!claimHat || maxWearersReached || !hatterIsAdmin || chainId !== currentNetworkId}
                 onClick={claimHat}
               >
-                <div className='text-functional-link-primary hover:text-functional-link-primary/80 flex items-center gap-2'>
+                <div className='text-functional-link-primary hover:text-functional-link-primary/80 flex items-center gap-2 text-base'>
                   <FaPlus />
                   <p>Claim Hat</p>
                 </div>

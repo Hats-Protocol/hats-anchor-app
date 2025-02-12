@@ -1,6 +1,6 @@
 'use client';
 
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+// import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetails, useProfileDetails } from 'hats-hooks';
 import { compact, concat, find, map, pick, reject, toString } from 'lodash';
@@ -113,9 +113,9 @@ const AllowlistModal = ({
 
   if (!hat || !eligibilityHatId) return null;
 
-  const hatId = hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
+  // const hatId = hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
   const hatName = details?.name || hat?.details;
-  const heading = `Allowlist for Hat ${hatId} - ${hatName}`;
+  const heading = `Allowlist for ${hatName}`;
 
   return (
     <ModuleModal

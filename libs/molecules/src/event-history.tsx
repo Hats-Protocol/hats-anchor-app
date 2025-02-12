@@ -76,7 +76,7 @@ const Event = ({ event, chainId }: { event: HatsEvent; chainId?: number }) => {
         href={`${chainId && explorerUrl(chainId)}/tx/${event.transactionID}`}
         variant='link'
         className='block'
-        textClassName='text-base'
+        textClassName='text-base font-light'
         isExternal
         rightIcon={<Etherscan className='size-4' />}
       >

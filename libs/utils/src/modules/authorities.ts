@@ -14,6 +14,8 @@ export const getCustomModuleFunction = (authority: Authority | undefined) => {
       KNOWN_ELIGIBILITY_MODULES.erc20,
       KNOWN_ELIGIBILITY_MODULES.erc721,
       KNOWN_ELIGIBILITY_MODULES.erc1155,
+      KNOWN_ELIGIBILITY_MODULES.unlock,
+      KNOWN_ELIGIBILITY_MODULES.passthrough,
     ),
   );
 

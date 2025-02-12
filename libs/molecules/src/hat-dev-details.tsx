@@ -58,7 +58,7 @@ const HatDevDetails = () => {
 
           <div className='flex items-center gap-2'>
             <p className='text-sm uppercase'>Claimable:</p>
-            <p>{isClaimable?.for ? 'For' : isClaimable?.by ? 'Any' : 'None'}</p>
+            <p>{isClaimable?.for ? 'For' : isClaimable?.by ? 'By' : 'None'}</p>
           </div>
         </div>
 

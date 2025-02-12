@@ -2,12 +2,12 @@ import { HsgType } from '@hatsprotocol/hsg-sdk';
 import { WriteFunction } from '@hatsprotocol/modules-sdk';
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import _ from 'lodash';
+import { map, toUpper } from 'lodash';
 import { useCallback } from 'react';
 import { SupportedChains } from 'types';
 import { createHatsSignerGateClient, transformInput } from 'utils';
 import { Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 
 interface HsgFunctionCallProps {
   type: HsgType;
@@ -20,6 +20,7 @@ interface HsgFunctionCallProps {
 const useCallHsgFunction = ({ chainId }: { chainId: SupportedChains | undefined }) => {
   const { address } = useAccount();
   const { toast } = useToast();
+  const { data: walletClient } = useWalletClient();
 
   const callFunction = useCallback(
     async ({ type, instance, func, onSuccess, args }: HsgFunctionCallProps) => {
@@ -28,10 +29,10 @@ const useCallHsgFunction = ({ chainId }: { chainId: SupportedChains | undefined 
       if (!instance) throw new Error('Instance is undefined');
       if (!func) throw new Error('Function is undefined');
 
-      const signerGateClient = await createHatsSignerGateClient(chainId);
+      const signerGateClient = await createHatsSignerGateClient(chainId, walletClient);
       if (!signerGateClient) throw new Error('Failed to create module client');
 
-      const preparedArgs = _.map(func.args, (arg: any) => {
+      const preparedArgs = map(func.args, (arg: any) => {
         const value = args[`${arg.name}-resolved`] || args[arg.name];
         const transformedValue = transformInput(value, arg.type);
         return transformedValue;
@@ -40,7 +41,7 @@ const useCallHsgFunction = ({ chainId }: { chainId: SupportedChains | undefined 
       try {
         const result = await signerGateClient.callInstanceWriteFunction({
           account: address,
-          type: _.toUpper(type) as HsgType,
+          type: toUpper(type) as HsgType,
           instance,
           func,
           args: preparedArgs,

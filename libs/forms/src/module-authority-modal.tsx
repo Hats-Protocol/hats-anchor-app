@@ -76,6 +76,7 @@ const ModuleAuthorityModal = ({
     <Modal
       name={`functionCall-${authority?.label}-${index}`}
       title={`${capitalize(get(selectedFunction, 'label'))} for Hat #${authorityHatId}`}
+      size='lg'
     >
       <Form {...localForm}>
         <form onSubmit={handleSubmit(onSubmit)}>

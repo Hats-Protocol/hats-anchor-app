@@ -69,7 +69,7 @@ const FullWearersListModal = ({
         </div>
       }
     >
-      <ScrollArea className='h-[600px]'>
+      <ScrollArea className='max-h-[600px]'>
         <div className='flex flex-col gap-4'>
           {isLoading || isFetching ? (
             <div className='flex h-[600px] items-center justify-center'>

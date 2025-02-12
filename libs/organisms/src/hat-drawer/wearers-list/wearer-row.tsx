@@ -117,7 +117,7 @@ const WearerRow = ({
     <div className='flex w-full items-center justify-between' key={wearer.id}>
       <Link href={`/wearers/${wearer.id}`} className=''>
         <Tooltip label={!wearerNameIsAddress ? wearer.id : undefined}>
-          <div className={cn('flex items-center gap-1 pr-1', bgColor)}>
+          <div className={cn('flex items-center gap-2 pr-1', bgColor)}>
             {ensAvatar ? (
               <OblongAvatar src={ensAvatar} className='h-5 w-4 rounded-[2px]' />
             ) : (

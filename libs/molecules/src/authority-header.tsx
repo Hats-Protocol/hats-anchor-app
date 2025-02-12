@@ -126,7 +126,7 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeader
             {typeof label !== 'string' ? (
               label
             ) : (
-              <p className={cn('font-normal', isExpanded ? (isMobile ? 'font-bold' : 'font-medium') : undefined)}>
+              <p className={cn('font-light', isExpanded ? (isMobile ? 'font-bold' : 'font-normal') : undefined)}>
                 {hsgThresholdText || currentLabel || label || 'New Authority'}
                 {signerHatName &&
                   firstSignerHatId &&

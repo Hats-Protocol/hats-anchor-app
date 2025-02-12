@@ -100,8 +100,8 @@ export const ProfileList = ({
             <hr className='border-black' />
           </div>
 
-          <ScrollArea className='h-[calc(100vh-400px)] w-full'>
-            <div className='flex flex-col gap-4'>
+          <ScrollArea className='h-[550px] w-full'>
+            <div className='flex flex-col gap-4 pb-24'>
               {map(currentFilteredProfiles, (p: AllowlistProfile) => (
                 <EligibilityRow
                   key={p.id}

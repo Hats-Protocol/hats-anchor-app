@@ -97,7 +97,7 @@ export const AgreementEligibilityRule = ({
             setModals?.({ [modalName]: true });
           }}
           variant='link'
-          className='text-base'
+          className='text-base underline'
         >
           Agreement
         </Button>
