@@ -10,6 +10,7 @@ import { Hex } from 'viem';
 import { AgreementClaims } from '../agreement';
 import { AllowlistClaims } from '../allowlist';
 import { ElectionClaims } from '../election';
+import { Erc20Claims } from '../erc';
 import { SubscriptionClaims } from '../subscription';
 
 const MODULE_CLAIMS_CARD: {
@@ -19,6 +20,7 @@ const MODULE_CLAIMS_CARD: {
   allowlist: AllowlistClaims,
   election: ElectionClaims,
   unlock: SubscriptionClaims,
+  erc20: Erc20Claims,
 };
 
 export const ModuleChainClaimsCard = ({ labeledModules }: { labeledModules?: LabeledModules | undefined }) => {
