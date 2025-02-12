@@ -107,7 +107,7 @@ const ModuleFormInput = ({
       <NumberInput
         name={name}
         label={`${name} ${optional ? '(Optional)' : ''}`}
-        subLabel={description}
+        helperText={description}
         placeholder={arrayPlaceholder(example as string | string[])}
         // isRequired={!optional} // TODO handle required in number input
         localForm={localForm}

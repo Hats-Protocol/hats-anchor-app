@@ -8,6 +8,7 @@ import { ReactSelectOption } from 'ui';
 import { Select } from './select';
 
 interface ChainSelectProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   name: string;
   placeholder?: string;

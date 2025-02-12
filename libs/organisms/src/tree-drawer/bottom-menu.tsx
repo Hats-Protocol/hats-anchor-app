@@ -5,7 +5,7 @@ import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import { useClipboard, useSimulateTransaction } from 'hooks';
-import { get, map } from 'lodash';
+import { get, isEmpty, keys, map } from 'lodash';
 import posthog from 'posthog-js';
 import { useCallback } from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
@@ -19,10 +19,12 @@ import {
   AccordionTrigger,
   BaseInput as Input,
   Button,
+  cn,
   Link,
   Spinner,
   Tooltip,
 } from 'ui';
+import { logger } from 'utils';
 import { useAccount } from 'wagmi';
 
 const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';
@@ -86,6 +88,7 @@ const BottomMenu = ({
   }, [handleSimulate, address]);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  logger.debug('tree drawer bottom menu', { allCalls });
 
   return (
     <div className='z-14 absolute bottom-0 w-full'>
@@ -99,7 +102,7 @@ const BottomMenu = ({
         >
           <AccordionItem value='bottom-menu' aria-disabled={!hasUpdates}>
             <AccordionTrigger
-              className='px-8 py-4 hover:no-underline'
+              className={cn('px-8 py-4 hover:no-underline', !hasUpdates && 'opacity-50')}
               onClick={openCalldataMenu}
               customIcon={<IoIosArrowUp className='transition-transform duration-200' />}
             >
@@ -110,22 +113,23 @@ const BottomMenu = ({
               <div className='flex flex-col gap-2'>
                 {isDev && (
                   <>
-                    <div className='max-h-[250px] overflow-auto'>
+                    <div className='max-h-[250px] space-y-2 overflow-auto'>
                       <h3 className='text-sm font-medium'>Combined Call Data</h3>
 
-                      {map(allCalls, (hat: { hatChanges: AppHat; calls: { functionName: string }[] }) => {
-                        if (!hat.hatChanges.id) return null;
-                        return (
-                          <div className='flex flex-col gap-1' key={hat.hatChanges.id}>
-                            <h3 className='text-sm font-medium'>
-                              {hatIdDecimalToIp(hatIdHexToDecimal(hat.hatChanges.id))}
-                            </h3>
-                            {map(hat.calls, (call) => (
-                              <p className='text-sm'>-- {call.functionName}</p>
-                            ))}
-                          </div>
-                        );
-                      })}
+                      {map(
+                        allCalls,
+                        (hat: { hatChanges: AppHat; calls: { functionName: string }[]; hatId: string }) => {
+                          if (isEmpty(keys(hat.hatChanges))) return null;
+                          return (
+                            <div className='flex flex-col gap-1' key={hat.hatId}>
+                              <h3 className='text-sm font-medium'>{hatIdDecimalToIp(hatIdHexToDecimal(hat.hatId))}</h3>
+                              {map(hat.calls, (call) => (
+                                <p className='text-sm'>-- {call.functionName}</p>
+                              ))}
+                            </div>
+                          );
+                        },
+                      )}
                     </div>
 
                     <div className='border-t border-gray-400' />

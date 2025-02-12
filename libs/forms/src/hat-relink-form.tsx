@@ -5,7 +5,7 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, usePinImageIpfs, useWaitForSubgraph } from 'hooks';
-import { first, get, map } from 'lodash';
+import { first, get } from 'lodash';
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
@@ -19,6 +19,7 @@ import { useEnsAddress } from 'wagmi';
 import { FormControl, FormLabel, Input, Select, Textarea } from './components';
 
 // TODO [low] update links to use new docs links constants
+// TODO fix select
 
 const HatRelinkForm = ({
   chainId,

@@ -9,9 +9,11 @@ import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsFileCode, BsPersonAdd } from 'react-icons/bs';
+import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { Button, Tooltip } from 'ui';
 import { formatAddress } from 'utils';
+import { Hex } from 'viem/_types/types/misc';
 import { useWriteContract } from 'wagmi';
 
 import { FormRowWrapper, Select } from './components';
@@ -62,6 +64,12 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
     if (!wearingHatId) return undefined;
     return find(treeToDisplay, { id: wearingHatId });
   }, [treeToDisplay, wearingHatId]);
+
+  // TODO handle current hat names (while editing)
+  const hatToMintToOptions = map(availableAdmins, (a: AppHat) => ({
+    label: `${idToIp(a.id as Hex)} ${get(a, 'detailsObject.data.name', get(a, 'details'))}`,
+    value: a.id,
+  }));
 
   const onSuccess = () => {
     console.log('success');
@@ -148,13 +156,8 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
             A claims hatter exists at <span className='font-mono'>{formatAddress(instanceAddress)}</span>, but it is not
             an admin of this hat.
           </p>
-          <Select localForm={localForm} name='hatToMintTo' options={[]}>
-            {/* {map(availableAdmins, (a: AppHat) => (
-              <option value={a.id} key={a.id}>
-                {hatIdDecimalToIp(BigInt(a.id))} {get(a, 'detailsObject.data.name', get(a, 'details'))}
-              </option>
-            ))} */}
-          </Select>
+          <Select localForm={localForm} name='hatToMintTo' options={hatToMintToOptions} />
+
           {(hatToMintTo || hatToMintPended) && (
             <div className='flex justify-end'>
               <Tooltip

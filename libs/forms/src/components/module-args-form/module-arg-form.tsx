@@ -28,10 +28,10 @@ const ModuleArgsForm = ({
   if (!selectedModuleArgs) return null;
 
   return (
-    <div className='flex flex-col gap-3'>
+    <div className='flex flex-col gap-6'>
       {map(selectedModuleArgs, (arg: ModuleCreationArg) => (
         <FormRowWrapper key={arg.name} noMargin={noMargin}>
-          {!hideIcon && <BsTextLeft className='mt-1 h-4 w-4' />}
+          {!hideIcon && <BsTextLeft className='absolute -ml-8 size-4' />}
           <ModuleFormInput
             arg={arg}
             fullArgs={selectedModuleArgs}

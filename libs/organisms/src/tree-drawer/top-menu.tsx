@@ -71,7 +71,7 @@ const TopMenu = () => {
 
   const promptForReset = () => {
     if (editHasUpdates(storedData)) {
-      setModals?.({ resetChanges: true });
+      setModals?.({ 'reset-changes': true });
     } else {
       setEditMode?.(!editMode);
       onCloseTreeDrawer?.();
@@ -139,11 +139,11 @@ const TopMenu = () => {
         </Tooltip>
       </div>
 
-      <Modal name='reset-changes' title='Reset Changes'>
-        <div>
+      <Modal name='reset-changes' title='Reset Changes' size='md'>
+        <div className='space-y-6'>
           <p>Are you sure you want to reset all current changes?</p>
 
-          <div className='flex justify-end'>
+          <div className='flex justify-end gap-2'>
             <Button variant='outline' onClick={() => setModals?.({})}>
               Cancel
             </Button>

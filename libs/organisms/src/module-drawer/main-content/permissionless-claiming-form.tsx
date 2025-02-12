@@ -5,7 +5,7 @@ import { useSelectedHat, useTreeForm } from 'contexts';
 import { FormRowWrapper, RadioBox } from 'forms';
 import { Select } from 'forms';
 import { useHatDetails, useHatDetailsField, useIsAdmin } from 'hats-hooks';
-import { includes, map, pick, sortBy } from 'lodash';
+import { includes, map, pick } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChartLine, BsInfoCircle, BsPersonAdd, BsPersonCheck, BsPuzzle } from 'react-icons/bs';
@@ -45,6 +45,11 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
   });
   const { data: wearingHatDetailsObject } = useHatDetailsField(wearingHatDetails?.details, editMode);
 
+  const adminHatOptions = map(parentHats, (h: AppHat) => ({
+    label: `${idToIp(h.id as Hex)} - ${h.detailsObject?.data?.name}`,
+    value: h.id,
+  }));
+
   if (!onchainHats || !treeToDisplay) return null;
 
   if (isClaimable) {
@@ -61,14 +66,15 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
   }
 
   return (
-    <div className='flex flex-col gap-12'>
+    <div className='mx-8 mt-6 flex flex-col gap-12'>
       <FormRowWrapper noMargin>
-        <BsPersonAdd className='mt-2 h-4 w-4' />
+        <BsPersonAdd className='absolute -ml-8 size-4' />
+
         <div className='flex flex-col'>
           <RadioBox
             name='isPermissionlesslyClaimable'
             label='Hat Claiming'
-            subLabel='Should this hat be permissionlessly claimable by potential wearers who meet the requirements of the accountability module?'
+            helperText='Should this hat be permissionlessly claimable by potential wearers who meet the requirements of the accountability module?'
             localForm={localForm}
             options={[
               {
@@ -86,7 +92,8 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
       </FormRowWrapper>
       {!(parentHats && parentHats.length > 0) && (
         <FormRowWrapper noMargin>
-          <BsInfoCircle className='mt-2 h-4 w-4' />
+          <BsInfoCircle className='absolute -ml-8 mt-1 size-4' />
+
           <p className='text-functional-text-secondary'>
             Permissionless claiming is currently unavailable as there are no eligible hats present. To enable this
             option, there must be at least one non-top hat admin of this hat available.
@@ -98,36 +105,28 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
         <div className='flex flex-col gap-12'>
           {multiClaimsHatter && !isClaimable && isAdmin && isPermissionlesslyClaimable === 'Yes' ? (
             <FormRowWrapper noMargin>
-              <BsInfoCircle className='mt-2 h-4 w-4' />
+              <BsInfoCircle className='absolute -ml-8 mt-1 size-4' />
+
               <p className='text-cyan-600'>
-                A claims hatter for this tree has already been set up at <pre>{formatAddress(instanceAddress)}</pre>.
-                We&apos;ll register this hat with the hatter during the module deploy transaction.
+                A claims hatter for this tree has already been set up at{' '}
+                <pre className='inline'>{formatAddress(instanceAddress)}</pre>. We&apos;ll register this hat with the
+                hatter during the module deploy transaction.
               </p>
             </FormRowWrapper>
           ) : (
-            <FormRowWrapper>
-              <BsPuzzle className='mt-2 h-4 w-4' />
-              <div className='flex flex-col'>
+            <FormRowWrapper noMargin>
+              <BsPuzzle className='absolute -ml-8 mt-1 size-4' />
+
+              <div className='flex flex-col gap-1'>
                 <Select
                   name='adminHat'
                   label='ADMIN HAT'
                   subLabel='To enable permissionless claiming, give an admin hat in this tree to the new hatter contract. Must be a non-top hat admin of this hat.'
                   localForm={localForm}
                   placeholder='Select a hat in this tree'
-                  options={{
-                    required: isPermissionlesslyClaimable === 'Yes',
-                  }}
-                >
-                  {map(sortBy(parentHats, 'id'), (h: AppHat) => {
-                    let displayName = h.details;
-                    if (h.detailsObject?.data?.name) displayName = h.detailsObject?.data?.name;
-                    return (
-                      <option value={h.id} key={h.id}>
-                        {idToIp(h.id as Hex)} - {displayName}
-                      </option>
-                    );
-                  })}
-                </Select>
+                  options={adminHatOptions}
+                />
+
                 {selectedHat && (
                   <p className='text-sm text-gray-500'>
                     Potential wearers will be able to claim this hat (#
@@ -138,12 +137,12 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
             </FormRowWrapper>
           )}
           <FormRowWrapper noMargin>
-            <BsPersonCheck className='mt-2 h-4 w-4' />
+            <BsPersonCheck className='absolute -ml-8 mt-1 size-4' />
             <div className='flex flex-col'>
               <RadioBox
                 name='initialClaimabilityType'
                 label='CLAIM FOR ACCOUNT'
-                subLabel='Should this hat be claimable on behalf of an account?'
+                helperText='Should this hat be claimable on behalf of an account?'
                 localForm={localForm}
                 options={[
                   {
@@ -168,7 +167,7 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
             <RadioBox
               name='incrementWearers'
               label='Increment Max Wearers by 1'
-              subLabel={`The admin hat you selected (${hatIdDecimalToIp(BigInt(wearingHatDetails?.id))} — ${
+              helperText={`The admin hat you selected (${hatIdDecimalToIp(BigInt(wearingHatDetails?.id))} — ${
                 wearingHatDetailsObject?.data.name
               }) has no more available supply to mint. Do you want to increase the max wearers by 1 in order to mint this hat to the new hatter contract?`}
               localForm={localForm}

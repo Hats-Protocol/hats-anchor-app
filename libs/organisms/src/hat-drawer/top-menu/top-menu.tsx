@@ -110,12 +110,12 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
                 </Button>
               ) : (
                 <Tooltip label={draftWithChildren ? "Can't delete draft hats with children" : undefined}>
-                  <Button onClick={handleRemoveHat} variant='destructive' disabled={draftWithChildren}>
+                  <Button onClick={handleRemoveHat} variant='outline-red' disabled={draftWithChildren}>
                     Delete Hat
                   </Button>
                 </Tooltip>
               ))}
-            <Button className='bg-sky-400 hover:bg-sky-500' onClick={handleSave} disabled={hatFormLoading}>
+            <Button className='bg-cyan-500 hover:bg-cyan-600' onClick={handleSave} disabled={hatFormLoading}>
               <FiSave className='mr-1 size-4' />
               Save
             </Button>

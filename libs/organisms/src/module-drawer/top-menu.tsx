@@ -41,9 +41,9 @@ const TopMenu = ({
   });
   const { handlePendingTx } = useOverlay();
   const { watch } = localForm;
-  const moduleType = watch('moduleType');
+  const moduleType = watch('moduleType')?.value;
   const isPermissionlesslyClaimable = watch('isPermissionlesslyClaimable');
-  const adminHat = watch('adminHat');
+  const adminHat = watch('adminHat')?.value;
   const incrementWearers = watch('incrementWearers');
 
   const { data: adminHatDetails } = useHatDetails({ hatId: adminHat, chainId });

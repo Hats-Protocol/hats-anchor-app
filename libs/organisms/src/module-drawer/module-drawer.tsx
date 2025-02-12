@@ -28,7 +28,7 @@ const ModuleDrawer = ({
   const localForm = useForm({
     mode: 'onBlur',
     defaultValues: {
-      moduleType: '',
+      moduleType: { value: '', label: '' },
       isPermissionlesslyClaimable: 'Yes',
       initialClaimableHats: selectedHat?.id && hatIdHexToDecimal(selectedHat?.id),
       initialClaimabilityType: '2', // 1 for "claimable", 2 for "claimable for"
@@ -36,7 +36,7 @@ const ModuleDrawer = ({
   });
   const { watch } = localForm;
 
-  const selectedModuleField = watch('moduleType', '');
+  const selectedModuleField = watch('moduleType')?.value;
 
   const selectedModuleDetails: ModuleDetails | undefined = useMemo(() => {
     return find(modules, { id: selectedModuleField }) as ModuleDetails;

@@ -80,6 +80,7 @@ export const ProfileList = ({
                   onClick={() => setActiveFilter(filter)}
                   className={cn('flex justify-between', activeFilter === filter && 'bg-functional-link-primary/20')}
                   disabled={filter === activeFilter || size(filteredProfiles[filter]) === 0}
+                  key={filter}
                 >
                   <p>{capitalize(filter)}</p>
                   <p>{size(filteredProfiles[filter])}</p>

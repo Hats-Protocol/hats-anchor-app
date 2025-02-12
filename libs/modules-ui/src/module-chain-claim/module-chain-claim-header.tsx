@@ -15,7 +15,7 @@ import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi'
 
 import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
-const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_IS_CLAIMS_APP === 'true';
+// const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_IS_CLAIMS_APP === 'true';
 
 const ModuleChainClaimHeader = ({
   hsgAddress,
@@ -146,6 +146,9 @@ const ModuleChainClaimHeader = ({
 
           queryClient.invalidateQueries({ queryKey: ['readContract'] }); // TODO trying to invalidate is safe signer check
           queryClient.invalidateQueries({ queryKey: ['safeDetails'] });
+          queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+          queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
+
           setIsLoading(false);
           posthog.capture('Claimed Signer', {
             chainId,

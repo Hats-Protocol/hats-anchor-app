@@ -11,6 +11,8 @@ import { Hex } from 'viem';
 
 import { Input } from './input';
 
+// TODO leverage the hat-input component and or select component?
+
 const MultiHatsSelect = ({
   name,
   label,

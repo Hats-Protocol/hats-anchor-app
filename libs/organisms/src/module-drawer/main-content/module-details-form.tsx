@@ -23,7 +23,7 @@ const ModuleDetailsForm = ({
   const { onchainTree, treeToDisplay, chainId, editMode } = useTreeForm();
   const { modules } = useHatsModules({ chainId, editMode });
   const { watch } = localForm;
-  const selectedModuleField = watch('moduleType', '');
+  const selectedModuleField = watch('moduleType', '')?.value;
   const modulesToDisplay: ModuleDetails[] = useMemo(() => {
     const modulesForType = filter(modules, (m: ModuleDetails) => {
       const types = keys(pickBy(m.type, (value: ModuleDetails) => value));
@@ -57,12 +57,18 @@ const ModuleDetailsForm = ({
   // watch() by default returns whole object, so not good fallback
   const tokenAddress = tokenArgName ? watch(tokenArgName) : undefined;
 
+  const moduleOptions = map(modulesToDisplay, ({ name, id }) => ({
+    label: name,
+    value: id,
+  }));
+
   if (!onchainTree || !treeToDisplay) return null;
+  console.log(watch());
 
   return (
-    <div className='mx-8 mt-4 space-y-12'>
+    <div className='mx-8 mt-6 space-y-12'>
       <FormRowWrapper noMargin>
-        <BsPuzzle className='absolute -ml-8 mt-1 size-4' />
+        <BsPuzzle className='absolute -ml-8 size-4' />
         <div className='w-full space-y-2'>
           <Select
             label='Module Type'
@@ -71,13 +77,8 @@ const ModuleDetailsForm = ({
             defaultValue={undefined}
             placeholder='Select a module type'
             localForm={localForm}
-          >
-            {map(modulesToDisplay, ({ name, id }) => (
-              <option value={id} key={name}>
-                {name}
-              </option>
-            ))}
-          </Select>
+            options={moduleOptions}
+          />
 
           <div className='flex items-center gap-2'>
             <p className='text-sm text-gray-500'>Not finding a module you&apos;re looking for?</p>
@@ -90,7 +91,7 @@ const ModuleDetailsForm = ({
 
       {selectedModuleDetails && (
         <FormRowWrapper noMargin>
-          <BsTextLeft className='absolute -ml-8 mt-1 size-4' />
+          <BsTextLeft className='absolute -ml-8 size-4' />
 
           <div className='space-y-3'>
             <p className='text-sm font-medium'>MODULE TYPE DETAILS</p>
@@ -106,6 +107,7 @@ const ModuleDetailsForm = ({
           selectedModuleArgs={selectedModuleArgs || undefined}
           localForm={localForm}
           tokenAddress={tokenAddress}
+          noMargin
         />
       </div>
     </div>

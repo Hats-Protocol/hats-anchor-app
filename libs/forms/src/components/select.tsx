@@ -1,17 +1,21 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Controller, UseFormReturn } from 'react-hook-form';
+import { Controller, RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
 import { ReactSelect, ReactSelectOption, ReactSelectProps, Tooltip } from 'ui';
 
-import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
+import { FormControl, FormDescription, FormItem, FormLabel } from './form';
+
+// TODO handle required indicator on label
 
 export type SelectProps<TOption extends ReactSelectOption> = {
   label?: string;
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   options: TOption[];
+  formOptions?: RegisterOptions;
   placeholder?: string;
   isDisabled?: boolean;
   subLabel?: string | ReactNode;
@@ -26,6 +30,7 @@ export const Select = <TOption extends ReactSelectOption>({
   name,
   localForm,
   options,
+  formOptions,
   placeholder,
   isDisabled,
   subLabel,
@@ -82,6 +87,7 @@ export const Select = <TOption extends ReactSelectOption>({
         <Controller
           name={name}
           control={control}
+          rules={formOptions}
           render={({ field: { value, onChange, ...field } }) => (
             <ReactSelect<TOption>
               {...field}

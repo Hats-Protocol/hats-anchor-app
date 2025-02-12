@@ -4,13 +4,15 @@ import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId } from '@hatsprotoco
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
-import { first, isEmpty, map } from 'lodash';
+import { first, isEmpty } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Button } from 'ui';
 import { Hex } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { Select } from './components';
+
+// TODO fix select
 
 const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats }: { newAdmin: string; wearerTopHats: Hex[] }) => {
   const currentChainId = useChainId();
@@ -30,7 +32,7 @@ const HatLinkRequestCreateForm = ({ newAdmin, wearerTopHats }: { newAdmin: strin
   // first(wearerTopHats) is the default value for topHatDomain
   const topHatDomain = useDebounce<Hex | undefined>(watch('topHatDomain'));
 
-  const { writeAsync, isLoading } = useHatContractWrite({
+  const { writeAsync } = useHatContractWrite({
     functionName: 'requestLinkTopHatToTree',
     args: topHatDomain ? [hatIdToTreeId(BigInt(topHatDomain)), hatIdHexToDecimal(newAdmin)] : [],
     chainId,

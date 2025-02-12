@@ -65,7 +65,7 @@ const AmountWithDecimals = ({
       <NumberInput
         name={arg.name}
         label={`${arg.name} ${arg.optional ? '(Optional)' : ''}`}
-        subLabel={arg.description}
+        helperText={arg.description}
         numOptions={{ min: 0 }}
         isDisabled={!tokenDetails}
         placeholder={FALLBACK_ARG_EXAMPLES.number}
@@ -98,7 +98,7 @@ const AmountWithDecimals = ({
           {tokenDetails?.symbol} uses {tokenDecimals} decimals
         </p>
       ) : (
-        <p className='text-sm text-gray-500'>Input token address</p>
+        <p className='text-sm text-gray-500'>Input token address above</p>
       )}
     </div>
   );

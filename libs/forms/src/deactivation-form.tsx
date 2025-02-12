@@ -1,10 +1,9 @@
 'use client';
 
-import { chainsList } from '@hatsprotocol/config';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useTreeDetails } from 'hats-hooks';
-import { concat, filter, get, isEmpty, map, range, toLower, toNumber, values } from 'lodash';
+import { concat, filter, get, isEmpty, map, range, toLower, toNumber } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
@@ -14,7 +13,7 @@ import { createHatsClient, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
-import { Form, FormControl, FormItem, FormLabel, Input, NumberInput, Select } from './components';
+import { ChainSelect, Form, FormControl, FormItem, FormLabel, Input, NumberInput } from './components';
 
 const DeactivationForm = () => {
   const localForm = useForm();
@@ -104,13 +103,7 @@ const DeactivationForm = () => {
         <form className='flex flex-col gap-4' onSubmit={handleSubmit(onSubmit)}>
           <div className='flex justify-between gap-4'>
             <div className='w-1/2'>
-              <Select localForm={localForm} name='chainId' label='Network' options={[]}>
-                {/* {map(values(chainsList), (chain) => (
-                  <SelectItem value={chain.id.toString()} key={chain.id}>
-                    {chain.name}
-                  </SelectItem>
-                ))} */}
-              </Select>
+              <ChainSelect localForm={localForm} name='chainId' label='Network' />
             </div>
 
             <div className='w-1/2'>

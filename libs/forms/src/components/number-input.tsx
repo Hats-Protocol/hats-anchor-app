@@ -108,7 +108,7 @@ const NumberInput = ({
       name={name}
       control={control}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className='flex-grow'>
           <div className='flex w-full flex-col gap-2'>
             {label && (
               <FormLabel className='mb-0'>

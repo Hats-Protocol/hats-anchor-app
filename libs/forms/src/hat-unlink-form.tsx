@@ -4,12 +4,14 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatDetails } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
-import { map } from 'lodash';
+// import { map } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { Button } from 'ui';
 import { Hex } from 'viem';
 
 import { Select } from './components';
+
+// TODO fix select
 
 const HatUnlinkForm = ({ parentOfTrees }: { parentOfTrees: Hex[] }) => {
   const { chainId } = useTreeForm();

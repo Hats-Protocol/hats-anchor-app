@@ -134,7 +134,7 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
         </Button>
       </div>
 
-      <Modal name='responsibilities-edit' title='Edit Responsibility' size='lg'>
+      <Modal name='responsibilities-edit' title='Edit Responsibility' size='xl'>
         <Form {...localForm}>
           <form onSubmit={handleSubmit(saveEditedItem)} className='space-y-4'>
             <div className='flex w-full justify-center'>
@@ -179,7 +179,7 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
             />
 
             <div className='mt-6 flex justify-end'>
-              <Button variant='outline' className='mr-3' onClick={saveEditedItem}>
+              <Button variant='outline' className='mr-3' onClick={() => setModals?.({})}>
                 Cancel
               </Button>
               <Button disabled={some(errors) || !isDirty} type='submit'>

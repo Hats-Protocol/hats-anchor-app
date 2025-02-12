@@ -208,7 +208,7 @@ const Input = ({
                   // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined} // TODO handle error state border
                 />
 
-                <div className={cn('w-full', { 'w-[100%]': rightElementWidth })}>
+                <div className={cn('w-full space-y-1', { 'w-[100%]': rightElementWidth })}>
                   <div className='flex w-full items-center justify-between pr-4'>
                     {rightElement && (
                       <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3'>
@@ -226,17 +226,16 @@ const Input = ({
                         <GrUndo />
                       </Button>
                     )}
-
-                    {maxLength > 0 && (
-                      <p
-                        className={cn('text-xs', {
-                          'text-red-500': maxLength - inputLength < 0,
-                        })}
-                      >
-                        {maxLength - inputLength}
-                      </p>
-                    )}
                   </div>
+                  {maxLength > 0 && (
+                    <p
+                      className={cn('text-xs', {
+                        'text-red-500': maxLength - inputLength < 0,
+                      })}
+                    >
+                      {maxLength - inputLength} characters remaining
+                    </p>
+                  )}
                 </div>
 
                 {typeof subInput !== 'string' ? subInput : <FormDescription>{subInput}</FormDescription>}

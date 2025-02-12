@@ -236,16 +236,16 @@ const EditMode = () => {
 
         {posthog?.isFeatureEnabled('dev') && (
           <div className='w-full space-y-4'>
-            <div className='flex items-center'>
-              <p className='text-lg font-medium'>Image URI:</p>
+            <div className='flex items-center gap-2'>
+              <p className='text-sm font-medium'>Image URI:</p>
               <Link href={ipfsUrl(selectedHat?.imageUri)} className='underline' isExternal>
                 <p className='max-w-[350px] truncate'>
                   {selectedHat?.imageUri !== '' ? selectedHat?.imageUri : 'Empty'}
                 </p>
               </Link>
             </div>
-            <div className='flex items-center'>
-              <p className='text-lg font-medium'>Details URI:</p>
+            <div className='flex items-center gap-2'>
+              <p className='text-sm font-medium'>Details URI:</p>
               <Link href={ipfsUrl(selectedHat?.details)} className='underline' isExternal>
                 <p className='max-w-[350px] truncate'>{selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}</p>
               </Link>

@@ -14,7 +14,7 @@ import Select, { Props } from 'react-select';
 export interface ReactSelectOption {
   value: string;
   label: string;
-  iconUrl: string;
+  iconUrl?: string;
 }
 
 type ExtendedSelectProps<T> = Props<T, false, GroupBase<T>> & {

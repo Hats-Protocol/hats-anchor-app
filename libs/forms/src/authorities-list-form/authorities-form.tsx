@@ -70,7 +70,7 @@ const AuthoritiesForm = ({ formName, localForm, index, hatForm, chainId, hatId }
   }, [gate, link]);
 
   return (
-    <Modal name='authorities-edit' title='Edit Authority'>
+    <Modal name='authorities-edit' title='Edit Authority' size='xl'>
       <div className='flex flex-col gap-8'>
         <div className='flex w-full justify-center'>
           <Card className='border-radius-4 box-shadow-md w-80% p-4'>

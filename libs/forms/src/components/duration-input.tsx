@@ -3,7 +3,7 @@
 import { find, get, pick, toNumber } from 'lodash';
 import React, { useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
-import { BaseSelect, BaseSelectItem } from 'ui';
+import { BaseSelect, BaseSelectContent, BaseSelectItem, BaseSelectTrigger } from 'ui';
 
 import { FormControl, FormLabel } from './form';
 import { NumberInput } from './number-input';
@@ -24,12 +24,12 @@ const DurationInput: React.FC<DurationInputProps> = ({
   localForm,
   placeholder,
   isRequired,
-  options,
+  formOptions,
   label,
   subLabel,
   // defaultTimeUnit,
 }) => {
-  const { setValue, watch } = pick(localForm, ['setValue', 'watch']);
+  const { setValue, watch, reset } = pick(localForm, ['setValue', 'watch', 'reset']);
   const calculateSeconds = (value: number, timeUnit: string) => {
     const unitValue = get(find(timeUnits, { unit: timeUnit }), 'value', 1);
     return String(value * unitValue);
@@ -47,10 +47,17 @@ const DurationInput: React.FC<DurationInputProps> = ({
     // intentionally not including `setValue` in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeValue, timeUnit, name]);
+  console.log({ timeUnit });
+
+  useEffect(() => {
+    if (!timeUnit) {
+      reset({ [`${name}-time-unit`]: 'hours', [`${name}-time-value`]: 24 });
+    }
+  }, [timeUnit, name, reset]);
 
   return (
     <FormControl>
-      <div className='w-full'>
+      <div className='w-full space-y-1'>
         {label && (
           <FormLabel className='mb-0'>
             <p className='text-sm'>
@@ -60,17 +67,16 @@ const DurationInput: React.FC<DurationInputProps> = ({
           </FormLabel>
         )}
 
-        {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-gray-700'>{subLabel}</p>}
+        {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-xs text-gray-500'>{subLabel}</p>}
 
-        <div className='flex flex-col gap-2 space-y-1'>
-          <div className='flex gap-2'>
+        <div className='flex w-full flex-col gap-2 space-y-1'>
+          <div className='flex w-full'>
             <NumberInput
               name={`${name}-time-value`}
               localForm={localForm}
-              // defaultValue={0}
               placeholder={placeholder}
               // isRequired={isRequired}
-              options={options}
+              options={formOptions}
             />
 
             <div className='w-40'>
@@ -78,13 +84,15 @@ const DurationInput: React.FC<DurationInputProps> = ({
                 name={`${name}-time-unit`}
                 value={timeUnit}
                 onValueChange={(value: any) => setValue(`${name}-time-unit`, value)}
-                defaultValue='seconds'
               >
-                {timeUnits.map(({ unit, value }) => (
-                  <BaseSelectItem key={unit} value={unit}>
-                    {unit}
-                  </BaseSelectItem>
-                ))}
+                <BaseSelectTrigger className='bg-gray-50'>{timeUnit}</BaseSelectTrigger>
+                <BaseSelectContent>
+                  {timeUnits.map(({ unit, value }) => (
+                    <BaseSelectItem key={unit} value={unit}>
+                      {unit}
+                    </BaseSelectItem>
+                  ))}
+                </BaseSelectContent>
               </BaseSelect>
             </div>
           </div>
@@ -102,7 +110,7 @@ interface DurationInputProps {
   localForm: UseFormReturn<any>;
   placeholder?: string;
   isRequired?: boolean;
-  options?: RegisterOptions;
+  formOptions?: RegisterOptions;
   label?: string;
   subLabel?: string;
   // defaultTimeUnit?: string; // is this easier to handle at the form level with `reset`?

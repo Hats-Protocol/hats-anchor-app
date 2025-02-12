@@ -55,7 +55,7 @@ const NavLinks = () => {
           {!tabName ? (
             <p className='text-lg font-medium'>{capitalize(CONFIG.TERMS.trees)}</p>
           ) : (
-            <div className='flex flex-col items-start gap-2'>
+            <div className='flex flex-col items-start gap-2 px-8'>
               <p className='text-sm uppercase'>{CONFIG.TERMS.trees}</p>
               <p className='text-lg font-medium'>{containsUpperCase(tabName) ? tabName : capitalize(tabName)}</p>
             </div>
