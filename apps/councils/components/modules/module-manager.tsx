@@ -19,6 +19,7 @@ export type ModuleManagerComponent = ({
   criteriaModule: Hex;
   offchainCouncilDetails: OffchainCouncilData | undefined;
   slug: string;
+  primarySignerHat: Hex | undefined;
 }) => ReactNode | undefined;
 
 type Rule = {
@@ -38,12 +39,14 @@ const ModuleManager = ({
   criteriaModule,
   offchainCouncilDetails,
   slug,
+  primarySignerHat,
 }: {
   rule: Rule;
   chainId: number | undefined;
   criteriaModule: Hex;
   offchainCouncilDetails: OffchainCouncilData | undefined;
   slug: string;
+  primarySignerHat: Hex | undefined;
 }) => {
   const knownModule = getKnownEligibilityModule(rule.module?.implementationAddress as Hex);
 
@@ -63,6 +66,7 @@ const ModuleManager = ({
     criteriaModule,
     offchainCouncilDetails,
     slug,
+    primarySignerHat,
   });
 };
 

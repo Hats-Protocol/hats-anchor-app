@@ -6,7 +6,6 @@ import { useWearerDetails } from 'hats-hooks';
 import { useCouncilsList, useMediaStyles } from 'hooks';
 import { concat, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Skeleton } from 'ui';
 import { chainIdToString, fetchAllowlistEntries, ipfsUrl } from 'utils';
@@ -36,7 +35,6 @@ const EMPTY_COUNCIL_STEPS = [
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
   const { user, login } = usePrivy();
-  const router = useRouter();
   const chainId = useChainId();
   const { isClient } = useMediaStyles();
 

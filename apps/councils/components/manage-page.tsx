@@ -14,7 +14,7 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import { idToIp } from 'shared';
 import { CouncilMember, SupportedChains } from 'types';
-import { Button, Skeleton } from 'ui';
+import { Button, cn, Skeleton } from 'ui';
 import { MemberAvatar } from 'ui';
 import {
   createHatsClient,
@@ -143,7 +143,6 @@ const ManagePage = ({ slug }: { slug: string }) => {
   });
   const signers = filter(safeSigners, (signer) => includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)));
 
-  // TODO remove erc20 `getKnownEligibilityModule(rule.module.implementationAddress as Hex) !== 'erc20',`
   const menuOptions = concat(
     DEFAULT_SECTIONS,
     map(filterRulesWithoutAdmin(rulesWithoutSelectionModule), (rule) => ({
@@ -193,6 +192,8 @@ const ManagePage = ({ slug }: { slug: string }) => {
       },
     });
   };
+
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   return (
     <div className='flex gap-4 pt-10'>
@@ -262,12 +263,16 @@ const ManagePage = ({ slug }: { slug: string }) => {
                   <p className='text-sm'>Can select Council Members</p>
                 </div>
 
-                <div className='flex flex-col gap-2'>
+                <div className='flex flex-col gap-4'>
                   {map(ownerHat?.wearers, (owner) => {
                     const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
                       address: getAddress(owner.id),
                     });
-                    return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner?.id} />;
+                    return (
+                      <div key={owner?.id} className={cn(isDev && !offchainDetails && 'bg-functional-link-primary/10')}>
+                        <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} />
+                      </div>
+                    );
                   })}
                 </div>
 
@@ -303,6 +308,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
             rule={rule}
             chainId={chainId ?? 11155111}
             key={rule.address}
+            primarySignerHat={primarySignerHat?.id}
             criteriaModule={offchainCouncilDetails?.membersCriteriaModule as Hex}
             offchainCouncilDetails={offchainCouncilDetails || undefined}
             slug={slug}

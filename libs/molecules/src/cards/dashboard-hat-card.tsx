@@ -20,7 +20,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
     : `trees/${hat.chainId}/${Number(hatIdToTreeId(BigInt(hat.id)))}?hatId=${hatIdDecimalToIp(BigInt(hat.id))}`;
 
   return (
-    <Link href={hatLink} className='shadow hover:no-underline'>
+    <Link href={hatLink} className='rounded-md shadow hover:no-underline'>
       <Card className='h-24 overflow-hidden rounded-md p-4'>
         <div className='flex w-full items-center gap-4'>
           <div className='size-16'>

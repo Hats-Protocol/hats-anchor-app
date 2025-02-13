@@ -2,13 +2,13 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
-import { useHatDetails } from 'hats-hooks';
+import { useAllWearers, useHatDetails, useIsAdmin } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import { find, get, map, size, split, toLower } from 'lodash';
+import { find, get, map, size, split } from 'lodash';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
-import { Button, MemberAvatar, Tooltip } from 'ui';
+import { Button, cn, MemberAvatar, Tooltip } from 'ui';
 import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
@@ -21,11 +21,19 @@ interface ModuleManagerProps {
   criteriaModule: Hex;
   offchainCouncilDetails: OffchainCouncilData | undefined;
   slug: string;
+  primarySignerHat: Hex | undefined;
 }
 
 // Selection Module has already been removed from the list when populating these Managers
 
-const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDetails }: ModuleManagerProps) => {
+const AllowlistManager = ({
+  m,
+  chainId,
+  slug,
+  criteriaModule,
+  offchainCouncilDetails,
+  primarySignerHat,
+}: ModuleManagerProps) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
   const { user } = usePrivy();
@@ -44,14 +52,11 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
     chainId: chainId as SupportedChains,
     hatId: managerHatId ? hatIdDecimalToHex(managerHatId) : undefined,
   });
-  const { data: adminHat } = useHatDetails({
+  const { wearers: managers } = useAllWearers({
+    selectedHat: managerHat,
     chainId: chainId as SupportedChains,
-    hatId: managerHatId ? hatIdDecimalToHex(managerHatId) : undefined,
   });
-  const managers = get(managerHat, 'wearers');
-  const admins = get(adminHat, 'wearers');
-  const userIsAdmin = !!find(admins, { id: toLower(userAddress) });
-  // const userIsManager = !!find(managers, { id: toLower(userAddress) });
+  const userIsAdmin = useIsAdmin({ address: userAddress as Hex, hatId: primarySignerHat, chainId });
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
   const allWearers = getAllWearers(offchainCouncilDetails);
@@ -125,7 +130,10 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
       });
   };
 
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
   if (!m) return null;
+
   logger.debug('criteriaModule', { instanceAddress: m.instanceAddress, criteriaModule });
 
   if (isCompliance) {
@@ -143,11 +151,15 @@ const AllowlistManager = ({ m, chainId, slug, criteriaModule, offchainCouncilDet
             <p className='text-sm'>Conducts compliance checks</p>
           </div>
 
-          <div className='flex flex-col gap-2'>
+          <div className='flex flex-col gap-4'>
             {map(managers, (wearer) => {
               const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
 
-              return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
+              return (
+                <div key={wearer.id} className={cn(isDev && !offchainDetails && 'bg-functional-link-primary/10')}>
+                  <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} />
+                </div>
+              );
             })}
           </div>
 

@@ -9,7 +9,7 @@ const IntegrationCard = ({ integration }: { integration: IntegrationCardType }) 
   const { label, icons, link } = pick(integration, ['label', 'icons', 'link']);
 
   return (
-    <Link href={link} className='w-full shadow hover:no-underline md:w-[48%] xl:w-[23%]' isExternal>
+    <Link href={link} className='w-full rounded-md shadow hover:no-underline md:w-[48%] xl:w-[23%]' isExternal>
       <Card className='h-full min-w-[200px] rounded-md border border-gray-600'>
         <div className='h-100px bg-functional-link-primary/10 relative flex items-center justify-center overflow-hidden rounded-t-md'>
           <div

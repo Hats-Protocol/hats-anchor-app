@@ -1049,7 +1049,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             thresholdConfig: {
               thresholdType: formData.thresholdType === 'ABSOLUTE' ? 0 : 1,
               min: BigInt(formData.min),
-              target: formData.thresholdType === 'ABSOLUTE' ? BigInt(formData.target) : BigInt(formData.target * 100),
+              // currently only support one threshold on absolute
+              target: formData.thresholdType === 'ABSOLUTE' ? BigInt(formData.min) : BigInt(formData.target * 100),
             },
             locked: false,
             claimableFor: true,

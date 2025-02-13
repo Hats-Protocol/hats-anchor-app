@@ -2,15 +2,15 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
-import { useHatDetails } from 'hats-hooks';
+import { useAllWearers, useHatDetails, useIsAdmin } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, map, size, split, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
-import { Button, MemberAvatar, Tooltip } from 'ui';
+import { Button, cn, MemberAvatar, Tooltip } from 'ui';
 import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
-import { getAddress } from 'viem';
+import { getAddress, Hex } from 'viem';
 import { useAccount, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from '../add-user-modal';
@@ -21,9 +21,10 @@ interface ModuleManagerProps {
   chainId: number | undefined;
   offchainCouncilDetails: OffchainCouncilData | undefined;
   slug: string;
+  primarySignerHat: Hex | undefined;
 }
 
-const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleManagerProps) => {
+const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySignerHat }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -40,8 +41,13 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
     chainId: chainId as SupportedChains,
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
   });
+  const { wearers: agreementManagers } = useAllWearers({
+    selectedHat: ownerHat,
+    chainId: chainId as SupportedChains,
+  });
+  const userIsAdmin = useIsAdmin({ address: userAddress as Hex, hatId: primarySignerHat, chainId });
   // const hatDetails = ownerHat?.detailsMetadata;
-  const agreementManagers = get(ownerHat, 'wearers');
+  // const agreementManagers = get(ownerHat, 'wearers');
   // const hatName = ownerHatDetails?.name;
   const allWearers = getAllWearers(offchainCouncilDetails);
   const userIsAgreementManager = !!find(agreementManagers, { id: toLower(userAddress) });
@@ -112,6 +118,8 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
       });
   };
 
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
   if (!m) return null;
 
   return (
@@ -128,38 +136,46 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails }: ModuleMa
           <p className='text-sm'>Writes an agreement and controls adherence</p>
         </div>
 
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col gap-4'>
           {map(agreementManagers, (wearer) => {
             const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
 
-            return <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} key={wearer.id} />;
+            return (
+              <div key={wearer.id} className={cn(isDev && !offchainDetails && 'bg-functional-link-primary/10')}>
+                <MemberAvatar member={{ ...offchainDetails, ...wearer } as CouncilMember} />
+              </div>
+            );
           })}
         </div>
 
-        {user && !!userIsAgreementManager && (
+        {!!user && (userIsAgreementManager || userIsAdmin) && (
           <div className='mt-2 flex gap-2'>
-            <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
-              Edit Agreement
-            </Button>
+            {userIsAgreementManager && (
+              <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
+                Edit Agreement
+              </Button>
+            )}
 
-            <div className='relative'>
-              <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
-                <Button
-                  variant='outline-blue'
-                  rounded='full'
-                  onClick={() => setModals?.({ 'addUser-agreementAdmin': true })}
-                  disabled={isAdminHat}
-                >
-                  Add Agreement Manager
-                </Button>
-              </Tooltip>
+            {userIsAdmin && (
+              <div className='relative'>
+                <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
+                  <Button
+                    variant='outline-blue'
+                    rounded='full'
+                    onClick={() => setModals?.({ 'addUser-agreementAdmin': true })}
+                    disabled={isAdminHat}
+                  >
+                    Add Agreement Manager
+                  </Button>
+                </Tooltip>
 
-              {isAdminHat && (
-                <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
-                  soon
-                </span>
-              )}
-            </div>
+                {isAdminHat && (
+                  <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+                    soon
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

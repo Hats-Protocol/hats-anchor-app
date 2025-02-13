@@ -69,24 +69,24 @@ const FullWearersListModal = ({
         </div>
       }
     >
-      <ScrollArea className='max-h-[600px]'>
-        <div className='flex flex-col gap-4'>
-          {isLoading || isFetching ? (
-            <div className='flex h-[600px] items-center justify-center'>
-              <Spinner />
-            </div>
-          ) : (
-            map(paginatedWearers, (w: HatWearer) => (
+      <div className='flex flex-col gap-4'>
+        {isLoading || isFetching ? (
+          <div className='flex h-[600px] items-center justify-center'>
+            <Spinner />
+          </div>
+        ) : (
+          <ScrollArea className='max-h-[600px]'>
+            {map(paginatedWearers, (w: HatWearer) => (
               <WearerRow
                 key={w.id}
                 wearer={w}
                 setChangeStatusWearer={setChangeStatusWearer}
                 setWearerToTransferFrom={setWearerToTransferFrom}
               />
-            ))
-          )}
-        </div>
-      </ScrollArea>
+            ))}
+          </ScrollArea>
+        )}
+      </div>
     </Modal>
   );
 };

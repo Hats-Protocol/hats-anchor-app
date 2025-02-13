@@ -36,7 +36,7 @@ const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorPr
 
   return (
     <div className='flex w-fit flex-col gap-2'>
-      <div className='flex w-fit items-center gap-2'>
+      <div className='flex w-fit max-w-[800px] items-center gap-2'>
         {map(Array.from({ length: maxSigners }), (_, index) => (
           <SignerIndicator key={index} index={index + 1} threshold={threshold} signers={signers} />
         ))}
