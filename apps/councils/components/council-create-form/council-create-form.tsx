@@ -53,23 +53,23 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
 
   switch (step) {
     case 'details':
-      return <DetailsStep onNext={handleNext} />;
+      return <DetailsStep onNext={handleNext} draftId={draftId} />;
     case 'threshold':
-      return <ThresholdStep onNext={handleNext} />;
+      return <ThresholdStep onNext={handleNext} draftId={draftId} />;
     case 'onboarding':
-      return <OnboardingStep onNext={handleNext} />;
+      return <OnboardingStep onNext={handleNext} draftId={draftId} />;
     case 'selection':
       switch (subStep) {
         case 'members':
-          return <SelectionMembersStep onNext={handleNext} />;
+          return <SelectionMembersStep onNext={handleNext} draftId={draftId} />;
         case 'management':
-          return <SelectionManagementStep onNext={handleNext} />;
+          return <SelectionManagementStep onNext={handleNext} draftId={draftId} />;
         case 'agreement':
-          return <SelectionAgreementStep onNext={handleNext} />;
+          return <SelectionAgreementStep onNext={handleNext} draftId={draftId} />;
         case 'compliance':
-          return <SelectionComplianceStep onNext={handleNext} />;
+          return <SelectionComplianceStep onNext={handleNext} draftId={draftId} />;
         case 'tokens':
-          return <SelectionTokensStep onNext={handleNext} />;
+          return <SelectionTokensStep onNext={handleNext} draftId={draftId} />;
         default:
           return null;
       }

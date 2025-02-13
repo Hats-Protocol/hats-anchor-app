@@ -25,6 +25,7 @@ export interface CouncilPayer extends CouncilMember {
 
 export type StepProps = {
   onNext(): void;
+  draftId: string;
 };
 
 export type OffchainCouncilData = {

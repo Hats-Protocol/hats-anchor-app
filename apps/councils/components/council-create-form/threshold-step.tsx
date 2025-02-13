@@ -1,19 +1,18 @@
 'use client';
 import { useCouncilForm } from 'contexts';
 import { Form, SignerThresholdSubForm } from 'forms';
-import { useSearchParams } from 'next/navigation';
+import { useCouncilDeployFlag } from 'hooks';
 import { StepProps } from 'types';
-import { LinkButton } from 'ui';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-export function ThresholdStep({ onNext }: StepProps) {
+export function ThresholdStep({ onNext, draftId }: StepProps) {
   const { form, stepValidation, canEdit } = useCouncilForm();
   const { watch } = form;
   const { requirements } = watch();
-  const searchParams = useSearchParams();
-  const draftId = searchParams.get('draftId');
+
+  useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, requirements);
 

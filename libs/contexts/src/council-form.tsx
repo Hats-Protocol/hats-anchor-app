@@ -111,6 +111,11 @@ type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
   deployOnly?: boolean;
 };
 
+const notDeploy = (deployOnly: boolean | undefined, value: boolean) => {
+  if (deployOnly === true) return true;
+  return value;
+};
+
 const computeStepValidation = (data: StepValidationData): StepValidation => {
   return {
     details: !!(
@@ -127,21 +132,22 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
         data.thresholdType &&
         data.thresholdTarget &&
         data.thresholdTarget > 0
-      ) && data.deployOnly === true
-        ? true
-        : data.completedOptionalSteps.threshold,
+      ) && notDeploy(data.deployOnly, data.completedOptionalSteps.threshold),
     onboarding: !!data.membersSelectionType,
     selection: false, // Main step validity will be computed from sub-steps
     selectionSubSteps: {
-      management: !!(data.admins && data.admins.length > 0) && data.completedOptionalSteps.management, // admins are required, but creator is added by default
-      compliance: data.createComplianceAdminRole !== null && data.completedOptionalSteps.compliance,
-      agreement: data.createAgreementAdminRole !== null && data.completedOptionalSteps.agreement, // agreement is optional
+      management:
+        !!(data.admins && data.admins.length > 0) && notDeploy(data.deployOnly, data.completedOptionalSteps.management), // admins are required, but creator is added by default
+      compliance:
+        data.createComplianceAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.compliance),
+      agreement:
+        data.createAgreementAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.agreement), // agreement is optional
       tokens:
         data.tokenAddress !== null &&
         data.tokenAddress !== '' &&
         data.tokenAmount !== null &&
         toNumber(data.tokenAmount) > 0,
-      members: !!data.members && data.completedOptionalSteps.members,
+      members: !!data.members && notDeploy(data.deployOnly, data.completedOptionalSteps.members),
     },
     payment: false,
   };
@@ -376,7 +382,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     // if loading the deploy page FIRST it would write deployOnly = true and ignore the optional
 
     setStepValidationState(validation);
-  }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
+  }, [data, form, optionalSteps, chainId]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
 
   const queryClient = useQueryClient();
 
