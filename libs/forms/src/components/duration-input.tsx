@@ -7,7 +7,6 @@ import { BaseSelect, BaseSelectContent, BaseSelectItem, BaseSelectTrigger } from
 
 import { FormControl, FormLabel } from './form';
 import { NumberInput } from './number-input';
-// import { Select } from './select';
 
 const timeUnits = [
   { unit: 'seconds', value: 1 },
@@ -27,7 +26,8 @@ const DurationInput: React.FC<DurationInputProps> = ({
   formOptions,
   label,
   subLabel,
-  // defaultTimeUnit,
+  defaultTimeUnit = 'hours',
+  defaultTimeValue = 24,
 }) => {
   const { setValue, watch, reset } = pick(localForm, ['setValue', 'watch', 'reset']);
   const calculateSeconds = (value: number, timeUnit: string) => {
@@ -40,20 +40,19 @@ const DurationInput: React.FC<DurationInputProps> = ({
   const finalValue = watch(name);
 
   useEffect(() => {
-    if (timeValue && timeUnit !== 'seconds') {
+    if (timeValue && timeUnit) {
       const res = calculateSeconds(toNumber(timeValue), timeUnit);
       setValue(name, res, { shouldDirty: true });
     }
     // intentionally not including `setValue` in the dependency array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeValue, timeUnit, name]);
-  console.log({ timeUnit });
 
   useEffect(() => {
     if (!timeUnit) {
-      reset({ [`${name}-time-unit`]: 'hours', [`${name}-time-value`]: 24 });
+      reset({ [`${name}-time-unit`]: defaultTimeUnit, [`${name}-time-value`]: defaultTimeValue });
     }
-  }, [timeUnit, name, reset]);
+  }, [name, timeUnit, defaultTimeUnit, defaultTimeValue]);
 
   return (
     <FormControl>
@@ -69,7 +68,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
 
         {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-xs text-gray-500'>{subLabel}</p>}
 
-        <div className='flex w-full flex-col gap-2 space-y-1'>
+        <div className='flex w-full flex-col gap-1'>
           <div className='flex w-full'>
             <NumberInput
               name={`${name}-time-value`}
@@ -97,7 +96,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
             </div>
           </div>
 
-          {timeUnit !== 'seconds' && finalValue && <p className='text-xs text-gray-700'>({finalValue} seconds)</p>}
+          {timeUnit !== 'seconds' && finalValue && <p className='text-xs text-gray-500'>({finalValue} seconds)</p>}
         </div>
       </div>
     </FormControl>
@@ -113,7 +112,8 @@ interface DurationInputProps {
   formOptions?: RegisterOptions;
   label?: string;
   subLabel?: string;
-  // defaultTimeUnit?: string; // is this easier to handle at the form level with `reset`?
+  defaultTimeUnit?: string; // is this easier to handle at the form level with `reset`?
+  defaultTimeValue?: number;
 }
 
 export { DurationInput, type DurationInputProps };

@@ -12,8 +12,8 @@ import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
 import { Button } from 'ui';
-import { formatAddress } from 'utils';
-import { useAccount } from 'wagmi';
+import { chainIdToString, chainsMap, formatAddress } from 'utils';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 const AllowlistStatusManager = ({
   rule,
@@ -24,11 +24,13 @@ const AllowlistStatusManager = ({
   currentEligibility,
 }: StatusManagerProps) => {
   const { address: userAddress } = useAccount();
+  const currentChainId = useChainId();
   const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
   const { toast } = useToast();
   const { setModals } = useOverlay();
   const queryClient = useQueryClient();
+  const { switchChain } = useSwitchChain();
   const isEligible =
     get(currentEligibility, `[${rule.address}].eligible`) && get(currentEligibility, `[${rule.address}].goodStanding`);
   const { data: hatDetails } = useHatDetails({
@@ -122,19 +124,25 @@ const AllowlistStatusManager = ({
         )}
       </div>
 
-      <Button
-        variant={isEligible ? 'outline-red' : 'outline-green'}
-        rounded='full'
-        disabled={!isAllowlistManager || isLoading}
-        onClick={handleAllowlistUpdate}
-      >
-        {isLoading ? null : isEligible ? ( // <Spinner className='size-4' />
-          <BsXSquare className='size-4' />
-        ) : (
-          <BsCheckSquareFill className='size-4' />
-        )}
-        {action}
-      </Button>
+      {currentChainId === chainId ? (
+        <Button
+          variant={isEligible ? 'outline-red' : 'outline-green'}
+          rounded='full'
+          disabled={!isAllowlistManager || isLoading}
+          onClick={handleAllowlistUpdate}
+        >
+          {isLoading ? null : isEligible ? ( // <Spinner className='size-4' />
+            <BsXSquare className='size-4' />
+          ) : (
+            <BsCheckSquareFill className='size-4' />
+          )}
+          {action}
+        </Button>
+      ) : (
+        <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
+          Switch to {chainsMap(chainId)?.name}
+        </Button>
+      )}
     </div>
   );
 };

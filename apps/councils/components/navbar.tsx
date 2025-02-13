@@ -44,7 +44,7 @@ const Navbar = () => {
   return (
     <div
       className={cn(
-        'flex min-h-[56px] w-full items-center justify-between bg-gray-50 px-2',
+        'flex min-h-[60px] w-full items-center justify-between bg-gray-50 px-6',
         (createForm || (!chainId && !address)) && 'bg-gray-100',
         chainId && address && 'bg-gray-200',
       )}
@@ -54,8 +54,8 @@ const Navbar = () => {
           <img src='/hats.png' className='size-10' alt='Hats Logo' />
 
           {!chainId && !address && !createForm && (
-            <p className='text-lg font-bold'>
-              Hats <span className='font-normal'>Pro</span>
+            <p className='text-lg font-semibold'>
+              hats <span className='font-normal'>pro</span>
             </p>
           )}
         </Link>

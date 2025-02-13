@@ -102,7 +102,7 @@ const CouncilListPage = () => {
 
   if (!isEmpty(councils) && !councilsLoading && !wearerHatsLoading) {
     return (
-      <div className='mx-auto mt-20 flex min-h-screen max-w-[1000px] flex-col gap-4'>
+      <div className='mx-auto mt-20 flex min-h-screen max-w-[1400px] flex-col gap-4'>
         {map(councils, (council) => (
           <Link
             href={`/councils/${chainIdToString(chainId)}:${getAddress(council.id)}/members`}

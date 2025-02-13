@@ -17,6 +17,7 @@ import { CouncilMember, SupportedChains } from 'types';
 import { Button, cn, Skeleton } from 'ui';
 import { MemberAvatar } from 'ui';
 import {
+  chainsMap,
   createHatsClient,
   formatAddress,
   getAllWearers,
@@ -27,7 +28,7 @@ import {
   tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
 import { ModuleManager } from './modules/module-manager';
@@ -104,6 +105,8 @@ const ManagePage = ({ slug }: { slug: string }) => {
   const { data: walletClient } = useWalletClient();
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId ?? 11155111 });
   const queryClient = useQueryClient();
+  const { switchChain } = useSwitchChain();
+  const currentChainId = useChainId();
 
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -196,7 +199,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   return (
-    <div className='flex gap-4 pt-10'>
+    <div className='mx-auto flex gap-4 pt-10 lg:max-w-[1000px]'>
       <div className='flex w-1/5'>
         <SectionMenu
           sections={menuOptions}
@@ -227,9 +230,15 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
           {user && userIsManager && (
             <div className='mt-2 flex'>
-              <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
-                Change Threshold
-              </Button>
+              {currentChainId === chainId ? (
+                <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
+                  Change Threshold
+                </Button>
+              ) : (
+                <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId: chainId ?? 11155111 })}>
+                  Switch to {chainsMap(chainId ?? 11155111)?.name}
+                </Button>
+              )}
             </div>
           )}
 
@@ -278,13 +287,23 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
                 {user && userIsTopHat && (
                   <div className='mt-2 flex'>
-                    <Button
-                      variant='outline-blue'
-                      rounded='full'
-                      onClick={() => setModals?.({ 'addUser-admin': true })}
-                    >
-                      Add a Council Manager
-                    </Button>
+                    {currentChainId === chainId ? (
+                      <Button
+                        variant='outline-blue'
+                        rounded='full'
+                        onClick={() => setModals?.({ 'addUser-admin': true })}
+                      >
+                        Add a Council Manager
+                      </Button>
+                    ) : (
+                      <Button
+                        variant='outline'
+                        rounded='full'
+                        onClick={() => switchChain({ chainId: chainId ?? 11155111 })}
+                      >
+                        Switch to {chainsMap(chainId ?? 11155111)?.name}
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
@@ -366,13 +385,23 @@ const ManagePage = ({ slug }: { slug: string }) => {
 
                 {user && userIsTopHat && (
                   <div className='mt-2 flex'>
-                    <Button
-                      variant='outline-blue'
-                      rounded='full'
-                      onClick={() => setModals?.({ 'transfer-ownership': true })}
-                    >
-                      Transfer Ownership
-                    </Button>
+                    {currentChainId === chainId ? (
+                      <Button
+                        variant='outline-blue'
+                        rounded='full'
+                        onClick={() => setModals?.({ 'transfer-ownership': true })}
+                      >
+                        Transfer Ownership
+                      </Button>
+                    ) : (
+                      <Button
+                        variant='outline'
+                        rounded='full'
+                        onClick={() => switchChain({ chainId: chainId ?? 11155111 })}
+                      >
+                        Switch to {chainsMap(chainId ?? 11155111)?.name}
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

@@ -12,8 +12,8 @@ import { useState } from 'react';
 import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
 import { Button } from 'ui';
-import { formatAddress } from 'utils';
-import { useAccount } from 'wagmi';
+import { chainsMap, formatAddress } from 'utils';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: StatusManagerProps) => {
   const { address: userAddress } = useAccount();
@@ -21,6 +21,9 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
   const { toast } = useToast();
   const { setModals } = useOverlay();
   const queryClient = useQueryClient();
+  const { switchChain } = useSwitchChain();
+  const currentChainId = useChainId();
+
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
   const isEligible =
     get(currentEligibility, `[${rule.address}].eligible`) && get(currentEligibility, `[${rule.address}].goodStanding`);
@@ -83,17 +86,22 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
         )}
       </div>
 
-      {isEligible && (
-        <Button
-          variant='outline-red'
-          rounded='full'
-          disabled={!isAgreementManager || isLoading}
-          onClick={handleAgreementToggle}
-        >
-          <BsXSquare className='size-4' />
-          {isLoading ? 'Updating...' : isEligible ? 'Violated the Agreement' : 'Re-instate'}
-        </Button>
-      )}
+      {isEligible &&
+        (currentChainId === chainId ? (
+          <Button
+            variant='outline-red'
+            rounded='full'
+            disabled={!isAgreementManager || isLoading}
+            onClick={handleAgreementToggle}
+          >
+            <BsXSquare className='size-4' />
+            {isLoading ? 'Updating...' : isEligible ? 'Violated the Agreement' : 'Re-instate'}
+          </Button>
+        ) : (
+          <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
+            Switch to {chainsMap(chainId)?.name}
+          </Button>
+        ))}
     </div>
   );
 };

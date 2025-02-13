@@ -20,9 +20,9 @@ import type {
   SupportedChains,
 } from 'types';
 import { Button, MemberAvatar } from 'ui';
-import { getKnownEligibilityModule } from 'utils';
+import { chainsMap, getKnownEligibilityModule } from 'utils';
 import { Hex } from 'viem';
-import { useWriteContract } from 'wagmi';
+import { useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
 type UserStatusModalProps = {
   chainId: number;
@@ -84,6 +84,9 @@ function MemberStatusModal({
   const { setModals, handlePendingTx } = useOverlay();
   const { toast } = useToast();
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
+  const { switchChain } = useSwitchChain();
+  const currentChainId = useChainId();
+
   const { data: safeOwners } = useSafeDetails({
     safeAddress: councilData?.safe as Hex,
     chainId: chainId as SupportedChains,
@@ -187,12 +190,18 @@ function MemberStatusModal({
             )}
           </div>
 
-          {!isEligibleSigner && isSigner && (
-            <Button variant='destructive' rounded='full' onClick={removeSigner}>
-              <BsXSquare className='size-4' />
-              Remove Signer
-            </Button>
-          )}
+          {!isEligibleSigner &&
+            isSigner &&
+            (currentChainId === chainId ? (
+              <Button variant='destructive' rounded='full' onClick={removeSigner}>
+                <BsXSquare className='size-4' />
+                Remove Signer
+              </Button>
+            ) : (
+              <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
+                Switch to {chainsMap(chainId)?.name}
+              </Button>
+            ))}
         </div>
       </div>
     </Modal>

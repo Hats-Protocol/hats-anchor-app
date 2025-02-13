@@ -9,9 +9,17 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar, Tooltip } from 'ui';
-import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
+import {
+  chainsMap,
+  createHatsClient,
+  formatAddress,
+  getAllWearers,
+  logger,
+  sendTelegramMessage,
+  tgFormatAddress,
+} from 'utils';
 import { getAddress, Hex } from 'viem';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from '../add-user-modal';
 import { UpdateAgreementModal } from '../update-agreement-modal';
@@ -33,6 +41,8 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId ?? 11155111 });
   const { user } = usePrivy();
   const { toast } = useToast();
+  const currentChainId = useChainId();
+  const { switchChain } = useSwitchChain();
   const ownerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(ownerHatId), '.')) === 2;
   logger.debug('isAdminHat', { ownerHatId: ownerHatId ? hatIdDecimalToIp(ownerHatId) : undefined, isAdminHat });
@@ -150,31 +160,39 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
 
         {!!user && (userIsAgreementManager || userIsAdmin) && (
           <div className='mt-2 flex gap-2'>
-            {userIsAgreementManager && (
-              <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
-                Edit Agreement
-              </Button>
-            )}
-
-            {userIsAdmin && (
-              <div className='relative'>
-                <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
-                  <Button
-                    variant='outline-blue'
-                    rounded='full'
-                    onClick={() => setModals?.({ 'addUser-agreementAdmin': true })}
-                    disabled={isAdminHat}
-                  >
-                    Add Agreement Manager
+            {currentChainId === chainId ? (
+              <>
+                {userIsAgreementManager && (
+                  <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ updateAgreement: true })}>
+                    Edit Agreement
                   </Button>
-                </Tooltip>
-
-                {isAdminHat && (
-                  <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
-                    soon
-                  </span>
                 )}
-              </div>
+
+                {userIsAdmin && (
+                  <div className='relative'>
+                    <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
+                      <Button
+                        variant='outline-blue'
+                        rounded='full'
+                        onClick={() => setModals?.({ 'addUser-agreementAdmin': true })}
+                        disabled={isAdminHat}
+                      >
+                        Add Agreement Manager
+                      </Button>
+                    </Tooltip>
+
+                    {isAdminHat && (
+                      <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+                        soon
+                      </span>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId: chainId ?? 11155111 })}>
+                Switch to {chainsMap(chainId ?? 11155111)?.name}
+              </Button>
             )}
           </div>
         )}

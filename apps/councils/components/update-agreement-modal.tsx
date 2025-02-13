@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
-import { DatePicker, Form, MarkdownEditor } from 'forms';
-import { useToast } from 'hooks';
+import { DurationInput, Form, MarkdownEditor } from 'forms';
+// import { useToast } from 'hooks';
 import { find } from 'lodash';
 import { useAgreementClaim, useCallModuleFunction } from 'modules-hooks';
 import posthog from 'posthog-js';
@@ -27,7 +27,7 @@ function UpdateAgreementModal({
     formState: { isValid },
   } = form;
   const { setModals } = useOverlay();
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   const { mutateAsync: callModuleFn } = useCallModuleFunction({ chainId: chainId as SupportedChains });
 
@@ -43,12 +43,6 @@ function UpdateAgreementModal({
     const converter = new showdown.Converter();
     const agreementMarkdown = converter.makeMarkdown(data.agreement);
 
-    const localGracePeriod = Math.floor(new Date(data.gracePeriod).getTime() / 1000);
-    if (!localGracePeriod) {
-      toast({ title: 'Please select a valid grace period' });
-      setIsLoading(false);
-      return;
-    }
     const token = await fetchToken();
     const agreementHash = await handleAgreementPin({
       agreement: agreementMarkdown,
@@ -62,7 +56,7 @@ function UpdateAgreementModal({
       moduleId: moduleDetails.implementationAddress,
       instance: moduleDetails.instanceAddress,
       func: find(moduleDetails.writeFunctions, { functionName: 'setAgreement' }) as ModuleFunction,
-      args: { Agreement: agreementHash, 'Grace Period': BigInt(localGracePeriod) },
+      args: { Agreement: agreementHash, 'Grace Period': BigInt(data.gracePeriod) },
       onSuccess: () => {
         // console.log('success');
         setIsLoading(false);
@@ -73,7 +67,7 @@ function UpdateAgreementModal({
           chainId,
           moduleAddress: moduleDetails.instanceAddress,
           agreementHash,
-          gracePeriod: localGracePeriod,
+          gracePeriod: data.gracePeriod,
         });
       },
       onDecline: () => {
@@ -101,12 +95,14 @@ function UpdateAgreementModal({
           <div className='flex flex-col gap-4'>
             <MarkdownEditor name='agreement' placeholder='Agreement text' localForm={form} />
 
-            <div className='w-full md:w-1/2'>
-              <DatePicker
+            <div className='w-full'>
+              <DurationInput
                 name='gracePeriod'
                 label='Grace expires'
-                info='Current wearers will have until grace expires to sign the new agreement'
+                subLabel='Current wearers will have until grace expires to sign the new agreement'
                 placeholder='Grace period expires on..'
+                defaultTimeValue={30}
+                defaultTimeUnit='days'
                 localForm={form}
               />
             </div>

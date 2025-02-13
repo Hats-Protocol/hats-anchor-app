@@ -13,7 +13,7 @@ const CouncilLayout = ({ children }: { children: React.ReactNode }) => {
           <CouncilButtons />
         </div>
 
-        <div className='mx-auto h-full w-[90%] max-w-[1000px] pt-10'>{children}</div>
+        <div className='mx-auto h-full w-[90%] max-w-[1200px] pt-10'>{children}</div>
       </div>
 
       <HatDeco />

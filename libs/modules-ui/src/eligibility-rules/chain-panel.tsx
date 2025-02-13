@@ -122,7 +122,7 @@ const ChainPanel = ({
           </div>
         </AccordionTrigger>
 
-        <AccordionContent className='border-b-lg border-gray border-b-lg border-gray overflow-visible p-0'>
+        <AccordionContent className='border-b-lg border-gray border-b-lg border-gray overflow-visible bg-white p-0'>
           <div className={cn('space-y-3 px-4 pb-4 pt-1 text-base')}>
             {/* // TODO fix these nested ternaries */}
             {/* mx={{ base: 0, md: IS_CLAIMS_APP ? (!isMobile ? 6 : 4) : !isMobile ? 4 : 0 }} */}

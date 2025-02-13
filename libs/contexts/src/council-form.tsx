@@ -220,7 +220,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       completedOptionalSteps: optionalSteps,
     },
   });
-  const chainId = toNumber(form.watch('chain').value);
+  const chainId = toNumber(form.watch('chain').value) || 10;
   const waitForSubgraph = useWaitForSubgraph({ chainId });
   const { toast } = useToast();
 
@@ -325,11 +325,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     logger.debug('API Response data:', data);
     const currentValues = form.getValues();
     logger.info('Current form values:', currentValues);
+    const chain = find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions));
 
     const newValues: CouncilFormData = {
       organizationName: data.organizationName || '',
       councilName: data.councilName || '',
-      chain: (find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions))) as any,
+      chain: chain as any, // (find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions))) as any,
       councilDescription: data.councilDescription || '',
       thresholdType: data.thresholdType || 'ABSOLUTE',
       // confirmationsRequired: data.thresholdTarget || 4,
@@ -382,7 +383,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     // if loading the deploy page FIRST it would write deployOnly = true and ignore the optional
 
     setStepValidationState(validation);
-  }, [data, form, optionalSteps, chainId]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
+  }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
 
   const queryClient = useQueryClient();
 

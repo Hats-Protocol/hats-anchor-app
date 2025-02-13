@@ -14,9 +14,9 @@ import { useForm } from 'react-hook-form';
 import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
 import { Button, Tooltip } from 'ui';
 import { Skeleton } from 'ui';
-import { logger, parseCouncilSlug } from 'utils';
+import { chainsMap, logger, parseCouncilSlug } from 'utils';
 import { getAddress, Hex } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
 import { MemberRow } from './member-row';
@@ -29,6 +29,8 @@ const MembersPage = ({ slug }: { slug: string }) => {
   const { user } = usePrivy();
   const queryClient = useQueryClient();
   const form = useForm();
+  const currentChainId = useChainId();
+  const { switchChain } = useSwitchChain();
   const { chainId, address } = parseCouncilSlug(slug);
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -191,16 +193,22 @@ const MembersPage = ({ slug }: { slug: string }) => {
       {user && userIsAllowlistManager && (
         <>
           <div className='flex justify-end gap-2 pt-8'>
-            <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
-              <Button
-                variant='outline-blue'
-                rounded='full'
-                onClick={() => setModals?.({ 'addUser-member': true })}
-                disabled={!addAccount || !userAddress}
-              >
-                Add a Council Member
+            {currentChainId === chainId ? (
+              <Tooltip label={!addAccount ? 'Could not find selection module' : undefined}>
+                <Button
+                  variant='outline-blue'
+                  rounded='full'
+                  onClick={() => setModals?.({ 'addUser-member': true })}
+                  disabled={!addAccount || !userAddress}
+                >
+                  Add a Council Member
+                </Button>
+              </Tooltip>
+            ) : (
+              <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId: chainId ?? 11155111 })}>
+                Switch to {chainsMap(chainId ?? 11155111)?.name}
               </Button>
-            </Tooltip>
+            )}
           </div>
 
           <AddUserModal

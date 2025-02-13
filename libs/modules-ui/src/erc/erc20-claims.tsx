@@ -12,7 +12,7 @@ import { LabeledModules, ModuleDetails } from 'types';
 import { Card, cn, Link, Skeleton } from 'ui';
 import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 import { formatUnits, Hex } from 'viem';
-import { useAccount, useEnsName, useToken } from 'wagmi';
+import { useAccount, useEnsName } from 'wagmi';
 
 const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo));
 
@@ -139,9 +139,9 @@ export const Erc20Claims = ({
           </h3>
           {hasEnoughTokens ? (
             <div className='flex items-center gap-2'>
-              <div className='flex items-center gap-2 rounded-md bg-[#22C55E]/10 px-2 py-1'>
-                <span className='text-[#22C55E]'>Yes</span>
-                <BsCheckSquareFill className='h-4 w-4 text-[#22C55E]' />
+              <div className='bg-functional-success/10 flex items-center gap-2 rounded-md px-2 py-1'>
+                <span className='text-functional-success'>Yes</span>
+                <BsCheckSquareFill className='text-functional-success h-4 w-4' />
               </div>
             </div>
           ) : (
@@ -183,7 +183,7 @@ export const Erc20Claims = ({
                 {userBalance ? (
                   <>
                     {hasEnoughTokens ? (
-                      <BsCheckSquareFill className='h-4 w-4 text-[#22C55E]' />
+                      <BsCheckSquareFill className='text-functional-success size-4' />
                     ) : (
                       <BsFillXOctagonFill className='text-destructive h-4 w-4' />
                     )}

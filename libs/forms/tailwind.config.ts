@@ -1,6 +1,8 @@
 import { join } from 'path';
 import { Config } from 'tailwindcss';
-import { baseConfig } from 'ui';
+
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import baseConfig from '../ui/tailwind.config';
 
 const config: Config = {
   presets: [baseConfig],

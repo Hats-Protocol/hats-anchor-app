@@ -106,7 +106,7 @@ const CouncilHeaderCard = ({
   return (
     <div
       className={cn(
-        'flex justify-between rounded-2xl border border-black bg-gray-50 p-4',
+        'flex justify-between rounded-2xl border border-black bg-gray-50 p-4 px-6',
         isDev && !offchainCouncilDetails && 'bg-blue-50',
       )}
     >
@@ -211,7 +211,7 @@ const CouncilHeader = ({ chainId, address }: { chainId?: number; address?: strin
   const localAddress = address ?? slugAddress;
 
   return (
-    <div className='border-b border-black bg-gray-200 px-20 py-10'>
+    <div className='border-b border-black bg-gray-200 px-6 pb-10 pt-4'>
       <CouncilHeaderCard chainId={localChainId || undefined} address={localAddress} />
     </div>
   );

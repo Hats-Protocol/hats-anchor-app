@@ -25,8 +25,10 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, st
     editorProps: {
       attributes: {
         class:
-          'rounded-md border min-h-[150px] border-input bg-background focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 p-2',
+          'rounded-md border min-h-[150px] max-h-[400px] overflow-y-auto border-input bg-background focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 p-2',
       },
+      scrollThreshold: 80,
+      scrollMargin: 80,
     },
     onUpdate({ editor }) {
       field.onChange(editor.getHTML());
@@ -38,9 +40,9 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, st
     <FormItem>
       {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
-        <div className='flex max-h-[400px] min-h-[250px] flex-col justify-stretch'>
+        <div className='flex flex-col justify-stretch'>
           <Toolbar editor={editor} />
-          <EditorContent editor={editor} />
+          <EditorContent className='max-h-[400px] min-h-[250px]' editor={editor} />
         </div>
       </FormControl>
       <FormMessage />

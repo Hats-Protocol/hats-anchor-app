@@ -9,9 +9,17 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar, Tooltip } from 'ui';
-import { createHatsClient, formatAddress, getAllWearers, logger, sendTelegramMessage, tgFormatAddress } from 'utils';
+import {
+  chainsMap,
+  createHatsClient,
+  formatAddress,
+  getAllWearers,
+  logger,
+  sendTelegramMessage,
+  tgFormatAddress,
+} from 'utils';
 import { getAddress, Hex } from 'viem';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 
 import { AddUserModal } from '../add-user-modal';
 
@@ -42,6 +50,8 @@ const AllowlistManager = ({
   const { handlePendingTx } = useOverlay();
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
   const queryClient = useQueryClient();
+  const currentChainId = useChainId();
+  const { switchChain } = useSwitchChain();
 
   const managerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(managerHatId), '.')) === 2;
@@ -165,24 +175,30 @@ const AllowlistManager = ({
 
           {!!user && userIsAdmin && (
             <div className='mt-2 flex'>
-              <div className='relative'>
-                <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
-                  <Button
-                    variant='outline-blue'
-                    rounded='full'
-                    onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
-                    disabled={isAdminHat}
-                  >
-                    Add Compliance Manager
-                  </Button>
-                </Tooltip>
+              {currentChainId === chainId ? (
+                <div className='relative'>
+                  <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
+                      disabled={isAdminHat}
+                    >
+                      Add Compliance Manager
+                    </Button>
+                  </Tooltip>
 
-                {isAdminHat && (
-                  <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
-                    soon
-                  </span>
-                )}
-              </div>
+                  {isAdminHat && (
+                    <span className='bg-functional-success absolute -right-2 -top-2 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+                      soon
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId: chainId ?? 11155111 })}>
+                  Switch to {chainsMap(chainId ?? 11155111)?.name}
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -224,14 +240,20 @@ const AllowlistManager = ({
 
         {!!user && userIsAdmin && (
           <div className='mt-2 flex'>
-            <Button
-              variant='outline-blue'
-              rounded='full'
-              onClick={() => setModals?.({ ['addUser-allowlistAdmin']: true })}
-              disabled
-            >
-              Add Allowlist Manager
-            </Button>
+            {currentChainId === chainId ? (
+              <Button
+                variant='outline-blue'
+                rounded='full'
+                onClick={() => setModals?.({ ['addUser-allowlistAdmin']: true })}
+                disabled
+              >
+                Add Allowlist Manager
+              </Button>
+            ) : (
+              <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId: chainId ?? 11155111 })}>
+                Switch to {chainsMap(chainId ?? 11155111)?.name}
+              </Button>
+            )}
           </div>
         )}
       </div>
