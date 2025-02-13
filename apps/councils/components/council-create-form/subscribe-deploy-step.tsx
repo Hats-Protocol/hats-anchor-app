@@ -2,13 +2,13 @@
 
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
-import { useClipboard } from 'hooks';
+import { useClipboard, useCouncilDeployFlag, useLocalStorage } from 'hooks';
 import { get, isEmpty, map, some, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
 import { Button, MemberAvatar } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
@@ -116,6 +116,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
+
+  useCouncilDeployFlag(draftId, true);
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {

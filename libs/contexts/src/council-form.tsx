@@ -108,6 +108,12 @@ const CouncilFormContext = createContext<CouncilFormContextType | undefined>(und
 
 type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
   completedOptionalSteps: CompletedOptionalSteps;
+  deployOnly?: boolean;
+};
+
+const notDeploy = (deployOnly: boolean | undefined, value: boolean) => {
+  if (deployOnly === true) return true;
+  return value;
 };
 
 const computeStepValidation = (data: StepValidationData): StepValidation => {
@@ -126,19 +132,22 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
         data.thresholdType &&
         data.thresholdTarget &&
         data.thresholdTarget > 0
-      ) && data.completedOptionalSteps.threshold,
+      ) && notDeploy(data.deployOnly, data.completedOptionalSteps.threshold),
     onboarding: !!data.membersSelectionType,
     selection: false, // Main step validity will be computed from sub-steps
     selectionSubSteps: {
-      management: !!(data.admins && data.admins.length > 0) && data.completedOptionalSteps.management, // admins are required, but creator is added by default
-      compliance: data.createComplianceAdminRole !== null && data.completedOptionalSteps.compliance,
-      agreement: data.createAgreementAdminRole !== null && data.completedOptionalSteps.agreement, // agreement is optional
+      management:
+        !!(data.admins && data.admins.length > 0) && notDeploy(data.deployOnly, data.completedOptionalSteps.management), // admins are required, but creator is added by default
+      compliance:
+        data.createComplianceAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.compliance),
+      agreement:
+        data.createAgreementAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.agreement), // agreement is optional
       tokens:
         data.tokenAddress !== null &&
         data.tokenAddress !== '' &&
         data.tokenAmount !== null &&
         toNumber(data.tokenAmount) > 0,
-      members: !!data.members && data.completedOptionalSteps.members,
+      members: !!data.members && notDeploy(data.deployOnly, data.completedOptionalSteps.members),
     },
     payment: false,
   };
@@ -216,13 +225,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { toast } = useToast();
 
   const availableTokens = useMemo(() => getChainTokens(chainId as number), [chainId]);
-  const mappedTokens = useMemo(() => {
-    const mappedTokens = map(availableTokens, ({ address, name, symbol }) => ({
-      value: address,
-      label: `${name} (${symbol})`,
-    }));
-    return mappedTokens;
-  }, [availableTokens]);
+
+  // const mappedTokens = useMemo(() => {
+  //   logger.info('mappedTokens useMemo', { availableTokens });
+  //   const mappedTokens = map(availableTokens, ({ address, name, symbol }) => ({
+  //     value: address,
+  //     label: `${name} (${symbol})`,
+  //   }));
+
+  //   return mappedTokens;
+  // }, [availableTokens]);
 
   const [stepValidation, setStepValidationState] = useState<StepValidation>({
     details: false,
@@ -303,6 +315,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   useEffect(() => {
     if (!data || !optionalSteps || !chainId) return;
 
+    logger.info('useEffect', { data, optionalSteps, chainId });
+    const availableTokensEffect = getChainTokens(chainId as number);
+    const mappedTokens = map(availableTokensEffect, ({ address, name, symbol }) => ({
+      value: address,
+      label: `${name} (${symbol})`,
+    }));
+
     logger.debug('API Response data:', data);
     const currentValues = form.getValues();
     logger.info('Current form values:', currentValues);
@@ -348,10 +367,22 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     logger.info('Setting form to:', newValues);
     form.reset(newValues);
 
+    const deployOnly = localStorage.getItem('deployOnly');
+
     // Compute validation state here
-    const validation = computeStepValidation({ ...data, completedOptionalSteps: optionalSteps });
+    const validation = computeStepValidation({
+      ...data,
+      completedOptionalSteps: optionalSteps,
+      deployOnly: deployOnly === 'true' ? true : false,
+    });
+    // deploy only == people are looking at the deploy page ONLY
+    // this would be users who are NOT the creator or a council manager (we could have an issue here if creator is a manager)
+    // do we want to have the different pages write the deployOnly flag to localStorage
+    // if details writes deployOnly = false, then the other pages would ignore and continue
+    // if loading the deploy page FIRST it would write deployOnly = true and ignore the optional
+
     setStepValidationState(validation);
-  }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
+  }, [data, form, optionalSteps, chainId]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
 
   const queryClient = useQueryClient();
 
@@ -388,6 +419,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           // If chain has changed, reset token requirements in the payload
           if (previousChain && previousChain !== newChain) {
+            logger.info('chain has changed', { previousChain, newChain });
             payload = {
               ...payload,
               tokenAddress: '',

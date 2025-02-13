@@ -2,16 +2,19 @@
 
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, Form, Input, Textarea } from 'forms';
+import { useCouncilDeployFlag } from 'hooks';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-export function DetailsStep({ onNext }: StepProps) {
+export function DetailsStep({ onNext, draftId }: StepProps) {
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { watch, handleSubmit } = localForm;
   const requirements = watch('requirements');
+
+  useCouncilDeployFlag(draftId);
 
   if (isLoading) {
     return <Skeleton className='h-100 w-100' />;

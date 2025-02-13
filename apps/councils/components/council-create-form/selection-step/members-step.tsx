@@ -1,6 +1,7 @@
 'use client';
 
 import { useCouncilForm, useOverlay } from 'contexts';
+import { useCouncilDeployFlag } from 'hooks';
 import { FiUserPlus } from 'react-icons/fi';
 import { StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
@@ -10,11 +11,13 @@ import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { AddMemberModal } from './add-member-modal';
 import { MembersList } from './members-list';
 
-export function SelectionMembersStep({ onNext }: StepProps) {
+export function SelectionMembersStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
+
+  useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
 

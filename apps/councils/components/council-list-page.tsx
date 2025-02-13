@@ -59,7 +59,7 @@ const CouncilListPage = () => {
     chainId,
   });
 
-  if (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading) {
+  if (!user || (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading)) {
     return (
       <div className='relative mx-auto mt-20 flex h-[85vh] max-w-[1000px] flex-col gap-4'>
         <Card className='z-10 mx-auto w-[750px] space-y-12 bg-white/90 px-20 py-12'>

@@ -1,9 +1,8 @@
 'use client';
 
-// import { getChainTokens } from '@hatsprotocol/constants';
 import { useCouncilForm } from 'contexts';
 import { Form, FormLabel, TokenNumberInput, TokenSelect } from 'forms';
-// import { toNumber } from 'lodash';
+import { useCouncilDeployFlag } from 'hooks';
 import { GemIcon } from 'lucide-react';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
@@ -11,13 +10,11 @@ import { Skeleton } from 'ui';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 
-export function SelectionTokensStep({ onNext }: StepProps) {
+export function SelectionTokensStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
   const requirements = form.watch('requirements');
-  // const selectedChain = form.watch('chain').value;
-  // const chainId = toNumber(selectedChain);
-  // const availableTokens = getChainTokens(chainId as number);
-  // console.log(form.watch('tokenRequirement.address'));
+
+  useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
 

@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { logger } from 'utils';
 
 function useLocalStorage<T>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
   const isMounted = useRef(false);
@@ -20,11 +21,12 @@ function useLocalStorage<T>(key: string, defaultValue: T): [T, Dispatch<SetState
 
   useEffect(() => {
     if (isMounted.current) {
+      logger.info('useLocalStorage', { key, defaultValue, value });
       window.localStorage.setItem(key, JSON.stringify(value));
     } else {
       isMounted.current = true;
     }
-  }, [key, value]);
+  }, [key, value, defaultValue]);
 
   return [value, setValue];
 }
