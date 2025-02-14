@@ -13,7 +13,7 @@ const chainsMap = (chainId?: number) =>
   chainId ? chainsList[chainId as SupportedChains] : (first(values(chainsList)) as Chain);
 
 const SubgraphCheck = ({ chainId }: { chainId: number }) => {
-  const { data } = useSubgraphCheck(chainId);
+  const { data, isLoading } = useSubgraphCheck(chainId);
   const { mainSubgraph, mainSubgraphOutOfSync, ancillarySubgraph, ancillarySubgraphOutOfSync, chain } = pick(data, [
     'mainSubgraph',
     'mainSubgraphOutOfSync',
@@ -38,7 +38,7 @@ const SubgraphCheck = ({ chainId }: { chainId: number }) => {
     [mainSubgraph, mainSubgraphOutOfSync, ancillarySubgraph, ancillarySubgraphOutOfSync],
   );
 
-  if (!data) return <Skeleton className='h-[100px] w-full' />;
+  if (isLoading || !data) return <Skeleton className='h-[100px] w-full' />;
 
   return (
     <div key={chainId} className='flex flex-col items-center gap-2 border-b border-black pb-4'>
@@ -53,7 +53,9 @@ const SubgraphCheck = ({ chainId }: { chainId: number }) => {
           <div className='flex w-full justify-between gap-4' key={name}>
             <h5 className='w-[150px] text-sm'>{name}</h5>
 
-            <div className={cn('w-[100px] text-right', outOfSync ? 'font-medium text-red-500' : '')}>{value}</div>
+            <div className={cn('w-[100px] text-right', outOfSync || !value ? 'font-medium text-red-500' : '')}>
+              {value || 'Crashed'}
+            </div>
           </div>
         );
       })}

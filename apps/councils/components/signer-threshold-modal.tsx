@@ -141,12 +141,13 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
         handlePendingTx?.({
           hash,
           txChainId: chainId,
-          txDescription: 'Updated max members',
+          txDescription: 'Updated max members', // TODO better description
           waitForSubgraph,
           onSuccess: () => {
-            // invalidate queries
-            queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+            queryClient.invalidateQueries({ queryKey: ['hatDetails'] }); // max signers comes from hat details' maxSupply
+
             setIsLoading(false);
+            setModals?.({});
           },
         });
       })

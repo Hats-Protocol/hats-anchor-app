@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { ANCILLARY_API_URL, NETWORK_ENDPOINTS } from '@hatsprotocol/config';
+import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
 import { get, toNumber } from 'lodash';
 import { SupportedChains } from 'types';
@@ -22,10 +22,16 @@ const fetchSubgraphCheck = async (chainId: number) => {
   if (!chainId || !ancillaryApiUrl) return;
 
   const mainSubgraphClient = new GraphQLClient(NETWORK_ENDPOINTS[chainId].endpoint);
-  const mainSubgraphPromise = mainSubgraphClient.request(SUBGRAPH_BLOCK_QUERY);
+  const mainSubgraphPromise = mainSubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
+    console.error(err);
+    return null;
+  });
 
   const ancillarySubgraphClient = new GraphQLClient(ancillaryApiUrl);
-  const ancillarySubgraphPromise = ancillarySubgraphClient.request(SUBGRAPH_BLOCK_QUERY);
+  const ancillarySubgraphPromise = ancillarySubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
+    console.error(err);
+    return null;
+  });
 
   const chainPromise = viemPublicClient(chainId).getBlock();
 
