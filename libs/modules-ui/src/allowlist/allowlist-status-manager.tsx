@@ -9,10 +9,10 @@ import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useState } from 'react';
-import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsXOctagon, BsXOctagonFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
 import { Button } from 'ui';
-import { chainIdToString, chainsMap, formatAddress } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 const AllowlistStatusManager = ({
@@ -118,7 +118,7 @@ const AllowlistStatusManager = ({
           </div>
         ) : (
           <div className='text-destructive flex items-center gap-2'>
-            <BsXSquareFill className='size-4' />
+            <BsXOctagonFill className='size-4' />
             <p>No</p>
           </div>
         )}
@@ -132,7 +132,7 @@ const AllowlistStatusManager = ({
           onClick={handleAllowlistUpdate}
         >
           {isLoading ? null : isEligible ? ( // <Spinner className='size-4' />
-            <BsXSquare className='size-4' />
+            <BsXOctagon className='size-4' />
           ) : (
             <BsCheckSquareFill className='size-4' />
           )}

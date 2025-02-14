@@ -14,7 +14,7 @@ const Navbar = () => (
         </Link>
       </div>
 
-      <div className='hidden items-center gap-5 md:flex'>
+      <div className='hidden h-full items-center gap-5 md:flex'>
         <NavLinks />
       </div>
 

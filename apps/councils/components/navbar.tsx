@@ -54,7 +54,7 @@ const Navbar = () => {
           <img src='/hats.png' className='size-10' alt='Hats Logo' />
 
           {!chainId && !address && !createForm && (
-            <p className='text-lg font-semibold'>
+            <p className='text-xl font-semibold text-black hover:text-black/80'>
               hats <span className='font-normal'>pro</span>
             </p>
           )}

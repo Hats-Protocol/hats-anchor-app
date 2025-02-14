@@ -1,7 +1,7 @@
 'use client';
 
 import { useEligibility, useOverlay } from 'contexts';
-import _ from 'lodash';
+import { isEmpty, map, some, toLower } from 'lodash';
 import { useAncillaryElection, useHatClaimBy } from 'modules-hooks';
 import { useMemo } from 'react';
 import { FaRegCheckCircle } from 'react-icons/fa';
@@ -19,9 +19,9 @@ const WearerCard = ({ account }: { account: Hex }) => {
   const { handlePendingTx } = useOverlay();
 
   const isWearing = useMemo(() => {
-    return _.some(selectedHat?.wearers, { id: account });
+    return some(selectedHat?.wearers, { id: account });
   }, [selectedHat?.wearers, account]);
-  const isUser = account === _.toLower(address);
+  const isUser = account === toLower(address);
 
   const { claimHat } = useHatClaimBy({
     selectedHat: selectedHat || undefined,
@@ -69,9 +69,9 @@ export const WearersList = () => {
   return (
     <div className='space-y-4'>
       <h3 className='text-md'>Current Electees</h3>
-      {!_.isEmpty(electedAccounts) ? (
+      {!isEmpty(electedAccounts) ? (
         <div className='space-y-2'>
-          {_.map(electedAccounts, (account: Hex) => (
+          {map(electedAccounts, (account: Hex) => (
             <WearerCard key={account} account={account} />
           ))}
         </div>

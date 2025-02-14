@@ -3,7 +3,7 @@
 import { DEPLOYMENT_TYPES } from '@hatsprotocol/constants';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import _ from 'lodash';
+import { find, get } from 'lodash';
 import { useModuleDeploy, useMultiClaimsHatterCheck } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
@@ -78,7 +78,7 @@ const TopMenu = ({
   const isChainCorrect = currentNetworkId === chainId;
 
   const cannotDeployWithoutIncrement = useMemo(() => {
-    const storedSupply = _.get(_.find(storedData, ['id', adminHat]), 'maxSupply');
+    const storedSupply = get(find(storedData, ['id', adminHat]), 'maxSupply');
     const supplyExhausted = (storedSupply || adminHatDetails?.currentSupply) === adminHatDetails?.maxSupply;
     return incrementWearers === 'No' && supplyExhausted;
   }, [adminHat, adminHatDetails?.currentSupply, adminHatDetails?.maxSupply, incrementWearers, storedData]);

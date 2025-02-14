@@ -1,57 +1,85 @@
+import { concat } from 'lodash';
+
 export const PLACEHOLDERS = {
-  creator_name: 'Vitalik',
-  council_name: 'Protocol Council',
-  org_name: 'Ethereum',
-  chain_name: 'Ethereum Mainnet',
-  council_members_link: 'https://hats-pro.vercel.app/',
-  member_title: 'Council Member',
-  compliance_title: 'Compliance Manager',
+  creatorName: 'Vitalik',
+  councilName: 'Protocol Council',
+  orgName: 'Ethereum',
+  chainName: 'Ethereum Mainnet',
+  councilMembersLink: 'https://hats-pro.vercel.app/',
+  // copy
+  memberTitle: 'Council Member',
+  memberName: 'member',
+  complianceTitle: 'Compliance Manager',
+  councilTitle: 'council',
+  councilTitleUpper: 'Council',
+  complianceManagerAccessory: 'a', // `a` for several managers or `the` for a single manager
 };
 
+export const COUNCIL_COPY_FIELDS = [
+  // copy
+  { name: 'complianceTitle', label: 'Compliance Title' }, // default "Compliance Manager", what is compliance manager called
+  { name: 'memberTitle', label: 'Member Title' }, // default "Council Member", what is council member called, formal
+  { name: 'memberName', label: 'Member Name' }, // default "member", used to follow {COUNCIL_TITLE} {MEMBER_NAME}
+  { name: 'councilTitle', label: 'Council Title' }, // default "council", copy for the "Council"
+  { name: 'councilTitleUpper', label: 'Council Title Upper' }, // default "Council", copy for the "Council", formal
+  { name: 'complianceManagerAccessory', label: 'Compliance Manager Accessory' }, // default "a" or "the", copy for the "Compliance Manager"
+];
+
 const MAIN_COUNCIL_FIELDS = [
-  { name: 'creator_name', label: 'Creator Name' },
-  { name: 'council_name', label: 'Council Name' },
-  { name: 'org_name', label: 'Organization Name' },
-  { name: 'chain_name', label: 'Chain Name' },
-  { name: 'council_members_link', label: 'Council Members Link' },
-  { name: 'compliance_title', label: 'Compliance Title' }, // what is compliance manager called
-  { name: 'member_title', label: 'Member Title' }, // what is council member called
+  { name: 'creatorName', label: 'Creator Name' },
+  { name: 'councilName', label: 'Council Name' },
+  { name: 'orgName', label: 'Organization Name' },
+  { name: 'chainName', label: 'Chain Name' },
+  { name: 'councilMembersLink', label: 'Council Members Link' },
 ];
 
 export const INITIAL_INVITE = {
-  label: 'Initial invitation to council member',
+  label: 'Initial invitation to council members',
   messageId: 'invite_council_member',
   fields: MAIN_COUNCIL_FIELDS,
+  cioId: 6,
+  receivers: ['councilMembers'], // Could be sent to a single council member at a time -- manually via dashboard
 };
 
 export const INVITE_REMINDER = {
   label: 'Reminder to join a council for council member',
   messageId: 'reminder_to_join_council',
   fields: MAIN_COUNCIL_FIELDS,
+  cioId: 7,
+  receivers: ['councilMembers'], // Only sent to one council member at a time -- manually via dashboard
 };
 
 export const NOTIFY_COMPLIANCE_MANAGER_AFTER_DEPLOY = {
   label: 'Notify compliance manager after council is deployed',
   messageId: 'notify_compliance_manager_after_deploy',
-  fields: MAIN_COUNCIL_FIELDS,
+  fields: concat(MAIN_COUNCIL_FIELDS),
+  cioId: 8,
+  receivers: ['councilComplianceManagers'],
+  extraFields: ['councilMembers'],
 };
 
 export const COUNCIL_SETUP_COMPLETE = {
   label: 'Council setup is complete',
   messageId: 'council_setup_complete',
   fields: MAIN_COUNCIL_FIELDS,
+  cioId: 9,
+  receivers: ['creator'],
 };
 
 export const COUNCIL_DEPLOYED = {
   label: 'Council deployed',
   messageId: 'council_deployed',
   fields: MAIN_COUNCIL_FIELDS,
+  cioId: 10,
+  receivers: ['creator'],
 };
 
 export interface MailFormData {
   label: string;
   messageId: string;
   fields: { name: string; label: string }[];
+  cioId: number;
+  receivers?: string[];
 }
 
 export const MAIL_FORMS: MailFormData[] = [

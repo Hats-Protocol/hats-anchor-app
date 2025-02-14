@@ -1,6 +1,6 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import { map } from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 
@@ -36,7 +36,7 @@ const useHatsModules = ({ chainId, editMode }: { chainId: SupportedChains | unde
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const modules: ModuleDetails[] = _.map(
+  const modules: ModuleDetails[] = map(
     data,
     (value: Module, key: string) =>
       ({

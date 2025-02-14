@@ -3,7 +3,7 @@ import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { find, first, get, map } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, SupportedChains, SyncTxHandler } from 'types';
 import { createHatsModulesClient } from 'utils';
@@ -20,7 +20,7 @@ const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuc
   const { data: walletClient } = useWalletClient();
 
   const claimsHatterAddress = useMemo(
-    () => _.get(_.first(_.get(selectedHat, 'claimableBy')), 'id') as Hex | undefined,
+    () => get(first(get(selectedHat, 'claimableBy')), 'id') as Hex | undefined,
     [selectedHat],
   );
 
@@ -46,7 +46,7 @@ const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuc
   });
 
   const [isClaimable, isClaimableAdmin] = useMemo(
-    () => _.map(isClaimableData, 'result') || [false, false],
+    () => map(isClaimableData, 'result') || [false, false],
     [isClaimableData],
   );
 
@@ -57,7 +57,7 @@ const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuc
       if (!moduleClient) return;
       const modules = moduleClient?.getModules();
       if (!modules) return;
-      const moduleData = _.find(modules, {
+      const moduleData = find(modules, {
         name: CONFIG.modules.claimsHatter,
       });
       if (!moduleData) return;

@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
 import { values } from 'lodash';
+import { Toaster } from 'molecules';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
 import { privyConfig } from 'utils';
@@ -87,7 +88,11 @@ const Providers = ({ children }: ProvidersProps) => {
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={privyConfig()}>
           <ReactQueryDevtools initialIsOpen={false} position='left' />
-          <OverlayContextProvider>{children}</OverlayContextProvider>
+          <OverlayContextProvider>
+            {children}
+
+            <Toaster />
+          </OverlayContextProvider>
         </WagmiProvider>
       </QueryClientProvider>
     </PrivyProvider>

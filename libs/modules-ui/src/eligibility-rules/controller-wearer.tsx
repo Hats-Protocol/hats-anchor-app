@@ -3,7 +3,7 @@
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat } from 'contexts';
 import { getControllerNameAndLink } from 'hats-utils';
-import _ from 'lodash';
+import { includes, pick } from 'lodash';
 import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
 import { ControllerData } from 'types';
@@ -16,14 +16,14 @@ const EmptyWearer = dynamic(() => import('icons').then((i) => i.EmptyWearer));
 
 export const ControllerWearer = ({ controllerData }: { controllerData: ControllerData | undefined }) => {
   const { chainId } = useSelectedHat();
-  const { id: address, isContract } = _.pick(controllerData, ['id', 'isContract', 'ensName']);
+  const { id: address, isContract } = pick(controllerData, ['id', 'isContract', 'ensName']);
 
   const { name, link, icon } = getControllerNameAndLink({
     extendedController: controllerData,
     chainId,
   });
 
-  if (_.includes(NULL_ADDRESSES, address)) {
+  if (includes(NULL_ADDRESSES, address)) {
     return (
       <div className='flex items-center gap-1 text-slate-600'>
         <p>Null</p>

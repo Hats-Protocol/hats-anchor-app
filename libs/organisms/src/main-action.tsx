@@ -3,7 +3,7 @@
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
-import _ from 'lodash';
+import { get, gte, includes, map, toNumber } from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
@@ -23,18 +23,18 @@ const MainAction = () => {
   const { chainId, editMode } = useTreeForm();
   const { selectedHat } = useSelectedHat();
   const isConnected = Boolean(address);
-  const maxSupply = _.get(selectedHat, 'maxSupply', 0);
+  const maxSupply = get(selectedHat, 'maxSupply', 0);
   const { data: wearer } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
     editMode,
   });
   const currentUserIsWearing = useMemo(
-    () => _.includes(_.map(wearer || [], 'id'), selectedHat?.id),
+    () => includes(map(wearer || [], 'id'), selectedHat?.id),
     [wearer, selectedHat?.id],
   );
 
-  const currentWearerHats = _.map(wearer, 'id');
+  const currentWearerHats = map(wearer, 'id');
   const isAdminUser = isWearingAdminHat(currentWearerHats, selectedHat?.id);
   const { claimHat, hatterIsAdmin, isClaimable } = useHatClaimBy({
     selectedHat,
@@ -49,8 +49,8 @@ const MainAction = () => {
     selectedHat,
     chainId,
   });
-  const currentUserIsEligible = _.includes(_.get(currentUserEligibility, 'eligibleWearers'), address);
-  const maxWearersReached = _.gte(_.toNumber(_.get(selectedHat, 'currentSupply')), _.toNumber(maxSupply));
+  const currentUserIsEligible = includes(get(currentUserEligibility, 'eligibleWearers'), address);
+  const maxWearersReached = gte(toNumber(get(selectedHat, 'currentSupply')), toNumber(maxSupply));
 
   if (!isConnected) {
     return <ConnectWallet />;

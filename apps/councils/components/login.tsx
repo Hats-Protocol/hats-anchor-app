@@ -5,7 +5,8 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useToast } from 'hooks';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
-import { useMemo, useState } from 'react';
+import posthog from 'posthog-js';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, cn, OblongAvatar, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
@@ -18,7 +19,10 @@ const Login = () => {
   const walletClient = useWalletClient();
   const chainId = useChainId();
   const config = useConfig();
-  const { data: ensName } = useEnsName({ address: user?.wallet?.address ?? undefined, chainId: 1 });
+  const { data: ensName, isLoading: ensNameLoading } = useEnsName({
+    address: user?.wallet?.address ?? undefined,
+    chainId: 1,
+  });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName as string,
     chainId: 1,
@@ -32,6 +36,13 @@ const Login = () => {
       size: 64,
     }).toDataURL();
   }, [user]);
+
+  useEffect(() => {
+    if (!user || ensNameLoading) return;
+    const name = ensName || user.email?.address?.split('@')?.[0];
+
+    posthog.identify(user?.wallet?.address as Hex, { email: user?.email?.address }, { name });
+  }, [user, ensName, ensNameLoading]);
 
   const { toast } = useToast();
 

@@ -1,7 +1,7 @@
 import { HATS_ACCOUNT_1OFN_IMPLEMENTATION } from '@hatsprotocol/hats-account-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import _ from 'lodash';
+import { has, toString } from 'lodash';
 import { SupportedChains } from 'types';
 import { createHatsAccountClient } from 'utils';
 import { Hex } from 'viem';
@@ -16,7 +16,7 @@ const getPredictedAddress = async ({
   hatId: Hex | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  const isSupportedChain = _.has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, _.toString(chainId));
+  const isSupportedChain = has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, toString(chainId));
   if (!hatId || hatId === '0x' || !chainId || !isSupportedChain) return null;
 
   const hatsAccountClient = await createHatsAccountClient(chainId);
@@ -52,7 +52,7 @@ const useHatsAccounts = ({ hatId, chainId }: { hatId?: Hex; chainId: SupportedCh
   });
 
   async function createAccount() {
-    const isSupportedChain = _.has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, _.toString(chainId));
+    const isSupportedChain = has(HATS_ACCOUNT_1OFN_IMPLEMENTATION, toString(chainId));
     if (!hatId || !address || !chainId || !isSupportedChain) return undefined;
 
     const hatsAccountClient = await createHatsAccountClient(chainId);

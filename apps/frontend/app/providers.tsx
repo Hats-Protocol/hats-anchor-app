@@ -12,11 +12,14 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
+import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
+
+const Toaster = dynamic(() => import('molecules').then((mod) => mod.Toaster), { ssr: false });
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 if (!POSTHOG_KEY) {
@@ -78,7 +81,11 @@ const Providers = ({ children }: Props) => {
         <RainbowKitProvider>
           <ReactQueryDevtools initialIsOpen={false} />
           <PostHogProvider client={posthog}>
-            <OverlayContextProvider>{children}</OverlayContextProvider>
+            <OverlayContextProvider>
+              {children}
+
+              <Toaster />
+            </OverlayContextProvider>
           </PostHogProvider>
         </RainbowKitProvider>
       </QueryClientProvider>

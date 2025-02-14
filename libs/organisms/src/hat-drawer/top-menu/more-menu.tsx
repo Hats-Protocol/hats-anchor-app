@@ -6,7 +6,7 @@ import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite, useHatMakeImmutable, useHatStatusCheck, useWearerDetails } from 'hats-hooks';
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
 import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
-import _ from 'lodash';
+import { map } from 'lodash';
 import posthog from 'posthog-js';
 import { FaCopy, FaDoorOpen, FaEllipsisV, FaExclamationCircle, FaLink, FaLock, FaPowerOff } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
@@ -42,7 +42,7 @@ const MoreMenu = () => {
     chainId,
   });
 
-  const isAdminUser = isWearingAdminHat(_.map(wearer, 'id'), selectedHat?.id);
+  const isAdminUser = isWearingAdminHat(map(wearer, 'id'), selectedHat?.id);
 
   const mutableStatus = selectedHat?.mutable ? MUTABILITY.MUTABLE : 'Immutable';
 

@@ -23,6 +23,7 @@
     "molecules": "pnpm --filter molecules",
     "organisms": "pnpm --filter organisms",
     "ui": "pnpm --filter ui",
+    "utils": "pnpm --filter utils",
     "ui:storybook": "nx run ui:storybook"
   },
   "private": true,

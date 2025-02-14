@@ -12,9 +12,10 @@ import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useToast 
 import { compact, get, map, size } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { DevInfo } from 'molecules';
+import { posthog } from 'posthog-js';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Switch } from 'ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton, Switch } from 'ui';
 import { councilsGraphqlClient, explorerUrl, formatAddress, hatLink, parseCouncilSlug, UPDATE_COUNCIL } from 'utils';
 import { Hex } from 'viem';
 
@@ -28,11 +29,11 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { data: councilDetails } = useCouncilDetails({
+  const { data: councilDetails, isLoading: isCouncilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
     address,
   });
-  const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
+  const { data: offchainCouncilDetails, isLoading: isOffchainCouncilDetailsLoading } = useOffchainCouncilDetails({
     chainId: chainId ?? 11155111,
     hsg: address as Hex,
   });
@@ -42,11 +43,11 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     ? (treeIdToTopHatId(hatIdToTreeId(BigInt(primarySignerHat.id))).toString() as Hex)
     : undefined; // TODO forgoing getting top hat details for now
   const eligibilityModule = get(primarySignerHat, 'eligibility') as Hex | undefined;
-  const { data: eligibilityRules } = useEligibilityRules({
+  const { data: eligibilityRules, isLoading: isEligibilityRulesLoading } = useEligibilityRules({
     chainId: chainId as SupportedChains,
     address: eligibilityModule,
   });
-  const { data: safeSigners } = useSafeDetails({
+  const { data: safeSigners, isLoading: isSafeSignersLoading } = useSafeDetails({
     chainId: chainId as SupportedChains,
     safeAddress: councilDetails?.safe as Hex,
   });
@@ -184,7 +185,13 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     );
   }, [safeSigners, chainId]);
 
-  if (!chainId) return null;
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
+  if (!chainId || !isDev) return null;
+
+  if (isCouncilDetailsLoading || isOffchainCouncilDetailsLoading || isEligibilityRulesLoading || isSafeSignersLoading) {
+    return <Skeleton className='mx-auto h-[500px] w-1/2' />;
+  }
 
   return (
     <div className='mx-auto flex w-1/2 flex-col gap-4'>

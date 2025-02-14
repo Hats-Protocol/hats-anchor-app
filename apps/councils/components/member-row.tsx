@@ -9,7 +9,7 @@ import { every, find, get, includes, keys, map, toLower } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { UseFormReturn } from 'react-hook-form';
-import { BsCheckSquareFill, BsExclamationSquare, BsPencilSquare, BsXSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsExclamationSquare, BsPencilSquare, BsXOctagonFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar } from 'ui';
 import { getAllWearers } from 'utils';
@@ -116,7 +116,7 @@ const MemberRow = ({
           ) : (
             <>
               <p className='text-destructive'>No</p>
-              <BsXSquareFill className='text-destructive' />
+              <BsXOctagonFill className='text-destructive' />
             </>
           )}
         </div>
@@ -138,7 +138,7 @@ const MemberRow = ({
                 <>
                   <p className='text-destructive'>No</p>
 
-                  <BsXSquareFill className='text-destructive' />
+                  <BsXOctagonFill className='text-destructive' />
                 </>
               )}
             </div>
@@ -159,7 +159,7 @@ const MemberRow = ({
           ) : (
             <>
               <p className='text-destructive'>No</p>
-              <BsXSquareFill className='text-destructive' />
+              <BsXOctagonFill className='text-destructive' />
             </>
           )}
         </div>

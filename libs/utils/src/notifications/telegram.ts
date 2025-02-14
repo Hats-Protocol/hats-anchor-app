@@ -22,13 +22,14 @@ export const sendTelegramMessage = async (message: string) => {
   return result;
 };
 
+// Sanitize message for Telegram API
 export const sanitizeMessage = (message: string | null | undefined) => {
   if (!message) return undefined;
-  return message.replaceAll('.', '\\.');
+  return message.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
 };
 
 export const tgFormatAddress = (address: string) => {
-  return `${address.slice(0, 6)}\\.\\.\\.${address.slice(-4)}`;
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
 };
 
 export const tgChainSlug = (chainId: number) => {

@@ -179,3 +179,16 @@ export const UPDATE_COUNCIL = gql`
     }
   }
 `;
+
+export const CREATE_NOTIFICATION = gql`
+  mutation CreateNotification($notifications: [NotificationInput!]!) {
+    createNotifications(notifications: $notifications) {
+      id
+      email
+      userId
+      councilId
+      notificationId
+      variables
+    }
+  }
+`;

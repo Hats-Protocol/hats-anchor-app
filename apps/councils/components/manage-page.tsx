@@ -160,6 +160,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
   const addManagerLoading = useState(false);
   const [, setAddManagerLoading] = addManagerLoading;
+
   const onAddManagerSuccess = async (user: CouncilMember | undefined) => {
     logger.debug({ user, userAddress, ownerHat, walletClient });
     if (!user?.address || !userAddress || !ownerHat?.id) return;

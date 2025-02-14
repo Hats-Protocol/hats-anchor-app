@@ -3,7 +3,7 @@
 import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
-import _ from 'lodash';
+import { filter, includes, map, some } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
@@ -35,14 +35,14 @@ const TopMenu = () => {
   } = useTreeForm();
   const { selectedHat } = useSelectedHat();
 
-  const hatIds = _.filter(_.map(storedData, 'id'), (hatId: Hex) => hatId !== undefined) as Hex[];
+  const hatIds = filter(map(storedData, 'id'), (hatId: Hex) => hatId !== undefined) as Hex[];
 
   const { adminHatIds } = useAdminOfHats({ hatIds, chainId });
 
   const isAdminOfAnyHatWithChanges = useMemo(() => {
-    const hatsWithChangesIds = _.map(storedData, 'id');
+    const hatsWithChangesIds = map(storedData, 'id');
 
-    const hasAdminOverAnyHat = _.some(hatsWithChangesIds, (id: Hex) => _.includes(adminHatIds, id));
+    const hasAdminOverAnyHat = some(hatsWithChangesIds, (id: Hex) => includes(adminHatIds, id));
 
     return hasAdminOverAnyHat;
   }, [storedData, adminHatIds]);
