@@ -1,6 +1,7 @@
 'use client';
 
 import { CouncilFormProvider } from 'contexts';
+import { useAuthGuard } from 'hooks';
 import { useSearchParams } from 'next/navigation';
 import { Card } from 'ui';
 
@@ -11,6 +12,8 @@ const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
   const searchParams = useSearchParams();
   const draftId = searchParams.get('draftId') || '';
   const subStep = searchParams.get('subStep') || undefined;
+
+  useAuthGuard();
 
   return (
     <CouncilFormProvider draftId={draftId}>

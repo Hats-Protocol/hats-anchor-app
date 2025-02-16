@@ -1,10 +1,9 @@
 'use client';
 
-import { usePrivy } from '@privy-io/react-auth';
 import { EligibilityContextProvider } from 'contexts';
-import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
+import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { get } from 'lodash';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { Hex } from 'viem';
@@ -21,8 +20,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
     chainId,
     hsg: address,
   });
-  const { login, user, ready, isModalOpen, authenticated, linkEmail } = usePrivy();
-  const hasTriggeredLogin = useRef(false);
+
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const hatId = get(primarySignerHat, 'id');
 
@@ -34,33 +32,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
     };
   }, [offchainCouncilDetails]);
 
-  useEffect(() => {
-    if (!ready) return;
-
-    if (!isModalOpen && !authenticated) {
-      hasTriggeredLogin.current = false;
-    }
-
-    const handleAuth = async () => {
-      if (!authenticated && !hasTriggeredLogin.current) {
-        hasTriggeredLogin.current = true;
-        login();
-        return;
-      }
-
-      // if (authenticated && !user?.email && !hasTriggeredEmailLink.current) {
-      //   hasTriggeredEmailLink.current = true;
-      //   linkEmail();
-      //   return;
-      // }
-
-      // if (authenticated && user?.email) {
-      //   router.push('/councils/new');
-      // }
-    };
-
-    handleAuth();
-  }, [ready, authenticated, user?.email, login, linkEmail, isModalOpen]);
+  useAuthGuard();
 
   // TODO better loading state
   if (isLoading) {
