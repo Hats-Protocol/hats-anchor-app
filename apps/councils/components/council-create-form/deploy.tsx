@@ -11,11 +11,11 @@ const deploySteps = {
   pinningRoleDetails: {
     title: 'Create Council',
     description: 'Creating a Hats tree to store roles & rules alongside a Safe Multisig',
-  },
+  }, // skip `calculatingRoleMetadata`
   configuringModules: {
     title: 'Deploying your smart contract rules',
     description: 'Deploying HSG, Allowlist, Compliance & Agreement',
-  },
+  }, // skip `chainModules`
   simulateSafeAddress: {
     title: 'Simulating Safe address',
     description: 'Registering and reserving the Safe address',
@@ -23,19 +23,23 @@ const deploySteps = {
   allocatingInitialRoles: {
     title: 'Compiling Transaction Calldata',
     description: 'Compiling a transaction that deploys the necessary contracts with allocates roles',
-  },
+  }, // bundle with `compileTxCalldata`
   deployTx: {
     title: 'Waiting for wallet confirmation',
     description: 'You need to confirm and send the transaction',
   },
+  confirmingTx: {
+    title: 'Waiting for blockchain confirmation',
+    description: 'Network is including this transaction into a block',
+  },
+  indexingTx: {
+    title: 'Wait for indexing',
+    description: 'Storing blockchain information as structured metadata',
+  },
   processTx: {
     title: 'Processing transaction',
     description: "We're activating your permissions",
-  },
-  updateMetadata: {
-    title: 'Updating metadata',
-    description: 'Storing blockchain information as structured metadata',
-  },
+  }, // bundle with `updateMetadata`
   redirect: {
     title: 'Redirecting to the Council',
     description: 'Constructing your Hats Pro control panel and redirecting you to it',
