@@ -86,33 +86,40 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
       </div>
 
       <div className='flex flex-col gap-4'>
-        {Object.entries(deploySteps).map(([key, value], index) => {
+        {Object.entries(deploySteps).map(([key, value], index, array) => {
           const isActive = isActiveStep(key);
           const isComplete = deployStatus[key];
           const isProcessing = key === 'processTx' && isActive;
+          const isLastStep = index === array.length - 1;
 
           return (
-            <div className='flex items-center gap-4' key={key}>
-              <div
-                className={cn(
-                  'relative flex size-11 items-center justify-center rounded-full',
-                  isComplete
-                    ? 'border-functional-link-primary bg-functional-link-primary border-2'
-                    : isActive || isProcessing
-                      ? cn('border-2 border-gray-300', [
-                          'before:absolute before:inset-[-2px] before:animate-[spin_2s_linear_infinite] before:rounded-full',
-                          'before:bg-[length:200%_100%]',
-                          'before:from-functional-link-primary before:to-functional-link-primary before:bg-gradient-to-r before:via-sky-100 before:via-30%',
-                          'after:absolute after:inset-[-1px] after:rounded-full after:bg-white',
-                          'border-none',
-                        ])
-                      : 'border-2 border-gray-300',
-                )}
-              >
-                {isComplete ? (
-                  <Check className='h-5 w-5 text-white' />
-                ) : (
-                  <span className='relative z-10'>{index + 1}</span>
+            <div className='flex items-start gap-4' key={key}>
+              <div className='flex flex-col items-center'>
+                <div
+                  className={cn(
+                    'relative flex size-11 items-center justify-center rounded-full',
+                    isComplete
+                      ? 'border-functional-link-primary bg-functional-link-primary border-2'
+                      : isActive || isProcessing
+                        ? cn('border-2 border-gray-300 bg-sky-100', [
+                            'before:absolute before:inset-[-2px] before:animate-[spin_2s_linear_infinite] before:rounded-full',
+                            'before:bg-[length:200%_100%]',
+                            'before:from-functional-link-primary before:to-functional-link-primary before:bg-gradient-to-r before:via-sky-100 before:via-30%',
+                            'after:absolute after:inset-[-1px] after:rounded-full after:bg-sky-100',
+                            'border-none',
+                          ])
+                        : 'border-2 border-gray-300',
+                  )}
+                >
+                  {isComplete ? (
+                    <Check className='h-5 w-5 text-white' />
+                  ) : (
+                    <span className='relative z-10'>{index + 1}</span>
+                  )}
+                </div>
+
+                {!isLastStep && (
+                  <div className={cn('my-2 h-3 w-[2px]', isComplete ? 'bg-functional-link-primary' : 'bg-gray-200')} />
                 )}
               </div>
 

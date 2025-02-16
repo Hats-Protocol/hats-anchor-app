@@ -115,7 +115,7 @@ function getStepValidation(step: Step, stepValidation: StepValidation, requireme
 }
 
 function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
-  const { form, stepValidation, deployStatus } = useCouncilForm();
+  const { form, stepValidation } = useCouncilForm();
   const router = useRouter();
   const requirements = form.watch('requirements');
 
@@ -156,30 +156,29 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
     [router, draftId],
   );
 
-  // Helper to determine if a step is currently being deployed
-  const isDeploying = (step: Step) => {
-    if (step.id !== 'payment') return false;
-    logger.info('deployStatus', deployStatus);
-    return Object.values(deployStatus).some((status) => status);
-  };
-
   return (
     <div className='flex flex-col'>
       {STEPS.map((step, index) => (
         <div key={step.id}>
-          <button onClick={() => handleStepNavigation(step.id)} className='w-full text-left disabled:opacity-50'>
+          <button
+            onClick={() => handleStepNavigation(step.id)}
+            /*disabled={isNavigating}*/
+            className='w-full text-left disabled:opacity-50'
+          >
             <div className='flex gap-4'>
               <div className='flex flex-col items-center'>
                 {/* Main step circle */}
                 <div
                   className={cn(
-                    'relative flex h-12 w-12 items-center justify-center rounded-full',
+                    'flex h-12 w-12 items-center justify-center rounded-full',
+                    // Base case - incomplete step
+                    'border-2',
                     // Handle the three states in order of priority
                     index === currentStepIndex
-                      ? 'border-functional-link-primary border-2 bg-sky-100 shadow-sm'
+                      ? 'border-functional-link-primary bg-sky-100 shadow-sm' // Active state
                       : getStepValidation(step, stepValidation, requirements)
-                        ? 'border-none bg-white shadow-sm'
-                        : 'border-2 border-gray-200 bg-white',
+                        ? 'border-none bg-white shadow-sm' // Completed state using exact hex color
+                        : 'border-gray-200 bg-white', // Incomplete state
                   )}
                 >
                   {getStepValidation(step, stepValidation, requirements) ? (
@@ -200,7 +199,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                       </g>
                     </svg>
                   ) : (
-                    <span className='relative z-10 text-lg text-black'>{index + 1}</span>
+                    <span className='text-lg text-black'>{index + 1}</span>
                   )}
                 </div>
 
