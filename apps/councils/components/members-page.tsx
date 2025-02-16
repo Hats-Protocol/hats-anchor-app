@@ -5,7 +5,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
+import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, includes, isEmpty, map, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
 import posthog from 'posthog-js';
@@ -45,6 +45,8 @@ const MembersPage = ({ slug }: { slug: string }) => {
     hsg: address as Hex,
     chainId: chainId ?? 11155111,
   });
+
+  useAuthGuard();
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 

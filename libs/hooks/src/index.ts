@@ -1,5 +1,6 @@
 export * from './use-agreement-claims-hatter-contract-write';
 export * from './use-approved-tokens';
+export * from './use-auth-guard';
 export * from './use-cid';
 export * from './use-clipboard';
 export * from './use-contract-data';

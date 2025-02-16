@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { CouncilTransferForm } from 'forms';
 import { useHatDetails } from 'hats-hooks';
-import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
+import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import posthog from 'posthog-js';
@@ -97,7 +97,7 @@ const SectionMenu = ({ sections, isLoading }: { sections: { value: string; label
   );
 };
 
-const ManagePage = ({ slug }: { slug: string }) => {
+export const ManagePage = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
   const { setModals, handlePendingTx } = useOverlay();
   const { address: userAddress } = useAccount();
@@ -107,6 +107,7 @@ const ManagePage = ({ slug }: { slug: string }) => {
   const queryClient = useQueryClient();
   const { switchChain } = useSwitchChain();
   const currentChainId = useChainId();
+  useAuthGuard();
 
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -416,5 +417,3 @@ const ManagePage = ({ slug }: { slug: string }) => {
     </div>
   );
 };
-
-export { ManagePage };
