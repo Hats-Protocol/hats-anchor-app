@@ -85,7 +85,7 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
         </Button>
       </div>
 
-      <div className='flex flex-col gap-4'>
+      <div className='flex flex-col'>
         {Object.entries(deploySteps).map(([key, value], index, array) => {
           const isActive = isActiveStep(key);
           const isComplete = deployStatus[key];
@@ -119,7 +119,7 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
                 </div>
 
                 {!isLastStep && (
-                  <div className={cn('my-2 h-3 w-[2px]', isComplete ? 'bg-functional-link-primary' : 'bg-gray-200')} />
+                  <div className={cn('my-2 h-8 w-[2px]', isComplete ? 'bg-functional-link-primary' : 'bg-gray-200')} />
                 )}
               </div>
 
