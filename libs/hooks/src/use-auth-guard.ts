@@ -4,6 +4,9 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useEffect, useRef } from 'react';
 import { logger } from 'utils';
 
+// This hook can be dropped in to individual components
+// We can export the specific states from this, such as isReady and isAuthorized, and add specific UI states to the consuming components if needed
+
 export const useAuthGuard = () => {
   const { login, user, authenticated, ready, isModalOpen } = usePrivy();
   const hasTriggeredLogin = useRef(false);
