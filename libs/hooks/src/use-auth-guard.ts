@@ -4,7 +4,8 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useEffect, useRef } from 'react';
 import { logger } from 'utils';
 
-// This hook can be dropped in to individual components
+// This hook can be dropped in to individual client-side components
+// We can also do at the full page level, but if we want server side we'll need another approach
 // We can export the specific states from this, such as isReady and isAuthorized, and add specific UI states to the consuming components if needed
 
 export const useAuthGuard = () => {
