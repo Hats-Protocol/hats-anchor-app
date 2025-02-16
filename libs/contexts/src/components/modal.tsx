@@ -63,7 +63,7 @@ const Modal = ({
     <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
       <ModalContent
         className={cn(
-          'min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white px-10 md:mb-auto md:mt-4 md:rounded-2xl',
+          'min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white px-4 py-6 md:mb-auto md:mt-4 md:rounded-2xl md:px-10 md:py-0',
           classSizes[size as keyof typeof classSizes],
         )}
       >

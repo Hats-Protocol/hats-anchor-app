@@ -99,7 +99,7 @@ export const SubscriptionClaims = () => {
               <p>Pay the {isOneTime ? 'one-time fee' : 'subscription'}</p>
 
               <div className={cn('flex items-center gap-2', color)}>
-                <p className='text-sm font-medium'>{status}</p>
+                <p>{status}</p>
 
                 <IconComponent />
               </div>

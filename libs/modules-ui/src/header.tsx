@@ -26,12 +26,7 @@ export const Header = () => {
     return (
       <div className='flex w-full flex-col gap-2 pb-2'>
         <div className='w-full'>
-          <LazyImage
-            src={!isHatDetailsLoading ? get(selectedHat, 'imageUrl') : undefined}
-            alt='Hat image'
-            containerClassName='rounded-none md:rounded-lg md:w-auto h-full md:h-[400px]'
-            imageClassName='-left-4 -top-4'
-          />
+          <Skeleton className='h-[400px] w-full' />
 
           <div className='relative flex justify-center'>
             <Skeleton className='h-40px absolute top-[-10px]' />
@@ -57,7 +52,8 @@ export const Header = () => {
         <LazyImage
           src={!isHatDetailsLoading ? get(selectedHat, 'imageUrl') : undefined}
           alt='Hat image'
-          containerClassName='rounded-none md:rounded-lg md:w-auto h-full md:h-[400px]'
+          containerClassName='rounded-none md:rounded-lg md:w-auto h-[400px]'
+          imageClassName='-left-5 -top-4'
         />
 
         <div className='relative flex justify-center'>

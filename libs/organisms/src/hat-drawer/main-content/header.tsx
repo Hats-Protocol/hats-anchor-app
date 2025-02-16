@@ -51,7 +51,7 @@ const Header = () => {
       <div className='space-y-4 bg-white px-4 pb-4 md:bg-transparent md:px-16'>
         <div className='w-full space-y-2'>
           <div className='min-h-150 md:min-h-auto pt-50 align-end flex w-full flex-col md:flex-row md:pt-0'>
-            <Skeleton className='size-120 block md:hidden' />
+            <Skeleton className='block size-96 md:hidden' />
 
             <div className='max-w-2/3 flex w-full flex-col justify-between gap-2 md:max-w-full md:flex-row'>
               <Skeleton className='h-6 w-full' />

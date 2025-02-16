@@ -139,15 +139,15 @@ export const AllowanceActions = ({
   }
 
   return (
-    <div className='space-y-2'>
-      <h3 className='text-lg font-medium'>{heading}</h3>
+    <div className='space-y-4 md:space-y-2'>
+      <h3 className='text-base font-medium md:text-lg'>{heading}</h3>
 
       <Form {...localForm}>
         <div className='space-y-4'>
-          <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
+          <div className='flex flex-col items-center justify-between gap-6 md:flex-row md:gap-4'>
             <div className='flex w-full justify-between gap-4 md:w-auto'>
               {!isOneTime && (
-                <div>
+                <div className='w-1/2'>
                   <NumberInput
                     name='amount'
                     numOptions={{ min: allowanceInDuration }}
@@ -207,7 +207,7 @@ export const AllowanceActions = ({
           </div>
 
           {address && !isOneTime && (
-            <div className='h-75px flex items-center justify-between gap-6'>
+            <div className='flex h-[75px] flex-col items-center justify-around gap-2 md:flex-row md:justify-between md:gap-6'>
               {hasAllowance && (
                 <TransactionButton
                   sendTx={async () => {

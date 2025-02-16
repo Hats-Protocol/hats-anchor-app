@@ -4,7 +4,7 @@ import { CONFIG } from '@hatsprotocol/config';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { first, flatten, gt, includes, pick, size } from 'lodash';
-import { Skeleton } from 'ui';
+import { cn, Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -12,6 +12,8 @@ import { useAccount } from 'wagmi';
 import { CommunityHatEligibilityRule } from '../agreement';
 import { ChainPanel, ControllerWearer, KnownEligibilityModule } from '../eligibility-rules';
 import { ClaimButton } from './claim-button';
+
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 
 // relies on different context from Controllers/Eligibility
 const MODAL_SUFFIX = 'Claims';
@@ -86,7 +88,7 @@ const EligibilityConditions = () => {
   }
 
   return (
-    <div className='mx-4 my-2 flex justify-between'>
+    <div className='flex justify-between'>
       <p>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</p>
 
       <ControllerWearer controllerData={eligibilityData} />
@@ -96,7 +98,8 @@ const EligibilityConditions = () => {
 
 export const ClaimsConditions = () => {
   // TODO only include modals that are relevant
-  const { isHatDetailsLoading, isEligibilityRulesLoading } = useEligibility();
+  const { isHatDetailsLoading, isEligibilityRulesLoading, eligibilityRules } = useEligibility();
+  const multipleModules = gt(size(flatten(eligibilityRules)), 1);
 
   if (isHatDetailsLoading || isEligibilityRulesLoading) {
     return (
@@ -112,10 +115,12 @@ export const ClaimsConditions = () => {
 
   return (
     <div className='flex w-full flex-col gap-4 pb-20 md:pb-0'>
-      <div className='flex flex-col gap-2'>
-        <h3 className='text-sm'>Conditions to hold this {CONFIG.TERMS.hat}</h3>
+      <div className={cn('flex flex-col gap-2')}>
+        <h3 className={cn('text-sm', IS_CLAIMS_APP && 'px-4 md:px-0')}>Conditions to hold this {CONFIG.TERMS.hat}</h3>
 
-        <EligibilityConditions />
+        <div className={cn(IS_CLAIMS_APP && !multipleModules && 'px-4 md:px-0')}>
+          <EligibilityConditions />
+        </div>
       </div>
 
       <div className='hidden justify-center md:flex'>

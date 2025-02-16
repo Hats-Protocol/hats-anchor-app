@@ -127,9 +127,11 @@ export const AgreementEligibilityRule = ({
       {!IS_CLAIMS_APP && <AgreementModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />}
       {IS_CLAIMS_APP && (
         <AgreementContentModal
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           chainId={chainId as SupportedChains}
           onlyModule={onlyModule}
+          currentEligibility={currentEligibility || undefined}
         />
       )}
 

@@ -56,7 +56,7 @@ const Modal = ({ children, ...props }: RootModalProps) => {
 
   return (
     <ModalContext.Provider value={{ isDesktop }}>
-      <Modal {...props} {...(!isDesktop && { autoFocus: true })}>
+      <Modal {...props} {...(!isDesktop && { autoFocus: true })} direction='bottom'>
         {children}
       </Modal>
     </ModalContext.Provider>

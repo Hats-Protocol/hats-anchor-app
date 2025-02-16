@@ -4,13 +4,14 @@ import { CONFIG } from '@hatsprotocol/config';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
+import { useMediaQuery } from 'hooks';
 import { capitalize, filter, first, flatten, get, includes, map, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
-import { Button, LinkButton, Tooltip } from 'ui';
+import { Button, LinkButton, Popover, PopoverContent, PopoverTrigger, Tooltip } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -113,6 +114,7 @@ export const ClaimButton = () => {
   if (currentChainId !== chainId) {
     return <NetworkSwitcher chainId={chainId} />;
   }
+  // console.log({ hatterIfNeeded, disableClaim, disableReason, isWearing, isEligible, currentChainId, chainId });
 
   return (
     <Tooltip label={tooltip || disableReason}>

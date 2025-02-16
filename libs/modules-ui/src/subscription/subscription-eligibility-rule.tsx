@@ -78,8 +78,9 @@ export const UnlockEligibilityRule = ({
               [`${moduleDetails?.instanceAddress}-${modalName}`]: true,
             });
           }}
+          className='text-base'
         >
-          {isOneTime ? 'fee' : 'subscription'}
+          {isOneTime ? 'Fee' : 'Subscription'}
         </Button>
       </span>
     );
@@ -120,8 +121,8 @@ export const UnlockEligibilityRule = ({
       rule={
         <p>
           Pay the{' '}
-          <Link href={claimsLink({ chainId, hatId: selectedHat?.id })} className='gray.50'>
-            {isOneTime ? 'fee' : 'subscription'}
+          <Link href={claimsLink({ chainId, hatId: selectedHat?.id })} className='gray.50 text-base'>
+            {isOneTime ? 'Fee' : 'Subscription'}
           </Link>
         </p>
       }

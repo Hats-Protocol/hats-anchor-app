@@ -162,7 +162,7 @@ export const AllowlistClaims = ({
               <p className='text-sm text-gray-600'>{copy.adminLabel}</p>
             </div>
 
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-4'>
               {map(get(ownerHatDetails, 'wearers'), (wearer) => (
                 <MemberAvatar member={wearer} key={wearer.id} />
               ))}

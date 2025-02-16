@@ -2,6 +2,7 @@ import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { EligibilityContextProvider } from 'contexts';
 import { first, get, pick, split, toNumber } from 'lodash';
 import { ClaimsConditions, Header } from 'modules-ui';
+import { HatDevDetailsClaims } from 'molecules';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Claims, ClaimsHelperButtons, StandaloneBottomMenu } from 'organisms';
@@ -37,6 +38,10 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
                 <ClaimsHelperButtons stackVertically />
               </div>
             </div>
+          </div>
+
+          <div>
+            <HatDevDetailsClaims />
           </div>
 
           <div className='min-h-[250px]'>

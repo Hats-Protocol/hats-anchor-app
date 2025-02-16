@@ -78,10 +78,14 @@ export const BottomMoreMenu = () => {
 
         <DropdownMenuContent>
           <Link href={link} isExternal>
-            <DropdownMenuItem>View full role</DropdownMenuItem>
+            <DropdownMenuItem className='text-black/80 hover:bg-black/10'>View full role</DropdownMenuItem>
           </Link>
 
-          {hasAgreement && <DropdownMenuItem onClick={handleDownload}>Download Agreement</DropdownMenuItem>}
+          {hasAgreement && (
+            <DropdownMenuItem className='cursor-pointer' onClick={handleDownload}>
+              Download Agreement
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     );

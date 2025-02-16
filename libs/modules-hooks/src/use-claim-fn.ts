@@ -192,8 +192,20 @@ export const useClaimFn = ({
     }
     console.log('generic claim');
 
+    let disableReason: string | undefined;
+    if (!currentHatIsClaimable?.by || !currentHatIsClaimable?.for) {
+      disableReason = 'Current Hat is not claimable';
+    } else if (!hatterIsAdmin) {
+      disableReason = 'Claims Hatter is not admin';
+    }
+
     // TODO fallback to claim with MCH when eligible
-    return { claimFn: genericClaim, disableClaim: !currentHatIsClaimable || !hatterIsAdmin, requireHatter: true };
+    return {
+      claimFn: genericClaim,
+      disableClaim: !currentHatIsClaimable || !hatterIsAdmin,
+      disableReason,
+      requireHatter: true,
+    };
   }, [
     moduleDetails?.implementationAddress,
     moduleDetails?.instanceAddress,

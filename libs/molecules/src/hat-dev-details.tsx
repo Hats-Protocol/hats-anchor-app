@@ -1,26 +1,34 @@
 'use client';
 
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useSelectedHat, useTreeForm } from 'contexts';
+import { Ruleset } from '@hatsprotocol/modules-sdk';
+import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useToast } from 'hooks';
 import { get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
+import { AppHat, SupportedChains } from 'types';
 import { Button, Link } from 'ui';
 import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 
 const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
 
-const HatDevDetails = () => {
-  const { treeId } = useTreeForm();
-  const { selectedHat, eligibilityInfo, chainId, isClaimable } = useSelectedHat();
+const HatDevDetails = ({
+  selectedHat,
+  eligibilityInfo,
+  chainId,
+  isClaimable,
+  showDetailsButton = false,
+}: HatDevDetailsProps) => {
+  const treeId = selectedHat?.id ? hatIdToTreeId(BigInt(selectedHat.id)) : null;
   const { toast } = useToast();
+  console.log({ selectedHat, eligibilityInfo, chainId, isClaimable });
 
   const devData = useMemo(() => {
+    if (!selectedHat) return [];
     return [
-      { label: 'Eligibility', value: selectedHat?.eligibility },
-      { label: 'Toggle', value: selectedHat?.toggle },
+      { label: 'Eligibility', value: selectedHat.eligibility },
+      { label: 'Toggle', value: selectedHat.toggle },
     ];
   }, [selectedHat]);
 
@@ -60,6 +68,13 @@ const HatDevDetails = () => {
             <p className='text-sm uppercase'>Claimable:</p>
             <p>{isClaimable?.for ? 'For' : isClaimable?.by ? 'By' : 'None'}</p>
           </div>
+
+          <div className='flex items-center gap-2'>
+            <p className='text-sm uppercase'>Current Supply:</p>
+            <p>
+              {selectedHat?.currentSupply} / {selectedHat?.maxSupply}
+            </p>
+          </div>
         </div>
 
         {map(devData, (data) => {
@@ -74,7 +89,7 @@ const HatDevDetails = () => {
           };
 
           return (
-            <div className='flex gap-2' key={`${get(data, 'label')}-${get(data, 'value')}`}>
+            <div className='flex items-center gap-2' key={`${get(data, 'label')}-${get(data, 'value')}`}>
               <span className='text-sm uppercase'>{get(data, 'label')}:</span>{' '}
               <Link href={`${explorerUrl(chainId)}/address/${get(data, 'value')}`} isExternal>
                 <pre>{formatAddress(get(data, 'value'))}</pre>
@@ -112,15 +127,25 @@ const HatDevDetails = () => {
         </>
       )}
 
-      <div className='flex gap-2'>
-        <Link href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
-          <Button size='sm' variant='outline'>
-            View Details Changes
-          </Button>
-        </Link>
-      </div>
+      {showDetailsButton && (
+        <div className='flex gap-2'>
+          <Link href={`/trees/${chainId}/${treeId}/${ipId}/details`}>
+            <Button size='sm' variant='outline'>
+              View Details Changes
+            </Button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };
+
+interface HatDevDetailsProps {
+  selectedHat: AppHat | undefined;
+  eligibilityInfo: Ruleset[] | undefined;
+  chainId: SupportedChains;
+  isClaimable: { for: boolean; by: boolean } | undefined;
+  showDetailsButton?: boolean;
+}
 
 export { HatDevDetails };

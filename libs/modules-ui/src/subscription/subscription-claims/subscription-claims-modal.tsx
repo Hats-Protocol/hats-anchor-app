@@ -53,10 +53,8 @@ export const SubscriptionClaimsModal = ({
   // CURRENTLY ONLY USED ON MOBILE CLAIMS APP, ADJUST FOR OTHER USES
 
   return (
-    <Modal name={`${moduleDetails?.instanceAddress}-subscriptionManagerClaims`}>
-      <div className='space-y-2'>
-        <h3 className='text-lg font-medium'>Subscribe to claim this Hat</h3>
-
+    <Modal name={`${moduleDetails?.instanceAddress}-subscriptionManagerClaims`} title='Subscribe to claim this Hat'>
+      <div className='space-y-4 pb-10'>
         <div className='space-y-2'>
           <p>
             To enable a {durationText.adjective} withdrawal of the subscription fee, you pre-approved Unlock Protocol to

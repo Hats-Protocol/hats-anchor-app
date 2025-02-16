@@ -3,6 +3,7 @@
 import { useSelectedHat } from 'contexts';
 import { useScrollPosition } from 'hooks';
 import dynamic from 'next/dynamic';
+import { SupportedChains } from 'types';
 
 import { AuthoritiesList } from '../../authorities-list';
 import { Controllers } from '../../controllers';
@@ -21,7 +22,7 @@ const MainContent = ({
   showBottomMenu?: boolean;
   setShowBottomMenu?: (b: boolean) => void;
 }) => {
-  const { selectedHat } = useSelectedHat();
+  const { selectedHat, chainId, eligibilityInfo, isClaimable } = useSelectedHat();
 
   useScrollPosition(
     ({ prevPos, currPos }) => {
@@ -49,7 +50,13 @@ const MainContent = ({
 
       <HatHistory />
 
-      <HatDevDetails />
+      <HatDevDetails
+        selectedHat={selectedHat}
+        chainId={chainId as SupportedChains}
+        eligibilityInfo={eligibilityInfo}
+        isClaimable={isClaimable}
+        showDetailsButton
+      />
     </div>
   );
 };

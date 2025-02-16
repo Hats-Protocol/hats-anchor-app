@@ -30,7 +30,7 @@ const Home = () => {
 
   if (!isClient || !wearerAddress) {
     return (
-      <div className='py-120 px-20'>
+      <div className='px-40 pt-72'>
         <div className='flex flex-col gap-10'>
           <h2 className='text-2xl font-medium'>Welcome to the Hats Protocol Claims app! 🧢</h2>
 
@@ -41,10 +41,10 @@ const Home = () => {
   }
 
   return (
-    <div className='py-120 px-20'>
+    <div className='px-32 pt-72'>
       <div className='flex flex-col gap-10'>
         <h2 className='text-2xl font-medium'>
-          gm {ensName || formatAddress(wearerAddress)}, welcome to the claims app
+          gm {ensName || formatAddress(wearerAddress)}, welcome to the Claims app
         </h2>
 
         <LookingForHat />
