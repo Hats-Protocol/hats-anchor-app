@@ -91,15 +91,25 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
             <div className='flex items-center gap-4' key={key}>
               <div
                 className={cn(
-                  'relative flex size-11 items-center justify-center rounded-full border-2 bg-transparent',
+                  'relative flex size-11 items-center justify-center rounded-full',
                   isComplete
-                    ? 'border-functional-link-primary bg-functional-link-primary'
+                    ? 'border-functional-link-primary bg-functional-link-primary border-2'
                     : isActive || isProcessing
-                      ? cn('border-gray-300')
-                      : 'border-gray-300',
+                      ? cn('border-2 border-gray-300', [
+                          'before:absolute before:inset-[-2px] before:animate-[spin_2s_linear_infinite] before:rounded-full',
+                          'before:bg-[length:200%_100%]',
+                          'before:from-functional-link-primary before:to-functional-link-primary before:bg-gradient-to-r before:via-sky-100 before:via-30%',
+                          'after:absolute after:inset-[-1px] after:rounded-full after:bg-white',
+                          'border-none',
+                        ])
+                      : 'border-2 border-gray-300',
                 )}
               >
-                {isComplete ? <Check className='h-5 w-5 text-white' /> : index + 1}
+                {isComplete ? (
+                  <Check className='h-5 w-5 text-white' />
+                ) : (
+                  <span className='relative z-10'>{index + 1}</span>
+                )}
               </div>
 
               <div className='flex flex-col gap-1'>

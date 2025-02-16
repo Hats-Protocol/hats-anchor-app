@@ -176,16 +176,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                     'relative flex h-12 w-12 items-center justify-center rounded-full',
                     // Handle the three states in order of priority
                     index === currentStepIndex
-                      ? cn(
-                          'border-functional-link-primary border-2 bg-sky-100 shadow-sm',
-                          isDeploying(step) && [
-                            'before:absolute before:inset-[-2px] before:animate-[spin_2s_linear_infinite] before:rounded-full',
-                            'before:bg-[length:200%_100%]',
-                            'before:from-functional-link-primary before:to-functional-link-primary before:bg-gradient-to-r before:via-sky-100 before:via-30%',
-                            'after:absolute after:inset-[-1px] after:rounded-full after:bg-sky-100',
-                            'border-none',
-                          ],
-                        )
+                      ? 'border-functional-link-primary border-2 bg-sky-100 shadow-sm'
                       : getStepValidation(step, stepValidation, requirements)
                         ? 'border-none bg-white shadow-sm'
                         : 'border-2 border-gray-200 bg-white',
