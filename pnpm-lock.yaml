@@ -51,7 +51,7 @@ importers:
         version: 1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.12)(typescript@5.5.3)
       '@swc/cli':
         specifier: 0.3.12
-        version: 0.3.12(@swc/core@1.5.7(@swc/helpers@0.5.11))(chokidar@3.6.0)
+        version: 0.3.12(@swc/core@1.5.7(@swc/helpers@0.5.11))(chokidar@4.0.3)
       '@swc/core':
         specifier: 1.5.7
         version: 1.5.7(@swc/helpers@0.5.11)
@@ -117,7 +117,7 @@ importers:
         version: 9.1.0(eslint@8.57.0)
       eslint-import-resolver-alias:
         specifier: ^1.1.2
-        version: 1.1.2(eslint-plugin-import@2.31.0)
+        version: 1.1.2(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0))
       eslint-plugin-import:
         specifier: ^2.31.0
         version: 2.31.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.0)
@@ -862,6 +862,9 @@ importers:
       '@hatsprotocol/sdk-v1-subgraph':
         specifier: ^1.0.0
         version: 1.0.0(encoding@0.1.13)
+      '@privy-io/react-auth':
+        specifier: ^2.0.7
+        version: 2.0.7(@solana/web3.js@1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10))(@types/react@18.3.1)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.3)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.24.1)
       '@radix-ui/react-toast':
         specifier: ^1.2.5
         version: 1.2.5(@types/react-dom@18.3.5(@types/react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -928,7 +931,7 @@ importers:
         version: 0.0.29
       graphql-request:
         specifier: ^5.1.0
-        version: 5.2.0(encoding@0.1.13)(graphql@16.10.0)
+        version: 5.2.0(encoding@0.1.13)(graphql@16.9.0)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -10292,10 +10295,6 @@ packages:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
     engines: {node: '>= 6.13.0'}
 
-  node-gyp-build@4.8.2:
-    resolution: {integrity: sha512-IRUxE4BVsHWXkV/SFOut4qTlagw2aM8T5/vnTsmrHJvVoKueJHRc/JaFND7QDDc61kLYUJ6qlZM3sqTSyx2dTw==}
-    hasBin: true
-
   node-gyp-build@4.8.4:
     resolution: {integrity: sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ==}
     hasBin: true
@@ -14918,10 +14917,6 @@ snapshots:
 
   '@fontsource-variable/jetbrains-mono@5.1.1': {}
 
-  '@graphql-typed-document-node/core@3.2.0(graphql@16.10.0)':
-    dependencies:
-      graphql: 16.10.0
-
   '@graphql-typed-document-node/core@3.2.0(graphql@16.9.0)':
     dependencies:
       graphql: 16.9.0
@@ -16660,7 +16655,7 @@ snapshots:
       '@walletconnect/ethereum-provider': 2.17.0(@types/react@18.3.1)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)
       '@walletconnect/modal': 2.7.0(@types/react@18.3.1)(react@18.3.1)
       base64-js: 1.5.1
-      dotenv: 16.3.2
+      dotenv: 16.4.7
       encoding: 0.1.13
       eventemitter3: 5.0.1
       fast-password-entropy: 1.1.1
@@ -18396,7 +18391,7 @@ snapshots:
       source-map-support: 0.5.21
       tslib: 2.8.1
 
-  '@swc/cli@0.3.12(@swc/core@1.5.7(@swc/helpers@0.5.11))(chokidar@3.6.0)':
+  '@swc/cli@0.3.12(@swc/core@1.5.7(@swc/helpers@0.5.11))(chokidar@4.0.3)':
     dependencies:
       '@mole-inc/bin-wrapper': 8.0.1
       '@swc/core': 1.5.7(@swc/helpers@0.5.11)
@@ -18409,7 +18404,7 @@ snapshots:
       slash: 3.0.0
       source-map: 0.7.4
     optionalDependencies:
-      chokidar: 3.6.0
+      chokidar: 4.0.3
 
   '@swc/core-darwin-arm64@1.5.7':
     optional: true
@@ -21963,7 +21958,7 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-import-resolver-alias@1.1.2(eslint-plugin-import@2.31.0):
+  eslint-import-resolver-alias@1.1.2(eslint-plugin-import@2.31.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint@8.57.0)):
     dependencies:
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.0)
 
@@ -21991,7 +21986,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.0):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0)(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -22013,7 +22008,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.0)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@7.9.0(eslint@8.57.0)(typescript@5.5.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0)(eslint@8.57.0))(eslint@8.57.0)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -22909,16 +22904,6 @@ snapshots:
   graphql-js-tree@3.0.2(graphql@16.10.0):
     dependencies:
       graphql: 16.10.0
-
-  graphql-request@5.2.0(encoding@0.1.13)(graphql@16.10.0):
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
-      cross-fetch: 3.1.8(encoding@0.1.13)
-      extract-files: 9.0.0
-      form-data: 3.0.1
-      graphql: 16.10.0
-    transitivePeerDependencies:
-      - encoding
 
   graphql-request@5.2.0(encoding@0.1.13)(graphql@16.9.0):
     dependencies:
@@ -24178,7 +24163,7 @@ snapshots:
   keccak@3.0.4:
     dependencies:
       node-addon-api: 2.0.2
-      node-gyp-build: 4.8.2
+      node-gyp-build: 4.8.4
       readable-stream: 3.6.2
 
   keyv@4.5.4:
@@ -25202,8 +25187,6 @@ snapshots:
       formdata-polyfill: 4.0.10
 
   node-forge@1.3.1: {}
-
-  node-gyp-build@4.8.2: {}
 
   node-gyp-build@4.8.4: {}
 
