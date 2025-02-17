@@ -172,11 +172,10 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Email <span className='text-sm font-normal text-gray-400'>Hidden</span>
-              </label>
               <Input
                 name='email'
+                labelNote='Hidden'
+                variant='councils'
                 localForm={modalForm}
                 placeholder='Email address'
                 options={{
@@ -190,16 +189,22 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>Your Name</label>
-              <Input name='name' localForm={modalForm} placeholder='Full name' isDisabled={!canEdit} />
+              <Input
+                name='name'
+                label='Your Name'
+                variant='councils'
+                localForm={modalForm}
+                placeholder='Full name'
+                isDisabled={!canEdit}
+              />
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                {chainsMap(chainId)?.name} Account <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
               <AddressInput
                 name='address'
+                label={`${chainsMap(chainId)?.name} Account`}
+                labelNote='Optional'
+                variant='councils'
                 localForm={modalForm}
                 hideAddressButtons
                 chainId={chainId as SupportedChains}
@@ -207,10 +212,15 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
               />
             </div>
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Telegram Handle <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
-              <Input name='telegram' localForm={modalForm} placeholder='@username' isDisabled={!canEdit} />
+              <Input
+                name='telegram'
+                label='Telegram Handle'
+                labelNote='Optional'
+                variant='councils'
+                localForm={modalForm}
+                placeholder='@username'
+                isDisabled={!canEdit}
+              />
             </div>
           </div>
 

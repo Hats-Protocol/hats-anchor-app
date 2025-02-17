@@ -19,7 +19,7 @@ export type SelectProps<TOption extends ReactSelectOption> = {
   placeholder?: string;
   isDisabled?: boolean;
   subLabel?: string | ReactNode;
-  sublabel?: string;
+  labelNote?: string;
   info?: string;
   iconClassName?: string;
   variant?: 'default' | 'councils';
@@ -34,7 +34,7 @@ export const Select = <TOption extends ReactSelectOption>({
   placeholder,
   isDisabled,
   subLabel,
-  sublabel,
+  labelNote,
   info,
   iconClassName,
   variant = 'default',
@@ -70,7 +70,7 @@ export const Select = <TOption extends ReactSelectOption>({
           <FormLabel className='mb-0'>
             <span className={getVariantStyles(variant).label}>
               {variant === 'councils' ? label : label.toUpperCase()}
-              {sublabel && <span className='ml-2 text-sm font-normal text-gray-400'>{sublabel}</span>}
+              {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
             </span>
           </FormLabel>
           {info && (
@@ -81,7 +81,7 @@ export const Select = <TOption extends ReactSelectOption>({
         </div>
       )}
 
-      {typeof subLabel !== 'string' ? subLabel : <FormDescription>{subLabel}</FormDescription>}
+      {typeof subLabel !== 'string' ? subLabel : <FormDescription variant={variant}>{subLabel}</FormDescription>}
 
       <FormControl>
         <Controller

@@ -131,9 +131,10 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
           <div className='space-y-6'>
             <div className='space-y-2'>
-              <label className='font-bold'>{chainsMap(chainId).name} Account</label>
               <AddressInput
                 name='address'
+                label={`${chainsMap(chainId).name} Account`}
+                variant='councils'
                 localForm={modalForm}
                 hideAddressButtons
                 chainId={chainId}
@@ -142,12 +143,12 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-              </label>
               <Input
                 name='email'
                 localForm={modalForm}
+                label='Email Address'
+                labelNote='Hidden'
+                variant='councils'
                 placeholder='Email that receives the invite'
                 options={{
                   pattern: {
@@ -160,10 +161,15 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
-              <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
+              <Input
+                name='name'
+                localForm={modalForm}
+                label='Name'
+                labelNote='Optional'
+                variant='councils'
+                placeholder='Alias or name'
+                isDisabled={!canEdit}
+              />
             </div>
           </div>
 

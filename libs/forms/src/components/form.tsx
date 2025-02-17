@@ -78,7 +78,7 @@ const FormLabel = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField();
 
-  return <Label ref={ref} className={cn(error && 'text-destructive', className)} htmlFor={formItemId} {...props} />;
+  return <Label ref={ref} className={cn(className)} htmlFor={formItemId} {...props} />;
 });
 FormLabel.displayName = 'FormLabel';
 
@@ -99,15 +99,21 @@ const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.Compon
 );
 FormControl.displayName = 'FormControl';
 
-const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => {
-    const { formDescriptionId } = useFormField();
+const FormDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement> & { variant?: 'default' | 'councils' }
+>(({ className, variant = 'default', ...props }, ref) => {
+  const { formDescriptionId } = useFormField();
 
-    return (
-      <p ref={ref} id={formDescriptionId} className={cn('text-muted-foreground text-[0.8rem]', className)} {...props} />
-    );
-  },
-);
+  return (
+    <p
+      ref={ref}
+      id={formDescriptionId}
+      className={cn(variant === 'default' ? 'text-muted-foreground text-[0.8rem]' : 'text-sm text-gray-600', className)}
+      {...props}
+    />
+  );
+});
 FormDescription.displayName = 'FormDescription';
 
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(

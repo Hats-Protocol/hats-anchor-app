@@ -34,9 +34,10 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
 
         <div className='grid grid-cols-2 gap-8'>
           <div className='w-full space-y-2'>
-            <FormLabel className='font-bold'>Minimum Token Balance</FormLabel>
             <TokenNumberInput
               name='tokenRequirement.minimum'
+              label='Minimum Token Balance'
+              variant='councils'
               form={form}
               options={{
                 required: true,
@@ -48,8 +49,13 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
           </div>
 
           <div className='w-full space-y-2'>
-            <FormLabel className='font-bold'>Token</FormLabel>
-            <TokenSelect name='tokenRequirement.address' localForm={form} options={availableTokens} />
+            <TokenSelect
+              name='tokenRequirement.address'
+              label='Token'
+              variant='councils'
+              localForm={form}
+              options={availableTokens}
+            />
           </div>
         </div>
 

@@ -129,9 +129,10 @@ export function AddAgreementAdminModal({
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
           <div className='space-y-6'>
             <div className='space-y-2'>
-              <label className='font-bold'>{chainsMap(chainId).name} Account</label>
               <AddressInput
                 name='address'
+                label={`${chainsMap(chainId).name} Account`}
+                variant='councils'
                 localForm={modalForm}
                 hideAddressButtons
                 chainId={chainId}
@@ -140,11 +141,11 @@ export function AddAgreementAdminModal({
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-              </label>
               <Input
                 name='email'
+                label='Email Address'
+                labelNote='Hidden'
+                variant='councils'
                 localForm={modalForm}
                 placeholder='Email that receives the invite'
                 isDisabled={!canEdit}
@@ -158,10 +159,15 @@ export function AddAgreementAdminModal({
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
-              <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
+              <Input
+                name='name'
+                label='Name'
+                labelNote='Optional'
+                variant='councils'
+                localForm={modalForm}
+                placeholder='Alias or name'
+                isDisabled={!canEdit}
+              />
             </div>
           </div>
 

@@ -128,24 +128,25 @@ export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }
         <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
           <div className='space-y-6'>
             <div className='space-y-2'>
-              <label className='font-bold'>{chainsMap(chainId).name} Account</label>
               <AddressInput
                 name='address'
+                label={`${chainsMap(chainId).name} Account`}
                 localForm={modalForm}
                 hideAddressButtons
                 chainId={chainId}
+                variant='councils'
                 isDisabled={!canEdit}
               />
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-              </label>
               <Input
                 name='email'
                 localForm={modalForm}
+                label='Email Address'
+                labelNote='Hidden'
                 placeholder='Email that receives the admin invite'
+                variant='councils'
                 options={{
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -157,10 +158,14 @@ export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
-              <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
+              <Input
+                name='name'
+                labelNote='Optional'
+                variant='councils'
+                localForm={modalForm}
+                placeholder='Alias or name'
+                isDisabled={!canEdit}
+              />
             </div>
           </div>
 

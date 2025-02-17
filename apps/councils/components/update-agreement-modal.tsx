@@ -100,6 +100,7 @@ function UpdateAgreementModal({
                 name='gracePeriod'
                 label='Grace expires'
                 subLabel='Current wearers will have until grace expires to sign the new agreement'
+                variant='councils'
                 placeholder='Grace period expires on..'
                 defaultTimeValue={30}
                 defaultTimeUnit='days'

@@ -1,11 +1,13 @@
 'use client';
 
 import { find, get, pick, toNumber } from 'lodash';
+import { Info } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
-import { BaseSelect, BaseSelectContent, BaseSelectItem, BaseSelectTrigger } from 'ui';
+import { FaRegQuestionCircle } from 'react-icons/fa';
+import { BaseSelect, BaseSelectContent, BaseSelectItem, BaseSelectTrigger, Tooltip } from 'ui';
 
-import { FormControl, FormLabel } from './form';
+import { FormControl, FormDescription, FormLabel } from './form';
 import { NumberInput } from './number-input';
 
 const timeUnits = [
@@ -25,7 +27,10 @@ const DurationInput: React.FC<DurationInputProps> = ({
   isRequired,
   formOptions,
   label,
+  labelNote,
   subLabel,
+  tooltip,
+  variant = 'default',
   defaultTimeUnit = 'hours',
   defaultTimeValue = 24,
 }) => {
@@ -54,19 +59,58 @@ const DurationInput: React.FC<DurationInputProps> = ({
     }
   }, [name, timeUnit, defaultTimeUnit, defaultTimeValue]);
 
+  const getVariantStyles = (variant: DurationInputProps['variant'] = 'default') => {
+    switch (variant) {
+      case 'councils':
+        return {
+          label: 'font-bold normal-case text-base',
+          description: 'text-gray-400',
+          container: 'flex items-center justify-between w-full',
+          tooltipContainer: 'max-w-md',
+        };
+      default:
+        return {
+          label: 'font-normal uppercase',
+          description: '',
+          container: 'flex items-center gap-1',
+          tooltipContainer: 'max-w-xs',
+        };
+    }
+  };
+
   return (
     <FormControl>
       <div className='w-full space-y-1'>
         {label && (
           <FormLabel className='mb-0'>
-            <p className='text-sm'>
-              {label.toUpperCase()}
-              {isRequired && '*'}
-            </p>
+            <div className={getVariantStyles(variant).container}>
+              <span className={getVariantStyles(variant).label}>
+                {variant === 'councils' ? label : label.toUpperCase()}
+                {isRequired && <span className='text-red-500'> *</span>}
+                {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
+              </span>
+
+              <div className='flex items-center gap-1'>
+                {tooltip && (
+                  <Tooltip
+                    label={tooltip}
+                    delayDuration={100}
+                    className={getVariantStyles(variant).tooltipContainer}
+                    side={variant === 'councils' ? 'bottom' : 'top'}
+                  >
+                    {variant === 'councils' ? (
+                      <Info className='h-4 w-4 text-gray-400' />
+                    ) : (
+                      <FaRegQuestionCircle className='text-gray-400' />
+                    )}
+                  </Tooltip>
+                )}
+              </div>
+            </div>
           </FormLabel>
         )}
 
-        {typeof subLabel !== 'string' ? subLabel : <p className='mt-0 text-xs text-gray-500'>{subLabel}</p>}
+        {typeof subLabel !== 'string' ? subLabel : <FormDescription variant={variant}>{subLabel}</FormDescription>}
 
         <div className='flex w-full flex-col gap-1'>
           <div className='flex w-full'>
@@ -74,8 +118,8 @@ const DurationInput: React.FC<DurationInputProps> = ({
               name={`${name}-time-value`}
               localForm={localForm}
               placeholder={placeholder}
-              // isRequired={isRequired}
               options={formOptions}
+              variant={variant}
             />
 
             <div className='w-40'>
@@ -96,7 +140,9 @@ const DurationInput: React.FC<DurationInputProps> = ({
             </div>
           </div>
 
-          {timeUnit !== 'seconds' && finalValue && <p className='text-xs text-gray-500'>({finalValue} seconds)</p>}
+          {timeUnit !== 'seconds' && finalValue && (
+            <FormDescription variant={variant}>({finalValue} seconds)</FormDescription>
+          )}
         </div>
       </div>
     </FormControl>
@@ -111,8 +157,11 @@ interface DurationInputProps {
   isRequired?: boolean;
   formOptions?: RegisterOptions;
   label?: string;
-  subLabel?: string;
-  defaultTimeUnit?: string; // is this easier to handle at the form level with `reset`?
+  labelNote?: string;
+  subLabel?: string | React.ReactNode;
+  tooltip?: string;
+  variant?: 'default' | 'councils';
+  defaultTimeUnit?: string;
   defaultTimeValue?: number;
 }
 
