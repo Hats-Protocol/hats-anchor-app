@@ -1,5 +1,5 @@
 import { chainsList, CONFIG } from '@hatsprotocol/config';
-import { get, pick, toNumber } from 'lodash';
+import { capitalize, get, pick, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { TreesList as TreesListCards } from 'organisms';
@@ -20,7 +20,7 @@ const TreesList = async ({ params }: TreeListProps) => {
           <div className='flex gap-2'>
             <LinkButton href='/trees/new'>
               Create <span className='hidden md:inline'>a new </span>
-              {CONFIG.TERMS.tree}
+              {capitalize(CONFIG.TERMS.tree)}
             </LinkButton>
 
             <ShowTreesButton chainId={chainId} />

@@ -18,7 +18,9 @@ const VerticalDividers = ({ count }: { count: number }) =>
       padding = (index - 2) * paddingForMaxDepth(count - 2) + DEFAULT_PADDING * INDENT_SPACING; // add default padding to match card padding
     }
 
-    return <hr key={index} className={cn('h-100% fixed absolute w-[1px] border-gray-400', `left-[${padding}px]`)} />;
+    return (
+      <div key={index} className={cn('fixed h-screen border-r border-gray-400')} style={{ left: `${padding}px` }} />
+    );
   });
 
 export { VerticalDividers };

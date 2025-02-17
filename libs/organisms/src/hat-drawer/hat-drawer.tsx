@@ -35,9 +35,9 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
 
   if (isMobile) {
     return (
-      <div className='relative h-[calc(100vh-58px)] pt-16'>
+      <div className='relative pt-[55px]'>
         <TopMenu returnToList={returnToList} />
-        <ScrollArea className='h-[calc(100vh-180px)]'>
+        <ScrollArea className='h-screen'>
           <MainContent showBottomMenu={showBottomMenu} setShowBottomMenu={setShowBottomMenu} />
         </ScrollArea>
         <BottomMenu show={showBottomMenu} />

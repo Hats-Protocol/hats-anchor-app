@@ -108,7 +108,7 @@ const WearerButtons = () => {
   }
 
   return (
-    <div className='flex items-center justify-between px-4 pt-2 md:px-0'>
+    <div className='flex items-center justify-between pt-2'>
       {gt(size(eligibleWearerIds), 4) && (
         <Button
           onClick={() => setModals?.({ hatWearers: true })}

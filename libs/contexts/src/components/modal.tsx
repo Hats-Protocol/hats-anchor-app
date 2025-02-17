@@ -39,6 +39,7 @@ const Modal = ({
   isOpen,
   onClose,
   size = '2xl',
+  direction,
   children,
 }: ModalProps) => {
   const { modals, closeModals } = useOverlay();
@@ -60,10 +61,10 @@ const Modal = ({
   };
 
   return (
-    <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
+    <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose} direction={direction}>
       <ModalContent
         className={cn(
-          'min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white px-4 py-6 md:mb-auto md:mt-4 md:rounded-2xl md:px-10 md:py-0',
+          'min-w-20vw rounded-b-0 mb-0 mt-auto flex flex-col bg-white md:mb-auto md:mt-4 md:rounded-2xl md:px-10',
           classSizes[size as keyof typeof classSizes],
         )}
       >
@@ -97,6 +98,7 @@ interface ModalProps {
   onClose?: () => void;
   size?: string | object;
   children: ReactNode;
+  direction?: 'bottom' | 'right' | 'left' | 'top';
 }
 
 export { Modal, type ModalProps };

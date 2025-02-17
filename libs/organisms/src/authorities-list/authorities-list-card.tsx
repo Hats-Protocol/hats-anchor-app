@@ -99,13 +99,12 @@ const AuthoritiesListCard = ({
 
   // Accordion handled at list level
   if (!authority?.label) return null;
-  console.log(authority);
 
   return (
     <AccordionItem
       value={`${authority.label}-${authority.id}`}
       className={cn(
-        'ml-[-16px] w-full border-none md:w-[calc(100%+32px)] md:rounded-md',
+        'w-full border-none md:ml-[-16px] md:w-[calc(100%+32px)] md:rounded-md',
         expanded ? 'shadow' : undefined,
       )}
       onClick={handleToggle}

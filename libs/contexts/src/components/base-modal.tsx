@@ -31,6 +31,7 @@ interface BaseProps {
 interface RootModalProps extends BaseProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  direction?: 'bottom' | 'right' | 'left' | 'top';
 }
 
 interface ModalProps extends BaseProps {
@@ -50,13 +51,13 @@ const useModalContext = () => {
   return context;
 };
 
-const Modal = ({ children, ...props }: RootModalProps) => {
+const Modal = ({ children, direction = 'bottom', ...props }: RootModalProps) => {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const Modal = isDesktop ? Dialog : Drawer;
 
   return (
     <ModalContext.Provider value={{ isDesktop }}>
-      <Modal {...props} {...(!isDesktop && { autoFocus: true })} direction='bottom'>
+      <Modal {...props} {...(!isDesktop && { autoFocus: true })} direction={direction}>
         {children}
       </Modal>
     </ModalContext.Provider>

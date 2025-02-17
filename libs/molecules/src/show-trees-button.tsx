@@ -2,6 +2,7 @@
 
 import { CONFIG } from '@hatsprotocol/config';
 import { SHOW_KEY } from '@hatsprotocol/constants';
+import { capitalize } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { LinkButton } from 'ui';
 import { useAccount } from 'wagmi';
@@ -19,8 +20,7 @@ const ShowTreesButton = ({ chainId }: { chainId: number }) => {
       href={showKey === SHOW_KEY.me || !showKey ? `/trees/${chainId}?show=all` : `/trees/${chainId}?show=me`}
       variant='outline-blue'
     >
-      Show {showKey === SHOW_KEY.all && address ? 'my' : 'all'}
-      <span className='hidden md:inline'> {CONFIG.TERMS.trees}</span>
+      {showKey === SHOW_KEY.all && address ? 'My' : 'All'} {capitalize(CONFIG.TERMS.trees)}
     </LinkButton>
   );
 };

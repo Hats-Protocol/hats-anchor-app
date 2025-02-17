@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 
 import { cn } from '../lib/utils';
 
-const Link = ({ href, children, onClick, className, isExternal = false, passHref = false }: LinkProps) => (
+const Link = ({ href, children, onClick, className, isExternal = false, passHref = false, style }: LinkProps) => (
   <NextLink
     href={href}
     className={cn('text-functional-link-primary hover:text-functional-link-primary/80', className)}
@@ -11,6 +11,7 @@ const Link = ({ href, children, onClick, className, isExternal = false, passHref
     rel={isExternal ? 'noopener noreferrer' : undefined}
     onClick={onClick}
     passHref={passHref}
+    style={style}
   >
     {children}
   </NextLink>
@@ -26,6 +27,7 @@ interface LinkProps {
   className?: string;
   isExternal?: boolean;
   passHref?: boolean;
+  style?: React.CSSProperties;
 }
 
 export { Link, type LinkProps };

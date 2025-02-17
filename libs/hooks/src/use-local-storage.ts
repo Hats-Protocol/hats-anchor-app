@@ -21,7 +21,7 @@ function useLocalStorage<T>(key: string, defaultValue: T): [T, Dispatch<SetState
 
   useEffect(() => {
     if (isMounted.current) {
-      logger.info('useLocalStorage', { key, defaultValue, value });
+      // logger.info('useLocalStorage', { key, defaultValue, value });
       window.localStorage.setItem(key, JSON.stringify(value));
     } else {
       isMounted.current = true;

@@ -55,7 +55,7 @@ const TreeListCard = ({ tree, chainId }: { tree: AppTree; chainId: number }) => 
               style={{ backgroundImage: nearestImage ? `url(${nearestImage})` : `url('/icon.jpeg')` }}
             />
 
-            <div className='line-clamp-2 h-full max-w-[175px] flex-col justify-start md:justify-around'>
+            <div className='line-clamp-2 max-w-[80%] flex-col md:justify-around'>
               {/* TOP HAT INFO */}
               <div className='flex h-full w-full flex-col gap-3 md:hidden'>
                 <p className='text-md line-clamp-2 max-w-[270px] font-medium'>{hatName}</p>

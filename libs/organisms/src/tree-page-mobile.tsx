@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
-import { Button, HatDeco, Link, Skeleton } from 'ui';
+import { Button, HatDeco, Link, ScrollArea, Skeleton } from 'ui';
 
 const MobileHatCard = dynamic(() => import('molecules').then((mod) => mod.MobileHatCard));
 const VerticalDividers = dynamic(() => import('molecules').then((mod) => mod.VerticalDividers));
@@ -86,15 +86,15 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
   if (!get(first(sortedTree), 'id')) {
     return (
       <div className='flex h-full w-full flex-col pt-16'>
-        <div className='z-sticky box-shadow-[0px 2px 4px 0px rgba(0,0,0,0.75)] bg-white px-2 pb-2'>
-          <Skeleton className='rounded-6 min-h-[72px]' />
+        <div className='bg-slate-50 px-2 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.75)]'>
+          <Skeleton className='h-[72px] rounded-lg' />
         </div>
 
         <div className='relative flex flex-grow flex-col overflow-y-auto bg-white'>
           {(size(sortedTree) > 1 || !sortedTree) && <VerticalDividers count={maxDepth + 2} />}
-          <div className='mt-80px h-full w-full max-w-full gap-2 px-2 py-2'>
+          <div className='mt-[80px] h-[7] w-full max-w-full gap-2 px-2 py-2'>
             {map(sortedTree.slice(1), (hat: HatWithDepth) => (
-              <Skeleton className='border-radius-6 flex min-h-72 w-full justify-end' key={hat.id} />
+              <Skeleton className='flex h-72 w-full justify-end rounded-lg' key={hat.id} />
             ))}
           </div>
         </div>
@@ -104,20 +104,22 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
 
   return (
     <div className='flex h-full w-full flex-col pt-16'>
-      <div className='z-sticky box-shadow-[0px 2px 4px 0px rgba(0,0,0,0.75)] bg-white px-2 pb-2'>
+      <div className='mb-2 bg-slate-50 px-2 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.75)]'>
         <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} key={get(first(sortedTree), 'id')} />
       </div>
 
       <div className='relative flex flex-grow flex-col overflow-y-auto bg-white'>
         {(size(sortedTree) > 1 || !sortedTree) && <VerticalDividers count={maxDepth + 2} />}
 
-        <div className='h-100% mt-80px w-full max-w-full gap-2 px-2 py-2'>
-          {map(sortedTree.slice(1), (hat: HatWithDepth) => (
-            <MobileHatCard hat={hat} maxDepth={maxDepth} key={hat.id} />
-          ))}
+        <ScrollArea>
+          <div className='flex h-[calc(100vh-130px)] w-full max-w-full flex-col items-end gap-2 px-2 pb-2 pt-2'>
+            {map(sortedTree.slice(1), (hat: HatWithDepth) => (
+              <MobileHatCard hat={hat} maxDepth={maxDepth} key={hat.id} />
+            ))}
 
-          <HatDeco />
-        </div>
+            <HatDeco height={250} />
+          </div>
+        </ScrollArea>
       </div>
     </div>
   );

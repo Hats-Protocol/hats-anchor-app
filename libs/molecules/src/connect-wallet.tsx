@@ -116,13 +116,15 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
       </RainbowConnectButton.Custom>
 
       {address && (
-        <Modal name='account' onClose={() => setModals?.({})} size='md'>
-          <WalletProfile
-            address={address as Hex}
-            name={ensName || formatAddress(address)}
-            avatar={ensAvatar || fallbackAvatar}
-            hideProfileButton={hideProfileButton}
-          />
+        <Modal name='account' onClose={() => setModals?.({})} size='md' direction='bottom'>
+          <div className='py-10'>
+            <WalletProfile
+              address={address as Hex}
+              name={ensName || formatAddress(address)}
+              avatar={ensAvatar || fallbackAvatar}
+              hideProfileButton={hideProfileButton}
+            />
+          </div>
         </Modal>
       )}
     </>

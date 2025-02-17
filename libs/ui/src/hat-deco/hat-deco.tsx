@@ -8,7 +8,11 @@ const HatDeco = ({ height = '150px', hideOnDesktop }: { height?: string | number
 
   return (
     <div
-      className={cn('flex min-h-[150px] items-center justify-center', heightClass, hideOnDesktop && 'hidden md:flex')}
+      className={cn(
+        'flex min-h-[150px] w-full items-center justify-center',
+        heightClass,
+        hideOnDesktop && 'hidden md:flex',
+      )}
     >
       <p className='md:text-md text-sm'>
         <span aria-label='Ball cap' role='img'>

@@ -6,7 +6,7 @@
     "declaration": true,
     "declarationMap": true,
     "strict": true,
-    "types": ["wagmi", "viem"]
+    "types": []
   },
   "references": [
     { "path": "../config/tsconfig.lib.json" },

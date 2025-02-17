@@ -76,7 +76,7 @@ const AuthoritiesList = () => {
   return (
     <Accordion className='px-0 md:px-16' type='multiple' value={openCards} onValueChange={setOpenCards}>
       <div className='space-y-2'>
-        <h2 className='font-medium'>
+        <h2 className='mx-4 font-medium md:mx-0'>
           {size(combinedAuthorities)} {size(combinedAuthorities) === 1 ? 'Authority' : 'Authorities'} granted by this
           Hat
         </h2>

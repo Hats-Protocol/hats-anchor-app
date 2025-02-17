@@ -40,7 +40,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   if (!chainId || !hat || size(wearers) === 0) return null;
 
   return (
-    <div className='flex justify-between py-1 md:text-base'>
+    <div className='flex justify-between py-1 text-base'>
       <div className='flex items-center gap-2'>
         <HatIcon className='size-4' />
 
@@ -96,8 +96,6 @@ const AdminWearersPanel = () => {
       </div>
     );
   }
-
-  // TODO move background gradient to theme
 
   return (
     <Accordion type='single' collapsible value={open} onValueChange={handleToggle}>
@@ -178,19 +176,19 @@ const WearerBreakdown = ({
       {wearerCount.code > 0 && (
         <div className='text-informative-code flex items-center gap-1'>
           <p>{wearerCount.code}×</p>
-          <CodeIcon className='h-4 w-4' />
+          <CodeIcon className='size-4' />
         </div>
       )}
       {wearerCount.groups > 0 && (
         <div className='text-informative-human flex items-center gap-1'>
           <p>{wearerCount.groups}×</p>
-          <GroupIcon className='h-4 w-4' />
+          <GroupIcon className='size-4' />
         </div>
       )}
       {wearerCount.human > 0 && (
         <div className='text-informative-human flex items-center gap-1'>
           <p>{wearerCount.human}×</p>
-          <WearerIcon className='h-4 w-4' />
+          <WearerIcon className='size-4' />
         </div>
       )}
     </div>
@@ -271,7 +269,7 @@ export const EditAndWearers = () => {
   }
 
   return (
-    <div className='space-y-1 px-4 py-1 md:px-0'>
+    <div className='space-y-1 py-1'>
       <AdminWearersPanel />
 
       {(isClaimable?.for || isClaimable?.by) &&

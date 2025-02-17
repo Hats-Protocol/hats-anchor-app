@@ -72,7 +72,7 @@ const TreesList = ({ params }: TreeListProps) => {
     return (
       <div className='mx-auto grid max-w-[1200px] grid-cols-1 justify-center gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4'>
         {map(LOADING_TREES, (_, i) => {
-          return <Skeleton key={i} className='w-100 h-[132px] rounded-md' />;
+          return <Skeleton key={i} className='h-[72px] w-full rounded-md' />;
         })}
       </div>
     );

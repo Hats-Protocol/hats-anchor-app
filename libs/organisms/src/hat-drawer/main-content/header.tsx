@@ -75,14 +75,14 @@ const Header = () => {
   }
 
   return (
-    <div className='space-y-4 bg-white px-4 pb-4 md:bg-transparent md:px-16'>
+    <div className='space-y-4 bg-white pb-4 md:bg-transparent md:px-16'>
       <div className='w-full gap-1 space-y-2'>
-        <div className='min-h-150 md:min-h-auto pt-50 align-end flex w-full flex-col md:flex-row md:pt-0'>
-          <LazyImage src={imageUrl} alt='hat image' containerClassName='block md:hidden size-120' />
+        <div className='flex min-h-[150px] w-full flex-col md:min-h-0 md:flex-row md:pt-0'>
+          <LazyImage src={imageUrl} alt='hat image' containerClassName={cn('block h-[400px] md:hidden')} />
 
-          <div className='max-w-2/3 flex w-full flex-col justify-between gap-2 md:max-w-full md:flex-row'>
+          <div className='flex w-full flex-row items-center justify-between gap-2 px-4 py-4 md:max-w-full'>
             <Tooltip label={name || selectedHat?.details}>
-              <h2 className='line-clamp-2 text-2xl font-medium md:line-clamp-1'>{name || selectedHat?.details}</h2>
+              <h2 className='line-clamp-1 text-2xl font-medium md:line-clamp-1'>{name || selectedHat?.details}</h2>
             </Tooltip>
 
             <div>
@@ -98,7 +98,7 @@ const Header = () => {
           </div>
         </div>
         {description && (
-          <div className='opacity-60'>
+          <div className='mx-4 opacity-60 md:mx-0'>
             <Markdown>{description}</Markdown>
           </div>
         )}

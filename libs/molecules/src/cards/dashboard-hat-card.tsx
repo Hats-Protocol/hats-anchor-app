@@ -34,7 +34,7 @@ const DashboardHatCard = ({ hat }: HatCardProps) => {
 
           <div className='max-w-3/4'>
             <Tooltip label={get(hatDetails, 'name', get(hat, 'details'))}>
-              <h1 className='text-md font-medium'>{get(hatDetails, 'name', get(hat, 'details'))}</h1>
+              <h1 className='text-md line-clamp-1 font-medium'>{get(hatDetails, 'name', get(hat, 'details'))}</h1>
             </Tooltip>
 
             <div className='flex items-center gap-4'>
