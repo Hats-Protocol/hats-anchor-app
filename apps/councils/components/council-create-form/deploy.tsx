@@ -55,6 +55,21 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
     toastData: { variant: 'success', title: 'Copied share link to clipboard' },
   });
 
+  // Helper to determine if a step is the current active step
+  const isActiveStep = (currentKey: string) => {
+    const steps = Object.keys(deploySteps);
+    const currentIndex = steps.indexOf(currentKey);
+    const previousStep = currentIndex > 0 ? steps[currentIndex - 1] : null;
+
+    // First step is active if it's not complete and no other steps are complete
+    if (currentIndex === 0) {
+      return !deployStatus[currentKey] && !Object.values(deployStatus).some((status) => status);
+    }
+
+    // Other steps are active if previous step is complete but current isn't
+    return previousStep ? deployStatus[previousStep] && !deployStatus[currentKey] : false;
+  };
+
   return (
     <div className='space-y-6'>
       <div className='relative flex justify-center border-b border-gray-200 pb-6'>
@@ -70,24 +85,51 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
         </Button>
       </div>
 
-      <div className='flex flex-col gap-4'>
-        {Object.entries(deploySteps).map(([key, value], index) => (
-          <div className='flex items-center gap-4' key={key}>
-            <div
-              className={cn(
-                'flex size-11 items-center justify-center rounded-full border-2 border-gray-300 bg-transparent',
-                deployStatus[key] ? 'border-functional-link-primary bg-functional-link-primary' : '',
-              )}
-            >
-              {deployStatus[key] ? <Check className='h-5 w-5 text-white' /> : index + 1}
-            </div>
+      <div className='flex flex-col'>
+        {Object.entries(deploySteps).map(([key, value], index, array) => {
+          const isActive = isActiveStep(key);
+          const isComplete = deployStatus[key];
+          const isProcessing = key === 'processTx' && isActive;
+          const isLastStep = index === array.length - 1;
 
-            <div key={key} className='flex flex-col gap-1'>
-              <h3 className='font-medium'>{value.title}</h3>
-              <p className='text-sm text-black/60'>{value.description}</p>
+          return (
+            <div className='flex items-start gap-4' key={key}>
+              <div className='flex flex-col items-center'>
+                <div
+                  className={cn(
+                    'relative flex size-11 items-center justify-center rounded-full',
+                    isComplete
+                      ? 'border-functional-link-primary bg-functional-link-primary border-2'
+                      : isActive || isProcessing
+                        ? cn('border-2 border-gray-300 bg-sky-100', [
+                            'before:absolute before:inset-[-2px] before:animate-[spin_2s_linear_infinite] before:rounded-full',
+                            'before:bg-[length:200%_100%]',
+                            'before:from-functional-link-primary before:to-functional-link-primary before:bg-gradient-to-r before:via-sky-100 before:via-30%',
+                            'after:absolute after:inset-[-1px] after:rounded-full after:bg-sky-100',
+                            'border-none',
+                          ])
+                        : 'border-2 border-gray-300',
+                  )}
+                >
+                  {isComplete ? (
+                    <Check className='h-5 w-5 text-white' />
+                  ) : (
+                    <span className='relative z-10'>{index + 1}</span>
+                  )}
+                </div>
+
+                {!isLastStep && (
+                  <div className={cn('my-2 h-8 w-[2px]', isComplete ? 'bg-functional-link-primary' : 'bg-gray-200')} />
+                )}
+              </div>
+
+              <div className='flex flex-col gap-1'>
+                <h3 className='font-medium'>{value.title}</h3>
+                <p className='text-sm text-black/60'>{value.description}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
