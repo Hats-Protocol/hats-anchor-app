@@ -28,7 +28,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './
  */
 const Input = ({
   label,
-  sublabel,
+  labelNote,
   subLabel,
   subInput,
   name,
@@ -144,7 +144,7 @@ const Input = ({
                     <span className={getVariantStyles(variant).label}>
                       {label}
                       {options?.required && <span className='text-red-500'> *</span>}
-                      {sublabel && <span className='ml-2 text-sm font-normal text-gray-400'>{sublabel}</span>}
+                      {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
                     </span>
 
                     <div className='flex items-center gap-1'>
@@ -169,7 +169,13 @@ const Input = ({
 
               {/* ADDRESS BUTTONS PRIMARILY FOR ADDRESS INPUT */}
               <div className='flex items-end justify-between gap-10'>
-                <div>{typeof subLabel !== 'string' ? subLabel : <FormDescription>{subLabel}</FormDescription>}</div>
+                <div>
+                  {typeof subLabel !== 'string' ? (
+                    subLabel
+                  ) : (
+                    <FormDescription variant={variant}>{subLabel}</FormDescription>
+                  )}
+                </div>
 
                 {addressButtons && (
                   <div className='flex justify-end'>
@@ -238,9 +244,15 @@ const Input = ({
                   )}
                 </div>
 
-                {typeof subInput !== 'string' ? subInput : <FormDescription>{subInput}</FormDescription>}
+                {typeof subInput !== 'string' ? (
+                  subInput
+                ) : (
+                  <FormDescription variant={variant}>{subInput}</FormDescription>
+                )}
                 {getErrorMessage() && (
-                  <FormDescription className='text-destructive'>{getErrorMessage()}</FormDescription>
+                  <FormDescription className='text-destructive' variant={variant}>
+                    {getErrorMessage()}
+                  </FormDescription>
                 )}
               </div>
             </div>
@@ -253,7 +265,7 @@ const Input = ({
 
 interface InputProps {
   label?: string;
-  sublabel?: string;
+  labelNote?: string;
   subLabel?: string | ReactNode;
   subInput?: string | ReactNode;
   name: string;

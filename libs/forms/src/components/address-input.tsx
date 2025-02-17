@@ -28,6 +28,7 @@ const CodeIcon = dynamic(() => import('icons').then((mod) => mod.CodeIcon));
 type AddressInputProps = {
   name: string;
   label?: string;
+  labelNote?: string;
   subLabel?: string | ReactNode;
   tooltip?: string;
   // docsLink?: string;
@@ -48,6 +49,7 @@ type AddressInputProps = {
 const AddressInput: React.FC<AddressInputProps> = ({
   name,
   label,
+  labelNote,
   subLabel,
   tooltip,
   localForm,
@@ -122,6 +124,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
       <Input
         name={`${name}-input`}
         label={label}
+        labelNote={labelNote}
         subLabel={subLabel}
         tooltip={tooltip}
         placeholder={placeholder}

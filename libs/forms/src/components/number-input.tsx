@@ -16,6 +16,7 @@ import { NumberInputSteppers } from './number-input-steppers';
 
 export interface NumberInputProps {
   label?: string;
+  labelNote?: string;
   subLabel?: string;
   helperText?: string;
   name: string;
@@ -46,6 +47,7 @@ const NumberInput = ({
   localForm,
   options,
   numOptions,
+  labelNote,
   subLabel,
   helperText,
   step = 1,
@@ -116,7 +118,7 @@ const NumberInput = ({
                   <span className={getVariantStyles(variant).label}>
                     {label}
                     {options?.required && <span className='text-red-500'> *</span>}
-                    {subLabel && <span className='ml-2 text-sm font-normal text-gray-400'>{subLabel}</span>}
+                    {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
                   </span>
 
                   <div className='flex items-center gap-1'>
@@ -183,6 +185,7 @@ const NumberInput = ({
               </div>
             </FormControl>
 
+            {subLabel && <FormDescription>{subLabel}</FormDescription>}
             {helperText && <FormDescription>{helperText}</FormDescription>}
 
             {getErrorMessage() && <FormDescription className='text-destructive'>{getErrorMessage()}</FormDescription>}

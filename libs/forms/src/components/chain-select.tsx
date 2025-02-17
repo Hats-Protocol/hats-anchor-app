@@ -17,7 +17,7 @@ interface ChainSelectProps {
   label?: string;
   info?: string;
   subLabel?: string;
-  sublabel?: string;
+  labelNote?: string;
   variant?: 'default' | 'councils';
 }
 
@@ -38,7 +38,7 @@ const ChainSelect = ({
   label,
   info,
   subLabel,
-  sublabel,
+  labelNote,
   variant,
 }: ChainSelectProps) => {
   return (
@@ -52,7 +52,7 @@ const ChainSelect = ({
       label={label}
       info={info}
       subLabel={subLabel}
-      sublabel={sublabel}
+      labelNote={labelNote}
       variant={variant}
     />
   );

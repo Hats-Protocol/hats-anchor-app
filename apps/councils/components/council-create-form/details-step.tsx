@@ -29,11 +29,12 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
           <h2 className='text-xl font-bold'>Create your first Council</h2>
 
           <div className='space-y-2'>
-            <label className='font-bold'>Organization Name</label>
-            <p className='text-sm text-gray-600'>The name of the organization you are creating councils for.</p>
             <Input
               name='organizationName'
               localForm={localForm}
+              label='Organization Name'
+              subLabel='The name of the organization you are creating councils for.'
+              variant='councils'
               placeholder='DAO or Company Name'
               options={{ required: true }}
               isDisabled={!canEdit}
@@ -41,11 +42,12 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
           </div>
 
           <div className='space-y-2'>
-            <label className='font-bold'>Council Name</label>
-            <p className='text-sm text-gray-600'>The name of your first council. You can add further councils later.</p>
             <Input
               name='councilName'
               localForm={localForm}
+              label='Council Name'
+              subLabel='The name of your first council. You can add further councils later.'
+              variant='councils'
               placeholder='Council Name'
               options={{ required: true }}
               isDisabled={!canEdit}
@@ -53,21 +55,25 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
           </div>
 
           <div className='space-y-2'>
-            <label className='font-bold'>Choose a Chain</label>
-            <p className='text-sm text-gray-600'>The chain you deploy the Safe Multisig and Hats Council to.</p>
-            <ChainSelect name='chain' localForm={localForm} placeholder='Select a chain' isDisabled={!canEdit} />
+            <ChainSelect
+              name='chain'
+              localForm={localForm}
+              label='Choose a Chain'
+              subLabel='The chain you deploy the Safe Multisig and Hats Council to.'
+              variant='councils'
+              placeholder='Select a chain'
+              isDisabled={!canEdit}
+            />
           </div>
 
           <div className='space-y-2'>
-            <label className='font-bold'>
-              Council Description <span className='text-sm font-normal text-gray-400'>Optional</span>
-            </label>
-            <p className='text-sm text-gray-600'>
-              Add a short description or some links you want all council members to see.
-            </p>
             <Textarea
               name='councilDescription'
               localForm={localForm}
+              label='Council Description'
+              labelNote='Optional'
+              subLabel='Add a short description or some links you want all council members to see.'
+              variant='councils'
               placeholder='Bylaws, policies or important links'
               isDisabled={!canEdit}
             />

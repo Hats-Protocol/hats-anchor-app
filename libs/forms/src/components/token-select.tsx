@@ -16,7 +16,7 @@ interface TokenSelectProps {
   label?: string;
   info?: string;
   subLabel?: string;
-  sublabel?: string;
+  labelNote?: string;
   variant?: 'default' | 'councils';
 }
 
@@ -30,7 +30,7 @@ const TokenSelect = ({
   label,
   info,
   subLabel,
-  sublabel,
+  labelNote,
   variant,
 }: TokenSelectProps) => {
   const tokenOptions = map(options, (token) => ({
@@ -49,7 +49,7 @@ const TokenSelect = ({
       label={label}
       info={info}
       subLabel={subLabel}
-      sublabel={sublabel}
+      labelNote={labelNote}
       variant={variant}
     />
   );
