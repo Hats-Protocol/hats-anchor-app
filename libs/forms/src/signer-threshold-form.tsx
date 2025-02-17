@@ -72,19 +72,11 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
         <div className='space-y-6'>
           <div className='flex w-full gap-4'>
             <div className='flex w-full flex-col gap-y-2'>
-              <FormLabel className='mb-0'>
-                <div className='flex w-full items-center justify-between'>
-                  <span className='text-base font-bold normal-case'>
-                    Confirmations required
-                    <span className='text-red-500'> *</span>
-                  </span>
-                </div>
-              </FormLabel>
               <div className='flex'>
-                <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>%</div>
                 <div className='flex-1'>
                   <NumberInput
                     name='target'
+                    label='Confirmations required'
                     localForm={form}
                     options={{
                       min: 1,
@@ -93,6 +85,11 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                     }}
                     isDisabled={isDisabled}
                     inputClassName='rounded-l-none'
+                    prefix={
+                      <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>
+                        %
+                      </div>
+                    }
                     variant='councils'
                   />
                 </div>

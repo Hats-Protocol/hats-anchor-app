@@ -81,7 +81,7 @@ export const Select = <TOption extends ReactSelectOption>({
         </div>
       )}
 
-      {typeof subLabel !== 'string' ? subLabel : <FormDescription>{subLabel}</FormDescription>}
+      {typeof subLabel !== 'string' ? subLabel : <FormDescription variant={variant}>{subLabel}</FormDescription>}
 
       <FormControl>
         <Controller

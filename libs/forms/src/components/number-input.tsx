@@ -36,6 +36,7 @@ export interface NumberInputProps {
   rightAddon?: ReactNode;
   enableReset?: boolean;
   inputClassName?: string;
+  prefix?: ReactNode;
 }
 
 /**
@@ -58,6 +59,7 @@ const NumberInput = ({
   enableReset = true,
   inputClassName,
   tooltip,
+  prefix,
 }: NumberInputProps) => {
   if (!localForm) return null;
 
@@ -142,46 +144,51 @@ const NumberInput = ({
             )}
 
             <FormControl className='flex'>
-              <div className='relative flex items-center'>
-                <BaseInput
-                  className={cn(
-                    'w-full rounded-r-none',
-                    {
-                      'border-destructive': isError,
-                      'border-cyan-500': isDirty,
-                    },
-                    inputClassName,
+              <div className='relative flex w-full flex-col gap-2'>
+                <div className='flex items-stretch'>
+                  {prefix}
+                  <BaseInput
+                    className={cn(
+                      'w-full',
+                      {
+                        'border-destructive': isError,
+                        'border-cyan-500': isDirty,
+                        'rounded-l-none': prefix,
+                        'rounded-r-none': true,
+                      },
+                      inputClassName,
+                    )}
+                    step={step}
+                    min={numOptions?.min ?? 0}
+                    max={numOptions?.max ?? Infinity}
+                    disabled={isDisabled}
+                    {...field}
+                    onChange={handleChange}
+                  />
+
+                  {isDirty && !isDisabled && enableReset && (
+                    <div className='absolute right-8'>
+                      <Button aria-label='Reset' onClick={onReset} size='xs' className='bg-cyan-500'>
+                        <GrUndo />
+                      </Button>
+                    </div>
                   )}
-                  step={step}
-                  min={numOptions?.min ?? 0}
-                  max={numOptions?.max ?? Infinity}
-                  disabled={isDisabled}
-                  {...field}
-                  onChange={handleChange}
-                />
 
-                {isDirty && !isDisabled && enableReset && (
-                  <div className='absolute right-8'>
-                    <Button aria-label='Reset' onClick={onReset} size='xs' className='bg-cyan-500'>
-                      <GrUndo />
-                    </Button>
-                  </div>
-                )}
-
-                <NumberInputSteppers
-                  stepUp={() => {
-                    if (field.value < (numOptions?.max ?? Infinity)) {
-                      field.onChange(toNumber(field.value) + 1);
-                    }
-                  }}
-                  stepDown={() => {
-                    if (field.value > (numOptions?.min ?? 0)) {
-                      field.onChange(toNumber(field.value) - 1);
-                    }
-                  }}
-                  upDisabled={field.value >= (numOptions?.max ?? Infinity) || !!isDisabled}
-                  downDisabled={field.value <= (numOptions?.min ?? 0) || !!isDisabled}
-                />
+                  <NumberInputSteppers
+                    stepUp={() => {
+                      if (field.value < (numOptions?.max ?? Infinity)) {
+                        field.onChange(toNumber(field.value) + 1);
+                      }
+                    }}
+                    stepDown={() => {
+                      if (field.value > (numOptions?.min ?? 0)) {
+                        field.onChange(toNumber(field.value) - 1);
+                      }
+                    }}
+                    upDisabled={field.value >= (numOptions?.max ?? Infinity) || !!isDisabled}
+                    downDisabled={field.value <= (numOptions?.min ?? 0) || !!isDisabled}
+                  />
+                </div>
               </div>
             </FormControl>
 
