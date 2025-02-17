@@ -75,7 +75,7 @@ const eligibilityRuleMenuLabels = (rule: any, offchainCouncilDetails: any) => {
 };
 
 const SectionMenu = ({ sections, isLoading }: { sections: { value: string; label: string }[]; isLoading: boolean }) => {
-  if (isLoading) {
+  if (typeof window === 'undefined' || isLoading) {
     return (
       <div className='flex min-w-40 flex-col gap-4'>
         <Skeleton className='h-4 w-full' />
@@ -211,7 +211,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
       <div className='flex w-4/5 flex-col gap-10'>
         <div className='flex flex-col gap-4' id='threshold'>
-          {councilDetailsLoading ? (
+          {typeof window === undefined || councilDetailsLoading ? (
             <div className='flex flex-col gap-6'>
               <Skeleton className='h-10 w-1/4' />
               <Skeleton className='h-20 w-1/2' />
@@ -253,7 +253,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
         {/* TOP HAT CAN EDIT MANAGERS */}
         <div className='space-y-6' id='admin'>
-          {councilDetailsLoading || eligibilityRulesLoading ? (
+          {typeof window === 'undefined' || councilDetailsLoading || eligibilityRulesLoading ? (
             <div className='flex flex-col gap-6'>
               <Skeleton className='h-10 w-1/4' />
               <Skeleton className='h-14 w-1/2' />

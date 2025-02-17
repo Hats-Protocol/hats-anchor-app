@@ -1272,9 +1272,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           const firstHatId = get(first(hatCreatedLogs), 'args.id');
           const treeId = firstHatId ? hatIdToTreeId(firstHatId) : undefined;
           logger.info('addresses', { hsgAddress, safeAddress, treeId });
+          const accessToken = await getAccessToken();
 
           const organization = await createOrganization({
             name: formData.organizationName,
+            accessToken,
           });
           logger.info('organization created', get(organization, 'createOrganization'));
           const organizationId = get(organization, 'createOrganization.id');
@@ -1287,6 +1289,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             membersSelectionModule: predictedCouncilMemberAllowlistAddress,
             membersCriteriaModule: predictedComplianceAllowlistAddress,
             deployed: true,
+            accessToken,
           });
           logger.info('council created', council);
           const councilId = get(council, 'createCouncil.id');
@@ -1294,6 +1297,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           await updateCouncilForm({
             draftId,
             councilId,
+            accessToken,
           });
           logger.debug('council form updated with council id:', councilId);
 

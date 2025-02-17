@@ -114,7 +114,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
     });
   };
 
-  if (councilDetailsLoading || eligibilityRulesLoading) {
+  if (typeof window === 'undefined' || councilDetailsLoading || eligibilityRulesLoading) {
     return (
       <div className='flex flex-col gap-4'>
         <Skeleton className='h-12 w-full' />

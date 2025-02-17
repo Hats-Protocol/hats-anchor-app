@@ -35,7 +35,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
   useAuthGuard();
 
   // TODO better loading state
-  if (isLoading) {
+  if (typeof window === 'undefined' || isLoading) {
     return <Skeleton className='mx-auto h-[600px] w-full max-w-screen-lg' />;
   }
 

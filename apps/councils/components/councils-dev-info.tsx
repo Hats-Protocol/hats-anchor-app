@@ -7,6 +7,7 @@ import {
   NOTIFY_COMPLIANCE_MANAGER_AFTER_DEPLOY,
 } from '@hatsprotocol/config';
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useToast } from 'hooks';
 import { compact, get, map, size } from 'lodash';
@@ -16,7 +17,7 @@ import { posthog } from 'posthog-js';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton, Switch } from 'ui';
-import { councilsGraphqlClient, explorerUrl, formatAddress, hatLink, parseCouncilSlug, UPDATE_COUNCIL } from 'utils';
+import { explorerUrl, formatAddress, getCouncilsGraphqlClient, hatLink, parseCouncilSlug, UPDATE_COUNCIL } from 'utils';
 import { Hex } from 'viem';
 
 import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
@@ -26,6 +27,7 @@ const MAIL_FORMS = [INITIAL_INVITE, NOTIFY_COMPLIANCE_MANAGER_AFTER_DEPLOY, COUN
 
 const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
+  const { getAccessToken } = usePrivy();
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -54,7 +56,8 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
 
   const { mutateAsync: updateIsPaid } = useMutation({
     mutationFn: async (checked: boolean) => {
-      return councilsGraphqlClient
+      const accessToken = await getAccessToken();
+      return getCouncilsGraphqlClient(accessToken ?? undefined)
         .request(UPDATE_COUNCIL, {
           id: offchainCouncilDetails?.id,
           deployed: checked,
@@ -189,7 +192,13 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
 
   if (!chainId || !isDev) return null;
 
-  if (isCouncilDetailsLoading || isOffchainCouncilDetailsLoading || isEligibilityRulesLoading || isSafeSignersLoading) {
+  if (
+    typeof window === 'undefined' ||
+    isCouncilDetailsLoading ||
+    isOffchainCouncilDetailsLoading ||
+    isEligibilityRulesLoading ||
+    isSafeSignersLoading
+  ) {
     return <Skeleton className='mx-auto h-[500px] w-1/2' />;
   }
 

@@ -1,6 +1,9 @@
 import { PLACEHOLDERS } from '@hatsprotocol/config';
 import { isEmpty, map, pick } from 'lodash';
-import { councilsGraphqlClient, CREATE_NOTIFICATION, formatAddress, logger } from 'utils';
+import { CREATE_NOTIFICATION, formatAddress, getCouncilsGraphqlClient, logger } from 'utils';
+
+const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY;
+if (!INTERNAL_API_KEY) throw new Error('INTERNAL_API_KEY is not set');
 
 const CUSTOMERIO_API_KEY = process.env.CUSTOMERIO_API_KEY;
 if (!CUSTOMERIO_API_KEY) throw new Error('CUSTOMERIO_API_KEY is not set');
@@ -110,7 +113,7 @@ export const POST = async (req: Request) => {
 
   const notifications = processNotifications(body.notifications);
 
-  return councilsGraphqlClient
+  return getCouncilsGraphqlClient(INTERNAL_API_KEY)
     .request(CREATE_NOTIFICATION, {
       notifications: notifications,
     })

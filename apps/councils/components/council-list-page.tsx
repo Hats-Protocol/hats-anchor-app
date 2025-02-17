@@ -57,17 +57,6 @@ const CouncilListPage = () => {
     chainId,
   });
 
-  console.log({
-    user,
-    userAddress,
-    authenticated,
-    councils,
-    councilsLoading,
-    wearerHatsLoading,
-    wearerHats,
-    allowlistHatsLoading,
-    allowlistHats,
-  });
   if (!user || (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading)) {
     return (
       <div className='relative mx-auto mt-20 flex h-[85vh] max-w-[1000px] flex-col gap-4'>

@@ -41,7 +41,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
             <p className='text-sm'>
               Require that Council Members pass a compliance check (such as KYC) before being allowed to join the
               Council. Compliance checks are handled by the provider of your choosing outside of Hats Pro, then verified
-              (and revoked) via an onchain transactions.
+              (and revoked) via onchain transactions.
             </p>
           </div>
 

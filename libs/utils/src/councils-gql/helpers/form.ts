@@ -1,4 +1,4 @@
-import { councilsGraphqlClient } from '../client';
+import { getCouncilsGraphqlClient } from '../client';
 import { CREATE_COUNCIL, CREATE_ORGANIZATION, UPDATE_COUNCIL_FORM } from '../mutations';
 
 export const addCouncilForForm = async ({
@@ -9,6 +9,7 @@ export const addCouncilForForm = async ({
   membersSelectionModule,
   membersCriteriaModule,
   deployed,
+  accessToken,
 }: {
   chainId: number;
   organizationId: string | undefined;
@@ -17,12 +18,13 @@ export const addCouncilForForm = async ({
   membersSelectionModule: string | undefined;
   membersCriteriaModule: string | undefined;
   deployed: boolean;
+  accessToken: string | null;
 }) => {
   if (!organizationId) throw new Error('Organization ID is required');
   if (!hsgAddress) throw new Error('HSG address is required');
   if (!treeId) throw new Error('Tree ID is required');
 
-  return councilsGraphqlClient.request(CREATE_COUNCIL, {
+  return getCouncilsGraphqlClient(accessToken ?? undefined).request(CREATE_COUNCIL, {
     chainId,
     organizationId,
     hsg: hsgAddress,
@@ -33,19 +35,21 @@ export const addCouncilForForm = async ({
   });
 };
 
-export const createOrganization = async ({ name }: { name: string }) => {
-  return councilsGraphqlClient.request(CREATE_ORGANIZATION, { name });
+export const createOrganization = async ({ name, accessToken }: { name: string; accessToken: string | null }) => {
+  return getCouncilsGraphqlClient(accessToken ?? undefined).request(CREATE_ORGANIZATION, { name });
 };
 
 export const updateCouncilForm = async ({
   draftId,
   councilId,
+  accessToken,
 }: {
   draftId: string | undefined;
   councilId: string | undefined;
+  accessToken: string | null;
 }) => {
   if (!draftId) throw new Error('Draft ID is required');
   if (!councilId) throw new Error('Council ID is required');
 
-  return councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, { id: draftId, councilId });
+  return getCouncilsGraphqlClient(accessToken ?? undefined).request(UPDATE_COUNCIL_FORM, { id: draftId, councilId });
 };

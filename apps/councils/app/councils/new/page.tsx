@@ -63,7 +63,7 @@ const NewCouncil = () => {
     };
 
     createForm();
-  }, [ready, authenticated, user, router, getAccessToken]);
+  }, [ready, authenticated, user, router, chainId, getAccessToken]);
 
   return (
     <div className='grid-cols-20 grid min-h-screen w-full pb-24 pt-24'>

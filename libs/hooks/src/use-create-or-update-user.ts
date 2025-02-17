@@ -1,10 +1,11 @@
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
 import { Variables } from 'graphql-request';
 import { concat, map, pick } from 'lodash';
 import { CouncilFormData, CouncilMember } from 'types';
 import {
-  councilsGraphqlClient,
   CREATE_USER,
+  getCouncilsGraphqlClient,
   logger,
   UPDATE_COUNCIL_ADMINS,
   UPDATE_COUNCIL_AGREEMENT_ADMINS,
@@ -38,9 +39,11 @@ export function useCreateOrUpdateUser({
   onEditSuccess: (data: CouncilMember) => void;
   onError: () => void;
 }) {
+  const { getAccessToken } = usePrivy();
   const { mutateAsync: createUserMutation } = useMutation({
     mutationFn: async (variables: Partial<CouncilMember>) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         createUser: CouncilMember;
       }>(CREATE_USER, variables as unknown as Variables);
       logger.debug('created user', result);
@@ -61,7 +64,8 @@ export function useCreateOrUpdateUser({
         pick(u, ['id', 'address', 'email', 'name', 'telegram']),
       );
       // TODO make sure the users are unique here
-      return councilsGraphqlClient
+      const accessToken = await getAccessToken();
+      return getCouncilsGraphqlClient(accessToken ?? undefined)
         .request<{
           updateCouncilCreationForm: CouncilFormData;
         }>(mutation, {
@@ -73,7 +77,7 @@ export function useCreateOrUpdateUser({
           return result;
         })
         .catch((err) => {
-          console.error('Error updating council creation form', err);
+          logger.error('Error updating council creation form', err);
           return err;
         });
       // TODO catch error here
@@ -82,7 +86,8 @@ export function useCreateOrUpdateUser({
 
   const { mutateAsync: updateUserMutation } = useMutation({
     mutationFn: async (variables: Partial<CouncilMember>) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables as unknown as Variables);
       return result.updateUser;
