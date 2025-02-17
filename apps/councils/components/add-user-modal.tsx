@@ -155,12 +155,11 @@ function AddUserModal({
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Email Address <span className='ml-1 text-xs font-normal text-gray-400'>Hidden</span>
-              </label>
-
               <Input
                 name='email'
+                label='Email Address'
+                labelNote='Hidden'
+                variant='councils'
                 localForm={form}
                 placeholder='Email that receives the admin invite'
                 options={{
@@ -173,10 +172,15 @@ function AddUserModal({
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Name <span className='ml-1 text-xs font-normal text-gray-400'>Optional</span>
-              </label>
-              <Input name='name' localForm={form} placeholder='Alias or name' readOnly={!user} />
+              <Input
+                name='name'
+                label='Name'
+                labelNote='Optional'
+                variant='councils'
+                localForm={form}
+                placeholder='Alias or name'
+                readOnly={!user}
+              />
             </div>
           </div>
 
