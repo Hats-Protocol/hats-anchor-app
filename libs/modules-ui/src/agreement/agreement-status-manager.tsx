@@ -9,7 +9,7 @@ import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useState } from 'react';
-import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsXOctagon, BsXOctagonFill } from 'react-icons/bs';
 import type { ModuleFunction, StatusManagerProps, SupportedChains } from 'types';
 import { Button } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
@@ -80,7 +80,7 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
           </div>
         ) : (
           <div className='text-destructive flex items-center gap-2'>
-            <BsXSquareFill className='size-4' />
+            <BsXOctagonFill className='size-4' />
             <p>No</p>
           </div>
         )}
@@ -94,7 +94,7 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
             disabled={!isAgreementManager || isLoading}
             onClick={handleAgreementToggle}
           >
-            <BsXSquare className='size-4' />
+            <BsXOctagon className='size-4' />
             {isLoading ? 'Updating...' : isEligible ? 'Violated the Agreement' : 'Re-instate'}
           </Button>
         ) : (

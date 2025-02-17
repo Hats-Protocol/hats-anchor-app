@@ -1,6 +1,6 @@
 import { Module } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
-import _ from 'lodash';
+import { compact, isEmpty, map } from 'lodash';
 import { useMemo } from 'react';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
@@ -16,7 +16,7 @@ const fetchModulesData = async ({ chainId, moduleIds }: { chainId: number | unde
   const result = await moduleClient.getModulesByInstances(moduleIds);
 
   // map with moduleIds
-  const mappedModules = _.map(result, (moduleInfo: Module, index: number) => {
+  const mappedModules = map(result, (moduleInfo: Module, index: number) => {
     if (!moduleInfo) return undefined;
 
     return {
@@ -26,7 +26,7 @@ const fetchModulesData = async ({ chainId, moduleIds }: { chainId: number | unde
   }) as unknown as ModuleDetails[];
 
   // thinks it's a true[]
-  return _.compact(mappedModules);
+  return compact(mappedModules);
 };
 
 const useModulesDetails = ({
@@ -45,7 +45,7 @@ const useModulesDetails = ({
   } = useQuery({
     queryKey: ['modulesDetails', moduleIds, chainId],
     queryFn: () => fetchModulesData({ chainId, moduleIds }),
-    enabled: !!chainId && !_.isEmpty(moduleIds),
+    enabled: !!chainId && !isEmpty(moduleIds),
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

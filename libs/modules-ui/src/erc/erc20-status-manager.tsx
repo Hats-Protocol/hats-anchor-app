@@ -7,7 +7,7 @@ import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, includes, map } from 'lodash';
 import posthog from 'posthog-js';
 import { useState } from 'react';
-import { BsCheckSquareFill, BsXSquare, BsXSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsXOctagon, BsXOctagonFill } from 'react-icons/bs';
 import type { StatusManagerProps, SupportedChains } from 'types';
 import { Button, Skeleton } from 'ui';
 import { erc20Abi, formatUnits, Hex } from 'viem';
@@ -128,7 +128,7 @@ const Erc20StatusManager = ({ rule, user, selectedHat, chainId, currentEligibili
           </div>
         ) : (
           <div className='text-destructive flex items-center gap-2'>
-            <BsXSquareFill className='size-4' />
+            <BsXOctagonFill className='size-4' />
             <p>
               {formattedBalance} {tokenName}
             </p>
@@ -138,7 +138,7 @@ const Erc20StatusManager = ({ rule, user, selectedHat, chainId, currentEligibili
 
       {isWearing && !isEligible && (
         <Button variant='outline-red' rounded='full' onClick={handleUpdateWearerStatus} disabled={isLoading}>
-          <BsXSquare className='size-4' />
+          <BsXOctagon className='size-4' />
           {isLoading ? 'Updating...' : 'Remove'}
         </Button>
       )}

@@ -3,8 +3,7 @@
 import { Modal, useOverlay, useSelectedHat } from 'contexts';
 import { AddressInput, Form } from 'forms';
 import { useWearersEligibilityStatus } from 'hats-hooks';
-import _ from 'lodash';
-import { includes, pick, toLower } from 'lodash';
+import { get, includes, pick, toLower } from 'lodash';
 import { ReactNode, useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from 'ui';
@@ -26,7 +25,7 @@ export const CheckEligibilityForm = () => {
 
   const { data: resolvedAddress } = useEnsAddress({
     name: watch('wearer'),
-    // enabled: _.includes(localWearer, '.eth'),
+    // enabled: includes(localWearer, '.eth'),
   });
 
   const wearerAddress = (toLower(resolvedAddress || undefined) || toLower(localWearer)) as Hex;
@@ -40,7 +39,7 @@ export const CheckEligibilityForm = () => {
 
   const checkWearerEligibility = useCallback(
     async (data: object) => {
-      const w = _.get(data, 'wearer-input');
+      const w = get(data, 'wearer-input');
 
       let eligibleStatus = <p className='text-destructive'>{w || formatAddress(resolvedAddress)} is not eligible</p>;
       if (isEligible) {

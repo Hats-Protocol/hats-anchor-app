@@ -1,43 +1,125 @@
-import { APIClient, SendEmailRequest } from 'customerio-node';
-import { pick } from 'lodash';
+import { PLACEHOLDERS } from '@hatsprotocol/config';
+import { isEmpty, map, pick } from 'lodash';
+import { councilsGraphqlClient, CREATE_NOTIFICATION, formatAddress, logger } from 'utils';
 
 const CUSTOMERIO_API_KEY = process.env.CUSTOMERIO_API_KEY;
 if (!CUSTOMERIO_API_KEY) throw new Error('CUSTOMERIO_API_KEY is not set');
 
-export const POST = async (req: Request) => {
-  // const { identifier } = req.body;
-  const body = await req.json();
-  const { email, name, address, messageId, from } = pick(body, ['email', 'name', 'address', 'messageId', 'from']);
-  console.log(body);
-  // TODO check headers for frontend config
-  // TODO submit these to a queue instead of sending immediately, check historical sends vs queue
-  // TODO check if email is hatsprotocol.xyz (or is a user)
+interface NotificationInput {
+  email: string;
+  name: string;
+  address: string;
+  notificationId: string;
+  // from: string;
+  ens?: string;
+  orgName?: string;
+  councilName?: string;
+  chainName?: string;
+  creatorName?: string;
+  councilMembers?: { name: string; address: string }[];
+  councilMembersLink?: string;
+  // copy
+  complianceTitle?: string;
+  memberTitle?: string;
+  councilTitle?: string;
+  councilTitleUpper?: string;
+  memberName?: string;
+  // relevant notification records
+  councilId?: string;
+  userId?: string;
+}
 
-  const client = new APIClient(CUSTOMERIO_API_KEY);
-
-  const request = new SendEmailRequest({
-    transactional_message_id: messageId, // overridden by message content? (subject, body)
-    identifiers: {
-      email: email,
-      id: address,
-    },
-    message_data: {
+const processNotifications = (notifications: NotificationInput[]) => {
+  return map(notifications, (notification) => {
+    const {
+      email,
       name,
       address,
-    },
-    to: email || 'scott@hatsprotocol.xyz',
-    from: from || 'support@hatsprotocol.xyz',
-    // subject: 'Test subject', // overrides transactional_message_id
-    // body: 'Test body', // overrides transactional_message_id
-  });
-
-  client
-    .sendEmail(request)
-    .then((res) => console.log(res))
-    .catch((err) => {
-      console.log(err.statusCode, err.message);
-      return Response.json({ message: 'Error', success: false }, { status: 500 });
+      notificationId,
+      ens,
+      creatorName,
+      councilName,
+      orgName,
+      chainName,
+      councilMembers,
+      councilMembersLink,
+      complianceTitle,
+      memberTitle,
+      councilTitle,
+      councilTitleUpper,
+      memberName,
+      councilId,
+      userId,
+    } = pick(notification, [
+      'email',
+      'name',
+      'address',
+      'notificationId',
+      'ens',
+      // council details
+      'creatorName',
+      'councilName',
+      'orgName',
+      'chainName',
+      'councilMembersLink',
+      'councilMembers',
+      // copy for email
+      'complianceTitle',
+      'memberTitle',
+      'councilTitle',
+      'councilTitleUpper',
+      'memberName',
+      // database records
+      'councilId',
+      'userId',
+    ]);
+    const variables = JSON.stringify({
+      name: name || ens || formatAddress(address),
+      address: formatAddress(address),
+      creatorName: creatorName,
+      councilName: councilName,
+      orgName: orgName,
+      chainName: chainName,
+      councilMembersLink: councilMembersLink,
+      complianceTitle: complianceTitle || PLACEHOLDERS.complianceTitle,
+      memberTitle: memberTitle || PLACEHOLDERS.memberTitle,
+      councilMembers: councilMembers || [],
+      councilTitle: councilTitle || PLACEHOLDERS.councilTitle,
+      councilTitleUpper: councilTitleUpper || PLACEHOLDERS.councilTitleUpper,
+      memberName: memberName || PLACEHOLDERS.memberName,
     });
 
-  return Response.json({ message: 'Email sent', success: true }, { status: 200 });
+    return {
+      email,
+      notificationId,
+      councilId,
+      userId,
+      variables,
+      sent: false,
+      sentAt: null,
+    };
+  });
+};
+
+export const POST = async (req: Request) => {
+  const body = (await req.json()) as { notifications: NotificationInput[] };
+  if (!body || isEmpty(body)) {
+    return Response.json({ message: 'No notifications to send', success: false }, { status: 400 });
+  }
+  // TODO check headers for frontend config
+
+  const notifications = processNotifications(body.notifications);
+
+  return councilsGraphqlClient
+    .request(CREATE_NOTIFICATION, {
+      notifications: notifications,
+    })
+    .then((result) => {
+      logger.info('Email queued', { result });
+      return Response.json({ message: 'Email queued', success: true }, { status: 200 });
+    })
+    .catch((err) => {
+      logger.error('Email not queued', { err });
+      return Response.json({ message: 'Email not queued', success: false }, { status: 500 });
+    });
 };

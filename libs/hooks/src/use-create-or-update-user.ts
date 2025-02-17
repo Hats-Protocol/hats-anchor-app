@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { Variables } from 'graphql-request';
-import { concat } from 'lodash';
+import { concat, map, pick } from 'lodash';
 import { CouncilFormData, CouncilMember } from 'types';
 import {
   councilsGraphqlClient,
@@ -43,6 +43,7 @@ export function useCreateOrUpdateUser({
       const result = await councilsGraphqlClient.request<{
         createUser: CouncilMember;
       }>(CREATE_USER, variables as unknown as Variables);
+      logger.debug('created user', result);
       return result.createUser;
     },
     onSuccess: async (data) => {
@@ -56,15 +57,19 @@ export function useCreateOrUpdateUser({
         logger.error('No mutation found for member type', memberType);
         return;
       }
+      const onlyValuesExistingUsers = map(existingUsers, (u) =>
+        pick(u, ['id', 'address', 'email', 'name', 'telegram']),
+      );
       // TODO make sure the users are unique here
       return councilsGraphqlClient
         .request<{
           updateCouncilCreationForm: CouncilFormData;
         }>(mutation, {
           id: councilId,
-          [`${memberType}s`]: concat(existingUsers || [], [data]),
+          [`${memberType}s`]: concat(onlyValuesExistingUsers || [], [data]),
         } as unknown as Variables)
         .then((result) => {
+          logger.debug('updated council creation form', result);
           return result;
         })
         .catch((err) => {

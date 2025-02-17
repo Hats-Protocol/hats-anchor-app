@@ -2,7 +2,7 @@
 
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { compact, isEmpty, map, orderBy, toNumber } from 'lodash';
 import { useMemo } from 'react';
 import { BsFileCode } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
@@ -43,13 +43,13 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
   const voteResults = useMemo(() => {
     if (!proposal) return [];
     const totalVotes = proposal.scores_total;
-    const choices = _.map(proposal.choices, (choice: string, index: number) => {
-      const votes = _.toNumber(proposal.scores[index].toFixed(2));
+    const choices = map(proposal.choices, (choice: string, index: number) => {
+      const votes = toNumber(proposal.scores[index].toFixed(2));
       const percentage = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(2) : 0;
       return { choice, votes, percentage };
     });
 
-    return _.orderBy(choices, ['votes'], ['desc']);
+    return orderBy(choices, ['votes'], ['desc']);
   }, [proposal]);
 
   const snapshotLink = `https://snapshot.org/#/${proposal.space.id}/proposal/${proposal.id}`;
@@ -82,7 +82,7 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
           )}
         </div>
 
-        {_.map(_.compact(proposalDetails), (detail: any) => (
+        {map(compact(proposalDetails), (detail: any) => (
           <div className='flex w-full justify-between gap-1' key={detail.label}>
             <p className='text-sm'>{detail.label}</p>
 
@@ -91,11 +91,11 @@ export const ProposalDetails = ({ proposal }: { proposal: any }) => {
         ))}
       </div>
 
-      {!_.isEmpty(voteResults) && (
+      {!isEmpty(voteResults) && (
         <div className='space-y-2'>
           <h3 className='text-sm'>Current Results</h3>
 
-          {_.map(voteResults, (result: any) => (
+          {map(voteResults, (result: any) => (
             <div key={result.choice} className='w-full space-y-1'>
               <div className='flex w-full justify-between'>
                 <p>{result.choice}</p>

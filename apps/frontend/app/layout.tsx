@@ -9,7 +9,6 @@ import Providers from './providers';
 const CommandPalette = dynamic(() => import('molecules').then((mod) => mod.CommandPalette), { ssr: false });
 const Navbar = dynamic(() => import('molecules').then((mod) => mod.Navbar));
 const TxHistoryModal = dynamic(() => import('molecules').then((mod) => mod.TxHistoryModal), { ssr: false });
-const Toaster = dynamic(() => import('molecules').then((mod) => mod.Toaster), { ssr: false });
 
 const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
 
@@ -35,8 +34,6 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <TxHistoryModal />
 
           <CommandPalette />
-
-          <Toaster />
         </Providers>
       </div>
     </body>

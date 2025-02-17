@@ -104,7 +104,7 @@ const TreePageMobile = ({ exists = true }: { exists: boolean }) => {
 
   return (
     <div className='flex h-full w-full flex-col pt-16'>
-      <div className='mb-2 bg-slate-50 px-2 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.75)]'>
+      <div className='mb-1 bg-slate-50 px-2 shadow-[0px_2px_4px_0px_rgba(0,0,0,0.75)]'>
         <MobileHatCard hat={first(sortedTree)} maxDepth={maxDepth} key={get(first(sortedTree), 'id')} />
       </div>
 

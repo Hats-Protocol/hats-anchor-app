@@ -6,7 +6,7 @@ import {
   populateHatsGatesAuthorities,
 } from 'hats-utils';
 // import { useToast } from 'hooks';
-import _ from 'lodash';
+import { compact, filter, flatMap, flatten, includes, map, omit, uniq, values } from 'lodash';
 import { useMemo } from 'react';
 import {
   AppHat,
@@ -24,8 +24,8 @@ import { useHatsSignerGatesMetadata } from './use-hats-signer-gates-metadata';
 import { useModulesDetails } from './use-modules-details';
 
 const extractModuleIds = (hatAuthorities: HatAuthority) => {
-  const filteredAuthorities = _.omit(hatAuthorities, ['hsgOwner', 'hsgSigner', 'hatsAccount1ofN']);
-  return _.flatMap(_.values(filteredAuthorities), (items: { id: Hex }[]) => _.map(items, 'id'));
+  const filteredAuthorities = omit(hatAuthorities, ['hsgOwner', 'hsgSigner', 'hatsAccount1ofN']);
+  return flatMap(values(filteredAuthorities), (items: { id: Hex }[]) => map(items, 'id'));
 };
 
 const useAncillaryModules = ({
@@ -61,12 +61,12 @@ const useAncillaryModules = ({
   const { gates } = useHatsSignerGatesMetadata({ chainId, editMode });
 
   const moduleIds = useMemo(
-    () => (ancillaryModules?.hatAuthority ? _.uniq(extractModuleIds(ancillaryModules.hatAuthority)) : null),
+    () => (ancillaryModules?.hatAuthority ? uniq(extractModuleIds(ancillaryModules.hatAuthority)) : null),
     [ancillaryModules?.hatAuthority],
   );
 
   const { modulesDetails, isLoading: isModulesDetailsLoading } = useModulesDetails({
-    moduleIds,
+    moduleIds: moduleIds as Hex[],
     chainId,
     editMode,
   });
@@ -74,8 +74,8 @@ const useAncillaryModules = ({
   const activeModules = useMemo(() => {
     if (!modulesDetails) return [];
     if (!tree) return modulesDetails;
-    const controllers = _.flatten(_.map(tree, (h: AppHat) => [h.toggle, h.eligibility]));
-    return _.filter(modulesDetails, (m: ModuleDetails) => _.includes(controllers, m.id));
+    const controllers = flatten(map(tree, (h: AppHat) => [h.toggle, h.eligibility]));
+    return filter(modulesDetails, (m: ModuleDetails) => includes(controllers, m.id));
   }, [modulesDetails, tree]);
 
   const { data: modulesWithParameters, isLoading: modulesParametersLoading } = useQuery({
@@ -131,7 +131,7 @@ const useAncillaryModules = ({
 
   // TODO can we cache this result better?
   return {
-    modulesAuthorities: _.compact([
+    modulesAuthorities: compact([
       ...modulesAuthorities,
       ...hatsOwnerGates,
       ...hatsSignerGates,

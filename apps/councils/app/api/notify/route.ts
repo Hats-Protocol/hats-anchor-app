@@ -9,6 +9,7 @@ if (!ALERTS_TELEGRAM_CHAT_ID || !ALERTS_TELEGRAM_BOT_TOKEN) {
 }
 
 export const POST = async (request: Request) => {
+  // TODO check headers for frontend config
   const body = await request.json();
   const { message } = pick(body, ['message']);
   logger.debug('notify', body, message);

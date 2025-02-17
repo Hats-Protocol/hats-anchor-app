@@ -9,7 +9,7 @@ import { every, flatten, get, has, includes, map, toLower } from 'lodash';
 import { AgreementStatusManager, AllowlistStatusManager, Erc20StatusManager } from 'modules-ui';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { BsCheckSquareFill, BsExclamationSquare, BsXSquare, BsXSquareFill } from 'react-icons/bs';
+import { BsCheckSquareFill, BsExclamationSquare, BsXOctagonFill } from 'react-icons/bs';
 import type {
   AppHat,
   CouncilMember,
@@ -184,7 +184,7 @@ function MemberStatusModal({
               </div>
             ) : (
               <div className='text-destructive flex items-center gap-2'>
-                <BsXSquareFill className='size-4' />
+                <BsXOctagonFill className='size-4' />
                 <p>No</p>
               </div>
             )}
@@ -194,7 +194,7 @@ function MemberStatusModal({
             isSigner &&
             (currentChainId === chainId ? (
               <Button variant='destructive' rounded='full' onClick={removeSigner}>
-                <BsXSquare className='size-4' />
+                <BsXOctagonFill className='size-4' />
                 Remove Signer
               </Button>
             ) : (

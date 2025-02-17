@@ -11,6 +11,7 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
+import { Toaster } from 'molecules';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
 import { wagmiConfig } from 'utils';
@@ -75,7 +76,11 @@ const Providers = ({ children }: ProvidersProps) => {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <ReactQueryDevtools initialIsOpen={false} />
-          <OverlayContextProvider>{children}</OverlayContextProvider>
+          <OverlayContextProvider>
+            {children}
+
+            <Toaster />
+          </OverlayContextProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

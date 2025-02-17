@@ -1,6 +1,5 @@
 import { MetadataConfig } from '@hatsprotocol/config';
 import { TxHistoryModal } from 'molecules';
-import { Toaster } from 'molecules';
 import { Metadata } from 'next';
 import Script from 'next/script';
 import { StandaloneNavbar as Navbar } from 'organisms';
@@ -34,8 +33,6 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <div className='w-screen'>{children}</div>
 
           <TxHistoryModal />
-
-          <Toaster />
         </Providers>
 
         <div className='bg-functional-link-primary/10 fixed left-0 top-0 z-[-5] size-full' />

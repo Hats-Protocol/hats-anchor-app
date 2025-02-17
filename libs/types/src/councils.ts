@@ -61,7 +61,7 @@ export interface CouncilFormData {
   // step 1
   organizationName: string;
   councilName: string;
-  chain: { value: string; label: string; icon: string };
+  chain: { value: string; label: string; icon: string }; // TODO: change to number
   councilDescription?: string;
   // step 2
   thresholdType: 'ABSOLUTE' | 'RELATIVE';

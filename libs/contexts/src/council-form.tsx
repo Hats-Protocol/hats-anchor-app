@@ -325,12 +325,14 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     logger.debug('API Response data:', data);
     const currentValues = form.getValues();
     logger.info('Current form values:', currentValues);
+
     const chain = find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions));
+    if (!chain) throw new Error('Chain not found');
 
     const newValues: CouncilFormData = {
       organizationName: data.organizationName || '',
       councilName: data.councilName || '',
-      chain: chain as any, // (find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions))) as any,
+      chain,
       councilDescription: data.councilDescription || '',
       thresholdType: data.thresholdType || 'ABSOLUTE',
       // confirmationsRequired: data.thresholdTarget || 4,
@@ -347,7 +349,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       admins: data.admins || [],
       complianceAdmins: data.complianceAdmins || [],
       createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
-      agreement: data.agreement || '',
+      agreement: converter.makeHtml(data.agreement || ''),
       createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
       agreementAdmins: data.agreementAdmins || [],
       payer: data.payer || undefined,
