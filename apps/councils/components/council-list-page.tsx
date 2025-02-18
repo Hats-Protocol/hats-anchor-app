@@ -35,20 +35,10 @@ const EMPTY_COUNCIL_STEPS = [
 
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
-  const { user, login, authenticated, connectWallet } = usePrivy();
+  const { user, login } = usePrivy();
   const chainId = useChainId();
   const { isClient } = useMediaStyles();
-  const { isAuthorized, isReady } = useAuthGuard();
-
-  // Reconnect wallet when locked
-  useEffect(() => {
-    const handleLock = async () => {
-      if (authenticated && user && !userAddress) {
-        await connectWallet();
-      }
-    };
-    handleLock();
-  }, [authenticated, user, userAddress, connectWallet]);
+  const { isAuthorized, isReady, isWalletLocked, needsLogin } = useAuthGuard();
 
   // fetch user's hats
   const { data: wearerHats, isLoading: wearerHatsLoading } = useWearerDetails({
@@ -72,13 +62,6 @@ const CouncilListPage = () => {
     chainId,
   });
 
-  console.log('Render conditions:', {
-    isLoading: !isReady,
-    isLocked: authenticated && user && !userAddress,
-    isLandingPage:
-      !user || (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading),
-  });
-
   if (!isReady) {
     return (
       <div className='mx-auto mt-20 flex max-w-[1000px] flex-col gap-4'>
@@ -89,10 +72,25 @@ const CouncilListPage = () => {
     );
   }
 
-  // Show landing page only if no Privy session
+  // Handle locked wallet state
+  if (isWalletLocked) {
+    return (
+      <div className='relative mx-auto mt-20 flex h-[85vh] max-w-[1000px] flex-col gap-4'>
+        <Card className='z-10 mx-auto w-[750px] space-y-12 bg-white/90 px-20 py-12'>
+          <div className='text-3xl font-bold'>Wallet Locked</div>
+          <p className='text-lg'>Please unlock your MetaMask wallet to continue.</p>
+          <Button size='xl' rounded='full' onClick={() => login()} className='bg-functional-link-primary'>
+            Unlock Wallet
+            <ArrowRightCircle className='ml-1 !size-5 text-white' />
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show landing page if needs login or has no councils
   if (
-    !user ||
-    (!userAddress && !authenticated) ||
+    needsLogin ||
     (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading)
   ) {
     return (

@@ -3,6 +3,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useEffect, useRef } from 'react';
 import { logger } from 'utils';
+import { useAccount } from 'wagmi';
 
 // This hook can be dropped in to individual client-side components
 // We can also do at the full page level, but if we want server side we'll need another approach
@@ -10,6 +11,7 @@ import { logger } from 'utils';
 
 export const useAuthGuard = () => {
   const { login, user, authenticated, ready, isModalOpen } = usePrivy();
+  const { address: userAddress } = useAccount();
   const hasTriggeredLogin = useRef(false);
   const isMounted = useRef(false);
 
@@ -42,8 +44,16 @@ export const useAuthGuard = () => {
     };
   }, [ready, authenticated, login, isModalOpen]);
 
+  // Different auth states
+  const isWalletLocked = authenticated && user?.wallet && !userAddress;
+  const isFullyAuthenticated = authenticated && user?.wallet && userAddress;
+  const needsLogin = !authenticated || !user;
+
   return {
-    isAuthorized: authenticated && user?.wallet,
+    isAuthorized: isFullyAuthenticated,
     isReady: ready,
+    isWalletLocked,
+    needsLogin,
+    login,
   };
 };
