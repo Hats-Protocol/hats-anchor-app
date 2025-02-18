@@ -9,7 +9,7 @@ import { ArrowRightCircle } from 'lucide-react';
 import { useEffect } from 'react';
 import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Skeleton } from 'ui';
-import { chainIdToString, fetchAllowlistEntries, ipfsUrl } from 'utils';
+import { chainIdToString, fetchAllowlistEntries, ipfsUrl, logger } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -72,6 +72,10 @@ const CouncilListPage = () => {
     );
   }
 
+  // TODO consolidate lookups from CouncilHeader here also
+
+  logger.debug('wearerHats', wearerHats, 'councils', councils);
+
   // Show landing page if needs login or has no councils
   if (
     needsLogin ||
@@ -121,7 +125,7 @@ const CouncilListPage = () => {
 
   if (!isEmpty(councils) && !councilsLoading && !wearerHatsLoading) {
     return (
-      <div className='mx-auto mt-20 flex min-h-screen max-w-[1400px] flex-col gap-4'>
+      <div className='mx-auto mt-20 flex min-h-screen max-w-[1400px] flex-col gap-4 px-10'>
         {map(councils, (council) => (
           <Link
             href={`/councils/${chainIdToString(chainId)}:${getAddress(council.id)}/members`}

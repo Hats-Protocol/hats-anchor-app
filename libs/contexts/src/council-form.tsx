@@ -158,14 +158,16 @@ interface DeployStatus {
 }
 
 const initialDeployStatus: DeployStatus = {
-  pinningRoleDetails: false,
-  calculatingRoleMetadata: false,
-  configuringModules: false,
-  chainModules: false,
+  pinRoleDetails: false,
+  calculateRoleMetadata: false,
+  configureModules: false,
+  configureChainModules: false,
   simulateSafeAddress: false,
-  allocatingInitialRoles: false,
-  compilingTxCalldata: false,
+  allocateInitialRoles: false,
+  compileTxCalldata: false,
   deployTx: false,
+  confirmTx: false,
+  indexTx: false,
   processTx: false,
   updateMetadata: false,
   redirect: false,
@@ -524,7 +526,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     mutationFn: async () => {
       logger.debug('Deploying council');
       const formData = form.getValues();
-      setDeployStatus((prev) => ({ ...prev, pinningRoleDetails: true }));
+      setDeployStatus((prev) => ({ ...prev, pinRoleDetails: true }));
 
       const chainId = toNumber(formData.chain?.value);
 
@@ -545,7 +547,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
 
       const hatsProtocolCalls: `0x${string}`[] = [];
-      setDeployStatus((prev) => ({ ...prev, calculatingRoleMetadata: true }));
+      setDeployStatus((prev) => ({ ...prev, calculateRoleMetadata: true }));
 
       // compute hat ids
       const currentTreeCount = await hatsClient.getTreesCount();
@@ -572,7 +574,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const initArgs: `0x${string}`[] = [];
       const saltNonces: bigint[] = [];
 
-      setDeployStatus((prev) => ({ ...prev, configuringModules: true }));
+      setDeployStatus((prev) => ({ ...prev, configureModules: true }));
 
       // multi claims hatter
       const multiClaimsHatterInitArgs = encodeAbiParameters(
@@ -700,7 +702,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       let erc20ModuleImmutableArgs: `0x${string}`;
       let erc20ModuleHatId: bigint;
       let predictedErc20ModuleAddress: `0x${string}` | undefined;
-      console.log('formData.tokenRequirement', formData.requirements, formData.tokenRequirement);
       if (formData.requirements.holdTokens && formData.tokenRequirement.address?.value) {
         const tokenDecimals = getTokenDecimals(chainId, formData.tokenRequirement.address.value) as number;
         logger.debug(
@@ -734,7 +735,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         initArgs.push(erc20ModuleInitArgs);
         saltNonces.push(saltNonce);
       }
-      setDeployStatus((prev) => ({ ...prev, chainModules: true }));
+      setDeployStatus((prev) => ({ ...prev, configureChainModules: true }));
 
       // eligibility chain
       let eligibilityChainInitArgs: `0x${string}`;
@@ -947,7 +948,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
       hatsProtocolCalls.push(createCouncilHatCallData.callData);
 
-      setDeployStatus((prev) => ({ ...prev, compilingTxCalldata: true }));
+      setDeployStatus((prev) => ({ ...prev, compileTxCalldata: true }));
 
       // mint admin hat
       const mintAdminHatCallData = hatsClient.batchMintHatsCallData({
@@ -1151,7 +1152,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
       logger.info('safeProxyAddress', safeProxyAddress);
 
-      setDeployStatus((prev) => ({ ...prev, allocatingInitialRoles: true }));
+      setDeployStatus((prev) => ({ ...prev, allocateInitialRoles: true }));
 
       // mint council member hat
       const mintCouncilHatCallData = hatsClient.mintHatCallData({
@@ -1200,7 +1201,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         logger.error('Wallet client not found');
         throw new Error('Wallet client not found');
       }
-      setDeployStatus((prev) => ({ ...prev, deployTx: true }));
 
       const hash = await walletClient?.writeContract({
         account: address,
@@ -1211,6 +1211,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         chain: walletClient.chain,
       });
       logger.debug('hash', hash);
+      setDeployStatus((prev) => ({ ...prev, deployTx: true }));
 
       if (!hash) {
         logger.error('Failed to create transaction');
@@ -1222,8 +1223,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         txChainId: chainId,
         txDescription: 'Deploying council',
         waitForSubgraph,
+        onTxAccepted: () => {
+          setDeployStatus((prev) => ({ ...prev, confirmTx: true }));
+        },
+        onTxIndexed: () => {
+          setDeployStatus((prev) => ({ ...prev, indexTx: true }));
+        },
         onSuccess: async (data: TransactionReceipt | undefined) => {
-          setDeployStatus((prev) => ({ ...prev, processTx: true }));
           if (!data || !draftId) return;
           logger.info('Transaction successful', data);
           const hatCreatedLogs = parseEventLogs({
@@ -1262,7 +1268,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             hsgCreatedLogs,
           });
 
-          setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
+          setDeployStatus((prev) => ({ ...prev, processTx: true }));
 
           const hsgAddress = get(
             find(hsgCreatedLogs, (log: { args: { masterCopy: string } }) => log.args.masterCopy === HSG_V2_ADDRESS),
@@ -1301,7 +1307,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           });
           logger.debug('council form updated with council id:', councilId);
 
-          setDeployStatus((prev) => ({ ...prev, redirect: true }));
+          setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
 
           const appUrl = window.location.origin || 'https://hats-app.vercel.app';
           const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainsMap(chainId)?.name}: `;
@@ -1319,6 +1325,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           });
 
           const redirectUrl = `/councils/${chainIdToString(chainId)}:${hsgAddress}/members`;
+
+          // setDeployStatus((prev) => ({ ...prev, redirect: true }));  // don't actually set this to true so it stays pending
 
           logger.debug('redirecting to ', redirectUrl);
           router.push(redirectUrl);
