@@ -1,17 +1,16 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { flatten, get, size } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Button, Link } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
@@ -19,8 +18,6 @@ import { EligibilityRuleDetails } from '../eligibility-rules/eligibility-rule-de
 import { ELIGIBILITY_STATUS } from '../eligibility-rules/utils';
 import { AgreementContentModal } from './agreement-content-modal';
 import { AgreementModal } from './agreement-modal';
-
-const ChakraNextLink = dynamic(() => import('ui').then((mod) => mod.ChakraNextLink));
 
 const MODAL_NAME = 'agreementManager';
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
@@ -69,22 +66,26 @@ export const AgreementEligibilityRule = ({
     modalName += modalSuffix;
   }
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV !== 'production';
 
   if (!moduleDetails?.instanceAddress) return null;
 
   // set the eligibility rule text based on current feature flag & app
   let rule = (
-    <Text>
+    <p>
       Sign the{' '}
-      <ChakraNextLink href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(BigInt(hatId))}`} isExternal decoration>
+      <Link
+        href={`${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(BigInt(hatId))}`}
+        className='underline'
+        isExternal
+      >
         Agreement
-      </ChakraNextLink>
-    </Text>
+      </Link>
+    </p>
   );
   if ((eligibilityModalFlag && !IS_CLAIMS_APP) || (IS_CLAIMS_APP && isMobile)) {
     rule = (
-      <Text>
+      <div>
         Sign the{' '}
         <Button
           onClick={() => {
@@ -96,14 +97,15 @@ export const AgreementEligibilityRule = ({
             setModals?.({ [modalName]: true });
           }}
           variant='link'
+          className='text-base underline'
         >
           Agreement
         </Button>
-      </Text>
+      </div>
     );
   }
   if (IS_CLAIMS_APP && !isMobile) {
-    rule = <Text>Sign the Agreement</Text>;
+    rule = <p>Sign the Agreement</p>;
   }
 
   let displayStatus = 'Not Signed';
@@ -125,9 +127,11 @@ export const AgreementEligibilityRule = ({
       {!IS_CLAIMS_APP && <AgreementModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />}
       {IS_CLAIMS_APP && (
         <AgreementContentModal
+          selectedHat={selectedHat}
           moduleDetails={moduleDetails}
           chainId={chainId as SupportedChains}
           onlyModule={onlyModule}
+          currentEligibility={currentEligibility || undefined}
         />
       )}
 

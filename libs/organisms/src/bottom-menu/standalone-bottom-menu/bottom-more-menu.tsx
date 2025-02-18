@@ -1,31 +1,21 @@
 'use client';
 
-import {
-  Button,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from '@chakra-ui/react';
-import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
+import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/config';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
-import { AgreementContent } from 'molecules';
 import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 import { ClaimsHelperButtons } from './claims-helper-buttons';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
@@ -47,8 +37,7 @@ export const BottomMoreMenu = () => {
   const link = hatLink({ hatId: selectedHat?.id, chainId });
 
   const hasAgreement =
-    selectedHat?.id === CONFIG.agreementV0.communityHatId ||
-    moduleDetails?.name === ELIGIBILITY_MODULES.agreement; // TODO match on implementation address/module key
+    selectedHat?.id === CONFIG.agreementV0.communityHatId || moduleDetails?.name === ELIGIBILITY_MODULES.agreement; // TODO match on implementation address/module key
 
   const { agreement } = useAgreementClaim({
     moduleParameters: moduleDetails?.liveParameters,
@@ -62,9 +51,7 @@ export const BottomMoreMenu = () => {
 
   const handleDownload = useCallback(() => {
     const newWindow = window.open('', '_blank');
-    const markdownContent = (
-      <AgreementContent agreement={agreement || agreementV0} />
-    );
+    const markdownContent = <AgreementContent agreement={agreement || agreementV0} />;
     const htmlString = ReactDOMServer.renderToStaticMarkup(markdownContent);
 
     if (!newWindow) return;
@@ -81,25 +68,26 @@ export const BottomMoreMenu = () => {
 
   if (isMobile) {
     return (
-      <Menu>
-        <MenuButton
-          as={Button}
-          variant='outline'
-          rightIcon={<Icon as={BsThreeDotsVertical} boxSize={4} />}
-          display={{ base: 'flex', md: 'none' }}
-        >
-          More
-        </MenuButton>
-        <MenuList>
-          <ChakraNextLink href={link} isExternal>
-            <MenuItem>View full role</MenuItem>
-          </ChakraNextLink>
+      <DropdownMenu>
+        <DropdownMenuTrigger className='block md:hidden'>
+          <Button variant='outline'>
+            More
+            <BsThreeDotsVertical className='ml-1 size-4' />
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent>
+          <Link href={link} isExternal>
+            <DropdownMenuItem className='text-black/80 hover:bg-black/10'>View full role</DropdownMenuItem>
+          </Link>
 
           {hasAgreement && (
-            <MenuItem onClick={handleDownload}>Download Agreement</MenuItem>
+            <DropdownMenuItem className='cursor-pointer' onClick={handleDownload}>
+              Download Agreement
+            </DropdownMenuItem>
           )}
-        </MenuList>
-      </Menu>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 

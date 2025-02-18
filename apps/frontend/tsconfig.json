@@ -9,13 +9,11 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": [],
+    "types": ["node", "next", "react", "react-dom"],
+    "lib": ["ES2021"],
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "plugins": [{ "name": "next" }],
+    "outDir": "../../dist/apps/anchor"
   },
   "references": [
     {
@@ -38,9 +36,6 @@
     },
     {
       "path": "../../libs/modules-ui/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/pages/tsconfig.lib.json"
     },
     {
       "path": "../../libs/shared/tsconfig.lib.json"

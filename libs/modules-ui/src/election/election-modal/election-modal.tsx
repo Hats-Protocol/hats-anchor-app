@@ -1,18 +1,8 @@
 'use client';
 
-import {
-  Button,
-  Card,
-  Divider,
-  Flex,
-  Heading,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { AddressInput, Form, Input } from 'forms';
 import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
 import {
   concat,
@@ -29,15 +19,11 @@ import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { Button, Card } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  AboutModule,
-  EligibilityRow,
-  ModuleHistory,
-  ModuleModal,
-} from '../../module-modal';
+import { AboutModule, EligibilityRow, ModuleHistory, ModuleModal } from '../../module-modal';
 
 export const ElectionModal = ({
   eligibilityHatId,
@@ -108,37 +94,29 @@ export const ElectionModal = ({
     <ModuleModal
       name='electionManager'
       title='Manage Election'
-      about={
-        <AboutModule heading='About this Election' moduleDescriptors={[]} />
-      }
+      about={<AboutModule heading='About this Election' moduleDescriptors={[]} />}
       history={<ModuleHistory />}
     >
-      <Heading size='md'>
-        Election for Hat{' '}
-        {eligibilityHatId
-          ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId))
-          : ''}{' '}
-        - {details?.name || hat?.details}
-      </Heading>
+      <h3 className='text-md font-bold'>
+        Election for Hat {eligibilityHatId ? hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId)) : ''} -{' '}
+        {details?.name || hat?.details}
+      </h3>
 
-      <Flex>
-        <Input
-          name='search'
-          minW='350px'
-          placeholder='Find by address (0x) or ENS (.eth)'
-          localForm={localForm}
-        />
-      </Flex>
+      <Form {...localForm}>
+        <div className='flex'>
+          <Input name='search' placeholder='Find by address (0x) or ENS (.eth)' localForm={localForm} />
+        </div>
+      </Form>
 
-      <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
-        <Stack spacing={1}>
-          <Flex justify='space-between'>
-            <Text size='sm'>Address</Text>
-            <Text size='sm'>Status</Text>
-          </Flex>
+      <div className='pb-150px w-full space-y-4 overflow-y-auto pt-10'>
+        <div className='space-y-1'>
+          <div className='flex justify-between'>
+            <p className='text-sm'>Address</p>
+            <p className='text-sm'>Status</p>
+          </div>
 
-          <Divider borderColor='black' />
-        </Stack>
+          <hr className='border-b border-black' />
+        </div>
 
         {map(filteredProfiles, (p: AllowlistProfile) => (
           <EligibilityRow
@@ -151,61 +129,35 @@ export const ElectionModal = ({
             handleRemove={handleRemove}
           />
         ))}
-      </Stack>
+      </div>
 
-      <Flex
-        position='absolute'
-        bottom={0}
-        minH='100px'
-        bg='whiteAlpha.900'
-        w='100%'
-        borderBottomRightRadius='md'
-        borderBottomLeftRadius={{ base: 'md', md: 'none' }}
-        borderTop='1px solid'
-        borderColor='blackAlpha.200'
-        py={{ base: 4, md: 10 }}
-      >
+      <div className='min-h-100px bg-whiteAlpha-900 border-b-blackAlpha-200 absolute bottom-0 w-full rounded-b-md rounded-l-md border-b-2 py-4 md:py-10'>
         {!adding && !removing && (
-          <Flex w='full' justify='center' align='center'>
-            <HStack>
-              <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
-                size='sm'
-                onClick={() => setAdding(true)}
-              >
+          <div className='flex w-full items-center justify-center'>
+            <div className='flex gap-2'>
+              <Button variant='outline-blue' size='sm' onClick={() => setAdding(true)}>
                 Add Address
               </Button>
-              <Button
-                variant='outlineMatch'
-                colorScheme='red.500'
-                size='sm'
-                onClick={() => setRemoving(true)}
-              >
+
+              <Button variant='destructive' size='sm' onClick={() => setRemoving(true)}>
                 Remove Address
               </Button>
-            </HStack>
-          </Flex>
+            </div>
+          </div>
         )}
 
         {adding && (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-            <Stack spacing={1}>
-              <Heading size='md'>Add an address</Heading>
+          <div className='w-full px-4 md:px-10'>
+            <div className='space-y-1'>
+              <h3 className='text-md'>Add an address</h3>
 
-              <AddressInput
-                name='addresses'
-                chainId={chainId}
-                localForm={localForm}
-                hideAddressButtons
-              />
-            </Stack>
+              <AddressInput name='addresses' chainId={chainId} localForm={localForm} hideAddressButtons />
+            </div>
 
-            <Flex justify='space-between' w='full'>
+            <div className='flex w-full justify-between'>
               <Button
                 size='sm'
-                variant='outlineMatch'
-                colorScheme='blue.500'
+                variant='outline-blue'
                 onClick={() => {
                   setRemoveList([]);
                   setAdding(false);
@@ -213,23 +165,23 @@ export const ElectionModal = ({
               >
                 Cancel
               </Button>
-              <Button variant='primary' size='sm'>
-                Add
-              </Button>
-            </Flex>
-          </Stack>
+
+              <Button size='sm'>Add</Button>
+            </div>
+          </div>
         )}
 
         {removing && (
-          <Stack w='full' px={{ base: 4, md: 10 }} spacing={6}>
-            <Stack spacing={4}>
-              <Heading size='md'>Addresses selected for removal</Heading>
+          <div className='w-full px-4 md:px-10'>
+            <div className='space-y-1'>
+              <h3 className='text-md'>Addresses selected for removal</h3>
+
               <Card>
-                <Flex m={2} mx={4}>
+                <div className='m-2 mx-4'>
                   {isEmpty(removeList) ? (
-                    <Text color='gray.500'>Select an address to remove</Text>
+                    <p className='text-gray-500'>Select an address to remove</p>
                   ) : (
-                    <Text>
+                    <p>
                       {map(
                         removeList,
                         (profile, index) =>
@@ -237,16 +189,15 @@ export const ElectionModal = ({
                             index < subtract(size(removeList), 1) ? ', ' : ''
                           }`,
                       )}
-                    </Text>
+                    </p>
                   )}
-                </Flex>
+                </div>
               </Card>
-            </Stack>
+            </div>
 
-            <Flex justify='space-between' w='full'>
+            <div className='flex w-full justify-between'>
               <Button
-                variant='outlineMatch'
-                colorScheme='blue.500'
+                variant='outline-blue'
                 size='sm'
                 onClick={() => {
                   setRemoveList([]);
@@ -255,18 +206,14 @@ export const ElectionModal = ({
               >
                 Cancel
               </Button>
-              <Button
-                variant='filled'
-                colorScheme='red.500'
-                size='sm'
-                isDisabled={isEmpty(removeList)}
-              >
+
+              <Button size='sm' disabled={isEmpty(removeList)}>
                 Remove
               </Button>
-            </Flex>
-          </Stack>
+            </div>
+          </div>
         )}
-      </Flex>
+      </div>
     </ModuleModal>
   );
 };

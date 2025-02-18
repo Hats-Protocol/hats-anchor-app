@@ -3,6 +3,7 @@ export * from './allowlist';
 export * from './claims-conditions';
 export * from './election';
 export * from './eligibility-rules';
+export * from './erc';
 export * from './header';
 export * from './hsg';
 export * from './joke-race';

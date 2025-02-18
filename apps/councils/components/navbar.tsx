@@ -1,30 +1,85 @@
 'use client';
 
-import { Flex, HStack, Image, Text } from '@chakra-ui/react';
-import { usePathname } from 'next/navigation';
-import { ChakraNextLink } from 'ui';
+// import { useHatDetails } from 'hats-hooks';
+import { useOffchainCouncilDetails } from 'hooks';
+import { capitalize, keys, map } from 'lodash';
+import { useParams, usePathname } from 'next/navigation';
+import posthog from 'posthog-js';
+import { SupportedChains } from 'types';
+import { cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
+import { parseCouncilSlug } from 'utils';
+import { Hex } from 'viem';
 
-import Login from './login';
+import { Login } from './login';
 
-export const Navbar = () => {
+const DEV_PAGES = {
+  mails: '/buidl/mails',
+  compliance: '/buidl/compliance',
+  payments: '/buidl/payments',
+};
+
+const Navbar = () => {
   const pathname = usePathname();
-  const isJoinLink = pathname.includes('join');
+  const { slug } = useParams<{ slug: string }>();
+  const { chainId, address } = parseCouncilSlug(slug);
+  // const isJoinLink = pathname.includes('join');
+  const createForm = pathname.includes('councils/new');
+
+  // const { data: councilDetails } = useCouncilDetails({
+  //   chainId: chainId as SupportedChains,
+  //   address,
+  // });
+  const { data: offchainDetails } = useOffchainCouncilDetails({
+    chainId: chainId as SupportedChains,
+    hsg: address as Hex,
+  });
+  // const { details } = useHatDetails({
+  //   chainId: chainId as SupportedChains,
+  //   hatId: get(councilDetails, 'signerHats[0].id'),
+  // });
+  // logger.debug('nav', { offchainDetails, details });
+
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   return (
-    <Flex w='100%' justify='space-between' align='center' zIndex={10} px={2} minH='56px'>
-      <HStack spacing={4}>
-        <ChakraNextLink href='/'>
-          <Image src='/hats.png' boxSize={10} alt='Hats Logo' />
-        </ChakraNextLink>
+    <div
+      className={cn(
+        'flex min-h-[60px] w-full items-center justify-between bg-gray-50 px-6',
+        (createForm || (!chainId && !address)) && 'bg-gray-100',
+        chainId && address && 'bg-gray-200',
+      )}
+    >
+      <div className='flex items-center gap-4'>
+        <Link href='/' className='text-foreground/80 hover:text-foreground flex items-center gap-4'>
+          <img src='/hats.png' className='size-10' alt='Hats Logo' />
 
-        {isJoinLink ? (
-          <Text size='lg' fontWeight='bold'>
-            Join Group A Council
-          </Text>
-        ) : null}
-      </HStack>
+          {!chainId && !address && !createForm && (
+            <p className='text-xl font-semibold text-black hover:text-black/80'>
+              hats <span className='font-normal'>pro</span>
+            </p>
+          )}
+        </Link>
+
+        {chainId && address && <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>}
+        {createForm && <p className='text-lg font-bold'>New Hats Council</p>}
+
+        {isDev && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className='text-sm'>Dev</DropdownMenuTrigger>
+            <DropdownMenuContent align='start'>
+              {map(keys(DEV_PAGES), (page) => (
+                <Link href={DEV_PAGES[page as keyof typeof DEV_PAGES]} className='text-foreground/80' key={page}>
+                  <DropdownMenuItem>{capitalize(page)}</DropdownMenuItem>
+                </Link>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
 
       <Login />
-    </Flex>
+    </div>
   );
 };
+
+export { Navbar };

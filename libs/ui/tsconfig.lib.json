@@ -3,13 +3,8 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "composite": true,
-    "types": [
-      "node",
-      "@nx/react/typings/cssmodule.d.ts",
-      "@nx/react/typings/image.d.ts",
-      "next",
-      "@nx/next/typings/image.d.ts"
-    ]
+    "resolveJsonModule": true,
+    "types": ["node", "react", "react-dom", "@nx/react/typings/cssmodule.d.ts", "@nx/react/typings/image.d.ts"]
   },
   "exclude": [
     "src/**/*.spec.ts",
@@ -22,9 +17,11 @@
     "src/**/*.test.jsx"
   ],
   "include": [
+    "package.json",
     "src/**/*.js",
     "src/**/*.jsx",
     "src/**/*.ts",
+    "tailwind.config.ts",
     "src/**/*.tsx",
     "../types/src/*.d.ts"
   ]

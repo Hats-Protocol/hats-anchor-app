@@ -1,5 +1,4 @@
-/* eslint-disable import/prefer-default-export */
-import { chainsList } from '@hatsprotocol/constants';
+import { chainsList } from '@hatsprotocol/config';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import _ from 'lodash';
@@ -98,9 +97,7 @@ export const searchQueryResult = async (search: string | undefined) => {
   });
   // TODO sort these results
 
-  return _.mapValues(
-    allNetworkResults,
-    (o: { trees: AppTree[]; hats: AppHat[] }, k: string) =>
-      _.map(o, (r: AppHat | AppTree) => processForCommandPalette(k, r)),
+  return _.mapValues(allNetworkResults, (o: { trees: AppTree[]; hats: AppHat[] }, k: string) =>
+    _.map(o, (r: AppHat | AppTree) => processForCommandPalette(k, r)),
   );
 };

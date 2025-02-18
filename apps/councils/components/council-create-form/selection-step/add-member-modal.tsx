@@ -1,63 +1,30 @@
 'use client';
 
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
-import type { CouncilFormData } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { Modal, useCouncilForm, useOverlay } from 'contexts';
+import { AddressInput, Form, Input } from 'forms';
+import { Variables } from 'graphql-request';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { FiX } from 'react-icons/fi';
-import { councilsGraphqlClient } from 'utils';
+import type { CouncilFormData, CouncilMember, FormMember } from 'types';
+import { chainsMap, CREATE_USER, getChainId, getCouncilsGraphqlClient, isValidEmail, logger, UPDATE_USER } from 'utils';
 import { isAddress } from 'viem';
 
-import { getChainId } from '../../../lib/utils/chains';
 import { NextStepButton } from '../../next-step-button';
 
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
-}
-
 interface AddMemberModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   editingMember?: CouncilMember | null;
   canEdit?: boolean;
 }
 
-const CREATE_USER = `
-  mutation CreateUser($address: String!, $email: String!, $name: String) {
-    createUser(address: $address, email: $email, name: $name) {
-      id
-      address
-      email
-      name
-    }
-  }
-`;
-
-const UPDATE_USER = `
-  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String) {
-    updateUser(id: $id, address: $address, email: $email, name: $name) {
-      id
-      address 
-      email
-      name
-    }
-  }
-`;
-
-export function AddMemberModal({
-  isOpen,
-  onClose,
-  form: parentForm,
-  editingMember,
-  canEdit = true,
-}: AddMemberModalProps) {
-  const selectedChain = parentForm.watch('chain');
+export function AddMemberModal({ form: parentForm, editingMember, canEdit = true }: AddMemberModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { modals, setModals } = useOverlay();
+  const { persistForm } = useCouncilForm();
+  const selectedChain = parentForm.watch('chain')?.value;
+  const { getAccessToken } = usePrivy();
   const chainId = getChainId(selectedChain);
 
   const modalForm = useForm({
@@ -68,20 +35,15 @@ export function AddMemberModal({
     },
   });
 
-  const [formError, setFormError] = useState<string | null>(null);
-
-  const isValidEmail = (email: string) => {
-    return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
-  };
-
   const isFormValid = () => {
     const values = modalForm.getValues();
     return isAddress(values.address) && isValidEmail(values.email);
   };
 
   const createUserMutation = useMutation({
-    mutationFn: async (variables: { address: string; email: string; name?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+    mutationFn: async (variables: Variables) => {
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         createUser: CouncilMember;
       }>(CREATE_USER, variables);
       return result.createUser;
@@ -89,19 +51,22 @@ export function AddMemberModal({
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async (variables: { id: string; address: string; email: string; name?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+    mutationFn: async (variables: Variables) => {
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables);
       return result.updateUser;
     },
   });
 
-  const handleSubmit = async (data: { address: string; email: string; name?: string }) => {
+  const handleSubmit = async (data: FormMember) => {
+    setIsLoading(true);
     if (!canEdit) return;
+    const localData = data as unknown as Variables;
 
     if (!isAddress(data.address)) {
-      setFormError('Please enter a valid Ethereum address');
+      modalForm.setError('address', { message: 'Please enter a valid Ethereum address' });
       return;
     }
 
@@ -112,12 +77,12 @@ export function AddMemberModal({
     );
 
     if (isDuplicate) {
-      setFormError('This address is already a member of the council');
+      modalForm.setError('address', { message: 'This address is already a member of the council' });
       return;
     }
 
     try {
-      let userData;
+      let userData: CouncilMember;
 
       if (editingMember) {
         userData = await updateUserMutation.mutateAsync({
@@ -126,81 +91,73 @@ export function AddMemberModal({
           email: data.email,
           name: data.name,
         });
+        const updatedMembers = currentMembers.map((member) => (member.id === editingMember.id ? userData : member));
+        parentForm.setValue('members', updatedMembers);
       } else {
-        userData = await createUserMutation.mutateAsync(data);
+        userData = await createUserMutation.mutateAsync(localData);
+        parentForm.setValue('members', [...currentMembers, userData]);
         if (!userData.id) {
           throw new Error('Created user is missing ID');
         }
       }
+      persistForm('selection', 'members');
+      logger.debug('userData', userData);
 
-      if (editingMember) {
-        const updatedMembers = currentMembers.map((member) => (member.id === editingMember.id ? userData : member));
-        parentForm.setValue('members', updatedMembers);
-      } else {
-        parentForm.setValue('members', [...currentMembers, userData]);
-      }
-
-      setFormError(null);
+      modalForm.clearErrors();
       modalForm.reset();
-      onClose();
+      setIsLoading(false);
+      setModals?.({});
     } catch (error) {
-      setFormError('Failed to save user. Please try again.');
-      console.error('Error saving user:', error);
+      modalForm.setError('root', { message: 'Failed to save user. Please try again.' });
+      logger.error('Error saving user:', error);
+      setIsLoading(false);
     }
   };
 
+  const handleClose = () => {
+    setModals?.({});
+  };
+
   useEffect(() => {
-    if (isOpen) {
-      setFormError(null);
+    if (modals?.addMemberModal) {
+      modalForm.clearErrors();
       modalForm.reset({
         address: editingMember?.address || '',
         email: editingMember?.email || '',
         name: editingMember?.name || '',
       });
     }
-  }, [isOpen, editingMember, modalForm]);
+  }, [modals?.addMemberModal, editingMember, modalForm]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='2xl'>
-      <ModalOverlay className='bg-black/50' />
-      <ModalContent
-        as='form'
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          modalForm.handleSubmit(handleSubmit)(e);
-        }}
-        className='p-8'
-      >
-        <div className='mb-8 flex items-center justify-between'>
-          <h2 className='text-2xl font-bold'>{editingMember ? 'Edit Council Member' : 'Add Council Member'}</h2>
-          <button type='button' onClick={onClose} className='text-black hover:opacity-70'>
-            <FiX className='h-5 w-5' />
-          </button>
-        </div>
-
-        <div className='space-y-6'>
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
-            </label>
+    <Modal
+      name={`addMemberModal${editingMember?.address ? `-${editingMember.address}` : ''}`}
+      title={editingMember ? 'Edit Council Member' : 'Add Council Member'}
+      onClose={handleClose}
+      size='lg'
+    >
+      <Form {...modalForm}>
+        <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
+          <div className='space-y-6'>
             <AddressInput
               name='address'
               localForm={modalForm}
+              label={`${chainsMap(chainId).name} Account`}
               hideAddressButtons
               chainId={chainId}
               isDisabled={!canEdit}
+              variant='councils'
             />
-          </div>
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-            </label>
+
             <Input
               name='email'
               localForm={modalForm}
+              tooltip={`The email addresses are only visible to Council Admins and are primarily used as contact information for council invitation and notifications`}
+              label='Email Address'
+              labelNote='Hidden'
               placeholder='Email that receives the council invite'
               isDisabled={!canEdit}
+              variant='councils'
               options={{
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -208,24 +165,31 @@ export function AddMemberModal({
                 },
               }}
             />
-          </div>
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-            </label>
-            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
-          </div>
-        </div>
 
-        <div className='mt-8'>
-          {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
-          <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
-              {editingMember ? 'Save Changes' : 'Add Member'}
-            </NextStepButton>
+            <Input
+              name='name'
+              localForm={modalForm}
+              label='Name'
+              labelNote='Optional'
+              placeholder='Alias or name'
+              isDisabled={!canEdit}
+              variant='councils'
+            />
           </div>
-        </div>
-      </ModalContent>
+
+          <div className='mt-8'>
+            {modalForm.formState.errors.root && (
+              <p className='text-destructive mb-4 text-sm'>{modalForm.formState.errors.root.message}</p>
+            )}
+
+            <div className='flex justify-end'>
+              <NextStepButton type='submit' disabled={!canEdit || !isFormValid() || isLoading} withIcon={false}>
+                {isLoading ? 'Submitting…' : editingMember ? 'Save Changes' : 'Add Member'}
+              </NextStepButton>
+            </div>
+          </div>
+        </form>
+      </Form>
     </Modal>
   );
 }

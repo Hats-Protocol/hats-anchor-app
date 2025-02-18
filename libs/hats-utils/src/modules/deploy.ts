@@ -1,10 +1,9 @@
 import { CONTROLLER_TYPES, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
-import { id } from 'date-fns/locale';
-import _ from 'lodash';
+import { add, concat, find, flatten, get, isArray, map, reject, toString } from 'lodash';
 import { AppHat, FormData, FormValues, ModuleDetails } from 'types';
 import { createHatsModulesClient, transformInput } from 'utils';
-import { Hex } from 'viem';
+import { Hex, WalletClient } from 'viem';
 
 import { prepareArgs } from './prepare';
 
@@ -15,6 +14,7 @@ export const deployModule = async ({
   chainId,
   values,
   hatId,
+  walletClient,
 }: {
   selectedModuleDetails?: ModuleDetails;
   selectedHat?: AppHat;
@@ -22,15 +22,13 @@ export const deployModule = async ({
   values: FormValues;
   chainId?: number;
   hatId: bigint;
+  walletClient?: WalletClient;
 }) => {
   if (!selectedModuleDetails || !selectedHat?.id || !address) return null;
 
-  const { immutableArgs, mutableArgs } = prepareArgs(
-    values,
-    selectedModuleDetails,
-  );
+  const { immutableArgs, mutableArgs } = prepareArgs(values, selectedModuleDetails);
 
-  const hatsClient = await createHatsModulesClient(chainId);
+  const hatsClient = await createHatsModulesClient(chainId, walletClient);
 
   return hatsClient?.createNewInstance({
     account: address,
@@ -50,6 +48,7 @@ export const deployModuleWithClaimsHatter = async ({
   chainId,
   hatId,
   adminHatId,
+  walletClient,
 }: {
   selectedModuleDetails?: ModuleDetails;
   claimsHatterId?: Hex;
@@ -59,21 +58,14 @@ export const deployModuleWithClaimsHatter = async ({
   chainId?: number;
   hatId: bigint;
   adminHatId: bigint;
+  walletClient?: WalletClient;
 }) => {
-  if (
-    !selectedModuleDetails?.id ||
-    !selectedHat?.id ||
-    !address ||
-    !claimsHatterId
-  ) {
+  if (!selectedModuleDetails?.id || !selectedHat?.id || !address || !claimsHatterId) {
     return null;
   }
-  const { immutableArgs, mutableArgs } = prepareArgs(
-    values,
-    selectedModuleDetails,
-  );
+  const { immutableArgs, mutableArgs } = prepareArgs(values, selectedModuleDetails);
 
-  const hatsClient = await createHatsModulesClient(chainId);
+  const hatsClient = await createHatsModulesClient(chainId, walletClient);
 
   const claimsMutableArgs = [
     transformInput(values.initialClaimableHats, 'uint256[]'),
@@ -96,6 +88,7 @@ export const deployClaimsHatter = async ({
   values,
   chainId,
   adminHatId,
+  walletClient,
 }: {
   claimsHatterModule?: ModuleDetails;
   selectedHat?: AppHat;
@@ -103,6 +96,7 @@ export const deployClaimsHatter = async ({
   values: FormValues;
   chainId?: number;
   adminHatId: bigint;
+  walletClient?: WalletClient;
 }) => {
   if (claimsHatterModule && selectedHat?.id && address) {
     const claimsMutableArgs = [
@@ -110,7 +104,7 @@ export const deployClaimsHatter = async ({
       transformInput(values.initialClaimabilityType, 'uint8[]'),
     ];
 
-    const hatsClient = await createHatsModulesClient(chainId);
+    const hatsClient = await createHatsModulesClient(chainId, walletClient);
 
     return hatsClient?.createNewInstance({
       account: address,
@@ -149,21 +143,21 @@ export const processModule = ({
     toggle: moduleAddress as Hex,
     'toggle-input': moduleAddress as Hex,
   };
-  const hatHasChanges = _.find(storedData, { id: _.get(selectedHat, 'id') });
+  const hatHasChanges = find(storedData, { id: get(selectedHat, 'id') });
   // combine updated hat values, select module values by type
   const updatedHat = {
-    id: _.get(selectedHat, 'id'),
+    id: get(selectedHat, 'id'),
     ...hatHasChanges,
     ...(type === CONTROLLER_TYPES.eligibility && eligibilityValues),
     ...(type === CONTROLLER_TYPES.toggle && toggleValues),
   };
   // remove current hat from stared data
-  const updateStoredData = _.reject(storedData, {
-    id: _.get(selectedHat, 'id'),
+  const updateStoredData = reject(storedData, {
+    id: get(selectedHat, 'id'),
   });
 
   // return stored data with updated hat
-  return _.flatten(_.concat(updateStoredData, [updatedHat]));
+  return flatten(concat(updateStoredData, [updatedHat]));
 };
 
 // TODO better return strategy
@@ -187,24 +181,21 @@ export const processClaimsHatter = ({
     ens: '',
   };
 
-  const updatedHatExists = _.find(storedData, ['id', adminId]);
+  const updatedHatExists = find(storedData, ['id', adminId]);
 
   // TODO [md - edge case] handle draft case with increment wearers
   let updatedHats: Partial<FormData>[] = [];
-  if (_.isArray(storedData)) {
-    updatedHats = _.map(storedData, (hat: Partial<FormData>) => {
+  if (isArray(storedData)) {
+    updatedHats = map(storedData, (hat: Partial<FormData>) => {
       if (hat.id !== adminId && claimsHatterAddress) {
         return hat;
       }
       const maxSupply: { maxSupply?: string } = {};
       if (
-        (adminHat?.currentSupply === adminHat?.maxSupply ||
-          hat.maxSupply === adminHat?.maxSupply) &&
+        (adminHat?.currentSupply === adminHat?.maxSupply || hat.maxSupply === adminHat?.maxSupply) &&
         incrementWearers === 'Yes'
       ) {
-        maxSupply.maxSupply = _.toString(
-          _.add(_.toNumber(_.get(adminHat, 'maxSupply')), 1),
-        );
+        maxSupply.maxSupply = toString(add(Number(adminHat?.maxSupply), 1));
       }
       const updatedHat = { ...hat, ...maxSupply };
       updatedHat.wearers = updatedHat.wearers || [];
@@ -217,13 +208,8 @@ export const processClaimsHatter = ({
 
   if (claimsHatterAddress && adminId && !updatedHatExists) {
     const maxSupply: { maxSupply?: string } = {};
-    if (
-      adminHat?.currentSupply === adminHat?.maxSupply &&
-      incrementWearers === 'Yes'
-    ) {
-      maxSupply.maxSupply = _.toString(
-        _.add(_.toNumber(_.get(adminHat, 'maxSupply')), 1),
-      );
+    if (adminHat?.currentSupply === adminHat?.maxSupply && incrementWearers === 'Yes') {
+      maxSupply.maxSupply = toString(add(Number(adminHat?.maxSupply), 1));
     }
     updatedHats.push({
       id: adminId as Hex,

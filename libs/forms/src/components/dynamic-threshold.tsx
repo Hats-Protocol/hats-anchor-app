@@ -1,11 +1,11 @@
 'use client';
 
-import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { UseFormReturn } from 'react-hook-form';
+import { Button, cn } from 'ui';
 
-import NumberInput from './NumberInput';
+import { NumberInput } from './number-input';
 
-export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
+const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
   const { watch, setValue } = localForm;
   const dynamicThreshold = watch('dynamicThreshold');
 
@@ -15,9 +15,9 @@ export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
   // TODO handle can't set min threshold higher than max threshold
 
   return (
-    <Stack spacing={4}>
-      <Flex gap={6} align='end'>
-        <Box w={dynamicThreshold ? '50%' : '65%'}>
+    <div className='flex flex-col gap-4'>
+      <div className='flex items-end gap-6'>
+        <div className={cn(dynamicThreshold ? 'w-1/2' : 'w-3/4')}>
           <NumberInput
             name='minThreshold'
             label='Minimum required signatures'
@@ -25,18 +25,14 @@ export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
             numOptions={{ min: 1, max: targetThreshold }}
             localForm={localForm}
           />
-        </Box>
+        </div>
 
         {!dynamicThreshold ? (
-          <Button
-            variant='outline'
-            minW='30%'
-            onClick={() => setValue('dynamicThreshold', true)}
-          >
+          <Button variant='outline' className='min-w-1/3' onClick={() => setValue('dynamicThreshold', true)}>
             Use a dynamic threshold
           </Button>
         ) : (
-          <Box w='50%'>
+          <div className='w-1/2'>
             <NumberInput
               name='targetThreshold'
               label='Maximum required signatures'
@@ -44,68 +40,58 @@ export const DynamicThreshold = ({ localForm }: DynamicThresholdProps) => {
               numOptions={{ min: minThreshold }}
               localForm={localForm}
             />
-          </Box>
+          </div>
         )}
-      </Flex>
+      </div>
 
       {dynamicThreshold && (
-        <Stack spacing={4}>
-          <Box
-            borderRadius='md'
-            border='1px solid'
-            borderColor='gray.200'
-            p={4}
-          >
-            <Stack>
-              <Heading size='md'>Dynamic multisig thresholds</Heading>
+        <div className='flex flex-col gap-4'>
+          <div className='rounded-md border border-gray-200 p-4'>
+            <div className='flex flex-col gap-4'>
+              <h3 className='text-lg font-medium'>Dynamic multisig thresholds</h3>
 
               {minThreshold - 1 > 0 && (
-                <Flex justify='space-between'>
-                  <Text>Too few signers to complete a transaction</Text>
+                <div className='flex justify-between'>
+                  <p>Too few signers to complete a transaction</p>
 
-                  <Text fontWeight='medium'>
+                  <p className='font-medium'>
                     {minThreshold - 1} Signer
                     {minThreshold - 1 === 1 ? '' : 's'}
-                  </Text>
-                </Flex>
+                  </p>
+                </div>
               )}
 
-              <Flex justify='space-between'>
-                <Text>Everyone signs to complete a transaction</Text>
+              <div className='flex justify-between'>
+                <p>Everyone signs to complete a transaction</p>
 
-                <Text fontWeight='medium'>
+                <p className='font-medium'>
                   {minThreshold} - {targetThreshold} Signers
-                </Text>
-              </Flex>
+                </p>
+              </div>
 
-              <Flex justify='space-between'>
-                <Text>
-                  <Box as='span' fontWeight='medium'>
-                    {targetThreshold}
-                  </Box>{' '}
-                  signatures are required
-                </Text>
+              <div className='flex justify-between'>
+                <p>
+                  <span className='font-medium'>{targetThreshold}</span> signatures are required
+                </p>
 
-                <Text fontWeight='medium'>{targetThreshold}+ Signers</Text>
-              </Flex>
-            </Stack>
-          </Box>
+                <p className='font-medium'>{targetThreshold}+ Signers</p>
+              </div>
+            </div>
+          </div>
 
-          <Flex justify='end'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setValue('dynamicThreshold', false)}
-            >
+          <div className='flex justify-end'>
+            <Button variant='outline' size='sm' onClick={() => setValue('dynamicThreshold', false)}>
               Use a static threshold
             </Button>
-          </Flex>
-        </Stack>
+          </div>
+        </div>
       )}
-    </Stack>
+    </div>
   );
 };
 
 interface DynamicThresholdProps {
   localForm: UseFormReturn;
 }
+
+export { DynamicThreshold, type DynamicThresholdProps };

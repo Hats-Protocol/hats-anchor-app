@@ -1,45 +1,27 @@
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { format } from 'date-fns';
-import {
-  eq,
-  find,
-  findIndex,
-  get,
-  map,
-  round,
-  size,
-  toLower,
-  toNumber,
-  toString,
-} from 'lodash';
+import { eq, find, findIndex, get, map, round, size, toLower, toNumber, toString } from 'lodash';
 import { formatUnits, Hex } from 'viem';
 
 export const formatAddress = (address: string | null | undefined) =>
-  address && typeof address === 'string'
-    ? `${address.slice(0, 6)}…${address.slice(-4)}`
-    : '';
+  address && typeof address === 'string' ? `${address.slice(0, 6)}…${address.slice(-4)}` : '';
 
 export const isSameAddress = (a?: string, b?: string) => {
   if (!a || !b) return false;
   return eq(toLower(a), toLower(b));
 };
 
-const dateFormatter = (date: Date | number) =>
-  format(date, 'yyyy-MM-dd HH:mm:ss');
+const dateFormatter = (date: Date | number) => format(date, 'yyyy-MM-dd HH:mm:ss');
 
-export const shortDateFormatter = (date: Date | number) =>
-  format(date, 'yyyy-MM-dd');
+export const shortDateFormatter = (date: Date | number) => format(date, 'yyyy-MM-dd');
 
 const offsetString = (date: Date) => {
   const utcOffset = -date.getTimezoneOffset() / 60;
   return `UTC${utcOffset > 0 ? '+' : ''}${utcOffset}`;
 };
 
-export const formatDate = (
-  date: Date | string | number | undefined,
-  toUtc = false,
-) => {
+export const formatDate = (date: Date | string | number | undefined, toUtc = false) => {
   if (!date) return '';
   if (toUtc)
     return `${dateFormatter(
@@ -73,21 +55,12 @@ export const hatLink = ({
   return `${CONFIG.APP_URL}/trees/${chainId}/${treeId}${isMobile ? '/' : '?hatId='}${hatIdDecimalToIp(BigInt(hatId))}`;
 };
 
-export const claimsLink = ({
-  chainId,
-  hatId,
-}: {
-  chainId: number | undefined;
-  hatId: Hex | undefined;
-}) => {
+export const claimsLink = ({ chainId, hatId }: { chainId: number | undefined; hatId: Hex | undefined }) => {
   if (!chainId || !hatId) return '#';
   return `${CONFIG.CLAIMS_URL}/${chainId}/${hatIdDecimalToIp(BigInt(hatId))}`;
 };
 
-export const generateLocalStorageKey = (
-  chainId: number | undefined,
-  treeId: string | undefined,
-) => {
+export const generateLocalStorageKey = (chainId: number | undefined, treeId: string | undefined) => {
   if (!chainId || !treeId) return 'not found';
   // const decimalTreeId = treeIdHexToDecimal(treeId);
   return `treeData-${chainId}-${treeId}`;
@@ -97,17 +70,13 @@ export async function hash(string: string) {
   const utf8 = new TextEncoder().encode(string);
   const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((bytes) => bytes.toString(16).padStart(2, '0'))
-    .join('');
+  const hashHex = hashArray.map((bytes) => bytes.toString(16).padStart(2, '0')).join('');
   return hashHex;
 }
 
 // turn e.g. checkHatWearerStatus -> Check Hat Wearer Status
 export function formatFunctionName(functionName: string): string {
-  return functionName
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (str) => str.toUpperCase());
+  return functionName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
 }
 
 export function commify(value: number | string) {
@@ -137,9 +106,7 @@ export const formatScientificWhole = (amount: number): string => {
   if (toNumber(amount) > 999) {
     const rounds = [1_000_000_000, 1_000_000, 1_000];
     const formatString = [`bn`, `mm`, `k`];
-    const amountRounded = map(rounds, (r: number) =>
-      round(toNumber(amount) / r, 0),
-    );
+    const amountRounded = map(rounds, (r: number) => round(toNumber(amount) / r, 0));
     const index = findIndex(amountRounded, (v: number) => v > 0);
 
     return `${amountRounded[index]}${formatString[index]}`;
@@ -188,10 +155,7 @@ export const formatRound = ({
   }
 
   if (whole.length > shortHand) {
-    const shortHandAbbrev = find(
-      shortHandAbbreviations,
-      (s) => toNumber(whole) > s.value,
-    );
+    const shortHandAbbrev = find(shortHandAbbreviations, (s) => toNumber(whole) > s.value);
     const shortAbbrevLength = size(toString(get(shortHandAbbrev, 'value'))) - 1;
     return `${whole.slice(0, shortAbbrevLength)}${shortHandAbbrev?.abbrev}`;
   }
@@ -234,8 +198,7 @@ export const formatBalanceValue = ({
   dropDecimals?: boolean;
 }): string | null => {
   if (isNaN(toNumber(price)) || !balance || !decimals) return null;
-  const balanceInUsd =
-    toNumber(formatUnits(balance, decimals)) * toNumber(price);
+  const balanceInUsd = toNumber(formatUnits(balance, decimals)) * toNumber(price);
   if (!balanceInUsd) return null;
 
   return formatRound({
@@ -245,3 +208,8 @@ export const formatBalanceValue = ({
     dropDecimals,
   });
 };
+
+export function camelCaseToWords(s: string) {
+  const result = s.replace(/([A-Z])/g, ' $1');
+  return result.charAt(0).toUpperCase() + result.slice(1);
+}

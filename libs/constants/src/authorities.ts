@@ -1,6 +1,6 @@
 import { Charmverse, Discord, Etherscan, Github, Guild, HatIcon, Safe, Snapshot, Telegram } from 'icons';
 // import { ReactNode } from 'react';
-import { AuthorityType } from 'types';
+import type { AuthorityInfo, AuthorityType } from 'types';
 
 export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   protocol: 'protocol',
@@ -10,16 +10,6 @@ export const AUTHORITY_TYPES: { [key in AuthorityType]: string } = {
   onchain: 'onchain',
   gate: 'gate',
   manual: 'manual',
-};
-
-export type AuthorityInfo = {
-  label: string;
-  info: string;
-  color: string;
-  name?: string;
-  icon?: any; // ReactNode; // name of an icon to be used for fallback
-  imageUri?: string; // used for fallback if icon is not available
-  enforcementIcon: string; // actually an SVG imported currently, could migrate to Icon
 };
 
 // ! don't try to import `ipfsUrl` here as it will cause a circular dependency

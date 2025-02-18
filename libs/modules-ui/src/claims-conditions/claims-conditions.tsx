@@ -1,9 +1,10 @@
 'use client';
 
-import { Box, Flex, Heading, Skeleton, Text } from '@chakra-ui/react';
-import { CONFIG, NULL_ADDRESSES } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
+import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { first, flatten, gt, includes, pick, size } from 'lodash';
+import { cn, Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -11,6 +12,8 @@ import { useAccount } from 'wagmi';
 import { CommunityHatEligibilityRule } from '../agreement';
 import { ChainPanel, ControllerWearer, KnownEligibilityModule } from '../eligibility-rules';
 import { ClaimButton } from './claim-button';
+
+const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 
 // relies on different context from Controllers/Eligibility
 const MODAL_SUFFIX = 'Claims';
@@ -75,42 +78,54 @@ const EligibilityConditions = () => {
         isReadyToClaim={isReadyToClaim}
         setIsReadyToClaim={setIsReadyToClaim}
         wearerEligibility={currentEligibility}
+        ruleSets={eligibilityRules}
       />
     );
   }
 
-  return (
-    <Skeleton isLoaded={!isEligibilityRulesLoading} my={2} mx={{ base: 4, md: 0 }}>
-      <Flex justify='space-between'>
-        <Text>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</Text>
+  if (isEligibilityRulesLoading) {
+    return <Skeleton className='mx-4 my-2 md:mx-0' />;
+  }
 
-        <ControllerWearer controllerData={eligibilityData} />
-      </Flex>
-    </Skeleton>
+  return (
+    <div className='flex justify-between'>
+      <p>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</p>
+
+      <ControllerWearer controllerData={eligibilityData} />
+    </div>
   );
 };
 
 export const ClaimsConditions = () => {
   // TODO only include modals that are relevant
-  const { isHatDetailsLoading, isEligibilityRulesLoading } = useEligibility();
+  const { isHatDetailsLoading, isEligibilityRulesLoading, eligibilityRules } = useEligibility();
+  const multipleModules = gt(size(flatten(eligibilityRules)), 1);
+
+  if (isHatDetailsLoading || isEligibilityRulesLoading) {
+    return (
+      <div className='w-full pb-20 md:pb-0'>
+        <Skeleton className='mx-4 my-2 md:mx-0' />
+
+        <Skeleton className='w-full' />
+
+        <Skeleton className='mt-4 w-full' />
+      </div>
+    );
+  }
 
   return (
-    <Box w='100%' pb={{ base: 20, md: 0 }}>
-      <Skeleton isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
-        <Heading size='sm' my={1} px={{ base: 4, md: 0 }}>
-          Conditions to wear this {CONFIG.TERMS.hat}
-        </Heading>
-      </Skeleton>
+    <div className='flex w-full flex-col gap-4 pb-20 md:pb-0'>
+      <div className={cn('flex flex-col gap-2')}>
+        <h3 className={cn('text-sm', IS_CLAIMS_APP && 'px-4 md:px-0')}>Conditions to hold this {CONFIG.TERMS.hat}</h3>
 
-      <Skeleton w='full' isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
-        <EligibilityConditions />
-      </Skeleton>
+        <div className={cn(IS_CLAIMS_APP && !multipleModules && 'px-4 md:px-0')}>
+          <EligibilityConditions />
+        </div>
+      </div>
 
-      <Skeleton w='full' mt={4} isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
-        <Flex display={{ base: 'none', '2xl': 'flex' }} justify='center'>
-          <ClaimButton />
-        </Flex>
-      </Skeleton>
-    </Box>
+      <div className='hidden justify-center md:flex'>
+        <ClaimButton />
+      </div>
+    </div>
   );
 };

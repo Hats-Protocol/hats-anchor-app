@@ -1,44 +1,20 @@
 'use client';
 
-import { Heading, Stack } from '@chakra-ui/react';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
-import { Textarea } from 'forms';
-import { useAllWearers, useHatDetails, useProfileDetails } from 'hats-hooks';
+import { ControlledRadioBox, Form, Textarea } from 'forms';
+import { useHatDetails, useProfileDetails } from 'hats-hooks';
 import { useIpfsData } from 'hooks';
-import {
-  compact,
-  concat,
-  filter,
-  find,
-  includes,
-  map,
-  pick,
-  reject,
-  toString,
-} from 'lodash';
-import { useAgreementDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { compact, concat, find, map, reject } from 'lodash';
+import { useAgreementEligibility } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { filterProfiles } from 'utils';
+import { Markdown, ScrollArea } from 'ui';
 import { Hex } from 'viem';
 
-import {
-  AboutModule,
-  FILTER,
-  Filter,
-  ModuleHistory,
-  ModuleModal,
-  ProfileList,
-} from '../../module-modal';
+import { AboutModule, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AgreementForms } from './agreement-forms';
-
-const ControlledRadioBox = dynamic(() =>
-  import('ui').then((ui) => ui.ControlledRadioBox),
-);
-const Markdown = dynamic(() => import('ui').then((ui) => ui.Markdown));
 
 export const AgreementModal = ({
   eligibilityHatId,
@@ -51,33 +27,26 @@ export const AgreementModal = ({
   const localForm = useForm();
   const [removing, setRemoving] = useState(false);
   const [removeList, setRemoveList] = useState<AllowlistProfile[]>([]);
-  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const [selectedOption, setSelectedOption] = useState<string>('Agreement');
   const [updatingAgreement, setUpdatingAgreement] = useState(false);
-  const { watch } = pick(localForm, ['watch']);
 
   const { data: hat } = useHatDetails({
     hatId: eligibilityHatId,
     chainId,
   });
-  const { wearers } = useAllWearers({ selectedHat: hat || undefined, chainId });
 
-  const searchInput = watch('search');
-  const { data: agreementDetails } = useAgreementDetails({
+  const { data: agreementDetails } = useAgreementEligibility({
     id: moduleInfo.instanceAddress,
     chainId,
   });
   const { data: agreementProfiles } = useProfileDetails({
-    addresses: get(agreementDetails, 'agreements.0.signers'),
+    addresses: get(agreementDetails, 'agreements.0.signers'), // TODO Get current agreement
     chainId,
   });
   const liveParams = get(moduleInfo, 'liveParameters');
   const ownerHat = get(find(liveParams, { label: 'Owner Hat' }), 'value');
   const judgeHat = get(find(liveParams, { label: 'Arbitrator Hat' }), 'value');
-  const currentAgreement = get(
-    find(liveParams, { label: 'Current Agreement' }),
-    'value',
-  );
+  const currentAgreement = get(find(liveParams, { label: 'Current Agreement' }), 'value');
   const { data: agreementData } = useIpfsData(currentAgreement);
   const agreementContent = get(agreementData, 'data');
 
@@ -91,17 +60,14 @@ export const AgreementModal = ({
     };
   });
 
-  const filteredProfiles = filterProfiles({
-    profiles: mappedProfiles || [],
-    wearerIds: map(wearers, (wearer) => wearer.id),
-  });
-  const currentFilteredProfiles = filter(
-    filteredProfiles[activeFilter],
-    (p) =>
-      !searchInput ||
-      includes(toString(p.id), searchInput) ||
-      includes(toString(p.ensName), searchInput),
-  );
+  // const filteredProfiles = filterProfiles({
+  //   profiles: mappedProfiles || [],
+  //   wearerIds: map(wearers, (wearer) => wearer.id),
+  // });
+  // const currentFilteredProfiles = filter(
+  //   filteredProfiles[activeFilter],
+  //   (p) => !searchInput || includes(toString(p.id), searchInput) || includes(toString(p.ensName), searchInput),
+  // );
 
   const handleAdd = useCallback(
     (address: Hex) => {
@@ -144,12 +110,7 @@ export const AgreementModal = ({
     <ModuleModal
       name={`${moduleInfo.instanceAddress}-agreementManager`}
       title='Agreement Signers'
-      about={
-        <AboutModule
-          heading='About this Agreement'
-          moduleDescriptors={moduleDescriptors}
-        />
-      }
+      about={<AboutModule heading='About this Agreement' moduleDescriptors={moduleDescriptors} />}
       history={<ModuleHistory />}
     >
       <ControlledRadioBox
@@ -161,27 +122,25 @@ export const AgreementModal = ({
 
       {selectedOption === 'Agreement' &&
         (updatingAgreement ? (
-          <Stack w='100%'>
-            <Heading size='md'>Update Agreement</Heading>
+          <Form {...localForm}>
+            <div className='mt-8 w-full space-y-2'>
+              <h3 className='text-md'>Update Agreement</h3>
 
-            <Textarea
-              name='agreementContent'
-              localForm={localForm}
-              minH='350px'
-            />
-          </Stack>
+              <Textarea name='agreementContent' className='h-[370px]' localForm={localForm} />
+            </div>
+          </Form>
         ) : (
-          <Stack w='100%' spacing={4} pt={10} overflowY='auto' pb='150px'>
-            <Markdown>{agreementContent as string}</Markdown>
-          </Stack>
+          <ScrollArea className='mt-8 h-3/4'>
+            <div className='prose w-full space-y-2'>
+              <Markdown>{agreementContent as string}</Markdown>
+            </div>
+          </ScrollArea>
         ))}
 
       {selectedOption === 'Signatures' && (
         <ProfileList
           hat={hat}
-          profiles={currentFilteredProfiles}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
+          profiles={mappedProfiles}
           localForm={localForm}
           handleUpdateListAdd={handleAdd}
           handleUpdateListRemove={handleRemove}

@@ -2,7 +2,6 @@ import { gql } from 'graphql-request';
 
 import { NETWORKS_PREFIX } from './constants';
 
-
 export function getTreeQuery(chaindId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chaindId];
   return gql`

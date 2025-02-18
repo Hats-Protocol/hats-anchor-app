@@ -1,59 +1,31 @@
 'use client';
 
-import {
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Link,
-  Text,
-  Tooltip,
-} from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import {
-  capitalize,
-  filter,
-  first,
-  flatten,
-  get,
-  includes,
-  map,
-  size,
-} from 'lodash';
+import { useMediaQuery } from 'hooks';
+import { capitalize, filter, first, flatten, get, includes, map, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
+import { Button, LinkButton, Popover, PopoverContent, PopoverTrigger, Tooltip } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
-const NetworkSwitcher = dynamic(() =>
-  import('molecules').then((mod) => mod.NetworkSwitcher),
-);
-const ConnectWallet = dynamic(() =>
-  import('molecules').then((mod) => mod.ConnectWallet),
-);
+const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
+const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
 
 export const ClaimButton = () => {
   const { address } = useAccount();
   const currentChainId = useChainId();
   const { handlePendingTx } = useOverlay();
-  const {
-    chainId,
-    selectedHat,
-    eligibilityRules,
-    isClaimableFor,
-    hatterIsAdmin,
-    requireHatter,
-    isReadyToClaim,
-    currentEligibility,
-  } = useEligibility();
+  const { chainId, selectedHat, eligibilityRules, isClaimableFor, hatterIsAdmin, isReadyToClaim, currentEligibility } =
+    useEligibility();
 
   const { data: wearer } = useWearerDetails({
     wearerAddress: address as Hex,
@@ -61,47 +33,54 @@ export const ClaimButton = () => {
   });
   const isWearing = includes(map(wearer, 'id'), selectedHat?.id);
 
+  const multipleRules = size(flatten(eligibilityRules)) > 1; // TODO hardcode flatten eligibilityRules (only handles single AND chains)
   const rulesNotAlreadyClaimed = filter(flatten(eligibilityRules), (rule) => {
     return (
-      !get(currentEligibility, `${rule.address}.eligible`) ||
-      !get(currentEligibility, `${rule.address}.goodStanding`)
+      !get(currentEligibility, `${rule.address}.eligible`) || !get(currentEligibility, `${rule.address}.goodStanding`)
     );
   });
+
   const multipleModulesRemaining = size(rulesNotAlreadyClaimed) > 1;
 
   const moduleDetails = eligibilityRuleToModuleDetails(
-    first(rulesNotAlreadyClaimed), // TODO assuming there is only 1 rule remaining to claim
+    multipleRules ? first(rulesNotAlreadyClaimed) : first(flatten(eligibilityRules)), // TODO assuming there is only 1 rule remaining to claim
   );
-  const { handleClaim, disableClaim, disableReason, isLoading, isEligible } =
-    useClaimFn({
-      selectedHat: selectedHat as AppHat,
-      handlePendingTx,
-      moduleParameters: get(moduleDetails, 'liveParameters'),
-      moduleDetails,
-      chainId,
-      isReadyToClaim,
-    });
+
+  const { handleClaim, disableClaim, disableReason, requireHatter, isLoading, isEligible } = useClaimFn({
+    selectedHat: selectedHat as AppHat,
+    handlePendingTx,
+    moduleParameters: get(moduleDetails, 'liveParameters'),
+    moduleDetails,
+    chainId,
+    isReadyToClaim,
+    onSuccess: () => {
+      console.log('onSuccess');
+    },
+    onError: () => {
+      console.log('onError');
+    },
+    onDecline: () => {
+      console.log('onDecline');
+    },
+  });
 
   const hatUrl = selectedHat?.id
-    ? `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(
-        BigInt(selectedHat.id),
-      )}?hatId=${idToIp(selectedHat.id)}`
+    ? `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(BigInt(selectedHat.id))}?hatId=${idToIp(selectedHat.id)}`
     : '#';
 
   if (isWearing && isEligible) {
     return (
-      <Flex>
-        <Button
-          as={Link}
+      <div className='flex'>
+        <LinkButton
           href={hatUrl}
-          colorScheme='green'
-          leftIcon={<Icon as={HatIcon} color='white' />}
-          rightIcon={<Icon as={BsArrowRight} color='white' />}
+          leftIcon={<HatIcon className='h-4 w-4' />}
+          rightIcon={<BsArrowRight className='h-4 w-4' />}
+          className='bg-functional-success flex items-center gap-1'
           isExternal
         >
           View your hat
-        </Button>
-      </Flex>
+        </LinkButton>
+      </div>
     );
   }
 
@@ -110,7 +89,7 @@ export const ClaimButton = () => {
   if (requireHatter) {
     // hatter must be an admin wearer
     // can't claim if not claimable for - module claims on behalf of user
-    hatterIfNeeded = !hatterIsAdmin || !isClaimableFor;
+    hatterIfNeeded = !hatterIsAdmin || !isClaimableFor || false;
   }
 
   let tooltip = '';
@@ -135,25 +114,20 @@ export const ClaimButton = () => {
   if (currentChainId !== chainId) {
     return <NetworkSwitcher chainId={chainId} />;
   }
+  // console.log({ hatterIfNeeded, disableClaim, disableReason, isWearing, isEligible, currentChainId, chainId });
 
   return (
     <Tooltip label={tooltip || disableReason}>
       <Button
-        variant='primary'
         // won't hit this flow if wrong network
-        isDisabled={
-          hatterIfNeeded ||
-          disableClaim ||
-          (isWearing && isEligible) ||
-          currentChainId !== chainId
-        } // handle isReadyToClaim on respective disableClaims
+        disabled={hatterIfNeeded || disableClaim || (isWearing && isEligible) || currentChainId !== chainId} // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
-        isLoading={isLoading}
+        // isLoading={isLoading}
       >
-        <HStack>
-          <HatIcon />
-          <Text>Claim this {capitalize(CONFIG.TERMS.hat)}</Text>
-        </HStack>
+        <div className='flex items-center gap-2'>
+          <HatIcon className='h-4 w-4' />
+          <span>Claim this {capitalize(CONFIG.TERMS.hat)}</span>
+        </div>
       </Button>
     </Tooltip>
   );

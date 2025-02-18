@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "hats-anchor-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/frontend",
   "projectType": "application",
@@ -20,26 +20,23 @@
     },
     "serve": {
       "executor": "@nx/next:server",
-      "defaultConfiguration": "development",
+      "defaultConfiguration": "production",
       "options": {
-        "buildTarget": "frontend:build",
-        "dev": true
+        "buildTarget": "hats-anchor-app:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "frontend:build:development",
-          "dev": true
+          "buildTarget": "hats-anchor-app:build:development"
         },
         "production": {
-          "buildTarget": "frontend:build:production",
-          "dev": false
+          "buildTarget": "hats-anchor-app:build:production"
         }
       }
     },
     "export": {
       "executor": "@nx/next:export",
       "options": {
-        "buildTarget": "frontend:build:production"
+        "buildTarget": "hats-anchor-app:build:production"
       }
     },
     "lint": {

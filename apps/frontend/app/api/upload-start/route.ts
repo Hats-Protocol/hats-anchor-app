@@ -1,5 +1,6 @@
-import _ from 'lodash';
+import { gt, toNumber } from 'lodash';
 import { KeyRestrictions } from 'types';
+import { logger } from 'utils';
 
 const date = new Date();
 
@@ -8,17 +9,16 @@ const MAX_KEY_USES = 60;
 export async function POST(request: Request) {
   const { count } = await request.json();
 
-  if (_.gt(_.toNumber(count), 0)) {
+  if (gt(toNumber(count), 0)) {
     // TODO check on this maximum value
-    keyRestrictions.maxUses = _.gt(count, MAX_KEY_USES) ? MAX_KEY_USES : count;
+    keyRestrictions.maxUses = gt(count, MAX_KEY_USES) ? MAX_KEY_USES : count;
   }
 
   try {
     const apiKey = await generateApiKey(keyRestrictions);
     return Response.json({ apiKey }, { status: 200 });
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log(e);
+  } catch (error) {
+    logger.error(error);
     return Response.json({ error: 'Server Error' }, { status: 500 });
   }
 }
@@ -49,8 +49,7 @@ const generateApiKey = async (keyRestrictions: KeyRestrictions) => {
       return JWT;
     })
     .catch((error) => {
-      // eslint-disable-next-line no-console
-      console.log(error);
+      logger.error(error);
       return null;
     });
 };

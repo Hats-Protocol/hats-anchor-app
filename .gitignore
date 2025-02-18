@@ -71,4 +71,6 @@ dist-ssr
 /treeData
 /migrations.json
 
-libs/utils/src/mesh/zeus
+# TODO figure out why Github Actions is failing this fetch
+# libs/utils/src/mesh/zeus
+**/storybook-static

@@ -1,15 +1,15 @@
-import { map } from 'lodash';
+import { isNumber, map } from 'lodash';
 // bg-gray-700
 const SignerIndicator = ({
   index,
   threshold,
   signers,
 }: {
-  index: number;
+  index: number; // 1-indexed
   threshold: number | undefined;
   signers: number | undefined;
 }) => {
-  if (!signers || !threshold) return null;
+  if (!isNumber(signers) || !isNumber(threshold)) return null;
 
   if (signers < index) {
     if (index <= threshold) {
@@ -30,12 +30,13 @@ const SignerIndicator = ({
   return <div className='h-2 w-12 rounded-full bg-gray-700' />;
 };
 
-export const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorProps) => {
-  if (!threshold || !signers || !maxSigners) return null;
+const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorProps) => {
+  if (!isNumber(threshold) || !isNumber(signers) || !isNumber(maxSigners)) return null;
+  // TODO better loading state
 
   return (
     <div className='flex w-fit flex-col gap-2'>
-      <div className='flex w-fit items-center gap-2'>
+      <div className='flex w-fit items-center gap-2 lg:max-w-[600px] xl:max-w-[800px]'>
         {map(Array.from({ length: maxSigners }), (_, index) => (
           <SignerIndicator key={index} index={index + 1} threshold={threshold} signers={signers} />
         ))}
@@ -43,11 +44,11 @@ export const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndi
 
       {signers > threshold ? (
         <p className='text-center'>
-          {threshold} confirmations required of {maxSigners} council members
+          {threshold} confirmation{threshold > 1 ? 's' : ''} required of {signers} council members
         </p>
       ) : (
         <p className='text-center'>
-          {signers} signer{signers > 1 ? 's' : ''} of {threshold} required
+          {signers > 0 ? `${signers} out` : 'None'} of {maxSigners} council members have joined
         </p>
       )}
     </div>
@@ -59,3 +60,5 @@ interface SignersIndicatorProps {
   signers: number | undefined;
   maxSigners: number | undefined;
 }
+
+export { SignersIndicator };

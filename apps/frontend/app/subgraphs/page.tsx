@@ -1,4 +1,4 @@
-import { chainsList } from '@hatsprotocol/constants';
+import { chainsList } from '@hatsprotocol/config';
 import { keys, map, toNumber } from 'lodash';
 import dynamic from 'next/dynamic';
 import { Card } from 'ui';
@@ -6,12 +6,6 @@ import { Card } from 'ui';
 const SubgraphCheck = dynamic(() => import('molecules').then((mod) => mod.SubgraphCheck));
 
 const SubgraphDebug = async () => {
-  // TODO fetch initial trees list
-  // const chainId = toNumber(get(params, 'chainId'));
-
-  // TODO fetch subgraph blocks
-  // TODO fetch blocks from chain
-
   return (
     <>
       <div className='px-4 py-20 md:px-20 lg:px-[100px] lg:py-[100px]'>

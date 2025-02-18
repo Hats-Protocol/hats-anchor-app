@@ -1,14 +1,16 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
-import { Modal } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { usePrivy } from '@privy-io/react-auth';
+import { useQueryClient } from '@tanstack/react-query';
+import { Modal, useOverlay } from 'contexts';
+import { AddressInput, Form, Input } from 'forms';
 import { useCreateOrUpdateUser } from 'hooks';
-import { capitalize, map, some, toLower } from 'lodash';
+import { capitalize, isEmpty, keys, map, some, toLower } from 'lodash';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
-import { chainsMap, isValidEmail } from 'utils';
+import { Button } from 'ui';
+import { chainsMap, isValidEmail, logger } from 'utils';
 import { isAddress } from 'viem';
 
 interface CouncilMemberDetails {
@@ -25,26 +27,55 @@ interface UserFormProps extends CouncilMember {
   admins: CouncilMember[];
 }
 
-type AddAdminModalProps = {
+type AddUserModalProps = {
   chainId: number;
-  type: 'admin' | 'compliance' | 'member' | 'allowlist' | 'agreement' | 'election' | 'subscription';
+  type: 'admin' | 'member' | 'complianceAdmin' | 'allowlistAdmin' | 'agreementAdmin'; // future | 'election' | 'subscription';
   userLabel: string;
   editingUser?: CouncilMember | null;
-  afterSuccess?: (user: CouncilMember | undefined) => Promise<void>;
+  afterSuccess?: (user: CouncilMember | undefined) => Promise<void> | Promise<(() => void) | undefined>;
+  councilId: string | undefined; // Specifically the `creationForm.id`
+  existingUsers: CouncilMember[];
+  addUserLoading?: [boolean, (isLoading: boolean) => void];
 };
 
-export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser, afterSuccess }: AddAdminModalProps) {
+function AddUserModal({
+  chainId = 11155111,
+  type,
+  userLabel,
+  editingUser,
+  afterSuccess,
+  councilId,
+  existingUsers,
+  addUserLoading,
+}: AddUserModalProps) {
+  const [isLoading, setIsLoading] = addUserLoading || [false, () => {}];
+  const { user } = usePrivy();
+  const { setModals } = useOverlay();
+  const queryClient = useQueryClient();
   const form = useForm<UserFormProps>();
-  const { getValues, setValue, setError, handleSubmit, reset } = form;
+  const {
+    getValues,
+    setValue,
+    setError,
+    handleSubmit,
+    reset,
+    formState: { dirtyFields },
+  } = form;
+  const isDirty = !isEmpty(keys(dirtyFields));
 
   const isFormValid = () => {
     const values = getValues();
+    // TODO use yup resolvers
     return isAddress(values.address) && isValidEmail(values.email);
   };
 
   const { createOrUpdateUser } = useCreateOrUpdateUser({
     editingId: editingUser?.id,
+    councilId,
+    memberType: type as 'admin' | 'complianceAdmin' | 'member' | 'agreementAdmin', // TODO breakout this type
+    existingUsers,
     onAddSuccess: (userData) => {
+      // TODO handle the correct type here
       const currentAdmins = getValues('admins') || [];
       const updatedAdmins = map(currentAdmins, (admin: CouncilMember) =>
         admin.id === editingUser?.id ? userData : admin,
@@ -61,16 +92,21 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser,
   });
 
   useEffect(() => {
-    if (!editingUser) return;
+    if (!editingUser) {
+      reset();
+      return;
+    }
 
     reset({
       address: editingUser.address,
       email: editingUser.email,
       name: editingUser.name,
     });
-  }, [editingUser, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingUser]);
 
   const onSubmit = async (data: CouncilMemberDetails) => {
+    setIsLoading(true);
     if (!isAddress(data.address)) {
       setError('address', { message: 'Please enter a valid Ethereum address' });
       return;
@@ -93,55 +129,78 @@ export function AddUserModal({ chainId = 11155111, type, userLabel, editingUser,
       ...data,
       id: editingUser?.id || '',
     });
+    logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
-    afterSuccess?.(createdOrUpdatedUser);
+    if (afterSuccess) {
+      afterSuccess(createdOrUpdatedUser);
+    } else {
+      setIsLoading(false);
+      setModals?.({});
+      queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+    }
   };
 
   return (
     <Modal
       name={editingUser ? `editUser-${type}-${editingUser.address}` : `addUser-${type}`}
       title={`${editingUser ? 'Edit' : 'Add'} ${userLabel || 'Council Member'}`}
+      size='lg'
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='space-y-6'>
-          <div className='space-y-2'>
-            <label className='font-bold'>{capitalize(chainsMap(chainId).name)} Account</label>
-            <AddressInput name='address' localForm={form} hideAddressButtons chainId={chainId as SupportedChains} />
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className='space-y-6'>
+            <div className='space-y-2'>
+              <label className='font-bold'>{capitalize(chainsMap(chainId).name)} Account</label>
+              <AddressInput name='address' localForm={form} hideAddressButtons chainId={chainId as SupportedChains} />
+            </div>
+
+            <div className='space-y-2'>
+              <Input
+                name='email'
+                label='Email Address'
+                labelNote='Hidden'
+                variant='councils'
+                localForm={form}
+                placeholder='Email that receives the admin invite'
+                options={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <Input
+                name='name'
+                label='Name'
+                labelNote='Optional'
+                variant='councils'
+                localForm={form}
+                placeholder='Alias or name'
+                readOnly={!user}
+              />
+            </div>
           </div>
 
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-            </label>
-            <Input
-              name='email'
-              localForm={form}
-              placeholder='Email that receives the admin invite'
-              options={{
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              }}
-            />
+          <div className='mt-8'>
+            <div className='flex justify-end'>
+              {editingUser ? (
+                <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading || !isDirty}>
+                  {isLoading ? 'Saving…' : 'Save Changes'}
+                </Button>
+              ) : (
+                <Button type='submit' rounded='full' disabled={!isFormValid() || isLoading}>
+                  {isLoading ? 'Adding…' : `Add ${userLabel || 'Council Member'}`}
+                </Button>
+              )}
+            </div>
           </div>
-
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-            </label>
-            <Input name='name' localForm={form} placeholder='Alias or name' />
-          </div>
-        </div>
-
-        <div className='mt-8'>
-          <div className='flex justify-end'>
-            <Button type='submit' disabled={!isFormValid()} variant='primary'>
-              {editingUser ? 'Save Changes' : `Add ${userLabel || 'Council Member'}`}
-            </Button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </Form>
     </Modal>
   );
 }
+
+export { AddUserModal };

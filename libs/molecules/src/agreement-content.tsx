@@ -1,21 +1,16 @@
-'use client';
+import { Markdown } from 'ui';
 
-import { Box } from '@chakra-ui/react';
-import ReactMarkdown from 'react-markdown';
-
-// TODO can we use `Markdown` from 'ui/atoms' here?
-
-export const AgreementContent = ({ agreement }: { agreement: string }) => {
+const AgreementContent = ({ agreement }: { agreement: string | undefined }) => {
   if (!agreement) return null;
   const formattedAgreement = agreement
-    .replace(/{\.underline}/g, '') // replace weird format provided in original agreement copy
+    .replace(/{\.underline}/g, '') // replace weird format provided in original Hats Community agreement copy
     .replace(/\[\*\[|\[\[/g, '[') // replace escaped brackets
     .replace(/\]\*\]|\]\]/g, ']'); // replace escaped brackets
 
   return (
-    <Box className='markdown-content'>
-      <ReactMarkdown>{formattedAgreement}</ReactMarkdown>
-    </Box>
+    <div className='markdown-content'>
+      <Markdown>{formattedAgreement}</Markdown>
+    </div>
   );
 };
-export default AgreementContent;
+export { AgreementContent };

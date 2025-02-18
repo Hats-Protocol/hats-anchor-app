@@ -1,6 +1,6 @@
 # Hats Icons
 
-The Hats Icons are a set of icons that are used in the Hats project. They are designed to be simple and easy to understand. The icons are wrapped in Chakra's `Icon` component and can be used in any React project.
+The Hats Icons are a set of icons that are used in the Hats project. They are designed to be simple and easy to understand. The icons include a className prop to allow for custom styling.
 
 ## Usage
 

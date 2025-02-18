@@ -11,13 +11,15 @@ export const getCustomModuleFunction = (authority: Authority | undefined) => {
       KNOWN_ELIGIBILITY_MODULES.election,
       KNOWN_ELIGIBILITY_MODULES.jokeRace,
       KNOWN_ELIGIBILITY_MODULES.staking,
+      KNOWN_ELIGIBILITY_MODULES.erc20,
+      KNOWN_ELIGIBILITY_MODULES.erc721,
+      KNOWN_ELIGIBILITY_MODULES.erc1155,
+      KNOWN_ELIGIBILITY_MODULES.unlock,
+      KNOWN_ELIGIBILITY_MODULES.passthrough,
     ),
   );
 
-  if (
-    !authority?.moduleAddress ||
-    !customImplementationAddresses.includes(authority.moduleAddress)
-  ) {
+  if (!authority?.moduleAddress || !customImplementationAddresses.includes(authority.moduleAddress)) {
     return undefined;
   }
 
@@ -26,9 +28,7 @@ export const getCustomModuleFunction = (authority: Authority | undefined) => {
 
 export const getKnownEligibilityModule = (implementationAddress: Hex) => {
   const knownModuleKeys = keys(KNOWN_ELIGIBILITY_MODULES);
-  const knownModuleKey = find(knownModuleKeys, (key) =>
-    KNOWN_ELIGIBILITY_MODULES[key].includes(implementationAddress),
-  );
+  const knownModuleKey = find(knownModuleKeys, (key) => KNOWN_ELIGIBILITY_MODULES[key].includes(implementationAddress));
 
   return knownModuleKey;
 };

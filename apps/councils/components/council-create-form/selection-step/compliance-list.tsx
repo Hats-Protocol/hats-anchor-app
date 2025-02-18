@@ -1,110 +1,73 @@
 'use client';
 
-import type { CouncilFormData } from 'contexts';
-import { useState } from 'react';
+import { useOverlay } from 'contexts';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
-import { formatAddress } from 'utils';
-import { useEnsName } from 'wagmi';
+import type { CouncilFormData, CouncilMember } from 'types';
+import { MemberAvatar } from 'ui';
 
-import { EditIcon } from '../../icons/edit-icon';
-import { TrashIcon } from '../../icons/trash-icon';
 import { AddComplianceModal } from './add-compliance-modal';
 
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
-}
-
-interface ComplianceListProps {
+type ComplianceListProps = {
   complianceAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
-}
+};
 
 export function ComplianceList({ complianceAdmins, form, canEdit = true }: ComplianceListProps) {
-  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleRemove = (adminId: string) => {
-    const currentAdmins = form.getValues('complianceAdmins') || [];
-    const updatedAdmins = currentAdmins.filter((admin: CouncilMember) => admin.id !== adminId);
-    form.setValue('complianceAdmins', updatedAdmins);
-  };
-
-  const handleEdit = (admin: CouncilMember) => {
-    setEditingAdmin(admin);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setEditingAdmin(null);
-    setIsModalOpen(false);
-  };
-
   return (
-    <>
-      <div className='space-y-4'>
-        {complianceAdmins.map((admin) => (
-          <ComplianceCard
-            key={admin.id}
-            admin={admin}
-            onRemove={handleRemove}
-            onEdit={() => handleEdit(admin)}
-            canEdit={canEdit}
-          />
-        ))}
-      </div>
-
-      <AddComplianceModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        form={form}
-        editingAdmin={editingAdmin}
-        canEdit={canEdit}
-      />
-    </>
+    <div className='space-y-4'>
+      {complianceAdmins.map((admin) => (
+        <ComplianceCard key={admin.id} admin={admin} canEdit={canEdit} form={form} />
+      ))}
+    </div>
   );
 }
 
 function ComplianceCard({
   admin,
-  onRemove,
-  onEdit,
   canEdit = true,
+  form,
 }: {
   admin: CouncilMember;
-  onRemove: (id: string) => void;
-  onEdit: () => void;
   canEdit?: boolean;
+  form: UseFormReturn<CouncilFormData>;
 }) {
-  const { data: ensName } = useEnsName({
-    address: admin.address as `0x${string}`,
-    chainId: 1,
-  });
+  const { setModals } = useOverlay();
+  const handleEdit = () => {
+    setModals?.({ [`addComplianceModal-${admin.id}`]: true });
+  };
+
+  const handleRemove = () => {
+    const currentAdmins = form.getValues('complianceAdmins') || [];
+    const updatedAdmins = currentAdmins.filter((a: CouncilMember) => a.id !== admin.id);
+    form.setValue('complianceAdmins', updatedAdmins);
+  };
 
   return (
-    <div className='flex items-center justify-between'>
-      <div className='flex items-center gap-2'>
-        {admin.name && <span className='text-sm font-medium text-gray-900'>{admin.name}</span>}
-        <span className='text-sm text-gray-600'>{ensName || formatAddress(admin.address)}</span>
+    <>
+      <div className='flex items-center justify-between'>
+        <MemberAvatar member={admin} />
+
+        {canEdit && (
+          <div className='flex items-center gap-3'>
+            <button
+              type='button'
+              className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
+              onClick={handleEdit}
+            >
+              <SquarePen className='h-4 w-4' />
+              Edit
+            </button>
+
+            <button type='button' onClick={handleRemove} className='text-destructive hover:text-destructive/70'>
+              <Trash2 className='text-destructive h-4 w-4' />
+            </button>
+          </div>
+        )}
       </div>
-      {canEdit && (
-        <div className='flex items-center gap-3'>
-          <button
-            type='button'
-            className='flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:text-blue-800'
-            onClick={onEdit}
-          >
-            <EditIcon />
-            Edit
-          </button>
-          <button type='button' onClick={() => onRemove(admin.id)} className='text-red-700 hover:text-red-800'>
-            <TrashIcon />
-          </button>
-        </div>
-      )}
-    </div>
+
+      <AddComplianceModal form={form} editingAdmin={admin} canEdit={canEdit} />
+    </>
   );
 }

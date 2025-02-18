@@ -1,18 +1,25 @@
 'use client';
-import '../public/styles/style.css';
-import 'react-datepicker/dist/react-datepicker.css';
 
-import { ChakraBaseProvider } from '@chakra-ui/react';
+import '../public/styles/style.css';
+import './global.css';
+import '@rainbow-me/rainbowkit/styles.css';
+import 'react-datepicker/dist/react-datepicker.css';
+import 'react-cmdk/dist/cmdk.css';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
+import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { ReactNode, useEffect, useState } from 'react';
-import { theme } from 'ui';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
+
+const Toaster = dynamic(() => import('molecules').then((mod) => mod.Toaster), { ssr: false });
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 if (!POSTHOG_KEY) {
@@ -39,7 +46,7 @@ if (typeof window !== 'undefined') {
     api_host: `/ingest` || 'https://app.posthog.com',
     // Enable debug mode in development
     loaded: (p: { debug: () => void }) => {
-      if (process.env.NODE_ENV === 'development') p.debug();
+      // if (process.env.NODE_ENV === 'development') p.debug();
     },
     ui_host: 'https://app.posthog.com',
   });
@@ -63,24 +70,26 @@ const Providers = ({ children }: Props) => {
   const [queryClient] = useState(() => new QueryClient(queryClientOptions));
 
   useEffect(() => {
-    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
-      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    }
+    // if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    // }
   }, []);
 
   return (
-    <ChakraBaseProvider theme={theme}>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <PostHogProvider client={posthog}>
-              <OverlayContextProvider>{children}</OverlayContextProvider>
-            </PostHogProvider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ChakraBaseProvider>
+    <WagmiProvider config={wagmiConfig()}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <PostHogProvider client={posthog}>
+            <OverlayContextProvider>
+              {children}
+
+              <Toaster />
+            </OverlayContextProvider>
+          </PostHogProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 

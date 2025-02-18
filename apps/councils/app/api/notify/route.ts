@@ -1,20 +1,35 @@
 import { pick } from 'lodash';
+import { logger } from 'utils';
 
-const ALERTS_TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const ALERTS_TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const ALERTS_TELEGRAM_CHAT_ID = process.env.ALERTS_TELEGRAM_CHAT_ID;
+const ALERTS_TELEGRAM_BOT_TOKEN = process.env.ALERTS_TELEGRAM_BOT_TOKEN;
 
-export const GET = async (request: Request) => {
+if (!ALERTS_TELEGRAM_CHAT_ID || !ALERTS_TELEGRAM_BOT_TOKEN) {
+  throw new Error('ALERTS_TELEGRAM_CHAT_ID or ALERTS_TELEGRAM_BOT_TOKEN is not set');
+}
+
+export const POST = async (request: Request) => {
+  // TODO check headers for frontend config
   const body = await request.json();
-  const message = pick(body, ['message']);
+  const { message } = pick(body, ['message']);
+  logger.debug('notify', body, message);
 
-  try {
-    const url = `https://api.telegram.org/bot${ALERTS_TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${ALERTS_TELEGRAM_CHAT_ID}&text=${message}`;
+  const linkPreviewOptionsRaw = { is_disabled: true };
+  const linkPreviewOptions = `link_preview_options=${JSON.stringify(linkPreviewOptionsRaw)}`;
 
-    fetch(url);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-  }
+  const baseUrl = `https://api.telegram.org/bot${ALERTS_TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${ALERTS_TELEGRAM_CHAT_ID}`;
 
-  return Response.json({ success: true });
+  const encodedMessage = encodeURIComponent(message);
+
+  const url = `${baseUrl}&text=${encodedMessage}&${linkPreviewOptions}&parse_mode=MarkdownV2`;
+
+  return fetch(url)
+    .catch((error) => {
+      logger.error('notify error', error);
+      return Response.json({ error: error.message }, { status: 500 });
+    })
+    .then((response) => {
+      logger.debug('notify response', response);
+      return Response.json({ success: true });
+    });
 };

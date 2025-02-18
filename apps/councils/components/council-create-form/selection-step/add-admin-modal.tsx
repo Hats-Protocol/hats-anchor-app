@@ -1,58 +1,30 @@
 'use client';
 
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
-import type { CouncilFormData } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { Modal, useCouncilForm, useOverlay } from 'contexts';
+import { AddressInput, Form, Input } from 'forms';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { FiX } from 'react-icons/fi';
-import { councilsGraphqlClient } from 'utils';
+import type { CouncilFormData, CouncilMember, FormMember } from 'types';
+import { chainsMap, CREATE_USER, getChainId, getCouncilsGraphqlClient, isValidEmail, logger, UPDATE_USER } from 'utils';
 import { isAddress } from 'viem';
 
-import { getChainId } from '../../../lib/utils/chains';
 import { NextStepButton } from '../../next-step-button';
 
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
-}
-
 interface AddAdminModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
+  // setEditingAdmin: Dispatch<SetStateAction<CouncilMember | null>>;
   canEdit?: boolean;
 }
 
-const CREATE_USER = `
-  mutation CreateUser($address: String!, $email: String!, $name: String) {
-    createUser(address: $address, email: $email, name: $name) {
-      id
-      address
-      email
-      name
-    }
-  }
-`;
-
-const UPDATE_USER = `
-  mutation UpdateUser($id: ID!, $address: String!, $email: String!, $name: String) {
-    updateUser(id: $id, address: $address, email: $email, name: $name) {
-      id
-      address 
-      email
-      name
-    }
-  }
-`;
-
-export function AddAdminModal({ isOpen, onClose, form: parentForm, editingAdmin, canEdit = true }: AddAdminModalProps) {
-  const selectedChain = parentForm.watch('chain');
+export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }: AddAdminModalProps) {
+  const selectedChain = parentForm.watch('chain')?.value;
   const chainId = getChainId(selectedChain);
+  const { modals, setModals } = useOverlay();
+  const { persistForm } = useCouncilForm();
+  const { getAccessToken } = usePrivy();
 
   const modalForm = useForm({
     defaultValues: {
@@ -64,10 +36,6 @@ export function AddAdminModal({ isOpen, onClose, form: parentForm, editingAdmin,
 
   const [formError, setFormError] = useState<string | null>(null);
 
-  const isValidEmail = (email: string) => {
-    return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
-  };
-
   const isFormValid = () => {
     const values = modalForm.getValues();
     return isAddress(values.address) && isValidEmail(values.email);
@@ -75,7 +43,8 @@ export function AddAdminModal({ isOpen, onClose, form: parentForm, editingAdmin,
 
   const createUserMutation = useMutation({
     mutationFn: async (variables: { address: string; email: string; name?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         createUser: CouncilMember;
       }>(CREATE_USER, variables);
       return result.createUser;
@@ -84,14 +53,15 @@ export function AddAdminModal({ isOpen, onClose, form: parentForm, editingAdmin,
 
   const updateUserMutation = useMutation({
     mutationFn: async (variables: { id: string; address: string; email: string; name?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables);
       return result.updateUser;
     },
   });
 
-  const handleSubmit = async (data: { address: string; email: string; name?: string }) => {
+  const handleSubmit = async (data: FormMember) => {
     if (!canEdit) return;
 
     if (!isAddress(data.address)) {
@@ -111,7 +81,7 @@ export function AddAdminModal({ isOpen, onClose, form: parentForm, editingAdmin,
     }
 
     try {
-      let userData;
+      let userData: CouncilMember;
 
       if (editingAdmin) {
         userData = await updateUserMutation.mutateAsync({
@@ -120,28 +90,31 @@ export function AddAdminModal({ isOpen, onClose, form: parentForm, editingAdmin,
           email: data.email,
           name: data.name,
         });
-      } else {
-        userData = await createUserMutation.mutateAsync(data);
-      }
-
-      if (editingAdmin) {
         const updatedAdmins = currentAdmins.map((admin) => (admin.id === editingAdmin.id ? userData : admin));
         parentForm.setValue('admins', updatedAdmins);
       } else {
+        userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('admins', [...currentAdmins, userData]);
       }
+      persistForm('selection', 'management');
+      logger.debug('userData', userData);
 
       setFormError(null);
       modalForm.reset();
-      onClose();
+      setModals?.({});
     } catch (error) {
       setFormError('Failed to save user. Please try again.');
-      console.error('Error saving user:', error);
+      logger.error('Error saving user:', error);
     }
   };
 
+  const handleClose = () => {
+    setModals?.({});
+    // setEditingAdmin(null);
+  };
+
   useEffect(() => {
-    if (isOpen) {
+    if (modals?.addAdminModal) {
       setFormError(null);
       modalForm.reset({
         address: editingAdmin?.address || '',
@@ -149,76 +122,70 @@ export function AddAdminModal({ isOpen, onClose, form: parentForm, editingAdmin,
         name: editingAdmin?.name || '',
       });
     }
-  }, [isOpen, editingAdmin, modalForm]);
+  }, [modals?.addAdminModal, editingAdmin, modalForm]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='2xl'>
-      <ModalOverlay className='bg-black/50' />
-      <ModalContent
-        as='form'
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          modalForm.handleSubmit(handleSubmit)(e);
-        }}
-        className='p-8'
-      >
-        <div className='mb-8 flex items-center justify-between'>
-          <h2 className='text-2xl font-bold'>{editingAdmin ? 'Edit Council Admin' : 'Add Council Admin'}</h2>
-          <button type='button' onClick={onClose} className='text-black hover:opacity-70'>
-            <FiX className='h-5 w-5' />
-          </button>
-        </div>
+    <Modal
+      name={`addAdminModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
+      title={editingAdmin ? 'Edit Council Manager' : 'Add Council Manager'}
+      onClose={handleClose}
+      size='lg'
+    >
+      <Form {...modalForm}>
+        <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
+          <div className='space-y-6'>
+            <div className='space-y-2'>
+              <AddressInput
+                name='address'
+                label={`${chainsMap(chainId).name} Account`}
+                localForm={modalForm}
+                hideAddressButtons
+                chainId={chainId}
+                variant='councils'
+                isDisabled={!canEdit}
+              />
+            </div>
 
-        <div className='space-y-6'>
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account
-            </label>
-            <AddressInput
-              name='address'
-              localForm={modalForm}
-              hideAddressButtons
-              chainId={chainId}
-              isDisabled={!canEdit}
-            />
+            <div className='space-y-2'>
+              <Input
+                name='email'
+                localForm={modalForm}
+                label='Email Address'
+                labelNote='Hidden'
+                placeholder='Email that receives the admin invite'
+                variant='councils'
+                options={{
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                }}
+                isDisabled={!canEdit}
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <Input
+                name='name'
+                labelNote='Optional'
+                variant='councils'
+                localForm={modalForm}
+                placeholder='Alias or name'
+                isDisabled={!canEdit}
+              />
+            </div>
           </div>
 
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Email Address <span className='text-sm font-normal text-gray-400'>Hidden</span>
-            </label>
-            <Input
-              name='email'
-              localForm={modalForm}
-              placeholder='Email that receives the admin invite'
-              options={{
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              }}
-              isDisabled={!canEdit}
-            />
+          <div className='mt-8'>
+            {formError && <p className='text-destructive mb-4 text-sm'>{formError}</p>}
+            <div className='flex justify-end'>
+              <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
+                {editingAdmin ? 'Save Changes' : 'Add Council Manager'}
+              </NextStepButton>
+            </div>
           </div>
-
-          <div className='space-y-2'>
-            <label className='font-bold'>
-              Name <span className='text-sm font-normal text-gray-400'>Optional</span>
-            </label>
-            <Input name='name' localForm={modalForm} placeholder='Alias or name' isDisabled={!canEdit} />
-          </div>
-        </div>
-
-        <div className='mt-8'>
-          {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
-          <div className='flex justify-end'>
-            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
-              {editingAdmin ? 'Save Changes' : 'Add Admin'}
-            </NextStepButton>
-          </div>
-        </div>
-      </ModalContent>
+        </form>
+      </Form>
     </Modal>
   );
 }

@@ -1,15 +1,13 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
-import { useWearersEligibilityStatus } from 'hats-hooks';
 import { filter, get, includes, map, toLower } from 'lodash';
-import { useAllowlist, useCurrentEligibility } from 'modules-hooks';
+import { useAllowlist } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Button } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
-import { Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 import { AllowlistModal } from './allowlist-modal';
@@ -52,7 +50,7 @@ export const AllowlistEligibilityRule = ({
 
         <EligibilityRuleDetails
           rule={
-            <Text>
+            <div>
               Be on the{' '}
               {eligibilityModalFlag && !IS_CLAIMS_APP ? (
                 <Button
@@ -62,13 +60,14 @@ export const AllowlistEligibilityRule = ({
                     })
                   }
                   variant='link'
+                  className='text-base'
                 >
                   Allowlist
                 </Button>
               ) : (
                 'Allowlist'
               )}
-            </Text>
+            </div>
           }
           status={ELIGIBILITY_STATUS.eligible}
           displayStatus='Allowed'
@@ -90,7 +89,7 @@ export const AllowlistEligibilityRule = ({
 
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <p>
             Be on the{' '}
             {eligibilityModalFlag && !IS_CLAIMS_APP ? (
               <Button
@@ -100,14 +99,14 @@ export const AllowlistEligibilityRule = ({
                   })
                 }
                 variant='link'
-                textDecoration='underline'
+                className='text-base underline'
               >
                 Allowlist
               </Button>
             ) : (
               'Allowlist'
             )}
-          </Text>
+          </p>
         }
         status={ELIGIBILITY_STATUS.ineligible}
         displayStatus='Not allowed'

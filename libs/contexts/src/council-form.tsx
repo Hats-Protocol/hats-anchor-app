@@ -1,13 +1,14 @@
 'use client';
 
+import { councilsChainsList } from '@hatsprotocol/config';
 import {
   AGREEMENT_ELIGIBILITY_ADDRESS,
   ALLOWLIST_ELIGIBILITY_ADDRESS,
   ELIGIBILITY_CHAIN_ADDRESS,
   ERC20_ELIGIBILITY_ADDRESS,
   FALLBACK_ADDRESS,
+  getChainTokens,
   getTokenDecimals,
-  HATS_ADDRESS,
   HATS_MODULES_FACTORY_ABI,
   HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ABI,
@@ -15,203 +16,68 @@ import {
   MULTI_CLAIMS_HATTER_V1_ADDRESS,
   MULTICALL3_ABI,
   MULTICALL3_ADDRESS,
+  SAFE_ABI,
+  TokenInfo,
   ZODIAC_MODULE_PROXY_FACTORY_ABI,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
 import { HatsDetailsClient } from '@hatsprotocol/details-sdk';
-import { hatIdDecimalToIp, hatIdIpToDecimal, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  hatIdIpToDecimal,
+  hatIdToTreeId,
+  HATS_ABI,
+  HATS_V1,
+  treeIdToTopHatId,
+} from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useLocalStorage, useToast, useWaitForSubgraph } from 'hooks';
+import { find, first, get, map, toNumber, toString, values } from 'lodash';
+import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
+import showdown from 'showdown';
 import {
+  CompletedOptionalSteps,
+  CouncilFormData,
+  CouncilFormResponse,
+  StepValidation,
+  UpdateCouncilFormResponse,
+} from 'types';
+import {
+  addCouncilForForm,
   chainIdToString,
-  chainStringToId,
-  councilsGraphqlClient,
+  chainsMap,
   createHatsClient,
+  createHatsModulesClient,
+  createOrganization,
+  explorerUrl,
   fetchToken,
   GET_COUNCIL_FORM,
+  getCouncilsGraphqlClient,
+  logger,
   pinFileToIpfs,
+  sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
+  updateCouncilForm,
   viemPublicClient,
-  viemWalletClient,
 } from 'utils';
-import { Address, decodeEventLog, encodeAbiParameters, encodeFunctionData, encodePacked, zeroAddress } from 'viem';
-import { arbitrum, base, celo, gnosis, mainnet, optimism, polygon, sepolia } from 'viem/chains';
-import { useAccount } from 'wagmi';
+import {
+  Address,
+  decodeEventLog,
+  encodeAbiParameters,
+  encodeFunctionData,
+  encodePacked,
+  parseEventLogs,
+  parseUnits,
+  TransactionReceipt,
+  zeroAddress,
+} from 'viem';
+import { useAccount, useWalletClient } from 'wagmi';
 
-const CHAINS = {
-  optimism: {
-    id: 10,
-    viem: optimism,
-    rpc: process.env.NEXT_PUBLIC_OPTIMISM_HTTP_PROVIDER,
-  },
-  arbitrum: {
-    id: 42161,
-    viem: arbitrum,
-    rpc: process.env.NEXT_PUBLIC_ARBITRUM_HTTP_PROVIDER,
-  },
-  polygon: {
-    id: 137,
-    viem: polygon,
-    rpc: process.env.NEXT_PUBLIC_POLYGON_HTTP_PROVIDER,
-  },
-  gnosis: {
-    id: 100,
-    viem: gnosis,
-    rpc: process.env.NEXT_PUBLIC_GNOSIS_HTTP_PROVIDER,
-  },
-  base: {
-    id: 8453,
-    viem: base,
-    rpc: process.env.NEXT_PUBLIC_BASE_HTTP_PROVIDER,
-  },
-  celo: {
-    id: 42220,
-    viem: celo,
-    rpc: process.env.NEXT_PUBLIC_CELO_HTTP_PROVIDER,
-  },
-  sepolia: {
-    id: 11155111,
-    viem: sepolia,
-    rpc: process.env.NEXT_PUBLIC_SEPOLIA_HTTP_PROVIDER,
-  },
-  mainnet: {
-    id: 1,
-    viem: mainnet,
-    rpc: process.env.NEXT_PUBLIC_MAINNET_HTTP_PROVIDER,
-  },
-};
-
-interface CouncilMember {
-  id: string;
-  address: string;
-  email: string;
-  name?: string;
-}
-
-export interface CouncilFormData {
-  // step 1
-  organizationName: string;
-  councilName: string;
-  chain: string;
-  councilDescription?: string;
-  // step 2
-  thresholdType: 'ABSOLUTE' | 'RELATIVE';
-  confirmationsRequired: number; // used if thresholdType is ABSOLUTE
-  percentageRequired: number; // used if thresholdType is RELATIVE
-  minConfirmations: number; // used if thresholdType is RELATIVE
-  maxMembers: number;
-  // step 3
-  membershipType: 'APPOINTED' | 'ELECTED';
-  requirements: {
-    signAgreement: boolean;
-    holdTokens: boolean;
-    passCompliance: boolean;
-  };
-  // step 4
-  members: CouncilMember[];
-  admins: CouncilMember[];
-  complianceAdmins: CouncilMember[];
-  createComplianceAdminRole: 'true' | 'false';
-  agreement?: string;
-  createAgreementAdminRole: 'true' | 'false';
-  agreementAdmins: CouncilMember[];
-  payer?: {
-    id: string;
-    address: string;
-    email: string;
-    name?: string;
-    telegram?: string;
-  };
-  acceptedTerms?: boolean;
-  tokenRequirement: {
-    address: string;
-    minimum: number;
-  };
-}
-
-interface CouncilFormResponse {
-  councilCreationForm: {
-    id: string;
-    creator: string | null;
-    organizationName: string | null;
-    councilName: string | null;
-    chain: number | null;
-    councilDescription: string | null;
-    thresholdType: 'ABSOLUTE' | 'RELATIVE' | null;
-    thresholdTarget: number | null;
-    thresholdMin: number | null;
-    maxCouncilMembers: number | null;
-    membersSelectionType: 'ALLOWLIST' | 'ELECTION' | null;
-    members: Array<{
-      id: string;
-      address: string;
-      email: string;
-      name?: string;
-    }>;
-    admins: Array<{
-      id: string;
-      address: string;
-      email: string;
-      name?: string;
-    }>;
-    complianceAdmins: Array<{
-      id: string;
-      address: string;
-      email: string;
-      name?: string;
-    }>;
-    createComplianceAdminRole: boolean;
-    memberRequirements: {
-      signAgreement: boolean;
-      holdTokens: boolean;
-      passCompliance: boolean;
-    };
-    agreement?: string;
-    createAgreementAdminRole: boolean;
-    agreementAdmins: Array<{
-      id: string;
-      address: string;
-      email: string;
-      name?: string;
-    }>;
-    payer: {
-      id: string;
-      address: string;
-      email: string;
-      name?: string;
-      telegram?: string;
-    } | null;
-    tokenAddress: string | null;
-    tokenAmount: number | null;
-  };
-}
-
-interface UpdateCouncilFormResponse {
-  updateCouncilCreationForm: CouncilFormResponse['councilCreationForm'];
-}
-
-export interface StepValidation {
-  details: boolean;
-  threshold: boolean;
-  onboarding: boolean;
-  selection: boolean;
-  selectionSubSteps: {
-    members: boolean;
-    management: boolean;
-    compliance: boolean;
-    agreement: boolean;
-    tokens: boolean;
-  };
-  payment: boolean;
-}
-
-interface CouncilDeploymentResult {
-  success: boolean;
-  error?: string;
-  transactionHash?: string;
-}
+import { useOverlay } from './overlay-context';
 
 interface CouncilFormContextType {
   form: UseFormReturn<CouncilFormData>;
@@ -222,14 +88,35 @@ interface CouncilFormContextType {
     step: keyof StepValidation,
     isValid: boolean | Partial<StepValidation[keyof StepValidation]>,
   ) => void;
-  deployCouncil: () => Promise<CouncilDeploymentResult>;
+  deployCouncil: () => void;
   isDeploying: boolean;
   canEdit: boolean;
+  toggleOptionalStep: (step: keyof CompletedOptionalSteps) => void;
+  availableTokens: TokenInfo[];
+  deployStatus: DeployStatus;
 }
+
+const chainOptions = map(values(councilsChainsList), (chain) => ({
+  value: chain.id.toString(),
+  label: chain.name,
+  icon: chain.iconUrl,
+}));
+
+const converter = new showdown.Converter();
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(undefined);
 
-const computeStepValidation = (data: CouncilFormResponse['councilCreationForm']): StepValidation => {
+type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
+  completedOptionalSteps: CompletedOptionalSteps;
+  deployOnly?: boolean;
+};
+
+const notDeploy = (deployOnly: boolean | undefined, value: boolean) => {
+  if (deployOnly === true) return true;
+  return value;
+};
+
+const computeStepValidation = (data: StepValidationData): StepValidation => {
   return {
     details: !!(
       data.organizationName &&
@@ -238,41 +125,78 @@ const computeStepValidation = (data: CouncilFormResponse['councilCreationForm'])
       data.councilName !== '' &&
       data.chain !== null
     ),
-    threshold: !!(
-      data.maxCouncilMembers &&
-      data.maxCouncilMembers > 0 &&
-      data.thresholdType &&
-      data.thresholdTarget &&
-      data.thresholdTarget > 0
-    ),
+    threshold:
+      !!(
+        data.maxCouncilMembers &&
+        data.maxCouncilMembers > 0 &&
+        data.thresholdType &&
+        data.thresholdTarget &&
+        data.thresholdTarget > 0
+      ) && notDeploy(data.deployOnly, data.completedOptionalSteps.threshold),
     onboarding: !!data.membersSelectionType,
     selection: false, // Main step validity will be computed from sub-steps
     selectionSubSteps: {
-      members: !!data.members,
-      management: !!(data.admins && data.admins.length > 0),
-      compliance: data.createComplianceAdminRole !== null,
-      agreement: data.createAgreementAdminRole !== null && !!data.agreement && data.agreement !== '',
+      management:
+        !!(data.admins && data.admins.length > 0) && notDeploy(data.deployOnly, data.completedOptionalSteps.management), // admins are required, but creator is added by default
+      compliance:
+        data.createComplianceAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.compliance),
+      agreement:
+        data.createAgreementAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.agreement), // agreement is optional
       tokens:
-        data.tokenAddress !== null && data.tokenAddress !== '' && data.tokenAmount !== null && data.tokenAmount > 0,
+        data.tokenAddress !== null &&
+        data.tokenAddress !== '' &&
+        data.tokenAmount !== null &&
+        toNumber(data.tokenAmount) > 0,
+      members: !!data.members && notDeploy(data.deployOnly, data.completedOptionalSteps.members),
     },
     payment: false,
   };
 };
 
+interface DeployStatus {
+  [key: string]: boolean;
+}
+
+const initialDeployStatus: DeployStatus = {
+  pinningRoleDetails: false,
+  calculatingRoleMetadata: false,
+  configuringModules: false,
+  chainModules: false,
+  simulateSafeAddress: false,
+  allocatingInitialRoles: false,
+  compilingTxCalldata: false,
+  deployTx: false,
+  processTx: false,
+  updateMetadata: false,
+  redirect: false,
+};
+
 export function CouncilFormProvider({ children, draftId }: { children: React.ReactNode; draftId: string | null }) {
-  const { user, authenticated } = usePrivy();
+  const { user, authenticated, getAccessToken } = usePrivy();
   const [canEdit, setCanEdit] = useState(false);
+  const [deployStatus, setDeployStatus] = useState(initialDeployStatus);
   const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const { handlePendingTx } = useOverlay();
+  const router = useRouter();
+  const [optionalSteps, setOptionalSteps] = useLocalStorage<CompletedOptionalSteps>(`${draftId}-optionalSteps`, {
+    threshold: false,
+    members: false,
+    management: false,
+    agreement: false,
+    compliance: false,
+  });
+
   const form = useForm<CouncilFormData>({
     defaultValues: {
       organizationName: '',
       councilName: '',
-      chain: 'optimism',
+      chain: first(chainOptions),
       councilDescription: '',
       thresholdType: 'ABSOLUTE',
-      confirmationsRequired: 4,
-      percentageRequired: 51,
-      minConfirmations: 2,
+      // confirmationsRequired: 4,
+      target: 4, // 4 is the default value for ABSOLUTE threshold
+      min: 2,
       maxMembers: 7,
       membershipType: 'APPOINTED',
       requirements: {
@@ -290,11 +214,27 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       payer: undefined,
       acceptedTerms: false,
       tokenRequirement: {
-        address: '',
+        address: undefined,
         minimum: 0,
       },
+      completedOptionalSteps: optionalSteps,
     },
   });
+  const chainId = toNumber(form.watch('chain').value) || 10;
+  const waitForSubgraph = useWaitForSubgraph({ chainId });
+  const { toast } = useToast();
+
+  const availableTokens = useMemo(() => getChainTokens(chainId as number), [chainId]);
+
+  // const mappedTokens = useMemo(() => {
+  //   logger.info('mappedTokens useMemo', { availableTokens });
+  //   const mappedTokens = map(availableTokens, ({ address, name, symbol }) => ({
+  //     value: address,
+  //     label: `${name} (${symbol})`,
+  //   }));
+
+  //   return mappedTokens;
+  // }, [availableTokens]);
 
   const [stepValidation, setStepValidationState] = useState<StepValidation>({
     details: false,
@@ -302,18 +242,19 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     onboarding: false,
     selection: false,
     selectionSubSteps: {
-      members: false,
       management: false,
       compliance: false,
       agreement: false,
       tokens: false,
+      members: false,
     },
     payment: false,
   });
+  // logger.debug({ stepValidation });
 
   const setStepValidation = useCallback(
     (step: keyof StepValidation, isValid: boolean | Partial<StepValidation[keyof StepValidation]>) => {
-      console.log('Setting step validation:', step, isValid);
+      logger.debug('Setting step validation:', { step, isValid });
       setStepValidationState((prev) => {
         if (step === 'selectionSubSteps') {
           const newState = {
@@ -323,7 +264,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               ...(isValid as Partial<StepValidation['selectionSubSteps']>),
             },
           };
-          console.log('New validation state:', newState);
+          logger.debug('New validation state:', { newState });
           return newState;
         }
         return {
@@ -338,8 +279,18 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { isLoading, data } = useQuery({
     queryKey: ['councilForm', draftId],
     queryFn: async () => {
-      const result = await councilsGraphqlClient.request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId });
-      return result.councilCreationForm;
+      const accessToken = await getAccessToken();
+      const councilsGraphqlClient = getCouncilsGraphqlClient(accessToken ?? undefined);
+      return councilsGraphqlClient
+        .request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId })
+        .then((result) => {
+          logger.debug('result', result);
+          return result.councilCreationForm;
+        })
+        .catch((error) => {
+          logger.error('Error fetching council form:', error);
+          throw error;
+        });
     },
     enabled: !!draftId,
     staleTime: Infinity,
@@ -364,51 +315,85 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   }, [authenticated, user?.wallet?.address, data]);
 
   useEffect(() => {
-    if (data) {
-      console.log('API Response data:', data);
-      const currentValues = form.getValues();
-      console.log('Current form values:', currentValues);
+    if (!data || !optionalSteps || !chainId) return;
 
-      const newValues: CouncilFormData = {
-        organizationName: data.organizationName || '',
-        councilName: data.councilName || '',
-        chain: chainIdToString(data.chain) || '',
-        councilDescription: data.councilDescription || '',
-        thresholdType: data.thresholdType || 'ABSOLUTE',
-        confirmationsRequired: data.thresholdTarget || 4,
-        percentageRequired: data.thresholdTarget || 51,
-        minConfirmations: data.thresholdMin || 2,
-        maxMembers: data.maxCouncilMembers || 7,
-        membershipType: data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
-        requirements: data.memberRequirements || {
-          signAgreement: false,
-          holdTokens: false,
-          passCompliance: false,
-        },
-        members: data.members || [],
-        admins: data.admins || [],
-        complianceAdmins: data.complianceAdmins || [],
-        createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
-        agreement: data.agreement || '',
-        createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
-        agreementAdmins: data.agreementAdmins || [],
-        payer: data.payer || undefined,
-        acceptedTerms: false,
-        tokenRequirement: {
-          address: data.tokenAddress || '',
-          minimum: data.tokenAmount || 0,
-        },
-      };
-      console.log('Setting form to:', newValues);
-      form.reset(newValues);
+    logger.info('useEffect', { data, optionalSteps, chainId });
+    const availableTokensEffect = getChainTokens(chainId as number);
+    const mappedTokens = map(availableTokensEffect, ({ address, name, symbol }) => ({
+      value: address,
+      label: `${name} (${symbol})`,
+    }));
 
-      // Compute validation state here
-      const validation = computeStepValidation(data);
-      setStepValidationState(validation);
-    }
-  }, [data, form]);
+    logger.debug('API Response data:', data);
+    const currentValues = form.getValues();
+    logger.info('Current form values:', currentValues);
+
+    const chain = find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions));
+    if (!chain) throw new Error('Chain not found');
+
+    const newValues: CouncilFormData = {
+      organizationName: data.organizationName || '',
+      councilName: data.councilName || '',
+      chain,
+      councilDescription: data.councilDescription || '',
+      thresholdType: data.thresholdType || 'ABSOLUTE',
+      // confirmationsRequired: data.thresholdTarget || 4,
+      target: data.thresholdTarget || 51,
+      min: data.thresholdMin || 2,
+      maxMembers: data.maxCouncilMembers || 7,
+      membershipType: data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
+      requirements: data.memberRequirements || {
+        signAgreement: false,
+        holdTokens: false,
+        passCompliance: false,
+      },
+      members: data.members || [],
+      admins: data.admins || [],
+      complianceAdmins: data.complianceAdmins || [],
+      createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
+      agreement: converter.makeHtml(data.agreement || ''),
+      createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
+      agreementAdmins: data.agreementAdmins || [],
+      payer: data.payer || undefined,
+      acceptedTerms: false,
+      tokenRequirement: {
+        address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any, // TODO replace any, thinks it's a number
+        minimum: toNumber(data.tokenAmount) || 0,
+      },
+      creator: data.creator || '',
+      completedOptionalSteps: {
+        threshold: optionalSteps.threshold || false,
+        members: optionalSteps.members || false,
+        management: optionalSteps.management || false,
+        agreement: optionalSteps.agreement || false,
+        compliance: optionalSteps.compliance || false,
+      },
+    };
+    logger.info('Setting form to:', newValues);
+    form.reset(newValues);
+
+    const deployOnly = localStorage.getItem('deployOnly');
+
+    // Compute validation state here
+    const validation = computeStepValidation({
+      ...data,
+      completedOptionalSteps: optionalSteps,
+      deployOnly: deployOnly === 'true' ? true : false,
+    });
+    // deploy only == people are looking at the deploy page ONLY
+    // this would be users who are NOT the creator or a council manager (we could have an issue here if creator is a manager)
+    // do we want to have the different pages write the deployOnly flag to localStorage
+    // if details writes deployOnly = false, then the other pages would ignore and continue
+    // if loading the deploy page FIRST it would write deployOnly = true and ignore the optional
+
+    setStepValidationState(validation);
+  }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
 
   const queryClient = useQueryClient();
+
+  const toggleOptionalStep = (step: keyof CompletedOptionalSteps) => {
+    setOptionalSteps((prev) => ({ ...prev, [step]: true }));
+  };
 
   const { mutateAsync: persistForm } = useMutation<
     UpdateCouncilFormResponse,
@@ -417,7 +402,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   >({
     mutationFn: async ({ step, subStep }) => {
       const formData = form.getValues();
-      let payload: any = { id: draftId };
+      let payload: Partial<CouncilFormResponse['councilCreationForm']> = { id: draftId || undefined };
 
       switch (step) {
         case 'details':
@@ -427,39 +412,35 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             draftId,
           ]);
           const previousChain = previousData?.chain;
-          const newChain = chainStringToId(formData.chain);
+          const newChain = toNumber(formData.chain.value);
 
           payload = {
             ...payload,
             organizationName: formData.organizationName,
             councilName: formData.councilName,
-            chain: chainStringToId(formData.chain),
+            chain: toNumber(formData.chain.value),
             councilDescription: formData.councilDescription,
           };
 
           // If chain has changed, reset token requirements in the payload
           if (previousChain && previousChain !== newChain) {
+            logger.info('chain has changed', { previousChain, newChain });
             payload = {
               ...payload,
               tokenAddress: '',
-              tokenAmount: 0,
+              tokenAmount: '0',
             };
           }
           break;
 
         case 'threshold':
+          toggleOptionalStep('threshold');
           payload = {
             ...payload,
             thresholdType: formData.thresholdType,
             maxCouncilMembers: parseInt(formData.maxMembers.toString()),
-            thresholdTarget:
-              formData.thresholdType === 'ABSOLUTE'
-                ? parseInt(formData.confirmationsRequired.toString())
-                : parseInt(formData.percentageRequired.toString()),
-            thresholdMin:
-              formData.thresholdType === 'ABSOLUTE'
-                ? parseInt(formData.confirmationsRequired.toString())
-                : parseInt(formData.minConfirmations.toString()),
+            thresholdTarget: parseInt(formData.target.toString()),
+            thresholdMin: parseInt(formData.min.toString()),
           };
           break;
 
@@ -474,18 +455,21 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         case 'selection':
           switch (subStep) {
             case 'members':
+              toggleOptionalStep('members');
               payload = {
                 ...payload,
                 members: formData.members,
               };
               break;
             case 'management':
+              toggleOptionalStep('management');
               payload = {
                 ...payload,
                 admins: formData.admins,
               };
               break;
             case 'compliance':
+              toggleOptionalStep('compliance');
               payload = {
                 ...payload,
                 complianceAdmins: formData.complianceAdmins,
@@ -493,18 +477,24 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               };
               break;
             case 'agreement':
+              toggleOptionalStep('agreement');
+              // need to convert html to markdown before pinning
+              const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
+
               payload = {
                 ...payload,
-                agreement: formData.agreement,
+                agreement: agreementMarkdown,
                 agreementAdmins: formData.agreementAdmins,
                 createAgreementAdminRole: formData.createAgreementAdminRole === 'true',
               };
               break;
             case 'tokens':
+              const tokenAddress = formData.tokenRequirement.address?.value;
+
               payload = {
                 ...payload,
-                tokenAddress: formData.tokenRequirement.address,
-                tokenAmount: parseInt(formData.tokenRequirement.minimum.toString()),
+                tokenAddress,
+                tokenAmount: formData.tokenRequirement.minimum.toString(), // stored in string version of numeric value, convert at deploy
                 memberRequirements: {
                   ...formData.requirements,
                   holdTokens: true,
@@ -515,28 +505,34 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           break;
       }
 
+      logger.debug('payload', payload);
+      const accessToken = await getAccessToken();
+      const councilsGraphqlClient = getCouncilsGraphqlClient(accessToken ?? undefined);
       return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
     },
     onSuccess: (data: UpdateCouncilFormResponse) => {
+      console.log('onSuccess', data);
       queryClient.setQueryData(['councilForm', draftId], data.updateCouncilCreationForm);
+    },
+    onError: (error: Error) => {
+      console.error('onError', error);
+      toast({ title: 'Failed to update council form', variant: 'destructive' });
     },
   });
 
   const { mutateAsync: deployCouncil, isPending: isDeploying } = useMutation({
-    mutationFn: async (): Promise<CouncilDeploymentResult> => {
-      console.log('Deploying council');
+    mutationFn: async () => {
+      logger.debug('Deploying council');
       const formData = form.getValues();
+      setDeployStatus((prev) => ({ ...prev, pinningRoleDetails: true }));
 
-      const chainId = CHAINS[formData.chain as keyof typeof CHAINS].id;
-      // const viemChain = CHAINS[formData.chain as keyof typeof CHAINS].viem;
-      // const rpc = CHAINS[formData.chain as keyof typeof CHAINS].rpc;
+      const chainId = toNumber(formData.chain?.value);
 
       // Create public and wallet clients
       const publicClient = viemPublicClient(chainId);
-      const walletClient = await viemWalletClient(chainId);
 
       // Create hats client
-      const hatsClient = await createHatsClient(chainId);
+      const hatsClient = await createHatsClient(chainId).catch((err) => console.log(err));
       if (!hatsClient) {
         throw new Error('Failed to create hats client');
       }
@@ -545,12 +541,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const pinningKey = await fetchToken(20);
       const hatsDetailsClient = new HatsDetailsClient({
         provider: 'pinata',
-        pinata: {
-          pinningKey: pinningKey as string,
-        },
+        pinata: { pinningKey: pinningKey as string },
       });
 
       const hatsProtocolCalls: `0x${string}`[] = [];
+      setDeployStatus((prev) => ({ ...prev, calculatingRoleMetadata: true }));
 
       // compute hat ids
       const currentTreeCount = await hatsClient.getTreesCount();
@@ -559,13 +554,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const automationsHatId = hatIdIpToDecimal(hatIdDecimalToIp(adminHatId) + '.1');
       const orgRolesGroupHatId = hatIdIpToDecimal(hatIdDecimalToIp(automationsHatId) + '.1');
       const councilRolesGroupHatId = hatIdIpToDecimal(hatIdDecimalToIp(automationsHatId) + '.2');
-      const councilAdminHatId = hatIdIpToDecimal(hatIdDecimalToIp(orgRolesGroupHatId) + '.1');
+      // const councilAdminHatId = hatIdIpToDecimal(hatIdDecimalToIp(orgRolesGroupHatId) + '.1');
       const complianceManagerHatId = hatIdIpToDecimal(hatIdDecimalToIp(orgRolesGroupHatId) + '.2');
       const agreementManagerHatId = hatIdIpToDecimal(hatIdDecimalToIp(orgRolesGroupHatId) + '.3');
       const councilMemberHatId = hatIdIpToDecimal(hatIdDecimalToIp(councilRolesGroupHatId) + '.1');
       const councilHatId = hatIdIpToDecimal(hatIdDecimalToIp(councilRolesGroupHatId) + '.2');
 
-      console.log('computed hat ids');
+      logger.debug('COMPUTED HAT IDs');
 
       const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
       const saltNonceComplianceModule = saltNonce + BigInt(1);
@@ -576,6 +571,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const immutableArgs: `0x${string}`[] = [];
       const initArgs: `0x${string}`[] = [];
       const saltNonces: bigint[] = [];
+
+      setDeployStatus((prev) => ({ ...prev, configuringModules: true }));
 
       // multi claims hatter
       const multiClaimsHatterInitArgs = encodeAbiParameters(
@@ -661,13 +658,17 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       let agreementModuleImmutableArgs: `0x${string}`;
       let agreementModuleHatId: bigint;
       let predictedAgreementModuleAddress: `0x${string}` | undefined;
-      if (formData.requirements.signAgreement && formData.agreement) {
-        // pin agreement file to ipfs
-        const agreementCid = await pinFileToIpfs({
-          file: formData.agreement,
-          fileName: `agreement_${formData.organizationName}_${formData.councilName}_${chainId}`,
-          token: pinningKey as string,
-        });
+      if (formData.requirements.signAgreement) {
+        let agreementCid: string = '';
+        if (formData.agreement) {
+          const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
+          // pin agreement file to ipfs
+          agreementCid = await pinFileToIpfs({
+            file: agreementMarkdown,
+            fileName: `agreement_${formData.organizationName}_${formData.councilName}_${chainId}`,
+            token: pinningKey as string,
+          });
+        }
 
         agreementModuleInitArgs = encodeAbiParameters(
           [{ type: 'uint256' }, { type: 'uint256' }, { type: 'string' }],
@@ -679,12 +680,14 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         );
         agreementModuleImmutableArgs = '0x' as `0x${string}`;
         agreementModuleHatId = councilMemberHatId;
-        predictedAgreementModuleAddress = (await publicClient.readContract({
-          address: HATS_MODULES_FACTORY_ADDRESS,
-          abi: HATS_MODULES_FACTORY_ABI,
-          functionName: 'getHatsModuleAddress',
-          args: [AGREEMENT_ELIGIBILITY_ADDRESS, agreementModuleHatId, agreementModuleImmutableArgs, saltNonce],
-        })) as `0x${string}`;
+        predictedAgreementModuleAddress = (await publicClient
+          .readContract({
+            address: HATS_MODULES_FACTORY_ADDRESS,
+            abi: HATS_MODULES_FACTORY_ABI,
+            functionName: 'getHatsModuleAddress',
+            args: [AGREEMENT_ELIGIBILITY_ADDRESS, agreementModuleHatId, agreementModuleImmutableArgs, saltNonce],
+          })
+          .catch((err) => console.log(err))) as `0x${string}`;
         implementations.push(AGREEMENT_ELIGIBILITY_ADDRESS);
         hatIds.push(agreementModuleHatId);
         immutableArgs.push(agreementModuleImmutableArgs);
@@ -697,14 +700,25 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       let erc20ModuleImmutableArgs: `0x${string}`;
       let erc20ModuleHatId: bigint;
       let predictedErc20ModuleAddress: `0x${string}` | undefined;
-      if (formData.requirements.holdTokens) {
-        const tokenDecimals = getTokenDecimals(chainId, formData.tokenRequirement.address) as number;
+      console.log('formData.tokenRequirement', formData.requirements, formData.tokenRequirement);
+      if (formData.requirements.holdTokens && formData.tokenRequirement.address?.value) {
+        const tokenDecimals = getTokenDecimals(chainId, formData.tokenRequirement.address.value) as number;
+        logger.debug(
+          'tokenDecimals',
+          tokenDecimals,
+          formData.tokenRequirement.minimum,
+          toString(formData.tokenRequirement.minimum),
+          parseUnits(toString(formData.tokenRequirement.minimum), tokenDecimals),
+        );
+        if (!tokenDecimals) {
+          throw new Error('Failed to get token decimals');
+        }
         erc20ModuleInitArgs = '0x' as `0x${string}`;
         erc20ModuleImmutableArgs = encodePacked(
           ['address', 'uint256'],
           [
-            formData.tokenRequirement.address as `0x${string}`,
-            BigInt(formData.tokenRequirement.minimum) * 10n ** BigInt(tokenDecimals),
+            formData.tokenRequirement.address.value as `0x${string}`,
+            parseUnits(toString(formData.tokenRequirement.minimum), tokenDecimals),
           ],
         );
         erc20ModuleHatId = councilMemberHatId;
@@ -720,6 +734,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         initArgs.push(erc20ModuleInitArgs);
         saltNonces.push(saltNonce);
       }
+      setDeployStatus((prev) => ({ ...prev, chainModules: true }));
 
       // eligibility chain
       let eligibilityChainInitArgs: `0x${string}`;
@@ -745,14 +760,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           chainLength += 1;
           chainModules.push(predictedErc20ModuleAddress as `0x${string}`);
         }
+        logger.debug('chainModules', chainModules);
         eligibilityChainInitArgs = '0x' as `0x${string}`;
         eligibilityChainImmutableArgs = encodePacked(
           ['uint256', 'uint256[]', ...Array(chainLength).fill('address')],
-          [BigInt(chainLength), Array(chainLength).fill(BigInt(1)), ...chainModules],
+          [BigInt(1), [BigInt(chainLength)], ...chainModules],
         );
-        console.log('eligiblity chain args', {
+        logger.info('eligibility chain args', {
           chainLength,
-          clauseLengths: Array(chainLength).fill(BigInt(1)),
+          clauseLengths: BigInt(chainLength),
           chainModules,
         });
         eligibilityChainHatId = councilMemberHatId;
@@ -767,6 +783,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         immutableArgs.push(eligibilityChainImmutableArgs);
         initArgs.push(eligibilityChainInitArgs);
         saltNonces.push(saltNonce);
+        logger.debug('predicted eligibility chain address', predictedEligibilityChainAddress);
       }
 
       // batch modules creation call data
@@ -779,10 +796,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create top hat call data
       const detailsCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: formData.organizationName,
-          description: formData.councilDescription,
-        },
+        data: { name: formData.organizationName, description: formData.councilDescription },
       });
       const createTopHatCallData = hatsClient.mintTopHatCallData({
         target: MULTICALL3_ADDRESS as Address,
@@ -793,9 +807,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create admin hat call data
       const adminHatCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: 'Admin',
-        },
+        data: { name: 'Admin' },
       });
       const createAdminHatCallData = hatsClient.createHatCallData({
         admin: topHatId,
@@ -810,9 +822,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create automations hat call data
       const automationsHatCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: 'Automations',
-        },
+        data: { name: 'Automations' },
       });
       const createAutomationsHatCallData = hatsClient.createHatCallData({
         admin: adminHatId,
@@ -827,9 +837,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create org roles group call data
       const orgRolesGroupHatCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: 'Org Roles',
-        },
+        data: { name: 'Org Roles' },
       });
       const createOrgRolesGroupHatCallData = hatsClient.createHatCallData({
         admin: automationsHatId,
@@ -844,9 +852,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create council roles group hat call data
       const councilRolesGroupHatCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: 'Council Roles',
-        },
+        data: { name: 'Council Roles' },
       });
       const createCouncilRolesGroupHatCallData = hatsClient.createHatCallData({
         admin: automationsHatId,
@@ -861,9 +867,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create council admin hat call data
       const councilAdminHatCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: 'Council Admin',
-        },
+        data: { name: 'Council Admin' },
       });
       const createCouncilAdminHatCallData = hatsClient.createHatCallData({
         admin: orgRolesGroupHatId,
@@ -875,46 +879,44 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
       hatsProtocolCalls.push(createCouncilAdminHatCallData.callData);
 
-      // create compliance manager hat call data
-      const complianceManagerHatCid = await hatsDetailsClient.pin({
-        type: '1.0',
-        data: {
-          name: 'Compliance Manager',
-        },
-      });
-      const createComplianceManagerHatCallData = hatsClient.createHatCallData({
-        admin: orgRolesGroupHatId,
-        details: `ipfs://${complianceManagerHatCid}`,
-        maxSupply: 10,
-        eligibility: FALLBACK_ADDRESS,
-        toggle: FALLBACK_ADDRESS,
-        mutable: true,
-      });
-      hatsProtocolCalls.push(createComplianceManagerHatCallData.callData);
+      if (formData.createComplianceAdminRole === 'true') {
+        // create compliance manager hat call data
+        const complianceManagerHatCid = await hatsDetailsClient.pin({
+          type: '1.0',
+          data: { name: 'Compliance Manager' },
+        });
+        const createComplianceManagerHatCallData = hatsClient.createHatCallData({
+          admin: orgRolesGroupHatId,
+          details: `ipfs://${complianceManagerHatCid}`,
+          maxSupply: 10,
+          eligibility: FALLBACK_ADDRESS,
+          toggle: FALLBACK_ADDRESS,
+          mutable: true,
+        });
+        hatsProtocolCalls.push(createComplianceManagerHatCallData.callData);
+      }
 
-      // create agreement manager hat call data
-      const agreementManagerHatCid = await hatsDetailsClient.pin({
-        type: '1.0',
-        data: {
-          name: 'Agreement Manager',
-        },
-      });
-      const createAgreementManagerHatCallData = hatsClient.createHatCallData({
-        admin: orgRolesGroupHatId,
-        details: `ipfs://${agreementManagerHatCid}`,
-        maxSupply: 10,
-        eligibility: FALLBACK_ADDRESS,
-        toggle: FALLBACK_ADDRESS,
-        mutable: true,
-      });
-      hatsProtocolCalls.push(createAgreementManagerHatCallData.callData);
+      if (formData.createAgreementAdminRole === 'true') {
+        // create agreement manager hat call data
+        const agreementManagerHatCid = await hatsDetailsClient.pin({
+          type: '1.0',
+          data: { name: 'Agreement Manager' },
+        });
+        const createAgreementManagerHatCallData = hatsClient.createHatCallData({
+          admin: orgRolesGroupHatId,
+          details: `ipfs://${agreementManagerHatCid}`,
+          maxSupply: 10,
+          eligibility: FALLBACK_ADDRESS,
+          toggle: FALLBACK_ADDRESS,
+          mutable: true,
+        });
+        hatsProtocolCalls.push(createAgreementManagerHatCallData.callData);
+      }
 
       // create council member hat call data
       const councilMemberHatCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: 'Council Member',
-        },
+        data: { name: 'Council Member' },
       });
       const councilMemberEligibility =
         formData.requirements.signAgreement || formData.requirements.passCompliance
@@ -933,9 +935,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create council hat call data
       const councilHatCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: {
-          name: 'Council',
-        },
+        data: { name: 'Council' },
       });
       const createCouncilHatCallData = hatsClient.createHatCallData({
         admin: councilRolesGroupHatId,
@@ -946,6 +946,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         mutable: true,
       });
       hatsProtocolCalls.push(createCouncilHatCallData.callData);
+
+      setDeployStatus((prev) => ({ ...prev, compilingTxCalldata: true }));
 
       // mint admin hat
       const mintAdminHatCallData = hatsClient.batchMintHatsCallData({
@@ -961,12 +963,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
       hatsProtocolCalls.push(mintAutomationsHatCallData.callData);
 
-      // mint council member hat
-      const mintCouncilMemberHatCallData = hatsClient.batchMintHatsCallData({
-        hatIds: Array(formData.members.length).fill(councilMemberHatId),
-        wearers: formData.members.map((member) => member.address),
-      });
-      hatsProtocolCalls.push(mintCouncilMemberHatCallData.callData);
+      // ! DON'T mint council member hat on deploy
+      // const mintCouncilMemberHatCallData = hatsClient.batchMintHatsCallData({
+      //   hatIds: Array(formData.members.length).fill(councilMemberHatId),
+      //   wearers: formData.members.map((member) => member.address),
+      // });
+      // hatsProtocolCalls.push(mintCouncilMemberHatCallData.callData);
 
       // mint compliance manager hat if compliance is required
       if (formData.requirements.passCompliance && formData.createComplianceAdminRole === 'true') {
@@ -1053,14 +1055,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             safe: zeroAddress,
             thresholdConfig: {
               thresholdType: formData.thresholdType === 'ABSOLUTE' ? 0 : 1,
-              min:
-                formData.thresholdType === 'ABSOLUTE'
-                  ? BigInt(formData.confirmationsRequired)
-                  : BigInt(formData.minConfirmations),
-              target:
-                formData.thresholdType === 'ABSOLUTE'
-                  ? BigInt(formData.confirmationsRequired)
-                  : BigInt(formData.percentageRequired * 10000),
+              min: BigInt(formData.min),
+              // currently only support one threshold on absolute
+              target: formData.thresholdType === 'ABSOLUTE' ? BigInt(formData.min) : BigInt(formData.target * 100),
             },
             locked: false,
             claimableFor: true,
@@ -1082,6 +1079,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
 
       // predict new safe address
+      setDeployStatus((prev) => ({ ...prev, simulateSafeAddress: true }));
 
       const simulationResponse = await fetch('/api/simulate', {
         method: 'POST',
@@ -1089,7 +1087,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          networkId: chainId.toString(),
+          chainId: chainId.toString(),
           from: MULTICALL3_ADDRESS as string,
           to: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
           input: createHsgV2Calldata,
@@ -1098,10 +1096,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       });
 
       const simulationResult = await simulationResponse.json();
-      console.log('simulationResult', simulationResult);
+      logger.info(`simulationResult ${simulationResult.transaction.status ? 'successful' : 'failed'}`);
 
       // Find the safe proxy address from simulation logs
       let safeProxyAddress: Address | undefined;
+
+      if (!simulationResult?.transaction?.status) {
+        logger.error('Simulation failed');
+        throw new Error('Simulation failed');
+      }
 
       for (const log of simulationResult.transaction.transaction_info.logs) {
         try {
@@ -1133,7 +1136,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           });
 
           safeProxyAddress = event.args.proxy;
-          console.log('Found Safe proxy address:', safeProxyAddress);
+          logger.debug('Found Safe proxy address:', safeProxyAddress);
           break;
         } catch (err) {
           // Continue if this log entry isn't the event we're looking for
@@ -1142,10 +1145,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       }
 
       if (!safeProxyAddress) {
+        logger.error('Failed to find Safe proxy address in simulation logs');
         throw new Error('Failed to find Safe proxy address in simulation logs');
       }
 
-      console.log('safeProxyAddress', safeProxyAddress);
+      logger.info('safeProxyAddress', safeProxyAddress);
+
+      setDeployStatus((prev) => ({ ...prev, allocatingInitialRoles: true }));
 
       // mint council member hat
       const mintCouncilHatCallData = hatsClient.mintHatCallData({
@@ -1169,7 +1175,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         callData: `0x${string}`;
       }[] = [
         {
-          target: HATS_ADDRESS,
+          target: HATS_V1,
           allowFailure: false,
           callData: hatsProtocolMulticallCallData.callData,
         },
@@ -1184,13 +1190,19 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           callData: createHsgV2Calldata,
         },
         {
-          target: HATS_ADDRESS,
+          target: HATS_V1,
           allowFailure: false,
           callData: transferTopHatCallData.callData,
         },
       ];
 
-      const hash = await walletClient.writeContract({
+      if (!walletClient) {
+        logger.error('Wallet client not found');
+        throw new Error('Wallet client not found');
+      }
+      setDeployStatus((prev) => ({ ...prev, deployTx: true }));
+
+      const hash = await walletClient?.writeContract({
         account: address,
         address: MULTICALL3_ADDRESS,
         abi: MULTICALL3_ABI,
@@ -1198,18 +1210,123 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         args: [calls],
         chain: walletClient.chain,
       });
+      logger.debug('hash', hash);
 
-      const receipt = await publicClient.waitForTransactionReceipt({
+      if (!hash) {
+        logger.error('Failed to create transaction');
+        throw new Error('Failed to create transaction');
+      }
+
+      handlePendingTx?.({
         hash,
-      });
+        txChainId: chainId,
+        txDescription: 'Deploying council',
+        waitForSubgraph,
+        onSuccess: async (data: TransactionReceipt | undefined) => {
+          setDeployStatus((prev) => ({ ...prev, processTx: true }));
+          if (!data || !draftId) return;
+          logger.info('Transaction successful', data);
+          const hatCreatedLogs = parseEventLogs({
+            logs: data.logs,
+            abi: HATS_ABI,
+            eventName: 'HatCreated',
+          });
+          const moduleCreatedLogs = parseEventLogs({
+            logs: data.logs,
+            abi: HATS_MODULES_FACTORY_ABI,
+            eventName: 'HatsModuleFactory_ModuleDeployed',
+          });
+          const safeCreatedLogs = parseEventLogs({
+            logs: data.logs,
+            abi: SAFE_ABI,
+            eventName: ['SafeSetup'],
+          });
+          const hsgCreatedLogs = parseEventLogs({
+            logs: data.logs,
+            abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
+            eventName: 'ModuleProxyCreation',
+          });
+          const hatsModulesClient = await createHatsModulesClient(chainId);
+          if (!hatsModulesClient) {
+            logger.error('Failed to create hats modules client');
+            throw new Error('Failed to create hats modules client');
+          }
+          const extendModuleLogs = map(moduleCreatedLogs, (log: { args: { implementation: string } }) => {
+            const module = hatsModulesClient.getModuleByImplementation(log.args.implementation);
+            return { ...log, args: { ...log.args, module } };
+          });
+          logger.debug('relevant deploy logs', {
+            hatCreatedLogs,
+            moduleCreatedLogs: extendModuleLogs,
+            safeCreatedLogs,
+            hsgCreatedLogs,
+          });
 
-      return {
-        success: receipt.status === 'success',
-        transactionHash: receipt.transactionHash,
-      };
+          setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
+
+          const hsgAddress = get(
+            find(hsgCreatedLogs, (log: { args: { masterCopy: string } }) => log.args.masterCopy === HSG_V2_ADDRESS),
+            'args.proxy',
+          );
+          const safeAddress = get(first(safeCreatedLogs), 'address');
+          const firstHatId = get(first(hatCreatedLogs), 'args.id');
+          const treeId = firstHatId ? hatIdToTreeId(firstHatId) : undefined;
+          logger.info('addresses', { hsgAddress, safeAddress, treeId });
+          const accessToken = await getAccessToken();
+
+          const organization = await createOrganization({
+            name: formData.organizationName,
+            accessToken,
+          });
+          logger.info('organization created', get(organization, 'createOrganization'));
+          const organizationId = get(organization, 'createOrganization.id');
+
+          const council = await addCouncilForForm({
+            chainId,
+            organizationId,
+            hsgAddress,
+            treeId,
+            membersSelectionModule: predictedCouncilMemberAllowlistAddress,
+            membersCriteriaModule: predictedComplianceAllowlistAddress,
+            deployed: true,
+            accessToken,
+          });
+          logger.info('council created', council);
+          const councilId = get(council, 'createCouncil.id');
+
+          await updateCouncilForm({
+            draftId,
+            councilId,
+            accessToken,
+          });
+          logger.debug('council form updated with council id:', councilId);
+
+          setDeployStatus((prev) => ({ ...prev, redirect: true }));
+
+          const appUrl = window.location.origin || 'https://hats-app.vercel.app';
+          const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainsMap(chainId)?.name}: `;
+          const links = `[View Council](${appUrl}/councils/${chainIdToString(chainId)}:${hsgAddress}/members)\n[View HSG \\(${hsgAddress}\\)](${explorerUrl(chainId)}/address/${hsgAddress}) `;
+
+          sendTelegramMessage(`${message} ${links}`);
+          logger.debug('Telegram notification sent');
+          // TODO email notification
+
+          posthog.capture('Council Deployed', {
+            councilName: formData.councilName,
+            organizationName: formData.organizationName,
+            chain: chainsMap(chainId)?.name,
+            hsgAddress,
+          });
+
+          const redirectUrl = `/councils/${chainIdToString(chainId)}:${hsgAddress}/members`;
+
+          logger.debug('redirecting to ', redirectUrl);
+          router.push(redirectUrl);
+        },
+      });
     },
     onError: (error) => {
-      console.error('Error deploying council:', error);
+      logger.error('Error deploying council:', error);
       throw error;
     },
   });
@@ -1225,6 +1342,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         deployCouncil,
         isDeploying,
         canEdit,
+        toggleOptionalStep,
+        availableTokens,
+        deployStatus,
       }}
     >
       {children}

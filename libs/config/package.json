@@ -1,0 +1,31 @@
+{
+  "name": "@hatsprotocol/config",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "license": "MIT",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "dependencies": {
+    "@hatsprotocol/constants": "workspace:*",
+    "@hatsprotocol/sdk-v1-core": "^0.10.0",
+    "@hatsprotocol/sdk-v1-subgraph": "^1.0.0",
+    "lodash": "^4.17.21",
+    "next": "^14.2.14",
+    "viem": "2.23.0",
+    "wagmi": "^2.14.11"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0"
+  }
+}

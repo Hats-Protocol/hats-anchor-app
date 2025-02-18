@@ -1,17 +1,16 @@
 'use client';
 
-import { Flex, Icon, Text } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
-import _ from 'lodash';
+import { get } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
 import { HatWearer } from 'types';
+import { cn } from 'ui';
 import { formatAddress, isSameAddress } from 'utils';
 import { useAccount } from 'wagmi';
-
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const WearerRow = ({ wearer }: WearerRowProps) => {
@@ -24,42 +23,32 @@ const WearerRow = ({ wearer }: WearerRowProps) => {
     enabled: wearer.isContract,
   });
 
-  let icon = <Icon as={FaUser} color='gray.500' />;
+  let icon = <FaUser className='text-gray-500' />;
   if (isSameAddress(wearer.id, address)) {
-    icon = <Icon as={HatIcon} color='gray.500' />;
+    icon = <HatIcon className='text-gray-500' />;
   } else if (wearer.isContract) {
-    icon = <Icon as={BsFileCode} color='gray.500' />;
+    icon = <BsFileCode className='text-gray-500' />;
   }
 
   // could look up by Id to be more resilient?
-  let moduleName = _.get(moduleDetails, 'name');
+  let moduleName = get(moduleDetails, 'name');
   if (moduleName === CONFIG.modules.claimsHatter) {
     moduleName = 'Autonomous Admin';
   }
 
   return (
-    <Flex key={wearer.id} justifyContent='space-between' alignItems='center'>
-      <Flex
-        alignItems='center'
-        gap={2}
-        backgroundColor={
-          isSameAddress(wearer.id, address) ? 'green.100' : 'transparent'
-        }
-      >
+    <div className='flex w-full items-center justify-between'>
+      <div className={cn('flex items-center gap-2', isSameAddress(wearer.id, address) && 'bg-green-100')}>
         {icon}
 
-        <Text>
-          {_.get(wearer, 'ensName') ||
-            moduleName ||
-            formatAddress(_.get(wearer, 'id'))}
-        </Text>
-      </Flex>
-    </Flex>
+        <p>{get(wearer, 'ensName') || moduleName || formatAddress(get(wearer, 'id'))}</p>
+      </div>
+    </div>
   );
 };
-
-export default WearerRow;
 
 interface WearerRowProps {
   wearer: HatWearer;
 }
+
+export { WearerRow };

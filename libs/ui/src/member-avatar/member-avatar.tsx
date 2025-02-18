@@ -1,0 +1,62 @@
+import { pick, toLower } from 'lodash';
+import { createIcon } from 'opepen-standard';
+import { useMemo } from 'react';
+// import { CouncilMember, HatWearer } from 'types';
+import { formatAddress } from 'utils';
+import { Hex } from 'viem';
+import { useEnsAvatar, useEnsName } from 'wagmi';
+
+import { OblongAvatar } from '../oblong-avatar';
+
+// type Member = CouncilMember & HatWearer; // TODO this type?
+
+const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean }) => {
+  const { name, address, id } = pick(member, ['name', 'address', 'id']);
+  const localAddress = toLower(address || id) as Hex;
+
+  const { data: ensName } = useEnsName({
+    address: localAddress,
+    chainId: 1,
+  });
+  const { data: avatar } = useEnsAvatar({
+    name: ensName || '',
+    chainId: 1,
+  });
+  const fallbackAvatar = useMemo(() => {
+    if (!localAddress) return undefined;
+    return createIcon({
+      seed: localAddress,
+      size: 64,
+    }).toDataURL();
+  }, [localAddress]);
+
+  if (stack) {
+    return (
+      <div className='flex items-center gap-2'>
+        <OblongAvatar src={avatar || fallbackAvatar} className='h-10 w-8' />
+
+        <div className='flex flex-col gap-0.5'>
+          {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
+
+          <span className='font-jb-mono text-sm text-gray-600'>
+            {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className='flex items-center gap-2'>
+      <OblongAvatar src={avatar || fallbackAvatar} className='h-5 w-4 rounded-sm' />
+
+      {(name || ensName) && <span className='text-sm font-medium text-gray-900'>{name || ensName}</span>}
+
+      <span className='font-jb-mono text-sm text-gray-600'>
+        {!!name && name !== '' ? ensName || formatAddress(localAddress) : formatAddress(localAddress)}
+      </span>
+    </div>
+  );
+};
+
+export { MemberAvatar };

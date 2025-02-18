@@ -1,43 +1,29 @@
 'use client';
 
-import { Flex, Heading, HStack, Image } from '@chakra-ui/react';
-import { ConnectWallet } from 'molecules';
 import dynamic from 'next/dynamic';
 import { AppHat } from 'types';
+import { cn, Link } from 'ui';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
 
-export const StandaloneNavbar = ({
-  heading,
-  hatData,
-}: StandaloneNavbarProps) => {
+export const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
   return (
-    <Flex
-      w='100%'
-      justify='space-between'
-      align='center'
-      position='fixed'
-      zIndex={10}
-      px={2}
-      minH='56px'
-      bg={hatData ? 'whiteAlpha.900' : 'transparent'}
+    <div
+      className={cn(
+        'fixed z-10 flex min-h-14 w-full items-center justify-between px-2',
+        hatData ? 'bg-whiteAlpha-900' : 'bg-transparent',
+      )}
     >
-      <HStack>
-        <ChakraNextLink href='/'>
-          <Image src='/hats.png' boxSize={10} alt='Hats Logo' />
-        </ChakraNextLink>
+      <div className='flex items-center gap-2'>
+        <Link href='/'>
+          <img src='/hats.png' className='h-10 w-10' alt='Hats Logo' />
+        </Link>
 
-        {heading && (
-          <Heading size='lg' variant='medium'>
-            {heading}
-          </Heading>
-        )}
-      </HStack>
+        {heading && <h1 className='text-2xl font-medium'>{heading}</h1>}
+      </div>
 
       <ConnectWallet hideProfileButton />
-    </Flex>
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { chainsList } from '@hatsprotocol/constants';
+import { CHAIN_IDS, chainsList, councilsChainsList } from '@hatsprotocol/config';
+import { createConfig as privyCreateConfig } from '@privy-io/wagmi';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
   argentWallet,
@@ -18,18 +19,8 @@ import {
   walletConnectWallet,
   zerionWallet,
 } from '@rainbow-me/rainbowkit/wallets';
-import {
-  concat,
-  each,
-  first,
-  get,
-  has,
-  keys,
-  map,
-  toNumber,
-  values,
-} from 'lodash';
-import { SupportedChains } from 'types';
+import { concat, each, first, get, has, keys, map, toNumber, values } from 'lodash';
+import { ExtendedChain, SupportedChains } from 'types';
 import { Chain, http, Transport } from 'viem';
 import { createConfig } from 'wagmi';
 import { safe } from 'wagmi/connectors';
@@ -92,33 +83,58 @@ const connectors = connectorsForWallets(
 const transports = () => {
   const localTransports: { [key: string]: Transport } = {};
   each(chainsList, (chain, chainId) => {
-    localTransports[chainId as keyof typeof localTransports] = http(
-      getRpcUrl(toNumber(chainId)),
-    );
+    localTransports[chainId as keyof typeof localTransports] = http(getRpcUrl(toNumber(chainId)) as string);
   });
 
   return localTransports;
 };
 
-export const wagmiConfig = createConfig({
-  connectors: concat(connectors, safe()),
-  chains: map(
-    keys(chainsList),
-    (c) => chainsList[toNumber(c) as keyof typeof chainsList],
-  ) as unknown as readonly [Chain, ...Chain[]], // TODO any better way to do this?
-  transports: transports(),
-  ssr: true,
-});
+export const wagmiConfig = (overrideChains?: Chain[]) => {
+  let chains = map(keys(chainsList), (c) => chainsList[toNumber(c) as keyof typeof chainsList]);
+  if (overrideChains) {
+    chains = overrideChains;
+  }
 
-export const chainsMap = (chainId?: number) =>
-  chainId
-    ? chainsList[chainId as SupportedChains]
-    : (first(values(chainsList)) as Chain);
+  return createConfig({
+    connectors: concat(connectors, safe()),
+    chains: chains as unknown as readonly [Chain, ...Chain[]],
+    transports: transports(),
+    ssr: true,
+  });
+};
+
+export const privyConfig = (overrideChains?: Chain[]) => {
+  let chains = map(
+    keys(councilsChainsList),
+    (c) => councilsChainsList[toNumber(c) as keyof typeof councilsChainsList],
+  ) as Chain[];
+  if (overrideChains) {
+    chains = overrideChains;
+  }
+
+  return privyCreateConfig({
+    chains: chains as unknown as readonly [Chain, ...Chain[]],
+    transports: transports(),
+    ssr: true,
+  });
+};
+
+export const chainsMap = (chainId?: number): ExtendedChain =>
+  chainId ? (chainsList[chainId as SupportedChains] as ExtendedChain) : (first(values(chainsList)) as ExtendedChain);
 
 export const explorerUrl = (chainId?: number) =>
   chainId &&
-  get(
-    chainsMap(chainId),
-    'blockExplorers.etherscan.url',
-    get(chainsMap(chainId), 'blockExplorers.default.url'),
-  );
+  get(chainsMap(chainId), 'blockExplorers.etherscan.url', get(chainsMap(chainId), 'blockExplorers.default.url'));
+
+export const chainIcon = (chainId: number | undefined) => {
+  if (!chainId) return undefined;
+
+  const chain = chainsMap(chainId);
+  if (!chain) return undefined;
+
+  return chain.iconUrl;
+};
+
+export function getChainId(chainValue: string): SupportedChains {
+  return CHAIN_IDS[chainValue];
+}

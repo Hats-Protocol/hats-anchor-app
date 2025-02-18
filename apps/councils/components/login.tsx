@@ -1,61 +1,33 @@
 'use client';
 
-import {
-  Avatar,
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Image,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverTrigger,
-  Skeleton,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { councilsChainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
-import { useMediaStyles } from 'hooks';
+import { useToast } from 'hooks';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
-import { useMemo } from 'react';
-import { formatAddress } from 'utils';
+import posthog from 'posthog-js';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, cn, OblongAvatar, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
+import { chainsMap, formatAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
+import { useChainId, useEnsAvatar, useEnsName, useWalletClient } from 'wagmi';
+import { useConfig } from 'wagmi';
+import { switchChain } from 'wagmi/actions';
 
 const Login = () => {
-  const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail, linkWallet } = usePrivy();
-  const { address } = useAccount();
+  const { ready, authenticated, login, logout, user, linkEmail, unlinkEmail } = usePrivy();
+  const walletClient = useWalletClient();
   const chainId = useChainId();
-  const { data: ensName } = useEnsName({ address: user?.wallet?.address ?? undefined, chainId: 1 });
+  const config = useConfig();
+  const { data: ensName, isLoading: ensNameLoading } = useEnsName({
+    address: user?.wallet?.address ?? undefined,
+    chainId: 1,
+  });
   const { data: ensAvatar } = useEnsAvatar({
     name: ensName as string,
     chainId: 1,
   });
-
-  const getChainIcon = (chainId: number) => {
-    switch (chainId) {
-      case 10:
-        return '/chains/optimism.svg';
-      case 1:
-        return '/chains/ethereum.svg';
-      case 42161:
-        return '/chains/arbitrum.svg';
-      case 8453:
-        return '/chains/base.svg';
-      case 100:
-        return '/chains/gnosis.png';
-      case 137:
-        return '/chains/polygon.svg';
-      case 42220:
-        return '/chains/celo.svg';
-      case 11155111:
-        return '/chains/sepolia.png';
-      default:
-        return undefined;
-    }
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   const fallbackAvatar = useMemo(() => {
     if (!user || !user.wallet) return undefined;
@@ -65,81 +37,119 @@ const Login = () => {
     }).toDataURL();
   }, [user]);
 
-  if (!ready) {
-    return <Skeleton w={{ base: '100px', md: '200px' }} h='40px' borderRadius='md' />;
+  useEffect(() => {
+    if (!user || ensNameLoading) return;
+    const name = ensName || user.email?.address?.split('@')?.[0];
+
+    posthog.identify(user?.wallet?.address as Hex, { email: user?.email?.address }, { name });
+  }, [user, ensName, ensNameLoading]);
+
+  const { toast } = useToast();
+
+  const handleNetworkSwitch = async (targetChainId: number) => {
+    const currentChain = chainsMap(chainId)?.name ?? 'Unknown Chain';
+    const targetChain = councilsChainsList[targetChainId as keyof typeof councilsChainsList]?.name ?? 'Unknown Chain';
+    setIsLoading(true);
+    try {
+      toast({ title: `Switching from ${currentChain} to ${targetChain}...` });
+      await switchChain(config, { chainId: targetChainId });
+      toast({ title: `Successfully switched to ${targetChain}` });
+    } catch (error: unknown) {
+      console.error('Failed to switch network:', error);
+
+      // Handle wallet errors based on error properties
+      if (typeof error === 'object' && error !== null) {
+        const walletError = error as { code?: number; message?: string };
+        if (walletError.code === 4902) {
+          toast({ title: `${targetChain} needs to be added to your wallet first` });
+        } else if (walletError.message) {
+          toast({ title: `Failed to switch to ${targetChain}: ${walletError.message}` });
+        } else {
+          toast({ title: `Failed to switch to ${targetChain}` });
+        }
+      } else {
+        toast({ title: `Failed to switch to ${targetChain}` });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!ready || isLoading) {
+    return <Skeleton className='h-10 w-[100px] rounded-md md:w-[200px]' />;
   }
 
   if (!user || !authenticated || !user.wallet) {
     return (
-      <Button onClick={login} variant='whiteFilled' size='md' height='40px'>
+      <Button onClick={login} variant='outline' className='h-10'>
         Login
       </Button>
     );
   }
 
   return (
-    <HStack spacing={1}>
-      <Button
-        disabled
-        p={0}
-        w='36px'
-        h='36px'
-        minW='36px'
-        borderWidth='1px'
-        borderColor='gray.200'
-        borderRadius='md'
-        bg='white'
-        _hover={{ bg: 'white' }}
-        _disabled={{
-          opacity: 1,
-          cursor: 'default',
-        }}
-      >
-        {chainId && (
-          <Image src={getChainIcon(chainId)} alt='Chain Icon' width='24px' height='24px' objectFit='contain' />
-        )}
-      </Button>
+    <div className='flex items-center gap-1'>
+      <Popover>
+        <PopoverTrigger asChild aria-label='Switch network'>
+          <Button className='h-10 w-10 rounded-md border border-gray-200 bg-white p-0 hover:bg-white'>
+            {chainId && (
+              <img src={chainsMap(chainId)?.iconUrl} alt={chainsMap(chainId)?.name} className='max-w-auto size-7' />
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className='w-[240px] border border-gray-200 bg-white p-0' role='menu' align='end'>
+          <div className='p-1'>
+            <p className='px-2 py-1.5 text-sm font-medium text-gray-500' id='network-list-title'>
+              Switch Networks
+            </p>
+            <div className='flex flex-col gap-1'>
+              {Object.entries(councilsChainsList).map(([id, chain]) => (
+                <Button
+                  key={id}
+                  variant='ghost'
+                  className={cn(
+                    'flex w-full items-center justify-start gap-2 px-2 py-1.5',
+                    Number(id) === chainId && 'bg-sky-100',
+                  )}
+                  role='menuitem'
+                  onClick={() => handleNetworkSwitch(Number(id))}
+                  aria-current={Number(id) === chainId ? 'true' : undefined}
+                >
+                  <img src={chain.iconUrl} alt={chain.name} className='size-6' />
+                  <span className='text-sm font-medium'>{chain.name}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
 
-      <Popover placement='bottom-end'>
-        <PopoverTrigger>
+      <Popover>
+        <PopoverTrigger asChild>
           <Button
-            p={0}
-            w='36px'
-            h='36px'
-            minW='36px'
-            borderWidth='1px'
-            borderColor='gray.200'
-            borderRadius='md'
-            bg='white'
-            _hover={{ bg: 'gray.50' }}
+            className={cn(
+              'h-10 w-10 rounded-md border border-gray-200 bg-white px-3 hover:bg-gray-50',
+              !walletClient && 'bg-functional-link-primary/20',
+            )}
           >
-            <Image
-              src={ensAvatar || fallbackAvatar}
-              alt='Profile'
-              width='24px'
-              height='24px'
-              borderRadius='full'
-              fallback={<Box bg='gray.100' w='24px' h='24px' borderRadius='full' />}
-            />
+            <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-8 w-6' />
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent width='300px' bg='white' borderColor='gray.200'>
-          <PopoverBody py={4}>
-            <VStack spacing={4} align='stretch'>
-              <VStack align='center' spacing={2}>
-                <Box boxSize='48px' borderRadius='full' overflow='hidden'>
-                  <Image src={ensAvatar || fallbackAvatar} alt='Profile' width='100%' height='100%' objectFit='cover' />
-                </Box>
-                <Text fontWeight='medium'>{ensName || formatAddress(user.wallet.address as Hex)}</Text>
-              </VStack>
+        <PopoverContent className='border border-gray-200 bg-white' align='end'>
+          <div className='p-4'>
+            <div className='flex flex-col gap-4'>
+              <div className='flex items-center gap-2'>
+                <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-10 w-8' />
+                <p className='font-medium'>{ensName || formatAddress(user.wallet.address as Hex)}</p>
+              </div>
 
               {user.email && (
-                <VStack>
-                  <HStack justify='space-between'>
-                    <Text color='gray.500'>Email</Text>
-                    <Text>{user.email.address}</Text>
-                  </HStack>
+                <div className='flex flex-col gap-2'>
+                  <div className='flex items-center justify-between gap-1'>
+                    <p className='text-xs text-gray-500'>Email</p>
+                    <p className='text-sm'>{user.email.address}</p>
+                  </div>
                   <Button
                     size='sm'
                     variant='outline'
@@ -149,7 +159,7 @@ const Login = () => {
                   >
                     Unlink Email
                   </Button>
-                </VStack>
+                </div>
               )}
 
               {!user.email ? (
@@ -164,15 +174,15 @@ const Login = () => {
                 </Button>
               ) : null}
 
-              <Button size='sm' variant='solid' colorScheme='red' onClick={logout}>
+              <Button size='sm' variant='destructive' onClick={logout}>
                 Disconnect
               </Button>
-            </VStack>
-          </PopoverBody>
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
-    </HStack>
+    </div>
   );
 };
 
-export default Login;
+export { Login };

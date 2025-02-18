@@ -79,12 +79,15 @@ export const KNOWN_ELIGIBILITY_MODULES: { [key: string]: Hex[] } = {
   unlock: [
     '0x4c7803041851f7a17Fc6b5Ff5c911FC748160637', // v0.1.2
   ],
-  staking: ['0x9E01030aF633Be5a439DF122F2eEf750b44B8aC7'],
+  staking: ['0x9E01030aF633Be5a439DF122F2eEf750b44B8aC7'], // v0.1.0
+  passthrough: ['0x050079a8fbFCE76818C62481BA015b89567D2d35'], // v0.1.0
+  baalStaking: ['0xa1E79f78630F77436C001Af44893A2720180E19F'], // v0.1.0
   // basic modules (no authorities given)
   erc20: ['0xbA5b218e6685D0607139c06f81442681a32a0EC3'],
   erc721: ['0xF37cf12fB4493D29270806e826fDDf50dd722bab'],
   erc1155: ['0x0089FbD2e0c42F2090890e1d9A3bd8d40E0e2e17'],
   hatWearing: ['0xa2e614CE4FAaD60e266127F4006b812d69977265'],
+
   // meta modules
   eligibilityChain: [
     '0x8AdED513a191e3FeE91Bb192Aba20FcC9c16aF2e', // v0.0.2

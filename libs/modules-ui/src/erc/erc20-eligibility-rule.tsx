@@ -1,27 +1,19 @@
 'use client';
 
-import { Text, Tooltip } from '@chakra-ui/react';
 import { find, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
+import { cn, Tooltip } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 
-export const Erc20EligibilityRule = ({
-  moduleParameters,
-  wearer,
-  chainId,
-}: ModuleDetailsHandler) => {
+const cashtag = 'inline-block bg-slate-100 px-1 font-medium text-slate-700 underline';
+
+export const Erc20EligibilityRule = ({ moduleParameters, wearer, chainId }: ModuleDetailsHandler) => {
   const tokenParam = find(moduleParameters, { displayType: 'erc20' });
-  const amountParameter = find(moduleParameters, [
-    'displayType',
-    'amountWithDecimals',
-  ]);
+  const amountParameter = find(moduleParameters, ['displayType', 'amountWithDecimals']);
 
   const { data: erc20Details } = useErc20Details({
     contractAddress: tokenParam?.value as Hex,
@@ -34,10 +26,7 @@ export const Erc20EligibilityRule = ({
     'tokenDetails',
   ]);
   const amountValueDisplay = amountParameter?.value
-    ? formatUnits(
-        amountParameter?.value as bigint,
-        tokenDetails?.decimals || 18,
-      )
+    ? formatUnits(amountParameter?.value as bigint, tokenDetails?.decimals || 18)
     : undefined;
 
   // calculate eligibility
@@ -46,14 +35,12 @@ export const Erc20EligibilityRule = ({
     return (
       <EligibilityRuleDetails
         rule={
-          <Text>
+          <p>
             Retain at least {amountValueDisplay}
             <Tooltip label={tokenDetails?.name}>
-              <Text as='span' variant='cashtag'>
-                ${tokenDetails?.symbol}
-              </Text>
+              <span className={cn(cashtag)}>${tokenDetails?.symbol}</span>
             </Tooltip>
-          </Text>
+          </p>
         }
         displayStatus={userBalanceDisplay}
         status={ELIGIBILITY_STATUS.eligible}
@@ -66,14 +53,12 @@ export const Erc20EligibilityRule = ({
   return (
     <EligibilityRuleDetails
       rule={
-        <Text>
+        <p>
           Hold at least {amountValueDisplay}{' '}
           <Tooltip label={tokenDetails?.name}>
-            <Text as='span' variant='cashtag'>
-              ${tokenDetails?.symbol}
-            </Text>
+            <span className={cn(cashtag)}>${tokenDetails?.symbol}</span>
           </Tooltip>
-        </Text>
+        </p>
       }
       displayStatus={userBalanceDisplay}
       status={ELIGIBILITY_STATUS.ineligible}

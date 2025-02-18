@@ -4,6 +4,15 @@
 
 @layer base {
   :root {
+    /* INFORMATIVE */
+    --informative-human: 184, 50, 128; /* rgb(184, 50, 128) */
+    --informative-code: 44, 122, 123; /* rgb(44, 122, 123) */
+    /* FUNCTIONAL */
+    --functional-success: 37, 133, 90; /* rgb(37, 133, 90) */
+    --functional-error: 197, 48, 48; /* rgb(197, 48, 48) */
+    --functional-link-primary: 43, 108, 176; /* rgb(43, 108, 176) */
+    --functional-link-secondary: 113, 128, 150; /* rgb(113, 128, 150) */
+
     --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
 
@@ -68,6 +77,10 @@
 
     --radius: 0.5rem;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @layer base {
@@ -76,6 +89,8 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }

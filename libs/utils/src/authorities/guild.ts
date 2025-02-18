@@ -1,17 +1,17 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import { compact, filter, find, flatMap, isEmpty, map, some, toString } from 'lodash';
 import { Authority } from 'types';
 import { Hex } from 'viem';
+
+// ! currently deprecated as the API from guild.xyz is not working
 
 export const fetchGuildsData = async (guilds?: string[]) => {
   if (!guilds) return [];
 
   const guildData = await Promise.all(
-    _.map(guilds, async (guildName: string) => {
-      const guildResponse = await fetch(
-        `https://api.guild.xyz/v1/guild/${guildName}`,
-      );
+    map(guilds, async (guildName: string) => {
+      const guildResponse = await fetch(`https://api.guild.xyz/v1/guild/${guildName}`);
       const response = await guildResponse.json();
       return response;
     }),
@@ -27,22 +27,21 @@ export const processGuildRolesForHat = ({
   guildData: Guild[] | undefined;
   hatId: Hex | undefined;
 }): Authority[] | undefined => {
-  if (!guildData || _.isEmpty(guildData) || !hatId) return [];
+  if (!guildData || isEmpty(guildData) || !hatId) return [];
   // console.log('processGuildRolesForHat', guildData, hatId);
 
-  return _.flatMap(guildData, (guild: Guild) => {
-    return _.flatMap(
-      _.filter(guild.roles, (role: Role) =>
-        _.some(
+  return flatMap(guildData, (guild: Guild) => {
+    return flatMap(
+      filter(guild.roles, (role: Role) =>
+        some(
           role.requirements,
-          (req: Requirement) =>
-            req.data?.id === _.toString(hatIdHexToDecimal(hatId)), // TODO might need to handle alternate ID matching
+          (req: Requirement) => req.data?.id === toString(hatIdHexToDecimal(hatId)), // TODO might need to handle alternate ID matching
         ),
       ),
       (role: Role) => {
-        return _.compact(
-          _.map(role.rolePlatforms, (rolePlatform: RolePlatform) => {
-            const platform = _.find(guild.guildPlatforms, {
+        return compact(
+          map(role.rolePlatforms, (rolePlatform: RolePlatform) => {
+            const platform = find(guild.guildPlatforms, {
               id: rolePlatform.guildPlatformId,
             });
             // we index manual details against link/`invite`, so don't return if that is missing

@@ -1,21 +1,10 @@
 'use client';
 
-import {
-  Box,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Image,
-  Skeleton,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
-import { NumberInput } from 'forms';
-import { useMediaStyles, useTokenDetails } from 'hooks';
+import { Form, NumberInput } from 'forms';
+import { useTokenDetails } from 'hooks';
 import { get, isUndefined, pick, toLower } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
 import dynamic from 'next/dynamic';
@@ -23,19 +12,14 @@ import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { BsArrowUpRightCircle } from 'react-icons/bs';
 import { ModuleDetails } from 'types';
+import { Skeleton } from 'ui';
 import { getDuration, tokenImageHandler } from 'utils';
 import { erc20Abi, formatUnits, maxUint256 } from 'viem';
 import { useAccount, useChainId, useWriteContract } from 'wagmi';
 
-const ConnectWallet = dynamic(() =>
-  import('molecules').then((mod) => mod.ConnectWallet),
-);
-const TransactionButton = dynamic(() =>
-  import('molecules').then((mod) => mod.TransactionButton),
-);
-const NetworkSwitcher = dynamic(() =>
-  import('molecules').then((mod) => mod.NetworkSwitcher),
-);
+const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
+const TransactionButton = dynamic(() => import('molecules').then((mod) => mod.TransactionButton));
+const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 
@@ -56,14 +40,13 @@ export const AllowanceActions = ({
   const { setModals } = useOverlay();
   const localForm = useForm({});
   const { watch, reset } = pick(localForm, ['watch', 'reset']);
-  const { isMobile } = useMediaStyles();
 
   const amount = watch('amount');
   const {
     isLoading,
     keyPrice,
     keyBalance,
-    price,
+    price, // price is queryable per address
     symbol,
     decimals,
     currencyContract,
@@ -77,13 +60,9 @@ export const AllowanceActions = ({
 
   const durationText = getDuration(duration);
   const isOneTime = duration && duration >= MIN_ONE_TIME_DURATION;
-  const amountToApprove =
-    amount && keyPrice ? BigInt(amount) * keyPrice : undefined;
-  const tokenAmountText = amountToApprove
-    ? formatUnits(amountToApprove, Number(decimals))
-    : '';
-  const allowanceInDuration =
-    allowance && keyPrice ? Number(allowance / keyPrice) : undefined;
+  const amountToApprove = amount && keyPrice ? BigInt(amount) * keyPrice : undefined;
+  const tokenAmountText = amountToApprove ? formatUnits(amountToApprove, Number(decimals)) : '';
+  const allowanceInDuration = allowance && keyPrice ? Number(allowance / keyPrice) : undefined;
   const hasAllowance = allowance && allowance >= BigInt(0);
 
   const { data: tokenData } = useTokenDetails({
@@ -145,151 +124,137 @@ export const AllowanceActions = ({
     buttonText = `Approve ${tokenAmountText} ${symbol}`;
   }
 
+  if (isLoading) {
+    return (
+      <div className='space-y-2'>
+        <Skeleton className='h-10 w-full rounded-md' />
+
+        <Skeleton className='h-10 w-full rounded-md' />
+
+        <Skeleton className='h-10 w-full rounded-md' />
+
+        <Skeleton className='h-[75px] w-full rounded-md' />
+      </div>
+    );
+  }
+
   return (
-    <Stack>
-      <Skeleton isLoaded={!isLoading}>
-        <Heading size='lg'>{heading}</Heading>
-      </Skeleton>
+    <div className='space-y-4 md:space-y-2'>
+      <h3 className='text-base font-medium md:text-lg'>{heading}</h3>
 
-      <Flex
-        justify='space-between'
-        gap={4}
-        align={{ base: 'center', md: 'end' }}
-        direction={{ base: 'column', md: 'row' }}
-      >
-        <Flex
-          gap={4}
-          justify={{ base: 'space-between', md: 'start' }}
-          w={{ base: 'full', md: 'auto' }}
-        >
-          {!isOneTime && (
-            <Box>
-              <NumberInput
-                name='amount'
-                numOptions={{ min: allowanceInDuration }}
-                label='Authorized Duration'
-                isDisabled={isLoading}
-                localForm={localForm}
-              />
-            </Box>
-          )}
+      <Form {...localForm}>
+        <div className='space-y-4'>
+          <div className='flex flex-col items-center justify-between gap-6 md:flex-row md:gap-4'>
+            <div className='flex w-full justify-between gap-4 md:w-auto'>
+              {!isOneTime && (
+                <div className='w-1/2'>
+                  <NumberInput
+                    name='amount'
+                    numOptions={{ min: allowanceInDuration }}
+                    label='Authorized Duration'
+                    isDisabled={isLoading || !address}
+                    localForm={localForm}
+                  />
+                </div>
+              )}
 
-          <Stack minW={{ base: 'auto', md: '110px' }} align='center'>
-            <Skeleton isLoaded={!isLoading} h='full'>
-              <Heading size='sm' fontWeight='medium' textTransform='uppercase'>
-                {isOneTime ? 'One-time fee' : `${durationText.adjective} fee`}
-              </Heading>
-            </Skeleton>
+              <div className='min-w-auto md:min-w-110px flex flex-col items-center gap-2'>
+                <h2 className='text-sm uppercase'>{isOneTime ? 'One-time fee' : `${durationText.adjective} fee`}</h2>
 
-            <Skeleton isLoaded={!isLoading} my={2}>
-              <HStack>
-                <Image
-                  src={tokenImage}
-                  alt={`${symbol} token image`}
-                  boxSize={5}
-                />
+                <div className='flex items-center gap-1'>
+                  <img src={tokenImage} alt={`${symbol} token`} className='h-5 w-5' />
 
-                <Text fontFamily='jbMono'>{price || '0'}</Text>
-                <Text fontFamily='jbMono' color='gray.500'>
-                  {symbol}
-                </Text>
-              </HStack>
-            </Skeleton>
-          </Stack>
-        </Flex>
+                  <p className='font-jb-mono'>{price || '??'}</p>
+                  <p className='font-jb-mono text-gray-500'>{symbol}</p>
+                </div>
+              </div>
+            </div>
 
-        <Flex align='center'>
-          {address ? (
-            currentChainId === chainId ? (
+            <div className='flex items-center'>
+              {address ? (
+                currentChainId === chainId ? (
+                  <TransactionButton
+                    sendTx={async () => {
+                      // @ts-expect-error argument of type
+                      return writeContractAsync(approvalParams);
+                    }}
+                    afterSuccess={() => {
+                      if (!moduleDetails?.instanceAddress) return;
+                      // refetchAllowance()
+                      setIsReadyToClaim(moduleDetails.instanceAddress);
+                      setModals?.({});
+                      queryClient.invalidateQueries({
+                        queryKey: ['readContracts'],
+                      });
+                    }}
+                    disabled={
+                      (!isUndefined(allowance) && !isUndefined(amountToApprove) && allowance >= amountToApprove) ||
+                      !address ||
+                      (!!isOneTime && !!keyBalance && keyBalance >= BigInt(0))
+                    }
+                    txDescription='Approve allowance on Hat subscription'
+                    chainId={chainId}
+                  >
+                    {buttonText}
+                  </TransactionButton>
+                ) : (
+                  <NetworkSwitcher chainId={chainId} />
+                )
+              ) : (
+                <ConnectWallet />
+              )}
+            </div>
+          </div>
+
+          {address && !isOneTime && (
+            <div className='flex h-[75px] flex-col items-center justify-around gap-2 md:flex-row md:justify-between md:gap-6'>
+              {hasAllowance && (
+                <TransactionButton
+                  sendTx={async () => {
+                    // @ts-expect-error argument of type
+                    return writeContractAsync(zeroApprovalParams);
+                  }}
+                  afterSuccess={() => {
+                    setTimeout(() => {
+                      queryClient.invalidateQueries({
+                        queryKey: ['readContracts'],
+                      });
+                      queryClient.invalidateQueries({ queryKey: ['readContract'] });
+                    }, 1000);
+                  }}
+                  variant='link'
+                  color='red.500'
+                  txDescription='Cancel subscription for Hat'
+                  chainId={chainId}
+                >
+                  <BsArrowUpRightCircle />
+                  Cancel {activeSubscription ? 'Subscription' : 'Allowance'}
+                </TransactionButton>
+              )}
+
               <TransactionButton
                 sendTx={async () => {
                   // @ts-expect-error argument of type
-                  return writeContractAsync(approvalParams);
+                  return writeContractAsync(unlimitedApprovalParams);
                 }}
                 afterSuccess={() => {
-                  if (!moduleDetails?.instanceAddress) return;
-                  // refetchAllowance()
-                  setIsReadyToClaim(moduleDetails.instanceAddress);
-                  setModals?.({});
-                  queryClient.invalidateQueries({
-                    queryKey: ['readContracts'],
-                  });
+                  setTimeout(() => {
+                    queryClient.invalidateQueries({ queryKey: ['readContracts'] });
+                    queryClient.invalidateQueries({ queryKey: ['readContract'] });
+                  }, 1000);
                 }}
-                variant='primary'
-                isDisabled={
-                  (!isUndefined(allowance) &&
-                    !isUndefined(amountToApprove) &&
-                    allowance >= amountToApprove) ||
-                  !address ||
-                  (!!isOneTime && !!keyBalance && keyBalance >= BigInt(0))
-                }
-                txDescription='Approve allowance on Hat subscription'
+                variant='link'
+                disabled={!isUndefined(allowance) && allowance === maxUint256}
+                txDescription='Cancel subscription for Hat'
                 chainId={chainId}
               >
-                {buttonText}
+                <BsArrowUpRightCircle />
+                Authorize unlimited withdrawals
               </TransactionButton>
-            ) : (
-              <NetworkSwitcher chainId={chainId} />
-            )
-          ) : (
-            <ConnectWallet />
+            </div>
           )}
-        </Flex>
-      </Flex>
-
-      {!isOneTime && (
-        <Flex
-          h='75px'
-          direction={{ base: 'column-reverse', md: 'row' }}
-          justify={!isMobile && hasAllowance ? 'space-between' : 'center'}
-          align='center'
-          gap={6}
-        >
-          {hasAllowance && (
-            <TransactionButton
-              sendTx={async () => {
-                // @ts-expect-error argument of type
-                return writeContractAsync(zeroApprovalParams);
-              }}
-              afterSuccess={() => {
-                setTimeout(() => {
-                  queryClient.invalidateQueries({
-                    queryKey: ['readContracts'],
-                  });
-                  queryClient.invalidateQueries({ queryKey: ['readContract'] });
-                }, 1000);
-              }}
-              variant='link'
-              color='red.500'
-              leftIcon={<Icon as={BsArrowUpRightCircle} />}
-              txDescription='Cancel subscription for Hat'
-              chainId={chainId}
-            >
-              Cancel {activeSubscription ? 'Subscription' : 'Allowance'}
-            </TransactionButton>
-          )}
-
-          <TransactionButton
-            sendTx={async () => {
-              // @ts-expect-error argument of type
-              return writeContractAsync(unlimitedApprovalParams);
-            }}
-            afterSuccess={() => {
-              setTimeout(() => {
-                queryClient.invalidateQueries({ queryKey: ['readContracts'] });
-                queryClient.invalidateQueries({ queryKey: ['readContract'] });
-              }, 1000);
-            }}
-            variant='link'
-            isDisabled={!isUndefined(allowance) && allowance === maxUint256}
-            leftIcon={<Icon as={BsArrowUpRightCircle} />}
-            txDescription='Cancel subscription for Hat'
-            chainId={chainId}
-          >
-            Authorize unlimited withdrawals{' '}
-          </TransactionButton>
-        </Flex>
-      )}
-    </Stack>
+        </div>
+      </Form>
+    </div>
   );
 };

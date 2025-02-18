@@ -1,89 +1,91 @@
 'use client';
 
-import { Spinner } from '@chakra-ui/react';
 import { useCouncilForm } from 'contexts';
-import { Input, Textarea } from 'forms';
+import { ChainSelect, Form, Input, Textarea } from 'forms';
+import { useCouncilDeployFlag } from 'hooks';
 import { StepProps } from 'types';
+import { Skeleton } from 'ui';
 
-import { CHAIN_OPTIONS } from '../../lib/utils/chains';
-import { ChainSelect } from '../chain-select';
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-export function DetailsStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const requirements = form.watch('requirements');
+export function DetailsStep({ onNext, draftId }: StepProps) {
+  const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
+  const { watch, handleSubmit } = localForm;
+  const requirements = watch('requirements');
+
+  useCouncilDeployFlag(draftId);
 
   if (isLoading) {
-    return (
-      <div className='flex h-full items-center justify-center'>
-        <Spinner size='xl' color='blue.500' />
-      </div>
-    );
+    return <Skeleton className='h-100 w-100' />;
   }
 
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
 
   return (
-    <form className='flex h-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
-      <div className='flex-1 space-y-6'>
-        <h2 className='text-xl font-bold'>Create your first Council</h2>
+    <Form {...localForm}>
+      <form className='flex h-full flex-col space-y-6' onSubmit={handleSubmit(onNext)}>
+        <div className='flex-1 space-y-6'>
+          <h2 className='text-xl font-bold'>Create your first Council</h2>
 
-        <div className='space-y-2'>
-          <label className='font-bold'>Organization Name</label>
-          <p className='text-gray-600'>The name of the organization you are creating councils for.</p>
-          <Input
-            name='organizationName'
-            localForm={form}
-            placeholder='DAO or Company Name'
-            options={{ required: true }}
-            isDisabled={!canEdit}
-          />
+          <div className='space-y-2'>
+            <Input
+              name='organizationName'
+              localForm={localForm}
+              label='Organization Name'
+              subLabel='The name of the organization you are creating councils for.'
+              variant='councils'
+              placeholder='DAO or Company Name'
+              options={{ required: true }}
+              isDisabled={!canEdit}
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <Input
+              name='councilName'
+              localForm={localForm}
+              label='Council Name'
+              subLabel='The name of your first council. You can add further councils later.'
+              variant='councils'
+              placeholder='Council Name'
+              options={{ required: true }}
+              isDisabled={!canEdit}
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <ChainSelect
+              name='chain'
+              localForm={localForm}
+              label='Choose a Chain'
+              subLabel='The chain you deploy the Safe Multisig and Hats Council to.'
+              variant='councils'
+              placeholder='Select a chain'
+              isDisabled={!canEdit}
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <Textarea
+              name='councilDescription'
+              localForm={localForm}
+              label='Council Description'
+              labelNote='Optional'
+              subLabel='Add a short description or some links you want all council members to see.'
+              variant='councils'
+              placeholder='Bylaws, policies or important links'
+              isDisabled={!canEdit}
+            />
+          </div>
         </div>
 
-        <div className='space-y-2'>
-          <label className='font-bold'>Council Name</label>
-          <p className='text-gray-600'>The name of your first council. You can add further councils later.</p>
-          <Input
-            name='councilName'
-            localForm={form}
-            placeholder='Council Name'
-            options={{ required: true }}
-            isDisabled={!canEdit}
-          />
+        <div className='flex justify-end py-6'>
+          <NextStepButton disabled={!localForm.formState.isValid || !canEdit}>
+            {getNextStepButtonText(nextStep)}
+          </NextStepButton>
         </div>
-
-        <div className='space-y-2'>
-          <label className='font-bold'>Choose a Chain</label>
-          <p className='text-gray-600'>The chain you deploy the Safe Multisig and Hats Council to.</p>
-          <ChainSelect
-            name='chain'
-            form={form}
-            options={CHAIN_OPTIONS}
-            placeholder='Select a chain'
-            isDisabled={!canEdit}
-          />
-        </div>
-
-        <div className='space-y-2'>
-          <label className='font-bold'>
-            Council Description <span className='text-sm font-normal text-gray-400'>Optional</span>
-          </label>
-          <p className='text-gray-600'>Add a short description or some links you want all council members to see.</p>
-          <Textarea
-            name='councilDescription'
-            localForm={form}
-            placeholder='Bylaws, policies or important links'
-            isDisabled={!canEdit}
-          />
-        </div>
-      </div>
-
-      <div className='flex justify-end py-6'>
-        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
-          {getNextStepButtonText(nextStep)}
-        </NextStepButton>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 }

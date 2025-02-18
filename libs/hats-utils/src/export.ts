@@ -1,15 +1,6 @@
-import {
-  DEFAULT_HAT,
-  GATEWAY_TOKEN,
-  GATEWAY_URL,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@hatsprotocol/constants';
-import {
-  hatIdDecimalToIp,
-  hatIdHexToDecimal,
-  treeIdDecimalToHex,
-} from '@hatsprotocol/sdk-v1-core';
+import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/config';
+import { DEFAULT_HAT, MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdHexToDecimal, treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import _, { orderBy } from 'lodash';
 import { idToPrettyId, ipToPrettyId, prettyIdToId, prettyIdToIp } from 'shared';
@@ -30,19 +21,13 @@ const calculateParentId = (hatId: Hex) => {
 
   const ipId = hatIdDecimalToIp(BigInt(hatId)); // TODO better strategy than converting to IP here?
   const splitIpId = _.split(ipId, '.');
-  const parentId = _.join(
-    _.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1)),
-    '.',
-  );
+  const parentId = _.join(_.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1)), '.');
   const parentHex = prettyIdToId(ipToPrettyId(parentId));
 
   return parentHex;
 };
 
-const prepDraftsAndHats = (
-  onchainHats: AppHat[] | undefined,
-  drafts: Partial<FormData>[],
-) => {
+const prepDraftsAndHats = (onchainHats: AppHat[] | undefined, drafts: Partial<FormData>[]) => {
   const mapDrafts = _.map(drafts, (hat: Partial<FormData>) => {
     if (!hat.id) return undefined;
     const adminId = hat.adminId || hat.parentId || calculateParentId(hat.id);
@@ -98,17 +83,9 @@ export const translateDrafts = ({
 
     // TODO can break this up?
     const imageHats = prepDraftsAndHats(onchainHats, drafts);
-    const admins = getAdmins(
-      imageHats,
-      hatIdDecimalToIp(hatIdHexToDecimal(hat.id)),
-    );
-    const firstAdminWithImage = _.find(
-      admins,
-      (h) => h.imageUrl && h.imageUrl !== '',
-    );
-    const adminImageUrl = firstAdminWithImage
-      ? { imageUrl: firstAdminWithImage.imageUrl }
-      : {}; // TODO don't include when translating for export
+    const admins = getAdmins(imageHats, hatIdDecimalToIp(hatIdHexToDecimal(hat.id)));
+    const firstAdminWithImage = _.find(admins, (h) => h.imageUrl && h.imageUrl !== '');
+    const adminImageUrl = firstAdminWithImage ? { imageUrl: firstAdminWithImage.imageUrl } : {}; // TODO don't include when translating for export
     if (!hat.id) return undefined;
     return {
       id: hat.id,
@@ -125,9 +102,7 @@ export const translateDrafts = ({
       imageUri: '',
       ...adminImageUrl,
       parentId: calculateParentId(hat.id),
-      mutable: _.has(hat, 'mutable')
-        ? hat.mutable === MUTABILITY.MUTABLE
-        : true,
+      mutable: _.has(hat, 'mutable') ? hat.mutable === MUTABILITY.MUTABLE : true,
       levelAtLocalTree: _.subtract(
         _.size(_.split(hatIdDecimalToIp(BigInt(hat.id)), '.')),
         2, // top hat = 0, so subtract 2 to get level
@@ -143,10 +118,7 @@ export const translateDrafts = ({
   return _.sortBy(defined, (hat: AppHat) => BigInt(hat.id));
 };
 
-export const checkMissingParents = (
-  hats: Partial<FormData>[],
-  onchainHats: AppHat[] | undefined,
-) => {
+export const checkMissingParents = (hats: Partial<FormData>[], onchainHats: AppHat[] | undefined) => {
   if (!onchainHats) return true;
   const onchainIds = _.map(onchainHats, 'id');
   const draftIds = _.map(hats, 'id');
@@ -161,21 +133,12 @@ export const checkMissingParents = (
   return _.some(missingParent);
 };
 
-export const checkMissingSiblings = (
-  hats: Partial<FormData>[],
-  onchainHats: AppHat[] | undefined,
-) => {
-  if (!onchainHats || !hats || hats.length === 0)
-    return { hasMissing: false, missingSiblings: [] };
+export const checkMissingSiblings = (hats: Partial<FormData>[], onchainHats: AppHat[] | undefined) => {
+  if (!onchainHats || !hats || hats.length === 0) return { hasMissing: false, missingSiblings: [] };
 
-  const onchainPrettyIds = _.map(_.filter(onchainHats, 'id'), (hat: any) =>
-    idToPrettyId(hat.id),
-  );
+  const onchainPrettyIds = _.map(_.filter(onchainHats, 'id'), (hat: any) => idToPrettyId(hat.id));
   const hatsWithId = _.filter(hats, 'id');
-  const allIdsSet = new Set([
-    ...onchainPrettyIds,
-    ..._.map(hatsWithId, (hat: any) => idToPrettyId(hat.id)),
-  ]);
+  const allIdsSet = new Set([...onchainPrettyIds, ..._.map(hatsWithId, (hat: any) => idToPrettyId(hat.id))]);
 
   const missingSiblings: string[] = [];
 
@@ -189,9 +152,7 @@ export const checkMissingSiblings = (
     const siblingNumber = parseInt(idSegments[idSegments.length - 1], 16);
 
     if (siblingNumber > 1) {
-      const previousSibling = `${siblingPrefix}.${(siblingNumber - 1)
-        .toString(16)
-        .padStart(4, '0')}`;
+      const previousSibling = `${siblingPrefix}.${(siblingNumber - 1).toString(16).padStart(4, '0')}`;
       if (!allIdsSet.has(previousSibling)) {
         missingSiblings.push(prettyIdToIp(previousSibling));
       }
@@ -285,10 +246,7 @@ const prepareExportTree = (data: any[]): HatExport[] => {
 };
 
 // Helper function for exporting tree data
-const mergeHatsWithStoredData = (
-  hats: any[],
-  storedData: Partial<FormData>[] | undefined,
-) => {
+const mergeHatsWithStoredData = (hats: any[], storedData: Partial<FormData>[] | undefined) => {
   return _.map(hats, (hat: any) => {
     const storedHat = _.find(storedData, { id: hat.id });
     const mergedHat = _.merge({}, hat, storedHat);
@@ -323,27 +281,13 @@ export const handleExportBranch = ({
   chainId,
   toast,
 }: ExportBranchProps) => {
-  if (
-    !targetHatId ||
-    !treeToDisplayWithInactiveHats ||
-    !linkedHatIds ||
-    !storedData ||
-    !chainId
-  )
-    return;
+  if (!targetHatId || !treeToDisplayWithInactiveHats || !linkedHatIds || !storedData || !chainId) return;
   const branch = getBranch(targetHatId, treeToDisplayWithInactiveHats);
-  const hatsWithoutLinkedHats = _.filter(
-    branch,
-    (hat: AppHat) => hat.id && !linkedHatIds?.includes(hat.id),
-  );
+  const hatsWithoutLinkedHats = _.filter(branch, (hat: AppHat) => hat.id && !linkedHatIds?.includes(hat.id));
   const targetHatInBranch = _.find(hatsWithoutLinkedHats, {
     id: targetHatId,
   });
-  if (
-    linkedHatIds?.includes(targetHatId) &&
-    targetHatInBranch &&
-    targetHatInBranch.admin
-  ) {
+  if (linkedHatIds?.includes(targetHatId) && targetHatInBranch && targetHatInBranch.admin) {
     targetHatInBranch.admin.id = targetHatId;
   }
   const hatId = hatIdDecimalToIp(BigInt(targetHatId));
@@ -361,17 +305,13 @@ export const handleExportBranch = ({
   link.download = `chain-${chainId}-${type}-${hatId}.json`;
   link.href = url;
   link.click();
-  toast.success({
+  toast({
     title: `Exported ${type} #${hatId} to your desktop`,
   });
 };
 
 const extractWearers = (wearers: unknown[]): FormWearer[] => {
-  if (
-    _.isArray(wearers) &&
-    !_.isEmpty(wearers) &&
-    _.isString(_.first(wearers))
-  ) {
+  if (_.isArray(wearers) && !_.isEmpty(wearers) && _.isString(_.first(wearers))) {
     return _.map(wearers, (wearer: unknown) => ({
       address: wearer as Hex,
       ens: '',
@@ -399,18 +339,11 @@ export const flattenHatData = (data: any[]): FormData[] =>
           hat.detailsObject?.data?.eligibility?.manual !== false
             ? TRIGGER_OPTIONS.MANUALLY
             : TRIGGER_OPTIONS.AUTOMATICALLY,
-        revocationsCriteria:
-          hat.detailsObject?.data?.eligibility?.criteria || [],
+        revocationsCriteria: hat.detailsObject?.data?.eligibility?.criteria || [],
         toggle: hat.toggle,
         isToggleManual:
-          hat.detailsObject?.data?.toggle?.manual !== false
-            ? TRIGGER_OPTIONS.MANUALLY
-            : TRIGGER_OPTIONS.AUTOMATICALLY,
-        deactivationsCriteria: _.get(
-          hat,
-          'detailsObject.data.toggle.criteria',
-          [],
-        ),
+          hat.detailsObject?.data?.toggle?.manual !== false ? TRIGGER_OPTIONS.MANUALLY : TRIGGER_OPTIONS.AUTOMATICALLY,
+        deactivationsCriteria: _.get(hat, 'detailsObject.data.toggle.criteria', []),
         mutable: hat.mutable ? MUTABILITY.MUTABLE : MUTABILITY.IMMUTABLE,
         // imageUri: hat.imageUri,
         currentSupply: _.toNumber(hat.currentSupply),

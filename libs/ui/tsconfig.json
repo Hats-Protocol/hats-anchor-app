@@ -2,22 +2,26 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "allowJs": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "declaration": true,
     "declarationMap": true,
-    "strict": true
+    "strict": true,
+    "target": "es2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true
   },
   "references": [
     { "path": "../constants/tsconfig.lib.json" },
-    { "path": "../contexts/tsconfig.lib.json" },
-    { "path": "../hats-hooks/tsconfig.lib.json" },
-    { "path": "../hats-utils/tsconfig.lib.json" },
     { "path": "../hooks/tsconfig.lib.json" },
     { "path": "../icons/tsconfig.lib.json" },
     { "path": "../shared/tsconfig.lib.json" },
     { "path": "../types/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts", "../types/**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "../types/**/*.d.ts", "src/**/*.stories.tsx"],
+  "exclude": ["node_modules", ".storybook"],
   "extends": "../../tsconfig.base.json"
 }

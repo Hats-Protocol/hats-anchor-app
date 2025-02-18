@@ -1,5 +1,7 @@
-import { ANCILLARY_API_URL } from '@hatsprotocol/constants';
+import { ANCILLARY_API_URL } from '@hatsprotocol/config';
 import { gql, GraphQLClient } from 'graphql-request';
+import { map, toLower } from 'lodash';
+import { get } from 'lodash';
 import {
   ElectionsAuthority,
   HatAuthorityResponse,
@@ -142,6 +144,16 @@ const ELECTION_QUERY = gql`
   }
 `;
 
+const ALLOWLIST_QUERY = gql`
+  query GetAllowlistEligibility($address: String!) {
+    allowListEligibilityDatas(where: { address: $address }) {
+      allowListEligibility {
+        hatId
+      }
+    }
+  }
+`;
+
 export const ancillarySubgraphClient = (chainId: SupportedChains) => {
   const url = ANCILLARY_API_URL[chainId];
   if (url) {
@@ -211,4 +223,26 @@ export const fetchHsgSigners = async ({
     console.error('Error fetching ancillary modules:', error);
     return null;
   }
+};
+
+export const fetchAllowlistEntries = async (address: string, chainId: SupportedChains): Promise<any | null> => {
+  if (!address || !chainId) return null;
+
+  const client = ancillarySubgraphClient(chainId);
+  if (!client) return null;
+
+  return client
+    .request<any>(ALLOWLIST_QUERY, {
+      address: toLower(address),
+    })
+    .then((response) => {
+      const allowlistEntries = map(get(response, 'allowListEligibilityDatas'), 'allowListEligibility');
+
+      return allowlistEntries || null;
+    })
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching ancillary modules:', error);
+      return null;
+    });
 };

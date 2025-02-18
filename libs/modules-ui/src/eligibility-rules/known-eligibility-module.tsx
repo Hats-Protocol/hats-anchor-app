@@ -1,6 +1,6 @@
 'use client';
 
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { has } from 'lodash';
 import { ReactNode } from 'react';
 import { AppHat, ModuleDetails, SupportedChains } from 'types';
@@ -30,6 +30,7 @@ export type EligibilityRuleComponent = ({
   modalSuffix,
   isReadyToClaim,
   setIsReadyToClaim,
+  ruleSets,
 }: {
   selectedHat: AppHat | undefined;
   moduleDetails: ModuleDetails | undefined;
@@ -40,6 +41,7 @@ export type EligibilityRuleComponent = ({
   isReadyToClaim?: { [key: Hex]: boolean };
   setIsReadyToClaim?: (address: Hex) => void;
   wearerEligibility: WearerEligibility | undefined;
+  ruleSets: Ruleset[] | undefined;
 }) => ReactNode | undefined;
 
 export const EligibilityModuleRules: {
@@ -52,7 +54,7 @@ export const EligibilityModuleRules: {
   erc20: Erc20EligibilityRule,
   erc721: Erc721EligibilityRule,
   hatWearing: HatWearingEligibilityRule,
-  jokerace: JokeRaceEligibilityRule,
+  jokeRace: JokeRaceEligibilityRule,
   passthrough: PassthroughModuleRule,
   staking: StakingEligibilityRule,
   unlock: UnlockEligibilityRule,
@@ -68,6 +70,7 @@ export const KnownEligibilityModule = ({
   isReadyToClaim,
   setIsReadyToClaim,
   wearerEligibility,
+  ruleSets,
 }: KnownEligibilityModuleParameters) => {
   if (!moduleDetails?.implementationAddress) {
     return <UnknownEligibilityRule chainId={chainId} wearer={wearer} selectedHat={selectedHat} />;
@@ -91,6 +94,7 @@ export const KnownEligibilityModule = ({
     isReadyToClaim,
     setIsReadyToClaim,
     wearerEligibility,
+    ruleSets,
   });
 };
 
@@ -104,4 +108,5 @@ interface KnownEligibilityModuleParameters {
   isReadyToClaim?: { [key: Hex]: boolean };
   setIsReadyToClaim?: (address: Hex) => void;
   wearerEligibility: WearerEligibility | undefined;
+  ruleSets: Ruleset[] | undefined;
 }

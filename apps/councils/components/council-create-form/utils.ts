@@ -1,4 +1,4 @@
-import { StepValidation } from 'contexts';
+import type { StepValidation } from 'types';
 
 interface NextStep {
   step: string;
@@ -16,11 +16,11 @@ export function findNextInvalidStep(
 
   // Define selection sub-steps order
   const getSelectionSubSteps = (reqs: { [key: string]: boolean } = {}) => [
-    'members',
     'management',
     ...(reqs.signAgreement ? ['agreement'] : []),
     ...(reqs.holdTokens ? ['tokens'] : []),
     ...(reqs.passCompliance ? ['compliance'] : []),
+    'members',
   ];
 
   // If we're in a selection sub-step, check next sub-step first
@@ -72,17 +72,21 @@ export function getNextStepButtonText(nextStep: NextStep): string {
       return 'Set up Council Membership';
     case 'selection':
       switch (nextStep.subStep) {
-        case 'members':
-          return 'Select Members';
         case 'management':
           return 'Select Council Managers';
+        case 'agreement':
+          return 'Configure Agreement';
         case 'compliance':
           return 'Select Compliance Managers';
         case 'tokens':
-          return 'Select Token Requirement';
+          return 'Set Token Requirement';
+        case 'members':
+          return 'Select Council Members';
         default:
           return 'Continue';
       }
+    case 'payment':
+      return 'Subscribe and Deploy';
     default:
       return 'Continue';
   }

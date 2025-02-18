@@ -1,19 +1,5 @@
 'use client';
 
-import {
-  Accordion,
-  AccordionButton,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Flex,
-  HStack,
-  Icon,
-  Skeleton,
-  Stack,
-  Text,
-  useBreakpointValue,
-} from '@chakra-ui/react';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatAdminWearers, useHatDetails } from 'hats-hooks';
@@ -21,19 +7,18 @@ import { getControllerNameAndLink } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import { filter, first, get, includes, map, reject, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { IconType } from 'react-icons';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { AppHat, HatWearer, SupportedChains } from 'types';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
 const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
 const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
-const GroupIcon = dynamic(() => import('icons').then((i) => i.Group));
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((i) => i.ChakraNextLink),
-);
+const GroupIcon = dynamic(() => import('icons').then((i) => i.GroupIcon));
 
 const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   const { chainId, orgChartWearers } = useTreeForm();
@@ -45,9 +30,7 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   ) as HatWearer[];
 
   const contractWearers = filter(wearers, 'isContract');
-  const safeWearers = filter(contractWearers, (w: HatWearer) =>
-    w?.contractName?.includes('GnosisSafeProxy'),
-  );
+  const safeWearers = filter(contractWearers, (w: HatWearer) => w?.contractName?.includes('GnosisSafeProxy'));
   const wearerCount = {
     code: size(contractWearers) - size(safeWearers) || 0,
     groups: size(safeWearers) || 0,
@@ -57,20 +40,17 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   if (!chainId || !hat || size(wearers) === 0) return null;
 
   return (
-    <div className='flex justify-between py-1'>
+    <div className='flex justify-between py-1 text-base'>
       <div className='flex items-center gap-2'>
-        <Icon as={HatIcon} />
-        <Text>
+        <HatIcon className='size-4' />
+
+        <p>
           {hatIdDecimalToIp(hatIdHexToDecimal(hatId))} {details?.name}
-        </Text>
+        </p>
       </div>
 
       <div>
-        <WearerBreakdown
-          wearers={wearers}
-          wearerCount={wearerCount}
-          chainId={chainId}
-        />
+        <WearerBreakdown wearers={wearers} wearerCount={wearerCount} chainId={chainId} />
       </div>
     </div>
   );
@@ -78,28 +58,20 @@ const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
 
 const AdminWearersPanel = () => {
   const { treeToDisplay, orgChartWearers } = useTreeForm();
-  const {
-    selectedHat,
-    chainId,
-    isClaimable,
-    hatLoading: selectedHatLoading,
-  } = useSelectedHat();
+  const { selectedHat, chainId, isClaimable, hatLoading: selectedHatLoading } = useSelectedHat();
   const { isMobile } = useMediaStyles();
-  const [expandedBackground, setExpandedBackground] = useState(false);
-  const isMounted = useRef(false);
-
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
+  const [open, setOpen] = useState('');
+  // const isMounted = useRef(false);
+  const expanded = open === 'admins';
+  const handleToggle = useCallback((value: string) => {
+    setOpen(value);
   }, []);
 
   const {
     data: admins,
     adminCount,
     adminHats,
-    // isLoading: adminWearersLoading,
+    isLoading: adminWearersLoading,
   } = useHatAdminWearers({
     selectedHat,
     treeToDisplay,
@@ -108,108 +80,55 @@ const AdminWearersPanel = () => {
   });
 
   if (size(adminHats) === 0 || selectedHatLoading) {
-    return (
-      <Skeleton
-        h='1.5rem'
-        w='full'
-        mx={{ base: 4, md: 0 }}
-        my={2}
-        isLoaded={!selectedHatLoading}
-      />
-    );
+    return <Skeleton className='mx-4 my-2' />;
   }
 
   if (size(admins) === 1) {
     return (
-      <Flex justify='space-between' py={1} px={{ base: 4, md: 0 }}>
-        <Text>
+      <div className='flex justify-between px-4 py-1'>
+        <p>
           <span className='hidden md:inline'>Admins can edit this Hat</span>
           <span className='inline md:hidden'>Can edit Hat</span>
           {!isClaimable?.for ? ' and choose Wearers' : ''}
-        </Text>
+        </p>
 
-        <WearerBreakdown
-          wearers={admins}
-          wearerCount={adminCount}
-          chainId={chainId}
-        />
-      </Flex>
+        <WearerBreakdown wearers={admins} wearerCount={adminCount} chainId={chainId} />
+      </div>
     );
   }
 
-  // TODO move background gradient to theme
-
   return (
-    <Accordion allowToggle>
-      <AccordionItem
-        border='none'
-        w={{ base: '100%', md: 'calc(100% + 32px)' }}
-        ml={{ md: -4 }}
-        boxShadow={
-          expandedBackground
-            ? '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)'
-            : undefined
-        }
-        borderRadius={
-          expandedBackground ? { base: 'none', md: 'md' } : { base: 'none' }
-        }
-      >
-        {({ isExpanded }: { isExpanded: boolean }) => {
-          if (isMounted.current && isExpanded !== expandedBackground) {
-            startTransition(() => setExpandedBackground(isExpanded));
-          }
+    <Accordion type='single' collapsible value={open} onValueChange={handleToggle}>
+      <AccordionItem className={cn('w-full rounded-md border-none', expanded && 'shadow')} value='admins'>
+        <AccordionTrigger
+          className={cn(
+            'border-gray border-t-md border-t-gray overflow-visible rounded-md border-b border-b-transparent p-0 px-4 hover:bg-white hover:no-underline',
+            !expanded ? 'hover:border-b hover:border-blue-300' : 'hover:border-t-gray-100',
+            expanded && 'bg-gradient-accordion-trigger rounded-b-none border-b-gray-400',
+          )}
+        >
+          <div className={cn('flex w-full justify-between py-2 pr-4 text-base font-light', expanded && 'font-normal')}>
+            <p>
+              Admins can edit {!isMobile ? 'this Hat' : ''}
+              {!isClaimable?.for ? ' and choose Wearers' : ''}
+            </p>
 
-          return (
-            <>
-              <AccordionButton
-                p={0}
-                border={isExpanded ? '1px solid' : undefined}
-                borderBottom={!isExpanded ? '1px solid' : undefined}
-                _hover={{
-                  background: !isExpanded ? 'white' : undefined,
-                  borderRadius: !isExpanded ? 'md' : undefined,
-                  borderColor: !isExpanded && 'blue.300',
-                }}
-                background={
-                  isExpanded
-                    ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)'
-                    : undefined
-                }
-                borderTopRadius={isExpanded ? 'md' : undefined}
-                borderColor={isExpanded ? 'gray.100' : 'transparent'}
-                borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
-              >
-                <Flex justify='space-between' py={2} px={4} width='100%'>
-                  <Box textAlign='left'>
-                    Admins can edit {!isMobile ? 'this Hat' : ''}
-                    {!isClaimable?.for ? ' and choose Wearers' : ''}
-                  </Box>
+            <WearerBreakdown wearers={admins} wearerCount={adminCount} chainId={chainId} />
+          </div>
+        </AccordionTrigger>
 
-                  <WearerBreakdown
-                    wearers={admins}
-                    wearerCount={adminCount}
-                    chainId={chainId}
-                  />
-                </Flex>
-              </AccordionButton>
-
-              <AccordionPanel
-                p={0}
-                overflow='visible'
-                borderBottomRadius='lg'
-                pb={1}
-                bg='white'
-                border='gray'
-              >
-                <Stack px={4}>
-                  {map(adminHats, (adminHat: AppHat) => (
-                    <AdminHatRow key={adminHat.id} hatId={adminHat.id} />
-                  ))}
-                </Stack>
-              </AccordionPanel>
-            </>
-          );
-        }}
+        <AccordionContent className='border-b-lg border-gray overflow-visible rounded-b-md bg-white p-0 pb-1'>
+          <div className='space-y-2 px-4 py-2'>
+            {adminWearersLoading ? (
+              <>
+                <Skeleton className='mx-4 my-2 md:mx-0' key='skeleton-1' />
+                <Skeleton className='mx-4 my-2 md:mx-0' key='skeleton-2' />
+              </>
+            ) : (
+              map(adminHats, (adminHat: AppHat) => <AdminHatRow key={adminHat.id} hatId={adminHat.id} />)
+            )}
+          </div>
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   );
@@ -232,48 +151,47 @@ const WearerBreakdown = ({
     chainId,
   });
 
+  const Icon = icon ?? ((wearer?.isContract ? CodeIcon : WearerIcon) as IconType);
+
   if (size(wearers) === 1) {
     return (
-      <ChakraNextLink href={link}>
-        <HStack
-          color={
-            wearer?.isContract && !name.includes('Safe')
-              ? 'Informative-Code'
-              : 'Informative-Human'
-          }
-          spacing={1}
+      <Link href={link}>
+        <div
+          className={cn(
+            'flex items-center gap-1',
+            // TODO include "not name.includes('Safe')" when wearer count is updated
+            wearer?.isContract ? 'text-informative-code' : 'text-informative-human',
+          )}
         >
-          <Text>{name || formatAddress(wearer?.id)}</Text>
-          <Icon
-            as={icon ?? (wearer?.isContract ? CodeIcon : WearerIcon)}
-            boxSize={4}
-          />
-        </HStack>
-      </ChakraNextLink>
+          <p>{name || formatAddress(wearer?.id)}</p>
+
+          <Icon className='h-4 w-4' />
+        </div>
+      </Link>
     );
   }
 
   return (
-    <HStack spacing='2px'>
+    <div className='flex items-center gap-1'>
       {wearerCount.code > 0 && (
-        <HStack color='Informative-Code' spacing='1px'>
-          <Text>{wearerCount.code}×</Text>
-          <Icon as={CodeIcon} boxSize={4} />
-        </HStack>
+        <div className='text-informative-code flex items-center gap-1'>
+          <p>{wearerCount.code}×</p>
+          <CodeIcon className='size-4' />
+        </div>
       )}
       {wearerCount.groups > 0 && (
-        <HStack color='Informative-Human' spacing='1px'>
-          <Text>{wearerCount.groups}×</Text>
-          <Icon as={GroupIcon} boxSize={4} />
-        </HStack>
+        <div className='text-informative-human flex items-center gap-1'>
+          <p>{wearerCount.groups}×</p>
+          <GroupIcon className='size-4' />
+        </div>
       )}
       {wearerCount.human > 0 && (
-        <HStack color='Informative-Human' spacing='1px'>
-          <Text>{wearerCount.human}×</Text>
-          <Icon as={WearerIcon} boxSize={4} />
-        </HStack>
+        <div className='text-informative-human flex items-center gap-1'>
+          <p>{wearerCount.human}×</p>
+          <WearerIcon className='size-4' />
+        </div>
       )}
-    </HStack>
+    </div>
   );
 };
 
@@ -289,93 +207,85 @@ const Claimable = ({
   if (!address || !chainId) return null;
 
   return (
-    <ChakraNextLink
-      href={`${explorerUrl(chainId)}/address/${address}`}
-      isExternal
-    >
-      <HStack color='blue.500' spacing={1}>
-        <Text>{claimFor ? 'Free Claim' : 'Self Claim'}</Text>
-        <Icon as={CodeIcon} boxSize={4} />
-      </HStack>
-    </ChakraNextLink>
+    <Link href={`${explorerUrl(chainId)}/address/${address}`} isExternal>
+      <div className='text-functional-link-primary flex items-center gap-1'>
+        <p>{claimFor ? 'Free Claim' : 'Self Claim'}</p>
+        <CodeIcon className='h-4 w-4' />
+      </div>
+    </Link>
   );
 };
 
 export const EditAndWearers = () => {
-  const { treeToDisplay, orgChartWearers } = useTreeForm();
+  const { treeToDisplay, orgChartWearers, isLoading: treeLoading } = useTreeForm();
   const { selectedHat, chainId, isClaimable } = useSelectedHat();
 
-  const { data: admins, adminCount } = useHatAdminWearers({
+  const {
+    data: admins,
+    adminCount,
+    isLoading: adminWearersLoading,
+  } = useHatAdminWearers({
     selectedHat,
     treeToDisplay,
     orgChartWearers,
     chainId,
   });
 
-  const claimableAddress = get(first(get(selectedHat, 'claimableBy')), 'id') as
-    | Hex
-    | undefined;
-  const claimableForAddress = get(
-    first(get(selectedHat, 'claimableForBy')),
-    'id',
-  ) as Hex | undefined;
+  const claimableAddress = get(first(get(selectedHat, 'claimableBy')), 'id') as Hex | undefined;
+  const claimableForAddress = get(first(get(selectedHat, 'claimableForBy')), 'id') as Hex | undefined;
 
-  const canAddWearers = useBreakpointValue({
-    base: 'Anyone can add eligible Wearers',
-    md: 'Anyone can add eligible addresses as Wearers',
-  });
+  // const canAddWearers = useBreakpointValue({
+  //   base: 'Anyone can add eligible Wearers',
+  //   md: 'Anyone can add eligible addresses as Wearers',
+  // });
+
+  if (treeLoading || adminWearersLoading) {
+    return (
+      <div className='flex flex-col gap-2 px-4 md:px-12'>
+        <Skeleton className='h-4 w-full md:mx-4' />
+      </div>
+    );
+  }
 
   if (!selectedHat?.mutable) {
     return (
-      <Stack py={1} px={{ base: 4, md: 0 }}>
-        <Flex justify='space-between'>
-          <Text>This Hat cannot be edited</Text>
+      <div className='space-y-2 px-4 py-1 md:px-0'>
+        <div className='flex justify-between'>
+          <p>This Hat cannot be edited</p>
 
-          <HStack>
-            <Text display={{ base: 'none', md: 'block' }}>Immutable</Text>
-            <Icon as={IoEllipsisVerticalSharp} />
-          </HStack>
-        </Flex>
+          <div className='flex items-center gap-1'>
+            <p>Immutable</p>
+            <IoEllipsisVerticalSharp className='h-4 w-4' />
+          </div>
+        </div>
 
-        <Flex justify='space-between'>
-          <Text>Admins can add Wearers</Text>
+        <div className='flex justify-between'>
+          <p>Admins can add Wearers</p>
 
-          <WearerBreakdown
-            wearers={admins}
-            wearerCount={adminCount}
-            chainId={chainId}
-          />
-        </Flex>
-      </Stack>
+          <WearerBreakdown wearers={admins} wearerCount={adminCount} chainId={chainId} />
+        </div>
+      </div>
     );
   }
 
   return (
-    <Stack spacing={0}>
+    <div className='space-y-1 py-1'>
       <AdminWearersPanel />
 
       {(isClaimable?.for || isClaimable?.by) &&
         (isClaimable?.for ? (
-          <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
-            <Text>{canAddWearers}</Text>
+          <div className='flex justify-between px-4 py-2'>
+            <p>Anyone can add eligible Wearers</p>
 
-            <Claimable
-              address={claimableForAddress}
-              chainId={chainId}
-              claimFor={isClaimable.for}
-            />
-          </Flex>
+            <Claimable address={claimableForAddress} chainId={chainId} claimFor={isClaimable.for} />
+          </div>
         ) : (
-          <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
-            <Text>Eligible addresses can claim a Hat</Text>
+          <div className='flex justify-between px-4 py-2'>
+            <p>Eligible addresses can claim a Hat</p>
 
-            <Claimable
-              address={claimableAddress}
-              chainId={chainId}
-              claimFor={isClaimable.for}
-            />
-          </Flex>
+            <Claimable address={claimableAddress} chainId={chainId} claimFor={isClaimable.for} />
+          </div>
         ))}
-    </Stack>
+    </div>
   );
 };

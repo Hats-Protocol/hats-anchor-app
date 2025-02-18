@@ -2,9 +2,9 @@ import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { SelectedHatContextProvider, TreeFormContextProvider } from 'contexts';
 import { first, get, pick, split, toNumber } from 'lodash';
 import { Metadata } from 'next';
-import { HatDrawer } from 'pages';
+import { HatDrawer } from 'organisms';
 import { SearchParamsProps } from 'types';
-import { fetchHatsDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh, logger } from 'utils';
 
 const HatDetails = ({}: HatDetailsProps) => (
   <TreeFormContextProvider>
@@ -45,9 +45,8 @@ export async function generateMetadata({ params }: HatDetailsProps): Promise<Met
         ...includeDescription,
       };
     })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
+    .catch((error) => {
+      logger.error(error);
       return {};
     });
 }

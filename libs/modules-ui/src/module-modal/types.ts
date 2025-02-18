@@ -1,12 +1,12 @@
 export type Filter =
   | 'all'
-  | 'wearer' // all
+  | 'wearers' // all
   | 'eligible' // eligible
   | 'ineligible';
 
 export enum FILTER {
   ALL = 'all',
-  WEARER = 'wearer',
+  WEARER = 'wearers',
   ELIGIBLE = 'eligible',
   INELIGIBLE = 'ineligible',
 }

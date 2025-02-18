@@ -1,30 +1,18 @@
 'use client';
 
-import { Button, Text } from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { get, includes, toLower } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import dynamic from 'next/dynamic';
-import {
-  BsCheckSquare,
-  BsCheckSquareFill,
-  BsFillXOctagonFill,
-} from 'react-icons/bs';
+import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
+import { Button, Link } from 'ui';
 import { claimsLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetails,
-} from '../eligibility-rules';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
 import { SubscriptionClaimsModal } from './subscription-claims';
-
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const SUBSCRIPTION_MODAL_NAME = 'subscriptionManager';
@@ -54,8 +42,7 @@ export const UnlockEligibilityRule = ({
   });
 
   const isOneTime = duration && duration >= MIN_ONE_TIME_DURATION;
-  const hasAllowance =
-    !!tokenAllowance && !!keyPrice && tokenAllowance >= keyPrice;
+  const hasAllowance = !!tokenAllowance && !!keyPrice && tokenAllowance >= keyPrice;
   const isReadyToClaim =
     isOneTime &&
     hasAllowance &&
@@ -68,10 +55,7 @@ export const UnlockEligibilityRule = ({
     wearerIds,
     chainId: chainId as SupportedChains,
   });
-  const isEligible = includes(
-    get(wearerStatus, 'eligibleWearers'),
-    toLower(wearer),
-  );
+  const isEligible = includes(get(wearerStatus, 'eligibleWearers'), toLower(wearer));
   const renewSoon = isEligible && !hasAllowance;
 
   let modalName = SUBSCRIPTION_MODAL_NAME;
@@ -79,26 +63,26 @@ export const UnlockEligibilityRule = ({
     modalName = `${SUBSCRIPTION_MODAL_NAME}${modalSuffix}`;
   }
 
-  let claimsAppRule = <Text>Pay the {isOneTime ? 'fee' : 'subscription'}</Text>;
+  let claimsAppRule = <p>Pay the {isOneTime ? 'fee' : 'subscription'}</p>;
   let status = ELIGIBILITY_STATUS.ineligible;
   let displayStatus = 'Not Paid';
   let icon = BsFillXOctagonFill;
   if (isMobile) {
     claimsAppRule = (
-      <Text>
+      <span>
         Pay the{' '}
         <Button
           variant='link'
           onClick={() => {
-            console.log(`${moduleDetails?.instanceAddress}-${modalName}`);
             setModals?.({
               [`${moduleDetails?.instanceAddress}-${modalName}`]: true,
             });
           }}
+          className='text-base'
         >
-          {isOneTime ? 'fee' : 'subscription'}
+          {isOneTime ? 'Fee' : 'Subscription'}
         </Button>
-      </Text>
+      </span>
     );
   }
   if (isReadyToClaim || hasAllowance) {
@@ -125,17 +109,9 @@ export const UnlockEligibilityRule = ({
   if (IS_CLAIMS_APP) {
     return (
       <>
-        <SubscriptionClaimsModal
-          moduleDetails={moduleDetails}
-          moduleParameters={moduleParameters}
-        />
+        <SubscriptionClaimsModal moduleDetails={moduleDetails} moduleParameters={moduleParameters} />
 
-        <EligibilityRuleDetails
-          rule={claimsAppRule}
-          status={status}
-          displayStatus={displayStatus}
-          icon={icon}
-        />
+        <EligibilityRuleDetails rule={claimsAppRule} status={status} displayStatus={displayStatus} icon={icon} />
       </>
     );
   }
@@ -143,15 +119,12 @@ export const UnlockEligibilityRule = ({
   return (
     <EligibilityRuleDetails
       rule={
-        <Text>
+        <p>
           Pay the{' '}
-          <ChakraNextLink
-            color='gray.500'
-            href={claimsLink({ chainId, hatId: selectedHat?.id })}
-          >
-            {isOneTime ? 'fee' : 'subscription'}
-          </ChakraNextLink>
-        </Text>
+          <Link href={claimsLink({ chainId, hatId: selectedHat?.id })} className='gray.50 text-base'>
+            {isOneTime ? 'Fee' : 'Subscription'}
+          </Link>
+        </p>
       }
       status={status}
       displayStatus={displayStatus}

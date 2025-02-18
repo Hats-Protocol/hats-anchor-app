@@ -1,12 +1,13 @@
-import { As, ComponentWithAs, IconProps } from '@chakra-ui/react';
-import { ReactNode } from 'react';
-import { IconName } from 'react-cmdk';
-import { IconType } from 'react-icons';
-import { Hex } from 'viem';
+import type { ReactNode } from 'react';
+import type { IconName } from 'react-cmdk';
+import type { IconType } from 'react-icons';
+import type { Hex } from 'viem';
+
+import { HatDetails } from './hat';
 
 export type ValueOf<T> = T[keyof T];
 
-export type MixedIcon = IconType | ComponentWithAs<'svg', IconProps>;
+export type MixedIcon = any; // TODO update with new icon-handler.tsx
 
 export type ImageFile = {
   path: string;
@@ -21,7 +22,7 @@ export type ImageFile = {
 
 export type DocsLink = {
   url: string;
-  icon?: As;
+  icon?: any;
   image?: string;
   name: string;
   description: string;
@@ -82,3 +83,10 @@ export interface Group {
 export type SearchParamsProps = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
+
+export interface HatPinDetails {
+  chainId: number;
+  localChainId?: number;
+  hatId: Hex;
+  details: HatDetails;
+}

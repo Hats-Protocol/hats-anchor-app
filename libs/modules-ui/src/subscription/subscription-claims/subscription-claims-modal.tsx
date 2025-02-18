@@ -1,6 +1,5 @@
 'use client';
 
-import { Heading, Stack, Text } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { Modal, useEligibility } from 'contexts';
@@ -54,33 +53,26 @@ export const SubscriptionClaimsModal = ({
   // CURRENTLY ONLY USED ON MOBILE CLAIMS APP, ADJUST FOR OTHER USES
 
   return (
-    <Modal name={`${moduleDetails?.instanceAddress}-subscriptionManagerClaims`}>
-      <Stack>
-        <Heading size='lg'>Subscribe to claim this Hat</Heading>
-
-        <Stack>
-          <Text>
-            To enable a {durationText.adjective} withdrawal of the subscription
-            fee, you pre-approved Unlock Protocol to withdraw {symbol} from the
-            address that you use to claim the role.
-          </Text>
-          <Text>
-            You can adjust the authorized amount to control the duration of your
-            subscription.
-          </Text>
-          <Text>
-            If the authorization runs out or the {durationText.adjective} fee is
-            not covered in your wallet, you will lose your Hat and its
-            privileges.
-          </Text>
-        </Stack>
+    <Modal name={`${moduleDetails?.instanceAddress}-subscriptionManagerClaims`} title='Subscribe to claim this Hat'>
+      <div className='space-y-4 pb-10'>
+        <div className='space-y-2'>
+          <p>
+            To enable a {durationText.adjective} withdrawal of the subscription fee, you pre-approved Unlock Protocol to
+            withdraw {symbol} from the address that you use to claim the role.
+          </p>
+          <p>You can adjust the authorized amount to control the duration of your subscription.</p>
+          <p>
+            If the authorization runs out or the {durationText.adjective} fee is not covered in your wallet, you will
+            lose your Hat and its privileges.
+          </p>
+        </div>
 
         <AllowanceActions
           moduleDetails={moduleDetails}
           moduleParameters={moduleDetails?.liveParameters}
           activeSubscription={activeSubscription}
         />
-      </Stack>
+      </div>
     </Modal>
   );
 };

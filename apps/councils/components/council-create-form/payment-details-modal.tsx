@@ -1,63 +1,42 @@
 'use client';
 
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
-import type { CouncilFormData } from 'contexts';
-import { AddressInput, Input } from 'forms';
+import { Modal, useOverlay } from 'contexts';
+import { AddressInput, Form, FormDescription, Input } from 'forms';
+import { capitalize, compact, get, includes, keys, map, reject, toNumber } from 'lodash';
+import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { FiX } from 'react-icons/fi';
-import { councilsGraphqlClient } from 'utils';
-import { isAddress } from 'viem';
+import type { CouncilFormData, SupportedChains } from 'types';
+import {
+  chainsMap,
+  CREATE_USER,
+  getCouncilsGraphqlClient,
+  isValidEmail,
+  logger,
+  sendTelegramMessage,
+  tgFormatAddress,
+  UPDATE_PAYER,
+} from 'utils';
 
-import { getChainId } from '../../lib/utils/chains';
-import { UsdcIcon } from '../icons/usdc-icon';
 import { NextStepButton } from '../next-step-button';
 
 interface PaymentDetailsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   form: UseFormReturn<CouncilFormData>;
   draftId: string;
   canEdit?: boolean;
 }
 
-const UPDATE_PAYER = `
-  mutation UpdateCouncilCreationForm($id: ID!, $payer: UserInput!) {
-    updateCouncilCreationForm(id: $id, payer: $payer) {
-      id
-      payer {
-        id
-        address
-        email
-        name
-        telegram
-      }
-    }
-  }
-`;
+const PRO_URL = 'https://hats-pro.vercel.app';
 
-const CREATE_USER = `
-  mutation CreateUser($address: String!, $email: String!, $name: String, $telegram: String) {
-    createUser(address: $address, email: $email, name: $name, telegram: $telegram) {
-      id
-      address
-      email
-      name
-      telegram
-    }
-  }
-`;
-
-export function PaymentDetailsModal({
-  isOpen,
-  onClose,
-  form: parentForm,
-  draftId,
-  canEdit = true,
-}: PaymentDetailsModalProps) {
-  const selectedChain = parentForm.watch('chain');
-  const chainId = getChainId(selectedChain);
+export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true }: PaymentDetailsModalProps) {
+  const [loading, setLoading] = useState(false);
+  const selectedChain = parentForm.watch('chain')?.value;
+  const chainId = toNumber(selectedChain);
+  const { modals, setModals } = useOverlay();
+  const councilName = parentForm.watch('councilName');
+  const { getAccessToken } = usePrivy();
 
   const modalForm = useForm({
     defaultValues: {
@@ -70,10 +49,6 @@ export function PaymentDetailsModal({
 
   const [formError, setFormError] = useState<string | null>(null);
 
-  const isValidEmail = (email: string) => {
-    return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
-  };
-
   const isFormValid = () => {
     const values = modalForm.getValues();
     return !!values.name && values.name.length > 0 && isValidEmail(values.email);
@@ -81,7 +56,8 @@ export function PaymentDetailsModal({
 
   const createUserMutation = useMutation({
     mutationFn: async (variables: { address: string; email: string; name?: string; telegram?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         createUser: {
           id: string;
           address: string;
@@ -105,12 +81,14 @@ export function PaymentDetailsModal({
         telegram?: string;
       };
     }) => {
-      const result = await councilsGraphqlClient.request(UPDATE_PAYER, variables);
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request(UPDATE_PAYER, variables);
       return result;
     },
   });
 
   const handleSubmit = async (data: { address: string; email: string; name?: string; telegram?: string }) => {
+    setLoading(true);
     if (!canEdit) return;
     // if (!isAddress(data.address)) {
     //   setFormError('Please enter a valid Ethereum address');
@@ -124,19 +102,48 @@ export function PaymentDetailsModal({
         id: draftId,
         payer: userData,
       });
+      const url = includes(window.location.origin, 'localhost') ? PRO_URL : window.location.origin;
+
+      if (!parentForm.getValues('payer')) {
+        const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} \\| `;
+        const councilLink = `[View Council](${url}/councils/new/payment?draftId=${draftId}) 💰`;
+        const userKeys = reject(keys(userData), (key) => key === 'id');
+        const userDetails = compact(
+          map(userKeys, (key) => {
+            if (key === 'address' && get(userData, 'address')) {
+              return `\n> Address: ${tgFormatAddress(get(userData, 'address'))}`;
+            }
+            if (get(userData, key)) {
+              return `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}`;
+            }
+            return undefined;
+          }),
+        );
+
+        await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
+          logger.error('Error sending telegram message:', error);
+        });
+        posthog.capture('Added Invoice Details', {
+          councilName,
+          chain: chainsMap(chainId)?.name,
+          url,
+        });
+      }
 
       parentForm.setValue('payer', userData);
       setFormError(null);
+      setLoading(false);
       modalForm.reset();
-      onClose();
+      setModals?.({});
     } catch (error) {
       setFormError('Failed to save payment details. Please try again.');
-      console.error('Error saving payment details:', error);
+      logger.error('Error saving payment details:', error);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (modals?.paymentDetailsModal) {
       setFormError(null);
       const currentPayer = parentForm.getValues('payer');
       if (currentPayer) {
@@ -148,47 +155,31 @@ export function PaymentDetailsModal({
         });
       }
     }
-  }, [isOpen, parentForm, modalForm]);
+  }, [modals?.paymentDetailsModal, parentForm, modalForm]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='2xl'>
-      <ModalOverlay className='bg-black/50' />
-      <ModalContent
-        as='form'
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          modalForm.handleSubmit(handleSubmit)(e);
-        }}
-        className='relative rounded-lg bg-white'
-      >
-        <div className='p-6'>
-          <div className='pr-6'>
-            <h2 className='text-2xl font-bold text-gray-900'>Invoicing Details</h2>
-          </div>
-          <button type='button' onClick={onClose} className='absolute right-6 top-6 text-gray-400 hover:text-gray-500'>
-            <span className='sr-only'>Close</span>
-            <FiX className='h-5 w-5' />
-          </button>
-        </div>
-
-        <div className='p-6'>
+    <Modal name='paymentDetailsModal' title='Invoicing Details' size='xl'>
+      <Form {...modalForm}>
+        <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='relative rounded-lg bg-white'>
           <div className='space-y-6'>
             <div className='space-y-2'>
               <h3 className='text-base font-bold text-gray-900'>Monthly</h3>
-              <p className='text-gray-600'>Here&apos;s some text that explains how invoices work.</p>
-              <p className='mt-4 flex items-center gap-2 text-lg font-medium text-gray-900'>
-                <UsdcIcon />
-                299 USDC / month
+              <p className='text-gray-600'>
+                Provide invoice contact information here and we&apos;ll reach out to setup a recurring payment system
+                that fits your preferences.
               </p>
+
+              <div className='mt-4 flex items-center gap-2'>
+                <img src='/chains/ethereum.svg' className='size-5' />
+                <p className='flex items-center gap-2 text-lg font-medium text-black/90'>0.1 ETH / month</p>
+              </div>
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Email <span className='text-sm font-normal text-gray-400'>Hidden</span>
-              </label>
               <Input
                 name='email'
+                labelNote='Hidden'
+                variant='councils'
                 localForm={modalForm}
                 placeholder='Email address'
                 options={{
@@ -202,41 +193,51 @@ export function PaymentDetailsModal({
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>Your Name</label>
-              <Input name='name' localForm={modalForm} placeholder='Full name' isDisabled={!canEdit} />
+              <Input
+                name='name'
+                label='Your Name'
+                variant='councils'
+                localForm={modalForm}
+                placeholder='Full name'
+                isDisabled={!canEdit}
+              />
             </div>
 
             <div className='space-y-2'>
-              <label className='font-bold'>
-                {selectedChain.charAt(0).toUpperCase() + selectedChain.slice(1)} Account{' '}
-                <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
               <AddressInput
                 name='address'
+                label={`${chainsMap(chainId)?.name} Account`}
+                labelNote='Optional'
+                variant='councils'
                 localForm={modalForm}
                 hideAddressButtons
-                chainId={chainId}
+                chainId={chainId as SupportedChains}
                 isDisabled={!canEdit}
               />
             </div>
             <div className='space-y-2'>
-              <label className='font-bold'>
-                Telegram Handle <span className='text-sm font-normal text-gray-400'>Optional</span>
-              </label>
-              <Input name='telegram' localForm={modalForm} placeholder='@username' isDisabled={!canEdit} />
+              <Input
+                name='telegram'
+                label='Telegram Handle'
+                labelNote='Optional'
+                variant='councils'
+                localForm={modalForm}
+                placeholder='@username'
+                isDisabled={!canEdit}
+              />
             </div>
           </div>
 
           <div className='mt-8'>
-            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
+            {formError && <FormDescription className='text-destructive mb-4'>{formError}</FormDescription>}
             <div className='flex justify-end'>
-              <NextStepButton type='submit' disabled={!isFormValid() || !canEdit} withIcon={false}>
-                Submit details
+              <NextStepButton type='submit' disabled={!isFormValid() || !canEdit || loading} withIcon={false}>
+                {loading ? 'Submitting…' : 'Submit details'}
               </NextStepButton>
             </div>
           </div>
-        </div>
-      </ModalContent>
+        </form>
+      </Form>
     </Modal>
   );
 }

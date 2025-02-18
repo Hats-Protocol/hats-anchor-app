@@ -1,10 +1,11 @@
+import { ModuleChainClaim } from 'modules-ui';
 import { parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 
-import CouncilsDevInfo from '../../../../components/councils-dev-info';
-import ManagePage from '../../../../components/manage-page';
-import MembersPage from '../../../../components/members-page';
-import SafeAssetsPage from '../../../../components/safe-assets-page';
+import { CouncilsDevInfo } from '../../../../components/councils-dev-info';
+import { ManagePage } from '../../../../components/manage-page';
+import { MembersPage } from '../../../../components/members-page';
+import { SafeAssetsPage } from '../../../../components/safe-assets-page';
 
 const CouncilDetails = async ({ params: { slug, page } }: { params: { slug: string; page: string } }) => {
   // TODO identifier could be ID in database, slug or chainId/hsg
@@ -12,6 +13,10 @@ const CouncilDetails = async ({ params: { slug, page } }: { params: { slug: stri
 
   if (page === 'transactions') {
     return <div>Transactions</div>;
+  }
+
+  if (page === 'join') {
+    return <ModuleChainClaim chainId={chainId || undefined} address={address as Hex} />;
   }
 
   if (page === 'manage') {

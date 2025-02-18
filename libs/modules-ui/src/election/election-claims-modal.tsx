@@ -1,49 +1,34 @@
-import { Card, CardBody, Stack } from '@chakra-ui/react';
 import { Modal, useEligibility } from 'contexts';
 import { ModuleDetails } from 'types';
+import { Card } from 'ui';
 
 import { CurrentSeason } from './current-season';
 import { ElectionRoles } from './election-roles';
 import { UpcomingSeason } from './upcoming-season';
 import { WearersList } from './wearers-list';
 
-export const ElectionClaimsModal = ({
-  moduleDetails,
-}: {
-  moduleDetails: ModuleDetails;
-}) => {
+export const ElectionClaimsModal = ({ moduleDetails }: { moduleDetails: ModuleDetails }) => {
   const { selectedHat, selectedHatDetails } = useEligibility();
 
   return (
-    <Modal
-      name='electionManagerClaims'
-      title={`Election for ${selectedHatDetails?.name || selectedHat?.details}`}
-    >
-      <Stack spacing={4}>
-        <Card w='full'>
-          <CardBody>
-            <CurrentSeason />
-          </CardBody>
+    <Modal name='electionManagerClaims' title={`Election for ${selectedHatDetails?.name || selectedHat?.details}`}>
+      <div className='flex flex-col gap-4'>
+        <Card className='w-full p-4'>
+          <CurrentSeason />
         </Card>
 
-        <Card w='full'>
-          <CardBody>
-            <WearersList />
-          </CardBody>
+        <Card className='w-full p-4'>
+          <WearersList />
         </Card>
 
-        <Card w='full'>
-          <CardBody>
-            <UpcomingSeason />
-          </CardBody>
+        <Card className='w-full p-4'>
+          <UpcomingSeason />
         </Card>
 
-        <Card w='full'>
-          <CardBody>
-            <ElectionRoles />
-          </CardBody>
+        <Card className='w-full p-4'>
+          <ElectionRoles />
         </Card>
-      </Stack>
+      </div>
     </Modal>
   );
 };

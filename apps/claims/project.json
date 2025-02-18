@@ -1,5 +1,5 @@
 {
-  "name": "claims",
+  "name": "hats-claims-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/claims",
   "projectType": "application",
@@ -20,19 +20,16 @@
     },
     "serve": {
       "executor": "@nx/next:server",
-      "defaultConfiguration": "development",
+      "defaultConfiguration": "production",
       "options": {
-        "buildTarget": "claims:build",
-        "dev": true
+        "buildTarget": "claims:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "claims:build:development",
-          "dev": true
+          "buildTarget": "claims:build:development"
         },
         "production": {
-          "buildTarget": "claims:build:production",
-          "dev": false
+          "buildTarget": "claims:build:production"
         }
       }
     },

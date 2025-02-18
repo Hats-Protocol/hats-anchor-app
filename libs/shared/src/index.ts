@@ -1,10 +1,5 @@
-import {
-  hatIdDecimalToHex,
-  hatIdDecimalToIp,
-  hatIdHexToDecimal,
-  hatIdIpToDecimal,
-} from '@hatsprotocol/sdk-v1-core';
-import _ from 'lodash';
+import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { concat, dropRightWhile, first, join, size, slice, split, subtract } from 'lodash';
 import { Hex } from 'viem';
 
 export * from './hats';
@@ -36,11 +31,8 @@ export function idToPrettyId(id: Hex | undefined): string {
   if (id.length === 10) return treeId;
   const children = id?.slice(10);
   const childArray = children?.match(/.{1,4}/g);
-  const dropEmpty = _.dropRightWhile(
-    childArray,
-    (child: string) => child === '0000',
-  );
-  return _.join([treeId, ...dropEmpty], '.');
+  const dropEmpty = dropRightWhile(childArray, (child: string) => child === '0000');
+  return join([treeId, ...dropEmpty], '.');
 }
 
 /**
@@ -99,8 +91,8 @@ export const toTreeId = (id: string | undefined) => {
  * - Suggest `hatIdIpToDecimal` from core sdk
  */
 export function ipToPrettyId(id: string | undefined) {
-  const parts = _.split(id, '.');
-  const treeId = toTreeId(_.first(parts));
+  const parts = split(id, '.');
+  const treeId = toTreeId(first(parts));
   const children = parts.slice(1).map((child: string) => {
     if (child.length < 4) {
       return child.padStart(4, '0');
@@ -108,7 +100,7 @@ export function ipToPrettyId(id: string | undefined) {
     return child;
   });
 
-  return _.join([treeId, ...children], '.');
+  return join([treeId, ...children], '.');
 }
 
 /**
@@ -125,10 +117,7 @@ export function ipToHatId(id: string | undefined): Hex {
 // TODO move to utils
 export const getDefaultAdminId = (hatId: string) => {
   const currentIpId = hatIdDecimalToIp(BigInt(hatId));
-  const splitIpId = _.split(currentIpId, '.');
-  const defaultAdminId = _.join(
-    _.concat(_.slice(splitIpId, 0, _.subtract(_.size(splitIpId), 1))),
-    '.',
-  );
+  const splitIpId = split(currentIpId, '.');
+  const defaultAdminId = join(concat(slice(splitIpId, 0, subtract(size(splitIpId), 1))), '.');
   return ipToHatId(defaultAdminId);
 };

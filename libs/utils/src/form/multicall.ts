@@ -1,8 +1,4 @@
-import {
-  FALLBACK_ADDRESS,
-  MUTABILITY,
-  TRIGGER_OPTIONS,
-} from '@hatsprotocol/constants';
+import { FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import {
   concat,
@@ -27,23 +23,13 @@ import {
   toString,
 } from 'lodash';
 import { getDefaultAdminId } from 'shared';
-import {
-  AppHat,
-  FormData,
-  FormDataDetails,
-  HatDetails,
-  HatDetailsKeys,
-  SupportedChains,
-} from 'types';
+import { AppHat, FormData, FormDataDetails, HatDetails, HatDetailsKeys, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 import { calculateCid, ipfsUrl, urlToIpfsUri } from '../image';
 import { createHatsClient, viemPublicClient } from '../web3';
 
-const hasDetailsChanged = (
-  currentHat: Partial<FormDataDetails>,
-  originalHat?: AppHat,
-) => {
+const hasDetailsChanged = (currentHat: Partial<FormDataDetails>, originalHat?: AppHat) => {
   const originalHatDetails = get(originalHat, 'detailsObject.data');
   const {
     name,
@@ -60,34 +46,25 @@ const hasDetailsChanged = (
 
   const namePlainText = !startsWith(get(originalHat, 'details'), 'ipfs://');
   // TODO these checks could be more robust
-  const hasGuildsChanged =
-    gt(size(guilds), 0) || size(guilds) !== size(originalHatDetails?.guilds);
-  const hasSpacesChanged =
-    gt(size(spaces), 0) || size(spaces) !== size(originalHatDetails?.spaces);
+  const hasGuildsChanged = gt(size(guilds), 0) || size(guilds) !== size(originalHatDetails?.guilds);
+  const hasSpacesChanged = gt(size(spaces), 0) || size(spaces) !== size(originalHatDetails?.spaces);
   // TODO not super pretty
   let hasResponsibilitiesChanged = false;
   if (gt(size(responsibilities), 0)) {
     hasResponsibilitiesChanged =
-      JSON.stringify(responsibilities) !==
-      JSON.stringify(originalHatDetails?.responsibilities);
+      JSON.stringify(responsibilities) !== JSON.stringify(originalHatDetails?.responsibilities);
   }
   let hasAuthoritiesChanged = false;
   if (gt(size(authorities), 0)) {
-    hasAuthoritiesChanged =
-      JSON.stringify(authorities) !==
-      JSON.stringify(originalHatDetails?.authorities);
+    hasAuthoritiesChanged = JSON.stringify(authorities) !== JSON.stringify(originalHatDetails?.authorities);
   }
   let hasRevocationsCriteriaChanged = false;
   if (gt(size(revocationsCriteria), 0)) {
-    hasRevocationsCriteriaChanged =
-      size(revocationsCriteria) !==
-      size(originalHatDetails?.eligibility?.criteria);
+    hasRevocationsCriteriaChanged = size(revocationsCriteria) !== size(originalHatDetails?.eligibility?.criteria);
   }
   let hasDeactivationsCriteriaChanged = false;
   if (gt(size(deactivationsCriteria), 0)) {
-    hasDeactivationsCriteriaChanged =
-      size(deactivationsCriteria) !==
-      size(originalHatDetails?.toggle?.criteria);
+    hasDeactivationsCriteriaChanged = size(deactivationsCriteria) !== size(originalHatDetails?.toggle?.criteria);
   }
 
   return (
@@ -105,13 +82,7 @@ const hasDetailsChanged = (
   );
 };
 
-const createDetailsData = ({
-  hat,
-  originalHat,
-}: {
-  hat: Partial<FormData>;
-  originalHat?: AppHat;
-}): HatDetails => {
+const createDetailsData = ({ hat, originalHat }: { hat: Partial<FormData>; originalHat?: AppHat }): HatDetails => {
   const {
     isEligibilityManual,
     isToggleManual,
@@ -142,9 +113,7 @@ const createDetailsData = ({
       criteria: reject(revocationsCriteria, ['label', '']) || [],
     },
     toggle: {
-      manual: isToggleManual
-        ? isToggleManual === TRIGGER_OPTIONS.MANUALLY
-        : true,
+      manual: isToggleManual ? isToggleManual === TRIGGER_OPTIONS.MANUALLY : true,
       criteria: reject(deactivationsCriteria, ['label', '']) || [],
     },
   };
@@ -159,13 +128,7 @@ const createDetailsData = ({
   return detailsData;
 };
 
-const createNewHatData = async ({
-  hat,
-  details,
-}: {
-  hat: Partial<FormData>;
-  details: string;
-}) => {
+const createNewHatData = async ({ hat, details }: { hat: Partial<FormData>; details: string }) => {
   const { maxSupply, eligibility, toggle, mutable, imageUrl, id: hatId } = hat;
 
   if (!hatId) return undefined;
@@ -190,13 +153,10 @@ const createNewHatData = async ({
     console.log('admin is undefined');
     return undefined;
   }
-  const imageUri = imageUrl?.startsWith('https://')
-    ? urlToIpfsUri(imageUrl)
-    : imageUrl;
+  const imageUri = imageUrl?.startsWith('https://') ? urlToIpfsUri(imageUrl) : imageUrl;
 
   const numMaxSupply = toNumber(maxSupply);
-  const finalMaxSupply =
-    isNaN(numMaxSupply) || maxSupply === undefined ? 1 : numMaxSupply;
+  const finalMaxSupply = isNaN(numMaxSupply) || maxSupply === undefined ? 1 : numMaxSupply;
 
   return {
     admin: BigInt(getDefaultAdminId(hatId)),
@@ -250,9 +210,7 @@ const processNewDetailsCallForHat = async ({
   const newHatData = hatsClient.createHatCallData(newHat);
 
   if (!newHatData) return returnData;
-  const imageUri = imageUrl?.startsWith('https://')
-    ? urlToIpfsUri(imageUrl)
-    : imageUrl;
+  const imageUri = imageUrl?.startsWith('https://') ? urlToIpfsUri(imageUrl) : imageUrl;
 
   newHatChanges = {
     ...newHat,
@@ -277,21 +235,14 @@ const processNewDetailsCallForHat = async ({
   };
 };
 
-const processWearersCallForHat = ({
-  hatsClient,
-  hat,
-  returnData,
-}: ProcessCallForHatProps) => {
+const processWearersCallForHat = ({ hatsClient, hat, returnData }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
   const { wearers, id: hatId } = hat;
 
-  if (!hatId || !hatsClient || !wearers || wearers.length === 0)
-    return returnData;
+  if (!hatId || !hatsClient || !wearers || wearers.length === 0) return returnData;
 
   const isWearerFormatString = typeof wearers[0] === 'string';
-  const adaptedWearers = isWearerFormatString
-    ? wearers
-    : wearers.map((wearer) => wearer.address);
+  const adaptedWearers = isWearerFormatString ? wearers : wearers.map((wearer) => wearer.address);
 
   if (eq(size(wearers), 1)) {
     const mintHatWearersData = hatsClient?.mintHatCallData({
@@ -347,13 +298,11 @@ const processDetailsChangeCallForHat = async ({
 }: ProcessDetailsChangeCallForHatProps) => {
   const { id: hatId } = hat;
 
-  if (!hatId || !hasDetailsChanged(hat, onchainHat) || !chainId)
-    return returnData;
+  if (!hatId || !hasDetailsChanged(hat, onchainHat) || !chainId) return returnData;
 
   const { calls, hatChanges } = returnData;
 
-  const existingDetails: HatDetails | undefined =
-    get(onchainHat, 'detailsObject.data') || undefined;
+  const existingDetails: HatDetails | undefined = get(onchainHat, 'detailsObject.data') || undefined;
   // extend existing details with the automated data for comparison of original objects
   const newDetails: HatDetails = createDetailsData({
     hat,
@@ -370,21 +319,12 @@ const processDetailsChangeCallForHat = async ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newValue: any = newDetails[localKey];
       if (localKey === 'authorities') {
-        const newAuthorities = map(newValue, (val) =>
-          pick(val, AUTHORITY_KEYS),
-        );
+        const newAuthorities = map(newValue, (val) => pick(val, AUTHORITY_KEYS));
         acc.authorities = newAuthorities;
-      } else if (
-        isArray(newValue) &&
-        isEmpty(newValue) &&
-        hat[localKey as keyof FormData] !== undefined
-      ) {
+      } else if (isArray(newValue) && isEmpty(newValue) && hat[localKey as keyof FormData] !== undefined) {
         // skip update for empty arrays when values are arrays
         acc[localKey] = newValue;
-      } else if (
-        (isArray(existingValue) && isArray(newValue)) ||
-        (isObject(existingValue) && isObject(newValue))
-      ) {
+      } else if ((isArray(existingValue) && isArray(newValue)) || (isObject(existingValue) && isObject(newValue))) {
         if (!includes(keys(hat), localKey)) {
           // skip update for non-"dirty" fields when values are arrays
           acc[localKey] = existingValue;
@@ -421,16 +361,11 @@ const processDetailsChangeCallForHat = async ({
   };
 };
 
-const processMaxSupplyChangeCallForHat = ({
-  hatsClient,
-  hat,
-  returnData,
-}: ProcessCallForHatProps) => {
+const processMaxSupplyChangeCallForHat = ({ hatsClient, hat, returnData }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
   const { maxSupply, id: hatId } = hat;
 
-  if (!hatId || maxSupply === undefined || maxSupply === null)
-    return returnData;
+  if (!hatId || maxSupply === undefined || maxSupply === null) return returnData;
 
   const changeHatMaxSupplyData = hatsClient.changeHatMaxSupplyCallData({
     hatId: BigInt(hatId),
@@ -451,11 +386,7 @@ const processMaxSupplyChangeCallForHat = ({
   };
 };
 
-const processEligibilityChangeCallForHat = async ({
-  hatsClient,
-  hat,
-  returnData,
-}: ProcessCallForHatProps) => {
+const processEligibilityChangeCallForHat = async ({ hatsClient, hat, returnData }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
   const { eligibility, id: hatId } = hat;
 
@@ -490,11 +421,7 @@ const processEligibilityChangeCallForHat = async ({
   };
 };
 
-const processToggleChangeCallForHat = async ({
-  hatsClient,
-  hat,
-  returnData,
-}: ProcessCallForHatProps) => {
+const processToggleChangeCallForHat = async ({ hatsClient, hat, returnData }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
   const { toggle, id: hatId } = hat;
 
@@ -529,16 +456,11 @@ const processToggleChangeCallForHat = async ({
   };
 };
 
-const processMutabilityChangeCallForHat = ({
-  hatsClient,
-  hat,
-  returnData,
-}: ProcessCallForHatProps) => {
+const processMutabilityChangeCallForHat = ({ hatsClient, hat, returnData }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
   const { mutable, id: hatId } = hat;
 
-  if (!hatId || (!!mutable && mutable === '') || mutable === undefined)
-    return returnData;
+  if (!hatId || (!!mutable && mutable === '') || mutable === undefined) return returnData;
 
   const makeHatImmutableData = hatsClient.makeHatImmutableCallData({
     hatId: BigInt(hatId),
@@ -558,11 +480,7 @@ const processMutabilityChangeCallForHat = ({
   };
 };
 
-const processImageChangeCallForHat = async ({
-  hatsClient,
-  hat,
-  returnData,
-}: ProcessCallForHatProps) => {
+const processImageChangeCallForHat = async ({ hatsClient, hat, returnData }: ProcessCallForHatProps) => {
   const { calls, hatChanges } = returnData;
   const { imageUrl, id: hatId } = hat;
   const returnDataWithHatId = {
@@ -572,9 +490,7 @@ const processImageChangeCallForHat = async ({
 
   if (!hatId || !imageUrl) return returnDataWithHatId;
 
-  const imageUri = imageUrl.startsWith('https://')
-    ? urlToIpfsUri(imageUrl)
-    : imageUrl;
+  const imageUri = imageUrl.startsWith('https://') ? urlToIpfsUri(imageUrl) : imageUrl;
 
   if (!imageUri) return returnDataWithHatId;
 
@@ -599,11 +515,7 @@ const processImageChangeCallForHat = async ({
 };
 
 // eslint-disable-next-line import/prefer-default-export
-export const processHatForCalls = async (
-  hat: Partial<FormData>,
-  onchainHats?: AppHat[],
-  chainId?: SupportedChains,
-) => {
+export const processHatForCalls = async (hat: Partial<FormData>, onchainHats?: AppHat[], chainId?: SupportedChains) => {
   const hatsClient = await createHatsClient(chainId);
   if (!hat || !hatsClient || !chainId) return emptyReturnData;
 

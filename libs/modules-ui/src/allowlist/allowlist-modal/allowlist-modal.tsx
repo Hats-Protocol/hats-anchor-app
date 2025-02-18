@@ -1,29 +1,21 @@
 'use client';
 
-import { Link } from '@chakra-ui/react';
-import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+// import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { useOverlay, useTreeForm } from 'contexts';
 import { useHatDetails, useProfileDetails } from 'hats-hooks';
 import { compact, concat, find, map, pick, reject, toString } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
+import { Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
-import {
-  AboutModule,
-  DevInfo,
-  FILTER,
-  Filter,
-  ModuleHistory,
-  ModuleModal,
-  ProfileList,
-} from '../../module-modal';
+import { AboutModule, DevInfo, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
 import { AllowlistForms } from './allowlist-forms';
 
-export const AllowlistModal = ({
+const AllowlistModal = ({
   eligibilityHatId,
   moduleInfo,
 }: {
@@ -31,12 +23,12 @@ export const AllowlistModal = ({
   moduleInfo: ModuleDetails;
 }) => {
   const { chainId } = useTreeForm();
+  const { setModals } = useOverlay();
   const localForm = useForm();
   const [adding, setAdding] = useState(false);
   const [updating, setUpdating] = useState(false);
 
   const [updateList, setUpdateList] = useState<AllowlistProfile[]>([]);
-  const [activeFilter, setActiveFilter] = useState<Filter>(FILTER.WEARER);
   const { setValue } = pick(localForm, ['setValue']);
 
   const { data: hat, details } = useHatDetails({
@@ -77,21 +69,17 @@ export const AllowlistModal = ({
   );
 
   const liveParams = get(moduleInfo, 'liveParameters');
-  const ownerHat = toString(
-    get(find(liveParams, { label: 'Owner Hat' }), 'value'),
-  );
-  const judgeHat = toString(
-    get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'),
-  );
+  const ownerHat = toString(get(find(liveParams, { label: 'Owner Hat' }), 'value'));
+  const judgeHat = toString(get(find(liveParams, { label: 'Arbitrator Hat' }), 'value'));
 
   const handleClose = useCallback(() => {
-    setActiveFilter(FILTER.WEARER);
     setUpdateList([]);
     setAdding(false);
     setUpdating(false);
     setValue('addresses', []);
     setValue('search', undefined);
-  }, [setValue]);
+    setModals?.({});
+  }, [setValue, setModals]);
 
   const moduleDescriptors = useMemo(() => {
     return compact([
@@ -115,9 +103,7 @@ export const AllowlistModal = ({
       moduleInfo.instanceAddress && {
         label: 'Allowlist Module',
         descriptor: (
-          <Link
-            href={`${explorerUrl(chainId)}/address/${moduleInfo.instanceAddress}`}
-          >
+          <Link href={`${explorerUrl(chainId)}/address/${moduleInfo.instanceAddress}`}>
             {formatAddress(moduleInfo.instanceAddress as Hex)}
           </Link>
         ),
@@ -127,20 +113,15 @@ export const AllowlistModal = ({
 
   if (!hat || !eligibilityHatId) return null;
 
-  const hatId = hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
+  // const hatId = hatIdDecimalToIp(hatIdHexToDecimal(eligibilityHatId));
   const hatName = details?.name || hat?.details;
-  const heading = `Allowlist for Hat ${hatId} - ${hatName}`;
+  const heading = `Allowlist for ${hatName}`;
 
   return (
     <ModuleModal
       name={`${moduleInfo.instanceAddress}-allowlistManager`}
       title='Manage Allowlist'
-      about={
-        <AboutModule
-          heading='About this Allowlist'
-          moduleDescriptors={moduleDescriptors}
-        />
-      }
+      about={<AboutModule heading='About this Allowlist' moduleDescriptors={moduleDescriptors} />}
       history={<ModuleHistory />}
       devInfo={<DevInfo moduleDescriptors={devInfo} />}
       onClose={handleClose}
@@ -149,8 +130,6 @@ export const AllowlistModal = ({
         hat={hat}
         heading={heading}
         profiles={allowlistProfiles}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
         localForm={localForm}
         handleUpdateListAdd={handleUpdateListAdd}
         handleUpdateListRemove={handleUpdateListRemove}
@@ -172,3 +151,5 @@ export const AllowlistModal = ({
     </ModuleModal>
   );
 };
+
+export { AllowlistModal };

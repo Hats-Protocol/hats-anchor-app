@@ -1,21 +1,27 @@
-import { useToast } from '@chakra-ui/react';
-import { useCouncilForm } from 'contexts';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { chainStringToId, formatAddress } from 'utils';
-import { useChainId, useEnsName, useSwitchChain } from 'wagmi';
+'use client';
 
-import { CheckSquareIcon } from '../icons/check-square-icon';
-import { ComplianceCheckIcon } from '../icons/compliance-check-icon';
-import { EditIcon } from '../icons/edit-icon';
-import { GetAppointedIcon } from '../icons/get-appointed-icon';
-import { HoldTokensIcon } from '../icons/hold-tokens-icon';
-import { LinkIcon } from '../icons/link-icon';
-import { PaymentIcon } from '../icons/payment-icon';
-import { SignAgreementIcon } from '../icons/sign-agreement-icon';
-import { XSquareIcon } from '../icons/x-square-icon';
+import { usePrivy } from '@privy-io/react-auth';
+import { useCouncilForm, useOverlay } from 'contexts';
+import { useClipboard, useCouncilDeployFlag } from 'hooks';
+import { get, isEmpty, map, some, toNumber } from 'lodash';
+import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
+import { useMemo } from 'react';
+import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
+import { Button, MemberAvatar } from 'ui';
+import { chainsMap, formatAddress } from 'utils';
+import { erc20Abi } from 'viem';
+import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
+
+import { Login } from '../login';
 import { NextStepButton } from '../next-step-button';
+import { Deploy } from './deploy';
 import { PaymentDetailsModal } from './payment-details-modal';
+
+const Currency = dynamic(() => import('icons').then((mod) => mod.Currency), { ssr: false });
+const DocumentChecks = dynamic(() => import('icons').then((mod) => mod.DocumentChecks), { ssr: false });
 
 interface StepSummaryProps {
   title: string;
@@ -28,16 +34,16 @@ const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps)
   <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
     <div className='w-[200px] shrink-0 space-y-2'>
       <h3 className='text-l font-medium text-gray-900'>{title}</h3>
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-1'>
         {isCompleted ? (
           <>
-            <CheckSquareIcon />
-            <span className='text-sm font-medium text-green-600'>Ready</span>
+            <BsCheckSquareFill className='text-functional-success h-4 w-4' />
+            <span className='text-functional-success text-sm font-medium'>Ready</span>
           </>
         ) : (
           <>
-            <XSquareIcon />
-            <span className='text-sm font-medium text-red-600'>Incomplete</span>
+            <BsXSquareFill className='text-functional-error h-4 w-4' />
+            <span className='text-functional-error text-sm font-medium'>Incomplete</span>
           </>
         )}
       </div>
@@ -49,10 +55,10 @@ const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps)
       <div className='w-[100px] shrink-0 text-right'>
         <button
           type='button'
-          className='inline-flex items-center gap-2 text-blue-600 hover:text-blue-700'
+          className='text-functional-link-primary hover:text-functional-link-primary/60 inline-flex items-center gap-2'
           onClick={onEdit}
         >
-          <EditIcon />
+          <SquarePen className='h-4 w-4' />
           <span className='text-sm font-medium'>Edit</span>
         </button>
       </div>
@@ -88,37 +94,30 @@ const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
       <h4 className='text-base font-bold text-gray-900'>{title}</h4>
       {description && <p className='text-sm text-gray-600'>{description}</p>}
     </div>
-    <div className='space-y-2'>
-      {members.map((member) => (
-        <MemberItem key={member.id} member={member} />
-      ))}
-    </div>
+
+    {!isEmpty(members) ? (
+      <div className='space-y-2'>
+        {members.map((member) => (
+          <MemberAvatar key={member.id} member={member} />
+        ))}
+      </div>
+    ) : (
+      <div className='text-sm text-gray-600'>No members</div>
+    )}
   </div>
 );
 
-const MemberItem = ({ member }: { member: { address: string; name?: string } }) => {
-  const { data: ensName } = useEnsName({
-    address: member.address as `0x${string}`,
-    chainId: 1,
-  });
-
-  return (
-    <div className='flex items-center gap-2'>
-      {member.name && <span className='text-base font-medium text-gray-900'>{member.name}</span>}
-      <span className='text-base text-gray-600'>{ensName || formatAddress(member.address)}</span>
-    </div>
-  );
-};
-
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation, deployCouncil, isDeploying, canEdit } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying, canEdit, deployStatus } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const { setModals } = useOverlay();
   const payer = form.watch('payer');
-  const toast = useToast();
+  const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
+
+  useCouncilDeployFlag(draftId, true);
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -128,18 +127,13 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     }
   };
 
-  const handleCopyLink = () => {
-    const url = `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
-    navigator.clipboard.writeText(url).then(
-      () => {
-        // Could add a toast notification here
-        console.log('URL copied to clipboard');
-      },
-      (err) => {
-        console.error('Could not copy text: ', err);
-      },
-    );
-  };
+  const draftUrl = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
+  }, [draftId]);
+  const { onCopy: copyUrl } = useClipboard(draftUrl, {
+    toastData: { variant: 'success', title: 'Copied share link to clipboard' },
+  });
 
   // Helper function to determine if selection step is valid
   const isSelectionStepValid = () => {
@@ -157,64 +151,51 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   };
 
   const handleDeploy = async () => {
-    try {
-      const result = await deployCouncil();
-
-      if (result.success) {
-        // toast({
-        //   title: 'Council deployed successfully',
-        //   description: `Transaction hash: ${result.transactionHash}`,
-        //   status: 'success',
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
-        // Redirect to a success page or the new council page
-        router.push('/councils');
-      } else {
-        console.log('result', result);
-        // toast({
-        //   title: 'Deployment failed',
-        //   description: result.error || 'Unknown error occurred',
-        //   status: 'error',
-        //   duration: 5000,
-        //   isClosable: true,
-        // });
-      }
-    } catch (error) {
-      console.error('Error deploying council', error);
-      // toast({
-      //   title: 'Deployment failed',
-      //   description:
-      //     error instanceof Error ? error.message : 'Unknown error occurred',
-      //   status: 'error',
-      //   duration: 5000,
-      //   isClosable: true,
-      // });
-    }
+    posthog.capture('Initiated Council Deployment', {
+      councilName: formData.councilName,
+      organizationName: formData.organizationName,
+      chain: chainsMap(toNumber(formData.chain?.value))?.name,
+    });
+    deployCouncil();
   };
 
-  const targetChainName = formData.chain.charAt(0).toUpperCase() + formData.chain.slice(1);
-  const targetChainId = chainStringToId(formData.chain) as number;
+  const tokenFields = ['symbol', 'name', 'decimals'];
+  const { data: tokenData } = useReadContracts({
+    contracts: map(tokenFields, (field: string) => ({
+      address: formData.tokenRequirement.address?.value,
+      abi: erc20Abi,
+      functionName: field,
+      chainId: toNumber(formData.chain.value),
+    })),
+  });
+  const [symbol, name] = map(tokenData, 'result');
+  const targetChainId = toNumber(formData.chain?.value) as number;
+  const targetChainName = chainsMap(targetChainId)?.name;
+  const firstAdmin = get(formData, 'admins.[0]');
 
   const isWrongNetwork = userChainId !== targetChainId;
+
+  if (some(deployStatus, (value) => value)) {
+    return <Deploy deployStatus={deployStatus} draftId={draftId} />;
+  }
 
   return (
     <div className='mx-auto max-w-4xl'>
       <div className='relative border-b border-gray-200 pb-6'>
         <div className='absolute right-0 top-0'>
-          <button
-            type='button'
-            className='inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-gray-50'
-            onClick={handleCopyLink}
-          >
-            <LinkIcon /> Copy link
-          </button>
+          <Button type='button' variant='outline-blue' rounded='full' onClick={copyUrl}>
+            <Link className='h-4 w-4' /> Share Council Draft
+          </Button>
         </div>
-        <div className='text-center'>
-          <h2 className='text-3xl font-medium'>Proposed Council</h2>
-          <p className='mt-1'>
-            <span className='text-gray-900'>by</span> <span className='text-gray-500'>ccarella.eth</span>
-          </p>
+        <div className='flex flex-col items-center gap-1'>
+          <h2 className='text-3xl font-medium'>{formData.councilName}</h2>
+          <div className='flex gap-1'>
+            <span className='text-gray-900'>by</span>{' '}
+            <span className='text-gray-500'>
+              {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />} (
+              {formatAddress(firstAdmin?.address)})
+            </span>
+          </div>
         </div>
       </div>
 
@@ -228,7 +209,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <div className='text-gray-900'>
             <p className='text-base'>{formData.councilName}</p>
             <p className='text-base'>by {formData.organizationName}</p>
-            <p className='text-base'>on {formData.chain}</p>
+            <p className='text-base'>on {targetChainName}</p>
           </div>
         </div>
       </StepSummary>
@@ -239,16 +220,16 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         onEdit={canEdit ? () => setCurrentStep('threshold') : undefined}
       >
         <div className='space-y-2'>
-          <h4 className='text-babse font-bold text-gray-900'>
+          <h4 className='font-bold text-gray-900'>
             {formData.thresholdType === 'ABSOLUTE'
-              ? `Deploy a new ${formData.confirmationsRequired}/${formData.maxMembers} Safe Multisig`
-              : `Deploy a new ${formData.percentageRequired}% Safe Multisig`}
+              ? `Deploy a new ${formData.min}/${formData.maxMembers} Safe Multisig`
+              : `Deploy a new ${formData.target}% Safe Multisig`}
           </h4>
           <div className='text-gray-900'>
             <p className='text-base'>
               {formData.thresholdType === 'ABSOLUTE'
-                ? `${formData.confirmationsRequired} confirmations required`
-                : `${formData.percentageRequired}% confimations required`}
+                ? `${formData.min} ${formData.min > 1 ? 'confirmations' : 'confirmation'} required`
+                : `${formData.target}% (at least ${formData.min}) ${formData.min > 1 ? 'confirmations' : 'confirmation'} required`}
             </p>
             <p className='text-base'>{`From up to ${formData.maxMembers} Council Members`}</p>
           </div>
@@ -266,29 +247,29 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           </h4>
           <div className='space-y-4'>
             <RequirementItem
-              icon={<GetAppointedIcon />}
+              icon={<DocumentChecks className='h-6 w-6' />}
               title='Get Appointed'
               description='Selected to be on the council'
             />
             {formData.requirements.passCompliance && (
               <RequirementItem
-                icon={<ComplianceCheckIcon />}
+                icon={<BsPersonCheck className='h-6 w-6' />}
                 title='Pass Compliance Checks'
                 description='Passed the compliance check'
               />
             )}
             {formData.requirements.signAgreement && (
               <RequirementItem
-                icon={<SignAgreementIcon />}
+                icon={<FileText className='h-6 w-6' />}
                 title='Sign Agreement'
-                description='Signed and abides agreement'
+                description='Signed and abides by the agreement'
               />
             )}
             {formData.requirements.holdTokens && (
               <RequirementItem
-                icon={<HoldTokensIcon />}
+                icon={<GemIcon className='h-6 w-6' />}
                 title='Hold Tokens'
-                description='Signed and abides agreement'
+                description={`Hold at least ${formData.tokenRequirement.minimum} ${symbol} (${name})`}
               />
             )}
           </div>
@@ -298,13 +279,13 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       <StepSummary
         title='Council Roles'
         isCompleted={isSelectionStepValid()}
-        onEdit={canEdit ? () => setCurrentStep('selection', 'members') : undefined}
+        onEdit={canEdit ? () => setCurrentStep('selection', 'management') : undefined}
       >
         <div className='space-y-8'>
           <RoleSummary title='Council Members' members={formData.members || []} />
           <RoleSummary
             title='Council Managers'
-            description='Can select Council Members and manage the Safe'
+            description='Can select Council Members and manage Council settings'
             members={formData.admins || []}
           />
           {formData.requirements.passCompliance && (
@@ -355,81 +336,84 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
               }
             />
             <div className='flex justify-end'>
-              {payer ? (
-                <button
-                  type='button'
-                  onClick={() => setIsPaymentModalOpen(true)}
-                  disabled={!canEdit}
-                  className={`inline-flex items-center rounded-full border border-[#2B6CB0] px-4 py-2 text-sm font-medium text-[#2B6CB0] ${
-                    !canEdit ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div className='flex items-center gap-2'>
-                    <PaymentIcon />
-                    <span>Edit invoice details</span>
-                  </div>
-                </button>
-              ) : (
-                <NextStepButton
-                  type='button'
-                  onClick={() => setIsPaymentModalOpen(true)}
-                  disabled={!canEdit}
-                  withIcon={false}
-                >
-                  <div className='flex items-center gap-2'>
-                    <PaymentIcon />
-                    <span>Add invoice details</span>
-                  </div>
-                </NextStepButton>
-              )}
+              {!!user &&
+                (payer ? (
+                  <Button
+                    rounded='full'
+                    type='button'
+                    onClick={() => setModals?.({ paymentDetailsModal: true })}
+                    disabled={!canEdit}
+                  >
+                    <div className='flex items-center gap-2'>
+                      <Currency />
+                      <span>Edit invoice details</span>
+                    </div>
+                  </Button>
+                ) : (
+                  <NextStepButton
+                    type='button'
+                    onClick={() => setModals?.({ paymentDetailsModal: true })}
+                    disabled={!canEdit}
+                  >
+                    <div className='flex items-center gap-2'>
+                      <Currency />
+                      <span>Add invoice details</span>
+                    </div>
+                  </NextStepButton>
+                ))}
             </div>
           </div>
         </StepSummary>
       </div>
 
       <div className='mt-8 flex flex-col items-center gap-4'>
-        <div className='flex items-center gap-2'>
-          <input
-            type='checkbox'
-            id='agreement'
-            checked={form.watch('acceptedTerms')}
-            onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
-            disabled={!canEdit}
-            className={`h-4 w-4 rounded border-gray-300 accent-[#3182CE] ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
-          />
-          <label htmlFor='agreement' className='text-sm text-gray-600'>
-            I agree to the{' '}
-            <a href='#' className='text-blue-600'>
-              privacy policy
-            </a>{' '}
-            and a monthly fee of $299 to be paid in USDC
-          </label>
-        </div>
+        {user ? (
+          <>
+            <div className='flex items-center gap-2'>
+              <input
+                type='checkbox'
+                id='agreement'
+                checked={form.watch('acceptedTerms')}
+                onChange={(e) => form.setValue('acceptedTerms', e.target.checked)}
+                disabled={!canEdit}
+                className={`accent-functional-link-primary h-4 w-4 rounded border-gray-300 ${!canEdit ? 'cursor-not-allowed opacity-50' : ''}`}
+              />
+              <label htmlFor='agreement' className='text-sm text-gray-600'>
+                I agree to the{' '}
+                <a
+                  href='https://docs.hatsprotocol.xyz/legal/terms/privacy-policy'
+                  className='text-functional-link-primary'
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  privacy policy
+                </a>{' '}
+                and a monthly fee of 0.1 ETH to be paid via invoice
+              </label>
+            </div>
 
-        {isWrongNetwork ? (
-          <NextStepButton
-            onClick={() => switchChain?.({ chainId: targetChainId })}
-            disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
-          >
-            Switch to {targetChainName}
-          </NextStepButton>
+            {isWrongNetwork ? (
+              <NextStepButton
+                onClick={() => switchChain?.({ chainId: targetChainId })}
+                disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
+              >
+                Switch to {targetChainName}
+              </NextStepButton>
+            ) : (
+              <NextStepButton
+                disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
+                onClick={handleDeploy}
+              >
+                {isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
+              </NextStepButton>
+            )}
+
+            <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
+          </>
         ) : (
-          <NextStepButton
-            disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
-            onClick={handleDeploy}
-          >
-            {isDeploying ? 'Deploying...' : `Deploy Council on ${targetChainName}`}
-          </NextStepButton>
+          <Login />
         )}
       </div>
-
-      <PaymentDetailsModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        form={form}
-        draftId={draftId}
-        canEdit={canEdit}
-      />
     </div>
   );
 };

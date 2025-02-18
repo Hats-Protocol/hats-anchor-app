@@ -1,10 +1,9 @@
-/* eslint-disable import/prefer-default-export */
-import { CONFIG } from '@hatsprotocol/constants';
+const INDENT_SPACING = 4;
 
 /**
  * For a given maxDepth, return the padding needed to accommodate the depth
  *   higher max depth needs less padding to fit long names well
- * @param maxDepth the highest depth in the tree
+ * @param maxDepth - the highest depth in the tree
  * @returns padding in pixels
  */
 export const paddingForMaxDepth = (maxDepth: number) => {
@@ -12,7 +11,7 @@ export const paddingForMaxDepth = (maxDepth: number) => {
     return 0;
   }
   const maxPadding = 24;
-  const minPadding = 2 * CONFIG.CHAKRA_SPACING;
+  const minPadding = 2 * INDENT_SPACING;
 
   // ideally this was smarter, lol
   if (maxDepth >= 5) return minPadding;

@@ -1,46 +1,26 @@
 'use client';
 
-import {
-  As,
-  Button,
-  Flex,
-  HStack,
-  Icon,
-  Skeleton,
-  Text,
-} from '@chakra-ui/react';
 import { useOverlay } from 'contexts';
-import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
+import { IconType } from 'react-icons';
+import { Button, cn, Link, Skeleton } from 'ui';
 import { useAccount } from 'wagmi';
 
-import {
-  ELIGIBILITY_STATUS,
-  EligibilityRuleDetailsProps,
-  TOGGLE_STATUS,
-} from './utils';
+import { ELIGIBILITY_STATUS, EligibilityRuleDetailsProps, TOGGLE_STATUS } from './utils';
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const EligibilityRuleWrapper = ({ rule, children }: { rule: ReactNode; children: ReactNode }) => {
+  if (!rule) {
+    return <Skeleton className='mx-4 my-2' />;
+  }
 
-const EligibilityRuleWrapper = ({
-  rule,
-  children,
-}: {
-  rule: ReactNode;
-  children: ReactNode;
-}) => {
   return (
-    <Skeleton isLoaded={!!rule} py={2} px={{ base: 4, md: 0 }}>
-      <Flex justify='space-between'>
-        {rule}
+    <div className='my-2 flex justify-between'>
+      {rule}
 
-        {children}
-      </Flex>
-    </Skeleton>
+      {children}
+    </div>
   );
 };
 
@@ -55,28 +35,30 @@ export const EligibilityRuleDetails = ({
   const { setModals } = useOverlay();
   const { address } = useAccount();
 
-  let statusColor = 'red.500';
+  let statusColor = 'text-destructive';
   if (status === ELIGIBILITY_STATUS.expiring) {
-    statusColor = 'orange.500';
+    statusColor = 'text-orange-500';
   } else if (
     status === ELIGIBILITY_STATUS.eligible ||
     status === ELIGIBILITY_STATUS.pending ||
     status === TOGGLE_STATUS.active
   ) {
-    statusColor = 'green.500';
+    statusColor = 'text-functional-success';
   }
 
   // TODO handle tooltip on displayStatus
+  const Icon = icon as IconType;
 
   if (displayStatusLink) {
     return (
       <EligibilityRuleWrapper rule={rule}>
-        <ChakraNextLink href={displayStatusLink}>
-          <HStack spacing={1}>
-            <Text>{displayStatus}</Text>
-            <Icon as={icon} boxSize={{ base: '14px', md: 4 }} />
-          </HStack>
-        </ChakraNextLink>
+        <Link href={displayStatusLink}>
+          <div className='flex items-center gap-1'>
+            <p>{displayStatus}</p>
+
+            <Icon className='h-[14px] w-[14px] md:h-4 md:w-4' />
+          </div>
+        </Link>
       </EligibilityRuleWrapper>
     );
   }
@@ -84,10 +66,11 @@ export const EligibilityRuleDetails = ({
   if (address) {
     return (
       <EligibilityRuleWrapper rule={rule}>
-        <HStack spacing={1} color={statusColor}>
-          <Text>{displayStatus}</Text>
-          <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />
-        </HStack>
+        <div className={cn('flex items-center gap-1', statusColor)}>
+          <p>{displayStatus}</p>
+
+          <Icon className='h-[14px] w-[14px] md:h-4 md:w-4' />
+        </div>
       </EligibilityRuleWrapper>
     );
   }
@@ -95,10 +78,11 @@ export const EligibilityRuleDetails = ({
   if (IS_CLAIMS_APP) {
     return (
       <EligibilityRuleWrapper rule={rule}>
-        <HStack spacing={1} color={statusColor}>
-          <Text>{displayStatus}</Text>
-          <Icon as={icon as As} boxSize={{ base: '14px', md: 4 }} />
-        </HStack>
+        <div className={cn('flex items-center gap-1', statusColor)}>
+          <p>{displayStatus}</p>
+
+          <Icon className='h-[14px] w-[14px] md:h-4 md:w-4' />
+        </div>
       </EligibilityRuleWrapper>
     );
   }
@@ -106,10 +90,8 @@ export const EligibilityRuleDetails = ({
   return (
     <EligibilityRuleWrapper rule={rule}>
       <Button
-        size='xs'
-        fontWeight='medium'
-        color='blue.500'
-        variant='ghost'
+        className='text-functional-link-primary font-medium'
+        variant='link'
         onClick={() => setModals?.({ checkEligibility: true })}
       >
         Check Eligibility

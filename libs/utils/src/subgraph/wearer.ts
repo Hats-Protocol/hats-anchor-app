@@ -1,8 +1,5 @@
-import { chainsList } from '@hatsprotocol/constants';
-import {
-  DEFAULT_ENDPOINTS_CONFIG,
-  Wearer,
-} from '@hatsprotocol/sdk-v1-subgraph';
+import { chainsList } from '@hatsprotocol/config';
+import { DEFAULT_ENDPOINTS_CONFIG, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import { gql, GraphQLClient } from 'graphql-request';
 import { compact, flatten, get, keys, map, toLower, toNumber } from 'lodash';
 import { mapWithChainId } from 'shared';
@@ -18,10 +15,7 @@ const chains = keys(chainsList);
 
 export const wearersPerPage = 100;
 
-export const fetchManyWearerDetails = async (
-  wearerIds: Hex[],
-  chainId: number,
-): Promise<HatWearer[]> => {
+export const fetchManyWearerDetails = async (wearerIds: Hex[], chainId: number): Promise<HatWearer[]> => {
   // two promises per address
   const promises = wearerIds.map((wearerId: Hex) => {
     return [
@@ -47,10 +41,7 @@ export const fetchManyWearerDetails = async (
   });
 };
 
-export const fetchWearerDetails = async (
-  address: Hex | string | undefined,
-  chainId: number | undefined,
-) => {
+export const fetchWearerDetails = async (address: Hex | string | undefined, chainId: number | undefined) => {
   const subgraphClient = createSubgraphClient();
   if (!address || !chainId) return undefined;
 
@@ -98,20 +89,14 @@ export const fetchWearerDetails = async (
   };
 };
 
-export const fetchWearerDetailsForChain = async (
-  address: string | undefined,
-  chainId: number,
-) => {
+export const fetchWearerDetailsForChain = async (address: string | undefined, chainId: number) => {
   if (!address) return Promise.resolve([]);
   return fetchWearerDetailsMesh(toLower(address), chainId)
     .then((data) => {
       if (!data) return Promise.resolve([]);
 
       const currentHats = get(data, 'currentHats');
-      const withProcessedMetadata = map(
-        currentHats,
-        parseMetadata,
-      ) as unknown as AppHat[];
+      const withProcessedMetadata = map(currentHats, parseMetadata) as unknown as AppHat[];
 
       return Promise.resolve(withProcessedMetadata);
     })
@@ -120,28 +105,19 @@ export const fetchWearerDetailsForChain = async (
     });
 };
 
-export const fetchWearerDetailsForAllChains = async (
-  address: string | undefined,
-) => {
+export const fetchWearerDetailsForAllChains = async (address: string | undefined) => {
   if (!address) return [];
-  const promises = map(chains, (cId: string) =>
-    fetchWearerDetailsMesh(address, Number(cId)),
-  );
+  const promises = map(chains, (cId: string) => fetchWearerDetailsMesh(address, Number(cId)));
 
+  // TODO migrate to shared query at mesh
   // * let errors fall through here
-  return Promise.all(
-    map(promises, (p: Promise<() => void>) => p.catch(() => undefined)),
-  ).then((data) => {
+  return Promise.all(map(promises, (p: Promise<() => void>) => p.catch(() => undefined))).then((data) => {
     // TODO [low] handle errors on subgraph(s) with the user
     return Promise.resolve(flatten(map(compact(data), 'currentHats')));
   });
 };
 
-export const fetchPaginatedWearersForHat = async (
-  hatId: string,
-  chainId: number,
-  page: number = 0,
-) => {
+export const fetchPaginatedWearersForHat = async (hatId: string, chainId: number, page: number = 0) => {
   const subgraphClient = createSubgraphClient();
 
   const res = await subgraphClient.getWearersOfHatPaginated({
@@ -152,10 +128,7 @@ export const fetchPaginatedWearersForHat = async (
     perPage: wearersPerPage,
   });
 
-  const wearersWithDetails = await fetchManyWearerDetails(
-    map(res, 'id') as Hex[],
-    chainId,
-  );
+  const wearersWithDetails = await fetchManyWearerDetails(map(res, 'id') as Hex[], chainId);
 
   return wearersWithDetails;
 };
@@ -223,9 +196,7 @@ export const GET_CONTROLLERS_FOR_USER = gql`
 // TODO use subgraph client directly
 export const fetchControllersForUser = async (a: string) => {
   const promises = map(chains, (cId: number) => {
-    const subgraphClient = new GraphQLClient(
-      DEFAULT_ENDPOINTS_CONFIG[cId].endpoint,
-    );
+    const subgraphClient = new GraphQLClient(DEFAULT_ENDPOINTS_CONFIG[cId].endpoint);
     if (subgraphClient !== undefined) {
       return subgraphClient.request(GET_CONTROLLERS_FOR_USER, {
         address: toLower(a),

@@ -9,6 +9,7 @@
     "strict": true
   },
   "references": [
+    { "path": "../config/tsconfig.lib.json" },
     { "path": "../shared/tsconfig.lib.json" },
     { "path": "../types/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }

@@ -1,11 +1,12 @@
 'use client';
 
-import { Flex, HStack, Icon, Skeleton, Text } from '@chakra-ui/react';
-import { CONFIG, NULL_ADDRESSES } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
+import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { find, first, flatten, gt, includes, pick, size } from 'lodash';
 import { useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
+import { Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -28,7 +29,6 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
   const { eligibility } = pick(selectedHat, ['eligibility']);
   const orgChartEligibility = find(orgChartWearers, { id: eligibility });
   const eligibilityData = orgChartEligibility || { id: eligibility as Hex };
-  // console.log({ eligibilityData });
 
   // TODO need a lookup if not NULL_ADDRESSES and not in orgChartWearers
   const { data: rawEligibilityRules, isLoading: loadingModuleDetails } = useEligibilityRules({
@@ -43,9 +43,13 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
     eligibilityRules: rawEligibilityRules || undefined,
   });
 
-  const ruleSets = flatten(rawEligibilityRules);
+  const ruleSets = !!rawEligibilityRules ? flatten(rawEligibilityRules) : undefined;
   const multipleModules = gt(size(ruleSets), 1);
   const isHatsAccount = false; // TODO enable with Hat ID reverse lookup
+
+  if (loadingModuleDetails) {
+    return <Skeleton className='mx-4 my-2 h-4' />;
+  }
 
   if (multipleModules) {
     return (
@@ -62,43 +66,48 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
     const moduleDetails = eligibilityRuleToModuleDetails(first(ruleSets));
 
     return (
-      <KnownEligibilityModule
-        moduleDetails={moduleDetails}
-        moduleParameters={moduleDetails?.liveParameters}
-        selectedHat={selectedHat}
-        wearer={address as Hex}
-        chainId={chainId}
-        modalSuffix={modalSuffix}
-        wearerEligibility={currentEligibility || undefined}
-      />
+      <div className='mx-4'>
+        <KnownEligibilityModule
+          moduleDetails={moduleDetails}
+          moduleParameters={moduleDetails?.liveParameters}
+          selectedHat={selectedHat}
+          wearer={address as Hex}
+          chainId={chainId}
+          modalSuffix={modalSuffix}
+          wearerEligibility={currentEligibility || undefined}
+          ruleSets={rawEligibilityRules || undefined}
+        />
+      </div>
     );
   }
 
   if (isHatsAccount) {
     // * shouldn't be hitting this flow yet
     return (
-      <Flex justify='space-between' py={2} px={{ base: 4, md: 0 }}>
-        <Text>Another Hat can remove wearers</Text>
+      <div className='mx-4 my-2 flex justify-between md:mx-0'>
+        <p>Another Hat can remove wearers</p>
 
-        <HStack spacing={1}>
-          <Text>Hat ID</Text>
-          <Icon as={HatIcon} boxSize={{ base: '14px', md: 4 }} />
-        </HStack>
-      </Flex>
+        <div className='flex items-center gap-1'>
+          <p>Hat ID</p>
+          <HatIcon className='h-[14px] w-[14px] md:h-4 md:w-4' />
+        </div>
+      </div>
     );
   }
 
   if (OVERRIDE_COMMUNITY_HAT && selectedHat?.id === CONFIG.agreementV0.communityHatId) {
-    return <CommunityHatEligibilityRule selectedHat={selectedHat} wearer={address as Hex} chainId={chainId} />;
+    return (
+      <div className='mx-4'>
+        <CommunityHatEligibilityRule selectedHat={selectedHat} wearer={address as Hex} chainId={chainId} />
+      </div>
+    );
   }
 
   return (
-    <Skeleton isLoaded={!loadingModuleDetails || orgChartEligibility?.isContract} my={2} mx={{ base: 4, md: 0 }}>
-      <Flex justify='space-between'>
-        <Text>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</Text>
+    <div className='mx-4 my-2 flex justify-between'>
+      <p>{includes(NULL_ADDRESSES, eligibility) ? 'No addresses' : 'One address'} can remove Wearers</p>
 
-        <ControllerWearer controllerData={eligibilityData} />
-      </Flex>
-    </Skeleton>
+      <ControllerWearer controllerData={eligibilityData} />
+    </div>
   );
 };

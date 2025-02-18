@@ -1,6 +1,5 @@
 'use client';
 
-import { Text } from '@chakra-ui/react';
 import { formatDistanceToNow } from 'date-fns';
 import { find, toNumber, toString } from 'lodash';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
@@ -8,11 +7,7 @@ import { ModuleDetailsHandler } from 'utils';
 
 import { EligibilityRuleDetails, TOGGLE_STATUS } from '../eligibility-rules';
 
-export const SeasonToggleRule = ({
-  moduleParameters,
-  chainId,
-  wearer,
-}: ModuleDetailsHandler) => {
+export const SeasonToggleRule = ({ moduleParameters, chainId, wearer }: ModuleDetailsHandler) => {
   const seasonEnd = find(moduleParameters, { label: 'Season End' });
   const seasonEndDate: number | null = seasonEnd?.value
     ? toNumber(toString((seasonEnd.value as bigint) * BigInt(1000)))
@@ -33,7 +28,7 @@ export const SeasonToggleRule = ({
   if (seasonEndDate > Date.now()) {
     return (
       <EligibilityRuleDetails
-        rule={<Text>Hat is active until end of season</Text>}
+        rule={<p>Hat is active until end of season</p>}
         status={TOGGLE_STATUS.active}
         displayStatus={`${formatDistanceToNow(seasonEndDate)} left`}
         icon={BsCheckSquareFill}
@@ -42,7 +37,7 @@ export const SeasonToggleRule = ({
   }
   return (
     <EligibilityRuleDetails
-      rule={<Text>Inactive since end of season</Text>}
+      rule={<p>Inactive since end of season</p>}
       status={TOGGLE_STATUS.inactive}
       displayStatus={`${formatDistanceToNow(seasonEndDate)} ago`}
       icon={BsFillXOctagonFill}

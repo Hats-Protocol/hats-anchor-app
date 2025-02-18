@@ -1,22 +1,19 @@
 'use client';
 
-import { Button, HStack, Icon, Skeleton } from '@chakra-ui/react';
-import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
+import { CONFIG, ELIGIBILITY_MODULES } from '@hatsprotocol/config';
 import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
-import { AgreementContent } from 'molecules';
 import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload } from 'react-icons/bs';
 import { FiExternalLink } from 'react-icons/fi';
+import { Button, cn, Link, Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
-const ChakraNextLink = dynamic(() =>
-  import('ui').then((mod) => mod.ChakraNextLink),
-);
+const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
@@ -30,23 +27,14 @@ const handleFetchIpfs = async (ipfsHash: string) => {
     });
 };
 
-export const ClaimsHelperButtons = ({
-  stackVertically = false,
-}: ClaimsHelperButtonsProps) => {
-  const {
-    selectedHat,
-    chainId,
-    activeRule,
-    isHatDetailsLoading,
-    isEligibilityRulesLoading,
-  } = useEligibility();
+export const ClaimsHelperButtons = ({ stackVertically = false }: ClaimsHelperButtonsProps) => {
+  const { selectedHat, chainId, activeRule, isHatDetailsLoading, isEligibilityRulesLoading } = useEligibility();
   const link = hatLink({ hatId: selectedHat?.id, chainId });
   const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
   // TODO use last rule to complete rather than active rule
 
   const hasAgreement =
-    selectedHat?.id === CONFIG.agreementV0.communityHatId ||
-    moduleDetails?.name === ELIGIBILITY_MODULES.agreement;
+    selectedHat?.id === CONFIG.agreementV0.communityHatId || moduleDetails?.name === ELIGIBILITY_MODULES.agreement;
 
   const { agreement } = useAgreementClaim({
     moduleParameters: moduleDetails?.liveParameters,
@@ -60,9 +48,7 @@ export const ClaimsHelperButtons = ({
 
   const handleDownload = useCallback(() => {
     const newWindow = window.open('', '_blank');
-    const markdownContent = (
-      <AgreementContent agreement={agreement || agreementV0} />
-    );
+    const markdownContent = <AgreementContent agreement={agreement || agreementV0} />;
     const htmlString = ReactDOMServer.renderToStaticMarkup(markdownContent);
 
     if (!newWindow) return;
@@ -77,30 +63,26 @@ export const ClaimsHelperButtons = ({
     };
   }, [agreement, agreementV0]);
 
-  return (
-    <Skeleton isLoaded={!isHatDetailsLoading && !isEligibilityRulesLoading}>
-      <HStack flexDir={stackVertically ? 'column' : 'row'}>
-        <ChakraNextLink href={link} isExternal>
-          <Button
-            variant='outline'
-            rightIcon={<Icon as={FiExternalLink} boxSize={4} />}
-            display={{ base: 'none', md: 'flex' }}
-          >
-            View full role
-          </Button>
-        </ChakraNextLink>
+  if (!isHatDetailsLoading && !isEligibilityRulesLoading) {
+    return <Skeleton />;
+  }
 
-        {hasAgreement && (
-          <Button
-            onClick={handleDownload}
-            variant='outline'
-            leftIcon={<Icon as={BsDownload} />}
-          >
-            Download agreement
-          </Button>
-        )}
-      </HStack>
-    </Skeleton>
+  return (
+    <div className={cn('flex flex-row', stackVertically && 'flex-col')}>
+      <Link href={link} isExternal>
+        <Button variant='outline' className='hidden md:flex'>
+          View full role
+          <FiExternalLink className='ml-1 size-4' />
+        </Button>
+      </Link>
+
+      {hasAgreement && (
+        <Button onClick={handleDownload} variant='outline'>
+          <BsDownload className='size-4' />
+          Download agreement
+        </Button>
+      )}
+    </div>
   );
 };
 

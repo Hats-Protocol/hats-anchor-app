@@ -9,6 +9,7 @@
     "strict": true
   },
   "references": [
+    { "path": "../config/tsconfig.lib.json" },
     { "path": "../constants/tsconfig.lib.json" },
     { "path": "../contexts/tsconfig.lib.json" },
     { "path": "../hats-hooks/tsconfig.lib.json" },
@@ -20,6 +21,6 @@
     { "path": "../ui/tsconfig.lib.json" },
     { "path": "../utils/tsconfig.lib.json" }
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "**/*.d.ts", "tailwind.config.ts"],
   "extends": "../../tsconfig.base.json"
 }

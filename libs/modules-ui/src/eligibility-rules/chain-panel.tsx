@@ -1,23 +1,12 @@
 'use client';
 
-import {
-  Accordion,
-  AccordionButton,
-  AccordionItem,
-  AccordionPanel,
-  Flex,
-  HStack,
-  Icon,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
-import { useMediaStyles } from 'hooks';
 import { every, filter, find, flatten, get, keys, map, size } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, SupportedChains, WearerStatus } from 'types';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -29,34 +18,34 @@ const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean; isReadyToClaim: boolean }) => {
   if (isEligible) {
     return (
-      <HStack spacing={1} color='green.600'>
-        <Text>Eligible</Text>
+      <div className='text-functional-success flex items-center gap-1'>
+        <p>Eligible</p>
 
-        <Icon as={BsCheckSquareFill} boxSize={4} />
-      </HStack>
+        <BsCheckSquareFill className='h-4 w-4' />
+      </div>
     );
   }
 
   if (isReadyToClaim) {
     return (
-      <HStack spacing={1} color='green.600'>
-        <Text>Pending</Text>
+      <div className='text-functional-success flex items-center gap-1'>
+        <p>Pending</p>
 
-        <Icon as={BsCheckSquare} boxSize={4} />
-      </HStack>
+        <BsCheckSquare className='h-4 w-4' />
+      </div>
     );
   }
 
   return (
-    <HStack spacing={1} color='red.600'>
-      <Text>Ineligible</Text>
+    <div className='text-destructive flex items-center gap-1'>
+      <p>Ineligible</p>
 
-      <Icon as={BsFillXOctagonFill} boxSize={4} />
-    </HStack>
+      <BsFillXOctagonFill className='h-4 w-4' />
+    </div>
   );
 };
 
-export const ChainPanel = ({
+const ChainPanel = ({
   selectedHat,
   ruleSets,
   chainId,
@@ -66,10 +55,9 @@ export const ChainPanel = ({
   currentEligibility,
   defaultOpen = false,
 }: ChainPanelProps) => {
-  const [expandedBackground, setExpandedBackground] = useState(defaultOpen);
+  const [open, setOpen] = useState<string>(defaultOpen ? 'chain' : '');
   const { address } = useAccount();
-  const isMounted = useRef(false);
-  const { isMobile } = useMediaStyles();
+  const expanded = open === 'chain';
 
   const subscriptionRule = find(flatten(ruleSets), (rule) => rule.module.id.includes('public-lock-v14'));
   const { hasAllowance } = useSubscriptionClaim({
@@ -102,100 +90,65 @@ export const ChainPanel = ({
   // TODO support deeper nested chains
   const isAndChain = size(ruleSets) === 1;
 
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
+  // TODO handle controlled accordion // defaultIndex={defaultOpen ? 0 : undefined}
   return (
-    <Accordion allowToggle defaultIndex={defaultOpen ? 0 : undefined}>
+    <Accordion type='single' className='rounded-md' collapsible value={open} onValueChange={setOpen}>
       <AccordionItem
-        border='none'
-        w={{ base: '100%', md: 'calc(100% + 32px)' }}
-        ml={{ md: -4 }}
-        boxShadow={
-          expandedBackground ? '0px 1px 3px 0px rgba(0, 0, 0, 0.10), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)' : undefined
-        }
-        borderRadius={expandedBackground ? 'md' : undefined}
+        className={cn(
+          'md:w-[calc(100% + 32px)] w-full rounded-md border-none',
+          (IS_CLAIMS_APP || expanded) && 'shadow',
+          IS_CLAIMS_APP && 'bg-white/80',
+        )}
+        value='chain'
       >
-        {({ isExpanded }: { isExpanded: boolean }) => {
-          if (isMounted.current && isExpanded !== expandedBackground) {
-            startTransition(() => setExpandedBackground(isExpanded));
-          }
+        <AccordionTrigger
+          className={cn(
+            'rounded-md border-b border-b-transparent px-4 py-0 text-base font-light hover:bg-white hover:no-underline',
+            IS_CLAIMS_APP && 'py-4',
+            !expanded && !IS_CLAIMS_APP ? 'hover:border-b hover:border-blue-300' : 'hover:border-t-gray-100',
+            expanded && 'bg-gradient-accordion-trigger rounded-b-none border-b-gray-400',
+          )}
+        >
+          <div className={cn('flex w-full justify-between py-2 pr-2')}>
+            <p className={cn('hidden', !IS_CLAIMS_APP && 'block')}>
+              Comply with {isAndChain ? 'all' : 'any'} of {size(flatten(ruleSets))} Rules to claim this Hat
+            </p>
 
-          return (
-            <>
-              <AccordionButton
-                p={0}
-                border={isExpanded ? '1px solid' : undefined}
-                borderBottom={!isExpanded ? '1px solid' : undefined}
-                _hover={{
-                  background: !isExpanded ? 'white' : undefined,
-                  borderRadius: !isExpanded ? 'md' : undefined,
-                  borderColor: !isExpanded && 'blue.300',
-                }}
-                background={isExpanded ? 'linear-gradient(180deg, #FFF 0%, #FFF 60.01%, #EBF8FF 100%)' : undefined}
-                borderTopRadius={isExpanded ? 'md' : undefined}
-                borderColor={isExpanded ? 'gray.100' : 'transparent'}
-                borderBottomColor={isExpanded ? 'gray.400' : 'transparent'}
-              >
-                <Flex justify='space-between' py={2} px={{ base: 4, md: IS_CLAIMS_APP ? 6 : 4 }} width='100%'>
-                  <Text
-                    display={{
-                      base: 'none',
-                      md: IS_CLAIMS_APP ? 'none' : 'block',
-                    }}
-                  >
-                    Comply with {isAndChain ? 'all' : 'any'} of {size(flatten(ruleSets))} Rules to claim this Hat
-                  </Text>
-                  <Text
-                    display={{
-                      base: 'block',
-                      md: IS_CLAIMS_APP ? 'block' : 'none',
-                    }}
-                  >
-                    {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))} Rules to claim
-                  </Text>
+            <p className={cn('block md:hidden', IS_CLAIMS_APP && 'md:block')}>
+              {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))} Rules to claim
+            </p>
 
-                  <EligibilityStatus isEligible={isEligible} isReadyToClaim={isReadyToClaim} />
-                </Flex>
-              </AccordionButton>
+            <EligibilityStatus isEligible={!!address && isEligible} isReadyToClaim={isReadyToClaim} />
+          </div>
+        </AccordionTrigger>
 
-              <AccordionPanel p={0} overflow='visible' borderBottomRadius='lg' pb={1} bg='white' border='gray'>
-                <Stack
-                  // TODO fix these nested ternaries
-                  mx={{ base: 0, md: IS_CLAIMS_APP ? (!isMobile ? 6 : 4) : !isMobile ? 4 : 0 }}
-                  pb={2}
-                  spacing={0}
-                  // px={{ base: 2, md: IS_CLAIMS_APP ? 4 : 0 }}
-                >
-                  {map(ruleSets, (ruleSet: Ruleset, index: number) =>
-                    map(ruleSet, (rule) => {
-                      const moduleDetails = eligibilityRuleToModuleDetails(rule);
+        <AccordionContent className='border-b-lg border-gray border-b-lg border-gray overflow-visible bg-white p-0'>
+          <div className={cn('space-y-3 px-4 pb-4 pt-1 text-base')}>
+            {/* // TODO fix these nested ternaries */}
+            {/* mx={{ base: 0, md: IS_CLAIMS_APP ? (!isMobile ? 6 : 4) : !isMobile ? 4 : 0 }} */}
+            {map(ruleSets, (ruleSet: Ruleset, index: number) =>
+              map(ruleSet, (rule) => {
+                const moduleDetails = eligibilityRuleToModuleDetails(rule);
 
-                      return (
-                        <KnownEligibilityModule
-                          key={`${index}-${rule.address}`}
-                          moduleDetails={moduleDetails}
-                          moduleParameters={moduleDetails?.liveParameters}
-                          selectedHat={selectedHat}
-                          chainId={chainId}
-                          wearer={address as Hex}
-                          modalSuffix={modalSuffix}
-                          isReadyToClaim={aggregateIsReadyToClaim}
-                          setIsReadyToClaim={setIsReadyToClaim}
-                          wearerEligibility={currentEligibility}
-                        />
-                      );
-                    }),
-                  )}
-                </Stack>
-              </AccordionPanel>
-            </>
-          );
-        }}
+                return (
+                  <KnownEligibilityModule
+                    key={`${index}-${rule.address}`}
+                    moduleDetails={moduleDetails}
+                    moduleParameters={moduleDetails?.liveParameters}
+                    selectedHat={selectedHat}
+                    chainId={chainId}
+                    wearer={address as Hex}
+                    modalSuffix={modalSuffix}
+                    isReadyToClaim={aggregateIsReadyToClaim}
+                    setIsReadyToClaim={setIsReadyToClaim}
+                    wearerEligibility={currentEligibility}
+                    ruleSets={ruleSets}
+                  />
+                );
+              }),
+            )}
+          </div>
+        </AccordionContent>
       </AccordionItem>
     </Accordion>
   );
@@ -212,4 +165,4 @@ interface ChainPanelProps {
   defaultOpen?: boolean;
 }
 
-export default ChainPanel;
+export { ChainPanel };

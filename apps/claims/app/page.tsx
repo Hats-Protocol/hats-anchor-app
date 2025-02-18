@@ -1,22 +1,22 @@
 'use client';
 
-import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
 import { useMediaStyles } from 'hooks';
-import { ChakraNextLink } from 'ui';
+import { Link } from 'ui';
 import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
 
 const LookingForHat = () => (
-  <Stack>
-    <Text>This app is here to help you claim hats based on their eligibility module(s).</Text>
-    <Text maxW='60%'>
+  <div className='flex flex-col gap-2'>
+    <p>This app is here to help you claim hats based on their eligibility module(s).</p>
+
+    <p className='max-w-[60%]'>
       You&apos;re probably looking for a specific hat. Look out for a link here with a specific hat ID on it, like the
       Hats Protocol Community Hat:{' '}
-      <ChakraNextLink href='/10/1.2.1.1' decoration fontFamily='monospace' display='inline-block'>
+      <Link href='/10/1.2.1.1' className='inline-block font-mono underline'>
         /10/1.2.1.1
-      </ChakraNextLink>
-    </Text>
-  </Stack>
+      </Link>
+    </p>
+  </div>
 );
 
 const Home = () => {
@@ -30,22 +30,26 @@ const Home = () => {
 
   if (!isClient || !wearerAddress) {
     return (
-      <Flex px={20} py={120}>
-        <Stack spacing={10}>
-          <Heading variant='medium'>Welcome to the Hats Protocol Claims app! 🧢</Heading>
+      <div className='px-40 pt-72'>
+        <div className='flex flex-col gap-10'>
+          <h2 className='text-2xl font-medium'>Welcome to the Hats Protocol Claims app! 🧢</h2>
+
           <LookingForHat />
-        </Stack>
-      </Flex>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Flex px={20} py={120}>
-      <Stack spacing={50}>
-        <Heading variant='medium'>gm {ensName || formatAddress(wearerAddress)}, welcome to the claims app</Heading>
+    <div className='px-32 pt-72'>
+      <div className='flex flex-col gap-10'>
+        <h2 className='text-2xl font-medium'>
+          gm {ensName || formatAddress(wearerAddress)}, welcome to the Claims app
+        </h2>
+
         <LookingForHat />
-      </Stack>
-    </Flex>
+      </div>
+    </div>
   );
 };
 

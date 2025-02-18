@@ -1,6 +1,5 @@
 'use client';
 
-import { Box } from '@chakra-ui/react';
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
 import { compact, isUndefined } from 'lodash';
@@ -9,48 +8,31 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { formatUnits } from 'viem';
 
-const DevInfo = dynamic(() => import('ui').then((mod) => mod.DevInfo));
-const DefaultInfo = dynamic(() => import('ui').then((mod) => mod.DefaultInfo));
-const AddressInfo = dynamic(() => import('ui').then((mod) => mod.AddressInfo));
+const AddressInfo = dynamic(() => import('molecules').then((mod) => mod.AddressInfo), { ssr: false });
+const DefaultInfo = dynamic(() => import('molecules').then((mod) => mod.DefaultInfo), { ssr: false });
+const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo), { ssr: false });
 
-export const SubscriptionDevInfo = ({
-  moduleParameters,
-  chainId,
-}: SubscriptionDevInfoProps) => {
+export const SubscriptionDevInfo = ({ moduleParameters, chainId }: SubscriptionDevInfoProps) => {
   const { selectedHat } = useEligibility();
-  const {
-    price,
-    decimals,
-    symbol,
-    currencyContract,
-    lockAddress,
-    tokenBalance,
-    keyBalance,
-    allowance,
-  } = useLockFromHat({
-    moduleParameters,
-    chainId,
-  });
+  const { price, decimals, symbol, currencyContract, lockAddress, tokenBalance, keyBalance, allowance } =
+    useLockFromHat({
+      moduleParameters,
+      chainId,
+    });
 
   const moduleDescriptors = useMemo(() => {
     return compact([
       !isUndefined(allowance) && {
         label: 'Allowance',
-        descriptor: (
-          <DefaultInfo>{`${formatUnits(allowance, Number(decimals))} ${symbol}`}</DefaultInfo>
-        ),
+        descriptor: <DefaultInfo>{`${formatUnits(allowance, Number(decimals))} ${symbol}`}</DefaultInfo>,
       },
       !isUndefined(tokenBalance) && {
         label: 'Token Balance',
-        descriptor: (
-          <DefaultInfo>{`${formatUnits(tokenBalance, Number(decimals))} ${symbol}`}</DefaultInfo>
-        ),
+        descriptor: <DefaultInfo>{`${formatUnits(tokenBalance, Number(decimals))} ${symbol}`}</DefaultInfo>,
       },
       !isUndefined(keyBalance) && {
         label: 'Key Balance',
-        descriptor: (
-          <DefaultInfo>{`${keyBalance.toString()} keys`}</DefaultInfo>
-        ),
+        descriptor: <DefaultInfo>{`${keyBalance.toString()} keys`}</DefaultInfo>,
       },
       !isUndefined(price) && {
         label: 'Price',
@@ -62,23 +44,18 @@ export const SubscriptionDevInfo = ({
       },
       !isUndefined(currencyContract) && {
         label: 'Currency Contract',
-        descriptor: (
-          <AddressInfo address={currencyContract} chainId={chainId} />
-        ),
+        descriptor: <AddressInfo address={currencyContract} chainId={chainId} />,
       },
       !isUndefined(selectedHat) && {
         label: 'Hat Supply',
-        descriptor: (
-          <DefaultInfo>
-            {`${selectedHat?.currentSupply} / ${selectedHat?.maxSupply}`}
-          </DefaultInfo>
-        ),
+        descriptor: <DefaultInfo>{`${selectedHat?.currentSupply} / ${selectedHat?.maxSupply}`}</DefaultInfo>,
       },
     ]);
   }, [
     keyBalance,
     tokenBalance,
     allowance,
+    selectedHat,
     decimals,
     symbol,
     price,
@@ -88,9 +65,9 @@ export const SubscriptionDevInfo = ({
   ]);
 
   return (
-    <Box maxW='350px'>
+    <div className='max-w-[350px]'>
       <DevInfo devInfos={moduleDescriptors} />
-    </Box>
+    </div>
   );
 };
 

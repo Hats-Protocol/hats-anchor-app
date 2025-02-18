@@ -1,4 +1,4 @@
 export * from './creation-form-steps';
-export * from './SafeList';
-export * from './StreamsOverview';
-export { default as TreeOverview } from './TreeOverview';
+export * from './safe-list';
+export * from './streams-overview';
+export * from './tree-overview';

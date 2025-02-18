@@ -1,4 +1,4 @@
-import { INTEGRATION_CARDS, LEARN_MORE, TemplateData } from '@hatsprotocol/constants';
+import { INTEGRATION_CARDS, LEARN_MORE, TemplateData } from '@hatsprotocol/config';
 import { find, get, map } from 'lodash';
 import dynamic from 'next/dynamic';
 import { DocsLink } from 'types';
@@ -20,7 +20,7 @@ const RootPage = async () => {
   const chainId = 10;
 
   return (
-    <>
+    <div className='w-screen'>
       <div className='fixed z-[-5] mt-[58px] h-full w-full bg-blue-100 opacity-[0.7] md:mt-[70px]' />
 
       <div className='z-2 mx-auto flex max-w-[1400px] flex-col gap-10 px-5 py-[100px] md:px-20 md:py-[120px]'>
@@ -28,7 +28,7 @@ const RootPage = async () => {
 
         <div className='flex w-full flex-col items-start gap-10'>
           <div className='flex w-full flex-1 flex-col gap-10'>
-            <Card className='min-h-[320px] bg-white bg-opacity-50 px-9 py-8'>
+            <Card className='min-h-[320px] bg-white bg-opacity-50 px-9 py-8 shadow'>
               <div className='flex w-full flex-col gap-4'>
                 <h2 className='text-2xl font-semibold tracking-tight'>Explore featured trees</h2>
 
@@ -50,7 +50,7 @@ const RootPage = async () => {
               </div>
             </Card>
 
-            <Card className='bg-white bg-opacity-50 px-9 py-8'>
+            <Card className='bg-white bg-opacity-50 px-9 py-8 shadow'>
               <div className='flex flex-col gap-4'>
                 <h2 className='text-2xl font-semibold tracking-tight'>New Integrations</h2>
 
@@ -63,7 +63,7 @@ const RootPage = async () => {
             </Card>
           </div>
 
-          <Card className='mx-auto max-w-[427px] bg-white bg-opacity-50 px-9 py-8 md:max-w-none'>
+          <Card className='mx-auto max-w-[427px] bg-white bg-opacity-50 px-9 py-8 shadow md:max-w-none'>
             <div className='flex flex-col gap-4'>
               <h2 className='text-2xl font-semibold tracking-tight'>Learn more about Hats</h2>
 
@@ -76,7 +76,7 @@ const RootPage = async () => {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

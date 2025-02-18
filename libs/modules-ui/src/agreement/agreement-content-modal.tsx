@@ -1,14 +1,17 @@
 'use client';
 
-import { Box, Button, Flex, Heading, Icon } from '@chakra-ui/react';
-import { CONFIG } from '@hatsprotocol/constants';
+import { CONFIG } from '@hatsprotocol/config';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
-import { get } from 'lodash';
+import { useAllWearers } from 'hats-hooks';
+import { get, some, toLower } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
 import dynamic from 'next/dynamic';
-import { ModuleDetails, SupportedChains } from 'types';
+import { AppHat, CurrentEligibility, ModuleDetails, SupportedChains } from 'types';
+import { Button } from 'ui';
 import { fetchIpfs } from 'utils';
+import { Hex } from 'viem';
+import { useAccount } from 'wagmi';
 
 const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
@@ -29,13 +32,18 @@ export const AgreementContentModal = ({
   moduleDetails,
   chainId,
   onlyModule = false,
+  selectedHat,
+  currentEligibility,
 }: {
   moduleDetails: ModuleDetails;
   chainId: SupportedChains;
   onlyModule?: boolean;
+  selectedHat?: AppHat;
+  currentEligibility: CurrentEligibility | undefined;
 }) => {
   const { setModals } = useOverlay();
   const queryClient = useQueryClient();
+  const { address } = useAccount();
   const { agreement, signAgreement } = useAgreementClaim({
     moduleDetails,
     moduleParameters: moduleDetails?.liveParameters,
@@ -45,6 +53,18 @@ export const AgreementContentModal = ({
       setModals?.({});
     },
   });
+
+  const { wearers } = useAllWearers({
+    selectedHat,
+    chainId,
+  });
+  console.log('wearers', wearers, selectedHat);
+
+  const isWearing = some(wearers, { id: toLower(address as Hex) });
+  const moduleEligibility = moduleDetails?.instanceAddress
+    ? get(currentEligibility, moduleDetails.instanceAddress)
+    : undefined;
+  const isEligible = moduleEligibility?.eligible && moduleEligibility?.goodStanding;
 
   const { data: agreementV0 } = useQuery({
     queryKey: ['agreementV0'],
@@ -59,6 +79,7 @@ export const AgreementContentModal = ({
   // };
 
   const handleReviewed = () => {
+    // OR LAST MODULE TO COMPLETE
     if (onlyModule) {
       setModals?.({});
     } else {
@@ -70,30 +91,33 @@ export const AgreementContentModal = ({
 
   return (
     <Modal name={`${moduleDetails?.instanceAddress}-agreementManagerClaims`}>
-      <Flex flexDirection='column' gap={4}>
-        <Flex>
-          <Heading>Sign the Agreement</Heading>
-        </Flex>
-        <Box overflowY='scroll' maxHeight='70vh'>
-          <Box>
+      <div className='flex flex-col gap-4'>
+        <div>
+          <h3 className='text-lg font-bold'>Sign the Agreement</h3>
+        </div>
+
+        <div className='max-h-[70vh] overflow-y-scroll'>
+          <div>
             <AgreementContent agreement={agreement || agreementV0} />
-          </Box>
-        </Box>
-        <Flex gap={4} justifyContent='end'>
+          </div>
+        </div>
+
+        <div className='flex justify-end gap-4'>
           {/* <Button
             variant='link'
-            color='blue.500'
+            className='text-blue-500'
             onClick={handleDownload}
-            isDisabled={!agreement}
+            disabled={!agreement}
           >
             Download agreement
           </Button> */}
 
-          <Button colorScheme='blue' onClick={handleReviewed} leftIcon={<Icon as={HatIcon} color='white' />}>
+          <Button onClick={handleReviewed} disabled={!(agreement && !agreementV0) || isWearing || isEligible}>
+            <HatIcon className='mr-1 h-4 w-4 text-white' />
             {onlyModule ? 'Reviewed' : 'Sign Agreement'}
           </Button>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </Modal>
   );
 };

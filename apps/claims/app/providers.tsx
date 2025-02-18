@@ -1,17 +1,19 @@
 'use client';
 
 import '../public/style.css';
+import './global.css';
+import '@rainbow-me/rainbowkit/styles.css';
 import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { ChakraBaseProvider } from '@chakra-ui/react';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
+import { Toaster } from 'molecules';
 import posthog from 'posthog-js';
 import { ReactNode, useEffect } from 'react';
-import { theme } from 'ui';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
 
@@ -64,22 +66,24 @@ BigInt.prototype['toJSON'] = function () {
 
 const Providers = ({ children }: ProvidersProps) => {
   useEffect(() => {
-    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
-      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    }
+    // if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+    // }
   }, []);
 
   return (
-    <ChakraBaseProvider theme={theme}>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <OverlayContextProvider>{children}</OverlayContextProvider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ChakraBaseProvider>
+    <WagmiProvider config={wagmiConfig()}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <OverlayContextProvider>
+            {children}
+
+            <Toaster />
+          </OverlayContextProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 

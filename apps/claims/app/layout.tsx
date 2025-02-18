@@ -1,7 +1,4 @@
-import './global.css';
-import '@rainbow-me/rainbowkit/styles.css';
-
-import { MetadataConfig } from '@hatsprotocol/constants';
+import { MetadataConfig } from '@hatsprotocol/config';
 import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
 import Script from 'next/script';
@@ -28,7 +25,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
       <meta name='viewport' content='width=device-width, initial-scale=1' />
     </head>
 
-    <body>
+    <body className='font-light'>
       <div className='relative'>
         <Providers>
           <Navbar />
@@ -38,7 +35,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
           <TxHistoryModal />
         </Providers>
 
-        <div className='fixed left-0 top-0 z-[-5] size-full bg-gray-50' />
+        <div className='bg-functional-link-primary/10 fixed left-0 top-0 z-[-5] size-full' />
       </div>
     </body>
   </html>

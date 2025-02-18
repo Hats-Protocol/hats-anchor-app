@@ -1,28 +1,20 @@
 'use client';
 
-import { Box, Button, Flex, HStack, Icon, Text } from '@chakra-ui/react';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
 import { useMediaStyles } from 'hooks';
-import _ from 'lodash';
+import { get } from 'lodash';
 import dynamic from 'next/dynamic';
+import { Button } from 'ui';
 
-import MobileBottomMenu from './mobile';
+import { MobileBottomMenu } from './mobile-bottom-menu';
 
-const BoxArrowDown = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareDown),
-);
-const BoxArrowLeft = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareLeft),
-);
-const BoxArrowRight = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareRight),
-);
-const BoxArrowUp = dynamic(() =>
-  import('react-icons/pi').then((i) => i.PiArrowSquareUp),
-);
+const BoxArrowDown = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareDown));
+const BoxArrowLeft = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareLeft));
+const BoxArrowRight = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareRight));
+const BoxArrowUp = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareUp));
 
-export const BottomMenu = ({ show }: { show?: boolean }) => {
+const BottomMenu = ({ show }: { show?: boolean }) => {
   const { hierarchy, handleSelectHat } = useSelectedHat();
   const { isMobile } = useMediaStyles();
 
@@ -31,82 +23,53 @@ export const BottomMenu = ({ show }: { show?: boolean }) => {
   }
 
   const selectHat = (name: string) => {
-    const newHatId = _.get(hierarchy, name);
+    const newHatId = get(hierarchy, name);
     handleSelectHat?.(newHatId);
   };
 
   return (
-    <Box
-      w='100%'
-      position='absolute'
-      bottom={0}
-      zIndex={14}
-      bg='whiteAlpha.900'
-    >
-      <Flex
-        justify='space-between'
-        p={4}
-        borderTop='1px solid'
-        borderColor='gray.200'
-      >
+    <div className='absolute bottom-0 z-[14] w-full bg-white/90'>
+      <div className='flex justify-between border-t border-gray-200 p-4'>
         {hierarchy?.leftSibling ? (
-          <Button
-            variant='outline'
-            onClick={() => selectHat('leftSibling')}
-            leftIcon={<Icon as={BoxArrowLeft} boxSize={5} />}
-          >
-            <Text variant='medium'>
-              {hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}
-            </Text>
+          <Button variant='outline' onClick={() => selectHat('leftSibling')}>
+            <BoxArrowLeft className='mr-2 h-5 w-5' />
+            <p className='text-medium'>{hatIdDecimalToIp(BigInt(hierarchy?.leftSibling))}</p>
           </Button>
         ) : (
-          <Box w={16} />
+          <div className='w-16' />
         )}
 
-        <HStack>
+        <div className='flex items-center gap-2'>
           {hierarchy?.parentId ? (
-            <Button
-              variant='outline'
-              onClick={() => selectHat('parentId')}
-              leftIcon={<Icon as={BoxArrowUp} boxSize={5} />}
-            >
-              <Text variant='medium'>
-                {hatIdDecimalToIp(BigInt(hierarchy?.parentId))}
-              </Text>
+            <Button variant='outline' onClick={() => selectHat('parentId')}>
+              <BoxArrowUp className='mr-2 h-5 w-5' />
+              <p className='text-medium'>{hatIdDecimalToIp(BigInt(hierarchy?.parentId))}</p>
             </Button>
           ) : (
-            <Box w={16} />
+            <div className='w-16' />
           )}
 
           {hierarchy?.firstChild ? (
-            <Button
-              variant='outline'
-              onClick={() => selectHat('firstChild')}
-              rightIcon={<Icon as={BoxArrowDown} boxSize={5} />}
-            >
-              <Text variant='medium'>
-                {hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}
-              </Text>
+            <Button variant='outline' onClick={() => selectHat('firstChild')}>
+              <p className='text-medium'>{hatIdDecimalToIp(BigInt(hierarchy?.firstChild))}</p>
+              <BoxArrowDown className='ml-2 h-5 w-5' />
             </Button>
           ) : (
-            <Box w={16} />
+            <div className='w-16' />
           )}
-        </HStack>
+        </div>
 
         {hierarchy?.rightSibling ? (
-          <Button
-            variant='outline'
-            onClick={() => selectHat('rightSibling')}
-            rightIcon={<Icon as={BoxArrowRight} boxSize={5} />}
-          >
-            <Text variant='medium'>
-              {hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}
-            </Text>
+          <Button variant='outline' onClick={() => selectHat('rightSibling')}>
+            <p className='text-medium'>{hatIdDecimalToIp(BigInt(hierarchy?.rightSibling))}</p>
+            <BoxArrowRight className='ml-2 h-5 w-5' />
           </Button>
         ) : (
-          <Box w={16} />
+          <div className='w-16' />
         )}
-      </Flex>
-    </Box>
+      </div>
+    </div>
   );
 };
+
+export { BottomMenu };

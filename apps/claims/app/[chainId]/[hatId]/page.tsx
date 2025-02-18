@@ -2,13 +2,13 @@ import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { EligibilityContextProvider } from 'contexts';
 import { first, get, pick, split, toNumber } from 'lodash';
 import { ClaimsConditions, Header } from 'modules-ui';
+import { HatDevDetailsClaims } from 'molecules';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ClaimsHelperButtons, StandaloneBottomMenu } from 'organisms';
-import { Claims } from 'pages';
+import { Claims, ClaimsHelperButtons, StandaloneBottomMenu } from 'organisms';
 import { SupportedChains } from 'types';
 import { HatDeco } from 'ui';
-import { fetchHatsDetailsMesh } from 'utils';
+import { fetchHatsDetailsMesh, logger } from 'utils';
 import { Hex } from 'viem';
 
 const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
@@ -38,6 +38,10 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
                 <ClaimsHelperButtons stackVertically />
               </div>
             </div>
+          </div>
+
+          <div>
+            <HatDevDetailsClaims />
           </div>
 
           <div className='min-h-[250px]'>
@@ -81,8 +85,7 @@ export async function generateMetadata({ params }: TreeDetailsProps): Promise<Me
       };
     })
     .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log(err);
+      logger.error(err);
       return {};
     });
 }

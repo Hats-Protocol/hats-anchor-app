@@ -1,7 +1,12 @@
-export * from './AuthoritiesList';
+export * from './authorities-list';
 export * from './bottom-menu';
-export { default as Controllers } from './Controllers';
-export { default as HatDetailsChanges } from './HatDetailsChanges';
-export { default as MainAction } from './MainAction';
+export * from './claims';
+export * from './controllers';
+export * from './hat-details-changes';
+export * from './hat-drawer';
+export * from './main-action';
 export * from './standalone-navbar';
-export { default as TreesList } from './TreesList';
+export * from './tree-drawer';
+export * from './tree-page';
+export * from './tree-page-mobile';
+export * from './trees-list';

@@ -14,7 +14,7 @@ import { ManageBar } from '../../module-modal';
 import { AddForm } from './add-form';
 import { RemoveForm } from './remove-form';
 
-export const AllowlistForms = ({
+const AllowlistForms = ({
   localForm,
   setUpdateList,
   setUpdating,
@@ -31,16 +31,13 @@ export const AllowlistForms = ({
   const { writeContractAsync } = useWriteContract();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
   const [isLoading, setIsLoading] = useState(false);
-  const { setValue, watch } = pick(localForm, ['setValue', 'watch']);
+  const { watch } = pick(localForm, ['setValue', 'watch']);
   const addressesToAdd = watch('addresses');
 
   const { abi, id: moduleId } = pick(moduleInfo, ['abi', 'id']);
 
   const ownerHat = get(find(moduleParameters, { label: 'Owner Hat' }), 'value');
-  const judgeHat = get(
-    find(moduleParameters, { label: 'Arbitrator Hat' }),
-    'value',
-  );
+  const judgeHat = get(find(moduleParameters, { label: 'Arbitrator Hat' }), 'value');
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address as Hex,
     chainId,
@@ -166,6 +163,7 @@ export const AllowlistForms = ({
   }, [
     addressesToAdd,
     setAdding,
+    chainId,
     // writeContractAsync,
     // setValue,
     moduleInfo.abi,
@@ -182,9 +180,7 @@ export const AllowlistForms = ({
           section: (
             <AddForm
               localForm={localForm}
-              setUpdateList={
-                setUpdateList as Dispatch<SetStateAction<HatWearer[]>>
-              }
+              setUpdateList={setUpdateList as Dispatch<SetStateAction<HatWearer[]>>}
               setAdding={setAdding}
               handleAddWearers={handleAddWearers}
               isLoading={isLoading}
@@ -243,3 +239,5 @@ interface AllowlistFormsProps {
   moduleInfo: ModuleDetails;
   moduleParameters: ModuleParameter[];
 }
+
+export { AllowlistForms };

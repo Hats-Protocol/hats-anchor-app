@@ -1,32 +1,38 @@
+import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get } from 'lodash';
 import { CouncilMember } from 'types';
-import { councilsGraphqlClient } from 'utils';
+import { getCouncilsGraphqlClient } from 'utils';
 
 // TODO support safe or id
 // TODO handle chainId
 const GET_COUNCIL = gql`
-  query getCouncil {
-    # council(where: { hsg: $id }) {
-    council(id: "cm5nwysyo00081tfnoao49rp5") {
+  query getCouncil($id: String!) {
+    council(hsg: $id) {
       id
-      hsg
-      membersSelectionModule
-      membersCriteriaModule
-      # org {
-      #   name
-      # }
-      # // council form fields
+      memberSelectionModule
+      memberCriteriaModule
+      org {
+        name
+      }
     }
   }
 `;
 
-const getOffchainCouncilData = async ({ id, chainId }: { id: string; chainId: number }) => {
-  return councilsGraphqlClient
+const getOffchainCouncilData = async ({
+  id,
+  chainId,
+  accessToken,
+}: {
+  id: string;
+  chainId: number;
+  accessToken: string | null;
+}) => {
+  return getCouncilsGraphqlClient(accessToken ?? undefined)
     .request<{
       updateUser: CouncilMember;
-    }>(GET_COUNCIL) // { id, chainId })
+    }>(GET_COUNCIL, { id, chainId })
     .then((data) => {
       console.log('getOffchainCouncilData - result', data);
       return get(data, 'council');
@@ -39,8 +45,13 @@ const getOffchainCouncilData = async ({ id, chainId }: { id: string; chainId: nu
 };
 
 export const useOffchainCouncilDetails = ({ id, chainId }: { id: string; chainId: number }) => {
+  const { getAccessToken } = usePrivy();
+
   return useQuery({
     queryKey: ['offchainCouncilData', chainId, id],
-    queryFn: () => getOffchainCouncilData({ id, chainId }),
+    queryFn: async () => {
+      const accessToken = await getAccessToken();
+      return getOffchainCouncilData({ id, chainId, accessToken });
+    },
   });
 };

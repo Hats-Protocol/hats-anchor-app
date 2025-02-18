@@ -1,11 +1,6 @@
 import { AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { FiCopy } from 'react-icons/fi';
-import {
-  HatsAccount1ofN,
-  ModuleFunction,
-  SupportedChains,
-  UseCustomToastReturn,
-} from 'types';
+import { HatsAccount1ofN, ModuleFunction, SupportedChains, UseCustomToastReturn } from 'types';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
@@ -53,7 +48,7 @@ export const populateHatsAccountsAuthorities = ({
         onClick: () => {
           if (!predictedAddress) return;
           navigator.clipboard.writeText(predictedAddress); // ? HOOK WORKAROUND HERE
-          toast.info({
+          toast({
             title: 'Successfully copied wearer address to clipboard',
           });
         },
@@ -86,7 +81,7 @@ export const populateHatsAccountsAuthorities = ({
         isCustom: true,
         onClick: () => {
           navigator.clipboard.writeText(wallet.id);
-          toast.info({
+          toast({
             title: 'Successfully copied wearer address to clipboard',
           });
         },

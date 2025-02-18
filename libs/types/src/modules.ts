@@ -3,6 +3,8 @@ import { ReactNode } from 'react';
 import { Hex } from 'viem';
 
 import { SupportedChains } from './chains';
+import { CouncilMember, LabeledModules } from './councils';
+import { AppHat } from './hat';
 
 export type DeploymentType = 'onlyModule' | 'moduleAndClaimsHatter' | 'onlyClaimsHatter';
 
@@ -48,4 +50,20 @@ export interface EligibilityRule {
   module: Module;
   address: `0x${string}`;
   liveParams?: ModuleParameter[] | undefined;
+}
+
+export interface CurrentEligibility {
+  [key: Hex]: {
+    eligible: boolean;
+    goodStanding: boolean;
+  };
+}
+
+export interface StatusManagerProps {
+  rule: EligibilityRule;
+  user: CouncilMember | undefined;
+  selectedHat: AppHat | undefined;
+  chainId: number;
+  labeledModules: LabeledModules | undefined;
+  currentEligibility: CurrentEligibility | undefined;
 }

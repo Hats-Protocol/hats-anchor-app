@@ -104,7 +104,7 @@ export const filterProfiles = ({ profiles, wearerIds }: { profiles: AllowlistPro
 
   return {
     all: profiles,
-    wearer: wearerProfiles,
+    wearers: wearerProfiles,
     eligible,
     ineligible: concat(badStanding, ineligible),
   };

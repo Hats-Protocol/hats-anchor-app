@@ -1,9 +1,9 @@
 'use client';
 
-import { Button } from '@chakra-ui/react';
 import { pick } from 'lodash';
 import { Dispatch, SetStateAction } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
+import { Button } from 'ui';
 
 import { Input } from '../components';
 
@@ -25,16 +25,8 @@ export const CouncilDetailsForm = ({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(submitCouncilDetails)}
-      className='flex h-full flex-col justify-between'
-    >
-      <Input
-        name='test'
-        label='Test 1'
-        localForm={localForm}
-        options={{ required: true }}
-      />
+    <form onSubmit={handleSubmit(submitCouncilDetails)} className='flex h-full flex-col justify-between'>
+      <Input name='test' label='Test 1' localForm={localForm} options={{ required: true }} />
 
       <div className='flex justify-end'>
         <Button type='submit'>Next</Button>

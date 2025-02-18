@@ -1,29 +1,27 @@
-import { NumberInput } from './components';
-
-import { RadioBox } from 'forms';
 import { UseFormReturn } from 'react-hook-form';
 
+import { FormLabel, NumberInput, RadioBox } from './components';
+
 // TO BE USED WITHIN A FORM
-export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormReturn<any>; isDisabled?: boolean }) {
+function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProps) {
   const { watch } = form;
-  const thresholdType = watch('thresholdType');
-  const percentageRequired = watch('percentageRequired');
-  const minConfirmations = watch('minConfirmations');
-  const maxMembers = watch('maxMembers');
+  const { thresholdType, target, min, maxMembers } = watch();
 
   const calculateConfirmations = (total: number) => {
     if (thresholdType === 'RELATIVE') {
-      return Math.ceil((total * (percentageRequired || 0)) / 100);
+      return Math.ceil((total * (target || 0)) / 100);
     }
     return watch('confirmationsRequired');
   };
 
+  if (!thresholdType) return null;
+
   return (
     <>
-      <div>
-        <label className='font-bold'>What&apos;s the Signer Threshold logic</label>
+      <div className='space-y-2'>
         <RadioBox
           name='thresholdType'
+          label='How are decisions made for this council?'
           localForm={form}
           options={[
             { label: 'Fixed number of confirmations', value: 'ABSOLUTE' },
@@ -34,15 +32,16 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
           ]}
           textSize='md'
           isDisabled={isDisabled}
+          variant='councils'
         />
       </div>
 
       {thresholdType === 'ABSOLUTE' ? (
         <div className='space-y-6'>
           <div className='flex flex-col gap-2'>
-            <label className='font-bold'>Confirmations required</label>
             <NumberInput
-              name='confirmationsRequired'
+              name='min'
+              label='Confirmations required'
               localForm={form}
               options={{
                 min: 1,
@@ -50,19 +49,22 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
                 required: true,
               }}
               isDisabled={isDisabled}
+              variant='councils'
             />
           </div>
 
           <div className='flex flex-col gap-2'>
-            <label className='font-bold'>Total council members</label>
             <NumberInput
               name='maxMembers'
+              label='Total council members'
               localForm={form}
               options={{
-                min: 1,
+                min: min,
                 required: true,
               }}
               isDisabled={isDisabled}
+              tooltip='The total number of members in the council'
+              variant='councils'
             />
           </div>
         </div>
@@ -70,12 +72,11 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
         <div className='space-y-6'>
           <div className='flex w-full gap-4'>
             <div className='flex w-full flex-col gap-y-2'>
-              <label className='font-bold'>Confirmations required</label>
               <div className='flex'>
-                <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>%</div>
                 <div className='flex-1'>
                   <NumberInput
-                    name='percentageRequired'
+                    name='target'
+                    label='Confirmations required'
                     localForm={form}
                     options={{
                       min: 1,
@@ -83,14 +84,22 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
                       required: true,
                     }}
                     isDisabled={isDisabled}
+                    inputClassName='rounded-l-none'
+                    prefix={
+                      <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>
+                        %
+                      </div>
+                    }
+                    variant='councils'
                   />
                 </div>
               </div>
             </div>
+
             <div className='flex w-full flex-col gap-y-2'>
-              <label className='font-bold'>Minimum confirmations</label>
               <NumberInput
-                name='minConfirmations'
+                name='min'
+                label='Minimum confirmations'
                 localForm={form}
                 options={{
                   min: 1,
@@ -98,21 +107,24 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
                   required: true,
                 }}
                 isDisabled={isDisabled}
+                variant='councils'
               />
             </div>
           </div>
 
           <div className='flex w-full flex-col gap-2'>
-            <label className='font-bold'>Total council members</label>
             <NumberInput
               name='maxMembers'
+              label='Total council members'
               localForm={form}
-              helperText={`${calculateConfirmations(maxMembers)} Confirmations required`}
+              helperText={`${calculateConfirmations(maxMembers)} confirmation${calculateConfirmations(maxMembers) > 1 ? 's' : ''} required`}
               options={{
-                min: minConfirmations,
+                min: min,
                 required: true,
               }}
               isDisabled={isDisabled}
+              tooltip='The total number of members in the council'
+              variant='councils'
             />
           </div>
         </div>
@@ -120,3 +132,11 @@ export function SignerThresholdSubForm({ form, isDisabled }: { form: UseFormRetu
     </>
   );
 }
+
+interface SignerThresholdSubFormProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
+  isDisabled?: boolean;
+}
+
+export { SignerThresholdSubForm };
