@@ -77,8 +77,8 @@ export const findCurrentTermEndValue = (parameters: ModuleParameter[]) => {
 
 /**
  * Creates a URL for the Safe app. Generally used for controllers and wearers.
- * @param chainId the chainId of the Safe
- * @param address the address of the Safe
+ * @param chainId - the chainId of the Safe
+ * @param address - the address of the Safe
  * @returns a string URL for the Safe app
  */
 export const safeUrl = (chainId: SupportedChains | undefined, address: Hex | undefined) => {
@@ -88,8 +88,8 @@ export const safeUrl = (chainId: SupportedChains | undefined, address: Hex | und
 
 /**
  * Creates a URL for the DaoHaus app. Generally used for DAOs.
- * @param chainId the chainId of the DAO
- * @param address the address of the DAO
+ * @param chainId - the chainId of the DAO
+ * @param address - the address of the DAO
  * @returns a string URL for the DaoHaus app
  */
 export const daohausUrl = (chainId: SupportedChains, address: Hex | undefined) => {

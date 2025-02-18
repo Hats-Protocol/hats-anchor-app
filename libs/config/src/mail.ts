@@ -27,10 +27,15 @@ export const COUNCIL_COPY_FIELDS = [
 
 const MAIN_COUNCIL_FIELDS = [
   { name: 'creatorName', label: 'Creator Name' },
+  { name: 'creatorEmail', label: 'Creator Email' },
   { name: 'councilName', label: 'Council Name' },
   { name: 'orgName', label: 'Organization Name' },
   { name: 'chainName', label: 'Chain Name' },
   { name: 'councilMembersLink', label: 'Council Members Link' },
+  { name: 'councilSafeLink', label: 'Council Safe Link' },
+  { name: 'subscriptionInfo', label: 'Subscription Info' },
+  // deploy transaction -- handle specifically for the deploy email(s)
+  { name: 'deployTransactionLink', label: 'Deploy Transaction Link' },
 ];
 
 export const INITIAL_INVITE = {

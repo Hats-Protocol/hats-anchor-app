@@ -6,7 +6,6 @@ import { useWearerDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilsList, useMediaStyles } from 'hooks';
 import { concat, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
-import { useEffect } from 'react';
 import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Skeleton } from 'ui';
 import { chainIdToString, fetchAllowlistEntries, ipfsUrl, logger } from 'utils';
@@ -38,7 +37,7 @@ const CouncilListPage = () => {
   const { user, login } = usePrivy();
   const chainId = useChainId();
   const { isClient } = useMediaStyles();
-  const { isAuthorized, isReady, isWalletLocked, needsLogin } = useAuthGuard();
+  const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 
   // fetch user's hats
   const { data: wearerHats, isLoading: wearerHatsLoading } = useWearerDetails({
