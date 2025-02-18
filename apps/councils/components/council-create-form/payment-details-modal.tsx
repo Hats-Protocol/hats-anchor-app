@@ -178,6 +178,7 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
             <div className='space-y-2'>
               <Input
                 name='email'
+                label='Email'
                 labelNote='Hidden'
                 variant='councils'
                 localForm={modalForm}
