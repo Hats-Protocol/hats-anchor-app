@@ -6,6 +6,7 @@ import { useWearerDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilsList, useMediaStyles } from 'hooks';
 import { concat, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
+import { useEffect } from 'react';
 import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Skeleton } from 'ui';
 import { chainIdToString, fetchAllowlistEntries, ipfsUrl } from 'utils';
@@ -34,20 +35,20 @@ const EMPTY_COUNCIL_STEPS = [
 
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
-  const { user, login, authenticated } = usePrivy();
+  const { user, login, authenticated, connectWallet } = usePrivy();
   const chainId = useChainId();
   const { isClient } = useMediaStyles();
   const { isAuthorized, isReady } = useAuthGuard();
 
-  console.log('CouncilListPage State:', {
-    userAddress,
-    user,
-    authenticated,
-    isAuthorized,
-    isReady,
-    hasPrivyWallet: !!user?.wallet,
-    walletAddress: user?.wallet?.address,
-  });
+  // Reconnect wallet when locked
+  useEffect(() => {
+    const handleLock = async () => {
+      if (authenticated && user && !userAddress) {
+        await connectWallet();
+      }
+    };
+    handleLock();
+  }, [authenticated, user, userAddress, connectWallet]);
 
   // fetch user's hats
   const { data: wearerHats, isLoading: wearerHatsLoading } = useWearerDetails({
@@ -88,25 +89,12 @@ const CouncilListPage = () => {
     );
   }
 
-  // Handle locked wallet state - this needs to be checked before the landing page
-  if (authenticated && user && !userAddress) {
-    console.log('Showing locked wallet state');
-    return (
-      <div className='relative mx-auto mt-20 flex h-[85vh] max-w-[1000px] flex-col gap-4'>
-        <Card className='z-10 mx-auto w-[750px] space-y-12 bg-white/90 px-20 py-12'>
-          <div className='text-3xl font-bold'>Wallet Locked</div>
-          <p className='text-lg'>Please unlock your MetaMask wallet to continue.</p>
-          <Button size='xl' rounded='full' onClick={() => login()} className='bg-functional-link-primary'>
-            Unlock Wallet
-            <ArrowRightCircle className='ml-1 !size-5 text-white' />
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
   // Show landing page only if no Privy session
-  if (!user || (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading)) {
+  if (
+    !user ||
+    (!userAddress && !authenticated) ||
+    (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading)
+  ) {
     return (
       <div className='relative mx-auto mt-20 flex h-[85vh] max-w-[1000px] flex-col gap-4'>
         <Card className='z-10 mx-auto w-[750px] space-y-12 bg-white/90 px-20 py-12'>
