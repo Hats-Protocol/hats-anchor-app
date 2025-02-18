@@ -3,7 +3,6 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useEffect, useRef } from 'react';
 import { logger } from 'utils';
-import { useAccount } from 'wagmi';
 
 // This hook can be dropped in to individual client-side components
 // We can also do at the full page level, but if we want server side we'll need another approach
@@ -11,30 +10,18 @@ import { useAccount } from 'wagmi';
 
 export const useAuthGuard = () => {
   const { login, user, authenticated, ready, isModalOpen } = usePrivy();
-  const { address: userAddress } = useAccount();
   const hasTriggeredLogin = useRef(false);
   const isMounted = useRef(false);
 
   useEffect(() => {
-    console.log('AuthGuard Effect:', {
-      ready,
-      authenticated,
-      user,
-      userAddress,
-      hasTriggeredLogin: hasTriggeredLogin.current,
-      isModalOpen,
-    });
-
     if (!ready) return;
 
-    if (!isModalOpen && (!authenticated || !userAddress)) {
-      console.log('AuthGuard: Resetting hasTriggeredLogin');
+    if (!isModalOpen && !authenticated) {
       hasTriggeredLogin.current = false;
     }
 
     const handleAuth = async () => {
-      if ((!authenticated || !userAddress) && !hasTriggeredLogin.current) {
-        console.log('AuthGuard: Triggering login');
+      if (!authenticated && !hasTriggeredLogin.current) {
         hasTriggeredLogin.current = true;
         try {
           await login();
@@ -47,20 +34,16 @@ export const useAuthGuard = () => {
     };
 
     if (!isMounted.current) {
-      console.log('AuthGuard: First mount, checking auth');
       isMounted.current = true;
       handleAuth();
     }
     return () => {
       isMounted.current = false;
     };
-  }, [ready, authenticated, login, isModalOpen, user?.wallet, userAddress]);
-
-  const isAuthorized = authenticated && !!userAddress;
-  console.log('AuthGuard Return:', { isAuthorized, ready, userAddress });
+  }, [ready, authenticated, login, isModalOpen]);
 
   return {
-    isAuthorized,
+    isAuthorized: authenticated && user?.wallet,
     isReady: ready,
   };
 };
