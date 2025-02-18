@@ -3,14 +3,12 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { CouncilMember } from 'types';
 import { Skeleton } from 'ui';
-import { councilsGraphqlClient, CREATE_INITIAL_FORM, CREATE_USER, logger } from 'utils';
+import { CREATE_INITIAL_FORM, CREATE_USER, getCouncilsGraphqlClient, logger } from 'utils';
 import { useChainId } from 'wagmi';
-
 const NewCouncil = () => {
   const router = useRouter();
-  const { user, authenticated, ready } = usePrivy();
+  const { user, authenticated, ready, getAccessToken } = usePrivy();
   const chainId = useChainId();
   const hasAttemptedCreate = useRef(false);
 
@@ -24,11 +22,17 @@ const NewCouncil = () => {
     const createForm = async () => {
       try {
         hasAttemptedCreate.current = true;
+        const accessToken = await getAccessToken();
 
         // First create or update the user
         const userResult: {
-          createUser: CouncilMember;
-        } = await councilsGraphqlClient.request(CREATE_USER, {
+          createUser: {
+            id: string;
+            address: string;
+            email: string;
+            name: string;
+          };
+        } = await getCouncilsGraphqlClient(accessToken ?? undefined).request(CREATE_USER, {
           address: user!.wallet!.address,
           email: user!.email!.address,
           name: user!.email!.address.split('@')[0],
@@ -37,7 +41,7 @@ const NewCouncil = () => {
         // Then create the council form
         const result: {
           createCouncilCreationForm: { id: string };
-        } = await councilsGraphqlClient.request(CREATE_INITIAL_FORM, {
+        } = await getCouncilsGraphqlClient(accessToken ?? undefined).request(CREATE_INITIAL_FORM, {
           creator: user!.wallet!.address,
           chain: chainId,
           admins: [
@@ -59,7 +63,7 @@ const NewCouncil = () => {
     };
 
     createForm();
-  }, [ready, authenticated, user, chainId, router]);
+  }, [ready, authenticated, user, router, getAccessToken]);
 
   return (
     <div className='grid-cols-20 grid min-h-screen w-full pb-24 pt-24'>

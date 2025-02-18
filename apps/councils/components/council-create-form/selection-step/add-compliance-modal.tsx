@@ -1,10 +1,13 @@
+'use client';
+
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useCouncilForm, useOverlay } from 'contexts';
 import { AddressInput, Form, Input } from 'forms';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember } from 'types';
-import { chainsMap, councilsGraphqlClient, CREATE_USER, getChainId, logger, UPDATE_USER } from 'utils';
+import { chainsMap, CREATE_USER, getChainId, getCouncilsGraphqlClient, logger, UPDATE_USER } from 'utils';
 import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
@@ -18,6 +21,7 @@ interface AddComplianceModalProps {
 
 export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = true }: AddComplianceModalProps) {
   const selectedChain = parentForm.watch('chain').value;
+  const { getAccessToken } = usePrivy();
   const chainId = getChainId(selectedChain);
   const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();
@@ -42,7 +46,8 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
 
   const createUserMutation = useMutation({
     mutationFn: async (variables: { address: string; email: string; name?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         createUser: CouncilMember;
       }>(CREATE_USER, variables);
       return result.createUser;
@@ -51,7 +56,8 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
 
   const updateUserMutation = useMutation({
     mutationFn: async (variables: { id: string; address: string; email: string; name?: string }) => {
-      const result = await councilsGraphqlClient.request<{
+      const accessToken = await getAccessToken();
+      const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables);
       return result.updateUser;
