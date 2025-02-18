@@ -72,22 +72,6 @@ const CouncilListPage = () => {
     );
   }
 
-  // Handle locked wallet state
-  if (isWalletLocked) {
-    return (
-      <div className='relative mx-auto mt-20 flex h-[85vh] max-w-[1000px] flex-col gap-4'>
-        <Card className='z-10 mx-auto w-[750px] space-y-12 bg-white/90 px-20 py-12'>
-          <div className='text-3xl font-bold'>Wallet Locked</div>
-          <p className='text-lg'>Please unlock your MetaMask wallet to continue.</p>
-          <Button size='xl' rounded='full' onClick={() => login()} className='bg-functional-link-primary'>
-            Unlock Wallet
-            <ArrowRightCircle className='ml-1 !size-5 text-white' />
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
   // Show landing page if needs login or has no councils
   if (
     needsLogin ||

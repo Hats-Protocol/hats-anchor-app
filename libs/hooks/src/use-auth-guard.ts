@@ -10,7 +10,7 @@ import { useAccount } from 'wagmi';
 // We can export the specific states from this, such as isReady and isAuthorized, and add specific UI states to the consuming components if needed
 
 export const useAuthGuard = () => {
-  const { login, user, authenticated, ready, isModalOpen, logout } = usePrivy();
+  const { login, user, authenticated, ready, isModalOpen, logout, linkEmail } = usePrivy();
   const { address: userAddress } = useAccount();
   const hasTriggeredLogin = useRef(false);
   const isMounted = useRef(false);
@@ -18,10 +18,17 @@ export const useAuthGuard = () => {
   // Handle MetaMask lock state
   useEffect(() => {
     if (authenticated && user?.wallet && !userAddress) {
-      console.log('MetaMask locked detected, logging out of Privy');
+      logger.info('MetaMask locked detected, logging out of Privy');
       logout();
     }
   }, [authenticated, user?.wallet, userAddress, logout]);
+
+  // if !user.email, call the linkEmail() function from Privy
+  useEffect(() => {
+    if (authenticated && !user?.email) {
+      linkEmail();
+    }
+  }, [authenticated, user?.email]);
 
   useEffect(() => {
     if (!ready) return;
