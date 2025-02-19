@@ -6,7 +6,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { CouncilTransferForm } from 'forms';
-import { useHatDetails } from 'hats-hooks';
+import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
@@ -135,7 +135,11 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
   });
   const userIsTopHat = !!find(topHatDetails?.wearers, { id: toLower(userAddress) });
-  const extendedOwnerHatWearers = map(ownerHat?.wearers, (wearer) => ({
+  const { wearers: ownerHatWearers } = useAllWearers({
+    selectedHat: ownerHat,
+    chainId: (chainId ?? 11155111) as SupportedChains,
+  });
+  const extendedOwnerHatWearers = map(ownerHatWearers, (wearer) => ({
     ...wearer,
     ...find(allWearers, { address: getAddress(wearer.id) }),
   })); // transform includes address as wearer identifier
