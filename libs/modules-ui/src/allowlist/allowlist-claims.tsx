@@ -3,7 +3,7 @@
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useAllWearers, useHatDetails } from 'hats-hooks';
-import { find, get, includes, isEmpty, map, toLower } from 'lodash';
+import { filter, find, get, includes, isEmpty, map, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
@@ -20,6 +20,8 @@ const ALLOWLIST_COPY = {
   compliance: {
     heading: 'Pass Compliance Checks',
     subheading: "Contact the Compliance Manager to confirm you're compliant",
+    allowedLabel: 'Compliant Members',
+    allowedSublabel: 'Members who have passed compliance checks',
     admin: 'Compliance Manager',
     adminLabel: 'Conducts compliance checks on Council Members',
     allowed: 'Compliant',
@@ -28,6 +30,8 @@ const ALLOWLIST_COPY = {
   selection: {
     heading: 'Be appointed to the council',
     subheading: 'Contact the Council Managers to be selected',
+    allowedLabel: 'Council Members',
+    allowedSublabel: 'Members who have been appointed to the council',
     admin: 'Council Manager',
     adminLabel: 'Manages the council',
     allowed: 'Selected',
@@ -36,6 +40,8 @@ const ALLOWLIST_COPY = {
   allowlist: {
     heading: 'Be added to the allowlist',
     subheading: 'Contact the allowlist manager to be added',
+    allowedLabel: 'Allowlist Members',
+    allowedSublabel: 'Members who have been added to the allowlist',
     admin: 'Allowlist Manager',
     adminLabel: 'Manages the allowlist',
     allowed: 'Allowed',
@@ -65,7 +71,8 @@ export const AllowlistClaims = ({
   // Transform the raw allowlist data to HatWearer type
   const allowlist = useMemo(() => {
     if (!allowlistData) return [];
-    return map(allowlistData, (profile) => ({
+    const eligibleAddresses = filter(allowlistData, (profile) => profile.eligible && !profile.badStanding);
+    return map(eligibleAddresses, (profile) => ({
       id: profile.address as Hex,
     }));
   }, [allowlistData]);
@@ -121,7 +128,7 @@ export const AllowlistClaims = ({
         <div className='flex justify-between'>
           <div>
             <h3 className='text-2xl font-bold'>{copy.heading}</h3>
-            <p className='mt-2 text-sm text-gray-600'>Get appointed by a Council Manager to join the council</p>
+            <p className='mt-2 text-sm text-gray-600'>{copy.subheading}</p>
           </div>
 
           {isInAllowlist ? (
@@ -141,8 +148,8 @@ export const AllowlistClaims = ({
           {/* Council Members Section */}
           <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-1'>
-              <h4 className='text-xl font-bold'>Council Members</h4>
-              <p className='text-sm text-gray-600'>Current members of the council</p>
+              <h4 className='text-xl font-bold'>{copy.allowedLabel}</h4>
+              <p className='text-sm text-gray-600'>{copy.allowedSublabel}</p>
             </div>
 
             <div className='flex flex-col gap-2'>
@@ -158,7 +165,7 @@ export const AllowlistClaims = ({
                   );
                 })
               ) : (
-                <p className='text-sm text-gray-600'>None added yet</p>
+                <p className='text-gray-600'>None added yet</p>
               )}
             </div>
           </div>
