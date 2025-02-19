@@ -2,13 +2,14 @@
 
 import { COUNCIL_COPY_FIELDS, MailFormData, PLACEHOLDERS } from '@hatsprotocol/config';
 import { Form, Input } from 'forms';
+import { safeUrl } from 'hats-utils';
 import { useToast } from 'hooks';
-import { compact, find, get, isEmpty, map, pick, size } from 'lodash';
+import { compact, find, get, isEmpty, map, size } from 'lodash';
 import { ExternalLink } from 'lucide-react';
 import { posthog } from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { ExtendedHSGV2, OffchainCouncilData } from 'types';
+import { ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Link } from 'ui';
 import {
   camelCaseToWords,
@@ -153,7 +154,7 @@ const MailForm = ({
 
     reset({
       creatorName: creator?.name || formatAddress(offchainCouncilDetails.creationForm.creator),
-      // address: councilAddress,
+      creatorEmail: creator?.email,
       councilName: councilName,
       orgName: organizationName,
       chainName: chainsMap(chainId).name,
@@ -165,8 +166,16 @@ const MailForm = ({
       councilTitleUpper: PLACEHOLDERS.councilTitleUpper,
       complianceManagerAccessory: size(complianceManagers) > 1 ? 'a' : 'the',
       // not shown in form, but passed to email data
-      councilMembers: map(offchainCouncilDetails.creationForm.members, (m) => pick(m, ['name'])),
+      councilMembers: map(offchainCouncilDetails.creationForm.members, ({ name, address }) => ({
+        name,
+        address: formatAddress(address),
+      })),
+      councilSafeLink: safeUrl(chainId as SupportedChains, councilDetails.safe),
+      subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
+      // deployTransactionLink: councilDetails.deployTransaction,
     });
+    // don't include reset in dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offchainCouncilDetails, councilDetails]);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';

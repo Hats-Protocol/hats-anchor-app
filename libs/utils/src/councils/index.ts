@@ -31,6 +31,7 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
+    // TODO check isAddress first here - https://hats-protocol.sentry.io/issues/6311299196
     return { chainId: checkChainId(chain), address: getAddress(address) };
   }
 
@@ -41,6 +42,7 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
+    // TODO check isAddress first here -  https://hats-protocol.sentry.io/issues/6311299196
     return { chainId: checkChainId(chain), address: getAddress(address) };
   }
 

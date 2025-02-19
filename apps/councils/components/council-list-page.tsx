@@ -3,12 +3,12 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
-import { useCouncilsList, useMediaStyles } from 'hooks';
+import { useAuthGuard, useCouncilsList, useMediaStyles } from 'hooks';
 import { concat, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
 import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Skeleton } from 'ui';
-import { chainIdToString, fetchAllowlistEntries, ipfsUrl } from 'utils';
+import { chainIdToString, fetchAllowlistEntries, ipfsUrl, logger } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -34,20 +34,24 @@ const EMPTY_COUNCIL_STEPS = [
 
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
-  const { user, login, authenticated } = usePrivy();
+  const { user, login } = usePrivy();
   const chainId = useChainId();
   const { isClient } = useMediaStyles();
+  const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 
   // fetch user's hats
   const { data: wearerHats, isLoading: wearerHatsLoading } = useWearerDetails({
-    wearerAddress: !!user ? (userAddress as Hex) : undefined,
+    wearerAddress: isAuthorized ? (userAddress as Hex) : undefined,
     chainId, // TODO migrate to all chains
   });
+
   // fetch allowlists that the user has been added to
   const { data: allowlistHats, isLoading: allowlistHatsLoading } = useQuery({
     queryKey: ['allowlistHats', { userAddress, chainId }],
     queryFn: () => fetchAllowlistEntries(userAddress as Hex, chainId as SupportedChains),
+    enabled: !!isAuthorized && !!userAddress,
   });
+
   const combinedHats =
     !wearerHatsLoading && !allowlistHatsLoading ? concat(map(wearerHats, 'id'), map(allowlistHats, 'hatId')) : null;
 
@@ -57,7 +61,25 @@ const CouncilListPage = () => {
     chainId,
   });
 
-  if (!user || (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading)) {
+  if (!isReady) {
+    return (
+      <div className='mx-auto mt-20 flex max-w-[1400px] flex-col gap-4'>
+        {map(Array(5), (_, index) => (
+          <Skeleton key={index} className='bg-functional-link-primary/10 h-[125px] w-full' />
+        ))}
+      </div>
+    );
+  }
+
+  // TODO consolidate lookups from CouncilHeader here also
+
+  logger.debug('wearerHats', wearerHats, 'councils', councils);
+
+  // Show landing page if needs login or has no councils
+  if (
+    needsLogin ||
+    (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading)
+  ) {
     return (
       <div className='relative mx-auto mt-20 flex h-[85vh] max-w-[1000px] flex-col gap-4'>
         <Card className='z-10 mx-auto w-[750px] space-y-12 bg-white/90 px-20 py-12'>
@@ -102,7 +124,7 @@ const CouncilListPage = () => {
 
   if (!isEmpty(councils) && !councilsLoading && !wearerHatsLoading) {
     return (
-      <div className='mx-auto mt-20 flex min-h-screen max-w-[1400px] flex-col gap-4'>
+      <div className='mx-auto mt-20 flex min-h-screen max-w-[1400px] flex-col gap-4 px-10'>
         {map(councils, (council) => (
           <Link
             href={`/councils/${chainIdToString(chainId)}:${getAddress(council.id)}/members`}

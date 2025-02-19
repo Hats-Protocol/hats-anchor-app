@@ -1,10 +1,12 @@
 'use client';
 
+import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, Form, Input, Textarea } from 'forms';
 import { useCouncilDeployFlag } from 'hooks';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
+import { getOrganizationByName } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -13,6 +15,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { watch, handleSubmit } = localForm;
   const requirements = watch('requirements');
+  const { getAccessToken } = usePrivy();
 
   useCouncilDeployFlag(draftId);
 
@@ -36,7 +39,17 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
               subLabel='The name of the organization you are creating councils for.'
               variant='councils'
               placeholder='DAO or Company Name'
-              options={{ required: true }}
+              options={{
+                required: true,
+                validate: async (value) => {
+                  const accessToken = await getAccessToken();
+                  const existingOrganization = await getOrganizationByName({ name: value, accessToken });
+                  if (existingOrganization) {
+                    return 'Organization with this name already exists!';
+                  }
+                  return true;
+                },
+              }}
               isDisabled={!canEdit}
             />
           </div>

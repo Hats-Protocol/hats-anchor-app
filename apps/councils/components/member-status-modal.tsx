@@ -4,11 +4,13 @@ import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
+import { safeUrl } from 'hats-utils';
 import { useSafeDetails, useToast, useWaitForSubgraph } from 'hooks';
-import { every, flatten, get, has, includes, map, toLower } from 'lodash';
+import { every, find, flatten, get, has, includes, map, size, toLower } from 'lodash';
 import { AgreementStatusManager, AllowlistStatusManager, Erc20StatusManager } from 'modules-ui';
 import posthog from 'posthog-js';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { AiOutlineMail } from 'react-icons/ai';
 import { BsCheckSquareFill, BsExclamationSquare, BsXOctagonFill } from 'react-icons/bs';
 import type {
   AppHat,
@@ -20,9 +22,11 @@ import type {
   SupportedChains,
 } from 'types';
 import { Button, MemberAvatar } from 'ui';
-import { chainsMap, getKnownEligibilityModule } from 'utils';
+import { chainIdToString, chainsMap, formatAddress, getAllWearers, getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 import { useChainId, useSwitchChain, useWriteContract } from 'wagmi';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://pro.hatsprotocol.xyz';
 
 type UserStatusModalProps = {
   chainId: number;
@@ -42,6 +46,62 @@ const KnownModuleStatusManagers = {
   erc20: Erc20StatusManager,
   // erc721: Erc721StatusManager,
   // erc1155: Erc1155StatusManager,
+};
+
+const prepEmailVariables = ({
+  notificationId,
+  chainId,
+  offchainCouncilData,
+  safe,
+  receiver,
+  selectedHat,
+}: {
+  notificationId: string;
+  chainId: number | undefined;
+  offchainCouncilData: OffchainCouncilData | undefined;
+  safe: Hex | undefined;
+  receiver: CouncilMember | undefined;
+  selectedHat: AppHat | undefined;
+}) => {
+  if (!offchainCouncilData || !receiver || !selectedHat || !chainId) return undefined;
+
+  const allWearers = getAllWearers(offchainCouncilData);
+  const creator = find(allWearers, { address: offchainCouncilData.creationForm.creator });
+  const url = !includes(window.location.origin, 'localhost') ? window.location.origin : API_URL;
+  const councilMembers = offchainCouncilData.creationForm.members.map(({ name, address }) => ({
+    name,
+    address: formatAddress(address),
+  }));
+
+  const complianceManagers = offchainCouncilData.creationForm.complianceAdmins;
+
+  return {
+    notificationId,
+    // receiver
+    name: receiver.name,
+    address: receiver.address,
+    email: receiver.email,
+    userId: receiver.id,
+    // council
+    councilId: offchainCouncilData.id,
+    councilName: offchainCouncilData.creationForm.councilName,
+    creatorName: creator?.name,
+    creatorEmail: creator?.email,
+    orgName: offchainCouncilData.creationForm.organizationName,
+    chainName: chainsMap(chainId)?.name,
+    councilMembersLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.id}/members`,
+    councilSafeLink: safeUrl(chainId as SupportedChains, safe),
+    subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
+    // deploy transaction -- handle specifically for the deploy email(s)
+    councilMembers,
+    // copy
+    complianceTitle: 'Compliance Manager',
+    memberTitle: 'Council Member',
+    memberName: 'member',
+    councilTitle: 'council',
+    councilTitleUpper: 'Council',
+    complianceManagerAccessory: size(complianceManagers) > 1 ? 'a' : 'the',
+  };
 };
 
 const MemberStatusManager = ({
@@ -80,6 +140,7 @@ function MemberStatusModal({
   afterSuccess,
   selectedHat,
 }: UserStatusModalProps) {
+  const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const { setModals, handlePendingTx } = useOverlay();
   const { toast } = useToast();
@@ -141,6 +202,41 @@ function MemberStatusModal({
     });
   };
 
+  const handleInvite = async () => {
+    setLoading(true);
+    const invite = prepEmailVariables({
+      notificationId: 'invite_council_member',
+      chainId,
+      offchainCouncilData,
+      receiver: user || undefined,
+      selectedHat: selectedHat || undefined,
+      safe: councilData?.safe as Hex,
+    });
+    logger.debug('invite', invite);
+    if (!invite) return;
+    // const url = !includes(window.location.origin, 'localhost') ? window.location.origin : API_URL;
+
+    const result = await fetch(`${window.location.origin}/api/request-notify`, {
+      method: 'POST',
+      body: JSON.stringify({ notifications: [invite] }),
+    });
+
+    await result.json();
+
+    if (result.ok) {
+      toast({
+        title: 'Invitation sent',
+        description: `Invitation sent to ${user?.name}`,
+      });
+    } else {
+      toast({
+        title: 'Invitation failed',
+        description: 'Invitation failed to send',
+      });
+    }
+    setLoading(false);
+  };
+
   return (
     <Modal name={`member-status-${user?.address}`} title={`Edit ${userLabel || 'Council Member'} Status`} size='xl'>
       <div className='flex flex-col gap-6 pb-4'>
@@ -189,6 +285,11 @@ function MemberStatusModal({
               </div>
             )}
           </div>
+
+          <Button variant='link' className='text-base' onClick={handleInvite} disabled={loading}>
+            <AiOutlineMail className='mr-1 size-4' />
+            {loading ? 'Sending...' : 'Send invitation'}
+          </Button>
 
           {!isEligibleSigner &&
             isSigner &&

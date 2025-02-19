@@ -15,6 +15,8 @@ export type HandlePendingTxProps = {
   // tx handling
   waitForSubgraph: AsyncTxHandler;
   onSuccess: SyncTxHandler;
+  onTxAccepted?: SyncTxHandler;
+  onTxIndexed?: SyncTxHandler;
   // optional, after success
   redirect?: string | null;
   clearModals?: boolean;

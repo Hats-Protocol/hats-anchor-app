@@ -17,7 +17,7 @@ const LearnMoreCard = ({ docsData }: FeatureDocsCardProps) => {
     <Link href={url} className='rounded-md shadow hover:no-underline' isExternal>
       <Card className='flex h-full items-start gap-6 rounded-md border-gray-400 bg-white/70 p-5'>
         {displayIcon}
-        <div className='flex w-2/3 flex-col gap-2 md:flex-row'>
+        <div className='flex w-2/3 flex-col gap-2'>
           <p className='font-medium'>{name}</p>
           <p className='text-sm'>{description}</p>
         </div>

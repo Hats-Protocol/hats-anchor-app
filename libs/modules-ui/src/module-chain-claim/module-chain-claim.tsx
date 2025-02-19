@@ -35,11 +35,9 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
   useAuthGuard();
 
   // TODO better loading state
-  if (typeof window === 'undefined' || isLoading) {
+  if (typeof window === 'undefined' || isLoading || !hatId) {
     return <Skeleton className='mx-auto h-[600px] w-full max-w-screen-lg' />;
   }
-
-  if (!hatId) return null;
 
   return (
     <EligibilityContextProvider hatId={hatId} chainId={(chainId || undefined) as SupportedChains}>
