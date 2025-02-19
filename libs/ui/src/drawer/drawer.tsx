@@ -11,14 +11,39 @@ const DrawerContext = React.createContext<{ direction?: 'right' | 'top' | 'botto
 });
 
 const Drawer = ({
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   direction = 'right',
+  modal,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerContext.Provider value={{ direction }}>
-    <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} direction={direction} {...props} />
-  </DrawerContext.Provider>
-);
+}: React.ComponentProps<typeof DrawerPrimitive.Root>) => {
+  // Adds this in here to avoid circular dependency with useMediaQuery from hooks
+  // Initial check for SSR compatibility
+  const [isDesktop, setIsDesktop] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : true,
+  );
+
+  React.useEffect(() => {
+    const query = window.matchMedia('(min-width: 768px)');
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+
+  // Default to modal on mobile, but allow explicit override
+  const shouldBeModal = modal ?? !isDesktop;
+
+  return (
+    <DrawerContext.Provider value={{ direction }}>
+      <DrawerPrimitive.Root
+        shouldScaleBackground={shouldScaleBackground}
+        direction={direction}
+        modal={shouldBeModal}
+        {...props}
+      />
+    </DrawerContext.Provider>
+  );
+};
 Drawer.displayName = 'Drawer';
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
@@ -58,7 +83,11 @@ const DrawerContent = React.forwardRef<
   return (
     <DrawerPortal>
       {!hideOverlay && <DrawerOverlay />}
-      <DrawerPrimitive.Content ref={ref} className={cn(drawerContentVariants({ direction, className }))} {...props}>
+      <DrawerPrimitive.Content
+        ref={ref}
+        className={cn(drawerContentVariants({ direction }), 'bg-background pointer-events-auto', className)}
+        {...props}
+      >
         {/* <div className='mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted' /> */}
         {children}
       </DrawerPrimitive.Content>
