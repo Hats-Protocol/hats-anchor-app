@@ -4,7 +4,7 @@ import { cn } from '../lib/utils';
 const Slide = ({
   open,
   onClose,
-  overlay = false, // TODO implement with overlay
+  overlay = false,
   className,
   children,
   ...props
@@ -17,9 +17,18 @@ const Slide = ({
   dismissible?: boolean;
 }) => {
   return (
-    <Drawer direction='right' open={open} onClose={onClose} {...props}>
-      {/* {overlay && <div className='fixed inset-0 z-10 bg-black/50' />} */}
-      <DrawerContent className={cn('w-2/3', className)}>{children}</DrawerContent>
+    <Drawer
+      direction='right'
+      open={open}
+      onClose={onClose}
+      dismissible={false}
+      modal={false}
+      shouldScaleBackground={false}
+      {...props}
+    >
+      <DrawerContent className={cn('bg-background w-2/3 shadow-lg', className)} hideOverlay={!overlay}>
+        {children}
+      </DrawerContent>
     </Drawer>
   );
 };

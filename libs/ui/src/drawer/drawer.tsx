@@ -11,12 +11,18 @@ const DrawerContext = React.createContext<{ direction?: 'right' | 'top' | 'botto
 });
 
 const Drawer = ({
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   direction = 'right',
+  modal = false,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerContext.Provider value={{ direction }}>
-    <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} direction={direction} {...props} />
+    <DrawerPrimitive.Root
+      shouldScaleBackground={shouldScaleBackground}
+      direction={direction}
+      modal={modal}
+      {...props}
+    />
   </DrawerContext.Provider>
 );
 Drawer.displayName = 'Drawer';
@@ -31,7 +37,7 @@ const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Overlay ref={ref} className={cn('fixed inset-0 z-50 bg-black/80', className)} {...props} />
+  <DrawerPrimitive.Overlay ref={ref} className={cn('fixed inset-0 z-50', className)} {...props} />
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
@@ -58,7 +64,11 @@ const DrawerContent = React.forwardRef<
   return (
     <DrawerPortal>
       {!hideOverlay && <DrawerOverlay />}
-      <DrawerPrimitive.Content ref={ref} className={cn(drawerContentVariants({ direction, className }))} {...props}>
+      <DrawerPrimitive.Content
+        ref={ref}
+        className={cn(drawerContentVariants({ direction }), 'bg-background pointer-events-auto', className)}
+        {...props}
+      >
         {/* <div className='mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted' /> */}
         {children}
       </DrawerPrimitive.Content>
