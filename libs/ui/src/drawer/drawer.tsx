@@ -13,18 +13,37 @@ const DrawerContext = React.createContext<{ direction?: 'right' | 'top' | 'botto
 const Drawer = ({
   shouldScaleBackground = false,
   direction = 'right',
-  modal = false,
+  modal,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerContext.Provider value={{ direction }}>
-    <DrawerPrimitive.Root
-      shouldScaleBackground={shouldScaleBackground}
-      direction={direction}
-      modal={modal}
-      {...props}
-    />
-  </DrawerContext.Provider>
-);
+}: React.ComponentProps<typeof DrawerPrimitive.Root>) => {
+  // Adds this in here to avoid circular dependency with useMediaQuery from hooks
+  // Initial check for SSR compatibility
+  const [isDesktop, setIsDesktop] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : true,
+  );
+
+  React.useEffect(() => {
+    const query = window.matchMedia('(min-width: 768px)');
+    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+
+  // Default to modal on mobile, but allow explicit override
+  const shouldBeModal = modal ?? !isDesktop;
+
+  return (
+    <DrawerContext.Provider value={{ direction }}>
+      <DrawerPrimitive.Root
+        shouldScaleBackground={shouldScaleBackground}
+        direction={direction}
+        modal={shouldBeModal}
+        {...props}
+      />
+    </DrawerContext.Provider>
+  );
+};
 Drawer.displayName = 'Drawer';
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
@@ -37,7 +56,7 @@ const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Overlay ref={ref} className={cn('fixed inset-0 z-50', className)} {...props} />
+  <DrawerPrimitive.Overlay ref={ref} className={cn('fixed inset-0 z-50 bg-black/80', className)} {...props} />
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
