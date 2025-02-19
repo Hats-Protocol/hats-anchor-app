@@ -6,10 +6,7 @@ import { Hex, zeroAddress } from 'viem';
 import { checkAddressIsContract, fetchContractData } from './contract';
 import { viemPublicClient } from './web3';
 
-export const extendWearerDetails = async (
-  wearer: Hex,
-  chainId: number | undefined,
-) => {
+export const extendWearerDetails = async (wearer: Hex, chainId: number | undefined) => {
   if (!wearer || !chainId) return null;
   const defaultWearer = { id: wearer, isContract: false, ensName: '' };
 
@@ -19,10 +16,7 @@ export const extendWearerDetails = async (
   // override to use mainnet for ENS
   const client = viemPublicClient(1);
 
-  return Promise.all([
-    checkAddressIsContract(wearer, chainId),
-    client.getEnsName({ address: wearer }),
-  ])
+  return Promise.all([checkAddressIsContract(wearer, chainId), client.getEnsName({ address: wearer })])
     .then((data) => {
       if (!data) return defaultWearer;
 
@@ -51,22 +45,16 @@ export const fetchHatWearerDetails = async (
   if (!hat || !chainId) return [];
 
   const wearersList = _.compact(
-    _.concat(hat.wearers, [
-      hat.eligibility && { id: hat.eligibility },
-      hat.toggle && { id: hat.toggle },
-    ]),
+    _.concat(hat.wearers, [hat.eligibility && { id: hat.eligibility }, hat.toggle && { id: hat.toggle }]),
   );
   const localList = _.uniqBy(wearersList, 'id');
   const promises = _.map(_.uniqBy(wearersList, 'id'), (wearer: HatWearer) =>
     extendWearerDetails(wearer.id, chainId),
   ) as unknown as Promise<unknown>[];
-  const extendedWearersPromises = _.map(
-    promises,
-    async (promise: Promise<unknown>, index: number) => {
-      const aggDelay = 500 + index * 500;
-      return delay(aggDelay).then(() => promise);
-    },
-  );
+  const extendedWearersPromises = _.map(promises, async (promise: Promise<unknown>, index: number) => {
+    const aggDelay = 500 + index * 500;
+    return delay(aggDelay).then(() => promise);
+  });
   return Promise.allSettled(extendedWearersPromises)
     .then((results) =>
       _.flatten(
@@ -84,13 +72,8 @@ export const fetchHatWearerDetails = async (
     });
 };
 
-export const batchFetchContractData = async (
-  addresses: Hex[],
-  chainId: SupportedChains | undefined,
-) => {
-  const promises = map(addresses, (address: Hex) =>
-    fetchContractData(chainId, address),
-  );
+export const batchFetchContractData = async (addresses: Hex[], chainId: SupportedChains | undefined) => {
+  const promises = map(addresses, (address: Hex) => fetchContractData(chainId, address));
   const data = await Promise.all(promises);
 
   return map(addresses, (address: Hex, index: number) => ({

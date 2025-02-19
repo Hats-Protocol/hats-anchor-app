@@ -1,23 +1,20 @@
 import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider } from 'contexts';
-import { first, get, pick, toNumber } from 'lodash';
+import { first, get, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import { TreePage, TreePageMobile } from 'organisms';
-import { SearchParamsProps } from 'types';
+// import { SearchParamsProps } from 'types';
 import { fetchHatsDetailsMesh, logger } from 'utils';
 
-const TreeDetails = ({ params }: TreeDetailsProps) => {
-  const { chainId, treeId } = params;
+const TreeDetails = async ({ params }: TreeDetailsProps) => {
+  const { chainId, treeId } = await params;
   const treeIdNum = toNumber(treeId);
   if (!chainId || !treeId || isNaN(treeIdNum)) return null;
-  // console.log(chainId, treeId);
-
-  // const hat = getHat()
 
   return (
     <TreeFormContextProvider>
       <div className='hidden md:block md:max-h-screen'>
-        <TreePage params={params} />
+        <TreePage chainId={chainId} treeId={treeId} />
         <div className='fixed left-0 top-0 z-[-1] h-full w-full bg-[url("/bg-topography.svg")]' />
       </div>
       <div className='md:hidden'>
@@ -27,13 +24,13 @@ const TreeDetails = ({ params }: TreeDetailsProps) => {
   );
 };
 
-interface TreeDetailsProps extends SearchParamsProps {
-  params: { chainId: string; treeId: string };
+interface TreeDetailsProps {
+  params: Promise<{ chainId: string; treeId: string }>;
 }
 
 export async function generateMetadata({ params }: TreeDetailsProps): Promise<Metadata> {
   // read route params
-  const { chainId, treeId } = pick(params, ['chainId', 'treeId']);
+  const { chainId, treeId } = await params;
   const treeIdNum = toNumber(treeId);
   if (!chainId || !treeId || isNaN(treeIdNum)) return {};
   const hatId = hatIdDecimalToHex(treeIdToTopHatId(treeIdNum));

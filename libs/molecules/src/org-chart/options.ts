@@ -136,8 +136,9 @@ export const selectedOptionContent = ({
                 ${hatChartWearers?.content}
               </div>
             </div>
-            ${hatChartWearers?.accent
-          ? `<div style="
+            ${
+              hatChartWearers?.accent
+                ? `<div style="
               display: inline-block;
               fit-content: contain;
               text-align: right;
@@ -147,8 +148,8 @@ export const selectedOptionContent = ({
             ">
               ${hatChartWearers?.accent}
             </div>`
-          : ''
-        }
+                : ''
+            }
           </div>`;
 
     case CONTROL_OPTIONS.toggle:

@@ -5,10 +5,7 @@ import { Hex } from 'viem';
 
 // ! missing IDs when inactive are hidden
 export const calculateNextChildId = (id: string, hatsData: AppHat[]) => {
-  const children = filter(
-    hatsData,
-    (h: any) => h.admin?.id === id || h.parentId === id,
-  );
+  const children = filter(hatsData, (h: any) => h.admin?.id === id || h.parentId === id);
   const lessTop = filter(children, (child: any) => child.id !== id);
   return `${hatIdDecimalToIp(BigInt(id))}.${size(lessTop) + 1}`;
 };

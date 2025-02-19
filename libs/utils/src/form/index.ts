@@ -82,17 +82,17 @@ export const getDirtyFields = (
     const initialDefaultVal = get(defaultFormValues, key);
     const defaultVal =
       isString(initialDefaultVal) ||
-        typeof initialDefaultVal === 'number' ||
-        typeof initialDefaultVal === 'boolean' ||
-        isUndefined(initialDefaultVal)
+      typeof initialDefaultVal === 'number' ||
+      typeof initialDefaultVal === 'boolean' ||
+      isUndefined(initialDefaultVal)
         ? initialDefaultVal
         : JSON.stringify(map(initialDefaultVal, (item: any) => omit(item, ['moduleInfo'])));
     const initialFormVal = get(formValues, key);
     const compareVal =
       isString(initialFormVal) ||
-        typeof initialFormVal === 'number' ||
-        typeof initialFormVal === 'boolean' ||
-        isUndefined(initialFormVal)
+      typeof initialFormVal === 'number' ||
+      typeof initialFormVal === 'boolean' ||
+      isUndefined(initialFormVal)
         ? initialFormVal
         : JSON.stringify(map(initialFormVal, (item: any) => omit(item, ['moduleInfo'])));
 

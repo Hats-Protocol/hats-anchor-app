@@ -1,6 +1,6 @@
 import { ETHERSCAN_API_URLS, ETHERSCAN_KEYS } from '@hatsprotocol/config';
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
-import { camelCase, get, has, mapKeys, omit, pick, toLower, toNumber } from 'lodash';
+import { camelCase, get, has, mapKeys, omit, toLower, toNumber } from 'lodash';
 import { logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -28,8 +28,8 @@ const fetchContractData = async (chainId: number, address: Hex) =>
     });
 
 // Using GET request so automatically cached via Next
-export async function GET(request: Request, { params }: { params: { chainId: string; address: Hex } }) {
-  const { chainId: initialChainId, address } = pick(params, ['chainId', 'address']);
+export async function GET(request: Request, { params }: { params: Promise<{ chainId: string; address: Hex }> }) {
+  const { chainId: initialChainId, address } = await params;
   const chainId = toNumber(initialChainId);
 
   if (!chainId || !address) {

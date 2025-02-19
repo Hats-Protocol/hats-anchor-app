@@ -1,6 +1,6 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { EligibilityContextProvider } from 'contexts';
-import { first, get, pick, split, toNumber } from 'lodash';
+import { first, get, split, toNumber } from 'lodash';
 import { ClaimsConditions, Header } from 'modules-ui';
 import { HatDevDetailsClaims } from 'molecules';
 import { Metadata } from 'next';
@@ -11,9 +11,10 @@ import { HatDeco } from 'ui';
 import { fetchHatsDetailsMesh, logger } from 'utils';
 import { Hex } from 'viem';
 
-const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
+const TreeDetails = async ({ params }: TreeDetailsProps) => {
+  const { hatId, chainId } = await params;
   if (!hatId || !chainId || isNaN(toNumber(first(split(hatId, '.'))))) {
-    notFound();
+    notFound(); // TODO catch other invalid hatIds
   }
   const hexHatId = hatIdDecimalToHex(hatIdIpToDecimal(hatId));
 
@@ -56,15 +57,15 @@ const TreeDetails = ({ params: { hatId, chainId } }: TreeDetailsProps) => {
 };
 
 interface TreeDetailsProps {
-  params: {
+  params: Promise<{
     hatId: Hex | string;
     chainId: SupportedChains;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: TreeDetailsProps): Promise<Metadata> {
   // read route params
-  const { hatId, chainId } = pick(params, ['hatId', 'chainId']);
+  const { hatId, chainId } = await params;
   // hatId is in IP format
   if (!chainId || !hatId || hatId === 'undefined' || isNaN(toNumber(first(split(hatId, '.'))))) {
     // TODO why is Next still pinging /chainId/hatId when hatId is not found?

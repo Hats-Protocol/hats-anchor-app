@@ -2,9 +2,7 @@ import { NextResponse } from 'next/server';
 
 export function middleware(request: any) {
   const url = request.nextUrl.clone();
-  const hostname = url.pathname.startsWith('/ingest/static/')
-    ? 'us-assets.i.posthog.com'
-    : 'us.i.posthog.com';
+  const hostname = url.pathname.startsWith('/ingest/static/') ? 'us-assets.i.posthog.com' : 'us.i.posthog.com';
   const requestHeaders = new Headers(request.headers);
 
   requestHeaders.set('host', hostname);

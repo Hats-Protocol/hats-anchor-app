@@ -5,12 +5,8 @@ import { DocsLink } from 'types';
 import { Card, LinkButton } from 'ui';
 import { fetchFeaturedTrees, fetchFeaturedTreesData } from 'utils';
 
-const MyHats = dynamic(() => import('molecules').then((mod) => mod.MyHats), {
-  ssr: false,
-});
-const FeaturedTreeCard = dynamic(() => import('molecules').then((mod) => mod.FeaturedTreeCard), {
-  ssr: false,
-});
+const MyHats = dynamic(() => import('molecules').then((mod) => mod.MyHats));
+const FeaturedTreeCard = dynamic(() => import('molecules').then((mod) => mod.FeaturedTreeCard));
 const IntegrationCard = dynamic(() => import('molecules').then((mod) => mod.IntegrationCard));
 const LearnMoreCard = dynamic(() => import('molecules').then((mod) => mod.LearnMoreCard));
 

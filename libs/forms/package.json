@@ -41,7 +41,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.471.0",
     "molecules": "workspace:*",
-    "next": "^14.2.14",
+    "next": "15.1.7",
     "papaparse": "^5.4.1",
     "posthog-js": "^1.216.0",
     "react": "^18.3.1",

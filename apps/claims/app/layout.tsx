@@ -1,13 +1,13 @@
 import { MetadataConfig } from '@hatsprotocol/config';
 import { TxHistoryModal } from 'molecules';
 import { Metadata } from 'next';
-import Script from 'next/script';
+// import Script from 'next/script';
 import { StandaloneNavbar as Navbar } from 'organisms';
 import { ReactNode } from 'react';
 
 import Providers from './providers';
 
-const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
+// const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
 
 const baseUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: RootLayoutProps) => (
   <html lang='en'>
     <head>
-      <Script id='intercom' src={`https://widget.intercom.io/widget/${INTERCOM_APP_ID}`} />
+      {/* <Script id='intercom' src={`https://widget.intercom.io/widget/${INTERCOM_APP_ID}`} /> */}
       <meta name='viewport' content='width=device-width, initial-scale=1' />
     </head>
 

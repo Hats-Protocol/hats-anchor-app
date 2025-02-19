@@ -2,6 +2,7 @@
 
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { DurationInput, Form } from 'forms';
@@ -48,6 +49,7 @@ export const AgreementForms = ({
   const currentAgreement = get(find(moduleParameters, { label: 'Current Agreement' }), 'value');
   const { data: agreementData } = useIpfsData(currentAgreement as string);
   const agreementContent = get(agreementData, 'data');
+  const { openConnectModal } = useConnectModal();
 
   const { watch, reset } = pick(localForm, ['watch', 'reset']);
 
@@ -143,29 +145,40 @@ export const AgreementForms = ({
   };
 
   const agreementButtons = compact([
+    !address &&
+      openConnectModal && {
+        label: 'Connect Wallet to Sign',
+        onClick: openConnectModal,
+        colorScheme: 'blue.500',
+        section: 'Signature',
+        hasRole: !address,
+      },
     selectedOption === 'Agreement' &&
+      address &&
       !isWearing && {
         label: 'Sign Agreement & Claim',
         onClick: handleSignAgreement,
         colorScheme: 'blue.500',
         section: 'Signature',
-        hasRole: !isWearing,
+        hasRole: !!address && !isWearing,
       },
     selectedOption === 'Agreement' &&
+      !!address &&
       isOwner && {
         label: 'Update Agreement',
         onClick: prepUpdateAgreement,
         colorScheme: 'blue.500',
         section: 'Agreement',
-        hasRole: isOwner,
+        hasRole: !!address && isOwner,
       },
     selectedOption === 'Signatures' &&
+      !!address &&
       isJudge && {
         label: 'Remove Address',
         onClick: () => setRemoving(true),
         colorScheme: 'red.500',
         section: 'Signatures',
-        hasRole: isJudge,
+        hasRole: !!address && isJudge,
       },
   ]);
 

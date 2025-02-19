@@ -4,7 +4,7 @@ The Claims app is a Next.js app for handling standalone eligibility for [Hats](h
 
 ## Start the app
 
-To start the development server run `pnpm claims:dev` from the root of the project (not this directory). The server will be running on http://localhost:4200/. 
+To start the development server run `pnpm claims:dev` from the root of the project (not this directory). The server will be running on http://localhost:4200/.
 
 ## Build production application
 
@@ -15,4 +15,3 @@ The build artifacts will be stored in the `{ROOT_DIR}/dist/apps` directory, read
 ## Deployment
 
 Having multiple apps that are at different stages of deploy we can choose when to build based on changes in the specific app repo. If there's no changes in an app it won't be built by the CI/CD process. The simplest change is to add (or remove) a new line at the end of this file.
-

@@ -19,6 +19,8 @@ export default defineConfig({
     '@uiw/react-md-editor',
     '@fontsource-variable/inter',
     '@fontsource-variable/jetbrains-mono',
+    'wagmi',
+    'viem',
   ],
   tsconfig: 'tsconfig.lib.json',
 });

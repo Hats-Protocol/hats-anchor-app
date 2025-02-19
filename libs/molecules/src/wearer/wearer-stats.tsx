@@ -57,7 +57,7 @@ const WearerStats = () => {
     <div className='grid h-40 w-full grid-cols-2 justify-center gap-2 md:flex md:h-28 md:gap-2'>
       {map(headlineStats, (stat: HeadlineStat) => {
         if (stat.loading) {
-          return <Skeleton className='col-span-1 h-full px-0 py-2 md:w-[135px] md:px-6 md:py-4' />;
+          return <Skeleton className='col-span-1 h-full px-0 py-2 md:w-[135px] md:px-6 md:py-4' key={stat.label} />;
         }
 
         return (
