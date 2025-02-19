@@ -139,6 +139,8 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
    * @param clearModals - defaults to true
    * @param sendSuccessToast - defaults to true, override to false if you want to handle the toast in the onSuccess callback
    * @param onSuccess - after the tx is successful, subgraph is synced and mesh is invalidated
+   * @param onTxAccepted - after the tx is accepted by the chain
+   * @param onTxIndexed - after the tx is indexed by the subgraph
    * @returns Promise<void>
    * @example
    * handlePendingTx({
@@ -159,6 +161,8 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       // tx handling
       waitForSubgraph,
       onSuccess,
+      onTxAccepted,
+      onTxIndexed,
       // after success
       redirect = null,
       clearModals = true,
@@ -192,12 +196,15 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
         ...waitForSubgraphToastData,
       });
 
+      onTxAccepted?.(txReceipt);
+
       if (!txReceipt) return Promise.resolve(undefined);
 
       updateTransactionStatus(hash, 'completed');
 
       // TODO This can be centralized a bit and doesn't require a hook
       await waitForSubgraph?.(txReceipt);
+      onTxIndexed?.(txReceipt);
 
       toast({
         title: 'Transaction indexed, updating metadata...',

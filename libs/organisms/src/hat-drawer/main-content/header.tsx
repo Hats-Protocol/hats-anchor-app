@@ -80,7 +80,7 @@ const Header = () => {
         <div className='flex min-h-[150px] w-full flex-col md:min-h-0 md:flex-row md:pt-0'>
           <LazyImage src={imageUrl} alt='hat image' containerClassName={cn('block h-[400px] md:hidden')} />
 
-          <div className='flex w-full flex-row items-center justify-between gap-2 px-4 py-4 md:max-w-full'>
+          <div className='flex w-full flex-row items-center justify-between gap-2 px-4 py-4 md:max-w-full md:px-0'>
             <Tooltip label={name || selectedHat?.details}>
               <h2 className='line-clamp-1 text-2xl font-medium md:line-clamp-1'>{name || selectedHat?.details}</h2>
             </Tooltip>

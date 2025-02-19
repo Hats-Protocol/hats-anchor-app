@@ -8,11 +8,11 @@ interface DeployStatus {
 }
 
 const deploySteps = {
-  pinningRoleDetails: {
+  pinRoleDetails: {
     title: 'Create Council',
     description: 'Creating a Hats tree to store roles & rules alongside a Safe Multisig',
   }, // skip `calculatingRoleMetadata`
-  configuringModules: {
+  configureModules: {
     title: 'Deploying your smart contract rules',
     description: 'Deploying HSG, Allowlist, Compliance & Agreement',
   }, // skip `chainModules`
@@ -20,7 +20,7 @@ const deploySteps = {
     title: 'Simulating Safe address',
     description: 'Registering and reserving the Safe address',
   },
-  allocatingInitialRoles: {
+  allocateInitialRoles: {
     title: 'Compiling Transaction Calldata',
     description: 'Compiling a transaction that deploys the necessary contracts with allocates roles',
   }, // bundle with `compileTxCalldata`
@@ -28,11 +28,11 @@ const deploySteps = {
     title: 'Waiting for wallet confirmation',
     description: 'You need to confirm and send the transaction',
   },
-  confirmingTx: {
+  confirmTx: {
     title: 'Waiting for blockchain confirmation',
     description: 'Network is including this transaction into a block',
   },
-  indexingTx: {
+  indexTx: {
     title: 'Wait for indexing',
     description: 'Storing blockchain information as structured metadata',
   },

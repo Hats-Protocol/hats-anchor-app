@@ -221,7 +221,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
 
           {/* Sub-steps */}
           {currentStep === 'selection' && step.id === 'selection' && step.subSteps && (
-            <div className='my-3 ml-[23px]'>
+            <div className='my-3 ml-[23px] pb-4'>
               {step.subSteps.map((subStep, subIndex) => {
                 const status = getSubStepStatus(subStep.id, currentSubStep, stepValidation);
                 return (

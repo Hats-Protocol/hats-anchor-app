@@ -19,6 +19,7 @@ import {
   tgFormatAddress,
   UPDATE_PAYER,
 } from 'utils';
+import { zeroAddress } from 'viem';
 
 import { NextStepButton } from '../next-step-button';
 
@@ -94,9 +95,13 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
     //   setFormError('Please enter a valid Ethereum address');
     //   return;
     // }
+    const overrideNullAddress = {
+      ...data,
+      address: data.address === '' ? zeroAddress : data.address,
+    };
 
     try {
-      const userData = await createUserMutation.mutateAsync(data);
+      const userData = await createUserMutation.mutateAsync(overrideNullAddress);
 
       await updatePayerMutation.mutateAsync({
         id: draftId,
