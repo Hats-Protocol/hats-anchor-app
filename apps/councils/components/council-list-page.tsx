@@ -63,7 +63,7 @@ const CouncilListPage = () => {
 
   if (!isReady) {
     return (
-      <div className='mx-auto mt-20 flex max-w-[1000px] flex-col gap-4'>
+      <div className='mx-auto mt-20 flex max-w-[1400px] flex-col gap-4'>
         {map(Array(5), (_, index) => (
           <Skeleton key={index} className='bg-functional-link-primary/10 h-[125px] w-full' />
         ))}

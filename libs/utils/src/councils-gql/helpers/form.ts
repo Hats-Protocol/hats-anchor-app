@@ -1,5 +1,6 @@
 import { getCouncilsGraphqlClient } from '../client';
 import { CREATE_COUNCIL, CREATE_ORGANIZATION, UPDATE_COUNCIL_FORM } from '../mutations';
+import { ORGANIZATION_BY_NAME_QUERY } from '../queries';
 
 export const addCouncilForForm = async ({
   chainId,
@@ -52,4 +53,8 @@ export const updateCouncilForm = async ({
   if (!councilId) throw new Error('Council ID is required');
 
   return getCouncilsGraphqlClient(accessToken ?? undefined).request(UPDATE_COUNCIL_FORM, { id: draftId, councilId });
+};
+
+export const getOrganizationByName = async ({ name, accessToken }: { name: string; accessToken: string | null }) => {
+  return getCouncilsGraphqlClient(accessToken ?? undefined).request(ORGANIZATION_BY_NAME_QUERY, { name });
 };
