@@ -3,7 +3,7 @@
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
-import { useHatDetails } from 'hats-hooks';
+import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
@@ -33,7 +33,11 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
     hatId: agreementManagerHatId ? hatIdDecimalToHex(agreementManagerHatId) : undefined,
     chainId: chainId as SupportedChains,
   });
-  const isAgreementManager = includes(map(get(agreementManagerHat, 'wearers'), 'id'), toLower(userAddress));
+  const { wearers: agreementManagerWearers } = useAllWearers({
+    selectedHat: agreementManagerHat,
+    chainId: chainId as SupportedChains,
+  });
+  const isAgreementManager = includes(map(agreementManagerWearers, 'id'), toLower(userAddress));
 
   const handleAgreementToggle = async () => {
     setIsLoading(true);

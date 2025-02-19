@@ -3,7 +3,7 @@
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
-import { useHatDetails } from 'hats-hooks';
+import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { useToast } from 'hooks';
 import { find, get, includes, map, toLower } from 'lodash';
 import { useCallModuleFunction } from 'modules-hooks';
@@ -44,7 +44,11 @@ const AllowlistStatusManager = ({
     hatId: allowlistManagerHatId ? hatIdDecimalToHex(allowlistManagerHatId) : undefined,
     chainId: chainId as SupportedChains,
   });
-  const isAllowlistManager = includes(map(get(allowlistManagerHat, 'wearers'), 'id'), toLower(userAddress));
+  const { wearers: allowlistManagerWearers } = useAllWearers({
+    selectedHat: allowlistManagerHat,
+    chainId: chainId as SupportedChains,
+  });
+  const isAllowlistManager = includes(map(allowlistManagerWearers, 'id'), toLower(userAddress));
 
   let label = 'Added to Allowlist';
   let sublabel = isEligible ? 'This account was added to the Allowlist' : 'This account is not on the Allowlist';

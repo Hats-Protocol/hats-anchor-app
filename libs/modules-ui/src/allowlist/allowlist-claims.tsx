@@ -2,8 +2,8 @@
 
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
-import { useHatDetails } from 'hats-hooks';
-import { find, get, includes, map, toLower } from 'lodash';
+import { useAllWearers, useHatDetails } from 'hats-hooks';
+import { find, get, includes, isEmpty, map, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
@@ -78,6 +78,10 @@ export const AllowlistClaims = ({
     hatId: ownerHatId ? hatIdDecimalToHex(ownerHatId) : undefined,
     chainId,
   });
+  const { wearers: ownerHatWearers } = useAllWearers({
+    selectedHat: ownerHatDetails,
+    chainId,
+  });
 
   const { address } = useAccount();
 
@@ -142,16 +146,20 @@ export const AllowlistClaims = ({
             </div>
 
             <div className='flex flex-col gap-2'>
-              {map(allowlist, (wearer) => {
-                const isCurrentUser = toLower(wearer?.id) === toLower(address || '');
-                return (
-                  <div key={wearer.id}>
-                    <div className={`inline-block rounded-lg p-1 ${isCurrentUser ? 'bg-[#22C55E]/10' : ''}`}>
-                      <MemberAvatar member={wearer} />
+              {!isEmpty(allowlist) ? (
+                map(allowlist, (wearer) => {
+                  const isCurrentUser = toLower(wearer?.id) === toLower(address || '');
+                  return (
+                    <div key={wearer.id}>
+                      <div className={`inline-block rounded-lg p-1 ${isCurrentUser ? 'bg-[#22C55E]/10' : ''}`}>
+                        <MemberAvatar member={wearer} />
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <p className='text-sm text-gray-600'>None added yet</p>
+              )}
             </div>
           </div>
 
@@ -163,9 +171,11 @@ export const AllowlistClaims = ({
             </div>
 
             <div className='flex flex-col gap-4'>
-              {map(get(ownerHatDetails, 'wearers'), (wearer) => (
-                <MemberAvatar member={wearer} key={wearer.id} />
-              ))}
+              {!isEmpty(ownerHatWearers) ? (
+                map(ownerHatWearers, (wearer) => <MemberAvatar member={wearer} key={wearer.id} />)
+              ) : (
+                <p className='text-sm text-gray-600'>None added yet</p>
+              )}
             </div>
           </div>
         </div>
