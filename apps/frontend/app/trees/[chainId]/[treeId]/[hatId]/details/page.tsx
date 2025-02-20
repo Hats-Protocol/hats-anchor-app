@@ -1,8 +1,8 @@
 import { SelectedHatContextProvider, TreeFormContextProvider } from 'contexts';
 import { HatDetailsChanges } from 'organisms';
-import { SearchParamsProps } from 'types';
+// import { SearchParamsProps } from 'types';
 
-const HatDetails = ({}: HatDetailsProps) => (
+const HatDetails = () => (
   <TreeFormContextProvider>
     <SelectedHatContextProvider>
       <HatDetailsChanges />
@@ -10,7 +10,8 @@ const HatDetails = ({}: HatDetailsProps) => (
   </TreeFormContextProvider>
 );
 
-interface HatDetailsProps extends SearchParamsProps {
-  params: { chainId: string; treeId: string; hatId: string };
-}
+// interface HatDetailsProps extends SearchParamsProps {
+//   params: { chainId: string; treeId: string; hatId: string };
+// }
+
 export default HatDetails;

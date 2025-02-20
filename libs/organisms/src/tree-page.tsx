@@ -2,6 +2,7 @@
 
 import { Modal, SelectedHatContextProvider, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
+// import { EventHistory, OrgChart, TreeMenu } from 'molecules';
 import dynamic from 'next/dynamic';
 import { twJoin } from 'tailwind-merge';
 import { ScrollArea, Slide } from 'ui';
@@ -13,7 +14,7 @@ const EventHistory = dynamic(() => import('molecules').then((mod) => mod.EventHi
 const OrgChart = dynamic(() => import('molecules').then((mod) => mod.OrgChart));
 const TreeMenu = dynamic(() => import('molecules').then((mod) => mod.TreeMenu));
 
-const TreePage = ({ params: { chainId, treeId } }: { params: { chainId: string; treeId: string } }) => {
+const TreePage = ({ chainId, treeId }: { chainId: string; treeId: string }) => {
   const {
     // chainId,
     // treeId,

@@ -18,9 +18,7 @@ const TreeCard = dynamic(() => import('molecules').then((mod) => mod.TreeListCar
 
 const LOADING_TREES = Array(20).fill({});
 
-const TreesList = ({ params }: TreeListProps) => {
-  const { chainId: chainIdParam } = params;
-  const chainId = toNumber(chainIdParam);
+const TreesList = ({ chainId }: TreeListProps) => {
   const chain = chainsMap(chainId);
   const queryParams = useSearchParams();
   const { address } = useAccount();
@@ -100,7 +98,7 @@ const TreesList = ({ params }: TreeListProps) => {
 };
 
 interface TreeListProps {
-  params: { chainId: string };
+  chainId: number;
   // initialTrees: any[];
 }
 

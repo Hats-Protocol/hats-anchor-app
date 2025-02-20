@@ -3,10 +3,7 @@ import { Hex } from 'viem';
 import { Authority } from './authorities';
 import { DetailsItem } from './hat';
 
-export type FormFieldKeys = Exclude<
-  keyof FormData,
-  'id' | 'parentId' | 'adminId'
->;
+export type FormFieldKeys = Exclude<keyof FormData, 'id' | 'parentId' | 'adminId'>;
 export type FieldItem = { name: FormFieldKeys; label: string };
 export type FormValues = { [key: string]: unknown };
 

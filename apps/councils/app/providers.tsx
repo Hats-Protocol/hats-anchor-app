@@ -16,7 +16,7 @@ import { OverlayContextProvider } from 'contexts';
 import { values } from 'lodash';
 import { Toaster } from 'molecules';
 import posthog from 'posthog-js';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { privyConfig } from 'utils';
 
 // TODO use standalone & fix exporting of waitForTransaction
@@ -34,15 +34,15 @@ const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 if (!POSTHOG_KEY) {
   throw new Error('POSTHOG_KEY is required');
 }
-const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
-if (!INTERCOM_APP_ID) {
-  throw new Error('INTERCOM_APP_ID is required');
-}
+// const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
+// if (!INTERCOM_APP_ID) {
+//   throw new Error('INTERCOM_APP_ID is required');
+// }
 
 // Check that PostHog is client-side (used to handle Next.js SSR)
 if (typeof window !== 'undefined') {
   posthog.init(POSTHOG_KEY, {
-    api_host: `/ingest` || 'https://app.posthog.com',
+    api_host: '/ingest', // || 'https://app.posthog.com',
     // Enable debug mode in development
     loaded: (p: { debug: () => void }) => {
       // if (process.env.NODE_ENV === 'development') p.debug();
@@ -66,11 +66,11 @@ BigInt.prototype['toJSON'] = function () {
 };
 
 const Providers = ({ children }: ProvidersProps) => {
-  useEffect(() => {
-    if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
-      window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+  //     window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+  //   }
+  // }, []);
 
   return (
     <PrivyProvider
@@ -78,11 +78,11 @@ const Providers = ({ children }: ProvidersProps) => {
       config={{
         loginMethods: ['wallet'],
         supportedChains: values(councilsChainsList),
-        appearance: {
-          theme: 'light',
-          accentColor: '#676FFF',
-          logo: 'https://ipfs.io/ipfs/bafkreiflezpk3kjz6zsv23pbvowtatnd5hmqfkdro33x5mh2azlhne3ah4',
-        },
+        // appearance: {
+        //   theme: 'light',
+        //   accentColor: '#676FFF',
+        //   logo: 'https://ipfs.io/ipfs/bafkreiflezpk3kjz6zsv23pbvowtatnd5hmqfkdro33x5mh2azlhne3ah4',
+        // },
       }}
     >
       <QueryClientProvider client={queryClient}>

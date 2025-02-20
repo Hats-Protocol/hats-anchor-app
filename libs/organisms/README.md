@@ -18,7 +18,7 @@ This initial component library is built with Shadcn and Tailwind.
 - `ModuleDrawer` - a drawer that displays the details of a module
 - `TreeDrawer` - a drawer that displays the details of a tree
 - `TreePage` - a page that displays the details of a tree
-    - `TreePageMobile` - a mobile version of the `TreePage`
+  - `TreePageMobile` - a mobile version of the `TreePage`
 
 ## Modules
 

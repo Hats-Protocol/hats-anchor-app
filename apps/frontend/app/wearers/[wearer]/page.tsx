@@ -1,7 +1,6 @@
-import { pick } from 'lodash';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { SearchParamsProps } from 'types';
+// import { SearchParamsProps } from 'types';
 import { fetchWearerDetailsMesh, formatAddress, logger } from 'utils';
 
 const WearerStats = dynamic(() => import('molecules').then((mod) => mod.WearerStats));
@@ -34,13 +33,14 @@ const WearerDetail = () => (
   </>
 );
 
-interface MetadataProps extends SearchParamsProps {
+interface MetadataProps {
+  // extends SearchParamsProps {
   params: { wearer: string };
 }
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   // read route params
-  const { wearer } = pick(params, ['wearer']);
+  const { wearer } = await params;
 
   // fetch data
   // TODO handle ens

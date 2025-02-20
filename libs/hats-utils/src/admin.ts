@@ -2,8 +2,7 @@ import { includes, map, reject, some, uniq } from 'lodash';
 import { Hex } from 'viem';
 
 // TODO move
-const includesAny = (arr: unknown[], target: unknown[]) =>
-  some(target, (v: unknown) => includes(arr, v));
+const includesAny = (arr: unknown[], target: unknown[]) => some(target, (v: unknown) => includes(arr, v));
 
 /**
  * Traverses all ancestry of hat to check for wearers
@@ -11,11 +10,7 @@ const includesAny = (arr: unknown[], target: unknown[]) =>
  * @param hatId should be a `hatId` that is being checked for admin
  * @param current default `false`, include wearing current hatId
  */
-export const isWearingAdminHat = (
-  wearerHatIds: string[],
-  hatId?: string,
-  includeCurrent = false,
-) => {
+export const isWearingAdminHat = (wearerHatIds: string[], hatId?: string, includeCurrent = false) => {
   if (!hatId) return false;
   const treeId = hatId.slice(0, 10);
   // separate children IDs

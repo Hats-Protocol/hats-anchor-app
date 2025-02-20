@@ -90,7 +90,7 @@ export const EligibilityRuleDetails = ({
   return (
     <EligibilityRuleWrapper rule={rule}>
       <Button
-        className='text-functional-link-primary font-medium'
+        className='text-functional-link-primary text-base'
         variant='link'
         onClick={() => setModals?.({ checkEligibility: true })}
       >

@@ -76,7 +76,8 @@ pnpm claims:build # to build the Claims app
 - [`ui`](./libs/ui/) - shared UI components and styles
 - [`utils`](./libs/utils/) - utilities for managing UI state and other app specific needs
 
-\* avoids circular imports with other libraries  
+\* avoids circular imports with other libraries
+
 <!-- † coming soon -->
 
 ## Nx & Code integration

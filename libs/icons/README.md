@@ -10,9 +10,7 @@ To use the Hats Icons in your project, you can import the icons from the `icons`
 import { HatIcon } from 'icons';
 
 const MyComponent = () => {
-  return (
-    <HatIcon />
-  );
+  return <HatIcon />;
 };
 ```
 

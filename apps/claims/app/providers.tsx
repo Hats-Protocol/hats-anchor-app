@@ -13,7 +13,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
 import { Toaster } from 'molecules';
 import posthog from 'posthog-js';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
 
@@ -33,10 +33,10 @@ if (!POSTHOG_KEY) {
   throw new Error('POSTHOG_KEY is required');
 }
 
-const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
-if (!INTERCOM_APP_ID) {
-  throw new Error('INTERCOM_APP_ID is required');
-}
+// const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
+// if (!INTERCOM_APP_ID) {
+//   throw new Error('INTERCOM_APP_ID is required');
+// }
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +51,7 @@ const queryClient = new QueryClient({
 // Check that PostHog is client-side (used to handle Next.js SSR)
 if (typeof window !== 'undefined') {
   posthog.init(POSTHOG_KEY, {
-    api_host: `/ingest` || 'https://app.posthog.com',
+    api_host: '/ingest', // || 'https://app.posthog.com',
     // Enable debug mode in development
     loaded: (p: { debug: () => void }) => {
       // if (process.env.NODE_ENV === 'development') p.debug();
@@ -65,11 +65,11 @@ BigInt.prototype['toJSON'] = function () {
 };
 
 const Providers = ({ children }: ProvidersProps) => {
-  useEffect(() => {
-    // if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
-    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    // }
-  }, []);
+  // useEffect(() => {
+  //   if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
+  //     window.Intercom('boot', { app_id: INTERCOM_APP_ID });
+  //   }
+  // }, []);
 
   return (
     <WagmiProvider config={wagmiConfig()}>

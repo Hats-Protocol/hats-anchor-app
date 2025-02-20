@@ -8,10 +8,7 @@
     "declarationMap": true,
     "strict": true
   },
-  "references": [
-    { "path": "../shared/tsconfig.lib.json" },
-    { "path": "../types/tsconfig.lib.json" }
-  ],
+  "references": [{ "path": "../shared/tsconfig.lib.json" }, { "path": "../types/tsconfig.lib.json" }],
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "extends": "../../tsconfig.base.json"
 }
