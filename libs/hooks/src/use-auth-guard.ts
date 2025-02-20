@@ -14,12 +14,26 @@ export const useAuthGuard = () => {
   const { address: userAddress } = useAccount();
   const hasTriggeredLogin = useRef(false);
   const isMounted = useRef(false);
+  const hadValidWallet = useRef(false);
+
+  // Track if we've had a valid wallet connection
+  useEffect(() => {
+    if (authenticated && user?.wallet && userAddress) {
+      hadValidWallet.current = true;
+    }
+  }, [authenticated, user?.wallet, userAddress]);
 
   // Handle MetaMask lock state
   useEffect(() => {
-    if (authenticated && user?.wallet && !userAddress) {
-      logger.info('MetaMask locked detected, logging out of Privy');
-      logout();
+    // Only check for lock state if we're fully authenticated and had a wallet previously
+    if (authenticated && user?.wallet && userAddress === undefined && hadValidWallet.current) {
+      // Add a small delay to ensure this isn't just initial loading
+      const timer = setTimeout(() => {
+        logger.info('MetaMask locked detected, logging out of Privy');
+        logout();
+      }, 1000);
+
+      return () => clearTimeout(timer);
     }
   }, [authenticated, user?.wallet, userAddress, logout]);
 
