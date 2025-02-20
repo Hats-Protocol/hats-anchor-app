@@ -3,7 +3,8 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, Form, Input, Textarea } from 'forms';
-import { useCouncilDeployFlag } from 'hooks';
+import { useCouncilDeployFlag, useToast } from 'hooks';
+import { get } from 'lodash';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
 import { getOrganizationByName } from 'utils';
@@ -16,12 +17,21 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   const { watch, handleSubmit } = localForm;
   const requirements = watch('requirements');
   const { getAccessToken } = usePrivy();
+  const { toast } = useToast();
 
   useCouncilDeployFlag(draftId);
 
   if (isLoading) {
     return <Skeleton className='h-100 w-100' />;
   }
+
+  const errorToast = (error: Error) => {
+    toast({
+      title: 'Error fetching organization',
+      description: error.message?.slice(0, 100),
+      variant: 'destructive',
+    });
+  };
 
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
 
@@ -43,7 +53,11 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
                 required: true,
                 validate: async (value) => {
                   const accessToken = await getAccessToken();
-                  const existingOrganization = await getOrganizationByName({ name: value, accessToken });
+                  const result = await getOrganizationByName({ name: value, accessToken }).catch((error) => {
+                    errorToast(error);
+                    return true;
+                  });
+                  const existingOrganization = get(result, 'organizations[0]');
                   if (existingOrganization) {
                     return 'Organization with this name already exists!';
                   }
