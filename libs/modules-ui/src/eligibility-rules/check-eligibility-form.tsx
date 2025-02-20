@@ -57,7 +57,7 @@ export const CheckEligibilityForm = () => {
   };
 
   return (
-    <Modal name='checkEligibility' title='Check Wearer Eligibility' onClose={closeModal}>
+    <Modal name='checkEligibility' title='Check Wearer Eligibility' onClose={closeModal} size='lg'>
       <div className='space-y-4'>
         <p className='text-sm'>Check the eligibility of a wearer for this hat based on the eligibility rule(s).</p>
 

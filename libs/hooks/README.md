@@ -3,6 +3,7 @@
 App Hooks is a set of React hooks for managing specific interactions and UX in the app. They don't necessarily apply to generic Hat/Tree operations.
 
 ### General Hooks
+
 - `useAgreementClaimsHatterContract` - `*DEPRECATED*` - handles claiming with Agreement Module v0
 - `useAttemptAutoConnect` - attempts to connect to a wallet provider on page load
 - `useCid` - calculates the `CID` of a JSON upload to IPFS
@@ -21,15 +22,18 @@ App Hooks is a set of React hooks for managing specific interactions and UX in t
 - `useWaitForSubgraph` - waits for a subgraph to be indexed before attempting to refresh data
 
 ### Landing Data Hooks
+
 - `useFeaturedTemplates` - fetches featured templates from the [Landing Content](../constants/src/content/landing.ts)
 - `useFeaturedTrees` - fetches featured trees from the [Landing Content](../constants/src/content/landing.ts)
 - `useFeaturedTreesData` - fetches data for featured trees from the `useFeaturedTrees` hook
 
 ### Hat Hooks
+
 - `useHatGuildRoles` - filter Guild roles for a specific hat
 - `useHatSnapshotRoles` - filter snapshot spaces and their potential roles for a given hat
 
 ### Tree Hooks
+
 - `useImageURIs` - fetches `imageUrls` for a set of hats based on provided `imageUris`
 - `useOrgChartTree` - combines data from other hooks into the needed output to display in the [OrgChart](../../apps/frontend/components/OrgChart/OrgChart.tsx) component
 - `useTreeGuilds` - fetches Guild.xyz guilds for a specific tree (top hat details)

@@ -16,10 +16,7 @@
         "@typescript-eslint/no-explicit-any": "warn",
         // react
         "react/jsx-filename-extension": [2, { "extensions": [".ts", ".tsx"] }],
-        "react/function-component-definition": [
-          2,
-          { "namedComponents": ["arrow-function", "function-declaration"] }
-        ],
+        "react/function-component-definition": [2, { "namedComponents": ["arrow-function", "function-declaration"] }],
         "react/require-default-props": "off",
         "react/destructuring-assignment": "off",
         "react/react-in-jsx-scope": "off"

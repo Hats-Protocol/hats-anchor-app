@@ -4,7 +4,6 @@ The `contexts` library is a set of React Contexts for the app. It's specifically
 
 ![Map of Anchor Contexts Nested]()
 
-
 ### Components
 
 - `Modal` - the `<Modal />` component is extended here to make a universal modal component

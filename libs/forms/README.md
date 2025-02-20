@@ -55,4 +55,3 @@ These components are used to build generic form components for corresponding mod
 - [`BooleanInput`]()
 - [`HatInput`]()
 - [`ModuleFormInput`]()
-

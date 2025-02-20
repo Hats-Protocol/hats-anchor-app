@@ -12,9 +12,7 @@ export const getInactiveIds = (tree: Hat[] | undefined) => {
     ),
   );
 
-  return _.uniq(
-    _.map(_.concat(localInactiveHats, descendantsOfInactiveHats), 'id'),
-  );
+  return _.uniq(_.map(_.concat(localInactiveHats, descendantsOfInactiveHats), 'id'));
 };
 
 export const removeInactiveHatsAndDescendants = (tree: Hat[] | undefined) => {

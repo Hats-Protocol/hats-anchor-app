@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 import { parseCouncilSlug } from 'utils';
 
 // Canonical Slug is `chainName:hsg` with support for `chainId` and `safe` as well
-const CouncilPage = ({ params: { slug } }: { params: { slug: string } }) => {
+const CouncilPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params;
   const { chainId, address } = parseCouncilSlug(slug);
   if (!chainId || !address) return redirect('/councils');
 

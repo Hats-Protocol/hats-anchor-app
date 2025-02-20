@@ -2,13 +2,15 @@
 
 import { CouncilFormProvider } from 'contexts';
 import { useAuthGuard } from 'hooks';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Card } from 'ui';
 
 import { CouncilCreateForm } from '../../../../components/council-create-form/index';
 import { CreationFormSteps } from '../../../../components/creation-form-steps';
 
-const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
+// { params }: { params: Promise<{ step: string }> } // TODO switch back to SSR page?
+const NewCouncil = () => {
+  const { step } = useParams();
   const searchParams = useSearchParams();
   const draftId = searchParams.get('draftId') || '';
   const subStep = searchParams.get('subStep') || undefined;
@@ -21,13 +23,13 @@ const NewCouncil = ({ params: { step } }: { params: { step: string } }) => {
         <div className='col-span-10 col-start-3 grid'>
           <div>
             <Card className='min-h-[300px] w-full px-16 py-10'>
-              <CouncilCreateForm step={step} subStep={subStep} draftId={draftId} />
+              <CouncilCreateForm step={step as string} subStep={subStep} draftId={draftId} />
             </Card>
           </div>
         </div>
 
         <div className='col-start-15 col-span-5 grid'>
-          <CreationFormSteps currentStep={step} currentSubStep={subStep} draftId={draftId} />
+          <CreationFormSteps currentStep={step as string} currentSubStep={subStep} draftId={draftId} />
         </div>
       </div>
     </CouncilFormProvider>

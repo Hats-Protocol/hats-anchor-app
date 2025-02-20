@@ -45,13 +45,9 @@ const wearerFields: FieldItem[] = [
   { name: 'wearers', label: 'Wearers' },
 ];
 
-const powersFields: FieldItem[] = [
-  { name: 'authorities', label: 'Authorities' },
-];
+const powersFields: FieldItem[] = [{ name: 'authorities', label: 'Authorities' }];
 
-const responsibilitiesFields: FieldItem[] = [
-  { name: 'responsibilities', label: 'Responsibilities' },
-];
+const responsibilitiesFields: FieldItem[] = [{ name: 'responsibilities', label: 'Responsibilities' }];
 
 const revocationFields: FieldItem[] = [
   { name: 'isEligibilityManual', label: 'Eligibility Type' },

@@ -1,9 +1,9 @@
 import { chainsList, CONFIG } from '@hatsprotocol/config';
-import { capitalize, get, pick, toNumber } from 'lodash';
+import { capitalize, toNumber } from 'lodash';
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { TreesList as TreesListCards } from 'organisms';
-import { SearchParamsProps } from 'types';
+// import { SearchParamsProps } from 'types';
 import { LinkButton } from 'ui';
 
 const NetworkFilter = dynamic(() => import('molecules').then((mod) => mod.NetworkFilter));
@@ -11,7 +11,9 @@ const ShowTreesButton = dynamic(() => import('molecules').then((mod) => mod.Show
 
 const TreesList = async ({ params }: TreeListProps) => {
   // TODO fetch initial trees list
-  const chainId = toNumber(get(params, 'chainId'));
+  const { chainId: initialChainId } = await params;
+  const chainId = toNumber(initialChainId);
+  // TODO handle bad chainId
 
   return (
     <>
@@ -31,7 +33,7 @@ const TreesList = async ({ params }: TreeListProps) => {
           </div>
         </div>
 
-        <TreesListCards params={params} />
+        <TreesListCards chainId={chainId} />
       </div>
 
       <div className='fixed left-0 top-0 z-[-5] mt-[40px] h-full w-full bg-blue-100 opacity-[0.7] md:mt-[70px]' />
@@ -39,13 +41,14 @@ const TreesList = async ({ params }: TreeListProps) => {
   );
 };
 
-interface TreeListProps extends SearchParamsProps {
-  params: { chainId: string };
+interface TreeListProps {
+  // extends SearchParamsProps {
+  params: Promise<{ chainId: string }>;
 }
 
 export async function generateMetadata({ params }: TreeListProps): Promise<Metadata> {
   // read route params
-  const { chainId } = pick(params, ['chainId']);
+  const { chainId } = await params;
 
   const chainIdNumber = toNumber(chainId);
   if (isNaN(chainIdNumber)) return {};

@@ -1,9 +1,10 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useOverlay, useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { useWaitForSubgraph } from 'hooks';
-import { find, get, map, pick, some } from 'lodash';
+import { compact, find, get, map, pick, some } from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { AllowlistProfile, HatWearer, ModuleDetails } from 'types';
@@ -33,6 +34,7 @@ const AllowlistForms = ({
   const [isLoading, setIsLoading] = useState(false);
   const { watch } = pick(localForm, ['setValue', 'watch']);
   const addressesToAdd = watch('addresses');
+  const { openConnectModal } = useConnectModal();
 
   const { abi, id: moduleId } = pick(moduleInfo, ['abi', 'id']);
 
@@ -216,14 +218,15 @@ const AllowlistForms = ({
           ),
         },
       ]}
-      buttons={[
-        { label: 'Add Address', onClick: () => setAdding(true) },
-        {
+      buttons={compact([
+        !address && !!openConnectModal && { label: 'Connect Wallet', onClick: openConnectModal },
+        !!address && { label: 'Add Address', onClick: () => setAdding(true) },
+        !!address && {
           label: 'Remove Address',
           onClick: () => setUpdating(true),
           colorScheme: 'red.500',
         },
-      ]}
+      ])}
     />
   );
 };

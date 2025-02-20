@@ -45,7 +45,7 @@ const AuthoritiesForm = ({ formName, localForm, index, hatForm, chainId, hatId }
   });
 
   useEffect(() => {
-    const hatImageURI = imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
+    const hatImageURI = imagePinData !== undefined ? `ipfs://${imagePinData}` : '';
 
     if (hatImageURI && hatImageURI !== '') setValue('imageUrl', hatImageURI);
     // intentionally exclude `setValue`

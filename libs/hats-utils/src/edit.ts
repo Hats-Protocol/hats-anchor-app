@@ -4,16 +4,9 @@ import { getExcludedFields } from 'utils';
 import { Hex } from 'viem';
 
 export const editHasUpdates = (storedData: Partial<FormData>[] | undefined) =>
-  !isEmpty(
-    reject(storedData, (data: Partial<FormData>) =>
-      isEmpty(keys(omit(data, getExcludedFields(true)))),
-    ),
-  );
+  !isEmpty(reject(storedData, (data: Partial<FormData>) => isEmpty(keys(omit(data, getExcludedFields(true))))));
 
-export function getProposedChangesCount(
-  hatId: Hex,
-  data: Partial<FormData>[] | undefined,
-): number {
+export function getProposedChangesCount(hatId: Hex, data: Partial<FormData>[] | undefined): number {
   if (!data) return 0;
   const matchingHat = find(data, {
     id: hatId,

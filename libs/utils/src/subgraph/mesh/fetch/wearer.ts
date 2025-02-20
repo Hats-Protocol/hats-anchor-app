@@ -5,26 +5,16 @@ import { mapWithChainId } from 'shared';
 import { AppTree } from 'types';
 import { Hex } from 'viem';
 
-import {
-  getWearerDetailsQuery,
-  getWearersProfileDetailQuery,
-  getWearerTreesQuery,
-  NETWORKS_PREFIX,
-} from '../queries';
+import { getWearerDetailsQuery, getWearersProfileDetailQuery, getWearerTreesQuery, NETWORKS_PREFIX } from '../queries';
 import { parseMetadata } from './utils';
 
 // eslint-disable-next-line import/prefer-default-export
-export const fetchWearerDetailsMesh = async (
-  address: Hex | string | undefined,
-  chainId: number | undefined,
-) => {
+export const fetchWearerDetailsMesh = async (address: Hex | string | undefined, chainId: number | undefined) => {
   if (!address || !chainId) return undefined;
   let wearer: Wearer | undefined;
 
   try {
-    const client = new GraphQLClient(
-      `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
-    );
+    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
     const query = getWearerDetailsQuery(chainId);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,15 +33,10 @@ export const fetchWearerDetailsMesh = async (
   };
 };
 
-export const fetchWearersProfileDetails = async (
-  addresses: string[] | undefined,
-  chainId: number | undefined,
-) => {
+export const fetchWearersProfileDetails = async (addresses: string[] | undefined, chainId: number | undefined) => {
   if (!addresses || !chainId) return null;
 
-  const client = new GraphQLClient(
-    `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
-  );
+  const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
 
   const query = getWearersProfileDetailQuery(chainId);
 
@@ -74,9 +59,7 @@ export const fetchWearerTrees = async ({
   if (!chainId || !wearer) return [];
 
   try {
-    const client = new GraphQLClient(
-      `${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string,
-    );
+    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
 
     const query = getWearerTreesQuery(chainId);
 
@@ -85,10 +68,7 @@ export const fetchWearerTrees = async ({
       id: wearer.toLowerCase(),
     });
 
-    const wearerTrees = map(
-      get(res, `${NETWORKS_PREFIX[chainId]}_wearer.currentHats`),
-      'tree',
-    ) as AppTree[];
+    const wearerTrees = map(get(res, `${NETWORKS_PREFIX[chainId]}_wearer.currentHats`), 'tree') as AppTree[];
 
     const wearerTreesProcessHatMetadata = map(wearerTrees, (tree) => {
       const hats = get(tree, 'hats');

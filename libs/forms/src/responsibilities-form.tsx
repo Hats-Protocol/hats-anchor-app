@@ -89,7 +89,7 @@ const ResponsibilitiesForm = ({ formName, title, Icon, subtitle, label }: ItemDe
   });
 
   useEffect(() => {
-    const hatImageURI = imagePinData !== undefined ? `ipfs://${imagePinData}` : undefined || '';
+    const hatImageURI = imagePinData !== undefined ? `ipfs://${imagePinData}` : '';
 
     if (hatImageURI !== '') setValue('imageUrl', hatImageURI);
   }, [imagePinData, setValue]);

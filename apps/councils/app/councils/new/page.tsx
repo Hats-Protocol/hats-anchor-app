@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { Skeleton } from 'ui';
 import { CREATE_INITIAL_FORM, CREATE_USER, getCouncilsGraphqlClient, logger } from 'utils';
 import { useChainId } from 'wagmi';
+
 const NewCouncil = () => {
   const router = useRouter();
   const { user, authenticated, ready, getAccessToken } = usePrivy();
