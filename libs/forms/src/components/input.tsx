@@ -47,6 +47,7 @@ const Input = ({
   onChange,
   isInvalid,
   readOnly,
+  className,
   ...props
 }: InputProps) => {
   const { address } = useAccount();
@@ -87,7 +88,7 @@ const Input = ({
     const errorMessage = get(errors, name)?.message;
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
-  // const isError = !!getErrorMessage();
+  const isError = !!getErrorMessage();
 
   const setFallback = async () => {
     setValue(name, FALLBACK_ADDRESS, { shouldDirty: true });
@@ -210,8 +211,13 @@ const Input = ({
                   {...props}
                   readOnly={readOnly || isDisabled}
                   placeholder={placeholder}
-                  className={cn(!!leftElement && 'pl-8', !!rightElement && 'pr-10')}
-                  // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined} // TODO handle error state border
+                  className={cn(
+                    !!leftElement && 'pl-8',
+                    !!rightElement && 'pr-10',
+                    isDirty && 'border-2 border-cyan-500',
+                    isError && 'border-destructive border-2',
+                    className,
+                  )}
                 />
 
                 <div className={cn('w-full space-y-1', { 'w-[100%]': rightElementWidth })}>
@@ -285,6 +291,7 @@ interface InputProps {
   addressButtons?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readOnly?: boolean;
+  className?: string;
 }
 
 export { Input, type InputProps };
