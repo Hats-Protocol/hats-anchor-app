@@ -149,13 +149,11 @@ const NumberInput = ({
                   {prefix}
                   <BaseInput
                     className={cn(
-                      'w-full',
-                      {
-                        'border-destructive': isError,
-                        'border-cyan-500': isDirty,
-                        'rounded-l-none': prefix,
-                        'rounded-r-none': true,
-                      },
+                      'w-full transition-colors duration-200 focus:outline-none focus:ring-0',
+                      !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                      isError && 'border-destructive focus:border-destructive',
+                      prefix && 'rounded-l-none',
+                      'rounded-r-none',
                       inputClassName,
                     )}
                     step={step}
@@ -167,11 +165,14 @@ const NumberInput = ({
                   />
 
                   {isDirty && !isDisabled && enableReset && (
-                    <div className='absolute right-8'>
-                      <Button aria-label='Reset' onClick={onReset} size='xs' className='bg-cyan-500'>
-                        <GrUndo />
-                      </Button>
-                    </div>
+                    <Button
+                      aria-label='Reset'
+                      onClick={onReset}
+                      size='xs'
+                      className='absolute right-8 top-1 bg-cyan-500'
+                    >
+                      <GrUndo />
+                    </Button>
                   )}
 
                   <NumberInputSteppers

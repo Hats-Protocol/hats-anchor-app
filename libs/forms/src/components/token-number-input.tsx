@@ -1,7 +1,10 @@
 'use client';
 
+import { get } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
+import { GrUndo } from 'react-icons/gr';
 import { BaseInput, cn } from 'ui';
+import { Button } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 import { NumberInputSteppers } from './number-input-steppers';
@@ -34,6 +37,21 @@ function TokenNumberInput({
   disabled,
   variant = 'default',
 }: TokenNumberInputProps) {
+  if (!form) return null;
+
+  const {
+    control,
+    resetField,
+    formState: { dirtyFields, errors },
+  } = form;
+
+  const isDirty = get(dirtyFields, name);
+  const getErrorMessage = () => {
+    const errorMessage = get(errors, name)?.message;
+    return typeof errorMessage === 'string' ? errorMessage : null;
+  };
+  const isError = !!getErrorMessage();
+
   const getVariantStyles = (variant: TokenNumberInputProps['variant'] = 'default') => {
     switch (variant) {
       case 'councils':
@@ -55,7 +73,7 @@ function TokenNumberInput({
   return (
     <FormField
       name={name}
-      control={form.control}
+      control={control}
       render={({ field: { ref, value, ...restField } }) => (
         <FormItem>
           {label && (
@@ -71,17 +89,34 @@ function TokenNumberInput({
           )}
 
           <FormControl>
-            <div className='flex items-center'>
+            <div className='relative flex items-center'>
               <div className='flex h-9 items-center rounded-l-md border border-gray-200 bg-gray-100 px-2'>Minimum:</div>
 
               <BaseInput
-                className={cn('ml-[-1px] flex-1 rounded-none bg-white')}
+                className={cn(
+                  'transition-colors duration-200 focus:outline-none focus:ring-0',
+                  'ml-[-1px] flex-1 rounded-none bg-white',
+                  !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                  isError && 'border-destructive focus:border-destructive',
+                )}
+                type='number'
                 min={options?.min}
                 max={options?.max}
                 disabled={disabled}
-                value={value}
                 {...restField}
+                ref={ref}
               />
+
+              {isDirty && !disabled && (
+                <Button
+                  aria-label='Reset'
+                  onClick={() => resetField(name, { keepDirty: false })}
+                  size='xs'
+                  className='absolute right-8 top-1 bg-cyan-500'
+                >
+                  <GrUndo />
+                </Button>
+              )}
 
               <NumberInputSteppers
                 stepUp={() => {
