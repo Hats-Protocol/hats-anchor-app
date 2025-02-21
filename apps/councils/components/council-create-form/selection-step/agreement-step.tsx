@@ -1,7 +1,7 @@
 'use client';
 
 import { useCouncilForm, useOverlay } from 'contexts';
-import { Form, MarkdownEditor, RadioBox } from 'forms';
+import { Form, MarkdownEditor, MarkdownEditorTiptap, RadioBox } from 'forms';
 import { FileText } from 'lucide-react';
 import { FiUserPlus } from 'react-icons/fi';
 import { StepProps } from 'types';
@@ -47,11 +47,12 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
               </p>
             </div>
 
-            <MarkdownEditor
+            <MarkdownEditorTiptap
               name='agreement'
               localForm={form}
               isDisabled={!canEdit}
-              placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
+              placeholder='Write or paste your agreement text below in a markdown format.'
+              className='min-h-[300px]'
             />
           </div>
 

@@ -90,7 +90,6 @@ const Providers = ({ children }: ProvidersProps) => {
           <ReactQueryDevtools initialIsOpen={false} position='left' />
           <OverlayContextProvider>
             {children}
-
             <Toaster />
           </OverlayContextProvider>
         </WagmiProvider>
