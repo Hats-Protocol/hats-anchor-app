@@ -32,6 +32,7 @@ export * from './popover';
 export * from './radio-group';
 export * from './scroll-area';
 export * from './select';
+export * from './separator';
 export * from './skeleton';
 export * from './slide';
 export * from './spinner';
@@ -39,6 +40,7 @@ export * from './switch';
 export * from './textarea';
 export * from './toast';
 export * from './toggle';
+export * from './toggle-group';
 export * from './tooltip';
 
 export { VisuallyHidden };

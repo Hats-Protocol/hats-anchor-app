@@ -4,7 +4,7 @@ import type { Editor } from '@tiptap/react';
 import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import type { toggleVariants } from 'ui';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from 'ui';
+import { cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from 'ui';
 
 import type { FormatAction } from '../../types';
 import { ShortcutKey } from '../shortcut-key';

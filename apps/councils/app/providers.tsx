@@ -17,6 +17,7 @@ import { values } from 'lodash';
 import { Toaster } from 'molecules';
 import posthog from 'posthog-js';
 import { ReactNode } from 'react';
+import { TooltipProvider } from 'ui';
 import { privyConfig } from 'utils';
 
 // TODO use standalone & fix exporting of waitForTransaction

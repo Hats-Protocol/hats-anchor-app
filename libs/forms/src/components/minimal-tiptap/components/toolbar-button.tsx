@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { TooltipContentProps } from 'ui';
 import { Toggle } from 'ui';
-import { Tooltip, TooltipContent, TooltipTrigger } from 'ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'ui';
 import { cn } from 'ui';
 
 interface ToolbarButtonProps extends React.ComponentPropsWithoutRef<typeof Toggle> {
@@ -23,12 +23,14 @@ export const ToolbarButton = React.forwardRef<HTMLButtonElement, ToolbarButtonPr
     }
 
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>{toggleButton}</TooltipTrigger>
-        <TooltipContent {...tooltipOptions}>
-          <div className='flex flex-col items-center text-center'>{tooltip}</div>
-        </TooltipContent>
-      </Tooltip>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>{toggleButton}</TooltipTrigger>
+          <TooltipContent {...tooltipOptions}>
+            <div className='flex flex-col items-center text-center'>{tooltip}</div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   },
 );
