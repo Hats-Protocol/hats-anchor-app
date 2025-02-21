@@ -44,6 +44,7 @@ const Textarea = ({
   } = localForm;
 
   const isDirty = dirtyFields[name];
+  const isError = errors[name] && errors[name]?.message;
 
   const onReset = () => {
     resetField(name, { keepDirty: false });
@@ -98,7 +99,12 @@ const Textarea = ({
             <FormControl className='flex w-full flex-grow'>
               <div className='relative'>
                 <BaseTextarea
-                  className={cn(isDirty && 'border-2 border-cyan-500 pr-7', className)}
+                  className={cn(
+                    'transition-colors duration-200 focus:outline-none focus:ring-0',
+                    isDirty && !isError && 'border-cyan-500 focus:border-cyan-500',
+                    isError && 'border-destructive focus:border-destructive',
+                    className,
+                  )}
                   disabled={isDisabled}
                   placeholder={placeholder}
                   {...field}

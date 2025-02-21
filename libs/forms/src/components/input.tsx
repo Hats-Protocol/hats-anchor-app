@@ -212,10 +212,11 @@ const Input = ({
                   readOnly={readOnly || isDisabled}
                   placeholder={placeholder}
                   className={cn(
+                    'transition-colors duration-200 focus:outline-none focus:ring-0',
                     !!leftElement && 'pl-8',
                     !!rightElement && 'pr-10',
-                    isDirty && 'border-2 border-cyan-500',
-                    isError && 'border-destructive border-2',
+                    !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                    isError && 'border-destructive focus:border-destructive',
                     className,
                   )}
                 />
