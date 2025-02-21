@@ -30,7 +30,7 @@ const TiptapWrapper = ({
   isDisabled?: boolean;
 }) => {
   const converter = new showdown.Converter();
-  const initialHtml = converter.makeHtml(field.value || '');
+  const initialHtml = field.value ? converter.makeHtml(field.value) : '';
 
   return (
     <FormItem>
@@ -38,9 +38,10 @@ const TiptapWrapper = ({
       <FormControl>
         <MinimalTiptapEditor
           value={initialHtml}
-          onChange={(html) => {
+          onChange={(content) => {
             // Convert HTML back to markdown before saving to form
-            const markdown = converter.makeMarkdown(typeof html === 'string' ? html : '');
+            const html = typeof content === 'string' ? content : '';
+            const markdown = converter.makeMarkdown(html);
             field.onChange(markdown);
           }}
           className={className}
@@ -50,6 +51,7 @@ const TiptapWrapper = ({
           autofocus={false}
           editable={!isDisabled}
           editorClassName='focus:outline-none'
+          onBlur={() => field.onBlur()}
         />
       </FormControl>
       <FormMessage />

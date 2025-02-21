@@ -32,6 +32,7 @@ export interface UseMinimalTiptapEditorProps extends UseEditorOptions {
   throttleDelay?: number;
   onUpdate?: (content: Content) => void;
   onBlur?: (content: Content) => void;
+  editable?: boolean;
 }
 
 const createExtensions = (placeholder: string) => [
@@ -169,6 +170,7 @@ export const useMinimalTiptapEditor = ({
   throttleDelay = 0,
   onUpdate,
   onBlur,
+  editable = true,
   ...props
 }: UseMinimalTiptapEditorProps) => {
   const throttledSetValue = useThrottle((value: Content) => onUpdate?.(value), throttleDelay);
@@ -199,11 +201,30 @@ export const useMinimalTiptapEditor = ({
         class: cn('focus:outline-none', editorClassName),
       },
     },
+    editable,
+    content: value,
     onUpdate: ({ editor }) => handleUpdate(editor),
     onCreate: ({ editor }) => handleCreate(editor),
     onBlur: ({ editor }) => handleBlur(editor),
     ...props,
   });
+
+  // Update editor content when value changes
+  React.useEffect(() => {
+    if (editor && value !== undefined && value !== null) {
+      const currentContent = getOutput(editor, output);
+      if (currentContent !== value) {
+        editor.commands.setContent(value);
+      }
+    }
+  }, [editor, value, output]);
+
+  // Update editable state when it changes
+  React.useEffect(() => {
+    if (editor) {
+      editor.setEditable(editable);
+    }
+  }, [editor, editable]);
 
   return editor;
 };

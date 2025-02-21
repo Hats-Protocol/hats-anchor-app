@@ -3,7 +3,7 @@ import './styles/index.css';
 import type { Content, Editor } from '@tiptap/react';
 import { EditorContent } from '@tiptap/react';
 import * as React from 'react';
-import { Separator, TooltipProvider } from 'ui';
+import { Separator } from 'ui';
 import { cn } from 'ui';
 
 import { LinkBubbleMenu } from './components/bubble-menu/link-bubble-menu';
@@ -26,41 +26,27 @@ export interface MinimalTiptapProps extends Omit<UseMinimalTiptapEditorProps, 'o
 const Toolbar = ({ editor }: { editor: Editor }) => (
   <div className='border-border shrink-0 overflow-x-auto border-b p-2'>
     <div className='flex w-max items-center gap-px'>
-      <TooltipProvider>
-        <SectionOne editor={editor} activeLevels={[1, 2, 3, 4, 5, 6]} />
-      </TooltipProvider>
+      <SectionOne editor={editor} activeLevels={[1, 2, 3, 4, 5, 6]} />
 
       <Separator orientation='vertical' className='mx-2 h-7' />
 
-      <TooltipProvider>
-        <SectionTwo
-          editor={editor}
-          activeActions={['bold', 'italic', 'underline', 'strikethrough', 'code', 'clearFormatting']}
-          mainActionCount={3}
-        />
-      </TooltipProvider>
+      <SectionTwo
+        editor={editor}
+        activeActions={['bold', 'italic', 'underline', 'strikethrough', 'code', 'clearFormatting']}
+        mainActionCount={3}
+      />
 
       <Separator orientation='vertical' className='mx-2 h-7' />
 
-      <TooltipProvider>
-        <SectionThree editor={editor} />
-      </TooltipProvider>
+      <SectionThree editor={editor} />
 
       <Separator orientation='vertical' className='mx-2 h-7' />
 
-      <TooltipProvider>
-        <SectionFour editor={editor} activeActions={['orderedList', 'bulletList']} mainActionCount={0} />
-      </TooltipProvider>
+      <SectionFour editor={editor} activeActions={['orderedList', 'bulletList']} mainActionCount={0} />
 
       <Separator orientation='vertical' className='mx-2 h-7' />
 
-      <TooltipProvider>
-        <SectionFive
-          editor={editor}
-          activeActions={['codeBlock', 'blockquote', 'horizontalRule']}
-          mainActionCount={0}
-        />
-      </TooltipProvider>
+      <SectionFive editor={editor} activeActions={['codeBlock', 'blockquote', 'horizontalRule']} mainActionCount={0} />
     </div>
   </div>
 );
