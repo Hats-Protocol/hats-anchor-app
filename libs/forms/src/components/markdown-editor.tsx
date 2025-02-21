@@ -4,9 +4,11 @@ import Bold from '@tiptap/extension-bold';
 import BulletList from '@tiptap/extension-bullet-list';
 import Heading from '@tiptap/extension-heading';
 import Italic from '@tiptap/extension-italic';
+import Link from '@tiptap/extension-link';
 import ListItem from '@tiptap/extension-list-item';
 import OrderedList from '@tiptap/extension-ordered-list';
 import Strike from '@tiptap/extension-strike';
+import Underline from '@tiptap/extension-underline';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { ControllerRenderProps, FieldValues, UseFormReturn } from 'react-hook-form';
@@ -46,12 +48,15 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, st
       Bold.configure(),
       Italic.configure(),
       Strike.configure(),
+      Underline.configure(),
+      Link.configure({
+        openOnClick: false,
+      }),
     ],
     content: converter.makeHtml(field.value),
     editorProps: {
       attributes: {
-        class:
-          'prose prose-sm max-w-none rounded-md border min-h-[150px] max-h-[400px] overflow-y-auto border-input bg-background focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 p-2',
+        class: 'prose prose-sm max-w-none min-h-[150px] max-h-[400px] overflow-y-auto bg-background p-2',
       },
       scrollThreshold: 80,
       scrollMargin: 80,
@@ -65,9 +70,9 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, st
     <FormItem>
       {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
-        <div className='flex flex-col justify-stretch'>
+        <div className='border-input flex flex-col justify-stretch overflow-hidden rounded-lg border'>
           <Toolbar editor={editor} />
-          <EditorContent className='max-h-[400px] min-h-[250px]' editor={editor} />
+          <EditorContent editor={editor} />
         </div>
       </FormControl>
       <FormMessage />
