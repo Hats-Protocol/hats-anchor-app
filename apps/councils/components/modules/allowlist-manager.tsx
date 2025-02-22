@@ -15,8 +15,8 @@ import {
   formatAddress,
   getAllWearers,
   logger,
-  sendTelegramMessage,
-  tgFormatAddress,
+  // sendTelegramMessage,
+  // tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
@@ -110,9 +110,9 @@ const AllowlistManager = ({
                 queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
                 setManagerLoading(false);
 
-                sendTelegramMessage(
-                  `New ${isCompliance ? 'allowlist' : 'compliance'} manager added: ${data.name} (${tgFormatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
-                );
+                // sendTelegramMessage(
+                //   `New ${isCompliance ? 'allowlist' : 'compliance'} manager added: ${data.name} (${tgFormatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
+                // );
 
                 if (offchainCouncilDetails?.hsg) {
                   posthog.capture('Added Allowlist Manager', {

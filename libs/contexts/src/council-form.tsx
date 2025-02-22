@@ -53,13 +53,13 @@ import {
   createHatsClient,
   createHatsModulesClient,
   createOrganization,
-  explorerUrl,
+  // explorerUrl,
   fetchToken,
   GET_COUNCIL_FORM,
   getCouncilsGraphqlClient,
   logger,
   pinFileToIpfs,
-  sendTelegramMessage,
+  // sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
   updateCouncilForm,
   viemPublicClient,
@@ -1309,13 +1309,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
 
-          const appUrl = window.location.origin || 'https://hats-app.vercel.app';
-          const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainsMap(chainId)?.name}: `;
-          const links = `[View Council](${appUrl}/councils/${chainIdToString(chainId)}:${hsgAddress}/members)\n[View HSG \\(${hsgAddress}\\)](${explorerUrl(chainId)}/address/${hsgAddress}) `;
+          // const appUrl = window.location.origin || 'https://hats-app.vercel.app';
+          // const message = `New HSG council *${formData.councilName}* for ${formData.organizationName} deployed on ${chainsMap(chainId)?.name}: `;
+          // const links = `[View Council](${appUrl}/councils/${chainIdToString(chainId)}:${hsgAddress}/members)\n[View HSG \\(${hsgAddress}\\)](${explorerUrl(chainId)}/address/${hsgAddress}) `;
 
-          sendTelegramMessage(`${message} ${links}`);
-          logger.debug('Telegram notification sent');
-          // TODO email notification
+          // sendTelegramMessage(`${message} ${links}`);
+          // logger.debug('Telegram notification sent');
 
           posthog.capture('Council Deployed', {
             councilName: formData.councilName,

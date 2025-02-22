@@ -1,5 +1,5 @@
-import SafeApiKit from '@safe-global/api-kit';
 import { MANUAL_EXCLUDE_TOKENS, SAFE_API_URL } from '@hatsprotocol/config';
+import SafeApiKit from '@safe-global/api-kit';
 import { every, filter, first, get, includes, isEmpty, map, reject, some, toNumber } from 'lodash';
 import { SupportedChains } from 'types';
 import { getAddress, Hex } from 'viem';

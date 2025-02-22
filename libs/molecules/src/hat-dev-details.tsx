@@ -22,7 +22,6 @@ const HatDevDetails = ({
 }: HatDevDetailsProps) => {
   const treeId = selectedHat?.id ? hatIdToTreeId(BigInt(selectedHat.id)) : null;
   const { toast } = useToast();
-  console.log({ selectedHat, eligibilityInfo, chainId, isClaimable });
 
   const devData = useMemo(() => {
     if (!selectedHat) return [];

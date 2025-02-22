@@ -2,7 +2,6 @@
 
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { DurationInput, Form } from 'forms';
@@ -49,7 +48,6 @@ export const AgreementForms = ({
   const currentAgreement = get(find(moduleParameters, { label: 'Current Agreement' }), 'value');
   const { data: agreementData } = useIpfsData(currentAgreement as string);
   const agreementContent = get(agreementData, 'data');
-  const { openConnectModal } = useConnectModal();
 
   const { watch, reset } = pick(localForm, ['watch', 'reset']);
 
@@ -110,6 +108,10 @@ export const AgreementForms = ({
     removeList,
     // writeContractAsync,
     setRemoving,
+    chainId,
+    // handlePendingTx,
+    // queryClient,
+    // waitForSubgraph,
   ]);
 
   const handleSignAgreement = async () => {
@@ -145,14 +147,6 @@ export const AgreementForms = ({
   };
 
   const agreementButtons = compact([
-    !address &&
-      openConnectModal && {
-        label: 'Connect Wallet to Sign',
-        onClick: openConnectModal,
-        colorScheme: 'blue.500',
-        section: 'Signature',
-        hasRole: !address,
-      },
     selectedOption === 'Agreement' &&
       address &&
       !isWearing && {
@@ -319,7 +313,7 @@ export const AgreementForms = ({
     // reset,
   ]);
 
-  return <ManageBar sections={sections} buttons={agreementButtons} />;
+  return <ManageBar sections={sections} buttons={agreementButtons} chainId={chainId} />;
 };
 
 interface AgreementFormsProps {

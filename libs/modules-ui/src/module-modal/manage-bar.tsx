@@ -1,6 +1,8 @@
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { find, map, some } from 'lodash';
 import { ReactNode, useMemo } from 'react';
 import { Button } from 'ui';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 interface Section {
   label: string;
@@ -20,9 +22,24 @@ interface ManageButton {
 interface ManageBarProps {
   sections: Section[];
   buttons: ManageButton[];
+  chainId: number | undefined;
 }
 
-export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
+const ManageBarWrapper = ({ children }: { children: ReactNode }) => {
+  return (
+    <div className='absolute bottom-0 min-h-[100px] w-full rounded-br-xl border-b border-t border-black/20 bg-white/90 py-4 md:py-10'>
+      <div className='flex w-full items-center justify-center'>
+        <div className='flex gap-4'>{children}</div>
+      </div>
+    </div>
+  );
+};
+
+export const ManageBar = ({ sections, buttons, chainId }: ManageBarProps) => {
+  const { address } = useAccount();
+  const currentChainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const { openConnectModal } = useConnectModal();
   const activeSection = useMemo(() => {
     return find(sections, (s) => s.value);
   }, [sections]);
@@ -38,25 +55,48 @@ export const ManageBar = ({ sections, buttons }: ManageBarProps) => {
     );
   }
 
+  if (!address) {
+    return (
+      <ManageBarWrapper>
+        <Button variant='outline-blue' size='sm' onClick={openConnectModal}>
+          Connect Wallet
+        </Button>
+      </ManageBarWrapper>
+    );
+  }
+
   if (!hasAnyRole) return null;
 
+  if (chainId !== currentChainId) {
+    return (
+      <ManageBarWrapper>
+        <Button
+          variant='outline-blue'
+          size='sm'
+          onClick={() => {
+            if (!chainId) return;
+            switchChain({ chainId });
+          }}
+        >
+          Switch Network
+        </Button>
+      </ManageBarWrapper>
+    );
+  }
+
   return (
-    <div className='absolute bottom-0 min-h-[100px] w-full rounded-br-xl border-b border-t border-black/20 bg-white/90 py-4 md:py-10'>
-      <div className='flex w-full items-center justify-center'>
-        <div className='flex gap-4'>
-          {map(buttons, ({ onClick, label, colorScheme }) => (
-            <Button
-              variant='outline-blue'
-              // colorScheme={colorScheme || 'blue.500'}
-              size='sm'
-              onClick={onClick}
-              key={label}
-            >
-              {label}
-            </Button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <ManageBarWrapper>
+      {map(buttons, ({ onClick, label, colorScheme }) => (
+        <Button
+          variant='outline-blue'
+          // colorScheme={colorScheme || 'blue.500'}
+          size='sm'
+          onClick={onClick}
+          key={label}
+        >
+          {label}
+        </Button>
+      ))}
+    </ManageBarWrapper>
   );
 };
