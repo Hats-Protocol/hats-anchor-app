@@ -37,7 +37,6 @@ const EligibilityStatus = ({
     return (
       <div className='flex items-center gap-1'>
         <BsCheckSquare className='text-functional-success h-6 w-6' />
-
         <p className='text-functional-success'>Pending</p>
       </div>
     );
@@ -110,7 +109,6 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
       >
         <div className='flex flex-col gap-1'>
           <p className='text-left'>{children}</p>
-
           <EligibilityStatus
             isEligible={isEligible}
             isReadyToClaim={hasAllowance || get(isReadyToClaim, rule.address, false)}
