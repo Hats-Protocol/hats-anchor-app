@@ -58,10 +58,7 @@ const DatePicker = ({
               {label && (
                 <FormLabel>
                   <div className='flex items-center gap-2'>
-                    <p className='text-sm'>
-                      {label.toUpperCase()}
-                      {options?.required && '*'}
-                    </p>
+                    <p className='text-sm'>{label.toUpperCase()}</p>
                     {info && (
                       <Tooltip label={info}>
                         <FaRegQuestionCircle />

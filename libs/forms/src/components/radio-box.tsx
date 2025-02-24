@@ -81,7 +81,6 @@ const RadioBox = ({
                   <FormLabel className='mb-0'>
                     <span className={getVariantStyles(variant).label}>
                       {label}
-                      {isRequired && <span className='text-red-500'> *</span>}
                       {subLabel && <span className='ml-2 text-sm font-normal text-gray-400'>{subLabel}</span>}
                     </span>
                   </FormLabel>

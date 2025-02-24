@@ -144,7 +144,6 @@ const Input = ({
                   <div className={getVariantStyles(variant).container}>
                     <span className={getVariantStyles(variant).label}>
                       {label}
-                      {options?.required && <span className='text-red-500'> *</span>}
                       {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
                     </span>
 
