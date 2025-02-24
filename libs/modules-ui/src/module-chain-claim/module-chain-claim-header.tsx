@@ -216,7 +216,7 @@ const ModuleChainClaimHeader = ({
                 </Button>
               </div>
             ) : (
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center'>
                 <Tooltip label={disableReason}>
                   <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-[#2D3748] bg-white p-4'>
                     {isWearing ? (
@@ -243,9 +243,9 @@ const ModuleChainClaimHeader = ({
                   </div>
                 </Tooltip>
 
-                {/* <div className='flex items-center'>
-                  <div className='h-[1px] w-4 bg-[#2D3748]' />
-                </div> */}
+                <div className='flex items-center'>
+                  <div className='h-[1px] w-8 bg-[#2D3748]' />
+                </div>
 
                 <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-[#2D3748] bg-white p-4'>
                   {isSigner ? (
