@@ -46,15 +46,7 @@ export const LinkPopoverBlock: React.FC<LinkPopoverBlockProps> = ({ url, onClear
           <LinkBreak2Icon className='size-4' />
         </ToolbarButton>
         <Separator orientation='vertical' />
-        <ToolbarButton
-          tooltip={copyTitle}
-          onClick={handleCopy}
-          tooltipOptions={{
-            onPointerDownOutside: (e) => {
-              if (e.target === e.currentTarget) e.preventDefault();
-            },
-          }}
-        >
+        <ToolbarButton tooltip={copyTitle} onClick={handleCopy}>
           <CopyIcon className='size-4' />
         </ToolbarButton>
       </div>

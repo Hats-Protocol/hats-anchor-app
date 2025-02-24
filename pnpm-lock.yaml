@@ -668,6 +668,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.1.2(@types/react@18.3.1)(react@18.3.1)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.1.8
+        version: 1.1.8(@types/react-dom@18.3.5(@types/react@18.3.1))(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.64.2
         version: 5.66.8(react@18.3.1)

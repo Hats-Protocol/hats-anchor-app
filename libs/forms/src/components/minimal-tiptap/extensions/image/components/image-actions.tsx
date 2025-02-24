@@ -46,22 +46,19 @@ ActionWrapper.displayName = 'ActionWrapper';
 
 export const ActionButton = React.memo(
   React.forwardRef<HTMLButtonElement, ActionButtonProps>(({ icon, tooltip, className, ...props }, ref) => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          ref={ref}
-          variant='ghost'
-          className={cn(
-            'text-muted-foreground hover:text-foreground relative flex h-7 w-7 flex-row rounded-none p-0',
-            'bg-transparent hover:bg-transparent',
-            className,
-          )}
-          {...props}
-        >
-          {icon}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side='bottom'>{tooltip}</TooltipContent>
+    <Tooltip label={tooltip} side='bottom'>
+      <Button
+        ref={ref}
+        variant='ghost'
+        className={cn(
+          'text-muted-foreground hover:text-foreground relative flex h-7 w-7 flex-row rounded-none p-0',
+          'bg-transparent hover:bg-transparent',
+          className,
+        )}
+        {...props}
+      >
+        {icon}
+      </Button>
     </Tooltip>
   )),
 );

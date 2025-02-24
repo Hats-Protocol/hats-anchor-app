@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BaseInput, Button, Label, Switch } from 'ui';
+import { BaseInput, Button, cn, Label, Switch } from 'ui';
 
 export interface LinkEditorProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultUrl?: string;
