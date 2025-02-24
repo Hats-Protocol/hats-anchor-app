@@ -117,7 +117,7 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
         </div>
       </Button>
       {activeRule?.address === rule.address && (
-        <div className='absolute bottom-0 left-1/2 h-4 w-[1px] -translate-x-1/2 translate-y-full bg-[#2D3748]'></div>
+        <div className='absolute bottom-0 left-1/2 h-4 w-[1px] -translate-x-1/2 translate-y-full bg-gray-900'></div>
       )}
     </div>
   );
@@ -185,8 +185,8 @@ const AndIcon = () => (
 
 const AndDecorator = () => (
   <div className='flex items-center'>
-    <div className='relative flex h-[1px] w-16 items-center bg-[#2D3748]'>
-      <div className='absolute left-1/2 top-1/2 flex h-4 w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm border border-[#2D3748] bg-white text-[#2D3748]'>
+    <div className='relative flex h-[1px] w-16 items-center bg-gray-900'>
+      <div className='absolute left-1/2 top-1/2 flex h-4 w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-900 bg-white text-gray-900'>
         <AndIcon />
       </div>
     </div>
@@ -195,9 +195,9 @@ const AndDecorator = () => (
 
 const ArrowDecorator = () => (
   <div className='flex flex-1 items-center'>
-    <div className='relative flex h-[1px] w-full items-center bg-[#2D3748]'>
-      <div className='absolute left-6 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-sm border border-[#2D3748] bg-white'>
-        <BsArrowRight className='h-2.5 w-2.5 text-[#2D3748]' />
+    <div className='relative flex h-[1px] w-full items-center bg-gray-900'>
+      <div className='absolute left-6 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-900 bg-white'>
+        <BsArrowRight className='h-2.5 w-2.5 text-gray-900' />
       </div>
     </div>
   </div>
