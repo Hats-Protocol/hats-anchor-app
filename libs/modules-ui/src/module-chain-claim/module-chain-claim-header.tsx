@@ -84,7 +84,16 @@ const ModuleChainClaimHeader = ({
     isReadyToClaim: aggregateIsReadyToClaim,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readContract'] });
-      setIsVerifyLoading(false);
+      queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
+      queryClient.invalidateQueries({ queryKey: ['isReadyToClaim'] });
+      queryClient.invalidateQueries({ queryKey: ['isWearing'] });
+      queryClient.invalidateQueries({ queryKey: ['safeDetails'] });
+
+      // Add a small delay to prevent the brief flicker between states
+      setTimeout(() => {
+        setIsVerifyLoading(false);
+      }, 1000);
+
       posthog.capture('Claimed Hat', {
         chainId,
         councilAddress: hsgAddress,
@@ -197,7 +206,7 @@ const ModuleChainClaimHeader = ({
         {showJoinButton && (
           <div className='flex gap-2'>
             {isSigner ? (
-              <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-300 bg-white p-4'>
+              <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
                 <LinkButton
                   href={`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`}
                   className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
@@ -210,7 +219,7 @@ const ModuleChainClaimHeader = ({
                 </LinkButton>
               </div>
             ) : chainId !== currentChainId ? (
-              <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-300 bg-white p-4'>
+              <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
                 <Button variant='outline-blue' rounded='full' onClick={() => switchChain({ chainId })}>
                   Change Chain
                 </Button>
