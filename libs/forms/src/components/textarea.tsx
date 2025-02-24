@@ -101,8 +101,10 @@ const Textarea = ({
                 <BaseTextarea
                   className={cn(
                     'transition-colors duration-200 focus:outline-none focus:ring-0',
-                    isDirty && !isError && 'border-cyan-500 focus:border-cyan-500',
-                    isError && 'border-destructive focus:border-destructive',
+                    variant === 'default' && [
+                      isDirty && !isError && 'border-cyan-500 focus:border-cyan-500',
+                      isError && 'border-destructive focus:border-destructive',
+                    ],
                     className,
                   )}
                   disabled={isDisabled}
@@ -110,7 +112,7 @@ const Textarea = ({
                   {...field}
                 />
 
-                {isDirty && (
+                {isDirty && variant === 'default' && (
                   <Button
                     aria-label='Reset'
                     onClick={onReset}

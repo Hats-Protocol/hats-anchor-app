@@ -150,8 +150,10 @@ const NumberInput = ({
                   <BaseInput
                     className={cn(
                       'w-full transition-colors duration-200 focus:outline-none focus:ring-0',
-                      !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
-                      isError && 'border-destructive focus:border-destructive',
+                      variant === 'default' && [
+                        !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                        isError && 'border-destructive focus:border-destructive',
+                      ],
                       prefix && 'rounded-l-none',
                       'rounded-r-none',
                       inputClassName,
@@ -164,7 +166,7 @@ const NumberInput = ({
                     onChange={handleChange}
                   />
 
-                  {isDirty && !isDisabled && enableReset && (
+                  {isDirty && !isDisabled && enableReset && variant === 'default' && (
                     <Button
                       aria-label='Reset'
                       onClick={onReset}

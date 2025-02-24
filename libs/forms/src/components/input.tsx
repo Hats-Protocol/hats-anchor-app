@@ -215,8 +215,10 @@ const Input = ({
                     'transition-colors duration-200 focus:outline-none focus:ring-0',
                     !!leftElement && 'pl-8',
                     !!rightElement && 'pr-10',
-                    !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
-                    isError && 'border-destructive focus:border-destructive',
+                    variant === 'default' && [
+                      !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                      isError && 'border-destructive focus:border-destructive',
+                    ],
                     className,
                   )}
                 />
@@ -228,7 +230,7 @@ const Input = ({
                         {rightElement}
                       </div>
                     )}
-                    {isDirty && (
+                    {isDirty && variant === 'default' && (
                       <Button
                         aria-label='Reset'
                         onClick={onReset}

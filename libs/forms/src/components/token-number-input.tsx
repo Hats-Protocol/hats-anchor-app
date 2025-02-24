@@ -96,8 +96,10 @@ function TokenNumberInput({
                 className={cn(
                   'transition-colors duration-200 focus:outline-none focus:ring-0',
                   'ml-[-1px] flex-1 rounded-none bg-white',
-                  !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
-                  isError && 'border-destructive focus:border-destructive',
+                  variant === 'default' && [
+                    !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                    isError && 'border-destructive focus:border-destructive',
+                  ],
                 )}
                 type='number'
                 min={options?.min}
@@ -107,7 +109,7 @@ function TokenNumberInput({
                 ref={ref}
               />
 
-              {isDirty && !disabled && (
+              {isDirty && !disabled && variant === 'default' && (
                 <Button
                   aria-label='Reset'
                   onClick={() => resetField(name, { keepDirty: false })}
