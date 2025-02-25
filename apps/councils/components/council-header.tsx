@@ -1,6 +1,7 @@
 'use client';
 
 import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { useEligibility } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useSafesInfo } from 'hooks';
@@ -13,7 +14,7 @@ import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Button, cn, Link, OblongAvatar, Skeleton } from 'ui';
+import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
 import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
@@ -32,6 +33,40 @@ const handleHatDetails = (detailsMetadata: string | undefined) => {
   return get(parsedDetailsMetadata, 'data');
 };
 
+// Mock data for development
+const MOCK_SAFE_DATA = {
+  threshold: 3,
+  owners: ['0x1234567890123456789012345678901234567890'],
+};
+
+const MOCK_COUNCIL_DETAILS = {
+  safe: '0x1234567890123456789012345678901234567890' as Hex,
+  minThreshold: 3,
+  signerHats: [
+    {
+      id: '0x1234',
+      maxSupply: 5,
+      wearers: [{ id: '0x1234567890123456789012345678901234567890' }],
+      detailsMetadata: JSON.stringify({
+        data: {
+          name: 'Sample Council',
+          description: 'This is a sample council for development',
+        },
+      }),
+    },
+  ],
+};
+
+const MOCK_OFFCHAIN_DETAILS = {
+  creationForm: {
+    councilName: 'Sample Council',
+    councilDescription: 'This is a sample council for development',
+  },
+  organization: {
+    name: 'Sample Organization',
+  },
+};
+
 const CouncilHeaderCard = ({
   chainId,
   address,
@@ -41,6 +76,8 @@ const CouncilHeaderCard = ({
   address?: string;
   withLinks?: boolean;
 }) => {
+  const pathname = usePathname();
+  const isJoinPage = pathname.includes('/join');
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
     address: address ?? '',
@@ -57,14 +94,21 @@ const CouncilHeaderCard = ({
     safeAddress: councilDetails?.safe as Hex,
     chainId: chainId ?? 11155111,
   });
-  const primarySignerHat = get(councilDetails, 'signerHats[0]');
+
+  // Use mock data if real data is not available
+  const effectiveCouncilDetails = councilDetails || MOCK_COUNCIL_DETAILS;
+  const effectiveOffchainDetails = offchainCouncilDetails || MOCK_OFFCHAIN_DETAILS;
+  const effectiveSafeDetails = first(safesDetails) || MOCK_SAFE_DATA;
+  const effectiveSafeSigners = safeSignersRaw || MOCK_SAFE_DATA.owners;
+
+  const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
   const primarySignerHatId = get(primarySignerHat, 'id');
   const topHatId = !!primarySignerHatId
     ? treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(primarySignerHatId)))
     : undefined;
   const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);
-  const safe = first(safesDetails);
-  const safeSigners = filter(safeSignersRaw, (signer) =>
+  const safe = effectiveSafeDetails;
+  const safeSigners = filter(effectiveSafeSigners, (signer) =>
     includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)),
   );
 
@@ -91,11 +135,13 @@ const CouncilHeaderCard = ({
   }, [topHatWearerAddress]);
   const topHatWearer = ensName || formatAddress(topHatWearerAddress);
 
-  const offchainCouncilName = get(offchainCouncilDetails, 'creationForm.councilName');
-  const offchainCouncilDescription = get(offchainCouncilDetails, 'creationForm.councilDescription');
-  const organizationName = get(offchainCouncilDetails, 'organization.name');
+  const offchainCouncilName = get(effectiveOffchainDetails, 'creationForm.councilName');
+  const offchainCouncilDescription = get(effectiveOffchainDetails, 'creationForm.councilDescription');
+  const organizationName = get(effectiveOffchainDetails, 'organization.name');
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
+  const { isReadyToClaim, isWearing } = useEligibility();
 
   // TODO check signers vs hat wearers
   // TODO better loading state/check
@@ -103,25 +149,75 @@ const CouncilHeaderCard = ({
     return <Skeleton className='bg-functional-link-primary/10 mx-auto flex min-h-[125px] w-full rounded-lg p-4' />;
   }
 
+  const memberCount = size(safeSigners);
+  const maxMembers = toNumber(get(primarySignerHat, 'maxSupply'));
+  const progressSegments = Array(maxMembers).fill(0);
+
   return (
     <div
       className={cn(
-        'flex justify-between rounded-2xl border border-black bg-gray-50 p-4 px-6',
-        isDev && !offchainCouncilDetails && 'bg-blue-50',
+        'flex rounded-2xl border border-black bg-gray-50',
+        'p-6 md:p-4 md:px-6', // Tighter padding on mobile
+        'md:justify-between',
+        'flex-col md:flex-row',
+        isDev && !effectiveOffchainDetails && 'bg-blue-50',
       )}
     >
-      <div className='flex w-[30%] flex-col gap-2'>
-        <div className='text-functional-link-primary text-xs uppercase'>{organizationName}</div>
+      {/* Mobile and Desktop: Left Column */}
+      <div className='flex w-full flex-col gap-4 md:w-[30%] md:gap-2'>
+        <div className='text-functional-link-primary hidden text-xs uppercase md:block'>{organizationName}</div>
         <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
-        <p className='truncate text-sm text-black/50'>
+        <p className='hidden truncate text-sm text-black/50 md:block'>
           {offchainCouncilDescription || get(signerHatDetails, 'description')}
         </p>
+
+        {/* Mobile Only: Member Count and Progress Bar */}
+        <div className='flex flex-col gap-3 md:hidden'>
+          <p className='text-sm'>
+            {memberCount} of {maxMembers} Members joined this council
+          </p>
+          <div className='flex gap-0.5'>
+            {progressSegments.map((_, index) => (
+              <div
+                key={index}
+                className={cn('h-1 flex-1 rounded-full', index < memberCount ? 'bg-green-600' : 'bg-gray-200')}
+              />
+            ))}
+          </div>
+          {isReadyToClaim && !isWearing && !isJoinPage && (
+            <LinkButton
+              href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
+              className='w-40 rounded-full'
+              variant='default'
+            >
+              Join Council
+            </LinkButton>
+          )}
+          <div className='font-jb-mono flex flex-wrap items-center gap-x-1.5 text-sm'>
+            <span>
+              {get(safe, 'threshold')}/{size(safeSigners)}
+            </span>
+            <span>Multisig</span>
+            <SafeIcon className='mx-0.5 size-3' />
+            <span>on</span>
+            <span>{capitalize(chainsMap(chainId ?? 11155111)?.name)}</span>
+            <img
+              src={chainsMap(chainId ?? 11155111)?.iconUrl}
+              className='size-3'
+              alt={chainsMap(chainId ?? 11155111)?.name}
+            />
+            <span>by</span>
+            <span className='max-w-[100px] truncate text-black/80'>{topHatWearer}</span>
+            <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-4 w-3 rounded-sm' />
+          </div>
+        </div>
       </div>
 
-      <div className='flex w-auto items-center'>
-        {withLinks && size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold')) ? (
+      {/* Desktop Only: Middle Column */}
+      <div className='hidden w-auto items-center md:flex'>
+        {withLinks && size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
           <Link
-            href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as unknown as Hex)}
+            href={safeUrl((chainId ?? 11155111) as SupportedChains, effectiveCouncilDetails?.safe as unknown as Hex)}
             isExternal
           >
             <Button variant='outline' rounded='full'>
@@ -132,24 +228,24 @@ const CouncilHeaderCard = ({
           </Link>
         ) : (
           <SignersIndicator
-            threshold={toNumber(get(councilDetails, 'minThreshold'))}
-            // TODO replace with safe signers instead of hat wearers
+            threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
             signers={size(safeSigners)}
             maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
           />
         )}
       </div>
 
-      <div className='font-jb-mono flex w-[30%] flex-col items-end justify-center gap-2 text-sm'>
+      {/* Desktop Only: Right Column */}
+      <div className='font-jb-mono hidden w-[30%] flex-col items-end justify-center gap-2 text-sm md:flex'>
         <div className='flex items-center gap-2'>
           <div className='flex items-center'>
             <div>
-              {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold'))
-                ? toNumber(get(councilDetails, 'minThreshold'))
-                : `Pending ${get(councilDetails, 'minThreshold')}`}
+              {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
+                ? get(safe, 'threshold')
+                : `Pending ${get(effectiveCouncilDetails, 'minThreshold')}`}
             </div>
             <div>
-              {size(safeSigners) >= toNumber(get(councilDetails, 'minThreshold'))
+              {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
                 ? `/${size(safeSigners)}`
                 : `/${get(primarySignerHat, 'maxSupply')}`}
             </div>
@@ -157,7 +253,7 @@ const CouncilHeaderCard = ({
           {withLinks ? (
             <Link
               className='flex items-center gap-2 text-black/80'
-              href={safeUrl((chainId ?? 11155111) as SupportedChains, councilDetails?.safe as Hex)}
+              href={safeUrl((chainId ?? 11155111) as SupportedChains, effectiveCouncilDetails?.safe as Hex)}
               isExternal
             >
               <div>Multisig</div>
@@ -211,7 +307,7 @@ const CouncilHeader = ({ chainId, address }: { chainId?: number; address?: strin
   const localAddress = address ?? slugAddress;
 
   return (
-    <div className='border-b border-black bg-gray-200 px-6 pb-10 pt-4'>
+    <div className='border-b border-black bg-gray-200 px-2 pb-10 pt-4 md:px-6'>
       <CouncilHeaderCard chainId={localChainId || undefined} address={localAddress} />
     </div>
   );

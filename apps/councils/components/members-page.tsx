@@ -127,70 +127,81 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   return (
     <div className='flex flex-col'>
-      <div className='flex h-14 items-center justify-between border-b border-gray-200'>
-        <div className='flex items-center'>
-          <div className='flex h-full w-[250px] items-center p-2'>
-            <p>Council Member</p>
-          </div>
-        </div>
+      <div className='relative'>
+        {/* Mobile scroll indicator */}
+        <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden' />
 
-        <div className='flex items-center'>
-          <div className='flex h-full w-28 items-center justify-center'>
-            <p className='text-center'>Appointed</p>
-          </div>
-
-          {map(remainingModules, (rule) => {
-            if (toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule)) {
-              return (
-                <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
-                  <p className='text-center'>Compliance</p>
+        <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
+          <div className='min-w-fit'>
+            <div className='flex h-14 items-center justify-between'>
+              <div className='flex items-center'>
+                <div className='flex h-full w-[250px] items-center p-2'>
+                  <p>Council Member</p>
                 </div>
-              );
-            }
-
-            return (
-              <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
-                <p className='text-center'>{first(split(rule.module.name, ' '))}</p>
               </div>
-            );
-          })}
 
-          <div className='flex h-full w-28 items-center justify-center'>
-            <p className='text-center'>Council Member</p>
-          </div>
+              <div className='flex items-center'>
+                <div className='flex h-full w-28 items-center justify-center'>
+                  <p className='text-center'>Appointed</p>
+                </div>
 
-          <div className='flex h-full w-48 items-center justify-center'>
-            <p className='text-center'>Manager Controls</p>
+                {map(remainingModules, (rule) => {
+                  if (toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule)) {
+                    return (
+                      <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
+                        <p className='text-center'>Compliance</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
+                      <p className='text-center'>{first(split(rule.module.name, ' '))}</p>
+                    </div>
+                  );
+                })}
+
+                <div className='flex h-full w-28 items-center justify-center'>
+                  <p className='text-center'>Council Member</p>
+                </div>
+
+                <div className='flex h-full w-48 items-center justify-center'>
+                  <p className='text-center'>Manager Controls</p>
+                </div>
+              </div>
+            </div>
+
+            {!isEmpty(allowlist) ? (
+              <>
+                {map(allowlist, (member: CouncilMember) => {
+                  const offchainDetails = find(get(offchainCouncilData, 'creationForm.members'), {
+                    address: getAddress(member.address),
+                  });
+
+                  return (
+                    <MemberRow
+                      key={member.address}
+                      member={{ ...member, ...offchainDetails }}
+                      remainingModules={remainingModules}
+                      chainId={chainId as SupportedChains}
+                      signerHat={primarySignerHat as AppHat}
+                      eligibilityRules={eligibilityRules || undefined}
+                      offchainCouncilData={offchainCouncilData || undefined}
+                      form={form}
+                      councilData={councilDetails || undefined}
+                      inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.address))}
+                    />
+                  );
+                })}
+              </>
+            ) : (
+              <div className='flex h-20 items-center justify-center gap-4'>
+                <p>No members found</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {!isEmpty(allowlist) ? (
-        map(allowlist, (member: CouncilMember) => {
-          const offchainDetails = find(get(offchainCouncilData, 'creationForm.members'), {
-            address: getAddress(member.address),
-          });
-
-          return (
-            <MemberRow
-              key={member.address}
-              member={{ ...member, ...offchainDetails }}
-              remainingModules={remainingModules}
-              chainId={chainId as SupportedChains}
-              signerHat={primarySignerHat as AppHat}
-              eligibilityRules={eligibilityRules || undefined}
-              offchainCouncilData={offchainCouncilData || undefined}
-              form={form}
-              councilData={councilDetails || undefined}
-              inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.address))}
-            />
-          );
-        })
-      ) : (
-        <div className='flex h-20 items-center justify-center gap-4'>
-          <p>No members found</p>
-        </div>
-      )}
 
       {user && userIsAllowlistManager && (
         <>
