@@ -86,7 +86,6 @@ const DurationInput: React.FC<DurationInputProps> = ({
             <div className={getVariantStyles(variant).container}>
               <span className={getVariantStyles(variant).label}>
                 {variant === 'councils' ? label : label.toUpperCase()}
-                {isRequired && <span className='text-red-500'> *</span>}
                 {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
               </span>
 

@@ -167,6 +167,7 @@ export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }
             <div className='space-y-2'>
               <Input
                 name='name'
+                label='Name'
                 labelNote='Optional'
                 variant='councils'
                 localForm={modalForm}

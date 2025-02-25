@@ -119,7 +119,6 @@ const NumberInput = ({
                 <div className={getVariantStyles(variant).container}>
                   <span className={getVariantStyles(variant).label}>
                     {label}
-                    {options?.required && <span className='text-red-500'> *</span>}
                     {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
                   </span>
 
@@ -149,13 +148,13 @@ const NumberInput = ({
                   {prefix}
                   <BaseInput
                     className={cn(
-                      'w-full',
-                      {
-                        'border-destructive': isError,
-                        'border-cyan-500': isDirty,
-                        'rounded-l-none': prefix,
-                        'rounded-r-none': true,
-                      },
+                      'w-full transition-colors duration-200 focus:outline-none focus:ring-0',
+                      variant === 'default' && [
+                        !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                        isError && 'border-destructive focus:border-destructive',
+                      ],
+                      prefix && 'rounded-l-none',
+                      'rounded-r-none',
                       inputClassName,
                     )}
                     step={step}
@@ -166,12 +165,15 @@ const NumberInput = ({
                     onChange={handleChange}
                   />
 
-                  {isDirty && !isDisabled && enableReset && (
-                    <div className='absolute right-8'>
-                      <Button aria-label='Reset' onClick={onReset} size='xs' className='bg-cyan-500'>
-                        <GrUndo />
-                      </Button>
-                    </div>
+                  {isDirty && !isDisabled && enableReset && variant === 'default' && (
+                    <Button
+                      aria-label='Reset'
+                      onClick={onReset}
+                      size='xs'
+                      className='absolute right-8 top-1 bg-cyan-500'
+                    >
+                      <GrUndo />
+                    </Button>
                   )}
 
                   <NumberInputSteppers
