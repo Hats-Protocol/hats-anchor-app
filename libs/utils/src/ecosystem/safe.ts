@@ -19,6 +19,7 @@ export const fetchSafesInfo = async ({ safes, chainId }: { safes: Hex[] | undefi
 
   const promises = map(safes, (s) => safeKit.getSafeInfo(getAddress(s)));
 
+  // TODO handle errors
   const result = await Promise.all(promises);
   return result;
 };
