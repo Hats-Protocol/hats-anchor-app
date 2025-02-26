@@ -227,6 +227,7 @@ const AllowlistForms = ({
           colorScheme: 'red.500',
         },
       ])}
+      chainId={chainId}
     />
   );
 };

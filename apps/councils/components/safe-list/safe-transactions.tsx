@@ -67,7 +67,7 @@ const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
 
         <CollapsibleContent>
           <div className='space-y-1'>
-            {map(onlyInboundTransactions(filteredSafeTransactions, safeAddress), (tx) => (
+            {map(onlyInboundTransactions(filteredSafeTransactions, safeAddress), (tx: SafeTransaction) => (
               <TransactionRecord tx={tx} chainId={chainId} key={tx.transactionHash} />
             )) || <p>No inbound transactions</p>}
           </div>
@@ -82,7 +82,7 @@ const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
 
         <CollapsibleContent>
           <div className='space-y-1'>
-            {map(onlyOutboundTransactions(filteredSafeTransactions, safeAddress), (tx) => (
+            {map(onlyOutboundTransactions(filteredSafeTransactions, safeAddress), (tx: SafeTransaction) => (
               <TransactionRecord tx={tx} chainId={chainId} key={tx.transactionHash} />
             )) || <p>No outbound transactions</p>}
           </div>

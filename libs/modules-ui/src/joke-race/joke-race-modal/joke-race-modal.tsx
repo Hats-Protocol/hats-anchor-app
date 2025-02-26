@@ -308,6 +308,7 @@ export const JokeRaceModal = ({
             hasRole: !!canStartNextTerm,
           },
         ])}
+        chainId={chainId}
       />
 
       {/* <Flex

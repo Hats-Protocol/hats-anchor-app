@@ -69,6 +69,7 @@ const MailForm = ({
     setIsLoading(true);
 
     const receivers = getReceivers(offchainCouncilDetails, mailForm.receivers);
+    console.log('receivers', receivers);
     if (!receivers || isEmpty(receivers)) {
       toast({
         title: 'Error',
@@ -89,6 +90,7 @@ const MailForm = ({
       complianceManagerAccessory: size(receivers) > 1 ? 'a' : 'the',
       address: formatAddress(receiver.address),
     }));
+
     return fetch('/api/request-notify', {
       method: 'POST',
       body: JSON.stringify({ notifications }),
@@ -115,7 +117,7 @@ const MailForm = ({
 
         toast({
           title: `Email${receivers.length > 1 ? 's' : ''} queued`,
-          description: `Email${receivers.length > 1 ? 's' : ''} queued for ${receivers.length} recipient${
+          description: `Email${receivers.length > 1 ? 's' : ''} queued for ${receivers.length > 0 ? receivers.length : 1} recipient${
             receivers.length > 1 ? 's' : ''
           }`,
         });
@@ -159,12 +161,7 @@ const MailForm = ({
       orgName: organizationName,
       chainName: chainsMap(chainId).name,
       councilMembersLink: `https://hatsprotocol.xyz/councils/${chainIdToString(chainId ?? 10)}:${councilAddress}/members`,
-      complianceTitle: PLACEHOLDERS.complianceTitle,
-      memberTitle: PLACEHOLDERS.memberTitle,
-      memberName: PLACEHOLDERS.memberName,
-      councilTitle: PLACEHOLDERS.councilTitle,
-      councilTitleUpper: PLACEHOLDERS.councilTitleUpper,
-      complianceManagerAccessory: size(complianceManagers) > 1 ? 'a' : 'the',
+
       // not shown in form, but passed to email data
       councilMembers: map(offchainCouncilDetails.creationForm.members, ({ name, address }) => ({
         name,
@@ -173,6 +170,14 @@ const MailForm = ({
       councilSafeLink: safeUrl(chainId as SupportedChains, councilDetails.safe),
       subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
       // deployTransactionLink: councilDetails.deployTransaction,
+
+      // copy
+      complianceTitle: PLACEHOLDERS.complianceTitle,
+      memberTitle: PLACEHOLDERS.memberTitle,
+      memberName: PLACEHOLDERS.memberName,
+      councilTitle: PLACEHOLDERS.councilTitle,
+      councilTitleUpper: PLACEHOLDERS.councilTitleUpper,
+      complianceManagerAccessory: size(complianceManagers) > 1 ? 'a' : 'the',
     });
     // don't include reset in dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps

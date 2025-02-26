@@ -24,8 +24,8 @@ import {
   getKnownEligibilityModule,
   logger,
   parseCouncilSlug,
-  sendTelegramMessage,
-  tgFormatAddress,
+  // sendTelegramMessage,
+  // tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
@@ -186,9 +186,10 @@ export const ManagePage = ({ slug }: { slug: string }) => {
         queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
         setAddManagerLoading(false);
-        sendTelegramMessage(
-          `New council manager added: ${tgFormatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
-        );
+
+        // sendTelegramMessage(
+        //   `New council manager added: ${tgFormatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
+        // );
 
         posthog.capture('Added Council Manager', {
           councilId: offchainCouncilDetails?.id,
@@ -206,14 +207,14 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
   return (
     <div className='mx-auto flex gap-4 pt-10 lg:max-w-[1000px]'>
-      <div className='flex w-1/5'>
+      <div className='hidden w-1/5 md:flex'>
         <SectionMenu
           sections={menuOptions}
           isLoading={councilDetailsLoading || !councilDetails || eligibilityRulesLoading}
         />
       </div>
 
-      <div className='flex w-4/5 flex-col gap-10'>
+      <div className='flex w-full flex-col gap-10 md:w-4/5'>
         <div className='flex flex-col gap-4' id='threshold'>
           {typeof window === undefined || councilDetailsLoading ? (
             <div className='flex flex-col gap-6'>

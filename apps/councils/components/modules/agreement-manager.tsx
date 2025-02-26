@@ -15,7 +15,7 @@ import {
   formatAddress,
   getAllWearers,
   logger,
-  sendTelegramMessage,
+  // sendTelegramMessage,
   tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
@@ -98,9 +98,9 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
                 queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
                 setAddManagerLoading(false);
 
-                sendTelegramMessage(
-                  `New agreement manager added: ${tgFormatAddress(data.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
-                );
+                // sendTelegramMessage(
+                //   `New agreement manager added: ${tgFormatAddress(data.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
+                // );
 
                 if (offchainCouncilDetails?.hsg) {
                   posthog.capture('Added Agreement Manager', {

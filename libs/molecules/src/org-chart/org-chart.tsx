@@ -54,7 +54,7 @@ function OrgChartComponent() {
   } = useTreeForm();
 
   const d3Container = useRef(null);
-  const [chart] = useState<OrgChart<unknown> | null>(document.body ? new OrgChart() : null);
+  const [chart] = useState<OrgChart<unknown> | null>(typeof document !== 'undefined' ? new OrgChart() : null);
   const initialLoad = useRef<boolean>(true);
   const [chartNodes, setChartNodes] = useState<OrgChartHat[] | undefined>();
   const { data: wearerHats } = useWearerDetails({
