@@ -68,6 +68,7 @@ const ChainPanel = ({
     setStatus: () => {},
   });
 
+  console.log('currentEligibility', currentEligibility);
   const isEligible = every(keys(currentEligibility), (moduleAddress) => {
     return (
       get(currentEligibility, `${moduleAddress}.eligible`) && get(currentEligibility, `${moduleAddress}.goodStanding`)
@@ -161,7 +162,7 @@ interface ChainPanelProps {
   modalSuffix?: string | undefined;
   isReadyToClaim?: { [key: Hex]: boolean };
   setIsReadyToClaim?: (address: Hex) => void;
-  currentEligibility?: { [key: Hex]: WearerStatus };
+  currentEligibility: { [key: Hex]: WearerStatus } | undefined;
   defaultOpen?: boolean;
 }
 

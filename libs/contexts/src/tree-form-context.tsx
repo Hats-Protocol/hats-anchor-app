@@ -564,9 +564,10 @@ export const TreeFormContextProvider = ({ children }: { children: ReactNode }) =
       ..._.omit(storedConfig, 'collapsed'),
     });
     onCloseTreeDrawer?.();
+    onCloseHatDrawer?.();
     setOrgChartHats(onchainHats);
     window.history.pushState({}, '', url);
-  }, [onCloseTreeDrawer, onchainHats, pathname, queryParams, setStoredConfig, storedConfig]);
+  }, [onCloseTreeDrawer, onCloseHatDrawer, onchainHats, pathname, queryParams, setStoredConfig, storedConfig]);
 
   const toggleEditMode = useCallback(() => {
     if (!editMode) {

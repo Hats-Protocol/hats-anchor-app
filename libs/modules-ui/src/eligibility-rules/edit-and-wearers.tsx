@@ -234,7 +234,7 @@ export const EditAndWearers = () => {
   const claimableAddress = get(first(get(selectedHat, 'claimableBy')), 'id') as Hex | undefined;
   const claimableForAddress = get(first(get(selectedHat, 'claimableForBy')), 'id') as Hex | undefined;
 
-  // const canAddWearers = useBreakpointValue({
+  // const canAddWearers = useBreakpointValue({ // TODO hook is not built in hooks/use-breakpoint-value
   //   base: 'Anyone can add eligible Wearers',
   //   md: 'Anyone can add eligible addresses as Wearers',
   // });

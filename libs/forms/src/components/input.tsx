@@ -47,6 +47,7 @@ const Input = ({
   onChange,
   isInvalid,
   readOnly,
+  className,
   ...props
 }: InputProps) => {
   const { address } = useAccount();
@@ -87,7 +88,7 @@ const Input = ({
     const errorMessage = get(errors, name)?.message;
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
-  // const isError = !!getErrorMessage();
+  const isError = !!getErrorMessage();
 
   const setFallback = async () => {
     setValue(name, FALLBACK_ADDRESS, { shouldDirty: true });
@@ -143,7 +144,6 @@ const Input = ({
                   <div className={getVariantStyles(variant).container}>
                     <span className={getVariantStyles(variant).label}>
                       {label}
-                      {options?.required && <span className='text-red-500'> *</span>}
                       {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
                     </span>
 
@@ -210,8 +210,16 @@ const Input = ({
                   {...props}
                   readOnly={readOnly || isDisabled}
                   placeholder={placeholder}
-                  className={cn(!!leftElement && 'pl-8', !!rightElement && 'pr-10')}
-                  // borderColor={isError ? 'red.500' : isDirty ? 'cyan.500' : undefined} // TODO handle error state border
+                  className={cn(
+                    'transition-colors duration-200 focus:outline-none focus:ring-0',
+                    !!leftElement && 'pl-8',
+                    !!rightElement && 'pr-10',
+                    variant === 'default' && [
+                      !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
+                      isError && 'border-destructive focus:border-destructive',
+                    ],
+                    className,
+                  )}
                 />
 
                 <div className={cn('w-full space-y-1', { 'w-[100%]': rightElementWidth })}>
@@ -221,7 +229,7 @@ const Input = ({
                         {rightElement}
                       </div>
                     )}
-                    {isDirty && (
+                    {isDirty && variant === 'default' && (
                       <Button
                         aria-label='Reset'
                         onClick={onReset}
@@ -285,6 +293,7 @@ interface InputProps {
   addressButtons?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readOnly?: boolean;
+  className?: string;
 }
 
 export { Input, type InputProps };

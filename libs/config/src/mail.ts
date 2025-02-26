@@ -2,10 +2,14 @@ import { concat } from 'lodash';
 
 export const PLACEHOLDERS = {
   creatorName: 'Vitalik',
+  creatorEmail: 'vitalik@ethereum.org',
   councilName: 'Protocol Council',
   orgName: 'Ethereum',
   chainName: 'Ethereum Mainnet',
   councilMembersLink: 'https://hats-pro.vercel.app/',
+  councilSafeLink: 'https://app.safe.global/',
+  subscriptionInfo: '0.1 ETH per month via invoice',
+  deployTransactionLink: 'https://etherscan.io/tx/0x',
   // copy
   memberTitle: 'Council Member',
   memberName: 'member',

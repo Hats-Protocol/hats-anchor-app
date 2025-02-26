@@ -74,7 +74,7 @@ const LastTransaction = ({ safeAddress, type }: { safeAddress: Hex; type: string
           <BsFillArrowUpRightCircleFill className='h-6 w-6 text-red-200' />
         )}
 
-        <p className='text-xs'>{shortDateFormatter(new Date(get(transaction, 'executionDate')))}</p>
+        <p className='text-xs'>{shortDateFormatter(new Date(get(transaction, 'executionDate') || ''))}</p>
       </div>
 
       <Link href={`${explorerUrl(chainId)}/tx/${get(transaction, 'transactionHash', get(transaction, 'txHash'))}`}>

@@ -1,5 +1,5 @@
 import { logger } from '../logs';
-import { chainsMap } from '../web3/chains';
+import { chainsMap } from '../web3/chains-server';
 
 /**
  * Send a message to the Telegram Alerts channel

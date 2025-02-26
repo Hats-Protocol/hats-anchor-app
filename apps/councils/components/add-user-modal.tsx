@@ -151,7 +151,13 @@ function AddUserModal({
           <div className='space-y-6'>
             <div className='space-y-2'>
               <label className='font-bold'>{capitalize(chainsMap(chainId).name)} Account</label>
-              <AddressInput name='address' localForm={form} hideAddressButtons chainId={chainId as SupportedChains} />
+              <AddressInput
+                name='address'
+                localForm={form}
+                hideAddressButtons
+                chainId={chainId as SupportedChains}
+                variant='councils'
+              />
             </div>
 
             <div className='space-y-2'>
