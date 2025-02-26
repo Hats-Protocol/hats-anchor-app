@@ -7,7 +7,8 @@ import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
 import { createPublicClient, http, PublicClient, WalletClient } from 'viem';
 import { getWalletClient } from 'wagmi/actions';
 
-import { chainsMap, getRpcUrl, wagmiConfig } from './chains';
+import { wagmiConfig } from './chains';
+import { chainsMap, getRpcUrl } from './chains-server';
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 if (!WC_PROJECT_ID) {
@@ -149,3 +150,4 @@ export async function createHatsAccountClient(
 }
 
 export * from './chains';
+export * from './chains-server';

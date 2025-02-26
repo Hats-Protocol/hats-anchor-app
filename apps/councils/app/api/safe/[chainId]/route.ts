@@ -13,13 +13,13 @@ export const GET = async (request: NextRequest, { params }: { params: Promise<{ 
   }
 
   const safesList = reject(safes.split(',') as Hex[], (safe) => isEmpty(safe) || !isAddress(safe));
-  console.log('safesList', safesList);
 
   return fetchSafesInfo({ safes: safesList, chainId: Number(chainId) })
     .then((safe) => {
       return new Response(JSON.stringify(safe));
     })
     .catch((error: Error) => {
+      // eslint-disable-next-line no-console
       console.error('Error fetching safes info', error);
       return new Response('Error fetching safes info', { status: 500 });
     });
