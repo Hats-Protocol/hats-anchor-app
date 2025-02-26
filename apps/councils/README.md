@@ -4,7 +4,7 @@ The Tree quick view app is a Next.js app for displaying budgets and assets store
 
 ## Start the app
 
-To start the development server run `pnpm treasury:dev` from the root of the project (not this directory). The server will be running on http://localhost:4200/.
+To start the development server run `pnpm treasury:dev` from the root of the project (not this directory). The server will be running on http://localhost:3000/.
 
 ## Build production application
 
