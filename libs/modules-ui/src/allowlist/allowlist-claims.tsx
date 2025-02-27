@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LabeledModules, ModuleDetails } from 'types';
-import { Card, Link, MemberAvatar, Skeleton } from 'ui';
+import { Card, cn, Link, MemberAvatar, Skeleton } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -55,13 +55,13 @@ interface RawAllowlistData {
   badStanding: boolean;
 }
 
-export const AllowlistClaims = ({
-  activeModule,
-  labeledModules,
-}: {
+interface AllowlistClaimsProps {
   activeModule: ModuleDetails;
   labeledModules: LabeledModules | undefined;
-}) => {
+  showOnMobile?: boolean;
+}
+
+export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = false }: AllowlistClaimsProps) => {
   const { chainId, isEligibilityRulesLoading } = useEligibility();
   const { data: allowlistData, isLoading: isAllowlistLoading } = useAllowlist({
     id: activeModule.instanceAddress,
@@ -123,8 +123,13 @@ export const AllowlistClaims = ({
   }
 
   return (
-    <div className='flex flex-col gap-4'>
-      <Card className='flex min-h-[500px] flex-col border-[#2D3748] px-8 py-6'>
+    <div
+      className={cn('flex flex-col gap-4', {
+        'hidden md:flex': !showOnMobile,
+        'flex md:flex': showOnMobile,
+      })}
+    >
+      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] px-8 py-6'>
         <div className='flex justify-between'>
           <div>
             <h3 className='text-2xl font-bold'>{copy.heading}</h3>

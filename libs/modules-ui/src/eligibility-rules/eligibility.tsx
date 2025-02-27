@@ -7,7 +7,7 @@ import { find, first, flatten, gt, includes, pick, size } from 'lodash';
 import { useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
 import dynamic from 'next/dynamic';
 import { Skeleton } from 'ui';
-import { eligibilityRuleToModuleDetails } from 'utils';
+import { eligibilityRuleToModuleDetails, logger } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -34,7 +34,7 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
   const { data: rawEligibilityRules, isLoading: loadingModuleDetails } = useEligibilityRules({
     address: eligibility,
     chainId,
-    enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
+    // enabled: orgChartEligibility?.isContract, // ? is this reliable enough?
   });
   const { data: currentEligibility } = useCurrentEligibility({
     chainId,
@@ -42,6 +42,8 @@ export const Eligibility = ({ modalSuffix }: { modalSuffix?: string | undefined 
     wearerAddress: address as Hex,
     eligibilityRules: rawEligibilityRules || undefined,
   });
+
+  logger.info('currentEligibility in Eligibility controller', currentEligibility);
 
   const ruleSets = !!rawEligibilityRules ? flatten(rawEligibilityRules) : undefined;
   const multipleModules = gt(size(ruleSets), 1);

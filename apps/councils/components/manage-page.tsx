@@ -77,7 +77,7 @@ const eligibilityRuleMenuLabels = (rule: any, offchainCouncilDetails: any) => {
 const SectionMenu = ({ sections, isLoading }: { sections: { value: string; label: string }[]; isLoading: boolean }) => {
   if (typeof window === 'undefined' || isLoading) {
     return (
-      <div className='flex min-w-40 flex-col gap-4'>
+      <div className='hidden min-w-40 flex-col gap-4 md:flex'>
         <Skeleton className='h-4 w-full' />
         <Skeleton className='h-4 w-full' />
         <Skeleton className='h-4 w-full' />
@@ -87,7 +87,7 @@ const SectionMenu = ({ sections, isLoading }: { sections: { value: string; label
   }
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='hidden flex-col gap-4 md:flex'>
       {map(sections, (section) => (
         <a key={section.value} href={`#${section.value}`} className='text-sm'>
           {section.label}
@@ -205,6 +205,8 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
+  logger.info('Button conditions:', { user, userIsManager, currentChainId, chainId }); /* Debug log */
+
   return (
     <div className='mx-auto flex gap-4 pt-10 lg:max-w-[1000px]'>
       <div className='hidden w-1/5 md:flex'>
@@ -214,7 +216,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
         />
       </div>
 
-      <div className='flex w-full flex-col gap-10 md:w-4/5'>
+      <div className='flex w-full flex-col gap-10 px-2 md:w-4/5 md:px-0'>
         <div className='flex flex-col gap-4' id='threshold'>
           {typeof window === undefined || councilDetailsLoading ? (
             <div className='flex flex-col gap-6'>
@@ -225,28 +227,83 @@ export const ManagePage = ({ slug }: { slug: string }) => {
             <>
               <h2 className='text-2xl font-bold'>Signer Threshold</h2>
 
-              <div className='mt-2'>
+              {/* Mobile: Compact View */}
+              <div className='flex flex-col gap-3 md:hidden'>
+                <div className='flex items-center justify-between'>
+                  <p className='text-sm'>
+                    {size(signers)} of {toNumber(get(primarySignerHat, 'maxSupply'))} Members joined this council
+                  </p>
+                </div>
+                <div className='flex gap-0.5'>
+                  {Array(toNumber(get(primarySignerHat, 'maxSupply')))
+                    .fill(0)
+                    .map((_, index) => (
+                      <div
+                        key={index}
+                        className={cn(
+                          'h-1 flex-1 rounded-full',
+                          index < size(signers) ? 'bg-green-600' : 'bg-gray-200',
+                        )}
+                      />
+                    ))}
+                </div>
+                <div className='flex items-center justify-between'>
+                  <div className='font-jb-mono flex items-center gap-x-1.5 text-sm'>
+                    <span>
+                      {toNumber(get(councilDetails, 'minThreshold'))}/{size(signers)}
+                    </span>
+                    <span>Multisig</span>
+                  </div>
+                  {user &&
+                    userIsManager &&
+                    (currentChainId === chainId ? (
+                      <Button
+                        size='sm'
+                        variant='outline-blue'
+                        rounded='full'
+                        onClick={() => setModals?.({ hsgThreshold: true })}
+                      >
+                        Change Threshold
+                      </Button>
+                    ) : (
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        rounded='full'
+                        onClick={() => switchChain({ chainId: chainId ?? 11155111 })}
+                      >
+                        Switch to {chainsMap(chainId ?? 11155111)?.name}
+                      </Button>
+                    ))}
+                </div>
+              </div>
+
+              {/* Desktop: Full View */}
+              <div className='mt-2 hidden md:block'>
                 <SignersIndicator
                   threshold={toNumber(get(councilDetails, 'minThreshold'))}
                   signers={size(signers)}
                   maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
                 />
+                {user && userIsManager && (
+                  <div className='mt-2 flex'>
+                    {currentChainId === chainId ? (
+                      <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
+                        Change Threshold
+                      </Button>
+                    ) : (
+                      <Button
+                        variant='outline'
+                        rounded='full'
+                        onClick={() => switchChain({ chainId: chainId ?? 11155111 })}
+                      >
+                        Switch to {chainsMap(chainId ?? 11155111)?.name}
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
             </>
-          )}
-
-          {user && userIsManager && (
-            <div className='mt-2 flex'>
-              {currentChainId === chainId ? (
-                <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
-                  Change Threshold
-                </Button>
-              ) : (
-                <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId: chainId ?? 11155111 })}>
-                  Switch to {chainsMap(chainId ?? 11155111)?.name}
-                </Button>
-              )}
-            </div>
           )}
 
           <SignerThresholdModal

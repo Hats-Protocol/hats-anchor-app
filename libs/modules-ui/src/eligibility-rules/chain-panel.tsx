@@ -19,7 +19,7 @@ const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean
   if (isEligible) {
     return (
       <div className='text-functional-success flex items-center gap-1'>
-        <p>Eligible</p>
+        {IS_CLAIMS_APP && <p>Eligible</p>}
 
         <BsCheckSquareFill className='h-4 w-4' />
       </div>
@@ -29,7 +29,7 @@ const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean
   if (isReadyToClaim) {
     return (
       <div className='text-functional-success flex items-center gap-1'>
-        <p>Pending</p>
+        {IS_CLAIMS_APP && <p>Pending</p>}
 
         <BsCheckSquare className='h-4 w-4' />
       </div>
@@ -38,7 +38,7 @@ const EligibilityStatus = ({ isEligible, isReadyToClaim }: { isEligible: boolean
 
   return (
     <div className='text-destructive flex items-center gap-1'>
-      <p>Ineligible</p>
+      {IS_CLAIMS_APP && <p>Ineligible</p>}
 
       <BsFillXOctagonFill className='h-4 w-4' />
     </div>
@@ -115,9 +115,11 @@ const ChainPanel = ({
               Comply with {isAndChain ? 'all' : 'any'} of {size(flatten(ruleSets))} Rules to claim this Hat
             </p>
 
-            <p className={cn('block md:hidden', IS_CLAIMS_APP && 'md:block')}>
-              {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))} Rules to claim
-            </p>
+            {IS_CLAIMS_APP && (
+              <p className={cn('block md:hidden', IS_CLAIMS_APP && 'md:block')}>
+                {isAndChain ? 'All ' : 'Any'} of {size(flatten(ruleSets))} Rules to claim
+              </p>
+            )}
 
             <EligibilityStatus isEligible={!!address && isEligible} isReadyToClaim={isReadyToClaim} />
           </div>

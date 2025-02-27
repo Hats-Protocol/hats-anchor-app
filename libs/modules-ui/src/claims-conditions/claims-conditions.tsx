@@ -5,7 +5,7 @@ import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { first, flatten, gt, includes, pick, size } from 'lodash';
 import { cn, Skeleton } from 'ui';
-import { eligibilityRuleToModuleDetails } from 'utils';
+import { eligibilityRuleToModuleDetails, logger } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -19,7 +19,7 @@ const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const MODAL_SUFFIX = 'Claims';
 const OVERRIDE_COMMUNITY_HAT = true;
 
-const EligibilityConditions = () => {
+export const EligibilityConditions = () => {
   const { address } = useAccount();
   const {
     selectedHat,
@@ -35,6 +35,8 @@ const EligibilityConditions = () => {
   const eligibilityData = { id: eligibility as Hex };
 
   const multipleModules = gt(size(flatten(eligibilityRules)), 1);
+
+  logger.info('is claims app', IS_CLAIMS_APP);
 
   if (multipleModules) {
     return (

@@ -126,14 +126,19 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
   );
 };
 
-// SUPPORTS v0 and v1
+interface AgreementClaimsProps {
+  activeModule: ModuleDetails;
+  labeledModules?: LabeledModules | undefined;
+  showOnMobile?: boolean;
+  variant?: 'default' | 'councils';
+}
+
 export const AgreementClaims = ({
   activeModule,
   labeledModules,
-}: {
-  activeModule: ModuleDetails;
-  labeledModules?: LabeledModules | undefined;
-}) => {
+  showOnMobile = false,
+  variant = 'default',
+}: AgreementClaimsProps) => {
   const { selectedHatDetails, selectedHat, eligibilityRules } = useEligibility();
 
   const { agreement } = useAgreementClaim({
@@ -153,7 +158,12 @@ export const AgreementClaims = ({
   // console.log('agreement', agreement, activeModule);
 
   return (
-    <div className='hidden w-full flex-col gap-4 md:flex'>
+    <div
+      className={cn('w-full flex-col gap-4', {
+        'hidden md:flex': !showOnMobile,
+        'flex md:flex': showOnMobile,
+      })}
+    >
       <Card className='flex flex-col justify-between gap-6 border-[#2D3748] px-8 py-6'>
         <div className='flex justify-between'>
           <h3 className='text-xl font-semibold'>
@@ -161,7 +171,11 @@ export const AgreementClaims = ({
             {onlyHat ? ` to claim the ${get(selectedHatDetails, 'name')} ${capitalize(CONFIG.TERMS.hat)}` : ''}
           </h3>
 
-          <div className='flex min-w-[175px] justify-end'>
+          <div
+            className={cn('flex min-w-[175px] justify-end', {
+              'hidden md:flex': variant === 'councils',
+            })}
+          >
             <AgreementButton activeModule={activeModule} />
           </div>
         </div>
@@ -169,7 +183,7 @@ export const AgreementClaims = ({
         <AgreementContent agreement={agreement || agreementV0 || undefined} />
       </Card>
 
-      <div>
+      <div className='flex justify-center'>
         <AgreementButton activeModule={activeModule} />
       </div>
     </div>
