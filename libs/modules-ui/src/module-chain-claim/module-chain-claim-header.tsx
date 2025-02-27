@@ -2,14 +2,14 @@ import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
-import { filter, find, first, flatten, get, includes, keys, mapValues, size, toLower } from 'lodash';
+import { filter, find, first, flatten, get, includes, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
-import { BsArrowRight, BsCheck, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
+import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
-import { chainsMap, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
+import { chainIdToString, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
@@ -208,7 +208,7 @@ const ModuleChainClaimHeader = ({
             {isSigner ? (
               <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
                 <LinkButton
-                  href={`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`}
+                  href={`/councils/${chainIdToString(chainId)}:${hsgAddress}/members`}
                   className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
                   variant='outline'
                 >
