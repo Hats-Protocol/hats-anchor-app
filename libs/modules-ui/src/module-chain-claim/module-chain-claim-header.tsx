@@ -249,7 +249,6 @@ export const ModuleChainClaimHeader = ({
                 <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
                   <LinkButton
                     href={`/councils/${chainIdToString(chainId)}:${hsgAddress}/members`}
-                    s
                     className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
                     variant='outline'
                   >

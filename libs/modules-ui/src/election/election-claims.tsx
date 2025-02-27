@@ -16,8 +16,8 @@ export const ElectionClaims = ({
   labeledModules,
   showOnMobile = false,
 }: {
-  activeModule: ModuleDetails;
-  labeledModules: LabeledModules | undefined;
+  activeModule?: ModuleDetails;
+  labeledModules?: LabeledModules | undefined;
   showOnMobile?: boolean;
 }) => {
   const { chainId, isEligibilityRulesLoading } = useEligibility();
