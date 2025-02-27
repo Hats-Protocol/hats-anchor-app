@@ -1,3 +1,7 @@
+'use client';
+
+import { useParams } from 'next/navigation';
+import { CouncilsBottomMenu } from 'organisms';
 import { PropsWithChildren } from 'react';
 import { HatDeco } from 'ui';
 
@@ -5,14 +9,22 @@ import { CouncilButtons } from '../../../../components/council-buttons';
 import { CouncilHeader } from '../../../../components/council-header';
 
 const CouncilLayout = ({ children }: PropsWithChildren) => {
+  const { slug } = useParams();
+  const decodedSlug = decodeURIComponent(slug as string);
+
   return (
     <div className='flex min-h-screen flex-col bg-gray-50'>
       <CouncilHeader />
-      <div className='relative h-full min-h-[700px]'>
-        <div className='flex justify-center'>
+      <div className='relative flex-1'>
+        <div className='hidden justify-center md:flex'>
           <CouncilButtons />
         </div>
-        <div className='mx-auto h-full w-[90%] max-w-[1200px] pt-10'>{children}</div>
+        <div className='h-[calc(100vh-4rem)] overflow-y-auto pb-20 md:h-auto md:pb-0'>
+          <div className='mx-auto w-[90%] max-w-[1200px] py-6 md:py-10'>{children}</div>
+        </div>
+        <div className='md:hidden'>
+          <CouncilsBottomMenu councilSlug={decodedSlug} />
+        </div>
       </div>
       <HatDeco />
     </div>

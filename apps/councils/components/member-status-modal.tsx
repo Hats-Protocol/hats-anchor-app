@@ -89,7 +89,7 @@ const prepEmailVariables = ({
     creatorEmail: creator?.email,
     orgName: offchainCouncilData.creationForm.organizationName,
     chainName: chainsMap(chainId)?.name,
-    councilMembersLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.id}/members`,
+    councilMembersLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.hsg}/members`,
     councilSafeLink: safeUrl(chainId as SupportedChains, safe),
     subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
     // deploy transaction -- handle specifically for the deploy email(s)

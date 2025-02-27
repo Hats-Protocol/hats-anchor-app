@@ -1,13 +1,14 @@
 'use client';
 
 import { EligibilityContextProvider } from 'contexts';
-import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
+import { useAuthGuard, useCouncilDetails, useMediaStyles, useOffchainCouncilDetails } from 'hooks';
 import { get } from 'lodash';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
 import { Hex } from 'viem';
 
+import { EligibilityConditions } from '../claims-conditions/claims-conditions';
 import { ModuleChainClaimsCard } from './module-chain-claim-card';
 import { ModuleChainClaimHeader } from './module-chain-claim-header';
 
@@ -20,6 +21,7 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
     chainId,
     hsg: address,
   });
+  const { isMobile } = useMediaStyles();
 
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const hatId = get(primarySignerHat, 'id');
@@ -40,17 +42,17 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
   }
 
   return (
-    <EligibilityContextProvider hatId={hatId} chainId={(chainId || undefined) as SupportedChains}>
-      <div className='flex min-h-[600px] justify-center pt-10'>
-        <div className='flex w-full max-w-screen-lg flex-col gap-4'>
+    <EligibilityContextProvider hatId={hatId as Hex} chainId={chainId as SupportedChains}>
+      <div className='flex min-h-[600px] justify-center pt-0 md:pt-10'>
+        <div className='flex w-full max-w-screen-lg flex-col gap-0 md:gap-4'>
           <ModuleChainClaimHeader
             chainId={chainId || undefined}
             hsgAddress={address || undefined}
             labeledModules={labeledModules}
             showJoinButton={true}
           />
-
-          <ModuleChainClaimsCard labeledModules={labeledModules} />
+          {!isMobile && <ModuleChainClaimsCard labeledModules={labeledModules} />}
+          {isMobile && <EligibilityConditions />}
         </div>
       </div>
     </EligibilityContextProvider>

@@ -2,14 +2,14 @@ import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
-import { filter, find, first, flatten, get, includes, keys, mapValues, size, toLower } from 'lodash';
+import { filter, find, first, flatten, get, includes, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
-import { BsArrowRight, BsCheck, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
+import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
-import { chainsMap, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
+import { chainIdToString, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
 
@@ -17,11 +17,20 @@ import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
 // const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_IS_CLAIMS_APP === 'true';
 
-const ModuleChainClaimHeader = ({
+interface ModuleChainClaimHeaderProps {
+  hsgAddress: Hex | undefined;
+  chainId: number | undefined;
+  labeledModules: LabeledModules | undefined;
+  showJoinButton?: boolean;
+  mobilePosition?: 'top' | 'bottom';
+}
+
+export const ModuleChainClaimHeader = ({
   hsgAddress,
   chainId,
   labeledModules,
   showJoinButton = false,
+  mobilePosition,
 }: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
 
@@ -178,116 +187,139 @@ const ModuleChainClaimHeader = ({
 
   return (
     <>
-      <div className='flex justify-between'>
-        <h2 className='text-2xl font-bold'>
-          Satisfy these {size(eligibilityRules)} requirements to{' '}
-          {!showJoinButton ? 'claim this role' : 'become a council member'}
-        </h2>
-
-        <div className='flex items-center gap-2'>
-          <p className='text-xl font-semibold'>
-            {completedRules}/{size(eligibilityRules)}
-          </p>
-          {isSigner ? (
-            <BsCheckSquareFill className='text-functional-success h-6 w-6' />
-          ) : isWearing ? (
-            <BsCheckSquare className='text-functional-success h-6 w-6' />
-          ) : isReadyToClaim ? (
-            <BsCheckSquare className='text-functional-success h-6 w-6' />
+      {showJoinButton && (
+        <div className='md-2 row-start-3 flex justify-center gap-4 pb-4 md:hidden md:pb-0'>
+          {isWearing ? (
+            <div className='text-functional-success flex h-10 flex-1 items-center justify-center gap-1 px-4'>
+              <BsCheckSquareFill className='h-5 w-5' />
+              <span>Verified</span>
+            </div>
           ) : (
-            <BsFillXOctagonFill className='text-destructive h-6 w-6' />
+            <Button
+              variant='outline'
+              rounded='full'
+              className='flex-1'
+              onClick={handleVerify}
+              disabled={!address || chainId !== currentChainId || !isReadyToClaim || isVerifyLoading || disableClaim}
+            >
+              {isVerifyLoading ? 'Verifying...' : 'Verify'}
+            </Button>
           )}
+          <Button
+            variant='default'
+            rounded='full'
+            className='flex-1'
+            onClick={handleClaimSigner}
+            disabled={!address || chainId !== currentChainId || !isWearing || isClaimLoading}
+          >
+            {isClaimLoading ? 'Claiming...' : 'Claim'}
+          </Button>
         </div>
-      </div>
+      )}
 
-      <div className='flex items-center'>
-        <ModuleChainClaimButtons labeledModules={labeledModules} showJoinButton={showJoinButton} />
+      <div className='hidden md:block'>
+        <div className='flex flex-col gap-4 md:flex-row md:justify-between'>
+          <h2 className='text-xl font-bold md:text-2xl'>
+            Satisfy these {size(eligibilityRules)} requirements to{' '}
+            {!showJoinButton ? 'claim this role' : 'become a council member'}
+          </h2>
 
-        {showJoinButton && (
-          <div className='flex gap-2'>
+          <div className='flex items-center gap-2'>
+            <p className='text-lg font-semibold md:text-xl'>
+              {completedRules}/{size(eligibilityRules)}
+            </p>
             {isSigner ? (
-              <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
-                <LinkButton
-                  href={`/councils/${toLower(chainsMap(chainId).name)}:${hsgAddress}/members`}
-                  className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
-                  variant='outline'
-                >
-                  <span className='flex items-center gap-1'>
-                    View Council
-                    <BsArrowRight className='ml-1 h-4 w-4' />
-                  </span>
-                </LinkButton>
-              </div>
-            ) : chainId !== currentChainId ? (
-              <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
-                <Button variant='outline-blue' rounded='full' onClick={() => switchChain({ chainId })}>
-                  Change Chain
-                </Button>
-              </div>
+              <BsCheckSquareFill className='text-functional-success h-5 w-5 md:h-6 md:w-6' />
+            ) : isWearing ? (
+              <BsCheckSquare className='text-functional-success h-5 w-5 md:h-6 md:w-6' />
+            ) : isReadyToClaim ? (
+              <BsCheckSquare className='text-functional-success h-5 w-5 md:h-6 md:w-6' />
             ) : (
-              <div className='flex items-center'>
-                <Tooltip label={disableReason}>
+              <BsFillXOctagonFill className='text-destructive h-5 w-5 md:h-6 md:w-6' />
+            )}
+          </div>
+        </div>
+
+        <div className='flex items-center'>
+          <ModuleChainClaimButtons labeledModules={labeledModules} showJoinButton={showJoinButton} />
+
+          {showJoinButton && (
+            <div className='flex gap-2'>
+              {isSigner ? (
+                <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
+                  <LinkButton
+                    href={`/councils/${chainIdToString(chainId)}:${hsgAddress}/members`}
+                    className='border-functional-success text-functional-success hover:text-functional-success/80 rounded-full'
+                    variant='outline'
+                  >
+                    <span className='flex items-center gap-1'>
+                      View Council
+                      <BsArrowRight className='ml-1 h-4 w-4' />
+                    </span>
+                  </LinkButton>
+                </div>
+              ) : chainId !== currentChainId ? (
+                <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
+                  <Button variant='outline-blue' rounded='full' onClick={() => switchChain({ chainId })}>
+                    Change Chain
+                  </Button>
+                </div>
+              ) : (
+                <div className='flex items-center'>
+                  <Tooltip label={disableReason}>
+                    <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
+                      {isWearing ? (
+                        <div className='text-functional-success flex h-10 items-center justify-center gap-1 px-4'>
+                          <BsCheckSquareFill className='h-5 w-5' />
+                          <span>Verified</span>
+                        </div>
+                      ) : (
+                        <Button
+                          disabled={
+                            !address ||
+                            chainId !== currentChainId ||
+                            !isReadyToClaim ||
+                            isVerifyLoading ||
+                            isClaimLoading ||
+                            disableClaim
+                          }
+                          rounded='full'
+                          onClick={handleVerify}
+                        >
+                          {isVerifyLoading ? 'Verifying...' : 'Verify'}
+                        </Button>
+                      )}
+                    </div>
+                  </Tooltip>
+
+                  <div className='flex items-center'>
+                    <div className='h-[1px] w-8 bg-gray-900' />
+                  </div>
+
                   <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
-                    {isWearing ? (
+                    {isSigner ? (
                       <div className='text-functional-success flex h-10 items-center justify-center gap-1 px-4'>
                         <BsCheckSquareFill className='h-5 w-5' />
-                        <span>Verified</span>
+                        <span>Claimed</span>
                       </div>
                     ) : (
                       <Button
                         disabled={
-                          !address ||
-                          chainId !== currentChainId ||
-                          !isReadyToClaim ||
-                          isVerifyLoading ||
-                          isClaimLoading ||
-                          disableClaim
+                          !address || chainId !== currentChainId || isClaimLoading || isVerifyLoading || !isWearing
                         }
                         rounded='full'
-                        onClick={handleVerify}
+                        onClick={handleClaimSigner}
                       >
-                        {isVerifyLoading ? 'Verifying...' : 'Verify'}
+                        {isClaimLoading ? 'Claiming...' : 'Claim'}
                       </Button>
                     )}
                   </div>
-                </Tooltip>
-
-                <div className='flex items-center'>
-                  <div className='h-[1px] w-8 bg-gray-900' />
                 </div>
-
-                <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
-                  {isSigner ? (
-                    <div className='text-functional-success flex h-10 items-center justify-center gap-1 px-4'>
-                      <BsCheckSquareFill className='h-5 w-5' />
-                      <span>Claimed</span>
-                    </div>
-                  ) : (
-                    <Button
-                      disabled={
-                        !address || chainId !== currentChainId || isClaimLoading || isVerifyLoading || !isWearing
-                      }
-                      rounded='full'
-                      onClick={handleClaimSigner}
-                    >
-                      {isClaimLoading ? 'Claiming...' : 'Claim'}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
 };
-
-interface ModuleChainClaimHeaderProps {
-  hsgAddress: Hex | undefined;
-  chainId: number | undefined;
-  labeledModules: LabeledModules | undefined;
-  showJoinButton?: boolean;
-}
-
-export { ModuleChainClaimHeader };
