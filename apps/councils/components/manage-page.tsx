@@ -229,52 +229,33 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
               {/* Mobile: Compact View */}
               <div className='flex flex-col gap-3 md:hidden'>
-                <div className='flex items-center justify-between'>
-                  <p className='text-sm'>
-                    {size(signers)} of {toNumber(get(primarySignerHat, 'maxSupply'))} Members joined this council
-                  </p>
-                </div>
                 <div className='flex gap-0.5'>
-                  {Array(toNumber(get(primarySignerHat, 'maxSupply')))
-                    .fill(0)
-                    .map((_, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          'h-1 flex-1 rounded-full',
-                          index < size(signers) ? 'bg-green-600' : 'bg-gray-200',
-                        )}
-                      />
-                    ))}
-                </div>
-                <div className='flex items-center justify-between'>
-                  <div className='font-jb-mono flex items-center gap-x-1.5 text-sm'>
-                    <span>
-                      {toNumber(get(councilDetails, 'minThreshold'))}/{size(signers)}
-                    </span>
-                    <span>Multisig</span>
-                  </div>
-                  {user &&
-                    userIsManager &&
-                    (currentChainId === chainId ? (
-                      <Button
-                        size='sm'
-                        variant='outline-blue'
-                        rounded='full'
-                        onClick={() => setModals?.({ hsgThreshold: true })}
-                      >
-                        Change Threshold
-                      </Button>
-                    ) : (
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        rounded='full'
-                        onClick={() => switchChain({ chainId: chainId ?? 11155111 })}
-                      >
-                        Switch to {chainsMap(chainId ?? 11155111)?.name}
-                      </Button>
-                    ))}
+                  <SignersIndicator
+                    threshold={toNumber(get(councilDetails, 'minThreshold'))}
+                    signers={size(signers)}
+                    maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                  />
+                  {user && userIsManager && (
+                    <div className='mt-2 flex'>
+                      {currentChainId === chainId ? (
+                        <Button
+                          variant='outline-blue'
+                          rounded='full'
+                          onClick={() => setModals?.({ hsgThreshold: true })}
+                        >
+                          Change Threshold
+                        </Button>
+                      ) : (
+                        <Button
+                          variant='outline'
+                          rounded='full'
+                          onClick={() => switchChain({ chainId: chainId ?? 11155111 })}
+                        >
+                          Switch to {chainsMap(chainId ?? 11155111)?.name}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

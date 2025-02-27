@@ -35,8 +35,8 @@ const SignersIndicator = ({ threshold, signers, maxSigners }: SignersIndicatorPr
   // TODO better loading state
 
   return (
-    <div className='flex w-full flex-col gap-1.5 md:gap-2'>
-      <div className='flex w-full justify-center gap-2 md:w-fit md:gap-2 lg:max-w-[600px] xl:max-w-[800px]'>
+    <div className='flex w-full flex-col gap-1.5 md:w-fit md:gap-2'>
+      <div className='flex w-full justify-center gap-2 md:w-fit md:items-center lg:max-w-[600px] xl:max-w-[800px]'>
         {map(Array.from({ length: maxSigners }), (_, index) => (
           <SignerIndicator key={index} index={index + 1} threshold={threshold} signers={signers} />
         ))}
