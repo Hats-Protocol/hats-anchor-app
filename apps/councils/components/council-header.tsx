@@ -17,7 +17,7 @@ import { SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
 import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
-import { useEnsAvatar, useEnsName } from 'wagmi';
+import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
 
 import { SignersIndicator } from './signers-indicator';
 
@@ -77,6 +77,7 @@ const CouncilHeaderCard = ({
   withLinks?: boolean;
 }) => {
   const pathname = usePathname();
+  const { address: userAddress } = useAccount();
   const isJoinPage = pathname.includes('/join');
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -184,7 +185,7 @@ const CouncilHeaderCard = ({
               />
             ))}
           </div>
-          {isReadyToClaim && !isWearing && !isJoinPage && (
+          {isReadyToClaim && !isWearing && !isJoinPage && !includes(safeSignersRaw, userAddress) && (
             <LinkButton
               href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
               className='w-40 rounded-full'
