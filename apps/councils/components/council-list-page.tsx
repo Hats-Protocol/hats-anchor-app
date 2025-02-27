@@ -6,23 +6,8 @@ import { useWearerDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilsList, useMediaStyles } from 'hooks';
 import { concat, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
-import { ExtendedHSGV2, SupportedChains } from 'types';
-import {
-  Button,
-  Card,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  HatDeco,
-  Link,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Skeleton,
-} from 'ui';
+import { SupportedChains } from 'types';
+import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
 import { chainIdToString, fetchAllowlistEntries, ipfsUrl, logger } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -176,30 +161,6 @@ const CouncilListPage = () => {
             <CouncilHeaderCard key={council.id} chainId={chainId} address={getAddress(council.id)} withLinks={false} />
           </Link>
         ))}
-
-        <div className='flex justify-center'>
-          <div className='hidden md:block'>
-            <Link href='/councils/new'>
-              <Button variant='outline-blue' rounded='full' className='w-96'>
-                Create a New Council
-              </Button>
-            </Link>
-          </div>
-
-          <div className='pt-5 md:hidden'>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant='outline-blue' rounded='full' className='w-52'>
-                  Create a New Council
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className='w-52 text-center' align='center'>
-                <p className='font-medium'>Desktop Required</p>
-                <p className='text-sm text-gray-500'>Please use a desktop browser to create a new council.</p>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
 
         <HatDeco />
       </div>

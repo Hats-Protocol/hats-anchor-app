@@ -111,8 +111,8 @@ const AllowlistStatusManager = ({
   }
 
   return (
-    <div className='flex items-center justify-between'>
-      <div className='flex w-3/5 flex-col gap-1'>
+    <div className='flex flex-col justify-between gap-2 md:flex-row md:items-center'>
+      <div className='flex w-full flex-col gap-1 md:w-3/5'>
         <h4 className='font-medium'>{label}</h4>
         <p className='text-sm'>{sublabel}</p>
         {isEligible ? (
@@ -128,25 +128,27 @@ const AllowlistStatusManager = ({
         )}
       </div>
 
-      {currentChainId === chainId ? (
-        <Button
-          variant={isEligible ? 'outline-red' : 'outline-green'}
-          rounded='full'
-          disabled={!isAllowlistManager || isLoading}
-          onClick={handleAllowlistUpdate}
-        >
-          {isLoading ? null : isEligible ? ( // <Spinner className='size-4' />
-            <BsXOctagon className='size-4' />
-          ) : (
-            <BsCheckSquareFill className='size-4' />
-          )}
-          {action}
-        </Button>
-      ) : (
-        <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
-          Switch to {chainsMap(chainId)?.name}
-        </Button>
-      )}
+      <div className='flex justify-end'>
+        {currentChainId === chainId ? (
+          <Button
+            variant={isEligible ? 'outline-red' : 'outline-green'}
+            rounded='full'
+            disabled={!isAllowlistManager || isLoading}
+            onClick={handleAllowlistUpdate}
+          >
+            {isLoading ? null : isEligible ? ( // <Spinner className='size-4' />
+              <BsXOctagon className='size-4' />
+            ) : (
+              <BsCheckSquareFill className='size-4' />
+            )}
+            {action}
+          </Button>
+        ) : (
+          <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
+            Switch to {chainsMap(chainId)?.name}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

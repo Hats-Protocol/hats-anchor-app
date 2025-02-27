@@ -19,14 +19,17 @@ const CouncilLayout = ({ children }: PropsWithChildren) => {
         <div className='hidden justify-center md:flex'>
           <CouncilButtons />
         </div>
-        <div className='h-[calc(100vh-4rem)] overflow-y-auto pb-20 md:h-auto md:pb-0'>
-          <div className='mx-auto w-[90%] max-w-[1200px] py-6 md:py-10'>{children}</div>
+        <div className='h-[calc(100vh-4rem)] pb-20 md:h-auto md:pb-0'>
+          <div className='mx-auto w-[90%] max-w-[1200px] py-6 md:py-10'>
+            {children}
+
+            <HatDeco height='250px' />
+          </div>
         </div>
         <div className='md:hidden'>
           <CouncilsBottomMenu councilSlug={decodedSlug} />
         </div>
       </div>
-      <HatDeco />
     </div>
   );
 };

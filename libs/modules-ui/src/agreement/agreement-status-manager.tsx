@@ -71,8 +71,8 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
   };
 
   return (
-    <div className='flex items-center justify-between gap-8'>
-      <div className='flex flex-col gap-1'>
+    <div className='flex flex-col justify-between gap-2 md:flex-row md:items-center'>
+      <div className='flex w-full flex-col gap-1 md:w-3/5'>
         <h4 className='font-medium'>Signed & Abides Agreement</h4>
         <p className='text-sm'>
           {isEligible ? 'This Member has signed and follows the Agreement' : 'This Member has not signed the Agreement'}
@@ -90,22 +90,24 @@ const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: Sta
         )}
       </div>
 
-      {isEligible &&
-        (currentChainId === chainId ? (
-          <Button
-            variant='outline-red'
-            rounded='full'
-            disabled={!isAgreementManager || isLoading}
-            onClick={handleAgreementToggle}
-          >
-            <BsXOctagon className='size-4' />
-            {isLoading ? 'Updating...' : isEligible ? 'Violated the Agreement' : 'Re-instate'}
-          </Button>
-        ) : (
-          <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
-            Switch to {chainsMap(chainId)?.name}
-          </Button>
-        ))}
+      <div className='flex justify-end'>
+        {isEligible &&
+          (currentChainId === chainId ? (
+            <Button
+              variant='outline-red'
+              rounded='full'
+              disabled={!isAgreementManager || isLoading}
+              onClick={handleAgreementToggle}
+            >
+              <BsXOctagon className='size-4' />
+              {isLoading ? 'Updating...' : isEligible ? 'Violated the Agreement' : 'Re-instate'}
+            </Button>
+          ) : (
+            <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
+              Switch to {chainsMap(chainId)?.name}
+            </Button>
+          ))}
+      </div>
     </div>
   );
 };

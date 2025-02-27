@@ -85,7 +85,7 @@ const CouncilTransferForm = ({ topHatWearerAddress }: CouncilTransferFormProps) 
           />
 
           <div className='flex justify-end pt-6'>
-            <Button type='submit' disabled={isDisabled}>
+            <Button type='submit' disabled={isDisabled} variant='destructive'>
               Transfer
             </Button>
           </div>

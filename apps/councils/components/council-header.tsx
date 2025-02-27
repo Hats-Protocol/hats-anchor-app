@@ -33,40 +33,6 @@ const handleHatDetails = (detailsMetadata: string | undefined) => {
   return get(parsedDetailsMetadata, 'data');
 };
 
-// Mock data for development
-const MOCK_SAFE_DATA = {
-  threshold: 3,
-  owners: ['0x1234567890123456789012345678901234567890'],
-};
-
-const MOCK_COUNCIL_DETAILS = {
-  safe: '0x1234567890123456789012345678901234567890' as Hex,
-  minThreshold: 3,
-  signerHats: [
-    {
-      id: '0x1234',
-      maxSupply: 5,
-      wearers: [{ id: '0x1234567890123456789012345678901234567890' }],
-      detailsMetadata: JSON.stringify({
-        data: {
-          name: 'Sample Council',
-          description: 'This is a sample council for development',
-        },
-      }),
-    },
-  ],
-};
-
-const MOCK_OFFCHAIN_DETAILS = {
-  creationForm: {
-    councilName: 'Sample Council',
-    councilDescription: 'This is a sample council for development',
-  },
-  organization: {
-    name: 'Sample Organization',
-  },
-};
-
 const CouncilHeaderCard = ({
   chainId,
   address,
@@ -79,6 +45,8 @@ const CouncilHeaderCard = ({
   const pathname = usePathname();
   const { address: userAddress } = useAccount();
   const isJoinPage = pathname.includes('/join');
+  const isRootPath = pathname === '/';
+
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
     address: address ?? '',
@@ -97,10 +65,10 @@ const CouncilHeaderCard = ({
   });
 
   // Use mock data if real data is not available
-  const effectiveCouncilDetails = councilDetails || MOCK_COUNCIL_DETAILS;
-  const effectiveOffchainDetails = offchainCouncilDetails || MOCK_OFFCHAIN_DETAILS;
-  const effectiveSafeDetails = first(safesDetails) || MOCK_SAFE_DATA;
-  const effectiveSafeSigners = safeSignersRaw || MOCK_SAFE_DATA.owners;
+  const effectiveCouncilDetails = councilDetails;
+  const effectiveOffchainDetails = offchainCouncilDetails;
+  const effectiveSafeDetails = first(safesDetails);
+  const effectiveSafeSigners = safeSignersRaw;
 
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
   const primarySignerHatId = get(primarySignerHat, 'id');
@@ -150,21 +118,16 @@ const CouncilHeaderCard = ({
     return <Skeleton className='bg-functional-link-primary/10 mx-auto flex min-h-[125px] w-full rounded-lg p-4' />;
   }
 
-  const memberCount = size(safeSigners);
-  const maxMembers = toNumber(get(primarySignerHat, 'maxSupply'));
-  const progressSegments = Array(maxMembers).fill(0);
-
   return (
     <div
       className={cn(
         'flex rounded-2xl border border-black bg-gray-50',
-        'p-6 md:p-4 md:px-6', // Tighter padding on mobile
+        'p-6 md:p-4 md:px-6',
         'md:justify-between',
         'flex-col md:flex-row',
         isDev && !effectiveOffchainDetails && 'bg-blue-50',
       )}
     >
-      {/* Mobile and Desktop: Left Column */}
       <div className='flex w-full flex-col gap-4 md:w-[30%] md:gap-2'>
         <div className='text-functional-link-primary hidden text-xs uppercase md:block'>{organizationName}</div>
         <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
@@ -172,49 +135,70 @@ const CouncilHeaderCard = ({
           {offchainCouncilDescription || get(signerHatDetails, 'description')}
         </p>
 
-        {/* Mobile Only: Member Count and Progress Bar */}
-        <div className='flex flex-col gap-3 md:hidden'>
-          <p className='text-sm'>
-            {memberCount} of {maxMembers} Members joined this council
-          </p>
-          <div className='flex gap-0.5'>
-            {progressSegments.map((_, index) => (
-              <div
-                key={index}
-                className={cn('h-1 flex-1 rounded-full', index < memberCount ? 'bg-green-600' : 'bg-gray-200')}
-              />
-            ))}
-          </div>
-          {isReadyToClaim && !isWearing && !isJoinPage && !includes(safeSignersRaw, userAddress) && (
+        <div className='flex w-full flex-col items-stretch gap-3 md:hidden'>
+          {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
+            withLinks ? (
+              <Link
+                href={safeUrl(
+                  (chainId ?? 11155111) as SupportedChains,
+                  effectiveCouncilDetails?.safe as unknown as Hex,
+                )}
+                className='self-center'
+                isExternal
+              >
+                <Button variant='outline' rounded='full'>
+                  <SafeIcon className='size-3' />
+                  <p className='font-normal'>Safe Wallet</p>
+                  <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
+                </Button>
+              </Link>
+            ) : null
+          ) : !isWearing && !isJoinPage && !isRootPath && isReadyToClaim ? (
             <LinkButton
               href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
-              className='w-40 rounded-full'
-              variant='default'
+              className='w-48 self-center rounded-full'
+              variant='outline-blue'
             >
               Join Council
             </LinkButton>
-          )}
-          <div className='font-jb-mono flex flex-wrap items-center gap-x-1.5 text-sm'>
-            <span>
-              {get(safe, 'threshold')}/{size(safeSigners)}
-            </span>
-            <span>Multisig</span>
-            <SafeIcon className='mx-0.5 size-3' />
-            <span>on</span>
-            <span>{capitalize(chainsMap(chainId ?? 11155111)?.name)}</span>
-            <img
-              src={chainsMap(chainId ?? 11155111)?.iconUrl}
-              className='size-3'
-              alt={chainsMap(chainId ?? 11155111)?.name}
+          ) : (
+            <SignersIndicator
+              threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
+              signers={size(safeSigners)}
+              maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
             />
-            <span>by</span>
-            <span className='max-w-[100px] truncate text-black/80'>{topHatWearer}</span>
-            <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-4 w-3 rounded-sm' />
+          )}
+          <div className='font-jb-mono flex flex-col gap-1.5 text-sm'>
+            <div className='flex flex-wrap items-center gap-x-1.5'>
+              <div>
+                {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
+                  ? get(safe, 'threshold')
+                  : `Pending ${get(effectiveCouncilDetails, 'minThreshold')}`}
+              </div>
+              <div>
+                {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
+                  ? `/${size(safeSigners)}`
+                  : `/${get(primarySignerHat, 'maxSupply')}`}
+              </div>
+              <span>Multisig</span>
+              <SafeIcon className='mx-0.5 size-3' />
+              <span>on</span>
+              <span>{capitalize(chainsMap(chainId ?? 11155111)?.name)}</span>
+              <img
+                src={chainsMap(chainId ?? 11155111)?.iconUrl}
+                className='size-3'
+                alt={chainsMap(chainId ?? 11155111)?.name}
+              />
+            </div>
+            <div className='flex items-center gap-x-1.5'>
+              <span>by</span>
+              <span className='max-w-[200px] text-black/80 md:truncate'>{topHatWearer}</span>
+              <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-4 w-3 rounded-sm' />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Desktop Only: Middle Column */}
       <div className='hidden w-auto items-center md:flex'>
         {withLinks && size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
           <Link
@@ -236,7 +220,6 @@ const CouncilHeaderCard = ({
         )}
       </div>
 
-      {/* Desktop Only: Right Column */}
       <div className='font-jb-mono hidden w-[30%] flex-col items-end justify-center gap-2 text-sm md:flex'>
         <div className='flex items-center gap-2'>
           <div className='flex items-center'>

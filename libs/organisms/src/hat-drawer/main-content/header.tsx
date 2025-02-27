@@ -4,7 +4,7 @@ import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatStatus, useWearerDetails } from 'hats-hooks';
-import { useClipboard, useMediaStyles } from 'hooks';
+import { useClipboard } from 'hooks';
 import { find, get, includes, map, pick } from 'lodash';
 import dynamic from 'next/dynamic';
 import { Badge, Button, cn, LazyImage, Markdown, Skeleton, Tooltip } from 'ui';
