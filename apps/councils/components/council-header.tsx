@@ -33,40 +33,6 @@ const handleHatDetails = (detailsMetadata: string | undefined) => {
   return get(parsedDetailsMetadata, 'data');
 };
 
-// Mock data for development
-const MOCK_SAFE_DATA = {
-  threshold: 3,
-  owners: ['0x1234567890123456789012345678901234567890'],
-};
-
-const MOCK_COUNCIL_DETAILS = {
-  safe: '0x1234567890123456789012345678901234567890' as Hex,
-  minThreshold: 3,
-  signerHats: [
-    {
-      id: '0x1234',
-      maxSupply: 5,
-      wearers: [{ id: '0x1234567890123456789012345678901234567890' }],
-      detailsMetadata: JSON.stringify({
-        data: {
-          name: 'Sample Council',
-          description: 'This is a sample council for development',
-        },
-      }),
-    },
-  ],
-};
-
-const MOCK_OFFCHAIN_DETAILS = {
-  creationForm: {
-    councilName: 'Sample Council',
-    councilDescription: 'This is a sample council for development',
-  },
-  organization: {
-    name: 'Sample Organization',
-  },
-};
-
 const CouncilHeaderCard = ({
   chainId,
   address,
@@ -99,10 +65,10 @@ const CouncilHeaderCard = ({
   });
 
   // Use mock data if real data is not available
-  const effectiveCouncilDetails = councilDetails || MOCK_COUNCIL_DETAILS;
-  const effectiveOffchainDetails = offchainCouncilDetails || MOCK_OFFCHAIN_DETAILS;
-  const effectiveSafeDetails = first(safesDetails) || MOCK_SAFE_DATA;
-  const effectiveSafeSigners = safeSignersRaw || MOCK_SAFE_DATA.owners;
+  const effectiveCouncilDetails = councilDetails;
+  const effectiveOffchainDetails = offchainCouncilDetails;
+  const effectiveSafeDetails = first(safesDetails);
+  const effectiveSafeSigners = safeSignersRaw;
 
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
   const primarySignerHatId = get(primarySignerHat, 'id');
@@ -176,7 +142,7 @@ const CouncilHeaderCard = ({
               signers={size(safeSigners)}
               maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
             />
-          ) : !isWearing && !isJoinPage && !isRootPath && !includes(safeSignersRaw, userAddress) ? (
+          ) : !isWearing && !isJoinPage && !isRootPath ? (
             <LinkButton
               href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
               className='w-48 self-center rounded-full'
