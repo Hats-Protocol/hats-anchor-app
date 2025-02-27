@@ -189,15 +189,22 @@ export const ModuleChainClaimHeader = ({
     <>
       {showJoinButton && (
         <div className='md-2 row-start-3 flex justify-center gap-4 pb-4 md:hidden md:pb-0'>
-          <Button
-            variant='outline'
-            rounded='full'
-            className='flex-1'
-            onClick={handleVerify}
-            disabled={!address || chainId !== currentChainId || !isReadyToClaim || isVerifyLoading || disableClaim}
-          >
-            {isVerifyLoading ? 'Verifying...' : 'Verify'}
-          </Button>
+          {isWearing ? (
+            <div className='text-functional-success flex h-10 flex-1 items-center justify-center gap-1 px-4'>
+              <BsCheckSquareFill className='h-5 w-5' />
+              <span>Verified</span>
+            </div>
+          ) : (
+            <Button
+              variant='outline'
+              rounded='full'
+              className='flex-1'
+              onClick={handleVerify}
+              disabled={!address || chainId !== currentChainId || !isReadyToClaim || isVerifyLoading || disableClaim}
+            >
+              {isVerifyLoading ? 'Verifying...' : 'Verify'}
+            </Button>
+          )}
           <Button
             variant='default'
             rounded='full'
