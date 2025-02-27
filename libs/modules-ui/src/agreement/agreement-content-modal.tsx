@@ -91,7 +91,7 @@ export const AgreementContentModal = ({
 
   return (
     <Modal name={`${moduleDetails?.instanceAddress}-agreementManagerClaims`}>
-      <div className='flex flex-col gap-4'>
+      <div className='flex flex-col gap-4 pt-10 md:pt-0'>
         <div>
           <h3 className='text-lg font-bold'>Sign the Agreement</h3>
         </div>

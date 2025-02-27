@@ -21,6 +21,7 @@ import { AgreementModal } from './agreement-modal';
 
 const MODAL_NAME = 'agreementManager';
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
+const IS_PRO_APP = process.env.NEXT_PUBLIC_PRO_APP === 'true';
 
 export const AgreementEligibilityRule = ({
   moduleDetails,
@@ -83,7 +84,7 @@ export const AgreementEligibilityRule = ({
       </Link>
     </p>
   );
-  if ((eligibilityModalFlag && !IS_CLAIMS_APP) || (IS_CLAIMS_APP && isMobile)) {
+  if ((eligibilityModalFlag && !IS_CLAIMS_APP && !IS_PRO_APP) || ((IS_CLAIMS_APP || IS_PRO_APP) && isMobile)) {
     rule = (
       <div>
         Sign the{' '}
@@ -104,7 +105,7 @@ export const AgreementEligibilityRule = ({
       </div>
     );
   }
-  if (IS_CLAIMS_APP && !isMobile) {
+  if ((IS_CLAIMS_APP || IS_PRO_APP) && !isMobile) {
     rule = <p>Sign the Agreement</p>;
   }
 
@@ -124,8 +125,10 @@ export const AgreementEligibilityRule = ({
 
   return (
     <>
-      {!IS_CLAIMS_APP && <AgreementModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />}
-      {IS_CLAIMS_APP && (
+      {!IS_CLAIMS_APP && !IS_PRO_APP && (
+        <AgreementModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />
+      )}
+      {(IS_CLAIMS_APP || IS_PRO_APP) && (
         <AgreementContentModal
           selectedHat={selectedHat}
           moduleDetails={moduleDetails}

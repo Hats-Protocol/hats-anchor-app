@@ -13,6 +13,7 @@ import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules
 import { AllowlistModal } from './allowlist-modal';
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
+const IS_PRO_APP = process.env.NEXT_PUBLIC_PRO_APP === 'true';
 
 export const AllowlistEligibilityRule = ({
   chainId,
@@ -52,7 +53,7 @@ export const AllowlistEligibilityRule = ({
           rule={
             <div>
               Be on the{' '}
-              {eligibilityModalFlag && !IS_CLAIMS_APP ? (
+              {eligibilityModalFlag && !IS_CLAIMS_APP && !IS_PRO_APP ? (
                 <Button
                   onClick={() =>
                     setModals?.({
@@ -91,7 +92,7 @@ export const AllowlistEligibilityRule = ({
         rule={
           <p>
             Be on the{' '}
-            {eligibilityModalFlag && !IS_CLAIMS_APP ? (
+            {eligibilityModalFlag && !IS_CLAIMS_APP && !IS_PRO_APP ? (
               <Button
                 onClick={() =>
                   setModals?.({

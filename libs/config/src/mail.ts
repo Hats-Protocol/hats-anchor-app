@@ -36,6 +36,7 @@ const MAIN_COUNCIL_FIELDS = [
   { name: 'orgName', label: 'Organization Name' },
   { name: 'chainName', label: 'Chain Name' },
   { name: 'councilMembersLink', label: 'Council Members Link' },
+  { name: 'councilJoinLink', label: 'Council Join Link' },
   { name: 'councilSafeLink', label: 'Council Safe Link' },
   { name: 'subscriptionInfo', label: 'Subscription Info' },
   // deploy transaction -- handle specifically for the deploy email(s)

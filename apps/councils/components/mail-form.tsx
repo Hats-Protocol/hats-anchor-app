@@ -16,10 +16,13 @@ import {
   chainIdToString,
   chainsMap,
   customerioUrl,
+  explorerUrl,
   formatAddress,
   getAllWearers,
   logger,
 } from 'utils';
+
+const PRO_APP_URL = process.env.PRO_APP_URL || 'https://pro.hatsprotocol.xyz';
 
 const getReceivers = (offchainCouncilDetails: OffchainCouncilData | undefined, receivers: string[] | undefined) => {
   if (!offchainCouncilDetails || !receivers) return [];
@@ -160,7 +163,8 @@ const MailForm = ({
       councilName: councilName,
       orgName: organizationName,
       chainName: chainsMap(chainId).name,
-      councilMembersLink: `https://hatsprotocol.xyz/councils/${chainIdToString(chainId ?? 10)}:${councilAddress}/members`,
+      councilMembersLink: `${PRO_APP_URL}/councils/${chainIdToString(chainId ?? 10)}:${councilAddress}/members`,
+      councilJoinLink: `${PRO_APP_URL}/councils/${chainIdToString(chainId ?? 10)}:${councilAddress}/join`,
 
       // not shown in form, but passed to email data
       councilMembers: map(offchainCouncilDetails.creationForm.members, ({ name, address }) => ({
@@ -169,7 +173,7 @@ const MailForm = ({
       })),
       councilSafeLink: safeUrl(chainId as SupportedChains, councilDetails.safe),
       subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
-      // deployTransactionLink: councilDetails.deployTransaction,
+      deployTransactionLink: `${explorerUrl(chainId)}/tx/0x`, // only available with deploy event
 
       // copy
       complianceTitle: PLACEHOLDERS.complianceTitle,

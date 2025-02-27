@@ -26,6 +26,7 @@ interface NotificationInput {
   creatorEmail?: string;
   councilMembers?: { name: string; address: string }[];
   councilMembersLink?: string;
+  councilJoinLink?: string;
   councilSafeLink?: string;
   subscriptionInfo?: string;
   deployTransactionLink?: string;
@@ -56,6 +57,7 @@ const processNotifications = (notifications: NotificationInput[]) => {
       chainName,
       councilMembers,
       councilMembersLink,
+      councilJoinLink,
       councilSafeLink,
       subscriptionInfo,
       deployTransactionLink,
@@ -81,6 +83,7 @@ const processNotifications = (notifications: NotificationInput[]) => {
       'orgName',
       'chainName',
       'councilMembersLink',
+      'councilJoinLink',
       'councilMembers',
       'councilSafeLink',
       'subscriptionInfo',
@@ -105,6 +108,7 @@ const processNotifications = (notifications: NotificationInput[]) => {
       orgName,
       chainName,
       councilMembersLink,
+      councilJoinLink,
       councilSafeLink,
       subscriptionInfo,
       deployTransactionLink,

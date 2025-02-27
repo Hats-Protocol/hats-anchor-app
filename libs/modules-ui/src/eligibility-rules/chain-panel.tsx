@@ -68,7 +68,6 @@ const ChainPanel = ({
     setStatus: () => {},
   });
 
-  console.log('currentEligibility', currentEligibility);
   const isEligible = every(keys(currentEligibility), (moduleAddress) => {
     return (
       get(currentEligibility, `${moduleAddress}.eligible`) && get(currentEligibility, `${moduleAddress}.goodStanding`)

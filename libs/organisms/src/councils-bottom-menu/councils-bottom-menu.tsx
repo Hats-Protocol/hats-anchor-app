@@ -43,7 +43,7 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
       href: councilDetails?.safe ? safeUrl(chainId as SupportedChains, councilDetails.safe) : '#',
       icon: SafeIcon,
       exact: true,
-      disabled: !councilDetails?.safe || size(signers) < toNumber(get(councilDetails, 'minThreshold')),
+      disabled: !councilDetails?.safe, // || size(signers) < toNumber(get(councilDetails, 'minThreshold')),
     },
     {
       name: 'Transactions',
@@ -113,7 +113,10 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
   return (
     <div className='md:hidden'>
       <div className='pb-safe fixed bottom-0 left-0 z-40 w-full border-t border-gray-200 bg-white shadow-lg'>
-        <div className={`grid h-16 ${getGridColsClass(visibleMenuItems.length)}`}>
+        <div className={`relative grid h-16 ${getGridColsClass(visibleMenuItems.length)}`}>
+          <span className='bg-functional-success absolute -top-2 left-[100px] z-10 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+            soon
+          </span>
           {visibleMenuItems.map((item) => {
             const active = isActive(item.href, item?.exact);
             return (
@@ -122,7 +125,7 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
                 href={item.disabled ? '#' : item.href}
                 className={cn(
                   'relative flex h-full w-full items-center justify-center transition-colors duration-200',
-                  item.disabled && 'cursor-default opacity-70',
+                  item.disabled && 'cursor-default bg-black/10 opacity-70',
                 )}
                 onClick={(e) => item.disabled && e.preventDefault()}
               >

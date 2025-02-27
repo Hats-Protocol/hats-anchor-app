@@ -90,6 +90,7 @@ const prepEmailVariables = ({
     orgName: offchainCouncilData.creationForm.organizationName,
     chainName: chainsMap(chainId)?.name,
     councilMembersLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.hsg}/members`,
+    councilJoinLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.hsg}/join`,
     councilSafeLink: safeUrl(chainId as SupportedChains, safe),
     subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
     // deploy transaction -- handle specifically for the deploy email(s)
@@ -260,7 +261,7 @@ function MemberStatusModal({
           />
         ))}
 
-        <div className='flex items-center justify-between'>
+        <div className='flex flex-col justify-between gap-2 md:flex-row md:items-center'>
           <div className='flex flex-col gap-1'>
             <h4 className='font-medium'>Council Member</h4>
             <p className='text-sm'>
@@ -286,23 +287,27 @@ function MemberStatusModal({
             )}
           </div>
 
-          <Button variant='link' className='text-base' onClick={handleInvite} disabled={loading}>
-            <AiOutlineMail className='mr-1 size-4' />
-            {loading ? 'Sending...' : 'Send invitation'}
-          </Button>
+          <div className='flex justify-end'>
+            {!isSigner && (
+              <Button variant='link' className='text-base' onClick={handleInvite} disabled={loading}>
+                <AiOutlineMail className='mr-1 size-4' />
+                {loading ? 'Sending...' : 'Send invitation'}
+              </Button>
+            )}
 
-          {!isEligibleSigner &&
-            isSigner &&
-            (currentChainId === chainId ? (
-              <Button variant='destructive' rounded='full' onClick={removeSigner}>
-                <BsXOctagonFill className='size-4' />
-                Remove Signer
-              </Button>
-            ) : (
-              <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
-                Switch to {chainsMap(chainId)?.name}
-              </Button>
-            ))}
+            {!isEligibleSigner &&
+              isSigner &&
+              (currentChainId === chainId ? (
+                <Button variant='destructive' rounded='full' onClick={removeSigner}>
+                  <BsXOctagonFill className='size-4' />
+                  Remove Signer
+                </Button>
+              ) : (
+                <Button variant='outline' rounded='full' onClick={() => switchChain({ chainId })}>
+                  Switch to {chainsMap(chainId)?.name}
+                </Button>
+              ))}
+          </div>
         </div>
       </div>
     </Modal>
