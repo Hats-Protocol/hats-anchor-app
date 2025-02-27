@@ -136,13 +136,24 @@ const CouncilHeaderCard = ({
         </p>
 
         <div className='flex w-full flex-col items-stretch gap-3 md:hidden'>
-          {size(safeSigners) < toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
-            <SignersIndicator
-              threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
-              signers={size(safeSigners)}
-              maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
-            />
-          ) : !isWearing && !isJoinPage && !isRootPath ? (
+          {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
+            withLinks ? (
+              <Link
+                href={safeUrl(
+                  (chainId ?? 11155111) as SupportedChains,
+                  effectiveCouncilDetails?.safe as unknown as Hex,
+                )}
+                className='self-center'
+                isExternal
+              >
+                <Button variant='outline' rounded='full'>
+                  <SafeIcon className='size-3' />
+                  <p className='font-normal'>Safe Wallet</p>
+                  <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
+                </Button>
+              </Link>
+            ) : null
+          ) : !isWearing && !isJoinPage && !isRootPath && isReadyToClaim ? (
             <LinkButton
               href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
               className='w-48 self-center rounded-full'
@@ -150,19 +161,13 @@ const CouncilHeaderCard = ({
             >
               Join Council
             </LinkButton>
-          ) : withLinks ? (
-            <Link
-              href={safeUrl((chainId ?? 11155111) as SupportedChains, effectiveCouncilDetails?.safe as unknown as Hex)}
-              className='self-center'
-              isExternal
-            >
-              <Button variant='outline' rounded='full'>
-                <SafeIcon className='size-3' />
-                <p className='font-normal'>Safe Wallet</p>
-                <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
-              </Button>
-            </Link>
-          ) : null}
+          ) : (
+            <SignersIndicator
+              threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
+              signers={size(safeSigners)}
+              maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+            />
+          )}
           <div className='font-jb-mono flex flex-col gap-1.5 text-sm'>
             <div className='flex flex-wrap items-center gap-x-1.5'>
               <div>
