@@ -126,7 +126,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col px-4'>
       <div className='relative'>
         {/* Mobile scroll indicator */}
         <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden' />

@@ -208,7 +208,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
   logger.info('Button conditions:', { user, userIsManager, currentChainId, chainId }); /* Debug log */
 
   return (
-    <div className='mx-auto flex gap-4 pt-10 lg:max-w-[1000px]'>
+    <div className='mx-auto flex gap-4 px-4 pt-10 lg:max-w-[1000px]'>
       <div className='hidden w-1/5 md:flex'>
         <SectionMenu
           sections={menuOptions}
@@ -227,47 +227,14 @@ export const ManagePage = ({ slug }: { slug: string }) => {
             <>
               <h2 className='text-2xl font-bold'>Signer Threshold</h2>
 
-              {/* Mobile: Compact View */}
-              <div className='flex flex-col gap-3 md:hidden'>
-                <div className='flex gap-0.5'>
-                  <SignersIndicator
-                    threshold={toNumber(get(councilDetails, 'minThreshold'))}
-                    signers={size(signers)}
-                    maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
-                  />
-                  {user && userIsManager && (
-                    <div className='mt-2 flex'>
-                      {currentChainId === chainId ? (
-                        <Button
-                          variant='outline-blue'
-                          rounded='full'
-                          onClick={() => setModals?.({ hsgThreshold: true })}
-                        >
-                          Change Threshold
-                        </Button>
-                      ) : (
-                        <Button
-                          variant='outline'
-                          rounded='full'
-                          onClick={() => switchChain({ chainId: chainId ?? 11155111 })}
-                        >
-                          Switch to {chainsMap(chainId ?? 11155111)?.name}
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Desktop: Full View */}
-              <div className='mt-2 hidden md:block'>
+              <div className='mt-2'>
                 <SignersIndicator
                   threshold={toNumber(get(councilDetails, 'minThreshold'))}
                   signers={size(signers)}
                   maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
                 />
                 {user && userIsManager && (
-                  <div className='mt-2 flex'>
+                  <div className='mt-4 flex'>
                     {currentChainId === chainId ? (
                       <Button variant='outline-blue' rounded='full' onClick={() => setModals?.({ hsgThreshold: true })}>
                         Change Threshold

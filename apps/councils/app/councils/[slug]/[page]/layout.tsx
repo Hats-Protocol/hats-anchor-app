@@ -20,7 +20,7 @@ const CouncilLayout = ({ children }: PropsWithChildren) => {
           <CouncilButtons />
         </div>
         <div className='h-[calc(100vh-4rem)] pb-20 md:h-auto md:pb-0'>
-          <div className='mx-auto w-[90%] max-w-[1200px] py-6 md:py-10'>
+          <div className='mx-auto w-full max-w-[1200px] bg-gray-50 py-6 md:py-10'>
             {children}
 
             <HatDeco height='250px' />

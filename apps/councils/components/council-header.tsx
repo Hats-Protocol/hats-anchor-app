@@ -17,7 +17,7 @@ import { SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
 import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
+import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import { SignersIndicator } from './signers-indicator';
 
@@ -43,7 +43,6 @@ const CouncilHeaderCard = ({
   withLinks?: boolean;
 }) => {
   const pathname = usePathname();
-  const { address: userAddress } = useAccount();
   const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
 
@@ -135,7 +134,7 @@ const CouncilHeaderCard = ({
           {offchainCouncilDescription || get(signerHatDetails, 'description')}
         </p>
 
-        <div className='flex w-full flex-col items-stretch gap-3 md:hidden'>
+        <div className='flex w-full flex-col items-stretch gap-3 md:w-auto md:items-center'>
           {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
             withLinks ? (
               <Link
@@ -156,7 +155,7 @@ const CouncilHeaderCard = ({
           ) : !isWearing && !isJoinPage && !isRootPath && isReadyToClaim ? (
             <LinkButton
               href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
-              className='w-48 self-center rounded-full'
+              className='w-48 self-center rounded-full md:hidden'
               variant='outline-blue'
             >
               Join Council
@@ -168,11 +167,16 @@ const CouncilHeaderCard = ({
               maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
             />
           )}
-          <div className='font-jb-mono flex flex-col gap-1.5 text-sm'>
-            <div className='flex flex-wrap items-center gap-x-1.5'>
+        </div>
+      </div>
+
+      <div className='font-jb-mono mt-2 w-full flex-col items-end justify-center gap-2 text-sm md:mt-0 md:flex md:w-[30%]'>
+        <div className='flex gap-2 md:flex-col'>
+          <div className='flex items-center gap-2'>
+            <div className='flex items-center'>
               <div>
                 {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
-                  ? get(safe, 'threshold')
+                  ? get(effectiveCouncilDetails, 'minThreshold')
                   : `Pending ${get(effectiveCouncilDetails, 'minThreshold')}`}
               </div>
               <div>
@@ -180,87 +184,35 @@ const CouncilHeaderCard = ({
                   ? `/${size(safeSigners)}`
                   : `/${get(primarySignerHat, 'maxSupply')}`}
               </div>
-              <span>Multisig</span>
-              <SafeIcon className='mx-0.5 size-3' />
-              <span>on</span>
-              <span>{capitalize(chainsMap(chainId ?? 11155111)?.name)}</span>
-              <img
-                src={chainsMap(chainId ?? 11155111)?.iconUrl}
-                className='size-3'
-                alt={chainsMap(chainId ?? 11155111)?.name}
-              />
             </div>
-            <div className='flex items-center gap-x-1.5'>
-              <span>by</span>
-              <span className='max-w-[200px] text-black/80 md:truncate'>{topHatWearer}</span>
-              <OblongAvatar src={ensAvatar || fallbackAvatar} className='h-4 w-3 rounded-sm' />
-            </div>
+            {withLinks ? (
+              <Link
+                className='flex items-center gap-2 text-black/80'
+                href={safeUrl((chainId ?? 11155111) as SupportedChains, effectiveCouncilDetails?.safe as Hex)}
+                isExternal
+              >
+                <div>Multisig</div>
+                <SafeIcon className='size-4' />
+              </Link>
+            ) : (
+              <div className='flex items-center gap-2'>
+                <div>Multisig</div>
+                <SafeIcon className='size-4' />
+              </div>
+            )}
+          </div>
+
+          <div className='flex items-center gap-2'>
+            <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
+            <img
+              src={chainsMap(chainId ?? 11155111)?.iconUrl}
+              className='size-4'
+              alt={chainsMap(chainId ?? 11155111)?.name}
+            />
           </div>
         </div>
-      </div>
 
-      <div className='hidden w-auto items-center md:flex'>
-        {withLinks && size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
-          <Link
-            href={safeUrl((chainId ?? 11155111) as SupportedChains, effectiveCouncilDetails?.safe as unknown as Hex)}
-            isExternal
-          >
-            <Button variant='outline' rounded='full'>
-              <SafeIcon className='size-3' />
-              <p className='font-normal'>Safe Wallet</p>
-              <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
-            </Button>
-          </Link>
-        ) : (
-          <SignersIndicator
-            threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
-            signers={size(safeSigners)}
-            maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
-          />
-        )}
-      </div>
-
-      <div className='font-jb-mono hidden w-[30%] flex-col items-end justify-center gap-2 text-sm md:flex'>
-        <div className='flex items-center gap-2'>
-          <div className='flex items-center'>
-            <div>
-              {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
-                ? get(safe, 'threshold')
-                : `Pending ${get(effectiveCouncilDetails, 'minThreshold')}`}
-            </div>
-            <div>
-              {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
-                ? `/${size(safeSigners)}`
-                : `/${get(primarySignerHat, 'maxSupply')}`}
-            </div>
-          </div>
-          {withLinks ? (
-            <Link
-              className='flex items-center gap-2 text-black/80'
-              href={safeUrl((chainId ?? 11155111) as SupportedChains, effectiveCouncilDetails?.safe as Hex)}
-              isExternal
-            >
-              <div>Multisig</div>
-              <SafeIcon className='size-4' />
-            </Link>
-          ) : (
-            <div className='flex items-center gap-2'>
-              <div>Multisig</div>
-              <SafeIcon className='size-4' />
-            </div>
-          )}
-        </div>
-
-        <div className='flex items-center gap-2'>
-          <div>on {capitalize(chainsMap(chainId ?? 11155111)?.name)}</div>
-          <img
-            src={chainsMap(chainId ?? 11155111)?.iconUrl}
-            className='size-4'
-            alt={chainsMap(chainId ?? 11155111)?.name}
-          />
-        </div>
-
-        <div className='flex items-center gap-2'>
+        <div className='mt-1 flex items-center gap-2 md:mt-0'>
           <div>by</div>
           {withLinks ? (
             <Link
