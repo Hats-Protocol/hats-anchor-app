@@ -188,7 +188,7 @@ export const ModuleChainClaimHeader = ({
   return (
     <>
       {showJoinButton && (
-        <div className='md-2 row-start-3 flex justify-center gap-4 pb-4 md:hidden md:pb-0'>
+        <div className='md-2 row-start-3 flex justify-center gap-4 px-4 pb-4 md:hidden md:pb-0'>
           {isWearing ? (
             <div className='text-functional-success flex h-10 flex-1 items-center justify-center gap-1 px-4'>
               <BsCheckSquareFill className='h-5 w-5' />

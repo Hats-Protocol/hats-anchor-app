@@ -1,15 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
-import { isEmpty, size } from 'lodash';
+import { compact, isEmpty, size } from 'lodash';
+import { logger } from 'utils';
 import { Hex } from 'viem';
 
 const fetchSafesInfoLocal = async ({ safes, chainId }: { safes: Hex[] | undefined; chainId: number | undefined }) => {
-  if (!safes || size(safes) === 0) {
-    return [];
+  if (!safes || size(compact(safes)) === 0) {
+    return null;
   }
   return fetch(`/api/safe/${chainId}?safes=${safes?.join(',')}`)
     .then((res) => res.json())
     .then((data) => {
-      return data;
+      return data || null;
+    })
+    .catch((error) => {
+      logger.error('fetchSafesInfoLocal', error);
+      return null;
     });
 };
 
