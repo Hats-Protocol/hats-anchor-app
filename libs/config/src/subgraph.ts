@@ -36,7 +36,7 @@ export const NETWORK_ENDPOINTS: EndpointsConfig = {
 export const ANCILLARY_API_URL: {
   [key in SupportedChains]: string | undefined;
 } = {
-  1: studioUrl('hats-v1-ethereum-ancillary', 'v0.0.24'),
+  1: studioUrl('hats-v1-ethereum-ancillary', 'v0.0.27'),
   10: studioUrl('hats-v1-optimism-ancillary', 'v0.0.24'),
   100: studioUrl('hats-v1-gnosis-chain-ancillary', 'v0.0.24'),
   137: studioUrl('hats-v1-polygon-ancillary', 'v0.0.24'),
