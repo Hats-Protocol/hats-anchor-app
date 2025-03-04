@@ -1,5 +1,6 @@
 export * from './agreement-content';
 export * from './authority-header';
+export * from './beta-feature-client';
 export * from './cards';
 export * from './check-has-hat';
 export * from './cmdk-button';

@@ -1,5 +1,6 @@
 export * from './use-admin-of-hats';
 export * from './use-all-wearers';
+export * from './use-beta-features';
 export * from './use-controller-list';
 export * from './use-hat-admin-wearers';
 export * from './use-hat-burn';
