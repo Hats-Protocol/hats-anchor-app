@@ -3,11 +3,10 @@
 import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
-import { useWearerDetails } from 'hats-hooks';
-import { useClipboard, useLocalStorage } from 'hooks';
+import { useBetaFeatures } from 'hats-hooks';
+import { useClipboard } from 'hooks';
 import { each, isEmpty, size } from 'lodash';
 import dynamic from 'next/dynamic';
-import * as React from 'react';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
@@ -44,34 +43,21 @@ const WalletProfile = ({
   const { data: balance } = useBalance({ address, chainId });
   const { openChainModal } = useChainModal();
   const { disconnect } = useDisconnect();
-  const { data: wearerHats } = useWearerDetails({
-    wearerAddress: address,
-    chainId,
-  });
 
-  const initialBetaFeatures = React.useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    const stored = localStorage.getItem('showBetaFeatures');
-    return stored ? JSON.parse(stored) : false;
-  }, []);
-
-  const [showBetaFeatures, setShowBetaFeatures] = useLocalStorage<boolean>('showBetaFeatures', initialBetaFeatures);
+  const { isCommunityMember, betaFeaturesEnabled, showBetaFeatures, setShowBetaFeatures, canAccessBetaFeatures } =
+    useBetaFeatures({
+      address,
+      chainId,
+    });
 
   logger.info('connected wallet address', address);
-  logger.info('wearerHats', wearerHats);
+  logger.info('isCommunityMember', isCommunityMember);
+  logger.info('betaFeaturesEnabled', betaFeaturesEnabled);
+  logger.info('canAccessBetaFeatures', canAccessBetaFeatures);
 
   const { onCopy } = useClipboard(address, {
     toastData: { title: 'Address copied' },
   });
-
-  // TODO: More robust check for community member Hat
-
-  const isCommunityMember = React.useMemo(() => {
-    if (!wearerHats || !Array.isArray(wearerHats)) return false;
-    return wearerHats[0]?.wearers?.some((wearer: { id: string }) => wearer.id.toLowerCase() === address.toLowerCase());
-  }, [wearerHats, address]);
-
-  logger.info('isCommunityMember', isCommunityMember);
 
   const toggleNetworkModal = () => {
     setModals?.({});
@@ -88,8 +74,6 @@ const WalletProfile = ({
     each(WAGMI_STORAGE_KEYS, (key) => {
       localStorage.removeItem(key);
     });
-    // don't reload as it'll attempt to re-connect
-    // window.location.reload();
   };
 
   // Toggles the showBetaFeatures local storage value between true/false
@@ -156,7 +140,7 @@ const WalletProfile = ({
           <div className='flex w-full items-center justify-between gap-2'>
             <span>Toggle Beta Features</span>
             <Switch
-              checked={isCommunityMember && showBetaFeatures}
+              checked={showBetaFeatures}
               onCheckedChange={handleBetaFeaturesToggle}
               disabled={!isCommunityMember}
             />
