@@ -4,14 +4,14 @@ import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { useClipboard } from 'hooks';
+import { useClipboard, useLocalStorage } from 'hooks';
 import { each, isEmpty, size } from 'lodash';
 import dynamic from 'next/dynamic';
 import * as React from 'react';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Button, Link, OblongAvatar, Switch, Tooltip, TooltipTrigger } from 'ui';
+import { Button, Link, OblongAvatar, Switch, Tooltip } from 'ui';
 import { chainsMap, formatAddress, formatRoundedDecimals, logger } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
@@ -49,12 +49,22 @@ const WalletProfile = ({
     chainId,
   });
 
+  const initialBetaFeatures = React.useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const stored = localStorage.getItem('showBetaFeatures');
+    return stored ? JSON.parse(stored) : false;
+  }, []);
+
+  const [showBetaFeatures, setShowBetaFeatures] = useLocalStorage<boolean>('showBetaFeatures', initialBetaFeatures);
+
   logger.info('connected wallet address', address);
   logger.info('wearerHats', wearerHats);
 
   const { onCopy } = useClipboard(address, {
     toastData: { title: 'Address copied' },
   });
+
+  // TODO: More robust check for community member Hat
 
   const isCommunityMember = React.useMemo(() => {
     if (!wearerHats || !Array.isArray(wearerHats)) return false;
@@ -80,6 +90,11 @@ const WalletProfile = ({
     });
     // don't reload as it'll attempt to re-connect
     // window.location.reload();
+  };
+
+  const handleBetaFeaturesToggle = (value: boolean) => {
+    if (!isCommunityMember) return;
+    setShowBetaFeatures(value);
   };
 
   return (
@@ -140,8 +155,8 @@ const WalletProfile = ({
           <div className='flex w-full items-center justify-between gap-2'>
             <span>Toggle Beta Features</span>
             <Switch
-              checked={isCommunityMember && true}
-              onCheckedChange={() => console.log('switch click')}
+              checked={isCommunityMember && showBetaFeatures}
+              onCheckedChange={handleBetaFeaturesToggle}
               disabled={!isCommunityMember}
             />
           </div>
