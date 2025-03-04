@@ -3,14 +3,16 @@
 import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useOverlay } from 'contexts';
+import { useWearerDetails } from 'hats-hooks';
 import { useClipboard } from 'hooks';
 import { each, isEmpty, size } from 'lodash';
 import dynamic from 'next/dynamic';
+import * as React from 'react';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Button, Link, OblongAvatar } from 'ui';
-import { chainsMap, formatAddress, formatRoundedDecimals } from 'utils';
+import { Button, Link, OblongAvatar, Switch, Tooltip, TooltipTrigger } from 'ui';
+import { chainsMap, formatAddress, formatRoundedDecimals, logger } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
@@ -42,10 +44,24 @@ const WalletProfile = ({
   const { data: balance } = useBalance({ address, chainId });
   const { openChainModal } = useChainModal();
   const { disconnect } = useDisconnect();
+  const { data: wearerHats } = useWearerDetails({
+    wearerAddress: address,
+    chainId,
+  });
+
+  logger.info('connected wallet address', address);
+  logger.info('wearerHats', wearerHats);
 
   const { onCopy } = useClipboard(address, {
     toastData: { title: 'Address copied' },
   });
+
+  const isCommunityMember = React.useMemo(() => {
+    if (!wearerHats || !Array.isArray(wearerHats)) return false;
+    return wearerHats[0]?.wearers?.some((wearer: { id: string }) => wearer.id.toLowerCase() === address.toLowerCase());
+  }, [wearerHats, address]);
+
+  logger.info('isCommunityMember', isCommunityMember);
 
   const toggleNetworkModal = () => {
     setModals?.({});
@@ -113,6 +129,23 @@ const WalletProfile = ({
             </Button>
           </Link>
         )}
+      </div>
+
+      <div className='flex w-full'>
+        <Tooltip
+          label={!isCommunityMember ? 'Wear the Community Member Hat to access beta features' : undefined}
+          side='top'
+          className='z-[150]'
+        >
+          <div className='flex w-full items-center justify-between gap-2'>
+            <span>Toggle Beta Features</span>
+            <Switch
+              checked={isCommunityMember && true}
+              onCheckedChange={() => console.log('switch click')}
+              disabled={!isCommunityMember}
+            />
+          </div>
+        </Tooltip>
       </div>
 
       {!isEmpty(transactions) && (
