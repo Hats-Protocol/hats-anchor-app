@@ -92,6 +92,7 @@ const WalletProfile = ({
     // window.location.reload();
   };
 
+  // Toggles the showBetaFeatures local storage value between true/false
   const handleBetaFeaturesToggle = (value: boolean) => {
     if (!isCommunityMember) return;
     setShowBetaFeatures(value);
