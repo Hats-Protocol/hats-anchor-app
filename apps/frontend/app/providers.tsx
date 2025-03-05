@@ -15,7 +15,7 @@ import { BetaFeaturesProvider, OverlayContextProvider, TreeFormContextProvider }
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
 import { useAccount, useChainId } from 'wagmi';
