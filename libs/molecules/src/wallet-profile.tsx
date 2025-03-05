@@ -2,8 +2,7 @@
 
 import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
-import { useOverlay } from 'contexts';
-import { useBetaFeatures } from 'hats-hooks';
+import { useBetaFeaturesContext, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import { each, isEmpty, size } from 'lodash';
 import dynamic from 'next/dynamic';
@@ -44,16 +43,7 @@ const WalletProfile = ({
   const { openChainModal } = useChainModal();
   const { disconnect } = useDisconnect();
 
-  const { isCommunityMember, betaFeaturesEnabled, showBetaFeatures, setShowBetaFeatures, canAccessBetaFeatures } =
-    useBetaFeatures({
-      address,
-      chainId,
-    });
-
-  logger.info('connected wallet address', address);
-  logger.info('isCommunityMember', isCommunityMember);
-  logger.info('betaFeaturesEnabled', betaFeaturesEnabled);
-  logger.info('canAccessBetaFeatures', canAccessBetaFeatures);
+  const { isCommunityMember, showBetaFeatures, toggleBetaFeatures } = useBetaFeaturesContext();
 
   const { onCopy } = useClipboard(address, {
     toastData: { title: 'Address copied' },
@@ -74,12 +64,6 @@ const WalletProfile = ({
     each(WAGMI_STORAGE_KEYS, (key) => {
       localStorage.removeItem(key);
     });
-  };
-
-  // Toggles the showBetaFeatures local storage value between true/false
-  const handleBetaFeaturesToggle = (value: boolean) => {
-    if (!isCommunityMember) return;
-    setShowBetaFeatures(value);
   };
 
   return (
@@ -139,11 +123,7 @@ const WalletProfile = ({
         >
           <div className='flex w-full items-center justify-between gap-2'>
             <span>Toggle Beta Features</span>
-            <Switch
-              checked={showBetaFeatures}
-              onCheckedChange={handleBetaFeaturesToggle}
-              disabled={!isCommunityMember}
-            />
+            <Switch checked={showBetaFeatures} onCheckedChange={toggleBetaFeatures} disabled={!isCommunityMember} />
           </div>
         </Tooltip>
       </div>
