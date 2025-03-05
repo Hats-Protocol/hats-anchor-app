@@ -2,6 +2,7 @@ import { CONFIG } from '@hatsprotocol/config';
 import { useLocalStorage } from 'hooks';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
+import { logger } from 'utils';
 import { Hex } from 'viem';
 
 import { useWearerDetails } from './use-wearer-details';
@@ -31,28 +32,19 @@ export const useBetaFeatures = ({ address, chainId }: UseBetaFeaturesProps): Use
     chainId,
   });
 
+  logger.info('wearerHats', wearerHats);
+
   // Check if user is a community member by checking if they wear the community hat
   const isCommunityMember = useMemo(() => {
-    if (!wearerHats || !Array.isArray(wearerHats)) return false;
-    return wearerHats.some(
-      (hat) =>
-        hat.id === CONFIG.agreementV0.communityHatId &&
-        hat.wearers?.some((wearer: { id: string }) => wearer.id.toLowerCase() === address.toLowerCase()),
-    );
-  }, [wearerHats, address]);
+    if (!wearerHats || !Array.isArray(wearerHats) || chainId !== 10) return false;
+    return wearerHats.some((hat) => hat.id === CONFIG.agreementV0.communityHatId);
+  }, [wearerHats, chainId]);
 
-  // Get PostHog beta features flag, defaulting to false if undefined
-  const betaFeaturesEnabled = useMemo(() => posthog.isFeatureEnabled('beta-features') ?? false, []);
-
-  // Get initial value from local storage
-  const initialBetaFeatures = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    const stored = localStorage.getItem('showBetaFeatures');
-    return stored ? JSON.parse(stored) : false;
-  }, []);
+  // Get PostHog bucket feature flag, defaulting to false if undefined
+  const betaFeaturesEnabled = useMemo(() => posthog.isFeatureEnabled('bucket') ?? false, []);
 
   // Manage local storage state
-  const [showBetaFeatures, setShowBetaFeatures] = useLocalStorage<boolean>('showBetaFeatures', initialBetaFeatures);
+  const [showBetaFeatures, setShowBetaFeatures] = useLocalStorage<boolean>('showBetaFeatures', false);
 
   // Combine all conditions for beta features access
   const canAccessBetaFeatures = useMemo(
