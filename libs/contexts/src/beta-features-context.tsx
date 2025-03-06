@@ -2,6 +2,7 @@
 
 import { useBetaFeatures } from 'hats-hooks';
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+import { logger } from 'utils';
 import { Hex, isAddress } from 'viem';
 
 interface BetaFeaturesContextType {
@@ -31,10 +32,16 @@ export const BetaFeaturesProvider = ({
 }) => {
   const [showBetaFeatures, setShowBetaFeatures] = useState(() => {
     if (typeof window === 'undefined') return false;
-    return localStorage.getItem('showBetaFeatures') === 'true';
+    try {
+      return localStorage.getItem('showBetaFeatures') === 'true';
+    } catch (error) {
+      logger.warn('Failed to access localStorage:', error);
+      return false;
+    }
   });
 
   const validAddress = address && isAddress(address) ? (address as Hex) : undefined;
+
   const { isCommunityMember, betaFeaturesEnabled, canAccessBetaFeatures } = useBetaFeatures({
     address: validAddress,
     chainId,
@@ -44,7 +51,11 @@ export const BetaFeaturesProvider = ({
     if (!isCommunityMember) return;
     const newValue = !showBetaFeatures;
     setShowBetaFeatures(newValue);
-    localStorage.setItem('showBetaFeatures', String(newValue));
+    try {
+      localStorage.setItem('showBetaFeatures', String(newValue));
+    } catch (error) {
+      logger.warn('Failed to store beta features preference:', error);
+    }
   }, [isCommunityMember, showBetaFeatures]);
 
   const value = {
