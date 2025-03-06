@@ -34,7 +34,6 @@ export const useBetaFeatures = ({ address, chainId }: UseBetaFeaturesProps): Use
   });
 
   // Get PostHog bucket feature flag, defaulting to false if undefined
-  // const betaFeaturesEnabled = useMemo(() => posthog.isFeatureEnabled('bucket') ?? false, []);
   const betaFeaturesEnabled = useMemo(() => {
     const isEnabled = posthog.isFeatureEnabled('bucket');
     if (isEnabled === undefined) {
