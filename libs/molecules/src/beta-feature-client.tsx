@@ -1,13 +1,13 @@
 'use client';
 
 import { useBetaFeaturesContext } from 'contexts';
-import { ReactNode } from 'react';
+import { ReactNode, Suspense } from 'react';
 
 interface BetaFeatureClientProps {
   children: ReactNode;
 }
 
-export function BetaFeatureClient({ children }: BetaFeatureClientProps) {
+const BetaFeatureContent = ({ children }: { children: ReactNode }) => {
   const { isCommunityMember, betaFeaturesEnabled, showBetaFeatures } = useBetaFeaturesContext();
 
   const canAccess = isCommunityMember && betaFeaturesEnabled && showBetaFeatures;
@@ -17,4 +17,12 @@ export function BetaFeatureClient({ children }: BetaFeatureClientProps) {
   }
 
   return <>{children}</>;
+};
+
+export function BetaFeatureClient({ children }: BetaFeatureClientProps) {
+  return (
+    <Suspense fallback={null}>
+      <BetaFeatureContent>{children}</BetaFeatureContent>
+    </Suspense>
+  );
 }
