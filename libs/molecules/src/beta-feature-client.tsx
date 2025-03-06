@@ -10,7 +10,6 @@ interface BetaFeatureClientProps {
 export function BetaFeatureClient({ children }: BetaFeatureClientProps) {
   const { isCommunityMember, betaFeaturesEnabled, showBetaFeatures } = useBetaFeaturesContext();
 
-  // Recalculate access based on all conditions
   const canAccess = isCommunityMember && betaFeaturesEnabled && showBetaFeatures;
 
   if (!canAccess) {
