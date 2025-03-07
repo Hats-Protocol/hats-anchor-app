@@ -2,14 +2,12 @@
 
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { find, get, keys, map } from 'lodash';
-import dynamic from 'next/dynamic';
+import { InlineHatCard } from 'molecules';
 import Link from 'next/link';
 import { BsInfoCircle } from 'react-icons/bs';
 import { ModuleDetailRole, ModuleDetails, SupportedChains } from 'types';
 import { Tooltip } from 'ui';
 import { ipfsUrl } from 'utils';
-
-const InlineHatCard = dynamic(() => import('molecules').then((mod) => mod.InlineHatCard));
 
 const AGREEMENT_ROLES: { [key: string]: ModuleDetailRole } = {
   owner: {

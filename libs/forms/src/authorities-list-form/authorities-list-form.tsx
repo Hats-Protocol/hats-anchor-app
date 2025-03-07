@@ -1,8 +1,8 @@
 'use client';
 
 import { Modal, useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { Safe } from 'icons';
 import { get, pick, some } from 'lodash';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import posthog from 'posthog-js';
 import { ReactNode, useState } from 'react';
@@ -14,8 +14,6 @@ import { Button } from 'ui';
 import { HsgDeployForm } from '../hsg-deploy-form';
 import { AuthoritiesForm } from './authorities-form';
 import { AuthoritiesFormItem } from './authorities-form-item';
-
-const Safe = dynamic(() => import('icons').then((mod) => mod.Safe));
 
 interface AuthoritiesFormListProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -4,11 +4,9 @@ import { MUTABILITY, STATUS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useClipboard } from 'hooks';
+import { CopyHash } from 'icons';
 import { get, pick } from 'lodash';
-import dynamic from 'next/dynamic';
 import { Badge, Button, cn, LazyImage, Markdown, Skeleton, Tooltip } from 'ui';
-
-const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
 // TODO can we combine with the hat-drawer/header ?
 

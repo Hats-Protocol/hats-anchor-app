@@ -1,13 +1,10 @@
 import { chainsList, CONFIG } from '@hatsprotocol/config';
 import { capitalize, toNumber } from 'lodash';
+import { NetworkFilter, ShowTreesButton } from 'molecules';
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import { TreesList as TreesListCards } from 'organisms';
 // import { SearchParamsProps } from 'types';
 import { LinkButton } from 'ui';
-
-const NetworkFilter = dynamic(() => import('molecules').then((mod) => mod.NetworkFilter));
-const ShowTreesButton = dynamic(() => import('molecules').then((mod) => mod.ShowTreesButton));
 
 const TreesList = async ({ params }: TreeListProps) => {
   // TODO fetch initial trees list

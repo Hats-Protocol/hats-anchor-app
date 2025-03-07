@@ -5,7 +5,7 @@ import { useEligibility } from 'contexts';
 import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { filter, find, get, includes, isEmpty, map, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { DevInfo } from 'molecules';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LabeledModules, ModuleDetails } from 'types';
@@ -13,8 +13,6 @@ import { Card, cn, Link, MemberAvatar, Skeleton } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
-
-const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo));
 
 const ALLOWLIST_COPY = {
   compliance: {

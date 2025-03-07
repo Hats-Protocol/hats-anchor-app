@@ -1,11 +1,7 @@
+import { WearerHats, WearerInfo, WearerStats } from 'molecules';
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 // import { SearchParamsProps } from 'types';
 import { fetchWearerDetailsMesh, formatAddress, logger } from 'utils';
-
-const WearerStats = dynamic(() => import('molecules').then((mod) => mod.WearerStats));
-const WearerHats = dynamic(() => import('molecules').then((mod) => mod.WearerHats));
-const WearerInfo = dynamic(() => import('molecules').then((mod) => mod.WearerInfo));
 
 // TODO use new tree list cards on mobile
 // TODO switch Avatar back to `OblongAvatar`, something about undefined component/default export mixup
@@ -35,7 +31,7 @@ const WearerDetail = () => (
 
 interface MetadataProps {
   // extends SearchParamsProps {
-  params: { wearer: string };
+  params: Promise<{ wearer: string }>;
 }
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {

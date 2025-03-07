@@ -5,8 +5,8 @@ import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { isMutable } from 'hats-utils';
 import { useWaitForSubgraph } from 'hooks';
+import { BoxArrowUpRightIn } from 'icons';
 import { add, find, get, gt, map, pick, size, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBarChart } from 'react-icons/bs';
@@ -16,8 +16,6 @@ import { chainsMap, formatAddress, formatScientificWhole } from 'utils';
 import { isAddress } from 'viem';
 
 import { Form, FormRowWrapper, MultiAddressInput, NumberInput } from './components';
-
-const BoxArrowUpRightIn = dynamic(() => import('icons').then((i) => i.BoxArrowUpRightIn));
 
 type HatWearerFormProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

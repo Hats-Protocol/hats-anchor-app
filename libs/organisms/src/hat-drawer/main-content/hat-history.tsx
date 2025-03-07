@@ -1,6 +1,4 @@
-import dynamic from 'next/dynamic';
-
-const EventHistory = dynamic(() => import('molecules').then((mod) => mod.EventHistory));
+import { EventHistory } from 'molecules';
 
 const HatHistory = () => {
   return (

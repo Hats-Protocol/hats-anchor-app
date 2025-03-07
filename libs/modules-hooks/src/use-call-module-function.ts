@@ -98,6 +98,7 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
       } catch (err: unknown) {
         const error = err as Error;
         logger.debug(error);
+        console.log('error', error);
         if (error.message.includes('User rejected the request')) {
           // eslint-disable-next-line no-console
           console.log('User rejected the request');

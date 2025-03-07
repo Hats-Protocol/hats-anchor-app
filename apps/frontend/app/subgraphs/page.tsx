@@ -1,10 +1,8 @@
 'use client';
 import { chainsList } from '@hatsprotocol/config';
 import { keys, map, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
+import { SubgraphCheck } from 'molecules';
 import { Card } from 'ui';
-
-const SubgraphCheck = dynamic(() => import('molecules').then((mod) => mod.SubgraphCheck));
 
 const SubgraphDebug = () => {
   return (

@@ -1,13 +1,11 @@
+import { WearerIcon } from 'icons';
 import { get, includes, map, toLower } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useCallback } from 'react';
 import { AllowlistProfile, HatWearer } from 'types';
 import { BaseCheckbox, cn } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useEnsAvatar } from 'wagmi';
-
-const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
 
 const AddressProfile = ({
   eligibilityAccount,

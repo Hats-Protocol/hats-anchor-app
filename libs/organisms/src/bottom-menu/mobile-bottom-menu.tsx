@@ -4,15 +4,13 @@ import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { useClipboard } from 'hooks';
+import { HatIcon } from 'icons';
 import { includes, map } from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { FaCopy, FaEllipsisV } from 'react-icons/fa';
 import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const MobileBottomMenu = ({ show = false }: { show: boolean | undefined }) => {
   const { handlePendingTx } = useOverlay();

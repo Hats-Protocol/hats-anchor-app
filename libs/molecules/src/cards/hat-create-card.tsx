@@ -2,13 +2,12 @@
 
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useHatDetailsField } from 'hats-hooks';
+import { WearerIcon } from 'icons';
 import { toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
 import { SupportedChains } from 'types';
 import { LazyImage, Skeleton } from 'ui';
 import { ipfsUrl } from 'utils';
 import { Hex } from 'viem';
-const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 const HatCreateCard = ({ id, chainId }: { id: Hex; chainId: SupportedChains }) => {
   const { data } = useHatDetails({

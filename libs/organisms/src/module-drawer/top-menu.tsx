@@ -5,7 +5,7 @@ import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { find, get } from 'lodash';
 import { useModuleDeploy, useMultiClaimsHatterCheck } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { NetworkSwitcher } from 'molecules';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
@@ -13,8 +13,6 @@ import { ModuleDetails } from 'types';
 import { Button, Tooltip } from 'ui';
 import { logger } from 'utils';
 import { useChainId } from 'wagmi';
-
-const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const TopMenu = ({
   localForm,

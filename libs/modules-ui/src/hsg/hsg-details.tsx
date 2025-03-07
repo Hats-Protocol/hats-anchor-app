@@ -2,17 +2,15 @@
 
 import { useAllWearers } from 'hats-hooks';
 import { useClipboard, useSafeDetails } from 'hooks';
+import { CodeIcon } from 'icons';
 import { get, includes, map, pick, reject, size, toLower, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
+import { InlineHatCard } from 'molecules';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FiArrowRight } from 'react-icons/fi';
 import { AppHat, HSGConfig, SupportedChains } from 'types';
 import { Tooltip } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
-
-const InlineHatCard = dynamic(() => import('molecules').then((mod) => mod.InlineHatCard));
-const CodeIcon = dynamic(() => import('icons').then((m) => m.CodeIcon));
 
 // TODO handle MHSG
 

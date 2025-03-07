@@ -5,14 +5,11 @@ import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { isWearingAdminHat } from 'hats-utils';
 import { get, gte, includes, map, toNumber } from 'lodash';
 import { useHatClaimBy } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { ConnectWallet, NetworkSwitcher } from 'molecules';
 import { useMemo } from 'react';
 import { Button, Tooltip } from 'ui';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
-
-const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
-const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const MainAction = () => {
   const currentNetworkId = useChainId();

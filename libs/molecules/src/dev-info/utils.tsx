@@ -1,13 +1,11 @@
 'use client';
 
 import { useClipboard } from 'hooks';
-import dynamic from 'next/dynamic';
+import { CopyAddress } from 'icons';
 import Link from 'next/link';
 import { Button } from 'ui';
 import { explorerUrl, formatAddress, hatLink } from 'utils';
 import { Hex } from 'viem';
-
-const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
 
 export const DefaultInfo = ({ children }: { children: string }) => <div className='text-sm'>{children}</div>;
 

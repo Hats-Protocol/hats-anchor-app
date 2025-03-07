@@ -2,14 +2,12 @@
 
 import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetailsField } from 'hats-hooks';
+import { HatIcon } from 'icons';
 import { get } from 'lodash';
-import dynamic from 'next/dynamic';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HatWithDepth, SupportedChains } from 'types';
 import { Card, cn, LazyImage, Link, Skeleton } from 'ui';
 import { ipfsUrl, paddingForMaxDepth } from 'utils';
-
-const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const MobileHatCard = ({ hat, chainId, isWearing, ensName, maxDepth }: HatCardProps) => {
   const rawDetails = get(hat, 'detailsMetadata');

@@ -4,7 +4,7 @@ import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import { filter, includes, map, some } from 'lodash';
-import dynamic from 'next/dynamic';
+import { NetworkSwitcher } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
@@ -13,8 +13,6 @@ import { Button, Tooltip } from 'ui';
 import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
-
-const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const TopMenu = () => {
   const currentChain = useChainId();

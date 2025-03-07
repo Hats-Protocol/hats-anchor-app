@@ -2,16 +2,14 @@
 
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { formatDistanceToNow } from 'date-fns';
+import { CodeIcon } from 'icons';
 import { find, get, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
+import { InlineHatCard } from 'molecules';
 import Link from 'next/link';
 import { BsInfoCircle } from 'react-icons/bs';
 import { ModuleDetailRole, ModuleDetails, SupportedChains } from 'types';
 import { Tooltip } from 'ui';
 import { formatAddress, formatDate, jokeRaceUrl } from 'utils';
-
-const CodeIcon = dynamic(() => import('icons').then((m) => m.CodeIcon));
-const InlineHatCard = dynamic(() => import('molecules').then((mod) => mod.InlineHatCard));
 
 const JOKE_RACE_ROLE: { [key: string]: ModuleDetailRole } = {
   admin: {

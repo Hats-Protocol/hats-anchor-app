@@ -6,16 +6,14 @@ import { useSelectedHat, useTreeForm } from 'contexts';
 import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { currentHsgThreshold } from 'hats-utils';
 import { useMediaStyles, useSafeDetails } from 'hooks';
+import { BoxArrowUpRightOut } from 'icons';
 import { find, get, includes, keys, map, pick, reject, toLower } from 'lodash';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
 import { cn, IconHandler, Link, Tooltip } from 'ui';
 import { authorityImageHandler, getHostnameFromURL, validateURL } from 'utils';
 import { Hex } from 'viem';
-
-const BoxArrowUpRightOut = dynamic(() => import('icons').then((i) => i.BoxArrowUpRightOut));
 
 const HOSTNAME_LABELS = {
   'charmverse.io': 'Charmverse',

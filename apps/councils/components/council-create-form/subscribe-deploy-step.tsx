@@ -3,9 +3,9 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard, useCouncilDeployFlag } from 'hooks';
+import { Currency, DocumentChecks } from 'icons';
 import { get, isEmpty, map, some, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
@@ -19,9 +19,6 @@ import { Login } from '../login';
 import { NextStepButton } from '../next-step-button';
 import { Deploy } from './deploy';
 import { PaymentDetailsModal } from './payment-details-modal';
-
-const Currency = dynamic(() => import('icons').then((mod) => mod.Currency), { ssr: false });
-const DocumentChecks = dynamic(() => import('icons').then((mod) => mod.DocumentChecks), { ssr: false });
 
 interface StepSummaryProps {
   title: string;

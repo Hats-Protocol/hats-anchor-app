@@ -6,7 +6,7 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { capitalize, flatten, get, includes, map, size, some, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { AgreementContent } from 'molecules';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
 import { EligibilityRule, HatDetails, LabeledModules, ModuleDetails } from 'types';
@@ -14,8 +14,6 @@ import { Button, Card, cn, Tooltip } from 'ui';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
-
-const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 type FetchIpfsResponse = {
   details: string;

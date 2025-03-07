@@ -12,15 +12,13 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { BetaFeaturesProvider, OverlayContextProvider, TreeFormContextProvider } from 'contexts';
-import dynamic from 'next/dynamic';
+import { Toaster } from 'molecules';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import { ReactNode, useState } from 'react';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
-import { useAccount, useChainId } from 'wagmi';
-
-const Toaster = dynamic(() => import('molecules').then((mod) => mod.Toaster), { ssr: false });
+import { useAccount } from 'wagmi';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 if (!POSTHOG_KEY) {
@@ -69,13 +67,8 @@ BigInt.prototype['toJSON'] = function () {
 
 const BetaFeaturesWrapper = ({ children }: { children: ReactNode }) => {
   const { address } = useAccount();
-  const chainId = useChainId();
 
-  return (
-    <BetaFeaturesProvider address={address} chainId={chainId}>
-      {children}
-    </BetaFeaturesProvider>
-  );
+  return <BetaFeaturesProvider address={address}>{children}</BetaFeaturesProvider>;
 };
 
 const Providers = ({ children }: { children: ReactNode }) => {

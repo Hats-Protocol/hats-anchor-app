@@ -1,8 +1,6 @@
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import dynamic from 'next/dynamic';
+import { HatIcon } from 'icons';
 import { Hex } from 'viem';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const AboutAllowlist = ({
   eligibilityHat,

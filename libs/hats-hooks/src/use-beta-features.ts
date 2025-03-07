@@ -1,7 +1,6 @@
 import { CONFIG } from '@hatsprotocol/config';
 import { useLocalStorage } from 'hooks';
-import { includes } from 'lodash';
-import { map } from 'lodash';
+import { includes, map } from 'lodash';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { logger } from 'utils';
@@ -11,7 +10,6 @@ import { useWearerDetails } from './use-wearer-details';
 
 interface UseBetaFeaturesProps {
   address?: Hex;
-  chainId: number;
 }
 
 interface UseBetaFeaturesResult {

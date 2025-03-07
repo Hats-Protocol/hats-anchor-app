@@ -1,8 +1,6 @@
-import dynamic from 'next/dynamic';
+import { Key } from 'icons';
 import { ReactNode } from 'react';
 import { AuthorityInfo } from 'types';
-
-const Key = dynamic(() => import('icons').then((i) => i.Key));
 
 const IconHandler = ({
   icon,

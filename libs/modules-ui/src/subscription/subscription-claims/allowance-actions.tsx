@@ -7,7 +7,7 @@ import { Form, NumberInput } from 'forms';
 import { useTokenDetails } from 'hooks';
 import { get, isUndefined, pick, toLower } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { ConnectWallet, NetworkSwitcher, TransactionButton } from 'molecules';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { BsArrowUpRightCircle } from 'react-icons/bs';
@@ -16,10 +16,6 @@ import { Skeleton } from 'ui';
 import { getDuration, tokenImageHandler } from 'utils';
 import { erc20Abi, formatUnits, maxUint256 } from 'viem';
 import { useAccount, useChainId, useWriteContract } from 'wagmi';
-
-const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
-const TransactionButton = dynamic(() => import('molecules').then((mod) => mod.TransactionButton));
-const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
 
 const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
 

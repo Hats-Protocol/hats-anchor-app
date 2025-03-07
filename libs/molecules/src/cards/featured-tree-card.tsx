@@ -1,11 +1,9 @@
 'use client';
 
 import { TemplateData } from '@hatsprotocol/config';
-import dynamic from 'next/dynamic';
+import { HatIcon } from 'icons';
 import { BsPeopleFill } from 'react-icons/bs';
 import { Card, LazyImage, Link, Skeleton, Tooltip } from 'ui';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 const FeaturedTreeCard = ({ treeData, hatsAndWearers }: FeatureTreeCardProps) => {
   const { id, name, chainId, image, avatar } = treeData;

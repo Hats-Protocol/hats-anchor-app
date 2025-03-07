@@ -5,7 +5,7 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
 import { useWearerTrees } from 'hooks';
 import { flatten, get, isEmpty, map, size, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
+import { TreeListCard as TreeCard } from 'molecules';
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -13,8 +13,6 @@ import { LinkButton, Skeleton, Spinner } from 'ui';
 import { chainsMap } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
-
-const TreeCard = dynamic(() => import('molecules').then((mod) => mod.TreeListCard));
 
 const LOADING_TREES = Array(20).fill({});
 

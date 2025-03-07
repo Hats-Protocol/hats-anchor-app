@@ -5,8 +5,8 @@ import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatAdminWearers, useHatDetails } from 'hats-hooks';
 import { getControllerNameAndLink } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
+import { CodeIcon, GroupIcon, HatIcon, WearerIcon } from 'icons';
 import { filter, first, get, includes, map, reject, size } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useCallback, useState } from 'react';
 import { IconType } from 'react-icons';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
@@ -14,11 +14,6 @@ import { AppHat, HatWearer, SupportedChains } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
-
-const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
-const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
-const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
-const GroupIcon = dynamic(() => import('icons').then((i) => i.GroupIcon));
 
 const AdminHatRow = ({ hatId }: { hatId: Hex }) => {
   const { chainId, orgChartWearers } = useTreeForm();
