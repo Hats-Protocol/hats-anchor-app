@@ -1,5 +1,7 @@
-import { CHAIN_IDS, CONFIG } from '@hatsprotocol/config';
+import { CONFIG } from '@hatsprotocol/config';
 import { useLocalStorage } from 'hooks';
+import { includes } from 'lodash';
+import { map } from 'lodash';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { logger } from 'utils';
@@ -22,15 +24,14 @@ interface UseBetaFeaturesResult {
 
 /**
  * Hook to manage beta features access based on wearing the Community Member Hat, PostHog flags, and user preferences
- * @param address The user's wallet address
- * @param chainId The current chain ID
+ * @param address - The user's wallet address
  * @returns Object containing beta features state and controls
  */
 
-export const useBetaFeatures = ({ address, chainId }: UseBetaFeaturesProps): UseBetaFeaturesResult => {
+export const useBetaFeatures = ({ address }: UseBetaFeaturesProps): UseBetaFeaturesResult => {
   const { data: wearerHats } = useWearerDetails({
     wearerAddress: address,
-    chainId,
+    chainId: 10,
   });
 
   // Get PostHog bucket feature flag, defaulting to false if undefined
@@ -47,9 +48,9 @@ export const useBetaFeatures = ({ address, chainId }: UseBetaFeaturesProps): Use
 
   // Check if user is a community member by checking if they wear the Community Member Hat
   const isCommunityMember = useMemo(() => {
-    if (!address || !wearerHats || !Array.isArray(wearerHats) || chainId !== CHAIN_IDS.optimism) return false;
-    return wearerHats.some((hat) => hat.id === CONFIG.agreementV0.communityHatId);
-  }, [wearerHats, chainId, address]);
+    if (!address || !wearerHats || !Array.isArray(wearerHats)) return false;
+    return includes(map(wearerHats, 'id'), CONFIG.agreementV0.communityHatId);
+  }, [wearerHats, address]);
 
   // Combine all these conditions for beta features access
   const canAccessBetaFeatures = useMemo(
