@@ -43,7 +43,7 @@ const CouncilHeaderCard = ({
   withLinks?: boolean;
 }) => {
   const pathname = usePathname();
-  const isJoinPage = pathname.includes('/join');
+  // const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
 
   const { data: councilDetails } = useCouncilDetails({
@@ -152,20 +152,34 @@ const CouncilHeaderCard = ({
               </Button>
             </Link>
           ) : null
-        ) : !isWearing && isJoinPage && !isRootPath && isReadyToClaim ? (
-          <LinkButton
-            href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
-            className='w-48 self-center rounded-full md:hidden'
-            variant='outline-blue'
-          >
-            Join Council
-          </LinkButton>
         ) : (
-          <SignersIndicator
-            threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
-            signers={size(safeSigners)}
-            maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
-          />
+          <>
+            {!isWearing && !isRootPath && isReadyToClaim && (
+              <LinkButton
+                href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
+                className='w-48 self-center rounded-full md:hidden'
+                variant='outline-blue'
+              >
+                Join Council
+              </LinkButton>
+            )}
+            <div className='hidden md:block'>
+              <SignersIndicator
+                threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
+                signers={size(safeSigners)}
+                maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+              />
+            </div>
+            {(!isWearing || isRootPath || !isReadyToClaim) && (
+              <div className='md:hidden'>
+                <SignersIndicator
+                  threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
+                  signers={size(safeSigners)}
+                  maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 
