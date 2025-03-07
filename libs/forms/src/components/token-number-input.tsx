@@ -95,6 +95,7 @@ function TokenNumberInput({
                 className={cn(
                   'transition-colors duration-200 focus:outline-none focus:ring-0',
                   'ml-[-1px] flex-1 rounded-none bg-white',
+                  '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
                   variant === 'default' && [
                     !isError && isDirty && 'border-cyan-500 focus:border-cyan-500',
                     isError && 'border-destructive focus:border-destructive',
@@ -104,6 +105,7 @@ function TokenNumberInput({
                 min={options?.min}
                 max={options?.max}
                 disabled={disabled}
+                value={value}
                 {...restField}
                 ref={ref}
               />
@@ -121,17 +123,19 @@ function TokenNumberInput({
 
               <NumberInputSteppers
                 stepUp={() => {
-                  if (value < (options?.max ?? Infinity)) {
-                    restField.onChange(value + 1);
+                  const currentValue = Number(value) || 0;
+                  if (currentValue < (options?.max ?? Infinity)) {
+                    restField.onChange(currentValue + 1);
                   }
                 }}
-                upDisabled={value >= (options?.max ?? Infinity)}
+                upDisabled={Number(value) >= (options?.max ?? Infinity)}
                 stepDown={() => {
-                  if (value > (options?.min ?? 0)) {
-                    restField.onChange(value - 1);
+                  const currentValue = Number(value) || 0;
+                  if (currentValue > (options?.min ?? 0)) {
+                    restField.onChange(currentValue - 1);
                   }
                 }}
-                downDisabled={value <= (options?.min ?? 0)}
+                downDisabled={Number(value) <= (options?.min ?? 0)}
               />
             </div>
           </FormControl>
