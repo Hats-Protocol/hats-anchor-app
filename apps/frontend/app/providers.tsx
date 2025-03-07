@@ -11,13 +11,14 @@ import '@fontsource-variable/jetbrains-mono';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { OverlayContextProvider } from 'contexts';
+import { BetaFeaturesProvider, OverlayContextProvider, TreeFormContextProvider } from 'contexts';
 import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { wagmiConfig } from 'utils';
 import { WagmiProvider } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 const Toaster = dynamic(() => import('molecules').then((mod) => mod.Toaster), { ssr: false });
 
@@ -66,14 +67,19 @@ BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };
 
-const Providers = ({ children }: Props) => {
-  const [queryClient] = useState(() => new QueryClient(queryClientOptions));
+const BetaFeaturesWrapper = ({ children }: { children: ReactNode }) => {
+  const { address } = useAccount();
+  const chainId = useChainId();
 
-  useEffect(() => {
-    // if (INTERCOM_APP_ID && typeof window.Intercom !== 'undefined') {
-    //   window.Intercom('boot', { app_id: INTERCOM_APP_ID });
-    // }
-  }, []);
+  return (
+    <BetaFeaturesProvider address={address} chainId={chainId}>
+      {children}
+    </BetaFeaturesProvider>
+  );
+};
+
+const Providers = ({ children }: { children: ReactNode }) => {
+  const [queryClient] = useState(() => new QueryClient(queryClientOptions));
 
   return (
     <WagmiProvider config={wagmiConfig()}>
@@ -82,8 +88,9 @@ const Providers = ({ children }: Props) => {
           <ReactQueryDevtools initialIsOpen={false} />
           <PostHogProvider client={posthog}>
             <OverlayContextProvider>
-              {children}
-
+              <TreeFormContextProvider>
+                <BetaFeaturesWrapper>{children}</BetaFeaturesWrapper>
+              </TreeFormContextProvider>
               <Toaster />
             </OverlayContextProvider>
           </PostHogProvider>
@@ -92,9 +99,5 @@ const Providers = ({ children }: Props) => {
     </WagmiProvider>
   );
 };
-
-interface Props {
-  children: ReactNode;
-}
 
 export default Providers;

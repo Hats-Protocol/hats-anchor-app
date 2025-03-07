@@ -1,6 +1,7 @@
 // local components to avoid circular dependencies with `ui` package
 export * from './components';
 // actual context exports
+export * from './beta-features-context';
 export * from './council-form';
 export * from './eligibility-context';
 export * from './hat-form-context';

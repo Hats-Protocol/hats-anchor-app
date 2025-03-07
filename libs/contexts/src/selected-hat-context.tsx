@@ -12,7 +12,7 @@ import { useMediaStyles } from 'hooks';
 import { find, get, includes, isEmpty, map } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { createContext, ReactNode, useCallback, useContext, useMemo } from 'react';
+import { createContext, ReactNode, Suspense, useCallback, useContext, useMemo } from 'react';
 import { createHierarchy } from 'shared';
 import { AppHat, HatDetails, Hierarchy, SupportedChains } from 'types';
 import { getPathParams } from 'utils';
@@ -62,7 +62,7 @@ export const SelectedHatContext = createContext<SelectedHatContext>({
   hierarchy: undefined,
 });
 
-export const SelectedHatContextProvider = ({ children }: { children: ReactNode }) => {
+const SelectedHatContextContent = ({ children }: { children: ReactNode }) => {
   const params = useSearchParams();
   const pathname = usePathname();
   const { hatId: hatIdPathParam, treeId, chainId } = getPathParams(pathname);
@@ -191,6 +191,16 @@ export const SelectedHatContextProvider = ({ children }: { children: ReactNode }
   );
 
   return <SelectedHatContext.Provider value={returnValue}>{children}</SelectedHatContext.Provider>;
+};
+
+export const SelectedHatContextProvider = ({ children }: { children: ReactNode }) => {
+  return (
+    <Suspense
+      fallback={<SelectedHatContext.Provider value={{} as SelectedHatContext}>{children}</SelectedHatContext.Provider>}
+    >
+      <SelectedHatContextContent>{children}</SelectedHatContextContent>
+    </Suspense>
+  );
 };
 
 export const useSelectedHat = () => useContext(SelectedHatContext);

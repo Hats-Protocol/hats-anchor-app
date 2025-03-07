@@ -13,6 +13,7 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -157,7 +158,7 @@ export const TreeFormContext = createContext<TreeFormContext>({
 //       -> useImageURIs
 //          -> useOrgChartTree (all pass to)
 
-export const TreeFormContextProvider = ({ children }: { children: ReactNode }) => {
+const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const { chainId, treeId, hatId: hatPathParam } = getPathParams(pathname);
 
@@ -807,6 +808,14 @@ export const TreeFormContextProvider = ({ children }: { children: ReactNode }) =
   );
 
   return <TreeFormContext.Provider value={returnValue}>{children}</TreeFormContext.Provider>;
+};
+
+export const TreeFormContextProvider = ({ children }: { children: ReactNode }) => {
+  return (
+    <Suspense fallback={<TreeFormContext.Provider value={{} as TreeFormContext}>{children}</TreeFormContext.Provider>}>
+      <TreeFormContextContent>{children}</TreeFormContextContent>
+    </Suspense>
+  );
 };
 
 export const useTreeForm = () => useContext(TreeFormContext);

@@ -6,7 +6,7 @@ import { useMediaStyles } from 'hooks';
 import { find, get } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { cn, LazyImage, ScrollArea } from 'ui';
 
 import { BottomMenu } from '../bottom-menu';
@@ -14,21 +14,29 @@ import { EditMode } from './edit-mode';
 import { MainContent } from './main-content';
 import { TopMenu } from './top-menu';
 
-const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
+interface SelectedHatDrawerProps {
+  returnToList?: () => void;
+}
+
+const HatDrawerContent = ({ returnToList }: SelectedHatDrawerProps) => {
   const [showBottomMenu, setShowBottomMenu] = useState(false);
   const params = useSearchParams();
   const router = useRouter();
   const hatId = params.get('hatId');
   const { editMode, treeToDisplay, treeId, chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
-  const selectedHatId = selectedHat?.id;
-  const imageUrl = get(find(treeToDisplay, { id: selectedHatId }), 'imageUrl');
   const { isMobile } = useMediaStyles();
+
+  const selectedHatId = selectedHat?.id;
+  const imageUrl = useMemo(
+    () => get(find(treeToDisplay, { id: selectedHatId }), 'imageUrl'),
+    [treeToDisplay, selectedHatId],
+  );
 
   if (!selectedHat) return null;
 
   if (treeId && chainId && selectedHat && !hatId && !isMobile) {
-    router.push(`/trees/${chainId}/${treeId}?hatId=${hatIdDecimalToIp(hatIdHexToDecimal(selectedHat.id))}`); // redirect to desktop view
+    router.push(`/trees/${chainId}/${treeId}?hatId=${hatIdDecimalToIp(hatIdHexToDecimal(selectedHat.id))}`);
   }
 
   const hatImage = (editMode && imageUrl) || get(selectedHat, 'imageUrl') || '/icon.jpeg';
@@ -70,7 +78,6 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
             <BottomMenu />
           </>
         ) : (
-          // prefer wrapping like so to avoid rendering context provider when not needed
           <HatFormContextProvider>
             <TopMenu returnToList={returnToList} />
             <ScrollArea className='h-[calc(100vh-145px)]'>
@@ -84,8 +91,12 @@ const HatDrawer = ({ returnToList }: SelectedHatDrawerProps) => {
   );
 };
 
-export { HatDrawer };
+const HatDrawer = (props: SelectedHatDrawerProps) => {
+  return (
+    <Suspense fallback={null}>
+      <HatDrawerContent {...props} />
+    </Suspense>
+  );
+};
 
-interface SelectedHatDrawerProps {
-  returnToList?: () => void;
-}
+export { HatDrawer };

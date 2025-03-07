@@ -21,13 +21,13 @@ const fetchSubgraphCheck = async (chainId: number) => {
   const ancillaryApiUrl = ANCILLARY_API_URL[chainId as SupportedChains];
   if (!chainId || !ancillaryApiUrl) return;
 
-  const mainSubgraphClient = new GraphQLClient(NETWORK_ENDPOINTS[chainId].endpoint);
+  const mainSubgraphClient = new GraphQLClient(NETWORK_ENDPOINTS[chainId].endpoint, { timeout: 5000 });
   const mainSubgraphPromise = mainSubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
     console.error(err);
     return null;
   });
 
-  const ancillarySubgraphClient = new GraphQLClient(ancillaryApiUrl);
+  const ancillarySubgraphClient = new GraphQLClient(ancillaryApiUrl, { timeout: 5000 });
   const ancillarySubgraphPromise = ancillarySubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
     console.error(err);
     return null;
