@@ -127,57 +127,57 @@ const CouncilHeaderCard = ({
         isDev && !effectiveOffchainDetails && 'bg-blue-50',
       )}
     >
+      {/* main card data/left side */}
       <div className='flex w-full flex-col gap-4 md:w-[30%] md:gap-2'>
         <div className='text-functional-link-primary hidden text-xs uppercase md:block'>{organizationName}</div>
         <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
         <p className='hidden truncate text-sm text-black/50 md:block'>
           {offchainCouncilDescription || get(signerHatDetails, 'description')}
         </p>
-
-        <div className='flex w-full flex-col items-stretch gap-3 md:w-auto md:items-center'>
-          {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
-            withLinks ? (
-              <Link
-                href={safeUrl(
-                  (chainId ?? 11155111) as SupportedChains,
-                  effectiveCouncilDetails?.safe as unknown as Hex,
-                )}
-                className='self-center'
-                isExternal
-              >
-                <Button variant='outline' rounded='full'>
-                  <SafeIcon className='size-3' />
-                  <p className='font-normal'>Safe Wallet</p>
-                  <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
-                </Button>
-              </Link>
-            ) : null
-          ) : !isWearing && !isJoinPage && !isRootPath && isReadyToClaim ? (
-            <LinkButton
-              href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
-              className='w-48 self-center rounded-full md:hidden'
-              variant='outline-blue'
-            >
-              Join Council
-            </LinkButton>
-          ) : (
-            <SignersIndicator
-              threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
-              signers={size(safeSigners)}
-              maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
-            />
-          )}
-        </div>
       </div>
 
+      {/* center section for signers indicator */}
+      <div className='flex w-full flex-col items-stretch gap-3 pt-2 md:w-[30%] md:items-center md:pt-4'>
+        {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold')) ? (
+          withLinks ? (
+            <Link
+              href={safeUrl((chainId ?? 11155111) as SupportedChains, effectiveCouncilDetails?.safe as Hex)}
+              className='self-center'
+              isExternal
+            >
+              <Button variant='outline' rounded='full'>
+                <SafeIcon className='size-3' />
+                <p className='font-normal'>Safe Wallet</p>
+                <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
+              </Button>
+            </Link>
+          ) : null
+        ) : !isWearing && isJoinPage && !isRootPath && isReadyToClaim ? (
+          <LinkButton
+            href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
+            className='w-48 self-center rounded-full md:hidden'
+            variant='outline-blue'
+          >
+            Join Council
+          </LinkButton>
+        ) : (
+          <SignersIndicator
+            threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
+            signers={size(safeSigners)}
+            maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+          />
+        )}
+      </div>
+
+      {/* right side stats */}
       <div className='font-jb-mono mt-2 w-full flex-col items-end justify-center gap-2 text-sm md:mt-0 md:flex md:w-[30%]'>
-        <div className='flex gap-2 md:flex-col'>
+        <div className='flex w-full justify-start gap-2 md:w-auto md:flex-col md:items-end'>
           <div className='flex items-center gap-2'>
             <div className='flex items-center'>
               <div>
                 {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
                   ? get(effectiveCouncilDetails, 'minThreshold')
-                  : `Pending ${get(effectiveCouncilDetails, 'minThreshold')}`}
+                  : `Pending ${get(effectiveCouncilDetails, 'minThreshold')}`}{' '}
               </div>
               <div>
                 {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
