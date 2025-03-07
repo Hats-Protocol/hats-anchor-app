@@ -219,7 +219,7 @@ export const ModuleChainClaimHeader = ({
 
       <div className='hidden md:block'>
         <div className='flex flex-col gap-4 md:flex-row md:justify-between'>
-          <h2 className='text-xl font-bold md:text-2xl'>
+          <h2 className='pb-6 text-xl font-bold md:text-2xl'>
             Satisfy these {size(eligibilityRules)} requirements to{' '}
             {!showJoinButton ? 'claim this role' : 'become a council member'}
           </h2>
