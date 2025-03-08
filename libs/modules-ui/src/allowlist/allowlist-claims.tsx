@@ -129,7 +129,7 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
         'flex md:flex': showOnMobile,
       })}
     >
-      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] bg-white px-8 py-10'>
+      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] bg-white px-8 pb-10 pt-6'>
         <div className='flex justify-between'>
           <div>
             <h3 className='text-2xl font-bold'>{copy.heading}</h3>

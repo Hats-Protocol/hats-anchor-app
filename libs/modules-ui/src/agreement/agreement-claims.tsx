@@ -109,7 +109,7 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
       <Button
         variant={isReadyToClaim ? 'outline' : 'default'}
         className={cn('py-4', isReadyToClaim ? 'border-functional-success text-functional-success' : undefined)}
-        size='sm'
+        size='lg'
         onClick={() => {
           if (chainHasSubscription) {
             handleSignAgreement();
