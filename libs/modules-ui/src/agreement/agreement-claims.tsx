@@ -181,7 +181,7 @@ export const AgreementClaims = ({
         </div>
 
         <AgreementContent agreement={agreement || agreementV0 || undefined} />
-        <div className='flex justify-center'>
+        <div className='flex'>
           <AgreementButton activeModule={activeModule} />
         </div>
       </Card>
