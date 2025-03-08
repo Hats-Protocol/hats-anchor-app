@@ -1,9 +1,9 @@
 'use client';
 
 import { useContractData } from 'hooks';
+import { CodeIcon } from 'icons';
 import { endsWith, pick } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import React, { ReactNode, useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -12,8 +12,6 @@ import { isAddress } from 'viem';
 import { useEnsAddress, useEnsName } from 'wagmi';
 
 import { Input } from './input';
-
-const CodeIcon = dynamic(() => import('icons').then((mod) => mod.CodeIcon));
 
 // const defaultOptions = {
 //   validate: {

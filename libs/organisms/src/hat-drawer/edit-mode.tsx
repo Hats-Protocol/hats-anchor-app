@@ -8,7 +8,7 @@ import { AuthoritiesListForm, HatBasicsForm, HatManagementForm, HatWearerForm, R
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
 import { useClipboard } from 'hooks';
 import { find, get, toLower } from 'lodash';
-import dynamic from 'next/dynamic';
+import { HatFormAccordion } from 'molecules';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
@@ -17,8 +17,6 @@ import { Button, Link, Slide, Tooltip } from 'ui';
 import { ipfsUrl } from 'utils';
 
 import { ModuleDrawer } from '../module-drawer';
-
-const HatFormAccordion = dynamic(() => import('molecules').then((i) => i.HatFormAccordion));
 
 const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();

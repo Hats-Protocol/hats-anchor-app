@@ -4,13 +4,9 @@ import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
 import { compact, isUndefined } from 'lodash';
 import { useLockFromHat } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { AddressInfo, DefaultInfo, DevInfo } from 'molecules';
 import { useMemo } from 'react';
 import { formatUnits } from 'viem';
-
-const AddressInfo = dynamic(() => import('molecules').then((mod) => mod.AddressInfo), { ssr: false });
-const DefaultInfo = dynamic(() => import('molecules').then((mod) => mod.DefaultInfo), { ssr: false });
-const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo), { ssr: false });
 
 export const SubscriptionDevInfo = ({ moduleParameters, chainId }: SubscriptionDevInfoProps) => {
   const { selectedHat } = useEligibility();

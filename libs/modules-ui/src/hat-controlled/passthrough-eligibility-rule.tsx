@@ -2,14 +2,12 @@
 
 import { CONTROLLER_TYPES } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { HatIcon } from 'icons';
 import { eq, find, get } from 'lodash';
-import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
 import { hatLink, ModuleDetailsHandler } from 'utils';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetails, TOGGLE_STATUS } from '../eligibility-rules';
-
-const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 export const PassthroughEligibility = ({ moduleParameters, chainId }: ModuleDetailsHandler) => {
   const passthroughHat = find(moduleParameters, { displayType: 'hat' });

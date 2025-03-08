@@ -6,7 +6,7 @@ import { useEligibility } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { AgreementContent } from 'molecules';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -14,8 +14,6 @@ import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMe
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
 
 import { ClaimsHelperButtons } from './claims-helper-buttons';
-
-const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)

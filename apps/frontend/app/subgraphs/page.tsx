@@ -1,11 +1,10 @@
+'use client';
 import { chainsList } from '@hatsprotocol/config';
 import { keys, map, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
+import { SubgraphCheck } from 'molecules';
 import { Card } from 'ui';
 
-const SubgraphCheck = dynamic(() => import('molecules').then((mod) => mod.SubgraphCheck));
-
-const SubgraphDebug = async () => {
+const SubgraphDebug = () => {
   return (
     <>
       <div className='px-4 py-20 md:px-20 lg:px-[100px] lg:py-[100px]'>

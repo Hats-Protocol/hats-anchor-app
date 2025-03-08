@@ -5,20 +5,16 @@ import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { useHatBurn, useHatContractWrite } from 'hats-hooks';
 import { getControllerNameAndLink, isTopHat } from 'hats-utils';
 import { useClipboard, useWaitForSubgraph } from 'hooks';
+import { CodeIcon, CopyAddress, WearerIcon } from 'icons';
 import { get, toLower } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { TooltipWrapper } from 'molecules';
 import { idToIp } from 'shared';
 import { ControllerData } from 'types';
 import { Button, cn, Link, OblongAvatar, Tooltip } from 'ui';
 import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsAvatar } from 'wagmi';
-
-const CodeIcon = dynamic(() => import('icons').then((mod) => mod.CodeIcon));
-const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
-const WearerIcon = dynamic(() => import('icons').then((mod) => mod.WearerIcon));
-const TooltipWrapper = dynamic(() => import('molecules').then((mod) => mod.TooltipWrapper));
 
 const WearerRow = ({
   wearer,

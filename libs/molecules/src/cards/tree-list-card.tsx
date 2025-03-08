@@ -1,14 +1,12 @@
 'use client';
 
 import { treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { HatIcon } from 'icons';
 import { get, size } from 'lodash';
-import dynamic from 'next/dynamic';
 // import { BsPeopleFill } from 'react-icons/bs';
 import { AppTree } from 'types';
 import { Card, Link } from 'ui';
 import { checkIfIpfs, removeInactiveHatsAndDescendants } from 'utils';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 // TODO migrate Top Hat image to LazyImage
 

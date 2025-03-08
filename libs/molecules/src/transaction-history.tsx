@@ -3,14 +3,12 @@
 import { useOverlay } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
+import { Etherscan } from 'icons';
 import { isEmpty, map, take } from 'lodash';
-import dynamic from 'next/dynamic';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { Transaction } from 'types';
 import { Button, Link, Spinner } from 'ui';
 import { explorerUrl } from 'utils';
-
-const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
 
 // Utility function to get abbreviated hash
 const abbreviateHash = (hash: string) => {

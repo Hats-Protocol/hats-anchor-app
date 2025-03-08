@@ -8,9 +8,9 @@ import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { ModuleAuthorityModal } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
 import { formHatUrl, safeUrl } from 'hats-utils';
+import { BoxArrowUpRightOut } from 'icons';
 import { capitalize, filter, find, forEach, get, includes, isEmpty, map, size } from 'lodash';
 import { useCallHsgFunction, useCallModuleFunction, useHsgSigner } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo, useState } from 'react';
 import { IconType } from 'react-icons';
@@ -23,8 +23,6 @@ import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { CustomFunction } from './custom-function';
-
-const BoxArrowUpRightOut = dynamic(() => import('icons').then((i) => i.BoxArrowUpRightOut));
 
 const ModuleAuthorityToolbar = ({
   authority,

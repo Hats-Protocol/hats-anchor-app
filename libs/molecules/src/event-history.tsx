@@ -4,14 +4,12 @@ import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
+import { Etherscan } from 'icons';
 import { first, get, last, map, take } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { IoEllipsisVerticalSharp } from 'react-icons/io5';
 import { Button, LinkButton } from 'ui';
 import { explorerUrl, parseEventName } from 'utils';
-
-const Etherscan = dynamic(() => import('icons').then((mod) => mod.Etherscan));
 
 const EventHistory = ({ type, count }: { type: 'tree' | 'hat'; count?: number }) => {
   const { chainId, treeEvents } = useTreeForm();

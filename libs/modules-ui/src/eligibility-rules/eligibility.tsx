@@ -3,9 +3,9 @@
 import { CONFIG } from '@hatsprotocol/config';
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
+import { HatIcon } from 'icons';
 import { find, first, flatten, gt, includes, pick, size } from 'lodash';
 import { useCurrentEligibility, useEligibilityRules } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails, logger } from 'utils';
 import { Hex } from 'viem';
@@ -15,8 +15,6 @@ import { CommunityHatEligibilityRule } from '../agreement';
 import { ChainPanel } from './chain-panel';
 import { ControllerWearer } from './controller-wearer';
 import { KnownEligibilityModule } from './known-eligibility-module';
-
-const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const OVERRIDE_COMMUNITY_HAT = true;
 

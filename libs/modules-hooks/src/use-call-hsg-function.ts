@@ -57,6 +57,7 @@ const useCallHsgFunction = ({ chainId }: { chainId: SupportedChains | undefined 
         }
       } catch (error) {
         const err = error as Error;
+        console.log('err', err);
         toast({
           title: 'Transaction failed',
           description: err.message,

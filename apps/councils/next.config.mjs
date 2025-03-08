@@ -40,7 +40,7 @@ const nextConfig = {
   },
 
   experimental: {
-    // instrumentationHook: true,
+    webpackMemoryOptimizations: true,
     optimizePackageImports: [
       // external pkgs
       '@rainbow-me/rainbowkit',

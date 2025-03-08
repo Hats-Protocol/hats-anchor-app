@@ -5,15 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useEligibility } from 'contexts';
 import { get } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { AgreementContent } from 'molecules';
 import { useCallback } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { BsDownload } from 'react-icons/bs';
 import { FiExternalLink } from 'react-icons/fi';
 import { Button, cn, Link, Skeleton } from 'ui';
 import { eligibilityRuleToModuleDetails, fetchIpfs, hatLink } from 'utils';
-
-const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)

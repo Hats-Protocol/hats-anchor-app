@@ -2,7 +2,7 @@
 
 import { useSelectedHat } from 'contexts';
 import { useMediaQuery, useScrollPosition } from 'hooks';
-import dynamic from 'next/dynamic';
+import { HatDevDetails, ResponsibilitiesList } from 'molecules';
 import { SupportedChains } from 'types';
 import { HatDeco } from 'ui';
 
@@ -12,9 +12,6 @@ import { WearersList } from '../wearers-list';
 import { HatHistory } from './hat-history';
 import { Header } from './header';
 import { LinkRequests } from './link-requests';
-
-const ResponsibilitiesList = dynamic(() => import('molecules').then((mod) => mod.ResponsibilitiesList));
-const HatDevDetails = dynamic(() => import('molecules').then((mod) => mod.HatDevDetails));
 
 const MainContent = ({
   showBottomMenu,

@@ -2,8 +2,8 @@
 
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails, useWearerDetails } from 'hats-hooks';
+import { WearerIcon } from 'icons';
 import { find, get, includes, map } from 'lodash';
-import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
 import { BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
@@ -12,8 +12,6 @@ import { hatLink, ModuleDetailsHandler } from 'utils';
 import { Hex } from 'viem';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
-
-const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 export const HatWearingEligibilityRule = ({ moduleParameters, wearer, chainId }: ModuleDetailsHandler) => {
   const hatParam = find(moduleParameters, { displayType: 'hat' });

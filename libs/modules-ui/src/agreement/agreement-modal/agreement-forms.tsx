@@ -9,7 +9,7 @@ import { useAllWearers, useWearerDetails } from 'hats-hooks';
 import { useIpfsData, useWaitForSubgraph } from 'hooks';
 import { compact, find, first, get, isEmpty, map, pick, size, subtract, toLower } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { TransactionButton } from 'molecules';
 import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { AllowlistProfile, AppHat, ModuleDetails, SupportedChains } from 'types';
@@ -19,8 +19,6 @@ import { Hex } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
 import { ManageBar } from '../../module-modal';
-
-const TransactionButton = dynamic(() => import('molecules').then((mod) => mod.TransactionButton));
 
 const DEFAULT_GRACE_PERIOD = 4;
 const DEFAULT_GRACE_PERIOD_UNIT = 'weeks';

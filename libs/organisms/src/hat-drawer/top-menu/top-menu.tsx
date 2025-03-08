@@ -18,10 +18,6 @@ import { useAccount } from 'wagmi';
 import { MainAction } from '../../main-action';
 import { MoreMenu } from './more-menu';
 
-// const HatLinkRequestCreateForm = dynamic(
-//   () => import('../../../forms'),
-// );
-
 const TopMenu = ({ returnToList }: TopMenuProps) => {
   const { chainId, editMode, onchainHats, storedData, treeToDisplay, onCloseHatDrawer } = useTreeForm();
   const { selectedHat } = useSelectedHat();

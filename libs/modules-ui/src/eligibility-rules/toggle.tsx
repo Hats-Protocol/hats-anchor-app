@@ -2,16 +2,14 @@
 
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
+import { HatIcon } from 'icons';
 import { find, includes, pick } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { Skeleton } from 'ui';
 import { Hex } from 'viem';
 
 import { ControllerWearer } from './controller-wearer';
 import { KnownToggleModule } from './known-toggle-module';
-
-const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 export const Toggle = () => {
   const { orgChartWearers, isLoading: treeLoading } = useTreeForm();

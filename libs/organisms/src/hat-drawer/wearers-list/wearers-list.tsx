@@ -5,8 +5,8 @@ import { HatClaimForForm as HatClaimForm, HatTransferForm, HatWearerForm, HatWea
 import { useWearerDetails, useWearersEligibilityStatus } from 'hats-hooks';
 import { filterWearers, isTopHat, isWearingAdminHat, sortWearers } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
+import { RemovedWearer } from 'icons';
 import { filter, find, get, includes, isEmpty, map, pick, size, slice, toLower, toNumber, toString } from 'lodash';
-import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ControllerData, HatWearer } from 'types';
@@ -18,8 +18,6 @@ import { useAccount } from 'wagmi';
 import { WearerButtons } from './wearer-buttons';
 import { WearerRow } from './wearer-row';
 import { FullWearersListModal } from './wearers-modal';
-
-const RemovedWearer = dynamic(() => import('icons').then((i) => i.RemovedWearer));
 
 const DEFAULT_WEARERS = {
   eligibleWearers: undefined,

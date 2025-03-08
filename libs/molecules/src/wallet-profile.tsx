@@ -2,22 +2,19 @@
 
 import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
-import { useOverlay } from 'contexts';
+import { useBetaFeaturesContext, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
+import { CopyAddress, WearerIcon } from 'icons';
 import { each, isEmpty, size } from 'lodash';
-import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
-import { Button, Link, OblongAvatar } from 'ui';
+import { Button, Link, OblongAvatar, Switch, Tooltip } from 'ui';
 import { chainsMap, formatAddress, formatRoundedDecimals } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
 import { TransactionHistory } from './transaction-history';
-
-const CopyAddress = dynamic(() => import('icons').then((i) => i.CopyAddress));
-const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 const WAGMI_STORAGE_KEYS = [
   'wagmi.injected.connected',
@@ -43,6 +40,8 @@ const WalletProfile = ({
   const { openChainModal } = useChainModal();
   const { disconnect } = useDisconnect();
 
+  const { isCommunityMember, showBetaFeatures, toggleBetaFeatures } = useBetaFeaturesContext();
+
   const { onCopy } = useClipboard(address, {
     toastData: { title: 'Address copied' },
   });
@@ -62,8 +61,6 @@ const WalletProfile = ({
     each(WAGMI_STORAGE_KEYS, (key) => {
       localStorage.removeItem(key);
     });
-    // don't reload as it'll attempt to re-connect
-    // window.location.reload();
   };
 
   return (
@@ -113,6 +110,19 @@ const WalletProfile = ({
             </Button>
           </Link>
         )}
+      </div>
+
+      <div className='flex w-full'>
+        <Tooltip
+          label={!isCommunityMember ? 'Wear the Community Member Hat to access beta features' : undefined}
+          side='top'
+          className='z-[150]'
+        >
+          <div className='flex w-full items-center justify-between gap-2'>
+            <span>Toggle Beta Features</span>
+            <Switch checked={showBetaFeatures} onCheckedChange={toggleBetaFeatures} disabled={!isCommunityMember} />
+          </div>
+        </Tooltip>
       </div>
 
       {!isEmpty(transactions) && (

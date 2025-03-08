@@ -3,16 +3,12 @@
 import { NULL_ADDRESSES } from '@hatsprotocol/constants';
 import { useSelectedHat } from 'contexts';
 import { getControllerNameAndLink } from 'hats-utils';
+import { CodeIcon, EmptyWearer, WearerIcon } from 'icons';
 import { includes, pick } from 'lodash';
-import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
 import { ControllerData } from 'types';
 import { cn, Link, Tooltip } from 'ui';
 import { formatAddress } from 'utils';
-
-const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
-const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
-const EmptyWearer = dynamic(() => import('icons').then((i) => i.EmptyWearer));
 
 export const ControllerWearer = ({ controllerData }: { controllerData: ControllerData | undefined }) => {
   const { chainId } = useSelectedHat();
