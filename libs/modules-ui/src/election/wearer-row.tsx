@@ -2,16 +2,15 @@
 
 import { CONFIG } from '@hatsprotocol/config';
 import { useEligibility } from 'contexts';
+import { HatIcon } from 'icons';
 import { get } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { BsFileCode } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
 import { HatWearer } from 'types';
 import { cn } from 'ui';
 import { formatAddress, isSameAddress } from 'utils';
 import { useAccount } from 'wagmi';
-const HatIcon = dynamic(() => import('icons').then((i) => i.HatIcon));
 
 const WearerRow = ({ wearer }: WearerRowProps) => {
   const { address } = useAccount();

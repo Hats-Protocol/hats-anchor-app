@@ -1,10 +1,8 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { ConnectWallet } from 'molecules';
 import { AppHat } from 'types';
 import { cn, Link } from 'ui';
-
-const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
 
 export const StandaloneNavbar = ({ heading, hatData }: StandaloneNavbarProps) => {
   return (

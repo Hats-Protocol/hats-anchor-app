@@ -4,15 +4,15 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { get } from 'lodash';
-import dynamic from 'next/dynamic';
+import {
+  PiArrowSquareDown as BoxArrowDown,
+  PiArrowSquareLeft as BoxArrowLeft,
+  PiArrowSquareRight as BoxArrowRight,
+  PiArrowSquareUp as BoxArrowUp,
+} from 'react-icons/pi';
 import { Button } from 'ui';
 
 import { MobileBottomMenu } from './mobile-bottom-menu';
-
-const BoxArrowDown = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareDown));
-const BoxArrowLeft = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareLeft));
-const BoxArrowRight = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareRight));
-const BoxArrowUp = dynamic(() => import('react-icons/pi').then((i) => i.PiArrowSquareUp));
 
 const BottomMenu = ({ show }: { show?: boolean }) => {
   const { hierarchy, handleSelectHat } = useSelectedHat();

@@ -6,7 +6,7 @@ import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
 import { capitalize, get, includes, map, toNumber } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { AgreementContent } from 'molecules';
 import { useMemo } from 'react';
 import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
 import { Button, cn, Tooltip } from 'ui';
@@ -14,8 +14,7 @@ import { eligibilityRuleToModuleDetails, fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
-const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
-
+// TODO use existing utils
 const handleFetchIpfs: any = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)
     .then((res: any) => {

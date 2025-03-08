@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/config';
 import { Module } from '@hatsprotocol/modules-sdk';
+import { CodeIcon, GroupIcon as Group, WearerIcon } from 'icons';
 import { get, includes } from 'lodash';
-import dynamic from 'next/dynamic';
 import { ControllerData, SupportedChains } from 'types';
 import { explorerUrl, formatAddress } from 'utils';
 
@@ -10,15 +10,12 @@ import { daohausUrl, safeUrl } from './authorities';
 const EXCLUDE_CONTRACT_NAMES = ['MetaMultiSigWallet'];
 
 // TODO remove dynamic imports, next imports
-const CodeIcon = dynamic(() => import('icons').then((i) => i.CodeIcon));
-const Group = dynamic(() => import('icons').then((i) => i.GroupIcon));
-const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 /**
  * Get the name and link for a controller, with an icon
- * @param extendedController an extended controller data object with contract name and ens name
- * @param moduleDetails module details object, if known module
- * @param chainId the associated chain ID
+ * @param extendedController - an extended controller data object with contract name and ens name
+ * @param moduleDetails - module details object, if known module
+ * @param chainId - the associated chain ID
  * @returns a name and link for the controller, with an icon
  */
 export const getControllerNameAndLink = ({

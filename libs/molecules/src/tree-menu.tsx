@@ -6,8 +6,8 @@ import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useTreeForm } from 'contexts';
 import { formatDistanceToNow } from 'date-fns';
 import { useMediaStyles } from 'hooks';
+import { History } from 'icons';
 import { first, get, gt, size } from 'lodash';
-import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { AiOutlineDoubleLeft } from 'react-icons/ai';
 import { BsPencil, BsToggle2Off, BsToggles } from 'react-icons/bs';
@@ -30,8 +30,6 @@ import {
 import { chainsMap, explorerUrl } from 'utils';
 
 import { EventHistory } from './event-history';
-
-const History = dynamic(() => import('icons').then((mod) => mod.History));
 
 // TODO check for more specific error
 

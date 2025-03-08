@@ -4,7 +4,7 @@ import { CHAIN_TOKENS } from '@hatsprotocol/constants';
 import { useEligibility } from 'contexts';
 import { find, get, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { DevInfo } from 'molecules';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LuBarChart2, LuWallet } from 'react-icons/lu';
@@ -13,8 +13,6 @@ import { Card, cn, Link, Skeleton } from 'ui';
 import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
 import { formatUnits, Hex } from 'viem';
 import { useAccount, useEnsName } from 'wagmi';
-
-const DevInfo = dynamic(() => import('molecules').then((mod) => mod.DevInfo));
 
 interface Erc20Details {
   userBalance: bigint;

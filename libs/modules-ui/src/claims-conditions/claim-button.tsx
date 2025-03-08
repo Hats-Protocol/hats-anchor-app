@@ -4,21 +4,17 @@ import { CONFIG } from '@hatsprotocol/config';
 import { hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility, useOverlay } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { useMediaQuery } from 'hooks';
+import { HatIcon } from 'icons';
 import { capitalize, filter, first, flatten, get, includes, map, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { ConnectWallet, NetworkSwitcher } from 'molecules';
 import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
-import { Button, LinkButton, Popover, PopoverContent, PopoverTrigger, Tooltip } from 'ui';
+import { Button, LinkButton, Tooltip } from 'ui';
 import { eligibilityRuleToModuleDetails } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
-const NetworkSwitcher = dynamic(() => import('molecules').then((mod) => mod.NetworkSwitcher));
-const ConnectWallet = dynamic(() => import('molecules').then((mod) => mod.ConnectWallet));
 
 export const ClaimButton = () => {
   const { address } = useAccount();

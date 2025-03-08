@@ -21,15 +21,7 @@ const BetaFeaturesContext = createContext<BetaFeaturesContextType>({
   toggleBetaFeatures: () => {},
 });
 
-export const BetaFeaturesProvider = ({
-  children,
-  address,
-  chainId,
-}: {
-  children: ReactNode;
-  address: string | undefined;
-  chainId: number;
-}) => {
+export const BetaFeaturesProvider = ({ children, address }: { children: ReactNode; address: string | undefined }) => {
   const [showBetaFeatures, setShowBetaFeatures] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -44,7 +36,6 @@ export const BetaFeaturesProvider = ({
 
   const { isCommunityMember, betaFeaturesEnabled, canAccessBetaFeatures } = useBetaFeatures({
     address: validAddress,
-    chainId,
   });
 
   const toggleBetaFeatures = useCallback(() => {

@@ -1,8 +1,6 @@
 import { DeactivationForm } from 'forms';
-import dynamic from 'next/dynamic';
+import { BetaFeatureClient } from 'molecules';
 import { HatDeco } from 'ui';
-
-const BetaFeatureClient = dynamic(() => import('molecules').then((mod) => mod.BetaFeatureClient));
 
 const MassDeactivationPage = () => {
   return (

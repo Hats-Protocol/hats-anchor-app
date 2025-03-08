@@ -5,9 +5,9 @@ import { useTreeForm } from 'contexts';
 import { AddressInput, DatePicker, DurationInput, NumberInput } from 'forms';
 import { useHatDetails, useProfileDetails, useWearerDetails } from 'hats-hooks';
 import { useClipboard } from 'hooks';
+import { CopyAddress } from 'icons';
 import { compact, find, map, pick, toNumber } from 'lodash';
 import { useJokeRace } from 'modules-hooks';
-import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
@@ -17,8 +17,6 @@ import { Hex } from 'viem';
 import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
 
 import { AboutModule, DevInfo, ManageBar, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
-
-const CopyAddress = dynamic(() => import('icons').then((icons) => icons.CopyAddress));
 
 const transitionPeriodToDuration = (transitionPeriod: string) => {
   const duration = toNumber(transitionPeriod) / 60 / 60 / 24; // convert to days

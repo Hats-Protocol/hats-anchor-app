@@ -3,9 +3,10 @@
 import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useMediaStyles } from 'hooks';
+import { BoxArrowUpRightOut, CheckCircle } from 'icons';
 import { get, includes, pick, size } from 'lodash';
 import { HSGDetails, ModuleCardDetails } from 'modules-ui';
-import dynamic from 'next/dynamic';
+import { AuthorityHeader } from 'molecules';
 import posthog from 'posthog-js';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
@@ -14,10 +15,6 @@ import { AccordionContent, AccordionItem, AccordionTrigger, Button, cn, Link, Ma
 import { getHostnameFromURL, validateURL } from 'utils';
 
 import { ModuleAuthorityToolbar } from './module-authority-toolbar';
-
-const BoxArrowUpRightOut = dynamic(() => import('icons').then((mod) => mod.BoxArrowUpRightOut));
-const CheckCircle = dynamic(() => import('icons').then((mod) => mod.CheckCircle));
-const AuthorityHeader = dynamic(() => import('molecules').then((mod) => mod.AuthorityHeader));
 
 const AuthoritiesListCard = ({
   authority,

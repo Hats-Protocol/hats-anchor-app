@@ -3,8 +3,8 @@
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, RequirementBox } from 'forms';
 import { useCouncilDeployFlag } from 'hooks';
+import { BallotBox, DocumentChecks } from 'icons';
 import { FileText, GemIcon } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { IconType } from 'react-icons';
 import { BsPersonCheck } from 'react-icons/bs';
 import { StepProps } from 'types';
@@ -12,9 +12,6 @@ import { Skeleton } from 'ui';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
-
-const BallotBox = dynamic(() => import('icons').then((mod) => mod.BallotBox), { ssr: false });
-const DocumentChecks = dynamic(() => import('icons').then((mod) => mod.DocumentChecks), { ssr: false });
 
 export function OnboardingStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();

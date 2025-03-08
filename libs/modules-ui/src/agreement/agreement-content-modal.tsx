@@ -4,17 +4,15 @@ import { CONFIG } from '@hatsprotocol/config';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { useAllWearers } from 'hats-hooks';
+import { HatIcon } from 'icons';
 import { get, some, toLower } from 'lodash';
 import { useAgreementClaim } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { AgreementContent } from 'molecules';
 import { AppHat, CurrentEligibility, ModuleDetails, SupportedChains } from 'types';
 import { Button } from 'ui';
 import { fetchIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
-const AgreementContent = dynamic(() => import('molecules').then((mod) => mod.AgreementContent));
 
 const handleFetchIpfs = async (ipfsHash: string) => {
   return fetchIpfs(ipfsHash)

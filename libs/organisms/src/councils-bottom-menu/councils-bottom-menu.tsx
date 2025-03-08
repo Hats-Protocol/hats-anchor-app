@@ -2,8 +2,8 @@
 
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useSafeDetails } from 'hooks';
+import { Safe as SafeIcon } from 'icons';
 import { get, size, toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
@@ -17,10 +17,6 @@ import { parseCouncilSlug } from 'utils';
 export interface CouncilsBottomMenuProps {
   councilSlug: string;
 }
-
-const SafeIcon = dynamic(() => import('icons').then((mod) => mod.Safe), {
-  ssr: false,
-});
 
 export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => {
   const pathname = usePathname();

@@ -5,9 +5,9 @@ import { useEligibility } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useSafesInfo } from 'hooks';
+import { Safe as SafeIcon } from 'icons';
 import { capitalize, filter, first, get, includes, map, nth, size, toLower } from 'lodash';
 import { toNumber } from 'lodash';
-import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
 import posthog from 'posthog-js';
@@ -20,10 +20,6 @@ import { Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import { SignersIndicator } from './signers-indicator';
-
-const SafeIcon = dynamic(() => import('icons').then((mod) => mod.Safe), {
-  ssr: false,
-});
 
 const handleHatDetails = (detailsMetadata: string | undefined) => {
   if (!detailsMetadata) return undefined;

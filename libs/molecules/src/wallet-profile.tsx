@@ -4,20 +4,17 @@ import { NETWORK_IMAGES } from '@hatsprotocol/config';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { useBetaFeaturesContext, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
+import { CopyAddress, WearerIcon } from 'icons';
 import { each, isEmpty, size } from 'lodash';
-import dynamic from 'next/dynamic';
 import { BsBoxArrowRight } from 'react-icons/bs';
 import { FaCaretRight } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Button, Link, OblongAvatar, Switch, Tooltip } from 'ui';
-import { chainsMap, formatAddress, formatRoundedDecimals, logger } from 'utils';
+import { chainsMap, formatAddress, formatRoundedDecimals } from 'utils';
 import { Hex } from 'viem';
 import { useBalance, useChainId, useDisconnect } from 'wagmi';
 
 import { TransactionHistory } from './transaction-history';
-
-const CopyAddress = dynamic(() => import('icons').then((i) => i.CopyAddress));
-const WearerIcon = dynamic(() => import('icons').then((i) => i.WearerIcon));
 
 const WAGMI_STORAGE_KEYS = [
   'wagmi.injected.connected',

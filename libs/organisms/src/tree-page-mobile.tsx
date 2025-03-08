@@ -5,14 +5,11 @@ import { useTreeForm } from 'contexts';
 import { prepareMobileTreeHats } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import { first, get, isBoolean, map, maxBy, size } from 'lodash';
-import dynamic from 'next/dynamic';
+import { MobileHatCard, VerticalDividers } from 'molecules';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BsArrowRight } from 'react-icons/bs';
 import { HatWithDepth } from 'types';
 import { Button, HatDeco, Link, ScrollArea, Skeleton } from 'ui';
-
-const MobileHatCard = dynamic(() => import('molecules').then((mod) => mod.MobileHatCard));
-const VerticalDividers = dynamic(() => import('molecules').then((mod) => mod.VerticalDividers));
 
 const DEFAULT_LOADING_CARDS = 8;
 

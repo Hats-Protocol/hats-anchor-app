@@ -1,11 +1,9 @@
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { HatIcon } from 'icons';
 import { map } from 'lodash';
-import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
-
-const HatIcon = dynamic(() => import('icons').then((mod) => mod.HatIcon));
 
 // TODO must include hatId or descriptor
 interface ModuleDescriptor {

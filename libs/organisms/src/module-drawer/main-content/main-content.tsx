@@ -5,7 +5,7 @@ import { Form } from 'forms';
 import { getAllParents } from 'hats-utils';
 import { filter, toNumber } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
-import dynamic from 'next/dynamic';
+import { HatFormAccordion } from 'molecules';
 import { useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { prettyIdToIp } from 'shared';
@@ -13,8 +13,6 @@ import { AppHat } from 'types';
 
 import { ModuleDetailsForm } from './module-details-form';
 import { PermissionlessClaimingForm } from './permissionless-claiming-form';
-
-const HatFormAccordion = dynamic(() => import('molecules').then((mod) => mod.HatFormAccordion));
 
 const MainContent = ({
   localForm,

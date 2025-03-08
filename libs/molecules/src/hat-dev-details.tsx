@@ -3,15 +3,13 @@
 import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useToast } from 'hooks';
+import { CopyAddress } from 'icons';
 import { get, map } from 'lodash';
-import dynamic from 'next/dynamic';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { AppHat, SupportedChains } from 'types';
 import { Button, Link } from 'ui';
 import { explorerUrl, formatAddress, ipfsUrl } from 'utils';
-
-const CopyAddress = dynamic(() => import('icons').then((mod) => mod.CopyAddress));
 
 const HatDevDetails = ({
   selectedHat,

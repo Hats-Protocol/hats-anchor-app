@@ -5,13 +5,11 @@ import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
 import { useHatStatus, useWearerDetails } from 'hats-hooks';
 import { useClipboard } from 'hooks';
+import { CopyHash } from 'icons';
 import { find, get, includes, map, pick } from 'lodash';
-import dynamic from 'next/dynamic';
 import { Badge, Button, cn, LazyImage, Markdown, Skeleton, Tooltip } from 'ui';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
-
-const CopyHash = dynamic(() => import('icons').then((mod) => mod.CopyHash));
 
 const Header = () => {
   const { address } = useAccount();
