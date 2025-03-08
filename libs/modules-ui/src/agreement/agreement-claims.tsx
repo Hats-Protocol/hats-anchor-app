@@ -107,7 +107,7 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
       <Button
         variant={isReadyToClaim ? 'outline' : 'default'}
         className={cn('py-4', isReadyToClaim ? 'border-functional-success text-functional-success' : undefined)}
-        size='sm'
+        size='lg'
         onClick={() => {
           if (chainHasSubscription) {
             handleSignAgreement();
@@ -162,9 +162,9 @@ export const AgreementClaims = ({
         'flex md:flex': showOnMobile,
       })}
     >
-      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] px-8 py-6'>
+      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] bg-white px-8 py-6'>
         <div className='flex justify-between'>
-          <h3 className='text-xl font-semibold'>
+          <h3 className='text-2xl font-bold'>
             Sign the agreement
             {onlyHat ? ` to claim the ${get(selectedHatDetails, 'name')} ${capitalize(CONFIG.TERMS.hat)}` : ''}
           </h3>
@@ -179,11 +179,10 @@ export const AgreementClaims = ({
         </div>
 
         <AgreementContent agreement={agreement || agreementV0 || undefined} />
+        <div className='flex'>
+          <AgreementButton activeModule={activeModule} />
+        </div>
       </Card>
-
-      <div className='flex justify-center'>
-        <AgreementButton activeModule={activeModule} />
-      </div>
     </div>
   );
 };
