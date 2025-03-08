@@ -103,7 +103,7 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
         onClick={handleClick}
         className={cn('block-size-auto h-auto w-auto min-w-[120px] justify-start whitespace-normal bg-white p-4', {
           'border-2 border-[#2D3748]': activeRule?.address === rule.address,
-          'border border-[#2D3748]': activeRule?.address !== rule.address,
+          'border border-[#2D3748] bg-gray-50': activeRule?.address !== rule.address,
         })}
         key={rule.address}
       >
@@ -185,7 +185,7 @@ const AndIcon = () => (
 
 const AndDecorator = () => (
   <div className='flex items-center'>
-    <div className='relative flex h-[1px] w-16 items-center bg-gray-900'>
+    <div className='relative flex h-[1px] w-8 items-center bg-gray-900'>
       <div className='absolute left-1/2 top-1/2 flex h-4 w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm border border-gray-900 bg-white text-gray-900'>
         <AndIcon />
       </div>

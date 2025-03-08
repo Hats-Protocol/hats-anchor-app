@@ -293,7 +293,7 @@ export const ModuleChainClaimHeader = ({
                   </Tooltip>
 
                   <div className='flex items-center'>
-                    <div className='h-[1px] w-8 bg-gray-900' />
+                    <div className='h-[1px] w-4 bg-gray-900' />
                   </div>
 
                   <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
