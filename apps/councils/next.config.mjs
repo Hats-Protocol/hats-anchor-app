@@ -40,6 +40,7 @@ const nextConfig = {
   },
 
   experimental: {
+    serverComponentsExternalPackages: [`require-in-the-middle`], // https://github.com/vercel/next.js/issues/70424 -- prevent issue with global-error hmr
     // instrumentationHook: true,
     optimizePackageImports: [
       // external pkgs
