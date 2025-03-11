@@ -1,68 +1,63 @@
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
-import { compact, find, get, map } from 'lodash';
+import { compact, map } from 'lodash';
+import { useMemo } from 'react';
 import { Abi, erc20Abi, formatUnits, Hex, zeroAddress } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
-interface ContractLookup {
-  address: Hex;
-  abi: Abi;
-  functionName: string;
-  args: string[];
-  chainId: number | undefined;
-}
-
-const useLockFromHat = ({
-  moduleParameters,
-  chainId,
-}: {
-  moduleParameters: ModuleParameter[] | undefined;
-  chainId: number | undefined;
-}) => {
+const useLock = ({ lockAddress, chainId }: { lockAddress: Hex | undefined; chainId: number | undefined }) => {
   const { address } = useAccount();
 
-  const lockAddress = get(find(moduleParameters, { label: 'Lock Contract' }), 'value') as Hex;
+  const lockContractProperties = useMemo(() => {
+    if (!lockAddress) return undefined;
 
-  const contractLockProperties: ContractLookup[] = compact([
-    {
+    const lockContract = {
       address: lockAddress,
       abi: PublicLockV14.abi as Abi,
-      functionName: 'tokenAddress',
-      args: [],
       chainId,
-    },
-    {
-      address: lockAddress,
-      abi: PublicLockV14.abi as Abi,
-      functionName: 'expirationDuration',
-      args: [],
-      chainId,
-    },
-    address && {
-      address: lockAddress,
-      abi: PublicLockV14.abi as Abi,
-      functionName: 'purchasePriceFor',
-      args: [address!, address!, ''],
-      chainId,
-    },
-    address && {
-      address: lockAddress,
-      abi: PublicLockV14.abi as Abi,
-      functionName: 'balanceOf',
-      args: [address!],
-      chainId,
-    },
-  ]);
+    };
+
+    return compact([
+      {
+        ...lockContract,
+        abi: PublicLockV14.abi as Abi,
+        functionName: 'tokenAddress',
+        args: [],
+      },
+      {
+        ...lockContract,
+        functionName: 'expirationDuration',
+        args: [],
+      },
+      address && {
+        ...lockContract,
+        functionName: 'purchasePriceFor',
+        args: [address!, address!, ''],
+      },
+      address && {
+        ...lockContract,
+        functionName: 'balanceOf',
+        args: [address!],
+      },
+      address && {
+        ...lockContract,
+        functionName: 'keyExpirationTimestampFor',
+        args: [address!],
+      },
+      address && {
+        ...lockContract,
+        functionName: 'totalKeys',
+        args: [address!],
+      },
+    ]);
+  }, [lockAddress, chainId, address]);
 
   const { data: lockProperties, isLoading: isLoadingLockProperties } = useReadContracts({
-    contracts: contractLockProperties as readonly unknown[],
+    contracts: lockContractProperties as readonly unknown[],
   });
-  const [tokenAddress, durationInSeconds, purchasePrice, keyBalance] = map(lockProperties, 'result') as [
-    string,
-    bigint,
-    bigint,
-    bigint,
-  ];
+  const [tokenAddress, durationInSeconds, purchasePrice, keyBalance, keyExpirationTimestamp] = map(
+    lockProperties,
+    'result',
+  ) as [string, bigint, bigint, bigint, bigint];
 
   const currencyContract = {
     address: tokenAddress,
@@ -125,7 +120,8 @@ const useLockFromHat = ({
     keyBalance,
     tokenBalance,
     allowance: tokenAllowance,
+    keyExpirationTimestamp,
   };
 };
 
-export { useLockFromHat };
+export { useLock };

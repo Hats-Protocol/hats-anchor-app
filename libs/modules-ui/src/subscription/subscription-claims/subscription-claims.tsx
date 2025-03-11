@@ -2,8 +2,8 @@
 
 import { useEligibility } from 'contexts';
 import { useWearerDetails } from 'hats-hooks';
-import { some } from 'lodash';
-import { useLockFromHat } from 'modules-hooks';
+import { find, get, some } from 'lodash';
+import { useLock } from 'modules-hooks';
 import { IconType } from 'react-icons';
 import { BsCheckSquare, BsCheckSquareFill, BsXOctagonFill } from 'react-icons/bs';
 import { MixedIcon } from 'types';
@@ -22,8 +22,10 @@ export const SubscriptionClaims = () => {
   const { address } = useAccount();
   const { chainId, activeRule, selectedHat } = useEligibility();
   const moduleDetails = eligibilityRuleToModuleDetails(activeRule);
-  const { isLoading, price, keyPrice, symbol, duration, keyBalance, allowance } = useLockFromHat({
-    moduleParameters: moduleDetails?.liveParameters,
+
+  const lockAddress = get(find(moduleDetails?.liveParameters, { label: 'Lock Contract' }), 'value') as Hex;
+  const { isLoading, price, keyPrice, symbol, duration, keyBalance, allowance } = useLock({
+    lockAddress,
     chainId,
   });
 

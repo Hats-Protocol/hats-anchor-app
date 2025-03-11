@@ -15,7 +15,7 @@ export * from './use-hats-modules';
 export * from './use-hats-signer-gates-metadata';
 export * from './use-hsg-deploy';
 export * from './use-hsg-signer';
-export * from './use-lock-from-hat';
+export * from './use-lock';
 export * from './use-module-deploy';
 export * from './use-module-details';
 export * from './use-modules-details';
