@@ -66,13 +66,13 @@ export const ModuleChainClaimHeader = ({
   const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v)); // TODO check that this is the only one/not already eligible
   const ruleToCompleteAndClaim = find(eligibilityRules, (rule) => get(rule, 'address') === completeToClaim);
 
-  useEffect(() => {
-    if (activeRule) return;
+  // useEffect(() => {
+  //   if (activeRule) return;
 
-    setActiveRule(first(eligibilityRules));
-    // intentionally excluding setActiveRule from the dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligibilityRules, activeRule]);
+  //   setActiveRule(first(eligibilityRules));
+  //   // intentionally excluding setActiveRule from the dependency array
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [eligibilityRules, activeRule]);
 
   const {
     handleClaim: originalHandleClaim,

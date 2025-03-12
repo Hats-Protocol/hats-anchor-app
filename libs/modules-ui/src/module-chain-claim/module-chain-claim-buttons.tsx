@@ -162,16 +162,6 @@ interface ModuleChainClaimButtonProps {
   labeledModules: LabeledModules | undefined;
 }
 
-const sortByModuleType = (rulesGroup: EligibilityRule[]) => {
-  const allowlistModules = rulesGroup.filter((rule) => rule.module.id.includes('allowlist'));
-  const otherModules = rulesGroup.filter(
-    (rule) => !rule.module.id.includes('allowlist') && !rule.module.id.includes('public-lock-v14'),
-  );
-  const subscriptionModules = rulesGroup.filter((rule) => rule.module.id.includes('public-lock-v14'));
-
-  return concat(allowlistModules, otherModules, subscriptionModules);
-};
-
 interface ModuleChainClaimButtonsProps {
   labeledModules?: LabeledModules | undefined;
   showJoinButton?: boolean;
@@ -215,11 +205,15 @@ const ModuleChainClaimButtons = ({
 
   const sortedRules = concat(completedRules, incompleteNormalRules, incompleteAgreementSubscriptionRules);
 
-  if (!activeRule) {
-    const firstIncompleteRule = sortedRules.find((rule) => !isRuleCompleted(rule));
-
-    setActiveRule(firstIncompleteRule || first(sortedRules));
-  }
+  // Always set activeRule to first incomplete module, regardless of sort order
+  React.useEffect(() => {
+    const incompleteRule = flatRules.find((rule) => !isRuleCompleted(rule));
+    if (incompleteRule && (!activeRule || isRuleCompleted(activeRule))) {
+      setActiveRule(incompleteRule);
+    } else if (!activeRule) {
+      setActiveRule(first(sortedRules));
+    }
+  }, [flatRules, activeRule, setActiveRule, sortedRules, isRuleCompleted]);
 
   return (
     <div
