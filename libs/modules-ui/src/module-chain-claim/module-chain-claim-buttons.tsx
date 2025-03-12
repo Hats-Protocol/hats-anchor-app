@@ -183,37 +183,40 @@ const ModuleChainClaimButtons = ({
         get(currentEligibility, `[${rule.address}].eligible`) &&
         get(currentEligibility, `[${rule.address}].goodStanding`);
       const isReadyToClaimRule = get(isReadyToClaim, rule.address, false);
+
+      // only consider them Agreement Module complete when fully eligible (not pending)
+      if (rule.module.id.includes('agreement')) {
+        return isEligible;
+      }
+
+      // other modules are complete if eligible or ready to claim
       return isEligible || isReadyToClaimRule;
     },
     [currentEligibility, isReadyToClaim],
   );
 
-  // helper function to check if rule is agreement or subscription
-  const isAgreementOrSubscription = (rule: EligibilityRule) => {
-    return rule.module.id.includes('agreement') || rule.module.id.includes('public-lock-v14');
+  // helper function to check if rule is agreement
+  const isAgreement = (rule: EligibilityRule) => {
+    return rule.module.id.includes('agreement');
   };
 
   // sort rules into three groups:
-  // 1. completed modules
-  const completedRules = flatRules.filter(isRuleCompleted);
+  // 1. completed modules (including completed agreements)
+  const completedRules = flatRules.filter((rule) => isRuleCompleted(rule));
 
-  // 2. incomplete non-agreement/subscription modules
-  const incompleteNormalRules = flatRules.filter((rule) => !isRuleCompleted(rule) && !isAgreementOrSubscription(rule));
+  // 2. incomplete non-agreement modules
+  const incompleteRules = flatRules.filter((rule) => !isAgreement(rule) && !isRuleCompleted(rule));
 
-  // 3. incomplete agreement/subscription modules
-  const incompleteAgreementSubscriptionRules = flatRules.filter(
-    (rule) => !isRuleCompleted(rule) && isAgreementOrSubscription(rule),
-  );
+  // 3. incomplete/pending agreement modules
+  const incompleteAgreementRules = flatRules.filter((rule) => isAgreement(rule) && !isRuleCompleted(rule));
 
-  const sortedRules = concat(completedRules, incompleteNormalRules, incompleteAgreementSubscriptionRules);
+  const sortedRules = concat(completedRules, incompleteRules, incompleteAgreementRules);
 
-  // Always set activeRule to first incomplete module, regardless of sort order
+  // only set initial activeRule if none is selected so that it doesn't override the user selection
   useEffect(() => {
-    const incompleteRule = flatRules.find((rule) => !isRuleCompleted(rule));
-    if (incompleteRule && (!activeRule || isRuleCompleted(activeRule))) {
-      setActiveRule(incompleteRule);
-    } else if (!activeRule) {
-      setActiveRule(first(sortedRules));
+    if (!activeRule) {
+      const incompleteRule = flatRules.find((rule) => !isRuleCompleted(rule));
+      setActiveRule(incompleteRule || first(sortedRules));
     }
   }, [flatRules, activeRule, setActiveRule, sortedRules, isRuleCompleted]);
 
