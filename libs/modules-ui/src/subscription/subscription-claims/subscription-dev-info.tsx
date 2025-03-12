@@ -2,19 +2,19 @@
 
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
-import { compact, isUndefined } from 'lodash';
-import { useLockFromHat } from 'modules-hooks';
+import { compact, find, get, isUndefined } from 'lodash';
+import { useLock } from 'modules-hooks';
 import { AddressInfo, DefaultInfo, DevInfo } from 'molecules';
 import { useMemo } from 'react';
-import { formatUnits } from 'viem';
+import { formatUnits, Hex } from 'viem';
 
 export const SubscriptionDevInfo = ({ moduleParameters, chainId }: SubscriptionDevInfoProps) => {
   const { selectedHat } = useEligibility();
-  const { price, decimals, symbol, currencyContract, lockAddress, tokenBalance, keyBalance, allowance } =
-    useLockFromHat({
-      moduleParameters,
-      chainId,
-    });
+  const lockAddress = get(find(moduleParameters, { label: 'Lock Contract' }), 'value') as Hex;
+  const { price, decimals, symbol, currencyContract, tokenBalance, keyBalance, allowance } = useLock({
+    lockAddress,
+    chainId,
+  });
 
   const moduleDescriptors = useMemo(() => {
     return compact([

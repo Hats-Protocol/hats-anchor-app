@@ -5,8 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { Form, NumberInput } from 'forms';
 import { useTokenDetails } from 'hooks';
-import { get, isUndefined, pick, toLower } from 'lodash';
-import { useLockFromHat } from 'modules-hooks';
+import { find, get, isUndefined, pick, toLower } from 'lodash';
+import { useLock } from 'modules-hooks';
 import { ConnectWallet, NetworkSwitcher, TransactionButton } from 'molecules';
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -14,7 +14,7 @@ import { BsArrowUpRightCircle } from 'react-icons/bs';
 import { ModuleDetails } from 'types';
 import { Skeleton } from 'ui';
 import { getDuration, tokenImageHandler } from 'utils';
-import { erc20Abi, formatUnits, maxUint256 } from 'viem';
+import { erc20Abi, formatUnits, Hex, maxUint256 } from 'viem';
 import { useAccount, useChainId, useWriteContract } from 'wagmi';
 
 const MIN_ONE_TIME_DURATION = 9 * 365; // 9 years, duration is in days
@@ -38,6 +38,7 @@ export const AllowanceActions = ({
   const { watch, reset } = pick(localForm, ['watch', 'reset']);
 
   const amount = watch('amount');
+  const lockAddress = get(find(moduleDetails?.liveParameters, { label: 'Lock Contract' }), 'value') as Hex;
   const {
     isLoading,
     keyPrice,
@@ -47,10 +48,9 @@ export const AllowanceActions = ({
     decimals,
     currencyContract,
     duration,
-    lockAddress,
     allowance,
-  } = useLockFromHat({
-    moduleParameters,
+  } = useLock({
+    lockAddress,
     chainId,
   });
 
@@ -71,35 +71,45 @@ export const AllowanceActions = ({
     reset({ amount: allowanceInDuration || 1 });
   }, [allowanceInDuration, isLoading, reset]);
 
-  const approvalParams = useMemo(() => {
+  const tokenContract = useMemo(() => {
+    if (!currencyContract || !chainId) return undefined;
+
     return {
       address: currencyContract,
       chainId,
       abi: erc20Abi,
-      functionName: 'approve',
-      args: [lockAddress, amountToApprove],
     };
-  }, [lockAddress, amountToApprove, currencyContract, chainId]);
+  }, [currencyContract, chainId]);
+
+  const approvalParams = useMemo(() => {
+    if (!tokenContract || !lockAddress || !amountToApprove) return undefined;
+
+    return {
+      ...tokenContract,
+      functionName: 'approve' as const,
+      args: [lockAddress, amountToApprove] as [Hex, bigint],
+    };
+  }, [tokenContract, lockAddress, amountToApprove]);
 
   const unlimitedApprovalParams = useMemo(() => {
+    if (!tokenContract || !lockAddress) return undefined;
+
     return {
-      address: currencyContract,
-      chainId,
-      abi: erc20Abi,
-      functionName: 'approve',
-      args: [lockAddress, maxUint256],
+      ...tokenContract,
+      functionName: 'approve' as const,
+      args: [lockAddress, maxUint256] as [Hex, bigint],
     };
-  }, [lockAddress, currencyContract, chainId]);
+  }, [tokenContract, lockAddress]);
 
   const zeroApprovalParams = useMemo(() => {
+    if (!tokenContract || !lockAddress) return undefined;
+
     return {
-      address: currencyContract,
-      chainId,
-      abi: erc20Abi,
-      functionName: 'approve',
-      args: [lockAddress, 0],
+      ...tokenContract,
+      functionName: 'approve' as const,
+      args: [lockAddress, BigInt(0)] as [Hex, bigint],
     };
-  }, [lockAddress, currencyContract, chainId]);
+  }, [tokenContract, lockAddress]);
 
   if (!chainId) return null;
 
@@ -171,17 +181,14 @@ export const AllowanceActions = ({
                 currentChainId === chainId ? (
                   <TransactionButton
                     sendTx={async () => {
-                      // @ts-expect-error argument of type
+                      if (!approvalParams) throw new Error('Approval params not found');
                       return writeContractAsync(approvalParams);
                     }}
                     afterSuccess={() => {
                       if (!moduleDetails?.instanceAddress) return;
-                      // refetchAllowance()
                       setIsReadyToClaim(moduleDetails.instanceAddress);
                       setModals?.({});
-                      queryClient.invalidateQueries({
-                        queryKey: ['readContracts'],
-                      });
+                      queryClient.invalidateQueries({ queryKey: ['readContracts'] });
                     }}
                     disabled={
                       (!isUndefined(allowance) && !isUndefined(amountToApprove) && allowance >= amountToApprove) ||
@@ -207,14 +214,12 @@ export const AllowanceActions = ({
               {hasAllowance && (
                 <TransactionButton
                   sendTx={async () => {
-                    // @ts-expect-error argument of type
+                    if (!zeroApprovalParams) throw new Error('Zero approval params not found');
                     return writeContractAsync(zeroApprovalParams);
                   }}
                   afterSuccess={() => {
                     setTimeout(() => {
-                      queryClient.invalidateQueries({
-                        queryKey: ['readContracts'],
-                      });
+                      queryClient.invalidateQueries({ queryKey: ['readContracts'] });
                       queryClient.invalidateQueries({ queryKey: ['readContract'] });
                     }, 1000);
                   }}
@@ -230,7 +235,7 @@ export const AllowanceActions = ({
 
               <TransactionButton
                 sendTx={async () => {
-                  // @ts-expect-error argument of type
+                  if (!unlimitedApprovalParams) throw new Error('Unlimited approval params not found');
                   return writeContractAsync(unlimitedApprovalParams);
                 }}
                 afterSuccess={() => {

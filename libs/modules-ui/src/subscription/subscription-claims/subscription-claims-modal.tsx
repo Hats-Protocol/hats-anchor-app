@@ -3,11 +3,11 @@
 import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { Modal, useEligibility } from 'contexts';
-import { map } from 'lodash';
-import { useLockFromHat } from 'modules-hooks';
+import { find, get, map } from 'lodash';
+import { useLock } from 'modules-hooks';
 import { ModuleDetails } from 'types';
 import { getDuration } from 'utils';
-import { Hex } from 'viem';
+import { Abi, Hex } from 'viem';
 import { useAccount, useReadContracts } from 'wagmi';
 
 import { AllowanceActions } from './allowance-actions';
@@ -22,25 +22,26 @@ export const SubscriptionClaimsModal = ({
   const { chainId } = useEligibility();
 
   const { address } = useAccount();
-  const { lockAddress, duration, symbol } = useLockFromHat({
-    moduleParameters,
+  const lockAddress = get(find(moduleDetails?.liveParameters, { label: 'Lock Contract' }), 'value') as Hex;
+  const { duration, symbol } = useLock({
+    lockAddress,
     chainId,
   });
 
   const lockContract = {
     address: lockAddress,
-    abi: PublicLockV14.abi,
+    abi: PublicLockV14.abi as Abi,
     chainId,
   } as const;
   const contracts = [
     {
       ...lockContract,
       functionName: 'balanceOf',
-      args: [address as Hex],
+      args: [address] as Hex[],
     },
   ];
   const { data: contractData } = useReadContracts({
-    contracts: contracts as any,
+    contracts,
   });
 
   const [keyBalance] = map(contractData, 'result') as [bigint];

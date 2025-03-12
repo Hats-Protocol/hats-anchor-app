@@ -4,7 +4,7 @@ import { SHOW_KEY } from '@hatsprotocol/constants';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePaginatedTreeList } from 'hats-hooks';
 import { useWearerTrees } from 'hooks';
-import { flatten, get, isEmpty, map, size, toNumber } from 'lodash';
+import { flatten, get, isEmpty, map, size } from 'lodash';
 import { TreeListCard as TreeCard } from 'molecules';
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';

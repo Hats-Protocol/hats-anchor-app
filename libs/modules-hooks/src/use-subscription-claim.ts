@@ -3,13 +3,13 @@ import { Module, ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { PublicLockV14 } from '@unlock-protocol/contracts';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import { isUndefined } from 'lodash';
+import { find, get, isUndefined } from 'lodash';
 import { HandlePendingTx } from 'types';
 import { REFERRAL_ADDRESS } from 'utils';
 import { Abi, Hex, zeroAddress } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
-import { useLockFromHat } from './use-lock-from-hat';
+import { useLock } from './use-lock';
 
 // TODO replace where we get the ABI from
 // TODO check that eligibility module is wearing admin hat (handles its own claiming)
@@ -19,8 +19,9 @@ const useSubscriptionClaim = ({ moduleParameters, chainId, setStatus, handlePend
   const { toast } = useToast();
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
-  const { keyPrice, price, currencyContract, lockAddress, allowance, tokenBalance, symbol } = useLockFromHat({
-    moduleParameters,
+  const lockAddress = get(find(moduleParameters, { label: 'Lock Contract' }), 'value') as Hex;
+  const { keyPrice, price, currencyContract, allowance, tokenBalance, symbol } = useLock({
+    lockAddress,
     chainId,
   });
   const waitForSubgraph = useWaitForSubgraph({ chainId });

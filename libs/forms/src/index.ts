@@ -21,3 +21,4 @@ export * from './new-tree-form';
 export * from './responsibilities-form';
 export * from './responsibilities-form-item';
 export * from './signer-threshold-form';
+export * from './unlock-subscription';
