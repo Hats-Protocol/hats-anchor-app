@@ -4,8 +4,7 @@ import { useEligibility } from 'contexts';
 import { concat, first, flatten, get, map, pick } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { ReactNode } from 'react';
-import React from 'react';
+import { Fragment, ReactNode, useCallback, useEffect } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule, LabeledModules } from 'types';
 import { cn } from 'ui';
@@ -177,14 +176,17 @@ const ModuleChainClaimButtons = ({
 
   const flatRules = flatten(eligibilityRules); // TODO only handling AND chains currently
 
-  // helper  function to check if a rule is completed
-  const isRuleCompleted = (rule: EligibilityRule) => {
-    const isEligible =
-      get(currentEligibility, `[${rule.address}].eligible`) &&
-      get(currentEligibility, `[${rule.address}].goodStanding`);
-    const isReadyToClaimRule = get(isReadyToClaim, rule.address, false);
-    return isEligible || isReadyToClaimRule;
-  };
+  // helper function to check if a rule is completed
+  const isRuleCompleted = useCallback(
+    (rule: EligibilityRule) => {
+      const isEligible =
+        get(currentEligibility, `[${rule.address}].eligible`) &&
+        get(currentEligibility, `[${rule.address}].goodStanding`);
+      const isReadyToClaimRule = get(isReadyToClaim, rule.address, false);
+      return isEligible || isReadyToClaimRule;
+    },
+    [currentEligibility, isReadyToClaim],
+  );
 
   // helper function to check if rule is agreement or subscription
   const isAgreementOrSubscription = (rule: EligibilityRule) => {
@@ -206,7 +208,7 @@ const ModuleChainClaimButtons = ({
   const sortedRules = concat(completedRules, incompleteNormalRules, incompleteAgreementSubscriptionRules);
 
   // Always set activeRule to first incomplete module, regardless of sort order
-  React.useEffect(() => {
+  useEffect(() => {
     const incompleteRule = flatRules.find((rule) => !isRuleCompleted(rule));
     if (incompleteRule && (!activeRule || isRuleCompleted(activeRule))) {
       setActiveRule(incompleteRule);
@@ -226,10 +228,10 @@ const ModuleChainClaimButtons = ({
       )}
     >
       {map(sortedRules, (rule, index) => (
-        <React.Fragment key={`${rule.module.id}-${rule.address}`}>
+        <Fragment key={`${rule.module.id}-${rule.address}`}>
           <ModuleChainClaimButton rule={rule} labeledModules={labeledModules} />
           {index < sortedRules.length - 1 ? <AndDecorator /> : showJoinButton ? <ArrowDecorator /> : null}
-        </React.Fragment>
+        </Fragment>
       ))}
     </div>
   );
