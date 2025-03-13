@@ -2,10 +2,10 @@ import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
-import { filter, find, first, flatten, get, includes, keys, mapValues, size } from 'lodash';
+import { filter, find, flatten, get, includes, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
@@ -56,7 +56,7 @@ export const ModuleChainClaimHeader = ({
     currentEligibility,
     isReadyToClaim: aggregateIsReadyToClaim,
     activeRule,
-    setActiveRule,
+
     isWearing,
   } = useEligibility();
   const eligibilityRules = flatten(rawEligibilityRules);
@@ -65,14 +65,6 @@ export const ModuleChainClaimHeader = ({
   // in cases where there's one module to complete the action and claim the hat, it likely has a readyToClaim status
   const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v)); // TODO check that this is the only one/not already eligible
   const ruleToCompleteAndClaim = find(eligibilityRules, (rule) => get(rule, 'address') === completeToClaim);
-
-  useEffect(() => {
-    if (activeRule) return;
-
-    setActiveRule(first(eligibilityRules));
-    // intentionally excluding setActiveRule from the dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligibilityRules, activeRule]);
 
   const {
     handleClaim: originalHandleClaim,

@@ -4,8 +4,7 @@ import { useEligibility } from 'contexts';
 import { concat, first, flatten, get, map, pick } from 'lodash';
 import { useSubscriptionClaim } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { ReactNode } from 'react';
-import React from 'react';
+import { Fragment, ReactNode, useCallback, useEffect } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule, LabeledModules } from 'types';
 import { cn } from 'ui';
@@ -162,20 +161,86 @@ interface ModuleChainClaimButtonProps {
   labeledModules: LabeledModules | undefined;
 }
 
-const sortRulesForClaims = (rules: EligibilityRule[]) => {
-  const allowlistModules = rules.filter((rule) => rule.module.id.includes('allowlist'));
-  const otherModules = rules.filter(
-    (rule) => !rule.module.id.includes('allowlist') && !rule.module.id.includes('public-lock-v14'),
-  );
-  const subscriptionModules = rules.filter((rule) => rule.module.id.includes('public-lock-v14'));
+interface ModuleChainClaimButtonsProps {
+  labeledModules?: LabeledModules | undefined;
+  showJoinButton?: boolean;
+  className?: string;
+}
 
-  // TODO sort rules for claims
-  return concat(
-    allowlistModules, // first allowlist modules
-    otherModules, // then other modules
-    subscriptionModules, // last subscription modules
+const ModuleChainClaimButtons = ({
+  labeledModules,
+  showJoinButton = false,
+  className,
+}: ModuleChainClaimButtonsProps) => {
+  const { eligibilityRules, currentEligibility, isReadyToClaim, activeRule, setActiveRule } = useEligibility();
+
+  const flatRules = flatten(eligibilityRules); // TODO only handling AND chains currently
+
+  // helper function to check if a rule is completed
+  const isRuleCompleted = useCallback(
+    (rule: EligibilityRule) => {
+      const isEligible =
+        get(currentEligibility, `[${rule.address}].eligible`) &&
+        get(currentEligibility, `[${rule.address}].goodStanding`);
+      const isReadyToClaimRule = get(isReadyToClaim, rule.address, false);
+
+      // only consider them Agreement Module complete when fully eligible (not pending)
+      if (rule.module.id.includes('agreement')) {
+        return isEligible;
+      }
+
+      // other modules are complete if eligible or ready to claim
+      return isEligible || isReadyToClaimRule;
+    },
+    [currentEligibility, isReadyToClaim],
+  );
+
+  // helper function to check if rule is agreement
+  const isAgreement = (rule: EligibilityRule) => {
+    return rule.module.id.includes('agreement');
+  };
+
+  // sort rules into three groups:
+  // 1. completed modules (including completed agreements)
+  const completedRules = flatRules.filter((rule) => isRuleCompleted(rule));
+
+  // 2. incomplete non-agreement modules
+  const incompleteRules = flatRules.filter((rule) => !isAgreement(rule) && !isRuleCompleted(rule));
+
+  // 3. incomplete/pending agreement modules
+  const incompleteAgreementRules = flatRules.filter((rule) => isAgreement(rule) && !isRuleCompleted(rule));
+
+  const sortedRules = concat(completedRules, incompleteRules, incompleteAgreementRules);
+
+  // only set initial activeRule if none is selected so that it doesn't override the user selection
+  useEffect(() => {
+    if (!activeRule) {
+      const incompleteRule = flatRules.find((rule) => !isRuleCompleted(rule));
+      setActiveRule(incompleteRule || first(sortedRules));
+    }
+  }, [flatRules, activeRule, setActiveRule, sortedRules, isRuleCompleted]);
+
+  return (
+    <div
+      className={cn(
+        'flex items-center',
+        {
+          'flex-1': showJoinButton, // Only take up full width when showing join button
+        },
+        className,
+      )}
+    >
+      {map(sortedRules, (rule, index) => (
+        <Fragment key={`${rule.module.id}-${rule.address}`}>
+          <ModuleChainClaimButton rule={rule} labeledModules={labeledModules} />
+          {index < sortedRules.length - 1 ? <AndDecorator /> : showJoinButton ? <ArrowDecorator /> : null}
+        </Fragment>
+      ))}
+    </div>
   );
 };
+
+export { ModuleChainClaimButtons };
 
 const AndIcon = () => (
   <svg width='10' height='11' viewBox='0 0 10 11' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -202,41 +267,3 @@ const ArrowDecorator = () => (
     </div>
   </div>
 );
-
-interface ModuleChainClaimButtonsProps {
-  labeledModules?: LabeledModules | undefined;
-  showJoinButton?: boolean;
-  className?: string;
-}
-
-const ModuleChainClaimButtons = ({
-  labeledModules,
-  showJoinButton = false,
-  className,
-}: ModuleChainClaimButtonsProps) => {
-  const { eligibilityRules } = useEligibility();
-
-  const flatRules = flatten(eligibilityRules); // TODO only handling AND chains currently
-  const sortedRules = sortRulesForClaims(flatRules);
-
-  return (
-    <div
-      className={cn(
-        'flex items-center',
-        {
-          'flex-1': showJoinButton, // Only take up full width when showing join button
-        },
-        className,
-      )}
-    >
-      {map(sortedRules, (rule, index) => (
-        <React.Fragment key={`${rule.module.id}-${rule.address}`}>
-          <ModuleChainClaimButton rule={rule} labeledModules={labeledModules} />
-          {index < sortedRules.length - 1 ? <AndDecorator /> : showJoinButton ? <ArrowDecorator /> : null}
-        </React.Fragment>
-      ))}
-    </div>
-  );
-};
-
-export { ModuleChainClaimButtons };
