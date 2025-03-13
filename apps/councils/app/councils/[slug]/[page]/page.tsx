@@ -22,8 +22,8 @@ interface ErrorPageProps {
 
 const ErrorPage = ({ title, description }: ErrorPageProps) => {
   return (
-    <div className='flex min-h-screen items-center justify-center'>
-      <Alert variant='destructive' className='max-w-lg'>
+    <div className='p-20'>
+      <Alert variant='default' className='mx-auto max-w-lg'>
         <AlertTitle>{title}</AlertTitle>
         <AlertDescription>{description}</AlertDescription>
       </Alert>
