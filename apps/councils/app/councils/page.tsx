@@ -1,6 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { Alert, AlertDescription } from 'ui';
 
 import { CouncilListPage } from '../../components/council-list-page';
@@ -16,7 +17,7 @@ const getErrorMessage = (error: string | null) => {
   }
 };
 
-export default function CouncilsPage() {
+const CouncilsContent = () => {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
   const errorMessage = getErrorMessage(error);
@@ -30,5 +31,13 @@ export default function CouncilsPage() {
       )}
       <CouncilListPage />
     </div>
+  );
+};
+
+export default function CouncilsPage() {
+  return (
+    <Suspense>
+      <CouncilsContent />
+    </Suspense>
   );
 }
