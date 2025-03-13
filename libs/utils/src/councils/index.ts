@@ -32,7 +32,11 @@ export const parseCouncilSlug = (slug: string) => {
     }
 
     // TODO check isAddress first here - https://hats-protocol.sentry.io/issues/6311299196
-    return { chainId: checkChainId(chain), address: getAddress(address) };
+    try {
+      return { chainId: checkChainId(chain), address: getAddress(address) };
+    } catch (error) {
+      return { chainId: checkChainId(chain), address };
+    }
   }
 
   if (includes(slug, ':')) {
@@ -42,8 +46,12 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
-    // TODO check isAddress first here -  https://hats-protocol.sentry.io/issues/6311299196
-    return { chainId: checkChainId(chain), address: getAddress(address) };
+    // TODO check isAddress first here - https://hats-protocol.sentry.io/issues/6311299196
+    try {
+      return { chainId: checkChainId(chain), address: getAddress(address) };
+    } catch (error) {
+      return { chainId: checkChainId(chain), address };
+    }
   }
 
   return { chainId: null, address: slug };
