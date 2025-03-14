@@ -1,7 +1,9 @@
 'use client';
 
+import { ModuleParameter } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
-import { concat, first, flatten, get, map, pick } from 'lodash';
+import { concat, find, first, flatten, get, map, pick } from 'lodash';
+import { useErc20Details } from 'modules-hooks';
 import { useSubscriptionClaim } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { Fragment, ReactNode, useCallback, useEffect } from 'react';
@@ -9,6 +11,18 @@ import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } fr
 import { EligibilityRule, LabeledModules } from 'types';
 import { cn } from 'ui';
 import { Button } from 'ui';
+import { logger } from 'utils';
+import { formatUnits, Hex } from 'viem';
+
+interface Erc20Details {
+  userBalance: bigint;
+  userBalanceDisplay: string;
+  tokenDetails: {
+    symbol: string;
+    name: string;
+    decimals: number;
+  };
+}
 
 const EligibilityStatus = ({
   isReadyToClaim,
@@ -131,6 +145,22 @@ interface WrapperButtonProps {
 }
 
 const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButtonProps) => {
+  const { chainId } = useEligibility();
+
+  // Move hook outside conditionals
+  const isErc20 = rule.module.id.includes('erc20');
+  const tokenParam = isErc20 ? (find(rule.liveParams, { displayType: 'erc20' }) as ModuleParameter) : undefined;
+  const amountParameter = isErc20
+    ? (find(rule.liveParams, { displayType: 'amountWithDecimals' }) as ModuleParameter)
+    : undefined;
+
+  const tokenAddress = tokenParam?.value as string;
+  const { data: erc20Details, isLoading: isErc20Loading } = useErc20Details({
+    contractAddress: tokenAddress ? (tokenAddress.toLowerCase() as Hex) : undefined,
+    wearerAddress: '0x0000000000000000000000000000000000000000' as Hex, // Use zero address since we don't need balance to display in the button
+    chainId,
+  });
+
   if (rule.address === get(labeledModules, 'selection')) {
     return (
       <WrapperButton rule={rule} labeledModules={labeledModules}>
@@ -143,6 +173,40 @@ const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButton
     return (
       <WrapperButton rule={rule} labeledModules={labeledModules}>
         Compliant
+      </WrapperButton>
+    );
+  }
+
+  // ERC20 module:
+  if (isErc20) {
+    // show 'ERC20' as the loading state while fetching token details
+    if (isErc20Loading) {
+      return (
+        <WrapperButton rule={rule} labeledModules={labeledModules}>
+          ERC20
+        </WrapperButton>
+      );
+    }
+
+    const { tokenDetails } = pick(erc20Details || {}, ['tokenDetails']) as Partial<Erc20Details>;
+
+    if (tokenDetails?.symbol && amountParameter?.value && tokenDetails.decimals !== undefined) {
+      const minimumBalanceDisplay = formatUnits(amountParameter.value as bigint, tokenDetails.decimals);
+      const minimumBalanceNumber = parseFloat(minimumBalanceDisplay);
+
+      logger.info('ERC20 module data:', { tokenDetails, amountParameter, minimumBalanceDisplay, minimumBalanceNumber });
+
+      return (
+        <WrapperButton rule={rule} labeledModules={labeledModules}>
+          Hold {minimumBalanceNumber === 1 ? '1' : minimumBalanceDisplay} {tokenDetails.symbol}
+        </WrapperButton>
+      );
+    }
+
+    // fallback incase something goes wrong with the token details fetch
+    return (
+      <WrapperButton rule={rule} labeledModules={labeledModules}>
+        ERC20
       </WrapperButton>
     );
   }
@@ -176,6 +240,7 @@ const ModuleChainClaimButtons = ({
 
   const flatRules = flatten(eligibilityRules); // TODO only handling AND chains currently
 
+  logger.info('flatRules', flatRules);
   // helper function to check if a rule is completed
   const isRuleCompleted = useCallback(
     (rule: EligibilityRule) => {
