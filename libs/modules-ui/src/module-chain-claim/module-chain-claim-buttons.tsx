@@ -11,7 +11,6 @@ import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } fr
 import { EligibilityRule, LabeledModules } from 'types';
 import { cn } from 'ui';
 import { Button } from 'ui';
-import { logger } from 'utils';
 import { formatUnits, Hex } from 'viem';
 
 interface Erc20Details {
@@ -237,7 +236,6 @@ const ModuleChainClaimButtons = ({
 
   const flatRules = flatten(eligibilityRules); // TODO only handling AND chains currently
 
-  logger.info('flatRules', flatRules);
   // helper function to check if a rule is completed
   const isRuleCompleted = useCallback(
     (rule: EligibilityRule) => {
