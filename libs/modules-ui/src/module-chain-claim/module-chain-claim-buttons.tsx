@@ -147,7 +147,6 @@ interface WrapperButtonProps {
 const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButtonProps) => {
   const { chainId } = useEligibility();
 
-  // Move hook outside conditionals
   const isErc20 = rule.module.id.includes('erc20');
   const tokenParam = isErc20 ? (find(rule.liveParams, { displayType: 'erc20' }) as ModuleParameter) : undefined;
   const amountParameter = isErc20
@@ -157,7 +156,7 @@ const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButton
   const tokenAddress = tokenParam?.value as string;
   const { data: erc20Details, isLoading: isErc20Loading } = useErc20Details({
     contractAddress: tokenAddress ? (tokenAddress.toLowerCase() as Hex) : undefined,
-    wearerAddress: '0x0000000000000000000000000000000000000000' as Hex, // Use zero address since we don't need balance to display in the button
+    wearerAddress: '0x0000000000000000000000000000000000000000' as Hex, // use zero address since we don't need balance to display in the button
     chainId,
   });
 
@@ -177,7 +176,7 @@ const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButton
     );
   }
 
-  // ERC20 module:
+  // ERC20 Module:
   if (isErc20) {
     // show 'ERC20' as the loading state while fetching token details
     if (isErc20Loading) {
@@ -193,8 +192,6 @@ const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButton
     if (tokenDetails?.symbol && amountParameter?.value && tokenDetails.decimals !== undefined) {
       const minimumBalanceDisplay = formatUnits(amountParameter.value as bigint, tokenDetails.decimals);
       const minimumBalanceNumber = parseFloat(minimumBalanceDisplay);
-
-      logger.info('ERC20 module data:', { tokenDetails, amountParameter, minimumBalanceDisplay, minimumBalanceNumber });
 
       return (
         <WrapperButton rule={rule} labeledModules={labeledModules}>
