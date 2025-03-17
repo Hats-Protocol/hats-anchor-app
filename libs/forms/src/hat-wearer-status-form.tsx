@@ -7,7 +7,7 @@ import { toNumber } from 'lodash';
 import { useForm } from 'react-hook-form';
 import { FaRegQuestionCircle, FaRegUserCircle } from 'react-icons/fa';
 import { idToIp, toTreeId } from 'shared';
-import { Button, RadioGroup, RadioGroupItem } from 'ui';
+import { Button, Label, RadioGroup, RadioGroupItem } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useEnsName } from 'wagmi';
@@ -103,10 +103,18 @@ const HatWearerStatusForm = ({
           </p>
         </div>
 
-        <RadioGroup name='standing' defaultValue='Good Standing' onChange={(value) => setValue('standing', value)}>
-          <div className='flex gap-4'>
-            <RadioGroupItem value='Good Standing'>Good Standing</RadioGroupItem>
-            <RadioGroupItem value='Bad Standing'>Bad Standing</RadioGroupItem>
+        <RadioGroup
+          defaultValue='Good Standing'
+          onValueChange={(value) => setValue('standing', value)}
+          className='flex gap-4'
+        >
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='Good Standing' id='good-standing' />
+            <Label htmlFor='good-standing'>Good Standing</Label>
+          </div>
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='Bad Standing' id='bad-standing' />
+            <Label htmlFor='bad-standing'>Bad Standing</Label>
           </div>
         </RadioGroup>
 
