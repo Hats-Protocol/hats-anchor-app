@@ -1,7 +1,7 @@
 'use client';
 
 import { MULTI_CLAIMS_HATTER_V1_ABI } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { usePendHatterMint, useWaitForSubgraph } from 'hooks';
 import { find, first, get, includes, map, pick } from 'lodash';
@@ -54,7 +54,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   const hatToMintTo = watch('hatToMintTo');
   const { availableAdmins, hatToMintPended, pendMintHatForHatter } = usePendHatterMint({
     address: instanceAddress,
-    hatToMintTo,
+    hatToMintTo: hatToMintTo?.value,
     treeToDisplay,
     selectedHat,
     storedData,
@@ -88,7 +88,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
       functionName: 'setHatClaimability',
       address: instanceAddress,
       abi: MULTI_CLAIMS_HATTER_V1_ABI,
-      args: [BigInt(selectedHat?.id), 1],
+      args: [hatIdHexToDecimal(selectedHat?.id), 1],
       chainId,
     })
       .then((hash) => {
@@ -151,19 +151,24 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   if (!hatterIsAdmin && instanceAddress) {
     return (
       <ClaimsHandlerWrapper>
-        <div className='mt-1'>
+        <div className='mt-1 flex flex-col gap-2'>
           <p>
             A claims hatter exists at <span className='font-mono'>{formatAddress(instanceAddress)}</span>, but it is not
             an admin of this hat.
           </p>
-          <Select localForm={localForm} name='hatToMintTo' options={hatToMintToOptions} />
+          <Select
+            localForm={localForm}
+            name='hatToMintTo'
+            options={hatToMintToOptions}
+            isDisabled={!!hatToMintPended}
+          />
 
           {(hatToMintTo || hatToMintPended) && (
             <div className='flex justify-end'>
               <Tooltip
                 label={
                   hatToMintPended &&
-                  `Mint pended for hatter on hat #${hatIdDecimalToIp(BigInt(hatToMintPended || hatToMintTo))}`
+                  `Mint pended for hatter on hat #${hatIdDecimalToIp(BigInt(hatToMintPended || get(hatToMintTo, 'value')))}`
                 }
               >
                 <Button
@@ -172,7 +177,8 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
                   disabled={!hatToMintTo || !!hatToMintPended}
                   onClick={pendMintHatForHatter}
                 >
-                  Mint {hatIdDecimalToIp(BigInt(hatToMintPended || hatToMintTo))} to {formatAddress(instanceAddress)}
+                  Mint {hatIdDecimalToIp(BigInt(hatToMintPended || get(hatToMintTo, 'value')))} to{' '}
+                  {formatAddress(instanceAddress)}
                 </Button>
               </Tooltip>
             </div>

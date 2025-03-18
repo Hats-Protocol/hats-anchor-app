@@ -1,5 +1,6 @@
 'use client';
 
+import { CONFIG } from '@hatsprotocol/config';
 import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat } from 'contexts';
 import { useToast } from 'hooks';
@@ -454,8 +455,8 @@ const MultiAddressInput = ({
           <CollapsibleContent>
             <p className='mt-4 text-sm font-medium uppercase'>Upload CSV</p>
             <p className='text-muted-foreground mb-4 mt-1 text-sm'>
-              The CSV file must only contain Ethereum addresses, one per line. ENS is currently not supported. Any
-              additional data will be ignored.
+              The CSV file must only contain Ethereum addresses, one per line, up to the max supply of the{' '}
+              {CONFIG.TERMS.hat}. ENS is currently not supported. Any additional data in other columns will be ignored.
             </p>
             <FormControl id='csvFile'>
               <DropZone

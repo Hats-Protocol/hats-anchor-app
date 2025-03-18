@@ -9,9 +9,9 @@ import { useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
-import { chainIdToString, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
+import { chainIdToString, logger, sendTelegramMessage, tgCouncilLink, tgFormatAddress, tgWearerLink } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useChainId, useEnsName, useSwitchChain, useWriteContract } from 'wagmi';
 
 import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
@@ -48,6 +48,10 @@ export const ModuleChainClaimHeader = ({
   const { data: safeDetails } = useSafeDetails({
     safeAddress: councilDetails?.safe,
     chainId: chainId as SupportedChains,
+  });
+  const { data: ensName } = useEnsName({
+    address,
+    chainId: 1,
   });
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
   const {
@@ -151,10 +155,10 @@ export const ModuleChainClaimHeader = ({
       waitForSubgraph,
       onSuccess: () => {
         if (address) {
-          const appUrl = get(window, 'location.origin', 'https://hats-pro.vercel.app');
-          sendTelegramMessage(
-            `${tgFormatAddress(address)} has joined the council ${tgFormatAddress(hsgAddress)} [View Council](${appUrl}/councils/${tgChainSlug(chainId)}:${hsgAddress}/members)`,
-          );
+          // https://linear.app/hats-protocol/issue/BUILD-190/migrate-council-member-joined-council-notification-to-alerts
+          const councilLink = tgCouncilLink(hsgAddress, chainId);
+          const wearerLink = tgWearerLink({ address, chainId, ensName: ensName as string });
+          sendTelegramMessage(`${wearerLink} has joined the council ${tgFormatAddress(hsgAddress)} ${councilLink}`);
         }
 
         queryClient.invalidateQueries({ queryKey: ['readContract'] });
