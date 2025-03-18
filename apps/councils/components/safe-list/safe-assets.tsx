@@ -102,14 +102,15 @@ const SafeAssetRow = ({
   };
 
   // Calculate raw USD value for percentage calculation
-  const balance = Number(
+  const tokenDecimals = get(token, 'token.decimals', 18);
+  const rawBalance = Number(
     formatRoundedDecimals({
       value: BigInt(token.balance),
-      decimals: get(token, 'token.decimals', 18),
+      decimals: tokenDecimals,
     }),
   );
   const price = get(priceDetails, 'priceUsd', 0);
-  const rawUsdValue = balance * price;
+  const rawUsdValue = rawBalance * price;
 
   // Calculate percentage based on total value
   const percentage = totalSafeValue > 0 ? Math.round((rawUsdValue / totalSafeValue) * 100) : 0;
@@ -118,7 +119,7 @@ const SafeAssetRow = ({
   const formattedUsdValue = formatBalanceValue({
     price: get(priceDetails, 'priceUsd'),
     balance: token.balance,
-    decimals: get(token, 'token.decimals', 18),
+    decimals: tokenDecimals,
     dropDecimals: true,
   });
 
@@ -181,7 +182,7 @@ const SafeAssetRow = ({
           <p className='font-mono'>
             <span className='text-gray-500'>{localTokenSymbol}</span> {Number(formattedBalance).toFixed(2)}
           </p>
-          {formattedUsdValue && <p className='text-sm text-gray-500'>~${formattedUsdValue}k</p>}
+          {formattedUsdValue && <p className='text-sm text-gray-500'>~${formattedUsdValue}</p>}
         </div>
         <div className='w-40 text-right'>
           {lastInbound ? (
@@ -249,10 +250,15 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
       const priceDetails = find(prices, {
         symbol: toUpper(symbol),
       });
-      // Convert balance to number safely by dividing first
-      const balance = token.balance / 10 ** get(token, 'token.decimals', 18);
-      const rawUsdValue = get(priceDetails, 'priceUsd') * balance;
-      return sum + (rawUsdValue || 0);
+      const tokenDecimals = get(token, 'token.decimals', 18);
+      const rawBalance = Number(
+        formatRoundedDecimals({
+          value: BigInt(token.balance),
+          decimals: tokenDecimals,
+        }),
+      );
+      const rawUsdValue = get(priceDetails, 'priceUsd', 0) * rawBalance;
+      return sum + rawUsdValue;
     },
     0,
   );
