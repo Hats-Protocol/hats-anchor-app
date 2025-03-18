@@ -11,7 +11,9 @@ import { ManagePage } from '../../../../components/manage-page';
 import { MembersPage } from '../../../../components/members-page';
 import { SafeAssetsPage } from '../../../../components/safe-assets-page';
 
-//TODO: Add 'transactions' and 'assets' pages back in when they are done -- we have tickets for these
+export const dynamic = 'force-dynamic';
+
+//TODO: Add 'transactions' page back in when they are done -- we have tickets for this
 //TODO: Refine the ErrorPage UI -- we can also add a global error page at some point
 const VALID_PAGES = ['assets', 'join', 'manage', 'members', 'dev'];
 
