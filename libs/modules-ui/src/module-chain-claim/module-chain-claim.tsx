@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Skeleton } from 'ui';
-import { Hex } from 'viem';
+import { getAddress, Hex } from 'viem';
 
 import { EligibilityConditions } from '../claims-conditions/claims-conditions';
 import { ModuleChainClaimsCard } from './module-chain-claim-card';
@@ -18,8 +18,9 @@ export const ModuleChainClaim = ({ chainId, address }: { chainId: number | undef
     address,
   });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
-    chainId,
-    hsg: address,
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
+    chainId: chainId ?? 11155111,
+    enabled: !!councilDetails?.id && !!chainId,
   });
   const { isMobile } = useMediaStyles();
 

@@ -16,7 +16,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
 import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
-import { Hex } from 'viem';
+import { getAddress, Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
 import { SignersIndicator } from './signers-indicator';
@@ -47,8 +47,9 @@ const CouncilHeaderCard = ({
     address: address ?? '',
   });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
-    hsg: address as Hex,
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
+    enabled: !!councilDetails?.id && !!chainId,
   });
   const { data: safesDetails } = useSafesInfo({
     chainId: chainId ?? 11155111,

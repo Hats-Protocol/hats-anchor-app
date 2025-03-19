@@ -36,8 +36,9 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     address,
   });
   const { data: offchainCouncilDetails, isLoading: isOffchainCouncilDetailsLoading } = useOffchainCouncilDetails({
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
-    hsg: address as Hex,
+    enabled: !!councilDetails?.id && !!chainId,
   });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
