@@ -111,6 +111,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
   const currentChainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { chainId, address } = parseCouncilSlug(slug);
+
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
     address,
@@ -121,9 +122,12 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const { data: offchainCouncilData } = useOffchainCouncilDetails({
-    hsg: address as Hex,
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
+    enabled: !!councilDetails?.id && !!chainId,
   });
+
+  logger.info('offchainCouncilData', offchainCouncilData);
 
   useAuthGuard();
 
