@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton, Switch } from 'ui';
 import { explorerUrl, formatAddress, getCouncilsGraphqlClient, hatLink, parseCouncilSlug, UPDATE_COUNCIL } from 'utils';
-import { Hex } from 'viem';
+import { getAddress, Hex } from 'viem';
 
 import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
 import { MailForm } from './mail-form';
