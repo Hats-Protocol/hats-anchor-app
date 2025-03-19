@@ -127,7 +127,7 @@ const MoreMenu = () => {
             </div>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
+        <DropdownMenuContent align='end' className='z-[100]'>
           <div className='gap-5'>
             {/* OFF-CHAIN ACTIONS */}
             <DropdownMenuGroup title='Off-chain Actions'>
