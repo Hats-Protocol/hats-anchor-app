@@ -1,8 +1,8 @@
 'use client';
 
 import { useTreasury } from 'contexts';
-import { useApprovedTokens, useSafeTransactions } from 'hooks';
-import { get, map } from 'lodash';
+import { useApprovedTokens, usePendingSafeTransactions, useSafeTransactions } from 'hooks';
+import { get, isEmpty, map } from 'lodash';
 import { ChevronDown } from 'lucide-react';
 import posthog from 'posthog-js';
 import React from 'react';
@@ -12,11 +12,12 @@ import {
   explorerUrl,
   filterSafeTransactions,
   formatRoundedDecimals,
+  logger,
   onlyInboundTransactions,
   onlyOutboundTransactions,
   shortDateFormatter,
 } from 'utils';
-import { Hex } from 'viem';
+import { getAddress, Hex } from 'viem';
 
 const TransactionRecord = ({ tx, chainId }: { tx: SafeTransaction; chainId: number | undefined }) => {
   const value = get(tx, 'transfers.0.value');
@@ -42,23 +43,99 @@ const TransactionRecord = ({ tx, chainId }: { tx: SafeTransaction; chainId: numb
   );
 };
 
-const SafeTransactions = ({ safeAddress }: { safeAddress: Hex }) => {
-  const { chainId } = useTreasury();
-  const { data: safeTransactions } = useSafeTransactions({
+const SafeTransactions = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: number }) => {
+  const { data: safeTransactions, isLoading: isLoadingSafe } = useSafeTransactions({
+    safeAddress,
+    chainId,
+  });
+  const { data: pendingSafeTransactions, isLoading: isLoadingPending } = usePendingSafeTransactions({
     safeAddress,
     chainId,
   });
   const { data: approvedTokens } = useApprovedTokens();
-  // const { data: prices } = useTokenPrices();
 
   const filteredSafeTransactions = filterSafeTransactions(safeTransactions, approvedTokens);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
+  logger.info('safeAddress', safeAddress);
+  logger.info('pendingSafeTransactions', pendingSafeTransactions);
+  logger.info('safeTransactions', safeTransactions);
+
   if (!isDev) return null;
+
+  if (isLoadingPending || isLoadingSafe) {
+    return <div>Loading transactions...</div>;
+  }
+
+  // Show pending transactions section
+  const hasPendingTransactions = !isEmpty(pendingSafeTransactions);
+  const pendingSection = (
+    <div className='mb-4 flex w-full flex-col gap-2'>
+      <h2 className='text-base font-bold'>Pending Transactions</h2>
+      {hasPendingTransactions ? (
+        <div className='space-y-1'>
+          {map(pendingSafeTransactions, (tx) => {
+            // Handle ETH transfer
+            if (tx.value !== '0') {
+              return (
+                <div key={tx.safeTxHash} className='flex justify-between'>
+                  <div className='flex gap-1'>
+                    <p>
+                      {formatRoundedDecimals({
+                        value: BigInt(tx.value),
+                        decimals: 18,
+                      })}
+                    </p>
+                    <p>ETH</p>
+                  </div>
+                  <div>Pending</div>
+                </div>
+              );
+            }
+            // Handle ERC20 transfer
+            if (tx.dataDecoded?.method === 'transfer') {
+              return (
+                <div key={tx.safeTxHash} className='flex justify-between'>
+                  <div className='flex gap-1'>
+                    <p>
+                      {formatRoundedDecimals({
+                        value: BigInt(tx.dataDecoded.parameters[1].value),
+                        decimals: 6, // You might want to make this dynamic based on the token
+                      })}
+                    </p>
+                    <p>USDC</p>
+                  </div>
+                  <div>Pending</div>
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
+      ) : (
+        <p className='max-w-[90%] text-base'>No queued transactions</p>
+      )}
+    </div>
+  );
+
+  // Show executed transactions section
+  if (isEmpty(filteredSafeTransactions)) {
+    return (
+      <>
+        {pendingSection}
+        <div className='flex w-full flex-col gap-2'>
+          <h2 className='text-base font-bold'>Recent Transactions</h2>
+          <p className='max-w-[90%] text-base'>No recent transactions</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className='w-full space-y-4'>
+      {pendingSection}
+
       <Collapsible>
         <CollapsibleTrigger className='flex justify-between'>
           <p>Inbound Transactions</p>

@@ -48,11 +48,7 @@ const CouncilButtons = () => {
         }
 
         return (
-          <Link
-            href={href === 'transactions' ? '#' : `/councils/${slug}/${href}`}
-            key={href}
-            className={cn('-ml-[1px]', href === 'transactions' && 'cursor-default')}
-          >
+          <Link href={`/councils/${slug}/${href}`} key={href} className={cn('-ml-[1px]')}>
             <div className='relative'>
               <Button
                 variant={pathname.includes(href) ? 'default' : 'outline'}
@@ -60,16 +56,9 @@ const CouncilButtons = () => {
                   'rounded-none border border-black font-normal',
                   isFirst ? 'rounded-l-full' : isLast ? 'rounded-r-full' : '',
                 )}
-                disabled={href === 'transactions'}
               >
                 {label}
               </Button>
-
-              {href === 'transactions' && (
-                <span className='bg-functional-success absolute -bottom-2 left-1/2 z-[2] flex h-4 w-10 -translate-x-1/2 items-center justify-center rounded-full text-xs font-bold text-white'>
-                  soon
-                </span>
-              )}
             </div>
           </Link>
         );
