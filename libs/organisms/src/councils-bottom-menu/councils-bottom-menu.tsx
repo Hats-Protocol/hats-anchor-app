@@ -52,7 +52,7 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
       name: 'Assets',
       href: `#`,
       icon: AiOutlineDollar,
-      disabled: true,
+      disabled: false,
     },
     {
       name: 'Members',
@@ -110,7 +110,12 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
     <div className='md:hidden'>
       <div className='pb-safe fixed bottom-0 left-0 z-40 w-full border-t border-gray-200 bg-white shadow-lg'>
         <div className={`relative grid h-16 ${getGridColsClass(visibleMenuItems.length)}`}>
-          <span className='bg-functional-success absolute -top-2 left-[150px] z-10 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+          <span
+            className={cn(
+              'bg-functional-success absolute -top-2 z-10 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white',
+              'left-[30vw] -translate-x-1/2',
+            )}
+          >
             soon
           </span>
           {visibleMenuItems.map((item) => {

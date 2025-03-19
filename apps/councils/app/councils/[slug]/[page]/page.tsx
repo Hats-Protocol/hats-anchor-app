@@ -9,11 +9,13 @@ import { getAddress, type Hex, isAddress } from 'viem';
 import { CouncilsDevInfo } from '../../../../components/councils-dev-info';
 import { ManagePage } from '../../../../components/manage-page';
 import { MembersPage } from '../../../../components/members-page';
-// import { SafeAssetsPage } from '../../../../components/safe-assets-page';
+import { SafeAssetsPage } from '../../../../components/safe-assets-page';
 
-//TODO: Add 'transactions' and 'assets' pages back in when they are done -- we have tickets for these
+export const dynamic = 'force-dynamic';
+
+//TODO: Add 'transactions' page back in when they are done -- we have tickets for this
 //TODO: Refine the ErrorPage UI -- we can also add a global error page at some point
-const VALID_PAGES = ['join', 'manage', 'members', 'dev'];
+const VALID_PAGES = ['assets', 'join', 'manage', 'members', 'dev'];
 
 interface ErrorPageProps {
   title: string;
@@ -71,6 +73,10 @@ const CouncilDetails = async ({ params }: { params: Promise<{ slug: string; page
   if (!VALID_PAGES.includes(page)) {
     // redirect invalid pages to members instead of using the default page
     redirect(`/councils/${slug}/members`);
+  }
+
+  if (page === 'assets') {
+    return <SafeAssetsPage chainId={chainId ?? 11155111} hsg={address as Hex} />;
   }
 
   if (page === 'join') {
