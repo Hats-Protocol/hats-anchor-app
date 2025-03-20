@@ -1,11 +1,11 @@
 'use client';
-
 import { NETWORK_CURRENCY, OVERRIDE_TOKEN_IMAGE } from '@hatsprotocol/config';
 import { useTreasury } from 'contexts';
 import { useApprovedTokens, usePendingSafeTransactions, useSafeTransactions, useTokenDetails } from 'hooks';
 import { get, isEmpty, map, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import React from 'react';
+import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
 import { SafeTransaction } from 'types';
 import { cn, Link, Skeleton } from 'ui';
 import {
@@ -105,13 +105,19 @@ const PendingSafeTransactionRow = ({ tx, safeAddress }: { tx: any; safeAddress: 
 
     return (
       <TransactionRowWrapper timestamp={tx.modifiedDate || tx.submissionDate} isPending={true}>
-        <div className='flex items-center gap-2'>
-          <div className='flex items-center gap-1 font-mono'>
+        <div className='flex gap-2'>
+          <div className='flex items-center gap-2'>
+            {isInbound ? (
+              <BsArrowDownLeftCircle className='text-functional-success h-4 w-4' />
+            ) : (
+              <BsArrowUpRightCircle className='text-functional-success h-4 w-4' />
+            )}
             <span className='text-base font-medium text-black'>{isInbound ? 'receiving' : 'sending'}</span>
-            <img src={tokenImage} className='h-5 w-5' alt='token image' />
-
-            <span className='text-black'>{formattedValue}</span>
-            <span className='text-gray-500'>{symbol}</span>
+            <div className='flex items-center gap-1'>
+              <img src={tokenImage} className='h-5 w-5' alt='token image' />
+              <span className='font-mono text-black'>{formattedValue}</span>
+              <span className='font-mono text-gray-500'>{symbol}</span>
+            </div>
           </div>
         </div>
       </TransactionRowWrapper>
@@ -128,6 +134,21 @@ const ExecutedSafeTransactionRow = ({ tx, safeAddress }: { tx: any; safeAddress:
   const { data: tokenData } = useTokenDetails({
     symbol: toLower(tx?.transfers?.[0]?.tokenInfo?.symbol || 'ETH'),
   });
+
+  // Handle Safe Created transaction type
+  if (tx?.created) {
+    const creatorAddress = tx?.dataDecoded?.parameters?.find((param) => param.name === 'newOwner')?.value;
+    return (
+      <TransactionRowWrapper timestamp={tx.executionDate} isPending={false}>
+        <div className='flex items-center gap-1'>
+          <div className='flex items-center gap-2'>
+            <span className='text-base font-medium text-black'>Safe Account created by</span>
+            <span className='font-mono text-gray-500'>{creatorAddress}</span>
+          </div>
+        </div>
+      </TransactionRowWrapper>
+    );
+  }
 
   const transfer = tx?.transfers?.[0];
   if (!transfer) {
@@ -156,11 +177,18 @@ const ExecutedSafeTransactionRow = ({ tx, safeAddress }: { tx: any; safeAddress:
     return (
       <TransactionRowWrapper timestamp={tx.executionDate} isPending={false}>
         <div className='b flex items-center gap-2'>
-          <div className='flex items-center gap-1 font-mono'>
+          <div className='flex items-center gap-2'>
+            {isInbound ? (
+              <BsArrowDownLeftCircle className='text-functional-success h-4 w-4' />
+            ) : (
+              <BsArrowUpRightCircle className='text-functional-success h-4 w-4' />
+            )}
             <span className='text-base font-medium text-black'>{isInbound ? 'received' : 'sent'}</span>
-            <img src={tokenImage} className='h-5 w-5' alt='token image' />
-            <span className='text-black'>{formattedValue}</span>
-            <span className='text-gray-500'>{symbol}</span>
+            <div className='flex items-center gap-1'>
+              <img src={tokenImage} className='h-5 w-5' alt='token image' />
+              <span className='font-mono text-black'>{formattedValue}</span>
+              <span className='font-mono text-gray-500'>{symbol}</span>
+            </div>
           </div>
         </div>
       </TransactionRowWrapper>
