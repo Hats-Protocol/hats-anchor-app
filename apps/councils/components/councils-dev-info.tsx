@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton, Switch } from 'ui';
 import { explorerUrl, formatAddress, getCouncilsGraphqlClient, hatLink, parseCouncilSlug, UPDATE_COUNCIL } from 'utils';
-import { Hex } from 'viem';
+import { getAddress, Hex } from 'viem';
 
 import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
 import { MailForm } from './mail-form';
@@ -36,8 +36,9 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     address,
   });
   const { data: offchainCouncilDetails, isLoading: isOffchainCouncilDetailsLoading } = useOffchainCouncilDetails({
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
-    hsg: address as Hex,
+    enabled: !!councilDetails?.id && !!chainId,
   });
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');

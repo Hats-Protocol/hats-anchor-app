@@ -114,8 +114,9 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     address,
   });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
-    hsg: address as Hex,
+    enabled: !!councilDetails?.id && !!chainId,
   });
   const allWearers = getAllWearers(offchainCouncilDetails || undefined);
 

@@ -1,14 +1,14 @@
 'use client';
 
 // import { useHatDetails } from 'hats-hooks';
-import { useOffchainCouncilDetails } from 'hooks';
+import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { capitalize, keys, map } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
 import { SupportedChains } from 'types';
 import { cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { parseCouncilSlug } from 'utils';
-import { Hex } from 'viem';
+import { getAddress, Hex } from 'viem';
 
 import { Login } from './login';
 
@@ -25,13 +25,14 @@ const Navbar = () => {
   // const isJoinLink = pathname.includes('join');
   const createForm = pathname.includes('councils/new');
 
-  // const { data: councilDetails } = useCouncilDetails({
-  //   chainId: chainId as SupportedChains,
-  //   address,
-  // });
-  const { data: offchainDetails } = useOffchainCouncilDetails({
+  const { data: councilDetails } = useCouncilDetails({
     chainId: chainId as SupportedChains,
-    hsg: address as Hex,
+    address,
+  });
+  const { data: offchainDetails } = useOffchainCouncilDetails({
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
+    chainId: chainId ?? 11155111,
+    enabled: !!councilDetails?.id && !!chainId,
   });
   // const { details } = useHatDetails({
   //   chainId: chainId as SupportedChains,
