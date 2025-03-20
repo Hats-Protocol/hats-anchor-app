@@ -18,6 +18,7 @@ import {
   filterSafeTransactions,
   filterTokenList,
   formatRoundedDecimals,
+  formatTimestamp,
   onlyInboundTransactions,
   onlyOutboundTransactions,
   symbolPriceHandler,
@@ -78,18 +79,6 @@ const SafeAssetRow = ({
   const { data: tokenData } = useTokenDetails({
     symbol: toLower(localTokenSymbol),
   });
-
-  const formatTimestamp = (timestamp: string) => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    const hours = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60));
-
-    if (hours < 1) return 'Less than 1 hour ago';
-    if (hours === 1) return '1 hour ago';
-    if (hours < 24) return `${hours} hours ago`;
-    if (hours < 48) return '1 day ago';
-    return `${Math.floor(hours / 24)} days ago`;
-  };
 
   // calculate USD value for percentage calculation
   const tokenDecimals = get(token, 'token.decimals', 18);

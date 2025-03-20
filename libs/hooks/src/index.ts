@@ -24,6 +24,7 @@ export * from './use-pend-hatter-mint';
 export * from './use-pin-image-ipfs';
 export * from './use-proposal-details';
 export * from './use-safe-details';
+export * from './use-safe-registered-events';
 export * from './use-safe-tokens';
 export * from './use-safe-transactions';
 export * from './use-safes-info';

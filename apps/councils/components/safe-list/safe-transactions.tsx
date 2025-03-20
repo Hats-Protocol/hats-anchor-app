@@ -1,37 +1,26 @@
 'use client';
-import { NETWORK_CURRENCY, OVERRIDE_TOKEN_IMAGE } from '@hatsprotocol/config';
-import { useTreasury } from 'contexts';
-import { useApprovedTokens, usePendingSafeTransactions, useSafeTransactions, useTokenDetails } from 'hooks';
+
+import {
+  useApprovedTokens,
+  usePendingSafeTransactions,
+  useSafeRegisteredEvents,
+  useSafeTransactions,
+  useTokenDetails,
+} from 'hooks';
 import { get, isEmpty, map, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import React from 'react';
 import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
-import { SafeTransaction } from 'types';
-import { cn, Link, Skeleton } from 'ui';
+import { MemberAvatar, Skeleton } from 'ui';
 import {
-  explorerUrl,
-  filterSafeTransactions,
   formatRoundedDecimals,
+  formatTimestamp,
   logger,
   onlyInboundTransactions,
-  onlyOutboundTransactions,
-  shortDateFormatter,
   symbolPriceHandler,
   tokenImageHandler,
 } from 'utils';
-import { formatUnits, getAddress, Hex } from 'viem';
-
-const formatTimestamp = (timestamp: string) => {
-  if (!timestamp) return '';
-  const date = new Date(timestamp);
-  const hours = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60));
-
-  if (hours < 1) return 'Less than 1 hour ago';
-  if (hours === 1) return '1 hour ago';
-  if (hours < 24) return `${hours} hours ago`;
-  if (hours < 48) return '1 day ago';
-  return `${Math.floor(hours / 24)} days ago`;
-};
+import { formatUnits, Hex } from 'viem';
 
 const TransactionRowWrapper = ({
   children,
@@ -42,69 +31,139 @@ const TransactionRowWrapper = ({
   timestamp: string;
   isPending: boolean;
 }) => (
-  <div className='flex items-center justify-between rounded-full border border-gray-200 bg-white px-4 py-4'>
+  <div className='flex items-center justify-between rounded-full border border-gray-200 bg-white px-6 py-3'>
     {children}
-    <div className='flex flex-col items-center gap-4 md:flex-row'>
-      <span className='text-base font-normal text-black'>{formatTimestamp(timestamp)}</span>
+    <div className='flex items-center gap-4'>
+      <span className='text-sm text-gray-500'>{formatTimestamp(timestamp)}</span>
       {!isPending ? (
-        <span className='border-functional-success text-functional-success rounded-md border px-3 py-1 text-sm'>
+        <span className='border-functional-success text-functional-success hidden rounded-md border px-3 py-1 text-xs md:block'>
           Success
         </span>
       ) : (
-        <span className='rounded-md border border-yellow-500 px-3 py-1 text-sm text-yellow-500'>Pending</span>
+        <span className='hidden rounded-md border border-yellow-500 px-3 py-1 text-xs text-yellow-500 md:block'>
+          Pending
+        </span>
       )}
     </div>
   </div>
 );
 
-const PendingSafeTransactionRow = ({ tx, safeAddress }: { tx: any; safeAddress: Hex }) => {
-  logger.info('Pending tx data in row:', tx);
+interface Parameter {
+  name: string;
+  value: string;
+}
 
-  // Determine initial symbol from transaction data
+interface Transaction {
+  executionDate?: string;
+  transactionHash?: string;
+  safeTxHash?: string;
+  dataDecoded?: {
+    method?: string;
+    parameters: Parameter[];
+  };
+  transfers?: any[];
+  [key: string]: any;
+}
+
+interface RegisteredEvent {
+  id: string;
+  signer: string;
+  timestamp: string;
+  hatId: string;
+  hsg: {
+    id: string;
+    safe: string;
+  };
+}
+
+type TransactionActivity = Transaction & { type: 'transaction' };
+type RegisteredActivity = RegisteredEvent & { type: 'registered' };
+type ActivityItem = TransactionActivity | RegisteredActivity;
+
+const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: Hex; isPending: boolean }) => {
+  // For pending ETH/token transfers
   let initialSymbol = 'ETH';
   if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
     initialSymbol = 'USDC';
   }
 
   const { data: tokenData } = useTokenDetails({
-    symbol: toLower(initialSymbol),
+    symbol: toLower(isPending ? initialSymbol : tx?.transfers?.[0]?.tokenInfo?.symbol || 'ETH'),
   });
+
+  // Handle Safe Created transaction type - only for swapOwner method
+  if (!isPending && tx?.dataDecoded?.method === 'swapOwner') {
+    const newOwner = tx?.dataDecoded?.parameters?.find((param: Parameter) => param.name === 'newOwner')?.value;
+    return (
+      <TransactionRowWrapper timestamp={tx.executionDate} isPending={false}>
+        <div className='flex items-center gap-1'>
+          <div className='flex items-center gap-2'>
+            <span className='text-base font-medium text-black'>Safe Account created by</span>
+            <MemberAvatar member={{ address: newOwner }} />
+          </div>
+        </div>
+      </TransactionRowWrapper>
+    );
+  }
 
   try {
     let formattedValue;
-    const symbol = initialSymbol;
+    let symbol;
+    let decimals;
 
-    // For ETH transfers
-    if (tx?.value && tx.value !== '0') {
-      formattedValue = formatUnits(BigInt(tx.value), 18);
-    }
-    // For token transfers (USDC)
-    else if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
-      const parameters = tx?.dataDecoded?.parameters;
-      if (parameters && parameters.length > 0) {
-        formattedValue = formatRoundedDecimals({
-          value: BigInt(parameters[1]?.value || '0'),
-          decimals: 6,
-        });
+    if (isPending) {
+      symbol = initialSymbol;
+      decimals = symbol === 'ETH' ? 18 : 6;
+
+      // For ETH transfers
+      if (tx?.value && tx.value !== '0') {
+        formattedValue = formatUnits(BigInt(tx.value), decimals);
       }
+      // For token transfers (USDC)
+      else if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
+        const parameters = tx?.dataDecoded?.parameters;
+        if (parameters && parameters.length > 0) {
+          formattedValue = formatRoundedDecimals({
+            value: BigInt(parameters[1]?.value || '0'),
+            decimals,
+          });
+        }
+      }
+    } else {
+      const transfer = tx?.transfers?.[0];
+      if (!transfer) {
+        logger.info('No transfer found in executed tx');
+        return null;
+      }
+
+      formattedValue = formatRoundedDecimals({
+        value: BigInt(transfer.value),
+        decimals: transfer.tokenInfo?.decimals || 18,
+      });
+
+      symbol = transfer.tokenInfo?.symbol || 'ETH';
     }
 
     if (!formattedValue) {
-      logger.info('No value found in pending tx');
+      logger.info('No value found in transaction');
       return null;
     }
 
+    const localTokenSymbol = symbolPriceHandler(symbol);
     const isInbound = onlyInboundTransactions([tx], safeAddress).length > 0;
 
     const tokenImage = tokenImageHandler({
       symbol,
       primaryImage: get(tokenData, 'avatar'),
-      backupImage: undefined,
+      backupImage: !isPending ? tx?.transfers?.[0]?.tokenInfo?.logoUri : undefined,
       chainId: tx.chainId,
     });
 
     return (
-      <TransactionRowWrapper timestamp={tx.modifiedDate || tx.submissionDate} isPending={true}>
+      <TransactionRowWrapper
+        timestamp={isPending ? tx.modifiedDate || tx.submissionDate : tx.executionDate}
+        isPending={isPending}
+      >
         <div className='flex gap-2'>
           <div className='flex items-center gap-2'>
             {isInbound ? (
@@ -112,7 +171,9 @@ const PendingSafeTransactionRow = ({ tx, safeAddress }: { tx: any; safeAddress: 
             ) : (
               <BsArrowUpRightCircle className='text-functional-success h-4 w-4' />
             )}
-            <span className='text-base font-medium text-black'>{isInbound ? 'receiving' : 'sending'}</span>
+            <span className='text-base font-medium text-black'>
+              {isInbound ? (isPending ? 'receiving' : 'received') : isPending ? 'sending' : 'sent'}
+            </span>
             <div className='flex items-center gap-1'>
               <img src={tokenImage} className='h-5 w-5' alt='token image' />
               <span className='font-mono text-black'>{formattedValue}</span>
@@ -123,83 +184,26 @@ const PendingSafeTransactionRow = ({ tx, safeAddress }: { tx: any; safeAddress: 
       </TransactionRowWrapper>
     );
   } catch (error) {
-    logger.error('Error in PendingSafeTransactionRow:', error);
+    logger.error('Error in TransactionRow:', error);
     logger.info('Transaction that caused error:', tx);
     return null;
   }
 };
 
-const ExecutedSafeTransactionRow = ({ tx, safeAddress }: { tx: any; safeAddress: Hex }) => {
-  logger.info('Executed tx data:', tx);
-  const { data: tokenData } = useTokenDetails({
-    symbol: toLower(tx?.transfers?.[0]?.tokenInfo?.symbol || 'ETH'),
-  });
-
-  // Handle Safe Created transaction type
-  if (tx?.created) {
-    const creatorAddress = tx?.dataDecoded?.parameters?.find((param) => param.name === 'newOwner')?.value;
-    return (
-      <TransactionRowWrapper timestamp={tx.executionDate} isPending={false}>
+const RegisteredEventRow = ({ event }: { event: RegisteredActivity }) => {
+  return (
+    <TransactionRowWrapper timestamp={event.timestamp} isPending={false}>
+      <div className='flex items-center gap-2'>
         <div className='flex items-center gap-1'>
-          <div className='flex items-center gap-2'>
-            <span className='text-base font-medium text-black'>Safe Account created by</span>
-            <span className='font-mono text-gray-500'>{creatorAddress}</span>
-          </div>
+          <span className='text-base font-medium text-black'>Council joined by</span>
+          <MemberAvatar member={{ address: event.signer }} />
         </div>
-      </TransactionRowWrapper>
-    );
-  }
-
-  const transfer = tx?.transfers?.[0];
-  if (!transfer) {
-    logger.info('No transfer found in executed tx');
-    return null;
-  }
-
-  try {
-    const formattedValue = formatRoundedDecimals({
-      value: BigInt(transfer.value),
-      decimals: transfer.tokenInfo?.decimals || 18,
-    });
-
-    const symbol = transfer.tokenInfo?.symbol || 'ETH';
-    const localTokenSymbol = symbolPriceHandler(symbol);
-
-    const tokenImage = tokenImageHandler({
-      symbol,
-      primaryImage: get(tokenData, 'avatar'),
-      backupImage: transfer.tokenInfo?.logoUri,
-      chainId: tx.chainId,
-    });
-
-    const isInbound = onlyInboundTransactions([tx], safeAddress).length > 0;
-
-    return (
-      <TransactionRowWrapper timestamp={tx.executionDate} isPending={false}>
-        <div className='b flex items-center gap-2'>
-          <div className='flex items-center gap-2'>
-            {isInbound ? (
-              <BsArrowDownLeftCircle className='text-functional-success h-4 w-4' />
-            ) : (
-              <BsArrowUpRightCircle className='text-functional-success h-4 w-4' />
-            )}
-            <span className='text-base font-medium text-black'>{isInbound ? 'received' : 'sent'}</span>
-            <div className='flex items-center gap-1'>
-              <img src={tokenImage} className='h-5 w-5' alt='token image' />
-              <span className='font-mono text-black'>{formattedValue}</span>
-              <span className='font-mono text-gray-500'>{symbol}</span>
-            </div>
-          </div>
-        </div>
-      </TransactionRowWrapper>
-    );
-  } catch (error) {
-    console.error('Error formatting executed transfer value:', error);
-    return null;
-  }
+      </div>
+    </TransactionRowWrapper>
+  );
 };
 
-const SafeTransactions = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: number }) => {
+const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress: Hex; chainId: number }) => {
   const { data: safeTransactions, isLoading: isLoadingSafe } = useSafeTransactions({
     safeAddress,
     chainId,
@@ -208,18 +212,28 @@ const SafeTransactions = ({ safeAddress, chainId }: { safeAddress: Hex; chainId:
     safeAddress,
     chainId,
   });
+  const { data: safeRegisteredEvents, isLoading: isLoadingSafeRegisteredEvents } = useSafeRegisteredEvents({
+    hsg: toLower(hsg),
+    chainId,
+  });
+
+  logger.info('Raw registered events:', safeRegisteredEvents);
+
   const { data: approvedTokens } = useApprovedTokens();
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
-  // Debug logging
-  logger.info('safeAddress', safeAddress);
-  logger.info('pendingSafeTransactions', pendingSafeTransactions);
-  logger.info('safeTransactions', safeTransactions);
-
   if (!isDev) return null;
 
-  if (isLoadingPending || isLoadingSafe) {
+  // Show loading state if we're loading OR if we don't have data yet
+  if (
+    isLoadingPending ||
+    isLoadingSafe ||
+    isLoadingSafeRegisteredEvents ||
+    safeTransactions === undefined ||
+    pendingSafeTransactions === undefined ||
+    safeRegisteredEvents === undefined
+  ) {
     return (
       <div className='flex w-full flex-col gap-4'>
         {/* Pending Transactions Skeleton */}
@@ -232,7 +246,7 @@ const SafeTransactions = ({ safeAddress, chainId }: { safeAddress: Hex; chainId:
           </div>
         </div>
 
-        {/* Recent Transactions Skeleton */}
+        {/* Recent Activity Skeleton */}
         <div className='flex w-full flex-col gap-4'>
           <Skeleton className='h-6 w-40' />
           <div className='space-y-2'>
@@ -247,17 +261,41 @@ const SafeTransactions = ({ safeAddress, chainId }: { safeAddress: Hex; chainId:
 
   // Show pending transactions section
   const pendingTxs = Array.isArray(pendingSafeTransactions) ? pendingSafeTransactions : [];
-  logger.info('Processed pending transactions:', pendingTxs);
-  logger.info('Has pending transactions?', !isEmpty(pendingTxs));
   const hasPendingTransactions = !isEmpty(pendingTxs);
 
-  // Show executed transactions section
-  const recentTxs = Array.isArray(safeTransactions) ? safeTransactions : [];
-  const hasRecentTransactions = !isEmpty(recentTxs);
+  // Show executed transactions and registered events section
+  const recentTxs = Array.isArray(safeTransactions) ? safeTransactions.filter(Boolean) : [];
+  const registeredEvents = Array.isArray(safeRegisteredEvents) ? safeRegisteredEvents : [];
 
-  // Debug logging for transaction arrays
-  logger.info('Pending transactions array:', pendingTxs);
-  logger.info('Recent transactions array:', recentTxs);
+  logger.info('Filtered registered events:', registeredEvents);
+
+  const hasRecentActivity = !isEmpty(recentTxs) || !isEmpty(registeredEvents);
+
+  // Combine and sort transactions and events by timestamp
+  const transactionActivities: TransactionActivity[] = recentTxs.map((tx: Transaction) => ({
+    ...tx,
+    type: 'transaction' as const,
+  }));
+
+  const registeredActivities: RegisteredActivity[] = registeredEvents.map((event: any) => ({
+    ...event,
+    type: 'registered' as const,
+  }));
+
+  const allActivity: ActivityItem[] = [...transactionActivities, ...registeredActivities].sort((a, b) => {
+    // Always put Safe creation (swapOwner) transaction last (oldest)
+    if (a.type === 'transaction' && a.dataDecoded?.method === 'swapOwner') return 1;
+    if (b.type === 'transaction' && b.dataDecoded?.method === 'swapOwner') return -1;
+
+    // Then sort by timestamp for all other activities
+    const timestampA =
+      a.type === 'transaction' ? new Date(a.executionDate || '').getTime() : Number(a.timestamp) * 1000;
+    const timestampB =
+      b.type === 'transaction' ? new Date(b.executionDate || '').getTime() : Number(b.timestamp) * 1000;
+    return timestampB - timestampA;
+  });
+
+  logger.info('All activity:', allActivity);
 
   return (
     <div className='w-full space-y-4 px-4 md:px-0'>
@@ -265,16 +303,14 @@ const SafeTransactions = ({ safeAddress, chainId }: { safeAddress: Hex; chainId:
         <h2 className='pb-2 text-base font-bold'>Pending Transactions</h2>
         {hasPendingTransactions ? (
           <div className='space-y-2'>
-            {map(pendingTxs, (tx, index) => {
-              logger.info('Rendering pending tx:', tx);
-              return (
-                <PendingSafeTransactionRow
-                  tx={tx}
-                  safeAddress={safeAddress}
-                  key={tx.safeTxHash || `pending-${index}`}
-                />
-              );
-            })}
+            {map(pendingTxs, (tx, index) => (
+              <TransactionRow
+                tx={tx}
+                safeAddress={safeAddress}
+                isPending={true}
+                key={tx.safeTxHash || `pending-${index}`}
+              />
+            ))}
           </div>
         ) : (
           <p className='max-w-[90%] text-base'>No queued transactions</p>
@@ -282,26 +318,29 @@ const SafeTransactions = ({ safeAddress, chainId }: { safeAddress: Hex; chainId:
       </div>
 
       <div className='flex w-full flex-col gap-2'>
-        <h2 className='pb-2 text-base font-bold'>Recent Transactions</h2>
-        {hasRecentTransactions ? (
+        <h2 className='pb-2 text-base font-bold'>Recent Activity</h2>
+        {hasRecentActivity ? (
           <div className='space-y-2'>
-            {map(recentTxs, (tx, index) => {
-              logger.info('Rendering recent tx:', tx);
+            {map(allActivity, (item: ActivityItem, index) => {
+              if (item.type === 'registered') {
+                return <RegisteredEventRow event={item} key={item.id || `registered-${index}`} />;
+              }
               return (
-                <ExecutedSafeTransactionRow
-                  tx={tx}
+                <TransactionRow
+                  tx={item}
                   safeAddress={safeAddress}
-                  key={tx.transactionHash || tx.safeTxHash || `recent-${index}`}
+                  isPending={false}
+                  key={item.transactionHash || item.safeTxHash || `recent-${index}`}
                 />
               );
             })}
           </div>
         ) : (
-          <p className='max-w-[90%] text-base'>No recent transactions</p>
+          <p className='max-w-[90%] text-base'>No recent activity</p>
         )}
       </div>
     </div>
   );
 };
 
-export { SafeTransactions };
+export default SafeTransactions;

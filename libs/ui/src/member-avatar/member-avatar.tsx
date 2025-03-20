@@ -13,7 +13,6 @@ import { OblongAvatar } from '../oblong-avatar';
 const MemberAvatar = ({ member, stack = false }: { member: any; stack?: boolean }) => {
   const { name, address, id } = pick(member, ['name', 'address', 'id']);
   const localAddress = toLower(address || id) as Hex;
-
   const { data: ensName } = useEnsName({
     address: localAddress,
     chainId: 1,
