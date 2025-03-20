@@ -1,25 +1,12 @@
 'use client';
 
-import {
-  useApprovedTokens,
-  usePendingSafeTransactions,
-  useSafeRegisteredEvents,
-  useSafeTransactions,
-  useTokenDetails,
-} from 'hooks';
+import { usePendingSafeTransactions, useSafeRegisteredEvents, useSafeTransactions, useTokenDetails } from 'hooks';
 import { get, isEmpty, map, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import React from 'react';
 import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
 import { MemberAvatar, Skeleton } from 'ui';
-import {
-  formatRoundedDecimals,
-  formatTimestamp,
-  logger,
-  onlyInboundTransactions,
-  symbolPriceHandler,
-  tokenImageHandler,
-} from 'utils';
+import { formatRoundedDecimals, formatTimestamp, logger, onlyInboundTransactions, tokenImageHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
 
 const TransactionRowWrapper = ({
@@ -48,6 +35,7 @@ const TransactionRowWrapper = ({
   </div>
 );
 
+// TODO: See if we can streamline these types -- had to add types that were not in the SafeTransaction type to support the difference between pending and executed transactions and improve overall type safety
 interface Parameter {
   name: string;
   value: string;
@@ -81,7 +69,7 @@ type RegisteredActivity = RegisteredEvent & { type: 'registered' };
 type ActivityItem = TransactionActivity | RegisteredActivity;
 
 const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: Hex; isPending: boolean }) => {
-  // For pending ETH/token transfers
+  // pending ETH/token transfers
   let initialSymbol = 'ETH';
   if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
     initialSymbol = 'USDC';
@@ -91,7 +79,7 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
     symbol: toLower(isPending ? initialSymbol : tx?.transfers?.[0]?.tokenInfo?.symbol || 'ETH'),
   });
 
-  // Handle Safe Created transaction type - only for swapOwner method
+  // handle Safe Created transaction type - only for swapOwner method
   if (!isPending && tx?.dataDecoded?.method === 'swapOwner') {
     const newOwner = tx?.dataDecoded?.parameters?.find((param: Parameter) => param.name === 'newOwner')?.value;
     return (
@@ -115,11 +103,11 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
       symbol = initialSymbol;
       decimals = symbol === 'ETH' ? 18 : 6;
 
-      // For ETH transfers
+      // for ETH transfers
       if (tx?.value && tx.value !== '0') {
         formattedValue = formatUnits(BigInt(tx.value), decimals);
       }
-      // For token transfers (USDC)
+      // for ERC20 token transfers
       else if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
         const parameters = tx?.dataDecoded?.parameters;
         if (parameters && parameters.length > 0) {
@@ -132,7 +120,6 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
     } else {
       const transfer = tx?.transfers?.[0];
       if (!transfer) {
-        logger.info('No transfer found in executed tx');
         return null;
       }
 
@@ -145,11 +132,9 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
     }
 
     if (!formattedValue) {
-      logger.info('No value found in transaction');
       return null;
     }
 
-    const localTokenSymbol = symbolPriceHandler(symbol);
     const isInbound = onlyInboundTransactions([tx], safeAddress).length > 0;
 
     const tokenImage = tokenImageHandler({
@@ -185,7 +170,7 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
     );
   } catch (error) {
     logger.error('Error in TransactionRow:', error);
-    logger.info('Transaction that caused error:', tx);
+
     return null;
   }
 };
@@ -217,15 +202,11 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     chainId,
   });
 
-  logger.info('Raw registered events:', safeRegisteredEvents);
-
-  const { data: approvedTokens } = useApprovedTokens();
-
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 
-  // Show loading state if we're loading OR if we don't have data yet
+  // show loading state if we're loading OR if we don't have data yet
   if (
     isLoadingPending ||
     isLoadingSafe ||
@@ -259,19 +240,17 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     );
   }
 
-  // Show pending transactions section
+  // show pending transactions section
   const pendingTxs = Array.isArray(pendingSafeTransactions) ? pendingSafeTransactions : [];
   const hasPendingTransactions = !isEmpty(pendingTxs);
 
-  // Show executed transactions and registered events section
+  // show executed transactions and registered events section
   const recentTxs = Array.isArray(safeTransactions) ? safeTransactions.filter(Boolean) : [];
   const registeredEvents = Array.isArray(safeRegisteredEvents) ? safeRegisteredEvents : [];
 
-  logger.info('Filtered registered events:', registeredEvents);
-
   const hasRecentActivity = !isEmpty(recentTxs) || !isEmpty(registeredEvents);
 
-  // Combine and sort transactions and events by timestamp
+  // combine and sort transactions and events by timestamp
   const transactionActivities: TransactionActivity[] = recentTxs.map((tx: Transaction) => ({
     ...tx,
     type: 'transaction' as const,
@@ -283,19 +262,17 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
   }));
 
   const allActivity: ActivityItem[] = [...transactionActivities, ...registeredActivities].sort((a, b) => {
-    // Always put Safe creation (swapOwner) transaction last (oldest)
+    // always put Safe creation (swapOwner) transaction last (oldest)
     if (a.type === 'transaction' && a.dataDecoded?.method === 'swapOwner') return 1;
     if (b.type === 'transaction' && b.dataDecoded?.method === 'swapOwner') return -1;
 
-    // Then sort by timestamp for all other activities
+    // sort by timestamp for all other activities
     const timestampA =
       a.type === 'transaction' ? new Date(a.executionDate || '').getTime() : Number(a.timestamp) * 1000;
     const timestampB =
       b.type === 'transaction' ? new Date(b.executionDate || '').getTime() : Number(b.timestamp) * 1000;
     return timestampB - timestampA;
   });
-
-  logger.info('All activity:', allActivity);
 
   return (
     <div className='w-full space-y-4 px-4 md:px-0'>

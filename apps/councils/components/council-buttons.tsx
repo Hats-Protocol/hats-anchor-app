@@ -30,6 +30,7 @@ const CouncilButtons = () => {
   });
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isTxAssets = posthog.isFeatureEnabled('tx-assets') || process.env.NODE_ENV !== 'production';
 
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
   const links = [...LINKS, ...devLink];
@@ -48,7 +49,14 @@ const CouncilButtons = () => {
         }
 
         return (
-          <Link href={`/councils/${slug}/${href}`} key={href} className={cn('-ml-[1px]')}>
+          <Link
+            href={(href === 'transactions' || href === 'assets') && !isTxAssets ? '#' : `/councils/${slug}/${href}`}
+            key={href}
+            className={cn(
+              '-ml-[1px]',
+              (href === 'transactions' || href === 'assets') && !isTxAssets && 'cursor-default',
+            )}
+          >
             <div className='relative'>
               <Button
                 variant={pathname.includes(href) ? 'default' : 'outline'}
@@ -56,9 +64,16 @@ const CouncilButtons = () => {
                   'rounded-none border border-black font-normal',
                   isFirst ? 'rounded-l-full' : isLast ? 'rounded-r-full' : '',
                 )}
+                disabled={(href === 'transactions' || href === 'assets') && !isTxAssets}
               >
                 {label}
               </Button>
+
+              {href === 'transactions' && !isTxAssets && (
+                <span className='bg-functional-success absolute -bottom-2 -right-4 z-[2] flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+                  soon
+                </span>
+              )}
             </div>
           </Link>
         );
