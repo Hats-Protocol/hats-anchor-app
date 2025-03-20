@@ -21,6 +21,20 @@ import { UnlockEligibilityRule } from '../subscription';
 import { UnknownEligibilityRule } from './unknown-eligibility';
 
 type WearerEligibility = { [key: Hex]: { eligible: boolean; goodStanding: boolean } };
+
+interface KnownEligibilityModuleParameters {
+  moduleDetails: ModuleDetails | undefined;
+  moduleParameters: ModuleParameter[] | undefined;
+  selectedHat: AppHat | undefined;
+  wearer: Hex | undefined;
+  chainId: SupportedChains | undefined;
+  modalSuffix?: string | undefined;
+  isReadyToClaim?: { [key: Hex]: boolean };
+  setIsReadyToClaim?: (address: Hex) => void;
+  wearerEligibility: WearerEligibility | undefined;
+  ruleSets: Ruleset[] | undefined;
+}
+
 export type EligibilityRuleComponent = ({
   selectedHat,
   moduleDetails,
@@ -31,18 +45,7 @@ export type EligibilityRuleComponent = ({
   isReadyToClaim,
   setIsReadyToClaim,
   ruleSets,
-}: {
-  selectedHat: AppHat | undefined;
-  moduleDetails: ModuleDetails | undefined;
-  moduleParameters: ModuleParameter[] | undefined;
-  wearer: Hex | undefined;
-  chainId: SupportedChains | undefined;
-  modalSuffix?: string | undefined;
-  isReadyToClaim?: { [key: Hex]: boolean };
-  setIsReadyToClaim?: (address: Hex) => void;
-  wearerEligibility: WearerEligibility | undefined;
-  ruleSets: Ruleset[] | undefined;
-}) => ReactNode | undefined;
+}: KnownEligibilityModuleParameters) => ReactNode | undefined;
 
 export const EligibilityModuleRules: {
   [key: string]: EligibilityRuleComponent;
@@ -72,41 +75,33 @@ export const KnownEligibilityModule = ({
   wearerEligibility,
   ruleSets,
 }: KnownEligibilityModuleParameters) => {
+  // if no module details or implementation address, show unknown rule
   if (!moduleDetails?.implementationAddress) {
     return <UnknownEligibilityRule chainId={chainId} wearer={wearer} selectedHat={selectedHat} />;
   }
 
+  // get the module key and validate it exists
   const moduleKey = getKnownEligibilityModule(moduleDetails.implementationAddress as Hex);
-
   if (!moduleKey || !has(EligibilityModuleRules, moduleKey)) {
     return <UnknownEligibilityRule chainId={chainId} wearer={wearer} selectedHat={selectedHat} />;
   }
 
-  const knownRule = EligibilityModuleRules[moduleKey] as EligibilityRuleComponent;
+  // get the rule component
+  const RuleComponent = EligibilityModuleRules[moduleKey];
 
-  return knownRule({
-    selectedHat,
-    moduleDetails,
-    moduleParameters,
-    wearer,
-    chainId,
-    modalSuffix,
-    isReadyToClaim,
-    setIsReadyToClaim,
-    wearerEligibility,
-    ruleSets,
-  });
+  // render the rule as a component with all props available
+  return (
+    <RuleComponent
+      selectedHat={selectedHat}
+      moduleDetails={moduleDetails}
+      moduleParameters={moduleParameters}
+      wearer={wearer}
+      chainId={chainId}
+      modalSuffix={modalSuffix}
+      isReadyToClaim={isReadyToClaim}
+      setIsReadyToClaim={setIsReadyToClaim}
+      wearerEligibility={wearerEligibility}
+      ruleSets={ruleSets}
+    />
+  );
 };
-
-interface KnownEligibilityModuleParameters {
-  moduleDetails: ModuleDetails | undefined;
-  moduleParameters: ModuleParameter[] | undefined;
-  selectedHat: AppHat | undefined;
-  wearer: Hex | undefined;
-  chainId: SupportedChains | undefined;
-  modalSuffix?: string | undefined;
-  isReadyToClaim?: { [key: Hex]: boolean };
-  setIsReadyToClaim?: (address: Hex) => void;
-  wearerEligibility: WearerEligibility | undefined;
-  ruleSets: Ruleset[] | undefined;
-}

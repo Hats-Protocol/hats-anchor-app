@@ -50,7 +50,7 @@ function AddUserModal({
 }: AddUserModalProps) {
   const [isLoading, setIsLoading] = addUserLoading || [false, () => {}];
   const { user } = usePrivy();
-  const { setModals } = useOverlay();
+  const { setModals, modals } = useOverlay();
   const queryClient = useQueryClient();
   const form = useForm<UserFormProps>();
   const {
@@ -67,6 +67,12 @@ function AddUserModal({
     const values = getValues();
     // TODO use yup resolvers
     return isAddress(values.address) && isValidEmail(values.email);
+  };
+
+  const handleClose = () => {
+    form.clearErrors();
+    reset();
+    setModals?.({});
   };
 
   const { createOrUpdateUser } = useCreateOrUpdateUser({
@@ -92,23 +98,26 @@ function AddUserModal({
   });
 
   useEffect(() => {
-    if (!editingUser) {
-      reset();
-      return;
-    }
+    const modalName = editingUser ? `editUser-${type}-${editingUser.address}` : `addUser-${type}`;
 
-    reset({
-      address: editingUser.address,
-      email: editingUser.email,
-      name: editingUser.name,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingUser]);
+    if (modals?.[modalName]) {
+      reset({
+        address: editingUser?.address || '',
+        email: editingUser?.email || '',
+        name: editingUser?.name || '',
+      });
+      form.clearErrors();
+    } else if (!editingUser) {
+      reset();
+      form.clearErrors();
+    }
+  }, [modals, editingUser, type, reset, form]);
 
   const onSubmit = async (data: CouncilMemberDetails) => {
     setIsLoading(true);
     if (!isAddress(data.address)) {
       setError('address', { message: 'Please enter a valid Ethereum address' });
+      setIsLoading(false);
       return;
     }
 
@@ -122,21 +131,30 @@ function AddUserModal({
 
     if (isDuplicate) {
       setError('address', { message: 'This address is already an admin of the council' });
+      setIsLoading(false);
       return;
     }
 
-    const createdOrUpdatedUser = await createOrUpdateUser({
-      ...data,
-      id: editingUser?.id || '',
-    });
-    logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
+    try {
+      const createdOrUpdatedUser = await createOrUpdateUser({
+        ...data,
+        id: editingUser?.id || '',
+      });
+      logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
-    if (afterSuccess) {
-      afterSuccess(createdOrUpdatedUser);
-    } else {
+      if (afterSuccess) {
+        await afterSuccess(createdOrUpdatedUser);
+      }
+
+      form.clearErrors();
+      form.reset();
       setIsLoading(false);
       setModals?.({});
       queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
+    } catch (error) {
+      logger.error('Error saving user:', error);
+      setError('address', { message: 'Failed to save user. Please try again.' });
+      setIsLoading(false);
     }
   };
 
@@ -145,6 +163,7 @@ function AddUserModal({
       name={editingUser ? `editUser-${type}-${editingUser.address}` : `addUser-${type}`}
       title={`${editingUser ? 'Edit' : 'Add'} ${userLabel || 'Council Member'}`}
       size='lg'
+      onClose={handleClose}
     >
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>

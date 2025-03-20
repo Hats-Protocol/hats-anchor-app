@@ -6,20 +6,99 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
-import { filter, find, first, flatten, get, includes, isEmpty, map, split, toLower } from 'lodash';
-import { useAllowlist, useCallModuleFunction, useEligibilityRules } from 'modules-hooks';
+import { filter, find, first, flatten, get, includes, isEmpty, map, pick, split, toLower } from 'lodash';
+import { useAllowlist, useCallModuleFunction, useEligibilityRules, useErc20Details } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AppHat, CouncilMember, ModuleFunction, SupportedChains } from 'types';
+import { AppHat, CouncilMember, EligibilityRule, ModuleFunction, SupportedChains } from 'types';
 import { Button, Tooltip } from 'ui';
 import { Skeleton } from 'ui';
 import { chainsMap, logger, parseCouncilSlug } from 'utils';
-import { getAddress, Hex } from 'viem';
+import { formatUnits, getAddress, Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
 import { MemberRow } from './member-row';
+
+interface Erc20Details {
+  userBalance: bigint;
+  userBalanceDisplay: string;
+  tokenDetails: {
+    symbol: string;
+    name: string;
+    decimals: number;
+  };
+}
+
+const ModuleDisplay = ({
+  rule,
+  chainId,
+  offchainCouncilData,
+}: {
+  rule: EligibilityRule;
+  chainId: SupportedChains;
+  offchainCouncilData: any;
+}) => {
+  const tokenParam = rule.module.id.includes('erc20') ? find(rule.liveParams, { displayType: 'erc20' }) : undefined;
+  const amountParameter = rule.module.id.includes('erc20')
+    ? find(rule.liveParams, { displayType: 'amountWithDecimals' })
+    : undefined;
+  const tokenAddress = tokenParam?.value as string;
+
+  const { data: erc20Details, isLoading: isErc20Loading } = useErc20Details({
+    contractAddress: tokenAddress ? (tokenAddress.toLowerCase() as Hex) : undefined,
+    wearerAddress: '0x0000000000000000000000000000000000000000' as Hex,
+    chainId,
+  });
+
+  if (toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule)) {
+    return (
+      <div className='flex h-full w-28 items-center justify-center'>
+        <p className='text-center'>Compliance</p>
+      </div>
+    );
+  }
+
+  // ERC20 Module:
+  if (rule.module.id.includes('erc20')) {
+    if (isErc20Loading) {
+      return (
+        <div className='flex h-full w-28 items-center justify-center'>
+          <p className='text-center'>ERC20</p>
+        </div>
+      );
+    }
+
+    const { tokenDetails } = pick(erc20Details || {}, ['tokenDetails']) as Partial<Erc20Details>;
+
+    if (tokenDetails?.symbol && amountParameter?.value && tokenDetails.decimals !== undefined) {
+      const minimumBalanceDisplay = formatUnits(amountParameter.value as bigint, tokenDetails.decimals);
+      const minimumBalanceNumber = parseFloat(minimumBalanceDisplay);
+
+      return (
+        <div className='flex h-full w-28 items-center justify-center'>
+          <p className='text-center'>
+            Hold {minimumBalanceNumber === 1 ? '1' : minimumBalanceDisplay} {tokenDetails.symbol}
+          </p>
+        </div>
+      );
+    }
+
+    // Show 'ERC20' as a fallback if token details aren't available/loaded
+    return (
+      <div className='flex h-full w-28 items-center justify-center'>
+        <p className='text-center'>ERC20</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className='flex h-full w-28 items-center justify-center'>
+      <p className='text-center'>{first(split(rule.module.name, ' '))}</p>
+    </div>
+  );
+};
 
 const MembersPage = ({ slug }: { slug: string }) => {
   const { setModals } = useOverlay();
@@ -32,6 +111,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
   const currentChainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { chainId, address } = parseCouncilSlug(slug);
+
   const { data: councilDetails, isLoading: councilDetailsLoading } = useCouncilDetails({
     chainId: chainId ?? 11155111,
     address,
@@ -42,9 +122,12 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const { data: offchainCouncilData } = useOffchainCouncilDetails({
-    hsg: address as Hex,
+    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
+    enabled: !!councilDetails?.id && !!chainId,
   });
+
+  logger.info('offchainCouncilData', offchainCouncilData);
 
   useAuthGuard();
 
@@ -145,21 +228,14 @@ const MembersPage = ({ slug }: { slug: string }) => {
                   <p className='text-center'>Appointed</p>
                 </div>
 
-                {map(remainingModules, (rule) => {
-                  if (toLower(rule.address) === toLower(offchainCouncilData?.membersCriteriaModule)) {
-                    return (
-                      <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
-                        <p className='text-center'>Compliance</p>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className='flex h-full w-28 items-center justify-center' key={rule.address}>
-                      <p className='text-center'>{first(split(rule.module.name, ' '))}</p>
-                    </div>
-                  );
-                })}
+                {map(remainingModules, (rule) => (
+                  <ModuleDisplay
+                    key={rule.address}
+                    rule={rule}
+                    chainId={chainId as SupportedChains}
+                    offchainCouncilData={offchainCouncilData}
+                  />
+                ))}
 
                 <div className='flex h-full w-28 items-center justify-center'>
                   <p className='text-center'>Council Member</p>

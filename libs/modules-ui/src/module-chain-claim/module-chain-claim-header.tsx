@@ -2,16 +2,16 @@ import { HSG_V2_ABI } from '@hatsprotocol/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEligibility, useOverlay } from 'contexts';
 import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
-import { filter, find, first, flatten, get, includes, keys, mapValues, size } from 'lodash';
+import { filter, find, flatten, get, includes, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
-import { chainIdToString, logger, sendTelegramMessage, tgChainSlug, tgFormatAddress } from 'utils';
+import { chainIdToString, logger, sendTelegramMessage, tgCouncilLink, tgFormatAddress, tgWearerLink } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId, useSwitchChain, useWriteContract } from 'wagmi';
+import { useAccount, useChainId, useEnsName, useSwitchChain, useWriteContract } from 'wagmi';
 
 import { ModuleChainClaimButtons } from './module-chain-claim-buttons';
 
@@ -49,6 +49,10 @@ export const ModuleChainClaimHeader = ({
     safeAddress: councilDetails?.safe,
     chainId: chainId as SupportedChains,
   });
+  const { data: ensName } = useEnsName({
+    address,
+    chainId: 1,
+  });
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
   const {
     selectedHat,
@@ -56,7 +60,7 @@ export const ModuleChainClaimHeader = ({
     currentEligibility,
     isReadyToClaim: aggregateIsReadyToClaim,
     activeRule,
-    setActiveRule,
+
     isWearing,
   } = useEligibility();
   const eligibilityRules = flatten(rawEligibilityRules);
@@ -65,14 +69,6 @@ export const ModuleChainClaimHeader = ({
   // in cases where there's one module to complete the action and claim the hat, it likely has a readyToClaim status
   const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v)); // TODO check that this is the only one/not already eligible
   const ruleToCompleteAndClaim = find(eligibilityRules, (rule) => get(rule, 'address') === completeToClaim);
-
-  useEffect(() => {
-    if (activeRule) return;
-
-    setActiveRule(first(eligibilityRules));
-    // intentionally excluding setActiveRule from the dependency array
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eligibilityRules, activeRule]);
 
   const {
     handleClaim: originalHandleClaim,
@@ -159,10 +155,10 @@ export const ModuleChainClaimHeader = ({
       waitForSubgraph,
       onSuccess: () => {
         if (address) {
-          const appUrl = get(window, 'location.origin', 'https://hats-pro.vercel.app');
-          sendTelegramMessage(
-            `${tgFormatAddress(address)} has joined the council ${tgFormatAddress(hsgAddress)} [View Council](${appUrl}/councils/${tgChainSlug(chainId)}:${hsgAddress}/members)`,
-          );
+          // https://linear.app/hats-protocol/issue/BUILD-190/migrate-council-member-joined-council-notification-to-alerts
+          const councilLink = tgCouncilLink(hsgAddress, chainId);
+          const wearerLink = tgWearerLink({ address, chainId, ensName: ensName as string });
+          sendTelegramMessage(`${wearerLink} has joined the council ${tgFormatAddress(hsgAddress)} ${councilLink}`);
         }
 
         queryClient.invalidateQueries({ queryKey: ['readContract'] });
@@ -198,7 +194,7 @@ export const ModuleChainClaimHeader = ({
             <Button
               variant='outline'
               rounded='full'
-              className='flex-1'
+              className={`${!isReadyToClaim || disableClaim ? 'bg-gray-50' : 'bg-white'} flex-1`}
               onClick={handleVerify}
               disabled={!address || chainId !== currentChainId || !isReadyToClaim || isVerifyLoading || disableClaim}
             >
@@ -219,13 +215,15 @@ export const ModuleChainClaimHeader = ({
 
       <div className='hidden md:block'>
         <div className='flex flex-col gap-4 md:flex-row md:justify-between'>
-          <h2 className='text-xl font-bold md:text-2xl'>
+          <h2 className='pb-6 text-xl font-bold md:text-2xl'>
             Satisfy these {size(eligibilityRules)} requirements to{' '}
             {!showJoinButton ? 'claim this role' : 'become a council member'}
           </h2>
 
           <div className='flex items-center gap-2'>
-            <p className='text-lg font-semibold md:text-xl'>
+            <p
+              className={`text-lg font-semibold md:text-xl ${isReadyToClaim ? 'text-functional-success' : 'text-destructive'}`}
+            >
               {completedRules}/{size(eligibilityRules)}
             </p>
             {isSigner ? (
@@ -267,7 +265,11 @@ export const ModuleChainClaimHeader = ({
               ) : (
                 <div className='flex items-center'>
                   <Tooltip label={disableReason}>
-                    <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
+                    <div
+                      className={`block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 ${
+                        !isReadyToClaim || disableClaim ? 'bg-gray-50' : 'bg-white'
+                      } p-4`}
+                    >
                       {isWearing ? (
                         <div className='text-functional-success flex h-10 items-center justify-center gap-1 px-4'>
                           <BsCheckSquareFill className='h-5 w-5' />
@@ -293,10 +295,14 @@ export const ModuleChainClaimHeader = ({
                   </Tooltip>
 
                   <div className='flex items-center'>
-                    <div className='h-[1px] w-8 bg-gray-900' />
+                    <div className='h-[1px] w-4 bg-gray-900' />
                   </div>
 
-                  <div className='block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 bg-white p-4'>
+                  <div
+                    className={`block-size-auto h-auto w-auto justify-start whitespace-normal rounded-md border border-gray-900 ${
+                      !isReadyToClaim || disableClaim || !isWearing ? 'bg-gray-50' : 'bg-white'
+                    } p-4`}
+                  >
                     {isSigner ? (
                       <div className='text-functional-success flex h-10 items-center justify-center gap-1 px-4'>
                         <BsCheckSquareFill className='h-5 w-5' />

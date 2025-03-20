@@ -95,7 +95,7 @@ export const Erc20Claims = ({
 
   if (isEligibilityRulesLoading || isErc20Loading) {
     return (
-      <Card className='flex flex-col border-[#2D3748] px-8 py-6'>
+      <Card className='flex flex-col border-[#2D3748] bg-white px-8 py-6'>
         <div className='flex items-center justify-between'>
           <Skeleton className='h-8 w-64' />
           <Skeleton className='h-8 w-24' />
@@ -129,7 +129,7 @@ export const Erc20Claims = ({
 
   return (
     <div className='flex flex-col gap-4'>
-      <Card className='flex flex-col border-[#2D3748] px-8 py-6'>
+      <Card className='flex flex-col border-[#2D3748] bg-white px-8 py-6'>
         <div className='flex items-center justify-between'>
           <h3 className='text-2xl font-bold'>
             Hold {minimumBalanceNumber === 1 ? '1' : minimumBalanceDisplay} {tokenDetails?.symbol}{' '}

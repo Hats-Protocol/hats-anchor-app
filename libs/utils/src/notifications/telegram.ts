@@ -1,13 +1,12 @@
 import { logger } from '../logs';
 import { chainsMap } from '../web3/chains-server';
-
+import { explorerUrl } from '../web3/chains-server';
 /**
  * Send a message to the Telegram Alerts channel
  * @param message - The message to send
  * @returns The response from the Telegram API
  */
 export const sendTelegramMessage = async (message: string) => {
-  // TODO better sanitation on the message, catch invalid characters (period, et al)
   const result = await fetch('/api/notify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -34,4 +33,13 @@ export const tgFormatAddress = (address: string) => {
 
 export const tgChainSlug = (chainId: number) => {
   return chainsMap(chainId).name.toLowerCase().replaceAll(' ', '-');
+};
+
+export const tgWearerLink = ({ address, chainId, ensName }: { address: string; chainId: number; ensName?: string }) => {
+  const wearerName = ensName ? ensName : tgFormatAddress(address);
+  return `[${wearerName}](${explorerUrl(chainId)}/address/${address})`;
+};
+
+export const tgCouncilLink = (address: string, chainId: number) => {
+  return `[View Council](${explorerUrl(chainId)}/councils/${tgChainSlug(chainId)}:${address}/members)`;
 };

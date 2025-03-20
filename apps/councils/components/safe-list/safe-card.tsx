@@ -16,7 +16,7 @@ import { ActiveStreams } from './active-streams';
 import { LastTransaction } from './last-transaction';
 import { SafeAssets } from './safe-assets';
 import { SafeTotal } from './safe-total';
-import { SafeTransactions } from './safe-transactions';
+// import { SafeTransactions } from './safe-transactions';
 
 const SafeCard = ({
   hats,
@@ -87,7 +87,7 @@ const SafeCard = ({
           <LastTransaction safeAddress={safeAddress} type={'outbound'} />
         </div>
 
-        <SafeTransactions safeAddress={safeAddress} />
+        {/* <SafeTransactions safeAddress={safeAddress} /> */}
 
         <div className='flex items-center justify-between pt-4'>
           <Link href={safeUrl(chainId as SupportedChains, get(signerSafe, 'safe'))}>

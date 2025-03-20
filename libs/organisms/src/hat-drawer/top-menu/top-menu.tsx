@@ -75,7 +75,7 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
       )}
     >
       {editMode ? (
-        <Tooltip label='Save and return to list'>
+        <Tooltip label='Save and return to list' className='z-[100]'>
           <Button onClick={handleReturnToList} variant='outline' disabled={hatFormLoading}>
             <div className='flex items-center gap-1'>
               <BsArrowLeft className='size-4' />

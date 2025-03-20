@@ -1,23 +1,92 @@
+import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { ModuleChainClaim } from 'modules-ui';
+import { redirect } from 'next/navigation';
+import { SupportedChains } from 'types';
+import { Alert, AlertDescription, AlertTitle } from 'ui';
 import { parseCouncilSlug } from 'utils';
-import { Hex } from 'viem';
+import { getAddress, type Hex, isAddress } from 'viem';
 
 import { CouncilsDevInfo } from '../../../../components/councils-dev-info';
 import { ManagePage } from '../../../../components/manage-page';
 import { MembersPage } from '../../../../components/members-page';
 import { SafeAssetsPage } from '../../../../components/safe-assets-page';
+import { TransactionsPage } from '../../../../components/transactions-page';
+
+export const dynamic = 'force-dynamic';
+
+//TODO: Add 'transactions' page back in when they are done -- we have tickets for this
+//TODO: Add 'transactions' page back in when they are done -- we have tickets for this
+//TODO: Refine the ErrorPage UI -- we can also add a global error page at some point
+const VALID_PAGES = ['transactions', 'assets', 'join', 'manage', 'members', 'dev'];
+
+interface ErrorPageProps {
+  title: string;
+  description: string;
+}
+
+const ErrorPage = ({ title, description }: ErrorPageProps) => {
+  return (
+    <div className='p-20'>
+      <Alert variant='default' className='mx-auto max-w-lg'>
+        <AlertTitle>{title}</AlertTitle>
+        <AlertDescription>{description}</AlertDescription>
+      </Alert>
+    </div>
+  );
+};
 
 const CouncilDetails = async ({ params }: { params: Promise<{ slug: string; page: string }> }) => {
   const { slug, page } = await params;
-  // TODO identifier could be ID in database, slug or chainId/hsg
   const { chainId, address } = parseCouncilSlug(slug);
 
+  // validate chain ID
+  const isValidChain = chainId && ORDERED_CHAINS.includes(chainId as SupportedChains);
+  if (!isValidChain) {
+    return (
+      <ErrorPage
+        title='Invalid Chain'
+        description='The specified chain is not supported. Please check that you are using a supported network.'
+      />
+    );
+  }
+
+  // validate and convert address
+  let validatedAddress: Hex;
+  try {
+    if (!address || !isAddress(address)) {
+      return (
+        <ErrorPage
+          title='Invalid Address'
+          description='The specified address is not valid. Please check that you are using a valid Ethereum address.'
+        />
+      );
+    }
+    // ensure we have a properly formatted hex address
+    validatedAddress = getAddress(address) as `0x${string}`;
+  } catch (error) {
+    return (
+      <ErrorPage
+        title='Invalid Address'
+        description='The specified address is not valid. Please check that you are using a valid Ethereum address.'
+      />
+    );
+  }
+
+  if (!VALID_PAGES.includes(page)) {
+    // redirect invalid pages to members instead of using the default page
+    redirect(`/councils/${slug}/members`);
+  }
+
   if (page === 'transactions') {
-    return <div>Transactions</div>;
+    return <TransactionsPage chainId={chainId ?? 11155111} hsg={address as Hex} />;
+  }
+
+  if (page === 'assets') {
+    return <SafeAssetsPage chainId={chainId ?? 11155111} hsg={address as Hex} />;
   }
 
   if (page === 'join') {
-    return <ModuleChainClaim chainId={chainId || undefined} address={address as Hex} />;
+    return <ModuleChainClaim chainId={chainId || undefined} address={validatedAddress} />;
   }
 
   if (page === 'manage') {
@@ -32,10 +101,8 @@ const CouncilDetails = async ({ params }: { params: Promise<{ slug: string; page
     return <CouncilsDevInfo slug={slug} />;
   }
 
-  if (!address) return null;
-
-  // Default is assets
-  return <SafeAssetsPage chainId={chainId ?? 11155111} hsg={address as Hex} />;
+  // this should never be reached due to the VALID_PAGES check above, but incase it does we handle it here with a redirect
+  redirect(`/councils/${slug}/members`);
 };
 
 export default CouncilDetails;

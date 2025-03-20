@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchSafeTransactions } from 'utils';
+import { fetchPendingSafeTransactions, fetchSafeTransactions } from 'utils';
 import { Hex } from 'viem';
 
 const useSafeTransactions = ({
@@ -16,4 +16,18 @@ const useSafeTransactions = ({
   });
 };
 
-export { useSafeTransactions };
+const usePendingSafeTransactions = ({
+  safeAddress,
+  chainId,
+}: {
+  safeAddress: Hex | undefined;
+  chainId: number | undefined;
+}) => {
+  return useQuery({
+    queryKey: ['pendingSafeTransactions', safeAddress, chainId],
+    queryFn: () => fetchPendingSafeTransactions({ safeAddress, chainId }),
+    enabled: !!safeAddress && !!chainId,
+  });
+};
+
+export { usePendingSafeTransactions, useSafeTransactions };

@@ -1,32 +1,124 @@
 'use client';
 
 import { NETWORK_CURRENCY, OVERRIDE_TOKEN_IMAGE } from '@hatsprotocol/config';
-import { useApprovedTokens, useSafeTokens, useTokenDetails, useTokenPrices } from 'hooks';
-import { find, get, includes, isEmpty, map, toLower, toUpper } from 'lodash';
+import { safeUrl } from 'hats-utils';
 import {
+  useApprovedTokens,
+  useClipboard,
+  useSafeTokens,
+  useSafeTransactions,
+  useTokenDetails,
+  useTokenPrices,
+} from 'hooks';
+import { CopyAddress, Safe as SafeIcon } from 'icons';
+import { find, first, get, includes, isEmpty, map, toLower, toNumber, toUpper } from 'lodash';
+import { SafeTransaction, SupportedChains } from 'types';
+import { Button, Skeleton } from 'ui';
+import {
+  filterSafeTransactions,
   filterTokenList,
-  formatBalanceValue,
   formatRoundedDecimals,
+  formatTimestamp,
+  onlyInboundTransactions,
+  onlyOutboundTransactions,
   symbolPriceHandler,
   tokenImageHandler,
 } from 'utils';
-import { Hex } from 'viem';
+import { formatUnits, Hex } from 'viem';
 
-const SafeAssetRow = ({ token, chainId }: { token: any; chainId: number }) => {
+const PercentageCircle = ({ percentage }: { percentage: number }) => {
+  const degrees = (percentage / 100) * 360;
+  const radians = (degrees * Math.PI) / 180;
+
+  const x = Math.sin(radians) * 8;
+  const y = -Math.cos(radians) * 8;
+
+  const largeArcFlag = percentage > 50 ? 1 : 0;
+
+  return (
+    <svg width='16' height='16' viewBox='0 0 16 16'>
+      {/* background circle (total value) */}
+      <circle cx='8' cy='8' r='8' fill='#d9d9d9' opacity='0.2' />
+      {/* percentage arc (percent of total value) */}
+      <path
+        d={`
+          M 8 8
+          L 8 0
+          A 8 8 0 ${largeArcFlag} 1 ${8 + x} ${8 + y}
+          L 8 8
+        `}
+        fill='#000000'
+      />
+    </svg>
+  );
+};
+
+const SafeAssetRow = ({
+  token,
+  chainId,
+  totalSafeValue,
+  safeAddress,
+}: {
+  token: any;
+  chainId: number;
+  totalSafeValue: number;
+  tokenUsdValue: number;
+  safeAddress: Hex;
+  filteredSafeTokens: any[];
+}) => {
   const { data: prices } = useTokenPrices();
+  const { data: safeTransactions } = useSafeTransactions({
+    safeAddress,
+    chainId,
+  });
 
   const localTokenImage = !includes(OVERRIDE_TOKEN_IMAGE, get(token, 'tokenAddress'))
     ? get(token, 'token.logoUri')
     : undefined;
-  const localTokenSymbol =
-    (get(token, 'token.symbol') ? symbolPriceHandler(get(token, 'token.symbol')) : undefined) ||
-    (chainId ? symbolPriceHandler(NETWORK_CURRENCY[chainId]) : undefined);
-  const priceDetails = find(prices, {
-    symbol: toUpper(localTokenSymbol),
-  });
+  const localTokenSymbol = symbolPriceHandler(get(token, 'token.symbol') || NETWORK_CURRENCY[chainId]);
   const { data: tokenData } = useTokenDetails({
     symbol: toLower(localTokenSymbol),
   });
+
+  // calculate USD value for percentage calculation
+  const tokenDecimals = get(token, 'token.decimals', 18);
+  const symbol = get(token, 'token.symbol')
+    ? symbolPriceHandler(get(token, 'token.symbol'))
+    : chainId
+      ? symbolPriceHandler(NETWORK_CURRENCY[chainId])
+      : undefined;
+  const priceDetails = find(prices, {
+    symbol: toUpper(symbol),
+  });
+
+  const tokenValue = priceDetails
+    ? toNumber(formatUnits(BigInt(token.balance), tokenDecimals)) * toNumber(get(priceDetails, 'priceUsd', 0))
+    : 0;
+
+  // calculate percentage based on total value
+  const percentage = totalSafeValue > 0 ? Math.round((tokenValue / totalSafeValue) * 100) : 0;
+
+  // last in, Last out transactions
+  const filteredSafeTransactions = filterSafeTransactions(safeTransactions, [get(token, 'token.symbol')]);
+  const inboundTransactions = onlyInboundTransactions(filteredSafeTransactions, safeAddress);
+  const outboundTransactions = onlyOutboundTransactions(filteredSafeTransactions, safeAddress);
+  const lastInbound = first(inboundTransactions) as unknown as SafeTransaction;
+  const lastOutbound = first(outboundTransactions) as unknown as SafeTransaction;
+
+  const formatTransactionAmount = (tx: SafeTransaction | undefined) => {
+    if (!tx) return null;
+    const firstTransfer = get(tx, 'transfers.0');
+    if (!firstTransfer) return null;
+
+    const value = get(firstTransfer, 'value', '0');
+    const decimals = get(firstTransfer, 'tokenInfo.decimals', 18);
+    return Number(
+      formatRoundedDecimals({
+        value: BigInt(value),
+        decimals,
+      }),
+    ).toFixed(2);
+  };
 
   if (!chainId) return null;
 
@@ -37,36 +129,66 @@ const SafeAssetRow = ({ token, chainId }: { token: any; chainId: number }) => {
     chainId,
   });
 
+  const formattedBalance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))).toFixed(2);
+
   return (
-    <div className='flex justify-between'>
-      {formatBalanceValue({
-        price: get(priceDetails, 'priceUsd'),
-        balance: token.balance,
-        decimals: get(token, 'token.decimals', 18),
-      }) ? (
-        <h2 className='text-xl'>
-          $
-          {formatBalanceValue({
-            price: get(priceDetails, 'priceUsd'),
-            balance: token.balance,
-            decimals: get(token, 'token.decimals', 18),
-          })}
-        </h2>
-      ) : (
-        <span>&nbsp;</span>
-      )}
+    <div className='flex h-16 w-full items-center border-b border-gray-200 px-2 md:px-0'>
+      {/* Token */}
+      <div className='flex min-w-[200px] items-center gap-4'>
+        <div className='flex min-w-[80px] items-center gap-2'>
+          <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
+          <img src={tokenImage} className='h-8 w-8' alt='token image' />
+        </div>
+        <div className='flex flex-col'>
+          <span className='font-medium'>{get(token, 'token.name', 'Ethereum')}</span>
+          <div className='flex items-center gap-1 text-sm text-gray-500'>
+            <PercentageCircle percentage={percentage} />
+            <span>{percentage}%</span>
+          </div>
+        </div>
+      </div>
 
-      <div className='flex gap-2' key={token.address}>
-        <h2 className='text-lg font-medium'>
-          {formatRoundedDecimals({
-            value: token.balance,
-            decimals: get(token, 'token.decimals'),
-          })}
-        </h2>
-
-        <div className='flex gap-1'>
-          <img src={tokenImage} className='h-4 w-4' alt='token image' />
-          <p className='text-sm'>{get(token, 'token.symbol', get(NETWORK_CURRENCY, chainId || 1))}</p>
+      {/* Amount, Last in, Last out */}
+      <div className='flex flex-1 items-center justify-end gap-12'>
+        <div className='w-40 text-right'>
+          <p className='font-mono'>
+            <span className='text-gray-500'>{localTokenSymbol}</span> {formattedBalance}
+          </p>
+          {tokenValue > 0 && <p className='text-sm text-gray-500'>~${tokenValue.toFixed(2)}</p>}
+        </div>
+        <div className='w-40 text-right'>
+          {lastInbound ? (
+            <div className='flex flex-col items-end'>
+              <div className='flex items-center gap-1'>
+                <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
+                <span className='font-mono text-black'>+{formatTransactionAmount(lastInbound)}</span>
+                <span className='font-mono text-gray-500'>k</span>
+              </div>
+              <span className='text-sm text-gray-500'>{formatTimestamp(get(lastInbound, 'executionDate', ''))}</span>
+            </div>
+          ) : (
+            <div className='flex flex-col items-end'>
+              <span className='font-mono text-gray-400'>-</span>
+              <span className='text-sm text-gray-400'>No transactions</span>
+            </div>
+          )}
+        </div>
+        <div className='w-40 text-right'>
+          {lastOutbound ? (
+            <div className='flex flex-col items-end'>
+              <div className='flex items-center gap-1'>
+                <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
+                <span className='font-mono text-red-600'>-{formatTransactionAmount(lastOutbound)}</span>
+                <span className='font-mono text-gray-500'>k</span>
+              </div>
+              <span className='text-sm text-gray-500'>{formatTimestamp(get(lastOutbound, 'executionDate', ''))}</span>
+            </div>
+          ) : (
+            <div className='flex flex-col items-end'>
+              <span className='font-mono text-gray-400'>-</span>
+              <span className='text-sm text-gray-400'>No transactions</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -74,8 +196,14 @@ const SafeAssetRow = ({ token, chainId }: { token: any; chainId: number }) => {
 };
 
 const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: number }) => {
-  const { data: approvedTokens } = useApprovedTokens();
-  const { data: safeTokens } = useSafeTokens({
+  const { data: approvedTokens, isLoading: approvedTokensLoading } = useApprovedTokens();
+  const { data: safeTokens, isLoading: safeTokensLoading } = useSafeTokens({
+    safeAddress,
+    chainId,
+  });
+  const { data: prices } = useTokenPrices();
+
+  const { data: safeTransactions } = useSafeTransactions({
     safeAddress,
     chainId,
   });
@@ -85,28 +213,152 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
     approvedTokens,
   });
 
+  // calculate total safe value in USD using raw values - matching safe-total.tsx implementation
+  const totalSafeValue =
+    isEmpty(filteredSafeTokens) || isEmpty(prices) || !chainId
+      ? 0
+      : filteredSafeTokens.reduce((usdBal, token) => {
+          const symbol = get(token, 'token.symbol')
+            ? symbolPriceHandler(get(token, 'token.symbol'))
+            : symbolPriceHandler(NETWORK_CURRENCY[chainId]);
+
+          const price = find(prices, {
+            symbol: toUpper(symbol),
+          });
+          if (!price) return usdBal;
+
+          return (
+            usdBal +
+            toNumber(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))) * toNumber(price.priceUsd)
+          );
+        }, 0);
+
+  // map tokens with their usd values
+  const tokenValues = map(filteredSafeTokens, (token) => {
+    const symbol = get(token, 'token.symbol')
+      ? symbolPriceHandler(get(token, 'token.symbol'))
+      : chainId
+        ? symbolPriceHandler(NETWORK_CURRENCY[chainId])
+        : undefined;
+    const price = find(prices, {
+      symbol: toUpper(symbol),
+    });
+
+    const usdValue = price
+      ? toNumber(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))) * toNumber(price.priceUsd)
+      : 0;
+
+    return {
+      token,
+      usdValue,
+    };
+  });
+
+  const { onCopy } = useClipboard(safeUrl(chainId as SupportedChains, safeAddress), {
+    toastData: { title: 'Address copied' },
+  });
+
   if (!chainId) return null;
+
+  if (approvedTokensLoading || safeTokensLoading) {
+    return (
+      <div className='flex flex-col gap-4'>
+        <Skeleton className='h-12 w-full' />
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton className='h-16 w-full' key={index} />
+        ))}
+      </div>
+    );
+  }
 
   if (isEmpty(filteredSafeTokens)) {
     return (
-      <div className='flex w-full'>
-        <div className='flex w-full flex-col gap-2'>
-          <h2 className='text-sm font-medium'>Assets</h2>
+      <div className='flex w-full flex-col gap-2 px-4'>
+        <div className='relative'>
+          {/* Mobile scroll indicator (same mobile UX as Members Page) */}
+          <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden' />
 
-          <p>None found</p>
+          <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
+            <div className='min-w-fit'>
+              <div className='flex h-14 w-full items-center'>
+                <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
+                  <p>Token</p>
+                </div>
+                <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
+                  <div className='w-40'>
+                    <p className='text-right font-medium'>Amount</p>
+                  </div>
+                  <div className='w-40'>
+                    <p className='text-right font-medium'>Last in</p>
+                  </div>
+                  <div className='w-40'>
+                    <p className='text-right font-medium'>Last out</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className='flex w-full flex-col gap-2'>
+          <h2 className='text-base font-bold'>No assets found on Safe</h2>
+          <p className='max-w-[90%] text-sm'>
+            The Safe that was created for this council does not seem to hold any assets. You can copy its address below
+            to transfer funds. If you recently added funds, it may take some time until they show up here.
+          </p>
+        </div>
+        <div className='w-full flex-col items-center gap-8 pt-5 md:flex md:flex-row'>
+          <div className='flex items-center gap-1'>
+            <SafeIcon className='size-4' />
+            <span className='font-mono text-xs md:text-sm'>{safeAddress}</span>
+          </div>
+          <Button variant='link' className='text-functional-link-primary mt-2 md:mt-0' onClick={onCopy}>
+            <CopyAddress className='size-4' />
+            Copy Safe address
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className='flex w-full'>
-      <div className='flex w-full flex-col gap-2'>
-        <h2 className='text-sm font-medium'>Assets</h2>
+    <div className='flex w-full flex-col px-4 md:px-0'>
+      <div className='relative'>
+        {/* Mobile scroll indicator */}
+        <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden' />
 
-        {map(filteredSafeTokens, (token: any) => (
-          <SafeAssetRow token={token} chainId={chainId} key={token.tokenAddress || 'native currency'} />
-        ))}
+        <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
+          <div className='min-w-fit'>
+            <div className='flex h-14 w-full items-center'>
+              <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
+                <p>Token</p>
+              </div>
+              <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
+                <div className='w-40'>
+                  <p className='text-right font-medium'>Amount</p>
+                </div>
+                <div className='w-40'>
+                  <p className='text-right font-medium'>Last in</p>
+                </div>
+                <div className='w-40'>
+                  <p className='text-right font-medium'>Last out</p>
+                </div>
+              </div>
+            </div>
+
+            {map(tokenValues, ({ token, usdValue }) => (
+              <SafeAssetRow
+                token={token}
+                chainId={chainId}
+                totalSafeValue={totalSafeValue}
+                tokenUsdValue={usdValue}
+                safeAddress={safeAddress}
+                filteredSafeTokens={filteredSafeTokens}
+                key={token.tokenAddress || 'native currency'}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

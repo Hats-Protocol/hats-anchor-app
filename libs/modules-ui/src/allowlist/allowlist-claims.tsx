@@ -127,7 +127,7 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
         'flex md:flex': showOnMobile,
       })}
     >
-      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] px-8 py-6'>
+      <Card className='flex flex-col justify-between gap-6 border-[#2D3748] bg-white px-8 pb-10 pt-6'>
         <div className='flex justify-between'>
           <div>
             <h3 className='text-2xl font-bold'>{copy.heading}</h3>
@@ -147,7 +147,8 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
           )}
         </div>
 
-        <div className='flex flex-col gap-8 pt-10'>
+        {/* using pt-2 (8px) to accomodate the gap-6 (24px) above to be a distance of 32px total */}
+        <div className='flex flex-col gap-8 pt-2'>
           {/* Council Members Section */}
           <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-1'>
@@ -172,7 +173,6 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
               )}
             </div>
           </div>
-
           {/* Council Managers Section */}
           <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-1'>

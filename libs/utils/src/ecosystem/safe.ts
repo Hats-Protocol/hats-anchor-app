@@ -5,6 +5,7 @@ import { every, filter, first, get, includes, isEmpty, map, reject, some, toNumb
 import { SupportedChains } from 'types';
 import { getAddress, Hex } from 'viem';
 
+import { logger } from '../logs';
 import { viemPublicClient } from '../web3';
 
 export const createSafeApiKit = (chainId: bigint) => {
@@ -14,6 +15,31 @@ export const createSafeApiKit = (chainId: bigint) => {
   return new SafeApiKit({
     chainId,
   });
+};
+
+export const fetchPendingSafeTransactions = async ({
+  safeAddress,
+  chainId,
+}: {
+  safeAddress: Hex | undefined;
+  chainId: number | undefined;
+}): Promise<any | null> => {
+  if (!safeAddress || !chainId) return null;
+
+  try {
+    const safeKit = createSafeApiKit(BigInt(chainId));
+    logger.info('fetching pending safe transactions', safeKit);
+    const pendingTxs = await safeKit.getPendingTransactions(getAddress(safeAddress), {
+      limit: 100,
+      offset: 0,
+      ordering: 'created',
+    });
+    logger.info('pending safe transactions', pendingTxs);
+    return pendingTxs.results;
+  } catch (error) {
+    console.error('Error fetching pending Safe transactions:', error);
+    return null;
+  }
 };
 
 export const fetchSafesInfo = async ({ safes, chainId }: { safes: Hex[] | undefined; chainId: number | undefined }) => {
