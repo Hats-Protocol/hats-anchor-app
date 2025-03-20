@@ -213,3 +213,18 @@ export function camelCaseToWords(s: string) {
   const result = s.replace(/([A-Z])/g, ' $1');
   return result.charAt(0).toUpperCase() + result.slice(1);
 }
+
+export const formatTimestamp = (timestamp: string) => {
+  if (!timestamp) return '';
+
+  // Convert Unix timestamp (in seconds) to milliseconds if it's a number string
+  const date = /^\d+$/.test(timestamp) ? new Date(Number(timestamp) * 1000) : new Date(timestamp);
+
+  const hours = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60));
+
+  if (hours < 1) return 'Less than 1 hour ago';
+  if (hours === 1) return '1 hour ago';
+  if (hours < 24) return `${hours} hours ago`;
+  if (hours < 48) return '1 day ago';
+  return `${Math.floor(hours / 24)} days ago`;
+};

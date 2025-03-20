@@ -3,7 +3,7 @@
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useSafeDetails } from 'hooks';
 import { Safe as SafeIcon } from 'icons';
-import { get, size, toNumber } from 'lodash';
+import { get } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
@@ -23,14 +23,9 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
   const { chainId, address } = parseCouncilSlug(councilSlug);
 
   const { data: councilDetails } = useCouncilDetails({ chainId: chainId || undefined, address });
-  const primarySignerHat = get(councilDetails, 'signerHats[0]');
-
-  const { data: signers } = useSafeDetails({
-    chainId: chainId || undefined,
-    safeAddress: get(councilDetails, 'safe'),
-  });
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isTxAssets = posthog.isFeatureEnabled('tx-assets') || process.env.NODE_ENV !== 'production';
 
   // Define menu items based on the Figma design
   const menuItems = [
@@ -43,16 +38,15 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
     },
     {
       name: 'Transactions',
-      href: `#`,
+      href: `/councils/${councilSlug}/transactions`,
       icon: AiOutlineSwap,
-      disabled: true,
-      comingSoon: true,
+      disabled: !isTxAssets,
     },
     {
       name: 'Assets',
-      href: `#`,
+      href: `/councils/${councilSlug}/assets`,
       icon: AiOutlineDollar,
-      disabled: false,
+      disabled: !isTxAssets,
     },
     {
       name: 'Members',
@@ -110,14 +104,11 @@ export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => 
     <div className='md:hidden'>
       <div className='pb-safe fixed bottom-0 left-0 z-40 w-full border-t border-gray-200 bg-white shadow-lg'>
         <div className={`relative grid h-16 ${getGridColsClass(visibleMenuItems.length)}`}>
-          <span
-            className={cn(
-              'bg-functional-success absolute -top-2 z-10 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white',
-              'left-[30vw] -translate-x-1/2',
-            )}
-          >
-            soon
-          </span>
+          {!isTxAssets && (
+            <span className='bg-functional-success absolute -top-2 left-[140px] z-10 flex h-4 w-10 items-center justify-center rounded-full text-xs font-bold text-white'>
+              soon
+            </span>
+          )}
           {visibleMenuItems.map((item) => {
             const active = isActive(item.href, item?.exact);
             return (
