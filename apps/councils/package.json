@@ -12,7 +12,7 @@
     "@fontsource-variable/jetbrains-mono": "^5.1.0",
     "@hatsprotocol/config": "workspace:*",
     "@hatsprotocol/constants": "workspace:*",
-    "@hatsprotocol/modules-sdk": "1.4.0",
+    "@hatsprotocol/modules-sdk": "1.4.1",
     "@hatsprotocol/sdk-v1-core": "^0.10.0",
     "@privy-io/react-auth": "^2.4.3",
     "@privy-io/wagmi": "^1.0.3",
