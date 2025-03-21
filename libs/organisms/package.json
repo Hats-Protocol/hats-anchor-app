@@ -19,7 +19,7 @@
     "@hatsprotocol/config": "workspace:*",
     "@hatsprotocol/constants": "workspace:*",
     "@hatsprotocol/hsg-sdk": "^0.0.15",
-    "@hatsprotocol/modules-sdk": "1.4.0",
+    "@hatsprotocol/modules-sdk": "1.4.1",
     "@hatsprotocol/sdk-v1-core": "^0.10.0",
     "@hatsprotocol/sdk-v1-subgraph": "^1.0.0",
     "@radix-ui/react-dialog": "^1.0.5",
