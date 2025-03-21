@@ -297,8 +297,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/constants
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -584,8 +584,8 @@ importers:
         specifier: 0.0.1
         version: 0.0.1(zod@3.24.2)
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -648,8 +648,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -830,8 +830,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -916,8 +916,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -965,8 +965,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -1019,8 +1019,8 @@ importers:
         specifier: workspace:*
         version: link:../constants
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -1155,8 +1155,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -1307,8 +1307,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -1540,8 +1540,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/modules-sdk':
-        specifier: 1.4.0
-        version: 1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
+        specifier: 1.4.1
+        version: 1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
       '@hatsprotocol/sdk-v1-core':
         specifier: ^0.10.0
         version: 0.10.0(encoding@0.1.13)(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))
@@ -2793,8 +2793,8 @@ packages:
     peerDependencies:
       viem: 2.23.0
 
-  '@hatsprotocol/modules-sdk@1.4.0':
-    resolution: {integrity: sha512-j9taBBNSTJWGuJq/vmURHJFyvG8jb3xq0xAbs22fZV/aQlkNB/7uHJ7ZT1Q0ZWGy0fjYOxw1ATWZhY1MnIt6gA==}
+  '@hatsprotocol/modules-sdk@1.4.1':
+    resolution: {integrity: sha512-gzE5bn+TdWvWc1Pyj3Wh0pVT7hWX9BzHX2b382Fbo9Do9pmypTafsbrtR23P8ZypcUDV9HngIQ7XnAn+GjMUYA==}
     peerDependencies:
       viem: 2.23.0
 
@@ -15019,7 +15019,7 @@ snapshots:
       viem: 2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2)
       zod: 3.24.2
 
-  '@hatsprotocol/modules-sdk@1.4.0(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
+  '@hatsprotocol/modules-sdk@1.4.1(viem@2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))':
     dependencies:
       axios: 1.7.9
       viem: 2.23.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2)

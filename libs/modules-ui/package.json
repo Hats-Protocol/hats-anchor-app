@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@hatsprotocol/hsg-sdk": "^0.0.15",
-    "@hatsprotocol/modules-sdk": "1.4.0",
+    "@hatsprotocol/modules-sdk": "1.4.1",
     "@hatsprotocol/sdk-v1-core": "^0.10.0",
     "@privy-io/react-auth": "^2.4.3",
     "@rainbow-me/rainbowkit": "^2.2.3",
