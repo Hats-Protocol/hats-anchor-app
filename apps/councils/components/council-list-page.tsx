@@ -3,8 +3,8 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
-import { useAuthGuard, useCouncilsList, useMediaStyles } from 'hooks';
-import { concat, isEmpty, map, uniq } from 'lodash';
+import { useAuthGuard, useCouncilsList, useCrossChainAllowlist, useMediaStyles } from 'hooks';
+import { concat, flatten, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
 import { SupportedChains } from 'types';
 import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
@@ -42,8 +42,9 @@ const CouncilListPage = () => {
   // fetch user's hats
   const { data: wearerHats, isLoading: wearerHatsLoading } = useWearerDetails({
     wearerAddress: isAuthorized ? (userAddress as Hex) : undefined,
-    chainId, // TODO migrate to all chains
+    chainId: 'all', // TODO migrate to all chains
   });
+  logger.info('wearer hats', wearerHats);
 
   // fetch allowlists that the user has been added to
   const { data: allowlistHats, isLoading: allowlistHatsLoading } = useQuery({
@@ -52,8 +53,25 @@ const CouncilListPage = () => {
     enabled: !!isAuthorized && !!userAddress,
   });
 
+  const {
+    data: crossChainAllowlistHats,
+    isLoading: crossChainAllowlistHatsLoading,
+    error: crossChainAllowlistHatsError,
+  } = useCrossChainAllowlist({
+    address: userAddress,
+  });
+
+  logger.info('crossChainAllowlistHats', crossChainAllowlistHats);
+
+  logger.info('crosschainallowlisthats flattened', flatten(Object.values(crossChainAllowlistHats || {})), 'hatId');
+  logger.info('allowList Hats', allowlistHats);
   const combinedHats =
     !wearerHatsLoading && !allowlistHatsLoading ? concat(map(wearerHats, 'id'), map(allowlistHats, 'hatId')) : null;
+
+  logger.info(
+    'uniq combined hats',
+    uniq(combinedHats)?.map((id) => id as `0x${string}`),
+  );
 
   // Use real councils data directly
   const { data: councils, isLoading: councilsLoading } = useCouncilsList({

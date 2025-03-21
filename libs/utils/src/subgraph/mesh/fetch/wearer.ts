@@ -6,6 +6,7 @@ import { AppTree } from 'types';
 import { Hex } from 'viem';
 
 import { getWearerDetailsQuery, getWearersProfileDetailQuery, getWearerTreesQuery, NETWORKS_PREFIX } from '../queries';
+import { getCrossChainAllowlistEligibilitiesQuery } from '../queries';
 import { parseMetadata } from './utils';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -82,5 +83,24 @@ export const fetchWearerTrees = async ({
     return uniqBy(wearerTreesProcessHatMetadata, 'id');
   } catch (err) {
     return undefined;
+  }
+};
+
+export const getCrossChainAllowlistEligibilities = async (address: string | undefined) => {
+  if (!address) return null;
+
+  try {
+    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+    const query = getCrossChainAllowlistEligibilitiesQuery();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const res: any = await client.request(query, {
+      address: address.toLowerCase(),
+    });
+
+    return res;
+  } catch (err) {
+    console.error('Error fetching cross-chain allowlist eligibilities:', err);
+    return null;
   }
 };
