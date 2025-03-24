@@ -216,3 +216,300 @@ export function getCrossChainAllowlistEligibilitiesQueryDynamic(): string {
     }
   `;
 }
+
+// explicitly query all chains for wearer details
+export function getCrossChainWearerDetailsQuery(): string {
+  return gql`
+    query GetCrossChainWearerDetails($id: ID!) {
+      Sep_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+      Op_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+      Arb_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+      Base_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+      Celo_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+      Gno_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+      Pol_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+    }
+  `;
+}
+
+// map over all available networks in NETWORKS_PREFIX for wearer details
+export function getCrossChainWearerDetailsQueryDynamic(): string {
+  const networkQueries = Object.values(NETWORKS_PREFIX)
+    .filter((prefix) => prefix !== 'Eth') // Excluding Ethereum as per the example
+    .map(
+      (prefix) => `
+      ${prefix}_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
+    `,
+    )
+    .join('\n');
+
+  return gql`
+    query GetCrossChainWearerDetails($id: ID!) {
+      ${networkQueries}
+    }
+  `;
+}

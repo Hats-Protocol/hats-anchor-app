@@ -3,7 +3,14 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useWearerDetails } from 'hats-hooks';
-import { useAuthGuard, useCouncilsList, useCrossChainAllowlist, useMediaStyles } from 'hooks';
+import {
+  useAuthGuard,
+  useCouncilsList,
+  useCrossChainAllowlist,
+  useCrossChainCouncilsList,
+  useCrossChainWearer,
+  useMediaStyles,
+} from 'hooks';
 import { concat, flatten, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
 import { SupportedChains } from 'types';
@@ -44,14 +51,20 @@ const CouncilListPage = () => {
     wearerAddress: isAuthorized ? (userAddress as Hex) : undefined,
     chainId: 'all', // TODO migrate to all chains
   });
-  logger.info('wearer hats', wearerHats);
 
-  // fetch allowlists that the user has been added to
-  const { data: allowlistHats, isLoading: allowlistHatsLoading } = useQuery({
-    queryKey: ['allowlistHats', { userAddress, chainId }],
-    queryFn: () => fetchAllowlistEntries(userAddress as Hex, chainId as SupportedChains),
-    enabled: !!isAuthorized && !!userAddress,
+  const { data: crossChainWearerHats, isLoading: crossChainWearerHatsLoading } = useCrossChainWearer({
+    wearerAddress: isAuthorized ? (userAddress as Hex) : undefined,
   });
+
+  // Get all wearer hat IDs from each chain's currentHats array
+  const wearerHatIds =
+    !crossChainWearerHatsLoading && crossChainWearerHats
+      ? flatten(
+          Object.values(crossChainWearerHats)
+            .filter(Boolean)
+            .map((chainData) => (chainData as { currentHats?: { id: string }[] }).currentHats || []),
+        ).map((hat) => hat.id)
+      : [];
 
   const {
     data: crossChainAllowlistHats,
@@ -61,24 +74,32 @@ const CouncilListPage = () => {
     address: userAddress,
   });
 
-  logger.info('crossChainAllowlistHats', crossChainAllowlistHats);
+  // Get all allowlist hat IDs from each chain's eligibilities array
+  const allowlistHatIds =
+    !crossChainAllowlistHatsLoading && crossChainAllowlistHats
+      ? flatten(
+          Object.entries(crossChainAllowlistHats || {})
+            .filter(([key]) => key.endsWith('_allowListEligibilities'))
+            .map(([_, chainData]) => chainData as string[]),
+        )
+      : [];
 
-  logger.info('crosschainallowlisthats flattened', flatten(Object.values(crossChainAllowlistHats || {})), 'hatId');
-  logger.info('allowList Hats', allowlistHats);
+  // Combine both arrays and ensure uniqueness
   const combinedHats =
-    !wearerHatsLoading && !allowlistHatsLoading ? concat(map(wearerHats, 'id'), map(allowlistHats, 'hatId')) : null;
-
-  logger.info(
-    'uniq combined hats',
-    uniq(combinedHats)?.map((id) => id as `0x${string}`),
-  );
+    !crossChainWearerHatsLoading && !crossChainAllowlistHatsLoading ? uniq([...wearerHatIds, ...allowlistHatIds]) : [];
 
   // Use real councils data directly
   const { data: councils, isLoading: councilsLoading } = useCouncilsList({
-    hatIds: uniq(combinedHats)?.map((id) => id as `0x${string}`) ?? [],
+    hatIds: combinedHats.map((id) => id as `0x${string}`) ?? [],
     chainId,
   });
 
+  const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsList({
+    hatIds: combinedHats.map((id) => id as `0x${string}`) ?? [],
+  });
+
+  logger.info('councils', councils);
+  logger.info('crossChainCouncils', crossChainCouncils);
   if (!isReady) {
     return (
       <div className='mx-auto mt-20 flex max-w-[1400px] flex-col gap-4'>
@@ -91,12 +112,16 @@ const CouncilListPage = () => {
 
   // TODO consolidate lookups from CouncilHeader here also
 
-  logger.debug('wearerHats', wearerHats, 'councils', councils);
+  logger.debug('wearerHats', wearerHats, 'councils', crossChainCouncils);
 
   // Show landing page if needs login or has no councils
   if (
     needsLogin ||
-    (isClient && isEmpty(councils) && !councilsLoading && !wearerHatsLoading && !allowlistHatsLoading)
+    (isClient &&
+      isEmpty(crossChainCouncils) &&
+      !crossChainCouncilsLoading &&
+      !crossChainWearerHatsLoading &&
+      !crossChainAllowlistHatsLoading)
   ) {
     return (
       <div className='relative mx-auto mt-20 flex min-h-[85vh] max-w-[1000px] flex-col gap-4 px-4 md:px-0'>
@@ -167,7 +192,7 @@ const CouncilListPage = () => {
     );
   }
 
-  if (!isEmpty(councils) && !councilsLoading && !wearerHatsLoading) {
+  if (!isEmpty(crossChainCouncils) && !crossChainCouncilsLoading && !crossChainWearerHatsLoading) {
     return (
       <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-2 px-2 md:mt-20 md:gap-4 md:px-10'>
         {map(councils, (council) => (
