@@ -2,9 +2,16 @@ import { gql } from 'graphql-request';
 
 import { NETWORKS_PREFIX } from './constants';
 
-// explicitly query all chains for council data
+// explicitly query all chains for council data -- TODO: Add Eth_hatsSignerGateV2S back in once subgraph issue is resolved
 export const getCrossChainCouncilsListDataQuery = () => gql`
   query GetCrossChainCouncilsData($hatIds: [ID!]!) {
+    Eth_hatsSignerGateV2S(where: { signerHats_: { id_in: $hatIds } }) {
+      id
+      safe
+      signerHats {
+        id
+      }
+    }
     Sep_hatsSignerGateV2S(where: { signerHats_: { id_in: $hatIds } }) {
       id
       safe

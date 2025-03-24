@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { HatSignerGateV2 } from 'types';
-import { getCrossChainCouncilsListData, logger } from 'utils';
+import { getCrossChainCouncilsListData } from 'utils';
 
 interface UseCrossChainCouncilsListProps {
   hatIds?: string[];
@@ -13,10 +13,10 @@ export const useCrossChainCouncilsList = ({
   enabled = true,
   useDynamicQuery = false,
 }: UseCrossChainCouncilsListProps) => {
-  logger.info('hatIds in hook', hatIds);
   return useQuery<Record<string, HatSignerGateV2[]> | null>({
     queryKey: ['crossChainCouncilsList', { hatIds, useDynamicQuery }],
-    queryFn: () => getCrossChainCouncilsListData(hatIds, useDynamicQuery),
+    queryFn: () =>
+      getCrossChainCouncilsListData(hatIds, useDynamicQuery) as Promise<Record<string, HatSignerGateV2[]> | null>,
     enabled: enabled && !!hatIds?.length,
   });
 };

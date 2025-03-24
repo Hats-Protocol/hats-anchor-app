@@ -37,7 +37,6 @@ export const getCouncilData = async ({ id, chainId }: { id: string; chainId: num
       },
     ],
   });
-  logger.info('result', result);
 
   // TODO handle other chains
   return first(get(result, `${networkPrefix}_hatsSignerGateV2S`, undefined));

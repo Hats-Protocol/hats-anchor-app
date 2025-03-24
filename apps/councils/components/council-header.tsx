@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
-import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
+import { chainsMap, explorerUrl, formatAddress, logger, parseCouncilSlug } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -41,6 +41,8 @@ const CouncilHeaderCard = ({
   const pathname = usePathname();
   // const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
+  logger.info('chain id', chainId);
+  logger.info('address', address);
 
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
