@@ -1,7 +1,7 @@
 import { first, get } from 'lodash';
 
 import { logger } from '../logs';
-import { NETWORKS_PREFIX } from '../subgraph';
+import { NETWORKS_PREFIX } from '../subgraph/mesh/queries/';
 import { Chain } from './zeus';
 const MESH_API_URL = process.env.NEXT_PUBLIC_MESH_API;
 if (!MESH_API_URL) {
@@ -37,7 +37,6 @@ export const getCouncilData = async ({ id, chainId }: { id: string; chainId: num
       },
     ],
   });
-  logger.info('result', result);
 
   // TODO handle other chains
   return first(get(result, `${networkPrefix}_hatsSignerGateV2S`, undefined));

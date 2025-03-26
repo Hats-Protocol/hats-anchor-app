@@ -5,7 +5,14 @@ import { mapWithChainId } from 'shared';
 import { AppTree } from 'types';
 import { Hex } from 'viem';
 
-import { getWearerDetailsQuery, getWearersProfileDetailQuery, getWearerTreesQuery, NETWORKS_PREFIX } from '../queries';
+import {
+  getCrossChainWearerDetailsQuery,
+  getWearerDetailsQuery,
+  getWearersProfileDetailQuery,
+  getWearerTreesQuery,
+  NETWORKS_PREFIX,
+} from '../queries';
+import { getCrossChainAllowlistEligibilitiesQuery } from '../queries';
 import { parseMetadata } from './utils';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -82,5 +89,57 @@ export const fetchWearerTrees = async ({
     return uniqBy(wearerTreesProcessHatMetadata, 'id');
   } catch (err) {
     return undefined;
+  }
+};
+
+export const getCrossChainAllowlistEligibilities = async (address: string | undefined) => {
+  if (!address) return null;
+
+  try {
+    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+    const query = getCrossChainAllowlistEligibilitiesQuery();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const res: any = await client.request(query, {
+      address: address.toLowerCase(),
+    });
+
+    return res;
+  } catch (err) {
+    console.error('Error fetching cross-chain allowlist eligibilities:', err);
+    return null;
+  }
+};
+
+export const getCrossChainWearerDetails = async (address: string | undefined) => {
+  if (!address) return null;
+
+  try {
+    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+    const query = getCrossChainWearerDetailsQuery();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const res: any = await client.request(query, {
+      id: address.toLowerCase(),
+    });
+
+    // Process each chain's wearer data to include chainId
+    const processedData = Object.entries(res).reduce((acc: any, [key, value]) => {
+      const chainPrefix = key.split('_')[0];
+      const chainId = Object.entries(NETWORKS_PREFIX).find(([_, prefix]) => prefix === chainPrefix)?.[0];
+
+      if (chainId && value) {
+        acc[key] = {
+          ...value,
+          currentHats: mapWithChainId(get(value, 'currentHats'), Number(chainId)),
+        };
+      }
+      return acc;
+    }, {});
+
+    return processedData;
+  } catch (err) {
+    console.error('Error fetching cross-chain wearer details:', err);
+    return null;
   }
 };
