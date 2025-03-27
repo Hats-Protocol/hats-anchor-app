@@ -406,6 +406,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const formData = form.getValues();
       let payload: Partial<CouncilFormResponse['councilCreationForm']> = { id: draftId || undefined };
 
+      // Cache current form state to prevent flashing
+      const currentFormState = { ...formData };
+
       switch (step) {
         case 'details':
           // Get previous form data from query cache
@@ -510,11 +513,19 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       logger.debug('payload', payload);
       const accessToken = await getAccessToken();
       const councilsGraphqlClient = getCouncilsGraphqlClient(accessToken ?? undefined);
+
+      // Ensure form state is preserved during the request
+      form.reset(currentFormState);
+
       return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
     },
-    onSuccess: (data: UpdateCouncilFormResponse) => {
+    onSuccess: (data: UpdateCouncilFormResponse, variables) => {
       console.log('onSuccess', data);
-      queryClient.setQueryData(['councilForm', draftId], data.updateCouncilCreationForm);
+      // Update query cache while preserving form state
+      queryClient.setQueryData(['councilForm', draftId], (oldData: any) => ({
+        ...oldData,
+        ...data.updateCouncilCreationForm,
+      }));
     },
     onError: (error: Error) => {
       console.error('onError', error);
