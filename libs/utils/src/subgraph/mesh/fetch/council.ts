@@ -6,6 +6,7 @@ import { getCrossChainCouncilsListDataQuery, getCrossChainCouncilsListDataQueryD
 
 // TODO: Add Eth_hatsSignerGateV2S back in once subgraph issue is resolved
 interface CrossChainCouncilsResponse {
+  Eth_hatsSignerGateV2S: HatSignerGateV2[];
   Sep_hatsSignerGateV2S: HatSignerGateV2[];
   Op_hatsSignerGateV2S: HatSignerGateV2[];
   Arb_hatsSignerGateV2S: HatSignerGateV2[];
