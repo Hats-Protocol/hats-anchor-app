@@ -226,7 +226,7 @@ const ModuleAuthorityToolbar = ({
                 <FaEllipsisV className='text-functional-link-primary ml-1 size-2' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align='start'>
+            <DropdownMenuContent align='start' className='z-[100]'>
               {map(otherFunctions, (func: ModuleFunction, i: number) => {
                 const publicFunction = includes(func.roles, 'public');
                 const localDisabledReason = getDisabledReason({
