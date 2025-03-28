@@ -9,22 +9,18 @@ const AgreementContent = ({ agreement, isLoading = false }: AgreementContentProp
   if (isLoading) {
     return (
       <div className='space-y-4'>
-        {/* Title */}
         <Skeleton className='h-8 w-3/4' />
 
-        {/* Paragraphs */}
         <Skeleton className='h-20 w-full' />
         <Skeleton className='h-16 w-full' />
         <Skeleton className='h-20 w-full' />
 
-        {/* List items */}
         <div className='space-y-2'>
           <Skeleton className='h-6 w-5/6' />
           <Skeleton className='h-6 w-4/6' />
           <Skeleton className='h-6 w-5/6' />
         </div>
 
-        {/* Final paragraph */}
         <Skeleton className='h-16 w-full' />
       </div>
     );

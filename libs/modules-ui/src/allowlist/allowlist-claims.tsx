@@ -114,7 +114,6 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
   }
 
   let copy = ALLOWLIST_COPY.allowlist;
-  logger.info('allowlist copy', copy);
 
   if (activeModule.instanceAddress === labeledModules?.selection) {
     copy = ALLOWLIST_COPY.selection;

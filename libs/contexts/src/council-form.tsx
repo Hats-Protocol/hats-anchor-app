@@ -520,15 +520,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
     },
     onSuccess: (data: UpdateCouncilFormResponse, variables) => {
-      console.log('onSuccess', data);
-      // Update query cache while preserving form state
+      logger.info('onSuccess', data);
+      // update query cache while preserving form state
       queryClient.setQueryData(['councilForm', draftId], (oldData: any) => ({
         ...oldData,
         ...data.updateCouncilCreationForm,
       }));
     },
     onError: (error: Error) => {
-      console.error('onError', error);
+      logger.error('onError', error);
       toast({ title: 'Failed to update council form', variant: 'destructive' });
     },
   });
