@@ -10,7 +10,7 @@ import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LabeledModules, ModuleDetails } from 'types';
 import { Card, cn, Link, MemberAvatar, Skeleton } from 'ui';
-import { explorerUrl, formatAddress } from 'utils';
+import { explorerUrl, formatAddress, logger } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -112,7 +112,9 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
   if (isEligibilityRulesLoading || isAllowlistLoading) {
     return <Skeleton className='h-[500px] w-full' />;
   }
+
   let copy = ALLOWLIST_COPY.allowlist;
+  logger.info('allowlist copy', copy);
 
   if (activeModule.instanceAddress === labeledModules?.selection) {
     copy = ALLOWLIST_COPY.selection;
