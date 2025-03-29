@@ -4,12 +4,13 @@ import { Form, SignerThresholdSubForm } from 'forms';
 import { useCouncilDeployFlag } from 'hooks';
 import { useCallback } from 'react';
 import type { CouncilFormData, StepProps } from 'types';
+import { Skeleton } from 'ui';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
 export function ThresholdStep({ onNext, draftId }: StepProps) {
-  const { form, stepValidation, canEdit } = useCouncilForm();
+  const { form, stepValidation, canEdit, isLoading } = useCouncilForm();
   const { watch } = form;
   const { requirements } = watch();
 
@@ -26,6 +27,55 @@ export function ThresholdStep({ onNext, draftId }: StepProps) {
     },
     [form, onNext],
   );
+
+  if (isLoading) {
+    return (
+      <div className='flex h-full flex-col'>
+        <div className='flex-1 space-y-6'>
+          {/* Header */}
+          <div className='space-y-2'>
+            <Skeleton className='h-8 w-48' />
+            <Skeleton className='h-4 w-32' />
+          </div>
+
+          {/* SignerThresholdSubForm skeleton */}
+          <div className='space-y-6'>
+            {/* Radio group */}
+            <div className='space-y-4'>
+              <Skeleton className='h-5 w-64' />
+              <div className='flex space-y-2'>
+                <div className='flex items-center gap-3'>
+                  <Skeleton className='h-4 w-4 rounded-full' />
+                  <Skeleton className='h-4 w-48' />
+                </div>
+                <div className='flex items-center gap-3'>
+                  <Skeleton className='h-4 w-4 rounded-full' />
+                  <Skeleton className='h-4 w-64' />
+                </div>
+              </div>
+            </div>
+
+            {/* Number inputs */}
+            <div className='space-y-6'>
+              <div className='space-y-2'>
+                <Skeleton className='h-5 w-44' />
+                <Skeleton className='h-10 w-full' />
+              </div>
+
+              <div className='space-y-2'>
+                <Skeleton className='h-5 w-48' />
+                <Skeleton className='h-10 w-full' />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className='flex justify-end py-6'>
+          <Skeleton className='h-10 w-[160px] rounded-full' />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>

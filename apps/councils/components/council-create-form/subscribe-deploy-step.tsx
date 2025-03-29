@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
-import { Button, MemberAvatar } from 'ui';
+import { Button, MemberAvatar, Skeleton } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
@@ -105,7 +105,7 @@ const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
 );
 
 export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation, deployCouncil, isDeploying, canEdit, deployStatus } = useCouncilForm();
+  const { form, stepValidation, deployCouncil, isDeploying, canEdit, deployStatus, isLoading } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const { setModals } = useOverlay();
@@ -171,6 +171,70 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const firstAdmin = get(formData, 'admins.[0]');
 
   const isWrongNetwork = userChainId !== targetChainId;
+
+  if (isLoading) {
+    return (
+      <div className='mx-auto max-w-4xl space-y-8'>
+        <div className='relative border-b border-gray-200 pb-6'>
+          <div className='absolute right-0 top-0'>
+            <Skeleton className='h-9 w-36' />
+          </div>
+          <div className='flex flex-col items-center gap-1'>
+            <Skeleton className='h-8 w-64' />
+            <Skeleton className='h-5 w-48' />
+          </div>
+        </div>
+
+        <div className='space-y-8'>
+          {/* Council Details Summary */}
+          <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
+            <div className='w-[200px] shrink-0 space-y-2'>
+              <Skeleton className='h-6 w-32' />
+              <Skeleton className='h-4 w-24' />
+            </div>
+            <div className='min-w-0 flex-1 space-y-4'>
+              <Skeleton className='h-16 w-full' />
+            </div>
+            <div className='w-[100px] shrink-0'>
+              <Skeleton className='float-right h-6 w-16' />
+            </div>
+          </div>
+
+          {/* Membership Summary */}
+          <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
+            <div className='w-[200px] shrink-0 space-y-2'>
+              <Skeleton className='h-6 w-40' />
+              <Skeleton className='h-4 w-24' />
+            </div>
+            <div className='min-w-0 flex-1 space-y-4'>
+              <Skeleton className='h-24 w-full' />
+            </div>
+            <div className='w-[100px] shrink-0'>
+              <Skeleton className='float-right h-6 w-16' />
+            </div>
+          </div>
+
+          {/* Requirements Summary */}
+          <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
+            <div className='w-[200px] shrink-0 space-y-2'>
+              <Skeleton className='h-6 w-36' />
+              <Skeleton className='h-4 w-24' />
+            </div>
+            <div className='min-w-0 flex-1 space-y-4'>
+              <Skeleton className='h-32 w-full' />
+            </div>
+            <div className='w-[100px] shrink-0'>
+              <Skeleton className='float-right h-6 w-16' />
+            </div>
+          </div>
+        </div>
+
+        <div className='flex justify-end py-6'>
+          <Skeleton className='h-9 w-32' />
+        </div>
+      </div>
+    );
+  }
 
   if (some(deployStatus, (value) => value)) {
     return <Deploy deployStatus={deployStatus} draftId={draftId} />;
