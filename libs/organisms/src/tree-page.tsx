@@ -58,12 +58,13 @@ const TreePage = ({ chainId, treeId }: { chainId: string; treeId: string }) => {
           className='max-w-[864px]'
           overlay={isMobile}
           dismissible={isMobile}
+          title='Hat Details'
         >
           <HatDrawer returnToList={returnToTreeList} />
         </Slide>
       </SelectedHatContextProvider>
 
-      <Slide open={!!isTreeDrawerOpen} onClose={onCloseTreeDrawer} className='max-w-[864px]'>
+      <Slide open={!!isTreeDrawerOpen} onClose={onCloseTreeDrawer} className='max-w-[864px]' title='Tree Details'>
         <TreeDrawer />
       </Slide>
 

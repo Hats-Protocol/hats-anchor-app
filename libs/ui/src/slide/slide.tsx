@@ -1,4 +1,6 @@
-import { Drawer, DrawerContent } from '../drawer';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
+import { Drawer, DrawerContent, DrawerTitle } from '../drawer';
 import { cn } from '../lib/utils';
 
 const Slide = ({
@@ -7,6 +9,7 @@ const Slide = ({
   overlay = false,
   className,
   children,
+  title = 'Slide Panel',
   ...props
 }: {
   open: boolean;
@@ -15,6 +18,7 @@ const Slide = ({
   className?: string;
   children: React.ReactNode;
   dismissible?: boolean;
+  title?: string;
 }) => {
   return (
     <Drawer
@@ -27,6 +31,9 @@ const Slide = ({
       {...props}
     >
       <DrawerContent className={cn('bg-background w-2/3 shadow-lg', className)} hideOverlay={!overlay}>
+        <VisuallyHidden asChild>
+          <DrawerTitle>{title}</DrawerTitle>
+        </VisuallyHidden>
         {children}
       </DrawerContent>
     </Drawer>

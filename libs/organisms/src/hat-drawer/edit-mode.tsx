@@ -256,6 +256,7 @@ const EditMode = () => {
         open={!!drawers?.eligibility || !!drawers?.toggle}
         className='max-w-[864px]'
         onClose={() => setDrawers?.({})}
+        title={drawers?.eligibility ? 'Eligibility Module' : drawers?.toggle ? 'Toggle Module' : 'Module Details'}
       >
         {(drawers?.eligibility || drawers?.toggle) && (
           <ModuleDrawer
