@@ -2,20 +2,18 @@
 
 import { councilsChainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
-import { useWearerDetails } from 'hats-hooks';
 import {
   useAuthGuard,
-  useCouncilsList,
   useCrossChainAllowlist,
   useCrossChainCouncilsList,
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
-import { concat, flatten, isEmpty, map, uniq } from 'lodash';
+import { flatten, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
-import { HatSignerGateV2, SupportedChains } from 'types';
+import { HatSignerGateV2 } from 'types';
 import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
-import { chainIdToString, fetchAllowlistEntries, ipfsUrl, logger } from 'utils';
+import { chainIdToString, ipfsUrl } from 'utils';
 import { NETWORKS_PREFIX } from 'utils/src/subgraph/mesh/queries/constants';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
@@ -43,7 +41,6 @@ const EMPTY_COUNCIL_STEPS = [
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
   const { user, login } = usePrivy();
-  const chainId = useChainId();
   const { isClient } = useMediaStyles();
   const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 

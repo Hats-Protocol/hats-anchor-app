@@ -168,6 +168,9 @@ export function getWearersProfileDetailQuery(chainId: number): string {
 export function getCrossChainAllowlistEligibilitiesQuery(): string {
   return gql`
     query GetCrosschainAllowlistHats($address: String!) {
+      Eth_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
+        hatId
+      }
       Sep_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
         hatId
       }
@@ -221,6 +224,40 @@ export function getCrossChainAllowlistEligibilitiesQueryDynamic(): string {
 export function getCrossChainWearerDetailsQuery(): string {
   return gql`
     query GetCrossChainWearerDetails($id: ID!) {
+      Eth_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
       Sep_wearer(id: $id) {
         id
         currentHats(first: 1000) {
