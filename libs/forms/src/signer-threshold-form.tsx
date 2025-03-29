@@ -1,6 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 
-import { FormLabel, NumberInput, RadioBox } from './components';
+import { NumberInput, RadioBox } from './components';
 
 // TO BE USED WITHIN A FORM
 function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProps) {
