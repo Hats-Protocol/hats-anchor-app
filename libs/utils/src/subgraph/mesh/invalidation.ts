@@ -11,7 +11,7 @@ export const invalidateAfterTransaction = async (networkId: number, transactionI
       networkId: networkId.toString(),
     }),
   })
-    .then((res) => Promise.resolve(res.json()))
+    .then((res) => Promise.resolve(res)) // response is not json, but "success" text
     .catch((e) => {
       logger.error('Error invalidating transaction', e);
       return Promise.resolve(undefined);
