@@ -2,7 +2,8 @@
 import { useCouncilForm } from 'contexts';
 import { Form, SignerThresholdSubForm } from 'forms';
 import { useCouncilDeployFlag } from 'hooks';
-import { StepProps } from 'types';
+import { useCallback } from 'react';
+import type { CouncilFormData, StepProps } from 'types';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -16,9 +17,19 @@ export function ThresholdStep({ onNext, draftId }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, requirements);
 
+  const handleSubmit = useCallback(
+    async (data: CouncilFormData) => {
+      // set the current form values to prevent state flashing during transition
+      // data contains the latest form values at submission time (as we advance the form)
+      form.reset(data);
+      await onNext();
+    },
+    [form, onNext],
+  );
+
   return (
     <Form {...form}>
-      <form className='flex h-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
+      <form className='flex h-full flex-col space-y-6' onSubmit={form.handleSubmit(handleSubmit)}>
         <div className='flex-1 space-y-6'>
           <div className='space-y-2'>
             <h2 className='text-2xl font-bold'>Signer Threshold</h2>

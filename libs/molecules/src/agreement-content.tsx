@@ -1,7 +1,33 @@
-import { Markdown } from 'ui';
+import { Markdown, Skeleton } from 'ui';
 
-const AgreementContent = ({ agreement }: { agreement: string | undefined }) => {
+interface AgreementContentProps {
+  agreement: string | undefined;
+  isLoading?: boolean;
+}
+
+const AgreementContent = ({ agreement, isLoading = false }: AgreementContentProps) => {
+  if (isLoading) {
+    return (
+      <div className='space-y-4'>
+        <Skeleton className='h-8 w-3/4' />
+
+        <Skeleton className='h-20 w-full' />
+        <Skeleton className='h-16 w-full' />
+        <Skeleton className='h-20 w-full' />
+
+        <div className='space-y-2'>
+          <Skeleton className='h-6 w-5/6' />
+          <Skeleton className='h-6 w-4/6' />
+          <Skeleton className='h-6 w-5/6' />
+        </div>
+
+        <Skeleton className='h-16 w-full' />
+      </div>
+    );
+  }
+
   if (!agreement) return null;
+
   const formattedAgreement = agreement
     .replace(/{\.underline}/g, '') // replace weird format provided in original Hats Community agreement copy
     .replace(/\[\*\[|\[\[/g, '[') // replace escaped brackets
@@ -13,4 +39,5 @@ const AgreementContent = ({ agreement }: { agreement: string | undefined }) => {
     </div>
   );
 };
+
 export { AgreementContent };

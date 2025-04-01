@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
 import { get, isEmpty } from 'lodash';
 import { ExtendedHSGV2, SupportedChains } from 'types';
-import { ancillarySubgraphClient } from 'utils';
+import { ancillarySubgraphClient, logger } from 'utils';
 import { Hex } from 'viem';
 
 const COUNCILS_LIST_QUERY = gql`

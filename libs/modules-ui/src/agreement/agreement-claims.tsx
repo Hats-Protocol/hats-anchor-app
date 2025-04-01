@@ -143,7 +143,7 @@ export const AgreementClaims = ({
     moduleParameters: activeModule?.liveParameters,
   });
 
-  const { data: agreementV0 } = useQuery({
+  const { data: agreementV0, isLoading: isLoadingV0 } = useQuery({
     queryKey: ['agreementV0'],
     queryFn: () => handleFetchIpfs(CONFIG.agreementV0.ipfsHash),
     enabled: !agreement,
@@ -178,7 +178,7 @@ export const AgreementClaims = ({
           </div>
         </div>
 
-        <AgreementContent agreement={agreement || agreementV0 || undefined} />
+        <AgreementContent agreement={agreement || agreementV0 || undefined} isLoading={isLoadingV0 && !agreement} />
         <div className='flex'>
           <AgreementButton activeModule={activeModule} />
         </div>
