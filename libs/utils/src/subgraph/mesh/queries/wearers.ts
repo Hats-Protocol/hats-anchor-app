@@ -183,6 +183,9 @@ export function getCrossChainAllowlistEligibilitiesQuery(): string {
       Base_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
         hatId
       }
+      BaseSep_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
+        hatId
+      }
       Celo_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
         hatId
       }
@@ -196,10 +199,9 @@ export function getCrossChainAllowlistEligibilitiesQuery(): string {
   `;
 }
 
-// map over all of our available networks in NETWORKS_PREFIX
+// map over all available networks in NETWORKS_PREFIX
 export function getCrossChainAllowlistEligibilitiesQueryDynamic(): string {
   const networkQueries = Object.values(NETWORKS_PREFIX)
-    .filter((prefix) => prefix !== 'Eth') // Excluding Ethereum as per the example
     .map(
       (prefix) => `
       ${prefix}_allowListEligibilities(where:{
@@ -394,6 +396,40 @@ export function getCrossChainWearerDetailsQuery(): string {
           }
         }
       }
+      BaseSep_wearer(id: $id) {
+        id
+        currentHats(first: 1000) {
+          id
+          prettyId
+          status
+          createdAt
+          details
+          detailsMetadata
+          maxSupply
+          eligibility
+          toggle
+          mutable
+          imageUri
+          nearestImage
+          levelAtLocalTree
+          claimableBy {
+            id
+          }
+          claimableForBy {
+            id
+          }
+          currentSupply
+          tree {
+            id
+          }
+          wearers {
+            id
+          }
+          admin {
+            id
+          }
+        }
+      }
       Celo_wearer(id: $id) {
         id
         currentHats(first: 1000) {
@@ -503,7 +539,6 @@ export function getCrossChainWearerDetailsQuery(): string {
 // map over all available networks in NETWORKS_PREFIX for wearer details
 export function getCrossChainWearerDetailsQueryDynamic(): string {
   const networkQueries = Object.values(NETWORKS_PREFIX)
-    .filter((prefix) => prefix !== 'Eth') // Excluding Ethereum as per the example
     .map(
       (prefix) => `
       ${prefix}_wearer(id: $id) {
