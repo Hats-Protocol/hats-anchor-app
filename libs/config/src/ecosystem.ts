@@ -40,7 +40,7 @@ export const SAFE_API_URL: {
   137: 'https://safe-transaction-polygon.safe.global',
   8453: 'https://safe-transaction-base.safe.global',
   42161: 'https://safe-transaction-arbitrum.safe.global',
-  42220: undefined, // 'https://safe-transaction-celo.safe.global',
+  42220: 'https://safe-transaction-celo.safe.global',
   11155111: 'https://safe-transaction-sepolia.safe.global',
   84532: 'https://safe-transaction-base-sepolia.safe.global',
 };
