@@ -15,6 +15,7 @@ const SUPERFLUID_SUBGRAPH_URL: {
   42220: undefined,
 
   // 421611: '',
+  84532: undefined,
   11155111: 'https://eth-sepolia.subgraph.x.superfluid.dev/',
 };
 
