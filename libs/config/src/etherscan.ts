@@ -20,6 +20,7 @@ export const ETHERSCAN_API_URLS: {
   8453: 'https://api.basescan.org/api',
   42161: 'https://api.arbiscan.io/api',
   42220: 'https://api.celoscan.io/api',
+  84532: 'https://api-sepolia.basescan.org/api',
   11155111: 'https://api-sepolia.etherscan.io/api',
 };
 
@@ -31,5 +32,6 @@ export const ETHERSCAN_KEYS: { [key in SupportedChains]: string | undefined } = 
   8453: BASESCAN_API_KEY,
   42161: ARBISCAN_API_KEY,
   42220: CELOSCAN_API_KEY,
+  84532: BASESCAN_API_KEY,
   11155111: ETHERSCAN_API_KEY,
 };

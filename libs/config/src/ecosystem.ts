@@ -11,6 +11,7 @@ export const SAFE_CHAIN_MAP: { [key in SupportedChains]: string } = {
   8453: 'base',
   42161: 'arb1',
   42220: 'celo',
+  84532: 'basesep',
   11155111: 'sep',
 };
 
@@ -27,6 +28,7 @@ export const SNAPSHOT_API_URLS: SnapshotApiUrls = {
   42220: MAINNET_SNAPSHOT_API_URL,
   // testnet
   11155111: 'https://testnet.hub.snapshot.org/graphql',
+  84532: 'https://testnet.hub.snapshot.org/graphql',
 };
 
 export const SAFE_API_URL: {
@@ -40,4 +42,5 @@ export const SAFE_API_URL: {
   42161: 'https://safe-transaction-arbitrum.safe.global',
   42220: undefined, // 'https://safe-transaction-celo.safe.global',
   11155111: 'https://safe-transaction-sepolia.safe.global',
+  84532: 'https://safe-transaction-base-sepolia.safe.global',
 };

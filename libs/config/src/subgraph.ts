@@ -26,6 +26,7 @@ const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
   8453: graphNetworkUrl('FWeAqrp36QYqv9gDWLwr7em8vtvPnPrmRRQgnBb6QbBs'),
   // studio
   11155111: studioUrl('hats-v1-sepolia', 'v1.1.0'),
+  84532: studioUrl('hats-v1-base-sepolia', 'v0.0.8'),
 };
 
 export const NETWORK_ENDPOINTS: EndpointsConfig = {
@@ -44,4 +45,5 @@ export const ANCILLARY_API_URL: {
   42161: studioUrl('hats-v1-arbitrum-ancillary', 'v0.0.24'),
   42220: studioUrl('hats-v1-celo-ancillary', 'v0.0.25'),
   11155111: studioUrl('hats-v1-sepolia-ancillary', 'v0.0.25'),
+  84532: studioUrl('hats-v1-base-sepolia-ancillary', 'v0.0.1'),
 };
