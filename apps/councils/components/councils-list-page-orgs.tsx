@@ -123,12 +123,12 @@ const CouncilListPageOrgs = () => {
     [crossChainCouncils, prefixToChainId],
   );
 
-  // Fetch all offchain details in batch
+  // fetch all offchain details in batch -- uses parallel react queries instead of a promise.all -- we can consider optimizing this at the Mesh level instead
   const { data: offchainDetails, isLoading: offchainDetailsLoading } = useBatchOffchainCouncilDetails(
     councilsWithChains.map(({ hsg, chainId }) => ({ hsg, chainId })),
   );
 
-  // Combine council data with their respective offchain details
+  // combine council data with the offchain details
   const processedCouncils = useMemo(
     () =>
       councilsWithChains.map((item, index) => ({
@@ -304,10 +304,10 @@ const CouncilListPageOrgs = () => {
   // TODO consolidate lookups from CouncilHeader here also
 
   if (!isEmpty(crossChainCouncils)) {
-    // Group councils by organization and chain
+    // group councils by organization and chain
     const groupedCouncils = groupBy(processedCouncils, (item) => item.offchainDetails?.organization?.name || 'Other');
 
-    // Sort organizations alphabetically
+    // sort organizations alphabetically
     const sortedOrgs = orderBy(Object.keys(groupedCouncils));
 
     return (
