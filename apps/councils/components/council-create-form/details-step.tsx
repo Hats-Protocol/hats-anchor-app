@@ -2,11 +2,11 @@
 
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm } from 'contexts';
-import { ChainSelect, Form, Input, Textarea } from 'forms';
+import { ChainSelect, Form, Input, Select, Textarea } from 'forms';
 import { useCouncilDeployFlag, useToast } from 'hooks';
 import { get } from 'lodash';
 import { StepProps } from 'types';
-import { Skeleton } from 'ui';
+import { MemberAvatar, Skeleton } from 'ui';
 import { getOrganizationByName } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
@@ -102,7 +102,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
           <h2 className='text-xl font-bold'>Create your first Council</h2>
 
           <div className='space-y-2'>
-            <Input
+            {/* <Input
               name='organizationName'
               localForm={localForm}
               label='Organization Name'
@@ -125,7 +125,34 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
                 },
               }}
               isDisabled={!canEdit}
+            /> */}
+            <Select
+              name='organizationName'
+              localForm={localForm}
+              label='Organization Name'
+              subLabel='The name of the organization you are creating councils for.'
+              variant='councils'
+              options={[]}
             />
+          </div>
+
+          <div className='space-y-2'>
+            <Select
+              name='orgChain'
+              localForm={localForm}
+              label='Organization Chain'
+              subLabel='The chain you will deploy the Safe Multisig and Hats Council to.'
+              variant='councils'
+              options={[]}
+            />
+          </div>
+          <div className='flex flex-col space-y-2'>
+            <span className='text-base font-bold normal-case'>Organization Owner</span>
+            <p className='text-sm text-gray-600'>
+              Organization Owners can add and remove any addresses, change all Membership Criteria, deploy and edit
+              Safes and Councils. You can change this after deploying.
+            </p>
+            <MemberAvatar member={{ address: '0x25709998B542f1Be27D19Fa0B3A9A67302bc1b94' }} stack />
           </div>
 
           <div className='space-y-2'>
