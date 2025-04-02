@@ -1,16 +1,5 @@
 import { SupportedChains } from 'types';
-import {
-  arbitrum,
-  base,
-  celo,
-  // baseSepolia,
-  Chain,
-  gnosis,
-  mainnet,
-  optimism,
-  polygon,
-  sepolia,
-} from 'wagmi/chains';
+import { arbitrum, base, baseSepolia, celo, Chain, gnosis, mainnet, optimism, polygon, sepolia } from 'wagmi/chains';
 
 // ORDER HERE WILL BE USED IN THE UI
 export const ORDERED_CHAINS: SupportedChains[] = [
@@ -24,7 +13,7 @@ export const ORDERED_CHAINS: SupportedChains[] = [
   42220, // celo
   // testnets
   11155111, // sepolia
-  // 84532 // baseSepolia
+  84532, // baseSepolia
 ];
 
 // celo and gnosis are missing images, also used by NetworkFilter
@@ -36,7 +25,7 @@ export const NETWORK_IMAGES: { [key in SupportedChains]: string } = {
   8453: '/chains/base.png',
   42161: '/chains/arbitrum.svg',
   42220: '/chains/celo.svg',
-  // 84532: '/chains/base-sepolia.svg',
+  84532: '/chains/base.png',
   11155111: '/chains/sepolia.png',
 };
 
@@ -56,7 +45,7 @@ export const councilsChainsList = {
   42161: extendIcon(arbitrum),
 
   // TESTNETS
-  // 84532: baseSepolia,
+  84532: extendIcon(baseSepolia),
   11155111: extendIcon(sepolia),
 };
 
@@ -75,7 +64,7 @@ export const NETWORK_CURRENCY: { [key: number]: string } = {
   42220: 'CELO',
 
   // TESTNETS
-  // 84532: 'ETH',
+  84532: 'ETH',
   11155111: 'ETH',
 };
 
@@ -89,7 +78,7 @@ export const NETWORK_CURRENCY_IMAGE: { [key: number]: string } = {
   42220: '/chains/celo.svg',
 
   // TESTNETS
-  // 84532: '/chains/ethereum.svg',
+  84532: '/chains/ethereum.svg',
   11155111: '/chains/ethereum.svg',
 };
 
@@ -102,4 +91,5 @@ export const CHAIN_IDS: Record<string, SupportedChains> = {
   gnosis: 100,
   celo: 42220,
   sepolia: 11155111,
+  baseSepolia: 84532,
 } as const;

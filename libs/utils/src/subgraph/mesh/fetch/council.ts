@@ -11,6 +11,7 @@ interface CrossChainCouncilsResponse {
   Op_hatsSignerGateV2S: HatSignerGateV2[];
   Arb_hatsSignerGateV2S: HatSignerGateV2[];
   Base_hatsSignerGateV2S: HatSignerGateV2[];
+  BaseSep_hatsSignerGateV2S: HatSignerGateV2[];
   Celo_hatsSignerGateV2S: HatSignerGateV2[];
   Gno_hatsSignerGateV2S: HatSignerGateV2[];
   Pol_hatsSignerGateV2S: HatSignerGateV2[];
