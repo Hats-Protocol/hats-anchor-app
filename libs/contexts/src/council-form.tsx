@@ -334,7 +334,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     if (!chain) throw new Error('Chain not found');
 
     const newValues: CouncilFormData = {
-      organizationName: data.organizationName || '',
+      organizationName: data.organizationName
+        ? {
+            value: data.organizationName,
+            label: data.organizationName,
+          }
+        : '',
       councilName: data.councilName || '',
       chain,
       councilDescription: data.councilDescription || '',
@@ -421,7 +426,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           payload = {
             ...payload,
-            organizationName: formData.organizationName,
+            organizationName:
+              typeof formData.organizationName === 'object'
+                ? formData.organizationName.value
+                : formData.organizationName,
             councilName: formData.councilName,
             chain: toNumber(formData.chain.value),
             councilDescription: formData.councilDescription,

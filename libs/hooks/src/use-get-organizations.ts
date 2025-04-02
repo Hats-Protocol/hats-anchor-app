@@ -9,7 +9,12 @@ interface Organization {
     id: string;
     creator: string;
     chain: number;
-    councilName: string;
+    creationForm: {
+      id: string;
+      creator: string;
+      chain: number;
+      councilName: string;
+    };
   }[];
 }
 
@@ -22,17 +27,21 @@ export const useGetOrganizations = () => {
 
   return useQuery<OrganizationsResponse>({
     queryKey: ['organizations'],
-    queryFn: async () => {
+    queryFn: async (): Promise<OrganizationsResponse> => {
       logger.info('Fetching organizations...');
       const accessToken = await getAccessToken();
       logger.info('Got access token:', !!accessToken);
       try {
-        const response = (await getOrganizations({ accessToken })) as { data: OrganizationsResponse };
+        const response = await getOrganizations({ accessToken });
         logger.info('Raw response:', response);
-        if (!response?.data?.organizations) {
+
+        // The response is already in the correct format, no need to access .data
+        const typedResponse = response as OrganizationsResponse;
+        if (!typedResponse?.organizations) {
           throw new Error('Invalid response format from organizations query');
         }
-        return response.data;
+
+        return typedResponse;
       } catch (error) {
         logger.error('Error fetching organizations:', error);
         throw error;

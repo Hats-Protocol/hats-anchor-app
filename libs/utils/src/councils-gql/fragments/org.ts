@@ -14,8 +14,6 @@ export const ORGANIZATION_COUNCIL_FRAGMENT = gql`
     councils {
       id
       chain
-      treeId
-      hsg
       creationForm {
         id
         creator
