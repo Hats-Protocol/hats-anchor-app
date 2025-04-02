@@ -1,6 +1,6 @@
 import { compact, concat, get, includes, toNumber, uniqBy } from 'lodash';
 import { OffchainCouncilData } from 'types';
-import { getAddress } from 'viem';
+import { getAddress, Hex } from 'viem';
 
 import { chainStringToId } from '../chains';
 import { GET_COUNCIL_BY_HSG, getCouncilsGraphqlClient } from '../councils-gql';
@@ -97,5 +97,32 @@ export const getOffchainCouncilData = async ({
       // eslint-disable-next-line no-console
       console.error('Error fetching offchain council data', error);
       return Promise.resolve(null);
+    });
+};
+
+interface BatchCouncil {
+  hsg: Hex;
+  chainId: number;
+}
+
+export const getBatchOffchainCouncilData = async ({
+  council,
+  accessToken,
+}: {
+  council: BatchCouncil;
+  accessToken: string | null;
+}): Promise<OffchainCouncilData | null> => {
+  if (!council.hsg || !council.chainId) return Promise.resolve(null);
+
+  const client = getCouncilsGraphqlClient(accessToken ?? undefined);
+
+  return client
+    .request<{
+      councils: OffchainCouncilData[];
+    }>(GET_COUNCIL_BY_HSG, { hsg: council.hsg, chainId: council.chainId })
+    .then((data) => get(data, 'councils[0]', null))
+    .catch((error) => {
+      console.error('Error fetching offchain council data', error);
+      return null;
     });
 };
