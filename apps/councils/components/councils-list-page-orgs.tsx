@@ -4,13 +4,15 @@ import { councilsChainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
 import {
   useAuthGuard,
+  useBatchOffchainCouncilDetails,
   useCrossChainAllowlist,
   useCrossChainCouncilsList,
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
-import { flatten, isEmpty, map, uniq } from 'lodash';
+import { flatten, groupBy, isEmpty, map, orderBy, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
+import { useMemo } from 'react';
 import { HatSignerGateV2 } from 'types';
 import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
 import { chainIdToString, ipfsUrl } from 'utils';
@@ -38,7 +40,7 @@ const EMPTY_COUNCIL_STEPS = [
   },
 ];
 
-const CouncilListPage = () => {
+const CouncilListPageOrgs = () => {
   const { address: userAddress } = useAccount();
   const { user, login } = usePrivy();
   const { isClient } = useMediaStyles();
@@ -86,19 +88,65 @@ const CouncilListPage = () => {
   });
 
   // use real councils data directly from all chains
-
   const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsList({
     hatIds: processedHatIds ?? [],
   });
 
-  // show loading state until EVERYTHING is ready, including wallet and auth (avoids flash of empty state)
+  // Create mapping from prefix to chain ID
+  const prefixToChainId = useMemo(
+    () =>
+      Object.entries(NETWORKS_PREFIX).reduce(
+        (acc, [chainId, prefix]) => {
+          acc[`${prefix}_hatsSignerGateV2S`] = Number(chainId);
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+    [],
+  );
+
+  // Create a flat list of councils with their chain IDs
+  const councilsWithChains = useMemo(
+    () =>
+      !isEmpty(crossChainCouncils)
+        ? Object.entries(crossChainCouncils || {})
+            .filter(([_, councils]) => !isEmpty(councils))
+            .flatMap(([key, councils]) => {
+              const chainId = prefixToChainId[key];
+              return (councils as HatSignerGateV2[]).map((council) => ({
+                chainId,
+                council,
+                hsg: getAddress(council.id) as Hex,
+              }));
+            })
+        : [],
+    [crossChainCouncils, prefixToChainId],
+  );
+
+  // fetch all offchain details in batch -- uses parallel react queries instead of a promise.all -- we can consider optimizing this at the Mesh level instead
+  const { data: offchainDetails, isLoading: offchainDetailsLoading } = useBatchOffchainCouncilDetails(
+    councilsWithChains.map(({ hsg, chainId }) => ({ hsg, chainId })),
+  );
+
+  // combine council data with the offchain details
+  const processedCouncils = useMemo(
+    () =>
+      councilsWithChains.map((item, index) => ({
+        ...item,
+        offchainDetails: offchainDetails?.[index],
+      })),
+    [councilsWithChains, offchainDetails],
+  );
+
+  // show loading state until EVERYTHING is ready
   const isLoading =
     !isClient ||
     !isReady ||
     !userAddress ||
     crossChainCouncilsLoading ||
     crossChainWearerHatsLoading ||
-    crossChainAllowlistHatsLoading;
+    crossChainAllowlistHatsLoading ||
+    offchainDetailsLoading;
 
   // always show loading state first (avoids flash of empty state)
   if (isLoading) {
@@ -256,63 +304,43 @@ const CouncilListPage = () => {
   // TODO consolidate lookups from CouncilHeader here also
 
   if (!isEmpty(crossChainCouncils)) {
-    // create a mapping from prefix to chain ID
-    const prefixToChainId: Record<string, number> = Object.entries(NETWORKS_PREFIX).reduce(
-      (acc, [chainId, prefix]) => {
-        acc[`${prefix}_hatsSignerGateV2S`] = Number(chainId);
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
+    // group councils by organization and chain
+    const groupedCouncils = groupBy(processedCouncils, (item) => item.offchainDetails?.organization?.name || 'Other');
 
-    // group councils by chain
-    const councilsByChain = Object.entries(crossChainCouncils || {})
-      .filter(([_, councils]) => !isEmpty(councils))
-      .map(([key, councils]) => {
-        const chainId = prefixToChainId[key];
-        const chainConfig = councilsChainsList[chainId as keyof typeof councilsChainsList];
-        return {
-          chainId,
-          chainName: chainConfig?.name || NETWORKS_PREFIX[chainId],
-          councils: councils as HatSignerGateV2[],
-        };
-      })
-      .filter((chain) => chain.chainId && chain.chainName)
-      // sort chains to match the order in councilsChainsList
-      .sort((a, b) => {
-        const aIndex = Object.keys(councilsChainsList).indexOf(a.chainId.toString());
-        const bIndex = Object.keys(councilsChainsList).indexOf(b.chainId.toString());
-        return aIndex - bIndex;
-      });
+    // sort organizations alphabetically
+    const sortedOrgs = orderBy(Object.keys(groupedCouncils));
 
     return (
       <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-20 md:gap-8 md:px-10'>
-        {councilsByChain.map(({ chainId, chainName, councils }) => (
-          <div key={chainId} className='flex flex-col gap-2 md:gap-4'>
-            <div className='flex items-center gap-2'>
-              <img
-                src={councilsChainsList[chainId as keyof typeof councilsChainsList]?.iconUrl}
-                alt={chainName}
-                className='size-6'
-              />
-              <h2 className='text-xl font-semibold md:text-2xl'>{chainName}</h2>
-            </div>
-            <div className='flex flex-col gap-2 md:gap-4'>
-              {councils.map((council) => (
-                <Link
-                  href={`/councils/${chainIdToString(chainId)}:${getAddress(council.id)}/members`}
-                  className='hover:text-foreground/80 text-inherit hover:no-underline'
-                  key={council.id}
-                >
-                  <CouncilHeaderCard
-                    key={council.id}
-                    chainId={chainId}
-                    address={getAddress(council.id)}
-                    withLinks={false}
-                  />
-                </Link>
-              ))}
-            </div>
+        {sortedOrgs.map((orgName) => (
+          <div key={orgName} className='flex flex-col gap-4'>
+            {/* Group by chain within each organization */}
+            {Object.entries(groupBy(groupedCouncils[orgName], 'chainId')).map(([chainId, councils]) => {
+              const chainConfig = councilsChainsList[Number(chainId) as keyof typeof councilsChainsList];
+              return (
+                <div key={chainId} className='flex flex-col gap-2 md:gap-4'>
+                  <div className='flex items-center gap-2'>
+                    <img src={chainConfig?.iconUrl} alt={chainConfig?.name} className='size-6' />
+                    <h3 className='text-xl font-bold'>{orgName}</h3>
+                  </div>
+                  <div className='flex flex-col gap-2 md:gap-4'>
+                    {councils.map((item) => (
+                      <Link
+                        href={`/councils/${chainIdToString(item.chainId)}:${getAddress(item.council.id)}/members`}
+                        className='hover:text-foreground/80 text-inherit hover:no-underline'
+                        key={item.council.id}
+                      >
+                        <CouncilHeaderCard
+                          chainId={item.chainId}
+                          address={getAddress(item.council.id)}
+                          withLinks={false}
+                        />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ))}
         <HatDeco />
@@ -329,4 +357,4 @@ const CouncilListPage = () => {
   );
 };
 
-export { CouncilListPage };
+export { CouncilListPageOrgs };
