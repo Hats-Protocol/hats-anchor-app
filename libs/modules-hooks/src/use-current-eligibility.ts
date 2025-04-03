@@ -3,23 +3,22 @@ import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { flatten, forEach, isEmpty, map } from 'lodash';
 import type { AppHat, CurrentEligibility, SupportedChains } from 'types';
-import { viemPublicClient } from 'utils';
+import { logger, viemPublicClient } from 'utils';
 import { Hex } from 'viem';
 
 const getCurrentEligibility = async ({
   chainId,
-  selectedHat,
+  selectedHatId,
   wearerAddress,
   moduleAddresses,
 }: {
   chainId: SupportedChains | undefined;
-  selectedHat: AppHat | undefined;
+  selectedHatId: Hex | undefined;
   wearerAddress: Hex | undefined;
   moduleAddresses: Hex[];
 }) => {
-  if (!chainId || !selectedHat || !wearerAddress || isEmpty(moduleAddresses)) {
-    // eslint-disable-next-line no-console
-    console.log('no selectedHat or wearerAddress or moduleAddresses');
+  if (!chainId || !selectedHatId || !wearerAddress || isEmpty(moduleAddresses)) {
+    logger.error('no selectedHat or wearerAddress or moduleAddresses');
     return Promise.resolve(null);
   }
 
@@ -30,7 +29,7 @@ const getCurrentEligibility = async ({
     abi: HATS_MODULE_INTERFACE_ABI,
     chainId,
     functionName: 'getWearerStatus',
-    args: [wearerAddress, selectedHat.id],
+    args: [wearerAddress, selectedHatId],
   }));
 
   const results = await client.multicall({
@@ -64,13 +63,13 @@ const useCurrentEligibility = ({
   const moduleAddresses = map(flatten(eligibilityRules), 'address');
 
   return useQuery({
-    queryKey: ['currentEligibility', { chainId, wearerAddress, moduleAddresses, selectedHat }],
+    queryKey: ['currentEligibility', { chainId, wearerAddress, moduleAddresses, selectedHatId: selectedHat?.id }],
     queryFn: () =>
       getCurrentEligibility({
         chainId,
         wearerAddress,
         moduleAddresses,
-        selectedHat,
+        selectedHatId: selectedHat?.id,
       }),
     enabled: !!chainId && !!selectedHat?.id && !!wearerAddress && !!moduleAddresses && !isEmpty(moduleAddresses),
   });

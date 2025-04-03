@@ -6,10 +6,10 @@ import { formatAddress } from 'utils';
 import { useAccount, useEnsName } from 'wagmi';
 
 const LookingForHat = () => (
-  <div className='flex flex-col gap-2'>
+  <div className='flex max-w-[80%] flex-col gap-2 md:max-w-none'>
     <p>This app is here to help you claim hats based on their eligibility module(s).</p>
 
-    <p className='max-w-[60%]'>
+    <p className='md:max-w-[60%]'>
       You&apos;re probably looking for a specific hat. Look out for a link here with a specific hat ID on it, like the
       Hats Protocol Community Hat:{' '}
       <Link href='/10/1.2.1.1' className='inline-block font-mono underline'>
@@ -41,10 +41,10 @@ const Home = () => {
   }
 
   return (
-    <div className='px-32 pt-72'>
+    <div className='px-4 pt-72 md:px-32'>
       <div className='flex flex-col gap-10'>
         <h2 className='text-2xl font-medium'>
-          gm {ensName || formatAddress(wearerAddress)}, welcome to the Claims app
+          gm {ensName || formatAddress(wearerAddress)}, welcome to the claims app
         </h2>
 
         <LookingForHat />

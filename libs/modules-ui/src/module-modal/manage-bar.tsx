@@ -49,7 +49,7 @@ export const ManageBar = ({ sections, buttons, chainId }: ManageBarProps) => {
 
   if (activeSection) {
     return (
-      <div className='absolute bottom-0 min-h-[100px] w-full border-b border-t border-black/20 bg-white/90 py-4 md:py-10'>
+      <div className='absolute bottom-0 min-h-[100px] w-full rounded-br-xl border-b border-t border-black/20 bg-white/90 py-4 md:py-10'>
         {activeSection.section}
       </div>
     );

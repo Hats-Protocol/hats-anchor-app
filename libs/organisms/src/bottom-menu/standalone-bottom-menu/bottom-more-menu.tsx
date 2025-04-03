@@ -59,17 +59,17 @@ export const BottomMoreMenu = () => {
 
     newWindow.onload = () => {
       newWindow.focus();
-      newWindow.print();
-      newWindow.close();
+      // newWindow.print();
+      // newWindow.close();
     };
   }, [agreement, agreementV0]);
 
   if (isMobile) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger className='block md:hidden'>
-          <Button variant='outline'>
-            More
+        <DropdownMenuTrigger className='block md:hidden' asChild>
+          <Button variant='outline' className='flex'>
+            <p>More</p>
             <BsThreeDotsVertical className='ml-1 size-4' />
           </Button>
         </DropdownMenuTrigger>

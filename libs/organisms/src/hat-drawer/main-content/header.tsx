@@ -75,8 +75,8 @@ const Header = () => {
   return (
     <div className='space-y-4 bg-white pb-4 md:bg-transparent md:px-16'>
       <div className='w-full gap-1 space-y-2'>
-        <div className='flex min-h-[150px] w-full flex-col md:min-h-0 md:flex-row md:pt-0'>
-          <LazyImage src={imageUrl} alt='hat image' containerClassName={cn('block h-[400px] md:hidden')} />
+        <div className='flex min-h-[450px] w-full flex-col md:min-h-0 md:flex-row md:pt-0'>
+          <LazyImage src={imageUrl} alt='hat image' containerClassName='block h-[400px] min-h-[400px] md:hidden' />
 
           <div className='flex w-full flex-row items-center justify-between gap-2 px-4 py-4 md:max-w-full md:px-0'>
             <Tooltip label={name || selectedHat?.details}>

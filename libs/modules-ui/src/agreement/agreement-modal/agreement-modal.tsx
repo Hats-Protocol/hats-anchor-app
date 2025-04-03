@@ -10,7 +10,7 @@ import { useAgreementEligibility } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { Markdown, ScrollArea } from 'ui';
+import { DialogDescription, DialogTitle, Markdown, ScrollArea, VisuallyHidden } from 'ui';
 import { Hex } from 'viem';
 
 import { AboutModule, ModuleHistory, ModuleModal, ProfileList } from '../../module-modal';
@@ -113,6 +113,13 @@ export const AgreementModal = ({
       about={<AboutModule heading='About this Agreement' moduleDescriptors={moduleDescriptors} />}
       history={<ModuleHistory />}
     >
+      <VisuallyHidden>
+        <DialogTitle>Agreement for Hat</DialogTitle>
+        <DialogDescription>
+          Includes a list of the current agreement signers and forms for updating the agreement or the associated
+          wearers
+        </DialogDescription>
+      </VisuallyHidden>
       <ControlledRadioBox
         options={['Agreement', 'Signatures']}
         selectedOption={selectedOption}
