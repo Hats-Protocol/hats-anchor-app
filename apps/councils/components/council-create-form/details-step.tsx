@@ -3,33 +3,24 @@
 import { councilsChainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm } from 'contexts';
-import { ChainSelect, Form, Input, Select, Textarea } from 'forms';
+import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations } from 'hooks';
 import { useCouncilDeployFlag, useToast } from 'hooks';
-import { get } from 'lodash';
 import { useEffect } from 'react';
 import { StepProps } from 'types';
 import { MemberAvatar, ReactSelectOption, Skeleton } from 'ui';
-import { getOrganizationByName, logger } from 'utils';
+import { logger } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-interface OrganizationOption {
-  value: string;
-  label: string;
-}
+interface OrganizationOption extends ReactSelectOption {}
 
 interface ChainOption {
   value: string;
   label: string;
   icon: string;
 }
-
-const CREATE_NEW_ORGANIZATION_OPTION: OrganizationOption = {
-  value: 'newOrganization',
-  label: 'Create a New Organization',
-};
 
 const chainOptions: ChainOption[] = Object.values(councilsChainsList).map((chain) => ({
   value: chain.id.toString(),
@@ -41,62 +32,56 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { watch, handleSubmit, setValue } = localForm;
   const requirements = watch('requirements');
-  const { getAccessToken } = usePrivy();
+
   const { toast } = useToast();
   const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
 
   // Set default value for organizationName
   useEffect(() => {
     if (!watch('organizationName')) {
-      setValue('organizationName', {
-        value: CREATE_NEW_ORGANIZATION_OPTION.value,
-        label: CREATE_NEW_ORGANIZATION_OPTION.label,
-      });
+      setValue('organizationName', '');
     }
   }, [setValue, watch]);
 
   // Set creator address as organization owner when selecting a pre-existing org
   useEffect(() => {
-    const selectedOrgName = (watch('organizationName') as OrganizationOption | undefined)?.value;
-    logger.info('Selected org name:', selectedOrgName);
-    logger.info('Organizations data:', organizationsData);
+    const selectedOrgValue = watch('organizationName') as unknown as OrganizationOption | null;
+    logger.info('Selected org value:', selectedOrgValue);
 
-    const selectedOrg = organizationsData?.organizations?.find((org) => {
-      logger.info('Comparing org:', org.name, 'with selected:', selectedOrgName);
-      return org.name === selectedOrgName;
-    });
-    logger.info('Found org:', selectedOrg);
-
-    if (!selectedOrg || !selectedOrg.councils || selectedOrg.councils.length === 0) {
+    // If no org is selected, reset to first chain option
+    if (!selectedOrgValue) {
+      setValue('chain', chainOptions[0], { shouldValidate: true });
       return;
     }
 
-    logger.info('Selected org logic path:', selectedOrg);
-    const firstCouncil = selectedOrg.councils[0];
-    if (!firstCouncil) return;
+    // Find the selected organization in the original data
+    const selectedOrg = organizationsData?.organizations?.find((org) => org.name === selectedOrgValue.value);
 
-    logger.info('Setting chain from council:', firstCouncil.chain);
-
-    // Find the matching chain option directly from chainOptions
-    const chainOption = chainOptions.find((option) => Number(option.value) === firstCouncil.chain);
-
-    if (chainOption) {
-      logger.info('Found chain option:', chainOption);
-      // Map to match ChainSelect's expected format with iconUrl
-      setValue('chain', {
-        value: chainOption.value,
-        label: chainOption.label,
-        iconUrl: chainOption.icon, // Map icon to iconUrl
-      });
-    } else {
-      logger.error('Chain option not found for chain:', firstCouncil.chain);
+    // If this is a new organization (not found in original data), keep chain selection editable
+    if (!selectedOrg) {
+      return;
     }
 
-    // Set creator value if creationForm exists
-    if (firstCouncil.creationForm) {
-      setValue('creator', firstCouncil.creationForm.creator);
+    // For existing organizations, set their chain
+    if (selectedOrg.councils && selectedOrg.councils.length > 0) {
+      const firstCouncil = selectedOrg.councils[0];
+      if (!firstCouncil) return;
+
+      const chainOption = chainOptions.find((option) => Number(option.value) === firstCouncil.chain);
+
+      if (chainOption) {
+        setValue('chain', chainOption, {
+          shouldValidate: true,
+        });
+      } else {
+        logger.error('Chain option not found for chain:', firstCouncil.chain);
+      }
+
+      if (firstCouncil.creationForm) {
+        setValue('creator', firstCouncil.creationForm.creator);
+      }
     }
-  }, [organizationsData, setValue, watch, chainOptions]);
+  }, [organizationsData, setValue, watch, chainOptions, watch('organizationName')]);
 
   useCouncilDeployFlag(draftId);
 
@@ -104,68 +89,56 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
     return <Skeleton className='h-100 w-100' />;
   }
 
-  const errorToast = (error: Error) => {
-    toast({
-      title: 'Error fetching organization',
-      description: error.message?.slice(0, 100),
-      variant: 'destructive',
-    });
-  };
-
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
 
-  // Debug the raw data
-  logger.info('Raw organizations data:', organizationsData);
-
-  // Create organization options from the data, handling the data property
+  // Create organization options from the data
   const existingOrganizations = organizationsData?.organizations || [];
-
-  // Map organizations to options, ensuring we handle the data structure correctly
-  const mappedOptions = existingOrganizations.map((org: { name: string }) => ({
+  const organizationOptions: OrganizationOption[] = existingOrganizations.map((org: { name: string }) => ({
     value: org.name,
     label: org.name,
   }));
 
-  const organizationOptions: OrganizationOption[] = [CREATE_NEW_ORGANIZATION_OPTION, ...mappedOptions];
+  const selectedOrgValue = watch('organizationName') as unknown as OrganizationOption | null;
 
-  const selectedOrg = watch('organizationName') as OrganizationOption | undefined;
-  const showCreateOrgInput = selectedOrg?.value === CREATE_NEW_ORGANIZATION_OPTION.value;
+  // Check if the selected value exists in our original organizations list
+  const isExistingOrg = selectedOrgValue && existingOrganizations.some((org) => org.name === selectedOrgValue.value);
+  const selectedExistingOrg = isExistingOrg
+    ? organizationsData?.organizations?.find((org) => org.name === selectedOrgValue.value)
+    : undefined;
 
-  const selectedExistingOrg = organizationsData?.organizations?.find((org) => org.name === selectedOrg?.value);
-  logger.info('Selected existing org:', selectedExistingOrg);
-  const isChainDisabled = !canEdit || selectedExistingOrg !== undefined;
+  // Only disable chain selection if:
+  // 1. Form editing is disabled (!canEdit) OR
+  // 2. A truly existing organization is selected (found in our original data)
+  const isChainDisabled = !canEdit || Boolean(isExistingOrg);
 
   return (
     <Form {...localForm}>
-      <form className='flex h-full flex-col space-y-6' onSubmit={handleSubmit(onNext)}>
+      <form
+        className='flex h-full flex-col space-y-6'
+        onSubmit={handleSubmit((data) => {
+          const formData = {
+            ...data,
+            organizationName: (data.organizationName as unknown as OrganizationOption)?.value || '',
+          };
+          onNext(formData);
+        })}
+      >
         <div className='flex-1 space-y-6'>
           <h2 className='text-xl font-bold'>Create your first Council</h2>
 
           <div className='space-y-2'>
-            <Select<OrganizationOption>
+            <CreatableSelect<OrganizationOption>
               name='organizationName'
               localForm={localForm}
               label='Organization Name'
               subLabel='The name of the organization you are creating councils for.'
               variant='councils'
               options={organizationOptions}
-              placeholder='Select an organization'
-              isDisabled={!canEdit}
+              placeholder='Select or create an organization'
+              isDisabled={false}
+              formatCreateLabel={(inputValue: string) => `Create "${inputValue}"`}
+              noOptionsMessage={() => 'Type to create a new organization'}
             />
-
-            {showCreateOrgInput && (
-              <Input
-                name='newOrganizationName'
-                localForm={localForm}
-                label='New Organization Name'
-                variant='councils'
-                placeholder='Enter organization name'
-                options={{
-                  required: showCreateOrgInput,
-                }}
-                isDisabled={!canEdit}
-              />
-            )}
           </div>
 
           <div className='space-y-2'>

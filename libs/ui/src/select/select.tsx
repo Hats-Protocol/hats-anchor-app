@@ -153,3 +153,7 @@ export const ReactSelect = <T extends ReactSelectOption>({ iconClassName, ...pro
 };
 
 ReactSelect.displayName = 'ReactSelect';
+
+export { selectStyles };
+export { ReactSelectOption as Option };
+export { ReactSelectSingleValue };

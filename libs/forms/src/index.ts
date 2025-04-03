@@ -2,6 +2,7 @@ export * from './authorities-list-form';
 export * from './chain-module-form';
 export * from './claims-handler';
 export * from './components';
+export { CreatableSelect } from './components/creatable-select';
 export * from './council-create-form';
 export * from './council-transfer-form';
 export * from './deactivation-form';
