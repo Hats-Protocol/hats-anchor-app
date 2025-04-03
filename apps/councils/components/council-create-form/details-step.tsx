@@ -1,20 +1,22 @@
 'use client';
 
 import { councilsChainsList } from '@hatsprotocol/config';
-import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations } from 'hooks';
 import { useCouncilDeployFlag, useToast } from 'hooks';
 import { useEffect } from 'react';
 import { StepProps } from 'types';
-import { MemberAvatar, ReactSelectOption, Skeleton } from 'ui';
+import { MemberAvatar, Skeleton } from 'ui';
 import { logger } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-interface OrganizationOption extends ReactSelectOption {}
+interface OrganizationOption {
+  value: string;
+  label: string;
+}
 
 interface ChainOption {
   value: string;
@@ -36,33 +38,36 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   const { toast } = useToast();
   const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
 
-  // Set default value for organizationName
+  // watch the organization name value
+  const organizationNameValue = watch('organizationName') as string | OrganizationOption;
+
+  // set default value for organizationName - only if it hasn't been set before
   useEffect(() => {
-    if (!watch('organizationName')) {
+    const currentValue = watch('organizationName');
+    if (currentValue === undefined) {
       setValue('organizationName', '');
     }
   }, [setValue, watch]);
 
-  // Set creator address as organization owner when selecting a pre-existing org
+  // set creator address as organization owner when selecting a pre-existing org
   useEffect(() => {
-    const selectedOrgValue = watch('organizationName') as unknown as OrganizationOption | null;
-    logger.info('Selected org value:', selectedOrgValue);
-
-    // If no org is selected, reset to first chain option
-    if (!selectedOrgValue) {
+    if (!organizationNameValue) {
       setValue('chain', chainOptions[0], { shouldValidate: true });
       return;
     }
 
-    // Find the selected organization in the original data
-    const selectedOrg = organizationsData?.organizations?.find((org) => org.name === selectedOrgValue.value);
+    // find the selected organization in the org data
+    const selectedOrg = organizationsData?.organizations?.find(
+      (org) =>
+        org.name === (typeof organizationNameValue === 'object' ? organizationNameValue.value : organizationNameValue),
+    );
 
-    // If this is a new organization (not found in original data), keep chain selection editable
+    // if this is a new organization (not found in org data), keep chain selection editable
     if (!selectedOrg) {
       return;
     }
 
-    // For existing organizations, set their chain
+    // set chain for existing orgs and disable change
     if (selectedOrg.councils && selectedOrg.councils.length > 0) {
       const firstCouncil = selectedOrg.councils[0];
       if (!firstCouncil) return;
@@ -81,7 +86,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
         setValue('creator', firstCouncil.creationForm.creator);
       }
     }
-  }, [organizationsData, setValue, watch, chainOptions, watch('organizationName')]);
+  }, [organizationsData, setValue, chainOptions, organizationNameValue]);
 
   useCouncilDeployFlag(draftId);
 
@@ -91,7 +96,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
 
-  // Create organization options from the data
+  // create organization options from the data
   const existingOrganizations = organizationsData?.organizations || [];
   const organizationOptions: OrganizationOption[] = existingOrganizations.map((org: { name: string }) => ({
     value: org.name,
@@ -100,27 +105,20 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   const selectedOrgValue = watch('organizationName') as unknown as OrganizationOption | null;
 
-  // Check if the selected value exists in our original organizations list
+  // check if the selected value exists in our original organizations list
   const isExistingOrg = selectedOrgValue && existingOrganizations.some((org) => org.name === selectedOrgValue.value);
   const selectedExistingOrg = isExistingOrg
     ? organizationsData?.organizations?.find((org) => org.name === selectedOrgValue.value)
     : undefined;
 
-  // Only disable chain selection if:
-  // 1. Form editing is disabled (!canEdit) OR
-  // 2. A truly existing organization is selected (found in our original data)
   const isChainDisabled = !canEdit || Boolean(isExistingOrg);
 
   return (
     <Form {...localForm}>
       <form
         className='flex h-full flex-col space-y-6'
-        onSubmit={handleSubmit((data) => {
-          const formData = {
-            ...data,
-            organizationName: (data.organizationName as unknown as OrganizationOption)?.value || '',
-          };
-          onNext(formData);
+        onSubmit={handleSubmit(() => {
+          onNext();
         })}
       >
         <div className='flex-1 space-y-6'>

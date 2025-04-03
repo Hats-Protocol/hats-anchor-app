@@ -816,7 +816,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create top hat call data
       const detailsCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: { name: formData.organizationName, description: formData.councilDescription },
+        data: {
+          name:
+            typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName,
+          description: formData.councilDescription,
+        },
       });
       const createTopHatCallData = hatsClient.mintTopHatCallData({
         target: MULTICALL3_ADDRESS as Address,
@@ -1300,7 +1304,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           const accessToken = await getAccessToken();
 
           const organization = await createOrganization({
-            name: formData.organizationName,
+            name:
+              typeof formData.organizationName === 'object'
+                ? formData.organizationName.value
+                : formData.organizationName,
             accessToken,
           });
           logger.info('organization created', get(organization, 'createOrganization'));

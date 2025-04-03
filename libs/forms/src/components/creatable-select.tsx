@@ -90,7 +90,7 @@ export const CreatableSelect = <TOption extends ReactSelectOption>({
             <CreatableReactSelect<TOption>
               {...field}
               {...props}
-              value={options.find((option) => option.value === value?.value)}
+              value={value || options.find((option) => option.value === value?.value)}
               onChange={onChange}
               options={options}
               placeholder={placeholder}
