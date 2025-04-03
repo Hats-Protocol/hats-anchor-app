@@ -74,7 +74,7 @@ export const ProfileList = ({
                 <BsChevronDown />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
+            <DropdownMenuContent align='end' className='z-[100]'>
               {map([FILTER.WEARER, FILTER.ELIGIBLE, FILTER.INELIGIBLE, FILTER.ALL], (filter) => (
                 <DropdownMenuItem
                   onClick={() => setActiveFilter(filter)}

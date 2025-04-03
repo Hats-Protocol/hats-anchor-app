@@ -12,7 +12,7 @@ import { BsArrowRight } from 'react-icons/bs';
 import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
-import { eligibilityRuleToModuleDetails } from 'utils';
+import { eligibilityRuleToModuleDetails, logger } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
@@ -50,7 +50,7 @@ export const ClaimButton = () => {
     chainId,
     isReadyToClaim,
     onSuccess: () => {
-      console.log('onSuccess');
+      // queries are invalidated in useClaimFn or respective claim hooks
     },
     onError: () => {
       console.log('onError');
@@ -64,6 +64,7 @@ export const ClaimButton = () => {
     ? `${CONFIG.APP_URL}/trees/${chainId}/${hatIdToTreeId(BigInt(selectedHat.id))}?hatId=${idToIp(selectedHat.id)}`
     : '#';
 
+  logger.debug('claim button', { isWearing, isEligible });
   if (isWearing && isEligible) {
     return (
       <div className='flex'>
@@ -74,7 +75,7 @@ export const ClaimButton = () => {
           className='bg-functional-success flex items-center gap-1'
           isExternal
         >
-          View your hat
+          View your {CONFIG.TERMS.hat}
         </LinkButton>
       </div>
     );
@@ -116,13 +117,14 @@ export const ClaimButton = () => {
     <Tooltip label={tooltip || disableReason}>
       <Button
         // won't hit this flow if wrong network
-        disabled={hatterIfNeeded || disableClaim || (isWearing && isEligible) || currentChainId !== chainId} // handle isReadyToClaim on respective disableClaims
+        disabled={
+          hatterIfNeeded || disableClaim || (isWearing && isEligible) || currentChainId !== chainId || isLoading
+        } // handle isReadyToClaim on respective disableClaims
         onClick={handleClaim}
-        // isLoading={isLoading}
       >
         <div className='flex items-center gap-2'>
           <HatIcon className='h-4 w-4' />
-          <span>Claim this {capitalize(CONFIG.TERMS.hat)}</span>
+          <span>{isLoading ? 'Claiming...' : `Claim this ${capitalize(CONFIG.TERMS.hat)}`}</span>
         </div>
       </Button>
     </Tooltip>

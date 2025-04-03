@@ -30,11 +30,11 @@ export const ModuleModal = ({
     <BaseModal open={isOpen || get(modals, name) || false} onOpenChange={handleClose}>
       <ModalContent
         className={cn(
-          'min-w-20vw rounded-b-0 mb-0 mt-auto flex w-full max-w-[1200px] flex-col bg-white p-0 md:mb-auto md:mt-4 md:rounded-2xl',
+          'min-w-20vw rounded-b-0 mb-0 mt-auto flex h-[751px] w-full max-w-[1200px] flex-col bg-white p-0 md:mb-auto md:mt-4 md:rounded-2xl',
         )}
       >
-        <div className='flex h-[750px] flex-col items-center md:flex-row'>
-          <div className='relative flex hidden h-full w-[30%] flex-col gap-10 border-r border-black/20 p-14 md:flex md:min-w-[450px]'>
+        <div className='flex min-h-[750px] flex-col items-center md:flex-row'>
+          <div className='relative hidden h-full w-[30%] flex-col gap-10 border-r border-black/20 p-14 md:flex md:min-w-[450px]'>
             <h2 className='text-2xl font-bold'>{title}</h2>
 
             {about}

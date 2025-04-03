@@ -85,26 +85,30 @@ const useCallModuleFunction = ({ chainId }: { chainId: SupportedChains | undefin
 
         await waitForSubgraph(txResult);
 
-        await invalidateAfterTransaction(chainId, result.transactionHash);
+        const invalidated = await invalidateAfterTransaction(chainId, result.transactionHash);
+        logger.debug('invalidated', invalidated);
+        setTimeout(async () => {
+          if (result?.status === 'success' && !!invalidated) {
+            toast({
+              title: 'Transaction completed',
+              description: 'Your transaction has been completed',
+            });
 
-        if (result?.status === 'success') {
-          toast({
-            title: 'Transaction completed',
-            description: 'Your transaction has been completed',
-          });
-
-          onSuccess?.();
-        }
+            onSuccess?.();
+          }
+        }, 1000);
       } catch (err: unknown) {
         const error = err as Error;
         logger.debug(error);
-        console.log('error', error);
+
         if (error.message.includes('User rejected the request')) {
           // eslint-disable-next-line no-console
           console.log('User rejected the request');
           onDecline?.();
           return;
         }
+        // eslint-disable-next-line no-console
+        console.log('error', error);
         toast({
           title: 'Transaction failed',
           description: error.message,

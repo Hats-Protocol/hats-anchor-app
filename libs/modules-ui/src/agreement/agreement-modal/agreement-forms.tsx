@@ -14,7 +14,7 @@ import { useCallback, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { AllowlistProfile, AppHat, ModuleDetails, SupportedChains } from 'types';
 import { Button, Card } from 'ui';
-import { fetchToken, formatAddress, pinFileToIpfs } from 'utils';
+import { fetchToken, formatAddress, logger, pinFileToIpfs } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useWriteContract } from 'wagmi';
 
@@ -67,6 +67,7 @@ export const AgreementForms = ({
   });
 
   const isWearing = !!find(wearers, { id: toLower(address) });
+  logger.debug('isWearing', isWearing, wearers, toLower(address));
 
   const ownerHat = get(find(moduleParameters, { label: 'Owner Hat' }), 'value');
   const judgeHat = get(find(moduleParameters, { label: 'Arbitrator Hat' }), 'value');
