@@ -23,8 +23,52 @@ export function OnboardingStep({ onNext, draftId }: StepProps) {
 
   if (isLoading) {
     return (
-      <div className='flex h-full items-center justify-center'>
-        <Skeleton className='h-10 w-10' />
+      <div className='flex h-full flex-col gap-8'>
+        <div className='flex flex-col gap-8'>
+          <Skeleton className='h-8 w-48' />
+
+          <div className='flex flex-col gap-4'>
+            <Skeleton className='h-6 w-64' />
+
+            <div className='flex flex-col gap-4'>
+              {[1, 2].map((i) => (
+                <div key={i} className='flex items-center justify-between rounded-lg border border-gray-200 px-6 py-4'>
+                  <div className='flex gap-4'>
+                    <Skeleton className='h-6 w-6' />
+                    <div className='flex flex-col gap-0.5'>
+                      <Skeleton className='h-5 w-48' />
+                      <Skeleton className='h-4 w-64' />
+                    </div>
+                  </div>
+                  <Skeleton className='h-4 w-4' />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className='flex flex-col gap-4'>
+            <Skeleton className='h-6 w-64' />
+
+            <div className='flex flex-col gap-4'>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className='flex items-center justify-between rounded-lg border border-gray-200 px-6 py-4'>
+                  <div className='flex gap-4'>
+                    <Skeleton className='h-6 w-6' />
+                    <div className='flex flex-col gap-0.5'>
+                      <Skeleton className='h-5 w-48' />
+                      <Skeleton className='h-4 w-64' />
+                    </div>
+                  </div>
+                  <Skeleton className='h-4 w-4' />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className='flex justify-end py-6'>
+          <Skeleton className='h-10 w-32' />
+        </div>
       </div>
     );
   }

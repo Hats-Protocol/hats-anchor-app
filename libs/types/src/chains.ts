@@ -8,7 +8,7 @@ export type SupportedChains =
   | 8453 // base
   | 42161 // arbitrum
   | 42220 // celo
-  // | 84532 // base sepolia
+  | 84532 // base sepolia
   | 11155111; // sepolia
 
 export type ExtendedChain = Chain & {

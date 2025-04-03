@@ -8,7 +8,7 @@ import { useAgreementClaimsHatterContractWrite } from 'hooks';
 import { find, get, pick } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { AppHat, HandlePendingTx, ModuleDetails, SupportedChains } from 'types';
-import { getKnownEligibilityModule } from 'utils';
+import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 
@@ -71,10 +71,9 @@ export const useClaimFn = ({
   });
 
   const genericClaim = useCallback(async () => {
-    console.log('generic claim', address);
+    // TODO handle hats that are not claimable for wearer
     return claimHatFor(address as Hex)
       .then((result) => {
-        console.log('generic claim result', result);
         return result;
       })
       .catch((err) => console.log(err));
@@ -106,6 +105,8 @@ export const useClaimFn = ({
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: ['wearerDetails'] });
       queryClient.invalidateQueries({ queryKey: ['hatDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
+      queryClient.invalidateQueries({ queryKey: ['readContract'] });
     },
     onDecline: () => {
       setStatus(CLAIM_STATUS.DECLINED);
@@ -133,7 +134,7 @@ export const useClaimFn = ({
       queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
       queryClient.invalidateQueries({ queryKey: ['readContracts'] });
       queryClient.invalidateQueries({ queryKey: ['readContract'] });
-
+      queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
       setStatus(CLAIM_STATUS.SUCCESS);
       onSuccess?.();
     },
@@ -147,7 +148,6 @@ export const useClaimFn = ({
   });
 
   const claimHandlers = useMemo(() => {
-    console.log('claim handlers', isReadyToClaim, moduleDetails);
     if (chainId === 10 && selectedHat?.id === CONFIG.agreementV0.communityHatId) {
       const agreementV0 = '0xd0929e6ae5406cbee08604de99f83cf2ce52d903'; // Community Hat module, to be deprecated in season 4
       const notReady = !get(isReadyToClaim, agreementV0, false);
@@ -190,7 +190,6 @@ export const useClaimFn = ({
         requireHatter: true,
       };
     }
-    console.log('generic claim');
 
     let disableReason: string | undefined;
     if (!currentHatIsClaimable?.by || !currentHatIsClaimable?.for) {
@@ -238,7 +237,7 @@ export const useClaimFn = ({
         onOpen();
       })
       .catch((err) => {
-        console.log('claim error', err);
+        logger.error('claim error', err);
         onError?.();
       });
   };

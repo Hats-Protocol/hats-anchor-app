@@ -1,6 +1,7 @@
 export const NETWORKS_PREFIX: { [key: string]: string } = {
   1: 'Eth',
   11155111: 'Sep',
+  84532: 'BaseSep',
   10: 'Op',
   100: 'Gno',
   137: 'Pol',

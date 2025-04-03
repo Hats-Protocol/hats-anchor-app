@@ -22,7 +22,67 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   useCouncilDeployFlag(draftId);
 
   if (isLoading) {
-    return <Skeleton className='h-100 w-100' />;
+    return (
+      <div className='flex h-full flex-col space-y-6'>
+        <div className='flex-1 space-y-6'>
+          <h2 className='text-xl font-bold'>
+            <Skeleton className='h-7 w-56' />
+          </h2>
+
+          <div className='space-y-6'>
+            {/* Organization Name */}
+            <div className='space-y-2'>
+              <div className='flex items-baseline justify-between'>
+                <Skeleton className='h-5 w-36' /> {/* Label */}
+              </div>
+              <Skeleton className='h-4 w-96' /> {/* Sub Label */}
+              <div className='relative'>
+                <Skeleton className='h-10 w-full rounded-md' /> {/* Input */}
+              </div>
+            </div>
+
+            {/* Council Name */}
+            <div className='space-y-2'>
+              <div className='flex items-baseline justify-between'>
+                <Skeleton className='h-5 w-28' />
+              </div>
+              <Skeleton className='h-4 w-[420px]' />
+              <div className='relative'>
+                <Skeleton className='h-10 w-full rounded-md' />
+              </div>
+            </div>
+
+            {/* Chain Select */}
+            <div className='space-y-2'>
+              <div className='flex items-baseline justify-between'>
+                <Skeleton className='h-5 w-32' />
+              </div>
+              <Skeleton className='h-4 w-[380px]' />
+              <div className='relative'>
+                <Skeleton className='h-10 w-full rounded-md' />
+                <div className='absolute right-3 top-1/2 -translate-y-1/2'>
+                  <Skeleton className='h-4 w-4' /> {/* Dropdown icon */}
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className='space-y-2'>
+              <div className='flex items-baseline justify-between'>
+                <Skeleton className='h-5 w-40' />
+                <Skeleton className='h-4 w-16' /> {/* Optional label */}
+              </div>
+              <Skeleton className='h-4 w-[460px]' />
+              <Skeleton className='h-24 w-full rounded-md' /> {/* Textarea */}
+            </div>
+          </div>
+        </div>
+
+        <div className='flex justify-end py-6'>
+          <Skeleton className='h-9 w-32' />
+        </div>
+      </div>
+    );
   }
 
   const errorToast = (error: Error) => {

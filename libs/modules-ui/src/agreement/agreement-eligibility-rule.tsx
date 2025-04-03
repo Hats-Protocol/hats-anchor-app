@@ -92,9 +92,9 @@ export const AgreementEligibilityRule = ({
           onClick={() => {
             if (!moduleDetails.instanceAddress) return;
 
-            if (onlyModule) {
-              setIsReadyToClaim?.(moduleDetails.instanceAddress);
-            }
+            // if (onlyModule) {
+            //   setIsReadyToClaim?.(moduleDetails.instanceAddress);
+            // }
             setModals?.({ [modalName]: true });
           }}
           variant='link'
@@ -135,6 +135,8 @@ export const AgreementEligibilityRule = ({
           chainId={chainId as SupportedChains}
           onlyModule={onlyModule}
           currentEligibility={currentEligibility || undefined}
+          isReadyToClaim={aggregateIsReadyToClaim}
+          setIsReadyToClaim={setIsReadyToClaim}
         />
       )}
 
