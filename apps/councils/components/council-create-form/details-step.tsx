@@ -122,7 +122,11 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
         })}
       >
         <div className='flex-1 space-y-6'>
-          <h2 className='text-xl font-bold'>Create your first Council</h2>
+          <h2 className='text-xl font-bold'>
+            {selectedOrgValue && existingOrganizations.some((org) => org.name === selectedOrgValue.value)
+              ? 'Create a new Council'
+              : 'Create your first Council'}
+          </h2>
 
           <div className='space-y-2'>
             <CreatableSelect<OrganizationOption>

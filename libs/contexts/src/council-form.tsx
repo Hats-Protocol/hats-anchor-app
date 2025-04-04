@@ -58,6 +58,7 @@ import {
   GET_COUNCIL_FORM,
   getCouncilsGraphqlClient,
   logger,
+  ORGANIZATION_BY_NAME_QUERY,
   pinFileToIpfs,
   // sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
@@ -1303,16 +1304,36 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           logger.info('addresses', { hsgAddress, safeAddress, treeId });
           const accessToken = await getAccessToken();
 
-          const organization = await createOrganization({
-            name:
-              typeof formData.organizationName === 'object'
-                ? formData.organizationName.value
-                : formData.organizationName,
-            accessToken,
-          });
-          logger.info('organization created', get(organization, 'createOrganization'));
-          const organizationId = get(organization, 'createOrganization.id');
+          // Check if organization already exists
+          const orgName =
+            typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName;
 
+          interface OrganizationResponse {
+            organizations: Array<{
+              id: string;
+              name: string;
+            }>;
+          }
+
+          const existingOrg = await getCouncilsGraphqlClient(accessToken ?? undefined).request<OrganizationResponse>(
+            ORGANIZATION_BY_NAME_QUERY,
+            { name: orgName },
+          );
+
+          let organizationId;
+          if (existingOrg.organizations && existingOrg.organizations.length > 0) {
+            // Use existing organization
+            organizationId = existingOrg.organizations[0].id;
+          } else {
+            // Create new organization
+            const organization = await createOrganization({
+              name: orgName,
+              accessToken,
+            });
+            organizationId = get(organization, 'createOrganization.id');
+          }
+
+          logger.info('organization id', organizationId);
           const council = await addCouncilForForm({
             chainId,
             organizationId,
