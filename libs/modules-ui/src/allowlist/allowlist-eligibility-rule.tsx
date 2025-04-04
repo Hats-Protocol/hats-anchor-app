@@ -5,15 +5,61 @@ import { filter, get, includes, map, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
-import { SupportedChains } from 'types';
+import { AppModals, ModuleDetails, SupportedChains } from 'types';
 import { Button } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
 
 import { ELIGIBILITY_STATUS, EligibilityRuleDetails } from '../eligibility-rules';
-import { AllowlistModal } from './allowlist-modal';
+import { AllowlistManagerModal, AllowlistModal } from './allowlist-modal';
 
 const IS_CLAIMS_APP = process.env.NEXT_PUBLIC_CLAIMS_APP === 'true';
 const IS_PRO_APP = process.env.NEXT_PUBLIC_PRO_APP === 'true';
+
+const AllowlistButton = ({
+  eligibilityModalFlag,
+  moduleDetails,
+  setModals,
+}: {
+  eligibilityModalFlag: boolean;
+  moduleDetails: ModuleDetails;
+  setModals: ((modals: Partial<AppModals>) => void) | undefined;
+}) => {
+  // anchor with flag on
+  if (!IS_CLAIMS_APP && !IS_PRO_APP && eligibilityModalFlag) {
+    return (
+      <Button
+        onClick={() =>
+          setModals?.({
+            [`${moduleDetails.instanceAddress}-allowlistManager`]: true,
+          })
+        }
+        variant='link'
+        className='text-base underline'
+      >
+        Allowlist
+      </Button>
+    );
+  }
+
+  // claims app or pro app
+  if (IS_CLAIMS_APP || IS_PRO_APP) {
+    return (
+      <Button
+        onClick={() =>
+          setModals?.({
+            [`${moduleDetails.instanceAddress}-allowlist`]: true,
+          })
+        }
+        variant='link'
+        className='text-base underline'
+      >
+        Allowlist
+      </Button>
+    );
+  }
+
+  return 'Allowlist';
+};
 
 export const AllowlistEligibilityRule = ({
   chainId,
@@ -23,7 +69,7 @@ export const AllowlistEligibilityRule = ({
   moduleParameters,
   wearerEligibility,
 }: ModuleDetailsHandler) => {
-  const { setModals } = useOverlay();
+  const { modals, setModals } = useOverlay();
 
   const { data: allowlist } = useAllowlist({
     id: moduleDetails?.instanceAddress,
@@ -43,31 +89,27 @@ export const AllowlistEligibilityRule = ({
   const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
 
   if (!selectedHat || !moduleDetails?.instanceAddress) return null;
+  console.log(modals);
 
   if (isEligible) {
     return (
       <>
-        <AllowlistModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />
+        <AllowlistManagerModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />
+        <AllowlistModal
+          eligibilityHatId={selectedHat?.id}
+          moduleInfo={moduleDetails}
+          chainId={chainId as SupportedChains}
+        />
 
         <EligibilityRuleDetails
           rule={
             <div>
               Be on the{' '}
-              {eligibilityModalFlag && !IS_CLAIMS_APP && !IS_PRO_APP ? (
-                <Button
-                  onClick={() =>
-                    setModals?.({
-                      [`${moduleDetails.instanceAddress}-allowlistManager`]: true,
-                    })
-                  }
-                  variant='link'
-                  className='text-base'
-                >
-                  Allowlist
-                </Button>
-              ) : (
-                'Allowlist'
-              )}
+              <AllowlistButton
+                eligibilityModalFlag={eligibilityModalFlag}
+                moduleDetails={moduleDetails}
+                setModals={setModals}
+              />
             </div>
           }
           status={ELIGIBILITY_STATUS.eligible}
@@ -80,33 +122,28 @@ export const AllowlistEligibilityRule = ({
 
   return (
     <>
-      <AllowlistModal
+      <AllowlistManagerModal
         eligibilityHatId={selectedHat?.id}
         moduleInfo={{
           ...moduleDetails,
           liveParameters: moduleParameters,
         }}
       />
+      <AllowlistModal
+        eligibilityHatId={selectedHat?.id}
+        moduleInfo={{ ...moduleDetails, liveParameters: moduleParameters }}
+        chainId={chainId as SupportedChains}
+      />
 
       <EligibilityRuleDetails
         rule={
           <p>
             Be on the{' '}
-            {eligibilityModalFlag && !IS_CLAIMS_APP && !IS_PRO_APP ? (
-              <Button
-                onClick={() =>
-                  setModals?.({
-                    [`${moduleDetails.instanceAddress}-allowlistManager`]: true,
-                  })
-                }
-                variant='link'
-                className='text-base underline'
-              >
-                Allowlist
-              </Button>
-            ) : (
-              'Allowlist'
-            )}
+            <AllowlistButton
+              eligibilityModalFlag={eligibilityModalFlag}
+              moduleDetails={moduleDetails}
+              setModals={setModals}
+            />
           </p>
         }
         status={ELIGIBILITY_STATUS.ineligible}
