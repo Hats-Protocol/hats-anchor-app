@@ -6,3 +6,20 @@ export const ORGANIZATION_FRAGMENT = gql`
     name
   }
 `;
+
+export const ORGANIZATION_COUNCIL_FRAGMENT = gql`
+  fragment OrganizationCouncilFragment on Organization {
+    id
+    name
+    councils {
+      id
+      chain
+      creationForm {
+        id
+        creator
+        chain
+        councilName
+      }
+    }
+  }
+`;

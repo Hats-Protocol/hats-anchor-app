@@ -1,5 +1,6 @@
 import { type Meta, type StoryObj } from '@storybook/react';
 
+import { CreatableReactSelect } from './creatable-select';
 import { ReactSelect, ReactSelectOption } from './select';
 
 const meta: Meta<typeof ReactSelect> = {
@@ -74,4 +75,33 @@ export const WithoutIcons: Story = {
   render: () => (
     <ReactSelect options={mockOptionsWithoutIcons} placeholder='Select a permission' className='w-[200px]' />
   ),
+};
+
+export const Creatable: Story = {
+  render: () => {
+    const organizationOptions: ReactSelectOption[] = [
+      {
+        value: 'Hats Protocol',
+        label: 'Hats Protocol',
+      },
+      {
+        value: 'Ethereum Foundation',
+        label: 'Ethereum Foundation',
+      },
+      {
+        value: 'Optimism',
+        label: 'Optimism',
+      },
+    ];
+
+    return (
+      <CreatableReactSelect
+        options={organizationOptions}
+        placeholder='Select or create an organization'
+        className='w-[300px]'
+        formatCreateLabel={(inputValue: string) => `Create "${inputValue}"`}
+        noOptionsMessage={() => 'Type to create a new organization'}
+      />
+    );
+  },
 };

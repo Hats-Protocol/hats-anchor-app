@@ -61,7 +61,13 @@ const Navbar = () => {
           )}
         </Link>
 
-        {chainId && address && <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>}
+        {chainId && address && (
+          <p className='text-lg font-bold'>
+            {typeof offchainDetails?.creationForm.organizationName === 'object'
+              ? offchainDetails?.creationForm.organizationName.value
+              : offchainDetails?.creationForm.organizationName}
+          </p>
+        )}
         {createForm && <p className='text-lg font-bold'>New Hats Council</p>}
 
         {isDev && (

@@ -59,7 +59,7 @@ export interface CompletedOptionalSteps {
 export interface CouncilFormData {
   id?: string;
   // step 1
-  organizationName: string;
+  organizationName: string | { value: string; label: string };
   councilName: string;
   chain: { value: string; label: string; icon: string }; // TODO: change to number
   councilDescription?: string;

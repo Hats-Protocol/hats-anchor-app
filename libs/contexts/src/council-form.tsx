@@ -58,6 +58,7 @@ import {
   GET_COUNCIL_FORM,
   getCouncilsGraphqlClient,
   logger,
+  ORGANIZATION_BY_NAME_QUERY,
   pinFileToIpfs,
   // sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
@@ -334,7 +335,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     if (!chain) throw new Error('Chain not found');
 
     const newValues: CouncilFormData = {
-      organizationName: data.organizationName || '',
+      organizationName: data.organizationName
+        ? {
+            value: data.organizationName,
+            label: data.organizationName,
+          }
+        : '',
       councilName: data.councilName || '',
       chain,
       councilDescription: data.councilDescription || '',
@@ -421,7 +427,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           payload = {
             ...payload,
-            organizationName: formData.organizationName,
+            organizationName:
+              typeof formData.organizationName === 'object'
+                ? formData.organizationName.value
+                : formData.organizationName,
             councilName: formData.councilName,
             chain: toNumber(formData.chain.value),
             councilDescription: formData.councilDescription,
@@ -808,7 +817,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create top hat call data
       const detailsCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: { name: formData.organizationName, description: formData.councilDescription },
+        data: {
+          name:
+            typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName,
+          description: formData.councilDescription,
+        },
       });
       const createTopHatCallData = hatsClient.mintTopHatCallData({
         target: MULTICALL3_ADDRESS as Address,
@@ -1291,13 +1304,36 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           logger.info('addresses', { hsgAddress, safeAddress, treeId });
           const accessToken = await getAccessToken();
 
-          const organization = await createOrganization({
-            name: formData.organizationName,
-            accessToken,
-          });
-          logger.info('organization created', get(organization, 'createOrganization'));
-          const organizationId = get(organization, 'createOrganization.id');
+          // Check if organization already exists
+          const orgName =
+            typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName;
 
+          interface OrganizationResponse {
+            organizations: Array<{
+              id: string;
+              name: string;
+            }>;
+          }
+
+          const existingOrg = await getCouncilsGraphqlClient(accessToken ?? undefined).request<OrganizationResponse>(
+            ORGANIZATION_BY_NAME_QUERY,
+            { name: orgName },
+          );
+
+          let organizationId;
+          if (existingOrg.organizations && existingOrg.organizations.length > 0) {
+            // Use existing organization
+            organizationId = existingOrg.organizations[0].id;
+          } else {
+            // Create new organization
+            const organization = await createOrganization({
+              name: orgName,
+              accessToken,
+            });
+            organizationId = get(organization, 'createOrganization.id');
+          }
+
+          logger.info('organization id', organizationId);
           const council = await addCouncilForForm({
             chainId,
             organizationId,
