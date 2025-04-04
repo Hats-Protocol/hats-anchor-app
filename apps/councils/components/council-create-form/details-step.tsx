@@ -5,6 +5,7 @@ import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations } from 'hooks';
 import { useCouncilDeployFlag, useToast } from 'hooks';
+import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { StepProps } from 'types';
 import { MemberAvatar, Skeleton } from 'ui';
@@ -34,7 +35,8 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { watch, handleSubmit, setValue } = localForm;
   const requirements = watch('requirements');
-
+  const searchParams = useSearchParams();
+  logger.info('searchParams', searchParams);
   const { toast } = useToast();
   const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
 
@@ -45,9 +47,28 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   useEffect(() => {
     const currentValue = watch('organizationName');
     if (currentValue === undefined) {
-      setValue('organizationName', '');
+      // Get the organizationName from query params if it exists
+      const orgNameFromQuery = searchParams.get('organizationName');
+      if (orgNameFromQuery && organizationsData?.organizations) {
+        const decodedOrgName = decodeURIComponent(orgNameFromQuery);
+
+        // Try to find a matching existing organization
+        const existingOrg = organizationsData.organizations.find(
+          (org) => org.name.toLowerCase() === decodedOrgName.toLowerCase(),
+        );
+
+        // Create the option object
+        const option = {
+          value: decodedOrgName,
+          label: existingOrg ? existingOrg.name : decodedOrgName, // Use exact case from existing org if found
+        };
+
+        setValue('organizationName', option, { shouldValidate: true });
+      } else {
+        setValue('organizationName', '');
+      }
     }
-  }, [setValue, watch]);
+  }, [setValue, watch, searchParams, organizationsData]);
 
   // set creator address as organization owner when selecting a pre-existing org
   useEffect(() => {

@@ -5,10 +5,19 @@ import { getOrganizationByName } from 'utils';
 interface Organization {
   id: string;
   name: string;
-  councils: Array<{
+  councils: {
     id: string;
-    name: string;
-  }>;
+    creator: string;
+    chain: number;
+    treeId: number;
+    hsg: string;
+    creationForm: {
+      id: string;
+      creator: string;
+      chain: number;
+      councilName: string;
+    };
+  }[];
 }
 
 interface OrganizationResponse {
@@ -24,7 +33,7 @@ export function useOrganization(organizationName: string | undefined) {
       if (!organizationName) return null;
 
       const accessToken = await getAccessToken();
-      // Convert kebab-case to original name (e.g., "jp-new-org" -> "jp new org")
+      // Convert kebab-case to spaces for the lookup
       const decodedName = organizationName.replace(/-/g, ' ');
 
       const result = (await getOrganizationByName({

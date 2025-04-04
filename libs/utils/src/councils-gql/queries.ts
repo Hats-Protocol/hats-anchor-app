@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 
-import { FORM_FRAGMENT, ORGANIZATION_COUNCIL_FRAGMENT, ORGANIZATION_COUNCIL_FRAGMENT } from './fragments';
+import { FORM_FRAGMENT, ORGANIZATION_COUNCIL_FRAGMENT } from './fragments';
 
 export const GET_COUNCIL_FORM = gql`
   query GetCouncilForm($id: ID!) {

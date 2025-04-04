@@ -1,7 +1,7 @@
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { Skeleton } from 'ui';
 import { CREATE_INITIAL_FORM, CREATE_USER, getCouncilsGraphqlClient, logger } from 'utils';
@@ -9,6 +9,7 @@ import { useChainId } from 'wagmi';
 
 const NewCouncil = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, authenticated, ready, getAccessToken } = usePrivy();
   const chainId = useChainId();
   const hasAttemptedCreate = useRef(false);
@@ -56,27 +57,27 @@ const NewCouncil = () => {
         });
 
         const formId = result.createCouncilCreationForm.id;
-        router.push(`/councils/new/details?draftId=${formId}`);
+        // Preserve the organizationName query parameter if it exists
+        const orgName = searchParams.get('organizationName');
+        const queryString = new URLSearchParams();
+        queryString.set('draftId', formId);
+        if (orgName) {
+          queryString.set('organizationName', orgName);
+        }
+        router.push(`/councils/new/details?${queryString.toString()}`);
       } catch (error) {
         logger.error('Error creating council form:', error);
-        hasAttemptedCreate.current = false;
       }
     };
 
     createForm();
-  }, [ready, authenticated, user, router, chainId, getAccessToken]);
+  }, [ready, authenticated, user, chainId, router, getAccessToken, searchParams]);
 
-  return (
-    <div className='grid-cols-20 grid min-h-screen w-full pb-24 pt-24'>
-      <div className='col-span-10 col-start-3 grid'>
-        <Skeleton className='bg-functional-link-primary/10 min-h-[500px] w-full p-4' />
-      </div>
+  if (!ready || !authenticated) {
+    return <Skeleton className='h-100 w-100' />;
+  }
 
-      <div className='col-start-14 col-span-6 grid'>
-        <Skeleton className='bg-functional-link-primary/10 h-full w-full' />
-      </div>
-    </div>
-  );
+  return null;
 };
 
 export default NewCouncil;

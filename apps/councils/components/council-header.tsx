@@ -126,7 +126,7 @@ const CouncilHeaderCard = ({
     >
       {/* main card data/left side */}
       <div className='flex w-full flex-col gap-4 md:w-[30%] md:gap-2'>
-        <div className='text-functional-link-primary hidden text-xs uppercase md:block'>{organizationName}</div>
+        <div className='text-primary hidden text-sm md:block'>{organizationName}</div>
         <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
         <p className='hidden truncate text-sm text-black/50 md:block'>
           {offchainCouncilDescription || get(signerHatDetails, 'description')}

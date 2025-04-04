@@ -15,11 +15,12 @@ import { ArrowRightCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { HatSignerGateV2 } from 'types';
 import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
-import { chainIdToString, ipfsUrl } from 'utils';
+import { chainIdToString, ipfsUrl, logger, slugify } from 'utils';
 import { NETWORKS_PREFIX } from 'utils/src/subgraph/mesh/queries/constants';
 import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
+import { AddCouncilButton } from './add-council-button';
 import { CouncilHeaderCard } from './council-header';
 
 const EMPTY_COUNCIL_STEPS = [
@@ -91,6 +92,8 @@ const CouncilListPageOrgs = () => {
   const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsList({
     hatIds: processedHatIds ?? [],
   });
+
+  logger.info('crossChainCouncils', crossChainCouncils);
 
   // Create mapping from prefix to chain ID
   const prefixToChainId = useMemo(
@@ -319,9 +322,19 @@ const CouncilListPageOrgs = () => {
               const chainConfig = councilsChainsList[Number(chainId) as keyof typeof councilsChainsList];
               return (
                 <div key={chainId} className='flex flex-col gap-2 md:gap-4'>
-                  <div className='flex items-center gap-2'>
-                    <img src={chainConfig?.iconUrl} alt={chainConfig?.name} className='size-6' />
-                    <h3 className='text-xl font-bold'>{orgName}</h3>
+                  <div className='flex flex-col justify-between gap-2 md:flex-row md:items-start md:items-center md:gap-4'>
+                    <div className='flex items-center gap-2'>
+                      <img src={chainConfig?.iconUrl} alt={chainConfig?.name} className='size-6' />
+                      <h3 className='text-xl font-bold'>{orgName}</h3>
+                    </div>
+                    <div className='flex items-center gap-4'>
+                      <AddCouncilButton organizationName={orgName} />
+                      <Link href={`/organizations/${slugify(orgName)}`}>
+                        <Button variant='outline-blue' className='w-fit rounded-full'>
+                          View Organization
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                   <div className='flex flex-col gap-2 md:gap-4'>
                     {councils.map((item) => (

@@ -23,6 +23,18 @@ export const slugify = (name: string) => {
   return name.toLowerCase().replace(/ /g, '-');
 };
 
+/**
+ * Parse an organization slug back to its original name with proper capitalization
+ * @param slug The organization slug to parse
+ * @returns The organization name with proper capitalization
+ */
+export const parseOrganizationSlug = (slug: string): string => {
+  return slug
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 export const parseCouncilSlug = (slug: string) => {
   if (includes(slug, '%3A')) {
     const [chain, address] = slug.split('%3A');

@@ -34,7 +34,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useToast, useWaitForSubgraph } from 'hooks';
 import { find, first, get, map, toNumber, toString, values } from 'lodash';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -182,6 +182,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { data: walletClient } = useWalletClient();
   const { handlePendingTx } = useOverlay();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [optionalSteps, setOptionalSteps] = useLocalStorage<CompletedOptionalSteps>(`${draftId}-optionalSteps`, {
     threshold: false,
     members: false,
@@ -190,9 +191,18 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     compliance: false,
   });
 
+  // Get organizationName from URL if it exists
+  const orgNameFromUrl = searchParams.get('organizationName');
+  const initialOrgName = orgNameFromUrl
+    ? {
+        value: decodeURIComponent(orgNameFromUrl),
+        label: decodeURIComponent(orgNameFromUrl),
+      }
+    : '';
+
   const form = useForm<CouncilFormData>({
     defaultValues: {
-      organizationName: '',
+      organizationName: initialOrgName,
       councilName: '',
       chain: first(chainOptions),
       councilDescription: '',
