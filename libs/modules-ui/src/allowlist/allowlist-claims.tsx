@@ -6,11 +6,12 @@ import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { filter, find, get, includes, isEmpty, map, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import { DevInfo } from 'molecules';
+import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LabeledModules, ModuleDetails } from 'types';
 import { Card, cn, Link, MemberAvatar, Skeleton } from 'ui';
-import { explorerUrl, formatAddress, logger } from 'utils';
+import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -107,7 +108,7 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
     map(allowlist || [], (wearer) => toLower(wearer?.id)),
     toLower(address),
   );
-  const isDev = true;
+  const isDev = posthog.isFeatureEnabled('dev');
 
   if (isEligibilityRulesLoading || isAllowlistLoading) {
     return <Skeleton className='h-[500px] w-full' />;
@@ -129,7 +130,7 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
       })}
     >
       <Card className='flex flex-col justify-between gap-6 border-[#2D3748] bg-white px-8 pb-10 pt-6'>
-        <div className='flex justify-between'>
+        <div className='flex flex-col justify-between gap-2 md:flex-row'>
           <div>
             <h3 className='text-2xl font-bold'>{copy.heading}</h3>
             <p className='mt-2 text-sm text-gray-600'>{copy.subheading}</p>
