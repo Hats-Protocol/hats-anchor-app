@@ -315,21 +315,21 @@ const CouncilListPageOrgs = () => {
 
     return (
       <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-20 md:gap-8 md:px-10'>
-        {sortedOrgs.map((orgName) => (
-          <div key={orgName} className='flex flex-col gap-4'>
+        {sortedOrgs.map((organizationName) => (
+          <div key={organizationName} className='flex flex-col gap-4'>
             {/* Group by chain within each organization */}
-            {Object.entries(groupBy(groupedCouncils[orgName], 'chainId')).map(([chainId, councils]) => {
+            {Object.entries(groupBy(groupedCouncils[organizationName], 'chainId')).map(([chainId, councils]) => {
               const chainConfig = councilsChainsList[Number(chainId) as keyof typeof councilsChainsList];
               return (
                 <div key={chainId} className='flex flex-col gap-2 md:gap-4'>
                   <div className='flex flex-col justify-between gap-2 md:flex-row md:items-start md:items-center md:gap-4'>
                     <div className='flex items-center gap-2'>
                       <img src={chainConfig?.iconUrl} alt={chainConfig?.name} className='size-6' />
-                      <h3 className='text-xl font-bold'>{orgName}</h3>
+                      <h3 className='text-xl font-bold'>{organizationName}</h3>
                     </div>
                     <div className='flex items-center gap-4'>
-                      <AddCouncilButton organizationName={orgName} />
-                      <Link href={`/organizations/${slugify(orgName)}`}>
+                      <AddCouncilButton organizationName={organizationName} />
+                      <Link href={`/organizations/${slugify(organizationName)}`}>
                         <Button variant='outline-blue' className='w-fit rounded-full'>
                           View Organization
                         </Button>

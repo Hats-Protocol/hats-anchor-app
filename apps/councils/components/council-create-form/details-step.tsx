@@ -6,7 +6,7 @@ import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations } from 'hooks';
 import { useCouncilDeployFlag, useToast } from 'hooks';
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StepProps } from 'types';
 import { MemberAvatar, Skeleton } from 'ui';
 import { logger } from 'utils';
@@ -32,82 +32,62 @@ const chainOptions: ChainOption[] = Object.values(councilsChainsList).map((chain
 }));
 
 export function DetailsStep({ onNext, draftId }: StepProps) {
-  const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const { watch, handleSubmit, setValue } = localForm;
-  const requirements = watch('requirements');
   const searchParams = useSearchParams();
-  logger.info('searchParams', searchParams);
   const { toast } = useToast();
   const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
 
-  // watch the organization name value
-  const organizationNameValue = watch('organizationName') as string | OrganizationOption;
+  // memoize organization options to prevent infinite renders
+  const organizationOptions = useMemo(() => {
+    const existingOrganizations = organizationsData?.organizations || [];
+    return existingOrganizations.map((org: { name: string }) => ({
+      value: org.name,
+      label: org.name,
+    }));
+  }, [organizationsData]);
 
-  // set default value for organizationName - only if it hasn't been set before
-  useEffect(() => {
-    const currentValue = watch('organizationName');
-    if (currentValue === undefined) {
-      // Get the organizationName from query params if it exists
-      const orgNameFromQuery = searchParams.get('organizationName');
-      if (orgNameFromQuery && organizationsData?.organizations) {
-        const decodedOrgName = decodeURIComponent(orgNameFromQuery);
+  // get initial organization value from query param (WIP)
+  const initialOrgValue = useMemo(() => {
+    if (!organizationsData?.organizations) return undefined;
 
-        // Try to find a matching existing organization
-        const existingOrg = organizationsData.organizations.find(
-          (org) => org.name.toLowerCase() === decodedOrgName.toLowerCase(),
-        );
+    const orgNameFromQuery = searchParams.get('organizationName');
+    if (!orgNameFromQuery) return undefined;
 
-        // Create the option object
-        const option = {
-          value: decodedOrgName,
-          label: existingOrg ? existingOrg.name : decodedOrgName, // Use exact case from existing org if found
-        };
-
-        setValue('organizationName', option, { shouldValidate: true });
-      } else {
-        setValue('organizationName', '');
-      }
-    }
-  }, [setValue, watch, searchParams, organizationsData]);
-
-  // set creator address as organization owner when selecting a pre-existing org
-  useEffect(() => {
-    if (!organizationNameValue) {
-      setValue('chain', chainOptions[0], { shouldValidate: true });
-      return;
-    }
-
-    // find the selected organization in the org data
-    const selectedOrg = organizationsData?.organizations?.find(
-      (org) =>
-        org.name === (typeof organizationNameValue === 'object' ? organizationNameValue.value : organizationNameValue),
+    const decodedOrgName = decodeURIComponent(orgNameFromQuery);
+    const matchingOrg = organizationsData.organizations.find(
+      (org) => org.name.toLowerCase() === decodedOrgName.toLowerCase(),
     );
 
-    // if this is a new organization (not found in org data), keep chain selection editable
-    if (!selectedOrg) {
-      return;
+    if (matchingOrg) {
+      return {
+        value: matchingOrg.name,
+        label: matchingOrg.name,
+      };
+    }
+    return undefined;
+  }, [organizationsData, searchParams]);
+
+  // get initial chain value based on org when org is pre-selected (WIP)
+  const initialChainValue = useMemo(() => {
+    if (!initialOrgValue || !organizationsData?.organizations) return chainOptions[0];
+
+    const selectedOrg = organizationsData.organizations.find((org) => org.name === initialOrgValue.value);
+
+    if (selectedOrg?.councils?.[0]) {
+      const chainOption = chainOptions.find((option) => Number(option.value) === selectedOrg.councils[0].chain);
+      return chainOption || chainOptions[0];
     }
 
-    // set chain for existing orgs and disable change
-    if (selectedOrg.councils && selectedOrg.councils.length > 0) {
-      const firstCouncil = selectedOrg.councils[0];
-      if (!firstCouncil) return;
+    return chainOptions[0];
+  }, [initialOrgValue, organizationsData]);
 
-      const chainOption = chainOptions.find((option) => Number(option.value) === firstCouncil.chain);
+  const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
 
-      if (chainOption) {
-        setValue('chain', chainOption, {
-          shouldValidate: true,
-        });
-      } else {
-        logger.error('Chain option not found for chain:', firstCouncil.chain);
-      }
+  const { watch, handleSubmit } = localForm;
+  const requirements = watch('requirements');
 
-      if (firstCouncil.creationForm) {
-        setValue('creator', firstCouncil.creationForm.creator);
-      }
-    }
-  }, [organizationsData, setValue, chainOptions, organizationNameValue]);
+  // watch the organization name value for logging
+  const organizationNameValue = watch('organizationName') as string | OrganizationOption;
+  logger.info('Current organization name value:', organizationNameValue);
 
   useCouncilDeployFlag(draftId);
 
@@ -117,17 +97,11 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
 
-  // create organization options from the data
-  const existingOrganizations = organizationsData?.organizations || [];
-  const organizationOptions: OrganizationOption[] = existingOrganizations.map((org: { name: string }) => ({
-    value: org.name,
-    label: org.name,
-  }));
-
   const selectedOrgValue = watch('organizationName') as unknown as OrganizationOption | null;
 
   // check if the selected value exists in our original organizations list
-  const isExistingOrg = selectedOrgValue && existingOrganizations.some((org) => org.name === selectedOrgValue.value);
+  const isExistingOrg =
+    selectedOrgValue && organizationsData?.organizations.some((org) => org.name === selectedOrgValue.value);
   const selectedExistingOrg = isExistingOrg
     ? organizationsData?.organizations?.find((org) => org.name === selectedOrgValue.value)
     : undefined;
@@ -144,9 +118,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
       >
         <div className='flex-1 space-y-6'>
           <h2 className='text-xl font-bold'>
-            {selectedOrgValue && existingOrganizations.some((org) => org.name === selectedOrgValue.value)
-              ? 'Create a new Council'
-              : 'Create your first Council'}
+            {selectedExistingOrg ? 'Create a new Council' : 'Create your first Council'}
           </h2>
 
           <div className='space-y-2'>
