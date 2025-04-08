@@ -25,6 +25,7 @@ export * from './use-media-query';
 export * from './use-media-styles';
 export * from './use-offchain-council-details';
 export * from './use-org-chart-tree';
+export * from './use-organization';
 export * from './use-pend-hatter-mint';
 export * from './use-pin-image-ipfs';
 export * from './use-proposal-details';
