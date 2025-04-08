@@ -3,11 +3,12 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import { Suspense } from 'react';
 import { Skeleton } from 'ui';
 import { CREATE_INITIAL_FORM, CREATE_USER, getCouncilsGraphqlClient, logger } from 'utils';
 import { useChainId } from 'wagmi';
 
-const NewCouncil = () => {
+const NewCouncilContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, authenticated, ready, getAccessToken } = usePrivy();
@@ -80,4 +81,10 @@ const NewCouncil = () => {
   return null;
 };
 
-export default NewCouncil;
+export default function NewCouncilPage() {
+  return (
+    <Suspense>
+      <NewCouncilContent />
+    </Suspense>
+  );
+}
