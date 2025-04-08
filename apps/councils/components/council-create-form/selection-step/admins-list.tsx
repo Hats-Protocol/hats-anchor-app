@@ -9,11 +9,12 @@ import { MemberAvatar } from 'ui';
 
 import { AddAdminModal } from './add-admin-modal';
 
-interface AdminsListProps {
+export interface AdminsListProps {
   name: string;
   admins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
+  onEdit?: (admin: CouncilMember) => void;
 }
 
 export function AdminsList({ admins, form, canEdit = true }: AdminsListProps) {
