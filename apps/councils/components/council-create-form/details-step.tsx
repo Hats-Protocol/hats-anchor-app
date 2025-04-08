@@ -82,12 +82,36 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
 
-  const { watch, handleSubmit } = localForm;
+  const { watch, handleSubmit, setValue } = localForm;
   const requirements = watch('requirements');
 
   // watch the organization name value for logging
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
   logger.info('Current organization name value:', organizationNameValue);
+
+  // Update chain when organization changes
+  useEffect(() => {
+    if (!organizationsData?.organizations || !organizationNameValue || typeof organizationNameValue === 'string')
+      return;
+
+    const selectedOrg = organizationsData.organizations.find((org) => org.name === organizationNameValue.value);
+    if (selectedOrg?.councils?.[0]) {
+      const chainId = selectedOrg.councils[0].chain;
+      const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
+      if (chainOption) {
+        logger.info('Setting chain to:', chainOption);
+        setValue(
+          'chain',
+          {
+            value: chainOption.value,
+            label: chainOption.label,
+            icon: chainOption.icon,
+          },
+          { shouldValidate: true },
+        );
+      }
+    }
+  }, [organizationNameValue, organizationsData, setValue]);
 
   useCouncilDeployFlag(draftId);
 

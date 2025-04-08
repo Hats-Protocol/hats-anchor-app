@@ -21,6 +21,12 @@ export const ORGANIZATION_COUNCIL_FRAGMENT = gql`
         creator
         chain
         councilName
+        members {
+          id
+          name
+          address
+          email
+        }
       }
     }
   }
