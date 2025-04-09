@@ -10,6 +10,7 @@ export * from './input';
 export * from './label-with-link';
 export * from './link-input';
 export * from './markdown-editor';
+export * from './member-address-input';
 export * from './module-args-form';
 export * from './multi-address-input';
 export * from './multi-hats-select';

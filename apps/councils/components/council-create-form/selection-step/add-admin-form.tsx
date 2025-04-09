@@ -3,7 +3,8 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
 import { useCouncilForm } from 'contexts';
-import { AddressInput, Form, Input } from 'forms';
+import { Form, Input, MemberAddressInput } from 'forms';
+import { useOrganization } from 'hooks';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { CouncilFormData, CouncilMember, FormMember } from 'types';
@@ -26,6 +27,22 @@ export function AddAdminForm({ parentForm, editingAdmin, onClose, canEdit = true
   const chainId = getChainId(selectedChain);
   const { persistForm } = useCouncilForm();
   const { getAccessToken } = usePrivy();
+  const organizationName = parentForm.watch('organizationName')?.value || '';
+  const { data: organization } = useOrganization(organizationName);
+
+  // extract and flatten members from all councils
+  const allMembers =
+    organization?.councils?.reduce((acc: CouncilMember[], council) => {
+      if (council.creationForm?.members) {
+        return [...acc, ...council.creationForm.members];
+      }
+      return acc;
+    }, []) || [];
+
+  // remove duplicates based on member address
+  const uniqueMembers = allMembers.filter(
+    (member, index, self) => index === self.findIndex((m) => m.address.toLowerCase() === member.address.toLowerCase()),
+  );
 
   const modalForm = useForm({
     defaultValues: {
@@ -125,14 +142,16 @@ export function AddAdminForm({ parentForm, editingAdmin, onClose, canEdit = true
       <div className={cn('space-y-6', className)}>
         <div className='space-y-6'>
           <div className='space-y-2'>
-            <AddressInput
+            <MemberAddressInput
               name='address'
               label={`${chainsMap(chainId).name} Account`}
               localForm={modalForm}
-              hideAddressButtons
               chainId={chainId}
               variant='councils'
               isDisabled={!canEdit}
+              members={uniqueMembers}
+              onSubmit={handleSubmit}
+              onClose={onClose}
             />
           </div>
 
