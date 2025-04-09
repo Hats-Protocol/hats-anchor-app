@@ -107,6 +107,10 @@
       "secp256k1",
       "sharp",
       "utf-8-validate"
-    ]
+    ],
+    "overrides": {}
+  },
+  "dependencies": {
+    "@hatsprotocol/sdk-v1-core": "link:../sdk-v1-core/packages/core"
   }
 }

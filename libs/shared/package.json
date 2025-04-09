@@ -17,7 +17,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
-    "@hatsprotocol/sdk-v1-core": "^0.12.0",
+    "@hatsprotocol/sdk-v1-core": "^0.12.4",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "types": "workspace:*",
