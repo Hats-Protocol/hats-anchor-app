@@ -110,7 +110,7 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
 
   const isContract = (contractData && contractData?.contractName !== 'MetaMultiSigWallet') || moduleDetails;
 
-  const handleChange = (newValue: Option | null) => {
+  const handleChange = (newValue: Option | null, actionMeta: any) => {
     // Clear all fields if no value
     if (!newValue) {
       setValue(name, '');
@@ -133,12 +133,7 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
         onSubmit(data);
         onClose?.();
       }
-      return;
     }
-
-    // If it's a new address (not a member), clear the other fields
-    setValue('email', '');
-    setValue('name', '');
   };
 
   const Option = ({ children, ...props }: any) => {
@@ -197,7 +192,14 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
         <CreatableSelect
           options={memberOptions}
           onChange={handleChange}
-          value={memberOptions.find((option) => option.value === formValue) || null}
+          value={
+            formValue
+              ? {
+                  value: formValue,
+                  label: formValue,
+                }
+              : null
+          }
           isDisabled={isDisabled}
           placeholder={placeholder}
           isClearable
@@ -205,8 +207,6 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
           components={{ Control, Option, SingleValue }}
           filterOption={(option: any, input: string): boolean => {
             if (!input) return false;
-            // Only show actual member addresses, not the search input itself
-            if (option.data.value.toLowerCase() === input.toLowerCase()) return false;
             return (
               option.data.value.toLowerCase().includes(input.toLowerCase()) ||
               (option.data.ensName && option.data.ensName.toLowerCase().includes(input.toLowerCase()))

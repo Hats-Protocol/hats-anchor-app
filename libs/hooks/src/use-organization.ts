@@ -2,6 +2,13 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
 import { getOrganizationByName, logger } from 'utils';
 
+interface AdminUser {
+  id: string;
+  name: string;
+  address: string;
+  email: string;
+}
+
 interface Organization {
   id: string;
   name: string;
@@ -11,16 +18,26 @@ interface Organization {
     chain: number;
     treeId: number;
     hsg: string;
+    deployed: boolean;
     creationForm: {
       id: string;
       creator: string;
       chain: number;
       councilName: string;
-      members: {
+      members: AdminUser[];
+      admins: AdminUser[];
+      agreement: string;
+      agreementAdmins: {
         id: string;
         name: string;
         address: string;
-        email: string;
+      }[];
+      tokenAmount: string;
+      tokenAddress: string;
+      complianceAdmins: {
+        id: string;
+        name: string;
+        address: string;
       }[];
     };
   }[];
@@ -33,7 +50,6 @@ interface OrganizationResponse {
 export function useOrganization(organizationName: string | undefined) {
   const { getAccessToken } = usePrivy();
 
-  logger.info('fetching organizationName', organizationName);
   return useQuery({
     queryKey: ['organization', organizationName],
     queryFn: async () => {
@@ -47,7 +63,7 @@ export function useOrganization(organizationName: string | undefined) {
         name: decodedName,
         accessToken,
       })) as OrganizationResponse;
-      logger.info('result', result);
+
       return result.organizations[0] ?? null;
     },
     enabled: !!organizationName,

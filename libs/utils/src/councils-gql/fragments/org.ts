@@ -27,6 +27,25 @@ export const ORGANIZATION_COUNCIL_FRAGMENT = gql`
           address
           email
         }
+        admins {
+          id
+          name
+          address
+          email
+        }
+        agreement
+        agreementAdmins {
+          id
+          name
+          address
+        }
+        tokenAmount
+        tokenAddress
+        complianceAdmins {
+          id
+          name
+          address
+        }
       }
     }
   }
