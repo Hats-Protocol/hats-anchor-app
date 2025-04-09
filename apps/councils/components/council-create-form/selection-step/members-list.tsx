@@ -64,31 +64,49 @@ function MemberCard({ member, form, canEdit = true, onEdit }: MemberCardProps) {
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
 
-  // Check if:
-  // 1. The connected user is in the organization's admins list from the API
-  // 2. OR if this is a new organization (no data yet)
-  // 3. OR if the user is editing members they just added in this form session
-  const isAdmin =
-    organization?.councils?.[0]?.creationForm?.admins?.some(
-      (admin) => admin.address.toLowerCase() === connectedAddress?.toLowerCase(),
-    ) ?? true; // Default to true if no organization data yet (new org creation)
+  // Check if the connected user is the creator of the form
+  const isConnectedUserCreator = form.getValues('creator')?.toLowerCase() === connectedAddress?.toLowerCase();
 
-  logger.info('isAdmin check', {
-    isAdmin,
-    organizationAdmins: organization?.councils?.[0]?.creationForm?.admins,
+  // Check if this member exists in either the organization's admins or members lists
+  const isExistingMember =
+    (organization?.councils?.[0]?.creationForm?.admins?.some(
+      (m) => m.address.toLowerCase() === member.address.toLowerCase(),
+    ) ||
+      organization?.councils?.[0]?.creationForm?.members?.some(
+        (m) => m.address.toLowerCase() === member.address.toLowerCase(),
+      )) ??
+    false;
+
+  // During council creation:
+  // - Only the creator of the form can edit newly added members
+  // - Cannot edit members from existing lists
+  const canEditMember = isConnectedUserCreator && !isExistingMember;
+
+  // During council creation, we can delete any member
+  // If this were editing an existing council, we'd check for admin status here
+  const canDeleteMember = true;
+
+  logger.info('member permissions check', {
+    isConnectedUserCreator,
+    isExistingMember,
+    canEditMember,
+    canDeleteMember,
+    memberAddress: member.address,
     connectedAddress,
-    isNewOrg: !organization,
+    creator: form.getValues('creator'),
+    organizationAdmins: organization?.councils?.[0]?.creationForm?.admins,
+    organizationMembers: organization?.councils?.[0]?.creationForm?.members,
   });
 
   const onRemove = () => {
-    if (!canEdit || !isAdmin) return;
+    if (!canEdit) return;
     const currentMembers = form.getValues('members') || [];
     const updatedMembers = currentMembers.filter((m: CouncilMember) => m.id !== member.id);
     form.setValue('members', updatedMembers);
   };
 
   const handleEdit = () => {
-    if (!canEdit || !isAdmin) return;
+    if (!canEdit || !canEditMember) return;
     onEdit(member);
   };
 
@@ -102,7 +120,7 @@ function MemberCard({ member, form, canEdit = true, onEdit }: MemberCardProps) {
             type='button'
             className='text-functional-link-primary hover:text-functional-link-primary/70 disabled:hover:text-functional-link-primary flex items-center gap-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50'
             onClick={() => handleEdit()}
-            disabled={!isAdmin}
+            disabled={!canEditMember}
           >
             <SquarePen className='h-4 w-4' />
             Edit
@@ -112,7 +130,6 @@ function MemberCard({ member, form, canEdit = true, onEdit }: MemberCardProps) {
             type='button'
             onClick={() => onRemove()}
             className='text-destructive hover:text-destructive/70 disabled:hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50'
-            disabled={!isAdmin}
           >
             <Trash2 className='h-4 w-4' />
           </button>

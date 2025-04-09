@@ -21,20 +21,6 @@ export function SelectionManagementStep({ onNext }: StepProps) {
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
 
-  // extract and flatten members from all councils
-  const allMembers =
-    organization?.councils?.reduce((acc: CouncilMember[], council) => {
-      if (council.creationForm?.members) {
-        return [...acc, ...council.creationForm.members];
-      }
-      return acc;
-    }, []) || [];
-
-  // remove duplicates based on member address
-  const uniqueMembers = allMembers.filter(
-    (member, index, self) => index === self.findIndex((m) => m.address.toLowerCase() === member.address.toLowerCase()),
-  );
-
   const admins = form.watch('admins') || [];
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', form.watch('requirements'));
 
