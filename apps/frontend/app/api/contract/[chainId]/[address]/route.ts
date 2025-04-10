@@ -28,7 +28,10 @@ const fetchContractData = async (chainId: number, address: Hex) =>
     });
 
 // Using GET request so automatically cached via Next
-export async function GET(request: Request, { params }: { params: Promise<{ chainId: string; address: Hex }> }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ chainId: string; address: Hex }> },
+): Promise<Response> {
   const localParams = await params;
   const { chainId: initialChainId, address } = pick(localParams, ['chainId', 'address']);
   const chainId = toNumber(initialChainId);

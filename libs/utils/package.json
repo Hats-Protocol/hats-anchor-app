@@ -40,9 +40,5 @@
     "types": "workspace:*",
     "viem": "2.24.3",
     "wagmi": "^2.14.11"
-  },
-  "devDependencies": {
-    "graphql-zeus": "^7.0.1",
-    "tsup": "^8.3.0"
   }
 }

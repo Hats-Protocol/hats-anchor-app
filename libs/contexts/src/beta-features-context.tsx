@@ -18,7 +18,7 @@ const BetaFeaturesContext = createContext<BetaFeaturesContextType>({
   isCommunityMember: false,
   betaFeaturesEnabled: false,
   canAccessBetaFeatures: false,
-  toggleBetaFeatures: () => {},
+  toggleBetaFeatures: () => undefined,
 });
 
 export const BetaFeaturesProvider = ({ children, address }: { children: ReactNode; address: string | undefined }) => {
@@ -60,7 +60,7 @@ export const BetaFeaturesProvider = ({ children, address }: { children: ReactNod
   return <BetaFeaturesContext.Provider value={value}>{children}</BetaFeaturesContext.Provider>;
 };
 
-export const useBetaFeaturesContext = () => {
+export const useBetaFeaturesContext = (): BetaFeaturesContextType => {
   const context = useContext(BetaFeaturesContext);
   if (!context) {
     throw new Error('useBetaFeaturesContext must be used within a BetaFeaturesProvider');
