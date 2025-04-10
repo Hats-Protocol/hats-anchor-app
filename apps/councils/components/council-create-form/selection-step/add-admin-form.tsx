@@ -27,8 +27,9 @@ export function AddAdminForm({ parentForm, editingAdmin, onClose, canEdit = true
   const chainId = getChainId(selectedChain);
   const { persistForm } = useCouncilForm();
   const { getAccessToken } = usePrivy();
-  const organizationName = parentForm.watch('organizationName')?.value || '';
-  const { data: organization } = useOrganization(organizationName);
+  const organizationName = parentForm.watch('organizationName') || '';
+  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
+  const { data: organization } = useOrganization(orgName);
 
   // extract and flatten members from all councils
   const allMembers =
