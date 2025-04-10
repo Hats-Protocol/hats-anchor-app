@@ -1,6 +1,13 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
-import { getOrganizationByName } from 'utils';
+import { getOrganizationByName, logger } from 'utils';
+
+interface AdminUser {
+  id: string;
+  name: string;
+  address: string;
+  email: string;
+}
 
 interface Organization {
   id: string;
@@ -11,11 +18,27 @@ interface Organization {
     chain: number;
     treeId: number;
     hsg: string;
+    deployed: boolean;
     creationForm: {
       id: string;
       creator: string;
       chain: number;
       councilName: string;
+      members: AdminUser[];
+      admins: AdminUser[];
+      agreement: string;
+      agreementAdmins: {
+        id: string;
+        name: string;
+        address: string;
+      }[];
+      tokenAmount: string;
+      tokenAddress: string;
+      complianceAdmins: {
+        id: string;
+        name: string;
+        address: string;
+      }[];
     };
   }[];
 }
@@ -33,7 +56,7 @@ export function useOrganization(organizationName: string | undefined) {
       if (!organizationName) return null;
 
       const accessToken = await getAccessToken();
-      // Convert kebab-case to spaces for the lookup
+      // Convert kebab-case to spaces for the lookup for when the organization name is from the route slug
       const decodedName = organizationName.replace(/-/g, ' ');
 
       const result = (await getOrganizationByName({
