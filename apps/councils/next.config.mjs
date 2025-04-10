@@ -49,6 +49,7 @@ const nextConfig = {
       'react-datepicker',
       'viem',
     ],
+    serverComponentsExternalPackages: ['require-in-the-middle'],
   },
   images: {
     remotePatterns: [

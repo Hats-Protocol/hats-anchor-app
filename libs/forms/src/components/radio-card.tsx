@@ -71,7 +71,12 @@ const RadioCard = ({
             </div>
 
             <FormControl>
-              <RadioGroup disabled={isDisabled} defaultValue={defaultValue} {...field}>
+              <RadioGroup
+                disabled={isDisabled}
+                defaultValue={defaultValue}
+                onValueChange={field.onChange}
+                value={field.value}
+              >
                 <div className='flex flex-col gap-4'>
                   {options?.map((option) => {
                     const RawIcon = option.icon;
@@ -84,9 +89,19 @@ const RadioCard = ({
                           option.disabled && 'cursor-not-allowed',
                           field.value === option.value && 'border-functional-link-primary bg-white/90 shadow',
                         )}
-                        onClick={() => !option.disabled && field.onChange(option.value)}
                       >
-                        <div className='flex w-full items-center justify-between'>
+                        <div className='flex w-full items-center gap-3'>
+                          {!option.disabled ? (
+                            <RadioGroupItem
+                              className='pointer-none text-functional-link-primary'
+                              value={option.value}
+                              disabled={option.disabled}
+                            />
+                          ) : (
+                            <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
+                              coming soon
+                            </span>
+                          )}
                           <div className={cn('flex gap-4 opacity-100', option.disabled && 'opacity-50')}>
                             {RawIcon && (
                               <RawIcon
@@ -103,20 +118,6 @@ const RadioCard = ({
                               {option.description && <p className='text-sm text-gray-500'>{option.description}</p>}
                             </div>
                           </div>
-                          {!option.disabled ? (
-                            <RadioGroupItem
-                              // onChange={(v) => {
-                              //   field.onChange(option.value);
-                              // }}
-                              // checked={field.value === option.value}
-                              className='pointer-none text-functional-link-primary'
-                              value={option.value}
-                            />
-                          ) : (
-                            <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
-                              coming soon
-                            </span>
-                          )}
                         </div>
                       </FormLabel>
                     );

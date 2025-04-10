@@ -93,6 +93,7 @@ export function OnboardingStep({ onNext, draftId }: StepProps) {
                   description: 'Select a list of eligible Council Members',
                   icon: DocumentChecks as IconType,
                 },
+
                 {
                   label: 'Elect Council Members',
                   value: 'ELECTED',
