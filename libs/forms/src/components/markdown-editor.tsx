@@ -13,11 +13,13 @@ import { Toolbar } from './markdown-toolbar';
 const Tiptap = ({
   field,
   label,
-  // existingAgreements,
+  isDisabled,
+  existingAgreements,
 }: {
   field: ControllerRenderProps<FieldValues, string>;
   label?: string;
-  // existingAgreements?: { agreement: string; councilName: string }[];
+  isDisabled?: boolean;
+  existingAgreements?: { agreement: string; councilName: string }[];
 }) => {
   const converter = new showdown.Converter();
 
@@ -33,10 +35,12 @@ const Tiptap = ({
       }),
     ],
     content: converter.makeHtml(field.value),
+    editable: !isDisabled,
     editorProps: {
       attributes: {
-        class:
-          'rounded-md border min-h-[150px] max-h-[400px] overflow-y-auto border-input bg-background focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 p-2',
+        class: `rounded-md border min-h-[150px] max-h-[400px] overflow-y-auto border-input bg-background p-2 ${
+          isDisabled ? 'cursor-not-allowed bg-muted' : 'focus:ring-offset-2'
+        }`,
       },
       scrollThreshold: 80,
       scrollMargin: 80,
@@ -63,9 +67,6 @@ const Tiptap = ({
         <div className='flex flex-col justify-stretch gap-2'>
           <Toolbar editor={editor} />
           <EditorContent className='max-h-[400px] min-h-[250px]' editor={editor} />
-          {/* {matchingAgreement && (
-            <div className='text-muted-foreground text-xs'>Note: This matches an existing agreement</div>
-          )} */}
         </div>
       </FormControl>
       <FormMessage />
@@ -90,7 +91,7 @@ const MarkdownEditor = ({
       control={localForm.control}
       name={name}
       render={({ field }) => {
-        return <Tiptap field={field} label={label} existingAgreements={existingAgreements} />;
+        return <Tiptap field={field} label={label} isDisabled={isDisabled} existingAgreements={existingAgreements} />;
       }}
     />
   );

@@ -7,7 +7,7 @@ import { FilePlus, FileText } from 'lucide-react';
 import { useEffect } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
-import { StepProps } from 'types';
+import { CouncilMember, StepProps } from 'types';
 import { Button, MemberAvatar, Skeleton } from 'ui';
 import { logger } from 'utils';
 
@@ -44,6 +44,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   const { data: organization } = useOrganization(orgName);
 
   logger.info('organization', organization);
+
   // Group agreements from existing councils
   const existingAgreements =
     organization?.councils?.reduce<GroupedAgreement[]>((acc, council) => {
@@ -76,6 +77,64 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     },
   ];
 
+  // Extract unique organization managers from existing councils
+  const organizationManagers =
+    organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
+      if (council.creationForm?.admins) {
+        council.creationForm.admins.forEach((admin) => {
+          if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
+            acc.push(admin);
+          }
+        });
+      }
+      return acc;
+    }, []) || [];
+
+  // Group unique admin sets across councils
+  const adminGroups =
+    organization?.councils?.reduce<{
+      [key: string]: { admins: CouncilMember[]; councils: string[] };
+    }>((acc, council) => {
+      if (!council.creationForm?.agreementAdmins) return acc;
+
+      // Create a sorted string of admin addresses as a key
+      const adminKey = council.creationForm.agreementAdmins
+        .map((admin) => admin.address.toLowerCase())
+        .sort()
+        .join(',');
+
+      if (!acc[adminKey]) {
+        acc[adminKey] = {
+          admins: council.creationForm.agreementAdmins,
+          councils: [council.creationForm.councilName],
+        };
+      } else {
+        acc[adminKey].councils.push(council.creationForm.councilName);
+      }
+      return acc;
+    }, {}) || {};
+
+  // Create radio options for agreement managers
+  const agreementManagerOptions = [
+    {
+      value: 'false',
+      label: 'Organization Managers',
+      description: 'Manage Roles on all Councils',
+      avatars: organizationManagers,
+    },
+    ...Object.entries(adminGroups).map(([key, group]) => ({
+      value: `existing:${key}`,
+      label: 'Agreement Managers',
+      description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+      avatars: group.admins,
+    })),
+    {
+      value: 'true',
+      label: 'Create new Agreement Managers',
+      description: 'Create a new group of agreement managers',
+    },
+  ];
+
   // When agreement text matches an existing option, select that radio option
   useEffect(() => {
     const selectedOption = form.watch('agreement');
@@ -84,8 +143,16 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     // Only update if we find a match and it's different from current selection
     if (matchingOption && selectedOption !== matchingOption.value) {
       form.setValue('agreement', matchingOption.value, { shouldDirty: false });
+
+      // Find the corresponding agreement text from existing agreements
+      const existingAgreement = existingAgreements.find((ea) => ea.agreement === matchingOption.value);
+
+      if (existingAgreement) {
+        // Set the agreement text in the markdown editor
+        form.setValue('agreement', existingAgreement.agreement, { shouldDirty: false });
+      }
     }
-  }, [agreement]);
+  }, [agreement, agreementOptions, existingAgreements, form]);
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
@@ -126,7 +193,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
             <MarkdownEditor
               name='agreement'
               localForm={form}
-              isDisabled={!canEdit || agreement !== ''}
+              isDisabled={!canEdit || !!agreementOptions.find((opt) => opt.value === agreement)?.value}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
               existingAgreements={existingAgreements.map(({ agreement, councilName }) => ({
                 agreement,
@@ -138,33 +205,40 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
-              <RadioBox
+              <RadioCard
                 name='createAgreementAdminRole'
                 localForm={form}
                 isDisabled={!canEdit}
-                options={[
-                  {
-                    value: 'false',
-                    label: 'Council Managers',
-                  },
-                  {
-                    value: 'true',
-                    label: "New 'Agreement Manager' Role",
-                  },
-                ]}
+                options={agreementManagerOptions}
               />
             </div>
 
             {createAgreementAdminRole === 'false' && admins.length > 0 && (
               <div>
-                <h3 className='mb-2 font-bold'>Council Managers can edit the Agreement</h3>
+                <h3 className='mb-2 font-bold'>Organization Managers can edit the Agreement</h3>
                 <p className='text-sm text-gray-600'>
-                  Council Managers can update the agreement text and verify that Council Members have signed it.
+                  Organization Managers can update the agreement text and verify that Council Members have signed it.
                 </p>
                 <div className='mt-4 space-y-2'>
                   {admins.map((admin) => (
                     <MemberAvatar key={admin.id} member={admin} />
                   ))}
+                </div>
+              </div>
+            )}
+
+            {createAgreementAdminRole.startsWith('existing:') && (
+              <div>
+                <h3 className='mb-2 font-bold'>Existing Agreement Managers can edit the Agreement</h3>
+                <p className='text-sm text-gray-600'>
+                  These Agreement Managers can update the agreement text and verify that Council Members have signed it.
+                </p>
+                <div className='mt-4 space-y-2'>
+                  {(() => {
+                    const adminKey = createAgreementAdminRole.split(':')[1];
+                    const group = adminGroups[adminKey];
+                    return group?.admins.map((admin) => <MemberAvatar key={admin.id} member={admin} />);
+                  })()}
                 </div>
               </div>
             )}

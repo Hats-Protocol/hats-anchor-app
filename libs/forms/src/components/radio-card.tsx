@@ -3,7 +3,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { cn, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
+import { cn, MemberAvatar, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
@@ -13,6 +13,12 @@ interface RadioCardOption {
   description?: string;
   icon?: IconType;
   disabled?: boolean;
+  avatars?: Array<{
+    id: string;
+    address: string;
+    name?: string;
+    email?: string;
+  }>;
 }
 
 interface RadioCardProps {
@@ -102,7 +108,7 @@ const RadioCard = ({
                               coming soon
                             </span>
                           )}
-                          <div className={cn('flex gap-4 opacity-100', option.disabled && 'opacity-50')}>
+                          <div className={cn('flex w-full gap-4 opacity-100', option.disabled && 'opacity-50')}>
                             {RawIcon && (
                               <RawIcon
                                 className={cn(
@@ -111,11 +117,25 @@ const RadioCard = ({
                                 )}
                               />
                             )}
-                            <div className='flex flex-col gap-0.5'>
-                              <p className={cn('text-sm font-semibold', textSize === 'sm' && 'text-base')}>
-                                {option.label}
-                              </p>
-                              {option.description && <p className='text-sm text-gray-500'>{option.description}</p>}
+                            <div className='flex w-full flex-col gap-0.5'>
+                              <div className='flex w-full items-center justify-between'>
+                                <p className={cn('text-sm font-medium', textSize === 'sm' && 'text-base')}>
+                                  {option.label}
+                                </p>
+                                {option.avatars && option.avatars.length > 0 && (
+                                  <div className='flex -space-x-2'>
+                                    {option.avatars.map((avatar) => (
+                                      <MemberAvatar
+                                        key={avatar.id}
+                                        member={avatar}
+                                        className='h-6 w-6'
+                                        showDetails={false}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              {option.description && <p className='text-sm font-normal'>{option.description}</p>}
                             </div>
                           </div>
                         </div>

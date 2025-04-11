@@ -17,13 +17,11 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
   const requirements = form.watch('requirements');
   const tokenRequirement = form.watch('tokenRequirement');
-  const selectedOption = form.watch('agreement');
+  logger.info('tokenRequirement', tokenRequirement);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
-
-  logger.info('organization', organization);
 
   useCouncilDeployFlag(draftId);
 
@@ -56,13 +54,11 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
     ...existingTokenRequirements.map((requirement) => {
       const token = availableTokens.find((t) => t.address === requirement.tokenAddress);
       return {
-        value: JSON.stringify({
-          minimum: requirement.tokenAmount,
-          address: requirement.tokenAddress,
-        }),
+        value: requirement.tokenAddress,
         label: `Hold ${requirement.tokenAmount} ${token?.symbol || 'tokens'}`,
         icon: GemIcon as IconType,
         description: requirement.councilName,
+        tokenAmount: requirement.tokenAmount,
       };
     }),
     {
@@ -73,32 +69,40 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
     },
   ];
 
-  // When token selection changes, update form values
+  // Track radio selection separately from token select
+  const selectedRadioValue = form.watch('tokenRequirement.selectedPreset');
+
+  // Only reset values when radio selection changes
   useEffect(() => {
-    if (selectedOption && selectedOption !== '') {
-      try {
-        const { minimum, address } = JSON.parse(selectedOption);
-        const token = availableTokens.find((t) => t.address === address);
-        if (token) {
-          form.setValue('tokenRequirement', {
-            minimum: Number(minimum),
-            address: {
-              value: token.address,
-              label: `${token.name} (${token.symbol})`,
-            },
-          });
-        }
-      } catch (e) {
-        logger.error('Error parsing selected token requirement', e);
-      }
-    } else {
-      // Reset form values when creating new
+    if (!selectedRadioValue) {
+      // Reset form when "Create new" is selected
       form.setValue('tokenRequirement', {
         minimum: 0,
         address: undefined,
+        selectedPreset: '',
+      });
+      return;
+    }
+
+    // Find the matching requirement and token
+    const requirement = existingTokenRequirements.find((req) => req.tokenAddress === selectedRadioValue);
+    const token = availableTokens.find((t) => t.address === selectedRadioValue);
+
+    if (requirement && token) {
+      // Set both form values when selecting an existing preset
+      form.setValue('tokenRequirement', {
+        minimum: Number(requirement.tokenAmount),
+        address: {
+          value: token.address,
+          label: `${token.name} (${token.symbol})`,
+        },
+        selectedPreset: selectedRadioValue,
       });
     }
-  }, [selectedOption, availableTokens, form]);
+  }, [selectedRadioValue]);
+
+  // Check if using an existing preset by seeing if current radio selection matches any requirement
+  const isUsingPreset = existingTokenRequirements.some((req) => req.tokenAddress === selectedRadioValue);
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
@@ -121,7 +125,12 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
             </div>
           </div>
 
-          <RadioCard name='agreement' localForm={form} options={tokenOptions} isDisabled={!canEdit} />
+          <RadioCard
+            name='tokenRequirement.selectedPreset'
+            localForm={form}
+            options={tokenOptions}
+            isDisabled={!canEdit}
+          />
         </div>
 
         <div className='grid grid-cols-2 gap-8'>
@@ -135,7 +144,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
-              disabled={!canEdit}
+              disabled={!canEdit || isUsingPreset}
             />
           </div>
 
@@ -146,6 +155,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
               variant='councils'
               localForm={form}
               options={availableTokens}
+              isDisabled={!canEdit || isUsingPreset}
             />
           </div>
         </div>
