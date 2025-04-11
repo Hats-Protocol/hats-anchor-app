@@ -9,8 +9,8 @@ import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AddAdminForm } from './add-admin-form';
 import { AdminsList } from './admins-list';
+import { UnifiedUserForm } from './unified-user-form';
 
 export function SelectionManagementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
@@ -103,9 +103,10 @@ export function SelectionManagementStep({ onNext }: StepProps) {
           </div>
         ) : (
           <div className='-mx-16 border-b border-gray-200'>
-            <AddAdminForm
+            <UnifiedUserForm
               parentForm={form}
-              editingAdmin={editingAdmin}
+              editingUser={editingAdmin}
+              userType='admin'
               onClose={() => {
                 setShowAddForm(false);
                 setEditingAdmin(null);

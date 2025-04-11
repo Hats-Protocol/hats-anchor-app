@@ -1,10 +1,11 @@
 'use client';
 
-import { useCouncilForm, useOverlay } from 'contexts';
+import { useCouncilForm } from 'contexts';
+import { useOverlay } from 'contexts';
 import { Form, MarkdownEditor, RadioBox, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
 import { FilePlus, FileText } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 import { CouncilMember, StepProps } from 'types';
@@ -13,24 +14,18 @@ import { logger } from 'utils';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AddAgreementAdminModal } from './add-agreement-admin-modal';
-import { AgreementAdminsList } from './agreement-admins-list';
+import { AdminsList } from './admins-list';
+import { UnifiedUserForm } from './unified-user-form';
+import { UnifiedUserModal } from './unified-user-modal';
 
 interface GroupedAgreement {
   councilName: string;
   agreement: string;
-  agreementAdmins: AgreementAdmin[];
-}
-
-interface AgreementAdmin {
-  id: string;
-  name?: string;
-  address: string;
+  agreementAdmins: CouncilMember[];
 }
 
 export function SelectionAgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const { setModals } = useOverlay();
   const requirements = form.watch('requirements');
   const agreementAdmins = form.watch('agreementAdmins') || [];
   const createAgreementAdminRole = form.watch('createAgreementAdminRole');
@@ -154,6 +149,10 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     }
   }, [agreement, agreementOptions, existingAgreements, form]);
 
+  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const { setModals } = useOverlay();
+
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
   }
@@ -254,22 +253,51 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
 
                 {agreementAdmins.length > 0 && (
                   <div>
-                    <AgreementAdminsList agreementAdmins={agreementAdmins} form={form} canEdit={canEdit} />
+                    <AdminsList
+                      name='agreementAdmins'
+                      admins={agreementAdmins}
+                      form={form}
+                      canEdit={canEdit}
+                      onEdit={(admin: CouncilMember) => {
+                        setEditingAdmin(admin);
+                        setShowAddForm(true);
+                      }}
+                    />
                   </div>
                 )}
 
-                <div className='flex items-center justify-between'>
-                  <Button
-                    variant='outline-blue'
-                    rounded='full'
-                    type='button'
-                    onClick={() => setModals?.({ addAgreementAdminModal: true })}
-                    disabled={!canEdit}
-                  >
-                    <FiUserPlus className='mr-2 h-4 w-4' />
-                    Add Agreement Manager
-                  </Button>
-                </div>
+                {!showAddForm ? (
+                  <div className='flex items-center justify-between'>
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => {
+                        setEditingAdmin(null);
+                        setShowAddForm(true);
+                      }}
+                      disabled={!canEdit}
+                      type='button'
+                    >
+                      <FiUserPlus className='mr-2 h-4 w-4' />
+                      Add Agreement Manager
+                    </Button>
+                  </div>
+                ) : (
+                  <div className='-mx-16 border-b border-gray-200'>
+                    <UnifiedUserForm
+                      parentForm={form}
+                      editingUser={editingAdmin}
+                      userType='agreementAdmin'
+                      onClose={() => {
+                        setShowAddForm(false);
+                        setEditingAdmin(null);
+                      }}
+                      canEdit={canEdit}
+                      className='bg-white px-16 py-6'
+                      hideAddressButtons={true}
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -283,8 +311,6 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           </div>
         </form>
       </Form>
-
-      <AddAgreementAdminModal form={form} canEdit={canEdit} />
     </>
   );
 }

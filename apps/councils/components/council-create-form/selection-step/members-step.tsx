@@ -10,8 +10,8 @@ import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AddMemberForm } from './add-member-form';
 import { MembersList } from './members-list';
+import { UnifiedUserForm } from './unified-user-form';
 
 export function SelectionMembersStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
@@ -26,8 +26,6 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
   useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
-
-  // We'll handle the admin check in the MembersList component since it has access to the modal state
 
   if (isLoading) {
     return (
@@ -90,9 +88,10 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
                 />
                 {editingMember?.address === member.address && (
                   <div className='-mx-16 mt-4 border-b border-gray-200'>
-                    <AddMemberForm
+                    <UnifiedUserForm
                       parentForm={form}
-                      editingMember={editingMember}
+                      editingUser={editingMember}
+                      userType='member'
                       onClose={() => {
                         setShowAddForm(false);
                         setEditingMember(null);
@@ -127,9 +126,10 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
 
         {showAddForm && !editingMember && (
           <div className='-mx-16 border-b border-gray-200'>
-            <AddMemberForm
+            <UnifiedUserForm
               parentForm={form}
-              editingMember={null}
+              editingUser={null}
+              userType='member'
               onClose={() => {
                 setShowAddForm(false);
                 setEditingMember(null);
