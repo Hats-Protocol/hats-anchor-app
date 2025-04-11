@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 'use client';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import {
   AGREEMENT_ELIGIBILITY_ADDRESS,
   ALLOWLIST_ELIGIBILITY_ADDRESS,
@@ -97,7 +97,7 @@ interface CouncilFormContextType {
   deployStatus: DeployStatus;
 }
 
-const chainOptions = map(values(councilsChainsList), (chain) => ({
+const chainOptions = map(values(chainsList), (chain) => ({
   value: chain.id.toString(),
   label: chain.name,
   icon: chain.iconUrl,
