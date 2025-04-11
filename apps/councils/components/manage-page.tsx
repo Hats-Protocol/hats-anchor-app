@@ -219,7 +219,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
       <div className='flex w-full flex-col gap-10 px-2 md:w-4/5 md:px-0'>
         <div className='flex flex-col gap-4' id='threshold'>
-          {typeof window === undefined || councilDetailsLoading ? (
+          {typeof window === 'undefined' || councilDetailsLoading ? (
             <div className='flex flex-col gap-6'>
               <Skeleton className='h-10 w-1/4' />
               <Skeleton className='h-20 w-1/2' />
@@ -254,7 +254,6 @@ export const ManagePage = ({ slug }: { slug: string }) => {
               </div>
             </>
           )}
-
           <SignerThresholdModal
             signer={councilDetails || undefined}
             signerHat={primarySignerHat}
