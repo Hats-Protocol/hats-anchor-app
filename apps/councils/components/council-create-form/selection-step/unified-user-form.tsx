@@ -3,7 +3,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
 import { useCouncilForm } from 'contexts';
-import { AddressInput, Form, Input, MemberAddressInput } from 'forms';
+import { Form, Input, MemberAddressInput } from 'forms';
 import { useOrganization } from 'hooks';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -126,7 +126,6 @@ export function UnifiedUserForm({
 
     const config = USER_TYPE_CONFIG[userType];
     const currentUsers = parentForm.getValues(config.formField) || [];
-
     const isDuplicate = currentUsers.some(
       (user) => user.address.toLowerCase() === data.address.toLowerCase() && user.id !== editingUser?.id,
     );
@@ -173,19 +172,17 @@ export function UnifiedUserForm({
   }, [editingUser, form]);
 
   const config = USER_TYPE_CONFIG[userType];
-  const AddressComponent = userType === 'agreementAdmin' ? AddressInput : MemberAddressInput;
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={className}>
+      <div className={cn('space-y-6', className)}>
         <div className='space-y-6'>
           <div className='space-y-2'>
-            <AddressComponent
+            <MemberAddressInput
               name='address'
               label={`${chainsMap(chainId).name} Account`}
               variant='councils'
               localForm={form}
-              hideAddressButtons={hideAddressButtons}
               chainId={chainId}
               isDisabled={!canEdit}
               members={uniqueMembers}
@@ -241,12 +238,17 @@ export function UnifiedUserForm({
                 Cancel
               </Button>
             )}
-            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
+            <NextStepButton
+              onClick={() => form.handleSubmit(handleSubmit)()}
+              disabled={!canEdit || !isFormValid()}
+              withIcon={false}
+              type='button'
+            >
               {editingUser ? 'Save Changes' : `Add ${config.buttonText}`}
             </NextStepButton>
           </div>
         </div>
-      </form>
+      </div>
     </Form>
   );
 }

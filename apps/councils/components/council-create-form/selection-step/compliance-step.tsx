@@ -1,11 +1,13 @@
 'use client';
 
 import { useCouncilForm, useOverlay } from 'contexts';
-import { Form, RadioBox } from 'forms';
+import { Form, RadioBox, RadioCard } from 'forms';
+import { useOrganization } from 'hooks';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
-import { StepProps } from 'types';
+import { CouncilMember, StepProps } from 'types';
 import { Button, MemberAvatar, Skeleton } from 'ui';
+import { logger } from 'utils';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -18,6 +20,74 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
   // const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+
+  const organizationName = form.watch('organizationName') || '';
+  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
+  const { data: organization } = useOrganization(orgName);
+
+  logger.info('organization', organization);
+
+  // Extract unique organization managers from existing councils
+  const organizationManagers =
+    organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
+      if (council.creationForm?.admins) {
+        council.creationForm.admins.forEach((admin) => {
+          if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
+            acc.push(admin);
+          }
+        });
+      }
+      return acc;
+    }, []) || [];
+
+  // Group unique compliance admin sets across councils
+  const complianceAdminGroups =
+    organization?.councils?.reduce<{
+      [key: string]: { admins: CouncilMember[]; councils: string[] };
+    }>((acc, council) => {
+      if (!council.creationForm?.complianceAdmins) return acc;
+
+      // Create a sorted string of admin addresses as a key
+      const complianceAdminKey = council.creationForm.complianceAdmins
+        .map((admin) => admin.address.toLowerCase())
+        .sort()
+        .join(',');
+
+      if (!acc[complianceAdminKey]) {
+        acc[complianceAdminKey] = {
+          admins: council.creationForm.complianceAdmins.map((admin) => ({
+            ...admin,
+            email: '', // Adding required email field
+          })) as CouncilMember[],
+          councils: [council.creationForm.councilName],
+        };
+      } else {
+        acc[complianceAdminKey].councils.push(council.creationForm.councilName);
+      }
+      return acc;
+    }, {}) || {};
+
+  // Create radio options for compliance managers
+  const complianceManagerOptions = [
+    {
+      value: 'false',
+      label: 'Organization Managers',
+      description: 'Manage Roles on all Councils',
+      avatars: organizationManagers,
+    },
+    ...Object.entries(complianceAdminGroups).map(([key, group]) => ({
+      value: `existing:${key}`,
+      label: 'Compliance Managers',
+      description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+      avatars: group.admins,
+    })),
+    {
+      value: 'true',
+      label: 'Create new Compliance Managers',
+      description: 'Create a new group of Compliance Managers',
+    },
+  ];
+
   const complianceAdmins = form.watch('complianceAdmins') || [];
   const createComplianceAdminRole = form.watch('createComplianceAdminRole');
   const admins = form.watch('admins') || [];
@@ -48,13 +118,10 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who does the compliance check?</h2>
-              <RadioBox
+              <RadioCard
                 name='createComplianceAdminRole'
                 localForm={form}
-                options={[
-                  { value: 'false', label: 'Council Managers' },
-                  { value: 'true', label: "New 'Compliance Manager' Role" },
-                ]}
+                options={complianceManagerOptions}
                 isDisabled={!canEdit}
               />
             </div>
@@ -86,13 +153,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
 
                 {complianceAdmins.length > 0 && (
                   <div>
-                    <ComplianceList
-                      complianceAdmins={complianceAdmins}
-                      // editingAdmin={editingAdmin}
-                      // setEditingAdmin={setEditingAdmin}
-                      form={form}
-                      canEdit={canEdit}
-                    />
+                    <ComplianceList complianceAdmins={complianceAdmins} form={form} canEdit={canEdit} />
                   </div>
                 )}
 
