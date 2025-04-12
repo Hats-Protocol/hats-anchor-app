@@ -1,3 +1,3 @@
-const WearerLayout = ({ children }: any) => <div className='w-screen'>{children}</div>;
+const WearerLayout = ({ children }: { children: React.ReactNode }) => <div className='w-screen'>{children}</div>;
 
 export default WearerLayout;

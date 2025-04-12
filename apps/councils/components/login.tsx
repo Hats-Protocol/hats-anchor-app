@@ -1,6 +1,6 @@
 'use client';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
 import { useToast } from 'hooks';
 import { toLower } from 'lodash';
@@ -48,7 +48,7 @@ const Login = () => {
 
   const handleNetworkSwitch = async (targetChainId: number) => {
     const currentChain = chainsMap(chainId)?.name ?? 'Unknown Chain';
-    const targetChain = councilsChainsList[targetChainId as keyof typeof councilsChainsList]?.name ?? 'Unknown Chain';
+    const targetChain = chainsList[targetChainId as keyof typeof chainsList]?.name ?? 'Unknown Chain';
     setIsLoading(true);
     try {
       toast({ title: `Switching from ${currentChain} to ${targetChain}...` });
@@ -103,7 +103,7 @@ const Login = () => {
               Switch Networks
             </p>
             <div className='flex flex-col gap-1'>
-              {Object.entries(councilsChainsList).map(([id, chain]) => (
+              {Object.entries(chainsList).map(([id, chain]) => (
                 <Button
                   key={id}
                   variant='ghost'

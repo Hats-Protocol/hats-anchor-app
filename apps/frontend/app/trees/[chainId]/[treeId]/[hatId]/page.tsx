@@ -6,7 +6,7 @@ import { HatDrawer } from 'organisms';
 // import { SearchParamsProps } from 'types';
 import { fetchHatsDetailsMesh, logger } from 'utils';
 
-const HatDetails = ({}: HatDetailsProps) => (
+const HatDetails = () => (
   <TreeFormContextProvider>
     <SelectedHatContextProvider>
       <HatDrawer />

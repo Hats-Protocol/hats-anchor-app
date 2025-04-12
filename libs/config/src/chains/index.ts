@@ -1,4 +1,4 @@
-import { SupportedChains } from 'types';
+import { ExtendedChain, SupportedChains } from 'types';
 import { arbitrum, base, baseSepolia, celo, Chain, gnosis, mainnet, optimism, polygon, sepolia } from 'wagmi/chains';
 
 // ORDER HERE WILL BE USED IN THE UI
@@ -36,22 +36,18 @@ const extendIcon = (chain: Chain) => ({
   iconBackground: 'none',
 });
 
-export const councilsChainsList = {
+export const chainsList: { [key in SupportedChains]: ExtendedChain } = {
   10: extendIcon(optimism),
   1: extendIcon(mainnet),
   100: extendIcon(gnosis),
   137: extendIcon(polygon),
   8453: extendIcon(base),
   42161: extendIcon(arbitrum),
+  42220: extendIcon(celo),
 
   // TESTNETS
   84532: extendIcon(baseSepolia),
   11155111: extendIcon(sepolia),
-};
-
-export const chainsList: { [key in SupportedChains]: Chain } = {
-  ...councilsChainsList,
-  42220: extendIcon(celo),
 };
 
 export const NETWORK_CURRENCY: { [key: number]: string } = {

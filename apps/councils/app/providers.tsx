@@ -7,7 +7,7 @@ import '@fontsource-variable/jetbrains-mono';
 import 'react-datepicker/dist/react-datepicker.css';
 import '@uiw/react-md-editor/markdown-editor.css';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import { PrivyProvider } from '@privy-io/react-auth';
 import { WagmiProvider } from '@privy-io/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -77,7 +77,7 @@ const Providers = ({ children }: ProvidersProps) => {
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID as string}
       config={{
         loginMethods: ['wallet'],
-        supportedChains: values(councilsChainsList),
+        supportedChains: values(chainsList),
         // appearance: {
         //   theme: 'light',
         //   accentColor: '#676FFF',

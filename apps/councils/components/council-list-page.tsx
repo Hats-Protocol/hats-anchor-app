@@ -1,6 +1,6 @@
 'use client';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
 import {
   useAuthGuard,
@@ -16,7 +16,7 @@ import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, S
 import { chainIdToString, ipfsUrl } from 'utils';
 import { NETWORKS_PREFIX } from 'utils/src/subgraph/mesh/queries/constants';
 import { getAddress, Hex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import { CouncilHeaderCard } from './council-header';
 
@@ -270,7 +270,7 @@ const CouncilListPage = () => {
       .filter(([_, councils]) => !isEmpty(councils))
       .map(([key, councils]) => {
         const chainId = prefixToChainId[key];
-        const chainConfig = councilsChainsList[chainId as keyof typeof councilsChainsList];
+        const chainConfig = chainsList[chainId as keyof typeof chainsList];
         return {
           chainId,
           chainName: chainConfig?.name || NETWORKS_PREFIX[chainId],
@@ -278,10 +278,10 @@ const CouncilListPage = () => {
         };
       })
       .filter((chain) => chain.chainId && chain.chainName)
-      // sort chains to match the order in councilsChainsList
+      // sort chains to match the order in chainsList
       .sort((a, b) => {
-        const aIndex = Object.keys(councilsChainsList).indexOf(a.chainId.toString());
-        const bIndex = Object.keys(councilsChainsList).indexOf(b.chainId.toString());
+        const aIndex = Object.keys(chainsList).indexOf(a.chainId.toString());
+        const bIndex = Object.keys(chainsList).indexOf(b.chainId.toString());
         return aIndex - bIndex;
       });
 
@@ -290,11 +290,7 @@ const CouncilListPage = () => {
         {councilsByChain.map(({ chainId, chainName, councils }) => (
           <div key={chainId} className='flex flex-col gap-2 md:gap-4'>
             <div className='flex items-center gap-2'>
-              <img
-                src={councilsChainsList[chainId as keyof typeof councilsChainsList]?.iconUrl}
-                alt={chainName}
-                className='size-6'
-              />
+              <img src={chainsList[chainId as keyof typeof chainsList]?.iconUrl} alt={chainName} className='size-6' />
               <h2 className='text-xl font-semibold md:text-2xl'>{chainName}</h2>
             </div>
             <div className='flex flex-col gap-2 md:gap-4'>

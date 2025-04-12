@@ -25,12 +25,12 @@ interface ContractInteractionProps {
 const useMultiClaimsHatterContractWrite = ({
   functionName,
   chainId,
-  enabled,
+  // enabled,
   address,
   args,
   handlePendingTx,
   afterSuccess,
-  hatId,
+  // hatId,
 }: ContractInteractionProps) => {
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] = useState(false);
   const { toast } = useToast();
@@ -50,12 +50,12 @@ const useMultiClaimsHatterContractWrite = ({
     }
     let newInstances: Hex[] = [];
     if (receipt) {
-      newInstances = getNewInstancesFromReceipt(receipt);
+      newInstances = getNewInstancesFromReceipt(receipt) as Hex[];
     }
 
     const newInstance = first(newInstances);
     if (newInstance) {
-      afterSuccess?.(newInstance);
+      afterSuccess?.(newInstance as Hex);
     }
 
     setIsLoadingMultiClaimsHatter(false);

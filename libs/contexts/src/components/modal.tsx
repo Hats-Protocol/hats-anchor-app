@@ -75,9 +75,11 @@ const Modal = ({
                 <ModalTitle className='text-2xl font-bold'>{title}</ModalTitle>
               </ModalHeader>
             )}
-        <VisuallyHidden>
-          <ModalDescription>{description || title}</ModalDescription>
-        </VisuallyHidden>
+        {(description || title) && (
+          <VisuallyHidden>
+            <ModalDescription>{description || title}</ModalDescription>
+          </VisuallyHidden>
+        )}
 
         <ModalBody>{content || children}</ModalBody>
 
