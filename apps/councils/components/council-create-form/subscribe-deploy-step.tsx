@@ -2,12 +2,14 @@
 
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
-import { useClipboard, useCouncilDeployFlag } from 'hooks';
+import { useClipboard, useCouncilDeployFlag, useOrganization } from 'hooks';
 import { Currency, DocumentChecks } from 'icons';
+import { Safe as SafeIcon } from 'icons';
 import { get, isEmpty, map, some, toNumber } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
+import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
 import { Button, MemberAvatar } from 'ui';
@@ -74,7 +76,7 @@ const RequirementItem = ({ icon, title, description }: RequirementItemProps) => 
     <div className='flex-shrink-0 rounded-full border border-gray-200 p-2 text-gray-900'>{icon}</div>
     <div>
       <p className='font-medium text-gray-900'>{title}</p>
-      <p className='text-sm text-gray-600'>{description}</p>
+      <p className='text-primary-900 text-sm'>{description}</p>
     </div>
   </div>
 );
@@ -165,10 +167,16 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       chainId: toNumber(formData.chain.value),
     })),
   });
+
+  const organizationName = form.watch('organizationName') || '';
+  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
+  const { data: organization } = useOrganization(orgName);
   const [symbol, name] = map(tokenData, 'result');
   const targetChainId = toNumber(formData.chain?.value) as number;
   const targetChainName = chainsMap(targetChainId)?.name;
   const firstAdmin = get(formData, 'admins.[0]');
+
+  const organizationManagers = organization?.councils[0].creationForm?.admins;
 
   const isWrongNetwork = userChainId !== targetChainId;
 
@@ -202,11 +210,19 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         onEdit={canEdit ? () => setCurrentStep('details') : undefined}
       >
         <div className='space-y-2'>
-          <h4 className='text-base font-bold text-gray-900'>Create a Council</h4>
+          <h4 className='text-base font-bold text-gray-900'>Deploy a Council to {targetChainName}</h4>
           <div className='text-gray-900'>
-            <p className='text-base'>{formData.councilName}</p>
-            <p className='text-base'>by {(formData.organizationName as unknown as { value: string }).value}</p>
-            <p className='text-base'>on {targetChainName}</p>
+            <span className='text-base'>{formData.councilName}</span>
+          </div>
+          <div>
+            <h4 className='text-base font-bold text-gray-900'>Owned by {organization?.name}</h4>
+            <div className='flex items-center gap-2'>
+              <SafeIcon className='size-4' />
+              <span className='text-base'>
+                Founder Multisig
+                <span className='font-jb-mono pl-2 text-gray-600'>{formatAddress(organization?.councils[0].hsg)}</span>
+              </span>
+            </div>
           </div>
         </div>
       </StepSummary>
@@ -234,7 +250,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       </StepSummary>
 
       <StepSummary
-        title='Council Settings'
+        title='Membership Requirements'
         isCompleted={stepValidation.onboarding}
         onEdit={canEdit ? () => setCurrentStep('onboarding') : undefined}
       >
@@ -246,27 +262,27 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             <RequirementItem
               icon={<DocumentChecks className='h-6 w-6' />}
               title='Get Appointed'
-              description='Selected to be on the council'
+              description='Must be appointed to the council'
             />
             {formData.requirements.passCompliance && (
               <RequirementItem
                 icon={<BsPersonCheck className='h-6 w-6' />}
                 title='Pass Compliance Checks'
-                description='Passed the compliance check'
+                description='Must pass the compliance check'
               />
             )}
             {formData.requirements.signAgreement && (
               <RequirementItem
                 icon={<FileText className='h-6 w-6' />}
                 title='Sign Agreement'
-                description='Signed and abides by the agreement'
+                description='Must sign and abide by the agreement'
               />
             )}
             {formData.requirements.holdTokens && (
               <RequirementItem
                 icon={<GemIcon className='h-6 w-6' />}
                 title='Hold Tokens'
-                description={`Hold at least ${formData.tokenRequirement.minimum} ${symbol} (${name})`}
+                description={`Must hold at least ${formData.tokenRequirement.minimum} ${symbol} (${name})`}
               />
             )}
           </div>
@@ -279,34 +295,28 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         onEdit={canEdit ? () => setCurrentStep('selection', 'management') : undefined}
       >
         <div className='space-y-8'>
-          <RoleSummary title='Council Members' members={formData.members || []} />
           <RoleSummary
-            title='Council Managers'
-            description='Can select Council Members and manage Council settings'
-            members={formData.admins || []}
+            title='Organization Managers appoint Council Members'
+            members={organizationManagers !== null ? organizationManagers : formData.admins || []}
           />
-          {formData.requirements.passCompliance && (
-            <RoleSummary
-              title='Compliance Managers'
-              description={
-                formData.createComplianceAdminRole === 'true'
-                  ? 'Conducts compliance checks on Council Members'
-                  : 'Council Managers conduct compliance checks'
-              }
-              members={(formData.complianceAdmins || []) ?? (formData.admins || [])}
-            />
-          )}
           {formData.requirements.signAgreement && (
             <RoleSummary
-              title='Agreement Managers'
-              description={
-                formData.createAgreementAdminRole === 'true'
-                  ? 'Can update the agreement text and verify signatures'
-                  : 'Council Managers manage the agreement'
-              }
+              title='Agreement Managers own the agreement'
               members={(formData.agreementAdmins || []) ?? (formData.admins || [])}
             />
           )}
+          {formData.requirements.passCompliance && (
+            <RoleSummary
+              title='Compliance Managers check on Council Members'
+              members={(formData.complianceAdmins || []) ?? (formData.admins || [])}
+            />
+          )}
+          <RoleSummary title='Appointed Council Members can sign on the Safe' members={formData.members || []} />
+          {/* <RoleSummary
+            title='Council Managers'
+            description='Can select Council Members and manage Council settings'
+            members={formData.admins || []}
+          /> */}
         </div>
       </StepSummary>
 

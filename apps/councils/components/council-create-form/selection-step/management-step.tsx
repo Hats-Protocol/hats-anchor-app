@@ -62,12 +62,15 @@ export function SelectionManagementStep({ onNext }: StepProps) {
 
   return (
     <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
-      <h1 className='text-2xl font-bold'>Council Managers</h1>
+      <h1 className='text-2xl font-bold'>Organization Managers</h1>
 
       <div className='space-y-8'>
         <div className='space-y-2'>
           <h2 className='font-bold'>Who can edit the council?</h2>
-          <p className='text-sm'>Council Members can add and remove council members and edit all Council settings.</p>
+          <p className='text-sm'>
+            Organization Managers can appoint and remove Managers and Members, change all Membership Criteria and edit
+            any Safe. They can only be removed by the organization owner.
+          </p>
         </div>
 
         {admins.length > 0 && (

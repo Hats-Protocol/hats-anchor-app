@@ -86,18 +86,6 @@ function MemberCard({ member, form, canEdit = true, onEdit }: MemberCardProps) {
   // If this were editing an existing council, we'd check for admin status here
   const canDeleteMember = true;
 
-  logger.info('member permissions check', {
-    isConnectedUserCreator,
-    isExistingMember,
-    canEditMember,
-    canDeleteMember,
-    memberAddress: member.address,
-    connectedAddress,
-    creator: form.getValues('creator'),
-    organizationAdmins: organization?.councils?.[0]?.creationForm?.admins,
-    organizationMembers: organization?.councils?.[0]?.creationForm?.members,
-  });
-
   const onRemove = () => {
     if (!canEdit) return;
     const currentMembers = form.getValues('members') || [];

@@ -28,12 +28,10 @@ export const useGetOrganizations = () => {
   return useQuery<OrganizationsResponse>({
     queryKey: ['organizations'],
     queryFn: async (): Promise<OrganizationsResponse> => {
-      logger.info('Fetching organizations...');
       const accessToken = await getAccessToken();
-      logger.info('Got access token:', !!accessToken);
+
       try {
         const response = await getOrganizations({ accessToken });
-        logger.info('Raw response:', response);
 
         // The response is already in the correct format, no need to access .data
         const typedResponse = response as OrganizationsResponse;

@@ -23,7 +23,6 @@ const Tiptap = ({
 }) => {
   const converter = new showdown.Converter();
 
-  logger.info('field.value:', field.value);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({}),

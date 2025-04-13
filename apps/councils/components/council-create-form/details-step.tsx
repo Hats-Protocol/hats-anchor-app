@@ -87,9 +87,8 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   // watch the organization name value for logging
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
-  logger.info('Current organization name value:', organizationNameValue);
 
-  // Update chain when organization changes
+  // update chain when organization changes
   useEffect(() => {
     if (!organizationsData?.organizations || !organizationNameValue || typeof organizationNameValue === 'string')
       return;
@@ -99,7 +98,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
       const chainId = selectedOrg.councils[0].chain;
       const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
       if (chainOption) {
-        logger.info('Setting chain to:', chainOption);
+        s;
         setValue(
           'chain',
           {

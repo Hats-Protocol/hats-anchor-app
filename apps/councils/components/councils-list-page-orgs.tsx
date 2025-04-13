@@ -93,8 +93,6 @@ const CouncilListPageOrgs = () => {
     hatIds: processedHatIds ?? [],
   });
 
-  logger.info('crossChainCouncils', crossChainCouncils);
-
   // Create mapping from prefix to chain ID
   const prefixToChainId = useMemo(
     () =>

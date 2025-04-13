@@ -4,7 +4,7 @@ import { useCouncilForm } from 'contexts';
 import { Form, FormLabel, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { useCouncilDeployFlag, useOrganization } from 'hooks';
 import { FilePlus, GemIcon } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { IconType } from 'react-icons/lib';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
@@ -19,6 +19,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
   const tokenRequirement = form.watch('tokenRequirement');
   logger.info('tokenRequirement', tokenRequirement);
 
+  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined);
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
@@ -69,24 +70,23 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
     },
   ];
 
-  // Track radio selection separately from token select
-  const selectedRadioValue = form.watch('tokenRequirement.selectedPreset');
-
   // Only reset values when radio selection changes
   useEffect(() => {
-    if (!selectedRadioValue) {
+    // If no radio selection, don't modify form values
+    if (selectedPreset === undefined) return;
+
+    if (selectedPreset === '') {
       // Reset form when "Create new" is selected
       form.setValue('tokenRequirement', {
         minimum: 0,
         address: undefined,
-        selectedPreset: '',
       });
       return;
     }
 
     // Find the matching requirement and token
-    const requirement = existingTokenRequirements.find((req) => req.tokenAddress === selectedRadioValue);
-    const token = availableTokens.find((t) => t.address === selectedRadioValue);
+    const requirement = existingTokenRequirements.find((req) => req.tokenAddress === selectedPreset);
+    const token = availableTokens.find((t) => t.address === selectedPreset);
 
     if (requirement && token) {
       // Set both form values when selecting an existing preset
@@ -96,13 +96,12 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
           value: token.address,
           label: `${token.name} (${token.symbol})`,
         },
-        selectedPreset: selectedRadioValue,
       });
     }
-  }, [selectedRadioValue]);
+  }, [selectedPreset]);
 
   // Check if using an existing preset by seeing if current radio selection matches any requirement
-  const isUsingPreset = existingTokenRequirements.some((req) => req.tokenAddress === selectedRadioValue);
+  const isUsingPreset = existingTokenRequirements.some((req) => req.tokenAddress === selectedPreset);
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
@@ -130,6 +129,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
             localForm={form}
             options={tokenOptions}
             isDisabled={!canEdit}
+            onChange={(value) => setSelectedPreset(value)}
           />
         </div>
 

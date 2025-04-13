@@ -1,6 +1,6 @@
 'use client';
 
-import { useCouncilForm, useOverlay } from 'contexts';
+import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
 import { FilePlus, FileText } from 'lucide-react';
@@ -26,7 +26,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const { setModals } = useOverlay();
+
   const prevRole = useRef(form.getValues('createAgreementAdminRole'));
 
   const requirements = form.watch('requirements');
@@ -35,22 +35,11 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   const admins = form.watch('admins') || [];
   const agreement = form.watch('agreement');
 
-  // Add logging to track state changes
-  useEffect(() => {
-    logger.info('Form State Change:', {
-      createAgreementAdminRole,
-      agreementAdmins,
-      admins,
-    });
-  }, [createAgreementAdminRole, agreementAdmins, admins]);
-
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'agreement', requirements);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
-
-  logger.info('organization', organization);
 
   // Group agreements from existing councils
   const existingAgreements =

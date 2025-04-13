@@ -239,16 +239,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   const availableTokens = useMemo(() => getChainTokens(chainId as number), [chainId]);
 
-  // const mappedTokens = useMemo(() => {
-  //   logger.info('mappedTokens useMemo', { availableTokens });
-  //   const mappedTokens = map(availableTokens, ({ address, name, symbol }) => ({
-  //     value: address,
-  //     label: `${name} (${symbol})`,
-  //   }));
-
-  //   return mappedTokens;
-  // }, [availableTokens]);
-
   const [stepValidation, setStepValidationState] = useState<StepValidation>({
     details: false,
     threshold: false,
@@ -446,7 +436,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           // If chain has changed, reset token requirements in the payload
           if (previousChain && previousChain !== newChain) {
-            logger.info('chain has changed', { previousChain, newChain });
             payload = {
               ...payload,
               tokenAddress: '',

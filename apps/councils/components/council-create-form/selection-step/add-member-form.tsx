@@ -31,7 +31,6 @@ export function AddMemberForm({ parentForm, editingMember, onClose, canEdit = tr
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
 
-  logger.info('organization', organization);
   // extract and flatten members from all councils
   const allMembers =
     organization?.councils?.reduce((acc: CouncilMember[], council) => {

@@ -3,10 +3,10 @@
 import { useCouncilForm, useOverlay } from 'contexts';
 import { Form, RadioBox, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
-import { CouncilMember, StepProps } from 'types';
+import { CouncilFormData, CouncilMember, StepProps } from 'types';
 import { Button, MemberAvatar, Skeleton } from 'ui';
 import { logger } from 'utils';
 
@@ -24,7 +24,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
+  const { data: organization, isLoading: isOrgLoading } = useOrganization(orgName);
   const createComplianceAdminRole = form.watch('createComplianceAdminRole');
   const complianceAdmins = form.watch('complianceAdmins') || [];
 
@@ -93,17 +93,18 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
   ];
 
   useEffect(() => {
-    if (prevRole.current !== createComplianceAdminRole) {
+    // Only update if the role has actually changed and we're not just resetting the form
+    if (prevRole.current !== createComplianceAdminRole && createComplianceAdminRole) {
       if (createComplianceAdminRole === 'false') {
-        form.setValue('complianceAdmins', organizationManagers);
+        form.setValue('complianceAdmins', organizationManagers, { shouldDirty: false });
       } else if (createComplianceAdminRole.startsWith('existing:')) {
         const adminKey = createComplianceAdminRole.split(':')[1];
         const group = complianceAdminGroups[adminKey];
         if (group) {
-          form.setValue('complianceAdmins', group.admins);
+          form.setValue('complianceAdmins', group.admins, { shouldDirty: false });
         }
       } else if (createComplianceAdminRole === 'true') {
-        form.setValue('complianceAdmins', []);
+        form.setValue('complianceAdmins', [], { shouldDirty: false });
       }
       prevRole.current = createComplianceAdminRole;
     }
@@ -111,14 +112,58 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'compliance', form.watch('requirements'));
 
-  if (isLoading) {
-    return <Skeleton className='h-full w-full' />;
+  const handleSubmit = useCallback(
+    async (data: CouncilFormData) => {
+      // set the current form values to prevent state flashing during transition
+      // data contains the latest form values at submission time (as we advance the form)
+      form.reset(data);
+      await onNext();
+    },
+    [form, onNext],
+  );
+
+  if (isLoading || isOrgLoading) {
+    return (
+      <div className='mx-auto flex w-full flex-col space-y-6'>
+        <div className='flex items-center gap-4'>
+          <Skeleton className='h-6 w-6' />
+          <Skeleton className='h-8 w-64' />
+        </div>
+
+        <Skeleton className='h-16 w-full' />
+
+        <div className='space-y-8'>
+          <div className='space-y-2'>
+            <Skeleton className='h-6 w-48' />
+            <div className='space-y-4'>
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className='h-20 w-full rounded-lg' />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Skeleton className='mb-2 h-6 w-48' />
+            <Skeleton className='h-4 w-96' />
+            <div className='mt-4 space-y-4'>
+              {[1, 2].map((i) => (
+                <Skeleton key={i} className='h-16 w-full' />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className='flex justify-end py-6'>
+          <Skeleton className='h-10 w-32' />
+        </div>
+      </div>
+    );
   }
 
   return (
     <>
       <Form {...form}>
-        <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
+        <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(handleSubmit)}>
           <div className='flex items-center gap-4'>
             <BsPersonCheck className='h-6 w-6' />
             <h2 className='text-2xl font-bold'>Configure Compliance Requirement</h2>
