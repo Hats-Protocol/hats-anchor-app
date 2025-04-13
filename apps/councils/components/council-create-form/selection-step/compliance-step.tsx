@@ -3,6 +3,7 @@
 import { useCouncilForm, useOverlay } from 'contexts';
 import { Form, RadioBox, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
+import { useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
@@ -11,15 +12,16 @@ import { logger } from 'utils';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AddComplianceModal } from './add-compliance-modal';
 import { ComplianceList } from './compliance-list';
+import { UnifiedUserForm } from './unified-user-form';
 
 // TODO migrate buttons to new Button component
 
 export function SelectionComplianceStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
-  // const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
@@ -157,18 +159,37 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
                   </div>
                 )}
 
-                <div className='flex items-center justify-between'>
-                  <Button
-                    variant='outline-blue'
-                    rounded='full'
-                    onClick={() => setModals?.({ addComplianceModal: true })}
-                    disabled={!canEdit}
-                    type='button'
-                  >
-                    <FiUserPlus className='mr-2 h-4 w-4' />
-                    Add Compliance Manager
-                  </Button>
-                </div>
+                {!showAddForm ? (
+                  <div className='flex items-center justify-between'>
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => {
+                        setEditingAdmin(null);
+                        setShowAddForm(true);
+                      }}
+                      disabled={!canEdit}
+                      type='button'
+                    >
+                      <FiUserPlus className='mr-2 h-4 w-4' />
+                      Add Compliance Manager
+                    </Button>
+                  </div>
+                ) : (
+                  <div className='-mx-16 border-b border-gray-200'>
+                    <UnifiedUserForm
+                      parentForm={form}
+                      editingUser={editingAdmin}
+                      userType='complianceAdmin'
+                      onClose={() => {
+                        setShowAddForm(false);
+                        setEditingAdmin(null);
+                      }}
+                      canEdit={canEdit}
+                      className='bg-white px-16 py-6'
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -186,8 +207,6 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
           </div>
         </form>
       </Form>
-
-      <AddComplianceModal form={form} canEdit={canEdit} />
     </>
   );
 }

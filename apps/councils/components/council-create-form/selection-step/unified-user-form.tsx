@@ -14,7 +14,7 @@ import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
 
-type UserType = 'member' | 'admin' | 'agreementAdmin';
+type UserType = 'member' | 'admin' | 'agreementAdmin' | 'complianceAdmin';
 
 interface UnifiedUserFormProps {
   parentForm: UseFormReturn<CouncilFormData>;
@@ -46,6 +46,13 @@ const USER_TYPE_CONFIG = {
     persistStep: 'agreement',
     duplicateMessage: 'This address is already an agreement manager',
     buttonText: 'Manager',
+    emailPlaceholder: 'Email that receives the invite',
+  },
+  complianceAdmin: {
+    formField: 'complianceAdmins',
+    persistStep: 'compliance',
+    duplicateMessage: 'This address is already a compliance manager',
+    buttonText: 'Compliance Manager',
     emailPlaceholder: 'Email that receives the invite',
   },
 } as const;
