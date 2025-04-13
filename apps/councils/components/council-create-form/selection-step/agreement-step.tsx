@@ -1,20 +1,19 @@
 'use client';
 
-import { useCouncilForm } from 'contexts';
-import { useOverlay } from 'contexts';
-import { Form, MarkdownEditor, RadioBox, RadioCard } from 'forms';
+import { useCouncilForm, useOverlay } from 'contexts';
+import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
 import { FilePlus, FileText } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 import { CouncilMember, StepProps } from 'types';
-import { Button, MemberAvatar, Skeleton } from 'ui';
+import { Button, Skeleton } from 'ui';
 import { logger } from 'utils';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AdminsList } from './admins-list';
+import { AgreementAdminsList } from './agreement-admins-list';
 import { UnifiedUserForm } from './unified-user-form';
 
 interface GroupedAgreement {
@@ -25,11 +24,25 @@ interface GroupedAgreement {
 
 export function SelectionAgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
+  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const { setModals } = useOverlay();
+  const prevRole = useRef(form.getValues('createAgreementAdminRole'));
+
   const requirements = form.watch('requirements');
   const agreementAdmins = form.watch('agreementAdmins') || [];
   const createAgreementAdminRole = form.watch('createAgreementAdminRole');
   const admins = form.watch('admins') || [];
   const agreement = form.watch('agreement');
+
+  // Add logging to track state changes
+  useEffect(() => {
+    logger.info('Form State Change:', {
+      createAgreementAdminRole,
+      agreementAdmins,
+      admins,
+    });
+  }, [createAgreementAdminRole, agreementAdmins, admins]);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'agreement', requirements);
 
@@ -48,28 +61,15 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           {
             councilName: council.creationForm.councilName,
             agreement: council.creationForm.agreement,
-            agreementAdmins: council.creationForm.agreementAdmins || [],
+            agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
+              ...admin,
+              email: '', // Adding required email field
+            })),
           },
         ];
       }
       return acc;
     }, []) || [];
-
-  // Create radio options from existing agreements and add the "Create new" option
-  const agreementOptions = [
-    ...existingAgreements.map((existingAgreement) => ({
-      value: existingAgreement.agreement,
-      label: 'Agreement',
-      icon: FileText as IconType,
-      description: existingAgreement.councilName,
-    })),
-    {
-      value: '',
-      label: 'Create a new Agreement for this Council',
-      icon: FilePlus as IconType,
-      description: 'Write an agreement and select who controls it',
-    },
-  ];
 
   // Extract unique organization managers from existing councils
   const organizationManagers =
@@ -77,7 +77,10 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       if (council.creationForm?.admins) {
         council.creationForm.admins.forEach((admin) => {
           if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
-            acc.push(admin);
+            acc.push({
+              ...admin,
+              email: '', // Adding required email field
+            });
           }
         });
       }
@@ -85,7 +88,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     }, []) || [];
 
   // Group unique admin sets across councils
-  const adminGroups =
+  const agreementAdminGroups =
     organization?.councils?.reduce<{
       [key: string]: { admins: CouncilMember[]; councils: string[] };
     }>((acc, council) => {
@@ -99,7 +102,10 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
 
       if (!acc[adminKey]) {
         acc[adminKey] = {
-          admins: council.creationForm.agreementAdmins,
+          admins: council.creationForm.agreementAdmins.map((admin) => ({
+            ...admin,
+            email: '', // Adding required email field
+          })) as CouncilMember[],
           councils: [council.creationForm.councilName],
         };
       } else {
@@ -108,6 +114,39 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       return acc;
     }, {}) || {};
 
+  useEffect(() => {
+    if (prevRole.current !== createAgreementAdminRole) {
+      if (createAgreementAdminRole === 'false') {
+        form.setValue('agreementAdmins', organizationManagers);
+      } else if (createAgreementAdminRole?.startsWith('existing:')) {
+        const adminKey = createAgreementAdminRole.split(':')[1];
+        const group = agreementAdminGroups[adminKey];
+        if (group) {
+          form.setValue('agreementAdmins', group.admins);
+        }
+      } else if (createAgreementAdminRole === 'true') {
+        form.setValue('agreementAdmins', []);
+      }
+      prevRole.current = createAgreementAdminRole;
+    }
+  }, [createAgreementAdminRole, form, organizationManagers, agreementAdminGroups]);
+
+  // Create radio options from existing agreements and add the "Create new" option
+  const agreementOptions = [
+    ...(existingAgreements || []).map((existingAgreement: GroupedAgreement) => ({
+      value: existingAgreement.agreement,
+      label: 'Agreement',
+      icon: FileText as IconType,
+      description: existingAgreement.councilName,
+    })),
+    {
+      value: '',
+      label: 'Create a new Agreement for this Council',
+      icon: FilePlus as IconType,
+      description: 'Write an agreement and select who controls it',
+    },
+  ];
+
   // Create radio options for agreement managers
   const agreementManagerOptions = [
     {
@@ -115,17 +154,20 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       label: 'Organization Managers',
       description: 'Manage Roles on all Councils',
       avatars: organizationManagers,
+      onSelect: () => form.setValue('agreementAdmins', organizationManagers),
     },
-    ...Object.entries(adminGroups).map(([key, group]) => ({
+    ...Object.entries(agreementAdminGroups).map(([key, group]) => ({
       value: `existing:${key}`,
       label: 'Agreement Managers',
       description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
       avatars: group.admins,
+      onSelect: () => form.setValue('agreementAdmins', group.admins),
     })),
     {
       value: 'true',
       label: 'Create new Agreement Managers',
       description: 'Create a new group of agreement managers',
+      onSelect: () => form.setValue('agreementAdmins', []),
     },
   ];
 
@@ -137,20 +179,8 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     // Only update if we find a match and it's different from current selection
     if (matchingOption && selectedOption !== matchingOption.value) {
       form.setValue('agreement', matchingOption.value, { shouldDirty: false });
-
-      // Find the corresponding agreement text from existing agreements
-      const existingAgreement = existingAgreements.find((ea) => ea.agreement === matchingOption.value);
-
-      if (existingAgreement) {
-        // Set the agreement text in the markdown editor
-        form.setValue('agreement', existingAgreement.agreement, { shouldDirty: false });
-      }
     }
-  }, [agreement, agreementOptions, existingAgreements, form]);
-
-  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const { setModals } = useOverlay();
+  }, [agreement, agreementOptions, form]);
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
@@ -193,7 +223,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
               localForm={form}
               isDisabled={!canEdit || !!agreementOptions.find((opt) => opt.value === agreement)?.value}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
-              existingAgreements={existingAgreements.map(({ agreement, councilName }) => ({
+              existingAgreements={(existingAgreements || []).map(({ agreement, councilName }: GroupedAgreement) => ({
                 agreement,
                 councilName,
               }))}
@@ -206,8 +236,8 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
               <RadioCard
                 name='createAgreementAdminRole'
                 localForm={form}
-                isDisabled={!canEdit}
                 options={agreementManagerOptions}
+                isDisabled={!canEdit}
               />
             </div>
 
@@ -218,40 +248,38 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                   <p className='text-sm text-gray-600'>
                     Agreement Managers can update the agreement text and verify that Council Members have signed it.
                   </p>
-                </div>
-
-                {agreementAdmins.length > 0 && (
-                  <div>
-                    <AdminsList
-                      name='agreementAdmins'
-                      admins={agreementAdmins}
+                  <div className='mt-4 space-y-4'>
+                    <AgreementAdminsList
+                      agreementAdmins={agreementAdmins}
                       form={form}
-                      canEdit={canEdit && createAgreementAdminRole === 'true'}
-                      onEdit={(admin: CouncilMember) => {
+                      canEdit={createAgreementAdminRole === 'true' && canEdit}
+                      canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
+                      showButtons={true}
+                      onEdit={(admin) => {
                         setEditingAdmin(admin);
                         setShowAddForm(true);
                       }}
                     />
-                  </div>
-                )}
 
-                {!showAddForm ? (
-                  <div className='flex items-center justify-between'>
-                    <Button
-                      variant='outline-blue'
-                      rounded='full'
-                      onClick={() => {
-                        setEditingAdmin(null);
-                        setShowAddForm(true);
-                      }}
-                      disabled={!canEdit}
-                      type='button'
-                    >
-                      <FiUserPlus className='mr-2 h-4 w-4' />
-                      Add Agreement Manager
-                    </Button>
+                    {!showAddForm && (
+                      <Button
+                        variant='outline-blue'
+                        rounded='full'
+                        onClick={() => {
+                          setEditingAdmin(null);
+                          setShowAddForm(true);
+                        }}
+                        disabled={!canEdit}
+                        type='button'
+                      >
+                        <FiUserPlus className='mr-2 h-4 w-4' />
+                        Add Agreement Manager
+                      </Button>
+                    )}
                   </div>
-                ) : (
+                </div>
+
+                {showAddForm && (
                   <div className='-mx-16 border-b border-gray-200'>
                     <UnifiedUserForm
                       parentForm={form}
@@ -277,18 +305,15 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                   <p className='text-sm text-gray-600'>
                     Organization Managers can update the agreement text and verify that Council Members have signed it.
                   </p>
-                </div>
-                <div>
-                  <AdminsList
-                    name='admins'
-                    admins={organizationManagers}
-                    form={form}
-                    canEdit={false}
-                    onEdit={(admin: CouncilMember) => {
-                      setEditingAdmin(admin);
-                      setShowAddForm(true);
-                    }}
-                  />
+                  <div className='mt-4'>
+                    <AgreementAdminsList
+                      agreementAdmins={organizationManagers}
+                      form={form}
+                      canEdit={false}
+                      canDelete={false}
+                      showButtons={true}
+                    />
+                  </div>
                 </div>
               </>
             )}
@@ -301,22 +326,19 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                     These Agreement Managers can update the agreement text and verify that Council Members have signed
                     it.
                   </p>
-                </div>
-                <div>
-                  <AdminsList
-                    name='existingAgreementAdmins'
-                    admins={(() => {
-                      const adminKey = createAgreementAdminRole.split(':')[1];
-                      const group = adminGroups[adminKey];
-                      return group?.admins || [];
-                    })()}
-                    form={form}
-                    canEdit={false}
-                    onEdit={(admin: CouncilMember) => {
-                      setEditingAdmin(admin);
-                      setShowAddForm(true);
-                    }}
-                  />
+                  <div className='mt-4'>
+                    <AgreementAdminsList
+                      agreementAdmins={(() => {
+                        const adminKey = createAgreementAdminRole.split(':')[1];
+                        const group = agreementAdminGroups[adminKey];
+                        return group?.admins || [];
+                      })()}
+                      form={form}
+                      canEdit={false}
+                      canDelete={false}
+                      showButtons={true}
+                    />
+                  </div>
                 </div>
               </>
             )}

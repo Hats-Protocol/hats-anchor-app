@@ -3,7 +3,7 @@
 import { useCouncilForm, useOverlay } from 'contexts';
 import { Form, RadioBox, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
@@ -15,19 +15,18 @@ import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { ComplianceList } from './compliance-list';
 import { UnifiedUserForm } from './unified-user-form';
 
-// TODO migrate buttons to new Button component
-
 export function SelectionComplianceStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const { setModals } = useOverlay();
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const prevRole = useRef(form.getValues('createComplianceAdminRole'));
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
-
-  logger.info('organization', organization);
+  const createComplianceAdminRole = form.watch('createComplianceAdminRole');
+  const complianceAdmins = form.watch('complianceAdmins') || [];
 
   // Extract unique organization managers from existing councils
   const organizationManagers =
@@ -76,23 +75,39 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
       label: 'Organization Managers',
       description: 'Manage Roles on all Councils',
       avatars: organizationManagers,
+      onSelect: () => form.setValue('complianceAdmins', organizationManagers),
     },
     ...Object.entries(complianceAdminGroups).map(([key, group]) => ({
       value: `existing:${key}`,
       label: 'Compliance Managers',
       description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
       avatars: group.admins,
+      onSelect: () => form.setValue('complianceAdmins', group.admins),
     })),
     {
       value: 'true',
       label: 'Create new Compliance Managers',
       description: 'Create a new group of Compliance Managers',
+      onSelect: () => form.setValue('complianceAdmins', []),
     },
   ];
 
-  const complianceAdmins = form.watch('complianceAdmins') || [];
-  const createComplianceAdminRole = form.watch('createComplianceAdminRole');
-  const admins = form.watch('admins') || [];
+  useEffect(() => {
+    if (prevRole.current !== createComplianceAdminRole) {
+      if (createComplianceAdminRole === 'false') {
+        form.setValue('complianceAdmins', organizationManagers);
+      } else if (createComplianceAdminRole.startsWith('existing:')) {
+        const adminKey = createComplianceAdminRole.split(':')[1];
+        const group = complianceAdminGroups[adminKey];
+        if (group) {
+          form.setValue('complianceAdmins', group.admins);
+        }
+      } else if (createComplianceAdminRole === 'true') {
+        form.setValue('complianceAdmins', []);
+      }
+      prevRole.current = createComplianceAdminRole;
+    }
+  }, [createComplianceAdminRole, form, organizationManagers, complianceAdminGroups]);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'compliance', form.watch('requirements'));
 
@@ -128,69 +143,57 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
               />
             </div>
 
-            {createComplianceAdminRole === 'false' && admins.length > 0 && (
-              <div>
-                <h3 className='mb-2 font-medium'>Council Managers can edit the Compliance Check</h3>
-                <p className='text-sm'>
-                  Council Managers can verify the compliance of Council Members before they join the council and remove
-                  members who are no longer compliant.
-                </p>
-                <div className='mt-4 space-y-2'>
-                  {admins.map((admin) => (
-                    <MemberAvatar key={admin.id} member={admin} />
-                  ))}
-                </div>
+            <div>
+              <h3 className='mb-2 font-medium'>Compliance Managers</h3>
+              <p className='text-sm'>
+                Compliance Managers can verify the compliance of Council Members before they join the council and remove
+                members who are no longer compliant.
+              </p>
+              <div className='mt-4 space-y-4'>
+                <ComplianceList
+                  complianceAdmins={complianceAdmins}
+                  form={form}
+                  canEdit={createComplianceAdminRole === 'true' && canEdit}
+                  canDelete={createComplianceAdminRole === 'true' ? canEdit : false}
+                  showButtons={true}
+                  onEdit={(admin) => {
+                    setEditingAdmin(admin);
+                    setShowAddForm(true);
+                  }}
+                />
+
+                {createComplianceAdminRole === 'true' && !showAddForm && (
+                  <Button
+                    variant='outline-blue'
+                    rounded='full'
+                    onClick={() => {
+                      setEditingAdmin(null);
+                      setShowAddForm(true);
+                    }}
+                    disabled={!canEdit}
+                    type='button'
+                  >
+                    <FiUserPlus className='mr-2 h-4 w-4' />
+                    Add Compliance Manager
+                  </Button>
+                )}
               </div>
-            )}
+            </div>
 
-            {createComplianceAdminRole === 'true' && (
-              <>
-                <div>
-                  <h3 className='mb-2 font-medium'>Compliance Managers</h3>
-                  <p className='text-sm'>
-                    Compliance Managers can verify the compliance of Council Members before they join the council and
-                    remove members who are no longer compliant.
-                  </p>
-                </div>
-
-                {complianceAdmins.length > 0 && (
-                  <div>
-                    <ComplianceList complianceAdmins={complianceAdmins} form={form} canEdit={canEdit} />
-                  </div>
-                )}
-
-                {!showAddForm ? (
-                  <div className='flex items-center justify-between'>
-                    <Button
-                      variant='outline-blue'
-                      rounded='full'
-                      onClick={() => {
-                        setEditingAdmin(null);
-                        setShowAddForm(true);
-                      }}
-                      disabled={!canEdit}
-                      type='button'
-                    >
-                      <FiUserPlus className='mr-2 h-4 w-4' />
-                      Add Compliance Manager
-                    </Button>
-                  </div>
-                ) : (
-                  <div className='-mx-16 border-b border-gray-200'>
-                    <UnifiedUserForm
-                      parentForm={form}
-                      editingUser={editingAdmin}
-                      userType='complianceAdmin'
-                      onClose={() => {
-                        setShowAddForm(false);
-                        setEditingAdmin(null);
-                      }}
-                      canEdit={canEdit}
-                      className='bg-white px-16 py-6'
-                    />
-                  </div>
-                )}
-              </>
+            {createComplianceAdminRole === 'true' && showAddForm && (
+              <div className='-mx-16 border-b border-gray-200'>
+                <UnifiedUserForm
+                  parentForm={form}
+                  editingUser={editingAdmin}
+                  userType='complianceAdmin'
+                  onClose={() => {
+                    setShowAddForm(false);
+                    setEditingAdmin(null);
+                  }}
+                  canEdit={canEdit}
+                  className='bg-white px-16 py-6'
+                />
+              </div>
             )}
           </div>
 

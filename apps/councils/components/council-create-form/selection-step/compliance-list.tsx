@@ -12,13 +12,31 @@ type ComplianceListProps = {
   complianceAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
+  canDelete?: boolean;
+  showButtons?: boolean;
+  onEdit?: (admin: CouncilMember) => void;
 };
 
-export function ComplianceList({ complianceAdmins, form, canEdit = true }: ComplianceListProps) {
+export function ComplianceList({
+  complianceAdmins,
+  form,
+  canEdit = true,
+  canDelete = true,
+  showButtons = true,
+  onEdit,
+}: ComplianceListProps) {
   return (
     <div className='space-y-4'>
       {complianceAdmins.map((admin) => (
-        <ComplianceCard key={admin.id} admin={admin} canEdit={canEdit} form={form} />
+        <ComplianceCard
+          key={admin.id}
+          admin={admin}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          showButtons={showButtons}
+          form={form}
+          onEdit={onEdit}
+        />
       ))}
     </div>
   );
@@ -27,15 +45,21 @@ export function ComplianceList({ complianceAdmins, form, canEdit = true }: Compl
 function ComplianceCard({
   admin,
   canEdit = true,
+  canDelete = true,
+  showButtons = true,
   form,
+  onEdit,
 }: {
   admin: CouncilMember;
   canEdit?: boolean;
+  canDelete?: boolean;
+  showButtons?: boolean;
   form: UseFormReturn<CouncilFormData>;
+  onEdit?: (admin: CouncilMember) => void;
 }) {
   const { setModals } = useOverlay();
   const handleEdit = () => {
-    setModals?.({ [`addComplianceModal-${admin.id}`]: true });
+    onEdit?.(admin);
   };
 
   const handleRemove = () => {
@@ -45,29 +69,31 @@ function ComplianceCard({
   };
 
   return (
-    <>
-      <div className='flex items-center justify-between'>
-        <MemberAvatar member={admin} />
+    <div className='flex items-center justify-between'>
+      <MemberAvatar member={admin} />
 
-        {canEdit && (
-          <div className='flex items-center gap-3'>
-            <button
-              type='button'
-              className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
-              onClick={handleEdit}
-            >
-              <SquarePen className='h-4 w-4' />
-              Edit
-            </button>
+      {showButtons && (
+        <div className='flex items-center gap-3'>
+          <button
+            type='button'
+            className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium disabled:opacity-50'
+            onClick={handleEdit}
+            disabled={!canEdit}
+          >
+            <SquarePen className='h-4 w-4' />
+            Edit
+          </button>
 
-            <button type='button' onClick={handleRemove} className='text-destructive hover:text-destructive/70'>
-              <Trash2 className='text-destructive h-4 w-4' />
-            </button>
-          </div>
-        )}
-      </div>
-
-      <AddComplianceModal form={form} editingAdmin={admin} canEdit={canEdit} />
-    </>
+          <button
+            type='button'
+            onClick={handleRemove}
+            disabled={!canDelete}
+            className='text-destructive hover:text-destructive/70 disabled:opacity-50'
+          >
+            <Trash2 className='h-4 w-4' />
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

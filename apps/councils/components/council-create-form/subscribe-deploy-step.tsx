@@ -293,9 +293,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                   ? 'Conducts compliance checks on Council Members'
                   : 'Council Managers conduct compliance checks'
               }
-              members={
-                formData.createComplianceAdminRole === 'true' ? formData.complianceAdmins || [] : formData.admins || []
-              }
+              members={(formData.complianceAdmins || []) ?? (formData.admins || [])}
             />
           )}
           {formData.requirements.signAgreement && (
@@ -306,9 +304,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
                   ? 'Can update the agreement text and verify signatures'
                   : 'Council Managers manage the agreement'
               }
-              members={
-                formData.createAgreementAdminRole === 'true' ? formData.agreementAdmins || [] : formData.admins || []
-              }
+              members={(formData.agreementAdmins || []) ?? (formData.admins || [])}
             />
           )}
         </div>
