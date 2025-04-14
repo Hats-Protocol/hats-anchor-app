@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
-import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -17,15 +16,19 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
+  const { data: organization, isFetching } = useOrganization(orgName);
 
   useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
+
+  // show loading state during mutation or while fetching updated data
+  const isLoadingList = isMutating || (isFetching && !isLoading);
 
   if (isLoading) {
     return (
@@ -85,6 +88,7 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
                     setEditingMember(member);
                     setShowAddForm(false);
                   }}
+                  loading={isLoadingList}
                 />
                 {editingMember?.address === member.address && (
                   <div className='-mx-16 mt-4 border-b border-gray-200'>
@@ -98,6 +102,7 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
                       }}
                       canEdit={canEdit}
                       className='bg-white px-16 py-6'
+                      onMutationStateChange={setIsMutating}
                     />
                   </div>
                 )}
@@ -136,6 +141,7 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
               }}
               canEdit={canEdit}
               className='bg-white px-16 py-6'
+              onMutationStateChange={setIsMutating}
             />
           </div>
         )}

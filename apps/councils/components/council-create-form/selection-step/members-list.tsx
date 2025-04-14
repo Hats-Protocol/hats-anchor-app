@@ -1,12 +1,10 @@
 'use client';
 
-import type { Organization } from 'hooks';
 import { useOrganization } from 'hooks';
 import { SquarePen, Trash2 } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember } from 'types';
-import { MemberAvatar } from 'ui';
-import { logger } from 'utils';
+import { Button, MemberAvatar, Skeleton } from 'ui';
 import { useAccount } from 'wagmi';
 
 interface MembersListProps {
@@ -14,6 +12,7 @@ interface MembersListProps {
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
   onEdit: (member: CouncilMember) => void;
+  loading?: boolean;
 }
 
 interface MemberCardProps {
@@ -48,7 +47,29 @@ interface Council {
   creationForm: CouncilCreationForm;
 }
 
-export function MembersList({ members, form, canEdit = true, onEdit }: MembersListProps) {
+export function MembersList({ members, form, canEdit = true, onEdit, loading = false }: MembersListProps) {
+  if (loading) {
+    return (
+      <div className='w-full space-y-4'>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className='flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <Skeleton className='h-10 w-10 rounded-full' />
+              <div className='space-y-2'>
+                <Skeleton className='h-4 w-32' />
+                <Skeleton className='h-3 w-24' />
+              </div>
+            </div>
+            <div className='flex items-center gap-3'>
+              <Skeleton className='h-10 w-20 rounded-full' />
+              <Skeleton className='h-10 w-10 rounded-full' />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className='w-full space-y-4'>
       {members.map((member) => (
@@ -77,14 +98,13 @@ function MemberCard({ member, form, canEdit = true, onEdit }: MemberCardProps) {
       )) ??
     false;
 
-  // During council creation:
+  // During council creation (TODO: Double check all of these assumptions in QA):
   // - Only the creator of the form can edit newly added members
   // - Cannot edit members from existing lists
   const canEditMember = isConnectedUserCreator && !isExistingMember;
 
   // During council creation, we can delete any member
   // If this were editing an existing council, we'd check for admin status here
-  const canDeleteMember = true;
 
   const onRemove = () => {
     if (!canEdit) return;
@@ -98,29 +118,31 @@ function MemberCard({ member, form, canEdit = true, onEdit }: MemberCardProps) {
     onEdit(member);
   };
 
+  // TODO: add back the AdminCard component -- need to ensure that it supports the flexible edit / delete permissions
+
   return (
     <div className='flex items-center justify-between'>
-      <MemberAvatar member={member} />
+      <MemberAvatar member={member} stack={true} />
 
       {canEdit && (
         <div className='flex items-center gap-3'>
-          <button
-            type='button'
-            className='text-functional-link-primary hover:text-functional-link-primary/70 disabled:hover:text-functional-link-primary flex items-center gap-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50'
+          <Button
+            variant='outline-blue'
+            className='rounded-full px-4 py-3 text-sm font-medium disabled:cursor-not-allowed'
             onClick={() => handleEdit()}
             disabled={!canEditMember}
           >
             <SquarePen className='h-4 w-4' />
             Edit
-          </button>
+          </Button>
 
-          <button
-            type='button'
+          <Button
+            variant='outline-red'
+            className='aspect-square h-10 w-10 rounded-full p-0 disabled:cursor-not-allowed'
             onClick={() => onRemove()}
-            className='text-destructive hover:text-destructive/70 disabled:hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50'
           >
             <Trash2 className='h-4 w-4' />
-          </button>
+          </Button>
         </div>
       )}
     </div>

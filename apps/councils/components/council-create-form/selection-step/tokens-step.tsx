@@ -1,10 +1,10 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
-import { Form, FormLabel, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
+import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { useCouncilDeployFlag, useOrganization } from 'hooks';
 import { FilePlus, GemIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { IconType } from 'react-icons/lib';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
@@ -19,7 +19,6 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
   const tokenRequirement = form.watch('tokenRequirement');
   logger.info('tokenRequirement', tokenRequirement);
 
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined);
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
@@ -59,7 +58,6 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
         label: `Hold ${requirement.tokenAmount} ${token?.symbol || 'tokens'}`,
         icon: GemIcon as IconType,
         description: requirement.councilName,
-        tokenAmount: requirement.tokenAmount,
       };
     }),
     {
@@ -70,38 +68,42 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
     },
   ];
 
-  // Only reset values when radio selection changes
-  useEffect(() => {
-    // If no radio selection, don't modify form values
-    if (selectedPreset === undefined) return;
+  // Watch the radio selection value
+  const selectedPresetAddress = form.watch('tokenRequirement.address.value');
+  const prevPresetRef = useRef(selectedPresetAddress);
 
-    if (selectedPreset === '') {
-      // Reset form when "Create new" is selected
-      form.setValue('tokenRequirement', {
-        minimum: 0,
-        address: undefined,
-      });
+  // Handle only preset selection changes
+  useEffect(() => {
+    if (selectedPresetAddress === prevPresetRef.current) {
       return;
     }
 
-    // Find the matching requirement and token
-    const requirement = existingTokenRequirements.find((req) => req.tokenAddress === selectedPreset);
-    const token = availableTokens.find((t) => t.address === selectedPreset);
+    prevPresetRef.current = selectedPresetAddress;
+
+    // Reset when selecting "Create new"
+    if (selectedPresetAddress === '') {
+      form.setValue('tokenRequirement.minimum', 0);
+      form.setValue('tokenRequirement.address', undefined);
+      return;
+    }
+
+    // Only update on preset selection
+    const requirement = existingTokenRequirements.find((req) => req.tokenAddress === selectedPresetAddress);
+    const token = availableTokens.find((t) => t.address === selectedPresetAddress);
 
     if (requirement && token) {
-      // Set both form values when selecting an existing preset
-      form.setValue('tokenRequirement', {
-        minimum: Number(requirement.tokenAmount),
-        address: {
-          value: token.address,
-          label: `${token.name} (${token.symbol})`,
-        },
+      form.setValue('tokenRequirement.minimum', Number(requirement.tokenAmount));
+      form.setValue('tokenRequirement.address', {
+        value: token.address,
+        label: `${token.name} (${token.symbol})`,
       });
     }
-  }, [selectedPreset]);
+  }, [selectedPresetAddress, form, existingTokenRequirements, availableTokens]);
 
-  // Check if using an existing preset by seeing if current radio selection matches any requirement
-  const isUsingPreset = existingTokenRequirements.some((req) => req.tokenAddress === selectedPreset);
+  // Check if using an existing preset
+  const isUsingPreset = Boolean(
+    selectedPresetAddress && existingTokenRequirements.some((req) => req.tokenAddress === selectedPresetAddress),
+  );
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
@@ -125,11 +127,10 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
           </div>
 
           <RadioCard
-            name='tokenRequirement.selectedPreset'
+            name='tokenRequirement.address.value'
             localForm={form}
             options={tokenOptions}
             isDisabled={!canEdit}
-            onChange={(value) => setSelectedPreset(value)}
           />
         </div>
 

@@ -16,13 +16,17 @@ export function SelectionManagementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
+  const { data: organization, isFetching } = useOrganization(orgName);
 
   const admins = form.watch('admins') || [];
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', form.watch('requirements'));
+
+  // Show loading state during mutation or while fetching updated data
+  const isLoadingList = isMutating || (isFetching && !isLoading);
 
   if (isLoading) {
     return (
@@ -84,6 +88,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
                 setEditingAdmin(admin);
                 setShowAddForm(true);
               }}
+              loading={isLoadingList}
             />
           </div>
         )}
@@ -116,6 +121,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
               }}
               canEdit={canEdit}
               className='bg-white px-16 py-6'
+              onMutationStateChange={setIsMutating}
             />
           </div>
         )}

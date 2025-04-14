@@ -1,14 +1,13 @@
 'use client';
 
-import { useCouncilForm, useOverlay } from 'contexts';
-import { Form, RadioBox, RadioCard } from 'forms';
+import { useCouncilForm } from 'contexts';
+import { Form, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilFormData, CouncilMember, StepProps } from 'types';
-import { Button, MemberAvatar, Skeleton } from 'ui';
-import { logger } from 'utils';
+import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -17,14 +16,15 @@ import { UnifiedUserForm } from './unified-user-form';
 
 export function SelectionComplianceStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const { setModals } = useOverlay();
+
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
   const prevRole = useRef(form.getValues('createComplianceAdminRole'));
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization, isLoading: isOrgLoading } = useOrganization(orgName);
+  const { data: organization, isFetching } = useOrganization(orgName);
   const createComplianceAdminRole = form.watch('createComplianceAdminRole');
   const complianceAdmins = form.watch('complianceAdmins') || [];
 
@@ -68,7 +68,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
       return acc;
     }, {}) || {};
 
-  // Create radio options for compliance managers
+  // Create options for compliance managers
   const complianceManagerOptions = [
     {
       value: 'false',
@@ -92,9 +92,12 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
     },
   ];
 
+  // Show loading state during mutation or while fetching updated data
+  const isLoadingList = isMutating || (isFetching && !isLoading);
+
   useEffect(() => {
     // Only update if the role has actually changed and we're not just resetting the form
-    if (prevRole.current !== createComplianceAdminRole && createComplianceAdminRole) {
+    if (prevRole.current !== createComplianceAdminRole && createComplianceAdminRole && !isMutating) {
       if (createComplianceAdminRole === 'false') {
         form.setValue('complianceAdmins', organizationManagers, { shouldDirty: false });
       } else if (createComplianceAdminRole.startsWith('existing:')) {
@@ -108,7 +111,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
       }
       prevRole.current = createComplianceAdminRole;
     }
-  }, [createComplianceAdminRole, form, organizationManagers, complianceAdminGroups]);
+  }, [createComplianceAdminRole, form, organizationManagers, complianceAdminGroups, isMutating]);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'compliance', form.watch('requirements'));
 
@@ -122,40 +125,11 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
     [form, onNext],
   );
 
-  if (isLoading || isOrgLoading) {
+  if (isLoading) {
     return (
       <div className='mx-auto flex w-full flex-col space-y-6'>
-        <div className='flex items-center gap-4'>
-          <Skeleton className='h-6 w-6' />
-          <Skeleton className='h-8 w-64' />
-        </div>
-
-        <Skeleton className='h-16 w-full' />
-
-        <div className='space-y-8'>
-          <div className='space-y-2'>
-            <Skeleton className='h-6 w-48' />
-            <div className='space-y-4'>
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className='h-20 w-full rounded-lg' />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Skeleton className='mb-2 h-6 w-48' />
-            <Skeleton className='h-4 w-96' />
-            <div className='mt-4 space-y-4'>
-              {[1, 2].map((i) => (
-                <Skeleton key={i} className='h-16 w-full' />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className='flex justify-end py-6'>
-          <Skeleton className='h-10 w-32' />
-        </div>
+        <Skeleton className='h-8 w-48' />
+        <Skeleton className='h-5 w-96' />
       </div>
     );
   }
@@ -205,6 +179,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
                     setEditingAdmin(admin);
                     setShowAddForm(true);
                   }}
+                  loading={isLoadingList}
                 />
 
                 {createComplianceAdminRole === 'true' && !showAddForm && (
@@ -237,6 +212,7 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
                   }}
                   canEdit={canEdit}
                   className='bg-white px-16 py-6'
+                  onMutationStateChange={setIsMutating}
                 />
               </div>
             )}

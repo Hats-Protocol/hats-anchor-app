@@ -9,7 +9,6 @@ import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 import { CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
-import { logger } from 'utils';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -26,20 +25,21 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
 
   const prevRole = useRef(form.getValues('createAgreementAdminRole'));
 
   const requirements = form.watch('requirements');
   const agreementAdmins = form.watch('agreementAdmins') || [];
   const createAgreementAdminRole = form.watch('createAgreementAdminRole');
-  const admins = form.watch('admins') || [];
+  // const admins = form.watch('admins') || []; // Don't think we need this anymore, but leaving here until the permissions are tested in QA
   const agreement = form.watch('agreement');
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'agreement', requirements);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
+  const { data: organization, isFetching } = useOrganization(orgName);
 
   // Group agreements from existing councils
   const existingAgreements =
@@ -171,6 +171,9 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     }
   }, [agreement, agreementOptions, form]);
 
+  // Show loading state during mutation or while fetching updated data
+  const isLoadingList = isMutating || (isFetching && !isLoading);
+
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
   }
@@ -248,6 +251,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                         setEditingAdmin(admin);
                         setShowAddForm(true);
                       }}
+                      loading={isLoadingList}
                     />
 
                     {!showAddForm && (
@@ -281,6 +285,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                       canEdit={canEdit}
                       className='bg-white px-16 py-6'
                       hideAddressButtons={true}
+                      onMutationStateChange={setIsMutating}
                     />
                   </div>
                 )}

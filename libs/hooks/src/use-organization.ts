@@ -1,6 +1,6 @@
 import { usePrivy } from '@privy-io/react-auth';
-import { useQuery } from '@tanstack/react-query';
-import { getOrganizationByName, logger } from 'utils';
+import { usePrefetchQuery, useQuery } from '@tanstack/react-query';
+import { getOrganizationByName } from 'utils';
 
 interface AdminUser {
   id: string;
@@ -49,23 +49,29 @@ interface OrganizationResponse {
 
 export function useOrganization(organizationName: string | undefined) {
   const { getAccessToken } = usePrivy();
+  const queryKey = ['organization', organizationName];
+
+  const queryFn = async () => {
+    if (!organizationName) return null;
+    const accessToken = await getAccessToken();
+    const decodedName = organizationName.replace(/-/g, ' ');
+    const result = (await getOrganizationByName({
+      name: decodedName,
+      accessToken,
+    })) as OrganizationResponse;
+    return result.organizations[0] ?? null;
+  };
+
+  // prefetch the data without triggering a re-render
+  usePrefetchQuery({
+    queryKey,
+    queryFn,
+    staleTime: 0, // always prefetch fresh data
+  });
 
   return useQuery({
-    queryKey: ['organization', organizationName],
-    queryFn: async () => {
-      if (!organizationName) return null;
-
-      const accessToken = await getAccessToken();
-      // Convert kebab-case to spaces for the lookup for when the organization name is from the route slug
-      const decodedName = organizationName.replace(/-/g, ' ');
-
-      const result = (await getOrganizationByName({
-        name: decodedName,
-        accessToken,
-      })) as OrganizationResponse;
-
-      return result.organizations[0] ?? null;
-    },
+    queryKey,
+    queryFn,
     enabled: !!organizationName,
   });
 }

@@ -9,7 +9,16 @@ import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { CouncilFormData, CouncilMember } from 'types';
 import { Button, cn } from 'ui';
-import { chainsMap, CREATE_USER, getChainId, getCouncilsGraphqlClient, isValidEmail, logger, UPDATE_USER } from 'utils';
+import {
+  chainsMap,
+  CREATE_USER,
+  getChainId,
+  getCouncilsGraphqlClient,
+  getOrganizationByName,
+  isValidEmail,
+  logger,
+  UPDATE_USER,
+} from 'utils';
 import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
@@ -24,6 +33,7 @@ interface UnifiedUserFormProps {
   canEdit?: boolean;
   className?: string;
   hideAddressButtons?: boolean;
+  onMutationStateChange?: (isLoading: boolean) => void;
 }
 
 const USER_TYPE_CONFIG = {
@@ -65,6 +75,7 @@ export function UnifiedUserForm({
   canEdit = true,
   className,
   hideAddressButtons = false,
+  onMutationStateChange,
 }: UnifiedUserFormProps) {
   const selectedChain = parentForm.watch('chain')?.value;
   const chainId = getChainId(selectedChain);
@@ -72,7 +83,7 @@ export function UnifiedUserForm({
   const { getAccessToken } = usePrivy();
   const organizationName = parentForm.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
+  const { data: organization, refetch } = useOrganization(orgName);
 
   // Extract and flatten members from all councils
   const allMembers =
@@ -111,6 +122,26 @@ export function UnifiedUserForm({
       }>(CREATE_USER, variables);
       return result.createUser;
     },
+    onMutate: async () => {
+      onMutationStateChange?.(true);
+      await refetch();
+    },
+    onSuccess: async (data) => {
+      const config = USER_TYPE_CONFIG[userType];
+      const currentUsers = parentForm.getValues(config.formField) || [];
+      parentForm.setValue(config.formField, [...currentUsers, data]);
+      await persistForm('selection', config.persistStep);
+      setFormError(null);
+      form.reset();
+      onClose?.();
+    },
+    onError: (error) => {
+      setFormError('Failed to save user. Please try again.');
+      logger.error('Error saving user:', error);
+    },
+    onSettled: () => {
+      onMutationStateChange?.(false);
+    },
   });
 
   const updateUserMutation = useMutation({
@@ -120,6 +151,26 @@ export function UnifiedUserForm({
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables);
       return result.updateUser;
+    },
+    onMutate: () => {
+      onMutationStateChange?.(true);
+    },
+    onSuccess: async (data) => {
+      const config = USER_TYPE_CONFIG[userType];
+      const currentUsers = parentForm.getValues(config.formField) || [];
+      const updatedUsers = currentUsers.map((user) => (user.id === editingUser?.id ? data : user));
+      parentForm.setValue(config.formField, updatedUsers);
+      persistForm('selection', config.persistStep);
+      setFormError(null);
+      form.reset();
+      onClose?.();
+    },
+    onError: (error) => {
+      setFormError('Failed to save user. Please try again.');
+      logger.error('Error saving user:', error);
+    },
+    onSettled: () => {
+      onMutationStateChange?.(false);
     },
   });
 
@@ -143,29 +194,18 @@ export function UnifiedUserForm({
     }
 
     try {
-      let userData: CouncilMember;
-
       if (editingUser) {
-        userData = await updateUserMutation.mutateAsync({
+        await updateUserMutation.mutateAsync({
           id: editingUser.id,
           address: data.address,
           email: data.email,
           name: data.name,
         });
-        const updatedUsers = currentUsers.map((user) => (user.id === editingUser.id ? userData : user));
-        parentForm.setValue(config.formField, updatedUsers);
       } else {
-        userData = await createUserMutation.mutateAsync(data);
-        parentForm.setValue(config.formField, [...currentUsers, userData]);
+        await createUserMutation.mutateAsync(data);
       }
-      persistForm('selection', config.persistStep);
-
-      setFormError(null);
-      form.reset();
-      onClose?.();
     } catch (error) {
-      setFormError('Failed to save user. Please try again.');
-      logger.error('Error saving user:', error);
+      // Error handling is done in mutation callbacks
     }
   };
 
