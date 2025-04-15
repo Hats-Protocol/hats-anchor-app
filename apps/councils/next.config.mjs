@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { composePlugins, withNx } from '@nx/next';
 import { withSentryConfig } from '@sentry/nextjs';
 
@@ -49,8 +48,8 @@ const nextConfig = {
       'react-datepicker',
       'viem',
     ],
-    serverComponentsExternalPackages: ['require-in-the-middle'],
   },
+  serverExternalPackages: ['require-in-the-middle'],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'i.seadn.io' },

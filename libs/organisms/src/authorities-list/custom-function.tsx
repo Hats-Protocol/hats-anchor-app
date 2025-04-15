@@ -3,7 +3,7 @@
 import { KNOWN_ELIGIBILITY_MODULES } from '@hatsprotocol/constants';
 import { useOverlay } from 'contexts';
 import { includes } from 'lodash';
-import { AgreementModal, AllowlistModal, ElectionModal, JokeRaceModal, StakingModal } from 'modules-ui';
+import { AgreementModal, AllowlistManagerModal, ElectionModal, JokeRaceModal, StakingModal } from 'modules-ui';
 import { BsPencil } from 'react-icons/bs';
 import { Authority } from 'types';
 import { Button } from 'ui';
@@ -48,7 +48,7 @@ const CustomFunction = ({ authority }: { authority: Authority | undefined }) => 
           Edit Allowlist
         </Button>
 
-        <AllowlistModal eligibilityHatId={authority.hatId} moduleInfo={authority.moduleInfo} />
+        <AllowlistManagerModal eligibilityHatId={authority.hatId} moduleInfo={authority.moduleInfo} />
       </>
     );
   }

@@ -5,6 +5,7 @@ import { useEligibility } from 'contexts';
 import { find, get, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
 import { DevInfo } from 'molecules';
+import { posthog } from 'posthog-js';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LuBarChart2, LuWallet } from 'react-icons/lu';
@@ -91,7 +92,7 @@ export const Erc20Claims = ({
     ];
   }, [activeModule.instanceAddress, chainId, tokenParam?.value]);
 
-  const isDev = true;
+  const isDev = posthog.isFeatureEnabled('dev');
 
   if (isEligibilityRulesLoading || isErc20Loading) {
     return (
@@ -152,7 +153,7 @@ export const Erc20Claims = ({
           )}
         </div>
 
-        <div className='mt-8 grid grid-cols-3 gap-8'>
+        <div className='mt-8 flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-8'>
           <div>
             <h4 className='text-primary mb-4 text-base font-bold'>Token Limit</h4>
             <div className={cn(inputClass, 'flex items-center p-0')}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import { map, values } from 'lodash';
 import { UseFormReturn } from 'react-hook-form';
 import { ReactSelectOption } from 'ui';
@@ -21,9 +21,9 @@ interface ChainSelectProps {
   variant?: 'default' | 'councils';
 }
 
-interface ChainOption extends ReactSelectOption {}
+type ChainOption = ReactSelectOption;
 
-const chainOptions = map(values(councilsChainsList), (chain) => ({
+const chainOptions = map(values(chainsList), (chain) => ({
   value: chain.id.toString(),
   label: chain.name,
   iconUrl: chain.iconUrl,

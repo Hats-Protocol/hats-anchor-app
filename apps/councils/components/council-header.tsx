@@ -69,7 +69,7 @@ const CouncilHeaderCard = ({
 
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
   const primarySignerHatId = get(primarySignerHat, 'id');
-  const topHatId = !!primarySignerHatId
+  const topHatId = primarySignerHatId
     ? treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(primarySignerHatId)))
     : undefined;
   const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);

@@ -48,7 +48,7 @@ function AddUserModal({
   existingUsers,
   addUserLoading,
 }: AddUserModalProps) {
-  const [isLoading, setIsLoading] = addUserLoading || [false, () => {}];
+  const [isLoading, setIsLoading] = addUserLoading || [false, () => undefined];
   const { user } = usePrivy();
   const { setModals, modals } = useOverlay();
   const queryClient = useQueryClient();

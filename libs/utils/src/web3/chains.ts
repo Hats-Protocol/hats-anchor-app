@@ -1,6 +1,6 @@
 'use client';
 
-import { chainsList, councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import { createConfig as privyCreateConfig } from '@privy-io/wagmi';
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
@@ -20,6 +20,7 @@ import {
   zerionWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { concat, each, keys, map, toNumber } from 'lodash';
+import { ExtendedChain } from 'types';
 import { Chain, http, Transport } from 'viem';
 import { createConfig } from 'wagmi';
 import { safe } from 'wagmi/connectors';
@@ -70,10 +71,10 @@ const transports = () => {
   return localTransports;
 };
 
-export const wagmiConfig = (overrideChains?: Chain[]) => {
+export const wagmiConfig = (overrideChains?: (Chain | ExtendedChain)[]) => {
   let chains = map(keys(chainsList), (c) => chainsList[toNumber(c) as keyof typeof chainsList]);
   if (overrideChains) {
-    chains = overrideChains;
+    chains = overrideChains as ExtendedChain[];
   }
 
   return createConfig({
@@ -85,10 +86,7 @@ export const wagmiConfig = (overrideChains?: Chain[]) => {
 };
 
 export const privyConfig = (overrideChains?: Chain[]) => {
-  let chains = map(
-    keys(councilsChainsList),
-    (c) => councilsChainsList[toNumber(c) as keyof typeof councilsChainsList],
-  ) as Chain[];
+  let chains = map(keys(chainsList), (c) => chainsList[toNumber(c) as keyof typeof chainsList]) as Chain[];
   if (overrideChains) {
     chains = overrideChains;
   }

@@ -204,7 +204,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   }
 
   return (
-    <div className='mx-auto flex w-full flex-col gap-4 md:w-1/2'>
+    <div className='mx-auto flex w-full flex-col gap-4 px-4 md:w-1/2'>
       <DevInfo title='Hat Info' devInfos={hatInfo} />
 
       <DevInfo title='HSG Info' devInfos={hsgInfo} />

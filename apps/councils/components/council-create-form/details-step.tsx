@@ -1,6 +1,6 @@
 'use client';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations } from 'hooks';
@@ -24,7 +24,7 @@ interface ChainOption {
   icon: string;
 }
 
-const chainOptions: ChainOption[] = Object.values(councilsChainsList).map((chain) => ({
+const chainOptions: ChainOption[] = Object.values(chainsList).map((chain) => ({
   value: chain.id.toString(),
   label: chain.name,
   icon: chain.iconUrl,

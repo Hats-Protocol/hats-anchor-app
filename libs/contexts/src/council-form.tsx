@@ -1,6 +1,7 @@
+/* eslint-disable no-case-declarations */
 'use client';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import {
   AGREEMENT_ELIGIBILITY_ADDRESS,
   ALLOWLIST_ELIGIBILITY_ADDRESS,
@@ -97,7 +98,7 @@ interface CouncilFormContextType {
   deployStatus: DeployStatus;
 }
 
-const chainOptions = map(values(councilsChainsList), (chain) => ({
+const chainOptions = map(values(chainsList), (chain) => ({
   value: chain.id.toString(),
   label: chain.name,
   icon: chain.iconUrl,
@@ -368,7 +369,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       payer: data.payer || undefined,
       acceptedTerms: false,
       tokenRequirement: {
-        address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any, // TODO replace any, thinks it's a number
         minimum: toNumber(data.tokenAmount) || 0,
       },
       creator: data.creator || '',
@@ -527,7 +529,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
     },
     onSuccess: (data: UpdateCouncilFormResponse, variables) => {
-      logger.info('onSuccess', data);
+      logger.info('onSuccess', data, variables);
       // update query cache while preserving form state
       queryClient.setQueryData(['councilForm', draftId], (oldData: any) => ({
         ...oldData,
@@ -679,7 +681,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       let agreementModuleHatId: bigint;
       let predictedAgreementModuleAddress: `0x${string}` | undefined;
       if (formData.requirements.signAgreement) {
-        let agreementCid: string = '';
+        let agreementCid = '';
         if (formData.agreement) {
           const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
           // pin agreement file to ipfs

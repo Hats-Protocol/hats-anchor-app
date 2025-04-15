@@ -1,6 +1,6 @@
 'use client';
 
-import { councilsChainsList } from '@hatsprotocol/config';
+import { chainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
 import {
   useAuthGuard,
@@ -15,7 +15,7 @@ import { ArrowRightCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { HatSignerGateV2 } from 'types';
 import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
-import { chainIdToString, ipfsUrl, logger, slugify } from 'utils';
+import { chainIdToString, ipfsUrl, slugify } from 'utils';
 import { NETWORKS_PREFIX } from 'utils/src/subgraph/mesh/queries/constants';
 import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -24,21 +24,11 @@ import { AddCouncilButton } from './add-council-button';
 import { CouncilHeaderCard } from './council-header';
 
 const EMPTY_COUNCIL_STEPS = [
-  {
-    title: 'Create a Council for your DAO',
-  },
-  {
-    title: 'Share membership based access to a Safe Multisig',
-  },
-  {
-    title: 'No code set up smart contracts control membership',
-  },
-  {
-    title: 'Appoint trustworthy members & managers',
-  },
-  {
-    title: 'Deploy and manage your council for only 0.1 ETH / month',
-  },
+  { title: 'Create a Council for your DAO' },
+  { title: 'Share membership based access to a Safe Multisig' },
+  { title: 'No code set up smart contracts control membership' },
+  { title: 'Appoint trustworthy members & managers' },
+  { title: 'Deploy and manage your council for only 0.1 ETH / month' },
 ];
 
 const CouncilListPageOrgs = () => {
@@ -317,10 +307,10 @@ const CouncilListPageOrgs = () => {
           <div key={organizationName} className='flex flex-col gap-4'>
             {/* Group by chain within each organization */}
             {Object.entries(groupBy(groupedCouncils[organizationName], 'chainId')).map(([chainId, councils]) => {
-              const chainConfig = councilsChainsList[Number(chainId) as keyof typeof councilsChainsList];
+              const chainConfig = chainsList[Number(chainId) as keyof typeof chainsList];
               return (
                 <div key={chainId} className='flex flex-col gap-2 md:gap-4'>
-                  <div className='flex flex-col justify-between gap-2 md:flex-row md:items-start md:items-center md:gap-4'>
+                  <div className='flex flex-col justify-between gap-2 md:flex-row md:items-start md:gap-4'>
                     <div className='flex items-center gap-2'>
                       <img src={chainConfig?.iconUrl} alt={chainConfig?.name} className='size-6' />
                       <h3 className='text-xl font-bold'>{organizationName}</h3>
