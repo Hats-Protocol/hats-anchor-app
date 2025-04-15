@@ -4,7 +4,8 @@ import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations } from 'hooks';
-import { useCouncilDeployFlag, useToast } from 'hooks';
+import { useCouncilDeployFlag } from 'hooks';
+import { isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { StepProps } from 'types';
@@ -44,44 +45,25 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
     }));
   }, [organizationsData]);
 
-  // get initial organization value from query param (WIP)
+  const orgParam = searchParams.get('organizationName');
+  // get initial organization value from query param
   const initialOrgValue = useMemo(() => {
-    if (!organizationsData?.organizations) return undefined;
+    if (!organizationsData?.organizations || !orgParam) return undefined;
 
-    const orgNameFromQuery = searchParams.get('organizationName');
-    if (!orgNameFromQuery) return undefined;
-
-    const decodedOrgName = decodeURIComponent(orgNameFromQuery);
+    const decodedOrgName = decodeURIComponent(orgParam);
     const matchingOrg = organizationsData.organizations.find(
       (org) => org.name.toLowerCase() === decodedOrgName.toLowerCase(),
     );
 
     if (matchingOrg) {
-      return {
-        value: matchingOrg.name,
-        label: matchingOrg.name,
-      };
+      return { value: matchingOrg.name, label: matchingOrg.name };
     }
     return undefined;
-  }, [organizationsData, searchParams]);
-
-  // get initial chain value based on org when org is pre-selected (WIP)
-  const initialChainValue = useMemo(() => {
-    if (!initialOrgValue || !organizationsData?.organizations) return chainOptions[0];
-
-    const selectedOrg = organizationsData.organizations.find((org) => org.name === initialOrgValue.value);
-
-    if (selectedOrg?.councils?.[0]) {
-      const chainOption = chainOptions.find((option) => Number(option.value) === selectedOrg.councils[0].chain);
-      return chainOption || chainOptions[0];
-    }
-
-    return chainOptions[0];
-  }, [initialOrgValue, organizationsData]);
+  }, [organizationsData?.organizations, orgParam]);
 
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
 
-  const { watch, handleSubmit, setValue } = localForm;
+  const { watch, handleSubmit, reset } = localForm;
   const requirements = watch('requirements');
 
   // watch the organization name value for logging
@@ -89,26 +71,33 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   // update chain when organization changes
   useEffect(() => {
-    if (!organizationsData?.organizations || !organizationNameValue || typeof organizationNameValue === 'string')
+    if (
+      !organizationsData?.organizations ||
+      isEmpty(organizationsData?.organizations) ||
+      (!organizationNameValue && organizationNameValue !== '') ||
+      !!organizationNameValue
+    )
       return;
 
-    const selectedOrg = organizationsData.organizations.find((org) => org.name === organizationNameValue.value);
+    const selectedOrg = organizationsData.organizations.find((org) => org.name === initialOrgValue?.value);
     if (selectedOrg?.councils?.[0]) {
       const chainId = selectedOrg.councils[0].chain;
       const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
       if (chainOption) {
-        setValue(
-          'chain',
-          {
+        reset({
+          chain: {
             value: chainOption.value,
             label: chainOption.label,
             icon: chainOption.icon,
           },
-          { shouldValidate: true },
-        );
+          organizationName: {
+            value: selectedOrg.name,
+            label: selectedOrg.name,
+          },
+        });
       }
     }
-  }, [organizationNameValue, organizationsData, setValue]);
+  }, [organizationNameValue, organizationsData, initialOrgValue?.value, reset]);
 
   useCouncilDeployFlag(draftId);
 

@@ -142,7 +142,7 @@ const CouncilListPageOrgs = () => {
   // always show loading state first (avoids flash of empty state)
   if (isLoading) {
     return (
-      <div className='mx-auto mt-20 flex max-w-[1400px] flex-col gap-4'>
+      <div className='mx-auto mt-6 flex max-w-[1400px] flex-col gap-4'>
         {map(Array(5), (_, index) => (
           <Skeleton key={index} className='bg-functional-link-primary/10 h-[125px] w-full' />
         ))}
@@ -302,7 +302,7 @@ const CouncilListPageOrgs = () => {
     const sortedOrgs = orderBy(Object.keys(groupedCouncils));
 
     return (
-      <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-20 md:gap-8 md:px-10'>
+      <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-6 md:gap-8 md:px-10'>
         {sortedOrgs.map((organizationName) => (
           <div key={organizationName} className='flex flex-col gap-4'>
             {/* Group by chain within each organization */}
@@ -350,7 +350,7 @@ const CouncilListPageOrgs = () => {
   }
 
   return (
-    <div className='mx-auto mt-20 flex max-w-[1000px] flex-col gap-4'>
+    <div className='mx-auto mt-6 flex max-w-[1000px] flex-col gap-4'>
       {map(Array(5), (_, index) => (
         <Skeleton key={index} className='bg-functional-link-primary/10 h-[125px] w-full' />
       ))}

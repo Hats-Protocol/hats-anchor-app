@@ -21,21 +21,11 @@ import { useAccount } from 'wagmi';
 import { CouncilHeaderCard } from './council-header';
 
 const EMPTY_COUNCIL_STEPS = [
-  {
-    title: 'Create a Council for your DAO',
-  },
-  {
-    title: 'Share membership based access to a Safe Multisig',
-  },
-  {
-    title: 'No code set up smart contracts control membership',
-  },
-  {
-    title: 'Appoint trustworthy members & managers',
-  },
-  {
-    title: 'Deploy and manage your council for only 0.1 ETH / month',
-  },
+  { title: 'Create a Council for your DAO' },
+  { title: 'Share membership based access to a Safe Multisig' },
+  { title: 'No code set up smart contracts control membership' },
+  { title: 'Appoint trustworthy members & managers' },
+  { title: 'Deploy and manage your council for only 299 USDC / month' },
 ];
 
 const CouncilListPage = () => {

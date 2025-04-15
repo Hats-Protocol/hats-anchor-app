@@ -1,9 +1,8 @@
 'use client';
 import { useOrganization } from 'hooks';
 import { useParams, useRouter } from 'next/navigation';
-import { Alert, AlertDescription, AlertTitle, Skeleton } from 'ui';
+import { Alert, AlertDescription, AlertTitle, HatDeco, Skeleton } from 'ui';
 import { chainIdToString } from 'utils';
-import { logger } from 'utils';
 import { getAddress } from 'viem';
 
 import { AddCouncilButton } from '../../../components/add-council-button';
@@ -11,7 +10,7 @@ import { CouncilHeaderCard } from '../../../components/council-header';
 
 const LoadingSkeleton = () => {
   return (
-    <div className='mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-20 md:gap-8 md:px-10'>
+    <div className='mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-6 md:gap-8 md:px-10'>
       <div className='flex flex-col gap-2 md:gap-4'>
         {[1, 2].map((i) => (
           <Skeleton key={i} className='bg-functional-link-primary/10 h-[125px] w-full rounded-lg' />
@@ -63,7 +62,7 @@ export default function OrganizationPage() {
   }
 
   return (
-    <div className='mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-20 md:gap-8 md:px-10'>
+    <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-6 md:gap-8 md:px-10'>
       <div className='flex flex-col gap-2 md:gap-4'>
         {organization.councils.map((item) => (
           <button
@@ -78,6 +77,8 @@ export default function OrganizationPage() {
           <AddCouncilButton organizationName={organization.name} />
         </div>
       </div>
+
+      <HatDeco />
     </div>
   );
 }
