@@ -5,6 +5,8 @@ import { mapWithChainId } from 'shared';
 import { AppTree } from 'types';
 import { Hex } from 'viem';
 
+import { logger } from '../../../logs';
+import { stripSuffix } from '../../mesh';
 import {
   getCrossChainWearerDetailsQuery,
   getWearerDetailsQuery,
@@ -30,6 +32,7 @@ export const fetchWearerDetailsMesh = async (address: Hex | string | undefined, 
 
     wearer = res[`${NETWORKS_PREFIX[chainId]}_wearer`] as Wearer;
   } catch (err) {
+    logger.error('Error fetching wearer details:', err);
     return undefined;
   }
 
@@ -86,6 +89,7 @@ export const fetchWearerTrees = async ({
 
     return uniqBy(wearerTreesProcessHatMetadata, 'id');
   } catch (err) {
+    logger.error('Error fetching wearer trees:', err);
     return undefined;
   }
 };
@@ -102,9 +106,9 @@ export const getCrossChainAllowlistEligibilities = async (address: string | unde
       address: address.toLowerCase(),
     });
 
-    return res;
+    return stripSuffix({ object: res });
   } catch (err) {
-    console.error('Error fetching cross-chain allowlist eligibilities:', err);
+    logger.error('Error fetching cross-chain allowlist eligibilities:', err);
     return null;
   }
 };
@@ -123,7 +127,7 @@ export const getCrossChainWearerDetails = async (address: string | undefined) =>
 
     // Process each chain's wearer data to include chainId
     const processedData = Object.entries(res).reduce((acc: any, [key, value]) => {
-      const chainPrefix = key.split('_')[0];
+      const chainPrefix = key.split('_')[0]; // TODO consolidate with util
       const chainId = Object.entries(NETWORKS_PREFIX).find(([_, prefix]) => prefix === chainPrefix)?.[0];
 
       if (chainId && value) {
@@ -134,10 +138,11 @@ export const getCrossChainWearerDetails = async (address: string | undefined) =>
       }
       return acc;
     }, {});
+    console.log({ processedData });
 
-    return processedData;
+    return processedData as Record<string, { currentHats: { id: string }[] }>;
   } catch (err) {
-    console.error('Error fetching cross-chain wearer details:', err);
+    logger.error('Error fetching cross-chain wearer details:', err);
     return null;
   }
 };

@@ -164,7 +164,7 @@ export function getWearersProfileDetailQuery(chainId: number): string {
   `;
 }
 
-// explicitly query all of the chains -- we can use this if we need to omit a single chain (for example, i'm currenly omitting Eth until the mesh issue is resolved)
+// explicitly query all of the chains
 export function getCrossChainAllowlistEligibilitiesQuery(): string {
   return gql`
     query GetCrosschainAllowlistHats($address: String!) {
