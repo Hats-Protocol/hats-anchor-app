@@ -42,7 +42,7 @@
     "next": "15.2.3",
     "posthog-js": "^1.216.0",
     "react": "^18.3.1",
-    "react-hook-form": "^7.50.1",
+    "react-hook-form": "^7.54.2",
     "react-icons": "^4.7.1",
     "react-infinite-scroll-component": "^6.1.0",
     "tailwind-merge": "^2.2.2",

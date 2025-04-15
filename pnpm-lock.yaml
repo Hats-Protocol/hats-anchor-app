@@ -424,7 +424,7 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-hook-form:
-        specifier: ^7.50.1
+        specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-icons:
         specifier: ^4.7.1
@@ -646,7 +646,7 @@ importers:
         specifier: 1.216.1
         version: 1.216.1
       react-hook-form:
-        specifier: ^7.50.1
+        specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-icons:
         specifier: ^4.7.1
@@ -760,7 +760,7 @@ importers:
         specifier: ^14.2.3
         version: 14.3.5(react@18.3.1)
       react-hook-form:
-        specifier: ^7.50.1
+        specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-icons:
         specifier: ^4.7.1
@@ -927,7 +927,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       react-hook-form:
-        specifier: ^7.50.1
+        specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       types:
         specifier: workspace:*
@@ -981,7 +981,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       react-hook-form:
-        specifier: ^7.50.1
+        specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-icons:
         specifier: ^4.7.1
@@ -1185,7 +1185,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       react-hook-form:
-        specifier: ^7.50.1
+        specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-icons:
         specifier: ^4.7.1
@@ -1368,7 +1368,7 @@ importers:
         specifier: ^4.0.12
         version: 4.1.2(react@18.3.1)
       react-hook-form:
-        specifier: ^7.50.1
+        specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-icons:
         specifier: ^4.7.1

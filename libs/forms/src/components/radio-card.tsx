@@ -53,12 +53,13 @@ const RadioCard = ({
 
   const { control } = localForm;
   const error = localForm.formState.errors[name]?.message;
+  console.log({ [name]: localForm.watch(name) });
 
   return (
     <FormField
       name={name}
       control={control}
-      render={({ field }) => (
+      render={({ field: { onChange, value } }) => (
         <FormItem>
           <div className='flex flex-col gap-2'>
             <div>
@@ -78,10 +79,13 @@ const RadioCard = ({
 
             <FormControl>
               <RadioGroup
-                disabled={isDisabled}
+                // disabled={isDisabled}
                 defaultValue={defaultValue}
-                onValueChange={field.onChange}
-                value={field.value}
+                onValueChange={(val) => {
+                  console.log('radio card - onValueChange', { [name]: val });
+                  onChange(val);
+                }}
+                value={value}
               >
                 <div className='flex flex-col gap-4'>
                   {options?.map((option) => {
@@ -93,7 +97,7 @@ const RadioCard = ({
                         className={cn(
                           'flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4',
                           option.disabled && 'cursor-not-allowed',
-                          field.value === option.value && 'border-functional-link-primary bg-white/90 shadow',
+                          value === option.value && 'border-functional-link-primary bg-white/90 shadow',
                         )}
                       >
                         <div className='flex w-full items-center gap-3'>
@@ -113,7 +117,7 @@ const RadioCard = ({
                               <RawIcon
                                 className={cn(
                                   'my-auto h-6 w-6 text-gray-900',
-                                  field.value === option.value && 'text-functional-link-primary',
+                                  value === option.value && 'text-functional-link-primary',
                                 )}
                               />
                             )}

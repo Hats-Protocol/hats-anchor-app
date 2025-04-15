@@ -157,7 +157,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       onSelect: () => form.setValue('agreementAdmins', group.admins),
     })),
     {
-      value: 'true',
+      value: 'true', // TODO migrate off boolean (use Hat ID)
       label: 'Create new Agreement Managers',
       description: 'Create a new group of agreement managers',
       onSelect: () => form.setValue('agreementAdmins', []),
@@ -181,6 +181,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
   }
+  console.log({ canEdit });
 
   return (
     <>
@@ -316,7 +317,8 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
               </>
             )}
 
-            {createAgreementAdminRole.startsWith('existing:') && (
+            {/* TODO look at this option state */}
+            {/* {createAgreementAdminRole.startsWith('existing:') && (
               <>
                 <div>
                   <h3 className='mb-2 font-bold'>Agreement Managers</h3>
@@ -339,7 +341,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                   </div>
                 </div>
               </>
-            )}
+            )} */}
           </div>
 
           <div className='flex justify-end py-6'>
