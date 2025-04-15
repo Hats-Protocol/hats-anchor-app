@@ -19,6 +19,7 @@ interface RadioCardOption {
     name?: string;
     email?: string;
   }>;
+  onSelect?: () => void;
 }
 
 interface RadioCardProps {
@@ -82,8 +83,12 @@ const RadioCard = ({
                 // disabled={isDisabled}
                 defaultValue={defaultValue}
                 onValueChange={(val) => {
-                  console.log('radio card - onValueChange', { [name]: val });
-                  onChange(val);
+                  const selectedOption = options?.find((opt) => opt.value === val);
+                  if (!selectedOption?.disabled && !isDisabled) {
+                    console.log('radio card - onValueChange', { [name]: val });
+                    selectedOption?.onSelect?.();
+                    onChange(val);
+                  }
                 }}
                 value={value}
               >
@@ -99,19 +104,16 @@ const RadioCard = ({
                           option.disabled && 'cursor-not-allowed',
                           value === option.value && 'border-functional-link-primary bg-white/90 shadow',
                         )}
+                        htmlFor={`${name}-${option.value}`}
                       >
                         <div className='flex w-full items-center gap-3'>
-                          {!option.disabled ? (
-                            <RadioGroupItem
-                              className='pointer-none text-functional-link-primary'
-                              value={option.value}
-                              disabled={option.disabled}
-                            />
-                          ) : (
-                            <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
-                              coming soon
-                            </span>
-                          )}
+                          <RadioGroupItem
+                            id={`${name}-${option.value}`}
+                            className='pointer-none text-functional-link-primary'
+                            value={option.value}
+                            disabled={option.disabled || isDisabled}
+                          />
+
                           <div className={cn('flex w-full gap-4 opacity-100', option.disabled && 'opacity-50')}>
                             {RawIcon && (
                               <RawIcon
@@ -142,6 +144,11 @@ const RadioCard = ({
                               {option.description && <p className='text-sm font-normal'>{option.description}</p>}
                             </div>
                           </div>
+                          {option.disabled && (
+                            <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800'>
+                              coming soon
+                            </span>
+                          )}
                         </div>
                       </FormLabel>
                     );

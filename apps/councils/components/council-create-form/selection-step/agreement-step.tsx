@@ -318,7 +318,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
             )}
 
             {/* TODO look at this option state */}
-            {/* {createAgreementAdminRole.startsWith('existing:') && (
+            {createAgreementAdminRole.startsWith('existing:') && (
               <>
                 <div>
                   <h3 className='mb-2 font-bold'>Agreement Managers</h3>
@@ -341,7 +341,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                   </div>
                 </div>
               </>
-            )} */}
+            )}
           </div>
 
           <div className='flex justify-end py-6'>

@@ -98,7 +98,7 @@ export function OnboardingStep({ onNext, draftId }: StepProps) {
                   value: 'ELECTED',
                   description: 'Empower your community to elect the council members onchain',
                   icon: BallotBox as IconType,
-                  // disabled: true,
+                  disabled: true,
                 },
               ]}
               textSize='md'
