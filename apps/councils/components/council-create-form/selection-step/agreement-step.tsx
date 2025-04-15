@@ -270,7 +270,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
             <MarkdownEditor
               name='agreement'
               localForm={form}
-              // isDisabled={!canEdit || selectedOption === 'existing'}
+              isDisabled={selectedOption === 'existing'}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
               existingAgreements={(existingAgreements || []).map(({ agreement, councilName }: GroupedAgreement) => ({
                 agreement,

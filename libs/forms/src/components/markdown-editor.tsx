@@ -14,11 +14,13 @@ const Tiptap = ({
   field,
   label,
   isDisabled,
+  hideToolbar,
   existingAgreements,
 }: {
   field: ControllerRenderProps<FieldValues, string>;
   label?: string;
   isDisabled?: boolean;
+  hideToolbar?: boolean;
   existingAgreements?: { agreement: string; councilName: string }[];
 }) => {
   const converter = new showdown.Converter();
@@ -64,7 +66,7 @@ const Tiptap = ({
       {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
         <div className='flex flex-col justify-stretch gap-2'>
-          <Toolbar editor={editor} />
+          <Toolbar editor={editor} isDisabled={isDisabled} />
           <EditorContent className='max-h-[400px] min-h-[250px]' editor={editor} />
         </div>
       </FormControl>
@@ -79,6 +81,7 @@ const MarkdownEditor = ({
   placeholder,
   localForm,
   isDisabled,
+  hideToolbar,
   existingAgreements,
 }: MarkdownEditorProps) => {
   // const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
@@ -90,7 +93,15 @@ const MarkdownEditor = ({
       control={localForm.control}
       name={name}
       render={({ field }) => {
-        return <Tiptap field={field} label={label} isDisabled={isDisabled} existingAgreements={existingAgreements} />;
+        return (
+          <Tiptap
+            field={field}
+            label={label}
+            isDisabled={isDisabled}
+            hideToolbar={hideToolbar}
+            existingAgreements={existingAgreements}
+          />
+        );
       }}
     />
   );
@@ -103,6 +114,7 @@ interface MarkdownEditorProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   isDisabled?: boolean;
+  hideToolbar?: boolean;
   existingAgreements?: { agreement: string; councilName: string }[];
 }
 
