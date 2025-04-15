@@ -223,7 +223,8 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
               disabled={
                 !form.formState.isValid ||
                 (createComplianceAdminRole === 'true' && complianceAdmins.length === 0) ||
-                !canEdit
+                !canEdit ||
+                isLoadingList
               }
             >
               {getNextStepButtonText(nextStep)}

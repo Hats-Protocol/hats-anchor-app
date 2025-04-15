@@ -4,10 +4,10 @@ import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
 import { FilePlus, FileText } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
-import { CouncilMember, StepProps } from 'types';
+import { CouncilFormData, CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 import { logger } from 'utils';
 
@@ -182,6 +182,16 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);
 
+  const handleSubmit = useCallback(
+    async (data: CouncilFormData) => {
+      // set the current form values to prevent state flashing during transition
+      // data contains the latest form values at submission time (as we advance the form)
+      form.reset(data);
+      await onNext();
+    },
+    [form, onNext],
+  );
+
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
   }
@@ -190,7 +200,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   return (
     <>
       <Form {...form}>
-        <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
+        <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(handleSubmit)}>
           <div className='space-y-4'>
             <div className='flex items-center gap-4'>
               <FileText />
