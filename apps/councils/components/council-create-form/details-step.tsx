@@ -69,49 +69,47 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   // watch the organization name value for logging
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
 
-  // get initial chain value based on org when org is pre-selected (WIP)
-  const initialChainValue = useMemo(() => {
-    if (!initialOrgValue || !organizationsData?.organizations) return chainOptions[0];
-
-    const selectedOrg = organizationsData.organizations.find((org) => org.name === initialOrgValue.value);
-
-    if (selectedOrg?.councils?.[0]) {
-      const chainOption = chainOptions.find((option) => Number(option.value) === selectedOrg.councils[0].chain);
-      return chainOption || chainOptions[0];
-    }
-
-    return chainOptions[0];
-  }, [initialOrgValue, organizationsData]);
-
-  // update chain when organization changes
+  // update chain when organization changes (either from query param or selection)
   useEffect(() => {
-    if (
-      !organizationsData?.organizations ||
-      isEmpty(organizationsData?.organizations) ||
-      (!organizationNameValue && organizationNameValue !== '') ||
-      !!organizationNameValue
-    )
-      return;
+    if (!organizationsData?.organizations || isEmpty(organizationsData?.organizations)) return;
 
-    const selectedOrg = organizationsData.organizations.find((org) => org.name === initialOrgValue?.value);
-    if (selectedOrg?.councils?.[0]) {
-      const chainId = selectedOrg.councils[0].chain;
-      const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
-      if (chainOption) {
-        reset({
-          chain: {
+    // Handle initial org from query param
+    if (initialOrgValue && !organizationNameValue) {
+      const selectedOrg = organizationsData.organizations.find((org) => org.name === initialOrgValue.value);
+      if (selectedOrg?.councils?.[0]) {
+        const chainId = selectedOrg.councils[0].chain;
+        const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
+        if (chainOption) {
+          reset({
+            chain: {
+              value: chainOption.value,
+              label: chainOption.label,
+              icon: chainOption.icon,
+            },
+            organizationName: {
+              value: selectedOrg.name,
+              label: selectedOrg.name,
+            },
+          });
+        }
+      }
+    }
+    // Handle org selection from dropdown
+    else if (organizationNameValue && typeof organizationNameValue !== 'string') {
+      const selectedOrg = organizationsData.organizations.find((org) => org.name === organizationNameValue.value);
+      if (selectedOrg?.councils?.[0]) {
+        const chainId = selectedOrg.councils[0].chain;
+        const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
+        if (chainOption) {
+          setValue('chain', {
             value: chainOption.value,
             label: chainOption.label,
             icon: chainOption.icon,
-          },
-          organizationName: {
-            value: selectedOrg.name,
-            label: selectedOrg.name,
-          },
-        });
+          });
+        }
       }
     }
-  }, [organizationNameValue, organizationsData, initialOrgValue?.value, reset]);
+  }, [organizationsData, organizationNameValue, initialOrgValue, chainOptions, setValue, reset]);
 
   useCouncilDeployFlag(draftId);
 
