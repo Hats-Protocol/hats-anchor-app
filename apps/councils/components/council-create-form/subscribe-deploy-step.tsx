@@ -297,7 +297,11 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
         <div className='space-y-8'>
           <RoleSummary
             title='Organization Managers appoint Council Members'
-            members={organizationManagers !== null ? organizationManagers : formData.admins || []}
+            members={(organizationManagers || formData.admins || []).map((member) => ({
+              id: member.id,
+              address: member.address,
+              name: member.name,
+            }))}
           />
           {formData.requirements.signAgreement && (
             <RoleSummary
