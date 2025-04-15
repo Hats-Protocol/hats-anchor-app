@@ -118,7 +118,11 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           form.setValue('agreementAdmins', group.admins);
         }
       } else if (createAgreementAdminRole === 'true') {
-        form.setValue('agreementAdmins', []);
+        // Only clear the array if there are no existing admins
+        const currentAdmins = form.getValues('agreementAdmins') || [];
+        if (currentAdmins.length === 0) {
+          form.setValue('agreementAdmins', []);
+        }
       }
       prevRole.current = createAgreementAdminRole;
     }
@@ -346,7 +350,12 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
 
           <div className='flex justify-end py-6'>
             <NextStepButton
-              disabled={!canEdit || (createAgreementAdminRole === 'true' && agreementAdmins.length === 0)}
+              disabled={
+                !canEdit ||
+                (createAgreementAdminRole === 'true' && agreementAdmins.length === 0) ||
+                isLoadingList ||
+                isMutating
+              }
             >
               {getNextStepButtonText(nextStep)}
             </NextStepButton>
