@@ -80,6 +80,8 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       return acc;
     }, []) || [];
 
+  logger.info('organizationManagers', organizationManagers);
+
   // Group unique admin sets across councils
   const agreementAdminGroups =
     organization?.councils?.reduce<{
@@ -106,6 +108,25 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       }
       return acc;
     }, {}) || {};
+
+  logger.info('agreementAdminGroups', agreementAdminGroups);
+
+  // Create a sorted string of organization manager addresses to compare against
+  const orgManagerKey = organizationManagers
+    .map((admin) => admin.address.toLowerCase())
+    .sort()
+    .join(',');
+
+  // Filter out any admin groups that exactly match organization managers
+  const filteredAgreementAdminGroups = Object.entries(agreementAdminGroups).reduce<typeof agreementAdminGroups>(
+    (acc, [key, group]) => {
+      if (key !== orgManagerKey) {
+        acc[key] = group;
+      }
+      return acc;
+    },
+    {},
+  );
 
   useEffect(() => {
     if (prevRole.current !== createAgreementAdminRole) {
@@ -153,15 +174,17 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       avatars: organizationManagers,
       onSelect: () => form.setValue('agreementAdmins', organizationManagers),
     },
-    ...Object.entries(agreementAdminGroups).map(([key, group]) => ({
-      value: `existing:${key}`,
-      label: 'Agreement Managers',
-      description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-      avatars: group.admins,
-      onSelect: () => form.setValue('agreementAdmins', group.admins),
-    })),
+    ...Object.entries(filteredAgreementAdminGroups)
+      .filter(([_, group]) => group.admins.length > 0)
+      .map(([key, group]) => ({
+        value: `existing:${key}`,
+        label: 'Agreement Managers',
+        description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+        avatars: group.admins,
+        onSelect: () => form.setValue('agreementAdmins', group.admins),
+      })),
     {
-      value: 'true', // TODO migrate off boolean (use Hat ID)
+      value: 'true',
       label: 'Create new Agreement Managers',
       description: 'Create a new group of agreement managers',
       onSelect: () => form.setValue('agreementAdmins', []),

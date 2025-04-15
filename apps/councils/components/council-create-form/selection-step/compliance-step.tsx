@@ -68,6 +68,23 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
       return acc;
     }, {}) || {};
 
+  // Create a sorted string of organization manager addresses to compare against
+  const orgManagerKey = organizationManagers
+    .map((admin) => admin.address.toLowerCase())
+    .sort()
+    .join(',');
+
+  // Filter out any admin groups that exactly match organization managers
+  const filteredComplianceAdminGroups = Object.entries(complianceAdminGroups).reduce<typeof complianceAdminGroups>(
+    (acc, [key, group]) => {
+      if (key !== orgManagerKey) {
+        acc[key] = group;
+      }
+      return acc;
+    },
+    {},
+  );
+
   // Create options for compliance managers
   const complianceManagerOptions = [
     {
@@ -77,13 +94,15 @@ export function SelectionComplianceStep({ onNext }: StepProps) {
       avatars: organizationManagers,
       onSelect: () => form.setValue('complianceAdmins', organizationManagers),
     },
-    ...Object.entries(complianceAdminGroups).map(([key, group]) => ({
-      value: `existing:${key}`,
-      label: 'Compliance Managers',
-      description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-      avatars: group.admins,
-      onSelect: () => form.setValue('complianceAdmins', group.admins),
-    })),
+    ...Object.entries(filteredComplianceAdminGroups)
+      .filter(([_, group]) => group.admins.length > 0)
+      .map(([key, group]) => ({
+        value: `existing:${key}`,
+        label: 'Compliance Managers',
+        description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+        avatars: group.admins,
+        onSelect: () => form.setValue('complianceAdmins', group.admins),
+      })),
     {
       value: 'true',
       label: 'Create new Compliance Managers',
