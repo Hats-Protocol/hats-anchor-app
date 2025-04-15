@@ -128,14 +128,14 @@ function TokenNumberInput({
                     restField.onChange(currentValue + 1);
                   }
                 }}
-                upDisabled={Number(value) >= (options?.max ?? Infinity)}
+                upDisabled={disabled || Number(value) >= (options?.max ?? Infinity)}
                 stepDown={() => {
                   const currentValue = Number(value) || 0;
-                  if (currentValue > (options?.min ?? 0)) {
+                  if (!disabled && currentValue > (options?.min ?? 0)) {
                     restField.onChange(currentValue - 1);
                   }
                 }}
-                downDisabled={Number(value) <= (options?.min ?? 0)}
+                downDisabled={disabled || Number(value) <= (options?.min ?? 0)}
               />
             </div>
           </FormControl>

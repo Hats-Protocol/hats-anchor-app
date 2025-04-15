@@ -18,6 +18,7 @@ interface TokenSelectProps {
   subLabel?: string;
   labelNote?: string;
   variant?: 'default' | 'councils';
+  isDisabled?: boolean;
 }
 
 interface TokenOption extends ReactSelectOption {}
@@ -32,6 +33,7 @@ const TokenSelect = ({
   subLabel,
   labelNote,
   variant,
+  isDisabled = false,
 }: TokenSelectProps) => {
   const tokenOptions = map(options, (token) => ({
     value: token.address,
@@ -44,6 +46,7 @@ const TokenSelect = ({
       name={name}
       localForm={localForm}
       options={tokenOptions}
+      isDisabled={isDisabled}
       placeholder={placeholder}
       iconClassName='h-5 w-5 rounded-full'
       label={label}

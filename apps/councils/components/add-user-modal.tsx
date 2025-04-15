@@ -140,7 +140,6 @@ function AddUserModal({
         ...data,
         id: editingUser?.id || '',
       });
-      logger.info('createdOrUpdatedUser', createdOrUpdatedUser);
 
       if (afterSuccess) {
         await afterSuccess(createdOrUpdatedUser);

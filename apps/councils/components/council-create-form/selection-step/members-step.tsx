@@ -6,28 +6,29 @@ import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
-import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AddMemberForm } from './add-member-form';
 import { MembersList } from './members-list';
+import { UnifiedUserForm } from './unified-user-form';
 
 export function SelectionMembersStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
   const requirements = form.watch('requirements');
   const members = form.watch('members') || [];
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
+  const { data: organization, isFetching } = useOrganization(orgName);
 
   useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
 
-  // We'll handle the admin check in the MembersList component since it has access to the modal state
+  // show loading state during mutation or while fetching updated data
+  const isLoadingList = isMutating || (isFetching && !isLoading);
 
   if (isLoading) {
     return (
@@ -87,18 +88,21 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
                     setEditingMember(member);
                     setShowAddForm(false);
                   }}
+                  loading={isLoadingList}
                 />
                 {editingMember?.address === member.address && (
                   <div className='-mx-16 mt-4 border-b border-gray-200'>
-                    <AddMemberForm
+                    <UnifiedUserForm
                       parentForm={form}
-                      editingMember={editingMember}
+                      editingUser={editingMember}
+                      userType='member'
                       onClose={() => {
                         setShowAddForm(false);
                         setEditingMember(null);
                       }}
                       canEdit={canEdit}
                       className='bg-white px-16 py-6'
+                      onMutationStateChange={setIsMutating}
                     />
                   </div>
                 )}
@@ -127,15 +131,17 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
 
         {showAddForm && !editingMember && (
           <div className='-mx-16 border-b border-gray-200'>
-            <AddMemberForm
+            <UnifiedUserForm
               parentForm={form}
-              editingMember={null}
+              editingUser={null}
+              userType='member'
               onClose={() => {
                 setShowAddForm(false);
                 setEditingMember(null);
               }}
               canEdit={canEdit}
               className='bg-white px-16 py-6'
+              onMutationStateChange={setIsMutating}
             />
           </div>
         )}

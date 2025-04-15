@@ -9,20 +9,24 @@ import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AddAdminForm } from './add-admin-form';
 import { AdminsList } from './admins-list';
+import { UnifiedUserForm } from './unified-user-form';
 
 export function SelectionManagementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
+  const { data: organization, isFetching } = useOrganization(orgName);
 
   const admins = form.watch('admins') || [];
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', form.watch('requirements'));
+
+  // Show loading state during mutation or while fetching updated data
+  const isLoadingList = isMutating || (isFetching && !isLoading);
 
   if (isLoading) {
     return (
@@ -62,12 +66,15 @@ export function SelectionManagementStep({ onNext }: StepProps) {
 
   return (
     <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
-      <h1 className='text-2xl font-bold'>Council Managers</h1>
+      <h1 className='text-2xl font-bold'>Organization Managers</h1>
 
       <div className='space-y-8'>
         <div className='space-y-2'>
           <h2 className='font-bold'>Who can edit the council?</h2>
-          <p className='text-sm'>Council Members can add and remove council members and edit all Council settings.</p>
+          <p className='text-sm'>
+            Organization Managers can appoint and remove Managers and Members, change all Membership Criteria and edit
+            any Safe. They can only be removed by the organization owner.
+          </p>
         </div>
 
         {admins.length > 0 && (
@@ -81,6 +88,7 @@ export function SelectionManagementStep({ onNext }: StepProps) {
                 setEditingAdmin(admin);
                 setShowAddForm(true);
               }}
+              loading={isLoadingList}
             />
           </div>
         )}
@@ -103,15 +111,17 @@ export function SelectionManagementStep({ onNext }: StepProps) {
           </div>
         ) : (
           <div className='-mx-16 border-b border-gray-200'>
-            <AddAdminForm
+            <UnifiedUserForm
               parentForm={form}
-              editingAdmin={editingAdmin}
+              editingUser={editingAdmin}
+              userType='admin'
               onClose={() => {
                 setShowAddForm(false);
                 setEditingAdmin(null);
               }}
               canEdit={canEdit}
               className='bg-white px-16 py-6'
+              onMutationStateChange={setIsMutating}
             />
           </div>
         )}

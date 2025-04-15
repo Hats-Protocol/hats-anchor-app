@@ -9,7 +9,6 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { StepProps } from 'types';
 import { MemberAvatar, Skeleton } from 'ui';
-import { logger } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -33,7 +32,7 @@ const chainOptions: ChainOption[] = Object.values(councilsChainsList).map((chain
 
 export function DetailsStep({ onNext, draftId }: StepProps) {
   const searchParams = useSearchParams();
-  const { toast } = useToast();
+
   const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
 
   // memoize organization options to prevent infinite renders
@@ -87,9 +86,8 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   // watch the organization name value for logging
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
-  logger.info('Current organization name value:', organizationNameValue);
 
-  // Update chain when organization changes
+  // update chain when organization changes
   useEffect(() => {
     if (!organizationsData?.organizations || !organizationNameValue || typeof organizationNameValue === 'string')
       return;
@@ -99,7 +97,6 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
       const chainId = selectedOrg.councils[0].chain;
       const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
       if (chainOption) {
-        logger.info('Setting chain to:', chainOption);
         setValue(
           'chain',
           {

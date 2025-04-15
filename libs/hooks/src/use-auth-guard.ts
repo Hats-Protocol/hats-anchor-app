@@ -29,7 +29,6 @@ export const useAuthGuard = () => {
     if (authenticated && user?.wallet && userAddress === undefined && hadValidWallet.current) {
       // Add a small delay to ensure this isn't just initial loading
       const timer = setTimeout(() => {
-        logger.info('MetaMask locked detected, logging out of Privy');
         logout();
       }, 1000);
 

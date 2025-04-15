@@ -3,7 +3,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { IconType } from 'react-icons';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { cn, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
+import { cn, MemberAvatar, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
@@ -13,6 +13,12 @@ interface RadioCardOption {
   description?: string;
   icon?: IconType;
   disabled?: boolean;
+  avatars?: Array<{
+    id: string;
+    address: string;
+    name?: string;
+    email?: string;
+  }>;
 }
 
 interface RadioCardProps {
@@ -71,7 +77,12 @@ const RadioCard = ({
             </div>
 
             <FormControl>
-              <RadioGroup disabled={isDisabled} defaultValue={defaultValue} {...field}>
+              <RadioGroup
+                disabled={isDisabled}
+                defaultValue={defaultValue}
+                onValueChange={field.onChange}
+                value={field.value}
+              >
                 <div className='flex flex-col gap-4'>
                   {options?.map((option) => {
                     const RawIcon = option.icon;
@@ -84,10 +95,20 @@ const RadioCard = ({
                           option.disabled && 'cursor-not-allowed',
                           field.value === option.value && 'border-functional-link-primary bg-white/90 shadow',
                         )}
-                        onClick={() => !option.disabled && field.onChange(option.value)}
                       >
-                        <div className='flex w-full items-center justify-between'>
-                          <div className={cn('flex gap-4 opacity-100', option.disabled && 'opacity-50')}>
+                        <div className='flex w-full items-center gap-3'>
+                          {!option.disabled ? (
+                            <RadioGroupItem
+                              className='pointer-none text-functional-link-primary'
+                              value={option.value}
+                              disabled={option.disabled}
+                            />
+                          ) : (
+                            <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
+                              coming soon
+                            </span>
+                          )}
+                          <div className={cn('flex w-full gap-4 opacity-100', option.disabled && 'opacity-50')}>
                             {RawIcon && (
                               <RawIcon
                                 className={cn(
@@ -96,27 +117,27 @@ const RadioCard = ({
                                 )}
                               />
                             )}
-                            <div className='flex flex-col gap-0.5'>
-                              <p className={cn('text-sm font-semibold', textSize === 'sm' && 'text-base')}>
-                                {option.label}
-                              </p>
-                              {option.description && <p className='text-sm text-gray-500'>{option.description}</p>}
+                            <div className='flex w-full flex-col gap-0.5'>
+                              <div className='flex w-full items-center justify-between'>
+                                <p className={cn('text-sm font-medium', textSize === 'sm' && 'text-base')}>
+                                  {option.label}
+                                </p>
+                                {option.avatars && option.avatars.length > 0 && (
+                                  <div className='flex -space-x-2'>
+                                    {option.avatars.map((avatar) => (
+                                      <MemberAvatar
+                                        key={avatar.id}
+                                        member={avatar}
+                                        className='h-6 w-6'
+                                        showDetails={false}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              {option.description && <p className='text-sm font-normal'>{option.description}</p>}
                             </div>
                           </div>
-                          {!option.disabled ? (
-                            <RadioGroupItem
-                              // onChange={(v) => {
-                              //   field.onChange(option.value);
-                              // }}
-                              // checked={field.value === option.value}
-                              className='pointer-none text-functional-link-primary'
-                              value={option.value}
-                            />
-                          ) : (
-                            <span className='flex min-h-2 items-center justify-center whitespace-nowrap rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-500'>
-                              coming soon
-                            </span>
-                          )}
                         </div>
                       </FormLabel>
                     );

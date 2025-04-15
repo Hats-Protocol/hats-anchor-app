@@ -239,16 +239,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   const availableTokens = useMemo(() => getChainTokens(chainId as number), [chainId]);
 
-  // const mappedTokens = useMemo(() => {
-  //   logger.info('mappedTokens useMemo', { availableTokens });
-  //   const mappedTokens = map(availableTokens, ({ address, name, symbol }) => ({
-  //     value: address,
-  //     label: `${name} (${symbol})`,
-  //   }));
-
-  //   return mappedTokens;
-  // }, [availableTokens]);
-
   const [stepValidation, setStepValidationState] = useState<StepValidation>({
     details: false,
     threshold: false,
@@ -344,6 +334,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     const chain = find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions));
     if (!chain) throw new Error('Chain not found');
 
+    // Set agreement admins based on role
+    // const agreementAdmins = data.createAgreementAdminRole ? data.agreementAdmins || [] : data.admins || [];
+    const agreementAdmins = (data.agreementAdmins || []) ?? (data.admins || []);
+
     const newValues: CouncilFormData = {
       organizationName: data.organizationName
         ? {
@@ -355,7 +349,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       chain,
       councilDescription: data.councilDescription || '',
       thresholdType: data.thresholdType || 'ABSOLUTE',
-      // confirmationsRequired: data.thresholdTarget || 4,
       target: data.thresholdTarget || 51,
       min: data.thresholdMin || 2,
       maxMembers: data.maxCouncilMembers || 7,
@@ -371,11 +364,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
       agreement: converter.makeHtml(data.agreement || ''),
       createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
-      agreementAdmins: data.agreementAdmins || [],
+      agreementAdmins,
       payer: data.payer || undefined,
       acceptedTerms: false,
       tokenRequirement: {
-        address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any, // TODO replace any, thinks it's a number
+        address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any,
         minimum: toNumber(data.tokenAmount) || 0,
       },
       creator: data.creator || '',
@@ -398,14 +391,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       completedOptionalSteps: optionalSteps,
       deployOnly: deployOnly === 'true' ? true : false,
     });
-    // deploy only == people are looking at the deploy page ONLY
-    // this would be users who are NOT the creator or a council manager (we could have an issue here if creator is a manager)
-    // do we want to have the different pages write the deployOnly flag to localStorage
-    // if details writes deployOnly = false, then the other pages would ignore and continue
-    // if loading the deploy page FIRST it would write deployOnly = true and ignore the optional
 
     setStepValidationState(validation);
-  }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
+  }, [data, form, optionalSteps]);
 
   const queryClient = useQueryClient();
 
@@ -448,7 +436,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           // If chain has changed, reset token requirements in the payload
           if (previousChain && previousChain !== newChain) {
-            logger.info('chain has changed', { previousChain, newChain });
             payload = {
               ...payload,
               tokenAddress: '',
@@ -505,6 +492,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               // need to convert html to markdown before pinning
               const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
 
+              // Always send the current agreementAdmins list
               payload = {
                 ...payload,
                 agreement: agreementMarkdown,
@@ -518,7 +506,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               payload = {
                 ...payload,
                 tokenAddress,
-                tokenAmount: formData.tokenRequirement.minimum.toString(), // stored in string version of numeric value, convert at deploy
+                tokenAmount: formData.tokenRequirement.minimum.toString(),
                 memberRequirements: {
                   ...formData.requirements,
                   holdTokens: true,

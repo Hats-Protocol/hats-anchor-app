@@ -26,9 +26,7 @@ export default function OrganizationPage() {
   const router = useRouter();
   const organizationName = params.organizationName as string;
 
-  logger.info('organizationName', organizationName);
   const { data: organization, isLoading, error } = useOrganization(organizationName);
-  logger.info('organization', organization);
 
   interface ErrorPageProps {
     title: string;

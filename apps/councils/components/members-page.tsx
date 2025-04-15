@@ -127,8 +127,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
     enabled: !!councilDetails?.id && !!chainId,
   });
 
-  logger.info('offchainCouncilData', offchainCouncilData);
-
   useAuthGuard();
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
@@ -180,7 +178,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
       func: addAccount as ModuleFunction,
       args: { Account: user.address },
       onSuccess: () => {
-        logger.info('added user to council');
         setIsLoading(false);
         // TODO close modal
         setModals?.({});

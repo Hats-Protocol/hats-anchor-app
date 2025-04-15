@@ -2,7 +2,7 @@
 
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
-import { Modal, useCouncilForm, useOverlay } from 'contexts';
+import { useCouncilForm } from 'contexts';
 import { AddressInput, Form, Input } from 'forms';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -12,23 +12,26 @@ import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
 
-interface AddAgreementAdminModalProps {
-  form: UseFormReturn<CouncilFormData>;
+interface AddAgreementAdminFormProps {
+  parentForm: UseFormReturn<CouncilFormData>;
   editingAdmin?: CouncilMember | null;
   canEdit?: boolean;
+  onClose?: () => void;
+  className?: string;
 }
 
-export function AddAgreementAdminModal({
-  form: parentForm,
+export function AddAgreementAdminForm({
+  parentForm,
   editingAdmin,
   canEdit = true,
-}: AddAgreementAdminModalProps) {
+  onClose,
+  className,
+}: AddAgreementAdminFormProps) {
   const selectedChain = parentForm.watch('chain')?.value;
   const { getAccessToken } = usePrivy();
   const chainId = getChainId(selectedChain);
-  const { modals, setModals } = useOverlay();
   const { persistForm } = useCouncilForm();
-  const modalForm = useForm({
+  const form = useForm({
     defaultValues: {
       address: editingAdmin?.address || '',
       email: editingAdmin?.email || '',
@@ -39,7 +42,7 @@ export function AddAgreementAdminModal({
   const [formError, setFormError] = useState<string | null>(null);
 
   const isFormValid = () => {
-    const values = modalForm.getValues();
+    const values = form.getValues();
     return isAddress(values.address) && isValidEmail(values.email);
   };
 
@@ -101,92 +104,88 @@ export function AddAgreementAdminModal({
       persistForm('selection', 'agreement');
 
       setFormError(null);
-      modalForm.reset();
-      setModals?.({});
+      form.reset();
+      onClose?.();
     } catch (error) {
       setFormError('Failed to save user. Please try again.');
       logger.error('Error saving user:', error);
     }
   };
 
-  const handleClose = () => {
-    setModals?.({});
-  };
-
   useEffect(() => {
-    if (modals?.addAgreementAdminModal) {
-      setFormError(null);
-      modalForm.reset({
-        address: editingAdmin?.address || '',
-        email: editingAdmin?.email || '',
-        name: editingAdmin?.name || '',
-      });
-    }
-  }, [modals?.addAgreementAdminModal, editingAdmin, modalForm]);
+    setFormError(null);
+    form.reset({
+      address: editingAdmin?.address || '',
+      email: editingAdmin?.email || '',
+      name: editingAdmin?.name || '',
+    });
+  }, [editingAdmin, form]);
 
   return (
-    <Modal
-      name={`addAgreementAdminModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
-      title={editingAdmin ? 'Edit Agreement Manager' : 'Add Agreement Manager'}
-      onClose={handleClose}
-      size='lg'
-    >
-      <Form {...modalForm}>
-        <form onSubmit={modalForm.handleSubmit(handleSubmit)} className='py-8'>
-          <div className='space-y-6'>
-            <div className='space-y-2'>
-              <AddressInput
-                name='address'
-                label={`${chainsMap(chainId).name} Account`}
-                variant='councils'
-                localForm={modalForm}
-                hideAddressButtons
-                chainId={chainId}
-                isDisabled={!canEdit}
-              />
-            </div>
-
-            <div className='space-y-2'>
-              <Input
-                name='email'
-                label='Email Address'
-                labelNote='Hidden'
-                variant='councils'
-                localForm={modalForm}
-                placeholder='Email that receives the invite'
-                isDisabled={!canEdit}
-                options={{
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                }}
-              />
-            </div>
-
-            <div className='space-y-2'>
-              <Input
-                name='name'
-                label='Name'
-                labelNote='Optional'
-                variant='councils'
-                localForm={modalForm}
-                placeholder='Alias or name'
-                isDisabled={!canEdit}
-              />
-            </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className={className}>
+        <div className='space-y-6'>
+          <div className='space-y-2'>
+            <AddressInput
+              name='address'
+              label={`${chainsMap(chainId).name} Account`}
+              variant='councils'
+              localForm={form}
+              hideAddressButtons
+              chainId={chainId}
+              isDisabled={!canEdit}
+            />
           </div>
 
-          <div className='mt-8'>
-            {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
-            <div className='flex justify-end'>
-              <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
-                {editingAdmin ? 'Save Changes' : 'Add Manager'}
-              </NextStepButton>
-            </div>
+          <div className='space-y-2'>
+            <Input
+              name='email'
+              label='Email Address'
+              labelNote='Hidden'
+              variant='councils'
+              localForm={form}
+              placeholder='Email that receives the invite'
+              isDisabled={!canEdit}
+              options={{
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address',
+                },
+              }}
+            />
           </div>
-        </form>
-      </Form>
-    </Modal>
+
+          <div className='space-y-2'>
+            <Input
+              name='name'
+              label='Name'
+              labelNote='Optional'
+              variant='councils'
+              localForm={form}
+              placeholder='Alias or name'
+              isDisabled={!canEdit}
+            />
+          </div>
+        </div>
+
+        <div className='mt-8'>
+          {formError && <p className='mb-4 text-sm text-red-500'>{formError}</p>}
+          <div className='flex justify-end gap-4'>
+            {onClose && (
+              <button
+                type='button'
+                onClick={onClose}
+                className='rounded-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100'
+              >
+                Cancel
+              </button>
+            )}
+            <NextStepButton type='submit' disabled={!canEdit || !isFormValid()} withIcon={false}>
+              {editingAdmin ? 'Save Changes' : 'Add Manager'}
+            </NextStepButton>
+          </div>
+        </div>
+      </form>
+    </Form>
   );
 }

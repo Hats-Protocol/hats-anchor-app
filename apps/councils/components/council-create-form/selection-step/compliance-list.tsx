@@ -1,73 +1,66 @@
 'use client';
 
-import { useOverlay } from 'contexts';
-import { SquarePen, Trash2 } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember } from 'types';
-import { MemberAvatar } from 'ui';
+import { Skeleton } from 'ui';
 
-import { AddComplianceModal } from './add-compliance-modal';
+import { AdminCard } from './admin-card';
 
 type ComplianceListProps = {
   complianceAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
+  canDelete?: boolean;
+  showButtons?: boolean;
+  onEdit?: (admin: CouncilMember) => void;
+  loading?: boolean;
 };
 
-export function ComplianceList({ complianceAdmins, form, canEdit = true }: ComplianceListProps) {
+export function ComplianceList({
+  complianceAdmins,
+  form,
+  canEdit = true,
+  canDelete = true,
+  showButtons = true,
+  onEdit,
+  loading = false,
+}: ComplianceListProps) {
+  if (loading) {
+    return (
+      <div className='space-y-4'>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className='flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <Skeleton className='h-10 w-10 rounded-full' />
+              <div className='space-y-2'>
+                <Skeleton className='h-4 w-32' />
+                <Skeleton className='h-3 w-24' />
+              </div>
+            </div>
+            <div className='flex items-center gap-3'>
+              <Skeleton className='h-10 w-20 rounded-full' />
+              <Skeleton className='h-10 w-10 rounded-full' />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className='space-y-4'>
       {complianceAdmins.map((admin) => (
-        <ComplianceCard key={admin.id} admin={admin} canEdit={canEdit} form={form} />
+        <AdminCard
+          key={admin.id}
+          admin={admin}
+          form={form}
+          formField='complianceAdmins'
+          canEdit={canEdit}
+          canDelete={canDelete}
+          showButtons={showButtons}
+          onEdit={onEdit}
+        />
       ))}
     </div>
-  );
-}
-
-function ComplianceCard({
-  admin,
-  canEdit = true,
-  form,
-}: {
-  admin: CouncilMember;
-  canEdit?: boolean;
-  form: UseFormReturn<CouncilFormData>;
-}) {
-  const { setModals } = useOverlay();
-  const handleEdit = () => {
-    setModals?.({ [`addComplianceModal-${admin.id}`]: true });
-  };
-
-  const handleRemove = () => {
-    const currentAdmins = form.getValues('complianceAdmins') || [];
-    const updatedAdmins = currentAdmins.filter((a: CouncilMember) => a.id !== admin.id);
-    form.setValue('complianceAdmins', updatedAdmins);
-  };
-
-  return (
-    <>
-      <div className='flex items-center justify-between'>
-        <MemberAvatar member={admin} />
-
-        {canEdit && (
-          <div className='flex items-center gap-3'>
-            <button
-              type='button'
-              className='text-functional-link-primary hover:text-functional-link-primary/70 flex items-center gap-1.5 text-sm font-medium'
-              onClick={handleEdit}
-            >
-              <SquarePen className='h-4 w-4' />
-              Edit
-            </button>
-
-            <button type='button' onClick={handleRemove} className='text-destructive hover:text-destructive/70'>
-              <Trash2 className='text-destructive h-4 w-4' />
-            </button>
-          </div>
-        )}
-      </div>
-
-      <AddComplianceModal form={form} editingAdmin={admin} canEdit={canEdit} />
-    </>
   );
 }

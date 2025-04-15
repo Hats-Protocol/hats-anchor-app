@@ -115,7 +115,6 @@ const CouncilHeaderCard = ({
     return <Skeleton className='bg-functional-link-primary/10 mx-auto flex min-h-[125px] w-full rounded-lg p-4' />;
   }
 
-  logger.info('isCouncilsPage', isCouncilsPage);
   return (
     <div
       className={cn(
