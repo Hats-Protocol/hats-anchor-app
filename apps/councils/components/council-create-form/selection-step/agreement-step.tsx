@@ -156,14 +156,34 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       label: 'Agreement',
       icon: FileText as IconType,
       description: existingAgreement.councilName,
+      onSelect: () => {
+        setSelectedOption('existing');
+        form.setValue('agreement', existingAgreement.agreement);
+      },
     })),
     {
-      value: '',
+      value: 'new',
       label: 'Create a new Agreement for this Council',
       icon: FilePlus as IconType,
       description: 'Write an agreement and select who controls it',
+      onSelect: () => {
+        setSelectedOption('new');
+        // Only reset if switching from an existing agreement
+        if (selectedOption === 'existing') {
+          form.setValue('agreement', '');
+        }
+      },
     },
   ];
+
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const currentAgreement = form.getValues('agreement');
+    // Check if the current agreement matches any existing ones
+    return existingAgreements?.some((existing) => existing.agreement === currentAgreement) ? 'existing' : 'new';
+  });
+
+  // Determine which radio option should be selected based on agreement value
+  const selectedAgreementOption = selectedOption;
 
   // Create radio options for agreement managers
   const agreementManagerOptions = [
@@ -190,17 +210,6 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
       onSelect: () => form.setValue('agreementAdmins', []),
     },
   ];
-
-  // When agreement text matches an existing option, select that radio option
-  useEffect(() => {
-    const selectedOption = form.watch('agreement');
-    const matchingOption = agreementOptions.find((option) => option.value && option.value === agreement);
-
-    // Only update if we find a match and it's different from current selection
-    if (matchingOption && selectedOption !== matchingOption.value) {
-      form.setValue('agreement', matchingOption.value, { shouldDirty: false });
-    }
-  }, [agreement, agreementOptions, form]);
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);
@@ -238,7 +247,13 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
               </div>
             </div>
 
-            <RadioCard name='agreement' localForm={form} options={agreementOptions} isDisabled={!canEdit} />
+            <RadioCard
+              name='agreementType'
+              localForm={form}
+              options={agreementOptions}
+              isDisabled={!canEdit}
+              defaultValue={selectedOption}
+            />
           </div>
 
           <div className='space-y-4'>
@@ -255,7 +270,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
             <MarkdownEditor
               name='agreement'
               localForm={form}
-              isDisabled={!canEdit || !!agreementOptions.find((opt) => opt.value === agreement)?.value}
+              // isDisabled={!canEdit || selectedOption === 'existing'}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
               existingAgreements={(existingAgreements || []).map(({ agreement, councilName }: GroupedAgreement) => ({
                 agreement,
