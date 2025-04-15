@@ -9,6 +9,7 @@ import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 import { CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
+import { logger } from 'utils';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -31,9 +32,12 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
 
   const requirements = form.watch('requirements');
   const agreementAdmins = form.watch('agreementAdmins') || [];
+  logger.info('agreementAdmins', agreementAdmins);
   const createAgreementAdminRole = form.watch('createAgreementAdminRole');
+  logger.info('createAgreementAdminRole', createAgreementAdminRole);
   // const admins = form.watch('admins') || []; // Don't think we need this anymore, but leaving here until the permissions are tested in QA
   const agreement = form.watch('agreement');
+  logger.info('agreement', agreement);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'agreement', requirements);
 

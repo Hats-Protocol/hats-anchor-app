@@ -63,11 +63,25 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
 
-  const { watch, handleSubmit, reset } = localForm;
+  const { watch, handleSubmit, reset, setValue } = localForm;
   const requirements = watch('requirements');
 
   // watch the organization name value for logging
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
+
+  // get initial chain value based on org when org is pre-selected (WIP)
+  const initialChainValue = useMemo(() => {
+    if (!initialOrgValue || !organizationsData?.organizations) return chainOptions[0];
+
+    const selectedOrg = organizationsData.organizations.find((org) => org.name === initialOrgValue.value);
+
+    if (selectedOrg?.councils?.[0]) {
+      const chainOption = chainOptions.find((option) => Number(option.value) === selectedOrg.councils[0].chain);
+      return chainOption || chainOptions[0];
+    }
+
+    return chainOptions[0];
+  }, [initialOrgValue, organizationsData]);
 
   // update chain when organization changes
   useEffect(() => {
