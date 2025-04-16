@@ -76,6 +76,12 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
           <p className='text-sm'>Add the initial members of your council. You can add or remove members later.</p>
         </div>
 
+        {isLoadingList && !members.length && (
+          <div className='space-y-6'>
+            <MembersList members={[]} form={form} canEdit={canEdit} onEdit={() => null} loading={true} />
+          </div>
+        )}
+
         {members.length > 0 && (
           <div className='space-y-6'>
             {members.map((member) => (
@@ -88,7 +94,7 @@ export function SelectionMembersStep({ onNext, draftId }: StepProps) {
                     setEditingMember(member);
                     setShowAddForm(false);
                   }}
-                  loading={isLoadingList}
+                  loading={false}
                 />
                 {editingMember?.address === member.address && (
                   <div className='-mx-16 mt-4 border-b border-gray-200'>

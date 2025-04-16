@@ -77,6 +77,12 @@ export function SelectionManagementStep({ onNext }: StepProps) {
           </p>
         </div>
 
+        {isLoadingList && !admins.length && (
+          <div>
+            <AdminsList name='admins' admins={[]} form={form} canEdit={canEdit} onEdit={() => null} loading={true} />
+          </div>
+        )}
+
         {admins.length > 0 && (
           <div>
             <AdminsList
