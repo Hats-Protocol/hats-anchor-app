@@ -5,7 +5,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import {
   useAuthGuard,
   useCrossChainAllowlist,
-  useCrossChainCouncilsList,
+  useCrossChainCouncilsListOld,
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
@@ -19,6 +19,8 @@ import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { CouncilHeaderCard } from './council-header';
+
+// ! DEPRECATED
 
 const EMPTY_COUNCIL_STEPS = [
   { title: 'Create a Council for your DAO' },
@@ -77,7 +79,7 @@ const CouncilListPage = () => {
 
   // use real councils data directly from all chains
 
-  const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsList({
+  const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsListOld({
     hatIds: processedHatIds ?? [],
   });
 

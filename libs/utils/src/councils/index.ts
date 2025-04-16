@@ -4,6 +4,7 @@ import { getAddress, Hex } from 'viem';
 
 import { chainStringToId } from '../chains';
 import { GET_COUNCIL_BY_HSG, getCouncilsGraphqlClient } from '../councils-gql';
+import { logger } from '../logs';
 
 const checkChainId = (chain: string) => {
   const attemptNumber = toNumber(chain);
@@ -43,10 +44,10 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
-    // TODO check isAddress first here - https://hats-protocol.sentry.io/issues/6311299196
     try {
       return { chainId: checkChainId(chain), address: getAddress(address) };
     } catch (error) {
+      logger.error('Error parsing council slug', error);
       return { chainId: checkChainId(chain), address };
     }
   }
@@ -58,10 +59,10 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
-    // TODO check isAddress first here - https://hats-protocol.sentry.io/issues/6311299196
     try {
       return { chainId: checkChainId(chain), address: getAddress(address) };
     } catch (error) {
+      logger.error('Error parsing council slug', error);
       return { chainId: checkChainId(chain), address };
     }
   }
@@ -87,12 +88,12 @@ export const getAllWearers = (offchainCouncilDetails: OffchainCouncilData | unde
 
 export const getOffchainCouncilData = async ({
   hsg,
-  safe,
+  // safe,
   chainId,
   accessToken,
 }: {
   hsg?: string;
-  safe?: string;
+  // safe?: string;
   chainId: number | undefined;
   accessToken: string | null;
 }): Promise<OffchainCouncilData | null> => {
@@ -134,7 +135,7 @@ export const getBatchOffchainCouncilData = async ({
     }>(GET_COUNCIL_BY_HSG, { hsg: council.hsg, chainId: council.chainId })
     .then((data) => get(data, 'councils[0]', null))
     .catch((error) => {
-      console.error('Error fetching offchain council data', error);
+      logger.error('Error fetching offchain council data', error);
       return null;
     });
 };

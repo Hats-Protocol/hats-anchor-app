@@ -1,7 +1,7 @@
 'use client';
 import { useOrganization } from 'hooks';
-import { useParams, useRouter } from 'next/navigation';
-import { Alert, AlertDescription, AlertTitle, HatDeco, Skeleton } from 'ui';
+import { useParams } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle, HatDeco, Link, Skeleton } from 'ui';
 import { chainIdToString } from 'utils';
 import { getAddress } from 'viem';
 
@@ -22,7 +22,6 @@ const LoadingSkeleton = () => {
 
 export default function OrganizationPage() {
   const params = useParams();
-  const router = useRouter();
   const organizationName = params.organizationName as string;
 
   const { data: organization, isLoading, error } = useOrganization(organizationName);
@@ -65,13 +64,13 @@ export default function OrganizationPage() {
     <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-6 md:gap-8 md:px-10'>
       <div className='flex flex-col gap-2 md:gap-4'>
         {organization.councils.map((item) => (
-          <button
+          <Link
             key={item.id}
-            className='w-full text-left hover:opacity-80'
-            onClick={() => router.push(`/councils/${chainIdToString(item.chain)}:${getAddress(item.hsg)}/members`)}
+            className='hover:text-foreground/80 w-full text-left text-inherit hover:opacity-80'
+            href={`/councils/${chainIdToString(item.chain)}:${getAddress(item.hsg)}/members`}
           >
-            <CouncilHeaderCard chainId={item.chain} address={getAddress(item.hsg)} />
-          </button>
+            <CouncilHeaderCard chainId={item.chain} address={getAddress(item.hsg)} withLinks={false} />
+          </Link>
         ))}
         <div className='mb-6 flex justify-center'>
           <AddCouncilButton organizationName={organization.name} />

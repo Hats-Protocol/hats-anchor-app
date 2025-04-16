@@ -10,7 +10,7 @@ import {
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
-import { flatten, groupBy, isEmpty, map, orderBy, uniq } from 'lodash';
+import { concat, groupBy, isEmpty, map, orderBy, reject } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { HatSignerGateV2 } from 'types';
@@ -38,49 +38,30 @@ const CouncilListPageOrgs = () => {
   const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 
   // fetch user's hats across all chains
-
   const { data: crossChainWearerHats, isLoading: crossChainWearerHatsLoading } = useCrossChainWearer({
     wearerAddress: isAuthorized ? (userAddress as Hex) : undefined,
   });
-
-  // get all wearer hat IDs from each chain's currentHats array
-  const wearerHatIds =
-    !crossChainWearerHatsLoading && crossChainWearerHats
-      ? flatten(
-          Object.values(crossChainWearerHats)
-            .filter(Boolean)
-            .map((chainData) => (chainData as { currentHats?: { id: string }[] }).currentHats || []),
-        ).map((hat) => hat.id)
-      : [];
 
   const { data: crossChainAllowlistHats, isLoading: crossChainAllowlistHatsLoading } = useCrossChainAllowlist({
     address: userAddress,
   });
 
-  // get all allowlist hat IDs from each chain's eligibilities array
-  const allowlistHatIds =
-    !crossChainAllowlistHatsLoading && crossChainAllowlistHats
-      ? flatten(
-          Object.entries(crossChainAllowlistHats || {})
-            .filter(([key]) => key.endsWith('_allowListEligibilities'))
-            .map(([_, chainData]) => chainData as string[]),
-        )
-      : [];
-
-  // combine both arrays and ensure uniqueness
-  const combinedHats =
-    !crossChainWearerHatsLoading && !crossChainAllowlistHatsLoading ? uniq([...wearerHatIds, ...allowlistHatIds]) : [];
-
-  // process hat IDs to ensure we only have strings since each response format is slightly different
-  const processedHatIds = combinedHats.map((id: string | { hatId: string }) => {
-    if (typeof id === 'string') return id as `0x${string}`;
-    if (typeof id === 'object' && 'hatId' in id) return id.hatId as `0x${string}`;
-    return id as `0x${string}`;
-  });
+  // breakdown wearer hats by network, only need ID for each hat
+  const hatIdsByNetwork = Object.entries(crossChainWearerHats || {}).reduce(
+    (acc, [key, value]) => {
+      const prefix = key.split('_')[0];
+      acc[prefix] = concat(
+        value.currentHats?.map((hat) => hat.id) || [],
+        map(crossChainAllowlistHats?.[prefix], 'hatId') || [],
+      );
+      return acc;
+    },
+    {} as Record<string, string[]>,
+  );
 
   // use real councils data directly from all chains
-  const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsList({
-    hatIds: processedHatIds ?? [],
+  const { councilsList, isLoading: councilsLoading } = useCrossChainCouncilsList({
+    hatIdsByNetwork,
   });
 
   // Create mapping from prefix to chain ID
@@ -88,7 +69,7 @@ const CouncilListPageOrgs = () => {
     () =>
       Object.entries(NETWORKS_PREFIX).reduce(
         (acc, [chainId, prefix]) => {
-          acc[`${prefix}_hatsSignerGateV2S`] = Number(chainId);
+          acc[prefix] = Number(chainId);
           return acc;
         },
         {} as Record<string, number>,
@@ -99,8 +80,8 @@ const CouncilListPageOrgs = () => {
   // Create a flat list of councils with their chain IDs
   const councilsWithChains = useMemo(
     () =>
-      !isEmpty(crossChainCouncils)
-        ? Object.entries(crossChainCouncils || {})
+      !isEmpty(councilsList)
+        ? Object.entries(councilsList || {})
             .filter(([_, councils]) => !isEmpty(councils))
             .flatMap(([key, councils]) => {
               const chainId = prefixToChainId[key];
@@ -111,7 +92,7 @@ const CouncilListPageOrgs = () => {
               }));
             })
         : [],
-    [crossChainCouncils, prefixToChainId],
+    [councilsList, prefixToChainId],
   );
 
   // fetch all offchain details in batch -- uses parallel react queries instead of a promise.all -- we can consider optimizing this at the Mesh level instead
@@ -120,21 +101,21 @@ const CouncilListPageOrgs = () => {
   );
 
   // combine council data with the offchain details
-  const processedCouncils = useMemo(
-    () =>
-      councilsWithChains.map((item, index) => ({
-        ...item,
-        offchainDetails: offchainDetails?.[index],
-      })),
-    [councilsWithChains, offchainDetails],
-  );
+  const processedCouncils = useMemo(() => {
+    const processedList = councilsWithChains.map((item, index) => ({
+      ...item,
+      offchainDetails: offchainDetails?.[index],
+    }));
+
+    return reject(processedList, (item) => !item.offchainDetails);
+  }, [councilsWithChains, offchainDetails]);
 
   // show loading state until EVERYTHING is ready
   const isLoading =
     !isClient ||
     !isReady ||
     !userAddress ||
-    crossChainCouncilsLoading ||
+    councilsLoading ||
     crossChainWearerHatsLoading ||
     crossChainAllowlistHatsLoading ||
     offchainDetailsLoading;
@@ -222,7 +203,7 @@ const CouncilListPageOrgs = () => {
   }
 
   // check for no data only after auth is confirmed
-  if (isEmpty(crossChainCouncils)) {
+  if (isEmpty(councilsList)) {
     return (
       <div className='relative mx-auto mt-20 flex min-h-[85vh] max-w-[1000px] flex-col gap-4 px-4 md:px-0'>
         <Card className='z-10 mx-auto w-full space-y-8 bg-white/90 px-6 py-8 md:w-[750px] md:space-y-12 md:px-20 md:py-12'>
@@ -294,11 +275,11 @@ const CouncilListPageOrgs = () => {
 
   // TODO consolidate lookups from CouncilHeader here also
 
-  if (!isEmpty(crossChainCouncils)) {
+  if (!isEmpty(councilsList)) {
     // group councils by organization and chain
     const groupedCouncils = groupBy(processedCouncils, (item) => item.offchainDetails?.organization?.name || 'Other');
 
-    // sort organizations alphabetically
+    // sort organizations alphabetically // TODO can we sort by chain first? (while we don't have multiple chains for the same org)
     const sortedOrgs = orderBy(Object.keys(groupedCouncils));
 
     return (

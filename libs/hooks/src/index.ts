@@ -11,6 +11,7 @@ export * from './use-councils-list';
 export * from './use-create-or-update-user';
 export * from './use-cross-chain-allowlist';
 export * from './use-cross-chain-councils-list';
+export * from './use-cross-chain-councils-list-old';
 export * from './use-cross-chain-wearer';
 export * from './use-debounce';
 export * from './use-deep-compare-effect';
