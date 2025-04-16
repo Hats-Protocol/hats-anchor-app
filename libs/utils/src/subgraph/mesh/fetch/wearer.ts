@@ -15,7 +15,6 @@ import {
 import { getCrossChainAllowlistEligibilitiesQuery } from '../queries';
 import { parseMetadata } from './utils';
 
-// eslint-disable-next-line import/prefer-default-export
 export const fetchWearerDetailsMesh = async (address: Hex | string | undefined, chainId: number | undefined) => {
   if (!address || !chainId) return undefined;
   let wearer: Wearer | undefined;
@@ -70,7 +69,6 @@ export const fetchWearerTrees = async ({
 
     const query = getWearerTreesQuery(chainId);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const res: unknown = await client.request(query, {
       id: wearer.toLowerCase(),
     });

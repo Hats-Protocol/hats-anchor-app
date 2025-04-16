@@ -2648,6 +2648,35 @@ export const CHAIN_TOKENS: ChainTokens = {
       logoURI: 'ipfs://QmSoQXLiumcPMJAAtNPgi1LqovgYcAU9Yr2NUujQeWGjrK',
     },
   ],
+  42220: [
+    {
+      chainId: 42220,
+      address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+      symbol: 'USDC',
+      name: 'USD Coin',
+      decimals: 6,
+      logoURI: 'ipfs://QmTjYxAeRZgK56Nm1wtAGBptbRndL9L2NqkRS3pMgiLDY9',
+    },
+  ],
+  // TESTNETS
+  84532: [
+    {
+      chainId: 84532,
+      address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+      symbol: 'USDC',
+      name: 'USD Coin',
+      decimals: 6,
+      logoURI: 'ipfs://QmTjYxAeRZgK56Nm1wtAGBptbRndL9L2NqkRS3pMgiLDY9',
+    },
+    {
+      chainId: 84532,
+      address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+      symbol: 'WETH',
+      name: 'Wrapped Ether',
+      decimals: 18,
+      logoURI: 'ipfs://QmPt2DEXhRSvbbFQep44XXtcKxRscshsijJ47Y1xUQwBZ1',
+    },
+  ],
   11155111: [
     {
       chainId: 11155111,

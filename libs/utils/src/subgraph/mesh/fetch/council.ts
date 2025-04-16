@@ -4,7 +4,6 @@ import { HatSignerGateV2 } from 'types';
 import { logger } from '../../../logs';
 import { getCrossChainCouncilsListDataQuery, getCrossChainCouncilsListDataQueryDynamic } from '../queries';
 
-// TODO: Add Eth_hatsSignerGateV2S back in once subgraph issue is resolved
 interface CrossChainCouncilsResponse {
   Eth_hatsSignerGateV2S: HatSignerGateV2[];
   Sep_hatsSignerGateV2S: HatSignerGateV2[];
@@ -17,6 +16,7 @@ interface CrossChainCouncilsResponse {
   Pol_hatsSignerGateV2S: HatSignerGateV2[];
 }
 
+// TODO should take in hatIds per network
 export const getCrossChainCouncilsListData = async (hatIds?: string[], useDynamicQuery = false) => {
   if (!hatIds?.length) return null;
 
