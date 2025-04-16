@@ -4,9 +4,9 @@ import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { useCouncilDeployFlag, useOrganization } from 'hooks';
 import { FilePlus, GemIcon } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IconType } from 'react-icons/lib';
-import { StepProps } from 'types';
+import { CouncilFormData, StepProps } from 'types';
 import { Skeleton } from 'ui';
 import { logger } from 'utils';
 
@@ -32,7 +32,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
     organization?.councils?.reduce<
       Array<{
         councilName: string;
-        tokenAmount: string;
+        minimum: string;
         tokenAddress: string;
       }>
     >((acc, council) => {
@@ -41,7 +41,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
           ...acc,
           {
             councilName: council.creationForm.councilName || '',
-            tokenAmount: council.creationForm.tokenAmount,
+            minimum: council.creationForm.tokenAmount,
             tokenAddress: council.creationForm.tokenAddress,
           },
         ];
@@ -49,60 +49,58 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
       return acc;
     }, []) || [];
 
+  // Initialize selected option based on current token requirement
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const currentTokenAddress = form.getValues('tokenRequirement.address.value');
+    const currentMinimum = form.getValues('tokenRequirement.minimum');
+
+    return existingTokenRequirements.some(
+      (req) => req.tokenAddress === currentTokenAddress && req.minimum === currentMinimum?.toString(),
+    )
+      ? 'existing'
+      : 'new';
+  });
+
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = [
     ...existingTokenRequirements.map((requirement) => {
       const token = availableTokens.find((t) => t.address === requirement.tokenAddress);
       return {
         value: requirement.tokenAddress,
-        label: `Hold ${requirement.tokenAmount} ${token?.symbol || 'tokens'}`,
+        label: `Hold ${requirement.minimum} ${token?.symbol || 'tokens'}`,
         icon: GemIcon as IconType,
         description: requirement.councilName,
+        onSelect: () => {
+          setSelectedOption('existing');
+          form.setValue('tokenRequirement.minimum', parseInt(requirement.minimum));
+          form.setValue('tokenRequirement.address.value', requirement.tokenAddress);
+        },
       };
     }),
     {
-      value: '',
+      value: 'new',
       label: 'Create a new Token Limit',
       icon: FilePlus as IconType,
       description: 'Specify an amount of coins Council Members need to hold',
+      onSelect: () => {
+        setSelectedOption('new');
+        // Only reset if switching from an existing requirement
+        if (selectedOption === 'existing') {
+          form.setValue('tokenRequirement.minimum', 0);
+          form.setValue('tokenRequirement.address.value', '');
+        }
+      },
     },
   ];
 
-  // Watch the radio selection value
-  const selectedPresetAddress = form.watch('tokenRequirement.address.value');
-  const prevPresetRef = useRef(selectedPresetAddress);
-
-  // Handle only preset selection changes
-  useEffect(() => {
-    if (selectedPresetAddress === prevPresetRef.current) {
-      return;
-    }
-
-    prevPresetRef.current = selectedPresetAddress;
-
-    // Reset when selecting "Create new"
-    if (selectedPresetAddress === '') {
-      form.setValue('tokenRequirement.minimum', 0);
-      form.setValue('tokenRequirement.address', undefined);
-      return;
-    }
-
-    // Only update on preset selection
-    const requirement = existingTokenRequirements.find((req) => req.tokenAddress === selectedPresetAddress);
-    const token = availableTokens.find((t) => t.address === selectedPresetAddress);
-
-    if (requirement && token) {
-      form.setValue('tokenRequirement.minimum', Number(requirement.tokenAmount));
-      form.setValue('tokenRequirement.address', {
-        value: token.address,
-        label: `${token.name} (${token.symbol})`,
-      });
-    }
-  }, [selectedPresetAddress, form, existingTokenRequirements, availableTokens]);
-
-  // Check if using an existing preset
-  const isUsingPreset = Boolean(
-    selectedPresetAddress && existingTokenRequirements.some((req) => req.tokenAddress === selectedPresetAddress),
+  const handleSubmit = useCallback(
+    async (data: CouncilFormData) => {
+      // set the current form values to prevent state flashing during transition
+      // data contains the latest form values at submission time (as we advance the form)
+      form.reset(data);
+      await onNext();
+    },
+    [form, onNext],
   );
 
   if (isLoading) {
@@ -111,7 +109,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
 
   return (
     <Form {...form}>
-      <form className='mx-auto flex w-full flex-col space-y-8' onSubmit={form.handleSubmit(onNext)}>
+      <form className='mx-auto flex w-full flex-col space-y-8' onSubmit={form.handleSubmit(handleSubmit)}>
         <div className='space-y-2'>
           <div className='flex items-center gap-3'>
             <GemIcon />
@@ -127,10 +125,11 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
           </div>
 
           <RadioCard
-            name='tokenRequirement.address.value'
+            name='tokenType'
             localForm={form}
             options={tokenOptions}
             isDisabled={!canEdit}
+            defaultValue={selectedOption}
           />
         </div>
 
@@ -145,7 +144,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
-              disabled={!canEdit || isUsingPreset}
+              disabled={!canEdit || selectedOption === 'existing'}
             />
           </div>
 
@@ -156,7 +155,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
               variant='councils'
               localForm={form}
               options={availableTokens}
-              isDisabled={!canEdit || isUsingPreset}
+              isDisabled={!canEdit || selectedOption === 'existing'}
             />
           </div>
         </div>
