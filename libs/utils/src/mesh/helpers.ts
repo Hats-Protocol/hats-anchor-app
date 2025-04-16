@@ -24,7 +24,6 @@ export const getCouncilData = async ({ id, chainId }: { id: string; chainId: num
   // @ts-expect-error how to catch network prefix as key?
   const result = await chain('query')({
     [`${networkPrefix}_hatsSignerGateV2S` as string]: [
-      // ts-expect-error subgraphError is not included in schema but expected by type
       { where: { or: [{ id }, { safe: id }] } },
       {
         signerHats: [{ first: 5 }, { id: true }],

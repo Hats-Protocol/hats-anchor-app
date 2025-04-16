@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
-import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
+import { chainsMap, explorerUrl, formatAddress, logger, parseCouncilSlug, slugify } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -41,6 +41,7 @@ const CouncilHeaderCard = ({
   const pathname = usePathname();
   // const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
+  const isCouncilsPage = pathname.includes('/councils/');
 
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -126,7 +127,13 @@ const CouncilHeaderCard = ({
     >
       {/* main card data/left side */}
       <div className='flex w-full flex-col gap-4 md:w-[30%] md:gap-2'>
-        <div className='text-functional-link-primary hidden text-xs uppercase md:block'>{organizationName}</div>
+        {isCouncilsPage && organizationName !== undefined ? (
+          <Link href={`/organizations/${slugify(organizationName ?? '')}`}>
+            <span className='text-functional-link-primary hidden text-sm md:block'>Back to {organizationName}</span>
+          </Link>
+        ) : (
+          <span className='text-primary hidden text-sm md:block'>{organizationName}</span>
+        )}
         <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
         <p className='hidden truncate text-sm text-black/50 md:block'>
           {offchainCouncilDescription || get(signerHatDetails, 'description')}

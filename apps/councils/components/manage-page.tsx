@@ -206,8 +206,6 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
-  logger.info('Button conditions:', { user, userIsManager, currentChainId, chainId }); /* Debug log */
-
   return (
     <div className='mx-auto flex gap-4 px-4 pt-10 lg:max-w-[1000px]'>
       <div className='hidden w-1/5 md:flex'>

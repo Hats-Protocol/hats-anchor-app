@@ -1,22 +1,32 @@
 'use client';
 
-import { useCouncilForm, useOverlay } from 'contexts';
+import { useCouncilForm } from 'contexts';
+import { useOrganization } from 'hooks';
+import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { StepProps } from 'types';
+import { CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AddAdminModal } from './add-admin-modal';
 import { AdminsList } from './admins-list';
+import { UnifiedUserForm } from './unified-user-form';
 
 export function SelectionManagementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const { setModals } = useOverlay();
-  const admins = form.watch('admins') || [];
-  const requirements = form.watch('requirements');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', requirements);
+  const organizationName = form.watch('organizationName') || '';
+  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
+  const { data: organization, isFetching } = useOrganization(orgName);
+
+  const admins = form.watch('admins') || [];
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', form.watch('requirements'));
+
+  // Show loading state during mutation or while fetching updated data
+  const isLoadingList = isMutating || (isFetching && !isLoading);
 
   if (isLoading) {
     return (
@@ -55,27 +65,49 @@ export function SelectionManagementStep({ onNext }: StepProps) {
   }
 
   return (
-    <>
-      <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
-        <h1 className='text-2xl font-bold'>Council Managers</h1>
+    <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(onNext)}>
+      <h1 className='text-2xl font-bold'>Organization Managers</h1>
 
-        <div className='space-y-8'>
-          <div className='space-y-2'>
-            <h2 className='font-bold'>Who can edit the council?</h2>
-            <p className='text-sm'>Council Members can add and remove council members and edit all Council settings.</p>
+      <div className='space-y-8'>
+        <div className='space-y-2'>
+          <h2 className='font-bold'>Who can edit the council?</h2>
+          <p className='text-sm'>
+            Organization Managers can appoint and remove Managers and Members, change all Membership Criteria and edit
+            any Safe. They can only be removed by the organization owner.
+          </p>
+        </div>
+
+        {isLoadingList && !admins.length && (
+          <div>
+            <AdminsList name='admins' admins={[]} form={form} canEdit={canEdit} onEdit={() => null} loading={true} />
           </div>
+        )}
 
-          {admins.length > 0 && (
-            <div>
-              <AdminsList name='admins' admins={admins} form={form} canEdit={canEdit} />
-            </div>
-          )}
+        {admins.length > 0 && (
+          <div>
+            <AdminsList
+              name='admins'
+              admins={admins}
+              form={form}
+              canEdit={canEdit}
+              onEdit={(admin: CouncilMember) => {
+                setEditingAdmin(admin);
+                setShowAddForm(true);
+              }}
+              loading={isLoadingList}
+            />
+          </div>
+        )}
 
+        {!showAddForm ? (
           <div className='flex items-center justify-between'>
             <Button
               variant='outline-blue'
               rounded='full'
-              onClick={() => setModals?.({ addAdminModal: true })}
+              onClick={() => {
+                setEditingAdmin(null);
+                setShowAddForm(true);
+              }}
               disabled={!canEdit}
               type='button'
             >
@@ -83,16 +115,29 @@ export function SelectionManagementStep({ onNext }: StepProps) {
               Add Council Manager
             </Button>
           </div>
-        </div>
+        ) : (
+          <div className='-mx-16 border-b border-gray-200'>
+            <UnifiedUserForm
+              parentForm={form}
+              editingUser={editingAdmin}
+              userType='admin'
+              onClose={() => {
+                setShowAddForm(false);
+                setEditingAdmin(null);
+              }}
+              canEdit={canEdit}
+              className='bg-white px-16 py-6'
+              onMutationStateChange={setIsMutating}
+            />
+          </div>
+        )}
+      </div>
 
-        <div className='flex justify-end py-6'>
-          <NextStepButton disabled={!form.formState.isValid || !canEdit}>
-            {getNextStepButtonText(nextStep)}
-          </NextStepButton>
-        </div>
-      </form>
-
-      <AddAdminModal form={form} canEdit={canEdit} />
-    </>
+      <div className='flex justify-end py-6'>
+        <NextStepButton disabled={!form.formState.isValid || !canEdit}>
+          {getNextStepButtonText(nextStep)}
+        </NextStepButton>
+      </div>
+    </form>
   );
 }

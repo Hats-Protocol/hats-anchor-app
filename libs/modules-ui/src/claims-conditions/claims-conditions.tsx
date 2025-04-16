@@ -36,8 +36,6 @@ export const EligibilityConditions = () => {
 
   const multipleModules = gt(size(flatten(eligibilityRules)), 1);
 
-  logger.debug('claims conditions', IS_CLAIMS_APP);
-
   if (multipleModules) {
     return (
       <ChainPanel

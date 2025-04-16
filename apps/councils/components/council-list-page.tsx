@@ -5,7 +5,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import {
   useAuthGuard,
   useCrossChainAllowlist,
-  useCrossChainCouncilsList,
+  useCrossChainCouncilsListOld,
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
@@ -20,22 +20,14 @@ import { useAccount } from 'wagmi';
 
 import { CouncilHeaderCard } from './council-header';
 
+// ! DEPRECATED
+
 const EMPTY_COUNCIL_STEPS = [
-  {
-    title: 'Create a Council for your DAO',
-  },
-  {
-    title: 'Share membership based access to a Safe Multisig',
-  },
-  {
-    title: 'No code set up smart contracts control membership',
-  },
-  {
-    title: 'Appoint trustworthy members & managers',
-  },
-  {
-    title: 'Deploy and manage your council for only 0.1 ETH / month',
-  },
+  { title: 'Create a Council for your DAO' },
+  { title: 'Share membership based access to a Safe Multisig' },
+  { title: 'No code set up smart contracts control membership' },
+  { title: 'Appoint trustworthy members & managers' },
+  { title: 'Deploy and manage your council for only 299 USDC / month' },
 ];
 
 const CouncilListPage = () => {
@@ -87,7 +79,7 @@ const CouncilListPage = () => {
 
   // use real councils data directly from all chains
 
-  const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsList({
+  const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsListOld({
     hatIds: processedHatIds ?? [],
   });
 

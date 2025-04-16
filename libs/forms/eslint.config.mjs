@@ -1,4 +1,5 @@
 import reactPlugin from 'eslint-plugin-react';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
 import baseConfig from '../../eslint.config.mjs';
@@ -6,6 +7,7 @@ import baseConfig from '../../eslint.config.mjs';
 export default [
   ...baseConfig,
   reactPlugin.configs.flat.recommended,
+  reactHooksPlugin.configs['recommended-latest'],
   {
     files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
     plugins: { react: reactPlugin },

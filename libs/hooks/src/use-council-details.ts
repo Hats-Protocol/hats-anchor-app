@@ -13,12 +13,12 @@ const fetchCouncilDetails = async ({
   if (!address || !chainId) return Promise.resolve(null);
   const councilData = await getCouncilData({ id: toLower(address), chainId });
   const hatsIds = compact(concat(map(get(councilData, 'signerHats'), 'id'), [get(councilData, 'ownerHat.id')]));
-  logger.info('hatsIds', hatsIds);
+
   const hatsDetails = await getHatsDetails({
     ids: hatsIds,
     chainId,
   });
-  logger.info('hatsDetails', hatsDetails);
+
   const signerHats = compact(map(get(councilData, 'signerHats'), (hat) => find(hatsDetails, { id: get(hat, 'id') })));
   const ownerHat = find(hatsDetails, { id: get(councilData, 'ownerHat.id') });
 

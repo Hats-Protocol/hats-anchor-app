@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { composePlugins, withNx } from '@nx/next';
 import { withSentryConfig } from '@sentry/nextjs';
 
@@ -50,6 +49,7 @@ const nextConfig = {
       'viem',
     ],
   },
+  serverExternalPackages: ['require-in-the-middle'],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'i.seadn.io' },

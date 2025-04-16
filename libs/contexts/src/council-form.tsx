@@ -35,7 +35,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useToast, useWaitForSubgraph } from 'hooks';
 import { find, first, get, map, toNumber, toString, values } from 'lodash';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -59,6 +59,7 @@ import {
   GET_COUNCIL_FORM,
   getCouncilsGraphqlClient,
   logger,
+  ORGANIZATION_BY_NAME_QUERY,
   pinFileToIpfs,
   // sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
@@ -182,6 +183,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { data: walletClient } = useWalletClient();
   const { handlePendingTx } = useOverlay();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [optionalSteps, setOptionalSteps] = useLocalStorage<CompletedOptionalSteps>(`${draftId}-optionalSteps`, {
     threshold: false,
     members: false,
@@ -190,9 +192,18 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     compliance: false,
   });
 
+  // Get organizationName from URL if it exists
+  const orgNameFromUrl = searchParams.get('organizationName');
+  const initialOrgName = orgNameFromUrl
+    ? {
+        value: decodeURIComponent(orgNameFromUrl),
+        label: decodeURIComponent(orgNameFromUrl),
+      }
+    : '';
+
   const form = useForm<CouncilFormData>({
     defaultValues: {
-      organizationName: '',
+      organizationName: initialOrgName,
       councilName: '',
       chain: first(chainOptions),
       councilDescription: '',
@@ -228,16 +239,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { toast } = useToast();
 
   const availableTokens = useMemo(() => getChainTokens(chainId as number), [chainId]);
-
-  // const mappedTokens = useMemo(() => {
-  //   logger.info('mappedTokens useMemo', { availableTokens });
-  //   const mappedTokens = map(availableTokens, ({ address, name, symbol }) => ({
-  //     value: address,
-  //     label: `${name} (${symbol})`,
-  //   }));
-
-  //   return mappedTokens;
-  // }, [availableTokens]);
 
   const [stepValidation, setStepValidationState] = useState<StepValidation>({
     details: false,
@@ -305,6 +306,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   // Check if user can edit the form
   useEffect(() => {
+    console.log({ authenticated, user, data });
     if (!authenticated || !user?.wallet?.address || !data) {
       setCanEdit(false);
       return;
@@ -313,9 +315,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     const userAddress = user.wallet.address.toLowerCase();
     const isCreator = data.creator?.toLowerCase() === userAddress;
     const isAdmin = data.admins?.some((admin) => admin.address.toLowerCase() === userAddress);
+    console.log({ isCreator, isAdmin });
 
     setCanEdit(isCreator || isAdmin);
   }, [authenticated, user?.wallet?.address, data]);
+  console.log({ canEdit });
 
   useEffect(() => {
     if (!data || !optionalSteps || !chainId) return;
@@ -334,13 +338,21 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     const chain = find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions));
     if (!chain) throw new Error('Chain not found');
 
+    // Set agreement admins based on role
+    // const agreementAdmins = data.createAgreementAdminRole ? data.agreementAdmins || [] : data.admins || [];
+    const agreementAdmins = (data.agreementAdmins || []) ?? (data.admins || []);
+
     const newValues: CouncilFormData = {
-      organizationName: data.organizationName || '',
+      organizationName: data.organizationName
+        ? {
+            value: data.organizationName,
+            label: data.organizationName,
+          }
+        : '',
       councilName: data.councilName || '',
       chain,
       councilDescription: data.councilDescription || '',
       thresholdType: data.thresholdType || 'ABSOLUTE',
-      // confirmationsRequired: data.thresholdTarget || 4,
       target: data.thresholdTarget || 51,
       min: data.thresholdMin || 2,
       maxMembers: data.maxCouncilMembers || 7,
@@ -356,7 +368,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
       agreement: converter.makeHtml(data.agreement || ''),
       createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
-      agreementAdmins: data.agreementAdmins || [],
+      agreementAdmins,
       payer: data.payer || undefined,
       acceptedTerms: false,
       tokenRequirement: {
@@ -384,14 +396,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       completedOptionalSteps: optionalSteps,
       deployOnly: deployOnly === 'true' ? true : false,
     });
-    // deploy only == people are looking at the deploy page ONLY
-    // this would be users who are NOT the creator or a council manager (we could have an issue here if creator is a manager)
-    // do we want to have the different pages write the deployOnly flag to localStorage
-    // if details writes deployOnly = false, then the other pages would ignore and continue
-    // if loading the deploy page FIRST it would write deployOnly = true and ignore the optional
 
     setStepValidationState(validation);
-  }, [data, form, optionalSteps]); // TODO adding mappedTokens here causes an issue with selecting the chain in the details step
+  }, [data, form, optionalSteps]);
 
   const queryClient = useQueryClient();
 
@@ -423,7 +430,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           payload = {
             ...payload,
-            organizationName: formData.organizationName,
+            organizationName:
+              typeof formData.organizationName === 'object'
+                ? formData.organizationName.value
+                : formData.organizationName,
             councilName: formData.councilName,
             chain: toNumber(formData.chain.value),
             councilDescription: formData.councilDescription,
@@ -431,7 +441,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
           // If chain has changed, reset token requirements in the payload
           if (previousChain && previousChain !== newChain) {
-            logger.info('chain has changed', { previousChain, newChain });
             payload = {
               ...payload,
               tokenAddress: '',
@@ -488,6 +497,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               // need to convert html to markdown before pinning
               const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
 
+              // Always send the current agreementAdmins list
               payload = {
                 ...payload,
                 agreement: agreementMarkdown,
@@ -501,7 +511,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               payload = {
                 ...payload,
                 tokenAddress,
-                tokenAmount: formData.tokenRequirement.minimum.toString(), // stored in string version of numeric value, convert at deploy
+                tokenAmount: formData.tokenRequirement.minimum.toString(),
                 memberRequirements: {
                   ...formData.requirements,
                   holdTokens: true,
@@ -810,7 +820,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // create top hat call data
       const detailsCid = await hatsDetailsClient.pin({
         type: '1.0',
-        data: { name: formData.organizationName, description: formData.councilDescription },
+        data: {
+          name:
+            typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName,
+          description: formData.councilDescription,
+        },
       });
       const createTopHatCallData = hatsClient.mintTopHatCallData({
         target: MULTICALL3_ADDRESS as Address,
@@ -1293,13 +1307,36 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           logger.info('addresses', { hsgAddress, safeAddress, treeId });
           const accessToken = await getAccessToken();
 
-          const organization = await createOrganization({
-            name: formData.organizationName,
-            accessToken,
-          });
-          logger.info('organization created', get(organization, 'createOrganization'));
-          const organizationId = get(organization, 'createOrganization.id');
+          // Check if organization already exists
+          const orgName =
+            typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName;
 
+          interface OrganizationResponse {
+            organizations: Array<{
+              id: string;
+              name: string;
+            }>;
+          }
+
+          const existingOrg = await getCouncilsGraphqlClient(accessToken ?? undefined).request<OrganizationResponse>(
+            ORGANIZATION_BY_NAME_QUERY,
+            { name: orgName },
+          );
+
+          let organizationId;
+          if (existingOrg.organizations && existingOrg.organizations.length > 0) {
+            // Use existing organization
+            organizationId = existingOrg.organizations[0].id;
+          } else {
+            // Create new organization
+            const organization = await createOrganization({
+              name: orgName,
+              accessToken,
+            });
+            organizationId = get(organization, 'createOrganization.id');
+          }
+
+          logger.info('organization id', organizationId);
           const council = await addCouncilForForm({
             chainId,
             organizationId,

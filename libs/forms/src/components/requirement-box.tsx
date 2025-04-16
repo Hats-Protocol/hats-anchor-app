@@ -45,7 +45,15 @@ const RequirementBox = ({ name, localForm, options, isDisabled }: RequirementBox
                       !isDisabled && 'hover:border-functional-link-primary cursor-pointer',
                     )}
                   >
-                    <div className='flex w-full items-center justify-between'>
+                    <div className='flex w-full items-center gap-3'>
+                      <FormControl>
+                        <BaseCheckbox
+                          checked={field.value}
+                          onCheckedChange={isDisabled ? undefined : () => field.onChange(!field.value)}
+                          className='text-functional-link-primary'
+                          disabled={isDisabled}
+                        />
+                      </FormControl>
                       <div className='flex gap-4'>
                         <Icon
                           className={cn('my-auto h-6 w-6 text-gray-900', field.value && 'text-functional-link-primary')}
@@ -55,15 +63,6 @@ const RequirementBox = ({ name, localForm, options, isDisabled }: RequirementBox
                           <p className='text-sm text-gray-500'>{item.description}</p>
                         </div>
                       </div>
-
-                      <FormControl>
-                        <BaseCheckbox
-                          checked={field.value}
-                          onCheckedChange={isDisabled ? undefined : () => field.onChange(!field.value)}
-                          className='text-functional-link-primary'
-                          disabled={isDisabled}
-                        />
-                      </FormControl>
                     </div>
                   </FormLabel>
                 </FormItem>

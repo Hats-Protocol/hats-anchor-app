@@ -1,9 +1,10 @@
 import { compact, concat, get, includes, toNumber, uniqBy } from 'lodash';
 import { OffchainCouncilData } from 'types';
-import { getAddress } from 'viem';
+import { getAddress, Hex } from 'viem';
 
 import { chainStringToId } from '../chains';
 import { GET_COUNCIL_BY_HSG, getCouncilsGraphqlClient } from '../councils-gql';
+import { logger } from '../logs';
 
 const checkChainId = (chain: string) => {
   const attemptNumber = toNumber(chain);
@@ -23,6 +24,18 @@ export const slugify = (name: string) => {
   return name.toLowerCase().replace(/ /g, '-');
 };
 
+/**
+ * Parse an organization slug back to its original name with proper capitalization
+ * @param slug The organization slug to parse
+ * @returns The organization name with proper capitalization
+ */
+export const parseOrganizationSlug = (slug: string): string => {
+  return slug
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 export const parseCouncilSlug = (slug: string) => {
   if (includes(slug, '%3A')) {
     const [chain, address] = slug.split('%3A');
@@ -31,10 +44,10 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
-    // TODO check isAddress first here - https://hats-protocol.sentry.io/issues/6311299196
     try {
       return { chainId: checkChainId(chain), address: getAddress(address) };
     } catch (error) {
+      logger.error('Error parsing council slug', error);
       return { chainId: checkChainId(chain), address };
     }
   }
@@ -46,10 +59,10 @@ export const parseCouncilSlug = (slug: string) => {
       return { chainId: null, address: slug };
     }
 
-    // TODO check isAddress first here - https://hats-protocol.sentry.io/issues/6311299196
     try {
       return { chainId: checkChainId(chain), address: getAddress(address) };
     } catch (error) {
+      logger.error('Error parsing council slug', error);
       return { chainId: checkChainId(chain), address };
     }
   }
@@ -75,12 +88,12 @@ export const getAllWearers = (offchainCouncilDetails: OffchainCouncilData | unde
 
 export const getOffchainCouncilData = async ({
   hsg,
-  safe,
+  // safe,
   chainId,
   accessToken,
 }: {
   hsg?: string;
-  safe?: string;
+  // safe?: string;
   chainId: number | undefined;
   accessToken: string | null;
 }): Promise<OffchainCouncilData | null> => {
@@ -97,5 +110,32 @@ export const getOffchainCouncilData = async ({
       // eslint-disable-next-line no-console
       console.error('Error fetching offchain council data', error);
       return Promise.resolve(null);
+    });
+};
+
+interface BatchCouncil {
+  hsg: Hex;
+  chainId: number;
+}
+
+export const getBatchOffchainCouncilData = async ({
+  council,
+  accessToken,
+}: {
+  council: BatchCouncil;
+  accessToken: string | null;
+}): Promise<OffchainCouncilData | null> => {
+  if (!council.hsg || !council.chainId) return Promise.resolve(null);
+
+  const client = getCouncilsGraphqlClient(accessToken ?? undefined);
+
+  return client
+    .request<{
+      councils: OffchainCouncilData[];
+    }>(GET_COUNCIL_BY_HSG, { hsg: council.hsg, chainId: council.chainId })
+    .then((data) => get(data, 'councils[0]', null))
+    .catch((error) => {
+      logger.error('Error fetching offchain council data', error);
+      return null;
     });
 };
