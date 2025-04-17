@@ -4,7 +4,7 @@ import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
 import { FilePlus, FileText } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 import { CouncilFormData, CouncilMember, StepProps } from 'types';
@@ -43,71 +43,82 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization, isFetching } = useOrganization(orgName);
+  const { data: organization, isFetching: isFetchingOrganization } = useOrganization(orgName);
 
   // Group agreements from existing councils
-  const existingAgreements =
-    organization?.councils?.reduce<GroupedAgreement[]>((acc, council) => {
-      if (council.creationForm?.agreement && council.creationForm?.councilName) {
-        return [
-          ...acc,
-          {
-            councilName: council.creationForm.councilName,
-            agreement: council.creationForm.agreement,
-            agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
-              ...admin,
-              email: '', // Adding required email field
-            })),
-          },
-        ];
-      }
-      return acc;
-    }, []) || [];
+  const existingAgreements = useMemo(
+    () =>
+      organization?.councils?.reduce<GroupedAgreement[]>((acc, council) => {
+        // TODO we can't (currently) rely on this agreement data to be updated for deployed councils
+        // do we need to get other deployed instances outside of our known module deploys?
+        if (council.creationForm?.agreement && council.creationForm?.councilName) {
+          return [
+            ...acc,
+            {
+              councilName: council.creationForm.councilName,
+              agreement: council.creationForm.agreement,
+              agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
+                ...admin,
+                email: '', // Adding required email field
+              })),
+            },
+          ];
+        }
+        return acc;
+      }, []) || [],
+    [organization?.councils],
+  );
 
   // Extract unique organization managers from existing councils
-  const organizationManagers =
-    organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
-      if (council.creationForm?.admins) {
-        council.creationForm.admins.forEach((admin) => {
-          if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
-            acc.push({
-              ...admin,
-              email: '', // Adding required email field
-            });
-          }
-        });
-      }
-      return acc;
-    }, []) || [];
+  const organizationManagers = useMemo(
+    () =>
+      organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
+        if (council.creationForm?.admins) {
+          council.creationForm.admins.forEach((admin) => {
+            if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
+              acc.push({
+                ...admin,
+                email: '', // Adding required email field
+              });
+            }
+          });
+        }
+        return acc;
+      }, []) || [],
+    [organization?.councils],
+  );
 
   logger.info('organizationManagers', organizationManagers);
 
   // Group unique admin sets across councils
-  const agreementAdminGroups =
-    organization?.councils?.reduce<{
-      [key: string]: { admins: CouncilMember[]; councils: string[] };
-    }>((acc, council) => {
-      if (!council.creationForm?.agreementAdmins) return acc;
+  const agreementAdminGroups = useMemo(
+    () =>
+      organization?.councils?.reduce<{
+        [key: string]: { admins: CouncilMember[]; councils: string[] };
+      }>((acc, council) => {
+        if (!council.creationForm?.agreementAdmins) return acc;
 
-      // Create a sorted string of admin addresses as a key
-      const adminKey = council.creationForm.agreementAdmins
-        .map((admin) => admin.address.toLowerCase())
-        .sort()
-        .join(',');
+        // Create a sorted string of admin addresses as a key
+        const adminKey = council.creationForm.agreementAdmins
+          .map((admin) => admin.address.toLowerCase())
+          .sort()
+          .join(',');
 
-      if (!acc[adminKey]) {
-        acc[adminKey] = {
-          admins: council.creationForm.agreementAdmins.map((admin) => ({
-            ...admin,
-            email: '', // Adding required email field
-          })) as CouncilMember[],
-          councils: [council.creationForm.councilName],
-        };
-      } else {
-        acc[adminKey].councils.push(council.creationForm.councilName);
-      }
-      return acc;
-    }, {}) || {};
+        if (!acc[adminKey]) {
+          acc[adminKey] = {
+            admins: council.creationForm.agreementAdmins.map((admin) => ({
+              ...admin,
+              email: '', // Adding required email field
+            })) as CouncilMember[],
+            councils: [council.creationForm.councilName],
+          };
+        } else {
+          acc[adminKey].councils.push(council.creationForm.councilName);
+        }
+        return acc;
+      }, {}) || {},
+    [organization?.councils],
+  );
 
   logger.info('agreementAdminGroups', agreementAdminGroups);
 
@@ -149,41 +160,45 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     }
   }, [createAgreementAdminRole, form, organizationManagers, agreementAdminGroups]);
 
-  // Create radio options from existing agreements and add the "Create new" option
-  const agreementOptions = [
-    ...(existingAgreements || []).map((existingAgreement: GroupedAgreement) => ({
-      value: existingAgreement.agreement,
-      label: 'Agreement',
-      icon: FileText as IconType,
-      description: existingAgreement.councilName,
-      onSelect: () => {
-        setSelectedOption('existing');
-        form.setValue('agreement', existingAgreement.agreement);
-      },
-    })),
-    {
-      value: 'new',
-      label: 'Create a new Agreement for this Council',
-      icon: FilePlus as IconType,
-      description: 'Write an agreement and select who controls it',
-      onSelect: () => {
-        setSelectedOption('new');
-        // Only reset if switching from an existing agreement
-        if (selectedOption === 'existing') {
-          form.setValue('agreement', '');
-        }
-      },
-    },
-  ];
-
   const [selectedOption, setSelectedOption] = useState(() => {
     const currentAgreement = form.getValues('agreement');
     // Check if the current agreement matches any existing ones
     return existingAgreements?.some((existing) => existing.agreement === currentAgreement) ? 'existing' : 'new';
   });
 
+  // Create radio options from existing agreements and add the "Create new" option
+  const agreementOptions = useMemo(
+    () => [
+      ...(existingAgreements || []).map((existingAgreement: GroupedAgreement) => ({
+        value: existingAgreement.agreement,
+        label: 'Agreement',
+        icon: FileText as IconType,
+        description: existingAgreement.councilName,
+        onSelect: () => {
+          setSelectedOption('existing');
+          form.setValue('agreement', existingAgreement.agreement);
+        },
+      })),
+      {
+        value: 'new',
+        label: 'Create a new Agreement for this Council',
+        icon: FilePlus as IconType,
+        description: 'Write an agreement and select who controls it',
+        onSelect: () => {
+          setSelectedOption('new');
+          // Only reset if switching from an existing agreement
+          if (selectedOption === 'existing') {
+            form.setValue('agreement', '');
+          }
+        },
+      },
+    ],
+    [existingAgreements, selectedOption, form],
+  );
+
   // Determine which radio option should be selected based on agreement value
   const selectedAgreementOption = selectedOption;
+  console.log('selectedAgreementOption', selectedAgreementOption, selectedOption);
 
   // Create radio options for agreement managers
   const agreementManagerOptions = [
@@ -211,8 +226,18 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     },
   ];
 
+  // useEffect(() => {
+  //   console.log('agreementOptions', agreementOptions);
+  //   if (isFetchingOrganization || !selectedOption) return;
+  //   const existingAgreement = existingAgreements.find((localAgreement) => localAgreement.agreement === agreement);
+  //   form.reset({
+  //     agreement: existingAgreement?.agreement || '',
+  //     agreementAdmins: existingAgreement?.agreementAdmins || [],
+  //   });
+  // }, [existingAgreements, form, isFetchingOrganization, agreement, agreementOptions, selectedOption]);
+
   // Show loading state during mutation or while fetching updated data
-  const isLoadingList = isMutating || (isFetching && !isLoading);
+  const isLoadingList = isMutating || (isFetchingOrganization && !isLoading);
 
   const handleSubmit = useCallback(
     async (data: CouncilFormData) => {
@@ -227,7 +252,6 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
   }
-  console.log({ canEdit });
 
   return (
     <>

@@ -63,8 +63,9 @@ export function LinkButton({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onClick={onClick as any}
         {...props}
-        children={children}
-      />
+      >
+        {children}
+      </ForwardedLinkButton>
     </Link>
   );
 }
