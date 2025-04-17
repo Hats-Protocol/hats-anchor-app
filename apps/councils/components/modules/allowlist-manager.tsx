@@ -37,7 +37,7 @@ interface ModuleManagerProps {
 const AllowlistManager = ({
   m,
   chainId,
-  slug,
+  // slug,
   criteriaModule,
   offchainCouncilDetails,
   primarySignerHat,
@@ -226,7 +226,7 @@ const AllowlistManager = ({
           {isAdminHat ? (
             <h2 className='font-medium'>Delegated to Council Managers</h2>
           ) : (
-            <h2 className='font-bold'>Allowlist Managers</h2>
+            <h2 className='font-medium'>Allowlist Managers</h2>
           )}
         </div>
 

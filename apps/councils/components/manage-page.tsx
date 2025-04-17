@@ -13,7 +13,7 @@ import { useEligibilityRules } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { idToIp } from 'shared';
-import { CouncilMember, SupportedChains } from 'types';
+import { CouncilMember, EligibilityRule, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, Skeleton } from 'ui';
 import { MemberAvatar } from 'ui';
 import {
@@ -63,7 +63,7 @@ const filterRulesWithoutAdmin = (rules: Ruleset) => {
   );
 };
 
-const eligibilityRuleMenuLabels = (rule: any, offchainCouncilDetails: any) => {
+const eligibilityRuleMenuLabels = (rule: EligibilityRule, offchainCouncilDetails: OffchainCouncilData | undefined) => {
   if (rule.address === offchainCouncilDetails?.membersCriteriaModule) {
     return 'Compliance Management';
   }
@@ -127,9 +127,10 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
+  const allowlistModule = offchainCouncilDetails?.membersSelectionModule || get(primarySignerHat, 'eligibility');
   const rulesWithoutSelectionModule = filter(
     flatten(eligibilityRules),
-    (rule) => toLower(rule.address) !== toLower(offchainCouncilDetails?.membersSelectionModule),
+    (rule) => toLower(rule.address) !== toLower(allowlistModule),
   );
   const { data: topHatDetails, isLoading: topHatDetailsLoading } = useHatDetails({
     chainId: (chainId ?? 11155111) as SupportedChains,
@@ -157,7 +158,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     map(filterRulesWithoutAdmin(rulesWithoutSelectionModule), (rule) => ({
       value: rule.address,
       // TODO handle more mappings here
-      label: eligibilityRuleMenuLabels(rule, offchainCouncilDetails),
+      label: eligibilityRuleMenuLabels(rule, offchainCouncilDetails || undefined),
       module: rule.module,
     })),
     OWNER_SECTIONS,
@@ -420,7 +421,11 @@ export const ManagePage = ({ slug }: { slug: string }) => {
         </div>
 
         <Modal name='transfer-ownership' title='Transfer Ownership' size='lg'>
-          <CouncilTransferForm topHatWearerAddress={get(topHatDetails, 'wearers[0].id')} />
+          <CouncilTransferForm
+            hatId={primarySignerHat?.id}
+            topHatWearerAddress={get(topHatDetails, 'wearers[0].id')}
+            chainId={chainId as SupportedChains}
+          />
         </Modal>
       </div>
     </div>
