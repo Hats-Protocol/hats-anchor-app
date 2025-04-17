@@ -1,19 +1,20 @@
 'use client';
 
+import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
-import { useClipboard, useCouncilDeployFlag, useOrganization } from 'hooks';
+import { useHatDetails } from 'hats-hooks';
+import { useClipboard, useCouncilDeployFlag, useCouncilDetails, useOrganization } from 'hooks';
 import { Currency, DocumentChecks } from 'icons';
-import { Safe as SafeIcon } from 'icons';
-import { get, isEmpty, map, some, toNumber } from 'lodash';
+import { concat, find, get, isEmpty, map, some, toNumber, uniqBy } from 'lodash';
 import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import { useEffect } from 'react';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
+import { SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
-import { chainsMap, formatAddress, logger } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -175,8 +176,31 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
   const targetChainId = toNumber(formData.chain?.value) as number;
   const targetChainName = chainsMap(targetChainId)?.name;
   const firstAdmin = get(formData, 'admins.[0]');
+  const allWearers = uniqBy(
+    concat(
+      get(formData, 'members'),
+      get(formData, 'admins'),
+      get(formData, 'agreementAdmins'),
+      get(formData, 'complianceAdmins'),
+    ),
+    'id',
+  );
 
   const organizationManagers = organization?.councils[0].creationForm?.admins;
+  const organizationOwner = organization?.councils[0].creationForm?.creator; // initial owner when/before deployed (not updated later)
+
+  const { data: deployedCouncil } = useCouncilDetails({
+    chainId: toNumber(formData.chain?.value),
+    address: organization?.councils[0]?.hsg,
+  });
+  const signerHatId = deployedCouncil?.signerHats?.[0]?.id;
+  const deployedCouncilTopHat = signerHatId ? treeIdToTopHatId(hatIdToTreeId(BigInt(signerHatId))) : undefined;
+  const { data: topHat } = useHatDetails({
+    hatId: deployedCouncilTopHat ? hatIdDecimalToHex(deployedCouncilTopHat) : undefined,
+    chainId: toNumber(formData.chain?.value) as SupportedChains,
+  });
+  const topHatWearer = topHat?.wearers?.[0]?.id;
+  const nameFromWearers = find(allWearers, (wearer) => wearer.id === (topHatWearer || organizationOwner))?.name;
 
   const isWrongNetwork = userChainId !== targetChainId;
 
@@ -214,15 +238,9 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
           <div className='text-gray-900'>
             <span className='text-base'>{formData.councilName}</span>
           </div>
-          <div>
+          <div className='flex flex-col gap-1'>
             <h4 className='text-base font-bold text-gray-900'>Owned by {organization?.name}</h4>
-            <div className='flex items-center gap-2'>
-              <SafeIcon className='size-4' />
-              <span className='text-base'>
-                Founder Multisig
-                <span className='font-jb-mono pl-2 text-gray-600'>{formatAddress(organization?.councils[0].hsg)}</span>
-              </span>
-            </div>
+            <MemberAvatar member={{ address: topHatWearer || organizationOwner, name: nameFromWearers }} />
           </div>
         </div>
       </StepSummary>
