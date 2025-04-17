@@ -1,27 +1,26 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
+import { useOverlay } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
 import posthog from 'posthog-js';
 import { useForm } from 'react-hook-form';
+import { SupportedChains } from 'types';
 import { Button } from 'ui';
 import { formatAddress } from 'utils';
+import { Hex } from 'viem';
 import { useChainId, useEnsAddress } from 'wagmi';
 
 import { AddressInput, Form } from './components';
 
-const CouncilTransferForm = ({ topHatWearerAddress }: CouncilTransferFormProps) => {
+const CouncilTransferForm = ({ hatId, topHatWearerAddress, chainId }: CouncilTransferFormProps) => {
   const currentChainId = useChainId();
   const localForm = useForm({ mode: 'onBlur' });
   const { handleSubmit, watch } = localForm;
   const { handlePendingTx } = useOverlay();
-  const { chainId } = useTreeForm();
-  const { selectedHat } = useSelectedHat();
   const queryClient = useQueryClient();
 
-  const hatId = selectedHat?.id;
   const newWearer = useDebounce<string>(watch('newWearer', null));
 
   const { data: newWearerResolvedAddress, isLoading: isLoadingNewWearerResolvedAddress } = useEnsAddress({
@@ -63,7 +62,6 @@ const CouncilTransferForm = ({ topHatWearerAddress }: CouncilTransferFormProps) 
   });
 
   const onSubmit = async () => {
-    // TODO check both addresses are addresses + current chainId
     await writeAsync?.();
   };
 
@@ -78,9 +76,9 @@ const CouncilTransferForm = ({ topHatWearerAddress }: CouncilTransferFormProps) 
           <AddressInput
             label='New Owner Address'
             subLabel='Will have total control over the Council, Admins and Safe'
-            name='newOwner'
+            name='newWearer'
             localForm={localForm}
-            chainId={chainId}
+            chainId={chainId as SupportedChains}
             hideAddressButtons
           />
 
@@ -96,7 +94,9 @@ const CouncilTransferForm = ({ topHatWearerAddress }: CouncilTransferFormProps) 
 };
 
 interface CouncilTransferFormProps {
+  hatId: Hex | undefined;
   topHatWearerAddress: string | undefined;
+  chainId: number | undefined;
 }
 
 export { CouncilTransferForm };
