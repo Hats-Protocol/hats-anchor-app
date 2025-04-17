@@ -8,7 +8,7 @@ import { Modal, useOverlay } from 'contexts';
 import { CouncilTransferForm } from 'forms';
 import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
-import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
+import { concat, filter, find, flatten, get, includes, map, reduce, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useState } from 'react';
@@ -36,22 +36,11 @@ import { SignerThresholdModal } from './signer-threshold-modal';
 import { SignersIndicator } from './signers-indicator';
 
 const DEFAULT_SECTIONS = [
-  {
-    value: 'threshold',
-    label: 'Signer Threshold',
-  },
-  {
-    value: 'admin',
-    label: 'Council Management',
-  },
+  { value: 'threshold', label: 'Signer Threshold' },
+  { value: 'admin', label: 'Organization Management' },
 ];
 
-const OWNER_SECTIONS = [
-  {
-    value: 'ownership',
-    label: 'Organization Owner',
-  },
-];
+const OWNER_SECTIONS = [{ value: 'ownership', label: 'Organization Owner' }];
 
 const filterRulesWithoutAdmin = (rules: Ruleset) => {
   return reject(
@@ -152,6 +141,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const signers = filter(safeSigners, (signer) => includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)));
+  const totalMaxSupply = reduce(map(councilDetails?.signerHats, 'maxSupply'), (acc, curr) => acc + toNumber(curr), 0);
 
   const menuOptions = concat(
     DEFAULT_SECTIONS,
@@ -231,7 +221,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
                 <SignersIndicator
                   threshold={toNumber(get(councilDetails, 'minThreshold'))}
                   signers={size(signers)}
-                  maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                  maxSigners={totalMaxSupply}
                 />
                 {user && userIsManager && (
                   <div className='mt-4 flex'>
@@ -260,7 +250,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
           />
         </div>
 
-        {/* TOP HAT CAN EDIT MANAGERS */}
+        {/* ONLY TOP HAT CAN EDIT ORGANIZATION MANAGERS */}
         <div className='space-y-6' id='admin'>
           {typeof window === 'undefined' || councilDetailsLoading || eligibilityRulesLoading ? (
             <div className='flex flex-col gap-6'>
@@ -275,12 +265,14 @@ export const ManagePage = ({ slug }: { slug: string }) => {
             </div>
           ) : (
             <>
-              <h2 className='text-2xl font-semibold'>Council Management</h2>
+              <h2 className='text-2xl font-semibold'>Organization Management</h2>
 
               <div className='space-y-4'>
                 <div className='space-y-1'>
-                  <h3 className='font-bold'>Council Managers</h3>
-                  <p className='text-sm'>Can select Council Members</p>
+                  <h3 className='font-bold'>Organization Managers</h3>
+                  <p className='text-sm'>
+                    Can appoint and remove Managers and Members, change all Membership Criteria and edit any Council
+                  </p>
                 </div>
 
                 <div className='flex flex-col gap-4'>

@@ -16,12 +16,19 @@ const LINKS = [
   { label: 'Manage', href: 'manage' },
 ];
 
+const MULTI_LINKS = [
+  { label: 'Transactions', href: 'transactions' },
+  { label: 'Assets', href: 'assets' },
+  { label: 'Manage', href: 'manage' },
+];
+
 const CouncilButtons = () => {
   const pathname = usePathname();
   const slug = nth(pathname.split('/'), 2);
   const { chainId, address } = parseCouncilSlug(slug as string);
 
   const { data: councilDetails } = useCouncilDetails({ chainId: chainId || undefined, address });
+  const isMulti = size(councilDetails?.signerHats) > 1;
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
 
   const { data: signers } = useSafeDetails({
@@ -33,7 +40,7 @@ const CouncilButtons = () => {
   const isTxAssets = posthog.isFeatureEnabled('tx-assets') || process.env.NODE_ENV !== 'production';
 
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
-  const links = [...LINKS, ...devLink];
+  const links = [...(isMulti ? MULTI_LINKS : LINKS), ...devLink];
 
   // ! ButtonGroup is not compatible with LinkButton
 

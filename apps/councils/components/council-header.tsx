@@ -6,7 +6,7 @@ import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useSafesInfo } from 'hooks';
 import { Safe as SafeIcon } from 'icons';
-import { capitalize, filter, first, get, includes, map, nth, size, toLower } from 'lodash';
+import { capitalize, filter, first, get, includes, map, nth, reduce, size, toLower } from 'lodash';
 import { toNumber } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
-import { chainsMap, explorerUrl, formatAddress, logger, parseCouncilSlug, slugify } from 'utils';
+import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug, slugify } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -67,6 +67,7 @@ const CouncilHeaderCard = ({
   const effectiveSafeDetails = first(safesDetails);
   const effectiveSafeSigners = safeSignersRaw;
 
+  // const isMulti = size(effectiveCouncilDetails?.signerHats) > 1;
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
   const primarySignerHatId = get(primarySignerHat, 'id');
   const topHatId = primarySignerHatId
@@ -76,6 +77,11 @@ const CouncilHeaderCard = ({
   const safe = effectiveSafeDetails;
   const safeSigners = filter(effectiveSafeSigners, (signer) =>
     includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)),
+  );
+  const totalMaxSupply = reduce(
+    map(effectiveCouncilDetails?.signerHats, 'maxSupply'),
+    (acc, curr) => acc + toNumber(curr),
+    0,
   );
 
   const { data: topHatDetails } = useHatDetails({
@@ -171,7 +177,7 @@ const CouncilHeaderCard = ({
               <SignersIndicator
                 threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
                 signers={size(safeSigners)}
-                maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                maxSigners={totalMaxSupply}
               />
             </div>
             {(!isWearing || isRootPath || !isReadyToClaim) && (
@@ -179,7 +185,7 @@ const CouncilHeaderCard = ({
                 <SignersIndicator
                   threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
                   signers={size(safeSigners)}
-                  maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                  maxSigners={totalMaxSupply}
                 />
               </div>
             )}
@@ -200,7 +206,7 @@ const CouncilHeaderCard = ({
               <div>
                 {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
                   ? `/${size(safeSigners)}`
-                  : `/${get(primarySignerHat, 'maxSupply')}`}
+                  : `/${totalMaxSupply}`}
               </div>
             </div>
             {withLinks ? (

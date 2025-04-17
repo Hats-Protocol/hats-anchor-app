@@ -10,7 +10,7 @@ import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } 
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useToast } from 'hooks';
-import { compact, get, map, size } from 'lodash';
+import { compact, get, map, reduce, size, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { DevInfo } from 'molecules';
 import { posthog } from 'posthog-js';
@@ -40,6 +40,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     chainId: chainId ?? 11155111,
     enabled: !!councilDetails?.id && !!chainId,
   });
+  // const isMulti = size(councilDetails?.signerHats) > 1;
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
   const topHatId = primarySignerHat?.id
@@ -54,6 +55,8 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     chainId: chainId as SupportedChains,
     safeAddress: councilDetails?.safe as Hex,
   });
+  const totalWearers = reduce(map(councilDetails?.signerHats, 'wearers'), (acc, curr) => acc + size(curr), 0);
+  const totalMaxSupply = reduce(map(councilDetails?.signerHats, 'maxSupply'), (acc, curr) => acc + toNumber(curr), 0);
 
   const { mutateAsync: updateIsPaid } = useMutation({
     mutationFn: async (checked: boolean) => {
@@ -86,20 +89,21 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
   const hatInfo = useMemo(
     () =>
       compact([
-        primarySignerHat && {
-          label: 'Primary Signer Hat',
+        {
+          label: size(councilDetails?.signerHats) > 1 ? 'Signer Hats' : 'Signer Hat',
           descriptor: (
-            <Link
-              href={hatLink({ chainId: chainId as SupportedChains, hatId: primarySignerHat.id })}
-              className='underline'
-            >
-              {hatIdDecimalToIp(hatIdHexToDecimal(primarySignerHat.id))}
-            </Link>
+            <div className='flex flex-col items-end gap-1'>
+              {map(councilDetails?.signerHats, (hat) => (
+                <Link href={hatLink({ chainId: chainId as SupportedChains, hatId: hat.id })} className='underline'>
+                  {hatIdDecimalToIp(hatIdHexToDecimal(hat.id))}
+                </Link>
+              ))}
+            </div>
           ),
         },
         {
-          label: 'Current Wearers',
-          descriptor: <div>{size(primarySignerHat?.wearers)}</div>,
+          label: 'Total Wearers',
+          descriptor: <div>{totalWearers}</div>,
         },
         {
           label: 'Safe Signers',
@@ -107,19 +111,10 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
         },
         {
           label: 'Max Supply',
-          descriptor: <div>{primarySignerHat?.maxSupply}</div>,
-        },
-
-        eligibilityModule && {
-          label: 'Eligibility',
-          descriptor: (
-            <Link href={`${explorerUrl(chainId || undefined)}/address/${eligibilityModule}`} className='underline'>
-              {formatAddress(eligibilityModule)}
-            </Link>
-          ),
+          descriptor: <div>{totalMaxSupply}</div>,
         },
       ]),
-    [eligibilityModule, chainId, primarySignerHat, safeSigners],
+    [chainId, councilDetails?.signerHats, totalWearers, totalMaxSupply, safeSigners],
   );
 
   const hsgInfo = useMemo(
@@ -151,7 +146,13 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
         },
         {
           label: 'Target Threshold',
-          descriptor: <div>{councilDetails?.targetThreshold}</div>,
+          descriptor: (
+            <div>
+              {councilDetails?.thresholdType === 'PROPORTIONAL'
+                ? `${(Number(councilDetails?.targetThreshold) / 100).toFixed(0)}%`
+                : councilDetails?.targetThreshold}
+            </div>
+          ),
         },
         ownerHat && {
           label: 'Owner Hat',
@@ -211,11 +212,14 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
 
       <DevInfo title='Safe Signers' devInfos={safeSignersInfo} />
 
-      <EligibilityRulesDevInfo
-        chainId={chainId}
-        eligibilityRules={eligibilityRules || undefined}
-        eligibilityAddress={eligibilityModule || undefined}
-      />
+      {map(councilDetails?.signerHats, (hat) => (
+        <EligibilityRulesDevInfo
+          chainId={chainId}
+          eligibilityRules={eligibilityRules || undefined}
+          eligibilityAddress={hat.eligibility || undefined}
+          hatId={hat.id}
+        />
+      ))}
 
       <div className='flex items-center gap-2'>
         <Switch
