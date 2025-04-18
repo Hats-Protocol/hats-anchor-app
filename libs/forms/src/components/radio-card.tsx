@@ -54,7 +54,6 @@ const RadioCard = ({
 
   const { control } = localForm;
   const error = localForm.formState.errors[name]?.message;
-  console.log({ [name]: localForm.watch(name) });
 
   return (
     <FormField

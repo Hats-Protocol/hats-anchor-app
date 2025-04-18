@@ -6,113 +6,35 @@ import { useCouncilForm, useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
 import { useClipboard, useCouncilDeployFlag, useCouncilDetails, useOrganization } from 'hooks';
 import { Currency, DocumentChecks } from 'icons';
-import { concat, find, get, isEmpty, map, some, toNumber, uniqBy } from 'lodash';
-import { FileText, GemIcon, Link, SquarePen } from 'lucide-react';
+import { concat, find, get, map, some, toNumber, uniqBy } from 'lodash';
+import { FileText, GemIcon, Link } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { BsCheckSquareFill, BsPersonCheck, BsXSquareFill } from 'react-icons/bs';
+import { BsPersonCheck } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
-import { chainsMap, formatAddress } from 'utils';
+import { chainsMap, chainStringToId, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
-import { Login } from '../login';
-import { NextStepButton } from '../next-step-button';
+import { Login } from '../../login';
+import { NextStepButton } from '../../next-step-button';
 import { Deploy } from './deploy';
 import { PaymentDetailsModal } from './payment-details-modal';
+import { RequirementItem } from './requirement-item';
+import { RoleSummary } from './role-summary';
+import { StepSummary } from './step-summary';
 
-interface StepSummaryProps {
-  title: string;
-  isCompleted: boolean;
-  onEdit?: () => void;
-  children: React.ReactNode;
-}
+// TODO handle loading state
 
-const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps) => (
-  <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
-    <div className='w-[200px] shrink-0 space-y-2'>
-      <h3 className='text-l font-medium text-gray-900'>{title}</h3>
-      <div className='flex items-center gap-1'>
-        {isCompleted ? (
-          <>
-            <BsCheckSquareFill className='text-functional-success h-4 w-4' />
-            <span className='text-functional-success text-sm font-medium'>Ready</span>
-          </>
-        ) : (
-          <>
-            <BsXSquareFill className='text-functional-error h-4 w-4' />
-            <span className='text-functional-error text-sm font-medium'>Incomplete</span>
-          </>
-        )}
-      </div>
-    </div>
-
-    <div className='min-w-0 flex-1'>{children}</div>
-
-    {onEdit && (
-      <div className='w-[100px] shrink-0 text-right'>
-        <button
-          type='button'
-          className='text-functional-link-primary hover:text-functional-link-primary/60 inline-flex items-center gap-2'
-          onClick={onEdit}
-        >
-          <SquarePen className='h-4 w-4' />
-          <span className='text-sm font-medium'>Edit</span>
-        </button>
-      </div>
-    )}
-  </div>
-);
-
-interface RequirementItemProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
-
-const RequirementItem = ({ icon, title, description }: RequirementItemProps) => (
-  <div className='flex items-center gap-3'>
-    <div className='flex-shrink-0 rounded-full border border-gray-200 p-2 text-gray-900'>{icon}</div>
-    <div>
-      <p className='font-medium text-gray-900'>{title}</p>
-      <p className='text-primary-900 text-sm'>{description}</p>
-    </div>
-  </div>
-);
-
-interface RoleSummaryProps {
-  title: string;
-  description?: string;
-  members: { id: string; address: string; name?: string }[];
-}
-
-const RoleSummary = ({ title, description, members }: RoleSummaryProps) => (
-  <div className='space-y-2'>
-    <div>
-      <h4 className='text-base font-bold text-gray-900'>{title}</h4>
-      {description && <p className='text-sm text-gray-600'>{description}</p>}
-    </div>
-
-    {!isEmpty(members) ? (
-      <div className='space-y-2'>
-        {members.map((member) => (
-          <MemberAvatar key={member.id} member={member} />
-        ))}
-      </div>
-    ) : (
-      <div className='text-sm text-gray-600'>No members</div>
-    )}
-  </div>
-);
-
-export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
+export const DeployStep = ({ draftId }: { draftId: string }) => {
   const { form, stepValidation, deployCouncil, isDeploying, canEdit, deployStatus, isLoading } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const { setModals } = useOverlay();
   const payer = form.watch('payer');
+  const creator = form.watch('creator');
   const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
@@ -135,8 +57,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     toastData: { variant: 'success', title: 'Copied share link to clipboard' },
   });
 
-  // Helper function to determine if selection step is valid
-  const isSelectionStepValid = () => {
+  // Helper function to determine if eligibility step is valid
+  const isEligibilityStepValid = () => {
     const activeSubSteps = [
       'members',
       'management',
@@ -146,7 +68,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     ];
 
     return activeSubSteps.every(
-      (subStep) => stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps],
+      (subStep) => stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps],
     );
   };
 
@@ -165,7 +87,7 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
       address: formData.tokenRequirement.address?.value,
       abi: erc20Abi,
       functionName: field,
-      chainId: toNumber(formData.chain.value),
+      chainId: chainStringToId(formData.chain.value) || undefined,
     })),
   });
 
@@ -186,8 +108,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
     'id',
   );
 
-  const organizationManagers = organization?.councils[0].creationForm?.admins;
-  const organizationOwner = organization?.councils[0].creationForm?.creator; // initial owner when/before deployed (not updated later)
+  const organizationManagers = organization?.councils?.[0]?.creationForm?.admins;
+  const organizationOwner = organization?.councils?.[0]?.creationForm?.creator; // initial owner when/before deployed (not updated later)
 
   const { data: deployedCouncil } = useCouncilDetails({
     chainId: toNumber(formData.chain?.value),
@@ -239,8 +161,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
             <span className='text-base'>{formData.councilName}</span>
           </div>
           <div className='flex flex-col gap-1'>
-            <h4 className='text-base font-bold text-gray-900'>Owned by {organization?.name}</h4>
-            <MemberAvatar member={{ address: topHatWearer || organizationOwner, name: nameFromWearers }} />
+            <h4 className='text-base font-bold text-gray-900'>Owned by {organization?.name || orgName}</h4>
+            <MemberAvatar member={{ address: topHatWearer || organizationOwner || creator, name: nameFromWearers }} />
           </div>
         </div>
       </StepSummary>
@@ -269,8 +191,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
 
       <StepSummary
         title='Membership Requirements'
-        isCompleted={stepValidation.onboarding}
-        onEdit={canEdit ? () => setCurrentStep('onboarding') : undefined}
+        isCompleted={stepValidation.selection}
+        onEdit={canEdit ? () => setCurrentStep('selection') : undefined}
       >
         <div className='space-y-2'>
           <h4 className='text-base font-bold text-gray-900'>
@@ -309,8 +231,8 @@ export const SubscribeDeployStep = ({ draftId }: { draftId: string }) => {
 
       <StepSummary
         title='Council Roles'
-        isCompleted={isSelectionStepValid()}
-        onEdit={canEdit ? () => setCurrentStep('selection', 'management') : undefined}
+        isCompleted={isEligibilityStepValid()}
+        onEdit={canEdit ? () => setCurrentStep('eligibility', 'management') : undefined}
       >
         <div className='space-y-8'>
           <RoleSummary

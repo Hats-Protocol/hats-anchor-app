@@ -19,6 +19,8 @@ interface AddComplianceModalProps {
   canEdit?: boolean;
 }
 
+// TODO migrate to unified user form
+
 export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = true }: AddComplianceModalProps) {
   const selectedChain = parentForm.watch('chain').value;
   const { getAccessToken } = usePrivy();

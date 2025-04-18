@@ -3,10 +3,12 @@
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
+import { trim } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
+import showdown from 'showdown';
 import { CouncilFormData, CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 import { logger } from 'utils';
@@ -17,12 +19,15 @@ import { AgreementAdminsList } from './agreement-admins-list';
 import { UnifiedUserForm } from './unified-user-form';
 
 interface GroupedAgreement {
+  id: string;
   councilName: string;
   agreement: string;
   agreementAdmins: CouncilMember[];
 }
 
-export function SelectionAgreementStep({ onNext }: StepProps) {
+const converter = new showdown.Converter();
+
+export function AgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -55,6 +60,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           return [
             ...acc,
             {
+              id: council.creationForm.id,
               councilName: council.creationForm.councilName,
               agreement: council.creationForm.agreement,
               agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
@@ -65,7 +71,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
           ];
         }
         return acc;
-      }, []) || [],
+      }, []) || undefined,
     [organization?.councils],
   );
 
@@ -99,10 +105,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
         if (!council.creationForm?.agreementAdmins) return acc;
 
         // Create a sorted string of admin addresses as a key
-        const adminKey = council.creationForm.agreementAdmins
-          .map((admin) => admin.address.toLowerCase())
-          .sort()
-          .join(',');
+        const adminKey = council.creationForm.id;
 
         if (!acc[adminKey]) {
           acc[adminKey] = {
@@ -226,15 +229,35 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
     },
   ];
 
-  // useEffect(() => {
-  //   console.log('agreementOptions', agreementOptions);
-  //   if (isFetchingOrganization || !selectedOption) return;
-  //   const existingAgreement = existingAgreements.find((localAgreement) => localAgreement.agreement === agreement);
-  //   form.reset({
-  //     agreement: existingAgreement?.agreement || '',
-  //     agreementAdmins: existingAgreement?.agreementAdmins || [],
-  //   });
-  // }, [existingAgreements, form, isFetchingOrganization, agreement, agreementOptions, selectedOption]);
+  useEffect(() => {
+    if (isFetchingOrganization || !selectedOption || !form || !existingAgreements) return;
+
+    const currentAgreement = form.getValues('agreement');
+    console.log(
+      'agreementOptions',
+      agreementOptions,
+      existingAgreements,
+      currentAgreement,
+      converter.makeMarkdown(currentAgreement || ''),
+    );
+    const currentValues = form.getValues();
+    const existingAgreement = existingAgreements?.find((localAgreement) => {
+      return (
+        trim(converter.makeMarkdown(localAgreement.agreement)) === trim(converter.makeMarkdown(currentAgreement || ''))
+      );
+    });
+    if (existingAgreement) {
+      console.log('existingAgreement', existingAgreement, currentValues);
+      form.reset({
+        ...currentValues,
+        // agreement: existingAgreement?.agreement || '',
+        agreementAdmins: existingAgreement?.agreementAdmins || [],
+        createAgreementAdminRole: `existing:${existingAgreement.id}`,
+        agreementType: existingAgreement?.agreement,
+      });
+      setSelectedOption('existing');
+    }
+  }, [existingAgreements, form, isFetchingOrganization, agreement, agreementOptions, selectedOption]);
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetchingOrganization && !isLoading);
@@ -310,7 +333,7 @@ export function SelectionAgreementStep({ onNext }: StepProps) {
                 name='createAgreementAdminRole'
                 localForm={form}
                 options={agreementManagerOptions}
-                isDisabled={!canEdit}
+                isDisabled={!canEdit || selectedOption === 'existing'}
               />
             </div>
 

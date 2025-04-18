@@ -3,8 +3,10 @@
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { useCouncilDeployFlag, useOrganization } from 'hooks';
+import { toLower } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { CouncilFormData, StepProps } from 'types';
 import { Skeleton } from 'ui';
@@ -13,13 +15,23 @@ import { logger } from 'utils';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 
-export function SelectionTokensStep({ onNext, draftId }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
-  const requirements = form.watch('requirements');
-  const tokenRequirement = form.watch('tokenRequirement');
+interface TokenRequirement {
+  id: string;
+  councilName: string;
+  minimum: string;
+  tokenAddress: string;
+}
+
+export function TokensStep({ onNext, draftId }: StepProps) {
+  const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
+  const { watch: councilFormWatch, getValues: councilFormGetValues, reset } = councilForm;
+  const localForm = useForm();
+  const { setValue, handleSubmit } = localForm;
+  const { requirements, organizationName } = councilFormWatch();
+  const { watch } = localForm;
+  const tokenRequirement = watch('tokenRequirement');
   logger.info('tokenRequirement', tokenRequirement);
 
-  const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization } = useOrganization(orgName);
 
@@ -29,17 +41,12 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
 
   // Group token requirements from existing councils
   const existingTokenRequirements =
-    organization?.councils?.reduce<
-      Array<{
-        councilName: string;
-        minimum: string;
-        tokenAddress: string;
-      }>
-    >((acc, council) => {
+    organization?.councils?.reduce<Array<TokenRequirement>>((acc, council) => {
       if (council.creationForm?.tokenAmount && council.creationForm?.tokenAddress) {
         return [
           ...acc,
           {
+            id: council.creationForm.id,
             councilName: council.creationForm.councilName || '',
             minimum: council.creationForm.tokenAmount,
             tokenAddress: council.creationForm.tokenAddress,
@@ -51,8 +58,8 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
 
   // Initialize selected option based on current token requirement
   const [selectedOption, setSelectedOption] = useState(() => {
-    const currentTokenAddress = form.getValues('tokenRequirement.address.value');
-    const currentMinimum = form.getValues('tokenRequirement.minimum');
+    const currentTokenAddress = councilFormGetValues('tokenRequirement.address.value');
+    const currentMinimum = councilFormGetValues('tokenRequirement.minimum');
 
     return existingTokenRequirements.some(
       (req) => req.tokenAddress === currentTokenAddress && req.minimum === currentMinimum?.toString(),
@@ -61,10 +68,12 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
       : 'new';
   });
 
+  console.log('existingTokenRequirements', existingTokenRequirements);
+
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = [
     ...existingTokenRequirements.map((requirement) => {
-      const token = availableTokens.find((t) => t.address === requirement.tokenAddress);
+      const token = availableTokens.find((t) => toLower(t.address) === toLower(requirement.tokenAddress));
       return {
         value: requirement.tokenAddress,
         label: `Hold ${requirement.minimum} ${token?.symbol || 'tokens'}`,
@@ -72,8 +81,8 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
         description: requirement.councilName,
         onSelect: () => {
           setSelectedOption('existing');
-          form.setValue('tokenRequirement.minimum', parseInt(requirement.minimum));
-          form.setValue('tokenRequirement.address.value', requirement.tokenAddress);
+          setValue('tokenRequirement.minimum', parseInt(requirement.minimum));
+          setValue('tokenRequirement.address', { value: requirement.tokenAddress, label: token?.symbol || '' });
         },
       };
     }),
@@ -86,30 +95,32 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
         setSelectedOption('new');
         // Only reset if switching from an existing requirement
         if (selectedOption === 'existing') {
-          form.setValue('tokenRequirement.minimum', 0);
-          form.setValue('tokenRequirement.address.value', '');
+          setValue('tokenRequirement.minimum', 0);
+          setValue('tokenRequirement.address', { value: '', label: '' });
         }
       },
     },
   ];
 
-  const handleSubmit = useCallback(
-    async (data: CouncilFormData) => {
+  const submitForm = useCallback(
+    async (data: Partial<CouncilFormData>) => {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
-      form.reset(data);
+      reset({ ...councilFormGetValues(), ...data });
+      // reset(data);
       await onNext();
     },
-    [form, onNext],
+    [reset, councilFormGetValues, onNext],
   );
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
   }
+  console.log('localForm', localForm.getValues('tokenRequirement'));
 
   return (
-    <Form {...form}>
-      <form className='mx-auto flex w-full flex-col space-y-8' onSubmit={form.handleSubmit(handleSubmit)}>
+    <Form {...localForm}>
+      <form className='mx-auto flex w-full flex-col space-y-8' onSubmit={handleSubmit(submitForm)}>
         <div className='space-y-2'>
           <div className='flex items-center gap-3'>
             <GemIcon />
@@ -126,7 +137,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
 
           <RadioCard
             name='tokenType'
-            localForm={form}
+            localForm={localForm}
             options={tokenOptions}
             isDisabled={!canEdit}
             defaultValue={selectedOption}
@@ -139,7 +150,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
               name='tokenRequirement.minimum'
               label='Token Limit'
               variant='councils'
-              form={form}
+              form={localForm}
               options={{
                 required: true,
                 min: 0,
@@ -153,7 +164,7 @@ export function SelectionTokensStep({ onNext, draftId }: StepProps) {
               name='tokenRequirement.address'
               label='Token Type'
               variant='councils'
-              localForm={form}
+              localForm={localForm}
               options={availableTokens}
               isDisabled={!canEdit || selectedOption === 'existing'}
             />

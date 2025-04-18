@@ -12,7 +12,7 @@ import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { MembersList } from './members-list';
 import { UnifiedUserForm } from './unified-user-form';
 
-export function SelectionMembersStep({ onNext, draftId }: StepProps) {
+export function MembersStep({ onNext, draftId }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);

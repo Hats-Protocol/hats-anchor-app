@@ -135,9 +135,9 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
         data.thresholdTarget &&
         data.thresholdTarget > 0
       ) && notDeploy(data.deployOnly, data.completedOptionalSteps.threshold),
-    onboarding: !!data.membersSelectionType,
-    selection: false, // Main step validity will be computed from sub-steps
-    selectionSubSteps: {
+    selection: !!data.membersSelectionType,
+    eligibility: false, // Main step validity will be computed from sub-steps
+    eligibilitySubSteps: {
       management:
         !!(data.admins && data.admins.length > 0) && notDeploy(data.deployOnly, data.completedOptionalSteps.management), // admins are required, but creator is added by default
       compliance:
@@ -151,7 +151,7 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
         toNumber(data.tokenAmount) > 0,
       members: !!data.members && notDeploy(data.deployOnly, data.completedOptionalSteps.members),
     },
-    payment: false,
+    deploy: false,
   };
 };
 
@@ -243,16 +243,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const [stepValidation, setStepValidationState] = useState<StepValidation>({
     details: false,
     threshold: false,
-    onboarding: false,
     selection: false,
-    selectionSubSteps: {
+    eligibility: false,
+    eligibilitySubSteps: {
       management: false,
       compliance: false,
       agreement: false,
       tokens: false,
       members: false,
     },
-    payment: false,
+    deploy: false,
   });
   // logger.debug({ stepValidation });
 
@@ -260,12 +260,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     (step: keyof StepValidation, isValid: boolean | Partial<StepValidation[keyof StepValidation]>) => {
       logger.debug('Setting step validation:', { step, isValid });
       setStepValidationState((prev) => {
-        if (step === 'selectionSubSteps') {
+        if (step === 'eligibilitySubSteps') {
           const newState = {
             ...prev,
-            selectionSubSteps: {
-              ...prev.selectionSubSteps,
-              ...(isValid as Partial<StepValidation['selectionSubSteps']>),
+            eligibilitySubSteps: {
+              ...prev.eligibilitySubSteps,
+              ...(isValid as Partial<StepValidation['eligibilitySubSteps']>),
             },
           };
           logger.debug('New validation state:', { newState });
@@ -306,7 +306,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   // Check if user can edit the form
   useEffect(() => {
-    console.log({ authenticated, user, data });
     if (!authenticated || !user?.wallet?.address || !data) {
       setCanEdit(false);
       return;
@@ -460,7 +459,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           };
           break;
 
-        case 'onboarding':
+        case 'selection':
           payload = {
             ...payload,
             membersSelectionType: formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
@@ -468,7 +467,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           };
           break;
 
-        case 'selection':
+        case 'eligibility':
           switch (subStep) {
             case 'members':
               toggleOptionalStep('members');
@@ -580,6 +579,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const orgRolesGroupHatId = hatIdIpToDecimal(hatIdDecimalToIp(automationsHatId) + '.1');
       const councilRolesGroupHatId = hatIdIpToDecimal(hatIdDecimalToIp(automationsHatId) + '.2');
       // const councilAdminHatId = hatIdIpToDecimal(hatIdDecimalToIp(orgRolesGroupHatId) + '.1');
+      // TODO handle these dynamic hat IDs
       const complianceManagerHatId = hatIdIpToDecimal(hatIdDecimalToIp(orgRolesGroupHatId) + '.2');
       const agreementManagerHatId = hatIdIpToDecimal(hatIdDecimalToIp(orgRolesGroupHatId) + '.3');
       const councilMemberHatId = hatIdIpToDecimal(hatIdDecimalToIp(councilRolesGroupHatId) + '.1');
@@ -704,7 +704,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           ],
         );
         agreementModuleImmutableArgs = '0x' as `0x${string}`;
-        agreementModuleHatId = councilMemberHatId;
+        agreementModuleHatId = councilMemberHatId; // use existing hat id when applicable
         predictedAgreementModuleAddress = (await publicClient
           .readContract({
             address: HATS_MODULES_FACTORY_ADDRESS,
@@ -774,11 +774,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         const chainModules: `0x${string}`[] = [predictedCouncilMemberAllowlistAddress as `0x${string}`];
         if (formData.requirements.passCompliance) {
           chainLength += 1;
-          chainModules.push(predictedComplianceAllowlistAddress as `0x${string}`);
+          chainModules.push(predictedComplianceAllowlistAddress as `0x${string}`); // use existing address when applicable
         }
         if (formData.requirements.signAgreement) {
           chainLength += 1;
-          chainModules.push(predictedAgreementModuleAddress as `0x${string}`);
+          chainModules.push(predictedAgreementModuleAddress as `0x${string}`); // use existing address when applicable
         }
         if (formData.requirements.holdTokens) {
           chainLength += 1;

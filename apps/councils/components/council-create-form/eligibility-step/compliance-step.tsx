@@ -14,7 +14,7 @@ import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { ComplianceList } from './compliance-list';
 import { UnifiedUserForm } from './unified-user-form';
 
-export function SelectionComplianceStep({ onNext }: StepProps) {
+export function ComplianceStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
 
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);

@@ -109,7 +109,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
         }
       }
     }
-  }, [organizationsData, organizationNameValue, initialOrgValue, chainOptions, setValue, reset]);
+  }, [organizationsData, organizationNameValue, initialOrgValue, setValue, reset]);
 
   useCouncilDeployFlag(draftId);
 

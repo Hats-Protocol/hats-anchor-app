@@ -2662,7 +2662,7 @@ export const CHAIN_TOKENS: ChainTokens = {
   84532: [
     {
       chainId: 84532,
-      address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+      address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
       symbol: 'USDC',
       name: 'USD Coin',
       decimals: 6,
@@ -2670,7 +2670,7 @@ export const CHAIN_TOKENS: ChainTokens = {
     },
     {
       chainId: 84532,
-      address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+      address: '0x4200000000000000000000000000000000000006',
       symbol: 'WETH',
       name: 'Wrapped Ether',
       decimals: 18,

@@ -21,7 +21,7 @@ import {
 } from 'utils';
 import { zeroAddress } from 'viem';
 
-import { NextStepButton } from '../next-step-button';
+import { NextStepButton } from '../../next-step-button';
 
 interface PaymentDetailsModalProps {
   form: UseFormReturn<CouncilFormData>;

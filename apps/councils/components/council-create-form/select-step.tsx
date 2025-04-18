@@ -13,69 +13,73 @@ import { Skeleton } from 'ui';
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-export function OnboardingStep({ onNext, draftId }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const requirements = form.watch('requirements');
+const LoadingSelectStep = () => {
+  return (
+    <div className='flex h-full flex-col gap-8'>
+      <div className='flex flex-col gap-8'>
+        <Skeleton className='h-8 w-48' />
+
+        <div className='flex flex-col gap-4'>
+          <Skeleton className='h-6 w-64' />
+
+          <div className='flex flex-col gap-4'>
+            {[1, 2].map((i) => (
+              <div key={i} className='flex items-center justify-between rounded-lg border border-gray-200 px-6 py-4'>
+                <div className='flex gap-4'>
+                  <Skeleton className='h-6 w-6' />
+                  <div className='flex flex-col gap-0.5'>
+                    <Skeleton className='h-5 w-48' />
+                    <Skeleton className='h-4 w-64' />
+                  </div>
+                </div>
+                <Skeleton className='h-4 w-4' />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className='flex flex-col gap-4'>
+          <Skeleton className='h-6 w-64' />
+
+          <div className='flex flex-col gap-4'>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className='flex items-center justify-between rounded-lg border border-gray-200 px-6 py-4'>
+                <div className='flex gap-4'>
+                  <Skeleton className='h-6 w-6' />
+                  <div className='flex flex-col gap-0.5'>
+                    <Skeleton className='h-5 w-48' />
+                    <Skeleton className='h-4 w-64' />
+                  </div>
+                </div>
+                <Skeleton className='h-4 w-4' />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className='flex justify-end py-6'>
+        <Skeleton className='h-10 w-32' />
+      </div>
+    </div>
+  );
+};
+
+export function SelectionStep({ onNext, draftId }: StepProps) {
+  const { form: councilForm, isLoading, stepValidation, canEdit } = useCouncilForm();
+  const requirements = councilForm.watch('requirements');
 
   useCouncilDeployFlag(draftId);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'onboarding', undefined, requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', undefined, requirements);
 
   if (isLoading) {
-    return (
-      <div className='flex h-full flex-col gap-8'>
-        <div className='flex flex-col gap-8'>
-          <Skeleton className='h-8 w-48' />
-
-          <div className='flex flex-col gap-4'>
-            <Skeleton className='h-6 w-64' />
-
-            <div className='flex flex-col gap-4'>
-              {[1, 2].map((i) => (
-                <div key={i} className='flex items-center justify-between rounded-lg border border-gray-200 px-6 py-4'>
-                  <div className='flex gap-4'>
-                    <Skeleton className='h-6 w-6' />
-                    <div className='flex flex-col gap-0.5'>
-                      <Skeleton className='h-5 w-48' />
-                      <Skeleton className='h-4 w-64' />
-                    </div>
-                  </div>
-                  <Skeleton className='h-4 w-4' />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className='flex flex-col gap-4'>
-            <Skeleton className='h-6 w-64' />
-
-            <div className='flex flex-col gap-4'>
-              {[1, 2, 3].map((i) => (
-                <div key={i} className='flex items-center justify-between rounded-lg border border-gray-200 px-6 py-4'>
-                  <div className='flex gap-4'>
-                    <Skeleton className='h-6 w-6' />
-                    <div className='flex flex-col gap-0.5'>
-                      <Skeleton className='h-5 w-48' />
-                      <Skeleton className='h-4 w-64' />
-                    </div>
-                  </div>
-                  <Skeleton className='h-4 w-4' />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className='flex justify-end py-6'>
-          <Skeleton className='h-10 w-32' />
-        </div>
-      </div>
-    );
+    return <LoadingSelectStep />;
   }
 
   return (
-    <Form {...form}>
-      <form className='flex h-full flex-col gap-8' onSubmit={form.handleSubmit(onNext)}>
+    <Form {...councilForm}>
+      <form className='flex h-full flex-col gap-8' onSubmit={councilForm.handleSubmit(onNext)}>
         <div className='flex flex-col gap-8'>
           <h2 className='text-2xl font-bold'>Council Membership</h2>
 
@@ -84,7 +88,7 @@ export function OnboardingStep({ onNext, draftId }: StepProps) {
 
             <RadioCard
               name='membershipType'
-              localForm={form}
+              localForm={councilForm}
               isDisabled={!canEdit}
               options={[
                 {
@@ -110,7 +114,7 @@ export function OnboardingStep({ onNext, draftId }: StepProps) {
 
             <RequirementBox
               name='requirements'
-              localForm={form}
+              localForm={councilForm}
               isDisabled={!canEdit}
               options={[
                 {
@@ -137,7 +141,7 @@ export function OnboardingStep({ onNext, draftId }: StepProps) {
         </div>
 
         <div className='flex justify-end py-6'>
-          <NextStepButton disabled={!form.formState.isValid || !canEdit}>
+          <NextStepButton disabled={!councilForm.formState.isValid || !canEdit}>
             {getNextStepButtonText(nextStep)}
           </NextStepButton>
         </div>

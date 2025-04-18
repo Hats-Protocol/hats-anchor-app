@@ -14,6 +14,8 @@ interface AddMemberModalProps {
   canEdit?: boolean;
 }
 
+// TODO migrate to unified user form
+
 export function AddMemberModal({ form: parentForm, editingMember, canEdit = true }: AddMemberModalProps) {
   const { modals, setModals } = useOverlay();
 

@@ -138,16 +138,16 @@ export interface UpdateCouncilFormResponse {
 export interface StepValidation {
   details: boolean;
   threshold: boolean;
-  onboarding: boolean;
   selection: boolean;
-  selectionSubSteps: {
+  eligibility: boolean;
+  eligibilitySubSteps: {
     management: boolean;
     compliance: boolean;
     agreement: boolean;
     tokens: boolean;
     members: boolean;
   };
-  payment: boolean;
+  deploy: boolean;
 }
 
 export interface LabeledModules {

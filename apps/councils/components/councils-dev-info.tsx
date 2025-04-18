@@ -218,6 +218,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
           eligibilityRules={eligibilityRules || undefined}
           eligibilityAddress={hat.eligibility || undefined}
           hatId={hat.id}
+          key={hat.id}
         />
       ))}
 

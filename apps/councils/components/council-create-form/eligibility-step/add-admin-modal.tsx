@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, useCouncilForm, useOverlay } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
 import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CouncilMember } from 'types';
@@ -13,6 +13,8 @@ interface AddAdminModalProps {
   editingAdmin?: CouncilMember | null;
   canEdit?: boolean;
 }
+
+// TODO migrate to unified user form
 
 export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }: AddAdminModalProps) {
   const { modals, setModals } = useOverlay();

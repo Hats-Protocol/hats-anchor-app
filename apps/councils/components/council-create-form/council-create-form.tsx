@@ -6,14 +6,10 @@ import posthog from 'posthog-js';
 import type { StepValidation } from 'types';
 import { logger } from 'utils';
 
+import { DeployStep } from './deploy-step';
 import { DetailsStep } from './details-step';
-import { OnboardingStep } from './onboarding-step';
-import { SelectionAgreementStep } from './selection-step/agreement-step';
-import { SelectionComplianceStep } from './selection-step/compliance-step';
-import { SelectionManagementStep } from './selection-step/management-step';
-import { SelectionMembersStep } from './selection-step/members-step';
-import { SelectionTokensStep } from './selection-step/tokens-step';
-import { SubscribeDeployStep } from './subscribe-deploy-step';
+import { AgreementStep, ComplianceStep, ManagementStep, MembersStep, TokensStep } from './eligibility-step';
+import { SelectionStep } from './select-step';
 import { ThresholdStep } from './threshold-step';
 import { findNextInvalidStep } from './utils';
 
@@ -56,25 +52,25 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
       return <DetailsStep onNext={handleNext} draftId={draftId} />;
     case 'threshold':
       return <ThresholdStep onNext={handleNext} draftId={draftId} />;
-    case 'onboarding':
-      return <OnboardingStep onNext={handleNext} draftId={draftId} />;
     case 'selection':
+      return <SelectionStep onNext={handleNext} draftId={draftId} />;
+    case 'eligibility':
       switch (subStep) {
         case 'members':
-          return <SelectionMembersStep onNext={handleNext} draftId={draftId} />;
+          return <MembersStep onNext={handleNext} draftId={draftId} />;
         case 'management':
-          return <SelectionManagementStep onNext={handleNext} draftId={draftId} />;
+          return <ManagementStep onNext={handleNext} draftId={draftId} />;
         case 'agreement':
-          return <SelectionAgreementStep onNext={handleNext} draftId={draftId} />;
+          return <AgreementStep onNext={handleNext} draftId={draftId} />;
         case 'compliance':
-          return <SelectionComplianceStep onNext={handleNext} draftId={draftId} />;
+          return <ComplianceStep onNext={handleNext} draftId={draftId} />;
         case 'tokens':
-          return <SelectionTokensStep onNext={handleNext} draftId={draftId} />;
+          return <TokensStep onNext={handleNext} draftId={draftId} />;
         default:
           return null;
       }
-    case 'payment':
-      return <SubscribeDeployStep draftId={draftId} />;
+    case 'deploy':
+      return <DeployStep draftId={draftId} />;
     default:
       return null;
   }
