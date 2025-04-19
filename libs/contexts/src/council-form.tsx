@@ -314,11 +314,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     const userAddress = user.wallet.address.toLowerCase();
     const isCreator = data.creator?.toLowerCase() === userAddress;
     const isAdmin = data.admins?.some((admin) => admin.address.toLowerCase() === userAddress);
-    console.log({ isCreator, isAdmin });
 
     setCanEdit(isCreator || isAdmin);
   }, [authenticated, user?.wallet?.address, data]);
-  console.log({ canEdit });
 
   useEffect(() => {
     if (!data || !optionalSteps || !chainId) return;

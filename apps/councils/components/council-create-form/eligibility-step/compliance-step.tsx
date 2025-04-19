@@ -3,7 +3,7 @@
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilFormData, CouncilMember, StepProps } from 'types';
@@ -29,45 +29,50 @@ export function ComplianceStep({ onNext }: StepProps) {
   const complianceAdmins = form.watch('complianceAdmins') || [];
 
   // Extract unique organization managers from existing councils
-  const organizationManagers =
-    organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
-      if (council.creationForm?.admins) {
-        council.creationForm.admins.forEach((admin) => {
-          if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
-            acc.push(admin);
-          }
-        });
-      }
-      return acc;
-    }, []) || [];
+  const organizationManagers = useMemo(() => {
+    return (
+      organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
+        if (council.creationForm?.admins) {
+          council.creationForm.admins.forEach((admin) => {
+            if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
+              acc.push(admin);
+            }
+          });
+        }
+        return acc;
+      }, []) || []
+    );
+  }, [organization]);
 
   // Group unique compliance admin sets across councils
-  const complianceAdminGroups =
-    organization?.councils?.reduce<{
-      [key: string]: { admins: CouncilMember[]; councils: string[] };
-    }>((acc, council) => {
-      if (!council.creationForm?.complianceAdmins) return acc;
+  const complianceAdminGroups = useMemo(() => {
+    return (
+      organization?.councils?.reduce<{
+        [key: string]: { admins: CouncilMember[]; councils: string[] };
+      }>((acc, council) => {
+        if (!council.creationForm?.complianceAdmins) return acc;
 
-      // Create a sorted string of admin addresses as a key
-      const complianceAdminKey = council.creationForm.complianceAdmins
-        .map((admin) => admin.address.toLowerCase())
-        .sort()
-        .join(',');
+        // Create a sorted string of admin addresses as a key
+        const complianceAdminKey = council.creationForm.complianceAdmins
+          .map((admin) => admin.address.toLowerCase())
+          .sort()
+          .join(',');
 
-      if (!acc[complianceAdminKey]) {
-        acc[complianceAdminKey] = {
-          admins: council.creationForm.complianceAdmins.map((admin) => ({
-            ...admin,
-            email: '', // Adding required email field
-          })) as CouncilMember[],
-          councils: [council.creationForm.councilName],
-        };
-      } else {
-        acc[complianceAdminKey].councils.push(council.creationForm.councilName);
-      }
-      return acc;
-    }, {}) || {};
-
+        if (!acc[complianceAdminKey]) {
+          acc[complianceAdminKey] = {
+            admins: council.creationForm.complianceAdmins.map((admin) => ({
+              ...admin,
+              email: '', // Adding required email field
+            })) as CouncilMember[],
+            councils: [council.creationForm.councilName || ''],
+          };
+        } else {
+          acc[complianceAdminKey].councils.push(council.creationForm.councilName || '');
+        }
+        return acc;
+      }, {}) || {}
+    );
+  }, [organization]);
   // Create a sorted string of organization manager addresses to compare against
   const orgManagerKey = organizationManagers
     .map((admin) => admin.address.toLowerCase())

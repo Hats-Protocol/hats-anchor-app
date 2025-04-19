@@ -26,6 +26,24 @@ interface TokenNumberInputProps {
   variant?: 'default' | 'councils';
 }
 
+const getVariantStyles = (variant: TokenNumberInputProps['variant'] = 'default') => {
+  switch (variant) {
+    case 'councils':
+      return {
+        label: 'font-bold normal-case text-base',
+        description: 'text-gray-400',
+        container: 'flex items-center justify-between w-full',
+        tooltipContainer: 'flex items-center gap-1',
+      };
+    default:
+      return {
+        label: 'font-light uppercase',
+        description: '',
+        container: 'flex items-center gap-1',
+      };
+  }
+};
+
 function TokenNumberInput({
   name,
   label,
@@ -51,24 +69,6 @@ function TokenNumberInput({
     return typeof errorMessage === 'string' ? errorMessage : null;
   };
   const isError = !!getErrorMessage();
-
-  const getVariantStyles = (variant: TokenNumberInputProps['variant'] = 'default') => {
-    switch (variant) {
-      case 'councils':
-        return {
-          label: 'font-bold normal-case text-base',
-          description: 'text-gray-400',
-          container: 'flex items-center justify-between w-full',
-          tooltipContainer: 'flex items-center gap-1',
-        };
-      default:
-        return {
-          label: 'font-light uppercase',
-          description: '',
-          container: 'flex items-center gap-1',
-        };
-    }
-  };
 
   return (
     <FormField

@@ -1,22 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useQuery } from '@tanstack/react-query';
+import { Organization } from 'types';
 import { getOrganizations, logger } from 'utils';
-
-interface Organization {
-  id: string;
-  name: string;
-  councils: {
-    id: string;
-    creator: string;
-    chain: number;
-    creationForm: {
-      id: string;
-      creator: string;
-      chain: number;
-      councilName: string;
-    };
-  }[];
-}
 
 interface OrganizationsResponse {
   organizations: Organization[];

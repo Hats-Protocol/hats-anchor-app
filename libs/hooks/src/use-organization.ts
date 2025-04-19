@@ -1,47 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { usePrefetchQuery, useQuery } from '@tanstack/react-query';
+import { Organization } from 'types';
 import { getOrganizationByName } from 'utils';
-
-interface AdminUser {
-  id: string;
-  name: string;
-  address: string;
-  email: string;
-}
-
-interface Organization {
-  id: string;
-  name: string;
-  councils: {
-    id: string;
-    creator: string;
-    chain: number;
-    treeId: number;
-    hsg: string;
-    deployed: boolean;
-    creationForm: {
-      id: string;
-      creator: string;
-      chain: number;
-      councilName: string;
-      members: AdminUser[];
-      admins: AdminUser[];
-      agreement: string;
-      agreementAdmins: {
-        id: string;
-        name: string;
-        address: string;
-      }[];
-      tokenAmount: string;
-      tokenAddress: string;
-      complianceAdmins: {
-        id: string;
-        name: string;
-        address: string;
-      }[];
-    };
-  }[];
-}
 
 interface OrganizationResponse {
   organizations: Organization[];

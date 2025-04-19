@@ -2,10 +2,10 @@
 
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
-import { useCouncilDeployFlag, useOrganization } from 'hooks';
-import { toLower } from 'lodash';
+import { Organization, useCouncilDeployFlag, useOrganization } from 'hooks';
+import { isEmpty, toLower, toNumber } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { CouncilFormData, StepProps } from 'types';
@@ -22,25 +22,8 @@ interface TokenRequirement {
   tokenAddress: string;
 }
 
-export function TokensStep({ onNext, draftId }: StepProps) {
-  const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
-  const { watch: councilFormWatch, getValues: councilFormGetValues, reset } = councilForm;
-  const localForm = useForm();
-  const { setValue, handleSubmit } = localForm;
-  const { requirements, organizationName } = councilFormWatch();
-  const { watch } = localForm;
-  const tokenRequirement = watch('tokenRequirement');
-  logger.info('tokenRequirement', tokenRequirement);
-
-  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
-
-  useCouncilDeployFlag(draftId);
-
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
-
-  // Group token requirements from existing councils
-  const existingTokenRequirements =
+const createTokenRequirementsSelect = (organization: Organization | null | undefined) => {
+  return (
     organization?.councils?.reduce<Array<TokenRequirement>>((acc, council) => {
       if (council.creationForm?.tokenAmount && council.creationForm?.tokenAddress) {
         return [
@@ -54,69 +37,119 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         ];
       }
       return acc;
-    }, []) || [];
+    }, []) || []
+  );
+};
+
+export function TokensStep({ onNext, draftId }: StepProps) {
+  const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
+  const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
+  const localForm = useForm();
+  const { setValue, handleSubmit, reset } = localForm;
+  const { requirements, organizationName } = councilFormWatch();
+  const { watch } = localForm;
+  const tokenRequirement = watch('tokenRequirement');
+  logger.info('tokenRequirement', tokenRequirement);
+
+  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
+  const { data: organization, isLoading: isOrgLoading } = useOrganization(orgName);
+
+  useCouncilDeployFlag(draftId);
+
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
+
+  // Group token requirements from existing councils
+  const existingTokenRequirements = createTokenRequirementsSelect(organization);
 
   // Initialize selected option based on current token requirement
-  const [selectedOption, setSelectedOption] = useState(() => {
-    const currentTokenAddress = councilFormGetValues('tokenRequirement.address.value');
-    const currentMinimum = councilFormGetValues('tokenRequirement.minimum');
+  // const [selectedOption, setSelectedOption] = useState(() => {
+  //   const currentTokenAddress = getValues('tokenRequirement.address.value');
+  //   const currentMinimum = getValues('tokenRequirement.minimum');
 
-    return existingTokenRequirements.some(
-      (req) => req.tokenAddress === currentTokenAddress && req.minimum === currentMinimum?.toString(),
-    )
-      ? 'existing'
-      : 'new';
-  });
+  //   return existingTokenRequirements.some(
+  //     (req) => req.tokenAddress === currentTokenAddress && req.minimum === currentMinimum?.toString(),
+  //   )
+  //     ? `${currentTokenAddress}-${currentMinimum}`
+  //     : 'new';
+  // });
 
-  console.log('existingTokenRequirements', existingTokenRequirements);
+  // console.log('existingTokenRequirements', existingTokenRequirements, selectedOption);
 
   // Create radio options from existing token requirements and add the "Create new" option
-  const tokenOptions = [
-    ...existingTokenRequirements.map((requirement) => {
-      const token = availableTokens.find((t) => toLower(t.address) === toLower(requirement.tokenAddress));
-      return {
-        value: requirement.tokenAddress,
-        label: `Hold ${requirement.minimum} ${token?.symbol || 'tokens'}`,
-        icon: GemIcon as IconType,
-        description: requirement.councilName,
+  const tokenOptions = useMemo(
+    () => [
+      ...existingTokenRequirements.map((requirement) => {
+        const token = availableTokens.find((t) => toLower(t.address) === toLower(requirement.tokenAddress));
+        return {
+          value: `${requirement.tokenAddress}-${requirement.minimum}`,
+          label: `Hold ${requirement.minimum} ${token?.symbol || 'tokens'}`,
+          icon: GemIcon as IconType,
+          description: requirement.councilName,
+          onSelect: () => {
+            setValue('tokenType', `${requirement.tokenAddress}-${requirement.minimum}`);
+            setValue('tokenRequirement.minimum', parseInt(requirement.minimum));
+            setValue('tokenRequirement.address', { value: requirement.tokenAddress, label: token?.symbol || '' });
+          },
+        };
+      }),
+      {
+        value: 'new',
+        label: 'Create a new Token Limit',
+        icon: FilePlus as IconType,
+        description: 'Specify an amount of coins Council Members need to hold',
         onSelect: () => {
-          setSelectedOption('existing');
-          setValue('tokenRequirement.minimum', parseInt(requirement.minimum));
-          setValue('tokenRequirement.address', { value: requirement.tokenAddress, label: token?.symbol || '' });
-        },
-      };
-    }),
-    {
-      value: 'new',
-      label: 'Create a new Token Limit',
-      icon: FilePlus as IconType,
-      description: 'Specify an amount of coins Council Members need to hold',
-      onSelect: () => {
-        setSelectedOption('new');
-        // Only reset if switching from an existing requirement
-        if (selectedOption === 'existing') {
+          // Only reset if switching from an existing requirement
+          setValue('tokenType', 'new');
           setValue('tokenRequirement.minimum', 0);
           setValue('tokenRequirement.address', { value: '', label: '' });
-        }
+        },
       },
-    },
-  ];
+    ],
+    [existingTokenRequirements, availableTokens],
+  );
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
-      reset({ ...councilFormGetValues(), ...data });
+      console.log('submitForm', data);
+      councilFormReset({ ...councilFormGetValues(), ...data });
       // reset(data);
       await onNext();
     },
-    [reset, councilFormGetValues, onNext],
+    [reset, onNext],
   );
+
+  useEffect(() => {
+    if (isLoading || isOrgLoading) return;
+    const tokenReq = councilFormGetValues('tokenRequirement');
+    const existingTokenReq = existingTokenRequirements.find(
+      (req) => req.tokenAddress === tokenReq.address?.value && toNumber(req.minimum) === toNumber(tokenReq.minimum),
+    );
+
+    if (existingTokenReq) {
+      reset({
+        tokenRequirement: {
+          minimum: tokenReq.minimum,
+          address: { value: tokenReq.address?.value, label: tokenReq.address?.label },
+        },
+        tokenType: `${tokenReq.address?.value}-${tokenReq.minimum}`,
+      });
+    } else {
+      reset({
+        tokenRequirement: {
+          minimum: tokenReq.minimum,
+          address: { value: tokenReq.address?.value, label: tokenReq.address?.label },
+        },
+        tokenType: 'new',
+      });
+    }
+  }, [councilFormGetValues, isLoading, isOrgLoading, reset]);
 
   if (isLoading) {
     return <Skeleton className='h-full w-full' />;
   }
-  console.log('localForm', localForm.getValues('tokenRequirement'));
+  console.log('localForm', localForm.getValues('tokenRequirement'), tokenOptions);
 
   return (
     <Form {...localForm}>
@@ -135,13 +168,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
             </div>
           </div>
 
-          <RadioCard
-            name='tokenType'
-            localForm={localForm}
-            options={tokenOptions}
-            isDisabled={!canEdit}
-            defaultValue={selectedOption}
-          />
+          <RadioCard name='tokenType' localForm={localForm} options={tokenOptions} isDisabled={!canEdit} />
         </div>
 
         <div className='grid grid-cols-2 gap-8'>
@@ -155,7 +182,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
-              disabled={!canEdit || selectedOption === 'existing'}
+              disabled={!canEdit || watch('tokenType') !== 'new'}
             />
           </div>
 
@@ -166,7 +193,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
               variant='councils'
               localForm={localForm}
               options={availableTokens}
-              isDisabled={!canEdit || selectedOption === 'existing'}
+              isDisabled={!canEdit || watch('tokenType') !== 'new'}
             />
           </div>
         </div>

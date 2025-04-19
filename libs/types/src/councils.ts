@@ -100,39 +100,41 @@ export interface CouncilFormData {
   completedOptionalSteps: CompletedOptionalSteps;
 }
 
-export interface CouncilFormResponse {
-  councilCreationForm: {
-    id: string;
-    creator: string | null;
-    organizationName: string | null;
-    councilName: string | null;
-    chain: number | null;
-    councilDescription: string | null;
-    thresholdType: 'ABSOLUTE' | 'RELATIVE' | null;
-    thresholdTarget: number | null;
-    thresholdMin: number | null;
-    maxCouncilMembers: number | null;
-    membersSelectionType: 'ALLOWLIST' | 'ELECTION' | null;
-    members: CouncilMember[];
-    admins: CouncilMember[];
-    memberRequirements: {
-      signAgreement: boolean;
-      holdTokens: boolean;
-      passCompliance: boolean;
-    };
-    complianceAdmins: CouncilMember[];
-    createComplianceAdminRole: boolean;
-    agreement?: string;
-    createAgreementAdminRole: boolean;
-    agreementAdmins: CouncilMember[];
-    payer: CouncilPayer | null;
-    tokenAddress: string | null;
-    tokenAmount: string | null;
+interface CreationForm {
+  id: string;
+  creator: string | null;
+  organizationName: string | null;
+  councilName: string | null;
+  chain: number | null;
+  councilDescription: string | null;
+  thresholdType: 'ABSOLUTE' | 'RELATIVE' | null;
+  thresholdTarget: number | null;
+  thresholdMin: number | null;
+  maxCouncilMembers: number | null;
+  membersSelectionType: 'ALLOWLIST' | 'ELECTION' | null;
+  members: CouncilMember[];
+  admins: CouncilMember[];
+  memberRequirements: {
+    signAgreement: boolean;
+    holdTokens: boolean;
+    passCompliance: boolean;
   };
+  complianceAdmins: CouncilMember[];
+  createComplianceAdminRole: boolean;
+  agreement?: string;
+  createAgreementAdminRole: boolean;
+  agreementAdmins: CouncilMember[];
+  payer: CouncilPayer | null;
+  tokenAddress: string | null;
+  tokenAmount: string | null;
+}
+
+export interface CouncilFormResponse {
+  councilCreationForm: CreationForm;
 }
 
 export interface UpdateCouncilFormResponse {
-  updateCouncilCreationForm: CouncilFormResponse['councilCreationForm'];
+  updateCouncilCreationForm: CreationForm;
 }
 
 export interface StepValidation {
@@ -153,4 +155,19 @@ export interface StepValidation {
 export interface LabeledModules {
   selection: Hex;
   criteria: Hex;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  councils: {
+    id: string;
+    creator: string;
+    chain: number;
+    hsg: string;
+    membersSelectionModule?: string;
+    membersCriteriaModule?: string;
+    deployed: boolean;
+    creationForm: CreationForm;
+  }[];
 }

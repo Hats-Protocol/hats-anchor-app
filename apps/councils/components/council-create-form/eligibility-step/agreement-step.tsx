@@ -3,7 +3,7 @@
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
-import { trim } from 'lodash';
+import { isEmpty, trim } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
@@ -113,10 +113,10 @@ export function AgreementStep({ onNext }: StepProps) {
               ...admin,
               email: '', // Adding required email field
             })) as CouncilMember[],
-            councils: [council.creationForm.councilName],
+            councils: [council.creationForm.councilName || ''],
           };
         } else {
-          acc[adminKey].councils.push(council.creationForm.councilName);
+          acc[adminKey].councils.push(council.creationForm.councilName || '');
         }
         return acc;
       }, {}) || {},
@@ -200,8 +200,7 @@ export function AgreementStep({ onNext }: StepProps) {
   );
 
   // Determine which radio option should be selected based on agreement value
-  const selectedAgreementOption = selectedOption;
-  console.log('selectedAgreementOption', selectedAgreementOption, selectedOption);
+  // const selectedAgreementOption = selectedOption;
 
   // Create radio options for agreement managers
   const agreementManagerOptions = [
@@ -233,13 +232,6 @@ export function AgreementStep({ onNext }: StepProps) {
     if (isFetchingOrganization || !selectedOption || !form || !existingAgreements) return;
 
     const currentAgreement = form.getValues('agreement');
-    console.log(
-      'agreementOptions',
-      agreementOptions,
-      existingAgreements,
-      currentAgreement,
-      converter.makeMarkdown(currentAgreement || ''),
-    );
     const currentValues = form.getValues();
     const existingAgreement = existingAgreements?.find((localAgreement) => {
       return (
@@ -247,17 +239,29 @@ export function AgreementStep({ onNext }: StepProps) {
       );
     });
     if (existingAgreement) {
-      console.log('existingAgreement', existingAgreement, currentValues);
       form.reset({
         ...currentValues,
         // agreement: existingAgreement?.agreement || '',
-        agreementAdmins: existingAgreement?.agreementAdmins || [],
-        createAgreementAdminRole: `existing:${existingAgreement.id}`,
+        agreementAdmins: isEmpty(existingAgreement?.agreementAdmins)
+          ? organizationManagers || []
+          : existingAgreement?.agreementAdmins || [],
+        // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
+        createAgreementAdminRole: isEmpty(existingAgreement?.agreementAdmins)
+          ? 'false'
+          : `existing:${existingAgreement.id}`,
         agreementType: existingAgreement?.agreement,
       });
       setSelectedOption('existing');
     }
-  }, [existingAgreements, form, isFetchingOrganization, agreement, agreementOptions, selectedOption]);
+  }, [
+    existingAgreements,
+    form,
+    isFetchingOrganization,
+    agreement,
+    organizationManagers,
+    agreementOptions,
+    selectedOption,
+  ]);
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetchingOrganization && !isLoading);

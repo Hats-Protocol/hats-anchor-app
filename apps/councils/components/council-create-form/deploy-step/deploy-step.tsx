@@ -82,12 +82,12 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   };
 
   const tokenFields = ['symbol', 'name', 'decimals'];
-  const { data: tokenData } = useReadContracts({
+  const { data: tokenData, error } = useReadContracts({
     contracts: map(tokenFields, (field: string) => ({
       address: formData.tokenRequirement.address?.value,
       abi: erc20Abi,
       functionName: field,
-      chainId: chainStringToId(formData.chain.value) || undefined,
+      chainId: toNumber(formData.chain.value) || undefined,
     })),
   });
 
@@ -129,6 +129,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   if (some(deployStatus, (value) => value)) {
     return <Deploy deployStatus={deployStatus} draftId={draftId} />;
   }
+  console.log('formData', formData?.tokenRequirement, tokenData, error, formData?.chain.value);
 
   return (
     <div className='mx-auto max-w-4xl'>
