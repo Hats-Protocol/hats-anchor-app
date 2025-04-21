@@ -14,7 +14,7 @@ import { useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { Button, MemberAvatar } from 'ui';
-import { chainsMap, chainStringToId, formatAddress } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -82,13 +82,17 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   };
 
   const tokenFields = ['symbol', 'name', 'decimals'];
-  const { data: tokenData, error } = useReadContracts({
-    contracts: map(tokenFields, (field: string) => ({
-      address: formData.tokenRequirement.address?.value,
-      abi: erc20Abi,
-      functionName: field,
-      chainId: toNumber(formData.chain.value) || undefined,
-    })),
+  const shouldFetchToken = !!formData.tokenRequirement?.address?.value;
+  const { data: tokenData } = useReadContracts({
+    query: { enabled: shouldFetchToken },
+    contracts: shouldFetchToken
+      ? map(tokenFields, (field: string) => ({
+          address: formData.tokenRequirement.address?.value,
+          abi: erc20Abi,
+          functionName: field,
+          chainId: toNumber(formData.chain.value) || undefined,
+        }))
+      : [],
   });
 
   const organizationName = form.watch('organizationName') || '';
@@ -100,10 +104,10 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   const firstAdmin = get(formData, 'admins.[0]');
   const allWearers = uniqBy(
     concat(
-      get(formData, 'members'),
-      get(formData, 'admins'),
-      get(formData, 'agreementAdmins'),
-      get(formData, 'complianceAdmins'),
+      get(formData, 'members', []),
+      get(formData, 'admins', []),
+      get(formData, 'agreementAdmins', []),
+      get(formData, 'complianceAdmins', []),
     ),
     'id',
   );
@@ -129,7 +133,6 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   if (some(deployStatus, (value) => value)) {
     return <Deploy deployStatus={deployStatus} draftId={draftId} />;
   }
-  console.log('formData', formData?.tokenRequirement, tokenData, error, formData?.chain.value);
 
   return (
     <div className='mx-auto max-w-4xl'>

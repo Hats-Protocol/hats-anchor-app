@@ -56,7 +56,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
   useCouncilDeployFlag(draftId);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'tokens', requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', requirements);
 
   // Group token requirements from existing councils
   const existingTokenRequirements = createTokenRequirementsSelect(organization);
@@ -112,7 +112,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
     async (data: Partial<CouncilFormData>) => {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
-      console.log('submitForm', data);
+      logger.info('submitForm', data);
       councilFormReset({ ...councilFormGetValues(), ...data });
       // reset(data);
       await onNext();

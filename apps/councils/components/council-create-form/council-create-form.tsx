@@ -56,8 +56,6 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
       return <SelectionStep onNext={handleNext} draftId={draftId} />;
     case 'eligibility':
       switch (subStep) {
-        case 'members':
-          return <MembersStep onNext={handleNext} draftId={draftId} />;
         case 'management':
           return <ManagementStep onNext={handleNext} draftId={draftId} />;
         case 'agreement':
@@ -66,7 +64,10 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
           return <ComplianceStep onNext={handleNext} draftId={draftId} />;
         case 'tokens':
           return <TokensStep onNext={handleNext} draftId={draftId} />;
+        case 'members':
+          return <MembersStep onNext={handleNext} draftId={draftId} />;
         default:
+          router.replace(`/councils/new/eligibility?subStep=management&draftId=${draftId}`);
           return null;
       }
     case 'deploy':

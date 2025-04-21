@@ -137,7 +137,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     }
   }, [createComplianceAdminRole, form, organizationManagers, complianceAdminGroups, isMutating]);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'compliance', form.watch('requirements'));
+  const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'compliance', form.watch('requirements'));
 
   const handleSubmit = useCallback(
     async (data: CouncilFormData) => {

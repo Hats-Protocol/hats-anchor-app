@@ -234,9 +234,7 @@ export function AgreementStep({ onNext }: StepProps) {
     const currentAgreement = form.getValues('agreement');
     const currentValues = form.getValues();
     const existingAgreement = existingAgreements?.find((localAgreement) => {
-      return (
-        trim(converter.makeMarkdown(localAgreement.agreement)) === trim(converter.makeMarkdown(currentAgreement || ''))
-      );
+      return trim(localAgreement.agreement) === trim(currentAgreement || '');
     });
     if (existingAgreement) {
       form.reset({
