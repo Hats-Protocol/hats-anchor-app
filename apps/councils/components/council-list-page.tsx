@@ -32,7 +32,7 @@ const EMPTY_COUNCIL_STEPS = [
 
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
-  const { user, login } = usePrivy();
+  const { user, login, ready: privyReady } = usePrivy();
   const { isClient } = useMediaStyles();
   const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 
@@ -87,6 +87,7 @@ const CouncilListPage = () => {
   const isLoading =
     !isClient ||
     !isReady ||
+    !privyReady ||
     !userAddress ||
     crossChainCouncilsLoading ||
     crossChainWearerHatsLoading ||

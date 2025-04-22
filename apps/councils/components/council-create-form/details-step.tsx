@@ -3,7 +3,7 @@
 import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
-import { useGetOrganizations } from 'hooks';
+import { useGetOrganizations, useOrganization } from 'hooks';
 import { useCouncilDeployFlag } from 'hooks';
 import { isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
@@ -65,9 +65,12 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   const { watch, handleSubmit, reset, setValue } = localForm;
   const requirements = watch('requirements');
-
-  // watch the organization name value for logging
+  const councilName = watch('councilName');
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
+
+  // Get organization data for validation
+  const orgName = typeof organizationNameValue === 'string' ? organizationNameValue : organizationNameValue?.value;
+  const { data: organization } = useOrganization(orgName);
 
   // update chain when organization changes (either from query param or selection)
   useEffect(() => {
@@ -198,7 +201,20 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
               subLabel='The name of your first council. You can add further councils later.'
               variant='councils'
               placeholder='Council Name'
-              options={{ required: true }}
+              options={{
+                required: true,
+                validate: (value) => {
+                  if (!organization) return true;
+
+                  const existingCouncil = organization.councils?.find(
+                    (council) => council.creationForm?.councilName?.toLowerCase() === value?.toLowerCase(),
+                  );
+                  if (existingCouncil) {
+                    return 'A Council with this name already exists in this Organization.';
+                  }
+                  return true;
+                },
+              }}
               isDisabled={!canEdit}
             />
           </div>
