@@ -8,7 +8,7 @@ import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
-import showdown from 'showdown';
+// import showdown from 'showdown';
 import { CouncilFormData, CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 import { logger } from 'utils';
@@ -25,7 +25,7 @@ interface GroupedAgreement {
   agreementAdmins: CouncilMember[];
 }
 
-const converter = new showdown.Converter();
+// const converter = new showdown.Converter();
 
 const RadioCardSkeleton = () => (
   <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
@@ -165,7 +165,7 @@ export function AgreementStep({ onNext }: StepProps) {
   const agreement = form.watch('agreement');
   logger.info('agreement', agreement);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'agreement', requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', requirements);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
@@ -466,12 +466,14 @@ export function AgreementStep({ onNext }: StepProps) {
                   <RadioCardSkeleton />
                 </div>
               ) : (
-                <RadioCard
-                  name='createAgreementAdminRole'
-                  localForm={form}
-                  options={agreementManagerOptions}
-                  isDisabled={!canEdit || selectedOption === 'existing'}
-                />
+                selectedOption === 'new' && (
+                  <RadioCard
+                    name='createAgreementAdminRole'
+                    localForm={form}
+                    options={agreementManagerOptions}
+                    isDisabled={!canEdit}
+                  />
+                )
               )}
             </div>
 
@@ -537,7 +539,7 @@ export function AgreementStep({ onNext }: StepProps) {
             {createAgreementAdminRole === 'false' && organizationManagers.length > 0 && (
               <>
                 <div>
-                  <h3 className='mb-2 font-bold'>Agreement Managers</h3>
+                  <h3 className='mb-2 font-bold'>Organization Managers</h3>
                   <p className='text-sm text-gray-600'>
                     Organization Managers can update the agreement text and verify that Council Members have signed it.
                   </p>

@@ -1,3 +1,5 @@
+import { Button } from 'ui';
+
 interface NextStepButtonProps {
   onClick?: () => void;
   disabled?: boolean;
@@ -9,10 +11,11 @@ interface NextStepButtonProps {
 // TODO migrate to ui Button
 function NextStepButton({ onClick, disabled, children, type = 'submit', withIcon = true }: NextStepButtonProps) {
   return (
-    <button
+    <Button
       type={type}
       onClick={onClick}
       disabled={disabled}
+      size='lm'
       className='bg-functional-link-primary hover:bg-functional-link-primary/80 inline-flex items-center rounded-full px-4 py-2.5 text-sm font-medium text-white shadow disabled:opacity-50'
     >
       {children}
@@ -26,7 +29,7 @@ function NextStepButton({ onClick, disabled, children, type = 'submit', withIcon
           />
         </svg>
       )}
-    </button>
+    </Button>
   );
 }
 

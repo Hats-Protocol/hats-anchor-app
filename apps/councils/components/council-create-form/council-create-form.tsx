@@ -67,7 +67,7 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
         case 'members':
           return <MembersStep onNext={handleNext} draftId={draftId} />;
         default:
-          router.replace(`/councils/new/eligibility?subStep=management&draftId=${draftId}`);
+          // router.replace(`/councils/new/eligibility?subStep=management&draftId=${draftId}`);
           return null;
       }
     case 'deploy':

@@ -879,12 +879,18 @@ importers:
       lucide-react:
         specifier: ^0.471.0
         version: 0.471.2(react@18.3.1)
+      posthog-js:
+        specifier: 1.235.6
+        version: 1.235.6
       react-hook-form:
         specifier: ^7.54.2
         version: 7.54.2(react@18.3.1)
       react-icons:
         specifier: ^4.7.1
         version: 4.12.0(react@18.3.1)
+      showdown:
+        specifier: ^2.1.0
+        version: 2.1.0
       viem:
         specifier: 2.24.3
         version: 2.24.3(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2)
@@ -1415,6 +1421,9 @@ importers:
       '@hatsprotocol/constants':
         specifier: workspace:*
         version: link:../constants
+      '@hatsprotocol/details-sdk':
+        specifier: 0.0.1
+        version: 0.0.1(zod@3.24.2)
       '@hatsprotocol/hats-account-sdk':
         specifier: ^0.0.5
         version: 0.0.5(viem@2.24.3(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.24.2))

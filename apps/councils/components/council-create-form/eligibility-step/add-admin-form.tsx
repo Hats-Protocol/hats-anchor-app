@@ -207,7 +207,7 @@ export function AddAdminForm({ parentForm, editingAdmin, onClose, canEdit = true
             withIcon={false}
             type='button'
           >
-            {editingAdmin ? 'Save Changes' : 'Add Council Manager'}
+            {editingAdmin ? 'Save Changes' : 'Add Organization Manager'}
           </NextStepButton>
         </div>
       </div>

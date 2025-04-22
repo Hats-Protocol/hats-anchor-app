@@ -84,7 +84,6 @@ const RadioCard = ({
                 onValueChange={(val) => {
                   const selectedOption = options?.find((opt) => opt.value === val);
                   if (!selectedOption?.disabled && !isDisabled) {
-                    console.log('radio card - onValueChange', { [name]: val });
                     selectedOption?.onSelect?.();
                     onChange(val);
                   }
@@ -124,9 +123,13 @@ const RadioCard = ({
                             )}
                             <div className='flex w-full flex-col gap-0.5'>
                               <div className='flex w-full items-center justify-between'>
-                                <p className={cn('text-sm font-medium', textSize === 'sm' && 'text-base')}>
-                                  {option.label}
-                                </p>
+                                <div>
+                                  <p className={cn('text-sm font-medium', textSize === 'sm' && 'text-base')}>
+                                    {option.label}
+                                  </p>
+                                  {option.description && <p className='text-sm font-normal'>{option.description}</p>}
+                                </div>
+
                                 {option.avatars && option.avatars.length > 0 && (
                                   <div className='flex -space-x-2'>
                                     {option.avatars.map((avatar) => (
@@ -140,7 +143,6 @@ const RadioCard = ({
                                   </div>
                                 )}
                               </div>
-                              {option.description && <p className='text-sm font-normal'>{option.description}</p>}
                             </div>
                           </div>
                           {option.disabled && (

@@ -6,6 +6,8 @@ import { chainStringToId } from '../chains';
 import { GET_COUNCIL_BY_HSG, getCouncilsGraphqlClient } from '../councils-gql';
 import { logger } from '../logs';
 
+export * from './form';
+
 const checkChainId = (chain: string) => {
   const attemptNumber = toNumber(chain);
   if (typeof attemptNumber === 'number' && !isNaN(attemptNumber)) {

@@ -2695,7 +2695,7 @@ export function getChainTokens(chainId: number): TokenInfo[] {
 
 export function getTokenDecimals(chainId: number, tokenAddress: string): number | undefined {
   const chainTokens = CHAIN_TOKENS[chainId];
-  if (!chainTokens) return undefined;
+  if (!chainTokens || !tokenAddress) return undefined;
 
   const token = chainTokens.find((token) => token.address.toLowerCase() === tokenAddress.toLowerCase());
 

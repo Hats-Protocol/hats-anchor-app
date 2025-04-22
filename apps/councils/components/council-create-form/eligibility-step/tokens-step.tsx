@@ -243,7 +243,9 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
+              step={0.5}
               disabled={!canEdit || watch('tokenType') !== 'new'}
+              tooltip='The minimum amount of tokens that Council Members must hold'
             />
           </div>
 

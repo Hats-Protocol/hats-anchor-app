@@ -32,7 +32,7 @@ export function AddAdminModal({ form: parentForm, editingAdmin, canEdit = true }
   return (
     <Modal
       name={`addAdminModal${editingAdmin?.id ? `-${editingAdmin.id}` : ''}`}
-      title={editingAdmin ? 'Edit Council Manager' : 'Add Council Manager'}
+      title={editingAdmin ? 'Edit Organization Manager' : 'Add Organization Manager'}
       onClose={handleClose}
       size='lg'
     >

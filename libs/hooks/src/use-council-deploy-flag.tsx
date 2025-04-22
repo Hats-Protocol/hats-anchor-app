@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const useCouncilDeployFlag = (draftId: string, flag: boolean = false) => {
+const useCouncilDeployFlag = (draftId: string, flag = false) => {
   useEffect(() => {
     try {
       const deployValue = localStorage.getItem(`deployOnly-${draftId}`);

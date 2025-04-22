@@ -7,23 +7,18 @@ interface DeployStatus {
   [key: string]: boolean;
 }
 
-const deploySteps = {
-  pinRoleDetails: {
-    title: 'Create Council',
-    description: 'Creating a Hats tree to store roles & rules alongside a Safe Multisig',
-  }, // skip `calculatingRoleMetadata`
-  configureModules: {
-    title: 'Deploying your smart contract rules',
-    description: 'Deploying HSG, Allowlist, Compliance & Agreement',
-  }, // skip `chainModules`
-  simulateSafeAddress: {
-    title: 'Simulating Safe address',
-    description: 'Registering and reserving the Safe address',
+interface DeployStep {
+  title: string;
+  description: string;
+  deployTx?: () => void;
+  deployLabel?: string;
+}
+
+const firstCouncilDeploySteps: Record<string, DeployStep> = {
+  prepareTx: {
+    title: 'Preparing transaction',
+    description: 'Compiling calldata',
   },
-  allocateInitialRoles: {
-    title: 'Compiling Transaction Calldata',
-    description: 'Compiling a transaction that deploys the necessary contracts with allocates roles',
-  }, // bundle with `compileTxCalldata`
   deployTx: {
     title: 'Waiting for wallet confirmation',
     description: 'You need to confirm and send the transaction',
@@ -46,7 +41,35 @@ const deploySteps = {
   },
 };
 
-const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: DeployStatus }) => {
+// Helper to determine if a step is the current active step
+const isActiveStep = (deploySteps: Record<string, DeployStep>, deployStatus: DeployStatus, currentKey: string) => {
+  const steps = Object.keys(deploySteps);
+  const currentIndex = steps.indexOf(currentKey);
+  const previousStep = currentIndex > 0 ? steps[currentIndex - 1] : null;
+
+  // First step is active if it's not complete and no other steps are complete
+  if (currentIndex === 0) {
+    return !deployStatus[currentKey] && !Object.values(deployStatus).some((status) => status);
+  }
+
+  // Other steps are active if previous step is complete but current isn't
+  return previousStep ? deployStatus[previousStep] && !deployStatus[currentKey] : false;
+};
+
+const Deploy = ({
+  draftId,
+  firstCouncil = true,
+  deployStatus,
+  // deploy hats is handled prior to hitting this component
+  deployModules,
+  deployHsg,
+}: {
+  draftId: string;
+  firstCouncil: boolean;
+  deployStatus: DeployStatus;
+  deployModules: () => void;
+  deployHsg: () => void;
+}) => {
   const draftUrl = useMemo(() => {
     if (typeof window === 'undefined') return '';
     return `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
@@ -55,20 +78,64 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
     toastData: { variant: 'success', title: 'Copied share link to clipboard' },
   });
 
-  // Helper to determine if a step is the current active step
-  const isActiveStep = (currentKey: string) => {
-    const steps = Object.keys(deploySteps);
-    const currentIndex = steps.indexOf(currentKey);
-    const previousStep = currentIndex > 0 ? steps[currentIndex - 1] : null;
-
-    // First step is active if it's not complete and no other steps are complete
-    if (currentIndex === 0) {
-      return !deployStatus[currentKey] && !Object.values(deployStatus).some((status) => status);
-    }
-
-    // Other steps are active if previous step is complete but current isn't
-    return previousStep ? deployStatus[previousStep] && !deployStatus[currentKey] : false;
-  };
+  let deploySteps = firstCouncilDeploySteps;
+  // technically the txs are not sequential but prefer migrating to batch via 7702 vs handling here
+  if (!firstCouncil) {
+    deploySteps = {
+      prepareTx: {
+        title: 'Preparing transaction',
+        description: 'Compiling calldata',
+      },
+      deployHatsTx: {
+        title: 'Deploying Roles updates',
+        description: 'Confirm the transaction to update the Roles',
+      },
+      confirmHatsTx: {
+        title: 'Waiting for blockchain confirmation of Roles updates',
+        description: 'Network is including this transaction into a block',
+      },
+      indexHatsTx: {
+        title: 'Wait for indexing of Roles updates',
+        description: 'Storing blockchain information as structured metadata',
+      },
+      deployModulesTx: {
+        title: 'Deploying Modules',
+        description: 'Confirm the transaction to deploy the Modules',
+        deployTx: deployModules,
+        deployLabel: 'Deploy Modules',
+      },
+      confirmModulesTx: {
+        title: 'Waiting for blockchain confirmation of Modules',
+        description: 'Network is including this transaction into a block',
+      },
+      indexModulesTx: {
+        title: 'Wait for indexing of Modules',
+        description: 'Storing blockchain information as structured metadata',
+      },
+      deployHsgTx: {
+        title: 'Deploying Safe',
+        description: 'Confirm the transaction to deploy the Safe',
+        deployTx: deployHsg,
+        deployLabel: 'Deploy Safe',
+      },
+      confirmHsgTx: {
+        title: 'Waiting for blockchain confirmation of Safe',
+        description: 'Network is including this transaction into a block',
+      },
+      indexHsgTx: {
+        title: 'Wait for indexing of Safe',
+        description: 'Storing blockchain information as structured metadata',
+      },
+      processTx: {
+        title: 'Processing transaction',
+        description: "We're activating your permissions",
+      }, // bundle with `updateMetadata`
+      redirect: {
+        title: 'Redirecting to the Council',
+        description: 'Constructing your Hats Pro control panel and redirecting you to it',
+      },
+    };
+  }
 
   return (
     <div className='space-y-6'>
@@ -87,7 +154,7 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
 
       <div className='flex flex-col'>
         {Object.entries(deploySteps).map(([key, value], index, array) => {
-          const isActive = isActiveStep(key);
+          const isActive = isActiveStep(deploySteps, deployStatus, key);
           const isComplete = deployStatus[key];
           const isProcessing = key === 'processTx' && isActive;
           const isLastStep = index === array.length - 1;
@@ -127,6 +194,12 @@ const Deploy = ({ draftId, deployStatus }: { draftId: string; deployStatus: Depl
                 <h3 className='font-medium'>{value.title}</h3>
                 <p className='text-sm text-black/60'>{value.description}</p>
               </div>
+
+              {value.deployTx && isActiveStep(deploySteps, deployStatus, key) && (
+                <Button type='button' variant='outline-blue' rounded='full' onClick={value.deployTx}>
+                  {value.deployLabel || 'Deploy'}
+                </Button>
+              )}
             </div>
           );
         })}
