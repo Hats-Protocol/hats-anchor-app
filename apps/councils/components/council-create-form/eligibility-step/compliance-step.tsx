@@ -14,6 +14,12 @@ import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { ComplianceList } from './compliance-list';
 import { UnifiedUserForm } from './unified-user-form';
 
+interface GroupedComplianceAdmin {
+  id: string;
+  admins: CouncilMember[];
+  councils: string[];
+}
+
 const RadioCardSkeleton = () => (
   <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
     <div className='flex w-full items-center gap-3'>
@@ -97,6 +103,7 @@ export function ComplianceStep({ onNext }: StepProps) {
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
+  const [initialSetupComplete, setInitialSetupComplete] = useState(false);
   const prevRole = useRef(form.getValues('createComplianceAdminRole'));
 
   const organizationName = form.watch('organizationName') || '';
@@ -125,7 +132,7 @@ export function ComplianceStep({ onNext }: StepProps) {
   const complianceAdminGroups = useMemo(() => {
     return (
       organization?.councils?.reduce<{
-        [key: string]: { admins: CouncilMember[]; councils: string[] };
+        [key: string]: { id: string; admins: CouncilMember[]; councils: string[] };
       }>((acc, council) => {
         if (!council.creationForm?.complianceAdmins) return acc;
 
@@ -137,6 +144,7 @@ export function ComplianceStep({ onNext }: StepProps) {
 
         if (!acc[complianceAdminKey]) {
           acc[complianceAdminKey] = {
+            id: council.creationForm.id,
             admins: council.creationForm.complianceAdmins.map((admin) => ({
               ...admin,
               email: '', // Adding required email field
@@ -168,33 +176,134 @@ export function ComplianceStep({ onNext }: StepProps) {
   );
 
   // Create options for compliance managers
-  const complianceManagerOptions = [
-    {
-      value: 'false',
-      label: 'Organization Managers',
-      description: 'Manage Roles on all Councils',
-      avatars: organizationManagers,
-      onSelect: () => form.setValue('complianceAdmins', organizationManagers),
-    },
-    ...Object.entries(filteredComplianceAdminGroups)
-      .filter(([_, group]) => group.admins.length > 0)
-      .map(([key, group]) => ({
-        value: `existing:${key}`,
-        label: 'Compliance Managers',
-        description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-        avatars: group.admins,
-        onSelect: () => form.setValue('complianceAdmins', group.admins),
-      })),
-    {
-      value: 'true',
-      label: 'Create new Compliance Managers',
-      description: 'Create a new group of Compliance Managers',
-      onSelect: () => form.setValue('complianceAdmins', []),
-    },
-  ];
+  const complianceManagerOptions = useMemo(() => {
+    const currentComplianceAdmins = form.getValues('complianceAdmins') || [];
+    const currentAddresses = currentComplianceAdmins.map((admin) => admin.address.toLowerCase()).sort();
+    const currentRole = form.getValues('createComplianceAdminRole');
+
+    return [
+      {
+        value: 'false',
+        label: 'Organization Managers',
+        description: 'Manage Roles on all Councils',
+        avatars: organizationManagers,
+        onSelect: () => form.setValue('complianceAdmins', organizationManagers),
+        defaultSelected: currentRole === 'false',
+      },
+      ...Object.entries(filteredComplianceAdminGroups)
+        .filter(([_, group]) => group.admins.length > 0)
+        .map(([key, group]) => {
+          const groupAddresses = group.admins.map((admin) => admin.address.toLowerCase()).sort();
+          const isSelected = JSON.stringify(currentAddresses) === JSON.stringify(groupAddresses);
+          const isExistingSelected =
+            currentRole && currentRole.startsWith('existing:') && currentRole.split(':')[1] === key;
+
+          return {
+            value: `existing:${key}`,
+            label: 'Compliance Managers',
+            description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+            avatars: group.admins,
+            onSelect: () => form.setValue('complianceAdmins', group.admins),
+            defaultSelected: isExistingSelected || isSelected,
+          };
+        }),
+      {
+        value: 'true',
+        label: 'Create new Compliance Managers',
+        description: 'Create a new group of Compliance Managers',
+        onSelect: () => form.setValue('complianceAdmins', []),
+        defaultSelected: currentRole === 'true',
+      },
+    ];
+  }, [filteredComplianceAdminGroups, form, organizationManagers]);
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);
+
+  // Initialize the createComplianceAdminRole based on existing complianceAdmins
+  useEffect(() => {
+    if (initialSetupComplete || isFetching || isLoading) return;
+
+    const currentComplianceAdmins = form.getValues('complianceAdmins') || [];
+    if (!currentComplianceAdmins.length) {
+      setInitialSetupComplete(true);
+      return;
+    }
+
+    const currentAddresses = currentComplianceAdmins
+      .map((admin) => admin.address.toLowerCase())
+      .sort()
+      .join(',');
+
+    // Check if current admins match organization managers
+    const orgManagerAddresses = organizationManagers
+      .map((admin) => admin.address.toLowerCase())
+      .sort()
+      .join(',');
+
+    // First check if we already have a role selected
+    const currentRole = form.getValues('createComplianceAdminRole');
+
+    // If we have a role and it matches the data, keep it
+    if (currentRole) {
+      if (currentRole === 'false' && currentAddresses === orgManagerAddresses) {
+        // Already correctly set to organization managers
+        setInitialSetupComplete(true);
+        return;
+      } else if (currentRole.startsWith('existing:')) {
+        const adminKey = currentRole.split(':')[1];
+        const group = complianceAdminGroups[adminKey];
+        if (group) {
+          const groupAddresses = group.admins
+            .map((admin) => admin.address.toLowerCase())
+            .sort()
+            .join(',');
+
+          if (currentAddresses === groupAddresses) {
+            // Already correctly set to the right existing group
+            setInitialSetupComplete(true);
+            return;
+          }
+        }
+      } else if (currentRole === 'true') {
+        // Custom admins - this is fine
+        setInitialSetupComplete(true);
+        return;
+      }
+    }
+
+    // If we get here, we need to determine the role based on the current admins
+
+    // Check if they match organization managers
+    if (currentAddresses === orgManagerAddresses) {
+      form.setValue('createComplianceAdminRole', 'false', { shouldDirty: false });
+      prevRole.current = 'false';
+      setInitialSetupComplete(true);
+      return;
+    }
+
+    // Check if they match any existing compliance admin group
+    for (const [key, group] of Object.entries(complianceAdminGroups)) {
+      const groupAddresses = group.admins
+        .map((admin) => admin.address.toLowerCase())
+        .sort()
+        .join(',');
+
+      if (currentAddresses === groupAddresses) {
+        // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
+        form.setValue('createComplianceAdminRole', `existing:${key}`, { shouldDirty: false });
+        // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
+        prevRole.current = `existing:${key}`;
+        setInitialSetupComplete(true);
+        return;
+      }
+    }
+
+    // If we have admins but they don't match any existing group, assume it's a custom group
+    form.setValue('createComplianceAdminRole', 'true', { shouldDirty: false });
+    prevRole.current = 'true';
+    setInitialSetupComplete(true);
+  }, [complianceAdminGroups, form, isFetching, isLoading, organizationManagers, initialSetupComplete]);
 
   useEffect(() => {
     // Only update if the role has actually changed and we're not just resetting the form
@@ -203,22 +312,45 @@ export function ComplianceStep({ onNext }: StepProps) {
       createComplianceAdminRole &&
       !isMutating &&
       !form.formState.isSubmitting &&
+      initialSetupComplete && // Only run this effect after initial setup
       !form.formState.isDirty // Only update if the form hasn't been modified by user
     ) {
+      const currentAdmins = form.getValues('complianceAdmins') || [];
+      const currentAddresses = currentAdmins
+        .map((admin) => admin.address.toLowerCase())
+        .sort()
+        .join(',');
+
       if (createComplianceAdminRole === 'false') {
-        form.setValue('complianceAdmins', organizationManagers, { shouldDirty: false });
+        // Check if already matches organization managers
+        const orgManagerAddresses = organizationManagers
+          .map((admin) => admin.address.toLowerCase())
+          .sort()
+          .join(',');
+
+        if (currentAddresses !== orgManagerAddresses) {
+          form.setValue('complianceAdmins', organizationManagers, { shouldDirty: false });
+        }
       } else if (createComplianceAdminRole.startsWith('existing:')) {
         const adminKey = createComplianceAdminRole.split(':')[1];
         const group = complianceAdminGroups[adminKey];
         if (group) {
-          form.setValue('complianceAdmins', group.admins, { shouldDirty: false });
+          const groupAddresses = group.admins
+            .map((admin) => admin.address.toLowerCase())
+            .sort()
+            .join(',');
+
+          if (currentAddresses !== groupAddresses) {
+            form.setValue('complianceAdmins', group.admins, { shouldDirty: false });
+          }
         }
-      } else if (createComplianceAdminRole === 'true') {
+      } else if (createComplianceAdminRole === 'true' && currentAdmins.length === 0) {
+        // Only clear if empty - don't override custom admins that may have been added
         form.setValue('complianceAdmins', [], { shouldDirty: false });
       }
       prevRole.current = createComplianceAdminRole;
     }
-  }, [createComplianceAdminRole, form, organizationManagers, complianceAdminGroups, isMutating]);
+  }, [createComplianceAdminRole, form, organizationManagers, complianceAdminGroups, isMutating, initialSetupComplete]);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'compliance', form.watch('requirements'));
 
@@ -227,11 +359,33 @@ export function ComplianceStep({ onNext }: StepProps) {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
       const currentRole = data.createComplianceAdminRole;
+      const currentAdmins = [...(data.complianceAdmins || [])]; // Make a copy to preserve
+
+      // Keep the initialSetupComplete true to prevent re-initialization
+      setInitialSetupComplete(true);
+
+      // Update the ref to match the current selection before reset
+      prevRole.current = currentRole;
+
+      // Reset with keepValues to avoid flashing
       form.reset(data, { keepValues: true });
-      prevRole.current = currentRole; // Update the ref to match the current selection
+
+      // Ensure the admins and role are consistent after reset
+      if (currentRole) {
+        if (currentRole === 'true' || currentRole === 'false') {
+          form.setValue('createComplianceAdminRole', currentRole, { shouldDirty: false });
+        } else {
+          form.setValue('createComplianceAdminRole', currentRole, { shouldDirty: false });
+        }
+      }
+
+      if (currentAdmins.length > 0) {
+        form.setValue('complianceAdmins', currentAdmins, { shouldDirty: false });
+      }
+
       await onNext();
     },
-    [form, onNext],
+    [form, onNext, setInitialSetupComplete],
   );
 
   if (isLoading) {
@@ -270,6 +424,7 @@ export function ComplianceStep({ onNext }: StepProps) {
                   localForm={form}
                   options={complianceManagerOptions}
                   isDisabled={!canEdit}
+                  defaultValue={form.getValues('createComplianceAdminRole')}
                 />
               )}
             </div>
@@ -282,11 +437,21 @@ export function ComplianceStep({ onNext }: StepProps) {
               </p>
               <div className='mt-4 space-y-4'>
                 <ComplianceList
-                  complianceAdmins={complianceAdmins}
+                  complianceAdmins={
+                    createComplianceAdminRole === 'false'
+                      ? organizationManagers
+                      : createComplianceAdminRole.startsWith('existing:')
+                        ? (() => {
+                            const adminKey = createComplianceAdminRole.split(':')[1];
+                            const group = complianceAdminGroups[adminKey];
+                            return group?.admins || complianceAdmins;
+                          })()
+                        : complianceAdmins
+                  }
                   form={form}
                   canEdit={createComplianceAdminRole === 'true' && canEdit}
                   canDelete={createComplianceAdminRole === 'true' ? canEdit : false}
-                  showButtons={true}
+                  showButtons={createComplianceAdminRole === 'true'}
                   onEdit={(admin) => {
                     setEditingAdmin(admin);
                     setShowAddForm(true);
