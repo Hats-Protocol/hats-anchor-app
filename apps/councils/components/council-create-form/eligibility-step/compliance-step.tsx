@@ -198,7 +198,13 @@ export function ComplianceStep({ onNext }: StepProps) {
 
   useEffect(() => {
     // Only update if the role has actually changed and we're not just resetting the form
-    if (prevRole.current !== createComplianceAdminRole && createComplianceAdminRole && !isMutating) {
+    if (
+      prevRole.current !== createComplianceAdminRole &&
+      createComplianceAdminRole &&
+      !isMutating &&
+      !form.formState.isSubmitting &&
+      !form.formState.isDirty // Only update if the form hasn't been modified by user
+    ) {
       if (createComplianceAdminRole === 'false') {
         form.setValue('complianceAdmins', organizationManagers, { shouldDirty: false });
       } else if (createComplianceAdminRole.startsWith('existing:')) {
@@ -220,7 +226,9 @@ export function ComplianceStep({ onNext }: StepProps) {
     async (data: CouncilFormData) => {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
-      form.reset(data);
+      const currentRole = data.createComplianceAdminRole;
+      form.reset(data, { keepValues: true });
+      prevRole.current = currentRole; // Update the ref to match the current selection
       await onNext();
     },
     [form, onNext],
