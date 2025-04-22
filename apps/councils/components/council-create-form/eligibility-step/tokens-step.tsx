@@ -183,27 +183,22 @@ export function TokensStep({ onNext, draftId }: StepProps) {
     if (isLoading || isOrgLoading) return;
     const tokenReq = councilFormGetValues('tokenRequirement');
     const existingTokenReq = existingTokenRequirements.find(
-      (req) => req.tokenAddress === tokenReq.address?.value && toNumber(req.minimum) === toNumber(tokenReq.minimum),
+      (req) => req.tokenAddress === tokenReq?.address?.value && toNumber(req.minimum) === toNumber(tokenReq?.minimum),
     );
 
-    if (existingTokenReq) {
-      reset({
-        tokenRequirement: {
-          minimum: tokenReq.minimum,
-          address: { value: tokenReq.address?.value, label: tokenReq.address?.label },
+    const initialValues = {
+      tokenRequirement: {
+        minimum: tokenReq?.minimum ?? 0,
+        address: {
+          value: tokenReq?.address?.value ?? '',
+          label: tokenReq?.address?.label ?? '',
         },
-        tokenType: `${tokenReq.address?.value}-${tokenReq.minimum}`,
-      });
-    } else {
-      reset({
-        tokenRequirement: {
-          minimum: tokenReq.minimum,
-          address: { value: tokenReq.address?.value, label: tokenReq.address?.label },
-        },
-        tokenType: 'new',
-      });
-    }
-  }, [councilFormGetValues, isLoading, isOrgLoading, reset]);
+      },
+      tokenType: existingTokenReq ? `${tokenReq?.address?.value}-${tokenReq?.minimum}` : 'new',
+    };
+
+    reset(initialValues);
+  }, [isLoading, isOrgLoading]);
 
   if (isLoading) {
     return <LoadingTokensStep />;
