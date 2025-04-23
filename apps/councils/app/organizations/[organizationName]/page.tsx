@@ -10,7 +10,7 @@ import { CouncilHeaderCard } from '../../../components/council-header';
 
 const LoadingSkeleton = () => {
   return (
-    <div className='mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mx-auto md:mt-6 md:gap-8 md:px-10'>
+    <div className='mt-4 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mx-auto md:mt-4 md:gap-8 md:px-10'>
       <div className='flex flex-col gap-2 md:gap-4'>
         {[1, 2].map((i) => (
           <Skeleton key={i} className='bg-functional-link-primary/10 h-[125px] w-full rounded-lg' />
@@ -62,7 +62,7 @@ export default function OrganizationPage() {
 
   // TODO handle different link for MHSG [TEMP]
   return (
-    <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-6 md:gap-8 md:px-10'>
+    <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-4 md:gap-8 md:px-6'>
       <div className='flex flex-col gap-2 md:gap-4'>
         {organization.councils.map((item) => (
           <Link

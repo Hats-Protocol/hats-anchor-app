@@ -155,7 +155,7 @@ const CouncilHeaderCard = ({
               className='self-center'
               isExternal
             >
-              <Button variant='outline' rounded='full'>
+              <Button variant='outline-black' rounded='full'>
                 <SafeIcon className='size-3' />
                 <p className='font-normal'>Safe Wallet</p>
                 <FaExternalLinkAlt style={{ height: 14, width: 14 }} />

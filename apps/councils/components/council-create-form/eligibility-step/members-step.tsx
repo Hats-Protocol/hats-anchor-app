@@ -72,8 +72,15 @@ export function MembersStep({ onNext, draftId }: StepProps) {
 
       <div className='space-y-8'>
         <div className='space-y-2'>
-          <h2 className='font-bold'>Initial Council Members</h2>
-          <p className='text-sm'>Add the initial members of your council. You can add or remove members later.</p>
+          <div className='flex items-center gap-1'>
+            <h2 className='font-bold'>
+              Who is appointed to the Council ({members.length} of {form.watch('maxMembers')})?
+            </h2>
+            <span className='text-sm font-normal text-gray-400'>Optional</span>
+          </div>
+          <p className='text-sm'>
+            Appointed Council Members can operate the Safe once they satisfy all membership requirements.
+          </p>
         </div>
 
         {isLoadingList && !members.length && (

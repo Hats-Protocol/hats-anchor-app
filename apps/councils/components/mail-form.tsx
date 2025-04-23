@@ -172,7 +172,7 @@ const MailForm = ({
         address: formatAddress(address),
       })),
       councilSafeLink: safeUrl(chainId as SupportedChains, councilDetails.safe),
-      subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
+      subscriptionInfo: '299 USDC per month paid via invoice to follow',
       deployTransactionLink: `${explorerUrl(chainId)}/tx/0x`, // only available with deploy event
 
       // copy
