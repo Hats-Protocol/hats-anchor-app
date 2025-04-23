@@ -27,6 +27,7 @@ export function findNextInvalidStep(
   if (currentStep === 'eligibility' && currentSubStep) {
     const subSteps = getEligibilitySubSteps(requirements);
     const currentSubStepIndex = subSteps.indexOf(currentSubStep);
+    console.log('currentSubStepIndex', { currentSubStepIndex });
 
     // Check remaining sub-steps
     for (let i = currentSubStepIndex + 1; i < subSteps.length; i++) {

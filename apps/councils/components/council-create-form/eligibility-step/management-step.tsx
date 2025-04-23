@@ -2,6 +2,7 @@
 
 import { useCouncilForm } from 'contexts';
 import { useOrganization } from 'hooks';
+import { get } from 'lodash';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
@@ -21,9 +22,11 @@ export function ManagementStep({ onNext }: StepProps) {
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization, isFetching } = useOrganization(orgName);
+  const treeId = get(organization, 'councils.0.treeId');
 
   const admins = form.watch('admins') || [];
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', form.watch('requirements'));
+  console.log('management ', { nextStep });
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);
@@ -99,38 +102,39 @@ export function ManagementStep({ onNext }: StepProps) {
           </div>
         )}
 
-        {!showAddForm ? (
-          <div className='flex items-center justify-between'>
-            <Button
-              variant='outline-blue'
-              rounded='full'
-              onClick={() => {
-                setEditingAdmin(null);
-                setShowAddForm(true);
-              }}
-              disabled={!canEdit}
-              type='button'
-            >
-              <FiUserPlus className='mr-2 h-4 w-4' />
-              Add Organization Manager
-            </Button>
-          </div>
-        ) : (
-          <div className='-mx-16 border-b border-gray-200'>
-            <UnifiedUserForm
-              parentForm={form}
-              editingUser={editingAdmin}
-              userType='admin'
-              onClose={() => {
-                setShowAddForm(false);
-                setEditingAdmin(null);
-              }}
-              canEdit={canEdit}
-              className='bg-white px-16 py-6'
-              onMutationStateChange={setIsMutating}
-            />
-          </div>
-        )}
+        {!treeId &&
+          (!showAddForm ? (
+            <div className='flex items-center justify-between'>
+              <Button
+                variant='outline-blue'
+                rounded='full'
+                onClick={() => {
+                  setEditingAdmin(null);
+                  setShowAddForm(true);
+                }}
+                disabled={!canEdit}
+                type='button'
+              >
+                <FiUserPlus className='mr-2 h-4 w-4' />
+                Add Organization Manager
+              </Button>
+            </div>
+          ) : (
+            <div className='-mx-16 border-b border-gray-200'>
+              <UnifiedUserForm
+                parentForm={form}
+                editingUser={editingAdmin}
+                userType='admin'
+                onClose={() => {
+                  setShowAddForm(false);
+                  setEditingAdmin(null);
+                }}
+                canEdit={canEdit}
+                className='bg-white px-16 py-6'
+                onMutationStateChange={setIsMutating}
+              />
+            </div>
+          ))}
       </div>
 
       <div className='flex justify-end py-6'>

@@ -23,7 +23,6 @@ const CreateFormDevDetails = () => {
   const treeId = get(organization, 'councils.0.treeId');
   const { data: tree } = useTreeDetails({ treeId: Number(treeId), chainId });
   const existingHatIds = tree?.hats?.map((hat) => hat.id);
-  console.log({ tree });
 
   const requirements = form.watch('requirements');
   const councilName = form.watch('councilName');
@@ -38,6 +37,7 @@ const CreateFormDevDetails = () => {
     ];
   }, [councilName, councilDescription, organization?.name, organizationName, treeId]);
 
+  // TODO add eligibility addresses
   const councilRequirements = useMemo(() => {
     return [
       { label: 'Compliance', descriptor: <p className='text-sm'>{requirements?.passCompliance ? 'Yes' : 'No'}</p> },
@@ -45,6 +45,8 @@ const CreateFormDevDetails = () => {
       { label: 'Sign Agreement', descriptor: <p className='text-sm'>{requirements?.signAgreement ? 'Yes' : 'No'}</p> },
     ];
   }, [requirements]);
+
+  // TODO fetch predicted Safe/HSG address
 
   const councilSimulateInfo = useMemo(() => {
     return [

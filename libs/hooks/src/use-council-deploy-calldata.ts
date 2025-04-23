@@ -50,10 +50,10 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     // compute hat ids
     const currentTreeCount = await hatsClient.getTreesCount();
     const computedHatIds = compileHatIds({ treeData: tree, formData: formData, treesCount: currentTreeCount });
-    logger.debug(
-      'COMPUTED HAT IDs',
-      mapValues(computedHatIds, (id) => hatIdDecimalToIp(id)),
-    );
+    // logger.debug(
+    //   'COMPUTED HAT IDs',
+    //   mapValues(computedHatIds, (id) => hatIdDecimalToIp(id)),
+    // );
 
     const pinningKey = await fetchToken(20);
 
@@ -67,7 +67,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
         token: pinningKey as string,
       });
     }
-    logger.debug('AGREEMENT CID', agreementCid);
+    // logger.debug('AGREEMENT CID', agreementCid);
 
     // TODO check optional steps before compiling the remaining calldata
 
@@ -78,7 +78,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       agreementCid,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs }) => {
-        logger.debug('MODULES CALLLDATA', modulesCalldata, moduleAddresses);
+        // logger.debug('MODULES CALLLDATA', modulesCalldata, moduleAddresses);
 
         // compile create hats data
         return compileHatCreationData({
@@ -91,7 +91,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
         })
           .then(async (result) => {
             const { hatsProtocolCalls } = pick(result, ['hatsProtocolCalls']);
-            logger.debug('HATS PROTOCOL CALLS', hatsProtocolCalls);
+            // logger.debug('HATS PROTOCOL CALLS', hatsProtocolCalls);
             if (!hatsProtocolCalls) return; // TODO: handle this
 
             // compile mint hats call data

@@ -111,7 +111,6 @@ const processModule = async ({
   if (!every(args, (arg) => arg)) {
     throw new Error('Module args not found');
   }
-  console.log('args', args);
   const initArgs = encodeAbiParameters(args[0], args[1]);
 
   return publicClient
@@ -265,7 +264,7 @@ export const compileModuleData = async ({
     return Promise.reject(err);
   });
   const localModules = compact(rawLocalModules);
-  logger.debug('LOCAL MODULES', localModules);
+  // logger.debug('LOCAL MODULES', localModules);
 
   // retrieve values from module creation data
   const implementations: `0x${string}`[] = compact(
@@ -315,17 +314,17 @@ export const compileModuleData = async ({
       chainLength += 1;
       chainModules.push(erc20Module as `0x${string}`);
     }
-    logger.debug('chainModules', chainModules);
+    // logger.debug('chainModules', chainModules);
     eligibilityChainInitArgs = '0x' as `0x${string}`;
     eligibilityChainImmutableArgs = encodePacked(
       ['uint256', 'uint256[]', ...Array(chainLength).fill('address')],
       [BigInt(1), [BigInt(chainLength)], ...chainModules],
     );
-    logger.info('eligibility chain args', {
-      chainLength,
-      clauseLengths: BigInt(chainLength),
-      chainModules,
-    });
+    // logger.info('eligibility chain args', {
+    //   chainLength,
+    //   clauseLengths: BigInt(chainLength),
+    //   chainModules,
+    // });
     eligibilityChainHatId = hatIds.councilMember;
     predictedEligibilityChainAddress = (await publicClient.readContract({
       address: HATS_MODULES_FACTORY_ADDRESS,
@@ -338,7 +337,7 @@ export const compileModuleData = async ({
     immutableArgs.push(eligibilityChainImmutableArgs);
     initArgs.push(eligibilityChainInitArgs);
     saltNonces.push(saltNonce);
-    logger.debug('predicted eligibility chain address', predictedEligibilityChainAddress);
+    // logger.debug('predicted eligibility chain address', predictedEligibilityChainAddress);
   }
 
   // batch modules creation call data
@@ -523,7 +522,7 @@ export const compileHatCreationData = async ({
       hat.id,
     ),
   );
-  logger.debug('otherHatsToCreate', otherHatsToCreate);
+  // logger.debug('otherHatsToCreate', otherHatsToCreate);
 
   // handle top hats for new trees
   if (!tree?.hats?.length) {
@@ -812,7 +811,7 @@ export const simulateSafeAddress = async ({
       });
 
       safeProxyAddress = event.args.proxy;
-      logger.debug('Found Safe proxy address:', safeProxyAddress);
+      // logger.debug('Found Safe proxy address:', safeProxyAddress);
       break;
     } catch {
       // Continue if this log entry isn't the event we're looking for
