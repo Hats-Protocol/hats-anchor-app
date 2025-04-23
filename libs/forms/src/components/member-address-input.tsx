@@ -86,6 +86,13 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
 
   const showResolvedAddress = !!resolvedAddress && resolvedAddress !== formValue;
 
+  // Add effect to update form value when ENS resolves
+  useEffect(() => {
+    if (resolvedAddress && formValue && !isAddress(formValue)) {
+      setValue(name, resolvedAddress, { shouldValidate: true });
+    }
+  }, [resolvedAddress, formValue, setValue, name]);
+
   const memberOptions = useMemo(
     () =>
       members.map((member) => ({
