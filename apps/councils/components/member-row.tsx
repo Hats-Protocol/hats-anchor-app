@@ -79,7 +79,7 @@ const MemberRow = ({
   const viewUser = () => {
     setModals?.({ [`viewUser-member-${member.address}`]: true });
   };
-  const offchainWearers = getAllWearers(offchainCouncilData);
+  const offchainWearers = getAllWearers(offchainCouncilData?.creationForm);
   const offChainDetails = find(offchainWearers, { address: member.address });
   const fullMember = { ...member, ...offChainDetails };
 

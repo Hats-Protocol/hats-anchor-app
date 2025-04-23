@@ -17,7 +17,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
-    "@hatsprotocol/details-sdk": "0.0.1",
+    "@hatsprotocol/details-sdk": "0.0.2",
     "@hatsprotocol/modules-sdk": "^1.5.1",
     "@hatsprotocol/sdk-v1-core": "^0.12.4",
     "@hatsprotocol/sdk-v1-subgraph": "^1.1.0",

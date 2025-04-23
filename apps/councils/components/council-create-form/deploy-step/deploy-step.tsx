@@ -154,6 +154,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     setModals?.({ calldata: true });
   };
 
+  console.log('deployStatus', deployStatus);
   if (some(deployStatus, (value) => value)) {
     // TODO better check for `firstCouncil`
     return (
@@ -391,14 +392,17 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
               ) : (
                 <Tooltip
                   label={
-                    !simulateHats?.result ? "You don't have the needed permission to deploy to this organization" : ''
+                    // TODO better check for this
+                    !formData.payer
+                      ? 'Please update the invoice details'
+                      : !simulateHats?.result
+                        ? "You don't have the needed permission to deploy to this organization"
+                        : ''
                   }
                 >
                   <NextStepButton
                     // TODO disable if not ready to deploy hats tx or council simulation fails
-                    disabled={
-                      !payer || !form.watch('acceptedTerms') || isDeploying || !canEdit || !simulateHats?.result
-                    }
+                    disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
                     onClick={handleDeploy}
                   >
                     {isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
@@ -406,7 +410,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
                 </Tooltip>
               )}
 
-              <CalldataModal />
+              <CalldataModal topHatWearer={topHatWearer} />
               <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
             </div>
           </>

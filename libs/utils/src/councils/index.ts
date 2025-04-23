@@ -1,5 +1,5 @@
 import { compact, concat, get, includes, toNumber, uniqBy } from 'lodash';
-import { OffchainCouncilData } from 'types';
+import { CouncilFormData, OffchainCouncilData } from 'types';
 import { getAddress, Hex } from 'viem';
 
 import { chainStringToId } from '../chains';
@@ -72,16 +72,16 @@ export const parseCouncilSlug = (slug: string) => {
   return { chainId: null, address: slug };
 };
 
-export const getAllWearers = (offchainCouncilDetails: OffchainCouncilData | undefined) => {
-  if (!offchainCouncilDetails) return [];
+export const getAllWearers = (councilDetails: CouncilFormData | undefined) => {
+  if (!councilDetails) return [];
 
   return uniqBy(
     compact(
       concat(
-        get(offchainCouncilDetails, 'creationForm.admins'),
-        get(offchainCouncilDetails, 'creationForm.complianceAdmins'),
-        get(offchainCouncilDetails, 'creationForm.agreementAdmins'),
-        get(offchainCouncilDetails, 'creationForm.members'),
+        councilDetails.admins,
+        councilDetails.complianceAdmins,
+        councilDetails.agreementAdmins,
+        councilDetails.members,
       ),
     ),
     'address',

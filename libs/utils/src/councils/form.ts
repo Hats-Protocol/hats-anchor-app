@@ -111,6 +111,7 @@ const processModule = async ({
   if (!every(args, (arg) => arg)) {
     throw new Error('Module args not found');
   }
+  console.log('args', args);
   const initArgs = encodeAbiParameters(args[0], args[1]);
 
   return publicClient
@@ -183,13 +184,13 @@ const modules = ({
     requirementsKey: 'holdTokens',
     args: [
       [{ type: 'address' }, { type: 'uint256' }],
-      [formData.tokenRequirement.address?.value as `0x${string}`, formData.tokenRequirement.minimum],
+      [formData.tokenRequirement?.address?.value as `0x${string}`, formData.tokenRequirement?.minimum],
     ],
     immutableArgs: [
       ['address', 'uint256'],
       [
-        formData.tokenRequirement.address?.value as `0x${string}`,
-        parseUnits(toString(formData.tokenRequirement.minimum), tokenDecimals),
+        formData.tokenRequirement?.address?.value as `0x${string}`,
+        parseUnits(toString(formData.tokenRequirement?.minimum), tokenDecimals),
       ],
     ],
   };
@@ -208,7 +209,7 @@ const modules = ({
       hatId: hatIds.councilMember,
       args: [
         [{ type: 'uint256' }, { type: 'uint256' }, { type: 'address[]' }],
-        [hatIds.admin, hatIds.admin, formData.members.map((member) => member.address as `0x${string}`)],
+        [hatIds.admin, hatIds.admin, map(formData.members, 'address')],
       ],
     },
     // eligibility chain is handled separately
@@ -216,9 +217,9 @@ const modules = ({
 
   return {
     ...requiredModules,
-    ...(formData.requirements.signAgreement ? { agreementModule } : {}),
-    ...(formData.requirements.passCompliance ? { complianceAllowlist } : {}),
-    ...(formData.requirements.holdTokens ? { erc20Module } : {}),
+    ...(formData.requirements?.signAgreement ? { agreementModule } : {}),
+    ...(formData.requirements?.passCompliance ? { complianceAllowlist } : {}),
+    ...(formData.requirements?.holdTokens && formData.tokenRequirement?.address?.value ? { erc20Module } : {}),
   };
 };
 
@@ -237,7 +238,9 @@ export const compileModuleData = async ({
 
   // prep values for module creation
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-  const tokenDecimals = getTokenDecimals(chainId, formData.tokenRequirement.address?.value as `0x${string}`);
+  const tokenDecimals = formData.tokenRequirement?.address?.value
+    ? getTokenDecimals(chainId, formData.tokenRequirement.address?.value as `0x${string}`)
+    : undefined;
 
   // create modules data
   const modulesPromises = mapValues(
@@ -293,18 +296,22 @@ export const compileModuleData = async ({
   let eligibilityChainImmutableArgs: `0x${string}`;
   let eligibilityChainHatId: bigint;
   let predictedEligibilityChainAddress: `0x${string}` | undefined;
-  if (formData.requirements.passCompliance || formData.requirements.signAgreement || formData.requirements.holdTokens) {
+  if (
+    formData.requirements?.passCompliance ||
+    formData.requirements?.signAgreement ||
+    formData.requirements?.holdTokens
+  ) {
     let chainLength = 1;
     const chainModules: `0x${string}`[] = [councilMemberAllowlist as `0x${string}`];
-    if (formData.requirements.passCompliance) {
+    if (formData.requirements?.passCompliance) {
       chainLength += 1;
       chainModules.push(complianceAllowlist as `0x${string}`); // use existing address when applicable
     }
-    if (formData.requirements.signAgreement) {
+    if (formData.requirements?.signAgreement) {
       chainLength += 1;
       chainModules.push(agreementModule as `0x${string}`); // use existing address when applicable
     }
-    if (formData.requirements.holdTokens) {
+    if (formData.requirements?.holdTokens && formData.tokenRequirement?.address?.value) {
       chainLength += 1;
       chainModules.push(erc20Module as `0x${string}`);
     }
@@ -550,7 +557,8 @@ export const compileHatCreationData = async ({
       imageURI: '',
     };
 
-    console.log('hat', hat);
+    if (!hat.eligibility) return { hatsProtocolCalls };
+
     const callData = hatsClient.createHatCallData({
       ...defaultHatValues,
       ...omit(hat, ['ipfsCid', 'id']),
@@ -604,7 +612,7 @@ export const compileHatMintCallData = ({
 
   // mint compliance manager hat if compliance is required and compliance admin role doesn't exist already
   if (
-    formData.requirements.passCompliance && // is a requirement
+    formData.requirements?.passCompliance && // is a requirement
     formData.createComplianceAdminRole === 'true' && // wants to create a new role
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.complianceManager) }) // doesn't exist already
   ) {
@@ -617,7 +625,7 @@ export const compileHatMintCallData = ({
 
   // mint agreement manager hat if agreement is required and agreement admin role doesn't exist already
   if (
-    formData.requirements.signAgreement && // is a requirement
+    formData.requirements?.signAgreement && // is a requirement
     formData.createAgreementAdminRole === 'true' && // wants to create a new role
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.agreementManager) }) // doesn't exist already
   ) {
@@ -640,6 +648,9 @@ export const compileHsgV2CallData = ({
 }) => {
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
 
+  if (!formData.thresholdType || !computedHatIds) return { hsgV2Calldata: undefined, hsgArgs: undefined };
+
+  console.log('formData', formData);
   // create hsg v2 call data
   const hsgV2InitArgs = encodeAbiParameters(
     [
@@ -707,9 +718,10 @@ export const compileHsgV2CallData = ({
         safe: zeroAddress,
         thresholdConfig: {
           thresholdType: formData.thresholdType === 'ABSOLUTE' ? 0 : 1,
-          min: BigInt(formData.min),
+          min: BigInt(formData.min || 0),
           // currently only support one threshold on absolute
-          target: formData.thresholdType === 'ABSOLUTE' ? BigInt(formData.min) : BigInt(formData.target * 100),
+          target:
+            formData.thresholdType === 'ABSOLUTE' ? BigInt(formData.min || 0) : BigInt((formData.target || 1) * 100),
         },
         locked: false,
         claimableFor: true,
@@ -739,9 +751,10 @@ export const simulateSafeAddress = async ({
   toast,
 }: {
   chainId: number;
-  hsgV2Calldata: `0x${string}`;
+  hsgV2Calldata: `0x${string}` | undefined;
   toast: (toast: ToastProps) => void;
 }) => {
+  if (!hsgV2Calldata) return { safeProxyAddress: undefined };
   // TODO catch error
   const simulationResponse = await fetch('/api/simulate', {
     method: 'POST',

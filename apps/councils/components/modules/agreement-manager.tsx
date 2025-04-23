@@ -59,7 +59,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
   // const hatDetails = ownerHat?.detailsMetadata;
   // const agreementManagers = get(ownerHat, 'wearers');
   // const hatName = ownerHatDetails?.name;
-  const allWearers = getAllWearers(offchainCouncilDetails);
+  const allWearers = getAllWearers(offchainCouncilDetails?.creationForm);
   const userIsAgreementManager = !!find(agreementManagers, { id: toLower(userAddress) });
 
   const addAgreementManagerLoading = useState(false);

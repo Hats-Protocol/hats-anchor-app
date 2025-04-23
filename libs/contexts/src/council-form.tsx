@@ -2,7 +2,15 @@
 'use client';
 
 import { chainsList } from '@hatsprotocol/config';
-import { getChainTokens, initialDeployStatus, TokenInfo } from '@hatsprotocol/constants';
+import {
+  getChainTokens,
+  initialDeployStatus,
+  MULTICALL3_ADDRESS,
+  TokenInfo,
+  ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
+} from '@hatsprotocol/constants';
+import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
+import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
@@ -34,6 +42,7 @@ import {
   // sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
 } from 'utils';
+import { Hex } from 'viem';
 import { SimulateContractReturnType } from 'wagmi/actions';
 
 import { useOverlay } from './overlay-context';
@@ -56,6 +65,10 @@ interface CouncilFormContextType {
   deployHats: () => void;
   deployModules: () => void;
   deployHsg: () => void;
+  deployCouncilCalldata: Hex | undefined;
+  deployHatsCalldata: Hex | undefined;
+  deployModulesCalldata: Hex | undefined;
+  deployHsgCalldata: Hex | undefined;
   // TODO fix these types
   simulateCouncil: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
   simulateHats: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
@@ -493,7 +506,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   });
 
   const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds } = useCouncilDeployCalldata({
-    formData: form.getValues(),
+    formData: form.watch(),
     tree,
   });
   // console.log('calls', calls, hatsProtocolCallData, transferTopHatCallData, modulesCalldata, hsgV2Calldata);
@@ -541,6 +554,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         deployHats,
         deployModules,
         deployHsg,
+        deployCouncilCalldata: find(calls, { target: MULTICALL3_ADDRESS })?.callData,
+        deployHatsCalldata: find(calls, { target: HATS_V1 })?.callData,
+        deployModulesCalldata: find(calls, { target: HATS_MODULES_FACTORY_ADDRESS })?.callData,
+        deployHsgCalldata: find(calls, { target: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS })?.callData,
         // TODO what's up with this type?
         simulateCouncil: simulateCouncil as SimulateContractReturnType<any, any, any, any, any, any> | undefined,
         simulateHats: simulateHats as SimulateContractReturnType<any, any, any, any, any, any> | undefined,

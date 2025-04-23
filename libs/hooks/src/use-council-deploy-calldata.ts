@@ -115,6 +115,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
               toast,
             })
               .then(({ safeProxyAddress }) => {
+                if (!safeProxyAddress) return {};
                 // mint hats
                 const mintCouncilHatCallData = hatsClient.mintHatCallData({
                   hatId: computedHatIds.council,
@@ -187,9 +188,12 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['council-deploy-calldata'],
+    queryKey: ['council-deploy-calldata', formData, tree],
     queryFn: computeCalldata,
+    enabled: !!formData && !!tree,
   });
+  // TODO: handle this
+  // @ts-expect-error handle missing keys
   const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds } = pick(data, [
     'calls', // multicall calldata
     // separate calls

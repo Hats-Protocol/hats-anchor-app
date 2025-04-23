@@ -94,7 +94,11 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
           descriptor: (
             <div className='flex flex-col items-end gap-1'>
               {map(councilDetails?.signerHats, (hat) => (
-                <Link href={hatLink({ chainId: chainId as SupportedChains, hatId: hat.id })} className='underline'>
+                <Link
+                  href={hatLink({ chainId: chainId as SupportedChains, hatId: hat.id })}
+                  className='underline'
+                  key={hat.id}
+                >
                   {hatIdDecimalToIp(hatIdHexToDecimal(hat.id))}
                 </Link>
               ))}

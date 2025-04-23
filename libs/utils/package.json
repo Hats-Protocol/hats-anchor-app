@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@hatsprotocol/constants": "workspace:*",
-    "@hatsprotocol/details-sdk": "0.0.1",
+    "@hatsprotocol/details-sdk": "0.0.2",
     "@hatsprotocol/hats-account-sdk": "^0.0.5",
     "@hatsprotocol/hsg-sdk": "^0.0.15",
     "@hatsprotocol/modules-sdk": "^1.5.1",

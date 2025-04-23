@@ -1,5 +1,5 @@
 import { useClipboard } from 'hooks';
-import { Check, Link } from 'lucide-react';
+import { Check, Link, RotateCcw } from 'lucide-react';
 import { useMemo } from 'react';
 import { Button, cn } from 'ui';
 
@@ -84,33 +84,33 @@ const Deploy = ({
     deploySteps = {
       prepareTx: {
         title: 'Preparing transaction',
-        description: 'Compiling calldata',
+        description: 'Compiling module details, predicting addresses and preparing role updates',
       },
       deployHatsTx: {
-        title: 'Deploying Roles updates',
-        description: 'Confirm the transaction to update the Roles',
+        title: 'Deploying roles updates',
+        description: 'Confirm the transaction to update the roles',
       },
       confirmHatsTx: {
-        title: 'Waiting for blockchain confirmation of Roles updates',
+        title: 'Waiting for blockchain confirmation of roles updates',
         description: 'Network is including this transaction into a block',
       },
       indexHatsTx: {
-        title: 'Wait for indexing of Roles updates',
-        description: 'Storing blockchain information as structured metadata',
+        title: 'Waiting for indexing of roles updates',
+        description: 'Parsing the transaction information for retrieval',
       },
       deployModulesTx: {
-        title: 'Deploying Modules',
-        description: 'Confirm the transaction to deploy the Modules',
+        title: 'Deploying modules',
+        description: 'Confirm the transaction to deploy the modules',
         deployTx: deployModules,
         deployLabel: 'Deploy Modules',
       },
       confirmModulesTx: {
-        title: 'Waiting for blockchain confirmation of Modules',
+        title: 'Waiting for confirmation of modules deployment',
         description: 'Network is including this transaction into a block',
       },
       indexModulesTx: {
-        title: 'Wait for indexing of Modules',
-        description: 'Storing blockchain information as structured metadata',
+        title: 'Waiting for indexing of modules deployment',
+        description: 'Parsing the transaction information for retrieval',
       },
       deployHsgTx: {
         title: 'Deploying Safe',
@@ -119,17 +119,17 @@ const Deploy = ({
         deployLabel: 'Deploy Safe',
       },
       confirmHsgTx: {
-        title: 'Waiting for blockchain confirmation of Safe',
+        title: 'Waiting for confirmation of Safe deployment',
         description: 'Network is including this transaction into a block',
       },
       indexHsgTx: {
-        title: 'Wait for indexing of Safe',
-        description: 'Storing blockchain information as structured metadata',
+        title: 'Waiting for indexing of Safe deployment',
+        description: 'Parsing the transaction information for retrieval',
       },
       processTx: {
         title: 'Processing transaction',
         description: "We're activating your permissions",
-      }, // bundle with `updateMetadata`
+      },
       redirect: {
         title: 'Redirecting to the Council',
         description: 'Constructing your Hats Pro control panel and redirecting you to it',
@@ -160,43 +160,48 @@ const Deploy = ({
           const isLastStep = index === array.length - 1;
 
           return (
-            <div className='flex items-start gap-4' key={key}>
-              <div className='flex flex-col items-center'>
-                <div
-                  className={cn(
-                    'relative flex size-11 items-center justify-center rounded-full',
-                    isComplete
-                      ? 'border-functional-link-primary bg-functional-link-primary border-2'
-                      : isActive || isProcessing
-                        ? cn('border-2 border-gray-300 bg-sky-100', [
-                            'before:absolute before:inset-[-2px] before:animate-[spin_2s_linear_infinite] before:rounded-full',
-                            'before:bg-[length:200%_100%]',
-                            'before:from-functional-link-primary before:to-functional-link-primary before:bg-gradient-to-r before:via-sky-100 before:via-30%',
-                            'after:absolute after:inset-[-1px] after:rounded-full after:bg-sky-100',
-                            'border-none',
-                          ])
-                        : 'border-2 border-gray-300',
-                  )}
-                >
-                  {isComplete ? (
-                    <Check className='h-5 w-5 text-white' />
-                  ) : (
-                    <span className='relative z-10'>{index + 1}</span>
+            <div className='flex justify-between gap-4' key={key}>
+              <div className='flex items-start gap-4'>
+                <div className='flex flex-col items-center'>
+                  <div
+                    className={cn(
+                      'relative flex size-11 items-center justify-center rounded-full',
+                      isComplete
+                        ? 'border-functional-link-primary bg-functional-link-primary border-2'
+                        : isActive || isProcessing
+                          ? cn('border-2 border-gray-300 bg-sky-100', [
+                              'before:absolute before:inset-[-2px] before:animate-[spin_2s_linear_infinite] before:rounded-full',
+                              'before:bg-[length:200%_100%]',
+                              'before:from-functional-link-primary before:to-functional-link-primary before:bg-gradient-to-r before:via-sky-100 before:via-30%',
+                              'after:absolute after:inset-[-1px] after:rounded-full after:bg-sky-100',
+                              'border-none',
+                            ])
+                          : 'border-2 border-gray-300',
+                    )}
+                  >
+                    {isComplete ? (
+                      <Check className='h-5 w-5 text-white' />
+                    ) : (
+                      <span className='relative z-10'>{index + 1}</span>
+                    )}
+                  </div>
+
+                  {!isLastStep && (
+                    <div
+                      className={cn('my-2 h-8 w-[2px]', isComplete ? 'bg-functional-link-primary' : 'bg-gray-200')}
+                    />
                   )}
                 </div>
 
-                {!isLastStep && (
-                  <div className={cn('my-2 h-8 w-[2px]', isComplete ? 'bg-functional-link-primary' : 'bg-gray-200')} />
-                )}
-              </div>
-
-              <div className='flex flex-col gap-1'>
-                <h3 className='font-medium'>{value.title}</h3>
-                <p className='text-sm text-black/60'>{value.description}</p>
+                <div className='flex flex-col gap-1'>
+                  <h3 className='font-medium'>{value.title}</h3>
+                  <p className='text-sm text-black/60'>{value.description}</p>
+                </div>
               </div>
 
               {value.deployTx && isActiveStep(deploySteps, deployStatus, key) && (
                 <Button type='button' variant='outline-blue' rounded='full' onClick={value.deployTx}>
+                  <RotateCcw className='h-4 w-4' />
                   {value.deployLabel || 'Deploy'}
                 </Button>
               )}

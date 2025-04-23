@@ -315,6 +315,7 @@ const useCouncilDeploy = ({
         moduleArgs?.initArgs,
         moduleArgs?.saltNonces,
       ],
+      chain: chainsMap(chainId),
     });
     setDeployStatus((prev) => ({ ...prev, deployModulesTx: true }));
 
