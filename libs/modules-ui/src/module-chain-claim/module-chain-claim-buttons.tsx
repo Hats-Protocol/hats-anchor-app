@@ -272,13 +272,21 @@ const ModuleChainClaimButtons = ({
 
   const sortedRules = concat(completedRules, incompleteRules, incompleteAgreementRules);
 
-  // only set initial activeRule if none is selected so that it doesn't override the user selection
+  // Set the first incomplete non-agreement module as active when eligibility is determined
   useEffect(() => {
-    if (!activeRule) {
-      const incompleteRule = flatRules.find((rule) => !isRuleCompleted(rule));
-      setActiveRule(incompleteRule || first(sortedRules));
+    // Only proceed if we have currentEligibility data
+    if (!currentEligibility) return;
+
+    // Find the first incomplete non-agreement rule
+    const firstIncompleteRule = flatRules.find((rule) => {
+      if (isAgreement(rule)) return false;
+      return !isRuleCompleted(rule);
+    });
+
+    if (firstIncompleteRule) {
+      setActiveRule(firstIncompleteRule);
     }
-  }, [flatRules, activeRule, setActiveRule, sortedRules, isRuleCompleted]);
+  }, [currentEligibility, flatRules, isAgreement, isRuleCompleted, setActiveRule]);
 
   return (
     <div
