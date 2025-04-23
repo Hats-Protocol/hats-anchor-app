@@ -33,7 +33,7 @@ const EMPTY_COUNCIL_STEPS = [
 
 const CouncilListPageOrgs = () => {
   const { address: userAddress } = useAccount();
-  const { user, login } = usePrivy();
+  const { user, login, ready: privyReady } = usePrivy();
   const { isClient } = useMediaStyles();
   const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 
@@ -114,6 +114,7 @@ const CouncilListPageOrgs = () => {
   const isLoading =
     !isClient ||
     !isReady ||
+    !privyReady ||
     !userAddress ||
     councilsLoading ||
     crossChainWearerHatsLoading ||
@@ -283,7 +284,7 @@ const CouncilListPageOrgs = () => {
     const sortedOrgs = orderBy(Object.keys(groupedCouncils));
 
     return (
-      <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-6 md:gap-8 md:px-10'>
+      <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-4 md:gap-8 md:px-10'>
         {sortedOrgs.map((organizationName) => (
           <div key={organizationName} className='flex flex-col gap-4'>
             {/* Group by chain within each organization */}
