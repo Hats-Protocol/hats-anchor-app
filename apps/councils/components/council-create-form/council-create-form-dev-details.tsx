@@ -2,13 +2,14 @@
 
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
+import { Textarea } from 'forms';
 import { useTreeDetails } from 'hats-hooks';
 import { useOrganization } from 'hooks';
-import { get, includes, map } from 'lodash';
+import { compact, get, includes, map } from 'lodash';
 import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Link } from 'ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, BaseTextarea, Link } from 'ui';
 
 const CreateFormDevDetails = () => {
   const { form, simulateCouncil, simulateHats, simulateModules, simulateHsg, hatIds } = useCouncilForm();
@@ -31,7 +32,7 @@ const CreateFormDevDetails = () => {
   const councilDetails = useMemo(() => {
     return [
       { label: 'Organization', descriptor: <p className='text-sm'>{organization?.name || organizationName}</p> },
-      { label: 'Tree ID', descriptor: <p className='text-sm'>{treeId}</p> },
+      { label: 'Tree ID', descriptor: <p className='text-sm'>{treeId || 'New'}</p> },
       { label: 'Name', descriptor: <p className='text-sm'>{councilName || '--'}</p> },
       { label: 'Description', descriptor: <p className='text-sm'>{councilDescription || '--'}</p> },
     ];
@@ -49,13 +50,45 @@ const CreateFormDevDetails = () => {
   // TODO fetch predicted Safe/HSG address
 
   const councilSimulateInfo = useMemo(() => {
-    return [
-      { label: 'Simulate Council', descriptor: <p className='text-sm'>{simulateCouncil ? 'Yes' : 'No'}</p> },
-      { label: 'Simulate Hats', descriptor: <p className='text-sm'>{simulateHats ? 'Yes' : 'No'}</p> },
-      { label: 'Simulate Modules', descriptor: <p className='text-sm'>{simulateModules ? 'Yes' : 'No'}</p> },
-      { label: 'Simulate HSG', descriptor: <p className='text-sm'>{simulateHsg ? 'Yes' : 'No'}</p> },
-    ];
+    return compact([
+      { label: 'Simulate Council', descriptor: <p className='text-sm'>{simulateCouncil?.data ? 'Yes' : 'No'}</p> },
+      simulateCouncil?.error && {
+        label: 'Simulate Council Error',
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateCouncil?.error?.message} />,
+      },
+      {
+        label: 'Simulate Hats',
+        descriptor: <p className='text-sm'>{simulateHats?.data ? 'Yes' : simulateCouncil?.error ? 'Error' : 'No'}</p>,
+      },
+      simulateHats?.error && {
+        label: 'Simulate Hats Error',
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHats?.error?.message} />,
+      },
+      {
+        label: 'Simulate Modules',
+        descriptor: <p className='text-sm'>{simulateModules?.data ? 'Yes' : simulateHats?.error ? 'Error' : 'No'}</p>,
+      },
+      simulateModules?.error && {
+        label: 'Simulate Modules Error',
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateModules?.error?.message} />,
+      },
+      {
+        label: 'Simulate HSG',
+        descriptor: <p className='text-sm'>{simulateHsg?.data ? 'Yes' : simulateModules?.error ? 'Error' : 'No'}</p>,
+      },
+      simulateHsg?.error && {
+        label: 'Simulate HSG Error',
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHsg?.error?.message} />,
+      },
+    ]);
   }, [simulateCouncil, simulateHats, simulateModules, simulateHsg]);
+  // console.log(
+  //   'councilSimulateInfo',
+  //   simulateCouncil?.error,
+  //   simulateCouncil?.isLoading,
+  //   simulateCouncil?.isError,
+  //   simulateCouncil?.data,
+  // );
 
   if (!isDev) return null;
 

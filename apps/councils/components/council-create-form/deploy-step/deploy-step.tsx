@@ -153,8 +153,8 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   const copyCalldata = () => {
     setModals?.({ calldata: true });
   };
+  // console.log('simulateHats', simulateHats);
 
-  console.log('deployStatus', deployStatus);
   if (some(deployStatus, (value) => value)) {
     // TODO better check for `firstCouncil`
     return (
@@ -395,7 +395,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
                     // TODO better check for this
                     !formData.payer
                       ? 'Please update the invoice details'
-                      : !simulateHats?.result
+                      : !simulateHats?.data?.result
                         ? "You don't have the needed permission to deploy to this organization"
                         : ''
                   }

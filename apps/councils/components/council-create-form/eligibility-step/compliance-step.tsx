@@ -3,6 +3,7 @@
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
+import { concat, flatten, map, toLower, uniqBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
@@ -113,20 +114,18 @@ export function ComplianceStep({ onNext }: StepProps) {
   const complianceAdmins = form.watch('complianceAdmins') || [];
 
   // Extract unique organization managers from existing councils
+  const rawAdmins = form.watch('admins');
   const organizationManagers = useMemo(() => {
-    return (
-      organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
-        if (council.creationForm?.admins) {
-          council.creationForm.admins.forEach((admin) => {
-            if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
-              acc.push(admin);
-            }
-          });
-        }
-        return acc;
-      }, []) || []
+    const localAdmins = concat(
+      flatten(map(organization?.councils, (council) => council.creationForm?.admins)),
+      rawAdmins,
     );
-  }, [organization]);
+    const lowerAdmins = map(localAdmins, (admin) => ({
+      ...admin,
+      address: toLower(admin.address),
+    }));
+    return uniqBy(lowerAdmins, 'address');
+  }, [organization, rawAdmins]);
 
   // Group unique compliance admin sets across councils
   const complianceAdminGroups = useMemo(() => {
@@ -391,6 +390,17 @@ export function ComplianceStep({ onNext }: StepProps) {
   if (isLoading) {
     return <LoadingComplianceStep />;
   }
+
+  console.log(
+    'complianceAdmins',
+    createComplianceAdminRole.startsWith('existing:')
+      ? (() => {
+          const adminKey = createComplianceAdminRole.split(':')[1];
+          const group = complianceAdminGroups[adminKey];
+          return group?.admins || complianceAdmins;
+        })()
+      : complianceAdmins,
+  );
 
   return (
     <>

@@ -492,7 +492,6 @@ export const compileHatCreationData = async ({
   const compiledHatsData = hatsData({ formData, hatIds, moduleAddresses });
   // determine which hats already exist in the tree
   const [
-    topHat,
     adminHat,
     automationsHat,
     orgRolesGroupHat,
@@ -514,6 +513,7 @@ export const compileHatCreationData = async ({
     councilMemberHat,
     councilHat,
   ]);
+  console.log(adminHat, compiledHatsData);
 
   // check if hats already exist in the tree
   const otherHatsToCreate = reject(otherHats, (hat) =>
@@ -522,14 +522,18 @@ export const compileHatCreationData = async ({
       hat.id,
     ),
   );
-  // logger.debug('otherHatsToCreate', otherHatsToCreate);
+  logger.debug('otherHatsToCreate', otherHatsToCreate);
 
   // handle top hats for new trees
   if (!tree?.hats?.length) {
     // handle top hat specifically
     const topHatCid = await hatsDetailsClient.pin({
       type: '1.0',
-      data: topHat,
+      data: {
+        name:
+          typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName,
+        description: formData.councilDescription,
+      },
     });
     const createTopHatCallData = hatsClient.mintTopHatCallData({
       target: MULTICALL3_ADDRESS as Address,

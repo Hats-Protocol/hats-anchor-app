@@ -22,6 +22,7 @@ export function findNextInvalidStep(
     ...(reqs.passCompliance ? ['compliance'] : []),
     'members',
   ];
+  console.log({ currentStep, currentSubStep, eligibilitySubSteps: getEligibilitySubSteps(requirements) });
 
   // If we're in a eligibility sub-step, check next sub-step first
   if (currentStep === 'eligibility' && currentSubStep) {

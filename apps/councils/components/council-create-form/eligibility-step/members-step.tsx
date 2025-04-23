@@ -26,6 +26,7 @@ export function MembersStep({ onNext, draftId }: StepProps) {
   useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
+  console.log('members ', { nextStep });
 
   // show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);

@@ -398,6 +398,7 @@ export function AgreementStep({ onNext }: StepProps) {
   if (isLoading) {
     return <LoadingAgreementStep />;
   }
+  console.log(agreementAdmins, organizationManagers, form.getValues('admins'));
 
   return (
     <>
@@ -477,63 +478,63 @@ export function AgreementStep({ onNext }: StepProps) {
               )}
             </div>
 
-            {createAgreementAdminRole === 'true' && (
-              <>
-                <div>
-                  <h3 className='mb-2 font-bold'>Agreement Managers</h3>
-                  <p className='text-sm text-gray-600'>
-                    Agreement Managers can update the agreement text and verify that Council Members have signed it.
-                  </p>
-                  <div className='mt-4 space-y-4'>
-                    <AgreementAdminsList
-                      agreementAdmins={agreementAdmins}
-                      form={form}
-                      canEdit={createAgreementAdminRole === 'true' && canEdit}
-                      canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
-                      showButtons={true}
-                      onEdit={(admin) => {
-                        setEditingAdmin(admin);
-                        setShowAddForm(true);
-                      }}
-                      loading={isLoadingList}
-                    />
+            <div>
+              <h3 className='mb-2 font-bold'>Agreement Managers</h3>
+              <p className='text-sm text-gray-600'>
+                Agreement Managers can update the agreement text and verify that Council Members have signed it.
+              </p>
+              <div className='mt-4 space-y-4'>
+                <AgreementAdminsList
+                  agreementAdmins={
+                    !isEmpty(agreementAdmins) || createAgreementAdminRole === 'true'
+                      ? agreementAdmins
+                      : form.getValues('admins')
+                  }
+                  form={form}
+                  canEdit={createAgreementAdminRole === 'true' && canEdit}
+                  canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
+                  showButtons={true}
+                  onEdit={(admin) => {
+                    setEditingAdmin(admin);
+                    setShowAddForm(true);
+                  }}
+                  loading={isLoadingList}
+                />
 
-                    {!showAddForm && (
-                      <Button
-                        variant='outline-blue'
-                        rounded='full'
-                        onClick={() => {
-                          setEditingAdmin(null);
-                          setShowAddForm(true);
-                        }}
-                        disabled={!canEdit}
-                        type='button'
-                      >
-                        <FiUserPlus className='mr-2 h-4 w-4' />
-                        Add Agreement Manager
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {showAddForm && (
-                  <div className='-mx-16 border-b border-gray-200'>
-                    <UnifiedUserForm
-                      parentForm={form}
-                      editingUser={editingAdmin}
-                      userType='agreementAdmin'
-                      onClose={() => {
-                        setShowAddForm(false);
-                        setEditingAdmin(null);
-                      }}
-                      canEdit={canEdit}
-                      className='bg-white px-16 py-6'
-                      hideAddressButtons={true}
-                      onMutationStateChange={setIsMutating}
-                    />
-                  </div>
+                {!showAddForm && createAgreementAdminRole === 'true' && (
+                  <Button
+                    variant='outline-blue'
+                    rounded='full'
+                    onClick={() => {
+                      setEditingAdmin(null);
+                      setShowAddForm(true);
+                    }}
+                    disabled={!canEdit}
+                    type='button'
+                  >
+                    <FiUserPlus className='mr-2 h-4 w-4' />
+                    Add Agreement Manager
+                  </Button>
                 )}
-              </>
+              </div>
+            </div>
+
+            {showAddForm && (
+              <div className='-mx-16 border-b border-gray-200'>
+                <UnifiedUserForm
+                  parentForm={form}
+                  editingUser={editingAdmin}
+                  userType='agreementAdmin'
+                  onClose={() => {
+                    setShowAddForm(false);
+                    setEditingAdmin(null);
+                  }}
+                  canEdit={canEdit}
+                  className='bg-white px-16 py-6'
+                  hideAddressButtons={true}
+                  onMutationStateChange={setIsMutating}
+                />
+              </div>
             )}
 
             {createAgreementAdminRole === 'false' && organizationManagers.length > 0 && (

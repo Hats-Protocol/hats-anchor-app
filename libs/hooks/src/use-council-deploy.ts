@@ -156,7 +156,7 @@ const useCouncilDeploy = ({
     router.push(redirectUrl);
   };
 
-  const { data: simulateFullMulticall } = useSimulateContract({
+  const simulateFullMulticall = useSimulateContract({
     address: calls && firstCouncil ? MULTICALL3_ADDRESS : undefined,
     abi: MULTICALL3_ABI,
     functionName: 'aggregate3',
@@ -166,7 +166,7 @@ const useCouncilDeploy = ({
   // console.log('simulate multicall', chainId, simulateFullMulticall);
 
   const deployMulticall = async () => {
-    setDeployStatus((prev) => ({ ...prev, deployTx: true }));
+    setDeployStatus((prev) => ({ ...prev, prepareTx: true }));
     const hash = await walletClient
       ?.writeContract({
         account: address,
@@ -217,9 +217,9 @@ const useCouncilDeploy = ({
     });
   };
 
-  const { data: simulateHats } = useSimulateContract({
+  const simulateHats = useSimulateContract({
     account: address,
-    address: hatsProtocolCallData ? HATS_V1 : undefined,
+    address: hatsProtocolCallData && !firstCouncil ? HATS_V1 : undefined,
     abi: HATS_ABI,
     functionName: 'multicall',
     args: [[get(hatsProtocolCallData, 'callData')] as Hex[]],
@@ -244,6 +244,7 @@ const useCouncilDeploy = ({
         chain: chainsMap(chainId),
       })
       .catch((err) => {
+        console.log('error', err);
         setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
         // TODO toast
       });
@@ -292,9 +293,9 @@ const useCouncilDeploy = ({
     ] as [Hex[], bigint[], Hex[], Hex[], bigint[]];
   }, [moduleArgs]);
 
-  const { data: simulateModules } = useSimulateContract({
+  const simulateModules = useSimulateContract({
     account: address,
-    address: moduleArgs ? HATS_MODULES_FACTORY_ADDRESS : undefined,
+    address: moduleArgs && !firstCouncil ? HATS_MODULES_FACTORY_ADDRESS : undefined,
     abi: HATS_MODULES_FACTORY_ABI,
     functionName: 'batchCreateHatsModule',
     args: localModuleArgs,
@@ -324,6 +325,7 @@ const useCouncilDeploy = ({
         chain: chainsMap(chainId),
       })
       .catch((err) => {
+        console.log('error', err);
         setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
         // TODO toast
       });
@@ -363,9 +365,9 @@ const useCouncilDeploy = ({
     return [hsgArgs.address, hsgArgs.callData, hsgArgs.nonce] as [string, Hex, bigint];
   }, [hsgArgs]);
 
-  const { data: simulateHsg } = useSimulateContract({
+  const simulateHsg = useSimulateContract({
     account: address,
-    address: hsgArgs ? ZODIAC_MODULE_PROXY_FACTORY_ADDRESS : undefined,
+    address: hsgArgs && !firstCouncil ? ZODIAC_MODULE_PROXY_FACTORY_ADDRESS : undefined,
     abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
     functionName: 'deployModule',
     args: localHsgArgs,
@@ -388,6 +390,7 @@ const useCouncilDeploy = ({
         args: [hsgArgs.address, hsgArgs.callData, hsgArgs.nonce],
       })
       .catch((err) => {
+        console.log('error', err);
         setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
         // TODO toast
       });

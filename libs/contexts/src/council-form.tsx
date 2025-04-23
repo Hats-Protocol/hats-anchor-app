@@ -43,7 +43,7 @@ import {
   UPDATE_COUNCIL_FORM,
 } from 'utils';
 import { Hex } from 'viem';
-import { SimulateContractReturnType } from 'wagmi/actions';
+import { UseSimulateContractReturnType } from 'wagmi';
 
 import { useOverlay } from './overlay-context';
 
@@ -74,10 +74,10 @@ interface CouncilFormContextType {
   deployHsgCalldata: Hex | undefined;
   // TODO fix these types
   // simulation results
-  simulateCouncil: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
-  simulateHats: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
-  simulateModules: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
-  simulateHsg: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  simulateCouncil: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  simulateHats: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  simulateModules: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  simulateHsg: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
 }
 
 const chainOptions = map(values(chainsList), (chain) => ({
@@ -567,10 +567,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         deployHsgCalldata: find(calls, { target: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS })?.callData,
         // TODO what's up with this type?
         // simulation results
-        simulateCouncil: simulateCouncil as SimulateContractReturnType<any, any, any, any, any, any> | undefined,
-        simulateHats: simulateHats as SimulateContractReturnType<any, any, any, any, any, any> | undefined,
-        simulateModules: simulateModules as SimulateContractReturnType<any, any, any, any, any, any> | undefined,
-        simulateHsg: simulateHsg as SimulateContractReturnType<any, any, any, any, any, any> | undefined,
+        simulateCouncil: simulateCouncil as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
+        simulateHats: simulateHats as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
+        simulateModules: simulateModules as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
+        simulateHsg: simulateHsg as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
       }}
     >
       {children}
