@@ -65,7 +65,7 @@ const prepEmailVariables = ({
 }) => {
   if (!offchainCouncilData || !receiver || !selectedHat || !chainId) return undefined;
 
-  const allWearers = getAllWearers(offchainCouncilData);
+  const allWearers = getAllWearers(offchainCouncilData?.creationForm);
   const creator = find(allWearers, { address: offchainCouncilData.creationForm.creator });
   const url = !includes(window.location.origin, 'localhost') ? window.location.origin : API_URL;
   const councilMembers = offchainCouncilData.creationForm.members.map(({ name, address }) => ({

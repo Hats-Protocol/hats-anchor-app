@@ -112,7 +112,7 @@ export function ManagementStep({ onNext }: StepProps) {
               type='button'
             >
               <FiUserPlus className='mr-2 h-4 w-4' />
-              Add Council Manager
+              Add Organization Manager
             </Button>
           </div>
         ) : (

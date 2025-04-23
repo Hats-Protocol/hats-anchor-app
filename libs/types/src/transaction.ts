@@ -17,6 +17,7 @@ export type HandlePendingTxProps = {
   onSuccess: SyncTxHandler;
   onTxAccepted?: SyncTxHandler;
   onTxIndexed?: SyncTxHandler;
+  onError?: SyncTxHandler;
   // optional, after success
   redirect?: string | null;
   clearModals?: boolean;
@@ -24,3 +25,9 @@ export type HandlePendingTxProps = {
 };
 
 export type HandlePendingTx = (props: HandlePendingTxProps) => Promise<TransactionReceipt | undefined>;
+
+export interface Call {
+  target: `0x${string}`;
+  allowFailure: boolean;
+  callData: `0x${string}`;
+}

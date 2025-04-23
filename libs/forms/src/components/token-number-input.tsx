@@ -1,9 +1,10 @@
 'use client';
 
 import { get } from 'lodash';
+import { InfoIcon } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { GrUndo } from 'react-icons/gr';
-import { BaseInput, cn } from 'ui';
+import { BaseInput, cn, Tooltip } from 'ui';
 import { Button } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
@@ -22,6 +23,7 @@ interface TokenNumberInputProps {
     min?: number;
     max?: number;
   };
+  step?: number;
   disabled?: boolean;
   variant?: 'default' | 'councils';
 }
@@ -52,6 +54,7 @@ function TokenNumberInput({
   tooltip,
   form,
   options,
+  step = 1,
   disabled,
   variant = 'default',
 }: TokenNumberInputProps) {
@@ -60,6 +63,7 @@ function TokenNumberInput({
   const {
     control,
     resetField,
+    setValue,
     formState: { dirtyFields, errors },
   } = form;
 
@@ -76,16 +80,24 @@ function TokenNumberInput({
       control={control}
       render={({ field: { ref, value, ...restField } }) => (
         <FormItem>
-          {label && (
-            <FormLabel className='mb-0'>
-              <div className={getVariantStyles(variant).container}>
-                <span className={getVariantStyles(variant).label}>
-                  {label}
-                  {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
-                </span>
-              </div>
-            </FormLabel>
-          )}
+          <div className='flex items-center justify-between'>
+            {label && (
+              <FormLabel className='mb-0'>
+                <div className={getVariantStyles(variant).container}>
+                  <span className={getVariantStyles(variant).label}>
+                    {label}
+                    {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
+                  </span>
+                </div>
+              </FormLabel>
+            )}
+
+            {tooltip && (
+              <Tooltip label={tooltip}>
+                <InfoIcon className='h-4 w-4' />
+              </Tooltip>
+            )}
+          </div>
 
           <FormControl>
             <div className='relative flex items-center'>
@@ -104,6 +116,8 @@ function TokenNumberInput({
                 type='number'
                 min={options?.min}
                 max={options?.max}
+                // separate from the "increment" and "decrement" steps
+                step={0.000000000000000001} // handles the floating point on the input itself
                 disabled={disabled}
                 value={value}
                 {...restField}
@@ -124,15 +138,17 @@ function TokenNumberInput({
               <NumberInputSteppers
                 stepUp={() => {
                   const currentValue = Number(value) || 0;
+                  console.log('currentValue', currentValue, currentValue < (options?.max ?? Infinity));
                   if (currentValue < (options?.max ?? Infinity)) {
-                    restField.onChange(currentValue + 1);
+                    setValue(name, currentValue + step);
                   }
                 }}
                 upDisabled={disabled || Number(value) >= (options?.max ?? Infinity)}
                 stepDown={() => {
                   const currentValue = Number(value) || 0;
+                  console.log('currentValue', currentValue, currentValue > (options?.min ?? 0));
                   if (!disabled && currentValue > (options?.min ?? 0)) {
-                    restField.onChange(currentValue - 1);
+                    setValue(name, currentValue - step);
                   }
                 }}
                 downDisabled={disabled || Number(value) <= (options?.min ?? 0)}

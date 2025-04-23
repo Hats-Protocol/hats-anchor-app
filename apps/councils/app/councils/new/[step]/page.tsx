@@ -5,6 +5,7 @@ import { useAuthGuard } from 'hooks';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Card } from 'ui';
 
+import { CreateFormDevDetails } from '../../../../components/council-create-form/create-form-dev-details';
 import { CouncilCreateForm } from '../../../../components/council-create-form/index';
 import { CreationFormSteps } from '../../../../components/creation-form-steps';
 
@@ -26,6 +27,8 @@ const NewCouncil = () => {
               <CouncilCreateForm step={step as string} subStep={subStep} draftId={draftId} />
             </Card>
           </div>
+
+          <CreateFormDevDetails />
         </div>
 
         <div className='col-start-15 col-span-5 grid'>

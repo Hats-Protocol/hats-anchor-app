@@ -69,7 +69,7 @@ export function getNextStepButtonText(nextStep: NextStep): string {
     case 'threshold':
       return 'Configure Signer Threshold';
     case 'selection':
-      return 'Set up Council Membership';
+      return 'Select Council Requirements';
     case 'eligibility':
       switch (nextStep.subStep) {
         case 'management':

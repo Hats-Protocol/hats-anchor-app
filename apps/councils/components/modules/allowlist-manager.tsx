@@ -69,7 +69,7 @@ const AllowlistManager = ({
   const userIsAdmin = useIsAdmin({ address: userAddress as Hex, hatId: primarySignerHat, chainId });
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
-  const allWearers = getAllWearers(offchainCouncilDetails);
+  const allWearers = getAllWearers(offchainCouncilDetails?.creationForm);
 
   const allowlistManagerLoading = useState(false);
   const [, setManagerLoading] = allowlistManagerLoading;

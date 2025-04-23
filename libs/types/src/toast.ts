@@ -16,6 +16,7 @@ export interface ToastProps {
   title: string;
   description?: string;
   // icon: React.ReactNode;
+  variant?: 'default' | 'destructive';
   status?: ToastStatus;
   closeToast?: () => void;
   duration?: number;

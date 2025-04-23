@@ -1,3 +1,5 @@
+import { DeployStatus } from 'types';
+
 export const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11' as const;
 
 export const HSG_V2_ADDRESS = '0x148057884AC910Bdd93693F230C5c35a8c47CA3b' as const;
@@ -15,3 +17,31 @@ export const MULTI_CLAIMS_HATTER_V1_ADDRESS = '0xB985eA1be961f7c4A4C45504444C02c
 export const ELIGIBILITY_CHAIN_ADDRESS = '0x8AdED513a191e3FeE91Bb192Aba20FcC9c16aF2e' as const;
 
 export const ERC20_ELIGIBILITY_ADDRESS = '0xba5b218e6685d0607139c06f81442681a32a0ec3' as const;
+
+const successStatusSteps = {
+  processTx: false,
+  updateMetadata: false,
+  redirect: false,
+};
+
+export const initialDeployStatus: DeployStatus = {
+  prepareTx: false,
+  deployTx: false,
+  confirmTx: false,
+  indexTx: false,
+  ...successStatusSteps,
+};
+
+export const initialDeployMultiStatus: DeployStatus = {
+  prepareTx: false,
+  deployHatsTx: false,
+  confirmHatsTx: false,
+  indexHatsTx: false,
+  deployModulesTx: false,
+  confirmModulesTx: false,
+  indexModulesTx: false,
+  deployHsgTx: false,
+  confirmHsgTx: false,
+  indexHsgTx: false,
+  ...successStatusSteps,
+};

@@ -107,7 +107,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     chainId: chainId ?? 11155111,
     enabled: !!councilDetails?.id && !!chainId,
   });
-  const allWearers = getAllWearers(offchainCouncilDetails || undefined);
+  const allWearers = getAllWearers(offchainCouncilDetails?.creationForm || undefined);
 
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
@@ -277,9 +277,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
                 <div className='flex flex-col gap-4'>
                   {map(ownerHat?.wearers, (owner) => {
-                    const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                      address: getAddress(owner.id),
-                    });
+                    const offchainDetails = find(allWearers, { address: getAddress(owner.id) });
                     return (
                       <div key={owner?.id} className={cn(isDev && !offchainDetails && 'bg-functional-link-primary/10')}>
                         <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} />
@@ -378,9 +376,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
                 <div className='space-y-2'>
                   {map(topHatDetails?.wearers, (owner) => {
                     // there will only be one wearer
-                    const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                      address: getAddress(owner.id),
-                    });
+                    const offchainDetails = find(allWearers, { address: getAddress(owner.id) });
 
                     return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner.id} />;
                   })}

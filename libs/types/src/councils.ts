@@ -41,6 +41,7 @@ export type OffchainCouncilData = {
   admins: CouncilMember[];
   complianceAdmins: CouncilMember[];
   payer: CouncilPayer;
+  // TODO adjust, this is the form structure but not the db structure
   tokenRequirement: {
     address: string;
     minimum: string;
@@ -137,6 +138,10 @@ export interface UpdateCouncilFormResponse {
   updateCouncilCreationForm: CreationForm;
 }
 
+export interface DeployStatus {
+  [key: string]: boolean;
+}
+
 export interface StepValidation {
   details: boolean;
   threshold: boolean;
@@ -160,14 +165,38 @@ export interface LabeledModules {
 export interface Organization {
   id: string;
   name: string;
+  // TODO swap to council details type
   councils: {
     id: string;
     creator: string;
     chain: number;
     hsg: string;
+    treeId: string;
     membersSelectionModule?: string;
     membersCriteriaModule?: string;
     deployed: boolean;
     creationForm: CreationForm;
   }[];
 }
+
+export type ModulesAddresses = {
+  multiClaimsHatter?: string;
+  councilMemberAllowlist?: string;
+  complianceAllowlist?: string;
+  agreementModule?: string;
+  erc20Module?: string;
+  eligibilityChain?: string;
+};
+
+export type CouncilHatIds = {
+  topHat: bigint;
+  admin: bigint;
+  automations: bigint;
+  orgRolesGroup: bigint;
+  organizationManager: bigint;
+  complianceManager: bigint;
+  agreementManager: bigint;
+  councilRolesGroup: bigint;
+  councilMember: bigint;
+  council: bigint;
+};

@@ -73,8 +73,8 @@ function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: St
       return reqs.length ? reqs.join(' • ') : 'No requirements';
     case 'eligibility':
       const memberCount = form.watch('members')?.length || 0;
-      const adminCount = form.watch('admins')?.length || 0;
-      return `${memberCount} council members & ${adminCount} managers`;
+      const adminCount = form.watch('admins')?.length || 0; // TODO handle other admins
+      return `${memberCount} council member${memberCount === 1 ? '' : 's'} & ${adminCount} manager${adminCount === 1 ? '' : 's'}`;
     default:
       return step.sublabel;
   }

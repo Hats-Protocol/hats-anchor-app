@@ -26,7 +26,7 @@ const PRO_APP_URL = process.env.PRO_APP_URL || 'https://pro.hatsprotocol.xyz';
 
 const getReceivers = (offchainCouncilDetails: OffchainCouncilData | undefined, receivers: string[] | undefined) => {
   if (!offchainCouncilDetails || !receivers) return [];
-  const allWearers = getAllWearers(offchainCouncilDetails);
+  const allWearers = getAllWearers(offchainCouncilDetails.creationForm);
   const councilManagers = offchainCouncilDetails?.creationForm.admins;
   const councilCreator = find(allWearers, { address: offchainCouncilDetails?.creationForm.creator });
   const councilMembers = offchainCouncilDetails?.creationForm.members;
@@ -150,7 +150,7 @@ const MailForm = ({
     const councilName = offchainCouncilDetails.creationForm.councilName;
     const organizationName = offchainCouncilDetails.creationForm.organizationName;
     const chainId = offchainCouncilDetails.creationForm.chain as unknown as number;
-    const allWearers = getAllWearers(offchainCouncilDetails);
+    const allWearers = getAllWearers(offchainCouncilDetails.creationForm);
     const creator = find(allWearers, { address: offchainCouncilDetails.creationForm.creator });
     const useCouncilManagers = size(offchainCouncilDetails.creationForm.complianceAdmins) === 0;
     const complianceManagers = useCouncilManagers

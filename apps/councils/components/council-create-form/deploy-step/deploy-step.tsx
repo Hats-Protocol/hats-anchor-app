@@ -13,13 +13,14 @@ import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { SupportedChains } from 'types';
-import { Button, MemberAvatar } from 'ui';
+import { Button, MemberAvatar, Tooltip } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
 import { Login } from '../../login';
 import { NextStepButton } from '../../next-step-button';
+import CalldataModal from './calldata-modal';
 import { Deploy } from './deploy';
 import { PaymentDetailsModal } from './payment-details-modal';
 import { RequirementItem } from './requirement-item';
@@ -29,7 +30,20 @@ import { StepSummary } from './step-summary';
 // TODO handle loading state
 
 export const DeployStep = ({ draftId }: { draftId: string }) => {
-  const { form, stepValidation, deployCouncil, isDeploying, canEdit, deployStatus, isLoading } = useCouncilForm();
+  const {
+    form,
+    stepValidation,
+    deployCouncil,
+    deployHats,
+    deployModules,
+    deployHsg,
+    simulateCouncil,
+    isDeploying,
+    canEdit,
+    deployStatus,
+    simulateHats,
+    isLoading,
+  } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();
   const { setModals } = useOverlay();
@@ -51,7 +65,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const draftUrl = useMemo(() => {
     if (typeof window === 'undefined') return '';
-    return `${window.location.origin}/councils/new/payment?draftId=${draftId}`;
+    return `${window.location.origin}/councils/new/deploy?draftId=${draftId}`;
   }, [draftId]);
   const { onCopy: copyUrl } = useClipboard(draftUrl, {
     toastData: { variant: 'success', title: 'Copied share link to clipboard' },
@@ -78,7 +92,13 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
       organizationName: (formData.organizationName as unknown as { value: string }).value,
       chain: chainsMap(toNumber(formData.chain?.value))?.name,
     });
-    deployCouncil();
+
+    // TODO better check for if first council deploy
+    if (simulateCouncil) {
+      deployCouncil();
+    } else {
+      deployHats();
+    }
   };
 
   const tokenFields = ['symbol', 'name', 'decimals'];
@@ -130,8 +150,22 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const isWrongNetwork = userChainId !== targetChainId;
 
+  const copyCalldata = () => {
+    setModals?.({ calldata: true });
+  };
+
+  console.log('deployStatus', deployStatus);
   if (some(deployStatus, (value) => value)) {
-    return <Deploy deployStatus={deployStatus} draftId={draftId} />;
+    // TODO better check for `firstCouncil`
+    return (
+      <Deploy
+        deployStatus={deployStatus}
+        firstCouncil={!!simulateCouncil}
+        draftId={draftId}
+        deployModules={deployModules}
+        deployHsg={deployHsg}
+      />
+    );
   }
 
   return (
@@ -249,7 +283,8 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
           />
           {formData.requirements.signAgreement && (
             <RoleSummary
-              title='Agreement Managers own the agreement'
+              // TODO this breaks down in some existing cases
+              title={`${formData.createAgreementAdminRole === 'true' ? 'Agreement' : 'Organization'} Managers own the agreement`}
               members={(formData.agreementAdmins || []) ?? (formData.admins || [])}
             />
           )}
@@ -343,23 +378,41 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
               </label>
             </div>
 
-            {isWrongNetwork ? (
-              <NextStepButton
-                onClick={() => switchChain?.({ chainId: targetChainId })}
-                disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
-              >
-                Switch to {targetChainName}
-              </NextStepButton>
-            ) : (
-              <NextStepButton
-                disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
-                onClick={handleDeploy}
-              >
-                {isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
-              </NextStepButton>
-            )}
+            <div className='flex items-center gap-2'>
+              <Button rounded='full' variant='outline-blue' size='lm' onClick={copyCalldata}>
+                Copy Calldata
+              </Button>
+              {isWrongNetwork ? (
+                <NextStepButton
+                  onClick={() => switchChain?.({ chainId: targetChainId })}
+                  disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
+                >
+                  Switch to {targetChainName}
+                </NextStepButton>
+              ) : (
+                <Tooltip
+                  label={
+                    // TODO better check for this
+                    !formData.payer
+                      ? 'Please update the invoice details'
+                      : !simulateHats?.result
+                        ? "You don't have the needed permission to deploy to this organization"
+                        : ''
+                  }
+                >
+                  <NextStepButton
+                    // TODO disable if not ready to deploy hats tx or council simulation fails
+                    disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
+                    onClick={handleDeploy}
+                  >
+                    {isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
+                  </NextStepButton>
+                </Tooltip>
+              )}
 
-            <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
+              <CalldataModal topHatWearer={topHatWearer} />
+              <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
+            </div>
           </>
         ) : (
           <Login />

@@ -11,6 +11,7 @@ import { Select } from './select';
 interface TokenSelectProps {
   name: string;
   options: TokenInfo[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   placeholder?: string;
   label?: string;
@@ -21,7 +22,9 @@ interface TokenSelectProps {
   isDisabled?: boolean;
 }
 
-interface TokenOption extends ReactSelectOption {}
+interface TokenOption extends ReactSelectOption {
+  iconUrl?: string;
+}
 
 const TokenSelect = ({
   name,
