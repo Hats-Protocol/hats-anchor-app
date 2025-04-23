@@ -2,16 +2,14 @@
 
 import { useContractData } from 'hooks';
 import { CodeIcon } from 'icons';
-import { endsWith } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { components } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { CouncilMember, SupportedChains } from 'types';
-import { cn, MemberAvatar } from 'ui';
-import { logger } from 'utils';
+import { MemberAvatar } from 'ui';
 import { isAddress } from 'viem';
 import { useEnsAddress, useEnsName } from 'wagmi';
 
@@ -65,13 +63,13 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
   label,
   labelNote,
   subLabel,
-  tooltip,
+
   localForm,
   isDisabled,
   placeholder = 'Search for member or enter wallet address',
-  options = {},
+
   chainId,
-  originalValue,
+
   members,
   variant = 'default',
   onSubmit,
@@ -87,10 +85,22 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
     chainId: 1,
   });
 
+  // Use ensName hook to get ENS for existing address
+  const { data: ensName } = useEnsName({
+    address: isAddress(formValue || '') ? (formValue as `0x${string}`) : undefined,
+    chainId: 1,
+  });
+
+  // Initialize ENS details when editing an existing address
+  useEffect(() => {
+    if (formValue && isAddress(formValue) && ensName && !ensDetails) {
+      setEnsDetails({ name: ensName, address: formValue });
+    }
+  }, [formValue, ensName, ensDetails]);
+
   // When ENS resolves, update state and form
   useEffect(() => {
     if (resolvedAddress && formValue && !isAddress(formValue) && formValue.includes('.')) {
-      logger.info('ENS resolved', { name: formValue, address: resolvedAddress });
       setEnsDetails({ name: formValue, address: resolvedAddress });
       setValue(name, resolvedAddress, { shouldValidate: true });
     }
@@ -98,14 +108,13 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
 
   // Clear ENS details when form value is manually changed
   useEffect(() => {
-    if (ensDetails && formValue && formValue !== ensDetails.address) {
-      logger.info('Form value changed, clearing ENS details', { formValue, ensDetails });
+    if (ensDetails && formValue && formValue !== ensDetails.address && !ensName) {
       setEnsDetails(null);
     }
-  }, [formValue, ensDetails]);
+  }, [formValue, ensDetails, ensName]);
 
   // Decide whether to show the resolved address
-  const showResolvedAddress = !!ensDetails && formValue === ensDetails.address;
+  const showResolvedAddress = !!ensDetails;
 
   const memberOptions = useMemo(
     () =>
@@ -253,7 +262,9 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
         />
       </div>
       {showResolvedAddress && ensDetails && (
-        <p className='mt-1 text-xs text-gray-500'>Resolved address: {ensDetails.address}</p>
+        <p className='mt-1 text-xs text-gray-500'>
+          {ensDetails.name} resolved to: {ensDetails.address}
+        </p>
       )}
     </div>
   );
