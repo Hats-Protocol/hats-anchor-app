@@ -92,7 +92,7 @@ const prepEmailVariables = ({
     councilMembersLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.hsg}/members`,
     councilJoinLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.hsg}/join`,
     councilSafeLink: safeUrl(chainId as SupportedChains, safe),
-    subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
+    subscriptionInfo: '299 USDC per month paid via invoice to follow',
     // deploy transaction -- handle specifically for the deploy email(s)
     councilMembers,
     // copy

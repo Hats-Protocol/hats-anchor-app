@@ -4,7 +4,8 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, FormDescription, Input } from 'forms';
-import { capitalize, compact, get, includes, keys, map, reject, toNumber } from 'lodash';
+import { useTokenDetails } from 'hooks';
+import { capitalize, compact, get, includes, keys, map, reject, toLower, toNumber } from 'lodash';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -17,6 +18,7 @@ import {
   logger,
   sendTelegramMessage,
   tgFormatAddress,
+  tokenImageHandler,
   UPDATE_PAYER,
 } from 'utils';
 import { zeroAddress } from 'viem';
@@ -38,6 +40,16 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
   const { modals, setModals } = useOverlay();
   const councilName = parentForm.watch('councilName');
   const { getAccessToken } = usePrivy();
+
+  const { data: tokenData } = useTokenDetails({
+    symbol: toLower('USDC'),
+  });
+
+  const tokenImage = tokenImageHandler({
+    symbol: 'USDC',
+    primaryImage: get(tokenData, 'avatar'),
+    chainId,
+  });
 
   const modalForm = useForm({
     defaultValues: {
@@ -175,8 +187,8 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
               </p>
 
               <div className='mt-4 flex items-center gap-2'>
-                <img src='/chains/ethereum.svg' className='size-5' />
-                <p className='flex items-center gap-2 text-lg font-medium text-black/90'>0.1 ETH / month</p>
+                <img src={tokenImage} className='size-5' alt='USDC logo' />
+                <p className='flex items-center gap-2 text-lg font-medium text-black/90'>299 USDC / month</p>
               </div>
             </div>
 

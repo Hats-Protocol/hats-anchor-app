@@ -6,12 +6,14 @@ import { Modal, useOverlay } from 'contexts';
 import { useIsAdmin } from 'hats-hooks';
 import { useSafeDetails } from 'hooks';
 import { every, find, get, includes, keys, map, toLower } from 'lodash';
+import { EllipsisVertical } from 'lucide-react';
 import { useCurrentEligibility } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsExclamationSquare, BsPencilSquare, BsXOctagonFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar } from 'ui';
+import { Popover, PopoverContent, PopoverTrigger } from 'ui';
 import { getAllWearers } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
@@ -165,24 +167,36 @@ const MemberRow = ({
         </div>
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
-          {user && canEdit ? (
-            <Button
-              variant='link'
-              className='text-functional-link-primary hover:text-functional-link-primary/80'
-              onClick={editUser}
-            >
-              <BsPencilSquare />
-              Edit
-            </Button>
-          ) : (
-            <Button variant='link' className='text-functional-link-primary' onClick={viewUser}>
-              Details
-            </Button>
-          )}
-
-          <Button variant='link' className='text-functional-link-primary' onClick={updateMemberStatus}>
+          <Button variant='outline-blue' rounded='full' onClick={updateMemberStatus}>
             Status
           </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant='outline-blue' rounded='full'>
+                <EllipsisVertical />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-32 p-2'>
+              {user && canEdit ? (
+                <Button
+                  variant='link'
+                  className='text-functional-link-primary hover:text-functional-link-primary/80 flex w-full items-center justify-start'
+                  onClick={editUser}
+                >
+                  <BsPencilSquare className='mr-2' />
+                  Edit
+                </Button>
+              ) : (
+                <Button
+                  variant='link'
+                  className='text-functional-link-primary hover:text-functional-link-primary/80 w-full justify-start'
+                  onClick={viewUser}
+                >
+                  Details
+                </Button>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 

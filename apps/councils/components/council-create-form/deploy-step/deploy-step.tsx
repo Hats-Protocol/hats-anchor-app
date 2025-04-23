@@ -339,7 +339,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
                 >
                   privacy policy
                 </a>{' '}
-                and a monthly fee of 0.1 ETH to be paid via invoice
+                and a monthly fee of 299 USDC to be paid via invoice
               </label>
             </div>
 
