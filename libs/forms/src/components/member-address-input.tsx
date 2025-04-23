@@ -4,13 +4,14 @@ import { useContractData } from 'hooks';
 import { CodeIcon } from 'icons';
 import { endsWith } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { BsPersonBadge } from 'react-icons/bs';
 import { components } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { CouncilMember, SupportedChains } from 'types';
 import { cn, MemberAvatar } from 'ui';
+import { logger } from 'utils';
 import { isAddress } from 'viem';
 import { useEnsAddress, useEnsName } from 'wagmi';
 
@@ -78,20 +79,33 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
 }) => {
   const { watch, setValue } = localForm;
   const formValue = watch(name);
+  const [ensDetails, setEnsDetails] = useState<{ name: string; address: string } | null>(null);
 
+  // Use ensAddress hook to resolve ENS names
   const { data: resolvedAddress } = useEnsAddress({
     name: formValue,
     chainId: 1,
   });
 
-  const showResolvedAddress = !!resolvedAddress && resolvedAddress !== formValue;
-
-  // Add effect to update form value when ENS resolves
+  // When ENS resolves, update state and form
   useEffect(() => {
-    if (resolvedAddress && formValue && !isAddress(formValue)) {
+    if (resolvedAddress && formValue && !isAddress(formValue) && formValue.includes('.')) {
+      logger.info('ENS resolved', { name: formValue, address: resolvedAddress });
+      setEnsDetails({ name: formValue, address: resolvedAddress });
       setValue(name, resolvedAddress, { shouldValidate: true });
     }
   }, [resolvedAddress, formValue, setValue, name]);
+
+  // Clear ENS details when form value is manually changed
+  useEffect(() => {
+    if (ensDetails && formValue && formValue !== ensDetails.address) {
+      logger.info('Form value changed, clearing ENS details', { formValue, ensDetails });
+      setEnsDetails(null);
+    }
+  }, [formValue, ensDetails]);
+
+  // Decide whether to show the resolved address
+  const showResolvedAddress = !!ensDetails && formValue === ensDetails.address;
 
   const memberOptions = useMemo(
     () =>
@@ -123,16 +137,23 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
       setValue(name, '');
       setValue('email', '');
       setValue('name', '');
+      setEnsDetails(null);
       return;
     }
 
     const address = newValue.value;
     setValue(name, address, { shouldValidate: true });
 
+    // If directly selecting an address, clear ENS details
+    if (isAddress(address)) {
+      setEnsDetails(null);
+    }
+
     // If it's a member selection, populate their details and submit
     if (newValue.member) {
       setValue('email', newValue.member.email || '');
       setValue('name', newValue.member.name || '');
+      setEnsDetails(null);
 
       // If onSubmit is provided, trigger form submission and close
       if (onSubmit) {
@@ -231,8 +252,8 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
           }}
         />
       </div>
-      {showResolvedAddress && resolvedAddress && (
-        <p className='mt-1 text-xs text-gray-500'>Resolved address: {resolvedAddress}</p>
+      {showResolvedAddress && ensDetails && (
+        <p className='mt-1 text-xs text-gray-500'>Resolved address: {ensDetails.address}</p>
       )}
     </div>
   );
