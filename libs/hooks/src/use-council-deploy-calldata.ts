@@ -3,7 +3,7 @@ import {
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS, hatIdDecimalToIp, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { mapValues, pick, toNumber } from 'lodash';
@@ -130,7 +130,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                 const transferTopHatCallData = hatsClient.transferHatCallData({
                   hatId: computedHatIds.topHat,
                   from: MULTICALL3_ADDRESS,
-                  to: formData.admins[0].address,
+                  to: formData.admins?.[0]?.address || FALLBACK_ADDRESS, // TODO creator? or should it be deployer/current user?
                 });
 
                 // assemble the multicall calldata

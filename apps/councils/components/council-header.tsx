@@ -42,6 +42,7 @@ const CouncilHeaderCard = ({
   // const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
   const isCouncilsPage = pathname.includes('/councils/');
+  const isCouncilPage = pathname.match(/^\/councils\/[^/]+:0x[0-9a-fA-F]{40}$/); // with network name and Ethereum address
 
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -164,7 +165,7 @@ const CouncilHeaderCard = ({
           ) : null
         ) : (
           <>
-            {!isWearing && !isRootPath && isReadyToClaim && (
+            {!isWearing && isCouncilPage && isReadyToClaim && (
               <LinkButton
                 href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
                 className='w-48 self-center rounded-full md:hidden'

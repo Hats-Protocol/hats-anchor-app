@@ -32,6 +32,7 @@ export function findNextInvalidStep(
     for (let i = currentSubStepIndex + 1; i < subSteps.length; i++) {
       const subStep = subSteps[i];
       if (!stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps]) {
+        console.log('NEXT VALID STEP', { step: 'eligibility', subStep });
         return { step: 'eligibility', subStep };
       }
     }

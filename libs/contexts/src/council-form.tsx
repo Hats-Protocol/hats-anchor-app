@@ -61,15 +61,19 @@ interface CouncilFormContextType {
   canEdit: boolean;
   toggleOptionalStep: (step: keyof CompletedOptionalSteps) => void;
   availableTokens: TokenInfo[];
+  hatIds: { [key: string]: bigint };
+  // deploy handlers
   deployStatus: DeployStatus;
   deployHats: () => void;
   deployModules: () => void;
   deployHsg: () => void;
+  // calldata
   deployCouncilCalldata: Hex | undefined;
   deployHatsCalldata: Hex | undefined;
   deployModulesCalldata: Hex | undefined;
   deployHsgCalldata: Hex | undefined;
   // TODO fix these types
+  // simulation results
   simulateCouncil: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
   simulateHats: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
   simulateModules: SimulateContractReturnType<any, any, any, any, any, any> | undefined;
@@ -550,15 +554,19 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         canEdit,
         toggleOptionalStep,
         availableTokens,
+        hatIds,
+        // deploy handlers
         deployStatus,
         deployHats,
         deployModules,
         deployHsg,
+        // calldata
         deployCouncilCalldata: find(calls, { target: MULTICALL3_ADDRESS })?.callData,
         deployHatsCalldata: find(calls, { target: HATS_V1 })?.callData,
         deployModulesCalldata: find(calls, { target: HATS_MODULES_FACTORY_ADDRESS })?.callData,
         deployHsgCalldata: find(calls, { target: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS })?.callData,
         // TODO what's up with this type?
+        // simulation results
         simulateCouncil: simulateCouncil as SimulateContractReturnType<any, any, any, any, any, any> | undefined,
         simulateHats: simulateHats as SimulateContractReturnType<any, any, any, any, any, any> | undefined,
         simulateModules: simulateModules as SimulateContractReturnType<any, any, any, any, any, any> | undefined,

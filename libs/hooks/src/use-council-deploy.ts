@@ -234,14 +234,19 @@ const useCouncilDeploy = ({
       throw new Error('No hats protocol call data');
     }
 
-    const hash = await walletClient?.writeContract({
-      account: address,
-      address: HATS_V1,
-      abi: HATS_ABI,
-      functionName: 'multicall',
-      args: [[get(hatsProtocolCallData, 'callData')] as Hex[]],
-      chain: chainsMap(chainId),
-    });
+    const hash = await walletClient
+      ?.writeContract({
+        account: address,
+        address: HATS_V1,
+        abi: HATS_ABI,
+        functionName: 'multicall',
+        args: [[get(hatsProtocolCallData, 'callData')] as Hex[]],
+        chain: chainsMap(chainId),
+      })
+      .catch((err) => {
+        setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
+        // TODO toast
+      });
 
     if (!hash) {
       setDeployStatus(initialDeployMultiStatus);
@@ -303,20 +308,25 @@ const useCouncilDeploy = ({
       throw new Error('No module args');
     }
 
-    const hash = await walletClient?.writeContract({
-      account: address,
-      address: HATS_MODULES_FACTORY_ADDRESS,
-      abi: HATS_MODULES_FACTORY_ABI,
-      functionName: 'batchCreateHatsModule',
-      args: [
-        moduleArgs?.implementations,
-        moduleArgs?.moduleHatIds,
-        moduleArgs?.immutableArgs,
-        moduleArgs?.initArgs,
-        moduleArgs?.saltNonces,
-      ],
-      chain: chainsMap(chainId),
-    });
+    const hash = await walletClient
+      ?.writeContract({
+        account: address,
+        address: HATS_MODULES_FACTORY_ADDRESS,
+        abi: HATS_MODULES_FACTORY_ABI,
+        functionName: 'batchCreateHatsModule',
+        args: [
+          moduleArgs?.implementations,
+          moduleArgs?.moduleHatIds,
+          moduleArgs?.immutableArgs,
+          moduleArgs?.initArgs,
+          moduleArgs?.saltNonces,
+        ],
+        chain: chainsMap(chainId),
+      })
+      .catch((err) => {
+        setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
+        // TODO toast
+      });
     setDeployStatus((prev) => ({ ...prev, deployModulesTx: true }));
 
     if (!hash) {
@@ -369,13 +379,18 @@ const useCouncilDeploy = ({
       throw new Error('No hsg args');
     }
 
-    const hash = await walletClient?.writeContract({
-      account: address,
-      address: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
-      abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
-      functionName: 'deployModule',
-      args: [hsgArgs.address, hsgArgs.callData, hsgArgs.nonce],
-    });
+    const hash = await walletClient
+      ?.writeContract({
+        account: address,
+        address: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
+        abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
+        functionName: 'deployModule',
+        args: [hsgArgs.address, hsgArgs.callData, hsgArgs.nonce],
+      })
+      .catch((err) => {
+        setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
+        // TODO toast
+      });
     setDeployStatus((prev) => ({ ...prev, deployHsgTx: true }));
 
     if (!hash) {
@@ -396,10 +411,7 @@ const useCouncilDeploy = ({
       onTxIndexed: () => {
         setDeployStatus((prev) => ({ ...prev, indexHsgTx: true }));
       },
-      onSuccess: (data) => {
-        console.log('success');
-        onSuccess(data);
-      },
+      onSuccess,
       onError: (error) => {
         logger.error('Error deploying hsg:', error);
         throw error;

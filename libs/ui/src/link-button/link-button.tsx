@@ -55,17 +55,17 @@ export function LinkButton({
 }: LinkButtonProps) {
   if (!href) return null; // TODO handle no href
   return (
-    <Link href={href} passHref legacyBehavior>
-      <ForwardedLinkButton
-        leftIcon={leftIcon}
-        rightIcon={rightIcon}
-        variant={variant}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onClick={onClick as any}
-        {...props}
-      >
-        {children}
-      </ForwardedLinkButton>
-    </Link>
+    // <Link href={href} passHref>
+    <ForwardedLinkButton
+      leftIcon={leftIcon}
+      rightIcon={rightIcon}
+      variant={variant}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onClick={onClick as any}
+      {...props}
+    >
+      {children}
+    </ForwardedLinkButton>
+    // </Link>
   );
 }

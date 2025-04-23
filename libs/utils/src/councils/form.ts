@@ -243,8 +243,8 @@ export const compileModuleData = async ({
     : undefined;
 
   // create modules data
-  const modulesPromises = mapValues(
-    modules({ hatIds, formData, agreementCid, tokenDecimals: tokenDecimals as number }),
+  const modulesPromises = map(
+    Object.values(modules({ hatIds, formData, agreementCid, tokenDecimals: tokenDecimals as number })),
     (module, index) => {
       if (!module) return Promise.resolve(undefined);
 
@@ -421,7 +421,7 @@ const hatsData = ({
       // council roles group
       id: hatIds.councilRolesGroup,
       admin: hatIds.automations,
-      name: 'Council Roles',
+      name: 'Council Roles', // TODO should be the actual council name
       ipfsCid: 'QmaUnbGN3DXQKoKieABVsUAWUetDobEdt6qdDcpyQZqD55',
       maxSupply: 0,
     },
@@ -516,12 +516,14 @@ export const compileHatCreationData = async ({
     councilHat,
   ]);
 
+  // check if hats already exist in the tree
   const otherHatsToCreate = reject(otherHats, (hat) =>
     includes(
       map(tree?.hats, (hat) => hatIdHexToDecimal(hat.id)),
       hat.id,
     ),
   );
+  logger.debug('otherHatsToCreate', otherHatsToCreate);
 
   // handle top hats for new trees
   if (!tree?.hats?.length) {
@@ -547,22 +549,20 @@ export const compileHatCreationData = async ({
         data: hat,
       });
     }
-    if (!hat.admin) return;
+    if (!hat.admin) continue;
 
     const defaultHatValues = {
       maxSupply: 10,
-      eligibility: FALLBACK_ADDRESS,
       toggle: FALLBACK_ADDRESS,
       mutable: true,
       imageURI: '',
     };
 
-    if (!hat.eligibility) return { hatsProtocolCalls };
-
     const callData = hatsClient.createHatCallData({
       ...defaultHatValues,
       ...omit(hat, ['ipfsCid', 'id']),
       details: `ipfs://${hatCid}`,
+      eligibility: hat.eligibility || FALLBACK_ADDRESS,
     });
     hatsProtocolCalls.push(callData.callData);
   }

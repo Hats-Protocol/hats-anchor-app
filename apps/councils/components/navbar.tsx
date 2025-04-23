@@ -38,7 +38,8 @@ const Navbar = () => {
 
   const { data: organization } = useOrganization(isOrganizationRoute ? params.organizationName : undefined);
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev =
+    posthog.isFeatureEnabled('dev') || (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined');
 
   return (
     <div
