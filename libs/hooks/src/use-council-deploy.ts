@@ -12,7 +12,7 @@ import {
 import { hatIdToTreeId, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { getAccessToken } from '@privy-io/react-auth';
 import { useMutation } from '@tanstack/react-query';
-import { find, first, get } from 'lodash';
+import { concat, find, first, flatten, get, map } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { SetStateAction, useMemo } from 'react';
@@ -28,8 +28,9 @@ import {
   logger,
   ORGANIZATION_BY_NAME_QUERY,
   updateCouncilForm,
+  viemPublicClient,
 } from 'utils';
-import { Hex, parseEventLogs, TransactionReceipt } from 'viem';
+import { Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
 import { useAccount, useSimulateContract, useWalletClient } from 'wagmi';
 
 import { useToast } from './use-toast';
@@ -63,17 +64,17 @@ const useCouncilDeploy = ({
   const router = useRouter();
 
   // after accepted, included, indexed
-  const onSuccess = async (data: TransactionReceipt | undefined) => {
+  const onSuccess = async (data: TransactionReceipt | undefined, extraLogs: Log<any, any, any>[] = []) => {
     if (!data || !draftId) return;
     logger.info('Transaction successful', data);
     // TODO handle hat creation data
     const hatCreatedLogs = parseEventLogs({
-      logs: data.logs,
+      logs: concat(data.logs, extraLogs),
       abi: HATS_ABI,
       eventName: 'HatCreated',
     });
     const hsgCreatedLogs = parseEventLogs({
-      logs: data.logs,
+      logs: concat(data.logs, extraLogs),
       abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
       eventName: 'ModuleProxyCreation',
     });
@@ -118,7 +119,7 @@ const useCouncilDeploy = ({
       organizationId = get(organization, 'createOrganization.id');
     }
 
-    logger.info('organization id', organizationId);
+    logger.info('organization id', organizationId, moduleAddresses);
     // create council record
     const council = await addCouncilForForm({
       chainId,
@@ -157,13 +158,12 @@ const useCouncilDeploy = ({
   };
 
   const simulateFullMulticall = useSimulateContract({
-    address: calls && firstCouncil ? MULTICALL3_ADDRESS : undefined,
+    address: address && calls && firstCouncil ? MULTICALL3_ADDRESS : undefined,
     abi: MULTICALL3_ABI,
     functionName: 'aggregate3',
     args: calls && firstCouncil ? [calls as never[]] : undefined, // Call[] is not known by wagmi here
     chainId: chainId,
   });
-  // console.log('simulate multicall', chainId, simulateFullMulticall);
 
   const deployMulticall = async () => {
     setDeployStatus((prev) => ({ ...prev, prepareTx: true }));
@@ -219,7 +219,7 @@ const useCouncilDeploy = ({
 
   const simulateHats = useSimulateContract({
     account: address,
-    address: hatsProtocolCallData && !firstCouncil ? HATS_V1 : undefined,
+    address: address && hatsProtocolCallData && !firstCouncil ? HATS_V1 : undefined,
     abi: HATS_ABI,
     functionName: 'multicall',
     args: [[get(hatsProtocolCallData, 'callData')] as Hex[]],
@@ -244,7 +244,7 @@ const useCouncilDeploy = ({
         chain: chainsMap(chainId),
       })
       .catch((err) => {
-        console.log('error', err);
+        logger.error('error', err);
         setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
         // TODO toast
       });
@@ -257,6 +257,10 @@ const useCouncilDeploy = ({
       logger.debug('hash', hash);
     }
     setDeployStatus((prev) => ({ ...prev, deployHatsTx: true }));
+
+    // store tx in local storage for retrieval later
+    const deployTxs = [hash];
+    localStorage.setItem(`deploy-txs-${draftId}`, JSON.stringify(deployTxs));
 
     handlePendingTx?.({
       hash,
@@ -295,13 +299,12 @@ const useCouncilDeploy = ({
 
   const simulateModules = useSimulateContract({
     account: address,
-    address: moduleArgs && !firstCouncil ? HATS_MODULES_FACTORY_ADDRESS : undefined,
+    address: address && moduleArgs && !firstCouncil ? HATS_MODULES_FACTORY_ADDRESS : undefined,
     abi: HATS_MODULES_FACTORY_ABI,
     functionName: 'batchCreateHatsModule',
     args: localModuleArgs,
     chainId,
   });
-  // console.log('simulate modules', simulateModules);
 
   const deployModulesFn = async () => {
     if (!moduleArgs) {
@@ -325,7 +328,7 @@ const useCouncilDeploy = ({
         chain: chainsMap(chainId),
       })
       .catch((err) => {
-        console.log('error', err);
+        logger.debug('error', err);
         setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
         // TODO toast
       });
@@ -336,6 +339,16 @@ const useCouncilDeploy = ({
       throw new Error('Failed to create transaction');
     } else {
       logger.debug('hash', hash);
+    }
+
+    // store tx in local storage for retrieval later
+    const deployTxs = localStorage.getItem(`deploy-txs-${draftId}`);
+    if (deployTxs) {
+      const deployTxsObj = JSON.parse(deployTxs);
+      deployTxsObj.push(hash);
+      localStorage.setItem(`deploy-txs-${draftId}`, JSON.stringify(deployTxsObj));
+    } else {
+      localStorage.setItem(`deploy-txs-${draftId}`, JSON.stringify([hash]));
     }
 
     handlePendingTx?.({
@@ -367,7 +380,7 @@ const useCouncilDeploy = ({
 
   const simulateHsg = useSimulateContract({
     account: address,
-    address: hsgArgs && !firstCouncil ? ZODIAC_MODULE_PROXY_FACTORY_ADDRESS : undefined,
+    address: address && hsgArgs && !firstCouncil ? ZODIAC_MODULE_PROXY_FACTORY_ADDRESS : undefined,
     abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
     functionName: 'deployModule',
     args: localHsgArgs,
@@ -403,6 +416,16 @@ const useCouncilDeploy = ({
       logger.debug('hash', hash);
     }
 
+    const client = viemPublicClient(chainId);
+    const otherTxs = localStorage.getItem(`deploy-txs-${draftId}`);
+    const extraTxs = otherTxs ? JSON.parse(otherTxs) : [];
+    console.log('extraTxs', extraTxs);
+    const extraLogsFetch = map(extraTxs, async (tx: string) => {
+      const receipt = await client.waitForTransactionReceipt({ hash: tx as `0x${string}` });
+      return receipt.logs;
+    });
+    const extraLogs = await Promise.all(extraLogsFetch);
+    console.log('extraLogs', extraLogs);
     handlePendingTx?.({
       hash,
       txChainId: chainId,
@@ -414,7 +437,9 @@ const useCouncilDeploy = ({
       onTxIndexed: () => {
         setDeployStatus((prev) => ({ ...prev, indexHsgTx: true }));
       },
-      onSuccess,
+      onSuccess: (data) => {
+        onSuccess(data, flatten(extraLogs));
+      },
       onError: (error) => {
         logger.error('Error deploying hsg:', error);
         throw error;

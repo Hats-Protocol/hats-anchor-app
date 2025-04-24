@@ -4,6 +4,7 @@
 import { chainsList } from '@hatsprotocol/config';
 import {
   getChainTokens,
+  initialDeployMultiStatus,
   initialDeployStatus,
   MULTICALL3_ADDRESS,
   TokenInfo,
@@ -62,6 +63,7 @@ interface CouncilFormContextType {
   toggleOptionalStep: (step: keyof CompletedOptionalSteps) => void;
   availableTokens: TokenInfo[];
   hatIds: { [key: string]: bigint };
+  moduleAddresses: { [key: string]: string };
   // deploy handlers
   deployStatus: DeployStatus;
   deployHats: () => void;
@@ -509,7 +511,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     },
   });
 
-  const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds } = useCouncilDeployCalldata({
+  const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds, moduleAddresses } = useCouncilDeployCalldata({
     formData: form.watch(),
     tree,
   });
@@ -555,8 +557,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         toggleOptionalStep,
         availableTokens,
         hatIds,
+        moduleAddresses,
         // deploy handlers
-        deployStatus,
+        deployStatus, // status of the deploy
         deployHats,
         deployModules,
         deployHsg,

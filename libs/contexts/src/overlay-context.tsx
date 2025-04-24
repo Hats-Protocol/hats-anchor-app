@@ -36,11 +36,11 @@ export const OverlayContext = createContext<OverlayContextProps>({
   setDrawers: undefined,
   handlePendingTx: undefined,
   commandPalette: false,
-  setCommandPalette: () => {},
+  setCommandPalette: () => undefined,
   transactions: [],
-  clearAllTransactions: () => {},
+  clearAllTransactions: () => undefined,
   recentlyVisitedTrees: undefined,
-  updateRecentlyVisitedTrees: () => {},
+  updateRecentlyVisitedTrees: () => undefined,
   txPending: false,
 });
 

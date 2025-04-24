@@ -24,7 +24,7 @@ import {
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { compact, every, filter, find, includes, map, mapValues, omit, reject, toNumber, toString } from 'lodash';
+import { compact, every, filter, find, includes, map, omit, reject, toNumber, toString } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
 import { Address, decodeEventLog, encodeFunctionData, encodePacked, parseUnits, PublicClient, zeroAddress } from 'viem';
 import { encodeAbiParameters } from 'viem';
@@ -177,14 +177,18 @@ const modules = ({
     ],
   };
 
+  console.log(
+    'erc20Module',
+    // ERC20_ELIGIBILITY_ADDRESS,
+    // hatIds.councilMember,
+    formData.tokenRequirement?.address?.value,
+    tokenDecimals,
+  );
   const erc20Module: Module = {
     address: ERC20_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
     requirementsKey: 'holdTokens',
-    args: [
-      [{ type: 'address' }, { type: 'uint256' }],
-      [formData.tokenRequirement?.address?.value as `0x${string}`, formData.tokenRequirement?.minimum],
-    ],
+    args: [[], []],
     immutableArgs: [
       ['address', 'uint256'],
       [
@@ -492,6 +496,7 @@ export const compileHatCreationData = async ({
   const compiledHatsData = hatsData({ formData, hatIds, moduleAddresses });
   // determine which hats already exist in the tree
   const [
+    // skip top hat
     adminHat,
     automationsHat,
     orgRolesGroupHat,
@@ -513,7 +518,6 @@ export const compileHatCreationData = async ({
     councilMemberHat,
     councilHat,
   ]);
-  console.log(adminHat, compiledHatsData);
 
   // check if hats already exist in the tree
   const otherHatsToCreate = reject(otherHats, (hat) =>
