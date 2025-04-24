@@ -5,6 +5,7 @@ export const CHAIN_MAPPING = {
   '137': 'polygon',
   '100': 'gnosis',
   '8453': 'base',
+  '84532': 'base-sepolia',
   '42220': 'celo',
   '11155111': 'sepolia',
 } as const;
