@@ -129,34 +129,50 @@ export function ComplianceStep({ onNext }: StepProps) {
 
   // Group unique compliance admin sets across councils
   const complianceAdminGroups = useMemo(() => {
-    return (
-      organization?.councils?.reduce<{
-        [key: string]: { id: string; admins: CouncilMember[]; councils: string[] };
-      }>((acc, council) => {
-        if (!council.creationForm?.complianceAdmins) return acc;
+    const groupsByAdmins = new Map<string, { id: string; admins: CouncilMember[]; councils: string[] }>();
 
-        // Create a sorted string of admin addresses as a key
-        const complianceAdminKey = council.creationForm.complianceAdmins
-          .map((admin) => admin.address.toLowerCase())
-          .sort()
-          .join(',');
+    organization?.councils?.forEach((council) => {
+      if (!council.creationForm?.complianceAdmins?.length) return;
 
-        if (!acc[complianceAdminKey]) {
-          acc[complianceAdminKey] = {
-            id: council.creationForm.id,
-            admins: council.creationForm.complianceAdmins.map((admin) => ({
+      // Create a sorted string of admin addresses as a key
+      const adminKey = council.creationForm.complianceAdmins
+        .map((admin) => admin.address.toLowerCase())
+        .sort()
+        .join(',');
+
+      if (groupsByAdmins.has(adminKey)) {
+        const existing = groupsByAdmins.get(adminKey)!;
+        existing.councils.push(council.creationForm.councilName || '');
+        // Merge any new admins (shouldn't happen if keys match, but being thorough)
+        if (council.creationForm.complianceAdmins) {
+          const newAdmins = council.creationForm.complianceAdmins
+            .filter(
+              (admin) =>
+                !existing.admins.some(
+                  (existingAdmin) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
+                ),
+            )
+            .map((admin) => ({
               ...admin,
               email: '', // Adding required email field
-            })) as CouncilMember[],
-            councils: [council.creationForm.councilName || ''],
-          };
-        } else {
-          acc[complianceAdminKey].councils.push(council.creationForm.councilName || '');
+            }));
+          existing.admins.push(...newAdmins);
         }
-        return acc;
-      }, {}) || {}
-    );
-  }, [organization]);
+      } else {
+        groupsByAdmins.set(adminKey, {
+          id: council.creationForm.id,
+          admins: council.creationForm.complianceAdmins.map((admin) => ({
+            ...admin,
+            email: '', // Adding required email field
+          })),
+          councils: [council.creationForm.councilName || ''],
+        });
+      }
+    });
+
+    return Object.fromEntries(groupsByAdmins.entries());
+  }, [organization?.councils]);
+
   // Create a sorted string of organization manager addresses to compare against
   const orgManagerKey = organizationManagers
     .map((admin) => admin.address.toLowerCase())
@@ -175,46 +191,31 @@ export function ComplianceStep({ onNext }: StepProps) {
   );
 
   // Create options for compliance managers
-  const complianceManagerOptions = useMemo(() => {
-    const currentComplianceAdmins = form.getValues('complianceAdmins') || [];
-    const currentAddresses = currentComplianceAdmins.map((admin) => admin.address.toLowerCase()).sort();
-    const currentRole = form.getValues('createComplianceAdminRole');
-
-    return [
+  const complianceManagerOptions = useMemo(
+    () => [
       {
         value: 'false',
         label: 'Organization Managers',
         description: 'Manage Roles on all Councils',
         avatars: organizationManagers,
         onSelect: () => form.setValue('complianceAdmins', organizationManagers),
-        defaultSelected: currentRole === 'false',
       },
-      ...Object.entries(filteredComplianceAdminGroups)
-        .filter(([_, group]) => group.admins.length > 0)
-        .map(([key, group]) => {
-          const groupAddresses = group.admins.map((admin) => admin.address.toLowerCase()).sort();
-          const isSelected = JSON.stringify(currentAddresses) === JSON.stringify(groupAddresses);
-          const isExistingSelected =
-            currentRole && currentRole.startsWith('existing:') && currentRole.split(':')[1] === key;
-
-          return {
-            value: `existing:${key}`,
-            label: 'Compliance Managers',
-            description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-            avatars: group.admins,
-            onSelect: () => form.setValue('complianceAdmins', group.admins),
-            defaultSelected: isExistingSelected || isSelected,
-          };
-        }),
+      ...Object.entries(filteredComplianceAdminGroups).map(([key, group]) => ({
+        value: `existing:${key}`,
+        label: 'Compliance Managers',
+        description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+        avatars: group.admins,
+        onSelect: () => form.setValue('complianceAdmins', group.admins),
+      })),
       {
         value: 'true',
         label: 'Create new Compliance Managers',
         description: 'Create a new group of Compliance Managers',
         onSelect: () => form.setValue('complianceAdmins', []),
-        defaultSelected: currentRole === 'true',
       },
-    ];
-  }, [filteredComplianceAdminGroups, form, organizationManagers]);
+    ],
+    [organizationManagers, filteredComplianceAdminGroups, form],
+  );
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);

@@ -172,29 +172,48 @@ export function AgreementStep({ onNext }: StepProps) {
   const { data: organization, isFetching: isFetchingOrganization } = useOrganization(orgName);
 
   // Group agreements from existing councils
-  const existingAgreements = useMemo(
-    () =>
-      organization?.councils?.reduce<GroupedAgreement[]>((acc, council) => {
-        // TODO we can't (currently) rely on this agreement data to be updated for deployed councils
-        // do we need to get other deployed instances outside of our known module deploys?
-        if (council.creationForm?.agreement && council.creationForm?.councilName) {
-          return [
-            ...acc,
-            {
-              id: council.creationForm.id,
-              councilName: council.creationForm.councilName,
-              agreement: council.creationForm.agreement,
-              agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
+  const existingAgreements = useMemo(() => {
+    const agreementMap = new Map<string, GroupedAgreement>();
+
+    organization?.councils?.forEach((council) => {
+      if (council.creationForm?.agreement && council.creationForm?.councilName) {
+        const agreementContent = trim(council.creationForm.agreement);
+        const key = agreementContent;
+
+        if (agreementMap.has(key)) {
+          const existing = agreementMap.get(key)!;
+          existing.councilName = `${existing.councilName}, ${council.creationForm.councilName}`;
+          // Merge agreementAdmins if they exist
+          if (council.creationForm.agreementAdmins) {
+            const newAdmins = council.creationForm.agreementAdmins
+              .filter(
+                (admin) =>
+                  !existing.agreementAdmins.some(
+                    (existingAdmin) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
+                  ),
+              )
+              .map((admin) => ({
                 ...admin,
                 email: '', // Adding required email field
-              })),
-            },
-          ];
+              }));
+            existing.agreementAdmins.push(...newAdmins);
+          }
+        } else {
+          agreementMap.set(key, {
+            id: council.creationForm.id,
+            councilName: council.creationForm.councilName,
+            agreement: agreementContent,
+            agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
+              ...admin,
+              email: '', // Adding required email field
+            })),
+          });
         }
-        return acc;
-      }, []) || undefined,
-    [organization?.councils],
-  );
+      }
+    });
+
+    return Array.from(agreementMap.values());
+  }, [organization?.councils]);
 
   // Extract unique organization managers from existing councils
   const organizationManagers = useMemo(
@@ -218,31 +237,34 @@ export function AgreementStep({ onNext }: StepProps) {
   logger.info('organizationManagers', organizationManagers);
 
   // Group unique admin sets across councils
-  const agreementAdminGroups = useMemo(
-    () =>
-      organization?.councils?.reduce<{
-        [key: string]: { admins: CouncilMember[]; councils: string[] };
-      }>((acc, council) => {
-        if (!council.creationForm?.agreementAdmins) return acc;
+  const agreementAdminGroups = useMemo(() => {
+    const groupsByAdmins = new Map<string, { admins: CouncilMember[]; councils: string[] }>();
 
-        // Create a sorted string of admin addresses as a key
-        const adminKey = council.creationForm.id;
+    organization?.councils?.forEach((council) => {
+      if (!council.creationForm?.agreementAdmins?.length) return;
 
-        if (!acc[adminKey]) {
-          acc[adminKey] = {
-            admins: council.creationForm.agreementAdmins.map((admin) => ({
-              ...admin,
-              email: '', // Adding required email field
-            })) as CouncilMember[],
-            councils: [council.creationForm.councilName || ''],
-          };
-        } else {
-          acc[adminKey].councils.push(council.creationForm.councilName || '');
-        }
-        return acc;
-      }, {}) || {},
-    [organization?.councils],
-  );
+      // Create a sorted string of admin addresses as a key
+      const adminKey = council.creationForm.agreementAdmins
+        .map((admin) => admin.address.toLowerCase())
+        .sort()
+        .join(',');
+
+      if (groupsByAdmins.has(adminKey)) {
+        const existing = groupsByAdmins.get(adminKey)!;
+        existing.councils.push(council.creationForm.councilName || '');
+      } else {
+        groupsByAdmins.set(adminKey, {
+          admins: council.creationForm.agreementAdmins.map((admin) => ({
+            ...admin,
+            email: '', // Adding required email field
+          })),
+          councils: [council.creationForm.councilName || ''],
+        });
+      }
+    });
+
+    return Object.fromEntries(groupsByAdmins.entries());
+  }, [organization?.councils]);
 
   logger.info('agreementAdminGroups', agreementAdminGroups);
 
@@ -324,30 +346,31 @@ export function AgreementStep({ onNext }: StepProps) {
   // const selectedAgreementOption = selectedOption;
 
   // Create radio options for agreement managers
-  const agreementManagerOptions = [
-    {
-      value: 'false',
-      label: 'Organization Managers',
-      description: 'Manage Roles on all Councils',
-      avatars: organizationManagers,
-      onSelect: () => form.setValue('agreementAdmins', organizationManagers),
-    },
-    ...Object.entries(filteredAgreementAdminGroups)
-      .filter(([_, group]) => group.admins.length > 0)
-      .map(([key, group]) => ({
+  const agreementManagerOptions = useMemo(
+    () => [
+      {
+        value: 'false',
+        label: 'Organization Managers',
+        description: 'Manage Roles on all Councils',
+        avatars: organizationManagers,
+        onSelect: () => form.setValue('agreementAdmins', organizationManagers),
+      },
+      ...Object.entries(filteredAgreementAdminGroups).map(([key, group]) => ({
         value: `existing:${key}`,
         label: 'Agreement Managers',
         description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
         avatars: group.admins,
         onSelect: () => form.setValue('agreementAdmins', group.admins),
       })),
-    {
-      value: 'true',
-      label: 'Create new Agreement Managers',
-      description: 'Create a new group of agreement managers',
-      onSelect: () => form.setValue('agreementAdmins', []),
-    },
-  ];
+      {
+        value: 'true',
+        label: 'Create new Agreement Managers',
+        description: 'Create a new group of agreement managers',
+        onSelect: () => form.setValue('agreementAdmins', []),
+      },
+    ],
+    [organizationManagers, filteredAgreementAdminGroups, form],
+  );
 
   useEffect(() => {
     if (isFetchingOrganization || !selectedOption || !form || !existingAgreements) return;
@@ -478,46 +501,54 @@ export function AgreementStep({ onNext }: StepProps) {
               )}
             </div>
 
-            <div>
-              <h3 className='mb-2 font-bold'>Agreement Managers</h3>
-              <p className='text-sm text-gray-600'>
-                Agreement Managers can update the agreement text and verify that Council Members have signed it.
-              </p>
-              <div className='mt-4 space-y-4'>
-                <AgreementAdminsList
-                  agreementAdmins={
-                    !isEmpty(agreementAdmins) || createAgreementAdminRole === 'true'
-                      ? agreementAdmins
-                      : form.getValues('admins')
-                  }
-                  form={form}
-                  canEdit={createAgreementAdminRole === 'true' && canEdit}
-                  canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
-                  showButtons={true}
-                  onEdit={(admin) => {
-                    setEditingAdmin(admin);
-                    setShowAddForm(true);
-                  }}
-                  loading={isLoadingList}
-                />
-
-                {!showAddForm && createAgreementAdminRole === 'true' && (
-                  <Button
-                    variant='outline-blue'
-                    rounded='full'
-                    onClick={() => {
-                      setEditingAdmin(null);
+            {/* Show either Organization Managers or Agreement Managers based on selection */}
+            {!isFetchingOrganization && (
+              <div>
+                <h3 className='mb-2 font-bold'>
+                  {createAgreementAdminRole === 'false' ? 'Organization Managers' : 'Agreement Managers'}
+                </h3>
+                <p className='text-sm text-gray-600'>
+                  {createAgreementAdminRole === 'false' ? 'Organization' : 'Agreement'} Managers can update the
+                  agreement text and verify that Council Members have signed it.
+                </p>
+                <div className='mt-4 space-y-4'>
+                  <AgreementAdminsList
+                    agreementAdmins={
+                      createAgreementAdminRole === 'false'
+                        ? organizationManagers
+                        : !isEmpty(agreementAdmins) || createAgreementAdminRole === 'true'
+                          ? agreementAdmins
+                          : form.getValues('admins')
+                    }
+                    form={form}
+                    canEdit={createAgreementAdminRole === 'true' && canEdit}
+                    canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
+                    showButtons={true}
+                    onEdit={(admin) => {
+                      setEditingAdmin(admin);
                       setShowAddForm(true);
                     }}
-                    disabled={!canEdit}
-                    type='button'
-                  >
-                    <FiUserPlus className='mr-2 h-4 w-4' />
-                    Add Agreement Manager
-                  </Button>
-                )}
+                    loading={isLoadingList}
+                  />
+
+                  {!showAddForm && createAgreementAdminRole === 'true' && (
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => {
+                        setEditingAdmin(null);
+                        setShowAddForm(true);
+                      }}
+                      disabled={!canEdit}
+                      type='button'
+                    >
+                      <FiUserPlus className='mr-2 h-4 w-4' />
+                      Add Agreement Manager
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {showAddForm && (
               <div className='-mx-16 border-b border-gray-200'>
@@ -535,52 +566,6 @@ export function AgreementStep({ onNext }: StepProps) {
                   onMutationStateChange={setIsMutating}
                 />
               </div>
-            )}
-
-            {createAgreementAdminRole === 'false' && organizationManagers.length > 0 && (
-              <>
-                <div>
-                  <h3 className='mb-2 font-bold'>Organization Managers</h3>
-                  <p className='text-sm text-gray-600'>
-                    Organization Managers can update the agreement text and verify that Council Members have signed it.
-                  </p>
-                  <div className='mt-4'>
-                    <AgreementAdminsList
-                      agreementAdmins={organizationManagers}
-                      form={form}
-                      canEdit={false}
-                      canDelete={false}
-                      showButtons={true}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* TODO look at this option state */}
-            {createAgreementAdminRole.startsWith('existing:') && (
-              <>
-                <div>
-                  <h3 className='mb-2 font-bold'>Agreement Managers</h3>
-                  <p className='text-sm text-gray-600'>
-                    These Agreement Managers can update the agreement text and verify that Council Members have signed
-                    it.
-                  </p>
-                  <div className='mt-4'>
-                    <AgreementAdminsList
-                      agreementAdmins={(() => {
-                        const adminKey = createAgreementAdminRole.split(':')[1];
-                        const group = agreementAdminGroups[adminKey];
-                        return group?.admins || [];
-                      })()}
-                      form={form}
-                      canEdit={false}
-                      canDelete={false}
-                      showButtons={true}
-                    />
-                  </div>
-                </div>
-              </>
             )}
           </div>
 

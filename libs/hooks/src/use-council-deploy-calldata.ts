@@ -34,6 +34,9 @@ type UseCouncilDeployCalldataProps = {
 const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataProps) => {
   const { toast } = useToast();
 
+  // assembling module list and removing if they already exist, but we need to know better if they exist
+  // object notation for the requirements may make this easier
+
   const computeCalldata = async () => {
     logger.debug('compiling calldata for council deployment');
 

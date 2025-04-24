@@ -116,8 +116,7 @@ function TokenNumberInput({
                 type='number'
                 min={options?.min}
                 max={options?.max}
-                // separate from the "increment" and "decrement" steps
-                step={0.000000000000000001} // handles the floating point on the input itself
+                step={step}
                 disabled={disabled}
                 value={value}
                 {...restField}
@@ -137,21 +136,19 @@ function TokenNumberInput({
 
               <NumberInputSteppers
                 stepUp={() => {
-                  const currentValue = Number(value) || 0;
-                  console.log('currentValue', currentValue, currentValue < (options?.max ?? Infinity));
+                  const currentValue = parseFloat(value) || 0;
                   if (currentValue < (options?.max ?? Infinity)) {
                     setValue(name, currentValue + step);
                   }
                 }}
-                upDisabled={disabled || Number(value) >= (options?.max ?? Infinity)}
+                upDisabled={disabled || parseFloat(value) >= (options?.max ?? Infinity)}
                 stepDown={() => {
-                  const currentValue = Number(value) || 0;
-                  console.log('currentValue', currentValue, currentValue > (options?.min ?? 0));
+                  const currentValue = parseFloat(value) || 0;
                   if (!disabled && currentValue > (options?.min ?? 0)) {
                     setValue(name, currentValue - step);
                   }
                 }}
-                downDisabled={disabled || Number(value) <= (options?.min ?? 0)}
+                downDisabled={disabled || parseFloat(value) <= (options?.min ?? 0)}
               />
             </div>
           </FormControl>

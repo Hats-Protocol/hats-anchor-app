@@ -23,22 +23,27 @@ interface TokenRequirement {
 }
 
 const createTokenRequirementsSelect = (organization: Organization | null | undefined) => {
-  return (
-    organization?.councils?.reduce<Array<TokenRequirement>>((acc, council) => {
-      if (council.creationForm?.tokenAmount && council.creationForm?.tokenAddress) {
-        return [
-          ...acc,
-          {
-            id: council.creationForm.id,
-            councilName: council.creationForm.councilName || '',
-            minimum: council.creationForm.tokenAmount,
-            tokenAddress: council.creationForm.tokenAddress,
-          },
-        ];
+  const requirements = new Map<string, TokenRequirement>();
+
+  organization?.councils?.forEach((council) => {
+    if (council.creationForm?.tokenAmount && council.creationForm?.tokenAddress) {
+      const key = `${council.creationForm.tokenAddress}-${council.creationForm.tokenAmount}`;
+
+      if (requirements.has(key)) {
+        const existing = requirements.get(key)!;
+        existing.councilName = `${existing.councilName}, ${council.creationForm.councilName || ''}`;
+      } else {
+        requirements.set(key, {
+          id: council.creationForm.id,
+          councilName: council.creationForm.councilName || '',
+          minimum: council.creationForm.tokenAmount,
+          tokenAddress: council.creationForm.tokenAddress,
+        });
       }
-      return acc;
-    }, []) || []
-  );
+    }
+  });
+
+  return Array.from(requirements.values());
 };
 
 const RadioCardSkeleton = () => (
@@ -146,7 +151,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
           description: requirement.councilName,
           onSelect: () => {
             setValue('tokenType', `${requirement.tokenAddress}-${requirement.minimum}`);
-            setValue('tokenRequirement.minimum', parseInt(requirement.minimum));
+            setValue('tokenRequirement.minimum', parseFloat(requirement.minimum));
             setValue('tokenRequirement.address', { value: requirement.tokenAddress, label: token?.symbol || '' });
           },
         };
@@ -243,7 +248,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
-              step={0.5}
+              step={0.01}
               disabled={!canEdit || watch('tokenType') !== 'new'}
               tooltip='The minimum amount of tokens that Council Members must hold'
             />
