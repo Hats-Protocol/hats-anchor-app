@@ -5,7 +5,7 @@ import React from 'react';
 import { Button, type ButtonProps } from '../button';
 import { cn } from '../lib/utils';
 
-interface LinkButtonProps extends ButtonProps {
+interface LinkButtonProps extends Omit<ButtonProps, 'asChild'> {
   href?: string;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
@@ -15,57 +15,47 @@ interface LinkButtonProps extends ButtonProps {
   textClassName?: string;
 }
 
-interface BaseLinkButtonProps extends Omit<LinkButtonProps, 'onClick'> {
-  onClick?: React.MouseEventHandler<HTMLAnchorElement> | undefined;
-}
+const LinkButton = React.forwardRef<HTMLAnchorElement, LinkButtonProps>(
+  (
+    { href, leftIcon, rightIcon, variant = 'default', children, isExternal, className, textClassName, ...props },
+    ref,
+  ) => {
+    const content = (
+      <div className={cn('flex items-center gap-2')}>
+        {leftIcon}
+        <p className={cn('text-base', textClassName)}>{children}</p>
+        {rightIcon}
+      </div>
+    );
 
-const BaseLinkButton: React.ForwardRefRenderFunction<HTMLAnchorElement, BaseLinkButtonProps> = (
-  { onClick, href, variant, leftIcon, rightIcon, isExternal, size, children, className, textClassName },
-  ref,
-) => {
-  return (
-    <Button variant={variant as ButtonProps['variant']} size={size} className={className} asChild>
-      <a
-        href={href}
-        onClick={onClick}
-        ref={ref}
-        target={isExternal ? '_blank' : undefined}
-        rel={isExternal ? 'noopener noreferrer' : undefined}
-      >
-        <div className={cn('flex items-center gap-2')}>
-          {leftIcon}
-          <p className={cn('text-base', textClassName)}>{children}</p>
-          {rightIcon}
-        </div>
-      </a>
-    </Button>
-  );
-};
+    if (!href) {
+      return (
+        <Button variant={variant} className={className} {...props}>
+          {content}
+        </Button>
+      );
+    }
 
-const ForwardedLinkButton = React.forwardRef(BaseLinkButton);
+    if (isExternal) {
+      return (
+        <Button variant={variant} className={className} asChild {...props}>
+          <a href={href} ref={ref} target='_blank' rel='noopener noreferrer'>
+            {content}
+          </a>
+        </Button>
+      );
+    }
 
-export function LinkButton({
-  href,
-  leftIcon,
-  rightIcon,
-  variant = 'default', // could this be better as `link`?
-  children,
-  onClick,
-  ...props
-}: LinkButtonProps) {
-  if (!href) return null; // TODO handle no href
-  return (
-    // <Link href={href} passHref>
-    <ForwardedLinkButton
-      leftIcon={leftIcon}
-      rightIcon={rightIcon}
-      variant={variant}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onClick={onClick as any}
-      {...props}
-    >
-      {children}
-    </ForwardedLinkButton>
-    // </Link>
-  );
-}
+    return (
+      <Button variant={variant} className={className} asChild {...props}>
+        <Link href={href} ref={ref}>
+          {content}
+        </Link>
+      </Button>
+    );
+  },
+);
+
+LinkButton.displayName = 'LinkButton';
+
+export { LinkButton, type LinkButtonProps };
