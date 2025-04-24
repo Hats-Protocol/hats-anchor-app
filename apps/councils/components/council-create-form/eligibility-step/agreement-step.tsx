@@ -237,31 +237,34 @@ export function AgreementStep({ onNext }: StepProps) {
   logger.info('organizationManagers', organizationManagers);
 
   // Group unique admin sets across councils
-  const agreementAdminGroups = useMemo(
-    () =>
-      organization?.councils?.reduce<{
-        [key: string]: { admins: CouncilMember[]; councils: string[] };
-      }>((acc, council) => {
-        if (!council.creationForm?.agreementAdmins) return acc;
+  const agreementAdminGroups = useMemo(() => {
+    const groupsByAdmins = new Map<string, { admins: CouncilMember[]; councils: string[] }>();
 
-        // Create a sorted string of admin addresses as a key
-        const adminKey = council.creationForm.id;
+    organization?.councils?.forEach((council) => {
+      if (!council.creationForm?.agreementAdmins?.length) return;
 
-        if (!acc[adminKey]) {
-          acc[adminKey] = {
-            admins: council.creationForm.agreementAdmins.map((admin) => ({
-              ...admin,
-              email: '', // Adding required email field
-            })) as CouncilMember[],
-            councils: [council.creationForm.councilName || ''],
-          };
-        } else {
-          acc[adminKey].councils.push(council.creationForm.councilName || '');
-        }
-        return acc;
-      }, {}) || {},
-    [organization?.councils],
-  );
+      // Create a sorted string of admin addresses as a key
+      const adminKey = council.creationForm.agreementAdmins
+        .map((admin) => admin.address.toLowerCase())
+        .sort()
+        .join(',');
+
+      if (groupsByAdmins.has(adminKey)) {
+        const existing = groupsByAdmins.get(adminKey)!;
+        existing.councils.push(council.creationForm.councilName || '');
+      } else {
+        groupsByAdmins.set(adminKey, {
+          admins: council.creationForm.agreementAdmins.map((admin) => ({
+            ...admin,
+            email: '', // Adding required email field
+          })),
+          councils: [council.creationForm.councilName || ''],
+        });
+      }
+    });
+
+    return Object.fromEntries(groupsByAdmins.entries());
+  }, [organization?.councils]);
 
   logger.info('agreementAdminGroups', agreementAdminGroups);
 
@@ -343,30 +346,31 @@ export function AgreementStep({ onNext }: StepProps) {
   // const selectedAgreementOption = selectedOption;
 
   // Create radio options for agreement managers
-  const agreementManagerOptions = [
-    {
-      value: 'false',
-      label: 'Organization Managers',
-      description: 'Manage Roles on all Councils',
-      avatars: organizationManagers,
-      onSelect: () => form.setValue('agreementAdmins', organizationManagers),
-    },
-    ...Object.entries(filteredAgreementAdminGroups)
-      .filter(([_, group]) => group.admins.length > 0)
-      .map(([key, group]) => ({
+  const agreementManagerOptions = useMemo(
+    () => [
+      {
+        value: 'false',
+        label: 'Organization Managers',
+        description: 'Manage Roles on all Councils',
+        avatars: organizationManagers,
+        onSelect: () => form.setValue('agreementAdmins', organizationManagers),
+      },
+      ...Object.entries(filteredAgreementAdminGroups).map(([key, group]) => ({
         value: `existing:${key}`,
         label: 'Agreement Managers',
         description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
         avatars: group.admins,
         onSelect: () => form.setValue('agreementAdmins', group.admins),
       })),
-    {
-      value: 'true',
-      label: 'Create new Agreement Managers',
-      description: 'Create a new group of agreement managers',
-      onSelect: () => form.setValue('agreementAdmins', []),
-    },
-  ];
+      {
+        value: 'true',
+        label: 'Create new Agreement Managers',
+        description: 'Create a new group of agreement managers',
+        onSelect: () => form.setValue('agreementAdmins', []),
+      },
+    ],
+    [organizationManagers, filteredAgreementAdminGroups, form],
+  );
 
   useEffect(() => {
     if (isFetchingOrganization || !selectedOption || !form || !existingAgreements) return;
@@ -577,7 +581,7 @@ export function AgreementStep({ onNext }: StepProps) {
             )}
 
             {/* TODO look at this option state */}
-            {createAgreementAdminRole.startsWith('existing:') && (
+            {/* {createAgreementAdminRole.startsWith('existing:') && (
               <>
                 <div>
                   <h3 className='mb-2 font-bold'>Agreement Managers</h3>
@@ -600,7 +604,7 @@ export function AgreementStep({ onNext }: StepProps) {
                   </div>
                 </div>
               </>
-            )}
+            )} */}
           </div>
 
           <div className='flex justify-end py-6'>
