@@ -501,46 +501,54 @@ export function AgreementStep({ onNext }: StepProps) {
               )}
             </div>
 
-            <div>
-              <h3 className='mb-2 font-bold'>Agreement Managers</h3>
-              <p className='text-sm text-gray-600'>
-                Agreement Managers can update the agreement text and verify that Council Members have signed it.
-              </p>
-              <div className='mt-4 space-y-4'>
-                <AgreementAdminsList
-                  agreementAdmins={
-                    !isEmpty(agreementAdmins) || createAgreementAdminRole === 'true'
-                      ? agreementAdmins
-                      : form.getValues('admins')
-                  }
-                  form={form}
-                  canEdit={createAgreementAdminRole === 'true' && canEdit}
-                  canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
-                  showButtons={true}
-                  onEdit={(admin) => {
-                    setEditingAdmin(admin);
-                    setShowAddForm(true);
-                  }}
-                  loading={isLoadingList}
-                />
-
-                {!showAddForm && createAgreementAdminRole === 'true' && (
-                  <Button
-                    variant='outline-blue'
-                    rounded='full'
-                    onClick={() => {
-                      setEditingAdmin(null);
+            {/* Show either Organization Managers or Agreement Managers based on selection */}
+            {!isFetchingOrganization && (
+              <div>
+                <h3 className='mb-2 font-bold'>
+                  {createAgreementAdminRole === 'false' ? 'Organization Managers' : 'Agreement Managers'}
+                </h3>
+                <p className='text-sm text-gray-600'>
+                  {createAgreementAdminRole === 'false' ? 'Organization' : 'Agreement'} Managers can update the
+                  agreement text and verify that Council Members have signed it.
+                </p>
+                <div className='mt-4 space-y-4'>
+                  <AgreementAdminsList
+                    agreementAdmins={
+                      createAgreementAdminRole === 'false'
+                        ? organizationManagers
+                        : !isEmpty(agreementAdmins) || createAgreementAdminRole === 'true'
+                          ? agreementAdmins
+                          : form.getValues('admins')
+                    }
+                    form={form}
+                    canEdit={createAgreementAdminRole === 'true' && canEdit}
+                    canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
+                    showButtons={true}
+                    onEdit={(admin) => {
+                      setEditingAdmin(admin);
                       setShowAddForm(true);
                     }}
-                    disabled={!canEdit}
-                    type='button'
-                  >
-                    <FiUserPlus className='mr-2 h-4 w-4' />
-                    Add Agreement Manager
-                  </Button>
-                )}
+                    loading={isLoadingList}
+                  />
+
+                  {!showAddForm && createAgreementAdminRole === 'true' && (
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => {
+                        setEditingAdmin(null);
+                        setShowAddForm(true);
+                      }}
+                      disabled={!canEdit}
+                      type='button'
+                    >
+                      <FiUserPlus className='mr-2 h-4 w-4' />
+                      Add Agreement Manager
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {showAddForm && (
               <div className='-mx-16 border-b border-gray-200'>
@@ -559,52 +567,6 @@ export function AgreementStep({ onNext }: StepProps) {
                 />
               </div>
             )}
-
-            {createAgreementAdminRole === 'false' && organizationManagers.length > 0 && (
-              <>
-                <div>
-                  <h3 className='mb-2 font-bold'>Organization Managers</h3>
-                  <p className='text-sm text-gray-600'>
-                    Organization Managers can update the agreement text and verify that Council Members have signed it.
-                  </p>
-                  <div className='mt-4'>
-                    <AgreementAdminsList
-                      agreementAdmins={organizationManagers}
-                      form={form}
-                      canEdit={false}
-                      canDelete={false}
-                      showButtons={true}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* TODO look at this option state */}
-            {/* {createAgreementAdminRole.startsWith('existing:') && (
-              <>
-                <div>
-                  <h3 className='mb-2 font-bold'>Agreement Managers</h3>
-                  <p className='text-sm text-gray-600'>
-                    These Agreement Managers can update the agreement text and verify that Council Members have signed
-                    it.
-                  </p>
-                  <div className='mt-4'>
-                    <AgreementAdminsList
-                      agreementAdmins={(() => {
-                        const adminKey = createAgreementAdminRole.split(':')[1];
-                        const group = agreementAdminGroups[adminKey];
-                        return group?.admins || [];
-                      })()}
-                      form={form}
-                      canEdit={false}
-                      canDelete={false}
-                      showButtons={true}
-                    />
-                  </div>
-                </div>
-              </>
-            )} */}
           </div>
 
           <div className='flex justify-end py-6'>
