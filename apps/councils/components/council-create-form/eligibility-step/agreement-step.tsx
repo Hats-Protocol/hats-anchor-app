@@ -172,29 +172,48 @@ export function AgreementStep({ onNext }: StepProps) {
   const { data: organization, isFetching: isFetchingOrganization } = useOrganization(orgName);
 
   // Group agreements from existing councils
-  const existingAgreements = useMemo(
-    () =>
-      organization?.councils?.reduce<GroupedAgreement[]>((acc, council) => {
-        // TODO we can't (currently) rely on this agreement data to be updated for deployed councils
-        // do we need to get other deployed instances outside of our known module deploys?
-        if (council.creationForm?.agreement && council.creationForm?.councilName) {
-          return [
-            ...acc,
-            {
-              id: council.creationForm.id,
-              councilName: council.creationForm.councilName,
-              agreement: council.creationForm.agreement,
-              agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
+  const existingAgreements = useMemo(() => {
+    const agreementMap = new Map<string, GroupedAgreement>();
+
+    organization?.councils?.forEach((council) => {
+      if (council.creationForm?.agreement && council.creationForm?.councilName) {
+        const agreementContent = trim(council.creationForm.agreement);
+        const key = agreementContent;
+
+        if (agreementMap.has(key)) {
+          const existing = agreementMap.get(key)!;
+          existing.councilName = `${existing.councilName}, ${council.creationForm.councilName}`;
+          // Merge agreementAdmins if they exist
+          if (council.creationForm.agreementAdmins) {
+            const newAdmins = council.creationForm.agreementAdmins
+              .filter(
+                (admin) =>
+                  !existing.agreementAdmins.some(
+                    (existingAdmin) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
+                  ),
+              )
+              .map((admin) => ({
                 ...admin,
                 email: '', // Adding required email field
-              })),
-            },
-          ];
+              }));
+            existing.agreementAdmins.push(...newAdmins);
+          }
+        } else {
+          agreementMap.set(key, {
+            id: council.creationForm.id,
+            councilName: council.creationForm.councilName,
+            agreement: agreementContent,
+            agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
+              ...admin,
+              email: '', // Adding required email field
+            })),
+          });
         }
-        return acc;
-      }, []) || undefined,
-    [organization?.councils],
-  );
+      }
+    });
+
+    return Array.from(agreementMap.values());
+  }, [organization?.councils]);
 
   // Extract unique organization managers from existing councils
   const organizationManagers = useMemo(
