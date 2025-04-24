@@ -171,20 +171,22 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   return (
     <div className='mx-auto max-w-4xl'>
       <div className='relative border-b border-gray-200 pb-6'>
-        <div className='absolute right-0 top-0'>
+        <div className='mb-4 flex items-start justify-between'>
+          <div className='flex-1'>
+            <div className='flex flex-col items-center gap-1'>
+              <h2 className='line-clamp-2 max-w-[80%] text-center text-3xl font-medium'>{formData.councilName}</h2>
+              <div className='flex gap-1'>
+                <span className='text-gray-900'>by</span>{' '}
+                <span className='text-gray-500'>
+                  {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />} (
+                  {formatAddress(firstAdmin?.address)})
+                </span>
+              </div>
+            </div>
+          </div>
           <Button type='button' variant='outline-blue' rounded='full' onClick={copyUrl}>
             <Link className='h-4 w-4' /> Share Council Draft
           </Button>
-        </div>
-        <div className='flex flex-col items-center gap-1'>
-          <h2 className='text-3xl font-medium'>{formData.councilName}</h2>
-          <div className='flex gap-1'>
-            <span className='text-gray-900'>by</span>{' '}
-            <span className='text-gray-500'>
-              {firstAdmin?.name || <MemberAvatar member={firstAdmin || { address: '' }} />} (
-              {formatAddress(firstAdmin?.address)})
-            </span>
-          </div>
         </div>
       </div>
 

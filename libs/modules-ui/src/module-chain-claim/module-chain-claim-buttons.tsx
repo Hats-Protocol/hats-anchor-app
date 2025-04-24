@@ -94,7 +94,7 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
     moduleDetails: rule.module,
     moduleParameters: rule.liveParams,
     chainId,
-    setStatus: () => {},
+    setStatus: () => undefined,
     handlePendingTx: undefined, // only needed for purchasing/claiming
   });
 
@@ -274,8 +274,8 @@ const ModuleChainClaimButtons = ({
 
   // Set the first incomplete non-agreement module as active when eligibility is determined
   useEffect(() => {
-    // Only proceed if we have currentEligibility data
-    if (!currentEligibility) return;
+    // Only proceed if we have currentEligibility data and no active rule set
+    if (!currentEligibility || activeRule) return;
 
     // Find the first incomplete non-agreement rule
     const firstIncompleteRule = flatRules.find((rule) => {
@@ -286,7 +286,7 @@ const ModuleChainClaimButtons = ({
     if (firstIncompleteRule) {
       setActiveRule(firstIncompleteRule);
     }
-  }, [currentEligibility, flatRules, isAgreement, isRuleCompleted, setActiveRule]);
+  }, [currentEligibility, flatRules, isAgreement, isRuleCompleted, setActiveRule, activeRule]);
 
   return (
     <div
