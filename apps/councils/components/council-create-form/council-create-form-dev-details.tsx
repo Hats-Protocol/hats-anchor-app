@@ -2,7 +2,6 @@
 
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
-import { Textarea } from 'forms';
 import { useTreeDetails } from 'hats-hooks';
 import { useOrganization } from 'hooks';
 import { compact, get, includes, map } from 'lodash';
@@ -10,9 +9,32 @@ import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, BaseTextarea, Link } from 'ui';
+import { explorerUrl, formatAddress } from 'utils';
+import { UseSimulateContractReturnType } from 'wagmi';
+
+const ModuleLink = ({ moduleAddress, chainId }: { moduleAddress: string; chainId: number }) => {
+  if (!moduleAddress) return null;
+  return (
+    <Link href={`${explorerUrl(chainId)}/address/${moduleAddress}`} className='text-sm' isExternal>
+      {formatAddress(moduleAddress)}
+    </Link>
+  );
+};
+
+const SimulateStatus = ({
+  simulate,
+}: {
+  simulate: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+}) => {
+  if (!simulate?.fetchStatus || (simulate?.fetchStatus === 'idle' && simulate?.status === 'pending')) {
+    return <p className='text-sm'>N/A</p>;
+  }
+  return <p className='text-sm'>{simulate?.data ? 'Yes' : 'No'}</p>;
+};
 
 const CreateFormDevDetails = () => {
-  const { form, simulateCouncil, simulateHats, simulateModules, simulateHsg, hatIds } = useCouncilForm();
+  const { form, simulateCouncil, simulateHats, simulateModules, simulateHsg, hatIds, moduleAddresses } =
+    useCouncilForm();
 
   const chainId = form.watch('chain')?.value ? Number(form.watch('chain')?.value) : 11155111;
   const organizationName =
@@ -40,25 +62,62 @@ const CreateFormDevDetails = () => {
 
   // TODO add eligibility addresses
   const councilRequirements = useMemo(() => {
-    return [
-      { label: 'Compliance', descriptor: <p className='text-sm'>{requirements?.passCompliance ? 'Yes' : 'No'}</p> },
-      { label: 'Hold Tokens', descriptor: <p className='text-sm'>{requirements?.holdTokens ? 'Yes' : 'No'}</p> },
-      { label: 'Sign Agreement', descriptor: <p className='text-sm'>{requirements?.signAgreement ? 'Yes' : 'No'}</p> },
-    ];
-  }, [requirements]);
+    return compact([
+      {
+        label: 'Selection',
+        descriptor: (
+          <div className='flex items-center gap-2'>
+            <ModuleLink moduleAddress={moduleAddresses?.councilMemberAllowlist} chainId={chainId} />
+            <p className='text-sm'>Yes</p>
+          </div>
+        ),
+      },
+      {
+        label: 'Sign Agreement',
+        descriptor: (
+          <div className='flex items-center gap-2'>
+            <ModuleLink moduleAddress={moduleAddresses?.agreementModule} chainId={chainId} />
+            <p className='text-sm'>{requirements?.signAgreement ? 'Yes' : 'No'}</p>
+          </div>
+        ),
+      },
+      {
+        label: 'Hold Tokens',
+        descriptor: (
+          <div className='flex items-center gap-2'>
+            <ModuleLink moduleAddress={moduleAddresses?.erc20Module} chainId={chainId} />
+            <p className='text-sm'>{requirements?.holdTokens ? 'Yes' : 'No'}</p>
+          </div>
+        ),
+      },
+      {
+        label: 'Compliance',
+        descriptor: (
+          <div className='flex items-center gap-2'>
+            <ModuleLink moduleAddress={moduleAddresses?.complianceAllowlist} chainId={chainId} />
+            <p className='text-sm'>{requirements?.passCompliance ? 'Yes' : 'No'}</p>
+          </div>
+        ),
+      },
+      moduleAddresses?.eligibilityChain && {
+        label: 'Eligibility Chain',
+        descriptor: <ModuleLink moduleAddress={moduleAddresses?.eligibilityChain} chainId={chainId} />,
+      },
+    ]);
+  }, [requirements, moduleAddresses, chainId]);
 
   // TODO fetch predicted Safe/HSG address
 
   const councilSimulateInfo = useMemo(() => {
     return compact([
-      { label: 'Simulate Council', descriptor: <p className='text-sm'>{simulateCouncil?.data ? 'Yes' : 'No'}</p> },
+      { label: 'Simulate Council', descriptor: <SimulateStatus simulate={simulateCouncil} /> },
       simulateCouncil?.error && {
         label: 'Simulate Council Error',
         descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateCouncil?.error?.message} />,
       },
       {
         label: 'Simulate Hats',
-        descriptor: <p className='text-sm'>{simulateHats?.data ? 'Yes' : simulateCouncil?.error ? 'Error' : 'No'}</p>,
+        descriptor: <SimulateStatus simulate={simulateHats} />,
       },
       simulateHats?.error && {
         label: 'Simulate Hats Error',
@@ -66,7 +125,7 @@ const CreateFormDevDetails = () => {
       },
       {
         label: 'Simulate Modules',
-        descriptor: <p className='text-sm'>{simulateModules?.data ? 'Yes' : simulateHats?.error ? 'Error' : 'No'}</p>,
+        descriptor: <SimulateStatus simulate={simulateModules} />,
       },
       simulateModules?.error && {
         label: 'Simulate Modules Error',
@@ -74,7 +133,7 @@ const CreateFormDevDetails = () => {
       },
       {
         label: 'Simulate HSG',
-        descriptor: <p className='text-sm'>{simulateHsg?.data ? 'Yes' : simulateModules?.error ? 'Error' : 'No'}</p>,
+        descriptor: <SimulateStatus simulate={simulateHsg} />,
       },
       simulateHsg?.error && {
         label: 'Simulate HSG Error',
@@ -82,13 +141,6 @@ const CreateFormDevDetails = () => {
       },
     ]);
   }, [simulateCouncil, simulateHats, simulateModules, simulateHsg]);
-  // console.log(
-  //   'councilSimulateInfo',
-  //   simulateCouncil?.error,
-  //   simulateCouncil?.isLoading,
-  //   simulateCouncil?.isError,
-  //   simulateCouncil?.data,
-  // );
 
   if (!isDev) return null;
 
@@ -97,12 +149,12 @@ const CreateFormDevDetails = () => {
       <DevInfo title='Council Details' devInfos={councilDetails} />
       <DevInfo title='Requirements' devInfos={councilRequirements} />
 
-      {hatIds && (
-        <Accordion type='single' collapsible>
-          <AccordionItem value='hats'>
-            <AccordionTrigger>Hat IDs</AccordionTrigger>
-            <AccordionContent>
-              {map(Object.entries(hatIds), ([key, value]) => (
+      <Accordion type='single' collapsible>
+        <AccordionItem value='hats'>
+          <AccordionTrigger>Hat IDs</AccordionTrigger>
+          <AccordionContent>
+            {hatIds &&
+              map(Object.entries(hatIds), ([key, value]) => (
                 <div className='flex items-center gap-2' key={key}>
                   <p>{key}</p>
                   {includes(existingHatIds, hatIdDecimalToHex(value)) ? (
@@ -114,10 +166,9 @@ const CreateFormDevDetails = () => {
                   )}
                 </div>
               ))}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <DevInfo title='Simulations' devInfos={councilSimulateInfo} />
     </div>

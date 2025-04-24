@@ -118,6 +118,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
               toast,
             })
               .then(({ safeProxyAddress }) => {
+                logger.debug('SAFE PROXY ADDRESS', safeProxyAddress);
                 if (!safeProxyAddress) return {};
                 // mint hats
                 const mintCouncilHatCallData = hatsClient.mintHatCallData({
@@ -162,6 +163,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                 };
 
                 const calls = [hatsProtocolCall, modulesCall, hsgV2Call, transferTopHatCall];
+                logger.debug('CALLS', calls);
 
                 return Promise.resolve({
                   modulesCalldata,
@@ -172,6 +174,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                   moduleArgs,
                   hsgArgs,
                   hatIds: computedHatIds,
+                  moduleAddresses,
                 });
               })
               .catch((err) => {
@@ -197,14 +200,15 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   });
   // TODO: handle this
   // @ts-expect-error handle missing keys
-  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds } = pick(data, [
+  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds, moduleAddresses } = pick(data, [
     'calls', // multicall calldata
     // separate calls
     'hatsProtocolCallData',
     'moduleArgs',
     'hsgArgs',
-    // computed hat IDs
+    // computed hat IDs and module addresses
     'hatIds',
+    'moduleAddresses',
   ]);
 
   return {
@@ -213,6 +217,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     moduleArgs,
     hsgArgs,
     hatIds,
+    moduleAddresses,
     isLoading,
     error,
   };

@@ -1,5 +1,6 @@
 'use client';
 
+import { initialDeployMultiStatus } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
@@ -10,7 +11,7 @@ import { concat, find, get, map, some, toNumber, uniqBy } from 'lodash';
 import { FileText, GemIcon, Link } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
@@ -86,7 +87,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     );
   };
 
-  const handleDeploy = async () => {
+  const handleDeploy = useCallback(async () => {
     posthog.capture('Initiated Council Deployment', {
       councilName: formData.councilName,
       organizationName: (formData.organizationName as unknown as { value: string }).value,
@@ -94,13 +95,14 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     });
 
     // TODO better check for if first council deploy
-    if (simulateCouncil) {
+    if (simulateCouncil?.data) {
       deployCouncil();
     } else {
       deployHats();
     }
-  };
+  }, [formData?.councilName, formData?.organizationName, formData?.chain, simulateCouncil]);
 
+  // TODO get from approved tokens?
   const tokenFields = ['symbol', 'name', 'decimals'];
   const shouldFetchToken = !!formData.tokenRequirement?.address?.value;
   const { data: tokenData } = useReadContracts({
@@ -150,17 +152,20 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const isWrongNetwork = userChainId !== targetChainId;
 
+  const simulating = [simulateCouncil, simulateHats].every(
+    (status) => status?.status === 'pending' && status?.fetchStatus === 'fetching',
+  );
+
   const copyCalldata = () => {
     setModals?.({ calldata: true });
   };
-  // console.log('simulateHats', simulateHats);
 
   if (some(deployStatus, (value) => value)) {
     // TODO better check for `firstCouncil`
     return (
       <Deploy
         deployStatus={deployStatus}
-        firstCouncil={!!simulateCouncil}
+        firstCouncil={!!simulateCouncil?.data}
         draftId={draftId}
         deployModules={deployModules}
         deployHsg={deployHsg}
@@ -402,10 +407,16 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
                 >
                   <NextStepButton
                     // TODO disable if not ready to deploy hats tx or council simulation fails
-                    disabled={!payer || !form.watch('acceptedTerms') || isDeploying || !canEdit}
+                    disabled={
+                      !payer ||
+                      !form.watch('acceptedTerms') ||
+                      isDeploying ||
+                      !canEdit ||
+                      (!simulateCouncil?.data && !simulateHats?.data)
+                    }
                     onClick={handleDeploy}
                   >
-                    {isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
+                    {simulating ? <p>Loading</p> : isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
                   </NextStepButton>
                 </Tooltip>
               )}

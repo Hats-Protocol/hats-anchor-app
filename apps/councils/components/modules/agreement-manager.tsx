@@ -16,7 +16,7 @@ import {
   getAllWearers,
   logger,
   // sendTelegramMessage,
-  tgFormatAddress,
+  // tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
@@ -61,6 +61,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
   // const hatName = ownerHatDetails?.name;
   const allWearers = getAllWearers(offchainCouncilDetails?.creationForm);
   const userIsAgreementManager = !!find(agreementManagers, { id: toLower(userAddress) });
+  console.log(agreementManagers, allWearers, ownerHat);
 
   const addAgreementManagerLoading = useState(false);
   const [, setAddManagerLoading] = addAgreementManagerLoading;
