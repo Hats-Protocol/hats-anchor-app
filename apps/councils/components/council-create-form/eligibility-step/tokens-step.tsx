@@ -146,7 +146,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
           description: requirement.councilName,
           onSelect: () => {
             setValue('tokenType', `${requirement.tokenAddress}-${requirement.minimum}`);
-            setValue('tokenRequirement.minimum', parseInt(requirement.minimum));
+            setValue('tokenRequirement.minimum', parseFloat(requirement.minimum));
             setValue('tokenRequirement.address', { value: requirement.tokenAddress, label: token?.symbol || '' });
           },
         };
@@ -243,7 +243,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
-              step={0.5}
+              step={0.01}
               disabled={!canEdit || watch('tokenType') !== 'new'}
               tooltip='The minimum amount of tokens that Council Members must hold'
             />
