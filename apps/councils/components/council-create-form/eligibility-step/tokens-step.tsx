@@ -23,22 +23,27 @@ interface TokenRequirement {
 }
 
 const createTokenRequirementsSelect = (organization: Organization | null | undefined) => {
-  return (
-    organization?.councils?.reduce<Array<TokenRequirement>>((acc, council) => {
-      if (council.creationForm?.tokenAmount && council.creationForm?.tokenAddress) {
-        return [
-          ...acc,
-          {
-            id: council.creationForm.id,
-            councilName: council.creationForm.councilName || '',
-            minimum: council.creationForm.tokenAmount,
-            tokenAddress: council.creationForm.tokenAddress,
-          },
-        ];
+  const requirements = new Map<string, TokenRequirement>();
+
+  organization?.councils?.forEach((council) => {
+    if (council.creationForm?.tokenAmount && council.creationForm?.tokenAddress) {
+      const key = `${council.creationForm.tokenAddress}-${council.creationForm.tokenAmount}`;
+
+      if (requirements.has(key)) {
+        const existing = requirements.get(key)!;
+        existing.councilName = `${existing.councilName}, ${council.creationForm.councilName || ''}`;
+      } else {
+        requirements.set(key, {
+          id: council.creationForm.id,
+          councilName: council.creationForm.councilName || '',
+          minimum: council.creationForm.tokenAmount,
+          tokenAddress: council.creationForm.tokenAddress,
+        });
       }
-      return acc;
-    }, []) || []
-  );
+    }
+  });
+
+  return Array.from(requirements.values());
 };
 
 const RadioCardSkeleton = () => (
