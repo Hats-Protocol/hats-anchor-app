@@ -1,6 +1,7 @@
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
+import { useAuthGuard } from 'hooks';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { Suspense } from 'react';
@@ -14,6 +15,8 @@ const NewCouncilContent = () => {
   const { user, authenticated, ready, getAccessToken } = usePrivy();
   const chainId = useChainId();
   const hasAttemptedCreate = useRef(false);
+
+  useAuthGuard();
 
   useEffect(() => {
     if (!ready) return;

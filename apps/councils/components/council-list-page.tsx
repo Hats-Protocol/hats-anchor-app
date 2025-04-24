@@ -128,14 +128,14 @@ const CouncilListPage = () => {
           <div className='flex justify-center'>
             {/* Desktop: Direct link */}
             <div className='hidden md:block'>
-              <Link href={user ? '/councils/new' : '#'}>
+              <Link href={user && !!userAddress ? '/councils/new' : '#'}>
                 <Button
                   size='xl'
                   rounded='full'
                   onClick={!user ? () => login() : undefined}
                   className='bg-functional-link-primary'
                 >
-                  {user && !userAddress ? 'Create a Council' : 'Connect to create a Council'}
+                  {user && !!userAddress ? 'Create a Council' : 'Connect to create a Council'}
                   <ArrowRightCircle className='ml-1 !size-5 text-white' />
                 </Button>
               </Link>
@@ -199,14 +199,14 @@ const CouncilListPage = () => {
           <div className='flex justify-center'>
             {/* Desktop: Direct link */}
             <div className='hidden md:block'>
-              <Link href={user ? '/councils/new' : '#'}>
+              <Link href={user && !!userAddress ? '/councils/new' : '#'}>
                 <Button
                   size='xl'
                   rounded='full'
                   onClick={!user ? () => login() : undefined}
                   className='bg-functional-link-primary'
                 >
-                  {user && !userAddress ? 'Create a Council' : 'Connect to create a Council'}
+                  {user && !!userAddress ? 'Create a Council' : 'Connect to create a Council'}
                   <ArrowRightCircle className='ml-1 !size-5 text-white' />
                 </Button>
               </Link>
