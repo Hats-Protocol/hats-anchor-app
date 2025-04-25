@@ -9,7 +9,6 @@ import { IconType } from 'react-icons';
 import { BsPersonCheck } from 'react-icons/bs';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
-import { logger } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -69,7 +68,6 @@ const LoadingSelectStep = () => {
 export function SelectionStep({ onNext, draftId }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const eligibilityRequirements = councilForm.watch('eligibilityRequirements');
-  logger.info('eligibilityRequirements watching', eligibilityRequirements);
 
   useCouncilDeployFlag(draftId);
 

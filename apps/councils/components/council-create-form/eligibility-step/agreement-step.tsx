@@ -172,13 +172,6 @@ export function AgreementStep({ onNext }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
-  // move these to the council-form context and then we'd have the offchainCouncilsData
-  // enrich this with the onchain data as well, which makes these lookups more straightforward
-
-  const organizationName = form.watch('organizationName') || '';
-  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization, isFetching: isFetchingOrganization } = useOrganization(orgName);
-
   // Group agreements from existing councils
   // fetch the eligiblilityRules that are associated with each council
   const existingAgreements = useMemo(() => {
@@ -243,8 +236,6 @@ export function AgreementStep({ onNext }: StepProps) {
       }, []) || [],
     [organization?.councils],
   );
-
-  logger.info('organizationManagers', organizationManagers);
 
   // Group unique admin sets across councils
   const agreementAdminGroups = useMemo(() => {

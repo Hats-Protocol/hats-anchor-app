@@ -1,5 +1,7 @@
 import { Hex } from 'viem';
 
+import { ExtendedHSGV2 } from './authorities';
+
 export interface CouncilDraft {
   id: string;
   step: number;
@@ -32,23 +34,30 @@ export type StepProps = {
 export type OffchainCouncilData = {
   id: string;
   hsg: string;
-  membersSelectionModule: string;
-  membersCriteriaModule: string;
+  membersSelectionModule: string | undefined;
+  membersCriteriaModule: string | undefined;
   creationForm: CouncilFormData;
-  organization: {
-    name: string;
-  };
-  members: CouncilMember[];
-  admins: CouncilMember[];
-  complianceAdmins: CouncilMember[];
-  payer: CouncilPayer;
+  // organization: {
+  //   name: string;
+  // };
+  // members: CouncilMember[];
+  // admins: CouncilMember[];
+  // complianceAdmins: CouncilMember[];
+  // payer: CouncilPayer;
   // TODO adjust, this is the form structure but not the db structure
-  tokenRequirement: {
-    address: string;
-    minimum: string;
-  };
+  // tokenRequirement: {
+  //   address: string;
+  //   minimum: string;
+  // };
+  treeId: number;
+  chain: number;
   deployed: boolean;
 };
+
+export type CouncilData = OffchainCouncilData &
+  Partial<Omit<ExtendedHSGV2, 'id'>> & {
+    eligibilityRequirements?: EligibilityRequirements;
+  };
 
 export interface CompletedOptionalSteps {
   threshold: boolean;
@@ -178,18 +187,7 @@ export interface LabeledModules {
 export interface Organization {
   id: string;
   name: string;
-  // TODO swap to council details type
-  councils: {
-    id: string;
-    creator: string;
-    chain: number;
-    hsg: string;
-    treeId: string;
-    membersSelectionModule?: string;
-    membersCriteriaModule?: string;
-    deployed: boolean;
-    creationForm: CreationForm;
-  }[];
+  councils: OffchainCouncilData[];
 }
 
 export type ModulesAddresses = {

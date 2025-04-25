@@ -50,14 +50,8 @@ const BASE_STEPS: Step[] = [
 function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: StepValidation) {
   // If step is not valid, show sublabel
   if (!getStepValidation(step, stepValidation, form.watch('eligibilityRequirements'))) {
-    logger.info('early return?');
     return step.sublabel;
   }
-  logger.info('getStepSummary', {
-    step,
-    eligibilityRequirements: form.watch('eligibilityRequirements'),
-    stepValidation,
-  });
 
   // If step is valid, show summary
   switch (step.id) {
@@ -110,7 +104,6 @@ function isEligibilityStepValid(stepValidation: StepValidation, requirements: El
     ...(requirements?.compliance?.required ? ['compliance'] : []),
   ];
 
-  logger.info('stepvalidation', stepValidation.eligibilitySubSteps, activeSubSteps);
   return activeSubSteps.every(
     (subStep) => stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps],
   );
@@ -133,7 +126,6 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
   if (eligibilityStep) {
     const { agreement, erc20, compliance } = eligibilityRequirements;
 
-    logger.info('eligibilityStep eligibilityRequirements', { agreement, erc20, compliance });
     eligibilityStep.subSteps = [
       { id: 'management', label: 'Organization Management' },
       ...(agreement?.required ? [{ id: 'agreement', label: 'Agreement' }] : []),

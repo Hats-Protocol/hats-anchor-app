@@ -22,19 +22,16 @@ export function findNextInvalidStep(
     ...(reqs.compliance?.required ? ['compliance'] : []),
     'members',
   ];
-  console.log({ currentStep, currentSubStep, eligibilitySubSteps: getEligibilitySubSteps(eligibilityRequirements) });
 
   // If we're in a eligibility sub-step, check next sub-step first
   if (currentStep === 'eligibility' && currentSubStep) {
     const subSteps = getEligibilitySubSteps(eligibilityRequirements);
     const currentSubStepIndex = subSteps.indexOf(currentSubStep);
-    console.log('currentSubStepIndex', { currentSubStepIndex });
 
     // Check remaining sub-steps
     for (let i = currentSubStepIndex + 1; i < subSteps.length; i++) {
       const subStep = subSteps[i];
       if (!stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps]) {
-        console.log('NEXT VALID STEP', { step: 'eligibility', subStep });
         return { step: 'eligibility', subStep };
       }
     }

@@ -23,7 +23,6 @@ interface RequirementBoxProps {
 
 const RequirementBox = ({ name, localForm, options, isDisabled }: RequirementBoxProps) => {
   const { control } = localForm;
-  console.log('RequirementBox', { name, localForm, options, isDisabled, control });
 
   return (
     <div className='flex flex-col gap-4'>

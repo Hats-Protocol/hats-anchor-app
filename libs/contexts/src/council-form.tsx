@@ -33,6 +33,7 @@ import { useForm, UseFormReturn } from 'react-hook-form';
 import showdown from 'showdown';
 import {
   CompletedOptionalSteps,
+  CouncilData,
   CouncilFormData,
   CouncilFormResponse,
   CreationForm,
@@ -87,6 +88,7 @@ interface CouncilFormContextType {
   simulateHats: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
   simulateModules: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
   simulateHsg: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  councilsData: CouncilData[] | undefined;
 }
 
 const chainOptions = map(values(chainsList), (chain) => ({
@@ -230,6 +232,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       return {
         ...council,
         ...(onchainCouncilData as ExtendedHSGV2),
+        id: council.id,
       };
     });
 
@@ -241,7 +244,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         });
       }),
     );
-    logger.info('councilsWithEligibilityRules in getOnchainCouncilsData', councilsEligibilityRules);
 
     const fullCouncilDataWithEligibilityRules = map(organization?.councils, (council, index) => {
       // const onchainCouncilData = find(councilsEligibilityRules, { id: council.hsg.toLowerCase() });
@@ -253,18 +255,14 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       };
     });
 
-    logger.info('fullCouncilDataWithEligibilityRules', fullCouncilDataWithEligibilityRules);
-
     return fullCouncilDataWithEligibilityRules;
   };
 
-  const { data: councilsWithEligibilityData } = useQuery({
-    queryKey: ['councilsWithEligibilityData', rawOrganization],
+  const { data: councilsData } = useQuery({
+    queryKey: ['councilsData', rawOrganization],
     queryFn: () => getOnchainCouncilsData({ organization: rawOrganization as Organization }),
     enabled: !!rawOrganization,
   });
-
-  logger.info('councilsWithEligibilityData', councilsWithEligibilityData);
 
   // do this for EVERY council on the org to be able to have all the data we'd need for the eligilbity modules reuse
   // async useQuery. hsg -> work back to the hatId -> module(s) -> map these modules to the ones that we need
@@ -364,7 +362,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   useEffect(() => {
     if (!data || !optionalSteps || !chainId) return;
 
-    logger.info('useEffect', { data, optionalSteps, chainId });
     const availableTokensEffect = getChainTokens(chainId as number);
     const mappedTokens = map(availableTokensEffect, ({ address, name, symbol }) => ({
       value: address,
@@ -382,7 +379,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     // const agreementAdmins = data.createAgreementAdminRole ? data.agreementAdmins || [] : data.admins || [];
     const agreementAdmins = (data.agreementAdmins || []) ?? (data.admins || []);
 
-    logger.info('eligibilityRequirements in the context', data.eligibilityRequirements);
     const newValues: CouncilFormData = {
       organizationName: data.organizationName
         ? {
@@ -625,15 +621,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         chain: toNumber(formData.chain.value),
         eligibilityRequirements: JSON.stringify(payload.eligibilityRequirements),
       };
-      logger.info('newPayload', newPayload);
+
       // return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
       // the payload we are sending has the formatting we need
-      const response = await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
-      logger.info('mutation response', response);
-      return response;
+      return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
     },
     onSuccess: (data: UpdateCouncilFormResponse, variables) => {
-      logger.info('onSuccess', data, variables);
       // update query cache while preserving form state
       queryClient.setQueryData(['councilForm', draftId], (oldData: any) => ({
         ...oldData,
@@ -709,6 +702,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         simulateHats: simulateHats as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
         simulateModules: simulateModules as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
         simulateHsg: simulateHsg as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
+        councilsData: councilsData,
       }}
     >
       {children}
