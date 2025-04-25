@@ -1,7 +1,7 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { SupportedChains } from 'types';
-import { createHatsModulesClient } from 'utils';
+import { createHatsModulesClient, logger } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 
 const getEligibilityRules = async ({
@@ -19,6 +19,7 @@ const getEligibilityRules = async ({
     return modulesClient
       .getRulesets(address, { includeLiveParams: true })
       .then((ruleSets) => {
+        logger.info('ruleSets', ruleSets);
         return Promise.resolve(ruleSets || null);
       })
       .catch((err) => {
@@ -53,4 +54,4 @@ const useEligibilityRules = ({
   };
 };
 
-export { useEligibilityRules };
+export { getEligibilityRules, useEligibilityRules };

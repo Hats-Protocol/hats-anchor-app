@@ -17,6 +17,7 @@ import { getAccessToken, usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
 import {
+  fetchCouncilDetails,
   useCouncilDeploy,
   useCouncilDeployCalldata,
   useLocalStorage,
@@ -24,7 +25,8 @@ import {
   useToast,
   useWaitForSubgraph,
 } from 'hooks';
-import { find, first, isEmpty, map, set, toNumber, values } from 'lodash';
+import { compact, find, first, isEmpty, map, set, toNumber, values } from 'lodash';
+import { getEligibilityRules } from 'modules-hooks';
 import { useSearchParams } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -34,7 +36,10 @@ import {
   CouncilFormData,
   CouncilFormResponse,
   DeployStatus,
+  ExtendedHSGV2,
+  Organization,
   StepValidation,
+  SupportedChains,
   UpdateCouncilFormResponse,
 } from 'types';
 import {
@@ -206,11 +211,83 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     deploy: false,
   });
 
+  // this is the same data as returned in the useOffchainCouncilDetails hook. we can reduce usage of that hook now since that data can be accessed by organization.councils
+
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
-  const treeId = organization?.councils?.[0]?.treeId;
+  const { data: rawOrganization } = useOrganization(orgName);
 
+  // similar process to get the onchain data that we'd need in all of the reusable elibility modules
+
+  const getOnchainCouncilsData = async ({ organization }: { organization: Organization }) => {
+    const hsgAddresses = compact(map(organization?.councils, 'hsg')); // this would only return existing hsg values
+    const onchainCouncilsData = await Promise.all(
+      map(hsgAddresses, (hsgAddress) => fetchCouncilDetails({ chainId, address: hsgAddress })),
+    ); // move this from the hooks to elsewhere
+
+    // integrate the rawOrganizations council data here
+    const fullCouncilData = map(organization?.councils, (council) => {
+      const onchainCouncilData = find(onchainCouncilsData, { id: council.hsg.toLowerCase() });
+
+      return {
+        ...council,
+        ...(onchainCouncilData as ExtendedHSGV2),
+      };
+    });
+
+    const councilsEligibilityRules = await Promise.all(
+      map(fullCouncilData, (council) => {
+        return getEligibilityRules({
+          address: council?.signerHats[0].eligibility,
+          chainId: council?.chain as SupportedChains,
+        });
+      }),
+    );
+    logger.info('councilsWithEligibilityRules in getOnchainCouncilsData', councilsEligibilityRules);
+
+    const fullCouncilDataWithEligibilityRules = map(organization?.councils, (council, index) => {
+      // const onchainCouncilData = find(councilsEligibilityRules, { id: council.hsg.toLowerCase() });
+      const onchainEligibilityRulesData = councilsEligibilityRules[index];
+
+      return {
+        ...council,
+        eligibilityRules: onchainEligibilityRulesData,
+      };
+    });
+
+    logger.info('fullCouncilDataWithEligibilityRules', fullCouncilDataWithEligibilityRules);
+
+    return fullCouncilDataWithEligibilityRules;
+  };
+
+  const { data: councilsWithEligibilityData } = useQuery({
+    queryKey: ['councilsWithEligibilityData', rawOrganization],
+    queryFn: () => getOnchainCouncilsData({ organization: rawOrganization as Organization }),
+    enabled: !!rawOrganization,
+  });
+
+  logger.info('councilsWithEligibilityData', councilsWithEligibilityData);
+
+  // do this for EVERY council on the org to be able to have all the data we'd need for the eligilbity modules reuse
+  // async useQuery. hsg -> work back to the hatId -> module(s) -> map these modules to the ones that we need
+  // hsg is on the council
+  // fetchCouncilDetails with the chain and the hsg address for the council
+
+  // for each council:
+  // for the first signerHat pass in the eligibility address and the chainId to the getEligibilityRules
+
+  // for each council (in context now) we'd have the full offchain data and all of the eligibility rules
+
+  // we would then have these to use as our values in the radio selects and also if they exist we'd pass the id to the deploy step. with each council we should have EACH eligibility for the existing agreement. module address is the key
+  // when we select, we're passing this value back to the form -> agreement.existingId
+  // passing to the save to save in the db via persistForm -> used in the deploy step
+
+  // agreement.existingAdmins = org-managers OR an existing hatId
+
+  // final organization object will have the offchain and onchain data
+
+  // handle other treeIds or chainIds across an organization. this is assuming that we're working within a single council (the first council)
+  const treeId = rawOrganization?.councils?.[0]?.treeId;
   const { data: tree } = useTreeDetails({ treeId: toNumber(treeId), chainId });
 
   const setStepValidation = useCallback(

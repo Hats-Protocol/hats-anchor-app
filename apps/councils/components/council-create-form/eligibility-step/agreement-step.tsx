@@ -161,6 +161,8 @@ export function AgreementStep({ onNext }: StepProps) {
   // // const admins = form.watch('admins') || []; // Don't think we need this anymore, but leaving here until the permissions are tested in QA
   // const agreement = form.watch('agreement');
   // logger.info('agreement', agreement);
+
+  // grabs from the eligibilityRequirements object
   const eligibilityRequirements = form.watch('eligibilityRequirements');
   const { content, existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
     'content',
@@ -170,14 +172,19 @@ export function AgreementStep({ onNext }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
+  // move these to the council-form context and then we'd have the offchainCouncilsData
+  // enrich this with the onchain data as well, which makes these lookups more straightforward
+
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization, isFetching: isFetchingOrganization } = useOrganization(orgName);
 
   // Group agreements from existing councils
+  // fetch the eligiblilityRules that are associated with each council
   const existingAgreements = useMemo(() => {
     const agreementMap = new Map<string, GroupedAgreement>();
 
+    // map through each of these councils and get the
     organization?.councils?.forEach((council) => {
       if (council.creationForm?.agreement && council.creationForm?.councilName) {
         const agreementContent = trim(council.creationForm.agreement);

@@ -5,7 +5,7 @@ import { getCouncilData, getHatsDetails, logger } from 'utils';
 
 const fetchCouncilDetails = async ({
   chainId,
-  address,
+  address, // hsg address
 }: {
   chainId: number | undefined;
   address: string | undefined;
@@ -40,4 +40,4 @@ const useCouncilDetails = ({ chainId, address }: { chainId: number | undefined; 
   });
 };
 
-export { useCouncilDetails };
+export { fetchCouncilDetails, useCouncilDetails };
