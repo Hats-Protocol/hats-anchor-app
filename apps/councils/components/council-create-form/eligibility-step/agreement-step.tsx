@@ -3,15 +3,17 @@
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
-import { isEmpty, pick, trim } from 'lodash';
+import { CopyAddress } from 'icons';
+import { flatten, isEmpty, map, pick, trim, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 // import showdown from 'showdown';
-import { CouncilFormData, CouncilMember, StepProps } from 'types';
+import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
-import { logger } from 'utils';
+import { getKnownEligibilityModule, logger } from 'utils';
+import { Hex } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -178,6 +180,34 @@ export function AgreementStep({ onNext }: StepProps) {
   const existingAgreements = useMemo(() => {
     const agreementMap = new Map<string, GroupedAgreement>();
 
+    const rawCouncilsWithAgreements = councilsData?.map((council) => {
+      // council.eligibilityRules has all of the eligibilityRules for the council that are agreements:
+      // map through the eligibilityRules to find one that is an agreement
+      // assuming that there is only 1 agreement per council
+      return flatten(council.eligibilityRules).find(
+        (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement',
+      );
+      // dedupe the agreementRules
+
+      // find the module that matches the membersCriteriaModule -> this would be one of the options
+    });
+
+    // getting the unique councils with agreements
+    const councilsWithAgreements = uniqBy(rawCouncilsWithAgreements, 'address');
+    // we want to get the councils that are associated with each agreement
+
+    const agreementsWithCouncilData = councilsWithAgreements.map((agreement) => {
+      return {
+        ...agreement,
+        councils: councilsData?.filter((council) =>
+          map(flatten(council.eligibilityRules), 'address').includes(agreement?.address || '0x'),
+        ) as CouncilData[],
+      };
+    });
+
+    logger.info('agreementsWithCouncilData', agreementsWithCouncilData);
+
+    return agreementsWithCouncilData;
     // map through each of these councils and get the
     // councilsData?.forEach((council) => {
     //   if (council.creationForm?.agreement && council.creationForm?.councilName) {
@@ -216,7 +246,7 @@ export function AgreementStep({ onNext }: StepProps) {
     //   }
     // });
 
-    return Array.from(agreementMap.values());
+    // return Array.from(agreementMap.values());
   }, [councilsData]);
 
   // Extract unique organization managers from existing councils
@@ -314,14 +344,18 @@ export function AgreementStep({ onNext }: StepProps) {
   // Create radio options from existing agreements and add the "Create new" option
   const agreementOptions = useMemo(
     () => [
-      ...(existingAgreements || []).map((existingAgreement: GroupedAgreement) => ({
-        value: existingAgreement.agreement,
+      ...(existingAgreements || []).map((existingAgreement) => ({
+        value: existingAgreement?.address,
         label: 'Agreement',
         icon: FileText as IconType,
-        description: existingAgreement.councilName,
+
+        description: existingAgreement?.councils.map((council) => council.creationForm.councilName).join(', '),
         onSelect: () => {
           // setSelectedOption('existing');
-          form.setValue('eligibilityRequirements.agreement.content', existingAgreement.agreement);
+          form.setValue(
+            'eligibilityRequirements.agreement.content',
+            existingAgreement?.councils?.[0]?.eligibilityRequirements?.agreement.content || '',
+          );
         },
       })),
       {
@@ -461,7 +495,7 @@ export function AgreementStep({ onNext }: StepProps) {
             </div>
 
             <MarkdownEditor
-              name='agreement'
+              name='eligibilityRequirements.agreement.content'
               localForm={form}
               isDisabled={!!existingId}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'

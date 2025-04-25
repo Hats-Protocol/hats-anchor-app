@@ -232,10 +232,25 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     // integrate the rawOrganizations council data here
     const fullCouncilData = map(organization?.councils, (council) => {
       const onchainCouncilData = find(onchainCouncilsData, { id: council.hsg.toLowerCase() });
+      logger.info('onchainCouncilData', onchainCouncilData);
+
+      logger.info('council', council);
+      logger.info('council.creationForm', council.creationForm);
+      logger.info('council.creationForm.eligibilityRequirements', council.creationForm.eligibilityRequirements); // undefined
+
+      let parsedEligibilityRequirements;
+      try {
+        parsedEligibilityRequirements = JSON.parse(council.creationForm.eligibilityRequirements as string);
+      } catch (error) {
+        logger.error('Error parsing eligibility requirements:', error);
+      }
+
+      logger.info('parsedEligibilityRequirements', parsedEligibilityRequirements);
 
       return {
         ...council,
         ...(onchainCouncilData as ExtendedHSGV2),
+        eligibilityRequirements: parsedEligibilityRequirements,
         id: council.id,
       };
     });
@@ -262,7 +277,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       };
     });
 
-    logger.info('fullCouncilDataWithEligibilityRules', fullCouncilDataWithEligibilityRules);
     return fullCouncilDataWithEligibilityRules;
   };
 

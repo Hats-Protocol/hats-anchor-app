@@ -18,6 +18,7 @@ export const COUNCIL_FRAGMENT = gql`
     creationForm {
       id
       organizationName
+      eligibilityRequirements
       councilName
       chain
       councilDescription

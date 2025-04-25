@@ -1,6 +1,7 @@
 import { Hex } from 'viem';
 
 import { ExtendedHSGV2 } from './authorities';
+import { EligibilityRule } from './modules';
 
 export interface CouncilDraft {
   id: string;
@@ -57,6 +58,7 @@ export type OffchainCouncilData = {
 export type CouncilData = OffchainCouncilData &
   Partial<Omit<ExtendedHSGV2, 'id'>> & {
     eligibilityRequirements?: EligibilityRequirements;
+    eligibilityRules?: EligibilityRule[];
   };
 
 export interface CompletedOptionalSteps {
@@ -187,7 +189,7 @@ export interface LabeledModules {
 export interface Organization {
   id: string;
   name: string;
-  councils: OffchainCouncilData[];
+  councils: (OffchainCouncilData & { eligibilityRequirements: string })[];
 }
 
 export type ModulesAddresses = {
