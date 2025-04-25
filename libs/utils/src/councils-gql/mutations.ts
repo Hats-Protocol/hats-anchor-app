@@ -26,6 +26,7 @@ export const UPDATE_COUNCIL_FORM = gql`
     $payer: UserInput
     $tokenAmount: String
     $tokenAddress: String
+    $eligibilityRequirements: String
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -50,6 +51,7 @@ export const UPDATE_COUNCIL_FORM = gql`
       payer: $payer
       tokenAmount: $tokenAmount
       tokenAddress: $tokenAddress
+      eligibilityRequirements: $eligibilityRequirements
     ) {
       ...FormFragment
     }

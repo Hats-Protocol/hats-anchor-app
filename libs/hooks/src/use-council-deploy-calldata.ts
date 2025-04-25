@@ -38,7 +38,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   // object notation for the requirements may make this easier
 
   const computeCalldata = async () => {
-    logger.debug('compiling calldata for council deployment');
+    // logger.debug('compiling calldata for council deployment');
 
     const chainId = toNumber(formData.chain?.value);
 
@@ -53,10 +53,10 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     // compute hat ids
     const currentTreeCount = await hatsClient.getTreesCount();
     const computedHatIds = compileHatIds({ treeData: tree, formData: formData, treesCount: currentTreeCount });
-    logger.debug(
-      'COMPUTED HAT IDs',
-      mapValues(computedHatIds, (id) => hatIdDecimalToIp(id)),
-    );
+    // logger.debug(
+    //   'COMPUTED HAT IDs',
+    //   mapValues(computedHatIds, (id) => hatIdDecimalToIp(id)),
+    // );
 
     const pinningKey = await fetchToken(20);
 
@@ -70,7 +70,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
         token: pinningKey as string,
       });
     }
-    logger.debug('AGREEMENT CID', agreementCid);
+    // logger.debug('AGREEMENT CID', agreementCid);
 
     // TODO check optional steps before compiling the remaining calldata
 
@@ -81,7 +81,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       agreementCid,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs }) => {
-        logger.debug('MODULES CALLLDATA', modulesCalldata, moduleAddresses);
+        // logger.debug('MODULES CALLLDATA', modulesCalldata, moduleAddresses);
 
         // compile create hats data
         return compileHatCreationData({
@@ -94,7 +94,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
         })
           .then(async (result) => {
             const { hatsProtocolCalls } = pick(result, ['hatsProtocolCalls']);
-            logger.debug('HATS PROTOCOL CALLS', hatsProtocolCalls);
+            // logger.debug('HATS PROTOCOL CALLS', hatsProtocolCalls);
             if (!hatsProtocolCalls) return; // TODO: handle this
 
             // compile mint hats call data
@@ -163,7 +163,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                 };
 
                 const calls = [hatsProtocolCall, modulesCall, hsgV2Call, transferTopHatCall];
-                logger.debug('CALLS', calls);
+                // logger.debug('CALLS', calls);
 
                 return Promise.resolve({
                   modulesCalldata,

@@ -625,7 +625,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         chain: toNumber(formData.chain.value),
         eligibilityRequirements: JSON.stringify(payload.eligibilityRequirements),
       };
-      return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
+      logger.info('newPayload', newPayload);
+      // return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
+      // the payload we are sending has the formatting we need
+      const response = await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
+      logger.info('mutation response', response);
+      return response;
     },
     onSuccess: (data: UpdateCouncilFormResponse, variables) => {
       logger.info('onSuccess', data, variables);
