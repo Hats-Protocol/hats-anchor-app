@@ -9,6 +9,7 @@ import { IconType } from 'react-icons';
 import { BsPersonCheck } from 'react-icons/bs';
 import { StepProps } from 'types';
 import { Skeleton } from 'ui';
+import { logger } from 'utils';
 
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
@@ -68,6 +69,7 @@ const LoadingSelectStep = () => {
 export function SelectionStep({ onNext, draftId }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const eligibilityRequirements = councilForm.watch('eligibilityRequirements');
+  logger.info('eligibilityRequirements watching', eligibilityRequirements);
 
   useCouncilDeployFlag(draftId);
 
@@ -113,24 +115,24 @@ export function SelectionStep({ onNext, draftId }: StepProps) {
             <h3 className='text-lg font-semibold'>What is required to join the Council?</h3>
 
             <RequirementBox
-              name='requirements'
+              name='eligibilityRequirements'
               localForm={councilForm}
               isDisabled={!canEdit}
               options={[
                 {
-                  key: 'signAgreement',
+                  key: 'agreement.required',
                   icon: FileText as IconType,
                   title: 'Sign Agreement',
                   description: 'Create an agreement council members have to sign and abide by',
                 },
                 {
-                  key: 'holdTokens',
+                  key: 'erc20.required',
                   icon: GemIcon as IconType,
                   title: 'Hold Tokens',
                   description: 'Specify an amount of coins council members need to hold',
                 },
                 {
-                  key: 'passCompliance',
+                  key: 'compliance.required',
                   icon: BsPersonCheck as IconType,
                   title: 'Pass Compliance Check',
                   description: 'Choose a trusted onchain provider that gathers KYC data securely',

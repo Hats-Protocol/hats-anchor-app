@@ -35,6 +35,7 @@ import {
   CompletedOptionalSteps,
   CouncilFormData,
   CouncilFormResponse,
+  CreationForm,
   DeployStatus,
   ExtendedHSGV2,
   Organization,
@@ -179,7 +180,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       min: 2,
       maxMembers: 7,
       membershipType: 'APPOINTED',
-      eligibilityRequirements: { defaultEligibilityRequirements },
+      eligibilityRequirements: defaultEligibilityRequirements,
       members: [],
       admins: [],
       complianceAdmins: [],
@@ -324,6 +325,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         .request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId })
         .then((result) => {
           logger.debug('result', result);
+          // const councilCreationFormParsed = {
+          //   ...result.councilCreationForm,
+          //   maxMembers: result.councilCreationForm.maxCouncilMembers,
+          //   target: result.councilCreationForm.thresholdTarget,
+          //   min: result.councilCreationForm.thresholdMin,
+          //   membershipType: result.councilCreationForm.membersSelectionType,
+          //   eligibilityRequirements: JSON.parse(result.councilCreationForm.eligibilityRequirements),
+          //   completedOptionalSteps: optionalSteps,
+          // };
           return result.councilCreationForm;
         })
         .catch((error) => {
@@ -375,6 +385,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     // const agreementAdmins = data.createAgreementAdminRole ? data.agreementAdmins || [] : data.admins || [];
     const agreementAdmins = (data.agreementAdmins || []) ?? (data.admins || []);
 
+    logger.info('eligibilityRequirements in the context', data.eligibilityRequirements);
     const newValues: CouncilFormData = {
       organizationName: data.organizationName
         ? {
@@ -393,10 +404,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       members: data.members || [],
       admins: data.admins || [],
       complianceAdmins: data.complianceAdmins || [],
-      eligibilityRequirements:
-        !!data.eligibilityRequirements && data.eligibilityRequirements !== ''
-          ? JSON.parse(data.eligibilityRequirements)
-          : JSON.stringify({ defaultEligibilityRequirements }),
+      eligibilityRequirements: data.eligibilityRequirements
+        ? JSON.parse(data.eligibilityRequirements)
+        : defaultEligibilityRequirements,
       agreementAdmins,
       payer: data.payer || undefined,
       acceptedTerms: false,
@@ -437,7 +447,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   >({
     mutationFn: async ({ step, subStep }) => {
       const formData = form.getValues();
-      let payload: Partial<CouncilFormResponse['councilCreationForm']> = { id: draftId || undefined };
+      let payload: Partial<CouncilFormData> = { id: draftId || undefined };
 
       // Cache current form state to prevent flashing
       const currentFormState = { ...formData };
@@ -447,29 +457,23 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       switch (step) {
         case 'details':
           // Get previous form data from query cache
-          const previousData = queryClient.getQueryData<CouncilFormResponse['councilCreationForm']>([
-            'councilForm',
-            draftId,
-          ]);
+          const previousData = queryClient.getQueryData<CouncilFormData>(['councilForm', draftId]);
           const previousChain = previousData?.chain;
           const newChain = toNumber(formData.chain.value);
 
           payload = {
             ...payload,
-            organizationName:
-              typeof formData.organizationName === 'object'
-                ? formData.organizationName.value
-                : formData.organizationName,
+            organizationName: formData.organizationName,
             councilName: formData.councilName,
-            chain: toNumber(formData.chain.value),
+            chain: formData.chain,
             councilDescription: formData.councilDescription,
           };
 
           // If chain has changed, reset token requirements in the payload
-          if (previousChain && previousChain !== newChain) {
+          if (previousChain?.value && toNumber(previousChain.value) !== newChain) {
             payload = {
               ...payload,
-              eligibilityRequirements: JSON.stringify({ defaultEligibilityRequirements }),
+              eligibilityRequirements: defaultEligibilityRequirements,
             };
           }
           break;
@@ -479,24 +483,24 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           payload = {
             ...payload,
             thresholdType: formData.thresholdType,
-            maxCouncilMembers: parseInt(formData.maxMembers.toString()),
-            thresholdTarget: parseInt(formData.target.toString()),
-            thresholdMin: parseInt(formData.min.toString()),
+            maxMembers: parseInt(formData.maxMembers.toString()),
+            target: parseInt(formData.target.toString()),
+            min: parseInt(formData.min.toString()),
           };
           break;
 
         case 'selection':
           payload = {
             ...payload,
-            membersSelectionType: formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
-            eligibilityRequirements: JSON.stringify({
+            membershipType: formData.membershipType,
+            eligibilityRequirements: {
               ...currentEligibilityRequirements,
               selection: {
                 ...currentEligibilityRequirements.selection,
                 required: true,
                 set: true,
               },
-            }),
+            },
           };
           break;
 
@@ -508,13 +512,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               payload = {
                 ...payload,
                 members: formData.members, // members handled as a relationship
-                eligibilityRequirements: JSON.stringify({
+                eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   selection: {
                     ...currentEligibilityRequirements.selection,
                     set: true, // `membersSet`
                   },
-                }),
+                },
               };
               break;
             case 'management':
@@ -522,13 +526,13 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               payload = {
                 ...payload,
                 admins: formData.admins, // admins handled as a relationship
-                eligibilityRequirements: JSON.stringify({
+                eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   selection: {
                     ...currentEligibilityRequirements.selection,
                     adminsSet: true,
                   },
-                }),
+                },
               };
               break;
             case 'compliance':
@@ -536,14 +540,14 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               payload = {
                 ...payload,
                 complianceAdmins: formData.complianceAdmins, // admins handled as a relationship
-                eligibilityRequirements: JSON.stringify({
+                eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   compliance: {
                     ...currentEligibilityRequirements.compliance,
                     // set: defaults to true already
                     adminsSet: true,
                   },
-                }),
+                },
               };
               break;
             case 'agreement':
@@ -556,7 +560,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               payload = {
                 ...payload,
                 agreementAdmins: formData.agreementAdmins, // admins handled as a relationship
-                eligibilityRequirements: JSON.stringify({
+                eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   agreement: {
                     ...currentEligibilityRequirements.agreement,
@@ -564,7 +568,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
                     set: true,
                     adminsSet: true,
                   },
-                }),
+                },
               };
               break;
             case 'tokens':
@@ -573,16 +577,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
               payload = {
                 ...payload,
-                eligibilityRequirements: JSON.stringify({
+                eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   erc20: {
                     ...currentEligibilityRequirements.erc20,
-                    tokenAddress,
-                    tokenAmount: tokenAmount?.toString(),
+                    address: tokenAddress,
+                    amount: tokenAmount?.toString(),
                     set: true,
                     adminsSet: true,
                   },
-                }),
+                },
               };
               break;
           }
@@ -596,7 +600,40 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // Ensure form state is preserved during the request
       form.reset(currentFormState);
 
-      return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
+      const defaultCouncilCreationForm = {
+        creator: null,
+        organizationName: null,
+        councilName: null,
+        chain: null,
+        councilDescription: null,
+        thresholdType: null,
+        thresholdTarget: null,
+        thresholdMin: null,
+        maxCouncilMembers: null,
+        membersSelectionType: null,
+        payer: null,
+        members: [],
+        admins: [],
+        agreementAdmins: [],
+        complianceAdmins: [],
+        createComplianceAdminRole: false,
+        agreement: undefined,
+        createAgreementAdminRole: false,
+        tokenAddress: null,
+        tokenAmount: null,
+      };
+
+      // stringify the eligibilityRequirements HERE before it's sent to the db
+      const newPayload: CouncilFormResponse['councilCreationForm'] = {
+        ...defaultCouncilCreationForm,
+        ...formData,
+        id: payload.id || '',
+        organizationName:
+          typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName,
+        chain: toNumber(formData.chain.value),
+        eligibilityRequirements: JSON.stringify(payload.eligibilityRequirements),
+      };
+      return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
     },
     onSuccess: (data: UpdateCouncilFormResponse, variables) => {
       logger.info('onSuccess', data, variables);

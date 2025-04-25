@@ -86,7 +86,7 @@ export interface CouncilFormData {
   completedOptionalSteps: CompletedOptionalSteps;
 }
 
-interface CreationForm {
+export interface CreationForm {
   id: string;
   creator: string | null;
   organizationName: string | null;

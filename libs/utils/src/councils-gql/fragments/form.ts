@@ -7,6 +7,7 @@ export const FORM_FRAGMENT = gql`
   fragment FormFragment on CouncilCreationForm {
     id
     organizationName
+    eligibilityRequirements
     councilName
     chain
     councilDescription
