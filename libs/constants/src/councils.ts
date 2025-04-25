@@ -48,7 +48,7 @@ export const initialDeployMultiStatus: DeployStatus = {
 
 export const defaultEligibilityRequirements: EligibilityRequirements = {
   selection: {
-    required: false,
+    required: true, // we're always setting selection allowlist
     existingId: null,
     existingAdmins: 'org-managers',
     set: false,
@@ -58,7 +58,7 @@ export const defaultEligibilityRequirements: EligibilityRequirements = {
     required: false,
     existingId: null,
     existingAdmins: null,
-    set: false,
+    set: true, // we're not handling members on allowlist for compliance right now
     adminsSet: false,
   },
   agreement: {

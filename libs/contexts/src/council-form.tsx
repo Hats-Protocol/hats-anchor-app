@@ -99,17 +99,17 @@ const converter = new showdown.Converter();
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(undefined);
 
-type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
-  completedOptionalSteps: CompletedOptionalSteps;
-  deployOnly?: boolean;
-};
+// type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
+//   completedOptionalSteps: CompletedOptionalSteps;
+//   deployOnly?: boolean;
+// };
 
 const notDeploy = (deployOnly: boolean | undefined, value: boolean) => {
   if (deployOnly === true) return true;
   return value;
 };
 
-const computeStepValidation = (data: StepValidationData): StepValidation => {
+const computeStepValidation = (data: CouncilFormData): StepValidation => {
   return {
     details: !!(
       data.organizationName &&
@@ -118,29 +118,26 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
       data.councilName !== '' &&
       data.chain !== null
     ),
-    threshold:
-      !!(
-        data.maxCouncilMembers &&
-        data.maxCouncilMembers > 0 &&
-        data.thresholdType &&
-        data.thresholdTarget &&
-        data.thresholdTarget > 0
-      ) && notDeploy(data.deployOnly, data.completedOptionalSteps.threshold),
-    selection: !!data.membersSelectionType,
+    threshold: !!(data.maxMembers && data.maxMembers > 0 && data.thresholdType && data.target && data.target > 0), // TODO handle optional
+    selection: !!data.membershipType,
     eligibility: false, // Main step validity will be computed from sub-steps
     eligibilitySubSteps: {
-      management:
-        !!(data.admins && data.admins.length > 0) && notDeploy(data.deployOnly, data.completedOptionalSteps.management), // admins are required, but creator is added by default
+      management: !!(data.admins && data.admins.length > 0) && data.eligibilityRequirements?.selection.adminsSet, // admins are required, but creator is added by default
       compliance:
-        data.createComplianceAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.compliance),
+        !!data.complianceAdmins &&
+        data.complianceAdmins.length > 0 &&
+        data.eligibilityRequirements?.compliance.adminsSet,
       agreement:
-        data.createAgreementAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.agreement), // agreement is optional
+        !!data.agreementAdmins &&
+        data.agreementAdmins.length > 0 &&
+        data.eligibilityRequirements?.agreement.set &&
+        data.eligibilityRequirements?.agreement.adminsSet, // `agreement.content` is optional
       tokens:
-        data.tokenAddress !== null &&
-        data.tokenAddress !== '' &&
-        data.tokenAmount !== null &&
-        toNumber(data.tokenAmount) > 0,
-      members: !!data.members && notDeploy(data.deployOnly, data.completedOptionalSteps.members),
+        !!data.eligibilityRequirements?.erc20?.required &&
+        !!data.eligibilityRequirements?.erc20?.address &&
+        !!data.eligibilityRequirements?.erc20?.amount &&
+        data.eligibilityRequirements?.erc20?.set,
+      members: !!data.members && data.members.length > 0 && data.eligibilityRequirements?.selection.set,
     },
     deploy: false,
   };
@@ -292,15 +289,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { data: tree } = useTreeDetails({ treeId: toNumber(treeId), chainId });
 
   const setStepValidation = useCallback(
-    (step: keyof StepValidation, isValid: boolean | Partial<StepValidation[keyof StepValidation]>) => {
-      logger.debug('Setting step validation:', { step, isValid });
+    (step: keyof StepValidation, subSteps: boolean | Partial<StepValidation['eligibilitySubSteps']>) => {
+      logger.debug('Setting step validation:', { step, subSteps });
       setStepValidationState((prev) => {
         if (step === 'eligibilitySubSteps') {
           const newState = {
             ...prev,
             eligibilitySubSteps: {
               ...prev.eligibilitySubSteps,
-              ...(isValid as Partial<StepValidation['eligibilitySubSteps']>),
+              ...(subSteps as Partial<StepValidation['eligibilitySubSteps']>),
             },
           };
           logger.debug('New validation state:', { newState });
@@ -308,7 +305,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         }
         return {
           ...prev,
-          [step]: isValid,
+          [step]: !!subSteps,
         };
       });
     },
@@ -422,14 +419,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     logger.info('Setting form to:', newValues);
     form.reset(newValues);
 
-    const deployOnly = localStorage.getItem(`deployOnly-${draftId}`);
+    // const deployOnly = localStorage.getItem(`deployOnly-${draftId}`);
 
     // Compute validation state here
-    const validation = computeStepValidation({
-      ...data,
-      completedOptionalSteps: optionalSteps,
-      deployOnly: deployOnly === 'true' ? true : false,
-    });
+    const validation = computeStepValidation(newValues);
 
     setStepValidationState(validation);
   }, [data, form, optionalSteps]);
@@ -497,8 +490,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               ...currentEligibilityRequirements,
               selection: {
                 ...currentEligibilityRequirements.selection,
-                required: true,
-                set: true,
+                required: true, // default to true also
               },
             },
           };
@@ -584,7 +576,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
                     address: tokenAddress,
                     amount: tokenAmount?.toString(),
                     set: true,
-                    adminsSet: true,
+                    // adminsSet: true, no Admins
                   },
                 },
               };
