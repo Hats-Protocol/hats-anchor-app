@@ -149,7 +149,8 @@ const LoadingAgreementStep = () => (
 );
 
 export function AgreementStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit, councilsData } = useCouncilForm();
+  logger.info('councilsData', councilsData);
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
@@ -178,50 +179,50 @@ export function AgreementStep({ onNext }: StepProps) {
     const agreementMap = new Map<string, GroupedAgreement>();
 
     // map through each of these councils and get the
-    organization?.councils?.forEach((council) => {
-      if (council.creationForm?.agreement && council.creationForm?.councilName) {
-        const agreementContent = trim(council.creationForm.agreement);
-        const key = agreementContent;
+    // councilsData?.forEach((council) => {
+    //   if (council.creationForm?.agreement && council.creationForm?.councilName) {
+    //     const agreementContent = trim(council.creationForm.agreement);
+    //     const key = agreementContent;
 
-        if (agreementMap.has(key)) {
-          const existing = agreementMap.get(key)!;
-          existing.councilName = `${existing.councilName}, ${council.creationForm.councilName}`;
-          // Merge agreementAdmins if they exist
-          if (council.creationForm.agreementAdmins) {
-            const newAdmins = council.creationForm.agreementAdmins
-              .filter(
-                (admin) =>
-                  !existing.agreementAdmins.some(
-                    (existingAdmin) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
-                  ),
-              )
-              .map((admin) => ({
-                ...admin,
-                email: '', // Adding required email field
-              }));
-            existing.agreementAdmins.push(...newAdmins);
-          }
-        } else {
-          agreementMap.set(key, {
-            id: council.creationForm.id,
-            councilName: council.creationForm.councilName,
-            agreement: agreementContent,
-            agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
-              ...admin,
-              email: '', // Adding required email field
-            })),
-          });
-        }
-      }
-    });
+    //     if (agreementMap.has(key)) {
+    //       const existing = agreementMap.get(key)!;
+    //       existing.councilName = `${existing.councilName}, ${council.creationForm.councilName}`;
+    //       // Merge agreementAdmins if they exist
+    //       if (council.creationForm.agreementAdmins) {
+    //         const newAdmins = council.creationForm.agreementAdmins
+    //           .filter(
+    //             (admin) =>
+    //               !existing.agreementAdmins.some(
+    //                 (existingAdmin) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
+    //               ),
+    //           )
+    //           .map((admin) => ({
+    //             ...admin,
+    //             email: '', // Adding required email field
+    //           }));
+    //         existing.agreementAdmins.push(...newAdmins);
+    //       }
+    //     } else {
+    //       agreementMap.set(key, {
+    //         id: council.creationForm.id,
+    //         councilName: council.creationForm.councilName,
+    //         agreement: agreementContent,
+    //         agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
+    //           ...admin,
+    //           email: '', // Adding required email field
+    //         })),
+    //       });
+    //     }
+    //   }
+    // });
 
     return Array.from(agreementMap.values());
-  }, [organization?.councils]);
+  }, [councilsData]);
 
   // Extract unique organization managers from existing councils
   const organizationManagers = useMemo(
     () =>
-      organization?.councils?.reduce<CouncilMember[]>((acc, council) => {
+      councilsData?.reduce<CouncilMember[]>((acc, council) => {
         if (council.creationForm?.admins) {
           council.creationForm.admins.forEach((admin) => {
             if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
@@ -234,14 +235,14 @@ export function AgreementStep({ onNext }: StepProps) {
         }
         return acc;
       }, []) || [],
-    [organization?.councils],
+    [councilsData],
   );
 
   // Group unique admin sets across councils
   const agreementAdminGroups = useMemo(() => {
     const groupsByAdmins = new Map<string, { admins: CouncilMember[]; councils: string[] }>();
 
-    organization?.councils?.forEach((council) => {
+    councilsData?.forEach((council) => {
       if (!council.creationForm?.agreementAdmins?.length) return;
 
       // Create a sorted string of admin addresses as a key
@@ -265,7 +266,7 @@ export function AgreementStep({ onNext }: StepProps) {
     });
 
     return Object.fromEntries(groupsByAdmins.entries());
-  }, [organization?.councils]);
+  }, [councilsData]);
 
   logger.info('agreementAdminGroups', agreementAdminGroups);
 
@@ -372,7 +373,7 @@ export function AgreementStep({ onNext }: StepProps) {
 
   useEffect(() => {
     // \!selectedOption ||
-    if (isFetchingOrganization || !form || !existingAgreements) return;
+    if (!form || !existingAgreements) return;
 
     const currentValues = form.getValues();
     // TODO improve match
@@ -394,10 +395,10 @@ export function AgreementStep({ onNext }: StepProps) {
       });
       // setSelectedOption('existing');
     }
-  }, [existingAgreements, form, isFetchingOrganization, organizationManagers, agreementOptions]);
+  }, [existingAgreements, form, organizationManagers, agreementOptions]);
 
   // Show loading state during mutation or while fetching updated data
-  const isLoadingList = isMutating || (isFetchingOrganization && !isLoading);
+  const isLoadingList = isMutating || !isLoading;
 
   const handleSubmit = useCallback(
     async (data: CouncilFormData) => {
@@ -432,20 +433,20 @@ export function AgreementStep({ onNext }: StepProps) {
               </div>
             </div>
 
-            {isFetchingOrganization ? (
+            {/* {isFetchingOrganization ? (
               <div className='flex flex-col gap-4'>
                 <RadioCardSkeleton />
                 <RadioCardSkeleton />
               </div>
-            ) : (
-              <RadioCard
-                name='agreementType'
-                localForm={form}
-                options={agreementOptions}
-                isDisabled={!canEdit}
-                // defaultValue={selectedOption}
-              />
-            )}
+            ) : ( */}
+            <RadioCard
+              name='agreementType'
+              localForm={form}
+              options={agreementOptions}
+              isDisabled={!canEdit}
+              // defaultValue={selectedOption}
+            />
+            {/* )} */}
           </div>
 
           <div className='space-y-4'>
@@ -474,72 +475,70 @@ export function AgreementStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
-              {isFetchingOrganization ? (
+              {/* {isFetchingOrganization ? (
                 <div className='flex flex-col gap-4'>
                   <RadioCardSkeleton />
                   <RadioCardSkeleton />
                   <RadioCardSkeleton />
                 </div>
-              ) : (
-                existingAdmins === null && (
-                  <RadioCard
-                    name='createAgreementAdminRole'
-                    localForm={form}
-                    options={agreementManagerOptions}
-                    isDisabled={!canEdit}
-                  />
-                )
-              )}
+              ) : ( */}
+              {/* existingAdmins === null && ( */}
+              <RadioCard
+                name='createAgreementAdminRole'
+                localForm={form}
+                options={agreementManagerOptions}
+                isDisabled={!canEdit}
+              />
             </div>
 
             {/* Show either Organization Managers or Agreement Managers based on selection */}
-            {!isFetchingOrganization && (
-              <div>
-                <h3 className='mb-2 font-bold'>
-                  {existingAdmins === 'org-managers' ? 'Organization Managers' : 'Agreement Managers'}
-                </h3>
-                <p className='text-sm text-gray-600'>
-                  {existingAdmins === 'org-managers' ? 'Organization' : 'Agreement'} Managers can update the agreement
-                  text and verify that Council Members have signed it.
-                </p>
-                <div className='mt-4 space-y-4'>
-                  <AgreementAdminsList
-                    agreementAdmins={
-                      existingAdmins === 'org-managers'
-                        ? organizationManagers
-                        : !isEmpty(agreementAdmins) || !existingAdmins
-                          ? agreementAdmins
-                          : form.getValues('admins')
-                    }
-                    form={form}
-                    canEdit={!existingAdmins && canEdit}
-                    canDelete={!existingAdmins ? canEdit : false}
-                    showButtons={!existingAdmins}
-                    onEdit={(admin) => {
-                      setEditingAdmin(admin);
+            {/* {!isFetchingOrganization && ( */}
+            <div>
+              <h3 className='mb-2 font-bold'>
+                {existingAdmins === 'org-managers' ? 'Organization Managers' : 'Agreement Managers'}
+              </h3>
+              <p className='text-sm text-gray-600'>
+                {existingAdmins === 'org-managers' ? 'Organization' : 'Agreement'} Managers can update the agreement
+                text and verify that Council Members have signed it.
+              </p>
+              <div className='mt-4 space-y-4'>
+                <AgreementAdminsList
+                  agreementAdmins={
+                    existingAdmins === 'org-managers'
+                      ? organizationManagers
+                      : !isEmpty(agreementAdmins) || !existingAdmins
+                        ? agreementAdmins
+                        : form.getValues('admins')
+                  }
+                  form={form}
+                  canEdit={!existingAdmins && canEdit}
+                  canDelete={!existingAdmins ? canEdit : false}
+                  showButtons={!existingAdmins}
+                  onEdit={(admin) => {
+                    setEditingAdmin(admin);
+                    setShowAddForm(true);
+                  }}
+                  loading={isLoadingList}
+                />
+
+                {!showAddForm && !existingAdmins && (
+                  <Button
+                    variant='outline-blue'
+                    rounded='full'
+                    onClick={() => {
+                      setEditingAdmin(null);
                       setShowAddForm(true);
                     }}
-                    loading={isLoadingList}
-                  />
-
-                  {!showAddForm && !existingAdmins && (
-                    <Button
-                      variant='outline-blue'
-                      rounded='full'
-                      onClick={() => {
-                        setEditingAdmin(null);
-                        setShowAddForm(true);
-                      }}
-                      disabled={!canEdit}
-                      type='button'
-                    >
-                      <FiUserPlus className='mr-2 h-4 w-4' />
-                      Add Agreement Manager
-                    </Button>
-                  )}
-                </div>
+                    disabled={!canEdit}
+                    type='button'
+                  >
+                    <FiUserPlus className='mr-2 h-4 w-4' />
+                    Add Agreement Manager
+                  </Button>
+                )}
               </div>
-            )}
+            </div>
+            {/* )} */}
 
             {showAddForm && (
               <div className='-mx-16 border-b border-gray-200'>

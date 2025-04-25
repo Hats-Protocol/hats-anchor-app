@@ -220,10 +220,15 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   // similar process to get the onchain data that we'd need in all of the reusable elibility modules
 
   const getOnchainCouncilsData = async ({ organization }: { organization: Organization }) => {
+    logger.info('getOnchainCouncilsData', organization);
     const hsgAddresses = compact(map(organization?.councils, 'hsg')); // this would only return existing hsg values
+    logger.info('hsgAddresses', hsgAddresses);
     const onchainCouncilsData = await Promise.all(
       map(hsgAddresses, (hsgAddress) => fetchCouncilDetails({ chainId, address: hsgAddress })),
-    ); // move this from the hooks to elsewhere
+    ).catch((error) => {
+      logger.error('Error fetching onchain councils data:', error);
+      return [];
+    }); // move this from the hooks to elsewhere
 
     // integrate the rawOrganizations council data here
     const fullCouncilData = map(organization?.councils, (council) => {
@@ -235,6 +240,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         id: council.id,
       };
     });
+    logger.info('fullCouncilData', fullCouncilData);
 
     const councilsEligibilityRules = await Promise.all(
       map(fullCouncilData, (council) => {
@@ -243,7 +249,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           chainId: council?.chain as SupportedChains,
         });
       }),
-    );
+    ).catch((error) => {
+      logger.error('Error fetching eligibility rules:', error);
+      return [];
+    });
+
+    logger.info('councilsEligibilityRules', councilsEligibilityRules);
 
     const fullCouncilDataWithEligibilityRules = map(organization?.councils, (council, index) => {
       // const onchainCouncilData = find(councilsEligibilityRules, { id: council.hsg.toLowerCase() });
@@ -255,6 +266,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       };
     });
 
+    logger.info('fullCouncilDataWithEligibilityRules', fullCouncilDataWithEligibilityRules);
     return fullCouncilDataWithEligibilityRules;
   };
 
@@ -670,6 +682,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     firstCouncil: !tree || isEmpty(tree?.hats),
     hatIds,
   });
+  logger.info('councilsData in context', councilsData);
 
   return (
     <CouncilFormContext.Provider

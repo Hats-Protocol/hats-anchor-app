@@ -10,6 +10,7 @@ const fetchCouncilDetails = async ({
   chainId: number | undefined;
   address: string | undefined;
 }): Promise<ExtendedHSGV2 | null> => {
+  logger.info('fetchCouncilDetails', address, chainId);
   if (!address || !chainId) return Promise.resolve(null);
   const councilData = await getCouncilData({ id: toLower(address), chainId });
   const hatsIds = compact(concat(map(get(councilData, 'signerHats'), 'id'), [get(councilData, 'ownerHat.id')]));

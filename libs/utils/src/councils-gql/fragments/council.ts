@@ -6,6 +6,8 @@ export const COUNCIL_FRAGMENT = gql`
   fragment CouncilFragment on Council {
     id
     treeId
+    hsg
+    chain
     organization {
       id
       name
