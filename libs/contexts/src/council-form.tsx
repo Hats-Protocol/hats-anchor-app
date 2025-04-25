@@ -220,9 +220,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   // similar process to get the onchain data that we'd need in all of the reusable elibility modules
 
   const getOnchainCouncilsData = async ({ organization }: { organization: Organization }) => {
-    logger.info('getOnchainCouncilsData', organization);
     const hsgAddresses = compact(map(organization?.councils, 'hsg')); // this would only return existing hsg values
-    logger.info('hsgAddresses', hsgAddresses);
+
     const onchainCouncilsData = await Promise.all(
       map(hsgAddresses, (hsgAddress) => fetchCouncilDetails({ chainId, address: hsgAddress })),
     ).catch((error) => {
@@ -240,7 +239,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         id: council.id,
       };
     });
-    logger.info('fullCouncilData', fullCouncilData);
 
     const councilsEligibilityRules = await Promise.all(
       map(fullCouncilData, (council) => {
@@ -254,9 +252,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       return [];
     });
 
-    logger.info('councilsEligibilityRules', councilsEligibilityRules);
-
-    const fullCouncilDataWithEligibilityRules = map(organization?.councils, (council, index) => {
+    const fullCouncilDataWithEligibilityRules = map(fullCouncilData, (council, index) => {
       // const onchainCouncilData = find(councilsEligibilityRules, { id: council.hsg.toLowerCase() });
       const onchainEligibilityRulesData = councilsEligibilityRules[index];
 
