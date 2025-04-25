@@ -12,11 +12,11 @@ import { findNextInvalidStep, getNextStepButtonText } from './utils';
 export function ThresholdStep({ onNext, draftId }: StepProps) {
   const { form, stepValidation, canEdit, isLoading } = useCouncilForm();
   const { watch } = form;
-  const { requirements } = watch();
+  const eligibilityRequirements = watch('eligibilityRequirements');
 
   useCouncilDeployFlag(draftId);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, eligibilityRequirements);
 
   const handleSubmit = useCallback(
     async (data: CouncilFormData) => {

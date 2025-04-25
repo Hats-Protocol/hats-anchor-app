@@ -118,16 +118,17 @@ function getStepValidation(step: Step, stepValidation: StepValidation, requireme
 function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
   const { form, stepValidation, persistForm, canEdit } = useCouncilForm();
   const router = useRouter();
-  const requirements = form.watch('requirements');
+  const eligibilityRequirements = form.watch('eligibilityRequirements');
 
   const STEPS = [...BASE_STEPS];
   const eligibilityStep = STEPS.find((step) => step.id === 'eligibility');
   if (eligibilityStep) {
+    const { agreement, erc20, compliance } = eligibilityRequirements;
     eligibilityStep.subSteps = [
       { id: 'management', label: 'Organization Management' },
-      ...(requirements?.signAgreement ? [{ id: 'agreement', label: 'Agreement' }] : []),
-      ...(requirements?.holdTokens ? [{ id: 'tokens', label: 'Token Requirements' }] : []),
-      ...(requirements?.passCompliance ? [{ id: 'compliance', label: 'Compliance Check' }] : []),
+      ...(agreement?.required ? [{ id: 'agreement', label: 'Agreement' }] : []),
+      ...(erc20?.required ? [{ id: 'tokens', label: 'Token Requirements' }] : []),
+      ...(compliance?.required ? [{ id: 'compliance', label: 'Compliance Check' }] : []),
       { id: 'members', label: 'Council Members' },
     ];
   }
@@ -174,12 +175,12 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                     // Handle the three states in order of priority
                     index === currentStepIndex
                       ? 'border-functional-link-primary bg-sky-100 shadow-sm' // Active state
-                      : getStepValidation(step, stepValidation, requirements)
+                      : getStepValidation(step, stepValidation, eligibilityRequirements)
                         ? 'border-none bg-white shadow-sm' // Completed state using exact hex color
                         : 'border-gray-200 bg-white', // Incomplete state
                   )}
                 >
-                  {getStepValidation(step, stepValidation, requirements) ? (
+                  {getStepValidation(step, stepValidation, eligibilityRequirements) ? (
                     <svg
                       width='44'
                       height='44'
@@ -205,7 +206,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                 {step.id === 'deploy' || (step.id === 'eligibility' && currentStep === 'eligibility') ? null : (
                   <div
                     className={`my-3 h-12 w-[2px] ${
-                      getStepValidation(step, stepValidation, requirements)
+                      getStepValidation(step, stepValidation, eligibilityRequirements)
                         ? 'bg-functional-link-primary'
                         : 'bg-gray-200'
                     }`}

@@ -1,4 +1,4 @@
-import type { StepValidation } from 'types';
+import type { EligibilityRequirements, StepValidation } from 'types';
 
 interface NextStep {
   step: string;
@@ -9,24 +9,24 @@ export function findNextInvalidStep(
   stepValidation: StepValidation,
   currentStep: string,
   currentSubStep?: string,
-  requirements?: { [key: string]: boolean },
+  eligibilityRequirements?: EligibilityRequirements,
 ): NextStep {
   const steps = ['details', 'threshold', 'selection', 'eligibility', 'deploy'];
   const currentStepIndex = steps.indexOf(currentStep);
 
   // Define eligibility sub-steps order
-  const getEligibilitySubSteps = (reqs: { [key: string]: boolean } = {}) => [
+  const getEligibilitySubSteps = (reqs: EligibilityRequirements = {}) => [
     'management',
-    ...(reqs.signAgreement ? ['agreement'] : []),
-    ...(reqs.holdTokens ? ['tokens'] : []),
-    ...(reqs.passCompliance ? ['compliance'] : []),
+    ...(reqs.agreement?.required ? ['agreement'] : []),
+    ...(reqs.erc20?.required ? ['tokens'] : []),
+    ...(reqs.compliance?.required ? ['compliance'] : []),
     'members',
   ];
-  console.log({ currentStep, currentSubStep, eligibilitySubSteps: getEligibilitySubSteps(requirements) });
+  console.log({ currentStep, currentSubStep, eligibilitySubSteps: getEligibilitySubSteps(eligibilityRequirements) });
 
   // If we're in a eligibility sub-step, check next sub-step first
   if (currentStep === 'eligibility' && currentSubStep) {
-    const subSteps = getEligibilitySubSteps(requirements);
+    const subSteps = getEligibilitySubSteps(eligibilityRequirements);
     const currentSubStepIndex = subSteps.indexOf(currentSubStep);
     console.log('currentSubStepIndex', { currentSubStepIndex });
 
@@ -45,7 +45,7 @@ export function findNextInvalidStep(
     const stepKey = steps[i] as keyof typeof stepValidation;
 
     if (stepKey === 'eligibility') {
-      const subSteps = getEligibilitySubSteps(requirements);
+      const subSteps = getEligibilitySubSteps(eligibilityRequirements);
       for (const subStep of subSteps) {
         if (!stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps]) {
           return { step: 'eligibility', subStep };

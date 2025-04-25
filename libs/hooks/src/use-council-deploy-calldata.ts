@@ -61,8 +61,8 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     const pinningKey = await fetchToken(20);
 
     let agreementCid = '';
-    if (formData.agreement) {
-      const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
+    if (formData.eligibilityRequirements?.agreement?.content) {
+      const agreementMarkdown = converter.makeMarkdown(formData.eligibilityRequirements.agreement.content || '');
       // pin agreement file to ipfs
       agreementCid = await pinFileToIpfs({
         file: agreementMarkdown,

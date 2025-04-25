@@ -4,7 +4,7 @@ import { useCouncilForm } from 'contexts';
 import { useCouncilDeployFlag, useOrganization } from 'hooks';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { CouncilMember, StepProps } from 'types';
+import { CouncilMember, EligibilityRequirements, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
@@ -17,7 +17,7 @@ export function MembersStep({ onNext, draftId }: StepProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
   const [isMutating, setIsMutating] = useState(false);
-  const requirements = form.watch('requirements');
+  const requirements = form.watch('eligibilityRequirements');
   const members = form.watch('members') || [];
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;

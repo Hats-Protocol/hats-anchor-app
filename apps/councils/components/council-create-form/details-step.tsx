@@ -64,7 +64,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
 
   const { watch, handleSubmit, reset, setValue } = localForm;
-  const requirements = watch('requirements');
+  const eligibilityRequirements = watch('eligibilityRequirements');
   const councilName = watch('councilName');
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
 
@@ -120,7 +120,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
     return <Skeleton className='h-100 w-100' />;
   }
 
-  const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, eligibilityRequirements);
 
   const selectedOrgValue = watch('organizationName') as unknown as OrganizationOption | null;
 

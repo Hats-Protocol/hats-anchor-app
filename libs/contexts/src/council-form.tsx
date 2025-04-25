@@ -3,6 +3,7 @@
 
 import { chainsList } from '@hatsprotocol/config';
 import {
+  defaultEligibilityRequirements,
   getChainTokens,
   initialDeployMultiStatus,
   initialDeployStatus,
@@ -12,7 +13,7 @@ import {
 } from '@hatsprotocol/constants';
 import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
-import { usePrivy } from '@privy-io/react-auth';
+import { getAccessToken, usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
 import {
@@ -23,7 +24,7 @@ import {
   useToast,
   useWaitForSubgraph,
 } from 'hooks';
-import { find, first, isEmpty, map, toNumber, values } from 'lodash';
+import { find, first, isEmpty, map, set, toNumber, values } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -169,29 +170,18 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       chain: first(chainOptions),
       councilDescription: '',
       thresholdType: 'ABSOLUTE',
-      // confirmationsRequired: 4,
       target: 4, // 4 is the default value for ABSOLUTE threshold
       min: 2,
       maxMembers: 7,
       membershipType: 'APPOINTED',
-      requirements: {
-        signAgreement: false,
-        holdTokens: false,
-        passCompliance: false,
-      },
+      eligibilityRequirements: { defaultEligibilityRequirements },
       members: [],
       admins: [],
       complianceAdmins: [],
-      createComplianceAdminRole: 'false',
-      agreement: '',
-      createAgreementAdminRole: 'false',
       agreementAdmins: [],
       payer: undefined,
+      // form state
       acceptedTerms: false,
-      tokenRequirement: {
-        address: undefined,
-        minimum: 0,
-      },
       completedOptionalSteps: optionalSteps,
     },
   });
@@ -323,25 +313,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       min: data.thresholdMin || 2,
       maxMembers: data.maxCouncilMembers || 7,
       membershipType: data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
-      requirements: data.memberRequirements || {
-        signAgreement: false,
-        holdTokens: false,
-        passCompliance: false,
-      },
       members: data.members || [],
       admins: data.admins || [],
       complianceAdmins: data.complianceAdmins || [],
-      createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
-      agreement: converter.makeHtml(data.agreement || ''),
-      createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
+      eligibilityRequirements:
+        !!data.eligibilityRequirements && data.eligibilityRequirements !== ''
+          ? JSON.parse(data.eligibilityRequirements)
+          : JSON.stringify({ defaultEligibilityRequirements }),
       agreementAdmins,
       payer: data.payer || undefined,
       acceptedTerms: false,
-      tokenRequirement: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any, // TODO replace any, thinks it's a number
-        minimum: toNumber(data.tokenAmount) || 0,
-      },
       creator: data.creator || '',
       completedOptionalSteps: {
         threshold: optionalSteps.threshold || false,
@@ -384,6 +365,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // Cache current form state to prevent flashing
       const currentFormState = { ...formData };
 
+      const currentEligibilityRequirements = formData.eligibilityRequirements || defaultEligibilityRequirements;
+
       switch (step) {
         case 'details':
           // Get previous form data from query cache
@@ -409,8 +392,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           if (previousChain && previousChain !== newChain) {
             payload = {
               ...payload,
-              tokenAddress: '',
-              tokenAmount: '0',
+              eligibilityRequirements: JSON.stringify({ defaultEligibilityRequirements }),
             };
           }
           break;
@@ -430,58 +412,100 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           payload = {
             ...payload,
             membersSelectionType: formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
-            memberRequirements: formData.requirements,
+            eligibilityRequirements: JSON.stringify({
+              ...currentEligibilityRequirements,
+              selection: {
+                ...currentEligibilityRequirements.selection,
+                required: true,
+                set: true,
+              },
+            }),
           };
           break;
 
         case 'eligibility':
           switch (subStep) {
             case 'members':
+              // TODO: remove toggleOptionalStep and leverage `set` and `adminsSet`
               toggleOptionalStep('members');
               payload = {
                 ...payload,
-                members: formData.members,
+                members: formData.members, // members handled as a relationship
+                eligibilityRequirements: JSON.stringify({
+                  ...currentEligibilityRequirements,
+                  selection: {
+                    ...currentEligibilityRequirements.selection,
+                    set: true, // `membersSet`
+                  },
+                }),
               };
               break;
             case 'management':
               toggleOptionalStep('management');
               payload = {
                 ...payload,
-                admins: formData.admins,
+                admins: formData.admins, // admins handled as a relationship
+                eligibilityRequirements: JSON.stringify({
+                  ...currentEligibilityRequirements,
+                  selection: {
+                    ...currentEligibilityRequirements.selection,
+                    adminsSet: true,
+                  },
+                }),
               };
               break;
             case 'compliance':
               toggleOptionalStep('compliance');
               payload = {
                 ...payload,
-                complianceAdmins: formData.complianceAdmins,
-                createComplianceAdminRole: formData.createComplianceAdminRole === 'true',
+                complianceAdmins: formData.complianceAdmins, // admins handled as a relationship
+                eligibilityRequirements: JSON.stringify({
+                  ...currentEligibilityRequirements,
+                  compliance: {
+                    ...currentEligibilityRequirements.compliance,
+                    // set: defaults to true already
+                    adminsSet: true,
+                  },
+                }),
               };
               break;
             case 'agreement':
               toggleOptionalStep('agreement');
+              const agreementContent = currentEligibilityRequirements.agreement?.content;
               // need to convert html to markdown before pinning
-              const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
+              const agreementMarkdown = converter.makeMarkdown(agreementContent || '');
 
               // Always send the current agreementAdmins list
               payload = {
                 ...payload,
-                agreement: agreementMarkdown,
-                agreementAdmins: formData.agreementAdmins,
-                createAgreementAdminRole: formData.createAgreementAdminRole === 'true',
+                agreementAdmins: formData.agreementAdmins, // admins handled as a relationship
+                eligibilityRequirements: JSON.stringify({
+                  ...currentEligibilityRequirements,
+                  agreement: {
+                    ...currentEligibilityRequirements.agreement,
+                    content: agreementMarkdown,
+                    set: true,
+                    adminsSet: true,
+                  },
+                }),
               };
               break;
             case 'tokens':
-              const tokenAddress = formData.tokenRequirement.address?.value;
+              const tokenAddress = currentEligibilityRequirements.erc20?.address;
+              const tokenAmount = currentEligibilityRequirements.erc20?.amount;
 
               payload = {
                 ...payload,
-                tokenAddress,
-                tokenAmount: formData.tokenRequirement.minimum.toString(),
-                memberRequirements: {
-                  ...formData.requirements,
-                  holdTokens: true,
-                },
+                eligibilityRequirements: JSON.stringify({
+                  ...currentEligibilityRequirements,
+                  erc20: {
+                    ...currentEligibilityRequirements.erc20,
+                    tokenAddress,
+                    tokenAmount: tokenAmount?.toString(),
+                    set: true,
+                    adminsSet: true,
+                  },
+                }),
               };
               break;
           }

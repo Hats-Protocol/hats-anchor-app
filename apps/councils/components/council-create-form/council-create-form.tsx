@@ -29,7 +29,7 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
       await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
 
-      const nextStep = findNextInvalidStep(stepValidation, step, subStep, form.watch('requirements'));
+      const nextStep = findNextInvalidStep(stepValidation, step, subStep, form.watch('eligibilityRequirements'));
       logger.debug('nextStep', nextStep);
 
       if (nextStep.subStep) {

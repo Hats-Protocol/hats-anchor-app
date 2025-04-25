@@ -25,7 +25,8 @@ export function ManagementStep({ onNext }: StepProps) {
   const treeId = get(organization, 'councils.0.treeId');
 
   const admins = form.watch('admins') || [];
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', form.watch('requirements'));
+  const eligibilityRequirements = form.watch('eligibilityRequirements');
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', eligibilityRequirements);
   console.log('management ', { nextStep });
 
   // Show loading state during mutation or while fetching updated data

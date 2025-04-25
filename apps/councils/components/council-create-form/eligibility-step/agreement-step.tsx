@@ -3,7 +3,7 @@
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard } from 'forms';
 import { useOrganization } from 'hooks';
-import { isEmpty, trim } from 'lodash';
+import { isEmpty, pick, trim } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
@@ -154,18 +154,21 @@ export function AgreementStep({ onNext }: StepProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
 
-  const prevRole = useRef(form.getValues('createAgreementAdminRole'));
-
-  const requirements = form.watch('requirements');
   const agreementAdmins = form.watch('agreementAdmins') || [];
   logger.info('agreementAdmins', agreementAdmins);
-  const createAgreementAdminRole = form.watch('createAgreementAdminRole');
-  logger.info('createAgreementAdminRole', createAgreementAdminRole);
-  // const admins = form.watch('admins') || []; // Don't think we need this anymore, but leaving here until the permissions are tested in QA
-  const agreement = form.watch('agreement');
-  logger.info('agreement', agreement);
+  // const createAgreementAdminRole = form.watch('eligibilityRequirements.agreement.existingId');
+  // logger.info('createAgreementAdminRole', createAgreementAdminRole);
+  // // const admins = form.watch('admins') || []; // Don't think we need this anymore, but leaving here until the permissions are tested in QA
+  // const agreement = form.watch('agreement');
+  // logger.info('agreement', agreement);
+  const eligibilityRequirements = form.watch('eligibilityRequirements');
+  const { content, existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
+    'content',
+    'existingId',
+    'existingAdmins',
+  ]);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
@@ -286,31 +289,28 @@ export function AgreementStep({ onNext }: StepProps) {
   );
 
   useEffect(() => {
-    if (prevRole.current !== createAgreementAdminRole) {
-      if (createAgreementAdminRole === 'false') {
-        form.setValue('agreementAdmins', organizationManagers);
-      } else if (createAgreementAdminRole?.startsWith('existing:')) {
-        const adminKey = createAgreementAdminRole.split(':')[1];
-        const group = agreementAdminGroups[adminKey];
-        if (group) {
-          form.setValue('agreementAdmins', group.admins);
-        }
-      } else if (createAgreementAdminRole === 'true') {
-        // Only clear the array if there are no existing admins
-        const currentAdmins = form.getValues('agreementAdmins') || [];
-        if (currentAdmins.length === 0) {
-          form.setValue('agreementAdmins', []);
-        }
+    if (existingAdmins === 'org-managers') {
+      form.setValue('agreementAdmins', organizationManagers);
+    } else if (existingAdmins) {
+      const adminKey = existingAdmins;
+      const group = agreementAdminGroups[adminKey];
+      if (group) {
+        form.setValue('agreementAdmins', group.admins);
       }
-      prevRole.current = createAgreementAdminRole;
+    } else if (existingAdmins === null) {
+      // Only clear the array if there are no existing admins
+      const currentAdmins = form.getValues('agreementAdmins') || [];
+      if (currentAdmins.length === 0) {
+        form.setValue('agreementAdmins', []);
+      }
     }
-  }, [createAgreementAdminRole, form, organizationManagers, agreementAdminGroups]);
+  }, [existingAdmins, form, organizationManagers, agreementAdminGroups]);
 
-  const [selectedOption, setSelectedOption] = useState(() => {
-    const currentAgreement = form.getValues('agreement');
-    // Check if the current agreement matches any existing ones
-    return existingAgreements?.some((existing) => existing.agreement === currentAgreement) ? 'existing' : 'new';
-  });
+  // const [selectedOption, setSelectedOption] = useState(() => {
+  //   const currentAgreement = form.getValues('agreement');
+  //   // Check if the current agreement matches any existing ones
+  //   return existingAgreements?.some((existing) => existing.agreement === currentAgreement) ? 'existing' : 'new';
+  // });
 
   // Create radio options from existing agreements and add the "Create new" option
   const agreementOptions = useMemo(
@@ -321,8 +321,8 @@ export function AgreementStep({ onNext }: StepProps) {
         icon: FileText as IconType,
         description: existingAgreement.councilName,
         onSelect: () => {
-          setSelectedOption('existing');
-          form.setValue('agreement', existingAgreement.agreement);
+          // setSelectedOption('existing');
+          form.setValue('eligibilityRequirements.agreement.content', existingAgreement.agreement);
         },
       })),
       {
@@ -331,15 +331,15 @@ export function AgreementStep({ onNext }: StepProps) {
         icon: FilePlus as IconType,
         description: 'Write an agreement and select who controls it',
         onSelect: () => {
-          setSelectedOption('new');
+          // setSelectedOption('new');
           // Only reset if switching from an existing agreement
-          if (selectedOption === 'existing') {
-            form.setValue('agreement', '');
+          if (existingId) {
+            form.setValue('eligibilityRequirements.agreement.content', '');
           }
         },
       },
     ],
-    [existingAgreements, selectedOption, form],
+    [existingAgreements, existingId, form],
   );
 
   // Determine which radio option should be selected based on agreement value
@@ -373,12 +373,13 @@ export function AgreementStep({ onNext }: StepProps) {
   );
 
   useEffect(() => {
-    if (isFetchingOrganization || !selectedOption || !form || !existingAgreements) return;
+    // \!selectedOption ||
+    if (isFetchingOrganization || !form || !existingAgreements) return;
 
-    const currentAgreement = form.getValues('agreement');
     const currentValues = form.getValues();
+    // TODO improve match
     const existingAgreement = existingAgreements?.find((localAgreement) => {
-      return trim(localAgreement.agreement) === trim(currentAgreement || '');
+      return trim(localAgreement.agreement) === trim(content || '');
     });
     if (existingAgreement) {
       form.reset({
@@ -393,17 +394,9 @@ export function AgreementStep({ onNext }: StepProps) {
           : `existing:${existingAgreement.id}`,
         agreementType: existingAgreement?.agreement,
       });
-      setSelectedOption('existing');
+      // setSelectedOption('existing');
     }
-  }, [
-    existingAgreements,
-    form,
-    isFetchingOrganization,
-    agreement,
-    organizationManagers,
-    agreementOptions,
-    selectedOption,
-  ]);
+  }, [existingAgreements, form, isFetchingOrganization, organizationManagers, agreementOptions]);
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetchingOrganization && !isLoading);
@@ -452,7 +445,7 @@ export function AgreementStep({ onNext }: StepProps) {
                 localForm={form}
                 options={agreementOptions}
                 isDisabled={!canEdit}
-                defaultValue={selectedOption}
+                // defaultValue={selectedOption}
               />
             )}
           </div>
@@ -471,7 +464,7 @@ export function AgreementStep({ onNext }: StepProps) {
             <MarkdownEditor
               name='agreement'
               localForm={form}
-              isDisabled={selectedOption === 'existing'}
+              isDisabled={!!existingId}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
               existingAgreements={(existingAgreements || []).map(({ agreement, councilName }: GroupedAgreement) => ({
                 agreement,
@@ -490,7 +483,7 @@ export function AgreementStep({ onNext }: StepProps) {
                   <RadioCardSkeleton />
                 </div>
               ) : (
-                selectedOption === 'new' && (
+                existingAdmins === null && (
                   <RadioCard
                     name='createAgreementAdminRole'
                     localForm={form}
@@ -505,25 +498,25 @@ export function AgreementStep({ onNext }: StepProps) {
             {!isFetchingOrganization && (
               <div>
                 <h3 className='mb-2 font-bold'>
-                  {createAgreementAdminRole === 'false' ? 'Organization Managers' : 'Agreement Managers'}
+                  {existingAdmins === 'org-managers' ? 'Organization Managers' : 'Agreement Managers'}
                 </h3>
                 <p className='text-sm text-gray-600'>
-                  {createAgreementAdminRole === 'false' ? 'Organization' : 'Agreement'} Managers can update the
-                  agreement text and verify that Council Members have signed it.
+                  {existingAdmins === 'org-managers' ? 'Organization' : 'Agreement'} Managers can update the agreement
+                  text and verify that Council Members have signed it.
                 </p>
                 <div className='mt-4 space-y-4'>
                   <AgreementAdminsList
                     agreementAdmins={
-                      createAgreementAdminRole === 'false'
+                      existingAdmins === 'org-managers'
                         ? organizationManagers
-                        : !isEmpty(agreementAdmins) || createAgreementAdminRole === 'true'
+                        : !isEmpty(agreementAdmins) || !existingAdmins
                           ? agreementAdmins
                           : form.getValues('admins')
                     }
                     form={form}
-                    canEdit={createAgreementAdminRole === 'true' && canEdit}
-                    canDelete={createAgreementAdminRole === 'true' ? canEdit : false}
-                    showButtons={true}
+                    canEdit={!existingAdmins && canEdit}
+                    canDelete={!existingAdmins ? canEdit : false}
+                    showButtons={!existingAdmins}
                     onEdit={(admin) => {
                       setEditingAdmin(admin);
                       setShowAddForm(true);
@@ -531,7 +524,7 @@ export function AgreementStep({ onNext }: StepProps) {
                     loading={isLoadingList}
                   />
 
-                  {!showAddForm && createAgreementAdminRole === 'true' && (
+                  {!showAddForm && !existingAdmins && (
                     <Button
                       variant='outline-blue'
                       rounded='full'
@@ -571,12 +564,7 @@ export function AgreementStep({ onNext }: StepProps) {
 
           <div className='flex justify-end py-6'>
             <NextStepButton
-              disabled={
-                !canEdit ||
-                (createAgreementAdminRole === 'true' && agreementAdmins.length === 0) ||
-                isLoadingList ||
-                isMutating
-              }
+              disabled={!canEdit || (!existingId && agreementAdmins.length === 0) || isLoadingList || isMutating}
             >
               {getNextStepButtonText(nextStep)}
             </NextStepButton>

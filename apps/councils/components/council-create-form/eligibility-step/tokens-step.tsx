@@ -3,9 +3,9 @@
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { Organization, useCouncilDeployFlag, useOrganization } from 'hooks';
-import { isEmpty, toLower, toNumber } from 'lodash';
+import { pick, toLower, toNumber } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { CouncilFormData, StepProps } from 'types';
@@ -26,18 +26,21 @@ const createTokenRequirementsSelect = (organization: Organization | null | undef
   const requirements = new Map<string, TokenRequirement>();
 
   organization?.councils?.forEach((council) => {
-    if (council.creationForm?.tokenAmount && council.creationForm?.tokenAddress) {
-      const key = `${council.creationForm.tokenAddress}-${council.creationForm.tokenAmount}`;
+    // TODO lookup eligibility chain for council to get associated module addresses
+    const { eligibilityRequirements } = council.creationForm;
+    const { address, amount } = pick(JSON.parse(eligibilityRequirements)?.erc20, ['address', 'amount']);
+    if (address && amount) {
+      const key = `${address}-${amount}`;
 
-      if (requirements.has(key)) {
-        const existing = requirements.get(key)!;
-        existing.councilName = `${existing.councilName}, ${council.creationForm.councilName || ''}`;
+      const existingKey = requirements.get(key);
+      if (existingKey) {
+        existingKey.councilName = `${existingKey.councilName}, ${council.creationForm.councilName || ''}`;
       } else {
         requirements.set(key, {
           id: council.creationForm.id,
           councilName: council.creationForm.councilName || '',
-          minimum: council.creationForm.tokenAmount,
-          tokenAddress: council.creationForm.tokenAddress,
+          minimum: amount,
+          tokenAddress: address,
         });
       }
     }
@@ -110,7 +113,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
   const localForm = useForm();
   const { setValue, handleSubmit, reset } = localForm;
-  const { requirements, organizationName } = councilFormWatch();
+  const { eligibilityRequirements, organizationName } = councilFormWatch();
   const { watch } = localForm;
   const tokenRequirement = watch('tokenRequirement');
   logger.info('tokenRequirement', tokenRequirement);
@@ -120,7 +123,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
   useCouncilDeployFlag(draftId);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', eligibilityRequirements);
 
   // Group token requirements from existing councils
   const existingTokenRequirements = createTokenRequirementsSelect(organization);
@@ -186,20 +189,21 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
   useEffect(() => {
     if (isLoading || isOrgLoading) return;
-    const tokenReq = councilFormGetValues('tokenRequirement');
+    const { address, amount } = pick(eligibilityRequirements?.erc20, ['address', 'amount']);
+    const token = availableTokens.find((t) => toLower(t.address) === toLower(address || undefined));
     const existingTokenReq = existingTokenRequirements.find(
-      (req) => req.tokenAddress === tokenReq?.address?.value && toNumber(req.minimum) === toNumber(tokenReq?.minimum),
+      (req) => req.tokenAddress === address && toNumber(req.minimum) === toNumber(amount),
     );
 
     const initialValues = {
       tokenRequirement: {
-        minimum: tokenReq?.minimum ?? 0,
+        minimum: amount ?? 0,
         address: {
-          value: tokenReq?.address?.value ?? '',
-          label: tokenReq?.address?.label ?? '',
+          value: address ?? '',
+          label: token?.symbol ?? '',
         },
       },
-      tokenType: existingTokenReq ? `${tokenReq?.address?.value}-${tokenReq?.minimum}` : 'new',
+      tokenType: existingTokenReq ? `${address}-${amount}` : 'new',
     };
 
     reset(initialValues);
@@ -208,7 +212,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   if (isLoading) {
     return <LoadingTokensStep />;
   }
-  console.log('localForm', localForm.getValues('tokenRequirement'), tokenOptions);
+  // console.log('localForm', localForm.getValues('tokenRequirement'), tokenOptions);
 
   return (
     <Form {...localForm}>

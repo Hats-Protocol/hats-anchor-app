@@ -98,7 +98,10 @@ const processModule = async ({
   formData: CouncilFormData;
   publicClient: PublicClient;
 }) => {
-  if (requirementsKey && !formData.requirements[requirementsKey as keyof typeof formData.requirements]) {
+  if (
+    requirementsKey &&
+    !formData.eligibilityRequirements[requirementsKey as keyof typeof formData.eligibilityRequirements]?.required
+  ) {
     return undefined;
   }
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) + (offset ? BigInt(offset) : BigInt(0));
@@ -181,7 +184,7 @@ const modules = ({
     'erc20Module',
     // ERC20_ELIGIBILITY_ADDRESS,
     // hatIds.councilMember,
-    formData.tokenRequirement?.address?.value,
+    formData.eligibilityRequirements?.erc20?.address,
     tokenDecimals,
   );
   const erc20Module: Module = {
@@ -192,8 +195,8 @@ const modules = ({
     immutableArgs: [
       ['address', 'uint256'],
       [
-        formData.tokenRequirement?.address?.value as `0x${string}`,
-        parseUnits(toString(formData.tokenRequirement?.minimum), tokenDecimals),
+        formData.eligibilityRequirements?.erc20?.address as `0x${string}`,
+        parseUnits(toString(formData.eligibilityRequirements?.erc20?.amount), tokenDecimals),
       ],
     ],
   };
@@ -220,9 +223,11 @@ const modules = ({
 
   return {
     ...requiredModules,
-    ...(formData.requirements?.signAgreement ? { agreementModule } : {}),
-    ...(formData.requirements?.passCompliance ? { complianceAllowlist } : {}),
-    ...(formData.requirements?.holdTokens && formData.tokenRequirement?.address?.value ? { erc20Module } : {}),
+    ...(formData.eligibilityRequirements?.agreement?.required ? { agreementModule } : {}),
+    ...(formData.eligibilityRequirements?.compliance?.required ? { complianceAllowlist } : {}),
+    ...(formData.eligibilityRequirements?.erc20?.required && formData.eligibilityRequirements?.erc20?.address
+      ? { erc20Module }
+      : {}),
   };
 };
 
@@ -241,8 +246,8 @@ export const compileModuleData = async ({
 
   // prep values for module creation
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-  const tokenDecimals = formData.tokenRequirement?.address?.value
-    ? getTokenDecimals(chainId, formData.tokenRequirement.address?.value as `0x${string}`)
+  const tokenDecimals = formData.eligibilityRequirements?.erc20?.address
+    ? getTokenDecimals(chainId, formData.eligibilityRequirements.erc20.address as `0x${string}`)
     : undefined;
 
   // create modules data
@@ -300,21 +305,21 @@ export const compileModuleData = async ({
   let eligibilityChainHatId: bigint;
   let predictedEligibilityChainAddress: `0x${string}` | undefined;
   if (
-    formData.requirements?.passCompliance ||
-    formData.requirements?.signAgreement ||
-    formData.requirements?.holdTokens
+    formData.eligibilityRequirements?.compliance?.required ||
+    formData.eligibilityRequirements?.agreement?.required ||
+    formData.eligibilityRequirements?.erc20?.required
   ) {
     let chainLength = 1;
     const chainModules: `0x${string}`[] = [councilMemberAllowlist as `0x${string}`];
-    if (formData.requirements?.passCompliance) {
+    if (formData.eligibilityRequirements?.compliance?.required) {
       chainLength += 1;
       chainModules.push(complianceAllowlist as `0x${string}`); // use existing address when applicable
     }
-    if (formData.requirements?.signAgreement) {
+    if (formData.eligibilityRequirements?.agreement?.required) {
       chainLength += 1;
       chainModules.push(agreementModule as `0x${string}`); // use existing address when applicable
     }
-    if (formData.requirements?.holdTokens && formData.tokenRequirement?.address?.value) {
+    if (formData.eligibilityRequirements?.erc20?.required && formData.eligibilityRequirements?.erc20?.address) {
       chainLength += 1;
       chainModules.push(erc20Module as `0x${string}`);
     }
@@ -513,8 +518,8 @@ export const compileHatCreationData = async ({
     orgRolesGroupHat,
     councilRolesGroupHat,
     councilAdminHat,
-    formData.createComplianceAdminRole ? complianceManagerHat : undefined,
-    formData.createAgreementAdminRole ? agreementManagerHat : undefined,
+    !formData.eligibilityRequirements?.compliance?.existingId ? complianceManagerHat : undefined,
+    !formData.eligibilityRequirements?.agreement?.existingId ? agreementManagerHat : undefined,
     councilMemberHat,
     councilHat,
   ]);
@@ -619,8 +624,8 @@ export const compileHatMintCallData = ({
 
   // mint compliance manager hat if compliance is required and compliance admin role doesn't exist already
   if (
-    formData.requirements?.passCompliance && // is a requirement
-    formData.createComplianceAdminRole === 'true' && // wants to create a new role
+    formData.eligibilityRequirements?.compliance?.required && // is a requirement
+    formData.eligibilityRequirements?.compliance?.set && // wants to create a new role
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.complianceManager) }) // doesn't exist already
   ) {
     const mintComplianceManagerHatCallData = hatsClient.batchMintHatsCallData({
@@ -632,8 +637,8 @@ export const compileHatMintCallData = ({
 
   // mint agreement manager hat if agreement is required and agreement admin role doesn't exist already
   if (
-    formData.requirements?.signAgreement && // is a requirement
-    formData.createAgreementAdminRole === 'true' && // wants to create a new role
+    formData.eligibilityRequirements?.agreement?.required && // is a requirement
+    formData.eligibilityRequirements?.agreement?.set && // wants to create a new role
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.agreementManager) }) // doesn't exist already
   ) {
     const mintAgreementManagerHatCallData = hatsClient.batchMintHatsCallData({

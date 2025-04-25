@@ -67,11 +67,11 @@ const LoadingSelectStep = () => {
 
 export function SelectionStep({ onNext, draftId }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const requirements = councilForm.watch('requirements');
+  const eligibilityRequirements = councilForm.watch('eligibilityRequirements');
 
   useCouncilDeployFlag(draftId);
 
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', undefined, requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', undefined, eligibilityRequirements);
 
   if (isLoading) {
     return <LoadingSelectStep />;

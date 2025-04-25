@@ -47,7 +47,7 @@ const CreateFormDevDetails = () => {
   const { data: tree } = useTreeDetails({ treeId: Number(treeId), chainId });
   const existingHatIds = tree?.hats?.map((hat) => hat.id);
 
-  const requirements = form.watch('requirements');
+  const eligibilityRequirements = form.watch('eligibilityRequirements');
   const councilName = form.watch('councilName');
   const councilDescription = form.watch('councilDescription');
 
@@ -77,7 +77,7 @@ const CreateFormDevDetails = () => {
         descriptor: (
           <div className='flex items-center gap-2'>
             <ModuleLink moduleAddress={moduleAddresses?.agreementModule} chainId={chainId} />
-            <p className='text-sm'>{requirements?.signAgreement ? 'Yes' : 'No'}</p>
+            <p className='text-sm'>{eligibilityRequirements?.agreement?.required ? 'Yes' : 'No'}</p>
           </div>
         ),
       },
@@ -86,7 +86,7 @@ const CreateFormDevDetails = () => {
         descriptor: (
           <div className='flex items-center gap-2'>
             <ModuleLink moduleAddress={moduleAddresses?.erc20Module} chainId={chainId} />
-            <p className='text-sm'>{requirements?.holdTokens ? 'Yes' : 'No'}</p>
+            <p className='text-sm'>{eligibilityRequirements?.erc20?.required ? 'Yes' : 'No'}</p>
           </div>
         ),
       },
@@ -95,7 +95,7 @@ const CreateFormDevDetails = () => {
         descriptor: (
           <div className='flex items-center gap-2'>
             <ModuleLink moduleAddress={moduleAddresses?.complianceAllowlist} chainId={chainId} />
-            <p className='text-sm'>{requirements?.passCompliance ? 'Yes' : 'No'}</p>
+            <p className='text-sm'>{eligibilityRequirements?.compliance?.required ? 'Yes' : 'No'}</p>
           </div>
         ),
       },
@@ -104,7 +104,7 @@ const CreateFormDevDetails = () => {
         descriptor: <ModuleLink moduleAddress={moduleAddresses?.eligibilityChain} chainId={chainId} />,
       },
     ]);
-  }, [requirements, moduleAddresses, chainId]);
+  }, [eligibilityRequirements, moduleAddresses, chainId]);
 
   // TODO fetch predicted Safe/HSG address
 
