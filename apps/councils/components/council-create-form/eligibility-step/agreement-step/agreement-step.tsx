@@ -29,6 +29,7 @@ const getAdminHatId = (treeId: number | undefined): Hex | null => {
 export function AgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit, councilsData } = useCouncilForm();
   logger.info('councilsData', councilsData);
+  logger.info('isLoading', isLoading);
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
@@ -48,6 +49,8 @@ export function AgreementStep({ onNext }: StepProps) {
     'existingId',
     'existingAdmins',
   ]);
+  logger.info('existingId', existingId);
+  logger.info('existingAdmins', existingAdmins);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
@@ -146,6 +149,7 @@ export function AgreementStep({ onNext }: StepProps) {
         label,
         description,
         avatars,
+        onSelect: () => form.setValue('agreementAdmins', avatars),
       };
     });
 
@@ -197,6 +201,7 @@ export function AgreementStep({ onNext }: StepProps) {
             'eligibilityRequirements.agreement.content',
             existingAgreement?.councils?.[0]?.eligibilityRequirements?.agreement.content || '',
           );
+          form.setValue('agreementAdmins', existingAgreement?.councils?.[0]?.creationForm?.agreementAdmins || []);
         },
       })),
       {
@@ -265,7 +270,7 @@ export function AgreementStep({ onNext }: StepProps) {
   // }, [existingAgreements, form, organizationManagers, agreementOptions]);
 
   // Show loading state during mutation or while fetching updated data
-  const isLoadingList = isMutating || !isLoading;
+  const isLoadingList = isMutating || isLoading;
 
   const handleSubmit = useCallback(
     async (data: CouncilFormData) => {
@@ -311,7 +316,7 @@ export function AgreementStep({ onNext }: StepProps) {
                 name='eligibilityRequirements.agreement.existingId' // TODO existingModule
                 localForm={form}
                 options={agreementOptions as RadioCardOption[]}
-                isDisabled={!canEdit}
+                isDisabled={!canEdit || isLoadingList}
               />
             )}
           </div>
@@ -339,26 +344,26 @@ export function AgreementStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
-              {isLoading ? (
-                <div className='flex flex-col gap-4'>
-                  <RadioCardSkeleton />
-                  <RadioCardSkeleton />
-                  <RadioCardSkeleton />
-                </div>
-              ) : (
-                existingAdmins === null && (
-                  <RadioCard
-                    name='eligibilityRequirements.agreement.existingAdmins'
-                    localForm={form}
-                    options={agreementManagerOptions as RadioCardOption[]}
-                    // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
-                    isDisabled={!canEdit || existingId !== 'new'}
-                  />
-                )
+              {/* @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms */}
+              {existingId === 'new' && (
+                <>
+                  {isLoading ? (
+                    <div className='flex flex-col gap-4'>
+                      <RadioCardSkeleton />
+                      <RadioCardSkeleton />
+                    </div>
+                  ) : (
+                    <RadioCard
+                      name='eligibilityRequirements.agreement.existingAdmins'
+                      localForm={form}
+                      options={agreementManagerOptions as RadioCardOption[]}
+                      isDisabled={!canEdit || existingId !== 'new'}
+                    />
+                  )}
+                </>
               )}
             </div>
 
-            {/* Show either Organization Managers or Agreement Managers based on selection */}
             {!isLoading && (
               <div>
                 <h3 className='mb-2 font-bold'>
@@ -370,13 +375,14 @@ export function AgreementStep({ onNext }: StepProps) {
                 </p>
                 <div className='mt-4 space-y-4'>
                   <AgreementAdminsList
-                    agreementAdmins={
-                      existingAdmins === 'org-managers'
-                        ? organizationManagers
-                        : !isEmpty(agreementAdmins) || !existingAdmins
-                          ? agreementAdmins
-                          : form.getValues('admins')
-                    }
+                    agreementAdmins={agreementAdmins}
+                    // agreementAdmins={
+                    //   existingAdmins === 'org-managers'
+                    //     ? organizationManagers
+                    //     : !isEmpty(agreementAdmins) || !existingAdmins
+                    //       ? agreementAdmins
+                    //       : form.getValues('admins')
+                    // }
                     form={form}
                     canEdit={!existingAdmins && canEdit}
                     canDelete={!existingAdmins ? canEdit : false}
