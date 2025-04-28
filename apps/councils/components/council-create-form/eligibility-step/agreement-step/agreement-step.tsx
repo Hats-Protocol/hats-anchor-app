@@ -1,9 +1,9 @@
 'use client';
 
-import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
-import { filter, find, flatten, get, isEmpty, map, pick, uniqBy } from 'lodash';
+import { filter, find, flatten, get, isEmpty, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
@@ -93,29 +93,59 @@ export function AgreementStep({ onNext }: StepProps) {
     [councilsData],
   );
 
+  const treeId = councilsData?.[0]?.treeId;
+  const adminHatId = getAdminHatId(treeId);
+  logger.info('adminHatId', adminHatId);
+  logger.info('hatId', adminHatId ? hatIdDecimalToIp(hatIdHexToDecimal(adminHatId)) : '0x'); // this is showing hatId
+
   // Group unique admin sets across councils
   const agreementAdminGroups = useMemo(() => {
-    const groupsByAdmins = new Map<string, { admins: CouncilMember[]; councils: string[] }>();
-
+    if (!adminHatId) return [];
     const adminHats = flatten(
       map(councilsData, (council) => {
         if (!council) return null;
         // get the associated owner hat IDs for all the modules in the council
+        const rules = flatten(council.eligibilityRules); //flatten rules per council
+        const params = flatten(map(rules, 'liveParams')); // grab the params
+        const ownerHats = filter(params, { label: 'Owner Hat' }); // look for the Owner Hat
+        return uniq(map(ownerHats, 'value'));
+      }),
+    );
+    console.log('adminHats', adminHats); // this is an array of all of the admin hats for ALL councils
+    // get all of these and then reject the org-managers
+    const filteredAdminHats = reject(adminHats, (hatValue) => hatValue === hatIdHexToDecimal(adminHatId));
+    // leaves us with other owner hats on ANY modules that are NOT the org-managers
+    console.log('filteredAdminHats', filteredAdminHats); // now we have the unique hatIds
+    // the ones that are left are unique and are filtered to only include the owner hats that are NOT the org-managers
+    // construct the pre-existing options and add to the radio card options
+    const preExistingOptions = map(filteredAdminHats, (hatValue) => {
+      const councilsByHatId = councilsData?.filter((council) => {
         const rules = flatten(council.eligibilityRules);
         const params = flatten(map(rules, 'liveParams'));
         const ownerHats = filter(params, { label: 'Owner Hat' });
-        return uniqBy(ownerHats, 'value');
-      }),
-    );
-    console.log('adminHats', adminHats);
+        return ownerHats.some((hat) => hat?.value === hatValue);
+      });
+      logger.info('councilsByHatId', councilsByHatId);
 
-    return Object.fromEntries(groupsByAdmins.entries());
+      const label = 'Agreement Manager';
+      const description = `Manages ${councilsByHatId?.length} Agreement${councilsByHatId?.length || 0 > 1 ? 's' : ''} on ${councilsByHatId?.map((council) => council.creationForm.councilName).join(', ')}`;
+      const avatars = flatten(councilsByHatId?.map((council) => council.creationForm.agreementAdmins));
+      logger.info('avatars', avatars);
+      return {
+        value: hatIdDecimalToHex(hatValue),
+        label,
+        description,
+        avatars,
+      };
+    });
+    logger.info('preExistingOptions', preExistingOptions);
+
+    //   description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+    //   avatars: group.admins,
+    return preExistingOptions;
   }, [councilsData]);
 
-  // logger.info('agreementAdminGroups', agreementAdminGroups);
-
-  const treeId = councilsData?.[0]?.treeId;
-  const adminHatId = getAdminHatId(treeId);
+  logger.info('agreementAdminGroups', agreementAdminGroups);
 
   // useEffect(() => {
   //   if (existingAdmins === 'org-managers') {
@@ -178,6 +208,8 @@ export function AgreementStep({ onNext }: StepProps) {
   // Determine which radio option should be selected based on agreement value
 
   // Create radio options for agreement managers
+  // Add back in the agreement managers options using the same pattern
+  // Set the admins themselves since this is hidden -- check the loading state for the list
   const agreementManagerOptions = useMemo(
     () => [
       {
@@ -187,13 +219,8 @@ export function AgreementStep({ onNext }: StepProps) {
         avatars: organizationManagers,
         onSelect: () => form.setValue('agreementAdmins', organizationManagers),
       },
-      // ...Object.entries(filteredAgreementAdminGroups).map(([key, group]) => ({
-      //   value: key!,
-      //   label: 'Agreement Managers',
-      //   description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-      //   avatars: group.admins,
-      //   onSelect: () => form.setValue('agreementAdmins', group.admins),
-      // })),
+      ...agreementAdminGroups,
+
       {
         value: 'new',
         label: 'Create new Agreement Managers',
