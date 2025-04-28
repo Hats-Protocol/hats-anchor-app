@@ -44,6 +44,7 @@ export function AgreementStep({ onNext }: StepProps) {
 
   // grabs from the eligibilityRequirements object
   const eligibilityRequirements = form.watch('eligibilityRequirements');
+  logger.info('eligibilityRequirements', eligibilityRequirements);
   const { content, existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
     'content',
     'existingId',
@@ -243,32 +244,6 @@ export function AgreementStep({ onNext }: StepProps) {
     [organizationManagers, form],
   );
 
-  // useEffect(() => {
-  //   // \!selectedOption ||
-  //   if (!form || !existingAgreements) return;
-
-  //   const currentValues = form.getValues();
-  //   // TODO improve match
-  //   const existingAgreement = existingAgreements?.find((localAgreement) => {
-  //     return trim(localAgreement.agreement) === trim(content || '');
-  //   });
-  //   if (existingAgreement) {
-  //     form.reset({
-  //       ...currentValues,
-  //       // agreement: existingAgreement?.agreement || '',
-  //       agreementAdmins: isEmpty(existingAgreement?.agreementAdmins)
-  //         ? organizationManagers || []
-  //         : existingAgreement?.agreementAdmins || [],
-  //       // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
-  //       createAgreementAdminRole: isEmpty(existingAgreement?.agreementAdmins)
-  //         ? 'false'
-  //         : `existing:${existingAgreement.id}`,
-  //       agreementType: existingAgreement?.agreement,
-  //     });
-  //     // setSelectedOption('existing');
-  //   }
-  // }, [existingAgreements, form, organizationManagers, agreementOptions]);
-
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || isLoading;
 
@@ -335,9 +310,9 @@ export function AgreementStep({ onNext }: StepProps) {
             <MarkdownEditor
               name='eligibilityRequirements.agreement.content'
               localForm={form}
+              placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
               // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
               isDisabled={existingId !== 'new'}
-              placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
             />
           </div>
 
@@ -376,13 +351,6 @@ export function AgreementStep({ onNext }: StepProps) {
                 <div className='mt-4 space-y-4'>
                   <AgreementAdminsList
                     agreementAdmins={agreementAdmins}
-                    // agreementAdmins={
-                    //   existingAdmins === 'org-managers'
-                    //     ? organizationManagers
-                    //     : !isEmpty(agreementAdmins) || !existingAdmins
-                    //       ? agreementAdmins
-                    //       : form.getValues('admins')
-                    // }
                     form={form}
                     canEdit={!existingAdmins && canEdit}
                     canDelete={!existingAdmins ? canEdit : false}
@@ -394,7 +362,7 @@ export function AgreementStep({ onNext }: StepProps) {
                     loading={isLoadingList}
                   />
 
-                  {!showAddForm && !existingAdmins && (
+                  {!showAddForm && existingAdmins === 'new' && (
                     <Button
                       variant='outline-blue'
                       rounded='full'

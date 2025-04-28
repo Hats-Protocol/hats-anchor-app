@@ -605,6 +605,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               break;
           }
           break;
+        default:
+          payload = {
+            ...payload,
+            ...currentFormState,
+          };
       }
 
       logger.debug('payload', payload);

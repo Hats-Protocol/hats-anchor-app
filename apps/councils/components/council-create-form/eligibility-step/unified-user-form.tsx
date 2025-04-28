@@ -159,6 +159,7 @@ export function UnifiedUserForm({
       const config = USER_TYPE_CONFIG[userType];
       const currentUsers = parentForm.getValues(config.formField) || [];
       const updatedUsers = currentUsers.map((user) => (user.id === editingUser?.id ? data : user));
+      logger.info('updatedUsers', updatedUsers);
       parentForm.setValue(config.formField, updatedUsers);
       persistForm('selection', config.persistStep);
       setFormError(null);

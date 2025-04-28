@@ -6,6 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect } from 'react';
 import { ControllerRenderProps, FieldValues, UseFormReturn } from 'react-hook-form';
 import showdown from 'showdown';
+import { logger } from 'utils';
 
 // import { logger } from 'utils';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './form';
@@ -22,6 +23,7 @@ interface TiptapProps {
 const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapProps) => {
   const converter = new showdown.Converter();
 
+  logger.info('isDisabled in markdown', isDisabled);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({}),
@@ -49,11 +51,11 @@ const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapPr
   });
 
   // Update editor content when field.value changes externally
-  useEffect(() => {
-    if (editor && field.value !== editor.getHTML()) {
-      editor.commands.setContent(converter.makeHtml(field.value));
-    }
-  }, [editor, field.value]);
+  // useEffect(() => {
+  //   if (editor && field.value !== editor.getHTML()) {
+  //     editor.commands.setContent(converter.makeHtml(field.value));
+  //   }
+  // }, [editor, field.value]);
 
   // Check if current content matches an existing agreement (read-only check)
   // const matchingAgreement = existingAgreements?.find((existing) => existing.agreement === field.value);
