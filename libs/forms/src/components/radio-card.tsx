@@ -7,7 +7,7 @@ import { cn, MemberAvatar, RadioGroup, RadioGroupItem, Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
 
-interface RadioCardOption {
+export interface RadioCardOption {
   value: string;
   label: string;
   description?: string;

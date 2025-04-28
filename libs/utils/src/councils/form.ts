@@ -200,6 +200,11 @@ const modules = ({
       ],
     ],
   };
+  const enableErc20 =
+    !!formData.eligibilityRequirements?.erc20?.required &&
+    !!formData.eligibilityRequirements?.erc20?.address &&
+    !!tokenDecimals;
+  console.log({ enableErc20 });
 
   const requiredModules: Record<string, Module> = {
     multiClaimsHatter: {
@@ -225,9 +230,7 @@ const modules = ({
     ...requiredModules,
     ...(formData.eligibilityRequirements?.agreement?.required ? { agreementModule } : {}),
     ...(formData.eligibilityRequirements?.compliance?.required ? { complianceAllowlist } : {}),
-    ...(formData.eligibilityRequirements?.erc20?.required && formData.eligibilityRequirements?.erc20?.address
-      ? { erc20Module }
-      : {}),
+    ...(enableErc20 ? { erc20Module } : {}),
   };
 };
 
@@ -307,33 +310,29 @@ export const compileModuleData = async ({
   if (
     formData.eligibilityRequirements?.compliance?.required ||
     formData.eligibilityRequirements?.agreement?.required ||
-    formData.eligibilityRequirements?.erc20?.required
+    (formData.eligibilityRequirements?.erc20?.required && tokenDecimals)
   ) {
-    let chainLength = 1;
     const chainModules: `0x${string}`[] = [councilMemberAllowlist as `0x${string}`];
     if (formData.eligibilityRequirements?.compliance?.required) {
-      chainLength += 1;
       chainModules.push(complianceAllowlist as `0x${string}`); // use existing address when applicable
     }
     if (formData.eligibilityRequirements?.agreement?.required) {
-      chainLength += 1;
       chainModules.push(agreementModule as `0x${string}`); // use existing address when applicable
     }
-    if (formData.eligibilityRequirements?.erc20?.required && formData.eligibilityRequirements?.erc20?.address) {
-      chainLength += 1;
+    if (
+      formData.eligibilityRequirements?.erc20?.required &&
+      formData.eligibilityRequirements?.erc20?.address &&
+      tokenDecimals
+    ) {
       chainModules.push(erc20Module as `0x${string}`);
     }
-    // logger.debug('chainModules', chainModules);
     eligibilityChainInitArgs = '0x' as `0x${string}`;
+    const compactChainModules = compact(chainModules); // don't pass empty modules, causes invalid calldata
+    const chainLength = compactChainModules.length;
     eligibilityChainImmutableArgs = encodePacked(
       ['uint256', 'uint256[]', ...Array(chainLength).fill('address')],
-      [BigInt(1), [BigInt(chainLength)], ...chainModules],
+      [BigInt(1), [BigInt(chainLength)], ...compactChainModules],
     );
-    // logger.info('eligibility chain args', {
-    //   chainLength,
-    //   clauseLengths: BigInt(chainLength),
-    //   chainModules,
-    // });
     eligibilityChainHatId = hatIds.councilMember;
     predictedEligibilityChainAddress = (await publicClient.readContract({
       address: HATS_MODULES_FACTORY_ADDRESS,

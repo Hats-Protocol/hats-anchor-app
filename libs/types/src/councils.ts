@@ -1,7 +1,7 @@
+import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
 
 import { ExtendedHSGV2 } from './authorities';
-import { EligibilityRule } from './modules';
 
 export interface CouncilDraft {
   id: string;
@@ -58,7 +58,7 @@ export type OffchainCouncilData = {
 export type CouncilData = OffchainCouncilData &
   Partial<Omit<ExtendedHSGV2, 'id'>> & {
     eligibilityRequirements?: EligibilityRequirements;
-    eligibilityRules?: EligibilityRule[];
+    eligibilityRules?: Ruleset[] | null | undefined;
   };
 
 export interface CompletedOptionalSteps {

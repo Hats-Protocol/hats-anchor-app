@@ -2,6 +2,7 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
+import { pick } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -66,7 +67,6 @@ function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: St
       }
     case 'selection':
       const requirements = form.watch('eligibilityRequirements');
-      logger.info('selection requirements', requirements);
       const reqs = [];
       if (requirements?.agreement?.required) reqs.push('Agreement');
       if (requirements?.erc20?.required) reqs.push('Tokens');
@@ -124,7 +124,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
   const STEPS = [...BASE_STEPS];
   const eligibilityStep = STEPS.find((step) => step.id === 'eligibility');
   if (eligibilityStep) {
-    const { agreement, erc20, compliance } = eligibilityRequirements;
+    const { agreement, erc20, compliance } = pick(eligibilityRequirements, ['agreement', 'erc20', 'compliance']);
 
     eligibilityStep.subSteps = [
       { id: 'management', label: 'Organization Management' },

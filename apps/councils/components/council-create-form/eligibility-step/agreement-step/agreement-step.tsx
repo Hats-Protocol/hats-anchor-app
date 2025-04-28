@@ -1,12 +1,11 @@
 'use client';
 
+import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
-import { Form, MarkdownEditor, RadioCard } from 'forms';
-import { useOrganization } from 'hooks';
-import { CopyAddress } from 'icons';
-import { flatten, isEmpty, map, pick, trim, uniqBy } from 'lodash';
+import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
+import { find, flatten, get, isEmpty, map, pick, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 // import showdown from 'showdown';
@@ -15,140 +14,17 @@ import { Button, Skeleton } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
-import { NextStepButton } from '../../next-step-button';
-import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { AgreementAdminsList } from './agreement-admins-list';
-import { UnifiedUserForm } from './unified-user-form';
+import { NextStepButton } from '../../../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
+import { AgreementAdminsList } from '../agreement-admins-list';
+import { UnifiedUserForm } from '../unified-user-form';
+import { LoadingAgreementStep } from './agreement-skeletons';
 
-interface GroupedAgreement {
-  id: string;
-  councilName: string;
-  agreement: string;
-  agreementAdmins: CouncilMember[];
-}
-
-// const converter = new showdown.Converter();
-
-const RadioCardSkeleton = () => (
-  <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
-    <div className='flex w-full items-center gap-3'>
-      <Skeleton className='h-4 w-4 rounded-full' />
-      <div className='flex w-full items-center justify-between'>
-        <div className='flex items-center gap-3'>
-          <Skeleton className='h-6 w-6' />
-          <div className='space-y-2'>
-            <Skeleton className='h-4 w-32' />
-            <Skeleton className='h-3 w-64' />
-          </div>
-        </div>
-        <div className='flex -space-x-2'>
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className='h-6 w-6 rounded-full' />
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const RadioCardSkeletonWithAvatars = () => (
-  <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
-    <div className='flex w-full items-center gap-3'>
-      <Skeleton className='h-4 w-4 rounded-full' />
-      <div className='flex w-full gap-4'>
-        <Skeleton className='h-6 w-6' />
-        <div className='flex w-full flex-col gap-0.5'>
-          <div className='flex w-full items-center justify-between'>
-            <Skeleton className='h-5 w-48' />
-            <div className='flex -space-x-2'>
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className='h-6 w-6 rounded-full' />
-              ))}
-            </div>
-          </div>
-          <Skeleton className='h-4 w-64' />
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const LoadingAgreementStep = () => (
-  <div className='mx-auto flex w-full flex-col space-y-6'>
-    {/* Header */}
-    <div className='space-y-4'>
-      <div className='flex items-center gap-4'>
-        <Skeleton className='h-6 w-6' />
-        <Skeleton className='h-8 w-48' />
-      </div>
-    </div>
-
-    {/* Agreement Selection */}
-    <div className='space-y-4'>
-      <div className='flex flex-col gap-1'>
-        <div className='flex items-center gap-2'>
-          <Skeleton className='h-6 w-64' />
-        </div>
-      </div>
-      <div className='flex flex-col gap-4'>
-        <RadioCardSkeleton />
-        <RadioCardSkeleton />
-      </div>
-    </div>
-
-    {/* Agreement Text */}
-    <div className='space-y-4'>
-      <div className='flex flex-col gap-1'>
-        <div className='flex items-center gap-2'>
-          <Skeleton className='h-6 w-48' />
-          <Skeleton className='h-4 w-16' />
-        </div>
-        <Skeleton className='h-4 w-96' />
-      </div>
-      <Skeleton className='h-32 w-full' />
-    </div>
-
-    {/* Agreement Managers */}
-    <div className='space-y-8'>
-      <div className='space-y-2'>
-        <Skeleton className='h-6 w-48' />
-        <div className='flex flex-col gap-4'>
-          <RadioCardSkeleton />
-          <RadioCardSkeleton />
-          <RadioCardSkeleton />
-        </div>
-      </div>
-
-      {/* Agreement Managers List Section */}
-      <div>
-        <Skeleton className='mb-2 h-6 w-48' />
-        <Skeleton className='h-4 w-96' />
-        <div className='mt-4 space-y-4'>
-          {[1, 2, 3].map((i) => (
-            <div key={i} className='flex items-center justify-between'>
-              <div className='flex items-center gap-3'>
-                <Skeleton className='h-10 w-10 rounded-full' />
-                <div className='space-y-2'>
-                  <Skeleton className='h-4 w-32' />
-                  <Skeleton className='h-3 w-24' />
-                </div>
-              </div>
-              <div className='flex items-center gap-3'>
-                <Skeleton className='h-10 w-20 rounded-full' />
-                <Skeleton className='h-10 w-10 rounded-full' />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    {/* Next Button */}
-    <div className='flex justify-end py-6'>
-      <Skeleton className='h-10 w-32' />
-    </div>
-  </div>
-);
+const getAdminHatId = (treeId: number | undefined): Hex | null => {
+  if (!treeId) return null;
+  const newHatId = `${treeId}.1`;
+  return hatIdDecimalToHex(hatIdIpToDecimal(newHatId));
+};
 
 export function AgreementStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit, councilsData } = useCouncilForm();
@@ -172,30 +48,21 @@ export function AgreementStep({ onNext }: StepProps) {
     'existingId',
     'existingAdmins',
   ]);
+  logger.info('existingId', existingId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
-  // Group agreements from existing councils
-  // fetch the eligiblilityRules that are associated with each council
   const existingAgreements = useMemo(() => {
-    const agreementMap = new Map<string, GroupedAgreement>();
-
     const rawCouncilsWithAgreements = councilsData?.map((council) => {
-      // council.eligibilityRules has all of the eligibilityRules for the council that are agreements:
-      // map through the eligibilityRules to find one that is an agreement
-      // assuming that there is only 1 agreement per council
       return flatten(council.eligibilityRules).find(
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement',
       );
-      // dedupe the agreementRules
-
-      // find the module that matches the membersCriteriaModule -> this would be one of the options
     });
 
     // getting the unique councils with agreements
     const councilsWithAgreements = uniqBy(rawCouncilsWithAgreements, 'address');
-    // we want to get the councils that are associated with each agreement
 
+    // we want to get the councils that are associated with each agreement
     const agreementsWithCouncilData = councilsWithAgreements.map((agreement) => {
       return {
         ...agreement,
@@ -205,48 +72,7 @@ export function AgreementStep({ onNext }: StepProps) {
       };
     });
 
-    logger.info('agreementsWithCouncilData', agreementsWithCouncilData);
-
     return agreementsWithCouncilData;
-    // map through each of these councils and get the
-    // councilsData?.forEach((council) => {
-    //   if (council.creationForm?.agreement && council.creationForm?.councilName) {
-    //     const agreementContent = trim(council.creationForm.agreement);
-    //     const key = agreementContent;
-
-    //     if (agreementMap.has(key)) {
-    //       const existing = agreementMap.get(key)!;
-    //       existing.councilName = `${existing.councilName}, ${council.creationForm.councilName}`;
-    //       // Merge agreementAdmins if they exist
-    //       if (council.creationForm.agreementAdmins) {
-    //         const newAdmins = council.creationForm.agreementAdmins
-    //           .filter(
-    //             (admin) =>
-    //               !existing.agreementAdmins.some(
-    //                 (existingAdmin) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
-    //               ),
-    //           )
-    //           .map((admin) => ({
-    //             ...admin,
-    //             email: '', // Adding required email field
-    //           }));
-    //         existing.agreementAdmins.push(...newAdmins);
-    //       }
-    //     } else {
-    //       agreementMap.set(key, {
-    //         id: council.creationForm.id,
-    //         councilName: council.creationForm.councilName,
-    //         agreement: agreementContent,
-    //         agreementAdmins: (council.creationForm.agreementAdmins || []).map((admin) => ({
-    //           ...admin,
-    //           email: '', // Adding required email field
-    //         })),
-    //       });
-    //     }
-    //   }
-    // });
-
-    // return Array.from(agreementMap.values());
   }, [councilsData]);
 
   // Extract unique organization managers from existing councils
@@ -298,7 +124,7 @@ export function AgreementStep({ onNext }: StepProps) {
     return Object.fromEntries(groupsByAdmins.entries());
   }, [councilsData]);
 
-  logger.info('agreementAdminGroups', agreementAdminGroups);
+  // logger.info('agreementAdminGroups', agreementAdminGroups);
 
   // Create a sorted string of organization manager addresses to compare against
   const orgManagerKey = organizationManagers
@@ -316,24 +142,26 @@ export function AgreementStep({ onNext }: StepProps) {
     },
     {},
   );
+  const treeId = councilsData?.[0]?.treeId;
+  const adminHatId = getAdminHatId(treeId);
 
-  useEffect(() => {
-    if (existingAdmins === 'org-managers') {
-      form.setValue('agreementAdmins', organizationManagers);
-    } else if (existingAdmins) {
-      const adminKey = existingAdmins;
-      const group = agreementAdminGroups[adminKey];
-      if (group) {
-        form.setValue('agreementAdmins', group.admins);
-      }
-    } else if (existingAdmins === null) {
-      // Only clear the array if there are no existing admins
-      const currentAdmins = form.getValues('agreementAdmins') || [];
-      if (currentAdmins.length === 0) {
-        form.setValue('agreementAdmins', []);
-      }
-    }
-  }, [existingAdmins, form, organizationManagers, agreementAdminGroups]);
+  // useEffect(() => {
+  //   if (existingAdmins === 'org-managers') {
+  //     form.setValue('agreementAdmins', organizationManagers);
+  //   } else if (existingAdmins) {
+  //     const adminKey = existingAdmins;
+  //     const group = agreementAdminGroups[adminKey];
+  //     if (group) {
+  //       form.setValue('agreementAdmins', group.admins);
+  //     }
+  //   } else if (existingAdmins === null) {
+  //     // Only clear the array if there are no existing admins
+  //     const currentAdmins = form.getValues('agreementAdmins') || [];
+  //     if (currentAdmins.length === 0) {
+  //       form.setValue('agreementAdmins', []);
+  //     }
+  //   }
+  // }, [existingAdmins, form, organizationManagers, agreementAdminGroups]);
 
   // const [selectedOption, setSelectedOption] = useState(() => {
   //   const currentAgreement = form.getValues('agreement');
@@ -348,10 +176,14 @@ export function AgreementStep({ onNext }: StepProps) {
         value: existingAgreement?.address,
         label: 'Agreement',
         icon: FileText as IconType,
-
         description: existingAgreement?.councils.map((council) => council.creationForm.councilName).join(', '),
         onSelect: () => {
-          // setSelectedOption('existing');
+          const existingAdmins = find(get(existingAgreement, 'liveParams'), { label: 'Owner Hat' });
+          const adminsHatId = hatIdDecimalToHex(existingAdmins?.value as bigint);
+          form.setValue(
+            'eligibilityRequirements.agreement.existingAdmins',
+            adminsHatId === adminHatId ? 'org-managers' : adminsHatId,
+          );
           form.setValue(
             'eligibilityRequirements.agreement.content',
             existingAgreement?.councils?.[0]?.eligibilityRequirements?.agreement.content || '',
@@ -367,36 +199,35 @@ export function AgreementStep({ onNext }: StepProps) {
           // setSelectedOption('new');
           // Only reset if switching from an existing agreement
           if (existingId) {
-            form.setValue('eligibilityRequirements.agreement.content', '');
+            // form.setValue('eligibilityRequirements.agreement.content', '');
           }
         },
       },
     ],
-    [existingAgreements, existingId, form],
+    [existingAgreements, adminHatId, existingId, form],
   );
 
   // Determine which radio option should be selected based on agreement value
-  // const selectedAgreementOption = selectedOption;
 
   // Create radio options for agreement managers
   const agreementManagerOptions = useMemo(
     () => [
       {
-        value: 'false',
+        value: 'org-managers',
         label: 'Organization Managers',
         description: 'Manage Roles on all Councils',
         avatars: organizationManagers,
         onSelect: () => form.setValue('agreementAdmins', organizationManagers),
       },
       ...Object.entries(filteredAgreementAdminGroups).map(([key, group]) => ({
-        value: `existing:${key}`,
+        value: key!,
         label: 'Agreement Managers',
         description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
         avatars: group.admins,
         onSelect: () => form.setValue('agreementAdmins', group.admins),
       })),
       {
-        value: 'true',
+        value: 'new',
         label: 'Create new Agreement Managers',
         description: 'Create a new group of agreement managers',
         onSelect: () => form.setValue('agreementAdmins', []),
@@ -405,31 +236,31 @@ export function AgreementStep({ onNext }: StepProps) {
     [organizationManagers, filteredAgreementAdminGroups, form],
   );
 
-  useEffect(() => {
-    // \!selectedOption ||
-    if (!form || !existingAgreements) return;
+  // useEffect(() => {
+  //   // \!selectedOption ||
+  //   if (!form || !existingAgreements) return;
 
-    const currentValues = form.getValues();
-    // TODO improve match
-    const existingAgreement = existingAgreements?.find((localAgreement) => {
-      return trim(localAgreement.agreement) === trim(content || '');
-    });
-    if (existingAgreement) {
-      form.reset({
-        ...currentValues,
-        // agreement: existingAgreement?.agreement || '',
-        agreementAdmins: isEmpty(existingAgreement?.agreementAdmins)
-          ? organizationManagers || []
-          : existingAgreement?.agreementAdmins || [],
-        // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
-        createAgreementAdminRole: isEmpty(existingAgreement?.agreementAdmins)
-          ? 'false'
-          : `existing:${existingAgreement.id}`,
-        agreementType: existingAgreement?.agreement,
-      });
-      // setSelectedOption('existing');
-    }
-  }, [existingAgreements, form, organizationManagers, agreementOptions]);
+  //   const currentValues = form.getValues();
+  //   // TODO improve match
+  //   const existingAgreement = existingAgreements?.find((localAgreement) => {
+  //     return trim(localAgreement.agreement) === trim(content || '');
+  //   });
+  //   if (existingAgreement) {
+  //     form.reset({
+  //       ...currentValues,
+  //       // agreement: existingAgreement?.agreement || '',
+  //       agreementAdmins: isEmpty(existingAgreement?.agreementAdmins)
+  //         ? organizationManagers || []
+  //         : existingAgreement?.agreementAdmins || [],
+  //       // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
+  //       createAgreementAdminRole: isEmpty(existingAgreement?.agreementAdmins)
+  //         ? 'false'
+  //         : `existing:${existingAgreement.id}`,
+  //       agreementType: existingAgreement?.agreement,
+  //     });
+  //     // setSelectedOption('existing');
+  //   }
+  // }, [existingAgreements, form, organizationManagers, agreementOptions]);
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || !isLoading;
@@ -439,7 +270,7 @@ export function AgreementStep({ onNext }: StepProps) {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
       form.reset(data);
-      await onNext();
+      onNext();
     },
     [form, onNext],
   );
@@ -447,7 +278,8 @@ export function AgreementStep({ onNext }: StepProps) {
   if (isLoading) {
     return <LoadingAgreementStep />;
   }
-  console.log(agreementAdmins, organizationManagers, form.getValues('admins'));
+
+  logger.info('agreementOptions', agreementOptions);
 
   return (
     <>
@@ -474,11 +306,10 @@ export function AgreementStep({ onNext }: StepProps) {
               </div>
             ) : ( */}
             <RadioCard
-              name='agreementType'
+              name='eligibilityRequirements.agreement.existingId' // TODO existingModule
               localForm={form}
-              options={agreementOptions}
+              options={agreementOptions as RadioCardOption[]}
               isDisabled={!canEdit}
-              // defaultValue={selectedOption}
             />
             {/* )} */}
           </div>
@@ -497,12 +328,9 @@ export function AgreementStep({ onNext }: StepProps) {
             <MarkdownEditor
               name='eligibilityRequirements.agreement.content'
               localForm={form}
-              isDisabled={!!existingId}
+              // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
+              isDisabled={existingId !== 'new'}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
-              existingAgreements={(existingAgreements || []).map(({ agreement, councilName }: GroupedAgreement) => ({
-                agreement,
-                councilName,
-              }))}
             />
           </div>
 
@@ -518,10 +346,11 @@ export function AgreementStep({ onNext }: StepProps) {
               ) : ( */}
               {/* existingAdmins === null && ( */}
               <RadioCard
-                name='createAgreementAdminRole'
+                name='eligibilityRequirements.agreement.existingAdmins'
                 localForm={form}
-                options={agreementManagerOptions}
-                isDisabled={!canEdit}
+                options={agreementManagerOptions as RadioCardOption[]}
+                // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
+                isDisabled={!canEdit || existingId !== 'new'}
               />
             </div>
 

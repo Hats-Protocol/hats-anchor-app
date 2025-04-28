@@ -113,7 +113,7 @@ const CreateFormDevDetails = () => {
       { label: 'Simulate Council', descriptor: <SimulateStatus simulate={simulateCouncil} /> },
       simulateCouncil?.error && {
         label: 'Simulate Council Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateCouncil?.error?.message} />,
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateCouncil?.error?.message} readOnly />,
       },
       {
         label: 'Simulate Hats',
@@ -121,7 +121,7 @@ const CreateFormDevDetails = () => {
       },
       simulateHats?.error && {
         label: 'Simulate Hats Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHats?.error?.message} />,
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHats?.error?.message} readOnly />,
       },
       {
         label: 'Simulate Modules',
@@ -129,7 +129,7 @@ const CreateFormDevDetails = () => {
       },
       simulateModules?.error && {
         label: 'Simulate Modules Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateModules?.error?.message} />,
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateModules?.error?.message} readOnly />,
       },
       {
         label: 'Simulate HSG',
@@ -137,7 +137,7 @@ const CreateFormDevDetails = () => {
       },
       simulateHsg?.error && {
         label: 'Simulate HSG Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHsg?.error?.message} />,
+        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHsg?.error?.message} readOnly />,
       },
     ]);
   }, [simulateCouncil, simulateHats, simulateModules, simulateHsg]);

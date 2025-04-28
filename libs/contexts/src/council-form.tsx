@@ -13,7 +13,7 @@ import {
 } from '@hatsprotocol/constants';
 import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
-import { getAccessToken, usePrivy } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
 import {
@@ -25,7 +25,7 @@ import {
   useToast,
   useWaitForSubgraph,
 } from 'hooks';
-import { compact, find, first, isEmpty, map, set, toNumber, values } from 'lodash';
+import { compact, find, first, isEmpty, map, toNumber, values } from 'lodash';
 import { getEligibilityRules } from 'modules-hooks';
 import { useSearchParams } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -215,7 +215,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: rawOrganization } = useOrganization(orgName);
+  const { data: rawOrganization, isLoading: isLoadingOrganization } = useOrganization(orgName);
 
   // similar process to get the onchain data that we'd need in all of the reusable elibility modules
 
@@ -240,7 +240,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
       let parsedEligibilityRequirements;
       try {
-        parsedEligibilityRequirements = JSON.parse(council.creationForm.eligibilityRequirements as string);
+        if (typeof council.creationForm.eligibilityRequirements === 'string') {
+          parsedEligibilityRequirements = JSON.parse(council.creationForm.eligibilityRequirements);
+        } else {
+          parsedEligibilityRequirements = council.creationForm.eligibilityRequirements;
+        }
       } catch (error) {
         logger.error('Error parsing eligibility requirements:', error);
       }
@@ -698,7 +702,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     <CouncilFormContext.Provider
       value={{
         form,
-        isLoading,
+        isLoading: isLoading || isLoadingOrganization,
         persistForm: (step: string, subStep?: string) => persistForm({ step, subStep }),
         stepValidation,
         setStepValidation,

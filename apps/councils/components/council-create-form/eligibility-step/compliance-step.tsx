@@ -130,46 +130,46 @@ export function ComplianceStep({ onNext }: StepProps) {
   const complianceAdminGroups = useMemo(() => {
     const groupsByAdmins = new Map<string, { id: string; admins: CouncilMember[]; councils: string[] }>();
 
-    organization?.councils?.forEach((council) => {
-      if (!council.creationForm?.complianceAdmins?.length) return;
+    // organization?.councils?.forEach((council) => {
+    // if (!council.creationForm?.complianceAdmins?.length) return;
 
-      // Create a sorted string of admin addresses as a key
-      const adminKey = council.creationForm.complianceAdmins
-        .map((admin) => admin.address.toLowerCase())
-        .sort()
-        .join(',');
+    // Create a sorted string of admin addresses as a key
+    //   const adminKey = council.creationForm.complianceAdmins
+    //     .map((admin) => admin.address.toLowerCase())
+    //     .sort()
+    //     .join(',');
 
-      const existing = get(groupsByAdmins, adminKey);
-      if (existing) {
-        existing.councils.push(council.creationForm.councilName || '');
-        // Merge any new admins (shouldn't happen if keys match, but being thorough)
-        if (council.creationForm.complianceAdmins) {
-          const newAdmins = council.creationForm.complianceAdmins
-            .filter(
-              (admin) =>
-                !existing.admins.some(
-                  (existingAdmin: any) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
-                ),
-            )
-            .map((admin) => ({
-              ...admin,
-              email: '', // Adding required email field
-            }));
-          existing.admins.push(...newAdmins);
-        }
-      } else {
-        groupsByAdmins.set(adminKey, {
-          id: council.creationForm.id,
-          admins: council.creationForm.complianceAdmins.map((admin) => ({
-            ...admin,
-            email: '', // Adding required email field
-          })),
-          councils: [council.creationForm.councilName || ''],
-        });
-      }
-    });
+    //   const existing = get(groupsByAdmins, adminKey);
+    //   if (existing) {
+    //     existing.councils.push(council.creationForm.councilName || '');
+    //     // Merge any new admins (shouldn't happen if keys match, but being thorough)
+    //     if (council.creationForm.complianceAdmins) {
+    //       const newAdmins = council.creationForm.complianceAdmins
+    //         .filter(
+    //           (admin) =>
+    //             !existing.admins.some(
+    //               (existingAdmin: any) => existingAdmin.address.toLowerCase() === admin.address.toLowerCase(),
+    //             ),
+    //         )
+    //         .map((admin) => ({
+    //           ...admin,
+    //           email: '', // Adding required email field
+    //         }));
+    //       existing.admins.push(...newAdmins);
+    //     }
+    //   } else {
+    //     groupsByAdmins.set(adminKey, {
+    //       id: council.creationForm.id,
+    //       admins: council.creationForm.complianceAdmins.map((admin) => ({
+    //         ...admin,
+    //         email: '', // Adding required email field
+    //       })),
+    //       councils: [council.creationForm.councilName || ''],
+    //     });
+    //   }
+    // });
 
-    return Object.fromEntries(groupsByAdmins.entries());
+    return []; // Object.fromEntries(groupsByAdmins.entries());
   }, [organization?.councils]);
 
   // Create a sorted string of organization manager addresses to compare against
@@ -179,15 +179,15 @@ export function ComplianceStep({ onNext }: StepProps) {
     .join(',');
 
   // Filter out any admin groups that exactly match organization managers
-  const filteredComplianceAdminGroups = Object.entries(complianceAdminGroups).reduce<typeof complianceAdminGroups>(
-    (acc, [key, group]) => {
-      if (key !== orgManagerKey) {
-        acc[key] = group;
-      }
-      return acc;
-    },
-    {},
-  );
+  const filteredComplianceAdminGroups = {}; // Object.entries(complianceAdminGroups).reduce<typeof complianceAdminGroups>(
+  //   (acc, [key, group]) => {
+  //     if (key !== orgManagerKey) {
+  //       acc[key] = group;
+  //     }
+  //     return acc;
+  //   },
+  //   {},
+  // );
 
   // Create options for compliance managers
   const complianceManagerOptions = useMemo(
@@ -199,13 +199,13 @@ export function ComplianceStep({ onNext }: StepProps) {
         avatars: organizationManagers,
         onSelect: () => form.setValue('complianceAdmins', organizationManagers),
       },
-      ...Object.entries(filteredComplianceAdminGroups).map(([key, group]) => ({
-        value: `existing:${key}`,
-        label: 'Compliance Managers',
-        description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-        avatars: group.admins,
-        onSelect: () => form.setValue('complianceAdmins', group.admins),
-      })),
+      // ...Object.entries(filteredComplianceAdminGroups).map(([key, group]) => ({
+      //   value: `existing:${key}`,
+      //   label: 'Compliance Managers',
+      //   description: `Manages ${group.councils.length} Compliance Check${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+      //   avatars: group.admins,
+      //   onSelect: () => form.setValue('complianceAdmins', group.admins),
+      // })),
       {
         value: 'true',
         label: 'Create new Compliance Managers',
@@ -253,19 +253,19 @@ export function ComplianceStep({ onNext }: StepProps) {
         return;
       } else if (compliance.existingId) {
         const adminKey = compliance.existingId;
-        const group = complianceAdminGroups[adminKey];
-        if (group) {
-          const groupAddresses = group.admins
-            .map((admin) => admin.address.toLowerCase())
-            .sort()
-            .join(',');
+        // const group = complianceAdminGroups[adminKey];
+        // if (group) {
+        //   const groupAddresses = group.admins
+        //     .map((admin) => admin.address.toLowerCase())
+        //     .sort()
+        //     .join(',');
 
-          if (currentAddresses === groupAddresses) {
-            // Already correctly set to the right existing group
-            setInitialSetupComplete(true);
-            return;
-          }
-        }
+        //   if (currentAddresses === groupAddresses) {
+        //     // Already correctly set to the right existing group
+        //     setInitialSetupComplete(true);
+        //     return;
+        //   }
+        // }
       } else if (!compliance.existingId) {
         // Custom admins - this is fine
         setInitialSetupComplete(true);
@@ -287,19 +287,18 @@ export function ComplianceStep({ onNext }: StepProps) {
 
     // Check if they match any existing compliance admin group
     for (const [key, group] of Object.entries(complianceAdminGroups)) {
-      const groupAddresses = group.admins
-        .map((admin) => admin.address.toLowerCase())
-        .sort()
-        .join(',');
-
-      if (currentAddresses === groupAddresses) {
-        // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
-        form.setValue('eligibilityRequirements.compliance.existingId', `existing:${key}`, { shouldDirty: false });
-        // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
-        prevRole.current = `existing:${key}`;
-        setInitialSetupComplete(true);
-        return;
-      }
+      // const groupAddresses = group.admins
+      //   .map((admin) => admin.address.toLowerCase())
+      //   .sort()
+      //   .join(',');
+      // if (currentAddresses === groupAddresses) {
+      //   // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
+      //   form.setValue('eligibilityRequirements.compliance.existingId', `existing:${key}`, { shouldDirty: false });
+      //   // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
+      //   prevRole.current = `existing:${key}`;
+      //   setInitialSetupComplete(true);
+      //   return;
+      // }
     }
 
     // If we have admins but they don't match any existing group, assume it's a custom group
@@ -334,17 +333,17 @@ export function ComplianceStep({ onNext }: StepProps) {
         }
       } else if (eligibilityRequirements.compliance.existingId) {
         const adminKey = eligibilityRequirements.compliance.existingId;
-        const group = complianceAdminGroups[adminKey];
-        if (group) {
-          const groupAddresses = group.admins
-            .map((admin) => admin.address.toLowerCase())
-            .sort()
-            .join(',');
+        // const group = complianceAdminGroups[adminKey];
+        // if (group) {
+        //   const groupAddresses = group.admins
+        //     .map((admin) => admin.address.toLowerCase())
+        //     .sort()
+        //     .join(',');
 
-          if (currentAddresses !== groupAddresses) {
-            form.setValue('complianceAdmins', group.admins, { shouldDirty: false });
-          }
-        }
+        //   if (currentAddresses !== groupAddresses) {
+        //     form.setValue('complianceAdmins', group.admins, { shouldDirty: false });
+        //   }
+        // }
       } else if (!eligibilityRequirements.compliance.existingId && currentAdmins.length === 0) {
         // Only clear if empty - don't override custom admins that may have been added
         form.setValue('complianceAdmins', [], { shouldDirty: false });
@@ -388,16 +387,16 @@ export function ComplianceStep({ onNext }: StepProps) {
     return <LoadingComplianceStep />;
   }
 
-  console.log(
-    'complianceAdmins',
-    eligibilityRequirements.compliance.existingId
-      ? (() => {
-          const adminKey = eligibilityRequirements.compliance.existingId;
-          const group = complianceAdminGroups[adminKey];
-          return group?.admins || complianceAdmins;
-        })()
-      : complianceAdmins,
-  );
+  // console.log(
+  //   'complianceAdmins',
+  //   eligibilityRequirements.compliance.existingId
+  //     ? (() => {
+  //         const adminKey = eligibilityRequirements.compliance.existingId;
+  //         const group = complianceAdminGroups[adminKey];
+  //         return group?.admins || complianceAdmins;
+  //       })()
+  //     : complianceAdmins,
+  // );
 
   return (
     <>
@@ -451,8 +450,8 @@ export function ComplianceStep({ onNext }: StepProps) {
                       : eligibilityRequirements.compliance.existingId
                         ? (() => {
                             const adminKey = eligibilityRequirements.compliance.existingId;
-                            const group = complianceAdminGroups[adminKey];
-                            return group?.admins || complianceAdmins;
+                            // const group = complianceAdminGroups[adminKey];
+                            return []; // group?.admins || complianceAdmins;
                           })()
                         : complianceAdmins
                   }

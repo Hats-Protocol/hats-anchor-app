@@ -28,21 +28,22 @@ const createTokenRequirementsSelect = (organization: Organization | null | undef
   organization?.councils?.forEach((council) => {
     // TODO lookup eligibility chain for council to get associated module addresses
     const { eligibilityRequirements } = council.creationForm;
-    const { address, amount } = pick(JSON.parse(eligibilityRequirements)?.erc20, ['address', 'amount']);
+    if (!eligibilityRequirements) return; // TODO is eligibilityRequirements a string here?
+    const { address, amount } = pick(eligibilityRequirements?.erc20, ['address', 'amount']);
     if (address && amount) {
       const key = `${address}-${amount}`;
 
-      const existingKey = requirements.get(key);
-      if (existingKey) {
-        existingKey.councilName = `${existingKey.councilName}, ${council.creationForm.councilName || ''}`;
-      } else {
-        requirements.set(key, {
-          id: council.creationForm.id,
-          councilName: council.creationForm.councilName || '',
-          minimum: amount,
-          tokenAddress: address,
-        });
-      }
+      // const existingKey = requirements.get(key);
+      // if (existingKey) {
+      //   existingKey.councilName = `${existingKey.councilName}, ${council.creationForm.councilName || ''}`;
+      // } else {
+      //   requirements.set(key, {
+      //     id: council.creationForm.id,
+      //     councilName: council.creationForm.councilName || '',
+      //     minimum: amount,
+      //     tokenAddress: address,
+      //   });
+      // }
     }
   });
 

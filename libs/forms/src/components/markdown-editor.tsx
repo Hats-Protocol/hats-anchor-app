@@ -6,23 +6,20 @@ import StarterKit from '@tiptap/starter-kit';
 import { useEffect } from 'react';
 import { ControllerRenderProps, FieldValues, UseFormReturn } from 'react-hook-form';
 import showdown from 'showdown';
-import { logger } from 'utils';
 
+// import { logger } from 'utils';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './form';
 import { Toolbar } from './markdown-toolbar';
-const Tiptap = ({
-  field,
-  label,
-  isDisabled,
-  hideToolbar,
-  existingAgreements,
-}: {
+
+interface TiptapProps {
   field: ControllerRenderProps<FieldValues, string>;
   label?: string;
   isDisabled?: boolean;
   hideToolbar?: boolean;
-  existingAgreements?: { agreement: string; councilName: string }[];
-}) => {
+  placeholder?: string;
+}
+
+const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapProps) => {
   const converter = new showdown.Converter();
 
   const editor = useEditor({
@@ -67,7 +64,7 @@ const Tiptap = ({
       <FormControl>
         <div className='flex flex-col justify-stretch gap-2'>
           <Toolbar editor={editor} isDisabled={isDisabled} />
-          <EditorContent className='max-h-[400px] min-h-[250px]' editor={editor} />
+          <EditorContent className='max-h-[400px] min-h-[250px]' placeholder={placeholder} editor={editor} />
         </div>
       </FormControl>
       <FormMessage />
@@ -75,15 +72,7 @@ const Tiptap = ({
   );
 };
 
-const MarkdownEditor = ({
-  name,
-  label,
-  placeholder,
-  localForm,
-  isDisabled,
-  hideToolbar,
-  existingAgreements,
-}: MarkdownEditorProps) => {
+const MarkdownEditor = ({ name, label, placeholder, localForm, isDisabled, hideToolbar }: MarkdownEditorProps) => {
   // const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
 
   // TODO handle form options (required, length)
@@ -97,9 +86,9 @@ const MarkdownEditor = ({
           <Tiptap
             field={field}
             label={label}
+            placeholder={placeholder}
             isDisabled={isDisabled}
             hideToolbar={hideToolbar}
-            existingAgreements={existingAgreements}
           />
         );
       }}
