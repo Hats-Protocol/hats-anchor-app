@@ -3,7 +3,7 @@
 import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
-import { filter, find, flatten, get, isEmpty, map, pick, reject, uniq, uniqBy } from 'lodash';
+import { filter, find, flatten, get, isEmpty, join, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
@@ -95,8 +95,6 @@ export function AgreementStep({ onNext }: StepProps) {
 
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
-  logger.info('adminHatId', adminHatId);
-  logger.info('hatId', adminHatId ? hatIdDecimalToIp(hatIdHexToDecimal(adminHatId)) : '0x'); // this is showing hatId
 
   // Group unique admin sets across councils
   const agreementAdminGroups = useMemo(() => {
@@ -111,13 +109,9 @@ export function AgreementStep({ onNext }: StepProps) {
         return uniq(map(ownerHats, 'value'));
       }),
     );
-    console.log('adminHats', adminHats); // this is an array of all of the admin hats for ALL councils
-    // get all of these and then reject the org-managers
+
     const filteredAdminHats = reject(adminHats, (hatValue) => hatValue === hatIdHexToDecimal(adminHatId));
-    // leaves us with other owner hats on ANY modules that are NOT the org-managers
-    console.log('filteredAdminHats', filteredAdminHats); // now we have the unique hatIds
-    // the ones that are left are unique and are filtered to only include the owner hats that are NOT the org-managers
-    // construct the pre-existing options and add to the radio card options
+
     const preExistingOptions = map(filteredAdminHats, (hatValue) => {
       const councilsByHatId = councilsData?.filter((council) => {
         const rules = flatten(council.eligibilityRules);
@@ -125,12 +119,28 @@ export function AgreementStep({ onNext }: StepProps) {
         const ownerHats = filter(params, { label: 'Owner Hat' });
         return ownerHats.some((hat) => hat?.value === hatValue);
       });
-      logger.info('councilsByHatId', councilsByHatId);
 
-      const label = 'Agreement Manager';
-      const description = `Manages ${councilsByHatId?.length} Agreement${councilsByHatId?.length || 0 > 1 ? 's' : ''} on ${councilsByHatId?.map((council) => council.creationForm.councilName).join(', ')}`;
-      const avatars = flatten(councilsByHatId?.map((council) => council.creationForm.agreementAdmins));
-      logger.info('avatars', avatars);
+      const councilsByHatIdWithAgreementModule = councilsByHatId?.map((council) =>
+        flatten(council?.eligibilityRules)?.find((rule) => rule.liveParams?.some((param) => param.value === hatValue)),
+      );
+
+      const moduleEligibilityRules = councilsByHatIdWithAgreementModule?.map((rule) =>
+        getKnownEligibilityModule(rule?.module.implementationAddress as Hex),
+      );
+
+      const label = moduleEligibilityRules?.includes('allowlist') ? 'Compliance Manager' : 'Agreement Manager';
+
+      const descriptionNames = councilsByHatId?.map((council) => council.creationForm.councilName).join(', ');
+      const councilsCount = councilsByHatId?.length || 0;
+
+      const description = moduleEligibilityRules?.includes('allowlist')
+        ? `Manages Compliance for ${descriptionNames}`
+        : `Manages ${councilsCount > 1 ? councilsCount + ' Agreements' : ' Agreement'} for ${descriptionNames}`;
+
+      const avatars = moduleEligibilityRules?.includes('allowlist')
+        ? flatten(councilsByHatId?.map((council) => council.creationForm.complianceAdmins))
+        : flatten(councilsByHatId?.map((council) => council.creationForm.agreementAdmins));
+
       return {
         value: hatIdDecimalToHex(hatValue),
         label,
@@ -138,10 +148,7 @@ export function AgreementStep({ onNext }: StepProps) {
         avatars,
       };
     });
-    logger.info('preExistingOptions', preExistingOptions);
 
-    //   description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-    //   avatars: group.admins,
     return preExistingOptions;
   }, [councilsData]);
 
