@@ -3,7 +3,7 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
-import { find, flatten, get, isEmpty, map, pick, uniqBy } from 'lodash';
+import { filter, find, flatten, get, isEmpty, map, pick, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
@@ -18,7 +18,7 @@ import { NextStepButton } from '../../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
 import { AgreementAdminsList } from '../agreement-admins-list';
 import { UnifiedUserForm } from '../unified-user-form';
-import { LoadingAgreementStep } from './agreement-skeletons';
+import { LoadingAgreementStep, RadioCardSkeleton } from './agreement-skeletons';
 
 const getAdminHatId = (treeId: number | undefined): Hex | null => {
   if (!treeId) return null;
@@ -48,7 +48,6 @@ export function AgreementStep({ onNext }: StepProps) {
     'existingId',
     'existingAdmins',
   ]);
-  logger.info('existingId', existingId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
@@ -98,50 +97,23 @@ export function AgreementStep({ onNext }: StepProps) {
   const agreementAdminGroups = useMemo(() => {
     const groupsByAdmins = new Map<string, { admins: CouncilMember[]; councils: string[] }>();
 
-    councilsData?.forEach((council) => {
-      if (!council.creationForm?.agreementAdmins?.length) return;
-
-      // Create a sorted string of admin addresses as a key
-      const adminKey = council.creationForm.agreementAdmins
-        .map((admin) => admin.address.toLowerCase())
-        .sort()
-        .join(',');
-
-      if (groupsByAdmins.has(adminKey)) {
-        const existing = groupsByAdmins.get(adminKey)!;
-        existing.councils.push(council.creationForm.councilName || '');
-      } else {
-        groupsByAdmins.set(adminKey, {
-          admins: council.creationForm.agreementAdmins.map((admin) => ({
-            ...admin,
-            email: '', // Adding required email field
-          })),
-          councils: [council.creationForm.councilName || ''],
-        });
-      }
-    });
+    const adminHats = flatten(
+      map(councilsData, (council) => {
+        if (!council) return null;
+        // get the associated owner hat IDs for all the modules in the council
+        const rules = flatten(council.eligibilityRules);
+        const params = flatten(map(rules, 'liveParams'));
+        const ownerHats = filter(params, { label: 'Owner Hat' });
+        return uniqBy(ownerHats, 'value');
+      }),
+    );
+    console.log('adminHats', adminHats);
 
     return Object.fromEntries(groupsByAdmins.entries());
   }, [councilsData]);
 
   // logger.info('agreementAdminGroups', agreementAdminGroups);
 
-  // Create a sorted string of organization manager addresses to compare against
-  const orgManagerKey = organizationManagers
-    .map((admin) => admin.address.toLowerCase())
-    .sort()
-    .join(',');
-
-  // Filter out any admin groups that exactly match organization managers
-  const filteredAgreementAdminGroups = Object.entries(agreementAdminGroups).reduce<typeof agreementAdminGroups>(
-    (acc, [key, group]) => {
-      if (key !== orgManagerKey) {
-        acc[key] = group;
-      }
-      return acc;
-    },
-    {},
-  );
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
 
@@ -196,15 +168,11 @@ export function AgreementStep({ onNext }: StepProps) {
         icon: FilePlus as IconType,
         description: 'Write an agreement and select who controls it',
         onSelect: () => {
-          // setSelectedOption('new');
-          // Only reset if switching from an existing agreement
-          if (existingId) {
-            // form.setValue('eligibilityRequirements.agreement.content', '');
-          }
+          // TODO check if there's an agreement in local storage and use that https://linear.app/hats-protocol/issue/BUILD-344
         },
       },
     ],
-    [existingAgreements, adminHatId, existingId, form],
+    [existingAgreements, adminHatId, form],
   );
 
   // Determine which radio option should be selected based on agreement value
@@ -219,13 +187,13 @@ export function AgreementStep({ onNext }: StepProps) {
         avatars: organizationManagers,
         onSelect: () => form.setValue('agreementAdmins', organizationManagers),
       },
-      ...Object.entries(filteredAgreementAdminGroups).map(([key, group]) => ({
-        value: key!,
-        label: 'Agreement Managers',
-        description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
-        avatars: group.admins,
-        onSelect: () => form.setValue('agreementAdmins', group.admins),
-      })),
+      // ...Object.entries(filteredAgreementAdminGroups).map(([key, group]) => ({
+      //   value: key!,
+      //   label: 'Agreement Managers',
+      //   description: `Manages ${group.councils.length} Agreement${group.councils.length > 1 ? 's' : ''} on ${group.councils.join(', ')}`,
+      //   avatars: group.admins,
+      //   onSelect: () => form.setValue('agreementAdmins', group.admins),
+      // })),
       {
         value: 'new',
         label: 'Create new Agreement Managers',
@@ -233,7 +201,7 @@ export function AgreementStep({ onNext }: StepProps) {
         onSelect: () => form.setValue('agreementAdmins', []),
       },
     ],
-    [organizationManagers, filteredAgreementAdminGroups, form],
+    [organizationManagers, form],
   );
 
   // useEffect(() => {
@@ -279,7 +247,7 @@ export function AgreementStep({ onNext }: StepProps) {
     return <LoadingAgreementStep />;
   }
 
-  logger.info('agreementOptions', agreementOptions);
+  logger.info('agreementAdminOptions', agreementManagerOptions);
 
   return (
     <>
@@ -299,19 +267,19 @@ export function AgreementStep({ onNext }: StepProps) {
               </div>
             </div>
 
-            {/* {isFetchingOrganization ? (
+            {isLoading ? (
               <div className='flex flex-col gap-4'>
                 <RadioCardSkeleton />
                 <RadioCardSkeleton />
               </div>
-            ) : ( */}
-            <RadioCard
-              name='eligibilityRequirements.agreement.existingId' // TODO existingModule
-              localForm={form}
-              options={agreementOptions as RadioCardOption[]}
-              isDisabled={!canEdit}
-            />
-            {/* )} */}
+            ) : (
+              <RadioCard
+                name='eligibilityRequirements.agreement.existingId' // TODO existingModule
+                localForm={form}
+                options={agreementOptions as RadioCardOption[]}
+                isDisabled={!canEdit}
+              />
+            )}
           </div>
 
           <div className='space-y-4'>
@@ -337,71 +305,73 @@ export function AgreementStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
-              {/* {isFetchingOrganization ? (
+              {isLoading ? (
                 <div className='flex flex-col gap-4'>
                   <RadioCardSkeleton />
                   <RadioCardSkeleton />
                   <RadioCardSkeleton />
                 </div>
-              ) : ( */}
-              {/* existingAdmins === null && ( */}
-              <RadioCard
-                name='eligibilityRequirements.agreement.existingAdmins'
-                localForm={form}
-                options={agreementManagerOptions as RadioCardOption[]}
-                // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
-                isDisabled={!canEdit || existingId !== 'new'}
-              />
+              ) : (
+                existingAdmins === null && (
+                  <RadioCard
+                    name='eligibilityRequirements.agreement.existingAdmins'
+                    localForm={form}
+                    options={agreementManagerOptions as RadioCardOption[]}
+                    // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
+                    isDisabled={!canEdit || existingId !== 'new'}
+                  />
+                )
+              )}
             </div>
 
             {/* Show either Organization Managers or Agreement Managers based on selection */}
-            {/* {!isFetchingOrganization && ( */}
-            <div>
-              <h3 className='mb-2 font-bold'>
-                {existingAdmins === 'org-managers' ? 'Organization Managers' : 'Agreement Managers'}
-              </h3>
-              <p className='text-sm text-gray-600'>
-                {existingAdmins === 'org-managers' ? 'Organization' : 'Agreement'} Managers can update the agreement
-                text and verify that Council Members have signed it.
-              </p>
-              <div className='mt-4 space-y-4'>
-                <AgreementAdminsList
-                  agreementAdmins={
-                    existingAdmins === 'org-managers'
-                      ? organizationManagers
-                      : !isEmpty(agreementAdmins) || !existingAdmins
-                        ? agreementAdmins
-                        : form.getValues('admins')
-                  }
-                  form={form}
-                  canEdit={!existingAdmins && canEdit}
-                  canDelete={!existingAdmins ? canEdit : false}
-                  showButtons={!existingAdmins}
-                  onEdit={(admin) => {
-                    setEditingAdmin(admin);
-                    setShowAddForm(true);
-                  }}
-                  loading={isLoadingList}
-                />
-
-                {!showAddForm && !existingAdmins && (
-                  <Button
-                    variant='outline-blue'
-                    rounded='full'
-                    onClick={() => {
-                      setEditingAdmin(null);
+            {!isLoading && (
+              <div>
+                <h3 className='mb-2 font-bold'>
+                  {existingAdmins === 'org-managers' ? 'Organization Managers' : 'Agreement Managers'}
+                </h3>
+                <p className='text-sm text-gray-600'>
+                  {existingAdmins === 'org-managers' ? 'Organization' : 'Agreement'} Managers can update the agreement
+                  text and verify that Council Members have signed it.
+                </p>
+                <div className='mt-4 space-y-4'>
+                  <AgreementAdminsList
+                    agreementAdmins={
+                      existingAdmins === 'org-managers'
+                        ? organizationManagers
+                        : !isEmpty(agreementAdmins) || !existingAdmins
+                          ? agreementAdmins
+                          : form.getValues('admins')
+                    }
+                    form={form}
+                    canEdit={!existingAdmins && canEdit}
+                    canDelete={!existingAdmins ? canEdit : false}
+                    showButtons={!existingAdmins}
+                    onEdit={(admin) => {
+                      setEditingAdmin(admin);
                       setShowAddForm(true);
                     }}
-                    disabled={!canEdit}
-                    type='button'
-                  >
-                    <FiUserPlus className='mr-2 h-4 w-4' />
-                    Add Agreement Manager
-                  </Button>
-                )}
+                    loading={isLoadingList}
+                  />
+
+                  {!showAddForm && !existingAdmins && (
+                    <Button
+                      variant='outline-blue'
+                      rounded='full'
+                      onClick={() => {
+                        setEditingAdmin(null);
+                        setShowAddForm(true);
+                      }}
+                      disabled={!canEdit}
+                      type='button'
+                    >
+                      <FiUserPlus className='mr-2 h-4 w-4' />
+                      Add Agreement Manager
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-            {/* )} */}
+            )}
 
             {showAddForm && (
               <div className='-mx-16 border-b border-gray-200'>

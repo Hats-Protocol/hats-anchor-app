@@ -696,7 +696,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     firstCouncil: !tree || isEmpty(tree?.hats),
     hatIds,
   });
-  logger.info('councilsData in context', councilsData);
 
   return (
     <CouncilFormContext.Provider
