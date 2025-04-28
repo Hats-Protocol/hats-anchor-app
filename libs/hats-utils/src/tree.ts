@@ -117,7 +117,6 @@ const mapHat = (
   };
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export async function toTreeStructure({
   treeData,
   hatsData,
@@ -137,7 +136,6 @@ export async function toTreeStructure({
     return Promise.resolve(undefined);
   }
   const onlyOnchainHats = filter(hatsData, (hat: AppHat) => includes(initialHatIds, hat?.id));
-
   const mergedHatsData = map(onlyOnchainHats, (hat: AppHat) => {
     const fullHat = find(hatsData, { id: hat.id });
 

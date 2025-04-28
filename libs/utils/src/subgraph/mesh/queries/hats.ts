@@ -2,11 +2,12 @@ import { gql } from 'graphql-request';
 
 import { NETWORKS_PREFIX } from './constants';
 
+// TODO better pagination on hats
 export function getHatsDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
     query getHats($ids: [ID!]!) {
-      ${networkPrefix}_hats(where: { id_in: $ids }) {
+      ${networkPrefix}_hats(where: { id_in: $ids }, first: 200) { 
         id
         prettyId
         status

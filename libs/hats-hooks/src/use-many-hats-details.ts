@@ -5,6 +5,7 @@ import { AppHat } from 'types';
 import { fetchHatsDetailsMesh } from 'utils';
 
 // TODO handle as a single cache
+// ! has paginated hats
 
 const useManyHatsDetails = ({
   hats,

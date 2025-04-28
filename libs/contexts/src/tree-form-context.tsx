@@ -219,7 +219,6 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
     setOrgChartHats(treeData?.hats as AppHat[]);
     updateRecentlyVisitedTrees({ treeId: toNumber(treeId), chainId });
     // intentionally exclude `updateRecentlyVisitedTrees` from deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [treeData, treeId, chainId]);
 
   const treeEvents = _.get(treeData, 'events');
@@ -287,14 +286,12 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
     initialHats: mapWithChainId(onchainIds, chainId),
     editMode,
   });
-  // console.log('hatDetails: ', hatDetails);
 
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
     chainId,
     editMode,
   });
-  // console.log('orgChartWearers: ', orgChartWearers);
 
   const { orgChartTree } = useOrgChartTree({
     treeData,
