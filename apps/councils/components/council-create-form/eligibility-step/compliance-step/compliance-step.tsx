@@ -5,12 +5,12 @@ import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, RadioCardOption } from 'forms';
 import { useOrganization } from 'hooks';
-import { filter, flatten, map, pick, reject, uniq } from 'lodash';
+import { filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
-import { CouncilFormData, CouncilMember, StepProps } from 'types';
-import { Button, Skeleton } from 'ui';
+import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
+import { Button } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -32,11 +32,7 @@ export function ComplianceStep({ onNext }: StepProps) {
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
-  const [initialSetupComplete, setInitialSetupComplete] = useState(false);
 
-  const organizationName = form.watch('organizationName') || '';
-  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization, isFetching } = useOrganization(orgName);
   const eligibilityRequirements = form.watch('eligibilityRequirements');
   const { existingId, existingAdmins } = pick(eligibilityRequirements.compliance, ['existingId', 'existingAdmins']);
 
@@ -88,6 +84,25 @@ export function ComplianceStep({ onNext }: StepProps) {
 
   // Group unique admin sets across councils
   const complianceAdminGroups = useMemo(() => {
+    const rawCouncilsWithAgreements = councilsData?.map((council) => {
+      return flatten(council.eligibilityRules).find(
+        (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'allowlist',
+      );
+    });
+
+    const councilsWithAgreements = uniqBy(rawCouncilsWithAgreements, 'address');
+
+    const allowlistsWithCouncilData = councilsWithAgreements.map((allowlist) => {
+      return {
+        ...allowlist,
+        councils: councilsData?.filter((council) =>
+          map(flatten(council.eligibilityRules), 'address').includes(allowlist?.address || '0x'),
+        ) as CouncilData[],
+      };
+    });
+
+    logger.info('allowlistsWithCouncilData', allowlistsWithCouncilData);
+
     if (!adminHatId) return [];
     const adminHats = flatten(
       map(councilsData, (council) => {
@@ -136,10 +151,21 @@ export function ComplianceStep({ onNext }: StepProps) {
         label,
         description,
         avatars,
-        onSelect: () => form.setValue('complianceAdmins', avatars),
+        onSelect: () => {
+          // TODO: Ensure that these are being appropriately set
+          // const existingAdmins = find(get(allowlistsWithCouncilData[0], 'liveParams'), { label: 'Owner Hat' }); -- this is not correct and resulting in the org-managers being set every time
+          // logger.info('existingAdmins', existingAdmins);
+          // const adminsHatId = existingAdmins?.value ? hatIdDecimalToHex(existingAdmins.value as bigint) : null;
+
+          // form.setValue(
+          //   'eligibilityRequirements.compliance.existingAdmins',
+          //   adminsHatId === adminHatId ? 'org-managers' : adminsHatId,
+          // );
+          form.setValue('complianceAdmins', avatars);
+        },
       };
     });
-
+    logger.info('preExistingOptions', preExistingOptions);
     return preExistingOptions;
   }, [councilsData]);
 
@@ -167,7 +193,7 @@ export function ComplianceStep({ onNext }: StepProps) {
   );
 
   // Show loading state during mutation or while fetching updated data
-  const isLoadingList = isMutating || (isFetching && !isLoading);
+  const isLoadingList = isMutating || isLoading;
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
