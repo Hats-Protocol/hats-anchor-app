@@ -118,7 +118,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
               toast,
             })
               .then(({ safeProxyAddress }) => {
-                logger.debug('SAFE PROXY ADDRESS', safeProxyAddress);
+                // logger.debug('SAFE PROXY ADDRESS', safeProxyAddress);
                 if (!safeProxyAddress) return {};
                 // mint hats
                 const mintCouncilHatCallData = hatsClient.mintHatCallData({

@@ -71,29 +71,21 @@ interface AdminCardProps {
 
 function AdminCard({ admin, form, canEdit = true, isCreator, onEdit }: AdminCardProps) {
   const { address: connectedAddress } = useAccount();
-  const organizationName = form.watch('organizationName') || '';
-  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
-  const { persistForm } = useCouncilForm();
+  const { persistForm, councilsData } = useCouncilForm();
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Check if the connected user is in the existing admin list
   const isConnectedUserExistingAdmin =
-    organization?.councils?.[0]?.creationForm?.admins?.some(
-      (m) => m.address.toLowerCase() === connectedAddress?.toLowerCase(),
-    ) ?? false;
+    councilsData?.[0]?.creationForm?.admins?.some((m) => m.address.toLowerCase() === connectedAddress?.toLowerCase()) ??
+    false;
 
   // Check if the connected user is the creator of the form
   const isConnectedUserCreator = form.getValues('creator')?.toLowerCase() === connectedAddress?.toLowerCase();
 
   // Check if this admin exists in either the organization's admins or members lists
   const isFromExistingLists =
-    (organization?.councils?.[0]?.creationForm?.admins?.some(
-      (m) => m.address.toLowerCase() === admin.address.toLowerCase(),
-    ) ||
-      organization?.councils?.[0]?.creationForm?.members?.some(
-        (m) => m.address.toLowerCase() === admin.address.toLowerCase(),
-      )) ??
+    (councilsData?.[0]?.creationForm?.admins?.some((m) => m.address.toLowerCase() === admin.address.toLowerCase()) ||
+      councilsData?.[0]?.creationForm?.members?.some((m) => m.address.toLowerCase() === admin.address.toLowerCase())) ??
     false;
 
   // During council creation:
@@ -111,7 +103,7 @@ function AdminCard({ admin, form, canEdit = true, isCreator, onEdit }: AdminCard
       const currentAdmins = form.getValues('admins') || [];
       const updatedAdmins = currentAdmins.filter((a: CouncilMember) => a.id !== admin.id);
       form.setValue('admins', updatedAdmins);
-      await persistForm('selection', 'management');
+      await persistForm('eligibility', 'management');
     } finally {
       setIsDeleting(false);
     }

@@ -114,7 +114,7 @@ export function AddAdminForm({ parentForm, editingAdmin, onClose, canEdit = true
         userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('admins', [...currentAdmins, userData]);
       }
-      persistForm('selection', 'management');
+      persistForm('eligibility', 'management');
       logger.debug('userData', userData);
 
       setFormError(null);

@@ -114,7 +114,7 @@ export function AddMemberForm({ parentForm, editingMember, onClose, canEdit = tr
         userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('members', [...currentMembers, userData]);
       }
-      persistForm('selection', 'members');
+      persistForm('eligibility', 'members');
       logger.debug('userData', userData);
 
       setFormError(null);

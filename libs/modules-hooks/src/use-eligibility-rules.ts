@@ -19,7 +19,6 @@ const getEligibilityRules = async ({
     return modulesClient
       .getRulesets(address, { includeLiveParams: true })
       .then((ruleSets) => {
-        logger.info('ruleSets', ruleSets);
         return Promise.resolve(ruleSets || null);
       })
       .catch((err) => {

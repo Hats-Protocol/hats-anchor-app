@@ -51,8 +51,8 @@ export const defaultEligibilityRequirements: EligibilityRequirements = {
     required: true, // we're always setting selection allowlist
     existingId: null,
     existingAdmins: 'org-managers',
-    set: false,
-    adminsSet: false,
+    set: false, // handled via members-step
+    adminsSet: false, // handled via admins/management-step
   },
   compliance: {
     required: false,
@@ -75,7 +75,7 @@ export const defaultEligibilityRequirements: EligibilityRequirements = {
     existingAdmins: null,
     address: null,
     amount: null,
-    set: true,
-    adminsSet: true,
+    set: true, // not optional, fields must be filled
+    adminsSet: true, // no admin role for erc20
   },
 };

@@ -24,7 +24,7 @@ import {
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { compact, every, filter, find, includes, map, omit, reject, toNumber, toString } from 'lodash';
+import { compact, every, filter, find, includes, keys, map, reject, toNumber, toString } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
 import { Address, decodeEventLog, encodeFunctionData, encodePacked, parseUnits, PublicClient, zeroAddress } from 'viem';
 import { encodeAbiParameters } from 'viem';
@@ -180,13 +180,6 @@ const modules = ({
     ],
   };
 
-  console.log(
-    'erc20Module',
-    // ERC20_ELIGIBILITY_ADDRESS,
-    // hatIds.councilMember,
-    formData.eligibilityRequirements?.erc20?.address,
-    tokenDecimals,
-  );
   const erc20Module: Module = {
     address: ERC20_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
@@ -204,7 +197,6 @@ const modules = ({
     !!formData.eligibilityRequirements?.erc20?.required &&
     !!formData.eligibilityRequirements?.erc20?.address &&
     !!tokenDecimals;
-  console.log({ enableErc20 });
 
   const requiredModules: Record<string, Module> = {
     multiClaimsHatter: {
@@ -530,7 +522,7 @@ export const compileHatCreationData = async ({
       hat.id,
     ),
   );
-  logger.debug('otherHatsToCreate', otherHatsToCreate);
+  // logger.debug('otherHatsToCreate', otherHatsToCreate);
 
   // handle top hats for new trees
   if (!tree?.hats?.length) {
@@ -569,9 +561,17 @@ export const compileHatCreationData = async ({
       imageURI: '',
     };
 
+    const excludedKeys = ['ipfsCid', 'id'];
+    const hatDetails = filter(keys(hat), (key) => !excludedKeys.includes(key) && hat[key as keyof Hat] !== undefined);
+    const hatDetailsObject = hatDetails.reduce((acc: Record<string, any>, key) => {
+      acc[key as keyof Hat] = hat[key as keyof Hat];
+      return acc;
+    }, {});
+
     const callData = hatsClient.createHatCallData({
       ...defaultHatValues,
-      ...omit(hat, ['ipfsCid', 'id']),
+      ...hatDetailsObject,
+      admin: hat.admin,
       details: `ipfs://${hatCid}`,
       eligibility: hat.eligibility || FALLBACK_ADDRESS,
     });
@@ -604,8 +604,8 @@ export const compileHatMintCallData = ({
   // mint admin hat when it doesn't exist (not updating previous roles with new councils)
   if (!tree || !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.admin) })) {
     const mintAdminHatCallData = hatsClient.batchMintHatsCallData({
-      hatIds: Array(formData.admins.length).fill(computedHatIds.admin),
-      wearers: formData.admins.map((admin) => admin.address),
+      hatIds: Array(formData.admins?.length || 0).fill(computedHatIds.admin),
+      wearers: formData.admins?.map((admin) => admin.address) || [],
     });
     hatsProtocolCalls.push(mintAdminHatCallData.callData);
   }
@@ -782,7 +782,7 @@ export const simulateSafeAddress = async ({
   });
 
   const simulationResult = await simulationResponse.json();
-  logger.info(`simulationResult ${simulationResult.transaction.status ? 'successful' : 'failed'}`);
+  // logger.info(`simulationResult ${simulationResult.transaction.status ? 'successful' : 'failed'}`);
 
   // Find the safe proxy address from simulation logs
   let safeProxyAddress: Address | undefined;
@@ -836,7 +836,7 @@ export const simulateSafeAddress = async ({
     throw new Error('Failed to find Safe proxy address in simulation logs');
   }
 
-  logger.info('safeProxyAddress', safeProxyAddress);
+  // logger.info('safeProxyAddress', safeProxyAddress);
 
   return { safeProxyAddress };
 };

@@ -232,11 +232,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     // integrate the rawOrganizations council data here
     const fullCouncilData = map(organization?.councils, (council) => {
       const onchainCouncilData = find(onchainCouncilsData, { id: council.hsg.toLowerCase() });
-      logger.info('onchainCouncilData', onchainCouncilData);
-
-      logger.info('council', council);
-      logger.info('council.creationForm', council.creationForm);
-      logger.info('council.creationForm.eligibilityRequirements', council.creationForm.eligibilityRequirements); // undefined
 
       let parsedEligibilityRequirements;
       try {
@@ -248,8 +243,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       } catch (error) {
         logger.error('Error parsing eligibility requirements:', error);
       }
-
-      logger.info('parsedEligibilityRequirements', parsedEligibilityRequirements);
 
       return {
         ...council,
@@ -539,7 +532,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               toggleOptionalStep('management');
               payload = {
                 ...payload,
-                admins: formData.admins, // admins handled as a relationship
+                admins: formData.admins || [], // admins handled as a relationship
                 eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   selection: {
@@ -553,7 +546,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               toggleOptionalStep('compliance');
               payload = {
                 ...payload,
-                complianceAdmins: formData.complianceAdmins, // admins handled as a relationship
+                complianceAdmins: formData.complianceAdmins || [], // admins handled as a relationship
                 eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   compliance: {
@@ -573,7 +566,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               // Always send the current agreementAdmins list
               payload = {
                 ...payload,
-                agreementAdmins: formData.agreementAdmins, // admins handled as a relationship
+                agreementAdmins: formData.agreementAdmins || [], // admins handled as a relationship
                 eligibilityRequirements: {
                   ...currentEligibilityRequirements,
                   agreement: {

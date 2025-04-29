@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { compact, concat, find, get, map, toLower } from 'lodash';
 import { AppHat, ExtendedHSGV2, HatSignerGateV2 } from 'types';
-import { getCouncilData, getHatsDetails, logger } from 'utils';
+import { getCouncilData, getHatsDetails } from 'utils';
 
 const fetchCouncilDetails = async ({
   chainId,
@@ -10,7 +10,6 @@ const fetchCouncilDetails = async ({
   chainId: number | undefined;
   address: string | undefined;
 }): Promise<ExtendedHSGV2 | null> => {
-  logger.info('fetchCouncilDetails', address, chainId);
   if (!address || !chainId) return Promise.resolve(null);
   const councilData = await getCouncilData({ id: toLower(address), chainId });
   const hatsIds = compact(concat(map(get(councilData, 'signerHats'), 'id'), [get(councilData, 'ownerHat.id')]));

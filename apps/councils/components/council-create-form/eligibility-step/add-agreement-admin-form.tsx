@@ -101,7 +101,7 @@ export function AddAgreementAdminForm({
         userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('agreementAdmins', [...currentAdmins, userData]);
       }
-      persistForm('selection', 'agreement');
+      persistForm('eligibility', 'agreement');
 
       setFormError(null);
       form.reset();
