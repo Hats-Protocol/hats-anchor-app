@@ -113,9 +113,9 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
   const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
   const localForm = useForm();
-  const { setValue, handleSubmit, reset } = localForm;
+  const { setValue, handleSubmit, reset, watch } = localForm;
   const { eligibilityRequirements, organizationName } = councilFormWatch();
-  const { watch } = localForm;
+
   const tokenRequirement = watch('tokenRequirement');
   logger.info('tokenRequirement', tokenRequirement);
 

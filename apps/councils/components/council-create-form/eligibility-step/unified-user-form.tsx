@@ -26,7 +26,7 @@ import { NextStepButton } from '../../next-step-button';
 type UserType = 'member' | 'admin' | 'agreementAdmin' | 'complianceAdmin';
 
 interface UnifiedUserFormProps {
-  parentForm: UseFormReturn<CouncilFormData>;
+  parentForm: UseFormReturn<Partial<CouncilFormData>>;
   editingUser?: CouncilMember | null;
   userType: UserType;
   onClose?: () => void;

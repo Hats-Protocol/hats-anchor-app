@@ -6,6 +6,7 @@ import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
 import { filter, find, flatten, get, isEmpty, join, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 // import showdown from 'showdown';
@@ -27,14 +28,16 @@ const getAdminHatId = (treeId: number | undefined): Hex | null => {
 };
 
 export function AgreementStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit, councilsData } = useCouncilForm();
-  logger.info('councilsData', councilsData);
-  logger.info('isLoading', isLoading);
+  const { form: councilForm, isLoading, stepValidation, canEdit, councilsData } = useCouncilForm();
+  const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
+  const localForm = useForm();
+  const { setValue, handleSubmit, reset, watch } = localForm;
+
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
 
-  const agreementAdmins = form.watch('agreementAdmins') || [];
+  const agreementAdmins = councilFormWatch('agreementAdmins') || [];
   logger.info('agreementAdmins', agreementAdmins);
   // const createAgreementAdminRole = form.watch('eligibilityRequirements.agreement.existingId');
   // logger.info('createAgreementAdminRole', createAgreementAdminRole);
@@ -43,7 +46,7 @@ export function AgreementStep({ onNext }: StepProps) {
   // logger.info('agreement', agreement);
 
   // grabs from the eligibilityRequirements object
-  const eligibilityRequirements = form.watch('eligibilityRequirements');
+  const eligibilityRequirements = councilFormWatch('eligibilityRequirements');
   logger.info('eligibilityRequirements', eligibilityRequirements);
   const { content, existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
     'content',
@@ -150,7 +153,7 @@ export function AgreementStep({ onNext }: StepProps) {
         label,
         description,
         avatars,
-        onSelect: () => form.setValue('agreementAdmins', avatars),
+        onSelect: () => setValue('agreementAdmins', avatars),
       };
     });
 
@@ -194,15 +197,15 @@ export function AgreementStep({ onNext }: StepProps) {
         onSelect: () => {
           const existingAdmins = find(get(existingAgreement, 'liveParams'), { label: 'Owner Hat' });
           const adminsHatId = hatIdDecimalToHex(existingAdmins?.value as bigint);
-          form.setValue(
+          setValue(
             'eligibilityRequirements.agreement.existingAdmins',
             adminsHatId === adminHatId ? 'org-managers' : adminsHatId,
           );
-          form.setValue(
+          setValue(
             'eligibilityRequirements.agreement.content',
             existingAgreement?.councils?.[0]?.eligibilityRequirements?.agreement.content || '',
           );
-          form.setValue('agreementAdmins', existingAgreement?.councils?.[0]?.creationForm?.agreementAdmins || []);
+          setValue('agreementAdmins', existingAgreement?.councils?.[0]?.creationForm?.agreementAdmins || []);
         },
       })),
       {
@@ -215,7 +218,7 @@ export function AgreementStep({ onNext }: StepProps) {
         },
       },
     ],
-    [existingAgreements, adminHatId, form],
+    [existingAgreements, adminHatId, localForm],
   );
 
   // Determine which radio option should be selected based on agreement value
@@ -230,7 +233,7 @@ export function AgreementStep({ onNext }: StepProps) {
         label: 'Organization Managers',
         description: 'Manage Roles on all Councils',
         avatars: organizationManagers,
-        onSelect: () => form.setValue('agreementAdmins', organizationManagers),
+        onSelect: () => setValue('agreementAdmins', organizationManagers),
       },
       ...agreementAdminGroups,
 
@@ -238,23 +241,23 @@ export function AgreementStep({ onNext }: StepProps) {
         value: 'new',
         label: 'Create new Agreement Managers',
         description: 'Create a new group of agreement managers',
-        onSelect: () => form.setValue('agreementAdmins', []),
+        onSelect: () => setValue('agreementAdmins', []),
       },
     ],
-    [organizationManagers, form],
+    [organizationManagers, localForm],
   );
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || isLoading;
 
-  const handleSubmit = useCallback(
-    async (data: CouncilFormData) => {
+  const submitForm = useCallback(
+    async (data: Partial<CouncilFormData>) => {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
-      form.reset(data);
+      councilFormReset({ ...councilFormGetValues(), ...data });
       onNext();
     },
-    [form, onNext],
+    [reset, onNext],
   );
 
   if (isLoading) {
@@ -265,8 +268,8 @@ export function AgreementStep({ onNext }: StepProps) {
 
   return (
     <>
-      <Form {...form}>
-        <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={form.handleSubmit(handleSubmit)}>
+      <Form {...localForm}>
+        <form className='mx-auto flex w-full flex-col space-y-6' onSubmit={handleSubmit(submitForm)}>
           <div className='space-y-4'>
             <div className='flex items-center gap-4'>
               <FileText />
@@ -289,7 +292,7 @@ export function AgreementStep({ onNext }: StepProps) {
             ) : (
               <RadioCard
                 name='eligibilityRequirements.agreement.existingId' // TODO existingModule
-                localForm={form}
+                localForm={localForm}
                 options={agreementOptions as RadioCardOption[]}
                 isDisabled={!canEdit || isLoadingList}
               />
@@ -309,7 +312,7 @@ export function AgreementStep({ onNext }: StepProps) {
 
             <MarkdownEditor
               name='eligibilityRequirements.agreement.content'
-              localForm={form}
+              localForm={localForm}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
               // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
               isDisabled={existingId !== 'new'}
@@ -330,7 +333,7 @@ export function AgreementStep({ onNext }: StepProps) {
                   ) : (
                     <RadioCard
                       name='eligibilityRequirements.agreement.existingAdmins'
-                      localForm={form}
+                      localForm={localForm}
                       options={agreementManagerOptions as RadioCardOption[]}
                       isDisabled={!canEdit || existingId !== 'new'}
                     />
@@ -351,7 +354,7 @@ export function AgreementStep({ onNext }: StepProps) {
                 <div className='mt-4 space-y-4'>
                   <AgreementAdminsList
                     agreementAdmins={agreementAdmins}
-                    form={form}
+                    form={localForm}
                     canEdit={!existingAdmins && canEdit}
                     canDelete={!existingAdmins ? canEdit : false}
                     showButtons={!existingAdmins}
@@ -384,7 +387,7 @@ export function AgreementStep({ onNext }: StepProps) {
             {showAddForm && (
               <div className='-mx-16 border-b border-gray-200'>
                 <UnifiedUserForm
-                  parentForm={form}
+                  parentForm={localForm}
                   editingUser={editingAdmin}
                   userType='agreementAdmin'
                   onClose={() => {
