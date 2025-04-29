@@ -113,6 +113,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     }
   }, [formData?.councilName, formData?.organizationName, formData?.chain, simulateCouncil]);
 
+  logger.info('formData', formData);
   // TODO get from approved tokens?
   const tokenFields = ['symbol', 'name', 'decimals'];
   const shouldFetchToken = !!formData.eligibilityRequirements.erc20?.address;
@@ -127,6 +128,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
         }))
       : [],
   });
+  logger.info('tokenData', tokenData);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;

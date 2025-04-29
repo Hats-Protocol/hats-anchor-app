@@ -3,7 +3,7 @@
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { Organization, useCouncilDeployFlag, useOrganization } from 'hooks';
-import { flatten, map, pick, toLower, toNumber, uniqBy } from 'lodash';
+import { flatten, map, pick, toLower, uniqBy } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -22,34 +22,6 @@ interface TokenRequirement {
   minimum: string;
   tokenAddress: string;
 }
-
-const createTokenRequirementsSelect = (organization: Organization | null | undefined) => {
-  const requirements = new Map<string, TokenRequirement>();
-
-  organization?.councils?.forEach((council) => {
-    // TODO lookup eligibility chain for council to get associated module addresses
-    const { eligibilityRequirements } = council.creationForm;
-    if (!eligibilityRequirements) return; // TODO is eligibilityRequirements a string here?
-    const { address, amount } = pick(eligibilityRequirements?.erc20, ['address', 'amount']);
-    if (address && amount) {
-      const key = `${address}-${amount}`;
-
-      // const existingKey = requirements.get(key);
-      // if (existingKey) {
-      //   existingKey.councilName = `${existingKey.councilName}, ${council.creationForm.councilName || ''}`;
-      // } else {
-      //   requirements.set(key, {
-      //     id: council.creationForm.id,
-      //     councilName: council.creationForm.councilName || '',
-      //     minimum: amount,
-      //     tokenAddress: address,
-      //   });
-      // }
-    }
-  });
-
-  return Array.from(requirements.values());
-};
 
 const RadioCardSkeleton = () => (
   <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
@@ -124,19 +96,14 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   const tokenRequirement = watch('eligibilityRequirements.erc20');
   logger.info('tokenRequirement', tokenRequirement);
 
-  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization, isLoading: isOrgLoading } = useOrganization(orgName);
-
   useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', eligibilityRequirements);
 
   logger.info('councilsData', councilsData);
   // Group token requirements from existing councils
-  const existingTokenRequirements = createTokenRequirementsSelect(organization);
-  logger.info('existingTokenRequirements', existingTokenRequirements);
 
-  const existingTokenRequirementsNew = useMemo(() => {
+  const existingTokenRequirements = useMemo(() => {
     const rawCouncilsWithTokenRequirements = councilsData?.map((council) => {
       return flatten(council.eligibilityRules).find(
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20',
@@ -158,26 +125,12 @@ export function TokensStep({ onNext, draftId }: StepProps) {
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
 
-  logger.info('existingTokenRequirementsNew', existingTokenRequirementsNew);
-
-  // Initialize selected option based on current token requirement
-  // const [selectedOption, setSelectedOption] = useState(() => {
-  //   const currentTokenAddress = getValues('tokenRequirement.address.value');
-  //   const currentMinimum = getValues('tokenRequirement.minimum');
-
-  //   return existingTokenRequirements.some(
-  //     (req) => req.tokenAddress === currentTokenAddress && req.minimum === currentMinimum?.toString(),
-  //   )
-  //     ? `${currentTokenAddress}-${currentMinimum}`
-  //     : 'new';
-  // });
-
-  // console.log('existingTokenRequirements', existingTokenRequirements, selectedOption);
+  logger.info('existingTokenRequirements', existingTokenRequirements);
 
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
     () => [
-      ...existingTokenRequirementsNew.map((requirement) => {
+      ...existingTokenRequirements.map((requirement) => {
         logger.info('requirement', requirement);
         const token = availableTokens.find(
           (t) =>
@@ -189,10 +142,6 @@ export function TokensStep({ onNext, draftId }: StepProps) {
           icon: GemIcon as IconType,
           description: requirement?.councils?.[0]?.creationForm?.councilName,
           onSelect: () => {
-            // setValue(
-            //   'tokenType',
-            //   `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}-${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount}`,
-            // );
             setValue(
               'eligibilityRequirements.erc20.amount',
               parseFloat(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount || '0'),
@@ -263,29 +212,6 @@ export function TokensStep({ onNext, draftId }: StepProps) {
     reset(initialValues);
   }, [isLoading, eligibilityRequirements]);
 
-  // useEffect(() => {
-  //   if (isLoading || isOrgLoading) return;
-  //   const { address, amount, existingId } = pick(eligibilityRequirements?.erc20, ['address', 'amount', 'existingId']);
-  //   logger.info('existingId', existingId);
-  //   const token = availableTokens.find((t) => toLower(t.address) === toLower(address || undefined));
-  //   const existingTokenReq = existingTokenRequirements.find(
-  //     (req) => req.tokenAddress === address && toNumber(req.minimum) === toNumber(amount),
-  //   );
-
-  //   const initialValues = {
-  //     tokenRequirement: {
-  //       minimum: amount ?? 0,
-  //       address: {
-  //         value: address ?? '',
-  //         label: token?.symbol ?? '',
-  //       },
-  //     },
-  //     tokenType: existingTokenReq ? `${address}-${amount}` : 'new',
-  //   };
-
-  //   reset(initialValues);
-  // }, [isLoading, isOrgLoading]);
-
   if (isLoading) {
     return <LoadingTokensStep />;
   }
@@ -308,7 +234,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
             </div>
           </div>
 
-          {isOrgLoading ? (
+          {isLoading ? (
             <div className='flex flex-col gap-4'>
               <RadioCardSkeleton />
               <RadioCardSkeleton />
@@ -335,7 +261,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 min: 0,
               }}
               step={0.01}
-              disabled={!canEdit || watch('tokenType') !== 'new'}
+              disabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
               tooltip='The minimum amount of tokens that Council Members must hold'
             />
           </div>
@@ -347,7 +273,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
               variant='councils'
               localForm={localForm}
               options={availableTokens}
-              isDisabled={!canEdit || watch('tokenType') !== 'new'}
+              isDisabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
             />
           </div>
         </div>
