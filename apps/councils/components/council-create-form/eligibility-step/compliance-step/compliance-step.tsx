@@ -14,88 +14,11 @@ import { Button, Skeleton } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
-import { NextStepButton } from '../../next-step-button';
-import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { ComplianceList } from './compliance-list';
-import { UnifiedUserForm } from './unified-user-form';
-
-// TODO: Move to separate Compliance Skeleton component for this
-const RadioCardSkeleton = () => (
-  <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
-    <div className='flex w-full items-center gap-3'>
-      <Skeleton className='h-4 w-4 rounded-full' />
-      <div className='flex w-full items-center justify-between'>
-        <div className='flex items-center gap-3'>
-          <Skeleton className='h-6 w-6' />
-          <div className='space-y-2'>
-            <Skeleton className='h-4 w-32' />
-            <Skeleton className='h-3 w-64' />
-          </div>
-        </div>
-        <div className='flex -space-x-2'>
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className='h-6 w-6 rounded-full' />
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const LoadingComplianceStep = () => (
-  <div className='mx-auto flex w-full flex-col space-y-6'>
-    {/* Header */}
-    <div className='flex items-center gap-4'>
-      <Skeleton className='h-6 w-6' />
-      <Skeleton className='h-8 w-64' />
-    </div>
-
-    {/* Description */}
-    <div>
-      <Skeleton className='h-4 w-full max-w-2xl' />
-    </div>
-
-    {/* Compliance Manager Selection */}
-    <div className='space-y-8'>
-      <div className='space-y-2'>
-        <Skeleton className='h-6 w-48' />
-        <div className='flex flex-col gap-4'>
-          <RadioCardSkeleton />
-          <RadioCardSkeleton />
-          <RadioCardSkeleton />
-        </div>
-      </div>
-
-      {/* Compliance Managers List Section */}
-      <div>
-        <Skeleton className='mb-2 h-6 w-48' />
-        <Skeleton className='h-4 w-96' />
-        <div className='mt-4 space-y-4'>
-          {[1, 2, 3].map((i) => (
-            <div key={i} className='flex items-center justify-between'>
-              <div className='flex items-center gap-3'>
-                <Skeleton className='h-10 w-10 rounded-full' />
-                <div className='space-y-2'>
-                  <Skeleton className='h-4 w-32' />
-                  <Skeleton className='h-3 w-24' />
-                </div>
-              </div>
-              <div className='flex items-center gap-3'>
-                <Skeleton className='h-10 w-20 rounded-full' />
-                <Skeleton className='h-10 w-10 rounded-full' />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    {/* Next Button */}
-    <div className='flex justify-end py-6'>
-      <Skeleton className='h-10 w-32' />
-    </div>
-  </div>
-);
+import { NextStepButton } from '../../../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
+import { ComplianceList } from '../compliance-list';
+import { UnifiedUserForm } from '../unified-user-form';
+import { LoadingComplianceStep, RadioCardSkeleton } from './compliance-skeletons';
 
 const getAdminHatId = (treeId: number | undefined): Hex | null => {
   if (!treeId) return null;
@@ -115,7 +38,8 @@ export function ComplianceStep({ onNext }: StepProps) {
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization, isFetching } = useOrganization(orgName);
   const eligibilityRequirements = form.watch('eligibilityRequirements');
-  const { existingId, existingAdmins } = pick(eligibilityRequirements, ['compliance']);
+  const { existingId, existingAdmins } = pick(eligibilityRequirements.compliance, ['existingId', 'existingAdmins']);
+
   logger.info('eligibilityRequirments compliance', eligibilityRequirements);
   const complianceAdmins = form.watch('complianceAdmins') || [];
 
@@ -334,7 +258,7 @@ export function ComplianceStep({ onNext }: StepProps) {
                     loading={isLoadingList}
                   />
 
-                  {!showAddForm && eligibilityRequirements.compliance.existingAdmins === null && (
+                  {!showAddForm && existingAdmins === null && (
                     <Button
                       variant='outline-blue'
                       rounded='full'
@@ -375,7 +299,7 @@ export function ComplianceStep({ onNext }: StepProps) {
             <NextStepButton
               disabled={
                 !form.formState.isValid ||
-                (eligibilityRequirements.compliance.existingId === null && complianceAdmins.length === 0) ||
+                (existingId === null && complianceAdmins.length === 0) ||
                 !canEdit ||
                 isLoadingList
               }
