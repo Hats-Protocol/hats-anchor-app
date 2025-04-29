@@ -68,6 +68,7 @@ interface CouncilFormContextType {
   availableTokens: TokenInfo[];
   hatIds: { [key: string]: bigint };
   moduleAddresses: { [key: string]: string };
+  organization: Organization | undefined;
   // deploy handlers
   deployStatus: DeployStatus;
   deployHats: () => void;
@@ -135,7 +136,7 @@ const computeStepValidation = (data: CouncilFormData): StepValidation => {
         !!data.eligibilityRequirements?.erc20?.address &&
         !!data.eligibilityRequirements?.erc20?.amount &&
         data.eligibilityRequirements?.erc20?.set,
-      members: !!data.members && data.members.length > 0 && data.eligibilityRequirements?.selection.set,
+      members: data.eligibilityRequirements?.selection.set, // members are not required
     },
     deploy: false,
   };
@@ -204,10 +205,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: rawOrganization, isLoading: isLoadingOrganization } = useOrganization(orgName);
+  const { data: organization, isLoading: isLoadingOrganization } = useOrganization(orgName);
 
   // similar process to get the onchain data that we'd need in all of the reusable elibility modules
-
   const getOnchainCouncilsData = async ({ organization }: { organization: Organization }) => {
     const hsgAddresses = compact(map(organization?.councils, 'hsg')); // this would only return existing hsg values
 
@@ -267,36 +267,17 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   };
 
   const { data: councilsData } = useQuery({
-    queryKey: ['councilsData', rawOrganization],
-    queryFn: () => getOnchainCouncilsData({ organization: rawOrganization as Organization }),
-    enabled: !!rawOrganization,
+    queryKey: ['councilsData', organization],
+    queryFn: () => getOnchainCouncilsData({ organization: organization as Organization }),
+    enabled: !!organization,
   });
 
-  // do this for EVERY council on the org to be able to have all the data we'd need for the eligilbity modules reuse
-  // async useQuery. hsg -> work back to the hatId -> module(s) -> map these modules to the ones that we need
-  // hsg is on the council
-  // fetchCouncilDetails with the chain and the hsg address for the council
-
-  // for each council:
-  // for the first signerHat pass in the eligibility address and the chainId to the getEligibilityRules
-
-  // for each council (in context now) we'd have the full offchain data and all of the eligibility rules
-
-  // we would then have these to use as our values in the radio selects and also if they exist we'd pass the id to the deploy step. with each council we should have EACH eligibility for the existing agreement. module address is the key
-  // when we select, we're passing this value back to the form -> agreement.existingId
-  // passing to the save to save in the db via persistForm -> used in the deploy step
-
-  // agreement.existingAdmins = org-managers OR an existing hatId
-
-  // final organization object will have the offchain and onchain data
-
   // handle other treeIds or chainIds across an organization. this is assuming that we're working within a single council (the first council)
-  const treeId = rawOrganization?.councils?.[0]?.treeId;
+  const treeId = organization?.councils?.[0]?.treeId;
   const { data: tree } = useTreeDetails({ treeId: toNumber(treeId), chainId });
 
   const setStepValidation = useCallback(
     (step: keyof StepValidation, subSteps: boolean | Partial<StepValidation['eligibilitySubSteps']>) => {
-      logger.debug('Setting step validation:', { step, subSteps });
       setStepValidationState((prev) => {
         if (step === 'eligibilitySubSteps') {
           const newState = {
@@ -358,13 +339,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   // compute the step validation state
   useEffect(() => {
-    if (!apiData || !chainId) return;
-
-    const availableTokensEffect = getChainTokens(chainId as number);
-    const mappedTokens = map(availableTokensEffect, ({ address, name, symbol }) => ({
-      value: address,
-      label: `${name} (${symbol})`,
-    }));
+    if (!apiData) return;
 
     logger.debug('API Response data:', apiData);
     const currentValues = form.getValues();
@@ -407,13 +382,12 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     logger.info('Setting form to:', newValues);
     form.reset(newValues);
 
-    // const deployOnly = localStorage.getItem(`deployOnly-${draftId}`);
-
     // Compute validation state here
     const validation = computeStepValidation(newValues);
 
     setStepValidationState(validation);
   }, [apiData, form]);
+  console.log('watch values', form.watch());
 
   const queryClient = useQueryClient();
 
@@ -423,7 +397,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     { step: string; subStep?: string }
   >({
     mutationFn: async ({ step, subStep }) => {
-      const formData = form.getValues();
+      const formData = form.watch();
       let payload: Partial<CouncilFormData> = { id: draftId || undefined };
 
       // Cache current form state to prevent flashing
@@ -569,6 +543,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             ...currentFormState,
           };
       }
+      console.log('currentFormState', currentFormState);
 
       logger.debug('payload', payload);
       const accessToken = await getAccessToken();
@@ -683,6 +658,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         availableTokens,
         hatIds,
         moduleAddresses,
+        organization: organization || undefined,
         // deploy handlers
         deployStatus, // status of the deploy
         deployHats,

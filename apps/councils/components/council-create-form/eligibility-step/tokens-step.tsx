@@ -157,9 +157,9 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         description: 'Specify an amount of coins Council Members need to hold',
         onSelect: () => {
           // Only reset if switching from an existing requirement
-          setValue('tokenType', 'new');
           setValue('eligibilityRequirements.erc20.amount', 0);
           setValue('eligibilityRequirements.erc20.address', { value: '', label: '' });
+          setValue('eligibilityRequirements.erc20.existingId', 'new');
         },
       },
     ],

@@ -36,7 +36,6 @@ export function findNextInvalidStep(
       }
     }
   }
-  console.log('stepValidation', stepValidation, currentStep, currentSubStep);
 
   // Check remaining main steps
   for (let i = currentStepIndex + 1; i < steps.length; i++) {

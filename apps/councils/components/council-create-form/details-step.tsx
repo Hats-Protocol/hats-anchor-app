@@ -62,7 +62,7 @@ export function DetailsStep({ onNext }: StepProps) {
 
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
 
-  const { watch, handleSubmit, reset, setValue } = localForm;
+  const { watch, handleSubmit, reset, setValue, getValues } = localForm;
   const eligibilityRequirements = watch('eligibilityRequirements');
   const councilName = watch('councilName');
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
@@ -83,6 +83,7 @@ export function DetailsStep({ onNext }: StepProps) {
         const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
         if (chainOption) {
           reset({
+            ...getValues(),
             chain: {
               value: chainOption.value,
               label: chainOption.label,

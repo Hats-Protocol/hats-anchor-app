@@ -3,10 +3,10 @@ import {
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
-import { FALLBACK_ADDRESS, hatIdDecimalToIp, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { mapValues, pick, toNumber } from 'lodash';
+import { pick, toNumber } from 'lodash';
 import showdown from 'showdown';
 import { CouncilFormData } from 'types';
 import {
@@ -81,7 +81,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       agreementCid,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs }) => {
-        logger.debug('MODULES CALLLDATA', modulesCalldata, moduleAddresses);
+        logger.debug('MODULES CALLLDATA', !!modulesCalldata, moduleAddresses);
 
         // compile create hats data
         return compileHatCreationData({

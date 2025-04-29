@@ -124,11 +124,12 @@ export interface CreationForm {
   tokenAmount: string | null;
 }
 
+// TODO is the existingId === 'new' a good use for this type?
 export interface EligibilityRequirement {
   // whether the module is required/selected for this council
   required: boolean; // [default: false]
   // id of existing admins for this module
-  existingId: `0x${string}` | null; // [default: null] expects address for existing module
+  existingId: `0x${string}` | 'new' | null; // [default: null] expects address for existing module
   // whether to use org managers or existing admins for this module
   existingAdmins: string | null; // [default: null, except selection is 'org-managers'] otherwise Hex for existing Hat ID
   // refers to members list or other content for the module
