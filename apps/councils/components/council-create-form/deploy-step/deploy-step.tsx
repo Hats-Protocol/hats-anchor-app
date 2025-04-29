@@ -118,7 +118,8 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     query: { enabled: shouldFetchToken },
     contracts: shouldFetchToken
       ? map(tokenFields, (field: string) => ({
-          address: formData.eligibilityRequirements.erc20?.address || undefined,
+          // @ts-expect-error // TODO: resolve this -- we need this field due to the object
+          address: formData.eligibilityRequirements.erc20?.address?.value || undefined,
           abi: erc20Abi,
           functionName: field,
           chainId: toNumber(formData.chain.value) || undefined,
