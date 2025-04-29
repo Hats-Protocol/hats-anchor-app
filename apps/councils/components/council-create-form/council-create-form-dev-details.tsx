@@ -24,7 +24,9 @@ const ModuleLink = ({
   chainId: number;
 }) => {
   if (!moduleAddress && !required) return null;
-  const address = existingModule ? existingModule : moduleAddress;
+  console.log({ existingModule, moduleAddress });
+  const useExisting = !!existingModule && existingModule !== 'new';
+  const address = useExisting ? existingModule : moduleAddress;
 
   if (!moduleAddress)
     return (
@@ -34,8 +36,8 @@ const ModuleLink = ({
     );
 
   return (
-    <div className={cn('flex items-center gap-2', existingModule && 'text-green-700')}>
-      <p className='text-sm'>{existingModule ? 'Existing' : 'New'}</p>
+    <div className={cn('flex items-center gap-2', useExisting && 'text-green-700')}>
+      <p className='text-sm'>{useExisting ? 'Existing' : 'New'}</p>
       <Link href={`${explorerUrl(chainId)}/address/${address}`} className='text-sm' isExternal>
         {formatAddress(address)}
       </Link>

@@ -1,3 +1,5 @@
+import { toLower } from 'lodash';
+
 export interface TokenInfo {
   chainId: number;
   address: string;
@@ -2693,11 +2695,12 @@ export function getChainTokens(chainId: number): TokenInfo[] {
   return CHAIN_TOKENS[chainId] || [];
 }
 
-export function getTokenDecimals(chainId: number, tokenAddress: string): number | undefined {
+export function getTokenDecimals(chainId: number, tokenAddress: string | { value: string }): number | undefined {
   const chainTokens = CHAIN_TOKENS[chainId];
   if (!chainTokens || !tokenAddress) return undefined;
 
-  const token = chainTokens.find((token) => token.address.toLowerCase() === tokenAddress.toLowerCase());
+  const localTokenAddress = typeof tokenAddress === 'string' ? tokenAddress : tokenAddress.value;
+  const token = chainTokens.find((token) => toLower(token.address) === toLower(localTokenAddress));
 
   return token?.decimals;
 }

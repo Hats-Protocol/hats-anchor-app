@@ -296,17 +296,20 @@ export const compileModuleData = async ({
     // TODO better matching option, very primitive
     (module, index) => module.implementation === ALLOWLIST_ELIGIBILITY_ADDRESS && index > 1,
   )?.address;
-  const complianceAllowlist = formData.eligibilityRequirements?.compliance?.existingId
-    ? formData.eligibilityRequirements?.compliance?.existingId
-    : newComplianceAllowlist;
+  const complianceAllowlist =
+    formData.eligibilityRequirements?.compliance?.existingId !== 'new'
+      ? formData.eligibilityRequirements?.compliance?.existingId || undefined
+      : newComplianceAllowlist;
   const newAgreementModule = find(localModules, { implementation: AGREEMENT_ELIGIBILITY_ADDRESS })?.address;
-  const agreementModule = formData.eligibilityRequirements?.agreement?.existingId
-    ? formData.eligibilityRequirements?.agreement?.existingId
-    : newAgreementModule;
+  const agreementModule =
+    formData.eligibilityRequirements?.agreement?.existingId !== 'new'
+      ? formData.eligibilityRequirements?.agreement?.existingId || undefined
+      : newAgreementModule;
   const newErc20Module = find(localModules, { implementation: ERC20_ELIGIBILITY_ADDRESS })?.address;
-  const erc20Module = formData.eligibilityRequirements?.erc20?.existingId
-    ? formData.eligibilityRequirements?.erc20?.existingId
-    : newErc20Module;
+  const erc20Module =
+    formData.eligibilityRequirements?.erc20?.existingId !== 'new'
+      ? formData.eligibilityRequirements?.erc20?.existingId || undefined
+      : newErc20Module;
 
   if (!multiClaimsHatter || !councilMemberAllowlist) {
     throw new Error('Required modules not found');

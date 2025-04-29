@@ -24,13 +24,11 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
   const { persistForm, form, stepValidation, setStepValidation } = useCouncilForm();
 
   const handleNext = async () => {
-    logger.debug('handleNext', step, subStep);
     try {
       await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
 
       const nextStep = findNextInvalidStep(stepValidation, step, subStep, form.watch('eligibilityRequirements'));
-      logger.debug('nextStep', nextStep);
 
       if (nextStep.subStep) {
         router.push(`/councils/new/${nextStep.step}?subStep=${nextStep.subStep}&draftId=${draftId}`);
