@@ -114,6 +114,8 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   // TODO get from approved tokens?
   const tokenFields = ['symbol', 'name', 'decimals'];
   const shouldFetchToken = !!formData.eligibilityRequirements.erc20?.address;
+  logger.info('shouldFetchToken', shouldFetchToken);
+  logger.info('formData.eligibilityRequirements.erc20?.address', formData.eligibilityRequirements.erc20?.address);
   const { data: tokenData } = useReadContracts({
     query: { enabled: shouldFetchToken },
     contracts: shouldFetchToken
@@ -169,6 +171,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const requirementsCount = useMemo(() => {
     const { agreement, erc20, compliance } = eligibilityRequirements;
+    logger.info('eligibilityRequirements in deploy-step', eligibilityRequirements);
 
     return [agreement?.required, erc20?.required, compliance?.required].filter(Boolean).length + 1;
   }, [eligibilityRequirements]);

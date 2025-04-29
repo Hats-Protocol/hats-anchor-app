@@ -3,7 +3,7 @@
 import Heading from '@tiptap/extension-heading';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ControllerRenderProps, FieldValues, UseFormReturn } from 'react-hook-form';
 import showdown from 'showdown';
 import { logger } from 'utils';
@@ -33,7 +33,7 @@ const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapPr
         },
       }),
     ],
-    content: converter.makeHtml(field.value),
+    content: field.value || '',
     editable: !isDisabled,
     editorProps: {
       attributes: {
@@ -49,11 +49,31 @@ const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapPr
     },
   });
 
+  // Track if we're currently editing
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
-    if (editor && field.value !== editor.getHTML()) {
-      editor.commands.setContent(converter.makeHtml(field.value));
+    if (!editor) return;
+
+    // Add focus handlers
+    const onFocus = () => setIsEditing(true);
+    const onBlur = () => setIsEditing(false);
+
+    editor.on('focus', onFocus);
+    editor.on('blur', onBlur);
+
+    return () => {
+      editor.off('focus', onFocus);
+      editor.off('blur', onBlur);
+    };
+  }, [editor]);
+
+  // Only update content from parent when we're not editing
+  useEffect(() => {
+    if (editor && field.value !== undefined && !isEditing) {
+      editor.commands.setContent(field.value);
     }
-  }, [editor, field.value]);
+  }, [editor, field.value, isEditing]);
 
   // Check if current content matches an existing agreement (read-only check)
   // const matchingAgreement = existingAgreements?.find((existing) => existing.agreement === field.value);

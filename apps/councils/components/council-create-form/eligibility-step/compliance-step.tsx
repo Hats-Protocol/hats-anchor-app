@@ -5,8 +5,8 @@ import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, RadioCardOption } from 'forms';
 import { useOrganization } from 'hooks';
-import { filter, find, flatten, get, isEmpty, join, map, pick, reject, uniq, uniqBy } from 'lodash';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { filter, flatten, map, pick, reject, uniq } from 'lodash';
+import { useCallback, useMemo, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilFormData, CouncilMember, StepProps } from 'types';
@@ -19,12 +19,7 @@ import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { ComplianceList } from './compliance-list';
 import { UnifiedUserForm } from './unified-user-form';
 
-interface GroupedComplianceAdmin {
-  id: string;
-  admins: CouncilMember[];
-  councils: string[];
-}
-
+// TODO: Move to separate Compliance Skeleton component for this
 const RadioCardSkeleton = () => (
   <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
     <div className='flex w-full items-center gap-3'>
@@ -217,7 +212,7 @@ export function ComplianceStep({ onNext }: StepProps) {
         label,
         description,
         avatars,
-        onSelect: () => form.setValue('agreementAdmins', avatars),
+        onSelect: () => form.setValue('complianceAdmins', avatars),
       };
     });
 
@@ -249,168 +244,6 @@ export function ComplianceStep({ onNext }: StepProps) {
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);
-
-  // // Initialize the createComplianceAdminRole based on existing complianceAdmins
-  // useEffect(() => {
-  //   if (initialSetupComplete || isFetching || isLoading) return;
-
-  //   const currentComplianceAdmins = form.getValues('complianceAdmins') || [];
-  //   if (!currentComplianceAdmins.length) {
-  //     setInitialSetupComplete(true);
-  //     return;
-  //   }
-
-  //   const currentAddresses = currentComplianceAdmins
-  //     .map((admin) => admin.address.toLowerCase())
-  //     .sort()
-  //     .join(',');
-
-  //   // TODO replace key
-  //   // Check if current admins match organization managers
-  //   const orgManagerAddresses = organizationManagers
-  //     .map((admin) => admin.address.toLowerCase())
-  //     .sort()
-  //     .join(',');
-
-  //   // First check if we already have a role selected
-  //   const eligibilityRequirements = form.getValues('eligibilityRequirements');
-  //   const { compliance } = pick(eligibilityRequirements, ['compliance']);
-
-  //   // If we have a role and it matches the data, keep it
-  //   if (eligibilityRequirements) {
-  //     if (compliance.existingId && currentAddresses === orgManagerAddresses) {
-  //       // Already correctly set to organization managers
-  //       setInitialSetupComplete(true);
-  //       return;
-  //     } else if (compliance.existingId) {
-  //       const adminKey = compliance.existingId;
-  //       // const group = complianceAdminGroups[adminKey];
-  //       // if (group) {
-  //       //   const groupAddresses = group.admins
-  //       //     .map((admin) => admin.address.toLowerCase())
-  //       //     .sort()
-  //       //     .join(',');
-
-  //       //   if (currentAddresses === groupAddresses) {
-  //       //     // Already correctly set to the right existing group
-  //       //     setInitialSetupComplete(true);
-  //       //     return;
-  //       //   }
-  //       // }
-  //     } else if (!compliance.existingId) {
-  //       // Custom admins - this is fine
-  //       setInitialSetupComplete(true);
-  //       return;
-  //     }
-  //   }
-
-  // If we get here, we need to determine the role based on the current admins
-
-  // // Check if they match organization managers
-  // if (currentAddresses === orgManagerAddresses) {
-  //   // TODO is something wrong with the type inference here?
-  //   form.setValue('eligibilityRequirements.compliance.existingId', 'org-managers' as any, {
-  //     shouldDirty: false,
-  //   });
-  //   setInitialSetupComplete(true);
-  //   return;
-  // }
-
-  // // Check if they match any existing compliance admin group
-  // for (const [key, group] of Object.entries(complianceAdminGroups)) {
-  //   // const groupAddresses = group.admins
-  //   //   .map((admin) => admin.address.toLowerCase())
-  //   //   .sort()
-  //   //   .join(',');
-  //   // if (currentAddresses === groupAddresses) {
-  //   //   // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
-  //   //   form.setValue('eligibilityRequirements.compliance.existingId', `existing:${key}`, { shouldDirty: false });
-  //   //   // @ts-expect-error TODO: fix this, need to upgrade the form to use a more flexible type
-  //   //   prevRole.current = `existing:${key}`;
-  //   //   setInitialSetupComplete(true);
-  //   //   return;
-  //   // }
-  // }
-
-  //   // If we have admins but they don't match any existing group, assume it's a custom group
-  //   form.setValue('eligibilityRequirements.compliance.existingId', null, { shouldDirty: false });
-  //   setInitialSetupComplete(true);
-  // }, [complianceAdminGroups, form, isFetching, isLoading, organizationManagers, initialSetupComplete]);
-
-  // useEffect(() => {
-  //   // Only update if the role has actually changed and we're not just resetting the form
-  //   if (
-  //     eligibilityRequirements &&
-  //     !isMutating &&
-  //     !form.formState.isSubmitting &&
-  //     initialSetupComplete && // Only run this effect after initial setup
-  //     !form.formState.isDirty // Only update if the form hasn't been modified by user
-  //   ) {
-  //     const currentAdmins = form.getValues('complianceAdmins') || [];
-  //     const currentAddresses = currentAdmins
-  //       .map((admin) => admin.address.toLowerCase())
-  //       .sort()
-  //       .join(',');
-
-  //     if (eligibilityRequirements.compliance.existingId === null) {
-  //       // Check if already matches organization managers
-  //       const orgManagerAddresses = organizationManagers
-  //         .map((admin) => admin.address.toLowerCase())
-  //         .sort()
-  //         .join(',');
-
-  //       if (currentAddresses !== orgManagerAddresses) {
-  //         form.setValue('complianceAdmins', organizationManagers, { shouldDirty: false });
-  //       }
-  //     } else if (eligibilityRequirements.compliance.existingId) {
-  //       const adminKey = eligibilityRequirements.compliance.existingId;
-  //       // const group = complianceAdminGroups[adminKey];
-  //       // if (group) {
-  //       //   const groupAddresses = group.admins
-  //       //     .map((admin) => admin.address.toLowerCase())
-  //       //     .sort()
-  //       //     .join(',');
-
-  //       //   if (currentAddresses !== groupAddresses) {
-  //       //     form.setValue('complianceAdmins', group.admins, { shouldDirty: false });
-  //       //   }
-  //       // }
-  //     } else if (!eligibilityRequirements.compliance.existingId && currentAdmins.length === 0) {
-  //       // Only clear if empty - don't override custom admins that may have been added
-  //       form.setValue('complianceAdmins', [], { shouldDirty: false });
-  //     }
-  //   }
-  // }, [eligibilityRequirements, form, organizationManagers, complianceAdminGroups, isMutating, initialSetupComplete]);
-
-  // const handleSubmit = useCallback(
-  //   async (data: CouncilFormData) => {
-  //     // set the current form values to prevent state flashing during transition
-  //     // data contains the latest form values at submission time (as we advance the form)
-  //     const currentRole = data.eligibilityRequirements.compliance.existingId;
-  //     const currentAdmins = [...(data.complianceAdmins || [])]; // Make a copy to preserve
-
-  //     // Keep the initialSetupComplete true to prevent re-initialization
-  //     setInitialSetupComplete(true);
-
-  //     // Update the ref to match the current selection before reset
-  //     // prevRole.current = currentRole;
-
-  //     // Reset with keepValues to avoid flashing
-  //     form.reset(data, { keepValues: true });
-
-  //     // Ensure the admins and role are consistent after reset
-  //     if (currentRole) {
-  //       form.setValue('eligibilityRequirements.compliance.existingId', currentRole, { shouldDirty: false });
-  //     }
-
-  //     if (currentAdmins.length > 0) {
-  //       form.setValue('complianceAdmins', currentAdmins, { shouldDirty: false });
-  //     }
-
-  //     await onNext();
-  //   },
-  //   [form, onNext, setInitialSetupComplete],
-  // );
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
@@ -501,7 +334,7 @@ export function ComplianceStep({ onNext }: StepProps) {
                     loading={isLoadingList}
                   />
 
-                  {eligibilityRequirements.compliance.existingId === null && !showAddForm && (
+                  {!showAddForm && eligibilityRequirements.compliance.existingAdmins === null && (
                     <Button
                       variant='outline-blue'
                       rounded='full'
@@ -520,7 +353,7 @@ export function ComplianceStep({ onNext }: StepProps) {
               </div>
             )}
 
-            {eligibilityRequirements.compliance.existingId === null && showAddForm && (
+            {eligibilityRequirements.compliance.existingAdmins === null && showAddForm && (
               <div className='-mx-16 border-b border-gray-200'>
                 <UnifiedUserForm
                   parentForm={form}
