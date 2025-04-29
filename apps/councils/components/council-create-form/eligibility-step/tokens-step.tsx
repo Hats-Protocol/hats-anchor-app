@@ -217,14 +217,27 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
-      // set the current form values to prevent state flashing during transition
-      // data contains the latest form values at submission time (as we advance the form)
-      logger.info('submitForm', data);
-      councilFormReset({ ...councilFormGetValues(), ...data });
-      // reset(data);
-      await onNext();
+      // Get current council form values
+      const currentValues = councilFormGetValues();
+
+      // Merge the local form's eligibility requirements with existing council form data
+      // preserving existing fields like 'required'
+      const mergedValues = {
+        ...currentValues,
+        eligibilityRequirements: {
+          ...currentValues.eligibilityRequirements,
+          erc20: {
+            ...currentValues.eligibilityRequirements?.erc20,
+            ...data.eligibilityRequirements?.erc20,
+          },
+        },
+      };
+
+      // Reset council form with merged values
+      councilFormReset(mergedValues);
+      onNext();
     },
-    [reset, onNext],
+    [councilFormGetValues, councilFormReset, onNext],
   );
 
   useEffect(() => {

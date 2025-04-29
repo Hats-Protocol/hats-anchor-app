@@ -242,12 +242,27 @@ export function AgreementStep({ onNext }: StepProps) {
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
-      // set the current form values to prevent state flashing during transition
-      // data contains the latest form values at submission time (as we advance the form)
-      councilFormReset({ ...councilFormGetValues(), ...data });
+      // Get current council form values
+      const currentValues = councilFormGetValues();
+
+      // Merge the local form's eligibility requirements with existing council form data
+      // preserving existing fields like 'required'
+      const mergedValues = {
+        ...currentValues,
+        eligibilityRequirements: {
+          ...currentValues.eligibilityRequirements,
+          agreement: {
+            ...currentValues.eligibilityRequirements?.agreement,
+            ...data.eligibilityRequirements?.agreement,
+          },
+        },
+      };
+
+      // Reset council form with merged values
+      councilFormReset(mergedValues);
       onNext();
     },
-    [reset, onNext],
+    [councilFormGetValues, councilFormReset, onNext],
   );
 
   if (isLoading) {
