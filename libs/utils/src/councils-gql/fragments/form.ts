@@ -7,16 +7,21 @@ export const FORM_FRAGMENT = gql`
   fragment FormFragment on CouncilCreationForm {
     id
     organizationName
-    eligibilityRequirements
+    # Details
     councilName
     chain
     councilDescription
     creator
     membersSelectionType
+    # Threshold
     thresholdType
     maxCouncilMembers
     thresholdTarget
     thresholdMin
+    # Eligibility
+    eligibilityRequirements
+    completedOptionalSteps
+    # Relationships
     members {
       ...UserFragment
     }
@@ -26,6 +31,20 @@ export const FORM_FRAGMENT = gql`
     complianceAdmins {
       ...UserFragment
     }
+    agreementAdmins {
+      ...UserFragment
+    }
+    payer {
+      ...UserFragment
+    }
+
+    # Council relationship
+    council {
+      ...CouncilFragment
+    }
+    # Deprecated
+    tokenAmount
+    tokenAddress
     createComplianceAdminRole
     memberRequirements {
       signAgreement
@@ -34,18 +53,6 @@ export const FORM_FRAGMENT = gql`
     }
     agreement
     createAgreementAdminRole
-    agreementAdmins {
-      ...UserFragment
-    }
-    payer {
-      ...UserFragment
-      telegram
-    }
-    tokenAmount
-    tokenAddress
-    council {
-      ...CouncilFragment
-    }
   }
   ${COUNCIL_FRAGMENT}
 `;

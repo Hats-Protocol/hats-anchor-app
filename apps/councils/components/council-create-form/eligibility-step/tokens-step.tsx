@@ -96,8 +96,6 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   const tokenRequirement = watch('eligibilityRequirements.erc20');
   logger.info('tokenRequirement', tokenRequirement);
 
-  useCouncilDeployFlag(draftId);
-
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', eligibilityRequirements);
 
   logger.info('councilsData', councilsData);
@@ -260,6 +258,8 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
+              step={1}
+              disabled={!canEdit || watch('tokenType') !== 'new'}
               step={0.01}
               disabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
               tooltip='The minimum amount of tokens that Council Members must hold'
