@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { CouncilFormData, EligibilityRequirement, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
-import { chainsMap, formatAddress } from 'utils';
+import { chainsMap, formatAddress, logger } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -169,7 +169,8 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const requirementsCount = useMemo(() => {
     const { agreement, erc20, compliance } = eligibilityRequirements;
-    return Object.values([agreement?.required, erc20?.required, compliance?.required].filter(Boolean).length + 1);
+
+    return [agreement?.required, erc20?.required, compliance?.required].filter(Boolean).length + 1;
   }, [eligibilityRequirements]);
 
   const copyCalldata = () => {
