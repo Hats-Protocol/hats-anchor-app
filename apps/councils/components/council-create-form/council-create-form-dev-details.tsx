@@ -8,16 +8,38 @@ import { compact, get, includes, map } from 'lodash';
 import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, BaseTextarea, Link } from 'ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, BaseTextarea, cn, Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { UseSimulateContractReturnType } from 'wagmi';
 
-const ModuleLink = ({ moduleAddress, chainId }: { moduleAddress: string; chainId: number }) => {
-  if (!moduleAddress) return null;
+const ModuleLink = ({
+  moduleAddress,
+  existingModule,
+  required,
+  chainId,
+}: {
+  moduleAddress: string;
+  existingModule?: string | null;
+  required?: boolean;
+  chainId: number;
+}) => {
+  if (!moduleAddress && !required) return null;
+  const address = existingModule ? existingModule : moduleAddress;
+
+  if (!moduleAddress)
+    return (
+      <div>
+        <p className='text-sm text-red-700'>Missing Module</p>
+      </div>
+    );
+
   return (
-    <Link href={`${explorerUrl(chainId)}/address/${moduleAddress}`} className='text-sm' isExternal>
-      {formatAddress(moduleAddress)}
-    </Link>
+    <div className={cn('flex items-center gap-2', existingModule && 'text-green-700')}>
+      <p className='text-sm'>{existingModule ? 'Existing' : 'New'}</p>
+      <Link href={`${explorerUrl(chainId)}/address/${address}`} className='text-sm' isExternal>
+        {formatAddress(address)}
+      </Link>
+    </div>
   );
 };
 
@@ -76,7 +98,12 @@ const CreateFormDevDetails = () => {
         label: 'Sign Agreement',
         descriptor: (
           <div className='flex items-center gap-2'>
-            <ModuleLink moduleAddress={moduleAddresses?.agreementModule} chainId={chainId} />
+            <ModuleLink
+              moduleAddress={moduleAddresses?.agreementModule}
+              existingModule={eligibilityRequirements?.agreement?.existingId}
+              required={eligibilityRequirements?.agreement?.required}
+              chainId={chainId}
+            />
             <p className='text-sm'>{eligibilityRequirements?.agreement?.required ? 'Yes' : 'No'}</p>
           </div>
         ),
@@ -85,7 +112,12 @@ const CreateFormDevDetails = () => {
         label: 'Hold Tokens',
         descriptor: (
           <div className='flex items-center gap-2'>
-            <ModuleLink moduleAddress={moduleAddresses?.erc20Module} chainId={chainId} />
+            <ModuleLink
+              moduleAddress={moduleAddresses?.erc20Module}
+              existingModule={eligibilityRequirements?.erc20?.existingId}
+              required={eligibilityRequirements?.erc20?.required}
+              chainId={chainId}
+            />
             <p className='text-sm'>{eligibilityRequirements?.erc20?.required ? 'Yes' : 'No'}</p>
           </div>
         ),
@@ -94,7 +126,12 @@ const CreateFormDevDetails = () => {
         label: 'Compliance',
         descriptor: (
           <div className='flex items-center gap-2'>
-            <ModuleLink moduleAddress={moduleAddresses?.complianceAllowlist} chainId={chainId} />
+            <ModuleLink
+              moduleAddress={moduleAddresses?.complianceAllowlist}
+              existingModule={eligibilityRequirements?.compliance?.existingId}
+              required={eligibilityRequirements?.compliance?.required}
+              chainId={chainId}
+            />
             <p className='text-sm'>{eligibilityRequirements?.compliance?.required ? 'Yes' : 'No'}</p>
           </div>
         ),

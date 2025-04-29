@@ -26,7 +26,16 @@ import {
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { compact, every, filter, find, includes, keys, map, reject, toNumber, toString } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
-import { Address, decodeEventLog, encodeFunctionData, encodePacked, parseUnits, PublicClient, zeroAddress } from 'viem';
+import {
+  Address,
+  decodeEventLog,
+  encodeFunctionData,
+  encodePacked,
+  Hex,
+  parseUnits,
+  PublicClient,
+  zeroAddress,
+} from 'viem';
 import { encodeAbiParameters } from 'viem';
 
 import { logger } from '../logs';
@@ -163,7 +172,7 @@ const modules = ({
   const complianceAllowlist: Module = {
     address: ALLOWLIST_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
-    requirementsKey: 'passCompliance',
+    requirementsKey: 'compliance',
     args: [
       [{ type: 'uint256' }, { type: 'uint256' }],
       [hatIds.complianceManager, hatIds.complianceManager],
@@ -173,7 +182,7 @@ const modules = ({
   const agreementModule: Module = {
     address: AGREEMENT_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
-    requirementsKey: 'signAgreement',
+    requirementsKey: 'agreement',
     args: [
       [{ type: 'uint256' }, { type: 'uint256' }, { type: 'string' }],
       [hatIds.agreementManager, hatIds.agreementManager, agreementCid],
@@ -183,7 +192,7 @@ const modules = ({
   const erc20Module: Module = {
     address: ERC20_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
-    requirementsKey: 'holdTokens',
+    requirementsKey: 'erc20',
     args: [[], []],
     immutableArgs: [
       ['address', 'uint256'],
@@ -268,7 +277,7 @@ export const compileModuleData = async ({
     return Promise.reject(err);
   });
   const localModules = compact(rawLocalModules);
-  // logger.debug('LOCAL MODULES', localModules);
+  logger.debug('LOCAL MODULES', localModules);
 
   // retrieve values from module creation data
   const implementations: `0x${string}`[] = compact(
@@ -282,13 +291,22 @@ export const compileModuleData = async ({
   // retrieve module addresses
   const multiClaimsHatter = find(localModules, { implementation: MULTI_CLAIMS_HATTER_V1_ADDRESS })?.address;
   const councilMemberAllowlist = find(localModules, { implementation: ALLOWLIST_ELIGIBILITY_ADDRESS })?.address;
-  const complianceAllowlist = find(
+  const newComplianceAllowlist = find(
     localModules,
-    // TODO better matching option, very primative
+    // TODO better matching option, very primitive
     (module, index) => module.implementation === ALLOWLIST_ELIGIBILITY_ADDRESS && index > 1,
   )?.address;
-  const agreementModule = find(localModules, { implementation: AGREEMENT_ELIGIBILITY_ADDRESS })?.address;
-  const erc20Module = find(localModules, { implementation: ERC20_ELIGIBILITY_ADDRESS })?.address;
+  const complianceAllowlist = formData.eligibilityRequirements?.compliance?.existingId
+    ? formData.eligibilityRequirements?.compliance?.existingId
+    : newComplianceAllowlist;
+  const newAgreementModule = find(localModules, { implementation: AGREEMENT_ELIGIBILITY_ADDRESS })?.address;
+  const agreementModule = formData.eligibilityRequirements?.agreement?.existingId
+    ? formData.eligibilityRequirements?.agreement?.existingId
+    : newAgreementModule;
+  const newErc20Module = find(localModules, { implementation: ERC20_ELIGIBILITY_ADDRESS })?.address;
+  const erc20Module = formData.eligibilityRequirements?.erc20?.existingId
+    ? formData.eligibilityRequirements?.erc20?.existingId
+    : newErc20Module;
 
   if (!multiClaimsHatter || !councilMemberAllowlist) {
     throw new Error('Required modules not found');
@@ -525,7 +543,8 @@ export const compileHatCreationData = async ({
   // logger.debug('otherHatsToCreate', otherHatsToCreate);
 
   // handle top hats for new trees
-  if (!tree?.hats?.length) {
+  const createTopHat = !tree?.hats?.length;
+  if (createTopHat) {
     // handle top hat specifically
     const topHatCid = await hatsDetailsClient.pin({
       type: '1.0',
@@ -578,7 +597,7 @@ export const compileHatCreationData = async ({
     hatsProtocolCalls.push(callData.callData);
   }
 
-  return { hatsProtocolCalls };
+  return { hatsProtocolCalls, otherHatsToCreate, createTopHat };
 };
 
 export const compileHatMintCallData = ({
@@ -600,6 +619,7 @@ export const compileHatMintCallData = ({
     // TODO toast?
     throw new Error('Multi claims hatter address not found');
   }
+  const mintedHats: { hatId: string; addresses: string[] }[] = [];
 
   // mint admin hat when it doesn't exist (not updating previous roles with new councils)
   if (!tree || !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.admin) })) {
@@ -608,6 +628,10 @@ export const compileHatMintCallData = ({
       wearers: formData.admins?.map((admin) => admin.address) || [],
     });
     hatsProtocolCalls.push(mintAdminHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.admin),
+      addresses: formData.admins?.map((admin) => admin.address) || [],
+    });
   }
 
   // mint automations hat when it doesn't exist (not updating previous roles with new councils)
@@ -617,6 +641,10 @@ export const compileHatMintCallData = ({
       wearer: moduleAddresses.multiClaimsHatter,
     });
     hatsProtocolCalls.push(mintAutomationsHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.automations),
+      addresses: [moduleAddresses.multiClaimsHatter],
+    });
   }
 
   // ! DON'T mint council member hat on deploy (it will be revoked by the eligibility module)
@@ -632,6 +660,10 @@ export const compileHatMintCallData = ({
       wearers: formData.complianceAdmins.map((admin) => admin.address),
     });
     hatsProtocolCalls.push(mintComplianceManagerHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.complianceManager),
+      addresses: formData.complianceAdmins.map((admin) => admin.address),
+    });
   }
 
   // mint agreement manager hat if agreement is required and agreement admin role doesn't exist already
@@ -645,9 +677,13 @@ export const compileHatMintCallData = ({
       wearers: formData.agreementAdmins.map((admin) => admin.address),
     });
     hatsProtocolCalls.push(mintAgreementManagerHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.agreementManager),
+      addresses: formData.agreementAdmins.map((admin) => admin.address),
+    });
   }
 
-  return { hatsProtocolCalls };
+  return { hatsProtocolCalls, mintedHats };
 };
 
 export const compileHsgV2CallData = ({
@@ -661,7 +697,6 @@ export const compileHsgV2CallData = ({
 
   if (!formData.thresholdType || !computedHatIds) return { hsgV2Calldata: undefined, hsgArgs: undefined };
 
-  console.log('formData', formData);
   // create hsg v2 call data
   const hsgV2InitArgs = encodeAbiParameters(
     [
@@ -790,7 +825,7 @@ export const simulateSafeAddress = async ({
   if (!simulationResult?.transaction?.status) {
     logger.error('Simulation failed');
     toast({ title: 'Simulation failed', description: 'Please try again', variant: 'destructive' });
-    throw new Error('Simulation failed');
+    throw new Error('Simulation failed'); // TODO handle the error
   }
 
   for (const log of simulationResult.transaction.transaction_info.logs) {
