@@ -1,7 +1,7 @@
 import { FALLBACK_ADDRESS } from '@hatsprotocol/constants';
 import { useQuery } from '@tanstack/react-query';
 import { SupportedChains } from 'types';
-import { createHatsModulesClient, logger } from 'utils';
+import { createHatsModulesClient } from 'utils';
 import { Hex, zeroAddress } from 'viem';
 
 const getEligibilityRules = async ({

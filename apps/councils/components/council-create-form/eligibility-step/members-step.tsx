@@ -1,7 +1,7 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
-import { useCouncilDeployFlag, useOrganization } from 'hooks';
+import { useOrganization } from 'hooks';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, EligibilityRequirements, StepProps } from 'types';
@@ -12,7 +12,7 @@ import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { MembersList } from './members-list';
 import { UnifiedUserForm } from './unified-user-form';
 
-export function MembersStep({ onNext, draftId }: StepProps) {
+export function MembersStep({ onNext }: StepProps) {
   const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMember, setEditingMember] = useState<CouncilMember | null>(null);
@@ -22,8 +22,6 @@ export function MembersStep({ onNext, draftId }: StepProps) {
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization, isFetching } = useOrganization(orgName);
-
-  useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
   console.log('members ', { nextStep });

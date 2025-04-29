@@ -36,15 +36,21 @@ export function findNextInvalidStep(
       }
     }
   }
+  console.log('stepValidation', stepValidation, currentStep, currentSubStep);
 
   // Check remaining main steps
   for (let i = currentStepIndex + 1; i < steps.length; i++) {
     const stepKey = steps[i] as keyof typeof stepValidation;
 
+    // TODO is there a need for a second check on the eligibility sub-steps here?
     if (stepKey === 'eligibility') {
       const subSteps = getEligibilitySubSteps(eligibilityRequirements);
       for (const subStep of subSteps) {
-        if (!stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps]) {
+        // get the next sub-step that is not already valid, excluding the current sub-step
+        if (
+          !stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps] &&
+          subStep !== currentSubStep
+        ) {
           return { step: 'eligibility', subStep };
         }
       }

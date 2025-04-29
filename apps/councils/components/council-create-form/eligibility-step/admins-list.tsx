@@ -1,7 +1,7 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
-import { useOrganization } from 'hooks';
+import { some, toLower } from 'lodash';
 import { SquarePen, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -75,9 +75,8 @@ function AdminCard({ admin, form, canEdit = true, isCreator, onEdit }: AdminCard
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Check if the connected user is in the existing admin list
-  const isConnectedUserExistingAdmin =
-    councilsData?.[0]?.creationForm?.admins?.some((m) => m.address.toLowerCase() === connectedAddress?.toLowerCase()) ??
-    false;
+  const admins = councilsData?.[0]?.creationForm?.admins || [];
+  const isConnectedUserExistingAdmin = some(admins, (m) => toLower(m.address) === toLower(connectedAddress));
 
   // Check if the connected user is the creator of the form
   const isConnectedUserCreator = form.getValues('creator')?.toLowerCase() === connectedAddress?.toLowerCase();

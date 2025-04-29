@@ -2,7 +2,6 @@
 
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, RequirementBox } from 'forms';
-import { useCouncilDeployFlag } from 'hooks';
 import { BallotBox, DocumentChecks } from 'icons';
 import { FileText, GemIcon } from 'lucide-react';
 import { IconType } from 'react-icons';
@@ -65,11 +64,9 @@ const LoadingSelectStep = () => {
   );
 };
 
-export function SelectionStep({ onNext, draftId }: StepProps) {
+export function SelectionStep({ onNext }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit } = useCouncilForm();
   const eligibilityRequirements = councilForm.watch('eligibilityRequirements');
-
-  useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', undefined, eligibilityRequirements);
 

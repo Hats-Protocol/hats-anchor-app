@@ -4,7 +4,6 @@ import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations, useOrganization } from 'hooks';
-import { useCouncilDeployFlag } from 'hooks';
 import { isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
@@ -31,7 +30,7 @@ const chainOptions: ChainOption[] = Object.values(chainsList).map((chain) => ({
   icon: chain.iconUrl,
 }));
 
-export function DetailsStep({ onNext, draftId }: StepProps) {
+export function DetailsStep({ onNext }: StepProps) {
   const searchParams = useSearchParams();
 
   const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
@@ -113,8 +112,6 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
       }
     }
   }, [organizationsData, organizationNameValue, initialOrgValue, setValue, reset]);
-
-  useCouncilDeployFlag(draftId);
 
   if (isLoading || isLoadingOrgs) {
     return <Skeleton className='h-100 w-100' />;

@@ -1,16 +1,15 @@
 'use client';
 
-import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
-import { filter, find, flatten, get, isEmpty, join, map, pick, reject, uniq, uniqBy } from 'lodash';
+import { filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
-// import showdown from 'showdown';
 import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
-import { Button, Skeleton } from 'ui';
+import { Button } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -44,7 +43,6 @@ export function AgreementStep({ onNext }: StepProps) {
 
   // grabs from the eligibilityRequirements object
   const eligibilityRequirements = form.watch('eligibilityRequirements');
-  logger.info('eligibilityRequirements', eligibilityRequirements);
   const { content, existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
     'content',
     'existingId',

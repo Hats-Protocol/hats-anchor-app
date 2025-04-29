@@ -1,7 +1,6 @@
 'use client';
 import { useCouncilForm } from 'contexts';
 import { Form, SignerThresholdSubForm } from 'forms';
-import { useCouncilDeployFlag } from 'hooks';
 import { useCallback } from 'react';
 import type { CouncilFormData, StepProps } from 'types';
 import { Skeleton } from 'ui';
@@ -9,12 +8,10 @@ import { Skeleton } from 'ui';
 import { NextStepButton } from '../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from './utils';
 
-export function ThresholdStep({ onNext, draftId }: StepProps) {
+export function ThresholdStep({ onNext }: StepProps) {
   const { form, stepValidation, canEdit, isLoading } = useCouncilForm();
   const { watch } = form;
   const eligibilityRequirements = watch('eligibilityRequirements');
-
-  useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'threshold', undefined, eligibilityRequirements);
 
@@ -23,7 +20,7 @@ export function ThresholdStep({ onNext, draftId }: StepProps) {
       // set the current form values to prevent state flashing during transition
       // data contains the latest form values at submission time (as we advance the form)
       form.reset(data);
-      await onNext();
+      onNext();
     },
     [form, onNext],
   );

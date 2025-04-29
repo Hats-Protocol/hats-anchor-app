@@ -61,14 +61,6 @@ export type CouncilData = OffchainCouncilData &
     eligibilityRules?: Ruleset[] | null | undefined;
   };
 
-export interface CompletedOptionalSteps {
-  threshold: boolean;
-  members: boolean;
-  management: boolean;
-  agreement: boolean;
-  compliance: boolean;
-}
-
 export interface CouncilFormData {
   id?: string;
   // org/council details
@@ -94,7 +86,7 @@ export interface CouncilFormData {
   acceptedTerms?: boolean;
   creator: string; // Hex
   // form state
-  completedOptionalSteps: CompletedOptionalSteps;
+  completedOptionalSteps: string[];
 }
 
 export interface CreationForm {
@@ -117,6 +109,7 @@ export interface CreationForm {
   complianceAdmins: CouncilMember[];
   // requirements
   eligibilityRequirements: string;
+  completedOptionalSteps: string;
   // deprecated
   // memberRequirements: {
   //   signAgreement: boolean;

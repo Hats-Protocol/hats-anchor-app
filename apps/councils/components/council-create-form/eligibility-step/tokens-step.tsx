@@ -2,7 +2,7 @@
 
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
-import { Organization, useCouncilDeployFlag, useOrganization } from 'hooks';
+import { Organization, useOrganization } from 'hooks';
 import { pick, toLower, toNumber } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -121,8 +121,6 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
   const { data: organization, isLoading: isOrgLoading } = useOrganization(orgName);
-
-  useCouncilDeployFlag(draftId);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', eligibilityRequirements);
 
@@ -253,7 +251,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 required: true,
                 min: 0,
               }}
-              step={0.01}
+              step={1}
               disabled={!canEdit || watch('tokenType') !== 'new'}
               tooltip='The minimum amount of tokens that Council Members must hold'
             />

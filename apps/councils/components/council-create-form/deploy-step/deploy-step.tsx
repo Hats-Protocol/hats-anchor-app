@@ -1,21 +1,20 @@
 'use client';
 
-import { initialDeployMultiStatus } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { useClipboard, useCouncilDeployFlag, useCouncilDetails, useOrganization } from 'hooks';
+import { useClipboard, useCouncilDetails, useOrganization } from 'hooks';
 import { Currency, DocumentChecks } from 'icons';
 import { concat, find, get, map, some, toNumber, uniqBy } from 'lodash';
 import { FileText, GemIcon, Link } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { CouncilFormData, EligibilityRequirement, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
-import { chainsMap, formatAddress, logger } from 'utils';
+import { chainsMap, formatAddress } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -61,8 +60,6 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { eligibilityRequirements } = formData;
-
-  useCouncilDeployFlag(draftId, true);
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -401,7 +398,13 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
             </div>
 
             <div className='flex items-center gap-2'>
-              <Button rounded='full' variant='outline-blue' size='lm' onClick={copyCalldata}>
+              <Button
+                rounded='full'
+                variant='outline-blue'
+                size='lm'
+                disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
+                onClick={copyCalldata}
+              >
                 Copy Calldata
               </Button>
               {isWrongNetwork ? (
