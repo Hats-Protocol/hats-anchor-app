@@ -15,6 +15,7 @@ import { BsPersonCheck } from 'react-icons/bs';
 import { CouncilFormData, EligibilityRequirement, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
+import { logger } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -110,7 +111,6 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     }
   }, [formData?.councilName, formData?.organizationName, formData?.chain, simulateCouncil]);
 
-  logger.info('formData', formData);
   // TODO get from approved tokens?
   const tokenFields = ['symbol', 'name', 'decimals'];
   const shouldFetchToken = !!formData.eligibilityRequirements.erc20?.address;

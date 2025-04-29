@@ -2,7 +2,6 @@
 
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
-import { Organization, useCouncilDeployFlag, useOrganization } from 'hooks';
 import { flatten, map, pick, toLower, uniqBy } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -259,8 +258,6 @@ export function TokensStep({ onNext, draftId }: StepProps) {
                 min: 0,
               }}
               step={1}
-              disabled={!canEdit || watch('tokenType') !== 'new'}
-              step={0.01}
               disabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
               tooltip='The minimum amount of tokens that Council Members must hold'
             />

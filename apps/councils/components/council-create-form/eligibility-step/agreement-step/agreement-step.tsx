@@ -1,16 +1,17 @@
 'use client';
 
-import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
-import { filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
+import { filter, find, flatten, get, isEmpty, join, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
+// import showdown from 'showdown';
 import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
-import { Button } from 'ui';
+import { Button, Skeleton } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -45,30 +46,29 @@ export function AgreementStep({ onNext }: StepProps) {
     'existingId',
     'existingAdmins',
   ]);
-  logger.info('existingId', existingId);
 
-  const localExistingId = form.watch('eligibilityRequirements.agreement.existingId');
-  const localExistingAdmins = form.watch('eligibilityRequirements.agreement.existingAdmins');
-  logger.info('localExistingId', localExistingId);
-  // Add useEffect to set initial values when component mounts
-  useEffect(() => {
-    if (isLoading) return;
+  // const localExistingId = form.watch('eligibilityRequirements.agreement.existingId');
+  // const localExistingAdmins = form.watch('eligibilityRequirements.agreement.existingAdmins');
+  // logger.info('localExistingId', localExistingId);
+  // Add useEffect to set initial values when component mounts // TODO: Come back to this, causing error in the context
+  // useEffect(() => {
+  //   if (isLoading) return;
 
-    const { agreement } = eligibilityRequirements;
-    const initialValues: Omit<Partial<CouncilFormData>, 'existingId'> = {
-      eligibilityRequirements: {
-        agreement: {
-          // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
-          existingId: agreement.existingId || 'new',
-          existingAdmins: agreement.existingAdmins || null,
-          content: agreement.content || '',
-        },
-      },
-      agreementAdmins: agreement.existingAdmins ? [] : agreementAdmins,
-    };
+  //   const { agreement } = eligibilityRequirements;
+  //   const initialValues: Omit<Partial<CouncilFormData>, 'existingId'> = {
+  //     eligibilityRequirements: {
+  //       agreement: {
+  //         // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
+  //         existingId: agreement.existingId || 'new',
+  //         existingAdmins: agreement.existingAdmins || null,
+  //         content: agreement.content || '',
+  //       },
+  //     },
+  //     agreementAdmins: agreement.existingAdmins ? [] : agreementAdmins,
+  //   };
 
-    form.reset(initialValues);
-  }, [isLoading, eligibilityRequirements]);
+  //   form.reset(initialValues);
+  // }, [isLoading, eligibilityRequirements]);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
@@ -374,7 +374,7 @@ export function AgreementStep({ onNext }: StepProps) {
                     loading={isLoadingList}
                   />
 
-                  {!showAddForm && localExistingAdmins === 'new' && (
+                  {!showAddForm && existingAdmins === 'new' && (
                     <Button
                       variant='outline-blue'
                       rounded='full'
