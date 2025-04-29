@@ -49,11 +49,11 @@ const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapPr
     },
   });
 
-  // useEffect(() => {
-  //   if (editor && field.value !== editor.getHTML()) {
-  //     editor.commands.setContent(converter.makeHtml(field.value));
-  //   }
-  // }, [editor, field.value]);
+  useEffect(() => {
+    if (editor && field.value !== editor.getHTML()) {
+      editor.commands.setContent(converter.makeHtml(field.value));
+    }
+  }, [editor, field.value]);
 
   // Check if current content matches an existing agreement (read-only check)
   // const matchingAgreement = existingAgreements?.find((existing) => existing.agreement === field.value);

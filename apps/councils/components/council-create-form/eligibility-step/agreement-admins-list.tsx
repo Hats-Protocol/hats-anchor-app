@@ -10,7 +10,7 @@ import { AdminCard } from './admin-card';
 
 type AgreementAdminsListProps = {
   agreementAdmins: CouncilMember[];
-  form: UseFormReturn<Partial<CouncilFormData>>;
+  form: UseFormReturn<CouncilFormData>;
   canEdit?: boolean;
   canDelete?: boolean;
   showButtons?: boolean;

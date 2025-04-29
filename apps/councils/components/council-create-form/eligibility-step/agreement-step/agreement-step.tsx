@@ -5,7 +5,7 @@ import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
 import { filter, find, flatten, get, isEmpty, join, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
@@ -37,24 +37,37 @@ export function AgreementStep({ onNext }: StepProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
 
-  const agreementAdmins = councilFormWatch('agreementAdmins') || [];
-  logger.info('agreementAdmins', agreementAdmins);
-  // const createAgreementAdminRole = form.watch('eligibilityRequirements.agreement.existingId');
-  // logger.info('createAgreementAdminRole', createAgreementAdminRole);
-  // // const admins = form.watch('admins') || []; // Don't think we need this anymore, but leaving here until the permissions are tested in QA
-  // const agreement = form.watch('agreement');
-  // logger.info('agreement', agreement);
+  const agreementAdmins = watch('agreementAdmins') || [];
 
   // grabs from the eligibilityRequirements object
   const eligibilityRequirements = councilFormWatch('eligibilityRequirements');
-  logger.info('eligibilityRequirements', eligibilityRequirements);
   const { content, existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
     'content',
     'existingId',
     'existingAdmins',
   ]);
-  logger.info('existingId', existingId);
-  logger.info('existingAdmins', existingAdmins);
+
+  const localExistingId = watch('eligibilityRequirements.agreement.existingId');
+  const localExistingAdmins = watch('eligibilityRequirements.agreement.existingAdmins');
+  logger.info('localExistingId', localExistingId);
+  // Add useEffect to set initial values when component mounts
+  useEffect(() => {
+    if (isLoading) return;
+
+    const { agreement } = eligibilityRequirements;
+    const initialValues = {
+      eligibilityRequirements: {
+        agreement: {
+          existingId: agreement.existingId || 'new',
+          existingAdmins: agreement.existingAdmins || null,
+          content: agreement.content || '',
+        },
+      },
+      agreementAdmins: agreement.existingAdmins ? [] : agreementAdmins,
+    };
+
+    reset(initialValues);
+  }, [isLoading, eligibilityRequirements]);
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'agreement', eligibilityRequirements);
 
@@ -162,30 +175,6 @@ export function AgreementStep({ onNext }: StepProps) {
 
   logger.info('agreementAdminGroups', agreementAdminGroups);
 
-  // useEffect(() => {
-  //   if (existingAdmins === 'org-managers') {
-  //     form.setValue('agreementAdmins', organizationManagers);
-  //   } else if (existingAdmins) {
-  //     const adminKey = existingAdmins;
-  //     const group = agreementAdminGroups[adminKey];
-  //     if (group) {
-  //       form.setValue('agreementAdmins', group.admins);
-  //     }
-  //   } else if (existingAdmins === null) {
-  //     // Only clear the array if there are no existing admins
-  //     const currentAdmins = form.getValues('agreementAdmins') || [];
-  //     if (currentAdmins.length === 0) {
-  //       form.setValue('agreementAdmins', []);
-  //     }
-  //   }
-  // }, [existingAdmins, form, organizationManagers, agreementAdminGroups]);
-
-  // const [selectedOption, setSelectedOption] = useState(() => {
-  //   const currentAgreement = form.getValues('agreement');
-  //   // Check if the current agreement matches any existing ones
-  //   return existingAgreements?.some((existing) => existing.agreement === currentAgreement) ? 'existing' : 'new';
-  // });
-
   // Create radio options from existing agreements and add the "Create new" option
   const agreementOptions = useMemo(
     () => [
@@ -215,6 +204,7 @@ export function AgreementStep({ onNext }: StepProps) {
         description: 'Write an agreement and select who controls it',
         onSelect: () => {
           // TODO check if there's an agreement in local storage and use that https://linear.app/hats-protocol/issue/BUILD-344
+          setValue('eligibilityRequirements.agreement.existingId', 'new');
         },
       },
     ],
@@ -314,16 +304,15 @@ export function AgreementStep({ onNext }: StepProps) {
               name='eligibilityRequirements.agreement.content'
               localForm={localForm}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
-              // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
-              isDisabled={existingId !== 'new'}
+              isDisabled={localExistingId !== 'new'}
             />
           </div>
 
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
-              {/* @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms */}
-              {existingId === 'new' && (
+
+              {localExistingId === 'new' && (
                 <>
                   {isLoading ? (
                     <div className='flex flex-col gap-4'>
@@ -335,7 +324,7 @@ export function AgreementStep({ onNext }: StepProps) {
                       name='eligibilityRequirements.agreement.existingAdmins'
                       localForm={localForm}
                       options={agreementManagerOptions as RadioCardOption[]}
-                      isDisabled={!canEdit || existingId !== 'new'}
+                      isDisabled={!canEdit || localExistingId !== 'new'}
                     />
                   )}
                 </>
@@ -365,7 +354,7 @@ export function AgreementStep({ onNext }: StepProps) {
                     loading={isLoadingList}
                   />
 
-                  {!showAddForm && existingAdmins === 'new' && (
+                  {!showAddForm && localExistingAdmins === 'new' && (
                     <Button
                       variant='outline-blue'
                       rounded='full'

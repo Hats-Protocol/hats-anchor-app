@@ -3,14 +3,15 @@
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { Organization, useCouncilDeployFlag, useOrganization } from 'hooks';
-import { pick, toLower, toNumber } from 'lodash';
+import { flatten, map, pick, toLower, toNumber, uniqBy } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
-import { CouncilFormData, StepProps } from 'types';
+import { CouncilData, CouncilFormData, StepProps } from 'types';
 import { Skeleton } from 'ui';
-import { logger } from 'utils';
+import { getKnownEligibilityModule, logger } from 'utils';
+import { Hex } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
@@ -110,13 +111,13 @@ const LoadingTokensStep = () => (
 );
 
 export function TokensStep({ onNext, draftId }: StepProps) {
-  const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens } = useCouncilForm();
+  const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens, councilsData } = useCouncilForm();
   const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
   const localForm = useForm();
   const { setValue, handleSubmit, reset, watch } = localForm;
   const { eligibilityRequirements, organizationName } = councilFormWatch();
 
-  const tokenRequirement = watch('tokenRequirement');
+  const tokenRequirement = watch('eligibilityRequirements.erc20');
   logger.info('tokenRequirement', tokenRequirement);
 
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
@@ -126,8 +127,33 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', eligibilityRequirements);
 
+  logger.info('councilsData', councilsData);
   // Group token requirements from existing councils
   const existingTokenRequirements = createTokenRequirementsSelect(organization);
+  logger.info('existingTokenRequirements', existingTokenRequirements);
+
+  const existingTokenRequirementsNew = useMemo(() => {
+    const rawCouncilsWithTokenRequirements = councilsData?.map((council) => {
+      return flatten(council.eligibilityRules).find(
+        (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20',
+      );
+    });
+
+    const councilsWithTokenRequirements = uniqBy(rawCouncilsWithTokenRequirements, 'address');
+
+    const tokenRequirementsWithCouncilData = councilsWithTokenRequirements.map((tokenRequirement) => {
+      return {
+        ...tokenRequirement,
+        councils: councilsData?.filter((council) =>
+          map(flatten(council.eligibilityRules), 'address').includes(tokenRequirement?.address || '0x'),
+        ) as CouncilData[],
+      };
+    });
+
+    return tokenRequirementsWithCouncilData;
+  }, [councilsData]);
+
+  logger.info('existingTokenRequirementsNew', existingTokenRequirementsNew);
 
   // Initialize selected option based on current token requirement
   // const [selectedOption, setSelectedOption] = useState(() => {
@@ -146,17 +172,30 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
     () => [
-      ...existingTokenRequirements.map((requirement) => {
-        const token = availableTokens.find((t) => toLower(t.address) === toLower(requirement.tokenAddress));
+      ...existingTokenRequirementsNew.map((requirement) => {
+        logger.info('requirement', requirement);
+        const token = availableTokens.find(
+          (t) =>
+            toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
+        );
         return {
-          value: `${requirement.tokenAddress}-${requirement.minimum}`,
-          label: `Hold ${requirement.minimum} ${token?.symbol || 'tokens'}`,
+          value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}-${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount}`,
+          label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
           icon: GemIcon as IconType,
-          description: requirement.councilName,
+          description: requirement?.councils?.[0]?.creationForm?.councilName,
           onSelect: () => {
-            setValue('tokenType', `${requirement.tokenAddress}-${requirement.minimum}`);
-            setValue('tokenRequirement.minimum', parseFloat(requirement.minimum));
-            setValue('tokenRequirement.address', { value: requirement.tokenAddress, label: token?.symbol || '' });
+            // setValue(
+            //   'tokenType',
+            //   `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}-${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount}`,
+            // );
+            setValue(
+              'eligibilityRequirements.erc20.amount',
+              parseFloat(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount || '0'),
+            );
+            setValue('eligibilityRequirements.erc20.address', {
+              value: requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || '',
+              label: token?.symbol || '',
+            });
           },
         };
       }),
@@ -168,8 +207,8 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         onSelect: () => {
           // Only reset if switching from an existing requirement
           setValue('tokenType', 'new');
-          setValue('tokenRequirement.minimum', 0);
-          setValue('tokenRequirement.address', { value: '', label: '' });
+          setValue('eligibilityRequirements.erc20.amount', 0);
+          setValue('eligibilityRequirements.erc20.address', { value: '', label: '' });
         },
       },
     ],
@@ -245,7 +284,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         <div className='grid grid-cols-2 gap-8'>
           <div className='w-full space-y-2'>
             <TokenNumberInput
-              name='tokenRequirement.minimum'
+              name='eligibilityRequirements.erc20.amount'
               label='Token Limit'
               variant='councils'
               form={localForm}
@@ -261,7 +300,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
           <div className='w-full space-y-2'>
             <TokenSelect
-              name='tokenRequirement.address'
+              name='eligibilityRequirements.erc20.address'
               label='Token Type'
               variant='councils'
               localForm={localForm}
@@ -272,7 +311,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         </div>
 
         <div className='flex justify-end py-6'>
-          <NextStepButton disabled={!tokenRequirement?.minimum || !tokenRequirement?.address?.value || !canEdit}>
+          <NextStepButton disabled={!tokenRequirement?.amount || !tokenRequirement?.address || !canEdit}>
             {getNextStepButtonText(nextStep)}
           </NextStepButton>
         </div>

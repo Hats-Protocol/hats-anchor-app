@@ -26,7 +26,7 @@ import { NextStepButton } from '../../next-step-button';
 type UserType = 'member' | 'admin' | 'agreementAdmin' | 'complianceAdmin';
 
 interface UnifiedUserFormProps {
-  parentForm: UseFormReturn<Partial<CouncilFormData>>;
+  parentForm: UseFormReturn<CouncilFormData>;
   editingUser?: CouncilMember | null;
   userType: UserType;
   onClose?: () => void;
@@ -150,6 +150,7 @@ export function UnifiedUserForm({
       const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables);
+
       return result.updateUser;
     },
     onMutate: () => {
