@@ -134,7 +134,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
             toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
         );
         return {
-          value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}-${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount}`,
+          value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}`,
           label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
           icon: GemIcon as IconType,
           description: requirement?.councils?.[0]?.creationForm?.councilName,

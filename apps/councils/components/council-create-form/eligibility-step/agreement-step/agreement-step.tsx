@@ -1,17 +1,15 @@
 'use client';
 
-import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
-import { filter, find, flatten, get, isEmpty, join, map, pick, reject, uniq, uniqBy } from 'lodash';
+import { filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useCallback, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
-// import showdown from 'showdown';
 import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
-import { Button, Skeleton } from 'ui';
+import { Button } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -174,8 +172,7 @@ export function AgreementStep({ onNext }: StepProps) {
     return preExistingOptions;
   }, [councilsData]);
 
-  logger.info('agreementAdminGroups', agreementAdminGroups);
-
+  // TODO: handle the setValue more robustly incase the agreementAdmins is not set on the first council (line 195)
   // Create radio options from existing agreements and add the "Create new" option
   const agreementOptions = useMemo(
     () => [
@@ -186,7 +183,7 @@ export function AgreementStep({ onNext }: StepProps) {
         description: existingAgreement?.councils.map((council) => council.creationForm.councilName).join(', '),
         onSelect: () => {
           const existingAdmins = find(get(existingAgreement, 'liveParams'), { label: 'Owner Hat' });
-          const adminsHatId = hatIdDecimalToHex(existingAdmins?.value as bigint);
+          const adminsHatId = existingAdmins?.value ? hatIdDecimalToHex(existingAdmins?.value as bigint) : null;
           form.setValue(
             'eligibilityRequirements.agreement.existingAdmins',
             adminsHatId === adminHatId ? 'org-managers' : adminsHatId,
@@ -195,7 +192,12 @@ export function AgreementStep({ onNext }: StepProps) {
             'eligibilityRequirements.agreement.content',
             existingAgreement?.councils?.[0]?.eligibilityRequirements?.agreement.content || '',
           );
-          form.setValue('agreementAdmins', existingAgreement?.councils?.[0]?.creationForm?.agreementAdmins || []);
+          form.setValue(
+            'agreementAdmins',
+            adminsHatId === adminHatId
+              ? organizationManagers
+              : existingAgreement?.councils?.[0]?.creationForm?.agreementAdmins || [],
+          );
         },
       })),
       {

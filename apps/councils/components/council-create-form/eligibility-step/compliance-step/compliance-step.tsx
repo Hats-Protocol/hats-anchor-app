@@ -4,11 +4,12 @@ import { hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, RadioCardOption } from 'forms';
-import { useOrganization } from 'hooks';
-import { filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
-import { useCallback, useMemo, useState } from 'react';
+import { filter, find, flatten, get, map, pick, reject, toLower, uniq, uniqBy } from 'lodash';
+import { FilePlus, FileText } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
+import { IconType } from 'react-icons/lib';
 import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
 import { Button } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
@@ -60,6 +61,34 @@ export function ComplianceStep({ onNext }: StepProps) {
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'compliance', eligibilityRequirements);
 
+  const existingComplianceModules = useMemo(() => {
+    const rawCouncilsWithComplianceModules = councilsData?.map((council) => {
+      return flatten(council.eligibilityRules).find(
+        (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'allowlist',
+      );
+    });
+    logger.info('rawCouncilsWithComplianceModules', rawCouncilsWithComplianceModules);
+
+    // getting the unique councils with compliance modules
+    const councilsWithComplianceModules = uniqBy(rawCouncilsWithComplianceModules, 'address');
+
+    // we want to get the councils that are associated with each compliance module
+    const complianceModulesWithCouncilData = councilsWithComplianceModules.map((complianceModule) => {
+      return {
+        ...complianceModule,
+        councils: councilsData?.filter((council) =>
+          map(flatten(council.eligibilityRules), 'address').includes(complianceModule?.address || '0x'),
+        ) as CouncilData[],
+      };
+    });
+    const filteredComplianceModules = reject(
+      complianceModulesWithCouncilData,
+      (module) => toLower(module.address) === toLower(module.councils[0]?.membersSelectionModule),
+    );
+
+    return filteredComplianceModules;
+  }, [councilsData]);
+
   // Extract unique organization managers from existing councils
   const organizationManagers = useMemo(
     () =>
@@ -82,6 +111,44 @@ export function ComplianceStep({ onNext }: StepProps) {
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
 
+  // TODO: handle the setValue more robustly incase the agreementAdmins is not set on the first council (line 125)
+  // Create radio options from existing agreements and add the "Create new" option
+  const complianceModuleOptions = useMemo(
+    () => [
+      ...(existingComplianceModules || []).map((existingComplianceModule) => ({
+        value: existingComplianceModule?.address,
+        label: 'Compliance Allowlist',
+        icon: FileText as IconType,
+        description: existingComplianceModule?.councils.map((council) => council.creationForm.councilName).join(', '),
+        onSelect: () => {
+          const existingAdmins = find(get(existingComplianceModule, 'liveParams'), { label: 'Owner Hat' });
+          const adminsHatId = existingAdmins?.value ? hatIdDecimalToHex(existingAdmins?.value as bigint) : null;
+          form.setValue(
+            'eligibilityRequirements.compliance.existingAdmins',
+            adminsHatId === adminHatId ? 'org-managers' : adminsHatId,
+          );
+          form.setValue(
+            'complianceAdmins',
+            adminsHatId === adminHatId
+              ? organizationManagers
+              : existingComplianceModule?.councils?.[0]?.creationForm?.complianceAdmins || [],
+          );
+        },
+      })),
+      {
+        value: 'new',
+        label: 'Create a new Compliance Allowlist for this Council',
+        icon: FilePlus as IconType,
+        description: 'Create an allowlist and select who controls it',
+        onSelect: () => {
+          // TODO check if there's an agreement in local storage and use that https://linear.app/hats-protocol/issue/BUILD-344
+          // form.setValue('eligibilityRequirements.agreement.existingId', 'new');
+        },
+      },
+    ],
+    [existingComplianceModules, adminHatId, form],
+  );
+
   // Group unique admin sets across councils
   const complianceAdminGroups = useMemo(() => {
     const rawCouncilsWithAgreements = councilsData?.map((council) => {
@@ -102,6 +169,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     });
 
     logger.info('allowlistsWithCouncilData', allowlistsWithCouncilData);
+    logger.info('councilsData', councilsData);
 
     if (!adminHatId) return [];
     const adminHats = flatten(
@@ -165,11 +233,9 @@ export function ComplianceStep({ onNext }: StepProps) {
         },
       };
     });
-    logger.info('preExistingOptions', preExistingOptions);
+
     return preExistingOptions;
   }, [councilsData]);
-
-  logger.info('complianceAdminGroups', complianceAdminGroups);
 
   const complianceManagerOptions = useMemo(
     () => [
@@ -184,7 +250,7 @@ export function ComplianceStep({ onNext }: StepProps) {
 
       {
         value: 'new',
-        label: 'Create new Agreement Managers',
+        label: 'Create new Compliance Managers',
         description: 'Create a new group of agreement managers',
         onSelect: () => form.setValue('complianceAdmins', []),
       },
@@ -203,24 +269,31 @@ export function ComplianceStep({ onNext }: StepProps) {
 
       // Merge the local form's eligibility requirements with existing council form data
       // preserving existing fields like 'required'
-      const mergedValues = {
-        ...currentValues,
-        eligibilityRequirements: {
-          ...currentValues.eligibilityRequirements,
-          compliance: {
-            ...currentValues.eligibilityRequirements?.compliance,
-            ...data.eligibilityRequirements?.compliance,
-          },
-        },
-      };
+      // const mergedValues = {
+      //   ...currentValues,
+      //   eligibilityRequirements: {
+      //     ...currentValues.eligibilityRequirements,
+      //     compliance: {
+      //       ...currentValues.eligibilityRequirements?.compliance,
+      //       ...data.eligibilityRequirements?.compliance,
+      //     },
+      //   },
+      // };
 
       // Reset council form with merged values
       // councilFormReset(mergedValues);
-      form.reset(mergedValues);
+      form.reset(currentValues);
       onNext();
     },
     [form, onNext],
   );
+
+  logger.info('existingComplianceModules', existingComplianceModules);
+  useEffect(() => {
+    if (existingComplianceModules.length === 0) {
+      form.setValue('eligibilityRequirements.compliance.existingId', 'new');
+    }
+  }, [existingComplianceModules]);
 
   if (isLoading) {
     return <LoadingComplianceStep />;
@@ -243,23 +316,50 @@ export function ComplianceStep({ onNext }: StepProps) {
             </p>
           </div>
 
-          <div className='space-y-8'>
-            <div className='space-y-2'>
-              <h2 className='font-bold'>Who does the compliance check?</h2>
+          {existingComplianceModules.length !== 0 && (
+            <div className='space-y-4'>
+              <div className='flex flex-col gap-1'>
+                <div className='flex items-center gap-2'>
+                  <h3 className='font-bold'>Which compliance allowlist should Council Members sign?</h3>
+                </div>
+              </div>
+
               {isLoading ? (
                 <div className='flex flex-col gap-4'>
-                  <RadioCardSkeleton />
                   <RadioCardSkeleton />
                   <RadioCardSkeleton />
                 </div>
               ) : (
                 <RadioCard
-                  name='eligibilityRequirements.compliance.existingId'
+                  name='eligibilityRequirements.compliance.existingId' // TODO existingModule
                   localForm={form}
-                  options={complianceManagerOptions as RadioCardOption[]}
+                  options={complianceModuleOptions as RadioCardOption[]}
                   isDisabled={!canEdit || isLoadingList}
-                  defaultValue={form.getValues('eligibilityRequirements.compliance.existingId') || undefined}
                 />
+              )}
+            </div>
+          )}
+
+          <div className='space-y-8'>
+            <div className='space-y-2'>
+              <h2 className='font-bold'>Who does the compliance check?</h2>
+              {existingId === 'new' && (
+                <>
+                  {isLoading ? (
+                    <div className='flex flex-col gap-4'>
+                      <RadioCardSkeleton />
+                      <RadioCardSkeleton />
+                      <RadioCardSkeleton />
+                    </div>
+                  ) : (
+                    <RadioCard
+                      name='eligibilityRequirements.compliance.existingAdmins'
+                      localForm={form}
+                      options={complianceManagerOptions as RadioCardOption[]}
+                      isDisabled={!canEdit || isLoadingList}
+                    />
+                  )}
+                </>
               )}
             </div>
 
@@ -284,7 +384,7 @@ export function ComplianceStep({ onNext }: StepProps) {
                     loading={isLoadingList}
                   />
 
-                  {!showAddForm && existingAdmins === null && (
+                  {!showAddForm && existingAdmins === 'new' && (
                     <Button
                       variant='outline-blue'
                       rounded='full'
@@ -303,7 +403,7 @@ export function ComplianceStep({ onNext }: StepProps) {
               </div>
             )}
 
-            {eligibilityRequirements.compliance.existingAdmins === null && showAddForm && (
+            {existingAdmins === 'new' && showAddForm && (
               <div className='-mx-16 border-b border-gray-200'>
                 <UnifiedUserForm
                   parentForm={form}
