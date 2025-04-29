@@ -46,6 +46,7 @@ export function AgreementStep({ onNext }: StepProps) {
     'existingId',
     'existingAdmins',
   ]);
+  logger.info('existingId', existingId);
 
   const localExistingId = watch('eligibilityRequirements.agreement.existingId');
   const localExistingAdmins = watch('eligibilityRequirements.agreement.existingAdmins');

@@ -116,6 +116,10 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   const localForm = useForm();
   const { setValue, handleSubmit, reset, watch } = localForm;
   const { eligibilityRequirements, organizationName } = councilFormWatch();
+  logger.info('eligibilityRequirements in token step', eligibilityRequirements);
+
+  const { existingId } = eligibilityRequirements.erc20;
+  logger.info('existingId', existingId);
 
   const tokenRequirement = watch('eligibilityRequirements.erc20');
   logger.info('tokenRequirement', tokenRequirement);
@@ -138,6 +142,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20',
       );
     });
+    logger.info('rawCouncilsWithTokenRequirements', rawCouncilsWithTokenRequirements);
 
     const councilsWithTokenRequirements = uniqBy(rawCouncilsWithTokenRequirements, 'address');
 
@@ -149,7 +154,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         ) as CouncilData[],
       };
     });
-
+    logger.info('tokenRequirementsWithCouncilData', tokenRequirementsWithCouncilData);
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
 
@@ -240,27 +245,46 @@ export function TokensStep({ onNext, draftId }: StepProps) {
     [councilFormGetValues, councilFormReset, onNext],
   );
 
+  // Add useEffect to set initial values when component mounts
   useEffect(() => {
-    if (isLoading || isOrgLoading) return;
-    const { address, amount } = pick(eligibilityRequirements?.erc20, ['address', 'amount']);
-    const token = availableTokens.find((t) => toLower(t.address) === toLower(address || undefined));
-    const existingTokenReq = existingTokenRequirements.find(
-      (req) => req.tokenAddress === address && toNumber(req.minimum) === toNumber(amount),
-    );
+    if (isLoading) return;
 
+    const { erc20 } = eligibilityRequirements;
     const initialValues = {
-      tokenRequirement: {
-        minimum: amount ?? 0,
-        address: {
-          value: address ?? '',
-          label: token?.symbol ?? '',
+      eligibilityRequirements: {
+        erc20: {
+          existingId: erc20.existingId || 'new',
+          amount: erc20.amount || 0,
+          address: erc20.address || '',
         },
       },
-      tokenType: existingTokenReq ? `${address}-${amount}` : 'new',
     };
 
     reset(initialValues);
-  }, [isLoading, isOrgLoading]);
+  }, [isLoading, eligibilityRequirements]);
+
+  // useEffect(() => {
+  //   if (isLoading || isOrgLoading) return;
+  //   const { address, amount, existingId } = pick(eligibilityRequirements?.erc20, ['address', 'amount', 'existingId']);
+  //   logger.info('existingId', existingId);
+  //   const token = availableTokens.find((t) => toLower(t.address) === toLower(address || undefined));
+  //   const existingTokenReq = existingTokenRequirements.find(
+  //     (req) => req.tokenAddress === address && toNumber(req.minimum) === toNumber(amount),
+  //   );
+
+  //   const initialValues = {
+  //     tokenRequirement: {
+  //       minimum: amount ?? 0,
+  //       address: {
+  //         value: address ?? '',
+  //         label: token?.symbol ?? '',
+  //       },
+  //     },
+  //     tokenType: existingTokenReq ? `${address}-${amount}` : 'new',
+  //   };
+
+  //   reset(initialValues);
+  // }, [isLoading, isOrgLoading]);
 
   if (isLoading) {
     return <LoadingTokensStep />;
@@ -290,7 +314,12 @@ export function TokensStep({ onNext, draftId }: StepProps) {
               <RadioCardSkeleton />
             </div>
           ) : (
-            <RadioCard name='tokenType' localForm={localForm} options={tokenOptions} isDisabled={!canEdit} />
+            <RadioCard
+              name='eligibilityRequirements.erc20.existingId'
+              localForm={localForm}
+              options={tokenOptions}
+              isDisabled={!canEdit}
+            />
           )}
         </div>
 
