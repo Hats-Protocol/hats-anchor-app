@@ -108,16 +108,33 @@ export function TokensStep({ onNext, draftId }: StepProps) {
     });
     logger.info('rawCouncilsWithTokenRequirements', rawCouncilsWithTokenRequirements);
 
-    const councilsWithTokenRequirements = uniqBy(rawCouncilsWithTokenRequirements, 'address');
+    // Filter out null/undefined requirements first
+    const validRequirements = rawCouncilsWithTokenRequirements?.filter((requirement) => !!requirement);
 
-    const tokenRequirementsWithCouncilData = councilsWithTokenRequirements.map((tokenRequirement) => {
-      return {
-        ...tokenRequirement,
-        councils: councilsData?.filter((council) =>
+    const councilsWithTokenRequirements = uniqBy(validRequirements, 'address');
+
+    const tokenRequirementsWithCouncilData = councilsWithTokenRequirements
+      .map((tokenRequirement) => {
+        const associatedCouncils = councilsData?.filter((council) =>
           map(flatten(council.eligibilityRules), 'address').includes(tokenRequirement?.address || '0x'),
-        ) as CouncilData[],
-      };
-    });
+        ) as CouncilData[];
+
+        // Only include requirements that have valid council data and ERC20 requirements
+        if (
+          associatedCouncils.length === 0 ||
+          !associatedCouncils[0]?.eligibilityRequirements?.erc20?.address ||
+          !associatedCouncils[0]?.eligibilityRequirements?.erc20?.amount
+        ) {
+          return null;
+        }
+
+        return {
+          ...tokenRequirement,
+          councils: associatedCouncils,
+        };
+      })
+      .filter(Boolean); // Remove any null entries
+
     logger.info('tokenRequirementsWithCouncilData', tokenRequirementsWithCouncilData);
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
@@ -127,29 +144,37 @@ export function TokensStep({ onNext, draftId }: StepProps) {
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
     () => [
-      ...existingTokenRequirements.map((requirement) => {
-        logger.info('requirement', requirement);
-        const token = availableTokens.find(
-          (t) =>
-            toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
-        );
-        return {
-          value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}`,
-          label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
-          icon: GemIcon as IconType,
-          description: requirement?.councils?.[0]?.creationForm?.councilName,
-          onSelect: () => {
-            setValue(
-              'eligibilityRequirements.erc20.amount',
-              parseFloat(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount || '0'),
-            );
-            setValue('eligibilityRequirements.erc20.address', {
-              value: requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || '',
-              label: token?.symbol || '',
-            });
-          },
-        };
-      }),
+      ...existingTokenRequirements
+        .map((requirement) => {
+          logger.info('requirement', requirement);
+          const token = availableTokens.find(
+            (t) =>
+              toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
+          );
+
+          // Skip if we don't have valid token information
+          if (!token || !requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount) {
+            return null;
+          }
+
+          return {
+            value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}`,
+            label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
+            icon: GemIcon as IconType,
+            description: requirement?.councils?.[0]?.creationForm?.councilName,
+            onSelect: () => {
+              setValue(
+                'eligibilityRequirements.erc20.amount',
+                parseFloat(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount || '0'),
+              );
+              setValue('eligibilityRequirements.erc20.address', {
+                value: requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || '',
+                label: token?.symbol || '',
+              });
+            },
+          };
+        })
+        .filter(Boolean), // Remove any null entries
       {
         value: 'new',
         label: 'Create a new Token Limit',
@@ -163,7 +188,7 @@ export function TokensStep({ onNext, draftId }: StepProps) {
         },
       },
     ],
-    [existingTokenRequirements, availableTokens],
+    [existingTokenRequirements, availableTokens, setValue],
   );
 
   const submitForm = useCallback(
