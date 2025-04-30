@@ -324,7 +324,6 @@ export function AgreementStep({ onNext }: StepProps) {
               name='eligibilityRequirements.agreement.content'
               localForm={form}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
-              // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
               isDisabled={existingId !== 'new'}
             />
           </div>
@@ -332,8 +331,6 @@ export function AgreementStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
-              {/* @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms */}
-
               {existingId === 'new' && (
                 <>
                   {isLoading ? (
