@@ -637,7 +637,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     hsgArgs,
     chainId: toNumber(form.getValues().chain?.value),
     draftId,
-    moduleAddresses: undefined,
+    moduleAddresses,
     handlePendingTx,
     waitForSubgraph,
     setDeployStatus,
