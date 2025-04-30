@@ -8,21 +8,24 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { CouncilData, CouncilFormData, StepProps } from 'types';
+import { Skeleton } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
-import { NextStepButton } from '../../next-step-button';
-import { findNextInvalidStep, getNextStepButtonText } from '../utils';
-import { LoadingTokensStep, RadioCardSkeleton } from './tokens-step/tokens-skeletons';
+import { NextStepButton } from '../../../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
+import { LoadingTokensStep, RadioCardSkeleton } from './tokens-skeletons';
 
 export function TokensStep({ onNext }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens, councilsData } = useCouncilForm();
   const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
   const localForm = useForm();
-  const { setValue, handleSubmit, watch } = localForm;
+  const { setValue, handleSubmit, reset, watch } = localForm;
   const { eligibilityRequirements } = councilFormWatch();
+  logger.info('eligibilityRequirements in token step', eligibilityRequirements);
 
   const { existingId } = eligibilityRequirements.erc20;
+  logger.info('existingId', existingId);
 
   const tokenRequirement = watch('eligibilityRequirements.erc20');
 
@@ -34,6 +37,7 @@ export function TokensStep({ onNext }: StepProps) {
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20',
       );
     });
+    logger.info('rawCouncilsWithTokenRequirements', rawCouncilsWithTokenRequirements);
 
     // Filter out null/undefined requirements first
     const validRequirements = rawCouncilsWithTokenRequirements?.filter((requirement) => !!requirement);
@@ -62,14 +66,18 @@ export function TokensStep({ onNext }: StepProps) {
       })
       .filter(Boolean); // Remove any null entries
 
+    logger.info('tokenRequirementsWithCouncilData', tokenRequirementsWithCouncilData);
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
+
+  logger.info('existingTokenRequirements', existingTokenRequirements);
 
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
     () =>
       compact([
         ...existingTokenRequirements.map((requirement) => {
+          logger.info('requirement', requirement);
           const token = availableTokens.find(
             (t) =>
               toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
@@ -81,7 +89,7 @@ export function TokensStep({ onNext }: StepProps) {
           }
 
           return {
-            value: requirement?.address,
+            value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}`,
             label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
             icon: GemIcon as IconType,
             description: requirement?.councils?.[0]?.creationForm?.councilName,

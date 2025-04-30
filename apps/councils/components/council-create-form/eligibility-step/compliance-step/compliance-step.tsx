@@ -36,9 +36,11 @@ export function ComplianceStep({ onNext }: StepProps) {
 
   const eligibilityRequirements = form.watch('eligibilityRequirements');
   const { existingId, existingAdmins } = pick(eligibilityRequirements.compliance, ['existingId', 'existingAdmins']);
+  logger.info('existingId', existingAdmins);
 
   logger.info('eligibilityRequirments compliance', eligibilityRequirements);
   const complianceAdmins = form.watch('complianceAdmins') || [];
+  logger.info('complianceAdmins', complianceAdmins);
 
   // // Add useEffect to set initial values when component mounts // TODO: Come back to this, causing error in the context
   // useEffect(() => {
@@ -111,6 +113,7 @@ export function ComplianceStep({ onNext }: StepProps) {
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
 
+  logger.info('existingComplianceModules', existingComplianceModules);
   // TODO: handle the setValue more robustly incase the agreementAdmins is not set on the first council (line 125)
   // Create radio options from existing agreements and add the "Create new" option
   const complianceModuleOptions = useMemo(
@@ -247,7 +250,6 @@ export function ComplianceStep({ onNext }: StepProps) {
         onSelect: () => form.setValue('complianceAdmins', organizationManagers),
       },
       ...complianceAdminGroups,
-
       {
         value: 'new',
         label: 'Create new Compliance Managers',
@@ -257,7 +259,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     ],
     [organizationManagers, form],
   );
-
+  logger.info('complianceManagerOptions', complianceManagerOptions);
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || isLoading;
 
@@ -287,13 +289,6 @@ export function ComplianceStep({ onNext }: StepProps) {
     },
     [form, onNext],
   );
-
-  // logger.info('existingComplianceModules', existingComplianceModules);
-  // useEffect(() => {
-  //   if (existingComplianceModules.length === 0) {
-  //     form.setValue('eligibilityRequirements.compliance.existingId', 'new');
-  //   }
-  // }, [existingComplianceModules]);
 
   // Set initial selection to first existing agreement if available
   useEffect(() => {
