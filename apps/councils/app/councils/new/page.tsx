@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { Suspense } from 'react';
 import { Skeleton } from 'ui';
-import { CREATE_INITIAL_FORM, CREATE_USER, getCouncilsGraphqlClient, logger } from 'utils';
+import { CREATE_COUNCIL_FORM, CREATE_USER, getCouncilsGraphqlClient, logger } from 'utils';
 import { useChainId } from 'wagmi';
 
 const NewCouncilContent = () => {
@@ -47,9 +47,10 @@ const NewCouncilContent = () => {
         // Then create the council form
         const result: {
           createCouncilCreationForm: { id: string };
-        } = await getCouncilsGraphqlClient(accessToken ?? undefined).request(CREATE_INITIAL_FORM, {
+        } = await getCouncilsGraphqlClient(accessToken ?? undefined).request(CREATE_COUNCIL_FORM, {
           creator: user!.wallet!.address,
           chain: chainId,
+          // TODO handle existing admins for second councils
           admins: [
             {
               id: userResult.createUser.id,

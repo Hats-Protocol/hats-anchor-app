@@ -215,7 +215,7 @@ const MemberRow = ({
         userLabel='Council Member'
         chainId={chainId as SupportedChains}
         councilId={offchainCouncilData?.creationForm?.id}
-        existingUsers={offchainCouncilData?.members || []}
+        existingUsers={offchainCouncilData?.creationForm?.members || []}
       />
       <MemberStatusModal
         user={fullMember}

@@ -6,6 +6,8 @@ import { Skeleton } from 'ui';
 
 import { AdminCard } from './admin-card';
 
+// TODO should be able to use this for all admin list forms
+
 type AgreementAdminsListProps = {
   agreementAdmins: CouncilMember[];
   form: UseFormReturn<CouncilFormData>;

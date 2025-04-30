@@ -15,7 +15,7 @@ import { useMutation } from '@tanstack/react-query';
 import { concat, find, first, flatten, get, map } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import { SetStateAction, useMemo } from 'react';
+import { SetStateAction, useCallback, useMemo } from 'react';
 import { Dispatch } from 'react';
 import { Call, CouncilFormData, DeployStatus, HandlePendingTx, ModulesAddresses } from 'types';
 import {
@@ -60,102 +60,106 @@ const useCouncilDeploy = ({
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
   const { toast } = useToast();
+  console.log('moduleAddresses', moduleAddresses);
 
   const router = useRouter();
 
   // after accepted, included, indexed
-  const onSuccess = async (data: TransactionReceipt | undefined, extraLogs: Log<any, any, any>[] = []) => {
-    if (!data || !draftId) return;
-    logger.info('Transaction successful', data);
-    // TODO handle hat creation data
-    const hatCreatedLogs = parseEventLogs({
-      logs: concat(data.logs, extraLogs),
-      abi: HATS_ABI,
-      eventName: 'HatCreated',
-    });
-    const hsgCreatedLogs = parseEventLogs({
-      logs: concat(data.logs, extraLogs),
-      abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
-      eventName: 'ModuleProxyCreation',
-    });
-    const hatsModulesClient = await createHatsModulesClient(chainId);
-    if (!hatsModulesClient) {
-      logger.error('Failed to create hats modules client');
-      throw new Error('Failed to create hats modules client');
-    }
-    // logger.debug('relevant deploy logs', { hatCreatedLogs, hsgCreatedLogs });
+  const onSuccess = useCallback(
+    async (data: TransactionReceipt | undefined, extraLogs: Log<any, any, any>[] = []) => {
+      if (!data || !draftId) return;
+      logger.info('Transaction successful', data);
+      // TODO handle hat creation data
+      const hatCreatedLogs = parseEventLogs({
+        logs: concat(data.logs, extraLogs),
+        abi: HATS_ABI,
+        eventName: 'HatCreated',
+      });
+      const hsgCreatedLogs = parseEventLogs({
+        logs: concat(data.logs, extraLogs),
+        abi: ZODIAC_MODULE_PROXY_FACTORY_ABI,
+        eventName: 'ModuleProxyCreation',
+      });
+      const hatsModulesClient = await createHatsModulesClient(chainId);
+      if (!hatsModulesClient) {
+        logger.error('Failed to create hats modules client');
+        throw new Error('Failed to create hats modules client');
+      }
 
-    setDeployStatus((prev) => ({ ...prev, processTx: true }));
+      setDeployStatus((prev) => ({ ...prev, processTx: true }));
 
-    // get hsg address
-    const hsgAddress = get(
-      find(hsgCreatedLogs, (log: { args: { masterCopy: string } }) => log.args.masterCopy === HSG_V2_ADDRESS),
-      'args.proxy',
-    );
-    // on second + council the hat logs are separate from the final (hsg) tx result data
-    const firstHatId = hatIds?.topHat || get(first(hatCreatedLogs), 'args.id');
-    const treeId = firstHatId ? hatIdToTreeId(firstHatId) : undefined;
+      // get hsg address
+      const hsgAddress = get(
+        find(hsgCreatedLogs, (log: { args: { masterCopy: string } }) => log.args.masterCopy === HSG_V2_ADDRESS),
+        'args.proxy',
+      );
+      // on second + council the hat logs are separate from the final (hsg) tx result data
+      const firstHatId = hatIds?.topHat || get(first(hatCreatedLogs), 'args.id');
+      const treeId = firstHatId ? hatIdToTreeId(firstHatId) : undefined;
 
-    // Check if organization already exists
-    const accessToken = await getAccessToken();
-    const orgName =
-      typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName;
-    const existingOrg = await getCouncilsGraphqlClient(accessToken ?? undefined).request<OrganizationResponse>(
-      ORGANIZATION_BY_NAME_QUERY,
-      { name: orgName },
-    );
+      // Check if organization already exists
+      const accessToken = await getAccessToken();
+      const orgName =
+        typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName;
+      const existingOrg = await getCouncilsGraphqlClient(accessToken ?? undefined).request<OrganizationResponse>(
+        ORGANIZATION_BY_NAME_QUERY,
+        { name: orgName },
+      );
 
-    // get or create organization
-    let organizationId;
-    if (existingOrg.organizations && existingOrg.organizations.length > 0) {
-      // Use existing organization
-      organizationId = existingOrg.organizations[0].id;
-    } else {
-      // Create new organization
-      const organization = await createOrganization({
-        name: orgName,
+      // get or create organization
+      let organizationId;
+      if (existingOrg.organizations && existingOrg.organizations.length > 0) {
+        // Use existing organization
+        organizationId = existingOrg.organizations[0].id;
+      } else {
+        // Create new organization
+        const organization = await createOrganization({
+          name: orgName,
+          accessToken,
+        });
+        organizationId = get(organization, 'createOrganization.id');
+      }
+
+      logger.info('organization id', organizationId, moduleAddresses);
+      logger.info('module addresses', moduleAddresses);
+      // create council record
+      const council = await addCouncilForForm({
+        chainId,
+        organizationId,
+        hsgAddress,
+        treeId, // get from hatId
+        membersSelectionModule: moduleAddresses?.councilMemberAllowlist,
+        membersCriteriaModule: moduleAddresses?.complianceAllowlist,
+        deployed: true,
         accessToken,
       });
-      organizationId = get(organization, 'createOrganization.id');
-    }
+      logger.info('council created', council);
+      const councilId = get(council, 'createCouncil.id');
 
-    logger.info('organization id', organizationId, moduleAddresses);
-    // create council record
-    const council = await addCouncilForForm({
-      chainId,
-      organizationId,
-      hsgAddress,
-      treeId, // get from hatId
-      membersSelectionModule: moduleAddresses?.councilMemberAllowlist,
-      membersCriteriaModule: moduleAddresses?.complianceAllowlist,
-      deployed: true,
-      accessToken,
-    });
-    logger.info('council created', council);
-    const councilId = get(council, 'createCouncil.id');
+      // update council form with council ID
+      await updateCouncilForm({
+        draftId,
+        councilId,
+        accessToken,
+      });
+      logger.debug('council form updated with council id:', councilId);
 
-    // update council form with council ID
-    await updateCouncilForm({
-      draftId,
-      councilId,
-      accessToken,
-    });
-    logger.debug('council form updated with council id:', councilId);
+      setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
 
-    setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
+      posthog.capture('Council Deployed', {
+        councilName: formData.councilName,
+        organizationName: formData.organizationName,
+        chain: chainsMap(chainId)?.name,
+        hsgAddress,
+      });
 
-    posthog.capture('Council Deployed', {
-      councilName: formData.councilName,
-      organizationName: formData.organizationName,
-      chain: chainsMap(chainId)?.name,
-      hsgAddress,
-    });
-
-    // redirect without updating final `setDeployStatus`
-    const redirectUrl = `/councils/${chainIdToString(chainId)}:${hsgAddress}/members`;
-    logger.debug('redirecting to ', redirectUrl);
-    router.push(redirectUrl);
-  };
+      // redirect without updating final `setDeployStatus`
+      const redirectUrl = `/councils/${chainIdToString(chainId)}:${hsgAddress}/members`;
+      logger.debug('redirecting to ', redirectUrl);
+      router.push(redirectUrl);
+    },
+    [chainId, draftId, formData?.councilName, formData?.organizationName, moduleAddresses, hatIds?.topHat, router],
+  );
 
   const simulateFullMulticall = useSimulateContract({
     address: address && calls && firstCouncil ? MULTICALL3_ADDRESS : undefined,
@@ -265,7 +269,7 @@ const useCouncilDeploy = ({
     handlePendingTx?.({
       hash,
       txChainId: chainId,
-      txDescription: 'Deploying council',
+      txDescription: 'Deploying council Roles',
       waitForSubgraph,
       onTxAccepted: () => {
         setDeployStatus((prev) => ({ ...prev, confirmHatsTx: true }));
@@ -354,7 +358,7 @@ const useCouncilDeploy = ({
     handlePendingTx?.({
       hash,
       txChainId: chainId,
-      txDescription: 'Deploying modules',
+      txDescription: 'Deploying Modules & Eligibility Chain',
       waitForSubgraph,
       onTxAccepted: () => {
         setDeployStatus((prev) => ({ ...prev, confirmModulesTx: true }));
@@ -419,17 +423,15 @@ const useCouncilDeploy = ({
     const client = viemPublicClient(chainId);
     const otherTxs = localStorage.getItem(`deploy-txs-${draftId}`);
     const extraTxs = otherTxs ? JSON.parse(otherTxs) : [];
-    console.log('extraTxs', extraTxs);
     const extraLogsFetch = map(extraTxs, async (tx: string) => {
       const receipt = await client.waitForTransactionReceipt({ hash: tx as `0x${string}` });
       return receipt.logs;
     });
     const extraLogs = await Promise.all(extraLogsFetch);
-    console.log('extraLogs', extraLogs);
     handlePendingTx?.({
       hash,
       txChainId: chainId,
-      txDescription: 'Deploying hsg',
+      txDescription: 'Deploying HSG & Safe',
       waitForSubgraph,
       onTxAccepted: () => {
         setDeployStatus((prev) => ({ ...prev, confirmHsgTx: true }));

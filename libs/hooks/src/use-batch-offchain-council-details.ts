@@ -1,6 +1,6 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueries } from '@tanstack/react-query';
-import { OffchainCouncilData } from 'types';
+import { CouncilFormData } from 'types';
 import { getBatchOffchainCouncilData } from 'utils';
 import { Hex } from 'viem';
 
@@ -8,6 +8,25 @@ interface Council {
   hsg: Hex;
   chainId: number;
 }
+
+// TODO align with existing types
+type OffchainCouncilData = {
+  id: string;
+  hsg: string;
+  membersSelectionModule: string | undefined;
+  membersCriteriaModule: string | undefined;
+  creationForm: CouncilFormData;
+  organization: {
+    name: string;
+  };
+  // members: CouncilMember[];
+  // admins: CouncilMember[];
+  // complianceAdmins: CouncilMember[];
+  // payer: CouncilPayer;
+  treeId: number;
+  chain: number;
+  deployed: boolean;
+};
 
 export const useBatchOffchainCouncilDetails = (councils: Council[]) => {
   const { getAccessToken } = usePrivy();

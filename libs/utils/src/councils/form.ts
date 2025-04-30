@@ -24,13 +24,26 @@ import {
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { compact, every, filter, find, includes, map, omit, reject, toNumber, toString } from 'lodash';
+import { compact, every, filter, find, includes, keys, map, reject, toNumber } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
-import { Address, decodeEventLog, encodeFunctionData, encodePacked, parseUnits, PublicClient, zeroAddress } from 'viem';
+import {
+  Address,
+  decodeEventLog,
+  encodeFunctionData,
+  encodePacked,
+  Hex,
+  parseUnits,
+  PublicClient,
+  zeroAddress,
+} from 'viem';
 import { encodeAbiParameters } from 'viem';
 
 import { logger } from '../logs';
+import { getKnownEligibilityModule } from '../modules';
 import { viemPublicClient } from '../web3';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Args = [any[], any[]];
 
 export const compileHatIds = ({
   treeData,
@@ -91,19 +104,23 @@ const processModule = async ({
 }: {
   hatId: bigint;
   implementation: string;
-  args: [any[], any[]];
-  immutableArgs?: [any[], any[]];
+  args: Args;
+  immutableArgs: Args | undefined;
   offset: number;
   requirementsKey?: string;
   formData: CouncilFormData;
   publicClient: PublicClient;
 }) => {
-  if (requirementsKey && !formData.requirements[requirementsKey as keyof typeof formData.requirements]) {
+  if (
+    requirementsKey &&
+    !formData.eligibilityRequirements[requirementsKey as keyof typeof formData.eligibilityRequirements]?.required
+  ) {
     return undefined;
   }
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) + (offset ? BigInt(offset) : BigInt(0));
 
   let localImmutableArgs = '0x' as `0x${string}`;
+  console.log(getKnownEligibilityModule(implementation as Hex), immutableArgs);
   if (immutableArgs) {
     localImmutableArgs = encodePacked(immutableArgs[0], immutableArgs[1]);
   }
@@ -139,8 +156,8 @@ const processModule = async ({
 type Module = {
   address: `0x${string}`;
   hatId: bigint;
-  args: [any[], any[]];
-  immutableArgs?: [any[], any[]];
+  args: Args;
+  immutableArgs?: Args;
   requirementsKey?: string;
 };
 
@@ -153,14 +170,14 @@ const modules = ({
   hatIds: CouncilHatIds;
   formData: CouncilFormData;
   agreementCid: string;
-  tokenDecimals: number;
+  tokenDecimals: number | undefined;
 }): Record<string, Module> => {
   const claimableHats = [hatIds.councilMember, hatIds.complianceManager, hatIds.agreementManager];
 
   const complianceAllowlist: Module = {
     address: ALLOWLIST_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
-    requirementsKey: 'passCompliance',
+    requirementsKey: 'compliance',
     args: [
       [{ type: 'uint256' }, { type: 'uint256' }],
       [hatIds.complianceManager, hatIds.complianceManager],
@@ -170,33 +187,32 @@ const modules = ({
   const agreementModule: Module = {
     address: AGREEMENT_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
-    requirementsKey: 'signAgreement',
+    requirementsKey: 'agreement',
     args: [
       [{ type: 'uint256' }, { type: 'uint256' }, { type: 'string' }],
       [hatIds.agreementManager, hatIds.agreementManager, agreementCid],
     ],
   };
 
-  console.log(
-    'erc20Module',
-    // ERC20_ELIGIBILITY_ADDRESS,
-    // hatIds.councilMember,
-    formData.tokenRequirement?.address?.value,
-    tokenDecimals,
-  );
   const erc20Module: Module = {
     address: ERC20_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
-    requirementsKey: 'holdTokens',
+    requirementsKey: 'erc20',
     args: [[], []],
     immutableArgs: [
       ['address', 'uint256'],
       [
-        formData.tokenRequirement?.address?.value as `0x${string}`,
-        parseUnits(toString(formData.tokenRequirement?.minimum), tokenDecimals),
+        // @ts-expect-error not typed with the object here
+        formData.eligibilityRequirements?.erc20?.address?.value as `0x${string}`,
+        parseUnits(formData.eligibilityRequirements?.erc20?.amount || '0', tokenDecimals || 18),
       ],
     ],
   };
+  const enableErc20 =
+    !!formData.eligibilityRequirements?.erc20?.required &&
+    // @ts-expect-error not typed with the object here
+    !!formData.eligibilityRequirements?.erc20?.address?.value &&
+    !!tokenDecimals;
 
   const requiredModules: Record<string, Module> = {
     multiClaimsHatter: {
@@ -220,9 +236,9 @@ const modules = ({
 
   return {
     ...requiredModules,
-    ...(formData.requirements?.signAgreement ? { agreementModule } : {}),
-    ...(formData.requirements?.passCompliance ? { complianceAllowlist } : {}),
-    ...(formData.requirements?.holdTokens && formData.tokenRequirement?.address?.value ? { erc20Module } : {}),
+    ...(formData.eligibilityRequirements?.agreement?.required ? { agreementModule } : {}),
+    ...(formData.eligibilityRequirements?.compliance?.required ? { complianceAllowlist } : {}),
+    ...(enableErc20 ? { erc20Module } : {}),
   };
 };
 
@@ -241,34 +257,37 @@ export const compileModuleData = async ({
 
   // prep values for module creation
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-  const tokenDecimals = formData.tokenRequirement?.address?.value
-    ? getTokenDecimals(chainId, formData.tokenRequirement.address?.value as `0x${string}`)
-    : undefined;
+
+  let tokenDecimals;
+  // @ts-expect-error not typed with the object here
+  if (formData.eligibilityRequirements?.erc20?.address?.value) {
+    // @ts-expect-error not typed with the object here
+    tokenDecimals = getTokenDecimals(chainId, formData.eligibilityRequirements.erc20.address.value as `0x${string}`);
+  }
+  const modulesData = modules({ hatIds, formData, agreementCid, tokenDecimals: tokenDecimals as number });
+  logger.debug('MODULES DATA', modulesData);
 
   // create modules data
-  const modulesPromises = map(
-    Object.values(modules({ hatIds, formData, agreementCid, tokenDecimals: tokenDecimals as number })),
-    (module, index) => {
-      if (!module) return Promise.resolve(undefined);
+  const modulesPromises = map(Object.values(modulesData), (module, index) => {
+    if (!module) return Promise.resolve(undefined);
 
-      return processModule({
-        hatId: module.hatId,
-        implementation: module.address,
-        args: module.args as [any[], any[]],
-        requirementsKey: module.requirementsKey,
-        offset: toNumber(index),
-        formData,
-        publicClient,
-      });
-    },
-  );
+    return processModule({
+      hatId: module.hatId,
+      implementation: module.address,
+      args: module.args as Args,
+      immutableArgs: module.immutableArgs as Args,
+      requirementsKey: module.requirementsKey,
+      offset: toNumber(index),
+      formData,
+      publicClient,
+    });
+  });
 
   const rawLocalModules = await Promise.all(Object.values(modulesPromises)).catch((err) => {
     logger.error('Error compiling module data', err);
     return Promise.reject(err);
   });
   const localModules = compact(rawLocalModules);
-  // logger.debug('LOCAL MODULES', localModules);
 
   // retrieve values from module creation data
   const implementations: `0x${string}`[] = compact(
@@ -282,13 +301,25 @@ export const compileModuleData = async ({
   // retrieve module addresses
   const multiClaimsHatter = find(localModules, { implementation: MULTI_CLAIMS_HATTER_V1_ADDRESS })?.address;
   const councilMemberAllowlist = find(localModules, { implementation: ALLOWLIST_ELIGIBILITY_ADDRESS })?.address;
-  const complianceAllowlist = find(
+  const newComplianceAllowlist = find(
     localModules,
-    // TODO better matching option, very primative
+    // TODO better matching option, very primitive
     (module, index) => module.implementation === ALLOWLIST_ELIGIBILITY_ADDRESS && index > 1,
   )?.address;
-  const agreementModule = find(localModules, { implementation: AGREEMENT_ELIGIBILITY_ADDRESS })?.address;
-  const erc20Module = find(localModules, { implementation: ERC20_ELIGIBILITY_ADDRESS })?.address;
+  const complianceAllowlist =
+    formData.eligibilityRequirements?.compliance?.existingId !== 'new'
+      ? formData.eligibilityRequirements?.compliance?.existingId || undefined
+      : newComplianceAllowlist;
+  const newAgreementModule = find(localModules, { implementation: AGREEMENT_ELIGIBILITY_ADDRESS })?.address;
+  const agreementModule =
+    formData.eligibilityRequirements?.agreement?.existingId !== 'new'
+      ? formData.eligibilityRequirements?.agreement?.existingId || undefined
+      : newAgreementModule;
+  const newErc20Module = find(localModules, { implementation: ERC20_ELIGIBILITY_ADDRESS })?.address;
+  const erc20Module =
+    formData.eligibilityRequirements?.erc20?.existingId !== 'new'
+      ? formData.eligibilityRequirements?.erc20?.existingId || undefined
+      : newErc20Module;
 
   if (!multiClaimsHatter || !councilMemberAllowlist) {
     throw new Error('Required modules not found');
@@ -300,35 +331,31 @@ export const compileModuleData = async ({
   let eligibilityChainHatId: bigint;
   let predictedEligibilityChainAddress: `0x${string}` | undefined;
   if (
-    formData.requirements?.passCompliance ||
-    formData.requirements?.signAgreement ||
-    formData.requirements?.holdTokens
+    formData.eligibilityRequirements?.compliance?.required ||
+    formData.eligibilityRequirements?.agreement?.required ||
+    (formData.eligibilityRequirements?.erc20?.required && tokenDecimals)
   ) {
-    let chainLength = 1;
     const chainModules: `0x${string}`[] = [councilMemberAllowlist as `0x${string}`];
-    if (formData.requirements?.passCompliance) {
-      chainLength += 1;
+    if (formData.eligibilityRequirements?.compliance?.required) {
       chainModules.push(complianceAllowlist as `0x${string}`); // use existing address when applicable
     }
-    if (formData.requirements?.signAgreement) {
-      chainLength += 1;
+    if (formData.eligibilityRequirements?.agreement?.required) {
       chainModules.push(agreementModule as `0x${string}`); // use existing address when applicable
     }
-    if (formData.requirements?.holdTokens && formData.tokenRequirement?.address?.value) {
-      chainLength += 1;
+    if (
+      formData.eligibilityRequirements?.erc20?.required &&
+      formData.eligibilityRequirements?.erc20?.address &&
+      tokenDecimals
+    ) {
       chainModules.push(erc20Module as `0x${string}`);
     }
-    // logger.debug('chainModules', chainModules);
     eligibilityChainInitArgs = '0x' as `0x${string}`;
+    const compactChainModules = compact(chainModules); // don't pass empty modules, causes invalid calldata
+    const chainLength = compactChainModules.length;
     eligibilityChainImmutableArgs = encodePacked(
       ['uint256', 'uint256[]', ...Array(chainLength).fill('address')],
-      [BigInt(1), [BigInt(chainLength)], ...chainModules],
+      [BigInt(1), [BigInt(chainLength)], ...compactChainModules],
     );
-    // logger.info('eligibility chain args', {
-    //   chainLength,
-    //   clauseLengths: BigInt(chainLength),
-    //   chainModules,
-    // });
     eligibilityChainHatId = hatIds.councilMember;
     predictedEligibilityChainAddress = (await publicClient.readContract({
       address: HATS_MODULES_FACTORY_ADDRESS,
@@ -513,23 +540,23 @@ export const compileHatCreationData = async ({
     orgRolesGroupHat,
     councilRolesGroupHat,
     councilAdminHat,
-    formData.createComplianceAdminRole ? complianceManagerHat : undefined,
-    formData.createAgreementAdminRole ? agreementManagerHat : undefined,
+    !formData.eligibilityRequirements?.compliance?.existingId ? complianceManagerHat : undefined,
+    !formData.eligibilityRequirements?.agreement?.existingId ? agreementManagerHat : undefined,
     councilMemberHat,
     councilHat,
   ]);
 
   // check if hats already exist in the tree
-  const otherHatsToCreate = reject(otherHats, (hat) =>
+  const hatsToCreate = reject(otherHats, (hat) =>
     includes(
       map(tree?.hats, (hat) => hatIdHexToDecimal(hat.id)),
       hat.id,
     ),
   );
-  logger.debug('otherHatsToCreate', otherHatsToCreate);
 
   // handle top hats for new trees
-  if (!tree?.hats?.length) {
+  const createTopHat = !tree?.hats?.length;
+  if (createTopHat) {
     // handle top hat specifically
     const topHatCid = await hatsDetailsClient.pin({
       type: '1.0',
@@ -547,7 +574,7 @@ export const compileHatCreationData = async ({
   }
 
   // iterate through hats and create call data
-  for (const hat of otherHatsToCreate) {
+  for (const hat of hatsToCreate) {
     let hatCid = hat.ipfsCid;
     if (!hatCid) {
       // should only happen for the top hat currently
@@ -565,16 +592,24 @@ export const compileHatCreationData = async ({
       imageURI: '',
     };
 
+    const excludedKeys = ['ipfsCid', 'id'];
+    const hatDetails = filter(keys(hat), (key) => !excludedKeys.includes(key) && hat[key as keyof Hat] !== undefined);
+    const hatDetailsObject = hatDetails.reduce((acc: Record<string, unknown>, key) => {
+      acc[key as keyof Hat] = hat[key as keyof Hat];
+      return acc;
+    }, {});
+
     const callData = hatsClient.createHatCallData({
       ...defaultHatValues,
-      ...omit(hat, ['ipfsCid', 'id']),
+      ...hatDetailsObject,
+      admin: hat.admin,
       details: `ipfs://${hatCid}`,
       eligibility: hat.eligibility || FALLBACK_ADDRESS,
     });
     hatsProtocolCalls.push(callData.callData);
   }
 
-  return { hatsProtocolCalls };
+  return { hatsProtocolCalls, hatsToCreate, createTopHat };
 };
 
 export const compileHatMintCallData = ({
@@ -596,14 +631,19 @@ export const compileHatMintCallData = ({
     // TODO toast?
     throw new Error('Multi claims hatter address not found');
   }
+  const mintedHats: { hatId: string; addresses: string[] }[] = [];
 
   // mint admin hat when it doesn't exist (not updating previous roles with new councils)
   if (!tree || !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.admin) })) {
     const mintAdminHatCallData = hatsClient.batchMintHatsCallData({
-      hatIds: Array(formData.admins.length).fill(computedHatIds.admin),
-      wearers: formData.admins.map((admin) => admin.address),
+      hatIds: Array(formData.admins?.length || 0).fill(computedHatIds.admin),
+      wearers: formData.admins?.map((admin) => admin.address) || [],
     });
     hatsProtocolCalls.push(mintAdminHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.admin),
+      addresses: formData.admins?.map((admin) => admin.address) || [],
+    });
   }
 
   // mint automations hat when it doesn't exist (not updating previous roles with new councils)
@@ -613,14 +653,18 @@ export const compileHatMintCallData = ({
       wearer: moduleAddresses.multiClaimsHatter,
     });
     hatsProtocolCalls.push(mintAutomationsHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.automations),
+      addresses: [moduleAddresses.multiClaimsHatter],
+    });
   }
 
   // ! DON'T mint council member hat on deploy (it will be revoked by the eligibility module)
 
   // mint compliance manager hat if compliance is required and compliance admin role doesn't exist already
   if (
-    formData.requirements?.passCompliance && // is a requirement
-    formData.createComplianceAdminRole === 'true' && // wants to create a new role
+    formData.eligibilityRequirements?.compliance?.required && // is a requirement
+    formData.eligibilityRequirements?.compliance?.set && // wants to create a new role
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.complianceManager) }) // doesn't exist already
   ) {
     const mintComplianceManagerHatCallData = hatsClient.batchMintHatsCallData({
@@ -628,12 +672,16 @@ export const compileHatMintCallData = ({
       wearers: formData.complianceAdmins.map((admin) => admin.address),
     });
     hatsProtocolCalls.push(mintComplianceManagerHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.complianceManager),
+      addresses: formData.complianceAdmins.map((admin) => admin.address),
+    });
   }
 
   // mint agreement manager hat if agreement is required and agreement admin role doesn't exist already
   if (
-    formData.requirements?.signAgreement && // is a requirement
-    formData.createAgreementAdminRole === 'true' && // wants to create a new role
+    formData.eligibilityRequirements?.agreement?.required && // is a requirement
+    formData.eligibilityRequirements?.agreement?.set && // wants to create a new role
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.agreementManager) }) // doesn't exist already
   ) {
     const mintAgreementManagerHatCallData = hatsClient.batchMintHatsCallData({
@@ -641,9 +689,13 @@ export const compileHatMintCallData = ({
       wearers: formData.agreementAdmins.map((admin) => admin.address),
     });
     hatsProtocolCalls.push(mintAgreementManagerHatCallData.callData);
+    mintedHats.push({
+      hatId: hatIdDecimalToIp(computedHatIds.agreementManager),
+      addresses: formData.agreementAdmins.map((admin) => admin.address),
+    });
   }
 
-  return { hatsProtocolCalls };
+  return { hatsProtocolCalls, mintedHats };
 };
 
 export const compileHsgV2CallData = ({
@@ -657,7 +709,6 @@ export const compileHsgV2CallData = ({
 
   if (!formData.thresholdType || !computedHatIds) return { hsgV2Calldata: undefined, hsgArgs: undefined };
 
-  console.log('formData', formData);
   // create hsg v2 call data
   const hsgV2InitArgs = encodeAbiParameters(
     [
@@ -778,7 +829,7 @@ export const simulateSafeAddress = async ({
   });
 
   const simulationResult = await simulationResponse.json();
-  logger.info(`simulationResult ${simulationResult.transaction.status ? 'successful' : 'failed'}`);
+  // logger.info(`simulationResult ${simulationResult.transaction.status ? 'successful' : 'failed'}`);
 
   // Find the safe proxy address from simulation logs
   let safeProxyAddress: Address | undefined;
@@ -786,7 +837,7 @@ export const simulateSafeAddress = async ({
   if (!simulationResult?.transaction?.status) {
     logger.error('Simulation failed');
     toast({ title: 'Simulation failed', description: 'Please try again', variant: 'destructive' });
-    throw new Error('Simulation failed');
+    throw new Error('Simulation failed'); // TODO handle the error
   }
 
   for (const log of simulationResult.transaction.transaction_info.logs) {
@@ -832,7 +883,7 @@ export const simulateSafeAddress = async ({
     throw new Error('Failed to find Safe proxy address in simulation logs');
   }
 
-  logger.info('safeProxyAddress', safeProxyAddress);
+  // logger.info('safeProxyAddress', safeProxyAddress);
 
   return { safeProxyAddress };
 };

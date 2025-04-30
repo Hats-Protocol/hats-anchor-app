@@ -1,5 +1,7 @@
 import { gql } from 'graphql-request';
 
+import { COUNCIL_FRAGMENT } from './council';
+
 export const ORGANIZATION_FRAGMENT = gql`
   fragment OrganizationFragment on Organization {
     id
@@ -12,41 +14,8 @@ export const ORGANIZATION_COUNCIL_FRAGMENT = gql`
     id
     name
     councils {
-      id
-      chain
-      treeId
-      hsg
-      creationForm {
-        id
-        creator
-        chain
-        councilName
-        members {
-          id
-          name
-          address
-          email
-        }
-        admins {
-          id
-          name
-          address
-          email
-        }
-        agreement
-        agreementAdmins {
-          id
-          name
-          address
-        }
-        tokenAmount
-        tokenAddress
-        complianceAdmins {
-          id
-          name
-          address
-        }
-      }
+      ...CouncilFragment
     }
   }
+  ${COUNCIL_FRAGMENT}
 `;

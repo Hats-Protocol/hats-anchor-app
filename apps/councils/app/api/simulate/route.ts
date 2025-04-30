@@ -14,7 +14,7 @@ interface SimulationRequest {
 
 const { TENDERLY_ACCESS_TOKEN, TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG } = process.env;
 
-const TENDERLY_API_URL = `https://api.tenderly.co/api/v1/account/${TENDERLY_ACCOUNT_SLUG}/project/${TENDERLY_PROJECT_SLUG}/simulate`;
+const TENDERLY_API_URL = `https://api.tenderly.co/api/v1/account/${TENDERLY_ACCOUNT_SLUG}/project/${TENDERLY_PROJECT_SLUG}`;
 
 const HEADERS = { 'Content-Type': 'application/json', 'X-Access-Key': TENDERLY_ACCESS_TOKEN as string };
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     state_objects: stateOverrides,
   };
 
-  return fetch(TENDERLY_API_URL, {
+  return fetch(`${TENDERLY_API_URL}/simulate`, {
     method: 'POST',
     headers: HEADERS,
     body: JSON.stringify(simulationConfig),
@@ -50,6 +50,19 @@ export async function POST(request: Request) {
       }
 
       const simulationResult = await response.json();
+      // enable sharing on the simulation
+      const simulationId = simulationResult.simulation.id;
+      const simulationUrl = `${TENDERLY_API_URL}/simulations/${simulationId}/share`;
+      const shareResponse = await fetch(simulationUrl, {
+        method: 'POST',
+        headers: HEADERS,
+      });
+
+      if (!shareResponse.ok) {
+        logger.error('Failed to share simulation', shareResponse);
+        return Response.json({ error: 'Failed to share simulation' }, { status: shareResponse.status });
+      }
+
       return Response.json(simulationResult, { status: 200 });
     })
     .catch((error) => {

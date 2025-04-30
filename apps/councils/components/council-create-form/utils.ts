@@ -1,4 +1,4 @@
-import type { StepValidation } from 'types';
+import type { EligibilityRequirements, StepValidation } from 'types';
 
 interface NextStep {
   step: string;
@@ -9,32 +9,29 @@ export function findNextInvalidStep(
   stepValidation: StepValidation,
   currentStep: string,
   currentSubStep?: string,
-  requirements?: { [key: string]: boolean },
+  eligibilityRequirements?: EligibilityRequirements,
 ): NextStep {
   const steps = ['details', 'threshold', 'selection', 'eligibility', 'deploy'];
   const currentStepIndex = steps.indexOf(currentStep);
 
   // Define eligibility sub-steps order
-  const getEligibilitySubSteps = (reqs: { [key: string]: boolean } = {}) => [
+  const getEligibilitySubSteps = (reqs: EligibilityRequirements = {}) => [
     'management',
-    ...(reqs.signAgreement ? ['agreement'] : []),
-    ...(reqs.holdTokens ? ['tokens'] : []),
-    ...(reqs.passCompliance ? ['compliance'] : []),
+    ...(reqs.agreement?.required ? ['agreement'] : []),
+    ...(reqs.erc20?.required ? ['tokens'] : []),
+    ...(reqs.compliance?.required ? ['compliance'] : []),
     'members',
   ];
-  console.log({ currentStep, currentSubStep, eligibilitySubSteps: getEligibilitySubSteps(requirements) });
 
   // If we're in a eligibility sub-step, check next sub-step first
   if (currentStep === 'eligibility' && currentSubStep) {
-    const subSteps = getEligibilitySubSteps(requirements);
+    const subSteps = getEligibilitySubSteps(eligibilityRequirements);
     const currentSubStepIndex = subSteps.indexOf(currentSubStep);
-    console.log('currentSubStepIndex', { currentSubStepIndex });
 
     // Check remaining sub-steps
     for (let i = currentSubStepIndex + 1; i < subSteps.length; i++) {
       const subStep = subSteps[i];
       if (!stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps]) {
-        console.log('NEXT VALID STEP', { step: 'eligibility', subStep });
         return { step: 'eligibility', subStep };
       }
     }
@@ -44,10 +41,15 @@ export function findNextInvalidStep(
   for (let i = currentStepIndex + 1; i < steps.length; i++) {
     const stepKey = steps[i] as keyof typeof stepValidation;
 
+    // TODO is there a need for a second check on the eligibility sub-steps here?
     if (stepKey === 'eligibility') {
-      const subSteps = getEligibilitySubSteps(requirements);
+      const subSteps = getEligibilitySubSteps(eligibilityRequirements);
       for (const subStep of subSteps) {
-        if (!stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps]) {
+        // get the next sub-step that is not already valid, excluding the current sub-step
+        if (
+          !stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps] &&
+          subStep !== currentSubStep
+        ) {
           return { step: 'eligibility', subStep };
         }
       }

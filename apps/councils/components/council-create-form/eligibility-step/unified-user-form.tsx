@@ -130,7 +130,7 @@ export function UnifiedUserForm({
       const config = USER_TYPE_CONFIG[userType];
       const currentUsers = parentForm.getValues(config.formField) || [];
       parentForm.setValue(config.formField, [...currentUsers, data]);
-      await persistForm('selection', config.persistStep);
+      await persistForm('eligibility', config.persistStep);
       setFormError(null);
       form.reset();
       onClose?.();
@@ -150,6 +150,7 @@ export function UnifiedUserForm({
       const result = await getCouncilsGraphqlClient(accessToken ?? undefined).request<{
         updateUser: CouncilMember;
       }>(UPDATE_USER, variables);
+
       return result.updateUser;
     },
     onMutate: () => {
@@ -159,8 +160,9 @@ export function UnifiedUserForm({
       const config = USER_TYPE_CONFIG[userType];
       const currentUsers = parentForm.getValues(config.formField) || [];
       const updatedUsers = currentUsers.map((user) => (user.id === editingUser?.id ? data : user));
+      logger.info('updatedUsers', updatedUsers);
       parentForm.setValue(config.formField, updatedUsers);
-      persistForm('selection', config.persistStep);
+      persistForm('eligibility', config.persistStep);
       setFormError(null);
       form.reset();
       onClose?.();

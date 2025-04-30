@@ -1,21 +1,21 @@
 'use client';
 
-import { initialDeployMultiStatus } from '@hatsprotocol/constants';
 import { hatIdDecimalToHex, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useCouncilForm, useOverlay } from 'contexts';
 import { useHatDetails } from 'hats-hooks';
-import { useClipboard, useCouncilDeployFlag, useCouncilDetails, useOrganization } from 'hooks';
+import { useClipboard, useCouncilDetails, useOrganization } from 'hooks';
 import { Currency, DocumentChecks } from 'icons';
 import { concat, find, get, map, some, toNumber, uniqBy } from 'lodash';
 import { FileText, GemIcon, Link } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
-import { SupportedChains } from 'types';
+import { CouncilFormData, EligibilityRequirement, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
+import { logger } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -29,6 +29,13 @@ import { RoleSummary } from './role-summary';
 import { StepSummary } from './step-summary';
 
 // TODO handle loading state
+
+const getAdminsForRequirement = (requirement: EligibilityRequirement, formData: CouncilFormData) => {
+  if (requirement.existingAdmins === 'org-managers') {
+    return formData.admins;
+  }
+  return formData.agreementAdmins;
+};
 
 export const DeployStep = ({ draftId }: { draftId: string }) => {
   const {
@@ -53,8 +60,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   const { user } = usePrivy();
   const userChainId = useChainId();
   const { switchChain } = useSwitchChain();
-
-  useCouncilDeployFlag(draftId, true);
+  const { eligibilityRequirements } = formData;
 
   const setCurrentStep = (step: string, subStep?: string) => {
     if (subStep) {
@@ -74,12 +80,15 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   // Helper function to determine if eligibility step is valid
   const isEligibilityStepValid = () => {
+    const {
+      eligibilityRequirements: { agreement, erc20, compliance },
+    } = formData;
     const activeSubSteps = [
       'members',
       'management',
-      ...(formData.requirements?.signAgreement ? ['agreement'] : []),
-      ...(formData.requirements?.holdTokens ? ['tokens'] : []),
-      ...(formData.requirements?.passCompliance ? ['compliance'] : []),
+      ...(agreement?.required ? ['agreement'] : []),
+      ...(erc20?.required ? ['tokens'] : []),
+      ...(compliance?.required ? ['compliance'] : []),
     ];
 
     return activeSubSteps.every(
@@ -104,18 +113,22 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   // TODO get from approved tokens?
   const tokenFields = ['symbol', 'name', 'decimals'];
-  const shouldFetchToken = !!formData.tokenRequirement?.address?.value;
+  const shouldFetchToken = !!formData.eligibilityRequirements.erc20?.address;
+  logger.info('shouldFetchToken', shouldFetchToken);
+  logger.info('formData.eligibilityRequirements.erc20?.address', formData.eligibilityRequirements.erc20?.address);
   const { data: tokenData } = useReadContracts({
     query: { enabled: shouldFetchToken },
     contracts: shouldFetchToken
       ? map(tokenFields, (field: string) => ({
-          address: formData.tokenRequirement.address?.value,
+          // @ts-expect-error // TODO: resolve this -- we need this field due to the object
+          address: formData.eligibilityRequirements.erc20?.address?.value || undefined,
           abi: erc20Abi,
           functionName: field,
           chainId: toNumber(formData.chain.value) || undefined,
         }))
       : [],
   });
+  logger.info('tokenData', tokenData);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
@@ -152,9 +165,16 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const isWrongNetwork = userChainId !== targetChainId;
 
-  const simulating = [simulateCouncil, simulateHats].every(
+  const simulating = [simulateCouncil, simulateHats].some(
     (status) => status?.status === 'pending' && status?.fetchStatus === 'fetching',
   );
+
+  const requirementsCount = useMemo(() => {
+    const { agreement, erc20, compliance } = eligibilityRequirements;
+    logger.info('eligibilityRequirements in deploy-step', eligibilityRequirements);
+
+    return [agreement?.required, erc20?.required, compliance?.required].filter(Boolean).length + 1;
+  }, [eligibilityRequirements]);
 
   const copyCalldata = () => {
     setModals?.({ calldata: true });
@@ -239,7 +259,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
       >
         <div className='space-y-2'>
           <h4 className='text-base font-bold text-gray-900'>
-            {`${Object.values(formData.requirements).filter(Boolean).length + 1} requirements for Council Members`}
+            {`${requirementsCount} requirements for Council Members`}
           </h4>
           <div className='space-y-4'>
             <RequirementItem
@@ -247,25 +267,25 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
               title='Get Appointed'
               description='Must be appointed to the council'
             />
-            {formData.requirements.passCompliance && (
+            {eligibilityRequirements.compliance?.required && (
               <RequirementItem
                 icon={<BsPersonCheck className='h-6 w-6' />}
                 title='Pass Compliance Checks'
                 description='Must pass the compliance check'
               />
             )}
-            {formData.requirements.signAgreement && (
+            {eligibilityRequirements.agreement?.required && (
               <RequirementItem
                 icon={<FileText className='h-6 w-6' />}
                 title='Sign Agreement'
                 description='Must sign and abide by the agreement'
               />
             )}
-            {formData.requirements.holdTokens && (
+            {eligibilityRequirements.erc20?.required && (
               <RequirementItem
                 icon={<GemIcon className='h-6 w-6' />}
                 title='Hold Tokens'
-                description={`Must hold at least ${formData.tokenRequirement.minimum} ${symbol} (${name})`}
+                description={`Must hold at least ${eligibilityRequirements.erc20.amount} ${symbol} (${name})`}
               />
             )}
           </div>
@@ -286,17 +306,17 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
               name: member.name,
             }))}
           />
-          {formData.requirements.signAgreement && (
+          {eligibilityRequirements.agreement?.required && (
             <RoleSummary
               // TODO this breaks down in some existing cases
-              title={`${formData.createAgreementAdminRole === 'true' ? 'Agreement' : 'Organization'} Managers own the agreement`}
-              members={(formData.agreementAdmins || []) ?? (formData.admins || [])}
+              title={`${eligibilityRequirements.agreement.existingAdmins === 'org-managers' ? 'Organization' : 'Agreement'} Managers own the agreement`}
+              members={getAdminsForRequirement(eligibilityRequirements.agreement, formData)}
             />
           )}
-          {formData.requirements.passCompliance && (
+          {eligibilityRequirements.compliance?.required && (
             <RoleSummary
               title='Compliance Managers check on Council Members'
-              members={(formData.complianceAdmins || []) ?? (formData.admins || [])}
+              members={getAdminsForRequirement(eligibilityRequirements.compliance, formData)}
             />
           )}
           <RoleSummary title='Appointed Council Members can sign on the Safe' members={formData.members || []} />
@@ -384,7 +404,13 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
             </div>
 
             <div className='flex items-center gap-2'>
-              <Button rounded='full' variant='outline-blue' size='lm' onClick={copyCalldata}>
+              <Button
+                rounded='full'
+                variant='outline-blue'
+                size='lm'
+                disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
+                onClick={copyCalldata}
+              >
                 Copy Calldata
               </Button>
               {isWrongNetwork ? (

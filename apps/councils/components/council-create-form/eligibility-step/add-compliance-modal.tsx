@@ -101,7 +101,7 @@ export function AddComplianceModal({ form: parentForm, editingAdmin, canEdit = t
         userData = await createUserMutation.mutateAsync(data);
         parentForm.setValue('complianceAdmins', [...currentAdmins, userData]);
       }
-      persistForm('selection', 'compliance');
+      persistForm('eligibility', 'compliance');
       logger.debug('userData', userData);
 
       setFormError(null);

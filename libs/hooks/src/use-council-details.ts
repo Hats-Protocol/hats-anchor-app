@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { compact, concat, find, get, map, toLower } from 'lodash';
 import { AppHat, ExtendedHSGV2, HatSignerGateV2 } from 'types';
-import { getCouncilData, getHatsDetails, logger } from 'utils';
+import { getCouncilData, getHatsDetails } from 'utils';
 
 const fetchCouncilDetails = async ({
   chainId,
-  address,
+  address, // hsg address
 }: {
   chainId: number | undefined;
   address: string | undefined;
@@ -40,4 +40,4 @@ const useCouncilDetails = ({ chainId, address }: { chainId: number | undefined; 
   });
 };
 
-export { useCouncilDetails };
+export { fetchCouncilDetails, useCouncilDetails };

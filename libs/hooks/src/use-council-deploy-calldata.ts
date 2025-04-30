@@ -3,10 +3,10 @@ import {
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
-import { FALLBACK_ADDRESS, hatIdDecimalToIp, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
-import { mapValues, pick, toNumber } from 'lodash';
+import { pick, toNumber } from 'lodash';
 import showdown from 'showdown';
 import { CouncilFormData } from 'types';
 import {
@@ -38,7 +38,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   // object notation for the requirements may make this easier
 
   const computeCalldata = async () => {
-    logger.debug('compiling calldata for council deployment');
+    // logger.debug('compiling calldata for council deployment');
 
     const chainId = toNumber(formData.chain?.value);
 
@@ -53,16 +53,16 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     // compute hat ids
     const currentTreeCount = await hatsClient.getTreesCount();
     const computedHatIds = compileHatIds({ treeData: tree, formData: formData, treesCount: currentTreeCount });
-    logger.debug(
-      'COMPUTED HAT IDs',
-      mapValues(computedHatIds, (id) => hatIdDecimalToIp(id)),
-    );
+    // logger.debug(
+    //   'COMPUTED HAT IDs',
+    //   mapValues(computedHatIds, (id) => hatIdDecimalToIp(id)),
+    // );
 
     const pinningKey = await fetchToken(20);
 
     let agreementCid = '';
-    if (formData.agreement) {
-      const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
+    if (formData.eligibilityRequirements?.agreement?.content) {
+      const agreementMarkdown = converter.makeMarkdown(formData.eligibilityRequirements.agreement.content || '');
       // pin agreement file to ipfs
       agreementCid = await pinFileToIpfs({
         file: agreementMarkdown,
@@ -70,7 +70,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
         token: pinningKey as string,
       });
     }
-    logger.debug('AGREEMENT CID', agreementCid);
+    // logger.debug('AGREEMENT CID', agreementCid);
 
     // TODO check optional steps before compiling the remaining calldata
 
@@ -81,7 +81,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       agreementCid,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs }) => {
-        logger.debug('MODULES CALLLDATA', modulesCalldata, moduleAddresses);
+        logger.debug('MODULES CALLLDATA', !!modulesCalldata, moduleAddresses);
 
         // compile create hats data
         return compileHatCreationData({
@@ -93,8 +93,8 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
           hatsClient,
         })
           .then(async (result) => {
-            const { hatsProtocolCalls } = pick(result, ['hatsProtocolCalls']);
-            logger.debug('HATS PROTOCOL CALLS', hatsProtocolCalls);
+            const { hatsProtocolCalls, hatsToCreate } = pick(result, ['hatsProtocolCalls', 'hatsToCreate']);
+            // logger.debug('HATS PROTOCOL CALLS', hatsProtocolCalls);
             if (!hatsProtocolCalls) return; // TODO: handle this
 
             // compile mint hats call data
@@ -118,7 +118,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
               toast,
             })
               .then(({ safeProxyAddress }) => {
-                logger.debug('SAFE PROXY ADDRESS', safeProxyAddress);
+                // logger.debug('SAFE PROXY ADDRESS', safeProxyAddress);
                 if (!safeProxyAddress) return {};
                 // mint hats
                 const mintCouncilHatCallData = hatsClient.mintHatCallData({
@@ -163,7 +163,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                 };
 
                 const calls = [hatsProtocolCall, modulesCall, hsgV2Call, transferTopHatCall];
-                logger.debug('CALLS', calls);
+                // logger.debug('CALLS', calls);
 
                 return Promise.resolve({
                   modulesCalldata,
@@ -175,6 +175,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                   hsgArgs,
                   hatIds: computedHatIds,
                   moduleAddresses,
+                  hatsToCreate,
                 });
               })
               .catch((err) => {
@@ -200,7 +201,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   });
   // TODO: handle this
   // @ts-expect-error handle missing keys
-  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds, moduleAddresses } = pick(data, [
+  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds, moduleAddresses, hatsToCreate } = pick(data, [
     'calls', // multicall calldata
     // separate calls
     'hatsProtocolCallData',
@@ -209,6 +210,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     // computed hat IDs and module addresses
     'hatIds',
     'moduleAddresses',
+    'hatsToCreate',
   ]);
 
   return {
@@ -218,6 +220,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     hsgArgs,
     hatIds,
     moduleAddresses,
+    hatsToCreate,
     isLoading,
     error,
   };

@@ -1,4 +1,4 @@
-import { DeployStatus } from 'types';
+import { DeployStatus, EligibilityRequirements } from 'types';
 
 export const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11' as const;
 
@@ -44,4 +44,38 @@ export const initialDeployMultiStatus: DeployStatus = {
   confirmHsgTx: false,
   indexHsgTx: false,
   ...successStatusSteps,
+};
+
+export const defaultEligibilityRequirements: EligibilityRequirements = {
+  selection: {
+    required: true, // we're always setting selection allowlist
+    existingId: null,
+    existingAdmins: 'org-managers',
+    set: false, // handled via members-step
+    adminsSet: false, // handled via admins/management-step
+  },
+  compliance: {
+    required: false,
+    existingId: null,
+    existingAdmins: null,
+    set: true, // we're not handling members on allowlist for compliance right now
+    adminsSet: false,
+  },
+  agreement: {
+    required: false,
+    existingId: null,
+    existingAdmins: null,
+    content: null,
+    set: false,
+    adminsSet: false,
+  },
+  erc20: {
+    required: false,
+    existingId: null,
+    existingAdmins: null,
+    address: null,
+    amount: null,
+    set: true, // not optional, fields must be filled
+    adminsSet: true, // no admin role for erc20
+  },
 };

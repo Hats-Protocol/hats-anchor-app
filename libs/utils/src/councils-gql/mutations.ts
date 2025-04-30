@@ -26,6 +26,8 @@ export const UPDATE_COUNCIL_FORM = gql`
     $payer: UserInput
     $tokenAmount: String
     $tokenAddress: String
+    $eligibilityRequirements: String
+    $completedOptionalSteps: String
   ) {
     updateCouncilCreationForm(
       id: $id
@@ -50,6 +52,8 @@ export const UPDATE_COUNCIL_FORM = gql`
       payer: $payer
       tokenAmount: $tokenAmount
       tokenAddress: $tokenAddress
+      eligibilityRequirements: $eligibilityRequirements
+      completedOptionalSteps: $completedOptionalSteps
     ) {
       ...FormFragment
     }
@@ -157,8 +161,8 @@ export const UPDATE_COUNCIL_AGREEMENT_ADMINS = gql`
   ${FORM_FRAGMENT}
 `;
 
-export const CREATE_INITIAL_FORM = gql`
-  mutation CreateInitialForm($creator: String, $chain: Int, $admins: [UserInput!]) {
+export const CREATE_COUNCIL_FORM = gql`
+  mutation CreateCouncilForm($creator: String, $chain: Int, $admins: [UserInput!]) {
     createCouncilCreationForm(creator: $creator, chain: $chain, admins: $admins) {
       id
       chain

@@ -4,7 +4,6 @@ import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
 import { useGetOrganizations, useOrganization } from 'hooks';
-import { useCouncilDeployFlag } from 'hooks';
 import { isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
@@ -31,7 +30,7 @@ const chainOptions: ChainOption[] = Object.values(chainsList).map((chain) => ({
   icon: chain.iconUrl,
 }));
 
-export function DetailsStep({ onNext, draftId }: StepProps) {
+export function DetailsStep({ onNext }: StepProps) {
   const searchParams = useSearchParams();
 
   const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
@@ -63,9 +62,9 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
 
   const { form: localForm, isLoading, stepValidation, canEdit } = useCouncilForm();
 
-  const { watch, handleSubmit, reset, setValue } = localForm;
-  const requirements = watch('requirements');
-  const councilName = watch('councilName');
+  const { watch, handleSubmit, reset, setValue, getValues } = localForm;
+  const eligibilityRequirements = watch('eligibilityRequirements');
+
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
 
   // Get organization data for validation
@@ -84,6 +83,7 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
         const chainOption = chainOptions.find((option) => Number(option.value) === chainId);
         if (chainOption) {
           reset({
+            ...getValues(),
             chain: {
               value: chainOption.value,
               label: chainOption.label,
@@ -112,15 +112,14 @@ export function DetailsStep({ onNext, draftId }: StepProps) {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationsData, organizationNameValue, initialOrgValue, setValue, reset]);
-
-  useCouncilDeployFlag(draftId);
 
   if (isLoading || isLoadingOrgs) {
     return <Skeleton className='h-100 w-100' />;
   }
 
-  const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, eligibilityRequirements);
 
   const selectedOrgValue = watch('organizationName') as unknown as OrganizationOption | null;
 

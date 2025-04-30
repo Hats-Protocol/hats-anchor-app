@@ -136,6 +136,17 @@ export function EligibilityRulesDevInfo({
   eligibilityRules: Ruleset[] | undefined;
   eligibilityAddress: string | undefined;
 }) {
+  if (!eligibilityRules && eligibilityAddress) {
+    return (
+      <div className='flex flex-col gap-2'>
+        <div className='flex justify-between'>
+          <h3 className='text-sm font-medium'>Eligibility Rules</h3>
+          <p className='text-sm text-red-500'>Bad eligibility address found!</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!eligibilityRules) return null;
 
   // TODO technically a chain could wrap a single module/rule, but this is unlikely

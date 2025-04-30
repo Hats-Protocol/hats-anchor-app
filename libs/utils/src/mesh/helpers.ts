@@ -1,6 +1,5 @@
 import { first, get } from 'lodash';
 
-import { logger } from '../logs';
 import { NETWORKS_PREFIX } from '../subgraph/mesh/queries/';
 import { Chain } from './zeus';
 const MESH_API_URL = process.env.NEXT_PUBLIC_MESH_API;
@@ -18,8 +17,6 @@ const chain = Chain(`${MESH_API_URL}/graphql`);
  * @returns The council data
  */
 export const getCouncilData = async ({ id, chainId }: { id: string; chainId: number }) => {
-  // TODO handle other chains
-  logger.info('getCouncilData', { id, chainId });
   const networkPrefix = NETWORKS_PREFIX[chainId];
   // @ts-expect-error how to catch network prefix as key?
   const result = await chain('query')({

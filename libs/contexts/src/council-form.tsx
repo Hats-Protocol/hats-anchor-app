@@ -3,8 +3,8 @@
 
 import { chainsList } from '@hatsprotocol/config';
 import {
+  defaultEligibilityRequirements,
   getChainTokens,
-  initialDeployMultiStatus,
   initialDeployStatus,
   MULTICALL3_ADDRESS,
   TokenInfo,
@@ -12,28 +12,34 @@ import {
 } from '@hatsprotocol/constants';
 import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
 import {
+  fetchCouncilDetails,
   useCouncilDeploy,
   useCouncilDeployCalldata,
-  useLocalStorage,
   useOrganization,
   useToast,
   useWaitForSubgraph,
 } from 'hooks';
-import { find, first, isEmpty, map, toNumber, values } from 'lodash';
+import { compact, concat, find, first, isEmpty, map, toNumber, uniq, values } from 'lodash';
+import { getEligibilityRules } from 'modules-hooks';
 import { useSearchParams } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import showdown from 'showdown';
 import {
-  CompletedOptionalSteps,
+  CouncilData,
   CouncilFormData,
   CouncilFormResponse,
+  CreationForm,
   DeployStatus,
+  ExtendedHSGV2,
+  Organization,
   StepValidation,
+  SupportedChains,
   UpdateCouncilFormResponse,
 } from 'types';
 import {
@@ -60,10 +66,11 @@ interface CouncilFormContextType {
   deployCouncil: () => void;
   isDeploying: boolean;
   canEdit: boolean;
-  toggleOptionalStep: (step: keyof CompletedOptionalSteps) => void;
   availableTokens: TokenInfo[];
   hatIds: { [key: string]: bigint };
   moduleAddresses: { [key: string]: string };
+  organization: Organization | undefined;
+  hatsToCreate: Hat[];
   // deploy handlers
   deployStatus: DeployStatus;
   deployHats: () => void;
@@ -80,6 +87,7 @@ interface CouncilFormContextType {
   simulateHats: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
   simulateModules: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
   simulateHsg: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  councilsData: CouncilData[] | undefined;
 }
 
 const chainOptions = map(values(chainsList), (chain) => ({
@@ -92,17 +100,13 @@ const converter = new showdown.Converter();
 
 const CouncilFormContext = createContext<CouncilFormContextType | undefined>(undefined);
 
-type StepValidationData = CouncilFormResponse['councilCreationForm'] & {
-  completedOptionalSteps: CompletedOptionalSteps;
-  deployOnly?: boolean;
-};
-
-const notDeploy = (deployOnly: boolean | undefined, value: boolean) => {
-  if (deployOnly === true) return true;
-  return value;
-};
-
-const computeStepValidation = (data: StepValidationData): StepValidation => {
+/**
+ * Computes the step validation state based on the form data
+ * @param data - The existing council form data
+ * @note Doesn't matter if the step is invalid if it's not used/required in the form
+ * @returns The step validation state
+ */
+const computeStepValidation = (data: CouncilFormData): StepValidation => {
   return {
     details: !!(
       data.organizationName &&
@@ -112,28 +116,29 @@ const computeStepValidation = (data: StepValidationData): StepValidation => {
       data.chain !== null
     ),
     threshold:
-      !!(
-        data.maxCouncilMembers &&
-        data.maxCouncilMembers > 0 &&
-        data.thresholdType &&
-        data.thresholdTarget &&
-        data.thresholdTarget > 0
-      ) && notDeploy(data.deployOnly, data.completedOptionalSteps.threshold),
-    selection: !!data.membersSelectionType,
+      !!(data.maxMembers && data.maxMembers > 0 && data.thresholdType && data.target && data.target > 0) &&
+      data.completedOptionalSteps.includes('threshold'), // TODO handle optional
+    selection: !!data.membershipType && data.completedOptionalSteps.includes('selection'),
     eligibility: false, // Main step validity will be computed from sub-steps
     eligibilitySubSteps: {
-      management:
-        !!(data.admins && data.admins.length > 0) && notDeploy(data.deployOnly, data.completedOptionalSteps.management), // admins are required, but creator is added by default
+      management: !!(data.admins && data.admins.length > 0) && data.eligibilityRequirements?.selection.adminsSet, // admins are required, but creator is added by default
       compliance:
-        data.createComplianceAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.compliance),
+        !!data.complianceAdmins &&
+        data.complianceAdmins.length > 0 &&
+        data.eligibilityRequirements?.compliance.adminsSet,
       agreement:
-        data.createAgreementAdminRole !== null && notDeploy(data.deployOnly, data.completedOptionalSteps.agreement), // agreement is optional
+        // must have content or select a pre-existing module ID
+        (!!data.eligibilityRequirements?.agreement.existingId || !!data.eligibilityRequirements?.agreement.content) &&
+        // must have admins or existing admins (technically, not applicable when using existing module ID)
+        ((!!data.agreementAdmins && data.agreementAdmins.length > 0) ||
+          !!data.eligibilityRequirements?.agreement.existingAdmins) &&
+        data.eligibilityRequirements?.agreement.set &&
+        data.eligibilityRequirements?.agreement.adminsSet, // `agreement.content` is optional
       tokens:
-        data.tokenAddress !== null &&
-        data.tokenAddress !== '' &&
-        data.tokenAmount !== null &&
-        toNumber(data.tokenAmount) > 0,
-      members: !!data.members && notDeploy(data.deployOnly, data.completedOptionalSteps.members),
+        !!data.eligibilityRequirements?.erc20?.address &&
+        !!data.eligibilityRequirements?.erc20?.amount &&
+        data.eligibilityRequirements?.erc20?.set,
+      members: data.eligibilityRequirements?.selection.set, // members are not required
     },
     deploy: false,
   };
@@ -146,13 +151,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   const { handlePendingTx } = useOverlay();
 
   const searchParams = useSearchParams();
-  const [optionalSteps, setOptionalSteps] = useLocalStorage<CompletedOptionalSteps>(`${draftId}-optionalSteps`, {
-    threshold: false,
-    members: false,
-    management: false,
-    agreement: false,
-    compliance: false,
-  });
 
   // Get organizationName from URL if it exists
   const orgNameFromUrl = searchParams.get('organizationName');
@@ -169,30 +167,19 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       chain: first(chainOptions),
       councilDescription: '',
       thresholdType: 'ABSOLUTE',
-      // confirmationsRequired: 4,
       target: 4, // 4 is the default value for ABSOLUTE threshold
       min: 2,
       maxMembers: 7,
       membershipType: 'APPOINTED',
-      requirements: {
-        signAgreement: false,
-        holdTokens: false,
-        passCompliance: false,
-      },
+      eligibilityRequirements: defaultEligibilityRequirements,
+      completedOptionalSteps: [],
       members: [],
       admins: [],
       complianceAdmins: [],
-      createComplianceAdminRole: 'false',
-      agreement: '',
-      createAgreementAdminRole: 'false',
       agreementAdmins: [],
       payer: undefined,
+      // form state
       acceptedTerms: false,
-      tokenRequirement: {
-        address: undefined,
-        minimum: 0,
-      },
-      completedOptionalSteps: optionalSteps,
     },
   });
   const chainId = toNumber(form.watch('chain').value) || 10;
@@ -216,23 +203,90 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     deploy: false,
   });
 
+  // this is the same data as returned in the useOffchainCouncilDetails hook. we can reduce usage of that hook now since that data can be accessed by organization.councils
+
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization } = useOrganization(orgName);
-  const treeId = organization?.councils?.[0]?.treeId;
+  const { data: organization, isLoading: isLoadingOrganization } = useOrganization(orgName);
 
+  // similar process to get the onchain data that we'd need in all of the reusable elibility modules
+  const getOnchainCouncilsData = async ({ organization }: { organization: Organization }) => {
+    const hsgAddresses = compact(map(organization?.councils, 'hsg')); // this would only return existing hsg values
+
+    const onchainCouncilsData = await Promise.all(
+      map(hsgAddresses, (hsgAddress) => fetchCouncilDetails({ chainId, address: hsgAddress })),
+    ).catch((error) => {
+      logger.error('Error fetching onchain councils data:', error);
+      return [];
+    }); // move this from the hooks to elsewhere
+
+    // integrate the rawOrganizations council data here
+    const fullCouncilData = map(organization?.councils, (council) => {
+      const onchainCouncilData = find(onchainCouncilsData, { id: council.hsg.toLowerCase() });
+
+      let parsedEligibilityRequirements;
+      try {
+        if (typeof council.creationForm.eligibilityRequirements === 'string') {
+          parsedEligibilityRequirements = JSON.parse(council.creationForm.eligibilityRequirements);
+        } else {
+          parsedEligibilityRequirements = council.creationForm.eligibilityRequirements;
+        }
+      } catch (error) {
+        logger.error('Error parsing eligibility requirements:', error);
+      }
+
+      return {
+        ...council,
+        ...(onchainCouncilData as ExtendedHSGV2),
+        eligibilityRequirements: parsedEligibilityRequirements,
+        id: council.id,
+      };
+    });
+
+    const councilsEligibilityRules = await Promise.all(
+      map(fullCouncilData, (council) => {
+        return getEligibilityRules({
+          address: council?.signerHats[0].eligibility,
+          chainId: council?.chain as SupportedChains,
+        });
+      }),
+    ).catch((error) => {
+      logger.error('Error fetching eligibility rules:', error);
+      return [];
+    });
+
+    const fullCouncilDataWithEligibilityRules = map(fullCouncilData, (council, index) => {
+      // const onchainCouncilData = find(councilsEligibilityRules, { id: council.hsg.toLowerCase() });
+      const onchainEligibilityRulesData = councilsEligibilityRules[index];
+
+      return {
+        ...council,
+        eligibilityRules: onchainEligibilityRulesData,
+      };
+    });
+
+    return fullCouncilDataWithEligibilityRules;
+  };
+
+  const { data: councilsData } = useQuery({
+    queryKey: ['councilsData', organization],
+    queryFn: () => getOnchainCouncilsData({ organization: organization as Organization }),
+    enabled: !!organization,
+  });
+
+  // handle other treeIds or chainIds across an organization. this is assuming that we're working within a single council (the first council)
+  const treeId = organization?.councils?.[0]?.treeId;
   const { data: tree } = useTreeDetails({ treeId: toNumber(treeId), chainId });
 
   const setStepValidation = useCallback(
-    (step: keyof StepValidation, isValid: boolean | Partial<StepValidation[keyof StepValidation]>) => {
-      logger.debug('Setting step validation:', { step, isValid });
+    (step: keyof StepValidation, subSteps: boolean | Partial<StepValidation['eligibilitySubSteps']>) => {
       setStepValidationState((prev) => {
         if (step === 'eligibilitySubSteps') {
           const newState = {
             ...prev,
             eligibilitySubSteps: {
               ...prev.eligibilitySubSteps,
-              ...(isValid as Partial<StepValidation['eligibilitySubSteps']>),
+              ...(subSteps as Partial<StepValidation['eligibilitySubSteps']>),
             },
           };
           logger.debug('New validation state:', { newState });
@@ -240,7 +294,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         }
         return {
           ...prev,
-          [step]: isValid,
+          [step]: !!subSteps,
         };
       });
     },
@@ -248,7 +302,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   );
 
   // persist the form data from the database
-  const { isLoading, data } = useQuery({
+  const { isLoading, data: apiData } = useQuery({
     queryKey: ['councilForm', draftId],
     queryFn: async () => {
       const accessToken = await getAccessToken();
@@ -256,7 +310,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       return councilsGraphqlClient
         .request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId })
         .then((result) => {
-          logger.debug('result', result);
           return result.councilCreationForm;
         })
         .catch((error) => {
@@ -274,103 +327,70 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   // Check if user can edit the form
   useEffect(() => {
-    if (!authenticated || !user?.wallet?.address || !data) {
+    if (!authenticated || !user?.wallet?.address || !apiData) {
       setCanEdit(false);
       return;
     }
 
     const userAddress = user.wallet.address.toLowerCase();
-    const isCreator = data.creator?.toLowerCase() === userAddress;
-    const isAdmin = data.admins?.some((admin) => admin.address.toLowerCase() === userAddress);
+    const isCreator = apiData.creator?.toLowerCase() === userAddress;
+    const isAdmin = apiData.admins?.some((admin) => admin.address.toLowerCase() === userAddress);
 
     setCanEdit(isCreator || isAdmin);
-  }, [authenticated, user?.wallet?.address, data]);
+  }, [authenticated, user?.wallet?.address, apiData]);
 
   // compute the step validation state
   useEffect(() => {
-    if (!data || !optionalSteps || !chainId) return;
+    if (!apiData) return;
 
-    logger.info('useEffect', { data, optionalSteps, chainId });
-    const availableTokensEffect = getChainTokens(chainId as number);
-    const mappedTokens = map(availableTokensEffect, ({ address, name, symbol }) => ({
-      value: address,
-      label: `${name} (${symbol})`,
-    }));
-
-    logger.debug('API Response data:', data);
+    logger.debug('API Response data:', apiData);
     const currentValues = form.getValues();
     logger.info('Current form values:', currentValues);
 
-    const chain = find(values(chainOptions), { value: data.chain?.toString() }) || first(values(chainOptions));
+    const chain = find(values(chainOptions), { value: apiData.chain?.toString() }) || first(values(chainOptions));
     if (!chain) throw new Error('Chain not found');
 
     // Set agreement admins based on role
     // const agreementAdmins = data.createAgreementAdminRole ? data.agreementAdmins || [] : data.admins || [];
-    const agreementAdmins = (data.agreementAdmins || []) ?? (data.admins || []);
+    const agreementAdmins = (apiData.agreementAdmins || []) ?? (apiData.admins || []);
 
     const newValues: CouncilFormData = {
-      organizationName: data.organizationName
+      organizationName: apiData.organizationName
         ? {
-            value: data.organizationName,
-            label: data.organizationName,
+            value: apiData.organizationName,
+            label: apiData.organizationName,
           }
         : '',
-      councilName: data.councilName || '',
+      councilName: apiData.councilName || '',
       chain,
-      councilDescription: data.councilDescription || '',
-      thresholdType: data.thresholdType || 'ABSOLUTE',
-      target: data.thresholdTarget || 51,
-      min: data.thresholdMin || 2,
-      maxMembers: data.maxCouncilMembers || 7,
-      membershipType: data.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
-      requirements: data.memberRequirements || {
-        signAgreement: false,
-        holdTokens: false,
-        passCompliance: false,
-      },
-      members: data.members || [],
-      admins: data.admins || [],
-      complianceAdmins: data.complianceAdmins || [],
-      createComplianceAdminRole: data.createComplianceAdminRole ? 'true' : 'false',
-      agreement: converter.makeHtml(data.agreement || ''),
-      createAgreementAdminRole: data.createAgreementAdminRole ? 'true' : 'false',
+      councilDescription: apiData.councilDescription || '',
+      thresholdType: apiData.thresholdType || 'ABSOLUTE',
+      target: apiData.thresholdTarget || 51,
+      min: apiData.thresholdMin || 2,
+      maxMembers: apiData.maxCouncilMembers || 7,
+      membershipType: apiData.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
+      members: apiData.members || [],
+      admins: apiData.admins || [],
+      complianceAdmins: apiData.complianceAdmins || [],
+      eligibilityRequirements: apiData.eligibilityRequirements
+        ? JSON.parse(apiData.eligibilityRequirements)
+        : defaultEligibilityRequirements,
       agreementAdmins,
-      payer: data.payer || undefined,
+      payer: apiData.payer || undefined,
       acceptedTerms: false,
-      tokenRequirement: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        address: (find(mappedTokens, { value: data.tokenAddress }) || undefined) as any, // TODO replace any, thinks it's a number
-        minimum: toNumber(data.tokenAmount) || 0,
-      },
-      creator: data.creator || '',
-      completedOptionalSteps: {
-        threshold: optionalSteps.threshold || false,
-        members: optionalSteps.members || false,
-        management: optionalSteps.management || false,
-        agreement: optionalSteps.agreement || false,
-        compliance: optionalSteps.compliance || false,
-      },
+      creator: apiData.creator || '',
+      completedOptionalSteps: apiData.completedOptionalSteps ? JSON.parse(apiData.completedOptionalSteps) : [],
     };
     logger.info('Setting form to:', newValues);
     form.reset(newValues);
 
-    const deployOnly = localStorage.getItem(`deployOnly-${draftId}`);
-
     // Compute validation state here
-    const validation = computeStepValidation({
-      ...data,
-      completedOptionalSteps: optionalSteps,
-      deployOnly: deployOnly === 'true' ? true : false,
-    });
+    const validation = computeStepValidation(newValues);
 
     setStepValidationState(validation);
-  }, [data, form, optionalSteps]);
+  }, [apiData, form]);
 
   const queryClient = useQueryClient();
-
-  const toggleOptionalStep = (step: keyof CompletedOptionalSteps) => {
-    setOptionalSteps((prev) => ({ ...prev, [step]: true }));
-  };
 
   const { mutateAsync: persistForm } = useMutation<
     UpdateCouncilFormResponse,
@@ -378,114 +398,151 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     { step: string; subStep?: string }
   >({
     mutationFn: async ({ step, subStep }) => {
-      const formData = form.getValues();
-      let payload: Partial<CouncilFormResponse['councilCreationForm']> = { id: draftId || undefined };
+      const formData = form.watch();
+      let payload: Partial<CouncilFormData> = { id: draftId || undefined };
 
       // Cache current form state to prevent flashing
       const currentFormState = { ...formData };
 
+      const currentEligibilityRequirements = formData.eligibilityRequirements || defaultEligibilityRequirements;
+
       switch (step) {
         case 'details':
           // Get previous form data from query cache
-          const previousData = queryClient.getQueryData<CouncilFormResponse['councilCreationForm']>([
-            'councilForm',
-            draftId,
-          ]);
+          const previousData = queryClient.getQueryData<CouncilFormData>(['councilForm', draftId]);
           const previousChain = previousData?.chain;
           const newChain = toNumber(formData.chain.value);
 
           payload = {
             ...payload,
-            organizationName:
-              typeof formData.organizationName === 'object'
-                ? formData.organizationName.value
-                : formData.organizationName,
+            organizationName: formData.organizationName,
             councilName: formData.councilName,
-            chain: toNumber(formData.chain.value),
+            chain: formData.chain,
             councilDescription: formData.councilDescription,
           };
 
           // If chain has changed, reset token requirements in the payload
-          if (previousChain && previousChain !== newChain) {
+          if (previousChain?.value && toNumber(previousChain.value) !== newChain) {
             payload = {
               ...payload,
-              tokenAddress: '',
-              tokenAmount: '0',
+              eligibilityRequirements: defaultEligibilityRequirements,
             };
           }
           break;
 
         case 'threshold':
-          toggleOptionalStep('threshold');
           payload = {
             ...payload,
             thresholdType: formData.thresholdType,
-            maxCouncilMembers: parseInt(formData.maxMembers.toString()),
-            thresholdTarget: parseInt(formData.target.toString()),
-            thresholdMin: parseInt(formData.min.toString()),
+            maxMembers: parseInt(formData.maxMembers.toString()),
+            target: parseInt(formData.target.toString()),
+            min: parseInt(formData.min.toString()),
+            completedOptionalSteps: uniq(concat(formData.completedOptionalSteps || [], ['threshold'])),
           };
           break;
 
         case 'selection':
           payload = {
             ...payload,
-            membersSelectionType: formData.membershipType === 'ELECTED' ? 'ELECTION' : 'ALLOWLIST',
-            memberRequirements: formData.requirements,
+            membershipType: formData.membershipType,
+            eligibilityRequirements: {
+              ...currentEligibilityRequirements,
+              selection: {
+                ...currentEligibilityRequirements.selection,
+                required: true, // defaults to true also
+              },
+            },
+            completedOptionalSteps: uniq(concat(formData.completedOptionalSteps || [], ['selection'])),
           };
           break;
 
         case 'eligibility':
           switch (subStep) {
             case 'members':
-              toggleOptionalStep('members');
               payload = {
                 ...payload,
-                members: formData.members,
+                members: formData.members, // members handled as a relationship
+                eligibilityRequirements: {
+                  ...currentEligibilityRequirements,
+                  selection: {
+                    ...currentEligibilityRequirements.selection,
+                    set: true, // `membersSet`
+                  },
+                },
               };
               break;
             case 'management':
-              toggleOptionalStep('management');
               payload = {
                 ...payload,
-                admins: formData.admins,
+                admins: formData.admins || [], // admins handled as a relationship
+                eligibilityRequirements: {
+                  ...currentEligibilityRequirements,
+                  selection: {
+                    ...currentEligibilityRequirements.selection,
+                    adminsSet: true,
+                  },
+                },
               };
               break;
             case 'compliance':
-              toggleOptionalStep('compliance');
               payload = {
                 ...payload,
-                complianceAdmins: formData.complianceAdmins,
-                createComplianceAdminRole: formData.createComplianceAdminRole === 'true',
+                complianceAdmins: formData.complianceAdmins || [], // admins handled as a relationship
+                eligibilityRequirements: {
+                  ...currentEligibilityRequirements,
+                  compliance: {
+                    ...currentEligibilityRequirements.compliance,
+                    // set: defaults to true already
+                    adminsSet: true,
+                  },
+                },
               };
               break;
             case 'agreement':
-              toggleOptionalStep('agreement');
+              const agreementContent = currentEligibilityRequirements.agreement?.content;
               // need to convert html to markdown before pinning
-              const agreementMarkdown = converter.makeMarkdown(formData.agreement || '');
+              const agreementMarkdown = converter.makeMarkdown(agreementContent || '');
 
               // Always send the current agreementAdmins list
               payload = {
                 ...payload,
-                agreement: agreementMarkdown,
-                agreementAdmins: formData.agreementAdmins,
-                createAgreementAdminRole: formData.createAgreementAdminRole === 'true',
+                agreementAdmins: formData.agreementAdmins || [], // admins handled as a relationship
+                eligibilityRequirements: {
+                  ...currentEligibilityRequirements,
+                  agreement: {
+                    ...currentEligibilityRequirements.agreement,
+                    content: agreementMarkdown,
+                    set: true,
+                    adminsSet: true,
+                  },
+                },
               };
               break;
             case 'tokens':
-              const tokenAddress = formData.tokenRequirement.address?.value;
+              const tokenAddress = currentEligibilityRequirements.erc20?.address;
+              const tokenAmount = currentEligibilityRequirements.erc20?.amount;
 
               payload = {
                 ...payload,
-                tokenAddress,
-                tokenAmount: formData.tokenRequirement.minimum.toString(),
-                memberRequirements: {
-                  ...formData.requirements,
-                  holdTokens: true,
+                eligibilityRequirements: {
+                  ...currentEligibilityRequirements,
+                  erc20: {
+                    ...currentEligibilityRequirements.erc20,
+                    address: tokenAddress,
+                    amount: tokenAmount?.toString(),
+                    set: true,
+                    // adminsSet: true, no Admins
+                  },
                 },
               };
               break;
           }
           break;
+        default:
+          payload = {
+            ...payload,
+            ...currentFormState,
+          };
       }
 
       logger.debug('payload', payload);
@@ -495,10 +552,58 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // Ensure form state is preserved during the request
       form.reset(currentFormState);
 
-      return await councilsGraphqlClient.request<UpdateCouncilFormResponse>(UPDATE_COUNCIL_FORM, payload);
+      const defaultCouncilCreationForm = {
+        creator: null,
+        organizationName: null,
+        councilName: null,
+        chain: null,
+        councilDescription: null,
+        thresholdType: null,
+        thresholdTarget: null,
+        thresholdMin: null,
+        maxCouncilMembers: null,
+        membersSelectionType: null,
+        payer: null,
+        members: [],
+        admins: [],
+        agreementAdmins: [],
+        complianceAdmins: [],
+        createComplianceAdminRole: false,
+        agreement: undefined,
+        createAgreementAdminRole: false,
+        tokenAddress: null,
+        tokenAmount: null,
+      };
+
+      // stringify the eligibilityRequirements HERE before it's sent to the db
+      const newPayload: CouncilFormResponse['councilCreationForm'] = {
+        ...defaultCouncilCreationForm,
+        ...formData,
+        id: payload.id || '',
+        organizationName:
+          typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName,
+        chain: toNumber(formData.chain.value),
+        maxCouncilMembers: formData.maxMembers,
+        thresholdMin: formData.min,
+        thresholdTarget: formData.target,
+        eligibilityRequirements: payload.eligibilityRequirements
+          ? JSON.stringify(payload.eligibilityRequirements)
+          : formData.eligibilityRequirements
+            ? JSON.stringify(formData.eligibilityRequirements)
+            : JSON.stringify(defaultEligibilityRequirements),
+        completedOptionalSteps: payload.completedOptionalSteps
+          ? JSON.stringify(payload.completedOptionalSteps)
+          : formData.completedOptionalSteps
+            ? JSON.stringify(formData.completedOptionalSteps)
+            : JSON.stringify([]),
+      };
+      logger.debug('full payload', newPayload);
+
+      // return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
+      // the payload we are sending has the formatting we need
+      return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
     },
     onSuccess: (data: UpdateCouncilFormResponse, variables) => {
-      logger.info('onSuccess', data, variables);
       // update query cache while preserving form state
       queryClient.setQueryData(['councilForm', draftId], (oldData: any) => ({
         ...oldData,
@@ -511,11 +616,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     },
   });
 
-  const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds, moduleAddresses } = useCouncilDeployCalldata({
-    formData: form.watch(),
-    tree,
-  });
-  // console.log('calls', calls, hatsProtocolCallData, transferTopHatCallData, modulesCalldata, hsgV2Calldata);
+  const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds, moduleAddresses, hatsToCreate } =
+    useCouncilDeployCalldata({
+      formData: form.watch(),
+      tree,
+    });
 
   const {
     deploy: deployCouncil,
@@ -535,7 +640,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     hsgArgs,
     chainId: toNumber(form.getValues().chain?.value),
     draftId,
-    moduleAddresses: undefined,
+    moduleAddresses,
     handlePendingTx,
     waitForSubgraph,
     setDeployStatus,
@@ -547,17 +652,18 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     <CouncilFormContext.Provider
       value={{
         form,
-        isLoading,
+        isLoading: isLoading || isLoadingOrganization,
         persistForm: (step: string, subStep?: string) => persistForm({ step, subStep }),
         stepValidation,
         setStepValidation,
         deployCouncil,
         isDeploying,
         canEdit,
-        toggleOptionalStep,
         availableTokens,
         hatIds,
         moduleAddresses,
+        organization: organization || undefined,
+        hatsToCreate,
         // deploy handlers
         deployStatus, // status of the deploy
         deployHats,
@@ -574,6 +680,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         simulateHats: simulateHats as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
         simulateModules: simulateModules as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
         simulateHsg: simulateHsg as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
+        councilsData: councilsData,
       }}
     >
       {children}

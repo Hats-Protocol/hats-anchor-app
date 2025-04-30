@@ -2,7 +2,6 @@
 
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, RequirementBox } from 'forms';
-import { useCouncilDeployFlag } from 'hooks';
 import { BallotBox, DocumentChecks } from 'icons';
 import { FileText, GemIcon } from 'lucide-react';
 import { IconType } from 'react-icons';
@@ -65,13 +64,11 @@ const LoadingSelectStep = () => {
   );
 };
 
-export function SelectionStep({ onNext, draftId }: StepProps) {
+export function SelectionStep({ onNext }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit } = useCouncilForm();
-  const requirements = councilForm.watch('requirements');
+  const eligibilityRequirements = councilForm.watch('eligibilityRequirements');
 
-  useCouncilDeployFlag(draftId);
-
-  const nextStep = findNextInvalidStep(stepValidation, 'selection', undefined, requirements);
+  const nextStep = findNextInvalidStep(stepValidation, 'selection', undefined, eligibilityRequirements);
 
   if (isLoading) {
     return <LoadingSelectStep />;
@@ -113,24 +110,24 @@ export function SelectionStep({ onNext, draftId }: StepProps) {
             <h3 className='text-lg font-semibold'>What is required to join the Council?</h3>
 
             <RequirementBox
-              name='requirements'
+              name='eligibilityRequirements'
               localForm={councilForm}
               isDisabled={!canEdit}
               options={[
                 {
-                  key: 'signAgreement',
+                  key: 'agreement.required',
                   icon: FileText as IconType,
                   title: 'Sign Agreement',
                   description: 'Create an agreement council members have to sign and abide by',
                 },
                 {
-                  key: 'holdTokens',
+                  key: 'erc20.required',
                   icon: GemIcon as IconType,
                   title: 'Hold Tokens',
                   description: 'Specify an amount of coins council members need to hold',
                 },
                 {
-                  key: 'passCompliance',
+                  key: 'compliance.required',
                   icon: BsPersonCheck as IconType,
                   title: 'Pass Compliance Check',
                   description: 'Choose a trusted onchain provider that gathers KYC data securely',

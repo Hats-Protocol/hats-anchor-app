@@ -138,7 +138,6 @@ export const getCrossChainWearerDetails = async (address: string | undefined) =>
       }
       return acc;
     }, {});
-    console.log({ processedData });
 
     return processedData as Record<string, { currentHats: { id: string }[] }>;
   } catch (err) {
