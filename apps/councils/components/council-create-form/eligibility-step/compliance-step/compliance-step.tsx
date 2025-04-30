@@ -354,7 +354,7 @@ export function ComplianceStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who does the compliance check?</h2>
-              {existingId === 'new' && (
+              {(existingId === 'new' || existingId === null) && (
                 <>
                   {isLoading ? (
                     <div className='flex flex-col gap-4'>
