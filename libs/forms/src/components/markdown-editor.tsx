@@ -22,7 +22,8 @@ interface TiptapProps {
 const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapProps) => {
   const converter = new showdown.Converter();
 
-  logger.info('isDisabled in markdown', isDisabled);
+  logger.info('Tiptap isDisabled:', isDisabled);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({}),
@@ -68,15 +69,20 @@ const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapPr
     };
   }, [editor]);
 
-  // Only update content from parent when we're not editing
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!isDisabled);
+    }
+  }, [editor, isDisabled]);
+
   useEffect(() => {
     if (editor && field.value !== undefined && !isEditing) {
-      editor.commands.setContent(field.value);
+      const currentContent = editor.getHTML();
+      if (currentContent !== field.value) {
+        editor.commands.setContent(field.value);
+      }
     }
   }, [editor, field.value, isEditing]);
-
-  // Check if current content matches an existing agreement (read-only check)
-  // const matchingAgreement = existingAgreements?.find((existing) => existing.agreement === field.value);
 
   return (
     <FormItem>
