@@ -15,7 +15,6 @@ import { BsPersonCheck } from 'react-icons/bs';
 import { CouncilFormData, EligibilityRequirement, SupportedChains } from 'types';
 import { Button, MemberAvatar, Tooltip } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
-import { logger } from 'utils';
 import { erc20Abi } from 'viem';
 import { useChainId, useReadContracts, useSwitchChain } from 'wagmi';
 
@@ -109,26 +108,21 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     } else {
       deployHats();
     }
-  }, [formData?.councilName, formData?.organizationName, formData?.chain, simulateCouncil]);
+  }, [formData?.councilName, formData?.organizationName, formData?.chain, simulateCouncil, deployCouncil, deployHats]);
 
   // TODO get from approved tokens?
   const tokenFields = ['symbol', 'name', 'decimals'];
   const shouldFetchToken = !!formData.eligibilityRequirements.erc20?.address;
-  logger.info('shouldFetchToken', shouldFetchToken);
-  logger.info('formData.eligibilityRequirements.erc20?.address', formData.eligibilityRequirements.erc20?.address);
   const { data: tokenData } = useReadContracts({
     query: { enabled: shouldFetchToken },
-    contracts: shouldFetchToken
-      ? map(tokenFields, (field: string) => ({
-          // @ts-expect-error // TODO: resolve this -- we need this field due to the object
-          address: formData.eligibilityRequirements.erc20?.address?.value || undefined,
-          abi: erc20Abi,
-          functionName: field,
-          chainId: toNumber(formData.chain.value) || undefined,
-        }))
-      : [],
+    contracts: map(tokenFields, (field: string) => ({
+      // @ts-expect-error // TODO: resolve this -- we need this field due to the object
+      address: formData.eligibilityRequirements.erc20?.address?.value || undefined,
+      abi: erc20Abi,
+      functionName: field,
+      chainId: toNumber(formData.chain.value) || undefined,
+    })),
   });
-  logger.info('tokenData', tokenData);
 
   const organizationName = form.watch('organizationName') || '';
   const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
@@ -171,7 +165,6 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const requirementsCount = useMemo(() => {
     const { agreement, erc20, compliance } = eligibilityRequirements;
-    logger.info('eligibilityRequirements in deploy-step', eligibilityRequirements);
 
     return [agreement?.required, erc20?.required, compliance?.required].filter(Boolean).length + 1;
   }, [eligibilityRequirements]);

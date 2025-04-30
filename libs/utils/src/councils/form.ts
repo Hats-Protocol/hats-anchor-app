@@ -26,20 +26,10 @@ import {
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { compact, every, filter, find, includes, keys, map, reject, toNumber } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
-import {
-  Address,
-  decodeEventLog,
-  encodeFunctionData,
-  encodePacked,
-  Hex,
-  parseUnits,
-  PublicClient,
-  zeroAddress,
-} from 'viem';
+import { Address, decodeEventLog, encodeFunctionData, encodePacked, parseUnits, PublicClient, zeroAddress } from 'viem';
 import { encodeAbiParameters } from 'viem';
 
 import { logger } from '../logs';
-import { getKnownEligibilityModule } from '../modules';
 import { viemPublicClient } from '../web3';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,7 +110,6 @@ const processModule = async ({
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) + (offset ? BigInt(offset) : BigInt(0));
 
   let localImmutableArgs = '0x' as `0x${string}`;
-  console.log(getKnownEligibilityModule(implementation as Hex), immutableArgs);
   if (immutableArgs) {
     localImmutableArgs = encodePacked(immutableArgs[0], immutableArgs[1]);
   }
@@ -174,23 +163,31 @@ const modules = ({
 }): Record<string, Module> => {
   const claimableHats = [hatIds.councilMember, hatIds.complianceManager, hatIds.agreementManager];
 
+  const complianceAdmin =
+    formData.eligibilityRequirements.compliance.existingAdmins === 'org-managers'
+      ? hatIds.organizationManager
+      : hatIds.complianceManager;
   const complianceAllowlist: Module = {
     address: ALLOWLIST_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
     requirementsKey: 'compliance',
     args: [
       [{ type: 'uint256' }, { type: 'uint256' }],
-      [hatIds.complianceManager, hatIds.complianceManager],
+      [complianceAdmin, complianceAdmin],
     ],
   };
 
+  const agreementAdmin =
+    formData.eligibilityRequirements.agreement.existingAdmins === 'org-managers'
+      ? hatIds.organizationManager
+      : hatIds.agreementManager;
   const agreementModule: Module = {
     address: AGREEMENT_ELIGIBILITY_ADDRESS,
     hatId: hatIds.councilMember,
     requirementsKey: 'agreement',
     args: [
       [{ type: 'uint256' }, { type: 'uint256' }, { type: 'string' }],
-      [hatIds.agreementManager, hatIds.agreementManager, agreementCid],
+      [agreementAdmin, agreementAdmin, agreementCid],
     ],
   };
 
@@ -306,20 +303,26 @@ export const compileModuleData = async ({
     // TODO better matching option, very primitive
     (module, index) => module.implementation === ALLOWLIST_ELIGIBILITY_ADDRESS && index > 1,
   )?.address;
-  const complianceAllowlist =
-    formData.eligibilityRequirements?.compliance?.existingId !== 'new'
-      ? formData.eligibilityRequirements?.compliance?.existingId || undefined
-      : newComplianceAllowlist;
+  const useNewComplianceModule =
+    !formData.eligibilityRequirements?.compliance?.existingId ||
+    formData.eligibilityRequirements?.compliance?.existingId === 'new';
+  const complianceAllowlist = useNewComplianceModule
+    ? newComplianceAllowlist
+    : formData.eligibilityRequirements?.compliance?.existingId || undefined;
   const newAgreementModule = find(localModules, { implementation: AGREEMENT_ELIGIBILITY_ADDRESS })?.address;
-  const agreementModule =
-    formData.eligibilityRequirements?.agreement?.existingId !== 'new'
-      ? formData.eligibilityRequirements?.agreement?.existingId || undefined
-      : newAgreementModule;
+  const useNewAgreementModule =
+    !formData.eligibilityRequirements?.agreement?.existingId ||
+    formData.eligibilityRequirements?.agreement?.existingId === 'new';
+  const agreementModule = useNewAgreementModule
+    ? newAgreementModule
+    : formData.eligibilityRequirements?.agreement?.existingId || undefined;
   const newErc20Module = find(localModules, { implementation: ERC20_ELIGIBILITY_ADDRESS })?.address;
-  const erc20Module =
-    formData.eligibilityRequirements?.erc20?.existingId !== 'new'
-      ? formData.eligibilityRequirements?.erc20?.existingId || undefined
-      : newErc20Module;
+  const useNewErc20Module =
+    !formData.eligibilityRequirements?.erc20?.existingId ||
+    formData.eligibilityRequirements?.erc20?.existingId === 'new';
+  const erc20Module = useNewErc20Module
+    ? newErc20Module
+    : formData.eligibilityRequirements?.erc20?.existingId || undefined;
 
   if (!multiClaimsHatter || !councilMemberAllowlist) {
     throw new Error('Required modules not found');
@@ -521,7 +524,8 @@ export const compileHatCreationData = async ({
   const hatsProtocolCalls: `0x${string}`[] = [];
 
   const compiledHatsData = hatsData({ formData, hatIds, moduleAddresses });
-  // determine which hats already exist in the tree
+
+  // grab hats data
   const [
     // skip top hat
     adminHat,
@@ -534,14 +538,36 @@ export const compileHatCreationData = async ({
     councilMemberHat,
     councilHat,
   ] = compiledHatsData;
+
+  // determine if need extra admin hats
+  let newComplianceAdmin: Hat | undefined;
+  let newAgreementAdmin: Hat | undefined;
+  if (
+    formData.eligibilityRequirements?.compliance?.required &&
+    (!formData.eligibilityRequirements?.compliance?.existingId ||
+      formData.eligibilityRequirements?.compliance?.existingId == 'new') &&
+    formData.eligibilityRequirements.compliance.existingAdmins === 'new'
+  ) {
+    newComplianceAdmin = complianceManagerHat;
+  }
+  if (
+    formData.eligibilityRequirements?.agreement?.required &&
+    (!formData.eligibilityRequirements?.agreement?.existingId ||
+      formData.eligibilityRequirements?.agreement?.existingId == 'new') &&
+    formData.eligibilityRequirements.agreement.existingAdmins === 'new'
+  ) {
+    newAgreementAdmin = agreementManagerHat;
+  }
+
+  // compile remaining hats to create
   const otherHats = compact([
     adminHat,
     automationsHat,
     orgRolesGroupHat,
     councilRolesGroupHat,
     councilAdminHat,
-    !formData.eligibilityRequirements?.compliance?.existingId ? complianceManagerHat : undefined,
-    !formData.eligibilityRequirements?.agreement?.existingId ? agreementManagerHat : undefined,
+    newComplianceAdmin,
+    newAgreementAdmin,
     councilMemberHat,
     councilHat,
   ]);
@@ -665,6 +691,7 @@ export const compileHatMintCallData = ({
   if (
     formData.eligibilityRequirements?.compliance?.required && // is a requirement
     formData.eligibilityRequirements?.compliance?.set && // wants to create a new role
+    formData.eligibilityRequirements?.compliance?.existingId === 'new' && // using an existing module, skip admin hat
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.complianceManager) }) // doesn't exist already
   ) {
     const mintComplianceManagerHatCallData = hatsClient.batchMintHatsCallData({
@@ -682,6 +709,7 @@ export const compileHatMintCallData = ({
   if (
     formData.eligibilityRequirements?.agreement?.required && // is a requirement
     formData.eligibilityRequirements?.agreement?.set && // wants to create a new role
+    formData.eligibilityRequirements?.agreement?.existingId === 'new' && // using an existing module, skip admin hat
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.agreementManager) }) // doesn't exist already
   ) {
     const mintAgreementManagerHatCallData = hatsClient.batchMintHatsCallData({
