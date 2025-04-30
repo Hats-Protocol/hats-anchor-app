@@ -581,6 +581,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         organizationName:
           typeof formData.organizationName === 'object' ? formData.organizationName.value : formData.organizationName,
         chain: toNumber(formData.chain.value),
+        maxCouncilMembers: formData.maxMembers,
+        thresholdMin: formData.min,
+        thresholdTarget: formData.target,
         eligibilityRequirements: payload.eligibilityRequirements
           ? JSON.stringify(payload.eligibilityRequirements)
           : formData.eligibilityRequirements
