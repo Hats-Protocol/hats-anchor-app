@@ -1,15 +1,18 @@
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useCallback, useState } from 'react';
 
+// TODO handle from at the hook?
 export const useSimulateTransaction = ({
   chainId,
   callData,
+  to,
 }: {
   chainId: number | undefined;
   callData: string | undefined;
+  to?: string | undefined;
 }) => {
   const [isSimulating, setIsSimulating] = useState(false);
-  const [simulationResponse, setSimulationResponse] = useState<any>(null);
+  const [simulationResponse, setSimulationResponse] = useState<unknown>(null);
 
   const handleSimulate = useCallback(
     async (from: string) => {
@@ -24,7 +27,7 @@ export const useSimulateTransaction = ({
       const body = JSON.stringify({
         chainId,
         from,
-        to: HATS_V1,
+        to: to || HATS_V1,
         input: callData,
         gas: 8000000,
         gasPrice: 0,
@@ -46,7 +49,7 @@ export const useSimulateTransaction = ({
           setIsSimulating(false);
         });
     },
-    [chainId, callData],
+    [chainId, callData, to],
   );
 
   return { handleSimulate, isSimulating, simulationResponse };

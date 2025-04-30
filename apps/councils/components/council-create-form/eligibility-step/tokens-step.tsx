@@ -2,7 +2,7 @@
 
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
-import { flatten, map, pick, toLower, uniqBy } from 'lodash';
+import { compact, flatten, map, toLower, uniqBy } from 'lodash';
 import { FilePlus, GemIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -74,12 +74,12 @@ const LoadingTokensStep = () => (
   </div>
 );
 
-export function TokensStep({ onNext, draftId }: StepProps) {
+export function TokensStep({ onNext }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens, councilsData } = useCouncilForm();
   const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
   const localForm = useForm();
   const { setValue, handleSubmit, reset, watch } = localForm;
-  const { eligibilityRequirements, organizationName } = councilFormWatch();
+  const { eligibilityRequirements } = councilFormWatch();
   logger.info('eligibilityRequirements in token step', eligibilityRequirements);
 
   const { existingId } = eligibilityRequirements.erc20;
@@ -136,9 +136,9 @@ export function TokensStep({ onNext, draftId }: StepProps) {
 
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
-    () => [
-      ...existingTokenRequirements
-        .map((requirement) => {
+    () =>
+      compact([
+        ...existingTokenRequirements.map((requirement) => {
           logger.info('requirement', requirement);
           const token = availableTokens.find(
             (t) =>
@@ -166,21 +166,20 @@ export function TokensStep({ onNext, draftId }: StepProps) {
               });
             },
           };
-        })
-        .filter(Boolean), // Remove any null entries
-      {
-        value: 'new',
-        label: 'Create a new Token Limit',
-        icon: FilePlus as IconType,
-        description: 'Specify an amount of coins Council Members need to hold',
-        onSelect: () => {
-          // Only reset if switching from an existing requirement
-          setValue('eligibilityRequirements.erc20.amount', 0);
-          setValue('eligibilityRequirements.erc20.address', { value: '', label: '' });
-          setValue('eligibilityRequirements.erc20.existingId', 'new');
+        }),
+        {
+          value: 'new',
+          label: 'Create a new Token Limit',
+          icon: FilePlus as IconType,
+          description: 'Specify an amount of coins Council Members need to hold',
+          onSelect: () => {
+            // Only reset if switching from an existing requirement
+            setValue('eligibilityRequirements.erc20.amount', 0);
+            setValue('eligibilityRequirements.erc20.address', { value: '', label: '' });
+            setValue('eligibilityRequirements.erc20.existingId', 'new');
+          },
         },
-      },
-    ],
+      ]),
     [existingTokenRequirements, availableTokens, setValue],
   );
 

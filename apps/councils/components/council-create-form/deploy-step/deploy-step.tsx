@@ -165,7 +165,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
 
   const isWrongNetwork = userChainId !== targetChainId;
 
-  const simulating = [simulateCouncil, simulateHats].every(
+  const simulating = [simulateCouncil, simulateHats].some(
     (status) => status?.status === 'pending' && status?.fetchStatus === 'fetching',
   );
 

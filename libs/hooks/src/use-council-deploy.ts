@@ -120,6 +120,7 @@ const useCouncilDeploy = ({
     }
 
     logger.info('organization id', organizationId, moduleAddresses);
+    logger.info('module addresses', moduleAddresses);
     // create council record
     const council = await addCouncilForForm({
       chainId,

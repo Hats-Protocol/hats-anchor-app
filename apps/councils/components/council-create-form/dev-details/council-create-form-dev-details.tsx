@@ -3,72 +3,26 @@
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { useTreeDetails } from 'hats-hooks';
-import { useOrganization } from 'hooks';
 import { compact, get, includes, map } from 'lodash';
 import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, BaseTextarea, cn, Link } from 'ui';
-import { explorerUrl, formatAddress } from 'utils';
-import { UseSimulateContractReturnType } from 'wagmi';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Link } from 'ui';
 
-const ModuleLink = ({
-  moduleAddress,
-  existingModule,
-  required,
-  chainId,
-}: {
-  moduleAddress: string;
-  existingModule?: string | null;
-  required?: boolean;
-  chainId: number;
-}) => {
-  if (!moduleAddress && !required) return null;
-  console.log({ existingModule, moduleAddress });
-  const useExisting = !!existingModule && existingModule !== 'new';
-  const address = useExisting ? existingModule : moduleAddress;
-
-  if (!moduleAddress)
-    return (
-      <div>
-        <p className='text-sm text-red-700'>Missing Module</p>
-      </div>
-    );
-
-  return (
-    <div className={cn('flex items-center gap-2', useExisting && 'text-green-700')}>
-      <p className='text-sm'>{useExisting ? 'Existing' : 'New'}</p>
-      <Link href={`${explorerUrl(chainId)}/address/${address}`} className='text-sm' isExternal>
-        {formatAddress(address)}
-      </Link>
-    </div>
-  );
-};
-
-const SimulateStatus = ({
-  simulate,
-}: {
-  simulate: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
-}) => {
-  if (!simulate?.fetchStatus || (simulate?.fetchStatus === 'idle' && simulate?.status === 'pending')) {
-    return <p className='text-sm'>N/A</p>;
-  }
-  return <p className='text-sm'>{simulate?.data ? 'Yes' : 'No'}</p>;
-};
+import { ModuleLink } from './module-link';
+import { SimulationDetails } from './simulation-details';
 
 const CreateFormDevDetails = () => {
-  const { form, simulateCouncil, simulateHats, simulateModules, simulateHsg, hatIds, moduleAddresses } =
-    useCouncilForm();
+  const { form, hatIds, moduleAddresses, organization } = useCouncilForm();
 
   const chainId = form.watch('chain')?.value ? Number(form.watch('chain')?.value) : 11155111;
   const organizationName =
     typeof form.watch('organizationName') === 'object'
       ? (form.watch('organizationName') as { value: string; label: string })?.value
       : (form.watch('organizationName') as string);
-  const { data: organization } = useOrganization(organizationName);
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
   const treeId = get(organization, 'councils.0.treeId');
-  const { data: tree } = useTreeDetails({ treeId: Number(treeId), chainId });
+  const { data: tree } = useTreeDetails({ treeId: isDev ? Number(treeId) : undefined, chainId });
   const existingHatIds = tree?.hats?.map((hat) => hat.id);
 
   const eligibilityRequirements = form.watch('eligibilityRequirements');
@@ -85,7 +39,9 @@ const CreateFormDevDetails = () => {
   }, [councilName, councilDescription, organization?.name, organizationName, treeId]);
 
   // TODO add eligibility addresses
+  // TODO add threshold config
   const councilRequirements = useMemo(() => {
+    if (!isDev) return [];
     return compact([
       {
         label: 'Selection',
@@ -143,43 +99,7 @@ const CreateFormDevDetails = () => {
         descriptor: <ModuleLink moduleAddress={moduleAddresses?.eligibilityChain} chainId={chainId} />,
       },
     ]);
-  }, [eligibilityRequirements, moduleAddresses, chainId]);
-
-  // TODO fetch predicted Safe/HSG address
-
-  const councilSimulateInfo = useMemo(() => {
-    return compact([
-      { label: 'Simulate Council', descriptor: <SimulateStatus simulate={simulateCouncil} /> },
-      simulateCouncil?.error && {
-        label: 'Simulate Council Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateCouncil?.error?.message} readOnly />,
-      },
-      {
-        label: 'Simulate Hats',
-        descriptor: <SimulateStatus simulate={simulateHats} />,
-      },
-      simulateHats?.error && {
-        label: 'Simulate Hats Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHats?.error?.message} readOnly />,
-      },
-      {
-        label: 'Simulate Modules',
-        descriptor: <SimulateStatus simulate={simulateModules} />,
-      },
-      simulateModules?.error && {
-        label: 'Simulate Modules Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateModules?.error?.message} readOnly />,
-      },
-      {
-        label: 'Simulate HSG',
-        descriptor: <SimulateStatus simulate={simulateHsg} />,
-      },
-      simulateHsg?.error && {
-        label: 'Simulate HSG Error',
-        descriptor: <BaseTextarea className='h-32 w-3/4 text-sm' value={simulateHsg?.error?.message} readOnly />,
-      },
-    ]);
-  }, [simulateCouncil, simulateHats, simulateModules, simulateHsg]);
+  }, [eligibilityRequirements, moduleAddresses, isDev, chainId]);
 
   if (!isDev) return null;
 
@@ -209,7 +129,7 @@ const CreateFormDevDetails = () => {
         </AccordionItem>
       </Accordion>
 
-      <DevInfo title='Simulations' devInfos={councilSimulateInfo} />
+      <SimulationDetails chainId={chainId} />
     </div>
   );
 };
