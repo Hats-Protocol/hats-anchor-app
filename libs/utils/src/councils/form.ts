@@ -547,13 +547,12 @@ export const compileHatCreationData = async ({
   ]);
 
   // check if hats already exist in the tree
-  const otherHatsToCreate = reject(otherHats, (hat) =>
+  const hatsToCreate = reject(otherHats, (hat) =>
     includes(
       map(tree?.hats, (hat) => hatIdHexToDecimal(hat.id)),
       hat.id,
     ),
   );
-  // logger.debug('otherHatsToCreate', otherHatsToCreate);
 
   // handle top hats for new trees
   const createTopHat = !tree?.hats?.length;
@@ -575,7 +574,7 @@ export const compileHatCreationData = async ({
   }
 
   // iterate through hats and create call data
-  for (const hat of otherHatsToCreate) {
+  for (const hat of hatsToCreate) {
     let hatCid = hat.ipfsCid;
     if (!hatCid) {
       // should only happen for the top hat currently
@@ -610,7 +609,7 @@ export const compileHatCreationData = async ({
     hatsProtocolCalls.push(callData.callData);
   }
 
-  return { hatsProtocolCalls, otherHatsToCreate, createTopHat };
+  return { hatsProtocolCalls, hatsToCreate, createTopHat };
 };
 
 export const compileHatMintCallData = ({
