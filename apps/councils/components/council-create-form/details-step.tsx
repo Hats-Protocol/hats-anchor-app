@@ -64,7 +64,7 @@ export function DetailsStep({ onNext }: StepProps) {
 
   const { watch, handleSubmit, reset, setValue, getValues } = localForm;
   const eligibilityRequirements = watch('eligibilityRequirements');
-  const councilName = watch('councilName');
+
   const organizationNameValue = watch('organizationName') as string | OrganizationOption;
 
   // Get organization data for validation
@@ -112,6 +112,7 @@ export function DetailsStep({ onNext }: StepProps) {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationsData, organizationNameValue, initialOrgValue, setValue, reset]);
 
   if (isLoading || isLoadingOrgs) {

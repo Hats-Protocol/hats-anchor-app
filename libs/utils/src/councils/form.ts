@@ -24,7 +24,7 @@ import {
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { compact, every, filter, find, includes, keys, map, reject, toNumber, toString } from 'lodash';
+import { compact, every, filter, find, includes, keys, map, reject, toNumber } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
 import {
   Address,
@@ -39,7 +39,11 @@ import {
 import { encodeAbiParameters } from 'viem';
 
 import { logger } from '../logs';
+import { getKnownEligibilityModule } from '../modules';
 import { viemPublicClient } from '../web3';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Args = [any[], any[]];
 
 export const compileHatIds = ({
   treeData,
@@ -100,8 +104,8 @@ const processModule = async ({
 }: {
   hatId: bigint;
   implementation: string;
-  args: [any[], any[]];
-  immutableArgs?: [any[], any[]];
+  args: Args;
+  immutableArgs: Args | undefined;
   offset: number;
   requirementsKey?: string;
   formData: CouncilFormData;
@@ -116,6 +120,7 @@ const processModule = async ({
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)) + (offset ? BigInt(offset) : BigInt(0));
 
   let localImmutableArgs = '0x' as `0x${string}`;
+  console.log(getKnownEligibilityModule(implementation as Hex), immutableArgs);
   if (immutableArgs) {
     localImmutableArgs = encodePacked(immutableArgs[0], immutableArgs[1]);
   }
@@ -151,8 +156,8 @@ const processModule = async ({
 type Module = {
   address: `0x${string}`;
   hatId: bigint;
-  args: [any[], any[]];
-  immutableArgs?: [any[], any[]];
+  args: Args;
+  immutableArgs?: Args;
   requirementsKey?: string;
 };
 
@@ -165,7 +170,7 @@ const modules = ({
   hatIds: CouncilHatIds;
   formData: CouncilFormData;
   agreementCid: string;
-  tokenDecimals: number;
+  tokenDecimals: number | undefined;
 }): Record<string, Module> => {
   const claimableHats = [hatIds.councilMember, hatIds.complianceManager, hatIds.agreementManager];
 
@@ -197,14 +202,16 @@ const modules = ({
     immutableArgs: [
       ['address', 'uint256'],
       [
-        formData.eligibilityRequirements?.erc20?.address as `0x${string}`,
-        parseUnits(toString(formData.eligibilityRequirements?.erc20?.amount), tokenDecimals),
+        // @ts-expect-error not typed with the object here
+        formData.eligibilityRequirements?.erc20?.address?.value as `0x${string}`,
+        parseUnits(formData.eligibilityRequirements?.erc20?.amount || '0', tokenDecimals || 18),
       ],
     ],
   };
   const enableErc20 =
     !!formData.eligibilityRequirements?.erc20?.required &&
-    !!formData.eligibilityRequirements?.erc20?.address &&
+    // @ts-expect-error not typed with the object here
+    !!formData.eligibilityRequirements?.erc20?.address?.value &&
     !!tokenDecimals;
 
   const requiredModules: Record<string, Module> = {
@@ -250,34 +257,37 @@ export const compileModuleData = async ({
 
   // prep values for module creation
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-  const tokenDecimals = formData.eligibilityRequirements?.erc20?.address
-    ? getTokenDecimals(chainId, formData.eligibilityRequirements.erc20.address as `0x${string}`)
-    : undefined;
+
+  let tokenDecimals;
+  // @ts-expect-error not typed with the object here
+  if (formData.eligibilityRequirements?.erc20?.address?.value) {
+    // @ts-expect-error not typed with the object here
+    tokenDecimals = getTokenDecimals(chainId, formData.eligibilityRequirements.erc20.address.value as `0x${string}`);
+  }
+  const modulesData = modules({ hatIds, formData, agreementCid, tokenDecimals: tokenDecimals as number });
+  logger.debug('MODULES DATA', modulesData);
 
   // create modules data
-  const modulesPromises = map(
-    Object.values(modules({ hatIds, formData, agreementCid, tokenDecimals: tokenDecimals as number })),
-    (module, index) => {
-      if (!module) return Promise.resolve(undefined);
+  const modulesPromises = map(Object.values(modulesData), (module, index) => {
+    if (!module) return Promise.resolve(undefined);
 
-      return processModule({
-        hatId: module.hatId,
-        implementation: module.address,
-        args: module.args as [any[], any[]],
-        requirementsKey: module.requirementsKey,
-        offset: toNumber(index),
-        formData,
-        publicClient,
-      });
-    },
-  );
+    return processModule({
+      hatId: module.hatId,
+      implementation: module.address,
+      args: module.args as Args,
+      immutableArgs: module.immutableArgs as Args,
+      requirementsKey: module.requirementsKey,
+      offset: toNumber(index),
+      formData,
+      publicClient,
+    });
+  });
 
   const rawLocalModules = await Promise.all(Object.values(modulesPromises)).catch((err) => {
     logger.error('Error compiling module data', err);
     return Promise.reject(err);
   });
   const localModules = compact(rawLocalModules);
-  logger.debug('LOCAL MODULES', localModules);
 
   // retrieve values from module creation data
   const implementations: `0x${string}`[] = compact(
@@ -585,7 +595,7 @@ export const compileHatCreationData = async ({
 
     const excludedKeys = ['ipfsCid', 'id'];
     const hatDetails = filter(keys(hat), (key) => !excludedKeys.includes(key) && hat[key as keyof Hat] !== undefined);
-    const hatDetailsObject = hatDetails.reduce((acc: Record<string, any>, key) => {
+    const hatDetailsObject = hatDetails.reduce((acc: Record<string, unknown>, key) => {
       acc[key as keyof Hat] = hat[key as keyof Hat];
       return acc;
     }, {});

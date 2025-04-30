@@ -1,5 +1,6 @@
 'use client';
 
+import { TENDERLY_SIMULATION_URL } from '@hatsprotocol/config';
 import { hatIdDecimalToIp, hatIdHexToDecimal, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useTreeForm } from 'contexts';
 import { useMulticallCallData } from 'hats-hooks';
@@ -26,8 +27,6 @@ import {
 } from 'ui';
 import { logger } from 'utils';
 import { useAccount } from 'wagmi';
-
-const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';
 
 const CALLDATA_TOOLTIP_COPY =
   'To deploy these changes from a multisig or DAO, create a new transaction using a transaction builder, switch to raw/custom data, and copy this into the "Data (Hex encoded)" field.';
@@ -160,7 +159,7 @@ const BottomMenu = ({
                           {isSimulating ? 'Simulating...' : 'Simulate Top Hat'}
                         </Button>
 
-                        {simulationResponse && (
+                        {!!simulationResponse && (
                           <div className='flex gap-2'>
                             <p className='text-sm'>
                               {get(simulationResponse, 'transaction.status')

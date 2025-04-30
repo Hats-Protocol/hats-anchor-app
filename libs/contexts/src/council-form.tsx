@@ -387,7 +387,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
     setStepValidationState(validation);
   }, [apiData, form]);
-  console.log('watch values', form.watch());
 
   const queryClient = useQueryClient();
 
@@ -543,7 +542,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             ...currentFormState,
           };
       }
-      console.log('currentFormState', currentFormState);
 
       logger.debug('payload', payload);
       const accessToken = await getAccessToken();
