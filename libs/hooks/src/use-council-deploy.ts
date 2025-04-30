@@ -60,7 +60,6 @@ const useCouncilDeploy = ({
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
   const { toast } = useToast();
-  console.log('moduleAddresses', moduleAddresses);
 
   const router = useRouter();
 
