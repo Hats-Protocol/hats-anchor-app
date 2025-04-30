@@ -98,7 +98,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
             if (!hatsProtocolCalls) return; // TODO: handle this
 
             // compile mint hats call data
-            const { hatsProtocolCalls: mintHatsCallData, mintedHats } = compileHatMintCallData({
+            const { hatsProtocolCalls: mintHatsCallData } = compileHatMintCallData({
               hatsProtocolCalls,
               formData,
               computedHatIds,
