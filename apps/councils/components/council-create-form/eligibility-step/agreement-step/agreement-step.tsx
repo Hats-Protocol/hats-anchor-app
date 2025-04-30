@@ -169,7 +169,7 @@ export function AgreementStep({ onNext }: StepProps) {
       };
     });
 
-    return preExistingOptions;
+    return uniqBy(preExistingOptions, 'value');
   }, [councilsData]);
 
   // Create radio options from existing agreements and add the "Create new" option

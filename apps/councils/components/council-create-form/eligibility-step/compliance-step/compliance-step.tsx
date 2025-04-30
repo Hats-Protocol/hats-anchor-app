@@ -234,7 +234,7 @@ export function ComplianceStep({ onNext }: StepProps) {
       };
     });
 
-    return preExistingOptions;
+    return uniqBy(preExistingOptions, 'value');
   }, [councilsData]);
 
   const complianceManagerOptions = useMemo(
