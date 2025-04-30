@@ -15,13 +15,6 @@ import { Hex } from 'viem';
 import { NextStepButton } from '../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 
-interface TokenRequirement {
-  id: string;
-  councilName: string;
-  minimum: string;
-  tokenAddress: string;
-}
-
 const RadioCardSkeleton = () => (
   <div className='flex cursor-pointer rounded-lg border border-gray-200 px-6 py-4'>
     <div className='flex w-full items-center gap-3'>
@@ -216,23 +209,31 @@ export function TokensStep({ onNext, draftId }: StepProps) {
     [councilFormGetValues, councilFormReset, onNext],
   );
 
-  // Add useEffect to set initial values when component mounts
+  // Set initial selection to first existing token requirement if available
   useEffect(() => {
     if (isLoading) return;
+    if (!availableTokens?.length) return; // Wait for tokens to be available
 
-    const { erc20 } = eligibilityRequirements;
-    const initialValues = {
-      eligibilityRequirements: {
-        erc20: {
-          existingId: erc20.existingId || 'new',
-          amount: erc20.amount || 0,
-          address: erc20.address || '',
-        },
-      },
-    };
+    logger.info('Setting initial token selection', {
+      tokenOptions,
+      existingTokenRequirements,
+      availableTokens,
+    });
 
-    reset(initialValues);
-  }, [isLoading, eligibilityRequirements]);
+    // Only set if no selection has been made yet
+    const currentExistingId = localForm.getValues('eligibilityRequirements.erc20.existingId');
+    if (currentExistingId && currentExistingId !== 'new') return;
+
+    // Get the first option that isn't the 'new' option
+    const firstExistingOption = tokenOptions.find((option) => option && 'value' in option && option.value !== 'new');
+    logger.info('First existing option found:', firstExistingOption);
+
+    if (firstExistingOption) {
+      logger.info('Setting token selection to:', firstExistingOption.value);
+      localForm.setValue('eligibilityRequirements.erc20.existingId', firstExistingOption.value);
+      firstExistingOption.onSelect();
+    }
+  }, [isLoading, localForm, tokenOptions, availableTokens, existingTokenRequirements]);
 
   if (isLoading) {
     return <LoadingTokensStep />;

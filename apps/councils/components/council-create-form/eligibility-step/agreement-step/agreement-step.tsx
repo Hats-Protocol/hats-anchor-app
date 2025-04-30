@@ -5,7 +5,7 @@ import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
 import { filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
 import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
@@ -172,7 +172,6 @@ export function AgreementStep({ onNext }: StepProps) {
     return preExistingOptions;
   }, [councilsData]);
 
-  // TODO: handle the setValue more robustly incase the agreementAdmins is not set on the first council (line 195)
   // Create radio options from existing agreements and add the "Create new" option
   const agreementOptions = useMemo(
     () => [
@@ -211,10 +210,8 @@ export function AgreementStep({ onNext }: StepProps) {
         },
       },
     ],
-    [existingAgreements, adminHatId, form],
+    [existingAgreements, adminHatId, form, organizationManagers],
   );
-
-  // Determine which radio option should be selected based on agreement value
 
   // Create radio options for agreement managers
   // Add back in the agreement managers options using the same pattern
@@ -242,6 +239,22 @@ export function AgreementStep({ onNext }: StepProps) {
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || isLoading;
+
+  // Set initial selection to first existing agreement if available
+  useEffect(() => {
+    if (isLoading) return;
+
+    // Only set if no selection has been made yet
+    const currentExistingId = form.getValues('eligibilityRequirements.agreement.existingId');
+    if (currentExistingId) return;
+
+    // If there are existing agreements, select the first one
+    if (existingAgreements?.length > 0 && existingAgreements[0]?.address) {
+      form.setValue('eligibilityRequirements.agreement.existingId', existingAgreements[0].address);
+      // Trigger the onSelect handler to set up related fields
+      agreementOptions[0].onSelect();
+    }
+  }, [isLoading, existingAgreements, form, agreementOptions]);
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
@@ -324,7 +337,6 @@ export function AgreementStep({ onNext }: StepProps) {
               name='eligibilityRequirements.agreement.content'
               localForm={form}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
-              // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
               isDisabled={existingId !== 'new'}
             />
           </div>
@@ -332,7 +344,6 @@ export function AgreementStep({ onNext }: StepProps) {
           <div className='space-y-8'>
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
-              {/* @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms */}
 
               {existingId === 'new' && (
                 <>

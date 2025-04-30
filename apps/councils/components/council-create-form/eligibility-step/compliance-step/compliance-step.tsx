@@ -288,12 +288,28 @@ export function ComplianceStep({ onNext }: StepProps) {
     [form, onNext],
   );
 
-  logger.info('existingComplianceModules', existingComplianceModules);
+  // logger.info('existingComplianceModules', existingComplianceModules);
+  // useEffect(() => {
+  //   if (existingComplianceModules.length === 0) {
+  //     form.setValue('eligibilityRequirements.compliance.existingId', 'new');
+  //   }
+  // }, [existingComplianceModules]);
+
+  // Set initial selection to first existing agreement if available
   useEffect(() => {
-    if (existingComplianceModules.length === 0) {
-      form.setValue('eligibilityRequirements.compliance.existingId', 'new');
+    if (isLoading) return;
+
+    // Only set if no selection has been made yet
+    const currentExistingId = form.getValues('eligibilityRequirements.compliance.existingId');
+    if (currentExistingId) return;
+
+    // If there are existing agreements, select the first one
+    if (existingComplianceModules?.length > 0 && existingComplianceModules[0]?.address) {
+      form.setValue('eligibilityRequirements.compliance.existingId', existingComplianceModules[0].address);
+      // Trigger the onSelect handler to set up related fields
+      complianceModuleOptions[0].onSelect();
     }
-  }, [existingComplianceModules]);
+  }, [isLoading, existingComplianceModules, form, complianceModuleOptions]);
 
   if (isLoading) {
     return <LoadingComplianceStep />;
