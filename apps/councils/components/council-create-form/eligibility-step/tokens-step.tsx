@@ -151,7 +151,7 @@ export function TokensStep({ onNext }: StepProps) {
           }
 
           return {
-            value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}`,
+            value: requirement?.address,
             label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
             icon: GemIcon as IconType,
             description: requirement?.councils?.[0]?.creationForm?.councilName,

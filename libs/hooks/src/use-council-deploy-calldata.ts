@@ -93,7 +93,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
           hatsClient,
         })
           .then(async (result) => {
-            const { hatsProtocolCalls } = pick(result, ['hatsProtocolCalls']);
+            const { hatsProtocolCalls, hatsToCreate } = pick(result, ['hatsProtocolCalls', 'hatsToCreate']);
             // logger.debug('HATS PROTOCOL CALLS', hatsProtocolCalls);
             if (!hatsProtocolCalls) return; // TODO: handle this
 
@@ -175,6 +175,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                   hsgArgs,
                   hatIds: computedHatIds,
                   moduleAddresses,
+                  hatsToCreate,
                 });
               })
               .catch((err) => {
@@ -200,7 +201,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   });
   // TODO: handle this
   // @ts-expect-error handle missing keys
-  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds, moduleAddresses } = pick(data, [
+  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds, moduleAddresses, hatsToCreate } = pick(data, [
     'calls', // multicall calldata
     // separate calls
     'hatsProtocolCallData',
@@ -209,6 +210,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     // computed hat IDs and module addresses
     'hatIds',
     'moduleAddresses',
+    'hatsToCreate',
   ]);
 
   return {
@@ -218,6 +220,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     hsgArgs,
     hatIds,
     moduleAddresses,
+    hatsToCreate,
     isLoading,
     error,
   };

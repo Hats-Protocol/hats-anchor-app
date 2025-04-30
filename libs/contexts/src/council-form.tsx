@@ -12,6 +12,7 @@ import {
 } from '@hatsprotocol/constants';
 import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
@@ -69,6 +70,7 @@ interface CouncilFormContextType {
   hatIds: { [key: string]: bigint };
   moduleAddresses: { [key: string]: string };
   organization: Organization | undefined;
+  hatsToCreate: Hat[];
   // deploy handlers
   deployStatus: DeployStatus;
   deployHats: () => void;
@@ -614,10 +616,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     },
   });
 
-  const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds, moduleAddresses } = useCouncilDeployCalldata({
-    formData: form.watch(),
-    tree,
-  });
+  const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds, moduleAddresses, hatsToCreate } =
+    useCouncilDeployCalldata({
+      formData: form.watch(),
+      tree,
+    });
 
   const {
     deploy: deployCouncil,
@@ -660,6 +663,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         hatIds,
         moduleAddresses,
         organization: organization || undefined,
+        hatsToCreate,
         // deploy handlers
         deployStatus, // status of the deploy
         deployHats,

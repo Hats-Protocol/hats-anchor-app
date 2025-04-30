@@ -1,9 +1,9 @@
 import { TENDERLY_SIMULATION_URL, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/config';
 import { HATS_MODULES_FACTORY_ABI, HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
-import { HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToIp, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { useSimulateTransaction } from 'hooks';
-import { compact, get, pick } from 'lodash';
+import { compact, get, map, pick } from 'lodash';
 import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';

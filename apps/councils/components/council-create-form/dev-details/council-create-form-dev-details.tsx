@@ -13,7 +13,7 @@ import { ModuleLink } from './module-link';
 import { SimulationDetails } from './simulation-details';
 
 const CreateFormDevDetails = () => {
-  const { form, hatIds, moduleAddresses, organization } = useCouncilForm();
+  const { form, hatIds, moduleAddresses, organization, hatsToCreate } = useCouncilForm();
 
   const chainId = form.watch('chain')?.value ? Number(form.watch('chain')?.value) : 11155111;
   const organizationName =
@@ -120,8 +120,10 @@ const CreateFormDevDetails = () => {
                     <Link href={`https://app.hatsprotocol.xyz/trees/${hatIdDecimalToHex(value)}`} isExternal>
                       {hatIdDecimalToIp(value)}
                     </Link>
-                  ) : (
+                  ) : includes(map(hatsToCreate, 'id') as unknown as bigint[], value) ? (
                     <p className='text-green-700'>{hatIdDecimalToIp(value)} New</p>
+                  ) : (
+                    <p className='text-orange-700'>{hatIdDecimalToIp(value)} Skipped</p>
                   )}
                 </div>
               ))}
