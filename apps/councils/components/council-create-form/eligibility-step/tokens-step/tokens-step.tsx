@@ -167,6 +167,9 @@ export function TokensStep({ onNext }: StepProps) {
       logger.info('Setting token selection to:', firstExistingOption.value);
       localForm.setValue('eligibilityRequirements.erc20.existingId', firstExistingOption.value);
       firstExistingOption.onSelect();
+    } else {
+      // set to new if it's the only option
+      localForm.setValue('eligibilityRequirements.erc20.existingId', 'new');
     }
   }, [isLoading, localForm, tokenOptions, availableTokens, existingTokenRequirements, councilForm, setValue]);
 
@@ -237,7 +240,7 @@ export function TokensStep({ onNext }: StepProps) {
           <div className='w-full space-y-2'>
             <TokenSelect
               name='eligibilityRequirements.erc20.address'
-              label={`Token Type${chainName ? ` on ${chainName}` : ''}`}
+              label={`Token${chainName ? ` on ${chainName}` : ''}`}
               variant='councils'
               localForm={localForm}
               options={availableTokens}

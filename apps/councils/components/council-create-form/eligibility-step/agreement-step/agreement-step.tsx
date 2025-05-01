@@ -257,6 +257,9 @@ export function AgreementStep({ onNext }: StepProps) {
       form.setValue('eligibilityRequirements.agreement.existingId', existingAgreements[0].address);
       // Trigger the onSelect handler to set up related fields
       agreementOptions[0].onSelect();
+    } else {
+      // set to new if it's the only option
+      form.setValue('eligibilityRequirements.agreement.existingId', 'new');
     }
   }, [isLoading, existingAgreements, form, agreementOptions]);
 

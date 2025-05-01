@@ -305,6 +305,9 @@ export function ComplianceStep({ onNext }: StepProps) {
       form.setValue('eligibilityRequirements.compliance.existingId', existingComplianceModules[0].address);
       // Trigger the onSelect handler to set up related fields
       complianceModuleOptions[0].onSelect();
+    } else {
+      // set to new if it's the only option
+      form.setValue('eligibilityRequirements.compliance.existingId', 'new');
     }
   }, [isLoading, existingComplianceModules, form, complianceModuleOptions]);
 
