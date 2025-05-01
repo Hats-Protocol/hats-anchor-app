@@ -3,14 +3,46 @@
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { useTreeDetails } from 'hats-hooks';
-import { compact, get, includes, map } from 'lodash';
+import { compact, get, includes, isEmpty, keys, map } from 'lodash';
 import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Link } from 'ui';
+import { Hex } from 'viem';
 
 import { ModuleLink } from './module-link';
 import { SimulationDetails } from './simulation-details';
+
+interface HatToCreate {
+  id: bigint;
+}
+
+const HatValue = ({
+  hatId,
+  hatKey,
+  existingHatIds,
+  hatsToCreate,
+}: {
+  hatId: bigint;
+  hatKey: string;
+  existingHatIds: Hex[] | undefined;
+  hatsToCreate: HatToCreate[] | undefined;
+}) => {
+  if (existingHatIds && includes(existingHatIds, hatIdDecimalToHex(hatId))) {
+    return (
+      <Link href={`https://app.hatsprotocol.xyz/trees/${hatIdDecimalToHex(hatId)}`} isExternal>
+        {hatIdDecimalToIp(hatId)}
+      </Link>
+    );
+  }
+  if (
+    (hatsToCreate && includes(map(hatsToCreate, 'id') as unknown as bigint[], hatId)) ||
+    (hatKey === 'topHat' && (!existingHatIds || isEmpty(existingHatIds)))
+  ) {
+    return <p className='text-green-700'>{hatIdDecimalToIp(hatId)} New</p>;
+  }
+  return <p className='text-orange-700'>{hatIdDecimalToIp(hatId)} Skipped</p>;
+};
 
 const CreateFormDevDetails = () => {
   const { form, hatIds, moduleAddresses, organization, hatsToCreate } = useCouncilForm();
@@ -23,7 +55,7 @@ const CreateFormDevDetails = () => {
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
   const treeId = get(organization, 'councils.0.treeId');
   const { data: tree } = useTreeDetails({ treeId: isDev ? Number(treeId) : undefined, chainId });
-  const existingHatIds = tree?.hats?.map((hat) => hat.id);
+  const existingHatIds = tree?.hats?.map((hat) => hat.id) || [];
 
   const eligibilityRequirements = form.watch('eligibilityRequirements');
   const councilName = form.watch('councilName');
@@ -113,18 +145,16 @@ const CreateFormDevDetails = () => {
           <AccordionTrigger>Hat IDs</AccordionTrigger>
           <AccordionContent>
             {hatIds &&
-              map(Object.entries(hatIds), ([key, value]) => (
-                <div className='flex items-center gap-2' key={key}>
-                  <p>{key}</p>
-                  {includes(existingHatIds, hatIdDecimalToHex(value)) ? (
-                    <Link href={`https://app.hatsprotocol.xyz/trees/${hatIdDecimalToHex(value)}`} isExternal>
-                      {hatIdDecimalToIp(value)}
-                    </Link>
-                  ) : includes(map(hatsToCreate, 'id') as unknown as bigint[], value) ? (
-                    <p className='text-green-700'>{hatIdDecimalToIp(value)} New</p>
-                  ) : (
-                    <p className='text-orange-700'>{hatIdDecimalToIp(value)} Skipped</p>
-                  )}
+              map(keys(hatIds), (hatKey) => (
+                <div className='flex items-center gap-2' id={hatKey}>
+                  <p>{hatKey}</p>
+
+                  <HatValue
+                    hatKey={hatKey}
+                    hatId={hatIds[hatKey]}
+                    existingHatIds={existingHatIds}
+                    hatsToCreate={hatsToCreate}
+                  />
                 </div>
               ))}
           </AccordionContent>

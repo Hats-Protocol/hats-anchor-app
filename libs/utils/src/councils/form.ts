@@ -24,7 +24,7 @@ import {
   treeIdToTopHatId,
 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
-import { compact, every, filter, find, includes, keys, map, reject, toNumber } from 'lodash';
+import { compact, every, filter, find, includes, keys, map, reject, toNumber, toString } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
 import { Address, decodeEventLog, encodeFunctionData, encodePacked, parseUnits, PublicClient, zeroAddress } from 'viem';
 import { encodeAbiParameters } from 'viem';
@@ -201,7 +201,7 @@ const modules = ({
       [
         // @ts-expect-error not typed with the object here
         formData.eligibilityRequirements?.erc20?.address?.value as `0x${string}`,
-        parseUnits(formData.eligibilityRequirements?.erc20?.amount || '0', tokenDecimals || 18),
+        parseUnits(toString(formData.eligibilityRequirements?.erc20?.amount) || '0', tokenDecimals || 18),
       ],
     ],
   };
@@ -442,6 +442,7 @@ const hatsData = ({
       name: 'Automations',
       ipfsCid: 'QmfEDHAFEJE2aqdaUbvuPzmz7rSohrq2hQyQk7J2uQW7Ys',
     },
+    // ORG ROLES
     {
       // org roles group
       id: hatIds.orgRolesGroup,
@@ -451,16 +452,8 @@ const hatsData = ({
       maxSupply: 0,
     },
     {
-      // council roles group
-      id: hatIds.councilRolesGroup,
-      admin: hatIds.automations,
-      name: 'Council Roles', // TODO should be the actual council name
-      ipfsCid: 'QmaUnbGN3DXQKoKieABVsUAWUetDobEdt6qdDcpyQZqD55',
-      maxSupply: 0,
-    },
-    {
-      // council admin hat
-      id: hatIds.admin,
+      // council/organization admin hat without Hats admin position
+      id: hatIds.organizationManager,
       admin: hatIds.orgRolesGroup,
       name: 'Council Admin',
       ipfsCid: 'QmcaMY5u2f8cpNSaEADdafxw7Rk5YWQJrLGPKszjkyaCKu',
@@ -468,17 +461,26 @@ const hatsData = ({
     {
       // compliance manager hat
       id: hatIds.complianceManager,
-      admin: hatIds.orgRolesGroup,
+      admin: hatIds.orgRolesGroup, // TODO in some cases this should be the council roles group
       name: 'Compliance Manager',
       ipfsCid: 'QmRmwNLgf4NyMs4zTPpyfbH5mtwpWzcMCogZMwCF2Pvdhi',
     },
     {
       // agreement manager hat
       id: hatIds.agreementManager,
-      admin: hatIds.orgRolesGroup,
+      admin: hatIds.orgRolesGroup, // TODO in some cases this should be the council roles group
       name: 'Agreement Manager',
       ipfsCid: 'QmUNEmgnGbRwpoRBcRm5gS8njM6Psj8i6r2L9S6PwcuZQ6',
       maxSupply: 10,
+    },
+    // COUNCIL ROLES
+    {
+      // council roles group
+      id: hatIds.councilRolesGroup,
+      admin: hatIds.automations,
+      name: 'Council Roles', // TODO should be the actual council name
+      ipfsCid: 'QmaUnbGN3DXQKoKieABVsUAWUetDobEdt6qdDcpyQZqD55',
+      maxSupply: 0,
     },
     {
       // council member hat
@@ -530,11 +532,13 @@ export const compileHatCreationData = async ({
     // skip top hat
     adminHat,
     automationsHat,
+    // ORG ROLES
     orgRolesGroupHat,
-    councilRolesGroupHat,
-    councilAdminHat,
+    councilAdminHat, // "organization manager" not in an Hats admin position
     complianceManagerHat,
     agreementManagerHat,
+    // COUNCIL ROLES
+    councilRolesGroupHat,
     councilMemberHat,
     councilHat,
   ] = compiledHatsData;
@@ -559,21 +563,21 @@ export const compileHatCreationData = async ({
     newAgreementAdmin = agreementManagerHat;
   }
 
-  // compile remaining hats to create
-  const otherHats = compact([
+  // compile remaining hats to create -- 9 hats max currently
+  const remainingHats = compact([
     adminHat,
     automationsHat,
     orgRolesGroupHat,
-    councilRolesGroupHat,
     councilAdminHat,
     newComplianceAdmin,
     newAgreementAdmin,
+    councilRolesGroupHat,
     councilMemberHat,
     councilHat,
   ]);
 
   // check if hats already exist in the tree
-  const hatsToCreate = reject(otherHats, (hat) =>
+  const hatsToCreate = reject(remainingHats, (hat) =>
     includes(
       map(tree?.hats, (hat) => hatIdHexToDecimal(hat.id)),
       hat.id,

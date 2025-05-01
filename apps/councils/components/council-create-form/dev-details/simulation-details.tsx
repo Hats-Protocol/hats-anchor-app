@@ -1,16 +1,18 @@
-import { TENDERLY_SIMULATION_URL, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/config';
-import { HATS_MODULES_FACTORY_ABI, HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
-import { hatIdDecimalToIp, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { MULTICALL3_ADDRESS, TENDERLY_SIMULATION_URL, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/config';
+import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
+import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { useSimulateTransaction } from 'hooks';
-import { compact, get, map, pick } from 'lodash';
+import { compact, get, pick } from 'lodash';
 import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
-import { useMemo } from 'react';
 import { BaseTextarea, Button, Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { zeroAddress } from 'viem';
 import { useAccount, UseSimulateContractReturnType } from 'wagmi';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SimulateResult = UseSimulateContractReturnType<any, any, any, any, any, any>;
 
 // TODO attempt to parse results
 // const HATS_CONFIG = {
@@ -25,7 +27,7 @@ import { useAccount, UseSimulateContractReturnType } from 'wagmi';
 //   eventName: 'HatsModuleFactory_ModuleDeployed',
 // };
 
-const hsgResult = (hsgResult: any) => {
+const hsgResult = (hsgResult: { chainId: number; result: string }) => {
   const { chainId, result } = pick(hsgResult, ['chainId', 'result']);
   return (
     <p className='text-sm'>
@@ -43,11 +45,11 @@ const SimulateStatus = ({
   to,
   resultFn,
 }: {
-  simulate: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  simulate: SimulateResult | undefined;
   chainId: number;
   callData: string | undefined;
   to: string | undefined;
-  resultFn?: (result: any) => React.ReactNode;
+  resultFn?: (result: { chainId: number; result: string }) => React.ReactNode;
 }) => {
   const { address } = useAccount();
   const {
@@ -99,12 +101,12 @@ const SimulationResult = ({
   to,
   resultFn,
 }: {
-  simulate: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  simulate: SimulateResult | undefined;
   title?: string;
   chainId: number;
   callData?: string | undefined;
   to?: string | undefined;
-  resultFn?: ({ result, chainId }: { result: any; chainId: number }) => React.ReactNode;
+  resultFn?: ({ result, chainId }: { result: string; chainId: number }) => React.ReactNode;
 }) => {
   if (!simulate?.fetchStatus || (simulate?.fetchStatus === 'idle' && simulate?.status === 'pending')) {
     return null;
@@ -131,6 +133,7 @@ const SimulationResult = ({
 
 export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) => {
   const {
+    deployCouncilCalldata,
     deployModulesCalldata,
     deployHatsCalldata,
     deployHsgCalldata,
@@ -142,35 +145,35 @@ export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) 
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
-  if (!isDev) return null;
+  if (!isDev || !chainId) return null;
 
   return (
     <div>
       <SimulationResult
         simulate={simulateCouncil}
         title='Council Multicall'
-        chainId={chainId!}
-        // callData={deployModulesCalldata}
-        // to={HATS_MODULES_FACTORY_ADDRESS}
+        chainId={chainId}
+        callData={deployCouncilCalldata}
+        to={MULTICALL3_ADDRESS}
       />
       <SimulationResult
         simulate={simulateHats}
         title='Hats'
-        chainId={chainId!}
+        chainId={chainId}
         callData={deployHatsCalldata}
         to={HATS_V1}
       />
       <SimulationResult
         simulate={simulateModules}
         title='Modules'
-        chainId={chainId!}
+        chainId={chainId}
         callData={deployModulesCalldata}
         to={HATS_MODULES_FACTORY_ADDRESS}
       />
       <SimulationResult
         simulate={simulateHsg}
         title='HSG/Safe'
-        chainId={chainId!}
+        chainId={chainId}
         callData={deployHsgCalldata}
         to={ZODIAC_MODULE_PROXY_FACTORY_ADDRESS}
         resultFn={hsgResult}

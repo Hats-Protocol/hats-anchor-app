@@ -207,3 +207,13 @@ export type CouncilHatIds = {
   councilMember: bigint;
   council: bigint;
 };
+
+export interface HatToCreate {
+  id: bigint;
+  admin: bigint;
+  name: string;
+  description?: string;
+  ipfsCid?: string;
+  maxSupply?: number;
+  eligibility?: string;
+}
