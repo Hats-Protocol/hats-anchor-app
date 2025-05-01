@@ -92,6 +92,8 @@ export function ComplianceStep({ onNext }: StepProps) {
   }, [councilsData]);
 
   // Extract unique organization managers from existing councils
+
+  // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
   const organizationManagers = useMemo(
     () =>
       councilsData?.reduce<CouncilMember[]>((acc, council) => {
@@ -106,8 +108,12 @@ export function ComplianceStep({ onNext }: StepProps) {
           });
         }
         return acc;
-      }, []) || [],
-    [councilsData],
+      }, []) ??
+      form.getValues('admins').map((admin) => ({
+        ...admin,
+        email: '', // Adding required email field
+      })),
+    [councilsData, form],
   );
 
   const treeId = councilsData?.[0]?.treeId;
