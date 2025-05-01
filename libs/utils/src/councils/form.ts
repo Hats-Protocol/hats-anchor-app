@@ -262,7 +262,7 @@ export const compileModuleData = async ({
     tokenDecimals = getTokenDecimals(chainId, formData.eligibilityRequirements.erc20.address.value as `0x${string}`);
   }
   const modulesData = modules({ hatIds, formData, agreementCid, tokenDecimals: tokenDecimals as number });
-  logger.debug('MODULES DATA', modulesData);
+  // logger.debug('MODULES DATA', modulesData);
 
   // create modules data
   const modulesPromises = map(Object.values(modulesData), (module, index) => {
@@ -696,6 +696,7 @@ export const compileHatMintCallData = ({
     formData.eligibilityRequirements?.compliance?.required && // is a requirement
     formData.eligibilityRequirements?.compliance?.set && // wants to create a new role
     formData.eligibilityRequirements?.compliance?.existingId === 'new' && // using an existing module, skip admin hat
+    formData.eligibilityRequirements?.compliance?.existingAdmins === 'new' && // using an existing module, skip admin hat
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.complianceManager) }) // doesn't exist already
   ) {
     const mintComplianceManagerHatCallData = hatsClient.batchMintHatsCallData({
@@ -714,6 +715,7 @@ export const compileHatMintCallData = ({
     formData.eligibilityRequirements?.agreement?.required && // is a requirement
     formData.eligibilityRequirements?.agreement?.set && // wants to create a new role
     formData.eligibilityRequirements?.agreement?.existingId === 'new' && // using an existing module, skip admin hat
+    formData.eligibilityRequirements?.agreement?.existingAdmins === 'new' && // using an existing module, skip admin hat
     !find(tree?.hats, { id: hatIdDecimalToHex(computedHatIds.agreementManager) }) // doesn't exist already
   ) {
     const mintAgreementManagerHatCallData = hatsClient.batchMintHatsCallData({

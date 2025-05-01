@@ -30,7 +30,7 @@ import {
   updateCouncilForm,
   viemPublicClient,
 } from 'utils';
-import { Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
+import { encodeFunctionData, Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
 import { useAccount, useSimulateContract, useWalletClient } from 'wagmi';
 
 import { useToast } from './use-toast';
@@ -171,6 +171,15 @@ const useCouncilDeploy = ({
     args: calls && firstCouncil ? [calls as never[]] : undefined, // Call[] is not known by wagmi here
     chainId: chainId,
   });
+
+  let multicallCalldata;
+  if (calls && firstCouncil) {
+    multicallCalldata = encodeFunctionData({
+      abi: MULTICALL3_ABI,
+      functionName: 'aggregate3',
+      args: [calls as never[]],
+    });
+  }
 
   const deployMulticall = async () => {
     setDeployStatus((prev) => ({ ...prev, prepareTx: true }));
@@ -471,6 +480,7 @@ const useCouncilDeploy = ({
   return {
     deploy: mutateAsync,
     simulateCouncil: simulateFullMulticall,
+    multicallCalldata,
     deployHats,
     deployModules,
     deployHsg,

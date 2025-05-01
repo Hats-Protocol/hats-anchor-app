@@ -6,7 +6,6 @@ import {
   defaultEligibilityRequirements,
   getChainTokens,
   initialDeployStatus,
-  MULTICALL3_ADDRESS,
   TokenInfo,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
@@ -635,6 +634,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     simulateHats,
     simulateModules,
     simulateHsg,
+    multicallCalldata,
   } = useCouncilDeploy({
     formData: form.getValues(),
     calls,
@@ -673,7 +673,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         deployModules,
         deployHsg,
         // calldata
-        deployCouncilCalldata: find(calls, { target: MULTICALL3_ADDRESS })?.callData,
+        deployCouncilCalldata: multicallCalldata,
         deployHatsCalldata: find(calls, { target: HATS_V1 })?.callData,
         deployModulesCalldata: find(calls, { target: HATS_MODULES_FACTORY_ADDRESS })?.callData,
         deployHsgCalldata: find(calls, { target: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS })?.callData,

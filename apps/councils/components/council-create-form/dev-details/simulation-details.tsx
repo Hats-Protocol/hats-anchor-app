@@ -52,11 +52,7 @@ const SimulateStatus = ({
   resultFn?: (result: { chainId: number; result: string }) => React.ReactNode;
 }) => {
   const { address } = useAccount();
-  const {
-    simulationResponse: simulateModulesResponse,
-    isSimulating: simulateModulesIsSimulating,
-    handleSimulate: simulateModulesTx,
-  } = useSimulateTransaction({
+  const { simulationResponse, isSimulating, handleSimulate } = useSimulateTransaction({
     chainId,
     callData,
     to,
@@ -64,9 +60,9 @@ const SimulateStatus = ({
 
   return (
     <div className='flex items-center gap-2'>
-      {get(simulateModulesResponse, 'simulation.id') && (
+      {get(simulationResponse, 'simulation.id') && (
         <Link
-          href={TENDERLY_SIMULATION_URL + get(simulateModulesResponse, 'simulation.id')}
+          href={TENDERLY_SIMULATION_URL + get(simulationResponse, 'simulation.id')}
           className='underline'
           isExternal
         >
@@ -76,12 +72,12 @@ const SimulateStatus = ({
       <Button
         variant='outline-blue'
         size='xs'
-        disabled={simulateModulesIsSimulating || !callData}
+        disabled={isSimulating || !callData}
         onClick={() => {
-          simulateModulesTx(address || zeroAddress);
+          handleSimulate(address || zeroAddress);
         }}
       >
-        {simulateModulesIsSimulating ? 'Simulating...' : 'Simulate'}
+        {isSimulating ? 'Simulating...' : 'Simulate'}
       </Button>
 
       {resultFn ? (
