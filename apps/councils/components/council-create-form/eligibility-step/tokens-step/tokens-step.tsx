@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { CouncilData, CouncilFormData, StepProps } from 'types';
-import { Skeleton } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -20,14 +19,13 @@ export function TokensStep({ onNext }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens, councilsData } = useCouncilForm();
   const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
   const localForm = useForm();
-  const { setValue, handleSubmit, reset, watch } = localForm;
+  const { setValue, handleSubmit, watch } = localForm;
   const { eligibilityRequirements } = councilFormWatch();
-  logger.info('eligibilityRequirements in token step', eligibilityRequirements);
 
   const { existingId } = eligibilityRequirements.erc20;
-  logger.info('existingId', existingId);
 
   const tokenRequirement = watch('eligibilityRequirements.erc20');
+  logger.info('tokenRequirement in form values', councilForm.getValues('eligibilityRequirements.erc20'));
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', eligibilityRequirements);
 
@@ -37,7 +35,6 @@ export function TokensStep({ onNext }: StepProps) {
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20',
       );
     });
-    logger.info('rawCouncilsWithTokenRequirements', rawCouncilsWithTokenRequirements);
 
     // Filter out null/undefined requirements first
     const validRequirements = rawCouncilsWithTokenRequirements?.filter((requirement) => !!requirement);
@@ -66,18 +63,14 @@ export function TokensStep({ onNext }: StepProps) {
       })
       .filter(Boolean); // Remove any null entries
 
-    logger.info('tokenRequirementsWithCouncilData', tokenRequirementsWithCouncilData);
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
-
-  logger.info('existingTokenRequirements', existingTokenRequirements);
 
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
     () =>
       compact([
         ...existingTokenRequirements.map((requirement) => {
-          logger.info('requirement', requirement);
           const token = availableTokens.find(
             (t) =>
               toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
@@ -89,7 +82,7 @@ export function TokensStep({ onNext }: StepProps) {
           }
 
           return {
-            value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}`,
+            value: requirement?.address,
             label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
             icon: GemIcon as IconType,
             description: requirement?.councils?.[0]?.creationForm?.councilName,
@@ -151,7 +144,17 @@ export function TokensStep({ onNext }: StepProps) {
     if (isLoading) return;
     if (!availableTokens?.length) return; // Wait for tokens to be available
 
-    // Only set if no selection has been made yet
+    // Check if we have existing values with 'new' selected
+    const currentErc20Values = councilForm.getValues('eligibilityRequirements.erc20');
+    if (currentErc20Values?.existingId === 'new' && currentErc20Values?.address && currentErc20Values?.amount) {
+      logger.info('Setting token selection to new with existing values');
+      setValue('eligibilityRequirements.erc20.existingId', 'new');
+      setValue('eligibilityRequirements.erc20.amount', currentErc20Values.amount);
+      setValue('eligibilityRequirements.erc20.address', currentErc20Values.address);
+      return;
+    }
+
+    // Only proceed with existing options if no selection has been made yet
     const currentExistingId = localForm.getValues('eligibilityRequirements.erc20.existingId');
     if (currentExistingId && currentExistingId !== 'new') return;
 
@@ -164,7 +167,7 @@ export function TokensStep({ onNext }: StepProps) {
       localForm.setValue('eligibilityRequirements.erc20.existingId', firstExistingOption.value);
       firstExistingOption.onSelect();
     }
-  }, [isLoading, localForm, tokenOptions, availableTokens, existingTokenRequirements]);
+  }, [isLoading, localForm, tokenOptions, availableTokens, existingTokenRequirements, councilForm, setValue]);
 
   if (isLoading) {
     return <LoadingTokensStep />;
