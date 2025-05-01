@@ -81,7 +81,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       agreementCid,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs }) => {
-        logger.debug('MODULES CALLLDATA', !!modulesCalldata, moduleAddresses);
+        // logger.debug('MODULES CALLLDATA', !!modulesCalldata, moduleAddresses);
 
         // compile create hats data
         return compileHatCreationData({

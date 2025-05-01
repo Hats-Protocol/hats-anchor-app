@@ -69,7 +69,6 @@ export function ComplianceStep({ onNext }: StepProps) {
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'allowlist',
       );
     });
-    logger.info('rawCouncilsWithComplianceModules', rawCouncilsWithComplianceModules);
 
     // getting the unique councils with compliance modules
     const councilsWithComplianceModules = uniqBy(rawCouncilsWithComplianceModules, 'address');
@@ -91,7 +90,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     return filteredComplianceModules;
   }, [councilsData]);
 
-  // Extract unique organization managers from existing councils
+  // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
   const organizationManagers = useMemo(
     () =>
       councilsData?.reduce<CouncilMember[]>((acc, council) => {
@@ -106,14 +105,17 @@ export function ComplianceStep({ onNext }: StepProps) {
           });
         }
         return acc;
-      }, []) || [],
-    [councilsData],
+      }, []) ??
+      form.getValues('admins').map((admin) => ({
+        ...admin,
+        email: '', // Adding required email field
+      })),
+    [councilsData, form],
   );
 
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
 
-  logger.info('existingComplianceModules', existingComplianceModules);
   // TODO: handle the setValue more robustly incase the agreementAdmins is not set on the first council (line 125)
   // Create radio options from existing agreements and add the "Create new" option
   const complianceModuleOptions = useMemo(
@@ -303,6 +305,9 @@ export function ComplianceStep({ onNext }: StepProps) {
       form.setValue('eligibilityRequirements.compliance.existingId', existingComplianceModules[0].address);
       // Trigger the onSelect handler to set up related fields
       complianceModuleOptions[0].onSelect();
+    } else {
+      // set to new if it's the only option
+      form.setValue('eligibilityRequirements.compliance.existingId', 'new');
     }
   }, [isLoading, existingComplianceModules, form, complianceModuleOptions]);
 
@@ -310,6 +315,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     return <LoadingComplianceStep />;
   }
 
+  logger.info('existingComplianceModules', existingComplianceModules);
   return (
     <>
       <Form {...form}>

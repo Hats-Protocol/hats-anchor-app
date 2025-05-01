@@ -1,5 +1,6 @@
 'use client';
 
+import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { compact, flatten, map, toLower, uniqBy } from 'lodash';
@@ -8,7 +9,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { CouncilData, CouncilFormData, StepProps } from 'types';
-import { Skeleton } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
 
@@ -20,12 +20,11 @@ export function TokensStep({ onNext }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens, councilsData } = useCouncilForm();
   const { watch: councilFormWatch, getValues: councilFormGetValues, reset: councilFormReset } = councilForm;
   const localForm = useForm();
-  const { setValue, handleSubmit, reset, watch } = localForm;
+  const { setValue, handleSubmit, watch } = localForm;
   const { eligibilityRequirements } = councilFormWatch();
-  logger.info('eligibilityRequirements in token step', eligibilityRequirements);
+  const chainId = councilForm.getValues('chain')?.value;
 
-  const { existingId } = eligibilityRequirements.erc20;
-  logger.info('existingId', existingId);
+  const chainName = chainId ? chainsList[Number(chainId) as keyof typeof chainsList]?.name : '';
 
   const tokenRequirement = watch('eligibilityRequirements.erc20');
 
@@ -37,7 +36,6 @@ export function TokensStep({ onNext }: StepProps) {
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20',
       );
     });
-    logger.info('rawCouncilsWithTokenRequirements', rawCouncilsWithTokenRequirements);
 
     // Filter out null/undefined requirements first
     const validRequirements = rawCouncilsWithTokenRequirements?.filter((requirement) => !!requirement);
@@ -66,18 +64,14 @@ export function TokensStep({ onNext }: StepProps) {
       })
       .filter(Boolean); // Remove any null entries
 
-    logger.info('tokenRequirementsWithCouncilData', tokenRequirementsWithCouncilData);
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
-
-  logger.info('existingTokenRequirements', existingTokenRequirements);
 
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
     () =>
       compact([
         ...existingTokenRequirements.map((requirement) => {
-          logger.info('requirement', requirement);
           const token = availableTokens.find(
             (t) =>
               toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
@@ -89,7 +83,7 @@ export function TokensStep({ onNext }: StepProps) {
           }
 
           return {
-            value: `${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address}`,
+            value: requirement?.address,
             label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
             icon: GemIcon as IconType,
             description: requirement?.councils?.[0]?.creationForm?.councilName,
@@ -151,7 +145,17 @@ export function TokensStep({ onNext }: StepProps) {
     if (isLoading) return;
     if (!availableTokens?.length) return; // Wait for tokens to be available
 
-    // Only set if no selection has been made yet
+    // Check if we have existing values with 'new' selected
+    const currentErc20Values = councilForm.getValues('eligibilityRequirements.erc20');
+    if (currentErc20Values?.existingId === 'new' && currentErc20Values?.address && currentErc20Values?.amount) {
+      logger.info('Setting token selection to new with existing values');
+      setValue('eligibilityRequirements.erc20.existingId', 'new');
+      setValue('eligibilityRequirements.erc20.amount', currentErc20Values.amount);
+      setValue('eligibilityRequirements.erc20.address', currentErc20Values.address);
+      return;
+    }
+
+    // Only proceed with existing options if no selection has been made yet
     const currentExistingId = localForm.getValues('eligibilityRequirements.erc20.existingId');
     if (currentExistingId && currentExistingId !== 'new') return;
 
@@ -163,13 +167,24 @@ export function TokensStep({ onNext }: StepProps) {
       logger.info('Setting token selection to:', firstExistingOption.value);
       localForm.setValue('eligibilityRequirements.erc20.existingId', firstExistingOption.value);
       firstExistingOption.onSelect();
+    } else {
+      // set to new if it's the only option
+      localForm.setValue('eligibilityRequirements.erc20.existingId', 'new');
     }
-  }, [isLoading, localForm, tokenOptions, availableTokens, existingTokenRequirements]);
+  }, [isLoading, localForm, tokenOptions, availableTokens, existingTokenRequirements, councilForm, setValue]);
 
   if (isLoading) {
     return <LoadingTokensStep />;
   }
-  // console.log('localForm', localForm.getValues('tokenRequirement'), tokenOptions);
+
+  const getIsDisabled = (): boolean => {
+    const currentExistingId = watch('eligibilityRequirements.erc20.existingId');
+    // If we have existing options and existingId is null, fields should be disabled
+    if (existingTokenRequirements.length > 0 && currentExistingId === null) {
+      return true;
+    }
+    return Boolean(!canEdit || (currentExistingId && currentExistingId !== 'new'));
+  };
 
   return (
     <Form {...localForm}>
@@ -180,28 +195,30 @@ export function TokensStep({ onNext }: StepProps) {
             <h2 className='text-2xl font-bold'>Hold Tokens</h2>
           </div>
         </div>
-
-        <div className='space-y-4'>
-          <div className='flex flex-col gap-1'>
-            <div className='flex items-center gap-2'>
-              <h3 className='font-bold'>Which token requirement should Council Members meet?</h3>
+        {existingTokenRequirements.length !== 0 && (
+          <div className='space-y-4'>
+            <div className='flex flex-col gap-1'>
+              <div className='flex items-center gap-2'>
+                <h3 className='font-bold'>Which token requirement should Council Members meet?</h3>
+              </div>
             </div>
+            <>
+              {isLoading ? (
+                <div className='flex flex-col gap-4'>
+                  <RadioCardSkeleton />
+                  <RadioCardSkeleton />
+                </div>
+              ) : (
+                <RadioCard
+                  name='eligibilityRequirements.erc20.existingId'
+                  localForm={localForm}
+                  options={tokenOptions}
+                  isDisabled={!canEdit}
+                />
+              )}
+            </>
           </div>
-
-          {isLoading ? (
-            <div className='flex flex-col gap-4'>
-              <RadioCardSkeleton />
-              <RadioCardSkeleton />
-            </div>
-          ) : (
-            <RadioCard
-              name='eligibilityRequirements.erc20.existingId'
-              localForm={localForm}
-              options={tokenOptions}
-              isDisabled={!canEdit}
-            />
-          )}
-        </div>
+        )}
 
         <div className='grid grid-cols-2 gap-8'>
           <div className='w-full space-y-2'>
@@ -215,7 +232,7 @@ export function TokensStep({ onNext }: StepProps) {
                 min: 0,
               }}
               step={1}
-              disabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
+              disabled={getIsDisabled()}
               tooltip='The minimum amount of tokens that Council Members must hold'
             />
           </div>
@@ -223,11 +240,11 @@ export function TokensStep({ onNext }: StepProps) {
           <div className='w-full space-y-2'>
             <TokenSelect
               name='eligibilityRequirements.erc20.address'
-              label='Token Type'
+              label={`Token${chainName ? ` on ${chainName}` : ''}`}
               variant='councils'
               localForm={localForm}
               options={availableTokens}
-              isDisabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
+              isDisabled={getIsDisabled()}
             />
           </div>
         </div>

@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { SetStateAction, useCallback, useMemo } from 'react';
 import { Dispatch } from 'react';
-import { Call, CouncilFormData, DeployStatus, HandlePendingTx, ModulesAddresses } from 'types';
+import { AsyncTxHandler, Call, CouncilFormData, DeployStatus, HandlePendingTx, ModulesAddresses } from 'types';
 import {
   addCouncilForForm,
   chainIdToString,
@@ -30,10 +30,13 @@ import {
   updateCouncilForm,
   viemPublicClient,
 } from 'utils';
-import { Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
+import { encodeFunctionData, Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
 import { useAccount, useSimulateContract, useWalletClient } from 'wagmi';
 
 import { useToast } from './use-toast';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LogRecord = Log<any, any, any>;
 
 interface OrganizationResponse {
   organizations: Array<{
@@ -65,7 +68,7 @@ const useCouncilDeploy = ({
 
   // after accepted, included, indexed
   const onSuccess = useCallback(
-    async (data: TransactionReceipt | undefined, extraLogs: Log<any, any, any>[] = []) => {
+    async (data: TransactionReceipt | undefined, extraLogs: LogRecord[] = []) => {
       if (!data || !draftId) return;
       logger.info('Transaction successful', data);
       // TODO handle hat creation data
@@ -157,6 +160,7 @@ const useCouncilDeploy = ({
       logger.debug('redirecting to ', redirectUrl);
       router.push(redirectUrl);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [chainId, draftId, formData?.councilName, formData?.organizationName, moduleAddresses, hatIds?.topHat, router],
   );
 
@@ -167,6 +171,15 @@ const useCouncilDeploy = ({
     args: calls && firstCouncil ? [calls as never[]] : undefined, // Call[] is not known by wagmi here
     chainId: chainId,
   });
+
+  let multicallCalldata;
+  if (calls && firstCouncil) {
+    multicallCalldata = encodeFunctionData({
+      abi: MULTICALL3_ABI,
+      functionName: 'aggregate3',
+      args: [calls as never[]],
+    });
+  }
 
   const deployMulticall = async () => {
     setDeployStatus((prev) => ({ ...prev, prepareTx: true }));
@@ -406,7 +419,7 @@ const useCouncilDeploy = ({
         args: [hsgArgs.address, hsgArgs.callData, hsgArgs.nonce],
       })
       .catch((err) => {
-        console.log('error', err);
+        logger.error('error', err);
         setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
         // TODO toast
       });
@@ -467,6 +480,7 @@ const useCouncilDeploy = ({
   return {
     deploy: mutateAsync,
     simulateCouncil: simulateFullMulticall,
+    multicallCalldata,
     deployHats,
     deployModules,
     deployHsg,
@@ -508,7 +522,7 @@ type UseCouncilDeployProps = {
   hsgArgs: HsgArgs | undefined;
   moduleAddresses: ModulesAddresses | undefined;
   handlePendingTx: HandlePendingTx | undefined;
-  waitForSubgraph: any;
+  waitForSubgraph: AsyncTxHandler;
   setDeployStatus: Dispatch<SetStateAction<DeployStatus>>;
 };
 

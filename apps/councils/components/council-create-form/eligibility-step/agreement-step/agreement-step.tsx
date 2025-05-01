@@ -93,7 +93,7 @@ export function AgreementStep({ onNext }: StepProps) {
     return agreementsWithCouncilData;
   }, [councilsData]);
 
-  // Extract unique organization managers from existing councils
+  // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
   const organizationManagers = useMemo(
     () =>
       councilsData?.reduce<CouncilMember[]>((acc, council) => {
@@ -108,8 +108,12 @@ export function AgreementStep({ onNext }: StepProps) {
           });
         }
         return acc;
-      }, []) || [],
-    [councilsData],
+      }, []) ??
+      form.getValues('admins').map((admin) => ({
+        ...admin,
+        email: '', // Adding required email field
+      })),
+    [councilsData, form],
   );
 
   const treeId = councilsData?.[0]?.treeId;
@@ -253,6 +257,9 @@ export function AgreementStep({ onNext }: StepProps) {
       form.setValue('eligibilityRequirements.agreement.existingId', existingAgreements[0].address);
       // Trigger the onSelect handler to set up related fields
       agreementOptions[0].onSelect();
+    } else {
+      // set to new if it's the only option
+      form.setValue('eligibilityRequirements.agreement.existingId', 'new');
     }
   }, [isLoading, existingAgreements, form, agreementOptions]);
 
@@ -287,8 +294,10 @@ export function AgreementStep({ onNext }: StepProps) {
     return <LoadingAgreementStep />;
   }
 
-  logger.info('agreementAdminOptions', agreementManagerOptions);
-
+  const getIsDisabled = (): boolean => {
+    const currentExistingId = form.watch('eligibilityRequirements.agreement.existingId');
+    return Boolean(!canEdit || (currentExistingId && currentExistingId !== 'new'));
+  };
   return (
     <>
       <Form {...form}>
@@ -299,28 +308,29 @@ export function AgreementStep({ onNext }: StepProps) {
               <h2 className='text-2xl font-bold'>Sign Agreement</h2>
             </div>
           </div>
-
-          <div className='space-y-4'>
-            <div className='flex flex-col gap-1'>
-              <div className='flex items-center gap-2'>
-                <h3 className='font-bold'>Which agreement should Council Members sign?</h3>
+          {existingAgreements.length !== 0 && (
+            <div className='space-y-4'>
+              <div className='flex flex-col gap-1'>
+                <div className='flex items-center gap-2'>
+                  <h3 className='font-bold'>Which agreement should Council Members sign?</h3>
+                </div>
               </div>
+
+              {isLoading ? (
+                <div className='flex flex-col gap-4'>
+                  <RadioCardSkeleton />
+                  <RadioCardSkeleton />
+                </div>
+              ) : (
+                <RadioCard
+                  name='eligibilityRequirements.agreement.existingId' // TODO existingModule
+                  localForm={form}
+                  options={agreementOptions as RadioCardOption[]}
+                  isDisabled={!canEdit || isLoadingList}
+                />
+              )}
             </div>
-
-            {isLoading ? (
-              <div className='flex flex-col gap-4'>
-                <RadioCardSkeleton />
-                <RadioCardSkeleton />
-              </div>
-            ) : (
-              <RadioCard
-                name='eligibilityRequirements.agreement.existingId' // TODO existingModule
-                localForm={form}
-                options={agreementOptions as RadioCardOption[]}
-                isDisabled={!canEdit || isLoadingList}
-              />
-            )}
-          </div>
+          )}
 
           <div className='space-y-4'>
             <div className='flex flex-col gap-1'>
@@ -337,7 +347,8 @@ export function AgreementStep({ onNext }: StepProps) {
               name='eligibilityRequirements.agreement.content'
               localForm={form}
               placeholder='Write or paste your agreement text below in a markdown format, use the preview buttons in the toolbar.'
-              isDisabled={existingId !== 'new'}
+              // isDisabled={existingId !== 'new' && existingId !== null}
+              isDisabled={getIsDisabled()}
             />
           </div>
 
@@ -345,23 +356,25 @@ export function AgreementStep({ onNext }: StepProps) {
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
 
-              {existingId === 'new' && (
-                <>
-                  {isLoading ? (
-                    <div className='flex flex-col gap-4'>
-                      <RadioCardSkeleton />
-                      <RadioCardSkeleton />
-                    </div>
-                  ) : (
-                    <RadioCard
-                      name='eligibilityRequirements.agreement.existingAdmins'
-                      localForm={form}
-                      options={agreementManagerOptions as RadioCardOption[]}
-                      isDisabled={!canEdit || existingId !== 'new'}
-                    />
-                  )}
-                </>
-              )}
+              {existingId === 'new' ||
+                (existingId === null && (
+                  <>
+                    {isLoading ? (
+                      <div className='flex flex-col gap-4'>
+                        <RadioCardSkeleton />
+                        <RadioCardSkeleton />
+                      </div>
+                    ) : (
+                      <RadioCard
+                        name='eligibilityRequirements.agreement.existingAdmins'
+                        localForm={form}
+                        options={agreementManagerOptions as RadioCardOption[]}
+                        // isDisabled={!canEdit || existingId !== 'new'}
+                        isDisabled={getIsDisabled()}
+                      />
+                    )}
+                  </>
+                ))}
             </div>
 
             {!isLoading && (

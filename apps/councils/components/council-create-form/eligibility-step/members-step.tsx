@@ -24,7 +24,6 @@ export function MembersStep({ onNext }: StepProps) {
   const { data: organization, isFetching } = useOrganization(orgName);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
-  console.log('members ', { nextStep });
 
   // show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);

@@ -49,7 +49,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     canEdit,
     deployStatus,
     simulateHats,
-    isLoading,
+    // isLoading,
   } = useCouncilForm();
   const formData = form.getValues();
   const router = useRouter();

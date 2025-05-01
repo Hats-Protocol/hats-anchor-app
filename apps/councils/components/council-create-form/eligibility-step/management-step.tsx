@@ -27,7 +27,6 @@ export function ManagementStep({ onNext }: StepProps) {
   const admins = form.watch('admins') || [];
   const eligibilityRequirements = form.watch('eligibilityRequirements');
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', eligibilityRequirements);
-  console.log('management ', { nextStep });
 
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || (isFetching && !isLoading);

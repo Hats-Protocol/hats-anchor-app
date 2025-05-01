@@ -6,13 +6,11 @@ import {
   defaultEligibilityRequirements,
   getChainTokens,
   initialDeployStatus,
-  MULTICALL3_ADDRESS,
   TokenInfo,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
 import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
-import { Hat } from '@hatsprotocol/sdk-v1-subgraph';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
@@ -37,6 +35,7 @@ import {
   CreationForm,
   DeployStatus,
   ExtendedHSGV2,
+  HatToCreate,
   Organization,
   StepValidation,
   SupportedChains,
@@ -54,6 +53,9 @@ import { UseSimulateContractReturnType } from 'wagmi';
 
 import { useOverlay } from './overlay-context';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SimulateContractReturnType = UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+
 interface CouncilFormContextType {
   form: UseFormReturn<CouncilFormData>;
   isLoading: boolean;
@@ -70,7 +72,7 @@ interface CouncilFormContextType {
   hatIds: { [key: string]: bigint };
   moduleAddresses: { [key: string]: string };
   organization: Organization | undefined;
-  hatsToCreate: Hat[];
+  hatsToCreate: HatToCreate[];
   // deploy handlers
   deployStatus: DeployStatus;
   deployHats: () => void;
@@ -83,10 +85,10 @@ interface CouncilFormContextType {
   deployHsgCalldata: Hex | undefined;
   // TODO fix these types
   // simulation results
-  simulateCouncil: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
-  simulateHats: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
-  simulateModules: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
-  simulateHsg: UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;
+  simulateCouncil: SimulateContractReturnType;
+  simulateHats: SimulateContractReturnType;
+  simulateModules: SimulateContractReturnType;
+  simulateHsg: SimulateContractReturnType;
   councilsData: CouncilData[] | undefined;
 }
 
@@ -603,9 +605,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       // the payload we are sending has the formatting we need
       return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
     },
-    onSuccess: (data: UpdateCouncilFormResponse, variables) => {
+    onSuccess: (data: UpdateCouncilFormResponse) => {
       // update query cache while preserving form state
-      queryClient.setQueryData(['councilForm', draftId], (oldData: any) => ({
+      queryClient.setQueryData(['councilForm', draftId], (oldData: CreationForm) => ({
         ...oldData,
         ...data.updateCouncilCreationForm,
       }));
@@ -632,6 +634,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     simulateHats,
     simulateModules,
     simulateHsg,
+    multicallCalldata,
   } = useCouncilDeploy({
     formData: form.getValues(),
     calls,
@@ -670,16 +673,16 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         deployModules,
         deployHsg,
         // calldata
-        deployCouncilCalldata: find(calls, { target: MULTICALL3_ADDRESS })?.callData,
+        deployCouncilCalldata: multicallCalldata,
         deployHatsCalldata: find(calls, { target: HATS_V1 })?.callData,
         deployModulesCalldata: find(calls, { target: HATS_MODULES_FACTORY_ADDRESS })?.callData,
         deployHsgCalldata: find(calls, { target: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS })?.callData,
         // TODO what's up with this type?
         // simulation results
-        simulateCouncil: simulateCouncil as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
-        simulateHats: simulateHats as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
-        simulateModules: simulateModules as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
-        simulateHsg: simulateHsg as UseSimulateContractReturnType<any, any, any, any, any, any> | undefined,
+        simulateCouncil: simulateCouncil as SimulateContractReturnType | undefined,
+        simulateHats: simulateHats as SimulateContractReturnType | undefined,
+        simulateModules: simulateModules as SimulateContractReturnType | undefined,
+        simulateHsg: simulateHsg as SimulateContractReturnType | undefined,
         councilsData: councilsData,
       }}
     >

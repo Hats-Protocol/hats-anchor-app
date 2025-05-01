@@ -137,9 +137,10 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
           }),
         );
 
-        await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
-          logger.error('Error sending telegram message:', error);
-        });
+        // TODO re-enable, this is currently failing without the API endpoint
+        // await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
+        //   logger.error('Error sending telegram message:', error);
+        // });
         posthog.capture('Added Invoice Details', {
           councilName,
           chain: chainsMap(chainId)?.name,
