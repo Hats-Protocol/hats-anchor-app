@@ -176,6 +176,10 @@ export function TokensStep({ onNext }: StepProps) {
 
   const getIsDisabled = (): boolean => {
     const currentExistingId = watch('eligibilityRequirements.erc20.existingId');
+    // If we have existing options and existingId is null, fields should be disabled
+    if (existingTokenRequirements.length > 0 && currentExistingId === null) {
+      return true;
+    }
     return Boolean(!canEdit || (currentExistingId && currentExistingId !== 'new'));
   };
 
@@ -206,7 +210,7 @@ export function TokensStep({ onNext }: StepProps) {
                   name='eligibilityRequirements.erc20.existingId'
                   localForm={localForm}
                   options={tokenOptions}
-                  isDisabled={getIsDisabled()}
+                  isDisabled={!canEdit}
                 />
               )}
             </>
