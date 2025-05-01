@@ -23,7 +23,8 @@ interface TokenNumberInputProps {
     min?: number;
     max?: number;
   };
-  step?: number;
+  step?: number; // used for the stepper buttons
+  inputStep?: number; // used for the input field
   disabled?: boolean;
   variant?: 'default' | 'councils';
 }
@@ -55,6 +56,7 @@ function TokenNumberInput({
   form,
   options,
   step = 1,
+  inputStep = 0.000000000000000001,
   disabled,
   variant = 'default',
 }: TokenNumberInputProps) {
@@ -116,7 +118,7 @@ function TokenNumberInput({
                 type='number'
                 min={options?.min}
                 max={options?.max}
-                step={step}
+                step={inputStep}
                 disabled={disabled}
                 value={value}
                 {...restField}
