@@ -165,7 +165,7 @@ const modules = ({
 
   const complianceAdmin =
     formData.eligibilityRequirements.compliance.existingAdmins === 'org-managers'
-      ? hatIds.organizationManager
+      ? hatIds.admin // TODO currently using admin (with protocol admin position) as org-managers
       : hatIds.complianceManager;
   const complianceAllowlist: Module = {
     address: ALLOWLIST_ELIGIBILITY_ADDRESS,
@@ -179,7 +179,7 @@ const modules = ({
 
   const agreementAdmin =
     formData.eligibilityRequirements.agreement.existingAdmins === 'org-managers'
-      ? hatIds.organizationManager
+      ? hatIds.admin // TODO currently using admin (with protocol admin position) as org-managers
       : hatIds.agreementManager;
   const agreementModule: Module = {
     address: AGREEMENT_ELIGIBILITY_ADDRESS,

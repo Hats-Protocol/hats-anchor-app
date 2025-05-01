@@ -91,8 +91,6 @@ export function ComplianceStep({ onNext }: StepProps) {
     return filteredComplianceModules;
   }, [councilsData]);
 
-  // Extract unique organization managers from existing councils
-
   // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
   const organizationManagers = useMemo(
     () =>
