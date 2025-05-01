@@ -1,5 +1,6 @@
 'use client';
 
+import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { compact, flatten, map, toLower, uniqBy } from 'lodash';
@@ -21,6 +22,9 @@ export function TokensStep({ onNext }: StepProps) {
   const localForm = useForm();
   const { setValue, handleSubmit, watch } = localForm;
   const { eligibilityRequirements } = councilFormWatch();
+  const chainId = councilForm.getValues('chain')?.value;
+
+  const chainName = chainId ? chainsList[Number(chainId) as keyof typeof chainsList]?.name : '';
 
   const { existingId } = eligibilityRequirements.erc20;
 
@@ -226,7 +230,7 @@ export function TokensStep({ onNext }: StepProps) {
           <div className='w-full space-y-2'>
             <TokenSelect
               name='eligibilityRequirements.erc20.address'
-              label='Token Type'
+              label={`Token Type${chainName ? ` on ${chainName}` : ''}`}
               variant='councils'
               localForm={localForm}
               options={availableTokens}
