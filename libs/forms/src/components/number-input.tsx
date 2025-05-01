@@ -83,7 +83,7 @@ const NumberInput = ({
   const isError = !!getErrorMessage();
 
   const defaultHandleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setValue(name, e.target.value, { shouldDirty: true });
+    setValue(name, toNumber(e.target.value), { shouldDirty: true });
   };
 
   const handleChange = onChange || defaultHandleChange;

@@ -260,8 +260,10 @@ export function AgreementStep({ onNext }: StepProps) {
     } else {
       // set to new if it's the only option
       form.setValue('eligibilityRequirements.agreement.existingId', 'new');
+      form.setValue('eligibilityRequirements.agreement.existingAdmins', 'org-managers');
+      form.setValue('agreementAdmins', organizationManagers);
     }
-  }, [isLoading, existingAgreements, form, agreementOptions]);
+  }, [isLoading, existingAgreements, form, organizationManagers, agreementOptions]);
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
@@ -356,25 +358,24 @@ export function AgreementStep({ onNext }: StepProps) {
             <div className='space-y-2'>
               <h2 className='font-bold'>Who manages the agreement?</h2>
 
-              {existingId === 'new' ||
-                (existingId === null && (
-                  <>
-                    {isLoading ? (
-                      <div className='flex flex-col gap-4'>
-                        <RadioCardSkeleton />
-                        <RadioCardSkeleton />
-                      </div>
-                    ) : (
-                      <RadioCard
-                        name='eligibilityRequirements.agreement.existingAdmins'
-                        localForm={form}
-                        options={agreementManagerOptions as RadioCardOption[]}
-                        // isDisabled={!canEdit || existingId !== 'new'}
-                        isDisabled={getIsDisabled()}
-                      />
-                    )}
-                  </>
-                ))}
+              {(existingId === 'new' || existingId === null) && (
+                <>
+                  {isLoading ? (
+                    <div className='flex flex-col gap-4'>
+                      <RadioCardSkeleton />
+                      <RadioCardSkeleton />
+                    </div>
+                  ) : (
+                    <RadioCard
+                      name='eligibilityRequirements.agreement.existingAdmins'
+                      localForm={form}
+                      options={agreementManagerOptions as RadioCardOption[]}
+                      // isDisabled={!canEdit || existingId !== 'new'}
+                      isDisabled={getIsDisabled()}
+                    />
+                  )}
+                </>
+              )}
             </div>
 
             {!isLoading && (
