@@ -26,10 +26,7 @@ export function TokensStep({ onNext }: StepProps) {
 
   const chainName = chainId ? chainsList[Number(chainId) as keyof typeof chainsList]?.name : '';
 
-  const { existingId } = eligibilityRequirements.erc20;
-
   const tokenRequirement = watch('eligibilityRequirements.erc20');
-  logger.info('tokenRequirement in form values', councilForm.getValues('eligibilityRequirements.erc20'));
 
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'tokens', eligibilityRequirements);
 
@@ -176,7 +173,11 @@ export function TokensStep({ onNext }: StepProps) {
   if (isLoading) {
     return <LoadingTokensStep />;
   }
-  // console.log('localForm', localForm.getValues('tokenRequirement'), tokenOptions);
+
+  const getIsDisabled = (): boolean => {
+    const currentExistingId = watch('eligibilityRequirements.erc20.existingId');
+    return Boolean(!canEdit || (currentExistingId && currentExistingId !== 'new'));
+  };
 
   return (
     <Form {...localForm}>
@@ -187,28 +188,30 @@ export function TokensStep({ onNext }: StepProps) {
             <h2 className='text-2xl font-bold'>Hold Tokens</h2>
           </div>
         </div>
-
-        <div className='space-y-4'>
-          <div className='flex flex-col gap-1'>
-            <div className='flex items-center gap-2'>
-              <h3 className='font-bold'>Which token requirement should Council Members meet?</h3>
+        {existingTokenRequirements.length !== 0 && (
+          <div className='space-y-4'>
+            <div className='flex flex-col gap-1'>
+              <div className='flex items-center gap-2'>
+                <h3 className='font-bold'>Which token requirement should Council Members meet?</h3>
+              </div>
             </div>
+            <>
+              {isLoading ? (
+                <div className='flex flex-col gap-4'>
+                  <RadioCardSkeleton />
+                  <RadioCardSkeleton />
+                </div>
+              ) : (
+                <RadioCard
+                  name='eligibilityRequirements.erc20.existingId'
+                  localForm={localForm}
+                  options={tokenOptions}
+                  isDisabled={getIsDisabled()}
+                />
+              )}
+            </>
           </div>
-
-          {isLoading ? (
-            <div className='flex flex-col gap-4'>
-              <RadioCardSkeleton />
-              <RadioCardSkeleton />
-            </div>
-          ) : (
-            <RadioCard
-              name='eligibilityRequirements.erc20.existingId'
-              localForm={localForm}
-              options={tokenOptions}
-              isDisabled={!canEdit}
-            />
-          )}
-        </div>
+        )}
 
         <div className='grid grid-cols-2 gap-8'>
           <div className='w-full space-y-2'>
@@ -222,7 +225,7 @@ export function TokensStep({ onNext }: StepProps) {
                 min: 0,
               }}
               step={1}
-              disabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
+              disabled={getIsDisabled()}
               tooltip='The minimum amount of tokens that Council Members must hold'
             />
           </div>
@@ -234,7 +237,7 @@ export function TokensStep({ onNext }: StepProps) {
               variant='councils'
               localForm={localForm}
               options={availableTokens}
-              isDisabled={!canEdit || watch('eligibilityRequirements.erc20.existingId') !== 'new'}
+              isDisabled={getIsDisabled()}
             />
           </div>
         </div>

@@ -69,7 +69,6 @@ export function ComplianceStep({ onNext }: StepProps) {
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'allowlist',
       );
     });
-    logger.info('rawCouncilsWithComplianceModules', rawCouncilsWithComplianceModules);
 
     // getting the unique councils with compliance modules
     const councilsWithComplianceModules = uniqBy(rawCouncilsWithComplianceModules, 'address');
@@ -117,7 +116,6 @@ export function ComplianceStep({ onNext }: StepProps) {
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
 
-  logger.info('existingComplianceModules', existingComplianceModules);
   // TODO: handle the setValue more robustly incase the agreementAdmins is not set on the first council (line 125)
   // Create radio options from existing agreements and add the "Create new" option
   const complianceModuleOptions = useMemo(
@@ -314,6 +312,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     return <LoadingComplianceStep />;
   }
 
+  logger.info('existingComplianceModules', existingComplianceModules);
   return (
     <>
       <Form {...form}>
