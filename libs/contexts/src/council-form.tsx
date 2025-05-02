@@ -11,6 +11,7 @@ import {
 } from '@hatsprotocol/constants';
 import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { Tree } from '@hatsprotocol/sdk-v1-subgraph/dist/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
@@ -69,6 +70,8 @@ interface CouncilFormContextType {
   isDeploying: boolean;
   canEdit: boolean;
   availableTokens: TokenInfo[];
+  tree: Tree | null | undefined;
+  // deploy data
   hatIds: { [key: string]: bigint };
   moduleAddresses: { [key: string]: string };
   organization: Organization | undefined;
@@ -663,6 +666,8 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         isDeploying,
         canEdit,
         availableTokens,
+        tree,
+        // deploy data
         hatIds,
         moduleAddresses,
         organization: organization || undefined,

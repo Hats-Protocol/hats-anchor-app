@@ -1,8 +1,7 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
-import { useOrganization } from 'hooks';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { CouncilMember, StepProps } from 'types';
@@ -14,22 +13,20 @@ import { AdminsList } from './admins-list';
 import { UnifiedUserForm } from './unified-user-form';
 
 export function ManagementStep({ onNext }: StepProps) {
-  const { form, isLoading, stepValidation, canEdit } = useCouncilForm();
+  const { form, isLoading, stepValidation, canEdit, tree, councilsData } = useCouncilForm();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<CouncilMember | null>(null);
   const [isMutating, setIsMutating] = useState(false);
 
-  const organizationName = form.watch('organizationName') || '';
-  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization, isFetching } = useOrganization(orgName);
-  const treeId = get(organization, 'councils.0.treeId');
-
   const admins = form.watch('admins') || [];
+  const organizationAdmins = get(councilsData, '0.creationForm.admins', []);
   const eligibilityRequirements = form.watch('eligibilityRequirements');
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'management', eligibilityRequirements);
 
+  const adminList = !organizationAdmins || isEmpty(organizationAdmins) ? admins : organizationAdmins;
+
   // Show loading state during mutation or while fetching updated data
-  const isLoadingList = isMutating || (isFetching && !isLoading);
+  const isLoadingList = isMutating || isLoading;
 
   if (isLoading) {
     return (
@@ -86,11 +83,11 @@ export function ManagementStep({ onNext }: StepProps) {
           </div>
         )}
 
-        {admins.length > 0 && (
+        {adminList && !isEmpty(adminList) && (
           <div>
             <AdminsList
               name='admins'
-              admins={admins}
+              admins={adminList}
               form={form}
               canEdit={canEdit}
               onEdit={(admin: CouncilMember) => {
@@ -102,7 +99,7 @@ export function ManagementStep({ onNext }: StepProps) {
           </div>
         )}
 
-        {!treeId &&
+        {!tree &&
           (!showAddForm ? (
             <div className='flex items-center justify-between'>
               <Button
