@@ -151,7 +151,13 @@ export function AgreementStep({ onNext }: StepProps) {
         getKnownEligibilityModule(rule?.module.implementationAddress as Hex),
       );
 
-      const label = moduleEligibilityRules?.includes('allowlist') ? 'Compliance Manager' : 'Agreement Manager';
+      const avatars = moduleEligibilityRules?.includes('allowlist')
+        ? flatten(councilsByHatId?.map((council) => council.creationForm.complianceAdmins))
+        : flatten(councilsByHatId?.map((council) => council.creationForm.agreementAdmins));
+
+      const label = moduleEligibilityRules?.includes('allowlist')
+        ? `Compliance Manager${avatars?.length > 1 ? 's' : ''}`
+        : `Agreement Manager${avatars?.length > 1 ? 's' : ''}`;
 
       const descriptionNames = councilsByHatId?.map((council) => council.creationForm.councilName).join(', ');
       const councilsCount = councilsByHatId?.length || 0;
@@ -159,10 +165,6 @@ export function AgreementStep({ onNext }: StepProps) {
       const description = moduleEligibilityRules?.includes('allowlist')
         ? `Manages Compliance for ${descriptionNames}`
         : `Manages ${councilsCount > 1 ? councilsCount + ' Agreements' : ' Agreement'} for ${descriptionNames}`;
-
-      const avatars = moduleEligibilityRules?.includes('allowlist')
-        ? flatten(councilsByHatId?.map((council) => council.creationForm.complianceAdmins))
-        : flatten(councilsByHatId?.map((council) => council.creationForm.agreementAdmins));
 
       return {
         value: hatIdDecimalToHex(hatValue),
@@ -224,7 +226,7 @@ export function AgreementStep({ onNext }: StepProps) {
     () => [
       {
         value: 'org-managers',
-        label: 'Organization Managers',
+        label: `Organization Manager${organizationManagers?.length > 1 ? 's' : ''}`,
         description: 'Manage Roles on all Councils',
         avatars: organizationManagers,
         onSelect: () => form.setValue('agreementAdmins', organizationManagers),
@@ -232,8 +234,8 @@ export function AgreementStep({ onNext }: StepProps) {
       ...agreementAdminGroups,
       {
         value: 'new',
-        label: 'Create new Agreement Managers',
-        description: 'Create a new group of agreement managers',
+        label: 'Create new Agreement Manager Role',
+        description: 'Agreement Managers update the content of the agreement and judge signers',
         onSelect: () => form.setValue('agreementAdmins', []),
       },
     ],
