@@ -235,7 +235,7 @@ export function AgreementStep({ onNext }: StepProps) {
       {
         value: 'new',
         label: 'Create new Agreement Manager Role',
-        description: 'Agreement Managers update the content of the agreement and judge signers',
+        description: 'Agreement Managers control the conetnt of the agreement and adherence',
         onSelect: () => form.setValue('agreementAdmins', []),
       },
     ],
