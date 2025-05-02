@@ -11,7 +11,7 @@ import {
 } from '@hatsprotocol/constants';
 import { hatIdToTreeId, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { getAccessToken } from '@privy-io/react-auth';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { concat, find, first, flatten, get, map } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
@@ -63,7 +63,7 @@ const useCouncilDeploy = ({
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
   const { toast } = useToast();
-
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   // after accepted, included, indexed
@@ -154,6 +154,11 @@ const useCouncilDeploy = ({
         chain: chainsMap(chainId)?.name,
         hsgAddress,
       });
+
+      // clear cached data
+      queryClient.invalidateQueries({ queryKey: ['organization'] });
+      queryClient.invalidateQueries({ queryKey: ['treeDetails'] });
+      queryClient.invalidateQueries({ queryKey: ['councilsData'] });
 
       // redirect without updating final `setDeployStatus`
       const redirectUrl = `/councils/${chainIdToString(chainId)}:${hsgAddress}/members`;
