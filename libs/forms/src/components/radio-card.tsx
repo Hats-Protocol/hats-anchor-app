@@ -134,7 +134,7 @@ const RadioCard = ({
                                   <div className='flex -space-x-2'>
                                     {option.avatars.map((avatar) => (
                                       <MemberAvatar
-                                        key={avatar.id}
+                                        key={avatar?.id}
                                         member={avatar}
                                         className='h-6 w-6'
                                         showDetails={false}

@@ -230,7 +230,6 @@ export function AgreementStep({ onNext }: StepProps) {
         onSelect: () => form.setValue('agreementAdmins', organizationManagers),
       },
       ...agreementAdminGroups,
-
       {
         value: 'new',
         label: 'Create new Agreement Managers',
