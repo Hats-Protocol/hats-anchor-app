@@ -61,6 +61,15 @@ export const UPDATE_COUNCIL_FORM = gql`
   ${FORM_FRAGMENT}
 `;
 
+export const UPDATE_COUNCIL_FORM_WITH_COUNCIL_ID = gql`
+  mutation UpdateCouncilFormWithCouncilId($id: ID!, $councilId: ID!) {
+    updateCouncilCreationForm(id: $id, councilId: $councilId) {
+      ...FormFragment
+    }
+  }
+  ${FORM_FRAGMENT}
+`;
+
 export const CREATE_COUNCIL = gql`
   mutation CreateCouncil(
     $chainId: Int!

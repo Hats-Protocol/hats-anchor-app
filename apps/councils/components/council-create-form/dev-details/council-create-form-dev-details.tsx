@@ -1,6 +1,6 @@
 'use client';
 
-import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { useTreeDetails } from 'hats-hooks';
 import { compact, get, includes, isEmpty, keys, map } from 'lodash';
@@ -8,6 +8,7 @@ import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Link } from 'ui';
+import { hatLink, slugify } from 'utils';
 import { Hex } from 'viem';
 
 import { ModuleLink } from './module-link';
@@ -19,18 +20,20 @@ interface HatToCreate {
 
 const HatValue = ({
   hatId,
+  chainId,
   hatKey,
   existingHatIds,
   hatsToCreate,
 }: {
   hatId: bigint;
+  chainId: number;
   hatKey: string;
   existingHatIds: Hex[] | undefined;
   hatsToCreate: HatToCreate[] | undefined;
 }) => {
   if (existingHatIds && includes(existingHatIds, hatIdDecimalToHex(hatId))) {
     return (
-      <Link href={`https://app.hatsprotocol.xyz/trees/${hatIdDecimalToHex(hatId)}`} isExternal>
+      <Link href={hatLink({ chainId, hatId: hatIdDecimalToHex(hatId) })} isExternal>
         {hatIdDecimalToIp(hatId)}
       </Link>
     );
@@ -63,12 +66,36 @@ const CreateFormDevDetails = () => {
 
   const councilDetails = useMemo(() => {
     return [
-      { label: 'Organization', descriptor: <p className='text-sm'>{organization?.name || organizationName}</p> },
-      { label: 'Tree ID', descriptor: <p className='text-sm'>{treeId || 'New'}</p> },
+      {
+        label: 'Organization',
+        descriptor: (
+          <Link
+            href={`${window.location.origin}/organizations/${slugify(organizationName)}`}
+            className='text-sm'
+            isExternal
+          >
+            {organizationName}
+          </Link>
+        ),
+      },
+      {
+        label: 'Tree ID',
+        descriptor: treeId ? (
+          <Link
+            href={hatLink({ chainId, hatId: hatIdDecimalToHex(treeIdToTopHatId(treeId)) })}
+            className='text-sm'
+            isExternal
+          >
+            {treeId}
+          </Link>
+        ) : (
+          <p className='text-sm'>New</p>
+        ),
+      },
       { label: 'Name', descriptor: <p className='text-sm'>{councilName || '--'}</p> },
       { label: 'Description', descriptor: <p className='text-sm'>{councilDescription || '--'}</p> },
     ];
-  }, [councilName, councilDescription, organization?.name, organizationName, treeId]);
+  }, [councilName, councilDescription, chainId, organizationName, treeId]);
 
   // TODO add eligibility addresses
   // TODO add threshold config
@@ -151,6 +178,7 @@ const CreateFormDevDetails = () => {
 
                   <HatValue
                     hatKey={hatKey}
+                    chainId={chainId}
                     hatId={hatIds[hatKey]}
                     existingHatIds={existingHatIds}
                     hatsToCreate={hatsToCreate}
