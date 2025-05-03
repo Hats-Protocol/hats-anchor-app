@@ -36,6 +36,7 @@ export function AgreementStep({ onNext }: StepProps) {
   const [isMutating, setIsMutating] = useState(false);
 
   const agreementAdmins = form.watch('agreementAdmins') || [];
+  logger.info('agreementAdmins', agreementAdmins);
 
   // grabs from the eligibilityRequirements object
   const eligibilityRequirements = form.watch('eligibilityRequirements');
@@ -94,27 +95,42 @@ export function AgreementStep({ onNext }: StepProps) {
   }, [councilsData]);
 
   // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
-  const organizationManagers = useMemo(
-    () =>
-      councilsData?.reduce<CouncilMember[]>((acc, council) => {
-        if (council.creationForm?.admins) {
-          council.creationForm.admins.forEach((admin) => {
-            if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
-              acc.push({
-                ...admin,
-                email: '', // Adding required email field
-              });
-            }
-          });
-        }
-        return acc;
-      }, []) ??
-      form.getValues('admins').map((admin) => ({
+  const organizationManagers = useMemo(() => {
+    // Guard against form not being ready
+    if (isLoading) {
+      return [];
+    }
+
+    const formAdmins = form.getValues('admins') || [];
+
+    if (!councilsData) {
+      return formAdmins.map((admin) => ({
         ...admin,
         email: '', // Adding required email field
-      })),
-    [councilsData, form],
-  );
+      }));
+    }
+
+    const uniqueAdmins = councilsData.reduce<CouncilMember[]>((acc, council) => {
+      if (council.creationForm?.admins) {
+        council.creationForm.admins.forEach((admin) => {
+          if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
+            acc.push({
+              ...admin,
+              email: '', // Adding required email field
+            });
+          }
+        });
+      }
+      return acc;
+    }, []);
+
+    return uniqueAdmins.length > 0
+      ? uniqueAdmins
+      : formAdmins.map((admin) => ({
+          ...admin,
+          email: '', // Adding required email field
+        }));
+  }, [councilsData, form, isLoading]);
 
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
@@ -248,6 +264,8 @@ export function AgreementStep({ onNext }: StepProps) {
   // Set initial selection to first existing agreement if available
   useEffect(() => {
     if (isLoading) return;
+    if (!councilsData) return; // Add guard for councilsData
+    if (!organizationManagers?.length) return; // Add guard for organizationManagers
 
     // Only set if no selection has been made yet
     const currentExistingId = form.getValues('eligibilityRequirements.agreement.existingId');
@@ -262,9 +280,15 @@ export function AgreementStep({ onNext }: StepProps) {
       // set to new if it's the only option
       form.setValue('eligibilityRequirements.agreement.existingId', 'new');
       form.setValue('eligibilityRequirements.agreement.existingAdmins', 'org-managers');
-      form.setValue('agreementAdmins', organizationManagers);
+      // Only set agreementAdmins if we have organizationManagers
+      if (organizationManagers?.length > 0) {
+        form.setValue('agreementAdmins', organizationManagers);
+      }
     }
-  }, [isLoading, existingAgreements, form, organizationManagers, agreementOptions]);
+  }, [isLoading, existingAgreements, form, organizationManagers, agreementOptions, councilsData]);
+
+  logger.info('form.watch (eligibilityRequirements.agreement):', form.watch('eligibilityRequirements.agreement'));
+  logger.info('form.watch (agreementAdmins):', form.watch('agreementAdmins'));
 
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
@@ -296,6 +320,8 @@ export function AgreementStep({ onNext }: StepProps) {
   if (isLoading) {
     return <LoadingAgreementStep />;
   }
+
+  logger.info('agreementManagerOptions', agreementManagerOptions);
 
   const getIsDisabled = (): boolean => {
     const currentExistingId = form.watch('eligibilityRequirements.agreement.existingId');

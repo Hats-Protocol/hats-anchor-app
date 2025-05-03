@@ -91,27 +91,42 @@ export function ComplianceStep({ onNext }: StepProps) {
   }, [councilsData]);
 
   // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
-  const organizationManagers = useMemo(
-    () =>
-      councilsData?.reduce<CouncilMember[]>((acc, council) => {
-        if (council.creationForm?.admins) {
-          council.creationForm.admins.forEach((admin) => {
-            if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
-              acc.push({
-                ...admin,
-                email: '', // Adding required email field
-              });
-            }
-          });
-        }
-        return acc;
-      }, []) ??
-      form.getValues('admins').map((admin) => ({
+  const organizationManagers = useMemo(() => {
+    // Guard against loading state
+    if (isLoading) {
+      return [];
+    }
+
+    const formAdmins = form.getValues('admins') || [];
+
+    if (!councilsData) {
+      return formAdmins.map((admin) => ({
         ...admin,
         email: '', // Adding required email field
-      })),
-    [councilsData, form],
-  );
+      }));
+    }
+
+    const uniqueAdmins = councilsData.reduce<CouncilMember[]>((acc, council) => {
+      if (council.creationForm?.admins) {
+        council.creationForm.admins.forEach((admin) => {
+          if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
+            acc.push({
+              ...admin,
+              email: '', // Adding required email field
+            });
+          }
+        });
+      }
+      return acc;
+    }, []);
+
+    return uniqueAdmins.length > 0
+      ? uniqueAdmins
+      : formAdmins.map((admin) => ({
+          ...admin,
+          email: '', // Adding required email field
+        }));
+  }, [councilsData, form, isLoading]);
 
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
