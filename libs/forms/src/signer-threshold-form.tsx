@@ -109,7 +109,11 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                     }}
                     isDisabled={isDisabled}
                     inputClassName='rounded-l-none'
-                    helperText={`${calculateConfirmations(maxMembers)} confirmation${calculateConfirmations(maxMembers) > 1 ? 's' : ''} required (max ${maxMembers})`}
+                    helperText={
+                      maxMembers
+                        ? `${calculateConfirmations(maxMembers)} confirmation${calculateConfirmations(maxMembers) > 1 ? 's' : ''} required (max ${maxMembers})`
+                        : 'Enter total council members first'
+                    }
                     prefix={
                       <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>
                         %
