@@ -8,10 +8,11 @@ import { isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { StepProps } from 'types';
-import { MemberAvatar, Skeleton } from 'ui';
+import { MemberAvatar } from 'ui';
 
-import { NextStepButton } from '../next-step-button';
-import { findNextInvalidStep, getNextStepButtonText } from './utils';
+import { NextStepButton } from '../../../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
+import { LoadingDetailsStep } from './details-skeletons';
 
 interface OrganizationOption {
   value: string;
@@ -116,7 +117,7 @@ export function DetailsStep({ onNext }: StepProps) {
   }, [organizationsData, organizationNameValue, initialOrgValue, setValue, reset]);
 
   if (isLoading || isLoadingOrgs) {
-    return <Skeleton className='h-100 w-100' />;
+    return <LoadingDetailsStep />;
   }
 
   const nextStep = findNextInvalidStep(stepValidation, 'details', undefined, eligibilityRequirements);
