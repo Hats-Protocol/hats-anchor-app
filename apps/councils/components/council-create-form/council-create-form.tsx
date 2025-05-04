@@ -7,7 +7,7 @@ import type { StepValidation } from 'types';
 import { logger } from 'utils';
 
 import { DeployStep } from './deploy-step';
-import { DetailsStep } from './details-step';
+import { DetailsStep } from './deploy-step/details-step';
 import { AgreementStep, ComplianceStep, ManagementStep, MembersStep, TokensStep } from './eligibility-step';
 import { SelectionStep } from './select-step';
 import { ThresholdStep } from './threshold-step';

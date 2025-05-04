@@ -91,27 +91,42 @@ export function ComplianceStep({ onNext }: StepProps) {
   }, [councilsData]);
 
   // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
-  const organizationManagers = useMemo(
-    () =>
-      councilsData?.reduce<CouncilMember[]>((acc, council) => {
-        if (council.creationForm?.admins) {
-          council.creationForm.admins.forEach((admin) => {
-            if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
-              acc.push({
-                ...admin,
-                email: '', // Adding required email field
-              });
-            }
-          });
-        }
-        return acc;
-      }, []) ??
-      form.getValues('admins').map((admin) => ({
+  const organizationManagers = useMemo(() => {
+    // Guard against loading state
+    if (isLoading) {
+      return [];
+    }
+
+    const formAdmins = form.getValues('admins') || [];
+
+    if (!councilsData) {
+      return formAdmins.map((admin) => ({
         ...admin,
         email: '', // Adding required email field
-      })),
-    [councilsData, form],
-  );
+      }));
+    }
+
+    const uniqueAdmins = councilsData.reduce<CouncilMember[]>((acc, council) => {
+      if (council.creationForm?.admins) {
+        council.creationForm.admins.forEach((admin) => {
+          if (!acc.some((existing) => existing.address.toLowerCase() === admin.address.toLowerCase())) {
+            acc.push({
+              ...admin,
+              email: '', // Adding required email field
+            });
+          }
+        });
+      }
+      return acc;
+    }, []);
+
+    return uniqueAdmins.length > 0
+      ? uniqueAdmins
+      : formAdmins.map((admin) => ({
+          ...admin,
+          email: '', // Adding required email field
+        }));
+  }, [councilsData, form, isLoading]);
 
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
@@ -206,7 +221,13 @@ export function ComplianceStep({ onNext }: StepProps) {
         getKnownEligibilityModule(rule?.module.implementationAddress as Hex),
       );
 
-      const label = moduleEligibilityRules?.includes('allowlist') ? 'Compliance Manager' : 'Agreement Manager';
+      const avatars = moduleEligibilityRules?.includes('allowlist')
+        ? flatten(councilsByHatId?.map((council) => council.creationForm.complianceAdmins))
+        : flatten(councilsByHatId?.map((council) => council.creationForm.agreementAdmins));
+
+      const label = moduleEligibilityRules?.includes('allowlist')
+        ? `Compliance Manager${avatars?.length > 1 ? 's' : ''}`
+        : `Agreement Manager${avatars?.length > 1 ? 's' : ''}`;
 
       const descriptionNames = councilsByHatId?.map((council) => council.creationForm.councilName).join(', ');
       const councilsCount = councilsByHatId?.length || 0;
@@ -214,10 +235,6 @@ export function ComplianceStep({ onNext }: StepProps) {
       const description = moduleEligibilityRules?.includes('allowlist')
         ? `Manages Compliance for ${descriptionNames}`
         : `Manages ${councilsCount > 1 ? councilsCount + ' Agreements' : ' Agreement'} for ${descriptionNames}`;
-
-      const avatars = moduleEligibilityRules?.includes('allowlist')
-        ? flatten(councilsByHatId?.map((council) => council.creationForm.complianceAdmins))
-        : flatten(councilsByHatId?.map((council) => council.creationForm.agreementAdmins));
 
       return {
         value: hatIdDecimalToHex(hatValue),
@@ -246,7 +263,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     () => [
       {
         value: 'org-managers',
-        label: 'Organization Managers',
+        label: `Organization Manager${organizationManagers?.length > 1 ? 's' : ''}`,
         description: 'Manage Roles on all Councils',
         avatars: organizationManagers,
         onSelect: () => form.setValue('complianceAdmins', organizationManagers),
@@ -254,8 +271,8 @@ export function ComplianceStep({ onNext }: StepProps) {
       ...complianceAdminGroups,
       {
         value: 'new',
-        label: 'Create new Compliance Managers',
-        description: 'Create a new group of agreement managers',
+        label: 'Create new Compliance Manager Role',
+        description: 'Compliance managers control who is registered as compliant for the Council.',
         onSelect: () => form.setValue('complianceAdmins', []),
       },
     ],

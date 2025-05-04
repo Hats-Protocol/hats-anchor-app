@@ -78,6 +78,7 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
   const { watch, setValue } = localForm;
   const formValue = watch(name);
   const [ensDetails, setEnsDetails] = useState<{ name: string; address: string } | null>(null);
+  const [ensError, setEnsError] = useState<string | null>(null);
 
   // Use ensAddress hook to resolve ENS names
   const { data: resolvedAddress } = useEnsAddress({
@@ -100,21 +101,30 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
 
   // When ENS resolves, update state and form
   useEffect(() => {
-    if (resolvedAddress && formValue && !isAddress(formValue) && formValue.includes('.')) {
-      setEnsDetails({ name: formValue, address: resolvedAddress });
-      setValue(name, resolvedAddress, { shouldValidate: true });
+    if (formValue && !isAddress(formValue) && formValue.includes('.')) {
+      if (resolvedAddress) {
+        setEnsDetails({ name: formValue, address: resolvedAddress });
+        setValue(name, resolvedAddress, { shouldValidate: true });
+        setEnsError(null);
+      } else {
+        // Show unresolved message even before error state
+        setEnsError(`Unable to resolve ENS for ${formValue}. Please enter another ENS or address.`);
+        setEnsDetails(null);
+      }
     }
   }, [resolvedAddress, formValue, setValue, name]);
 
-  // Clear ENS details when form value is manually changed
+  // Clear ENS details and errors when form value is manually changed
   useEffect(() => {
-    if (ensDetails && formValue && formValue !== ensDetails.address && !ensName) {
+    if (formValue && (!formValue.includes('.') || isAddress(formValue))) {
       setEnsDetails(null);
+      setEnsError(null);
     }
-  }, [formValue, ensDetails, ensName]);
+  }, [formValue]);
 
-  // Decide whether to show the resolved address
+  // Decide whether to show the resolved address or error
   const showResolvedAddress = !!ensDetails;
+  const showEnsError = !!ensError && formValue && formValue.includes('.');
 
   const memberOptions = useMemo(
     () =>
@@ -266,6 +276,7 @@ const MemberAddressInput: React.FC<MemberAddressInputProps> = ({
           {ensDetails.name} resolved to: {ensDetails.address}
         </p>
       )}
+      {showEnsError && <p className='text-functional-error mt-1 text-xs'>{ensError}</p>}
     </div>
   );
 };
