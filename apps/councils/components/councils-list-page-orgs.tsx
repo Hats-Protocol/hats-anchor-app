@@ -11,7 +11,7 @@ import {
   useMediaStyles,
 } from 'hooks';
 import { concat, groupBy, isEmpty, map, orderBy, reject } from 'lodash';
-import { ArrowRightCircle } from 'lucide-react';
+import { ArrowRightCircle, CirclePlus } from 'lucide-react';
 import { useMemo } from 'react';
 import { HatSignerGateV2 } from 'types';
 import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
@@ -326,6 +326,14 @@ const CouncilListPageOrgs = () => {
             })}
           </div>
         ))}
+        <div className='mt-2 flex justify-center'>
+          <Link href={`/councils/new`}>
+            <Button variant='outline-blue' className='w-fit rounded-full'>
+              <CirclePlus className='text-functional-link-primary h-4 w-4' />
+              Create a new Council
+            </Button>
+          </Link>
+        </div>
         <HatDeco />
       </div>
     );
