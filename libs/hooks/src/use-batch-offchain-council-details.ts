@@ -42,6 +42,8 @@ export const useBatchOffchainCouncilDetails = (councils: Council[]) => {
         });
       },
       enabled: !!council.hsg && !!council.chainId,
+      refetchOnMount: true,
+      staleTime: 0,
     })),
   });
 
