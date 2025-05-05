@@ -330,6 +330,8 @@ const useCrossChainCouncilsList = ({ hatIdsByNetwork }: { hatIdsByNetwork: Recor
     queryKey: ['cross-chain-council-managers', hatIdsByNetwork],
     queryFn: () => getCrossChainCouncilManagers(hatIdsByNetwork),
     enabled: !!hatIdsByNetwork && !every(hatIdsByNetwork, isEmpty),
+    refetchOnMount: true,
+    staleTime: 0,
   });
 
   // Get the associated hats for each module manager
@@ -337,6 +339,8 @@ const useCrossChainCouncilsList = ({ hatIdsByNetwork }: { hatIdsByNetwork: Recor
     queryKey: ['cross-chain-module-manager-hats', modulesByNetwork],
     queryFn: () => getCrossChainModuleManagerHats(modulesByNetwork || undefined),
     enabled: !!modulesByNetwork && !isModuleManagersLoading && !every(modulesByNetwork, isEmpty),
+    refetchOnMount: true,
+    staleTime: 0,
   });
 
   // Consolidate the hat ids for each network
@@ -355,6 +359,8 @@ const useCrossChainCouncilsList = ({ hatIdsByNetwork }: { hatIdsByNetwork: Recor
     queryKey: ['cross-chain-councils-list', consolidatedHatIds],
     queryFn: () => getCrossChainHSG(consolidatedHatIds),
     enabled: !!consolidatedHatIds && !isModuleManagersLoading && !isModuleManagerHatsLoading,
+    refetchOnMount: true,
+    staleTime: 0,
   });
 
   return {

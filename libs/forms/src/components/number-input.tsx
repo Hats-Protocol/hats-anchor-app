@@ -147,6 +147,7 @@ const NumberInput = ({
                 <div className='flex items-stretch'>
                   {prefix}
                   <BaseInput
+                    type='number'
                     className={cn(
                       'w-full transition-colors duration-200 focus:outline-none focus:ring-0',
                       variant === 'default' && [
@@ -155,6 +156,7 @@ const NumberInput = ({
                       ],
                       prefix && 'rounded-l-none',
                       'rounded-r-none',
+                      '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
                       inputClassName,
                     )}
                     step={step}
@@ -162,7 +164,13 @@ const NumberInput = ({
                     max={numOptions?.max ?? Infinity}
                     disabled={isDisabled}
                     {...field}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Only update if it's a valid number
+                      if (value === '' || (!isNaN(Number(value)) && value !== 'e')) {
+                        handleChange(e);
+                      }
+                    }}
                   />
 
                   {isDirty && !isDisabled && enableReset && variant === 'default' && (

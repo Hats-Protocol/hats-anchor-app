@@ -42,25 +42,6 @@ export function ComplianceStep({ onNext }: StepProps) {
   const complianceAdmins = form.watch('complianceAdmins') || [];
   logger.info('complianceAdmins', complianceAdmins);
 
-  // // Add useEffect to set initial values when component mounts // TODO: Come back to this, causing error in the context
-  // useEffect(() => {
-  //   if (isLoading) return;
-
-  //   const { compliance } = eligibilityRequirements;
-  //   const initialValues: Omit<Partial<CouncilFormData>, 'existingId'> = {
-  //     eligibilityRequirements: {
-  //       compliance: {
-  //         // @ts-expect-error move to subforms to avoid challenges with the types between the parent and active forms
-  //         existingId: compliance.existingId || 'new',
-  //         existingAdmins: compliance.existingAdmins || null,
-  //       },
-  //     },
-  //     complianceAdmins: compliance.existingAdmins ? [] : complianceAdmins,
-  //   };
-
-  //   form.reset(initialValues);
-  // }, [isLoading, eligibilityRequirements]);
-
   const nextStep = findNextInvalidStep(stepValidation, 'eligibility', 'compliance', eligibilityRequirements);
 
   const existingComplianceModules = useMemo(() => {
@@ -324,15 +305,21 @@ export function ComplianceStep({ onNext }: StepProps) {
       complianceModuleOptions[0].onSelect();
     } else {
       // set to new if it's the only option
+      logger.info('setting to new -- only one option');
       form.setValue('eligibilityRequirements.compliance.existingId', 'new');
+      form.setValue('eligibilityRequirements.compliance.existingAdmins', 'org-managers');
+
+      // Only set agreementAdmins if we have organizationManagers
+      if (organizationManagers?.length > 0) {
+        form.setValue('complianceAdmins', organizationManagers);
+      }
     }
-  }, [isLoading, existingComplianceModules, form, complianceModuleOptions]);
+  }, [isLoading, existingComplianceModules, form, complianceModuleOptions, organizationManagers]);
 
   if (isLoading) {
     return <LoadingComplianceStep />;
   }
 
-  logger.info('existingComplianceModules', existingComplianceModules);
   return (
     <>
       <Form {...form}>
