@@ -399,12 +399,13 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
             <div className='flex items-center gap-2'>
               <Button
                 rounded='full'
-                variant='outline-blue'
+                variant='link'
+                className='mr-2'
                 size='lm'
                 disabled={!payer || !form.watch('acceptedTerms') || !canEdit}
                 onClick={copyCalldata}
               >
-                Copy Calldata
+                Deploy with Calldata
               </Button>
               {isWrongNetwork ? (
                 <NextStepButton

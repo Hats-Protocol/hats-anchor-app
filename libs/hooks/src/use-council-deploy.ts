@@ -123,7 +123,6 @@ const useCouncilDeploy = ({
       }
 
       logger.info('organization id', organizationId, moduleAddresses);
-      logger.info('module addresses', moduleAddresses);
       // create council record
       const council = await addCouncilForForm({
         chainId,
@@ -137,6 +136,7 @@ const useCouncilDeploy = ({
       });
       logger.info('council created', council);
       const councilId = get(council, 'createCouncil.id');
+      console.log(formData);
 
       // update council form with council ID
       await updateCouncilForm({
@@ -144,7 +144,7 @@ const useCouncilDeploy = ({
         councilId,
         accessToken,
       });
-      logger.debug('council form updated with council id:', councilId);
+      logger.debug('council form updated with council id:', draftId, councilId);
 
       setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
 
@@ -166,7 +166,7 @@ const useCouncilDeploy = ({
       router.push(redirectUrl);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [chainId, draftId, formData?.councilName, formData?.organizationName, moduleAddresses, hatIds?.topHat, router],
+    [chainId, draftId, formData, moduleAddresses, hatIds?.topHat, router],
   );
 
   const simulateFullMulticall = useSimulateContract({
@@ -205,7 +205,7 @@ const useCouncilDeploy = ({
           MULTICALL3_ADDRESS,
         });
 
-        toast({ title: 'Failed to create transaction', description: 'Please try again', variant: 'destructive' });
+        toast({ title: 'Transaction failed', description: 'Please try again', variant: 'destructive' });
         // reset deploy status
         setDeployStatus(initialDeployStatus);
         return;
@@ -213,7 +213,8 @@ const useCouncilDeploy = ({
 
     if (!hash) {
       logger.error('Failed to create transaction');
-      throw new Error('Failed to create transaction');
+      toast({ title: 'Transaction rejected', description: 'Please try again', variant: 'destructive' });
+      return;
     } else {
       logger.debug('hash', hash);
       setDeployStatus((prev) => ({ ...prev, deployTx: true }));

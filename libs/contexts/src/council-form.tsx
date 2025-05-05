@@ -355,9 +355,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     const chain = find(values(chainOptions), { value: apiData.chain?.toString() }) || first(values(chainOptions));
     if (!chain) throw new Error('Chain not found');
 
-    // Set agreement admins based on role
-    // const agreementAdmins = data.createAgreementAdminRole ? data.agreementAdmins || [] : data.admins || [];
+    // TODO `transformCouncilFormData()`
+
+    // Set initial admins based on role
     const agreementAdmins = (apiData.agreementAdmins || []) ?? (apiData.admins || []);
+    const complianceAdmins = (apiData.complianceAdmins || []) ?? (apiData.admins || []);
 
     const newValues: CouncilFormData = {
       organizationName: apiData.organizationName
@@ -376,7 +378,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       membershipType: apiData.membersSelectionType === 'ELECTION' ? 'ELECTED' : 'APPOINTED',
       members: apiData.members || [],
       admins: apiData.admins || [],
-      complianceAdmins: apiData.complianceAdmins || [],
+      complianceAdmins,
       eligibilityRequirements: apiData.eligibilityRequirements
         ? JSON.parse(apiData.eligibilityRequirements)
         : defaultEligibilityRequirements,
@@ -404,10 +406,10 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   >({
     mutationFn: async ({ step, subStep }) => {
       const formData = form.watch();
-      let payload: Partial<CouncilFormData> = { id: draftId || undefined };
-
-      // Cache current form state to prevent flashing
-      const currentFormState = { ...formData };
+      let payload: Partial<CouncilFormData> = {
+        id: draftId || undefined,
+        ...formData,
+      };
 
       const currentEligibilityRequirements = formData.eligibilityRequirements || defaultEligibilityRequirements;
 
@@ -542,12 +544,6 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
               };
               break;
           }
-          break;
-        default:
-          payload = {
-            ...payload,
-            ...currentFormState,
-          };
       }
 
       logger.debug('payload', payload);
@@ -555,7 +551,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       const councilsGraphqlClient = getCouncilsGraphqlClient(accessToken ?? undefined);
 
       // Ensure form state is preserved during the request
-      form.reset(currentFormState);
+      form.reset(payload);
+
+      // TODO transformCouncilFormPayload()
 
       const defaultCouncilCreationForm = {
         creator: null,
@@ -568,6 +566,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         thresholdMin: null,
         maxCouncilMembers: null,
         membersSelectionType: null,
+        eligibilityRequirements: defaultEligibilityRequirements,
         payer: null,
         members: [],
         admins: [],
@@ -591,10 +590,9 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         maxCouncilMembers: formData.maxMembers,
         thresholdMin: formData.min,
         thresholdTarget: formData.target,
-        eligibilityRequirements: payload.eligibilityRequirements
-          ? JSON.stringify(payload.eligibilityRequirements)
-          : formData.eligibilityRequirements
-            ? JSON.stringify(formData.eligibilityRequirements)
+        eligibilityRequirements:
+          payload.eligibilityRequirements || formData.eligibilityRequirements
+            ? JSON.stringify(payload.eligibilityRequirements || formData.eligibilityRequirements)
             : JSON.stringify(defaultEligibilityRequirements),
         completedOptionalSteps: payload.completedOptionalSteps
           ? JSON.stringify(payload.completedOptionalSteps)

@@ -18,6 +18,8 @@ interface HatToCreate {
   id: bigint;
 }
 
+const APP_URL = 'https://pro.hatsprotocol.xyz';
+
 const HatValue = ({
   hatId,
   chainId,
@@ -65,15 +67,13 @@ const CreateFormDevDetails = () => {
   const councilDescription = form.watch('councilDescription');
 
   const councilDetails = useMemo(() => {
+    const appUrl = typeof window !== 'undefined' ? window.location.origin : APP_URL;
+
     return [
       {
         label: 'Organization',
         descriptor: (
-          <Link
-            href={`${window.location.origin}/organizations/${slugify(organizationName)}`}
-            className='text-sm'
-            isExternal
-          >
+          <Link href={`${appUrl}/organizations/${slugify(organizationName)}`} className='text-sm' isExternal>
             {organizationName}
           </Link>
         ),
@@ -173,7 +173,7 @@ const CreateFormDevDetails = () => {
           <AccordionContent>
             {hatIds &&
               map(keys(hatIds), (hatKey) => (
-                <div className='flex items-center gap-2' id={hatKey}>
+                <div className='flex items-center gap-2' key={hatKey}>
                   <p>{hatKey}</p>
 
                   <HatValue

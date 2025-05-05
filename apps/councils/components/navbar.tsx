@@ -1,6 +1,5 @@
 'use client';
 
-// import { useHatDetails } from 'hats-hooks';
 import { useCouncilDetails, useOffchainCouncilDetails, useOrganization } from 'hooks';
 import { capitalize, keys, map } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
@@ -38,8 +37,8 @@ const Navbar = () => {
 
   const { data: organization } = useOrganization(isOrganizationRoute ? params.organizationName : undefined);
 
-  const isDev =
-    posthog.isFeatureEnabled('dev') || (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined');
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isClient = typeof window !== 'undefined';
 
   return (
     <div
@@ -70,7 +69,7 @@ const Navbar = () => {
         {createForm && <p className='text-lg font-bold'>New Hats Council</p>}
         {isOrganizationRoute && organization && <p className='text-lg font-bold'>{organization.name}</p>}
 
-        {isDev && (
+        {isDev && isClient && (
           <DropdownMenu>
             <DropdownMenuTrigger className='text-sm'>Dev</DropdownMenuTrigger>
             <DropdownMenuContent align='start'>
