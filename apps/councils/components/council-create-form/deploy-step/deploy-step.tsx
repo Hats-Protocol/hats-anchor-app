@@ -189,13 +189,14 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   return (
     <div className='mx-auto max-w-4xl'>
       <div className='relative border-b border-gray-200 pb-6'>
-        <div className='absolute right-0 top-0'>
-          <Button type='button' variant='outline-blue' rounded='full' onClick={copyUrl}>
-            <Link className='h-4 w-4' /> Share Council Draft
-          </Button>
-        </div>
         <div className='flex flex-col items-center gap-1'>
-          <h2 className='text-3xl font-medium'>{formData.councilName}</h2>
+          <div className='flex w-full items-center justify-between'>
+            <div className='w-[72px]'></div>
+            <h2 className='text-center text-3xl font-medium'>{formData.councilName}</h2>
+            <Button type='button' variant='outline-blue' rounded='full' onClick={copyUrl}>
+              <Link className='h-4 w-4' /> Share
+            </Button>
+          </div>
           <div className='flex gap-1'>
             <span className='text-gray-900'>by</span>{' '}
             <span className='text-gray-500'>
