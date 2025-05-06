@@ -36,6 +36,8 @@ export function TokensStep({ onNext }: StepProps) {
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'erc20',
       );
     });
+    logger.info('rawCouncilsWithTokenRequirements', rawCouncilsWithTokenRequirements);
+    logger.info('councilsData', councilsData);
 
     // Filter out null/undefined requirements first
     const validRequirements = rawCouncilsWithTokenRequirements?.filter((requirement) => !!requirement);
@@ -48,7 +50,6 @@ export function TokensStep({ onNext }: StepProps) {
           map(flatten(council.eligibilityRules), 'address').includes(tokenRequirement?.address || '0x'),
         ) as CouncilData[];
 
-        // Only include requirements that have valid council data and ERC20 requirements
         if (
           associatedCouncils.length === 0 ||
           !associatedCouncils[0]?.eligibilityRequirements?.erc20?.address ||
@@ -62,7 +63,7 @@ export function TokensStep({ onNext }: StepProps) {
           councils: associatedCouncils,
         };
       })
-      .filter(Boolean); // Remove any null entries
+      .filter(Boolean);
 
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
@@ -77,13 +78,8 @@ export function TokensStep({ onNext }: StepProps) {
               toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
           );
 
-          // Skip if we don't have valid token information
-          if (!token || !requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount) {
-            return null;
-          }
-
           return {
-            value: requirement?.address,
+            value: requirement?.address || '0x',
             label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
             icon: GemIcon as IconType,
             description: requirement?.councils?.[0]?.creationForm?.councilName,
@@ -92,10 +88,11 @@ export function TokensStep({ onNext }: StepProps) {
                 'eligibilityRequirements.erc20.amount',
                 parseFloat(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount || '0'),
               );
-              setValue('eligibilityRequirements.erc20.address', {
-                value: requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || '',
-                label: token?.symbol || '',
-              });
+              setValue(
+                'eligibilityRequirements.erc20.address',
+                requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || '',
+              );
+              setValue('eligibilityRequirements.erc20.existingId', requirement?.address || '');
             },
           };
         }),
@@ -115,6 +112,8 @@ export function TokensStep({ onNext }: StepProps) {
     [existingTokenRequirements, availableTokens, setValue],
   );
 
+  logger.info('tokenOptions', tokenOptions);
+
   const submitForm = useCallback(
     async (data: Partial<CouncilFormData>) => {
       // Get current council form values
@@ -122,6 +121,7 @@ export function TokensStep({ onNext }: StepProps) {
 
       // Merge the local form's eligibility requirements with existing council form data
       // preserving existing fields like 'required'
+      logger.info('currentValues', currentValues);
       const mergedValues = {
         ...currentValues,
         eligibilityRequirements: {
