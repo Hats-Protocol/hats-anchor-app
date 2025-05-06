@@ -1,6 +1,7 @@
 'use client';
 
 import { chainsList } from '@hatsprotocol/config';
+import { TokenInfo } from '@hatsprotocol/constants';
 import { useCouncilForm } from 'contexts';
 import { Form, RadioCard, TokenNumberInput, TokenSelect } from 'forms';
 import { compact, flatten, map, toLower, uniqBy } from 'lodash';
@@ -9,12 +10,21 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { CouncilData, CouncilFormData, StepProps } from 'types';
-import { getKnownEligibilityModule, logger } from 'utils';
+import { getKnownEligibilityModule, ipfsUrl, logger } from 'utils';
 import { Hex } from 'viem';
 
 import { NextStepButton } from '../../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
 import { LoadingTokensStep, RadioCardSkeleton } from './tokens-skeletons';
+
+const tokenToOption = (token: TokenInfo | undefined) => {
+  if (!token) return null;
+  return {
+    value: token?.address,
+    label: token?.symbol,
+    icon: ipfsUrl(token?.logoURI),
+  };
+};
 
 export function TokensStep({ onNext }: StepProps) {
   const { form: councilForm, isLoading, stepValidation, canEdit, availableTokens, councilsData } = useCouncilForm();
@@ -77,6 +87,7 @@ export function TokensStep({ onNext }: StepProps) {
             (t) =>
               toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
           );
+          const tokenOption = tokenToOption(token);
 
           return {
             value: requirement?.address || '0x',
@@ -88,10 +99,7 @@ export function TokensStep({ onNext }: StepProps) {
                 'eligibilityRequirements.erc20.amount',
                 parseFloat(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount || '0'),
               );
-              setValue(
-                'eligibilityRequirements.erc20.address',
-                requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || '',
-              );
+              setValue('eligibilityRequirements.erc20.address', tokenOption || '');
               setValue('eligibilityRequirements.erc20.existingId', requirement?.address || '');
             },
           };
@@ -152,6 +160,21 @@ export function TokensStep({ onNext }: StepProps) {
       setValue('eligibilityRequirements.erc20.existingId', 'new');
       setValue('eligibilityRequirements.erc20.amount', currentErc20Values.amount);
       setValue('eligibilityRequirements.erc20.address', currentErc20Values.address);
+      return;
+    } else if (currentErc20Values?.existingId && currentErc20Values?.address && currentErc20Values?.amount) {
+      const existingTokenOption = existingTokenRequirements.find(
+        (requirement) => requirement?.address === currentErc20Values.existingId,
+      );
+      const token = availableTokens.find(
+        (t) =>
+          toLower(t.address) ===
+          toLower(existingTokenOption?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
+      );
+      const tokenOption = tokenToOption(token);
+      logger.info('Setting token selection to existing with existing values', existingTokenOption, token, tokenOption);
+      setValue('eligibilityRequirements.erc20.existingId', currentErc20Values.existingId);
+      setValue('eligibilityRequirements.erc20.amount', currentErc20Values.amount);
+      setValue('eligibilityRequirements.erc20.address', tokenOption);
       return;
     }
 
