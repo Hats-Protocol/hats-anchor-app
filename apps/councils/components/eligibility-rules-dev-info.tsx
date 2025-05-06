@@ -1,5 +1,5 @@
 import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
-import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { hatIdDecimalToHex, hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { find, flatten, get, last, map, size } from 'lodash';
 import { Link } from 'ui';
 import { explorerUrl, formatAddress, hatLink, shortDateFormatter } from 'utils';
@@ -93,14 +93,21 @@ const ModuleParamsDevDisplay = ({
   params: ModuleParameter[] | undefined;
   chainId: number;
 }) => {
-  const tokenParam = find(params, { label: 'Token Address' });
+  console.log(params);
+  const tokenParam = find(params, { displayType: 'erc20' });
   const tokenAddress = tokenParam?.value as Hex;
-  const { data: tokenDecimals } = useReadContract({
+  console.log(tokenAddress, tokenParam, chainId);
+  const {
+    data: tokenDecimals,
+    status,
+    error,
+  } = useReadContract({
     address: tokenAddress,
     abi: erc20Abi,
     functionName: 'decimals',
     chainId,
   });
+  console.log(tokenDecimals, status, error);
 
   return (
     <div className='flex flex-col items-end gap-1'>
@@ -119,14 +126,27 @@ const ModuleParamsDevDisplay = ({
 };
 
 export function EligibilityRulesDevInfo({
+  hatId,
   chainId,
   eligibilityRules,
   eligibilityAddress,
 }: {
+  hatId?: string;
   chainId: number;
   eligibilityRules: Ruleset[] | undefined;
   eligibilityAddress: string | undefined;
 }) {
+  if (!eligibilityRules && eligibilityAddress) {
+    return (
+      <div className='flex flex-col gap-2'>
+        <div className='flex justify-between'>
+          <h3 className='text-sm font-medium'>Eligibility Rules</h3>
+          <p className='text-sm text-red-500'>Bad eligibility address found!</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!eligibilityRules) return null;
 
   // TODO technically a chain could wrap a single module/rule, but this is unlikely
@@ -137,7 +157,9 @@ export function EligibilityRulesDevInfo({
   return (
     <div className='flex flex-col gap-2'>
       <div className='flex justify-between'>
-        <h3 className='text-sm font-medium'>Eligibility Rules</h3>
+        <h3 className='text-sm font-medium'>
+          Eligibility Rules{hatId ? ` for ${hatIdDecimalToIp(hatIdHexToDecimal(hatId))}` : ''}
+        </h3>
 
         <p className='text-functional-link-secondary text-sm'>
           {!isSingleRule ? `${size(flatten(eligibilityRules))} rules` : 'No chain'}

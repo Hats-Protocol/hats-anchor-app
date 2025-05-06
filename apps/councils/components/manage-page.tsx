@@ -8,12 +8,12 @@ import { Modal, useOverlay } from 'contexts';
 import { CouncilTransferForm } from 'forms';
 import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
-import { concat, filter, find, flatten, get, includes, map, reject, size, toLower, toNumber } from 'lodash';
+import { concat, filter, find, flatten, get, includes, map, reduce, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { idToIp } from 'shared';
-import { CouncilMember, SupportedChains } from 'types';
+import { CouncilMember, EligibilityRule, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, Skeleton } from 'ui';
 import { MemberAvatar } from 'ui';
 import {
@@ -36,22 +36,11 @@ import { SignerThresholdModal } from './signer-threshold-modal';
 import { SignersIndicator } from './signers-indicator';
 
 const DEFAULT_SECTIONS = [
-  {
-    value: 'threshold',
-    label: 'Signer Threshold',
-  },
-  {
-    value: 'admin',
-    label: 'Council Management',
-  },
+  { value: 'threshold', label: 'Signer Threshold' },
+  { value: 'admin', label: 'Organization Management' },
 ];
 
-const OWNER_SECTIONS = [
-  {
-    value: 'ownership',
-    label: 'Organization Owner',
-  },
-];
+const OWNER_SECTIONS = [{ value: 'ownership', label: 'Organization Owner' }];
 
 const filterRulesWithoutAdmin = (rules: Ruleset) => {
   return reject(
@@ -63,7 +52,7 @@ const filterRulesWithoutAdmin = (rules: Ruleset) => {
   );
 };
 
-const eligibilityRuleMenuLabels = (rule: any, offchainCouncilDetails: any) => {
+const eligibilityRuleMenuLabels = (rule: EligibilityRule, offchainCouncilDetails: OffchainCouncilData | undefined) => {
   if (rule.address === offchainCouncilDetails?.membersCriteriaModule) {
     return 'Compliance Management';
   }
@@ -118,7 +107,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     chainId: chainId ?? 11155111,
     enabled: !!councilDetails?.id && !!chainId,
   });
-  const allWearers = getAllWearers(offchainCouncilDetails || undefined);
+  const allWearers = getAllWearers(offchainCouncilDetails?.creationForm || undefined);
 
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
   const ownerHat = get(councilDetails, 'ownerHat');
@@ -127,9 +116,10 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
+  const allowlistModule = offchainCouncilDetails?.membersSelectionModule || get(primarySignerHat, 'eligibility');
   const rulesWithoutSelectionModule = filter(
     flatten(eligibilityRules),
-    (rule) => toLower(rule.address) !== toLower(offchainCouncilDetails?.membersSelectionModule),
+    (rule) => toLower(rule.address) !== toLower(allowlistModule),
   );
   const { data: topHatDetails, isLoading: topHatDetailsLoading } = useHatDetails({
     chainId: (chainId ?? 11155111) as SupportedChains,
@@ -151,13 +141,14 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const signers = filter(safeSigners, (signer) => includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)));
+  const totalMaxSupply = reduce(map(councilDetails?.signerHats, 'maxSupply'), (acc, curr) => acc + toNumber(curr), 0);
 
   const menuOptions = concat(
     DEFAULT_SECTIONS,
     map(filterRulesWithoutAdmin(rulesWithoutSelectionModule), (rule) => ({
       value: rule.address,
       // TODO handle more mappings here
-      label: eligibilityRuleMenuLabels(rule, offchainCouncilDetails),
+      label: eligibilityRuleMenuLabels(rule, offchainCouncilDetails || undefined),
       module: rule.module,
     })),
     OWNER_SECTIONS,
@@ -206,8 +197,6 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
-  logger.info('Button conditions:', { user, userIsManager, currentChainId, chainId }); /* Debug log */
-
   return (
     <div className='mx-auto flex gap-4 px-4 pt-10 lg:max-w-[1000px]'>
       <div className='hidden w-1/5 md:flex'>
@@ -232,7 +221,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
                 <SignersIndicator
                   threshold={toNumber(get(councilDetails, 'minThreshold'))}
                   signers={size(signers)}
-                  maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                  maxSigners={totalMaxSupply}
                 />
                 {user && userIsManager && (
                   <div className='mt-4 flex'>
@@ -261,7 +250,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
           />
         </div>
 
-        {/* TOP HAT CAN EDIT MANAGERS */}
+        {/* ONLY TOP HAT CAN EDIT ORGANIZATION MANAGERS */}
         <div className='space-y-6' id='admin'>
           {typeof window === 'undefined' || councilDetailsLoading || eligibilityRulesLoading ? (
             <div className='flex flex-col gap-6'>
@@ -276,19 +265,19 @@ export const ManagePage = ({ slug }: { slug: string }) => {
             </div>
           ) : (
             <>
-              <h2 className='text-2xl font-semibold'>Council Management</h2>
+              <h2 className='text-2xl font-semibold'>Organization Management</h2>
 
               <div className='space-y-4'>
                 <div className='space-y-1'>
-                  <h3 className='font-bold'>Council Managers</h3>
-                  <p className='text-sm'>Can select Council Members</p>
+                  <h3 className='font-bold'>Organization Managers</h3>
+                  <p className='text-sm'>
+                    Can appoint and remove Managers and Members, change all Membership Criteria and edit any Council
+                  </p>
                 </div>
 
                 <div className='flex flex-col gap-4'>
                   {map(ownerHat?.wearers, (owner) => {
-                    const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                      address: getAddress(owner.id),
-                    });
+                    const offchainDetails = find(allWearers, { address: getAddress(owner.id) });
                     return (
                       <div key={owner?.id} className={cn(isDev && !offchainDetails && 'bg-functional-link-primary/10')}>
                         <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} />
@@ -387,9 +376,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
                 <div className='space-y-2'>
                   {map(topHatDetails?.wearers, (owner) => {
                     // there will only be one wearer
-                    const offchainDetails = find(getAllWearers(offchainCouncilDetails || undefined), {
-                      address: getAddress(owner.id),
-                    });
+                    const offchainDetails = find(allWearers, { address: getAddress(owner.id) });
 
                     return <MemberAvatar member={{ ...offchainDetails, ...owner } as CouncilMember} key={owner.id} />;
                   })}
@@ -422,7 +409,11 @@ export const ManagePage = ({ slug }: { slug: string }) => {
         </div>
 
         <Modal name='transfer-ownership' title='Transfer Ownership' size='lg'>
-          <CouncilTransferForm topHatWearerAddress={get(topHatDetails, 'wearers[0].id')} />
+          <CouncilTransferForm
+            hatId={primarySignerHat?.id}
+            topHatWearerAddress={get(topHatDetails, 'wearers[0].id')}
+            chainId={chainId as SupportedChains}
+          />
         </Modal>
       </div>
     </div>

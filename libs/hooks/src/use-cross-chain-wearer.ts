@@ -11,5 +11,7 @@ export const useCrossChainWearer = ({ wearerAddress, enabled = true }: UseCrossC
     queryKey: ['crossChainWearer', { wearerAddress }],
     queryFn: () => getCrossChainWearerDetails(wearerAddress),
     enabled: enabled && !!wearerAddress,
+    refetchOnMount: true,
+    staleTime: 0,
   });
 };

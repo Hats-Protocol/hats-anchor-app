@@ -44,3 +44,5 @@ export const SAFE_API_URL: {
   11155111: 'https://safe-transaction-sepolia.safe.global',
   84532: 'https://safe-transaction-base-sepolia.safe.global',
 };
+
+export const TENDERLY_SIMULATION_URL = 'https://www.tdly.co/shared/simulation/';

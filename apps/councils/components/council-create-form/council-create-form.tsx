@@ -6,14 +6,10 @@ import posthog from 'posthog-js';
 import type { StepValidation } from 'types';
 import { logger } from 'utils';
 
-import { DetailsStep } from './details-step';
-import { OnboardingStep } from './onboarding-step';
-import { SelectionAgreementStep } from './selection-step/agreement-step';
-import { SelectionComplianceStep } from './selection-step/compliance-step';
-import { SelectionManagementStep } from './selection-step/management-step';
-import { SelectionMembersStep } from './selection-step/members-step';
-import { SelectionTokensStep } from './selection-step/tokens-step';
-import { SubscribeDeployStep } from './subscribe-deploy-step';
+import { DeployStep } from './deploy-step';
+import { DetailsStep } from './deploy-step/details-step';
+import { AgreementStep, ComplianceStep, ManagementStep, MembersStep, TokensStep } from './eligibility-step';
+import { SelectionStep } from './select-step';
 import { ThresholdStep } from './threshold-step';
 import { findNextInvalidStep } from './utils';
 
@@ -28,13 +24,11 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
   const { persistForm, form, stepValidation, setStepValidation } = useCouncilForm();
 
   const handleNext = async () => {
-    logger.debug('handleNext', step, subStep);
     try {
       await persistForm(step, subStep);
       setStepValidation(step as keyof StepValidation, true);
 
-      const nextStep = findNextInvalidStep(stepValidation, step, subStep, form.watch('requirements'));
-      logger.debug('nextStep', nextStep);
+      const nextStep = findNextInvalidStep(stepValidation, step, subStep, form.watch('eligibilityRequirements'));
 
       if (nextStep.subStep) {
         router.push(`/councils/new/${nextStep.step}?subStep=${nextStep.subStep}&draftId=${draftId}`);
@@ -56,25 +50,26 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
       return <DetailsStep onNext={handleNext} draftId={draftId} />;
     case 'threshold':
       return <ThresholdStep onNext={handleNext} draftId={draftId} />;
-    case 'onboarding':
-      return <OnboardingStep onNext={handleNext} draftId={draftId} />;
     case 'selection':
+      return <SelectionStep onNext={handleNext} draftId={draftId} />;
+    case 'eligibility':
       switch (subStep) {
-        case 'members':
-          return <SelectionMembersStep onNext={handleNext} draftId={draftId} />;
         case 'management':
-          return <SelectionManagementStep onNext={handleNext} draftId={draftId} />;
+          return <ManagementStep onNext={handleNext} draftId={draftId} />;
         case 'agreement':
-          return <SelectionAgreementStep onNext={handleNext} draftId={draftId} />;
+          return <AgreementStep onNext={handleNext} draftId={draftId} />;
         case 'compliance':
-          return <SelectionComplianceStep onNext={handleNext} draftId={draftId} />;
+          return <ComplianceStep onNext={handleNext} draftId={draftId} />;
         case 'tokens':
-          return <SelectionTokensStep onNext={handleNext} draftId={draftId} />;
+          return <TokensStep onNext={handleNext} draftId={draftId} />;
+        case 'members':
+          return <MembersStep onNext={handleNext} draftId={draftId} />;
         default:
+          // router.replace(`/councils/new/eligibility?subStep=management&draftId=${draftId}`);
           return null;
       }
-    case 'payment':
-      return <SubscribeDeployStep draftId={draftId} />;
+    case 'deploy':
+      return <DeployStep draftId={draftId} />;
     default:
       return null;
   }

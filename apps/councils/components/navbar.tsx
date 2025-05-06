@@ -1,7 +1,6 @@
 'use client';
 
-// import { useHatDetails } from 'hats-hooks';
-import { useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
+import { useCouncilDetails, useOffchainCouncilDetails, useOrganization } from 'hooks';
 import { capitalize, keys, map } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
@@ -20,10 +19,11 @@ const DEV_PAGES = {
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { slug } = useParams<{ slug: string }>();
-  const { chainId, address } = parseCouncilSlug(slug);
-  // const isJoinLink = pathname.includes('join');
+  const params = useParams<{ slug?: string; organizationName?: string }>();
+  const { slug } = params;
+  const { chainId, address } = parseCouncilSlug(slug ?? '');
   const createForm = pathname.includes('councils/new');
+  const isOrganizationRoute = pathname.includes('/organizations/');
 
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId as SupportedChains,
@@ -34,13 +34,11 @@ const Navbar = () => {
     chainId: chainId ?? 11155111,
     enabled: !!councilDetails?.id && !!chainId,
   });
-  // const { details } = useHatDetails({
-  //   chainId: chainId as SupportedChains,
-  //   hatId: get(councilDetails, 'signerHats[0].id'),
-  // });
-  // logger.debug('nav', { offchainDetails, details });
+
+  const { data: organization } = useOrganization(isOrganizationRoute ? params.organizationName : undefined);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isClient = typeof window !== 'undefined';
 
   return (
     <div
@@ -54,17 +52,24 @@ const Navbar = () => {
         <Link href='/' className='text-foreground/80 hover:text-foreground flex items-center gap-4'>
           <img src='/hats.png' className='size-10' alt='Hats Logo' />
 
-          {!chainId && !address && !createForm && (
+          {!chainId && !address && !createForm && !isOrganizationRoute && (
             <p className='text-xl font-semibold text-black hover:text-black/80'>
               hats <span className='font-normal'>pro</span>
             </p>
           )}
         </Link>
 
-        {chainId && address && <p className='text-lg font-bold'>{offchainDetails?.creationForm.organizationName}</p>}
+        {chainId && address && (
+          <p className='text-lg font-bold'>
+            {typeof offchainDetails?.creationForm.organizationName === 'object'
+              ? offchainDetails?.creationForm.organizationName.value
+              : offchainDetails?.creationForm.organizationName}
+          </p>
+        )}
         {createForm && <p className='text-lg font-bold'>New Hats Council</p>}
+        {isOrganizationRoute && organization && <p className='text-lg font-bold'>{organization.name}</p>}
 
-        {isDev && (
+        {isDev && isClient && (
           <DropdownMenu>
             <DropdownMenuTrigger className='text-sm'>Dev</DropdownMenuTrigger>
             <DropdownMenuContent align='start'>

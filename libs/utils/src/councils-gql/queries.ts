@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 
-import { FORM_FRAGMENT, ORGANIZATION_FRAGMENT } from './fragments';
+import { FORM_FRAGMENT, ORGANIZATION_COUNCIL_FRAGMENT } from './fragments';
 
 export const GET_COUNCIL_FORM = gql`
   query GetCouncilForm($id: ID!) {
@@ -14,8 +14,17 @@ export const GET_COUNCIL_FORM = gql`
 export const ORGANIZATION_BY_NAME_QUERY = gql`
   query OrganizationByName($name: String!) {
     organizations(where: { name: $name }) {
-      ...OrganizationFragment
+      ...OrganizationCouncilFragment
     }
   }
-  ${ORGANIZATION_FRAGMENT}
+  ${ORGANIZATION_COUNCIL_FRAGMENT}
+`;
+
+export const ORGANIZATIONS_QUERY = gql`
+  query Organizations {
+    organizations {
+      ...OrganizationCouncilFragment
+    }
+  }
+  ${ORGANIZATION_COUNCIL_FRAGMENT}
 `;

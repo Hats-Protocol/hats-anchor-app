@@ -9,6 +9,9 @@ interface SimulationRequest {
   stateOverrides?: Record<string, any>;
 }
 
+// TODO unify with route in councils
+// TODO handle sharing simulation
+
 const { TENDERLY_ACCESS_TOKEN, TENDERLY_ACCOUNT_SLUG, TENDERLY_PROJECT_SLUG } = process.env;
 
 const TENDERLY_API_URL = `https://api.tenderly.co/api/v1/account/${TENDERLY_ACCOUNT_SLUG}/project/${TENDERLY_PROJECT_SLUG}/simulate`;

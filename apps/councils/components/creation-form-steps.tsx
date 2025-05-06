@@ -2,10 +2,11 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
+import { pick } from 'lodash';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import type { StepValidation } from 'types';
+import type { EligibilityRequirements, StepValidation } from 'types';
 import { cn } from 'ui';
 import { logger } from 'utils';
 
@@ -28,18 +29,18 @@ const BASE_STEPS: Step[] = [
     sublabel: 'How council members confirm transactions',
   },
   {
-    id: 'onboarding',
+    id: 'selection',
     label: 'Council Membership',
     sublabel: 'Set requirements to join the council',
   },
   {
-    id: 'selection',
+    id: 'eligibility',
     label: 'Council Roles',
     sublabel: 'Council Members & Managers',
     subSteps: [],
   },
   {
-    id: 'payment',
+    id: 'deploy',
     label: 'Subscribe & Deploy',
     sublabel: 'Add payment details and deploy onchain',
   },
@@ -49,7 +50,7 @@ const BASE_STEPS: Step[] = [
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: StepValidation) {
   // If step is not valid, show sublabel
-  if (!getStepValidation(step, stepValidation, form.watch('requirements'))) {
+  if (!getStepValidation(step, stepValidation, form.watch('eligibilityRequirements'))) {
     return step.sublabel;
   }
 
@@ -64,17 +65,17 @@ function getStepSummary(step: Step, form: UseFormReturn<any>, stepValidation: St
       } else {
         return `${form.watch('target')}% of members`;
       }
-    case 'onboarding':
-      const requirements = form.watch('requirements');
-      const reqs = [];
-      if (requirements?.signAgreement) reqs.push('Agreement');
-      if (requirements?.holdTokens) reqs.push('Tokens');
-      if (requirements?.passCompliance) reqs.push('Compliance');
-      return reqs.length ? reqs.join(' • ') : 'No requirements';
     case 'selection':
+      const requirements = form.watch('eligibilityRequirements');
+      const reqs = [];
+      if (requirements?.agreement?.required) reqs.push('Agreement');
+      if (requirements?.erc20?.required) reqs.push('Tokens');
+      if (requirements?.compliance?.required) reqs.push('Compliance');
+      return reqs.length ? reqs.join(' • ') : 'No requirements';
+    case 'eligibility':
       const memberCount = form.watch('members')?.length || 0;
-      const adminCount = form.watch('admins')?.length || 0;
-      return `${memberCount} council members & ${adminCount} managers`;
+      const adminCount = form.watch('admins')?.length || 0; // TODO handle other admins
+      return `${memberCount} council member${memberCount === 1 ? '' : 's'} & ${adminCount} manager${adminCount === 1 ? '' : 's'}`;
     default:
       return step.sublabel;
   }
@@ -87,30 +88,30 @@ interface CreationFormStepsProps {
 }
 
 function getSubStepStatus(subStepId: string, currentSubStep: string | undefined, stepValidation: StepValidation) {
-  const isValid = stepValidation.selectionSubSteps[subStepId as keyof typeof stepValidation.selectionSubSteps];
+  const isValid = stepValidation.eligibilitySubSteps[subStepId as keyof typeof stepValidation.eligibilitySubSteps];
   if (isValid) {
     return 'completed';
   }
   return subStepId === currentSubStep ? 'current' : 'upcoming';
 }
 
-function isSelectionStepValid(stepValidation: StepValidation, requirements: any) {
+function isEligibilityStepValid(stepValidation: StepValidation, requirements: EligibilityRequirements) {
   const activeSubSteps = [
     'members',
     'management',
-    ...(requirements?.signAgreement ? ['agreement'] : []),
-    ...(requirements?.holdTokens ? ['tokens'] : []),
-    ...(requirements?.passCompliance ? ['compliance'] : []),
+    ...(requirements?.agreement?.required ? ['agreement'] : []),
+    ...(requirements?.erc20?.required ? ['tokens'] : []),
+    ...(requirements?.compliance?.required ? ['compliance'] : []),
   ];
 
   return activeSubSteps.every(
-    (subStep) => stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps],
+    (subStep) => stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps],
   );
 }
 
-function getStepValidation(step: Step, stepValidation: StepValidation, requirements: any) {
-  if (step.id === 'selection') {
-    return isSelectionStepValid(stepValidation, requirements);
+function getStepValidation(step: Step, stepValidation: StepValidation, requirements: EligibilityRequirements) {
+  if (step.id === 'eligibility') {
+    return isEligibilityStepValid(stepValidation, requirements);
   }
   return stepValidation[step.id];
 }
@@ -118,16 +119,18 @@ function getStepValidation(step: Step, stepValidation: StepValidation, requireme
 function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFormStepsProps) {
   const { form, stepValidation, persistForm, canEdit } = useCouncilForm();
   const router = useRouter();
-  const requirements = form.watch('requirements');
+  const eligibilityRequirements = form.watch('eligibilityRequirements');
 
   const STEPS = [...BASE_STEPS];
-  const selectionStep = STEPS.find((step) => step.id === 'selection');
-  if (selectionStep) {
-    selectionStep.subSteps = [
-      { id: 'management', label: 'Council Management' },
-      ...(requirements?.signAgreement ? [{ id: 'agreement', label: 'Agreement' }] : []),
-      ...(requirements?.holdTokens ? [{ id: 'tokens', label: 'Token Requirements' }] : []),
-      ...(requirements?.passCompliance ? [{ id: 'compliance', label: 'Compliance Check' }] : []),
+  const eligibilityStep = STEPS.find((step) => step.id === 'eligibility');
+  if (eligibilityStep) {
+    const { agreement, erc20, compliance } = pick(eligibilityRequirements, ['agreement', 'erc20', 'compliance']);
+
+    eligibilityStep.subSteps = [
+      { id: 'management', label: 'Organization Management' },
+      ...(agreement?.required ? [{ id: 'agreement', label: 'Agreement' }] : []),
+      ...(erc20?.required ? [{ id: 'tokens', label: 'Token Requirements' }] : []),
+      ...(compliance?.required ? [{ id: 'compliance', label: 'Compliance Check' }] : []),
       { id: 'members', label: 'Council Members' },
     ];
   }
@@ -141,7 +144,7 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
           await persistForm(currentStep, currentSubStep);
         }
 
-        if (targetStep === 'selection') {
+        if (targetStep === 'eligibility') {
           router.push(`/councils/new/${targetStep}?subStep=${targetSubStep || 'management'}&draftId=${draftId}`);
         } else {
           router.push(`/councils/new/${targetStep}?draftId=${draftId}`);
@@ -174,12 +177,12 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                     // Handle the three states in order of priority
                     index === currentStepIndex
                       ? 'border-functional-link-primary bg-sky-100 shadow-sm' // Active state
-                      : getStepValidation(step, stepValidation, requirements)
+                      : getStepValidation(step, stepValidation, eligibilityRequirements)
                         ? 'border-none bg-white shadow-sm' // Completed state using exact hex color
                         : 'border-gray-200 bg-white', // Incomplete state
                   )}
                 >
-                  {getStepValidation(step, stepValidation, requirements) ? (
+                  {getStepValidation(step, stepValidation, eligibilityRequirements) ? (
                     <svg
                       width='44'
                       height='44'
@@ -202,10 +205,10 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
                 </div>
 
                 {/* Vertical line */}
-                {step.id === 'payment' || (step.id === 'selection' && currentStep === 'selection') ? null : (
+                {step.id === 'deploy' || (step.id === 'eligibility' && currentStep === 'eligibility') ? null : (
                   <div
                     className={`my-3 h-12 w-[2px] ${
-                      getStepValidation(step, stepValidation, requirements)
+                      getStepValidation(step, stepValidation, eligibilityRequirements)
                         ? 'bg-functional-link-primary'
                         : 'bg-gray-200'
                     }`}
@@ -221,14 +224,14 @@ function CreationFormSteps({ currentStep, currentSubStep, draftId }: CreationFor
           </button>
 
           {/* Sub-steps */}
-          {currentStep === 'selection' && step.id === 'selection' && step.subSteps && (
+          {currentStep === 'eligibility' && step.id === 'eligibility' && step.subSteps && (
             <div className='my-3 ml-[23px] pb-4'>
               {step.subSteps.map((subStep, subIndex) => {
                 const status = getSubStepStatus(subStep.id, currentSubStep, stepValidation);
                 return (
                   <button
                     key={subStep.id}
-                    onClick={() => handleStepNavigation('selection', subStep.id)}
+                    onClick={() => handleStepNavigation('eligibility', subStep.id)}
                     className={`flex w-full items-center gap-3 border-l-[2px] ${
                       status === 'completed'
                         ? 'border-l-functional-link-primary'

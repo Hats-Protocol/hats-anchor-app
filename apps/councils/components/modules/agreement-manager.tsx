@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useAllWearers, useHatDetails, useIsAdmin } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import { find, get, map, size, split, toLower } from 'lodash';
+import { find, get, isEmpty, map, size, split, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
@@ -16,7 +16,7 @@ import {
   getAllWearers,
   logger,
   // sendTelegramMessage,
-  tgFormatAddress,
+  // tgFormatAddress,
 } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
@@ -32,7 +32,7 @@ interface ModuleManagerProps {
   primarySignerHat: Hex | undefined;
 }
 
-const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySignerHat }: ModuleManagerProps) => {
+const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat }: ModuleManagerProps) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -56,10 +56,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
     chainId: chainId as SupportedChains,
   });
   const userIsAdmin = useIsAdmin({ address: userAddress as Hex, hatId: primarySignerHat, chainId });
-  // const hatDetails = ownerHat?.detailsMetadata;
-  // const agreementManagers = get(ownerHat, 'wearers');
-  // const hatName = ownerHatDetails?.name;
-  const allWearers = getAllWearers(offchainCouncilDetails);
+  const allWearers = getAllWearers(offchainCouncilDetails?.creationForm);
   const userIsAgreementManager = !!find(agreementManagers, { id: toLower(userAddress) });
 
   const addAgreementManagerLoading = useState(false);
@@ -134,7 +131,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
 
   return (
     <div className='flex flex-col gap-6' id={m.instanceAddress}>
-      <h2 className='text-2xl font-bold'>Agreement Manager</h2>
+      <h2 className='text-2xl font-bold'>Agreement Management</h2>
 
       <div className='space-y-4'>
         <div className='space-y-1'>
@@ -147,6 +144,7 @@ const AgreementManager = ({ m, chainId, slug, offchainCouncilDetails, primarySig
         </div>
 
         <div className='flex flex-col gap-4'>
+          {isEmpty(agreementManagers) && <p className='mt-2 text-sm'>No agreement managers</p>}
           {map(agreementManagers, (wearer) => {
             const offchainDetails = find(allWearers, { address: getAddress(wearer.id) });
 

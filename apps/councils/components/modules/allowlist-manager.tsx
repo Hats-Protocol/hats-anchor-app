@@ -37,7 +37,7 @@ interface ModuleManagerProps {
 const AllowlistManager = ({
   m,
   chainId,
-  slug,
+  // slug,
   criteriaModule,
   offchainCouncilDetails,
   primarySignerHat,
@@ -69,7 +69,7 @@ const AllowlistManager = ({
   const userIsAdmin = useIsAdmin({ address: userAddress as Hex, hatId: primarySignerHat, chainId });
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
-  const allWearers = getAllWearers(offchainCouncilDetails);
+  const allWearers = getAllWearers(offchainCouncilDetails?.creationForm);
 
   const allowlistManagerLoading = useState(false);
   const [, setManagerLoading] = allowlistManagerLoading;
@@ -226,7 +226,7 @@ const AllowlistManager = ({
           {isAdminHat ? (
             <h2 className='font-medium'>Delegated to Council Managers</h2>
           ) : (
-            <h2 className='font-bold'>Allowlist Managers</h2>
+            <h2 className='font-medium'>Allowlist Managers</h2>
           )}
         </div>
 

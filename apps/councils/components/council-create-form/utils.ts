@@ -1,4 +1,4 @@
-import type { StepValidation } from 'types';
+import type { EligibilityRequirements, StepValidation } from 'types';
 
 interface NextStep {
   step: string;
@@ -9,30 +9,30 @@ export function findNextInvalidStep(
   stepValidation: StepValidation,
   currentStep: string,
   currentSubStep?: string,
-  requirements?: { [key: string]: boolean },
+  eligibilityRequirements?: EligibilityRequirements,
 ): NextStep {
-  const steps = ['details', 'threshold', 'onboarding', 'selection', 'payment'];
+  const steps = ['details', 'threshold', 'selection', 'eligibility', 'deploy'];
   const currentStepIndex = steps.indexOf(currentStep);
 
-  // Define selection sub-steps order
-  const getSelectionSubSteps = (reqs: { [key: string]: boolean } = {}) => [
+  // Define eligibility sub-steps order
+  const getEligibilitySubSteps = (reqs: EligibilityRequirements = {}) => [
     'management',
-    ...(reqs.signAgreement ? ['agreement'] : []),
-    ...(reqs.holdTokens ? ['tokens'] : []),
-    ...(reqs.passCompliance ? ['compliance'] : []),
+    ...(reqs.agreement?.required ? ['agreement'] : []),
+    ...(reqs.erc20?.required ? ['tokens'] : []),
+    ...(reqs.compliance?.required ? ['compliance'] : []),
     'members',
   ];
 
-  // If we're in a selection sub-step, check next sub-step first
-  if (currentStep === 'selection' && currentSubStep) {
-    const subSteps = getSelectionSubSteps(requirements);
+  // If we're in a eligibility sub-step, check next sub-step first
+  if (currentStep === 'eligibility' && currentSubStep) {
+    const subSteps = getEligibilitySubSteps(eligibilityRequirements);
     const currentSubStepIndex = subSteps.indexOf(currentSubStep);
 
     // Check remaining sub-steps
     for (let i = currentSubStepIndex + 1; i < subSteps.length; i++) {
       const subStep = subSteps[i];
-      if (!stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps]) {
-        return { step: 'selection', subStep };
+      if (!stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps]) {
+        return { step: 'eligibility', subStep };
       }
     }
   }
@@ -41,11 +41,16 @@ export function findNextInvalidStep(
   for (let i = currentStepIndex + 1; i < steps.length; i++) {
     const stepKey = steps[i] as keyof typeof stepValidation;
 
-    if (stepKey === 'selection') {
-      const subSteps = getSelectionSubSteps(requirements);
+    // TODO is there a need for a second check on the eligibility sub-steps here?
+    if (stepKey === 'eligibility') {
+      const subSteps = getEligibilitySubSteps(eligibilityRequirements);
       for (const subStep of subSteps) {
-        if (!stepValidation.selectionSubSteps[subStep as keyof typeof stepValidation.selectionSubSteps]) {
-          return { step: 'selection', subStep };
+        // get the next sub-step that is not already valid, excluding the current sub-step
+        if (
+          !stepValidation.eligibilitySubSteps[subStep as keyof typeof stepValidation.eligibilitySubSteps] &&
+          subStep !== currentSubStep
+        ) {
+          return { step: 'eligibility', subStep };
         }
       }
     } else if (!stepValidation[stepKey]) {
@@ -61,16 +66,16 @@ export function findNextInvalidStep(
     }
   }
 
-  return { step: 'payment' }; // Default to payment if all steps are valid
+  return { step: 'deploy' }; // Default to payment if all steps are valid
 }
 
 export function getNextStepButtonText(nextStep: NextStep): string {
   switch (nextStep.step) {
     case 'threshold':
       return 'Configure Signer Threshold';
-    case 'onboarding':
-      return 'Set up Council Membership';
     case 'selection':
+      return 'Select Council Requirements';
+    case 'eligibility':
       switch (nextStep.subStep) {
         case 'management':
           return 'Select Council Managers';
@@ -85,7 +90,7 @@ export function getNextStepButtonText(nextStep: NextStep): string {
         default:
           return 'Continue';
       }
-    case 'payment':
+    case 'deploy':
       return 'Subscribe and Deploy';
     default:
       return 'Continue';

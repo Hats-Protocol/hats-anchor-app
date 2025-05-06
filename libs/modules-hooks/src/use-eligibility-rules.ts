@@ -53,4 +53,4 @@ const useEligibilityRules = ({
   };
 };
 
-export { useEligibilityRules };
+export { getEligibilityRules, useEligibilityRules };

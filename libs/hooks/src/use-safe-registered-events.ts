@@ -24,13 +24,13 @@ const fetchSafeRegisteredEvents = async (hsg: Hex, chainId: number | undefined) 
   if (!chainId) return Promise.resolve(null);
 
   const client = ancillarySubgraphClient(chainId as SupportedChains);
-  logger.info('client in hook call', client);
+
   if (!client) return Promise.resolve(null);
   const variables = { hsg };
-  logger.info('variables in hook call', variables);
+
   try {
     const result = await client.request(SAFE_REGISTERED_EVENTS_QUERY, variables);
-    logger.info('result in hook call', result);
+
     return Promise.resolve((get(result, 'hatsSignerGateV2RegisteredEvents') || null) as ExtendedHSGV2[] | null);
   } catch (error) {
     logger.error('Error in fetchSafeRegisteredEvents:', error);

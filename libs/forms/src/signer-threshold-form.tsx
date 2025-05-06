@@ -43,13 +43,25 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
               name='min'
               label='Confirmations required'
               localForm={form}
-              options={{
+              numOptions={{
                 min: 1,
                 max: maxMembers,
+              }}
+              options={{
                 required: true,
+                min: 1,
+                max: maxMembers,
+                validate: (value) => {
+                  if (!value || !maxMembers) return true;
+                  if (value > maxMembers) {
+                    return `Cannot require more confirmations (${value}) than total members (${maxMembers})`;
+                  }
+                  return true;
+                },
               }}
               isDisabled={isDisabled}
               variant='councils'
+              helperText={`Must be between 1 and ${maxMembers} members`}
             />
           </div>
 
@@ -78,13 +90,30 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
                     name='target'
                     label='Confirmations required'
                     localForm={form}
-                    options={{
+                    numOptions={{
                       min: 1,
                       max: 100,
+                    }}
+                    options={{
                       required: true,
+                      min: 1,
+                      max: 100,
+                      validate: (value) => {
+                        if (!value || !maxMembers) return true;
+                        const calculatedConfirmations = Math.ceil((maxMembers * value) / 100);
+                        if (calculatedConfirmations > maxMembers) {
+                          return `${value}% of ${maxMembers} members (${calculatedConfirmations}) exceeds total members`;
+                        }
+                        return true;
+                      },
                     }}
                     isDisabled={isDisabled}
                     inputClassName='rounded-l-none'
+                    helperText={
+                      maxMembers
+                        ? `${calculateConfirmations(maxMembers)} confirmation${calculateConfirmations(maxMembers) > 1 ? 's' : ''} required (max ${maxMembers})`
+                        : 'Enter total council members first'
+                    }
                     prefix={
                       <div className='flex items-center justify-center rounded-l-md border border-r-0 bg-gray-50 px-3'>
                         %
@@ -117,14 +146,24 @@ function SignerThresholdSubForm({ form, isDisabled }: SignerThresholdSubFormProp
               name='maxMembers'
               label='Total council members'
               localForm={form}
-              helperText={`${calculateConfirmations(maxMembers)} confirmation${calculateConfirmations(maxMembers) > 1 ? 's' : ''} required`}
+              numOptions={{
+                min: min || 1,
+              }}
               options={{
-                min: min,
                 required: true,
+                min: min || 1,
+                validate: (value) => {
+                  if (!value || !min) return true;
+                  if (min > value) {
+                    return `Total members (${value}) must be greater than required confirmations (${min})`;
+                  }
+                  return true;
+                },
               }}
               isDisabled={isDisabled}
               tooltip='The total number of members in the council'
               variant='councils'
+              helperText={`Must be at least ${min || 1} ${min === 1 ? 'member' : 'members'} to satisfy confirmation requirements`}
             />
           </div>
         </div>

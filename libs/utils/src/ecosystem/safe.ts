@@ -28,13 +28,13 @@ export const fetchPendingSafeTransactions = async ({
 
   try {
     const safeKit = createSafeApiKit(BigInt(chainId));
-    logger.info('fetching pending safe transactions', safeKit);
+
     const pendingTxs = await safeKit.getPendingTransactions(getAddress(safeAddress), {
       limit: 100,
       offset: 0,
       ordering: 'created',
     });
-    logger.info('pending safe transactions', pendingTxs);
+
     return pendingTxs.results;
   } catch (error) {
     console.error('Error fetching pending Safe transactions:', error);

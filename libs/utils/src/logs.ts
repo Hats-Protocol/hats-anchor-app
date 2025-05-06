@@ -26,10 +26,23 @@ export class ConsoleLogger implements Logger {
     this.levels = ['debug', 'info', 'warn', 'error'];
     this.currentLevel = process.env.NODE_ENV === 'production' ? 'warn' : 'debug';
 
-    this.debug = console.debug.bind(console);
-    this.info = console.info.bind(console);
-    this.warn = console.warn.bind(console);
-    this.error = console.error.bind(console);
+    // Create filtered logging functions
+    this.debug = this.createFilteredLog('debug', console.debug.bind(console));
+    this.info = this.createFilteredLog('info', console.info.bind(console));
+    this.warn = this.createFilteredLog('warn', console.warn.bind(console));
+    this.error = this.createFilteredLog('error', console.error.bind(console));
+  }
+
+  private shouldLog(level: LogLevel): boolean {
+    return this.levels.indexOf(level) >= this.levels.indexOf(this.currentLevel);
+  }
+
+  private createFilteredLog(level: LogLevel, logFn: LogFn): LogFn {
+    return (...args: any[]) => {
+      if (this.shouldLog(level)) {
+        logFn(...args);
+      }
+    };
   }
 
   setLevel(level: LogLevel): void {
@@ -40,19 +53,6 @@ export class ConsoleLogger implements Logger {
       console.error(`Invalid log level: ${level}`);
     }
   }
-
-  // private _log(level: LogLevel, message: string, ...args: unknown[]): void {
-  //   const levelIndex = this.levels.indexOf(level);
-  //   const currentLevelIndex = this.levels.indexOf(this.currentLevel);
-  //   console.log('levelIndex', levelIndex, currentLevelIndex);
-
-  //   if (levelIndex < currentLevelIndex) return;
-
-  //   const timestamp = new Date().toISOString();
-
-  // TODO couldn't find a good way to preserve source map while injecting level & timestamp
-  //   this[level](`[${level.toUpperCase()}] ${timestamp} -`, message, ...args);
-  // }
 }
 
 export const logger = new ConsoleLogger();

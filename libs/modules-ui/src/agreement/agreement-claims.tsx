@@ -8,7 +8,7 @@ import { capitalize, flatten, get, includes, map, size, some, toNumber } from 'l
 import { useAgreementClaim } from 'modules-hooks';
 import { AgreementContent } from 'molecules';
 import { useMemo } from 'react';
-import { BsCheckCircleFill, BsCheckSquare } from 'react-icons/bs';
+import { BsCheckCircleFill, BsCheckSquare, BsCheckSquareFill } from 'react-icons/bs';
 import { EligibilityRule, HatDetails, LabeledModules, ModuleDetails } from 'types';
 import { Button, Card, cn, Tooltip } from 'ui';
 import { fetchIpfs } from 'utils';
@@ -17,7 +17,7 @@ import { useAccount } from 'wagmi';
 
 type FetchIpfsResponse = {
   details: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   data: HatDetails | null;
 } | null;
 
@@ -92,9 +92,6 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
   } else if (!isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId) {
     buttonTooltip = 'Please allow any account to claim this Hat on behalf of eligible users.';
   }
-  // else if (!isReadyToClaim) {
-  //   buttonTooltip = 'Review the hat details and conditions to claim.';
-  // }
 
   const moduleAddress = activeModule?.instanceAddress;
   if (!moduleAddress) return null;
@@ -102,11 +99,20 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
   const localClaimable = !isClaimableFor && selectedHat?.id !== CONFIG.agreementV0.communityHatId;
   const isReadyToClaim = !!get(aggregateReadyToClaim, moduleAddress) || isEligible;
 
+  if (isReadyToClaim) {
+    return (
+      <div className='flex items-center gap-1'>
+        <p className='text-functional-success'>Accepted</p>
+        <BsCheckSquareFill className='text-functional-success h-4 w-4' />
+      </div>
+    );
+  }
+
   return (
     <Tooltip label={buttonTooltip}>
       <Button
-        variant={isReadyToClaim ? 'outline' : 'default'}
-        className={cn('py-4', isReadyToClaim ? 'border-functional-success text-functional-success' : undefined)}
+        variant='default'
+        className='py-4'
         size='lg'
         onClick={() => {
           if (chainHasSubscription) {
@@ -115,10 +121,10 @@ const AgreementButton = ({ activeModule }: { activeModule: ModuleDetails }) => {
             setIsReadyToClaim(moduleAddress);
           }
         }}
-        disabled={localClaimable || !hasSupply || (isWearing && isEligible) || isReadyToClaim || !address}
+        disabled={localClaimable || !hasSupply || (isWearing && isEligible) || !address}
       >
-        {isReadyToClaim ? <BsCheckSquare className='mr-1 h-4 w-4' /> : <BsCheckCircleFill className='mr-1 h-4 w-4' />}
-        {isReadyToClaim ? 'Accepted' : 'Accept Agreement'}
+        <BsCheckCircleFill className='mr-1 h-4 w-4' />
+        Accept Agreement
       </Button>
     </Tooltip>
   );

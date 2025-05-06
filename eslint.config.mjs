@@ -17,6 +17,7 @@ export default tseslint.config({
   rules: {
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': 'warn',
+    'no-console': 'warn',
 
     '@nx/enforce-module-boundaries': [
       'error',

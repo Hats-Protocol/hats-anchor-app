@@ -11,11 +11,11 @@ import { useAllowlist, useCallModuleFunction, useEligibilityRules, useErc20Detai
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AppHat, CouncilMember, EligibilityRule, ModuleFunction, SupportedChains } from 'types';
+import { AppHat, CouncilMember, EligibilityRule, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, Tooltip } from 'ui';
 import { Skeleton } from 'ui';
 import { chainsMap, logger, parseCouncilSlug } from 'utils';
-import { formatUnits, getAddress, Hex } from 'viem';
+import { formatUnits, getAddress, Hex, zeroAddress } from 'viem';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
@@ -38,7 +38,7 @@ const ModuleDisplay = ({
 }: {
   rule: EligibilityRule;
   chainId: SupportedChains;
-  offchainCouncilData: any;
+  offchainCouncilData: OffchainCouncilData;
 }) => {
   const tokenParam = rule.module.id.includes('erc20') ? find(rule.liveParams, { displayType: 'erc20' }) : undefined;
   const amountParameter = rule.module.id.includes('erc20')
@@ -48,7 +48,7 @@ const ModuleDisplay = ({
 
   const { data: erc20Details, isLoading: isErc20Loading } = useErc20Details({
     contractAddress: tokenAddress ? (tokenAddress.toLowerCase() as Hex) : undefined,
-    wearerAddress: '0x0000000000000000000000000000000000000000' as Hex,
+    wearerAddress: zeroAddress,
     chainId,
   });
 
@@ -127,14 +127,14 @@ const MembersPage = ({ slug }: { slug: string }) => {
     enabled: !!councilDetails?.id && !!chainId,
   });
 
-  logger.info('offchainCouncilData', offchainCouncilData);
-
   useAuthGuard();
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
+  // support selected module or only module
+  const allowlistModule = offchainCouncilData?.membersSelectionModule || get(primarySignerHat, 'eligibility');
   const { data: rawAllowlist } = useAllowlist({
-    id: offchainCouncilData?.membersSelectionModule,
+    id: allowlistModule,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
   const filteredAllowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
@@ -143,13 +143,10 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   const remainingModules = filter(
     flatten(eligibilityRules), // TODO hardcoded "flatten" outer Rulesets
-    (rule) => toLower(rule.address) !== toLower(offchainCouncilData?.membersSelectionModule),
+    (rule) => toLower(rule.address) !== toLower(allowlistModule),
   );
 
-  const selectionModule = find(
-    flatten(eligibilityRules),
-    (rule) => toLower(rule.address) === toLower(offchainCouncilData?.membersSelectionModule),
-  );
+  const selectionModule = find(flatten(eligibilityRules), (rule) => toLower(rule.address) === toLower(allowlistModule));
   const addAccount = find(get(selectionModule, 'module.writeFunctions'), {
     functionName: 'addAccount',
   });
@@ -176,11 +173,10 @@ const MembersPage = ({ slug }: { slug: string }) => {
     // TODO handle pending tx state
     await callModuleFn({
       moduleId: get(selectionModule, 'module.implementationAddress'),
-      instance: get(selectionModule, 'address'),
+      instance: allowlistModule as Hex,
       func: addAccount as ModuleFunction,
       args: { Account: user.address },
       onSuccess: () => {
-        logger.info('added user to council');
         setIsLoading(false);
         // TODO close modal
         setModals?.({});
@@ -204,6 +200,14 @@ const MembersPage = ({ slug }: { slug: string }) => {
         {Array.from({ length: 4 }).map((_, index) => (
           <Skeleton className='h-16 w-full' key={index} />
         ))}
+      </div>
+    );
+  }
+
+  if (!offchainCouncilData) {
+    return (
+      <div className='flex flex-col gap-4'>
+        <p>No council data found</p>
       </div>
     );
   }

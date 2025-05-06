@@ -9,6 +9,7 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+  // distDir: '../../dist/apps/frontend/.next',
   reactStrictMode: false,
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,

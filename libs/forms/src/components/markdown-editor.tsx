@@ -3,14 +3,27 @@
 import Heading from '@tiptap/extension-heading';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { useEffect, useState } from 'react';
 import { ControllerRenderProps, FieldValues, UseFormReturn } from 'react-hook-form';
 import showdown from 'showdown';
+import { logger } from 'utils';
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from './form';
 import { Toolbar } from './markdown-toolbar';
 
-const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, string>; label?: string }) => {
+interface TiptapProps {
+  field: ControllerRenderProps<FieldValues, string>;
+  label?: string;
+  isDisabled?: boolean;
+  hideToolbar?: boolean;
+  placeholder?: string;
+}
+
+const Tiptap = ({ field, label, isDisabled, hideToolbar, placeholder }: TiptapProps) => {
   const converter = new showdown.Converter();
+
+  logger.info('Tiptap isDisabled:', isDisabled);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({}),
@@ -21,28 +34,63 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, st
         },
       }),
     ],
-    content: converter.makeHtml(field.value),
+    content: field.value || '',
+    editable: !isDisabled,
     editorProps: {
       attributes: {
-        class:
-          'rounded-md border min-h-[150px] max-h-[400px] overflow-y-auto border-input bg-background focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 p-2',
+        class: `rounded-md border min-h-[150px] max-h-[400px] overflow-y-auto border-input bg-background p-2 ${
+          isDisabled ? 'cursor-not-allowed bg-muted' : 'focus:ring-offset-2'
+        }`,
       },
       scrollThreshold: 80,
       scrollMargin: 80,
     },
     onUpdate({ editor }) {
       field.onChange(editor.getHTML());
-      // console.log(editor.getHTML());
     },
   });
+
+  // Track if we're currently editing
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    // Add focus handlers
+    const onFocus = () => setIsEditing(true);
+    const onBlur = () => setIsEditing(false);
+
+    editor.on('focus', onFocus);
+    editor.on('blur', onBlur);
+
+    return () => {
+      editor.off('focus', onFocus);
+      editor.off('blur', onBlur);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!isDisabled);
+    }
+  }, [editor, isDisabled]);
+
+  useEffect(() => {
+    if (editor && field.value !== undefined && !isEditing) {
+      const currentContent = editor.getHTML();
+      if (currentContent !== field.value) {
+        editor.commands.setContent(field.value);
+      }
+    }
+  }, [editor, field.value, isEditing]);
 
   return (
     <FormItem>
       {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
-        <div className='flex flex-col justify-stretch'>
-          <Toolbar editor={editor} />
-          <EditorContent className='max-h-[400px] min-h-[250px]' editor={editor} />
+        <div className='flex flex-col justify-stretch gap-2'>
+          <Toolbar editor={editor} isDisabled={isDisabled} />
+          <EditorContent className='max-h-[400px] min-h-[250px]' placeholder={placeholder} editor={editor} />
         </div>
       </FormControl>
       <FormMessage />
@@ -50,7 +98,7 @@ const Tiptap = ({ field, label }: { field: ControllerRenderProps<FieldValues, st
   );
 };
 
-const MarkdownEditor = ({ name, label, placeholder, localForm, isDisabled }: MarkdownEditorProps) => {
+const MarkdownEditor = ({ name, label, placeholder, localForm, isDisabled, hideToolbar }: MarkdownEditorProps) => {
   // const { watch, setValue } = pick(localForm, ['watch', 'setValue']);
 
   // TODO handle form options (required, length)
@@ -60,7 +108,15 @@ const MarkdownEditor = ({ name, label, placeholder, localForm, isDisabled }: Mar
       control={localForm.control}
       name={name}
       render={({ field }) => {
-        return <Tiptap field={field} label={label} />;
+        return (
+          <Tiptap
+            field={field}
+            label={label}
+            placeholder={placeholder}
+            isDisabled={isDisabled}
+            hideToolbar={hideToolbar}
+          />
+        );
       }}
     />
   );
@@ -73,6 +129,8 @@ interface MarkdownEditorProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   localForm: UseFormReturn<any>;
   isDisabled?: boolean;
+  hideToolbar?: boolean;
+  existingAgreements?: { agreement: string; councilName: string }[];
 }
 
 export { MarkdownEditor, type MarkdownEditorProps };

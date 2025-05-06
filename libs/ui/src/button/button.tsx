@@ -19,6 +19,8 @@ const buttonVariants = cva(
         'outline-red': 'bg-background/80 hover:bg-destructive/10 border-destructive text-destructive border shadow',
         'outline-green':
           'bg-background/80 hover:bg-functional-success/10 border-functional-success text-functional-success border shadow',
+        'outline-black':
+          'bg-background/80 hover:bg-functional-link-primary/10 text-secondary-foreground border border-gray-300 shadow',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-functional-link-primary hover:text-functional-link-primary/80 !h-auto !p-0 font-light',
@@ -27,6 +29,7 @@ const buttonVariants = cva(
         default: 'h-9 px-4 py-2',
         xs: 'h-7 rounded-md px-2 text-xs',
         sm: 'h-8 rounded-md px-3 text-xs',
+        lm: 'h-10 rounded-md px-4 text-sm',
         lg: 'h-12 rounded-md px-8 text-base',
         xl: 'h-14 rounded-md px-12 text-lg',
         icon: 'h-9 w-9',

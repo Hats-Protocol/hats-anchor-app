@@ -1,4 +1,7 @@
+import { Ruleset } from '@hatsprotocol/modules-sdk';
 import { Hex } from 'viem';
+
+import { ExtendedHSGV2 } from './authorities';
 
 export interface CouncilDraft {
   id: string;
@@ -13,6 +16,7 @@ export interface FormMember {
   address: string;
   email: string;
   name?: string;
+  telegram?: string;
 }
 
 export interface CouncilMember extends FormMember {
@@ -31,126 +35,185 @@ export type StepProps = {
 export type OffchainCouncilData = {
   id: string;
   hsg: string;
-  membersSelectionModule: string;
-  membersCriteriaModule: string;
+  membersSelectionModule: string | undefined;
+  membersCriteriaModule: string | undefined;
   creationForm: CouncilFormData;
-  organization: {
-    name: string;
-  };
-  members: CouncilMember[];
-  admins: CouncilMember[];
-  complianceAdmins: CouncilMember[];
-  payer: CouncilPayer;
-  tokenRequirement: {
-    address: string;
-    minimum: string;
-  };
+  // organization: {
+  //   name: string;
+  // };
+  // members: CouncilMember[];
+  // admins: CouncilMember[];
+  // complianceAdmins: CouncilMember[];
+  // payer: CouncilPayer;
+  // TODO adjust, this is the form structure but not the db structure
+  // tokenRequirement: {
+  //   address: string;
+  //   minimum: string;
+  // };
+  treeId: number;
+  chain: number;
   deployed: boolean;
 };
 
-export interface CompletedOptionalSteps {
-  threshold: boolean;
-  members: boolean;
-  management: boolean;
-  agreement: boolean;
-  compliance: boolean;
-}
+export type CouncilData = OffchainCouncilData &
+  Partial<Omit<ExtendedHSGV2, 'id'>> & {
+    eligibilityRequirements?: EligibilityRequirements;
+    eligibilityRules?: Ruleset[] | null | undefined;
+  };
 
 export interface CouncilFormData {
   id?: string;
-  // step 1
-  organizationName: string;
+  // org/council details
+  organizationName: string | { value: string; label: string };
   councilName: string;
   chain: { value: string; label: string; icon: string }; // TODO: change to number
   councilDescription?: string;
-  // step 2
+  // hsg config
   thresholdType: 'ABSOLUTE' | 'RELATIVE';
-  // confirmationsRequired: number; // used if thresholdType is ABSOLUTE
-  target: number; // used if thresholdType is RELATIVE
-  min: number; // used if thresholdType is RELATIVE
+  target: number;
+  min: number;
   maxMembers: number;
-  // step 3
+  // eligibility
   membershipType: 'APPOINTED' | 'ELECTED';
-  requirements: {
-    signAgreement: boolean;
-    holdTokens: boolean;
-    passCompliance: boolean;
-  };
-  // step 4
+  eligibilityRequirements: EligibilityRequirements;
+  // associations
   members: CouncilMember[];
   admins: CouncilMember[];
   complianceAdmins: CouncilMember[];
-  createComplianceAdminRole: 'true' | 'false';
-  agreement?: string;
-  createAgreementAdminRole: 'true' | 'false';
   agreementAdmins: CouncilMember[];
-  payer?: {
-    id: string;
-    address: string;
-    email: string;
-    name?: string;
-    telegram?: string;
-  };
+  // deploy
+  payer?: CouncilMember;
   acceptedTerms?: boolean;
-  tokenRequirement: {
-    address: { value: string; label: string } | undefined;
-    minimum: number;
-  };
-  creator: string;
-  completedOptionalSteps: CompletedOptionalSteps;
+  creator: string; // Hex
+  // form state
+  completedOptionalSteps: string[];
+}
+
+export interface CreationForm {
+  id: string;
+  creator: string | null;
+  organizationName: string | null;
+  councilName: string | null;
+  chain: number | null;
+  councilDescription: string | null;
+  thresholdType: 'ABSOLUTE' | 'RELATIVE' | null;
+  thresholdTarget: number | null;
+  thresholdMin: number | null;
+  maxCouncilMembers: number | null;
+  membersSelectionType: 'ALLOWLIST' | 'ELECTION' | null;
+  payer: CouncilPayer | null;
+  // relationships
+  members: CouncilMember[];
+  admins: CouncilMember[];
+  agreementAdmins: CouncilMember[];
+  complianceAdmins: CouncilMember[];
+  // requirements
+  eligibilityRequirements: string;
+  completedOptionalSteps: string;
+  // deprecated
+  // memberRequirements: {
+  //   signAgreement: boolean;
+  //   holdTokens: boolean;
+  //   passCompliance: boolean;
+  // };
+
+  createComplianceAdminRole: boolean;
+  agreement?: string;
+  createAgreementAdminRole: boolean;
+  tokenAddress: string | null;
+  tokenAmount: string | null;
+}
+
+// TODO is the existingId === 'new' a good use for this type?
+export interface EligibilityRequirement {
+  // whether the module is required/selected for this council
+  required: boolean; // [default: false]
+  // id of existing admins for this module
+  existingId: `0x${string}` | 'new' | null; // [default: null] expects address for existing module
+  // whether to use org managers or existing admins for this module
+  existingAdmins: string | null; // [default: null, except selection is 'org-managers'] otherwise Hex for existing Hat ID
+  // refers to members list or other content for the module
+  set: boolean; // [default: false, if not form/fields are not optional]
+  // refers to admins list for the module
+  adminsSet: boolean; // [default: false, unless there's no admin actions]
+
+  // module specific fields, defaults to null
+  content?: string | null; // refers to content for the agreement module
+  address?: `0x${string}` | null; // refers to token address for the erc20 module
+  amount?: string | null; // refers to token amount for the erc20 module
+  // cooldownPeriod?: number | null; // refers to cooldown period for the staking module
+}
+
+export interface EligibilityRequirements {
+  [key: string]: EligibilityRequirement;
 }
 
 export interface CouncilFormResponse {
-  councilCreationForm: {
-    id: string;
-    creator: string | null;
-    organizationName: string | null;
-    councilName: string | null;
-    chain: number | null;
-    councilDescription: string | null;
-    thresholdType: 'ABSOLUTE' | 'RELATIVE' | null;
-    thresholdTarget: number | null;
-    thresholdMin: number | null;
-    maxCouncilMembers: number | null;
-    membersSelectionType: 'ALLOWLIST' | 'ELECTION' | null;
-    members: CouncilMember[];
-    admins: CouncilMember[];
-    memberRequirements: {
-      signAgreement: boolean;
-      holdTokens: boolean;
-      passCompliance: boolean;
-    };
-    complianceAdmins: CouncilMember[];
-    createComplianceAdminRole: boolean;
-    agreement?: string;
-    createAgreementAdminRole: boolean;
-    agreementAdmins: CouncilMember[];
-    payer: CouncilPayer | null;
-    tokenAddress: string | null;
-    tokenAmount: string | null;
-  };
+  councilCreationForm: CreationForm;
 }
 
 export interface UpdateCouncilFormResponse {
-  updateCouncilCreationForm: CouncilFormResponse['councilCreationForm'];
+  updateCouncilCreationForm: CreationForm;
+}
+
+export interface DeployStatus {
+  [key: string]: boolean;
 }
 
 export interface StepValidation {
   details: boolean;
   threshold: boolean;
-  onboarding: boolean;
   selection: boolean;
-  selectionSubSteps: {
+  eligibility: boolean;
+  eligibilitySubSteps: {
     management: boolean;
     compliance: boolean;
     agreement: boolean;
     tokens: boolean;
     members: boolean;
   };
-  payment: boolean;
+  deploy: boolean;
 }
 
 export interface LabeledModules {
   selection: Hex;
   criteria: Hex;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  councils: (OffchainCouncilData & { eligibilityRequirements: string })[];
+}
+
+export type ModulesAddresses = {
+  multiClaimsHatter?: string;
+  councilMemberAllowlist?: string;
+  complianceAllowlist?: string;
+  agreementModule?: string;
+  erc20Module?: string;
+  eligibilityChain?: string;
+};
+
+export type CouncilHatIds = {
+  topHat: bigint;
+  admin: bigint;
+  automations: bigint;
+  orgRolesGroup: bigint;
+  organizationManager: bigint;
+  complianceManager: bigint;
+  agreementManager: bigint;
+  councilRolesGroup: bigint;
+  councilMember: bigint;
+  council: bigint;
+};
+
+export interface HatToCreate {
+  id: bigint;
+  admin: bigint;
+  name: string;
+  description?: string;
+  ipfsCid?: string;
+  maxSupply?: number;
+  eligibility?: string;
 }

@@ -1,3 +1,5 @@
+// TODO consolidate with web3/chains
+
 export const CHAIN_MAPPING = {
   '1': 'ethereum',
   '10': 'op-mainnet',
@@ -5,9 +7,9 @@ export const CHAIN_MAPPING = {
   '137': 'polygon',
   '100': 'gnosis',
   '8453': 'base',
-  '84532': 'base-sepolia',
   '42220': 'celo',
   '11155111': 'sepolia',
+  '84532': 'base-sepolia',
 } as const;
 
 export const chainIdToString = (chainId: number | null): string | null => {

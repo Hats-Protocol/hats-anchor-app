@@ -1,6 +1,12 @@
+// import { logger } from '../../logs';
 import { getCouncilsGraphqlClient } from '../client';
-import { CREATE_COUNCIL, CREATE_ORGANIZATION, UPDATE_COUNCIL_FORM } from '../mutations';
-import { ORGANIZATION_BY_NAME_QUERY } from '../queries';
+import {
+  CREATE_COUNCIL,
+  CREATE_ORGANIZATION,
+  // UPDATE_COUNCIL_FORM,
+  UPDATE_COUNCIL_FORM_WITH_COUNCIL_ID,
+} from '../mutations';
+import { ORGANIZATION_BY_NAME_QUERY, ORGANIZATIONS_QUERY } from '../queries';
 
 export const addCouncilForForm = async ({
   chainId,
@@ -52,9 +58,16 @@ export const updateCouncilForm = async ({
   if (!draftId) throw new Error('Draft ID is required');
   if (!councilId) throw new Error('Council ID is required');
 
-  return getCouncilsGraphqlClient(accessToken ?? undefined).request(UPDATE_COUNCIL_FORM, { id: draftId, councilId });
+  return getCouncilsGraphqlClient(accessToken ?? undefined).request(UPDATE_COUNCIL_FORM_WITH_COUNCIL_ID, {
+    id: draftId,
+    councilId,
+  });
 };
 
 export const getOrganizationByName = async ({ name, accessToken }: { name: string; accessToken: string | null }) => {
   return getCouncilsGraphqlClient(accessToken ?? undefined).request(ORGANIZATION_BY_NAME_QUERY, { name });
+};
+
+export const getOrganizations = async ({ accessToken }: { accessToken: string | null }) => {
+  return getCouncilsGraphqlClient(accessToken ?? undefined).request(ORGANIZATIONS_QUERY);
 };

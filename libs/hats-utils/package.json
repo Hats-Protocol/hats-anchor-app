@@ -22,7 +22,7 @@
     "@hatsprotocol/sdk-v1-core": "^0.12.4",
     "@hatsprotocol/sdk-v1-subgraph": "^1.1.0",
     "lodash": "^4.17.21",
-    "next": "15.2.3",
+    "next": "15.3.0",
     "react-icons": "^4.7.1",
     "viem": "2.24.3"
   }

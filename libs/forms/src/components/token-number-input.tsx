@@ -1,9 +1,10 @@
 'use client';
 
 import { get } from 'lodash';
+import { InfoIcon } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { GrUndo } from 'react-icons/gr';
-import { BaseInput, cn } from 'ui';
+import { BaseInput, cn, Tooltip } from 'ui';
 import { Button } from 'ui';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from './form';
@@ -22,9 +23,29 @@ interface TokenNumberInputProps {
     min?: number;
     max?: number;
   };
+  step?: number; // used for the stepper buttons
+  inputStep?: number; // used for the input field
   disabled?: boolean;
   variant?: 'default' | 'councils';
 }
+
+const getVariantStyles = (variant: TokenNumberInputProps['variant'] = 'default') => {
+  switch (variant) {
+    case 'councils':
+      return {
+        label: 'font-bold normal-case text-base',
+        description: 'text-gray-400',
+        container: 'flex items-center justify-between w-full',
+        tooltipContainer: 'flex items-center gap-1',
+      };
+    default:
+      return {
+        label: 'font-light uppercase',
+        description: '',
+        container: 'flex items-center gap-1',
+      };
+  }
+};
 
 function TokenNumberInput({
   name,
@@ -34,6 +55,8 @@ function TokenNumberInput({
   tooltip,
   form,
   options,
+  step = 1,
+  inputStep = 0.000000000000000001,
   disabled,
   variant = 'default',
 }: TokenNumberInputProps) {
@@ -42,6 +65,7 @@ function TokenNumberInput({
   const {
     control,
     resetField,
+    setValue,
     formState: { dirtyFields, errors },
   } = form;
 
@@ -52,40 +76,30 @@ function TokenNumberInput({
   };
   const isError = !!getErrorMessage();
 
-  const getVariantStyles = (variant: TokenNumberInputProps['variant'] = 'default') => {
-    switch (variant) {
-      case 'councils':
-        return {
-          label: 'font-bold normal-case text-base',
-          description: 'text-gray-400',
-          container: 'flex items-center justify-between w-full',
-          tooltipContainer: 'flex items-center gap-1',
-        };
-      default:
-        return {
-          label: 'font-light uppercase',
-          description: '',
-          container: 'flex items-center gap-1',
-        };
-    }
-  };
-
   return (
     <FormField
       name={name}
       control={control}
       render={({ field: { ref, value, ...restField } }) => (
         <FormItem>
-          {label && (
-            <FormLabel className='mb-0'>
-              <div className={getVariantStyles(variant).container}>
-                <span className={getVariantStyles(variant).label}>
-                  {label}
-                  {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
-                </span>
-              </div>
-            </FormLabel>
-          )}
+          <div className='flex items-center justify-between'>
+            {label && (
+              <FormLabel className='mb-0'>
+                <div className={getVariantStyles(variant).container}>
+                  <span className={getVariantStyles(variant).label}>
+                    {label}
+                    {labelNote && <span className='ml-2 text-sm font-normal text-gray-400'>{labelNote}</span>}
+                  </span>
+                </div>
+              </FormLabel>
+            )}
+
+            {tooltip && (
+              <Tooltip label={tooltip}>
+                <InfoIcon className='h-4 w-4' />
+              </Tooltip>
+            )}
+          </div>
 
           <FormControl>
             <div className='relative flex items-center'>
@@ -104,6 +118,7 @@ function TokenNumberInput({
                 type='number'
                 min={options?.min}
                 max={options?.max}
+                step={inputStep}
                 disabled={disabled}
                 value={value}
                 {...restField}
@@ -123,19 +138,19 @@ function TokenNumberInput({
 
               <NumberInputSteppers
                 stepUp={() => {
-                  const currentValue = Number(value) || 0;
+                  const currentValue = parseFloat(value) || 0;
                   if (currentValue < (options?.max ?? Infinity)) {
-                    restField.onChange(currentValue + 1);
+                    setValue(name, currentValue + step);
                   }
                 }}
-                upDisabled={Number(value) >= (options?.max ?? Infinity)}
+                upDisabled={disabled || parseFloat(value) >= (options?.max ?? Infinity)}
                 stepDown={() => {
-                  const currentValue = Number(value) || 0;
-                  if (currentValue > (options?.min ?? 0)) {
-                    restField.onChange(currentValue - 1);
+                  const currentValue = parseFloat(value) || 0;
+                  if (!disabled && currentValue > (options?.min ?? 0)) {
+                    setValue(name, currentValue - step);
                   }
                 }}
-                downDisabled={Number(value) <= (options?.min ?? 0)}
+                downDisabled={disabled || parseFloat(value) <= (options?.min ?? 0)}
               />
             </div>
           </FormControl>

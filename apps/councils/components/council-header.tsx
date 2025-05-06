@@ -6,7 +6,7 @@ import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useSafesInfo } from 'hooks';
 import { Safe as SafeIcon } from 'icons';
-import { capitalize, filter, first, get, includes, map, nth, size, toLower } from 'lodash';
+import { capitalize, filter, first, get, includes, map, nth, reduce, size, toLower } from 'lodash';
 import { toNumber } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
-import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug } from 'utils';
+import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug, slugify } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -41,6 +41,8 @@ const CouncilHeaderCard = ({
   const pathname = usePathname();
   // const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
+  const isCouncilsPage = pathname.includes('/councils/');
+  const isCouncilPage = pathname.match(/^\/councils\/[^/]+:0x[0-9a-fA-F]{40}$/); // with network name and Ethereum address
 
   const { data: councilDetails } = useCouncilDetails({
     chainId: chainId ?? 11155111,
@@ -66,6 +68,7 @@ const CouncilHeaderCard = ({
   const effectiveSafeDetails = first(safesDetails);
   const effectiveSafeSigners = safeSignersRaw;
 
+  // const isMulti = size(effectiveCouncilDetails?.signerHats) > 1;
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
   const primarySignerHatId = get(primarySignerHat, 'id');
   const topHatId = primarySignerHatId
@@ -75,6 +78,11 @@ const CouncilHeaderCard = ({
   const safe = effectiveSafeDetails;
   const safeSigners = filter(effectiveSafeSigners, (signer) =>
     includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)),
+  );
+  const totalMaxSupply = reduce(
+    map(effectiveCouncilDetails?.signerHats, 'maxSupply'),
+    (acc, curr) => acc + toNumber(curr),
+    0,
   );
 
   const { data: topHatDetails } = useHatDetails({
@@ -126,7 +134,13 @@ const CouncilHeaderCard = ({
     >
       {/* main card data/left side */}
       <div className='flex w-full flex-col gap-4 md:w-[30%] md:gap-2'>
-        <div className='text-functional-link-primary hidden text-xs uppercase md:block'>{organizationName}</div>
+        {isCouncilsPage && organizationName !== undefined ? (
+          <Link href={`/organizations/${slugify(organizationName ?? '')}`}>
+            <span className='text-functional-link-primary hidden text-sm md:block'>Back to {organizationName}</span>
+          </Link>
+        ) : (
+          <span className='text-primary hidden text-sm md:block'>{organizationName}</span>
+        )}
         <h1 className='text-2xl font-bold'>{offchainCouncilName || get(signerHatDetails, 'name')}</h1>
         <p className='hidden truncate text-sm text-black/50 md:block'>
           {offchainCouncilDescription || get(signerHatDetails, 'description')}
@@ -142,7 +156,7 @@ const CouncilHeaderCard = ({
               className='self-center'
               isExternal
             >
-              <Button variant='outline' rounded='full'>
+              <Button variant='outline-black' rounded='full'>
                 <SafeIcon className='size-3' />
                 <p className='font-normal'>Safe Wallet</p>
                 <FaExternalLinkAlt style={{ height: 14, width: 14 }} />
@@ -151,7 +165,7 @@ const CouncilHeaderCard = ({
           ) : null
         ) : (
           <>
-            {!isWearing && !isRootPath && isReadyToClaim && (
+            {!isWearing && isCouncilPage && isReadyToClaim && (
               <LinkButton
                 href={`/councils/${toLower(chainsMap(chainId ?? 11155111).name)}:${address}/join`}
                 className='w-48 self-center rounded-full md:hidden'
@@ -164,7 +178,7 @@ const CouncilHeaderCard = ({
               <SignersIndicator
                 threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
                 signers={size(safeSigners)}
-                maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                maxSigners={totalMaxSupply}
               />
             </div>
             {(!isWearing || isRootPath || !isReadyToClaim) && (
@@ -172,7 +186,7 @@ const CouncilHeaderCard = ({
                 <SignersIndicator
                   threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
                   signers={size(safeSigners)}
-                  maxSigners={toNumber(get(primarySignerHat, 'maxSupply'))}
+                  maxSigners={totalMaxSupply}
                 />
               </div>
             )}
@@ -193,7 +207,7 @@ const CouncilHeaderCard = ({
               <div>
                 {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
                   ? `/${size(safeSigners)}`
-                  : `/${get(primarySignerHat, 'maxSupply')}`}
+                  : `/${totalMaxSupply}`}
               </div>
             </div>
             {withLinks ? (

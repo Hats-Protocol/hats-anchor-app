@@ -11,5 +11,7 @@ export const useCrossChainAllowlist = ({ address, enabled = true }: UseCrossChai
     queryKey: ['crossChainAllowlist', { address }],
     queryFn: () => getCrossChainAllowlistEligibilities(address),
     enabled: enabled && !!address,
+    refetchOnMount: true,
+    staleTime: 0,
   });
 };

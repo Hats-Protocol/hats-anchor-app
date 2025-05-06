@@ -65,7 +65,7 @@ const prepEmailVariables = ({
 }) => {
   if (!offchainCouncilData || !receiver || !selectedHat || !chainId) return undefined;
 
-  const allWearers = getAllWearers(offchainCouncilData);
+  const allWearers = getAllWearers(offchainCouncilData?.creationForm);
   const creator = find(allWearers, { address: offchainCouncilData.creationForm.creator });
   const url = !includes(window.location.origin, 'localhost') ? window.location.origin : API_URL;
   const councilMembers = offchainCouncilData.creationForm.members.map(({ name, address }) => ({
@@ -92,7 +92,7 @@ const prepEmailVariables = ({
     councilMembersLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.hsg}/members`,
     councilJoinLink: `${url}/councils/${chainIdToString(chainId)}:${offchainCouncilData.hsg}/join`,
     councilSafeLink: safeUrl(chainId as SupportedChains, safe),
-    subscriptionInfo: '0.1 ETH per month paid via invoice to follow',
+    subscriptionInfo: '299 USDC per month paid via invoice to follow',
     // deploy transaction -- handle specifically for the deploy email(s)
     councilMembers,
     // copy
