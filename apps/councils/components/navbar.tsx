@@ -62,7 +62,7 @@ const Navbar = () => {
         {chainId && address && (
           <p className='text-lg font-bold'>
             {typeof offchainDetails?.creationForm.organizationName === 'object'
-              ? offchainDetails?.creationForm.organizationName.value
+              ? offchainDetails?.creationForm.organizationName?.value
               : offchainDetails?.creationForm.organizationName}
           </p>
         )}
