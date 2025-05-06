@@ -64,11 +64,9 @@ export function TokensStep({ onNext }: StepProps) {
         };
       })
       .filter(Boolean);
-    logger.info('tokenRequirementsWithCouncilData', tokenRequirementsWithCouncilData);
+
     return tokenRequirementsWithCouncilData;
   }, [councilsData]);
-
-  logger.info('existingTokenRequirements', existingTokenRequirements);
 
   // Create radio options from existing token requirements and add the "Create new" option
   const tokenOptions = useMemo(
@@ -80,14 +78,8 @@ export function TokensStep({ onNext }: StepProps) {
               toLower(t.address) === toLower(requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.address || ''),
           );
 
-          // Skip if we don't have valid token information
-          // if (!token || !requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount) {
-          //   return null;
-          // }
-
-          logger.info('requirement', requirement);
           return {
-            value: requirement?.address,
+            value: requirement?.address || '0x',
             label: `Hold ${requirement?.councils?.[0]?.eligibilityRequirements?.erc20?.amount} ${token?.symbol || 'tokens'}`,
             icon: GemIcon as IconType,
             description: requirement?.councils?.[0]?.creationForm?.councilName,
