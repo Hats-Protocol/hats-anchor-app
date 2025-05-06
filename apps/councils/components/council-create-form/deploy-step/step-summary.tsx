@@ -10,7 +10,7 @@ interface StepSummaryProps {
 
 export const StepSummary = ({ title, isCompleted, onEdit, children }: StepSummaryProps) => (
   <div className='flex items-start gap-6 border-b border-gray-200 pb-5 pt-3'>
-    <div className='w-[200px] shrink-0 space-y-2'>
+    <div className='w-[160px] shrink-0 space-y-2'>
       <h3 className='text-l font-medium text-gray-900'>{title}</h3>
       <div className='flex items-center gap-1'>
         {isCompleted ? (
