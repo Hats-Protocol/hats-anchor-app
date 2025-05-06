@@ -1,6 +1,9 @@
 'use client';
+import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useOrganization } from 'hooks';
+import { map, sortBy } from 'lodash';
 import { useParams } from 'next/navigation';
+import { SupportedChains } from 'types';
 import { Alert, AlertDescription, AlertTitle, HatDeco, Link, Skeleton } from 'ui';
 import { chainIdToString } from 'utils';
 import { getAddress } from 'viem';
@@ -60,11 +63,15 @@ export default function OrganizationPage() {
     return <ErrorPage title='Error Loading Organization' description="The requested organization can't be loaded." />;
   }
 
+  const sortedCouncils = sortBy(organization.councils, (council) =>
+    ORDERED_CHAINS.indexOf(council.chain as SupportedChains),
+  );
+
   // TODO handle different link for MHSG [TEMP]
   return (
     <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-8 md:gap-8 md:px-6'>
       <div className='flex flex-col gap-2 md:gap-4'>
-        {organization.councils.map((item) => (
+        {map(sortedCouncils, (item) => (
           <Link
             key={item.id}
             className='hover:text-foreground/80 w-full text-left text-inherit hover:opacity-80'
