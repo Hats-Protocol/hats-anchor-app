@@ -17,6 +17,7 @@ export * from './use-cross-chain-wearer';
 export * from './use-debounce';
 export * from './use-deep-compare-effect';
 export * from './use-get-organizations';
+export * from './use-get-user-organizations';
 export * from './use-hat-guild-roles';
 export * from './use-hat-snapshot-roles';
 export * from './use-image-uris';
