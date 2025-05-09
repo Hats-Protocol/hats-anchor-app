@@ -6,6 +6,7 @@ import {
 import { FALLBACK_ADDRESS, hatIdDecimalToHex, HATS_V1, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from 'hooks';
 import { pick, toNumber } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import showdown from 'showdown';
@@ -23,8 +24,6 @@ import {
   simulateSafeAddress,
 } from 'utils';
 import { hexToNumber } from 'viem';
-
-import { useToast } from './use-toast';
 
 const converter = new showdown.Converter();
 
@@ -95,7 +94,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       existingMch: instanceAddress,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs, mchArgs, mchCallData }) => {
-        // logger.debug('MODULES CALLLDATA', !!modulesCalldata, moduleAddresses);
+        // logger.debug('MODULES CALLDATA', !!modulesCalldata, moduleAddresses);
         console.log('mch args', mchArgs);
 
         // compile create hats data

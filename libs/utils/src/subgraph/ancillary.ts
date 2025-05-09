@@ -2,15 +2,41 @@ import { ANCILLARY_API_URL } from '@hatsprotocol/config';
 import { gql, GraphQLClient } from 'graphql-request';
 import { map, toLower } from 'lodash';
 import { get } from 'lodash';
-import {
-  ElectionsAuthority,
-  HatAuthorityResponse,
-  HatElectionResponse,
-  // HatSignerGate,
-  HatSignerGateV2,
-  SupportedChains,
-} from 'types';
+import { ElectionsAuthority, HatAuthorityResponse, HatElectionResponse, HatSignerGateV2, SupportedChains } from 'types';
 import { Hex } from 'viem';
+
+const HSG_V1_FRAGMENT = gql`
+  fragment HsgV1 on HatsSignerGate {
+    id
+    type
+    safe
+    minThreshold
+    targetThreshold
+    maxSigners
+    signerHats {
+      id
+    }
+    ownerHat {
+      id
+    }
+  }
+`;
+
+const HSG_V2_FRAGMENT = gql`
+  fragment HsgV2 on HatsSignerGateV2 {
+    id
+    safe
+    thresholdType
+    minThreshold
+    targetThreshold
+    signerHats {
+      id
+    }
+    ownerHat {
+      id
+    }
+  }
+`;
 
 const MODULES_QUERY = gql`
   query GetModuleAuthorities($id: ID!) {
@@ -51,26 +77,16 @@ const MODULES_QUERY = gql`
         }
       }
       hsgOwner {
-        id
-        type
-        safe
-        minThreshold
-        targetThreshold
-        maxSigners
-        signerHats {
-          id
-        }
+        ...HsgV1
       }
       hsgSigner {
-        id
-        type
-        safe
-        minThreshold
-        targetThreshold
-        maxSigners
-        ownerHat {
-          id
-        }
+        ...HsgV1
+      }
+      hsgV2Owner {
+        ...HsgV2
+      }
+      hsgV2Signer {
+        ...HsgV2
       }
       jokeraceAdmin {
         id
@@ -94,6 +110,8 @@ const MODULES_QUERY = gql`
       }
     }
   }
+  ${HSG_V1_FRAGMENT}
+  ${HSG_V2_FRAGMENT}
 `;
 
 export const HSG_SIGNER_QUERY = gql`

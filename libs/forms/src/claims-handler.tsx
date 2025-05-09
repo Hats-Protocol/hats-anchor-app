@@ -42,7 +42,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
     claimableHats,
   } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHatId: selectedHat?.id as Hex | null,
+    selectedHatId: selectedHat?.id as Hex | undefined,
     storedData,
     onchainHats,
     editMode,

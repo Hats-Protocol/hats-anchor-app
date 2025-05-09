@@ -1,13 +1,13 @@
 'use client';
 
-import { useAllWearers } from 'hats-hooks';
+import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { useClipboard, useSafeDetails } from 'hooks';
 import { CodeIcon } from 'icons';
-import { get, includes, map, pick, reject, size, toLower, toNumber } from 'lodash';
+import { get, includes, map, pick, reject, size, sum, toLower, toNumber } from 'lodash';
 import { InlineHatCard } from 'molecules';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FiArrowRight } from 'react-icons/fi';
-import { AppHat, HSGConfig, SupportedChains } from 'types';
+import { AppHat, HatDetails, HSGConfig, SupportedChains } from 'types';
 import { Tooltip } from 'ui';
 import { formatAddress } from 'utils';
 import { Hex } from 'viem';
@@ -52,7 +52,7 @@ const SignatureThreshold = ({ hsgConfig, activeOwners }: SignatureThresholdProps
   );
 };
 
-export const HSGDetails = ({ selectedHat, hsgConfig, chainId }: HSGDetailsProps) => {
+export const HSGDetails = ({ selectedHat, hsgConfig, chainId, signerHatsDetails }: HSGDetailsProps) => {
   const { minThreshold, maxSigners } = pick(hsgConfig, ['minThreshold', 'maxSigners']);
   const { data: safeOwners } = useSafeDetails({
     safeAddress: get(hsgConfig, 'safe'),
@@ -62,8 +62,17 @@ export const HSGDetails = ({ selectedHat, hsgConfig, chainId }: HSGDetailsProps)
   const { onCopy } = useClipboard(get(hsgConfig, 'safe') || '', {
     toastData: { title: 'Safe address copied', variant: 'success' },
   });
+
   const activeOwners = reject(safeOwners, (owner: Hex) => !includes(map(wearers, 'id'), toLower(owner)));
   const ownerHatId = get(hsgConfig, 'ownerHat.id');
+
+  const { data: ownerHatDetails } = useHatDetails({ hatId: ownerHatId, chainId });
+  const getOwnerHatName = () => {
+    if (!ownerHatDetails || !ownerHatDetails.detailsMetadata) return undefined;
+    const details = JSON.parse(ownerHatDetails.detailsMetadata);
+    return get(details, 'data.name');
+  };
+  const totalMaxSupply = sum(map(signerHatsDetails, (hat) => toNumber(hat.maxSupply)));
 
   if (!hsgConfig || !chainId || !selectedHat?.id) return null;
 
@@ -72,7 +81,27 @@ export const HSGDetails = ({ selectedHat, hsgConfig, chainId }: HSGDetailsProps)
       <div className='flex justify-between'>
         <div>Signers</div>
 
-        <InlineHatCard hatId={selectedHat.id} chainId={chainId} />
+        <div className='flex w-2/3 justify-end gap-2'>
+          {map(signerHatsDetails, (hat, index) => {
+            if (!hat.detailsMetadata) return undefined;
+            let details: HatDetails | undefined;
+            try {
+              details = get(JSON.parse(hat.detailsMetadata), 'data'); // TODO handle other details types
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.error('Error parsing details metadata', error);
+            }
+
+            return (
+              <div key={hat.id} className='flex items-center gap-1'>
+                <div className='flex items-center'>
+                  <InlineHatCard hatId={hat.id} chainId={chainId} hatName={details?.name} hideHat />
+                  {index < size(signerHatsDetails) - 1 && <span>,</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className='flex justify-between'>
@@ -92,14 +121,14 @@ export const HSGDetails = ({ selectedHat, hsgConfig, chainId }: HSGDetailsProps)
       <div className='flex justify-between'>
         <div>Max Signers</div>
 
-        <div>{maxSigners}</div>
+        <div>{maxSigners || totalMaxSupply}</div>
       </div>
 
       {ownerHatId && (
         <div className='flex justify-between'>
           <div>Owner</div>
 
-          <InlineHatCard hatId={ownerHatId} chainId={chainId} />
+          <InlineHatCard hatId={ownerHatId} hatName={getOwnerHatName()} chainId={chainId} />
         </div>
       )}
 
@@ -119,4 +148,5 @@ interface HSGDetailsProps {
   hsgConfig: HSGConfig;
   selectedHat: AppHat | undefined;
   chainId: SupportedChains | undefined;
+  signerHatsDetails: AppHat[] | undefined;
 }

@@ -13,6 +13,7 @@ import {
 import { hatIdToTreeId, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { getAccessToken } from '@privy-io/react-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from 'hooks';
 import { concat, find, first, flatten, get, map } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
@@ -33,8 +34,6 @@ import {
 } from 'utils';
 import { encodeFunctionData, Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
 import { useAccount, useSimulateContract, useWalletClient } from 'wagmi';
-
-import { useToast } from './use-toast';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LogRecord = Log<any, any, any>;

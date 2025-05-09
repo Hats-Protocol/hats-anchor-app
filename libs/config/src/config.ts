@@ -13,12 +13,12 @@ export const TERMS = {
   hats: 'roles',
   tree: 'tree',
   trees: 'trees',
+  // pins
   responsibility: 'responsibility',
   responsibilities: 'responsibilities',
   authority: 'authority',
   authorities: 'authorities',
-  // permission: 'permission',
-  // permissions: 'permissions',
+  // controllers
   eligibility: 'eligibility',
   eligibilities: 'eligibilities',
   toggle: 'toggle',

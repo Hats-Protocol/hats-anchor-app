@@ -51,7 +51,7 @@ const useHatClaimFor = ({
 
   const { multiClaimsHatter: claimsHatter } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHat,
+    selectedHatId: selectedHat?.id as Hex | undefined,
     onchainHats,
   });
 

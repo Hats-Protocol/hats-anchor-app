@@ -48,12 +48,12 @@ const getHatterHat = async (
     storedModuleDetails,
     (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV1,
   );
-  const claimsHatterV3Index = findIndex(
+  const claimsHatterV2Index = findIndex(
     storedModuleDetails,
     (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV2,
   );
   const storedDataHatId = get(storedData, `[${claimsHatterV1Index}].id`);
-  const storedDataHatIdV3 = get(storedData, `[${claimsHatterV3Index}].id`);
+  const storedDataHatIdV3 = get(storedData, `[${claimsHatterV2Index}].id`);
 
   const address = onchainHatId || storedDataHatId || storedDataHatIdV3;
 

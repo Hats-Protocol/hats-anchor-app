@@ -15,14 +15,7 @@ import { Tree } from '@hatsprotocol/sdk-v1-subgraph/dist/types';
 import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
-import {
-  fetchCouncilDetails,
-  useCouncilDeploy,
-  useCouncilDeployCalldata,
-  useOrganization,
-  useToast,
-  useWaitForSubgraph,
-} from 'hooks';
+import { fetchCouncilDetails, useOrganization, useToast, useWaitForSubgraph } from 'hooks';
 import { compact, concat, find, first, isEmpty, map, toNumber, uniq, values } from 'lodash';
 import { getEligibilityRules } from 'modules-hooks';
 import { useSearchParams } from 'next/navigation';
@@ -53,6 +46,7 @@ import { Hex } from 'viem';
 import { UseSimulateContractReturnType } from 'wagmi';
 
 import { useOverlay } from './overlay-context';
+import { useCouncilDeploy, useCouncilDeployCalldata } from './pro-hooks';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SimulateContractReturnType = UseSimulateContractReturnType<any, any, any, any, any, any> | undefined;

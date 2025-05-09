@@ -5,8 +5,6 @@ export * from './use-batch-offchain-council-details';
 export * from './use-cid';
 export * from './use-clipboard';
 export * from './use-contract-data';
-export * from './use-council-deploy';
-export * from './use-council-deploy-calldata';
 export * from './use-council-details';
 export * from './use-councils-list';
 export * from './use-create-or-update-user';
