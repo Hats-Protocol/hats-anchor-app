@@ -7,7 +7,8 @@ import {
   HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ABI,
   HSG_V2_ADDRESS,
-  MULTI_CLAIMS_HATTER_V1_ADDRESS,
+  MULTI_CLAIMS_HATTER_V2_ABI,
+  MULTI_CLAIMS_HATTER_V2_ADDRESS,
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ABI,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
@@ -213,7 +214,7 @@ const modules = ({
 
   const requiredModules: Record<string, Module> = {
     multiClaimsHatter: {
-      address: MULTI_CLAIMS_HATTER_V1_ADDRESS,
+      address: MULTI_CLAIMS_HATTER_V2_ADDRESS,
       hatId: hatIds.topHat,
       args: [
         [{ type: 'uint256[]' }, { type: 'uint8[]' }],
@@ -239,18 +240,30 @@ const modules = ({
   };
 };
 
+type moduleAddressType =
+  | 'multiClaimsHatter'
+  | 'councilMemberAllowlist'
+  | 'complianceAllowlist'
+  | 'agreementModule'
+  | 'erc20Module'
+  | 'eligibilityChain';
+
 export const compileModuleData = async ({
   formData,
   hatIds,
   agreementCid,
+  existingMch,
 }: {
   formData: CouncilFormData;
   hatIds: CouncilHatIds;
   agreementCid: string;
+  existingMch: `0x${string}` | undefined;
 }) => {
   // Create public and wallet clients
   const chainId = toNumber(formData.chain.value);
   const publicClient = viemPublicClient(chainId);
+  const claimableHats = [hatIds.councilMember, hatIds.complianceManager, hatIds.agreementManager];
+  console.log('existingMch', existingMch);
 
   // prep values for module creation
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
@@ -296,7 +309,7 @@ export const compileModuleData = async ({
   const saltNonces: bigint[] = compact(map(localModules, (module) => module?.saltNonce as bigint));
 
   // retrieve module addresses
-  const multiClaimsHatter = find(localModules, { implementation: MULTI_CLAIMS_HATTER_V1_ADDRESS })?.address;
+  const multiClaimsHatter = find(localModules, { implementation: MULTI_CLAIMS_HATTER_V2_ADDRESS })?.address;
   const councilMemberAllowlist = find(localModules, { implementation: ALLOWLIST_ELIGIBILITY_ADDRESS })?.address;
   const newComplianceAllowlist = find(
     localModules,
@@ -381,6 +394,24 @@ export const compileModuleData = async ({
     args: [implementations, moduleHatIds, immutableArgs, initArgs, saltNonces],
   });
 
+  // TODO migrate to check version and handle v7
+  const claimableTypes = map(claimableHats, () => 2);
+  const registerAndCreateModulesCalldata = encodeFunctionData({
+    abi: MULTI_CLAIMS_HATTER_V2_ABI,
+    functionName: 'setHatsClaimabilityAndCreateModules',
+    args: [
+      HATS_MODULES_FACTORY_ADDRESS, // TODO pass in factory v6 address
+      implementations,
+      moduleHatIds,
+      immutableArgs,
+      initArgs,
+      saltNonces,
+      claimableHats,
+      claimableTypes,
+    ],
+  });
+  console.log('registerAndCreateModulesCalldata', registerAndCreateModulesCalldata);
+
   const addresses = {
     multiClaimsHatter,
     councilMemberAllowlist,
@@ -388,10 +419,11 @@ export const compileModuleData = async ({
     agreementModule,
     erc20Module,
     eligibilityChain: predictedEligibilityChainAddress,
-  };
+  } as Record<moduleAddressType, string | undefined>;
 
   return {
     callData: createModulesCalldata,
+    mchCallData: registerAndCreateModulesCalldata,
     addresses,
     moduleArgs: {
       implementations,
@@ -399,6 +431,11 @@ export const compileModuleData = async ({
       immutableArgs,
       initArgs,
       saltNonces,
+    },
+    mchArgs: {
+      claimableHats,
+      claimableTypes,
+      existingMch,
     },
   };
 };
@@ -420,8 +457,9 @@ const hatsData = ({
 }: {
   formData: CouncilFormData;
   hatIds: CouncilHatIds;
-  moduleAddresses: Record<string, string | undefined>;
+  moduleAddresses: Record<moduleAddressType, string | undefined>;
 }): Hat[] => {
+  console.log('moduleAddresses', moduleAddresses);
   return [
     // {
     //   handle top hat separately
@@ -489,7 +527,7 @@ const hatsData = ({
       name: 'Council Member',
       ipfsCid: 'QmRf4ziPz3ybpPB3nSKk6JZjKjGTBayhZsFdLGyYdffRrD',
       maxSupply: formData.maxMembers,
-      eligibility: moduleAddresses.eligibilityChain,
+      eligibility: moduleAddresses.eligibilityChain || moduleAddresses.councilMemberAllowlist,
     },
     {
       // council hat

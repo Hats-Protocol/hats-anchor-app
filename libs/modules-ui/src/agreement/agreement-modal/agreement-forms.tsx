@@ -62,12 +62,12 @@ export const AgreementForms = ({
   });
   const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId: chainId as SupportedChains,
-    selectedHat: hat,
+    selectedHatId: hat?.id,
     onchainHats,
   });
 
   const isWearing = !!find(wearers, { id: toLower(address) });
-  logger.debug('isWearing', isWearing, wearers, toLower(address));
+  logger.debug('agreement forms isWearing', isWearing, wearers, toLower(address));
 
   const ownerHat = get(find(moduleParameters, { label: 'Owner Hat' }), 'value');
   const judgeHat = get(find(moduleParameters, { label: 'Arbitrator Hat' }), 'value');

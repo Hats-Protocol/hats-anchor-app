@@ -2,11 +2,11 @@ import { CONFIG } from '@hatsprotocol/config';
 import { getNewInstancesFromReceipt } from '@hatsprotocol/modules-sdk';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast, useWaitForSubgraph } from 'hooks';
-import _, { first, get } from 'lodash';
+import { find, first, get } from 'lodash';
 import { useState } from 'react';
 import { HandlePendingTx, SupportedChains } from 'types';
 import { invalidateAfterTransaction } from 'utils';
-import { Hex, TransactionReceipt } from 'viem';
+import { Abi, Hex, TransactionReceipt } from 'viem';
 import { useChainId, useWriteContract } from 'wagmi';
 
 import { useHatsModules } from './use-hats-modules';
@@ -38,9 +38,9 @@ const useMultiClaimsHatterContractWrite = ({
   const queryClient = useQueryClient();
   const waitForSubgraph = useWaitForSubgraph({ chainId });
 
-  const { modules } = useHatsModules({ chainId });
-  const mch = _.find(modules, { name: CONFIG.modules.claimsHatter });
-
+  const { modules } = useHatsModules({ chainId, allModules: true });
+  const mchV1 = find(modules, { implementationAddress: CONFIG.modules.claimsHatterV1 });
+  const mchV2 = find(modules, { implementationAddress: CONFIG.modules.claimsHatterV2 });
   const { writeContractAsync } = useWriteContract();
 
   const onSuccess = async (receipt: TransactionReceipt | undefined) => {
@@ -69,14 +69,14 @@ const useMultiClaimsHatterContractWrite = ({
 
   const writeAsync = async () => {
     setIsLoadingMultiClaimsHatter(true);
-    if (!address || !chainId || !mch?.abi || chainId !== userChainId || !functionName) {
+    if (!address || !chainId || (!mchV1?.abi && !mchV2?.abi) || chainId !== userChainId || !functionName) {
       return;
     }
 
     return writeContractAsync({
       address,
       chainId: Number(chainId),
-      abi: mch?.abi,
+      abi: (mchV2?.abi || mchV1?.abi) as Abi,
       functionName,
       args,
     })

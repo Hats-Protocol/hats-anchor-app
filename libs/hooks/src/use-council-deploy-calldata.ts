@@ -3,12 +3,13 @@ import {
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
 } from '@hatsprotocol/constants';
-import { FALLBACK_ADDRESS, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS, hatIdDecimalToHex, HATS_V1, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { pick, toNumber } from 'lodash';
+import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import showdown from 'showdown';
-import { CouncilFormData } from 'types';
+import { CouncilFormData, SupportedChains } from 'types';
 import {
   compileHatCreationData,
   compileHatIds,
@@ -21,6 +22,7 @@ import {
   pinFileToIpfs,
   simulateSafeAddress,
 } from 'utils';
+import { hexToNumber } from 'viem';
 
 import { useToast } from './use-toast';
 
@@ -36,6 +38,17 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
 
   // assembling module list and removing if they already exist, but we need to know better if they exist
   // object notation for the requirements may make this easier
+
+  const {
+    instanceAddress,
+    claimableHats,
+    isLoading: isLoadingMultiClaimsHatterCheck,
+  } = useMultiClaimsHatterCheck({
+    chainId: toNumber(formData.chain?.value) as SupportedChains,
+    selectedHatId: tree?.id ? hatIdDecimalToHex(treeIdToTopHatId(hexToNumber(tree.id))) : undefined,
+    onchainHats: tree?.hats,
+  });
+  console.log('instanceAddress', instanceAddress, claimableHats, tree?.hats);
 
   const computeCalldata = async () => {
     // logger.debug('compiling calldata for council deployment');
@@ -79,9 +92,11 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       formData,
       hatIds: computedHatIds,
       agreementCid,
+      existingMch: instanceAddress,
     })
-      .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs }) => {
+      .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs, mchArgs, mchCallData }) => {
         // logger.debug('MODULES CALLLDATA', !!modulesCalldata, moduleAddresses);
+        console.log('mch args', mchArgs);
 
         // compile create hats data
         return compileHatCreationData({
@@ -167,11 +182,13 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
 
                 return Promise.resolve({
                   modulesCalldata,
+                  mchArgs,
                   hatsProtocolCallData,
                   transferTopHatCallData,
                   hsgV2Calldata,
                   calls,
                   moduleArgs,
+                  mchCallData,
                   hsgArgs,
                   hatIds: computedHatIds,
                   moduleAddresses,
@@ -195,18 +212,30 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['council-deploy-calldata', formData, tree],
+    queryKey: ['council-deploy-calldata', formData, tree, instanceAddress],
     queryFn: computeCalldata,
-    enabled: !!formData,
+    enabled: !!formData && !!tree && !isLoadingMultiClaimsHatterCheck,
   });
+
   // TODO: handle this
-  // @ts-expect-error handle missing keys
-  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds, moduleAddresses, hatsToCreate } = pick(data, [
+  const {
+    hatsProtocolCallData,
+    calls,
+    moduleArgs,
+    hsgArgs,
+    hatIds,
+    moduleAddresses,
+    hatsToCreate,
+    mchArgs,
+    mchCallData,
+  } = pick(data as any, [
     'calls', // multicall calldata
     // separate calls
     'hatsProtocolCallData',
     'moduleArgs',
     'hsgArgs',
+    'mchArgs',
+    'mchCallData',
     // computed hat IDs and module addresses
     'hatIds',
     'moduleAddresses',
@@ -218,6 +247,8 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     calls,
     moduleArgs,
     hsgArgs,
+    mchArgs,
+    mchCallData,
     hatIds,
     moduleAddresses,
     hatsToCreate,

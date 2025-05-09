@@ -4,6 +4,7 @@ import {
   HSG_V2_ADDRESS,
   initialDeployMultiStatus,
   initialDeployStatus,
+  MULTI_CLAIMS_HATTER_V1_ABI,
   MULTICALL3_ABI,
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ABI,
@@ -55,6 +56,7 @@ const useCouncilDeploy = ({
   hatsProtocolCallData,
   moduleArgs,
   hsgArgs,
+  mchArgs,
   moduleAddresses,
   handlePendingTx,
   waitForSubgraph,
@@ -136,7 +138,6 @@ const useCouncilDeploy = ({
       });
       logger.info('council created', council);
       const councilId = get(council, 'createCouncil.id');
-      console.log(formData);
 
       // update council form with council ID
       await updateCouncilForm({
@@ -395,6 +396,90 @@ const useCouncilDeploy = ({
     });
   };
 
+  const localMchArgs = useMemo(() => {
+    if (!mchArgs || !moduleArgs) return undefined;
+    return [
+      HATS_MODULES_FACTORY_ADDRESS,
+      moduleArgs.implementations,
+      moduleArgs.moduleHatIds,
+      moduleArgs.immutableArgs,
+      moduleArgs.initArgs,
+      // moduleArgs.saltNonces, // TODO handle mch v7 with nonces
+      map(mchArgs.claimableHats, (id) => BigInt(id)),
+      mchArgs.claimableTypes,
+    ] as [Hex, Hex[], bigint[], Hex[], Hex[], bigint[], number[]];
+  }, [mchArgs, moduleArgs]);
+
+  const simulateMch = useSimulateContract({
+    account: address,
+    address: address && mchArgs && !firstCouncil ? mchArgs.existingMch : undefined,
+    abi: MULTI_CLAIMS_HATTER_V1_ABI,
+    functionName: 'setHatsClaimabilityAndCreateModules',
+    args: localMchArgs ? localMchArgs : undefined,
+    chainId,
+  });
+
+  const deployModulesWithMchFn = async () => {
+    if (!localMchArgs || !mchArgs?.existingMch) {
+      logger.error('No module args or existing mch');
+      throw new Error('No module args or existing mch');
+    }
+
+    const hash = await walletClient
+      ?.writeContract({
+        account: address,
+        address: mchArgs?.existingMch,
+        abi: MULTI_CLAIMS_HATTER_V1_ABI,
+        functionName: 'setHatsClaimabilityAndCreateModules',
+        args: localMchArgs,
+        chain: chainsMap(chainId),
+      })
+      .catch((err) => {
+        logger.debug('error', err);
+        setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
+        // TODO toast
+      });
+    setDeployStatus((prev) => ({ ...prev, deployModulesTx: true }));
+
+    if (!hash) {
+      logger.error('Failed to create transaction');
+      throw new Error('Failed to create transaction');
+    } else {
+      logger.debug('hash', hash);
+    }
+
+    // store tx in local storage for retrieval later
+    const deployTxs = localStorage.getItem(`deploy-txs-${draftId}`);
+    if (deployTxs) {
+      const deployTxsObj = JSON.parse(deployTxs);
+      deployTxsObj.push(hash);
+      localStorage.setItem(`deploy-txs-${draftId}`, JSON.stringify(deployTxsObj));
+    } else {
+      localStorage.setItem(`deploy-txs-${draftId}`, JSON.stringify([hash]));
+    }
+
+    handlePendingTx?.({
+      hash,
+      txChainId: chainId,
+      txDescription: 'Deploying Modules, Eligibility Chain & Register Hats with MCH',
+      waitForSubgraph,
+      onTxAccepted: () => {
+        setDeployStatus((prev) => ({ ...prev, confirmModulesTx: true }));
+      },
+      onTxIndexed: () => {
+        setDeployStatus((prev) => ({ ...prev, indexModulesTx: true }));
+      },
+      onSuccess: () => {
+        deployHsg();
+        logger.debug('successfully deployed modules');
+      },
+      onError: (error) => {
+        logger.error('Error deploying modules:', error);
+        throw error;
+      },
+    });
+  };
+
   const localHsgArgs = useMemo(() => {
     if (!hsgArgs) return undefined;
     return [hsgArgs.address, hsgArgs.callData, hsgArgs.nonce] as [string, Hex, bigint];
@@ -483,6 +568,10 @@ const useCouncilDeploy = ({
     mutationFn: deployHsgFn,
   });
 
+  const { mutateAsync: deployModulesWithMch } = useMutation({
+    mutationFn: deployModulesWithMchFn,
+  });
+
   return {
     deploy: mutateAsync,
     simulateCouncil: simulateFullMulticall,
@@ -490,9 +579,11 @@ const useCouncilDeploy = ({
     deployHats,
     deployModules,
     deployHsg,
+    deployModulesWithMch,
     simulateHats,
     simulateModules,
     simulateHsg,
+    simulateMch,
     isLoading,
   };
 };
@@ -516,6 +607,12 @@ interface HsgArgs {
   nonce: bigint;
 }
 
+interface MchArgs {
+  claimableHats: bigint[];
+  claimableTypes: number[];
+  existingMch: string;
+}
+
 type UseCouncilDeployProps = {
   formData: CouncilFormData;
   firstCouncil: boolean;
@@ -526,6 +623,7 @@ type UseCouncilDeployProps = {
   hatsProtocolCallData: FnCallData | undefined;
   moduleArgs: ModuleArgs | undefined;
   hsgArgs: HsgArgs | undefined;
+  mchArgs: MchArgs | undefined;
   moduleAddresses: ModulesAddresses | undefined;
   handlePendingTx: HandlePendingTx | undefined;
   waitForSubgraph: AsyncTxHandler;

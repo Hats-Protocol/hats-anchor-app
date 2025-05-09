@@ -6,5 +6,6 @@ export * from './default-hat';
 export * from './form';
 export * from './misc';
 export * from './modules';
+export * from './registry';
 export * from './tree-controls';
 export * from './trees';

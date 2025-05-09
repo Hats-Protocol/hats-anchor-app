@@ -57,6 +57,7 @@ const SimulateStatus = ({
     callData,
     to,
   });
+  console.log(to, isSimulating, callData);
 
   return (
     <div className='flex items-center gap-2'>
@@ -133,11 +134,16 @@ export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) 
     deployModulesCalldata,
     deployHatsCalldata,
     deployHsgCalldata,
+    deployMchCalldata,
     simulateCouncil,
     simulateHats,
     simulateModules,
     simulateHsg,
+    simulateMch,
+    tree,
+    mchArgs,
   } = useCouncilForm();
+  console.log(tree);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
@@ -160,11 +166,11 @@ export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) 
         to={HATS_V1}
       />
       <SimulationResult
-        simulate={simulateModules}
-        title='Modules'
+        simulate={tree ? simulateMch : simulateModules}
+        title={'Modules'}
         chainId={chainId}
-        callData={deployModulesCalldata}
-        to={HATS_MODULES_FACTORY_ADDRESS}
+        callData={tree ? deployMchCalldata : deployModulesCalldata}
+        to={tree ? mchArgs?.existingMch : HATS_MODULES_FACTORY_ADDRESS}
       />
       <SimulationResult
         simulate={simulateHsg}

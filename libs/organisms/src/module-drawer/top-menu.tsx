@@ -11,7 +11,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { BsBoxArrowRight, BsXSquare } from 'react-icons/bs';
 import { ModuleDetails } from 'types';
 import { Button, Tooltip } from 'ui';
-import { logger } from 'utils';
+// import { logger } from 'utils';
 import { useChainId } from 'wagmi';
 
 const TopMenu = ({
@@ -32,7 +32,7 @@ const TopMenu = ({
 
   const { instanceAddress } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHat,
+    selectedHatId: selectedHat?.id,
     storedData,
     onchainHats,
     editMode,
@@ -83,14 +83,14 @@ const TopMenu = ({
 
   const requiresModuleTypeCheck = !(isStandaloneHatterDeploy && isPermissionlesslyClaimable === 'Yes');
 
-  logger.debug({
-    formValid: localForm?.formState.isValid,
-    isChainCorrect,
-    requiresModuleTypeCheck,
-    moduleType,
-    cannotDeployWithoutIncrement,
-    moduleDeployIsBlocked,
-  });
+  // logger.debug({
+  //   formValid: localForm?.formState.isValid,
+  //   isChainCorrect,
+  //   requiresModuleTypeCheck,
+  //   moduleType,
+  //   cannotDeployWithoutIncrement,
+  //   moduleDeployIsBlocked,
+  // });
 
   const isButtonDisabled =
     !localForm?.formState.isValid ||

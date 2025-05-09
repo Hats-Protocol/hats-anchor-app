@@ -76,22 +76,26 @@ interface CouncilFormContextType {
   moduleAddresses: { [key: string]: string };
   organization: Organization | undefined;
   hatsToCreate: HatToCreate[];
+  mchArgs: any | undefined;
   // deploy handlers
   deployStatus: DeployStatus;
   deployHats: () => void;
   deployModules: () => void;
   deployHsg: () => void;
+  deployModulesWithMch: () => void;
   // calldata
   deployCouncilCalldata: Hex | undefined;
   deployHatsCalldata: Hex | undefined;
   deployModulesCalldata: Hex | undefined;
   deployHsgCalldata: Hex | undefined;
+  deployMchCalldata: Hex | undefined;
   // TODO fix these types
   // simulation results
   simulateCouncil: SimulateContractReturnType;
   simulateHats: SimulateContractReturnType;
   simulateModules: SimulateContractReturnType;
   simulateHsg: SimulateContractReturnType;
+  simulateMch: SimulateContractReturnType;
   councilsData: CouncilData[] | undefined;
 }
 
@@ -619,11 +623,20 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     },
   });
 
-  const { calls, hatsProtocolCallData, moduleArgs, hsgArgs, hatIds, moduleAddresses, hatsToCreate } =
-    useCouncilDeployCalldata({
-      formData: form.watch(),
-      tree,
-    });
+  const {
+    calls,
+    hatsProtocolCallData,
+    moduleArgs,
+    hsgArgs,
+    hatIds,
+    moduleAddresses,
+    mchCallData,
+    hatsToCreate,
+    mchArgs,
+  } = useCouncilDeployCalldata({
+    formData: form.watch(),
+    tree,
+  });
 
   const {
     deploy: deployCouncil,
@@ -632,9 +645,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     deployHats,
     deployModules,
     deployHsg,
+    deployModulesWithMch,
     simulateHats,
     simulateModules,
     simulateHsg,
+    simulateMch,
     multicallCalldata,
   } = useCouncilDeploy({
     formData: form.getValues(),
@@ -647,6 +662,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     moduleAddresses,
     handlePendingTx,
     waitForSubgraph,
+    mchArgs,
     setDeployStatus,
     firstCouncil: !tree || isEmpty(tree?.hats),
     hatIds,
@@ -670,21 +686,25 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         moduleAddresses,
         organization: organization || undefined,
         hatsToCreate,
+        mchArgs: { ...mchArgs, ...moduleArgs },
         // deploy handlers
         deployStatus, // status of the deploy
         deployHats,
         deployModules,
         deployHsg,
+        deployModulesWithMch,
         // calldata
         deployCouncilCalldata: multicallCalldata,
         deployHatsCalldata: find(calls, { target: HATS_V1 })?.callData,
         deployModulesCalldata: find(calls, { target: HATS_MODULES_FACTORY_ADDRESS })?.callData,
         deployHsgCalldata: find(calls, { target: ZODIAC_MODULE_PROXY_FACTORY_ADDRESS })?.callData,
+        deployMchCalldata: mchCallData,
         // TODO what's up with this type?
         // simulation results
         simulateCouncil: simulateCouncil as SimulateContractReturnType | undefined,
         simulateHats: simulateHats as SimulateContractReturnType | undefined,
         simulateModules: simulateModules as SimulateContractReturnType | undefined,
+        simulateMch: simulateMch as SimulateContractReturnType | undefined,
         simulateHsg: simulateHsg as SimulateContractReturnType | undefined,
         councilsData: councilsData,
       }}

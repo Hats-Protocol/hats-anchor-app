@@ -1,7 +1,7 @@
 'use client';
 
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useTreeForm } from 'contexts';
+import { ModalDescription, ModalTitle, useTreeForm } from 'contexts';
 import { AddressInput, DatePicker, DurationInput, NumberInput } from 'forms';
 import { useHatDetails, useProfileDetails, useWearerDetails } from 'hats-hooks';
 import { useClipboard } from 'hooks';
@@ -11,7 +11,7 @@ import { useJokeRace } from 'modules-hooks';
 import { useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { Button } from 'ui';
+import { Button, VisuallyHidden } from 'ui';
 import { formatAddress, getJokeRaceModuleParameters, shortDateFormatter } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useReadContracts, useWriteContract } from 'wagmi';
@@ -223,13 +223,19 @@ export const JokeRaceModal = ({
       history={<ModuleHistory />}
       devInfo={<DevInfo moduleDescriptors={devInfo} />}
     >
+      <VisuallyHidden>
+        <ModalTitle>{heading}</ModalTitle>
+        <ModalDescription>
+          This is the JokeRace module for {hatName}. You can view the eligibility from the Joke Race here.
+        </ModalDescription>
+      </VisuallyHidden>
       <ProfileList
         hat={hat}
         heading={heading}
         localForm={localForm}
         profiles={jokeRaceProfiles}
-        handleUpdateListAdd={() => {}}
-        handleUpdateListRemove={() => {}}
+        handleUpdateListAdd={() => undefined}
+        handleUpdateListRemove={() => undefined}
         updating={false}
         updateList={[]}
       />

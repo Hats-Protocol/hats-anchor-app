@@ -11,7 +11,7 @@ import {
   processValues,
 } from 'hats-utils';
 import { useToast } from 'hooks';
-import _, { get, pick } from 'lodash';
+import { concat, find, get, isArray, isEmpty, isUndefined, map, merge, pick, some, uniq } from 'lodash';
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { AppHat, DeploymentType, FormData, HandlePendingTx, ModuleDetails, SupportedChains } from 'types';
@@ -56,11 +56,6 @@ const useModuleDeploy = ({
     address: tokenAddress,
     token: tokenAddress,
   });
-  const { hatterIsAdmin } = useMultiClaimsHatterCheck({
-    chainId,
-    selectedHat,
-    onchainHats,
-  });
 
   const values = useMemo(() => {
     if (!balance) return originalValues;
@@ -75,7 +70,7 @@ const useModuleDeploy = ({
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { modules } = useHatsModules({ chainId });
+  const { modules } = useHatsModules({ chainId, allModules: true });
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
   const hatId = selectedHat ? BigInt(selectedHat?.id) : BigInt(0);
@@ -83,40 +78,33 @@ const useModuleDeploy = ({
   const incrementWearers = values?.incrementWearers as string | undefined;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
   const claimabilityType = values?.initialClaimabilityType as number | undefined;
-  const claimsHatterModule = _.find(modules, {
-    name: CONFIG.modules.claimsHatter,
+  // const claimsHatterModule = find(modules, {
+  //   implementationAddress: CONFIG.modules.claimsHatterV1,
+  // });
+  const claimsHatterV2 = find(modules, {
+    implementationAddress: CONFIG.modules.claimsHatterV2,
   });
 
-  // const ipId = selectedHat?.id && hatIdDecimalToIp(BigInt(selectedHat?.id));
-  // const hatName = selectedHat?.detailsObject?.data?.name;
-  // const hatTitle = `${ipId} (${hatName})`;
-
-  const { instanceAddress } = useMultiClaimsHatterCheck({
+  const { instanceAddress, mchV2, hatterIsAdmin } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHat,
+    selectedHatId: selectedHat?.id,
     onchainHats,
     storedData,
     editMode,
   });
 
-  // console.log(
-  //   selectedModuleDetails,
-  //   localForm.formState.isValid,
-  //   values,
-  //   hatId,
-  //   claimabilityType,
-  // );
   const deployModuleAndRegisterWithClaimsHatterArgs = prepareDeployModuleAndRegisterWithClaimsHatterArgs({
     selectedModuleDetails,
     isLocalFormValid: localForm.formState.isValid,
     values,
     hatId,
     claimabilityType,
+    mchV2,
   });
 
   const adminHatData = useMemo(() => {
-    const storedHat = _.find(storedData, ['id', adminHat]);
-    const onchainHat = _.find(onchainHats, ['id', adminHat]);
+    const storedHat = find(storedData, ['id', adminHat]);
+    const onchainHat = find(onchainHats, ['id', adminHat]);
 
     // translate boolean to form data string
     const mutable: { mutable?: string } = {};
@@ -151,11 +139,8 @@ const useModuleDeploy = ({
         type,
       });
 
-      const hatIds = _.uniq(_.map(moduleHats, 'id'));
-      const updatedHats: any[] = _.map(
-        hatIds,
-        (id: Hex) => _.merge({}, _.find(moduleHats, { id })) as Partial<FormData>,
-      );
+      const hatIds = uniq(map(moduleHats, 'id'));
+      const updatedHats: any[] = map(hatIds, (id: Hex) => merge({}, find(moduleHats, { id })) as Partial<FormData>);
       setStoredData?.(updatedHats);
       toast({
         title: 'Saved',
@@ -170,7 +155,7 @@ const useModuleDeploy = ({
 
   const moduleAndClaimsHatterDeploySuccess = useCallback(
     (newInstances?: Hex[] | null) => {
-      if (!_.isArray(newInstances)) return;
+      if (!isArray(newInstances)) return;
 
       const [moduleAddress, claimsHatterAddress] = newInstances;
 
@@ -186,13 +171,13 @@ const useModuleDeploy = ({
         adminHat: adminHatData,
         incrementWearers,
       });
-      const hatIds = _.uniq(_.concat(_.map(updatedHatsWithModule, 'id'), _.map(updatedHatsWithClaimsHatter, 'id')));
-      const updatedHats: any[] = _.map(hatIds, (id: Hex) => {
-        const hatterHat = _.find(updatedHatsWithClaimsHatter, {
+      const hatIds = uniq(concat(map(updatedHatsWithModule, 'id'), map(updatedHatsWithClaimsHatter, 'id')));
+      const updatedHats: any[] = map(hatIds, (id: Hex) => {
+        const hatterHat = find(updatedHatsWithClaimsHatter, {
           id,
         });
-        const moduleHat = _.find(updatedHatsWithModule, ['id', id]);
-        return _.merge({}, hatterHat, moduleHat) as Partial<FormData>;
+        const moduleHat = find(updatedHatsWithModule, ['id', id]);
+        return merge({}, hatterHat, moduleHat) as Partial<FormData>;
       });
       setStoredData?.(updatedHats);
 
@@ -223,7 +208,7 @@ const useModuleDeploy = ({
     useMultiClaimsHatterContractWrite({
       functionName: 'setHatClaimabilityAndCreateModule',
       address: instanceAddress,
-      enabled: !!instanceAddress && !_.some(deployModuleAndRegisterWithClaimsHatterArgs, _.isUndefined),
+      enabled: !!instanceAddress && !some(deployModuleAndRegisterWithClaimsHatterArgs, isUndefined),
       args: deployModuleAndRegisterWithClaimsHatterArgs,
       chainId,
       handlePendingTx,
@@ -259,7 +244,7 @@ const useModuleDeploy = ({
     mutationFn: async () => {
       switch (deploymentType) {
         case DEPLOYMENT_TYPES.ONLY_MODULE: {
-          if (instanceAddress && isPermissionlesslyClaimable === 'Yes' && _.isEmpty(selectedHat?.claimableBy)) {
+          if (instanceAddress && isPermissionlesslyClaimable === 'Yes' && isEmpty(selectedHat?.claimableBy)) {
             return deployModuleAndRegisterWithClaimsHatter();
           }
 
@@ -283,7 +268,7 @@ const useModuleDeploy = ({
 
           return deployModuleWithClaimsHatter({
             selectedModuleDetails,
-            claimsHatterId: claimsHatterModule?.id as Hex,
+            claimsHatterId: claimsHatterV2?.implementationAddress as Hex,
             selectedHat,
             address: address as Hex,
             values,
@@ -301,7 +286,7 @@ const useModuleDeploy = ({
           if (!adminHat) return null;
 
           return deployClaimsHatter({
-            claimsHatterModule,
+            claimsHatterModule: claimsHatterV2,
             selectedHat,
             address: address as Hex,
             values,
