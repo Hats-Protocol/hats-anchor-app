@@ -6,7 +6,7 @@ import {
   // UPDATE_COUNCIL_FORM,
   UPDATE_COUNCIL_FORM_WITH_COUNCIL_ID,
 } from '../mutations';
-import { ORGANIZATION_BY_NAME_QUERY, ORGANIZATIONS_QUERY } from '../queries';
+import { GET_USER_ORGANIZATIONS, ORGANIZATION_BY_NAME_QUERY, ORGANIZATIONS_QUERY } from '../queries';
 
 export const addCouncilForForm = async ({
   chainId,
@@ -70,4 +70,14 @@ export const getOrganizationByName = async ({ name, accessToken }: { name: strin
 
 export const getOrganizations = async ({ accessToken }: { accessToken: string | null }) => {
   return getCouncilsGraphqlClient(accessToken ?? undefined).request(ORGANIZATIONS_QUERY);
+};
+
+export const getUserOrganizations = async ({
+  userAddress,
+  accessToken,
+}: {
+  userAddress: string;
+  accessToken: string | null;
+}) => {
+  return getCouncilsGraphqlClient(accessToken ?? undefined).request(GET_USER_ORGANIZATIONS, { userAddress });
 };

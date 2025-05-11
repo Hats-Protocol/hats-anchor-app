@@ -3,17 +3,18 @@
 import { chainsList } from '@hatsprotocol/config';
 import { useCouncilForm } from 'contexts';
 import { ChainSelect, CreatableSelect, Form, Input, Textarea } from 'forms';
-import { useGetOrganizations, useOrganization } from 'hooks';
+import { useGetUserOrganizations, useOrganization } from 'hooks';
 import { isEmpty } from 'lodash';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { StepProps } from 'types';
 import { MemberAvatar } from 'ui';
+import { logger } from 'utils';
+import { useAccount } from 'wagmi';
 
 import { NextStepButton } from '../../../next-step-button';
 import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
 import { LoadingDetailsStep } from './details-skeletons';
-
 interface OrganizationOption {
   value: string;
   label: string;
@@ -33,8 +34,9 @@ const chainOptions: ChainOption[] = Object.values(chainsList).map((chain) => ({
 
 export function DetailsStep({ onNext }: StepProps) {
   const searchParams = useSearchParams();
+  const { address: userAddress } = useAccount();
 
-  const { data: organizationsData, isLoading: isLoadingOrgs } = useGetOrganizations();
+  const { data: organizationsData, isLoading: isLoadingOrgs } = useGetUserOrganizations(userAddress);
 
   // memoize organization options to prevent infinite renders
   const organizationOptions = useMemo(() => {
