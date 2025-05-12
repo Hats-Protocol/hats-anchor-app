@@ -1,10 +1,13 @@
+'use client';
+
+import { CONFIG } from '@hatsprotocol/config';
 import {
   HATS_MODULES_FACTORY_ABI,
-  HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ADDRESS,
   initialDeployMultiStatus,
   initialDeployStatus,
   MULTI_CLAIMS_HATTER_V1_ABI,
+  MULTI_CLAIMS_HATTER_V2_ABI,
   MULTICALL3_ABI,
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ABI,
@@ -14,7 +17,7 @@ import { hatIdToTreeId, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { getAccessToken } from '@privy-io/react-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import { concat, find, first, flatten, get, map } from 'lodash';
+import { compact, concat, find, first, flatten, get, map } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { SetStateAction, useCallback, useMemo } from 'react';
@@ -32,11 +35,8 @@ import {
   updateCouncilForm,
   viemPublicClient,
 } from 'utils';
-import { encodeFunctionData, Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
+import { encodeFunctionData, Hex, parseEventLogs, TransactionReceipt } from 'viem';
 import { useAccount, useSimulateContract, useWalletClient } from 'wagmi';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LogRecord = Log<any, any, any>;
 
 interface OrganizationResponse {
   organizations: Array<{
@@ -69,7 +69,7 @@ const useCouncilDeploy = ({
 
   // after accepted, included, indexed
   const onSuccess = useCallback(
-    async (data: TransactionReceipt | undefined, extraLogs: LogRecord[] = []) => {
+    async (data: TransactionReceipt | undefined, extraLogs: TransactionReceipt['logs'] = []) => {
       if (!data || !draftId) return;
       logger.info('Transaction successful', data);
       // TODO handle hat creation data
@@ -319,15 +319,17 @@ const useCouncilDeploy = ({
     ] as [Hex[], bigint[], Hex[], Hex[], bigint[]];
   }, [moduleArgs]);
 
+  // TODO this is deprecated
   const simulateModules = useSimulateContract({
     account: address,
-    address: address && moduleArgs && !firstCouncil ? HATS_MODULES_FACTORY_ADDRESS : undefined,
+    address: address && moduleArgs && !firstCouncil ? CONFIG.modules.factoryV6 : undefined,
     abi: HATS_MODULES_FACTORY_ABI,
     functionName: 'batchCreateHatsModule',
     args: localModuleArgs,
     chainId,
   });
 
+  // TODO not used, use deployModulesWithMchFn
   const deployModulesFn = async () => {
     if (!moduleArgs) {
       logger.error('No module args');
@@ -337,7 +339,7 @@ const useCouncilDeploy = ({
     const hash = await walletClient
       ?.writeContract({
         account: address,
-        address: HATS_MODULES_FACTORY_ADDRESS,
+        address: CONFIG.modules.factoryV6,
         abi: HATS_MODULES_FACTORY_ABI,
         functionName: 'batchCreateHatsModule',
         args: [
@@ -397,22 +399,23 @@ const useCouncilDeploy = ({
 
   const localMchArgs = useMemo(() => {
     if (!mchArgs || !moduleArgs) return undefined;
-    return [
-      HATS_MODULES_FACTORY_ADDRESS,
+    // compact will remove falsey values, nonces should be non-zero
+    return compact([
+      mchArgs.mchV2 ? CONFIG.modules.factoryV7 : CONFIG.modules.factoryV6,
       moduleArgs.implementations,
       moduleArgs.moduleHatIds,
       moduleArgs.immutableArgs,
       moduleArgs.initArgs,
-      // moduleArgs.saltNonces, // TODO handle mch v7 with nonces
+      mchArgs.mchV2 ? moduleArgs.saltNonces : undefined, // TODO handle mch v7 with nonces
       map(mchArgs.claimableHats, (id) => BigInt(id)),
       mchArgs.claimableTypes,
-    ] as [Hex, Hex[], bigint[], Hex[], Hex[], bigint[], number[]];
+    ]) as [Hex, Hex[], bigint[], Hex[], Hex[], bigint[], bigint[], number[]];
   }, [mchArgs, moduleArgs]);
 
   const simulateMch = useSimulateContract({
     account: address,
     address: address && mchArgs && !firstCouncil ? mchArgs.existingMch : undefined,
-    abi: MULTI_CLAIMS_HATTER_V1_ABI,
+    abi: mchArgs?.mchV2 ? MULTI_CLAIMS_HATTER_V2_ABI : MULTI_CLAIMS_HATTER_V1_ABI,
     functionName: 'setHatsClaimabilityAndCreateModules',
     args: localMchArgs ? localMchArgs : undefined,
     chainId,
@@ -428,7 +431,7 @@ const useCouncilDeploy = ({
       ?.writeContract({
         account: address,
         address: mchArgs?.existingMch,
-        abi: MULTI_CLAIMS_HATTER_V1_ABI,
+        abi: mchArgs.mchV2 ? MULTI_CLAIMS_HATTER_V2_ABI : MULTI_CLAIMS_HATTER_V1_ABI,
         functionName: 'setHatsClaimabilityAndCreateModules',
         args: localMchArgs,
         chain: chainsMap(chainId),
@@ -574,6 +577,7 @@ const useCouncilDeploy = ({
   return {
     deploy: mutateAsync,
     simulateCouncil: simulateFullMulticall,
+    onSuccess,
     multicallCalldata,
     deployHats,
     deployModules,
@@ -610,6 +614,7 @@ interface MchArgs {
   claimableHats: bigint[];
   claimableTypes: number[];
   existingMch: string;
+  mchV2: boolean;
 }
 
 type UseCouncilDeployProps = {

@@ -97,7 +97,7 @@ const useMultiClaimsHatterCheck = ({
   const claimableHats: Hex[] | undefined = useMemo(() => {
     if (!claimsHatterData) return undefined;
 
-    return map(filter(claimsHatterData, 'claimableBy[0].id'), 'id');
+    return compact(map(filter(claimsHatterData, 'claimableBy[0].id'), 'id'));
   }, [claimsHatterData]);
   const claimableForHats: Hex[] | undefined = useMemo(() => {
     if (!claimsHatterData) return undefined;
@@ -138,7 +138,7 @@ const useMultiClaimsHatterCheck = ({
     }),
   );
 
-  const hats = uniq(concat(claimableHats, storedDataClaimableHats));
+  const hats = compact(uniq(concat(claimableHats, storedDataClaimableHats)));
 
   const {
     data: hatterHat,

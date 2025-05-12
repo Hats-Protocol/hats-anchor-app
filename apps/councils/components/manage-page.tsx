@@ -135,7 +135,6 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     ...find(allWearers, { address: getAddress(wearer.id) }),
   })); // transform includes address as wearer identifier
   const userIsManager = !!find(extendedOwnerHatWearers, { address: userAddress });
-  logger.debug('offchainCouncilDetails', offchainCouncilDetails);
   const { data: safeSigners } = useSafeDetails({
     safeAddress: councilDetails?.safe as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,

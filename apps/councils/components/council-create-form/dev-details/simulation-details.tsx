@@ -1,5 +1,6 @@
+'use client';
+
 import { MULTICALL3_ADDRESS, TENDERLY_SIMULATION_URL, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/config';
-import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { useSimulateTransaction } from 'hooks';
@@ -22,7 +23,7 @@ type SimulateResult = UseSimulateContractReturnType<any, any, any, any, any, any
 // };
 
 // const MODULES_CONFIG = {
-//   address: HATS_MODULES_FACTORY_ADDRESS,
+//   address: CONFIG.modules.factoryV7,
 //   abi: HATS_MODULES_FACTORY_ABI,
 //   eventName: 'HatsModuleFactory_ModuleDeployed',
 // };
@@ -57,7 +58,6 @@ const SimulateStatus = ({
     callData,
     to,
   });
-  console.log(to, isSimulating, callData);
 
   return (
     <div className='flex items-center gap-2'>
@@ -131,19 +131,16 @@ const SimulationResult = ({
 export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) => {
   const {
     deployCouncilCalldata,
-    deployModulesCalldata,
     deployHatsCalldata,
     deployHsgCalldata,
     deployMchCalldata,
     simulateCouncil,
     simulateHats,
-    simulateModules,
     simulateHsg,
     simulateMch,
-    tree,
     mchArgs,
+    tree,
   } = useCouncilForm();
-  console.log(tree);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
 
@@ -152,7 +149,7 @@ export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) 
   return (
     <div>
       <SimulationResult
-        simulate={simulateCouncil}
+        simulate={!tree ? simulateCouncil : undefined}
         title='Council Multicall'
         chainId={chainId}
         callData={deployCouncilCalldata}
@@ -166,11 +163,11 @@ export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) 
         to={HATS_V1}
       />
       <SimulationResult
-        simulate={tree ? simulateMch : simulateModules}
-        title={'Modules'}
+        simulate={simulateMch}
+        title={'Modules & register with existing MCH'}
         chainId={chainId}
-        callData={tree ? deployMchCalldata : deployModulesCalldata}
-        to={tree ? mchArgs?.existingMch : HATS_MODULES_FACTORY_ADDRESS}
+        callData={deployMchCalldata}
+        to={mchArgs?.existingMch}
       />
       <SimulationResult
         simulate={simulateHsg}

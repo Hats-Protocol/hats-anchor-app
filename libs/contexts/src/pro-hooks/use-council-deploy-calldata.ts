@@ -1,8 +1,7 @@
-import {
-  HATS_MODULES_FACTORY_ADDRESS,
-  MULTICALL3_ADDRESS,
-  ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
-} from '@hatsprotocol/constants';
+'use client';
+
+import { CONFIG } from '@hatsprotocol/config';
+import { MULTICALL3_ADDRESS, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/constants';
 import { FALLBACK_ADDRESS, hatIdDecimalToHex, HATS_V1, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
@@ -30,9 +29,10 @@ const converter = new showdown.Converter();
 type UseCouncilDeployCalldataProps = {
   formData: CouncilFormData;
   tree: Tree | null | undefined;
+  treeLoading: boolean;
 };
 
-const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataProps) => {
+const useCouncilDeployCalldata = ({ formData, tree, treeLoading }: UseCouncilDeployCalldataProps) => {
   const { toast } = useToast();
 
   // assembling module list and removing if they already exist, but we need to know better if they exist
@@ -40,14 +40,13 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
 
   const {
     instanceAddress,
-    claimableHats,
+    mchV2,
     isLoading: isLoadingMultiClaimsHatterCheck,
   } = useMultiClaimsHatterCheck({
     chainId: toNumber(formData.chain?.value) as SupportedChains,
     selectedHatId: tree?.id ? hatIdDecimalToHex(treeIdToTopHatId(hexToNumber(tree.id))) : undefined,
     onchainHats: tree?.hats,
   });
-  console.log('instanceAddress', instanceAddress, claimableHats, tree?.hats);
 
   const computeCalldata = async () => {
     // logger.debug('compiling calldata for council deployment');
@@ -92,10 +91,10 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       hatIds: computedHatIds,
       agreementCid,
       existingMch: instanceAddress,
+      mchV2,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs, mchArgs, mchCallData }) => {
         // logger.debug('MODULES CALLDATA', !!modulesCalldata, moduleAddresses);
-        console.log('mch args', mchArgs);
 
         // compile create hats data
         return compileHatCreationData({
@@ -159,7 +158,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                 };
 
                 const modulesCall = {
-                  target: HATS_MODULES_FACTORY_ADDRESS,
+                  target: CONFIG.modules.factoryV7,
                   allowFailure: false,
                   callData: modulesCalldata,
                 };
@@ -181,7 +180,10 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
 
                 return Promise.resolve({
                   modulesCalldata,
-                  mchArgs,
+                  mchArgs: {
+                    ...mchArgs,
+                    mchV2,
+                  },
                   hatsProtocolCallData,
                   transferTopHatCallData,
                   hsgV2Calldata,
@@ -211,9 +213,9 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['council-deploy-calldata', formData, tree, instanceAddress],
+    queryKey: ['council-deploy-calldata', { formData, tree, instanceAddress }],
     queryFn: computeCalldata,
-    enabled: !!formData && !!tree && !isLoadingMultiClaimsHatterCheck,
+    enabled: !!formData && !treeLoading && !isLoadingMultiClaimsHatterCheck,
   });
 
   // TODO: handle this

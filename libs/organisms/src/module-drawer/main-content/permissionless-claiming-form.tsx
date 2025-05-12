@@ -30,7 +30,6 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
     storedData,
     editMode,
   });
-  console.log('multiClaimsHatter', multiClaimsHatter, instanceAddress, claimableHats);
 
   const isAdmin = useIsAdmin({
     address: instanceAddress,

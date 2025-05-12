@@ -42,7 +42,7 @@ import {
   // sendTelegramMessage,
   UPDATE_COUNCIL_FORM,
 } from 'utils';
-import { Hex } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 import { UseSimulateContractReturnType } from 'wagmi';
 
 import { useOverlay } from './overlay-context';
@@ -77,6 +77,7 @@ interface CouncilFormContextType {
   deployModules: () => void;
   deployHsg: () => void;
   deployModulesWithMch: () => void;
+  deployOnSuccess: (tx: TransactionReceipt | undefined, extraLogs?: TransactionReceipt['logs']) => void;
   // calldata
   deployCouncilCalldata: Hex | undefined;
   deployHatsCalldata: Hex | undefined;
@@ -186,7 +187,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     },
   });
   const chainId = toNumber(form.watch('chain').value) || 10;
-  const waitForSubgraph = useWaitForSubgraph({ chainId });
+  const waitForSubgraph = useWaitForSubgraph({ chainId, interval: 2_000, waitTimeout: 60_000 });
   const { toast } = useToast();
 
   const availableTokens = useMemo(() => getChainTokens(chainId as number), [chainId]);
@@ -279,7 +280,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
 
   // handle other treeIds or chainIds across an organization. this is assuming that we're working within a single council (the first council)
   const treeId = organization?.councils?.[0]?.treeId;
-  const { data: tree } = useTreeDetails({ treeId: toNumber(treeId), chainId });
+  const { data: tree, isLoading: isLoadingTree } = useTreeDetails({
+    treeId: toNumber(treeId),
+    chainId,
+    enabled: !!treeId,
+  });
 
   const setStepValidation = useCallback(
     (step: keyof StepValidation, subSteps: boolean | Partial<StepValidation['eligibilitySubSteps']>) => {
@@ -630,6 +635,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   } = useCouncilDeployCalldata({
     formData: form.watch(),
     tree,
+    treeLoading: isLoadingTree,
   });
 
   const {
@@ -645,6 +651,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     simulateHsg,
     simulateMch,
     multicallCalldata,
+    onSuccess,
   } = useCouncilDeploy({
     formData: form.getValues(),
     calls,
@@ -687,6 +694,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         deployModules,
         deployHsg,
         deployModulesWithMch,
+        deployOnSuccess: onSuccess,
         // calldata
         deployCouncilCalldata: multicallCalldata,
         deployHatsCalldata: find(calls, { target: HATS_V1 })?.callData,

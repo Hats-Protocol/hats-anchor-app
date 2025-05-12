@@ -99,8 +99,8 @@ type Config = {
   modules: {
     factoryV6: Hex;
     factoryV7: Hex;
-    claimsHatterV1: string;
-    claimsHatterV2: string;
+    claimsHatterV1: Hex;
+    claimsHatterV2: Hex;
     // claimsHatterV3: string; // with hooks
   };
 

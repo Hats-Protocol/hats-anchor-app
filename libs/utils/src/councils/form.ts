@@ -1,14 +1,14 @@
+import { CONFIG } from '@hatsprotocol/config';
 import {
   AGREEMENT_ELIGIBILITY_ADDRESS,
   ALLOWLIST_ELIGIBILITY_ADDRESS,
   ELIGIBILITY_CHAIN_ADDRESS,
   ERC20_ELIGIBILITY_ADDRESS,
   getTokenDecimals,
-  HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ABI,
   HSG_V2_ADDRESS,
+  MULTI_CLAIMS_HATTER_V1_ABI,
   MULTI_CLAIMS_HATTER_V2_ABI,
-  MULTI_CLAIMS_HATTER_V2_ADDRESS,
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ABI,
   ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
@@ -27,7 +27,16 @@ import {
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { compact, every, filter, find, includes, keys, map, reject, toNumber, toString } from 'lodash';
 import { CouncilFormData, CouncilHatIds, ToastProps } from 'types';
-import { Address, decodeEventLog, encodeFunctionData, encodePacked, parseUnits, PublicClient, zeroAddress } from 'viem';
+import {
+  Address,
+  decodeEventLog,
+  encodeFunctionData,
+  encodePacked,
+  Hex,
+  parseUnits,
+  PublicClient,
+  zeroAddress,
+} from 'viem';
 import { encodeAbiParameters } from 'viem';
 
 import { logger } from '../logs';
@@ -122,7 +131,7 @@ const processModule = async ({
 
   return publicClient
     .readContract({
-      address: HATS_MODULES_FACTORY_ADDRESS,
+      address: CONFIG.modules.factoryV7,
       abi: HATS_MODULES_FACTORY_ABI,
       functionName: 'getHatsModuleAddress',
       args: [implementation, hatId, localImmutableArgs, saltNonce],
@@ -214,7 +223,7 @@ const modules = ({
 
   const requiredModules: Record<string, Module> = {
     multiClaimsHatter: {
-      address: MULTI_CLAIMS_HATTER_V2_ADDRESS,
+      address: CONFIG.modules.claimsHatterV2,
       hatId: hatIds.topHat,
       args: [
         [{ type: 'uint256[]' }, { type: 'uint8[]' }],
@@ -253,17 +262,18 @@ export const compileModuleData = async ({
   hatIds,
   agreementCid,
   existingMch,
+  mchV2,
 }: {
   formData: CouncilFormData;
   hatIds: CouncilHatIds;
   agreementCid: string;
   existingMch: `0x${string}` | undefined;
+  mchV2: boolean;
 }) => {
   // Create public and wallet clients
   const chainId = toNumber(formData.chain.value);
   const publicClient = viemPublicClient(chainId);
   const claimableHats = [hatIds.councilMember, hatIds.complianceManager, hatIds.agreementManager];
-  console.log('existingMch', existingMch);
 
   // prep values for module creation
   const saltNonce = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
@@ -309,7 +319,7 @@ export const compileModuleData = async ({
   const saltNonces: bigint[] = compact(map(localModules, (module) => module?.saltNonce as bigint));
 
   // retrieve module addresses
-  const multiClaimsHatter = find(localModules, { implementation: MULTI_CLAIMS_HATTER_V2_ADDRESS })?.address;
+  const multiClaimsHatter = find(localModules, { implementation: CONFIG.modules.claimsHatterV2 })?.address;
   const councilMemberAllowlist = find(localModules, { implementation: ALLOWLIST_ELIGIBILITY_ADDRESS })?.address;
   const newComplianceAllowlist = find(
     localModules,
@@ -374,7 +384,7 @@ export const compileModuleData = async ({
     );
     eligibilityChainHatId = hatIds.councilMember;
     predictedEligibilityChainAddress = (await publicClient.readContract({
-      address: HATS_MODULES_FACTORY_ADDRESS,
+      address: CONFIG.modules.factoryV7,
       abi: HATS_MODULES_FACTORY_ABI,
       functionName: 'getHatsModuleAddress',
       args: [ELIGIBILITY_CHAIN_ADDRESS, eligibilityChainHatId, eligibilityChainImmutableArgs, saltNonce],
@@ -394,23 +404,21 @@ export const compileModuleData = async ({
     args: [implementations, moduleHatIds, immutableArgs, initArgs, saltNonces],
   });
 
-  // TODO migrate to check version and handle v7
   const claimableTypes = map(claimableHats, () => 2);
   const registerAndCreateModulesCalldata = encodeFunctionData({
-    abi: MULTI_CLAIMS_HATTER_V2_ABI,
+    abi: mchV2 ? MULTI_CLAIMS_HATTER_V2_ABI : MULTI_CLAIMS_HATTER_V1_ABI,
     functionName: 'setHatsClaimabilityAndCreateModules',
-    args: [
-      HATS_MODULES_FACTORY_ADDRESS, // TODO pass in factory v6 address
+    args: compact([
+      mchV2 ? CONFIG.modules.factoryV7 : CONFIG.modules.factoryV6,
       implementations,
       moduleHatIds,
       immutableArgs,
       initArgs,
-      saltNonces,
+      mchV2 ? saltNonces : undefined,
       claimableHats,
       claimableTypes,
-    ],
+    ]) as [Hex, Hex[], bigint[], Hex[], Hex[], bigint[], bigint[], number[]],
   });
-  console.log('registerAndCreateModulesCalldata', registerAndCreateModulesCalldata);
 
   const addresses = {
     multiClaimsHatter,
@@ -459,7 +467,6 @@ const hatsData = ({
   hatIds: CouncilHatIds;
   moduleAddresses: Record<moduleAddressType, string | undefined>;
 }): Hat[] => {
-  console.log('moduleAddresses', moduleAddresses);
   return [
     // {
     //   handle top hat separately

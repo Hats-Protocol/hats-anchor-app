@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gql, GraphQLClient } from 'graphql-request';
 import { get, toNumber } from 'lodash';
 import { SupportedChains } from 'types';
-import { viemPublicClient } from 'utils';
+import { logger, viemPublicClient } from 'utils';
 
 const OUT_OF_SYNC_THRESHOLD = 50;
 
@@ -23,13 +23,13 @@ const fetchSubgraphCheck = async (chainId: number) => {
 
   const mainSubgraphClient = new GraphQLClient(NETWORK_ENDPOINTS[chainId].endpoint, { timeout: 5000 });
   const mainSubgraphPromise = mainSubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
-    console.error(err);
+    logger.error(err);
     return null;
   });
 
   const ancillarySubgraphClient = new GraphQLClient(ancillaryApiUrl, { timeout: 5000 });
   const ancillarySubgraphPromise = ancillarySubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
-    console.error(err);
+    logger.error(err);
     return null;
   });
 

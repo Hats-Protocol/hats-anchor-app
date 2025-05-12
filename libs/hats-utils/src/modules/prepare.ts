@@ -64,7 +64,7 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     encodedMutableArgs = result.encodedMutableArgs || '0x';
   }
 
-  const nonce = customNonce || 0;
+  const nonce = customNonce ? customNonce : 1;
   return compact([
     mchV2 ? CONFIG.modules.factoryV7 : CONFIG.modules.factoryV6,
     selectedModuleDetails?.implementationAddress,
