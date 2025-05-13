@@ -41,7 +41,7 @@ const MainContent = ({
 
   const { claimableHats } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHat,
+    selectedHatId: selectedHat?.id,
     onchainHats,
     storedData,
     editMode,

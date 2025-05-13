@@ -7,8 +7,9 @@ import type { StepValidation } from 'types';
 import { logger } from 'utils';
 
 import { DeployStep } from './deploy-step';
-import { DetailsStep } from './deploy-step/details-step';
+import { DetailsStep } from './details-step';
 import { AgreementStep, ComplianceStep, ManagementStep, MembersStep, TokensStep } from './eligibility-step';
+import { FinishStep } from './finish-step';
 import { SelectionStep } from './select-step';
 import { ThresholdStep } from './threshold-step';
 import { findNextInvalidStep } from './utils';
@@ -70,6 +71,8 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
       }
     case 'deploy':
       return <DeployStep draftId={draftId} />;
+    case 'finish':
+      return <FinishStep />;
     default:
       return null;
   }

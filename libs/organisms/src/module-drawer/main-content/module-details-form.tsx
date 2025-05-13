@@ -63,7 +63,6 @@ const ModuleDetailsForm = ({
   }));
 
   if (!onchainTree || !treeToDisplay) return null;
-  console.log(watch());
 
   return (
     <div className='mx-8 mt-6 space-y-12'>

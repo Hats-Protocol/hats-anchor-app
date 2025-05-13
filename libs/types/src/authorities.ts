@@ -18,10 +18,11 @@ export type AuthorityInfo = {
 };
 
 export type HSGConfig = {
+  version: number;
   type: HsgType;
   minThreshold: string;
   targetThreshold: string;
-  maxSigners: string;
+  maxSigners: string | undefined;
   ownerHat?: {
     id: Hex;
   };
@@ -95,6 +96,8 @@ export interface HatAuthority {
   eligibilityTogglePassthrough: { id: Hex; hatId: Hex }[];
   hsgOwner: HatSignerGateV1[];
   hsgSigner: HatSignerGateV1[];
+  hsgV2Owner: HatSignerGateV2[];
+  hsgV2Signer: HatSignerGateV2[];
   jokeraceAdmin: { id: Hex; hatId: Hex }[];
   stakingJudge: { id: Hex; hatId: Hex }[];
   stakingRecipient: { id: Hex; hatId: Hex }[];

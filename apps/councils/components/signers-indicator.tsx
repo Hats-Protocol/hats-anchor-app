@@ -1,5 +1,5 @@
 import { isNumber, map } from 'lodash';
-// bg-gray-700
+
 const SignerIndicator = ({
   index,
   threshold,

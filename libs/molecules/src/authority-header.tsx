@@ -3,11 +3,11 @@
 import { AUTHORITY_ENFORCEMENT, AUTHORITY_PLATFORMS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useSelectedHat, useTreeForm } from 'contexts';
-import { useAllWearers, useHatDetails } from 'hats-hooks';
+import { useAllWearers, useHatDetails, useManyHatsDetails } from 'hats-hooks';
 import { currentHsgThreshold } from 'hats-utils';
 import { useMediaStyles, useSafeDetails } from 'hooks';
 import { BoxArrowUpRightOut } from 'icons';
-import { find, get, includes, keys, map, pick, reject, toLower } from 'lodash';
+import { find, get, includes, join, keys, map, pick, reject, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
@@ -35,7 +35,7 @@ const getHostnameLabel = (hostname: string) => {
   return HOSTNAME_LABELS[hostnameLabel as keyof typeof HOSTNAME_LABELS];
 };
 
-const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeaderProps) => {
+const AuthorityHeader = ({ authority, editingItem, isExpanded, totalMaxSupply }: AuthorityHeaderProps) => {
   const { label, link, type, hsgConfig } = pick(authority, ['label', 'link', 'type', 'hsgConfig']);
   const {
     label: currentLabel,
@@ -87,17 +87,26 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeader
     authority,
     hsgConfig,
     eligibleSigners,
+    totalMaxSupply,
   });
-  const firstSignerHatId = get(hsgConfig, 'signerHats[0].id');
-  const { data: signerHatDetails } = useHatDetails({
-    hatId: firstSignerHatId,
+  const { data: signerHatDetails } = useManyHatsDetails({
+    hats: get(hsgConfig, 'signerHats'),
     chainId,
   });
-  const signerHatName = useMemo(() => {
-    const detailsMetadata = get(signerHatDetails, 'detailsMetadata');
-    if (!detailsMetadata) return undefined;
-    const details = JSON.parse(detailsMetadata);
-    return get(details, 'data.name');
+  const signerHatsNames = useMemo(() => {
+    const detailsMetadata = map(signerHatDetails, 'detailsMetadata');
+    const details = map(detailsMetadata, (metadata) => {
+      if (!metadata) return undefined;
+      try {
+        return JSON.parse(metadata);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error parsing details metadata', error);
+      }
+    });
+    const names = map(details, 'data.name');
+    if (names.length === 0) return '';
+    return ` for ${join(names, ', ')}`;
   }, [signerHatDetails]);
 
   const enforcementIcon =
@@ -124,11 +133,15 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded }: AuthorityHeader
             {typeof label !== 'string' ? (
               label
             ) : (
-              <p className={cn('font-light', isExpanded ? (isMobile ? 'font-bold' : 'font-normal') : undefined)}>
+              <p
+                className={cn(
+                  'font-light',
+                  isExpanded ? (isMobile ? 'font-bold' : 'font-normal') : undefined,
+                  'max-w-[640px] truncate',
+                )}
+              >
                 {hsgThresholdText || currentLabel || label || 'New Authority'}
-                {signerHatName &&
-                  firstSignerHatId &&
-                  ` for ${signerHatName} (${hatIdDecimalToIp(hatIdHexToDecimal(firstSignerHatId))})`}
+                {signerHatsNames}
               </p>
             )}
           </div>
@@ -163,6 +176,7 @@ interface AuthorityHeaderProps {
   authority: Authority | undefined;
   editingItem?: Authority;
   isExpanded?: boolean;
+  totalMaxSupply?: number;
 }
 
 export { AuthorityHeader };

@@ -1,9 +1,9 @@
+import { CONFIG } from '@hatsprotocol/config';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
-import { CONFIG } from '@hatsprotocol/config';
 import { useIsAdmin } from 'hats-hooks';
-import _, { isEmpty } from 'lodash';
+import { compact, concat, filter, findIndex, first, flatMap, get, includes, isEmpty, map, uniq } from 'lodash';
 import { useMemo } from 'react';
 import { AppHat, FormData, ModuleDetails, SupportedChains } from 'types';
 import { createSubgraphClient, fetchWearerDetails } from 'utils';
@@ -42,22 +42,26 @@ const getHatterHat = async (
 ) => {
   if (!chainId) return {};
 
-  const onchainHatId = _.first(_.compact(_.map(claimsHatterData, 'claimableBy[0].id')));
+  const onchainHatId = first(compact(map(claimsHatterData, 'claimableBy[0].id')));
 
-  const claimsHatterIndex = _.findIndex(
+  const claimsHatterV1Index = findIndex(
     storedModuleDetails,
-    // TODO migrate to instance address
-    (result: Module) => _.get(result, 'name') === CONFIG.modules.claimsHatter,
+    (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV1,
   );
-  const storedDataHatId = _.get(storedData, `[${claimsHatterIndex}].id`);
+  const claimsHatterV2Index = findIndex(
+    storedModuleDetails,
+    (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV2,
+  );
+  const storedDataHatId = get(storedData, `[${claimsHatterV1Index}].id`);
+  const storedDataHatIdV3 = get(storedData, `[${claimsHatterV2Index}].id`);
 
-  const address = onchainHatId || storedDataHatId;
+  const address = onchainHatId || storedDataHatId || storedDataHatIdV3;
 
   if (address) {
     const result = await fetchWearerDetails(address, chainId);
 
     return {
-      wearingHat: _.get(result, 'currentHats.[0].id'),
+      wearingHat: get(result, 'currentHats.[0].id'),
       instanceAddress: address,
     };
   }
@@ -66,18 +70,18 @@ const getHatterHat = async (
 
 const useMultiClaimsHatterCheck = ({
   chainId,
-  selectedHat,
+  selectedHatId,
   onchainHats,
   storedData,
   editMode,
 }: {
   chainId: SupportedChains | undefined;
-  selectedHat?: AppHat | null;
+  selectedHatId: Hex | undefined;
   onchainHats: AppHat[] | undefined;
   storedData?: Partial<FormData>[] | undefined;
   editMode?: boolean;
 }) => {
-  const allHatIds = useMemo(() => _.map(onchainHats, 'id'), [onchainHats]);
+  const allHatIds = useMemo(() => map(onchainHats, 'id'), [onchainHats]);
 
   const {
     data: claimsHatterData,
@@ -93,24 +97,24 @@ const useMultiClaimsHatterCheck = ({
   const claimableHats: Hex[] | undefined = useMemo(() => {
     if (!claimsHatterData) return undefined;
 
-    return _.map(_.filter(claimsHatterData, 'claimableBy[0].id'), 'id');
+    return compact(map(filter(claimsHatterData, 'claimableBy[0].id'), 'id'));
   }, [claimsHatterData]);
   const claimableForHats: Hex[] | undefined = useMemo(() => {
     if (!claimsHatterData) return undefined;
 
-    return _.map(_.filter(claimsHatterData, 'claimableForBy[0].id'), 'id');
+    return map(filter(claimsHatterData, 'claimableForBy[0].id'), 'id');
   }, [claimsHatterData]);
   const currentHatIsClaimable = useMemo(() => {
-    if (!selectedHat || !claimableHats) return undefined;
+    if (!selectedHatId || !claimableHats) return undefined;
 
     return {
-      for: _.includes(claimableForHats, selectedHat?.id) || false,
-      by: _.includes(claimableHats, selectedHat?.id) || false,
+      for: includes(claimableForHats, selectedHatId) || false,
+      by: includes(claimableHats, selectedHatId) || false,
     };
-  }, [selectedHat, claimableHats, claimableForHats]);
+  }, [selectedHatId, claimableHats, claimableForHats]);
 
-  const storedAddresses = _.uniq(
-    _.compact(_.flatMap(storedData, ({ eligibility, toggle }: Partial<FormData>) => [eligibility, toggle])),
+  const storedAddresses = uniq(
+    compact(flatMap(storedData, ({ eligibility, toggle }: Partial<FormData>) => [eligibility, toggle])),
   );
 
   const { modulesDetails, isLoading: modulesLoading } = useModulesDetails({
@@ -119,22 +123,22 @@ const useMultiClaimsHatterCheck = ({
     editMode,
   });
 
-  const storedDataClaimableHats = _.compact(
-    _.map(modulesDetails, (data: ModuleDetails, index: number) => {
+  const storedDataClaimableHats = compact(
+    map(modulesDetails, (data: ModuleDetails, index: number) => {
       if (data) {
-        const hat = _.get(storedData, `[${index}].id`);
-        const parentId = _.get(hat, 'parentId');
+        const hat = get(storedData, `[${index}].id`);
+        const parentId = get(hat, 'parentId');
         if (!parentId) return null;
         const parentIpId = hatIdDecimalToIp(BigInt(parentId));
         // if parent is top hat then hat cannot be permissionlessly claimed
         if (!parentIpId.includes('.')) return null;
-        return _.get(storedData, `[${index}].id`);
+        return get(storedData, `[${index}].id`);
       }
       return null;
     }),
   );
 
-  const hats = _.uniq(_.concat(claimableHats, storedDataClaimableHats));
+  const hats = compact(uniq(concat(claimableHats, storedDataClaimableHats)));
 
   const {
     data: hatterHat,
@@ -143,7 +147,7 @@ const useMultiClaimsHatterCheck = ({
   } = useQuery({
     queryKey: [
       'hatterHat',
-      { chainId, hats: _.map(claimsHatterData, 'id') },
+      { chainId, hats: map(claimsHatterData, 'id') },
       { storedModulesDetailsData: modulesDetails, storedData },
     ],
     queryFn: () => getHatterHat(claimsHatterData, modulesDetails, storedData, chainId),
@@ -157,7 +161,7 @@ const useMultiClaimsHatterCheck = ({
   });
   const hatterIsAdmin = useIsAdmin({
     address: hatterHat?.instanceAddress,
-    hatId: selectedHat?.id,
+    hatId: selectedHatId as Hex,
     chainId,
   });
 
@@ -165,6 +169,7 @@ const useMultiClaimsHatterCheck = ({
     multiClaimsHatter: details,
     wearingHat: hatterHat?.wearingHat,
     instanceAddress: hatterHat?.instanceAddress,
+    mchV2: details?.implementationAddress === CONFIG.modules.claimsHatterV2,
     hatterIsAdmin,
     currentHatIsClaimable,
     claimableHats: hats,

@@ -59,7 +59,7 @@ export const useClaimFn = ({
     hatterIsAdmin,
   } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHat,
+    selectedHatId: selectedHat?.id,
     onchainHats: selectedHat ? [selectedHat] : [],
   });
 

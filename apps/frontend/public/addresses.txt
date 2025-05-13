@@ -7,6 +7,7 @@
 
 // MCH
 0xB985eA1be961f7c4A4C45504444C02c88c4fdEF9 MCH v1 implementation
+0xBf931B514DECA60Fd386dEC2DCBd42650c7417d9 MCH v2 implementation
 
 // Agreement
 0xF6bc6Dd30403e6ff5b3Bebead32B8fce1b753aA1 Agreement v0.1.0

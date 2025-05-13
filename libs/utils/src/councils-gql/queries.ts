@@ -20,6 +20,15 @@ export const ORGANIZATION_BY_NAME_QUERY = gql`
   ${ORGANIZATION_COUNCIL_FRAGMENT}
 `;
 
+export const GET_USER_ORGANIZATIONS = gql`
+  query GetUserOrganizations($userAddress: String!) {
+    organizations(where: { userAddress: $userAddress }) {
+      ...OrganizationCouncilFragment
+    }
+  }
+  ${ORGANIZATION_COUNCIL_FRAGMENT}
+`;
+
 export const ORGANIZATIONS_QUERY = gql`
   query Organizations {
     organizations {

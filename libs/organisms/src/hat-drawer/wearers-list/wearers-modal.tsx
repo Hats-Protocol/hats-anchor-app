@@ -77,12 +77,13 @@ const FullWearersListModal = ({
         ) : (
           <ScrollArea className='max-h-[600px]'>
             {map(paginatedWearers, (w: HatWearer) => (
-              <WearerRow
-                key={w.id}
-                wearer={w}
-                setChangeStatusWearer={setChangeStatusWearer}
-                setWearerToTransferFrom={setWearerToTransferFrom}
-              />
+              <div className='mb-2' key={w.id}>
+                <WearerRow
+                  wearer={w}
+                  setChangeStatusWearer={setChangeStatusWearer}
+                  setWearerToTransferFrom={setWearerToTransferFrom}
+                />
+              </div>
             ))}
           </ScrollArea>
         )}

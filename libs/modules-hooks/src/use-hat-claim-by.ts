@@ -57,11 +57,14 @@ const useHatClaimBy = ({ selectedHat, chainId, wearer, handlePendingTx, afterSuc
       if (!moduleClient) return;
       const modules = moduleClient?.getModules();
       if (!modules) return;
-      const moduleData = find(modules, {
-        name: CONFIG.modules.claimsHatter,
+      const moduleV1Data = find(modules, {
+        implementationAddress: CONFIG.modules.claimsHatterV1,
       });
-      if (!moduleData) return;
-      setClaimsHatter(moduleData);
+      const moduleV3Data = find(modules, {
+        implementationAddress: CONFIG.modules.claimsHatterV2,
+      });
+      if (!moduleV1Data && !moduleV3Data) return;
+      setClaimsHatter(moduleV3Data || moduleV1Data);
     };
     getHatter();
   }, [chainId, currentChainId]);

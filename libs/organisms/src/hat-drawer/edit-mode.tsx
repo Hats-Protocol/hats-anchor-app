@@ -1,33 +1,46 @@
 'use client';
 
 import { CONFIG } from '@hatsprotocol/config';
-import { CONTROLLER_TYPES, FORM_FIELDS } from '@hatsprotocol/constants';
-import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
+import { CONTROLLER_TYPES, FORM_FIELDS, HATS_MODULES_FACTORY_ABI } from '@hatsprotocol/constants';
+import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { AuthoritiesListForm, HatBasicsForm, HatManagementForm, HatWearerForm, ResponsibilitiesForm } from 'forms';
 import { isMutableNotTopHat, isTopHat, isTopHatOrMutable } from 'hats-utils';
-import { useClipboard } from 'hooks';
-import { find, get, toLower } from 'lodash';
+import { useClipboard, useToast } from 'hooks';
+import { compact, concat, find, get, map, toLower, uniq } from 'lodash';
+import { useHatsModules, useMultiClaimsHatterCheck } from 'modules-hooks';
 import { HatFormAccordion } from 'molecules';
 import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
 import { Button, Link, Slide, Tooltip } from 'ui';
-import { ipfsUrl } from 'utils';
+import { ipfsUrl, viemPublicClient } from 'utils';
+import { encodeAbiParameters, Hex, parseEventLogs } from 'viem';
+import { useWriteContract } from 'wagmi';
 
 import { ModuleDrawer } from '../module-drawer';
 
 const EditMode = () => {
   const { drawers, setDrawers } = useOverlay();
-  const { treeToDisplay } = useTreeForm();
+  const { treeToDisplay, chainId } = useTreeForm();
+  const { toast } = useToast();
   const { selectedHat, isDraft } = useSelectedHat();
   const { getDirtyFieldsForAccordion, handleSave: onSave } = useHatForm();
+  const { modules } = useHatsModules({ chainId: selectedHat?.chainId });
   const [isStandaloneHatterDeploy, setIsStandAloneHatterDeploy] = useState(false);
 
   const { onCopy: copyHatId } = useClipboard(selectedHat?.id || '', {
     toastData: { title: 'Copied Hat ID to clipboard' },
   });
+
+  const { claimableHats, claimableForHats, mchV2, instanceAddress } = useMultiClaimsHatterCheck({
+    chainId: selectedHat?.chainId,
+    selectedHatId: selectedHat?.id,
+    onchainHats: treeToDisplay,
+  });
+
+  const { writeContractAsync } = useWriteContract();
 
   const name = get(find(treeToDisplay, { id: selectedHat?.id }), 'displayName');
 
@@ -36,6 +49,59 @@ const EditMode = () => {
   const openModuleDrawer = (type: string) => {
     onSave(false);
     setDrawers?.({ [toLower(type) || 'eligibility']: true });
+  };
+
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
+  const migrateMchV2 = async () => {
+    const mchModule = find(modules, { implementationAddress: CONFIG.modules.claimsHatterV2 });
+    if (!mchModule) {
+      toast({
+        title: 'MCH v2 module not found',
+        description: 'Please deploy the MCH v2 module first',
+      });
+      return;
+    }
+    if (!chainId) return; // TODO better return
+
+    const getClaimableHats = (claimableHats: Hex[] | undefined, claimableForHats: Hex[] | undefined) => {
+      const allHats = compact(uniq(concat(claimableHats, claimableForHats))).sort();
+      return map(compact(allHats), (hat) => hatIdHexToDecimal(hat));
+    };
+    const getClaimabilityTypes = (claimableHats: Hex[] | undefined, claimableForHats: Hex[] | undefined) => {
+      const allHats = compact(uniq(concat(claimableHats, claimableForHats))).sort();
+      const result = map(allHats, (hat) => {
+        if (claimableForHats?.includes(hat)) {
+          return 2;
+        }
+        return 1; // not handling non-claimable hats rn
+      });
+      return result;
+    };
+
+    const initArgs = encodeAbiParameters(
+      [{ type: 'uint256[]' }, { type: 'uint8[]' }],
+      [getClaimableHats(claimableHats, claimableForHats), getClaimabilityTypes(claimableHats, claimableForHats)],
+    );
+
+    const hash = await writeContractAsync({
+      address: CONFIG.modules.factoryV7,
+      abi: HATS_MODULES_FACTORY_ABI,
+      functionName: 'createHatsModule',
+      args: [CONFIG.modules.claimsHatterV2, hatIdHexToDecimal(selectedHat?.id), '0x', initArgs, BigInt(1)],
+    });
+
+    const client = viemPublicClient(chainId);
+    const txData = await client.waitForTransactionReceipt({ hash });
+
+    const events = parseEventLogs({
+      logs: txData.logs,
+      abi: HATS_MODULES_FACTORY_ABI,
+      eventName: 'HatsModuleFactory_ModuleDeployed',
+    });
+    const mchAddress = get(events, '[0].args.instance');
+    console.log({ mchAddress });
+    // TODO: assign mch v2 as wearer, user can handle removing old mch
   };
 
   return (
@@ -232,7 +298,7 @@ const EditMode = () => {
           </HatFormAccordion>
         )}
 
-        {posthog?.isFeatureEnabled('dev') && (
+        {isDev && (
           <div className='w-full space-y-4'>
             <div className='flex items-center gap-2'>
               <p className='text-sm font-medium'>Image URI:</p>
@@ -248,6 +314,14 @@ const EditMode = () => {
                 <p className='max-w-[350px] truncate'>{selectedHat?.details !== '' ? selectedHat?.details : 'Empty'}</p>
               </Link>
             </div>
+
+            {instanceAddress && !mchV2 && (
+              <div>
+                <Button onClick={() => migrateMchV2()} variant='outline-blue' size='sm'>
+                  Migrate MCH v0.2
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

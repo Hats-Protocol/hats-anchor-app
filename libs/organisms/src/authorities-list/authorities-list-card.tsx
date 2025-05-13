@@ -2,9 +2,10 @@
 
 import { AUTHORITY_ENFORCEMENT, AUTHORITY_TYPES } from '@hatsprotocol/constants';
 import { useSelectedHat, useTreeForm } from 'contexts';
+import { useManyHatsDetails } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { BoxArrowUpRightOut, CheckCircle } from 'icons';
-import { get, includes, pick, size } from 'lodash';
+import { get, includes, map, pick, size, sum, toNumber } from 'lodash';
 import { HSGDetails, ModuleCardDetails } from 'modules-ui';
 import { AuthorityHeader } from 'molecules';
 import posthog from 'posthog-js';
@@ -27,12 +28,13 @@ const AuthoritiesListCard = ({
   openCards: string[];
   index: number;
 }) => {
-  const { label, description, link, gate, strategies, hatId } = pick(authority, [
+  const { label, description, link, gate, strategies, hatId, hsgConfig } = pick(authority, [
     'label',
     'description',
     'link',
     'gate',
     'strategies',
+    'hsgConfig',
     'hatId',
   ]);
   const expanded = includes(openCards, `${authority?.label}-${authority?.id}`);
@@ -42,6 +44,12 @@ const AuthoritiesListCard = ({
   const { isMobile } = useMediaStyles();
   const { chainId } = useTreeForm();
   const { selectedHat } = useSelectedHat();
+
+  const { data: signerHatsDetails } = useManyHatsDetails({
+    hats: hsgConfig?.signerHats,
+    chainId,
+  });
+  const hsgTotalMaxSupply = sum(map(signerHatsDetails, (hat) => toNumber(hat.maxSupply)));
 
   // consolidate with util in AuthorityHeader
   const discordHosts = ['discord.gg', 'discord.com'];
@@ -114,7 +122,7 @@ const AuthoritiesListCard = ({
         )}
       >
         <div className='py-2 text-base'>
-          <AuthorityHeader authority={authority} isExpanded={expanded} />
+          <AuthorityHeader authority={authority} isExpanded={expanded} totalMaxSupply={hsgTotalMaxSupply} />
         </div>
         {/* {isMobile && <AccordionIcon mr={expanded ? 1 : 0} color='blackAlpha.600' />} */}
         {/* {expanded && !isMobile && <Collapse className='absolute bottom-[-2px] right-4 h-4 w-4' />} */}
@@ -208,7 +216,12 @@ const AuthoritiesListCard = ({
           )}
           {type === AUTHORITY_TYPES.hsg && authority?.hsgConfig && (
             <div className='pb-3 pt-2'>
-              <HSGDetails hsgConfig={authority.hsgConfig} selectedHat={selectedHat} chainId={chainId} />
+              <HSGDetails
+                hsgConfig={authority.hsgConfig}
+                selectedHat={selectedHat}
+                chainId={chainId}
+                signerHatsDetails={signerHatsDetails}
+              />
             </div>
           )}
           {type === AUTHORITY_TYPES.modules && (

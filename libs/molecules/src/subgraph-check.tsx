@@ -2,7 +2,7 @@
 
 import { chainsList } from '@hatsprotocol/config';
 import { useSubgraphCheck } from 'hooks';
-import { first, map, pick, values } from 'lodash';
+import { first, map, pick, trim, truncate, values } from 'lodash';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { cn, Skeleton } from 'ui';
@@ -14,11 +14,21 @@ const chainsMap = (chainId?: number) =>
 
 const SubgraphCheck = ({ chainId }: { chainId: number }) => {
   const { data, isLoading } = useSubgraphCheck(chainId);
-  const { mainSubgraph, mainSubgraphOutOfSync, ancillarySubgraph, ancillarySubgraphOutOfSync, chain } = pick(data, [
+  const {
+    mainSubgraph,
+    mainSubgraphOutOfSync,
+    mainVersion,
+    ancillarySubgraph,
+    ancillarySubgraphOutOfSync,
+    ancillaryVersion,
+    chain,
+  } = pick(data, [
     'mainSubgraph',
     'mainSubgraphOutOfSync',
+    'mainVersion',
     'ancillarySubgraph',
     'ancillarySubgraphOutOfSync',
+    'ancillaryVersion',
     'chain',
   ]);
 
@@ -28,14 +38,16 @@ const SubgraphCheck = ({ chainId }: { chainId: number }) => {
         name: 'Main Subgraph',
         value: mainSubgraph,
         outOfSync: mainSubgraphOutOfSync,
+        version: mainVersion,
       },
       {
         name: 'Ancillary Subgraph',
         value: ancillarySubgraph,
         outOfSync: ancillarySubgraphOutOfSync,
+        version: ancillaryVersion,
       },
     ],
-    [mainSubgraph, mainSubgraphOutOfSync, ancillarySubgraph, ancillarySubgraphOutOfSync],
+    [mainSubgraph, mainSubgraphOutOfSync, mainVersion, ancillarySubgraph, ancillarySubgraphOutOfSync, ancillaryVersion],
   );
 
   if (isLoading || !data) return <Skeleton className='h-[100px] w-full' />;
@@ -48,10 +60,13 @@ const SubgraphCheck = ({ chainId }: { chainId: number }) => {
         <div className='w-[100px] text-right'>{chain}</div>
       </div>
 
-      {map(SUBGRAPHS, ({ name, value, outOfSync }) => {
+      {map(SUBGRAPHS, ({ name, value, outOfSync, version }) => {
         return (
           <div className='flex w-full justify-between gap-4' key={name}>
-            <h5 className='w-[150px] text-sm'>{name}</h5>
+            <div className='flex w-[300px] items-center gap-2'>
+              <h5 className='text-sm'>{name}</h5>
+              {version && <p className='text-sm text-gray-500'>- {trim(truncate(version, { length: 18 }))}</p>}
+            </div>
 
             <div className={cn('w-[100px] text-right', outOfSync || !value ? 'font-medium text-red-500' : '')}>
               {value || 'Crashed'}

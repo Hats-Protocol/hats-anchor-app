@@ -34,10 +34,12 @@ const useWaitForSubgraph = ({
   chainId,
   sendToast = false,
   interval = 1000,
+  waitTimeout = SUBGRAPH_WAIT_TIMEOUT,
 }: {
   chainId: number | undefined;
   sendToast?: boolean;
   interval?: number;
+  waitTimeout?: number;
 }) => {
   const { toast } = useToast();
 
@@ -88,7 +90,7 @@ const useWaitForSubgraph = ({
       setTimeout(() => {
         clearInterval(intervalId);
         return reject(new Error('Subgraph wait timeout'));
-      }, SUBGRAPH_WAIT_TIMEOUT);
+      }, waitTimeout);
     });
 
   return waitForBlock;

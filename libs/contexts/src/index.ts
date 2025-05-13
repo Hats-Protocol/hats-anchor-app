@@ -1,5 +1,6 @@
 // local components to avoid circular dependencies with `ui` package
 export * from './components';
+export * from './pro-hooks'; // pro hooks are getting circular with modules-hooks, hats-hooks and hooks
 // actual context exports
 export * from './beta-features-context';
 export * from './council-form';
