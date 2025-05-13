@@ -1,8 +1,7 @@
 import { NETWORK_ENDPOINTS } from '@hatsprotocol/config';
-import { modules } from '@hatsprotocol/constants';
 import { HatsAccount1ofNClient } from '@hatsprotocol/hats-account-sdk';
 import { HatsSignerGateClient } from '@hatsprotocol/hsg-sdk';
-import { HatsModulesClient, Registry } from '@hatsprotocol/modules-sdk';
+import { HatsModulesClient } from '@hatsprotocol/modules-sdk';
 import { HatsClient } from '@hatsprotocol/sdk-v1-core';
 import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph';
 import { createPublicClient, http, PublicClient, WalletClient } from 'viem';
@@ -74,7 +73,7 @@ export async function createHatsModulesClient(
       publicClient,
       walletClient,
     });
-    await client.prepare({ modules } as Registry);
+    await client.prepare();
 
     return Promise.resolve(client);
   }
@@ -88,7 +87,7 @@ export async function createHatsModulesClient(
 
       // Will look up all modules in registry but can be configured to
       // handle a specific module if passed as argument
-      await hatsModulesClient.prepare({ modules } as Registry);
+      await hatsModulesClient.prepare();
 
       return Promise.resolve(hatsModulesClient);
     })
@@ -97,7 +96,7 @@ export async function createHatsModulesClient(
         publicClient,
       });
 
-      await modulesClient.prepare({ modules } as Registry);
+      await modulesClient.prepare();
 
       return Promise.resolve(modulesClient);
     });
