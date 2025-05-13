@@ -2,13 +2,7 @@
 
 import { chainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
-import {
-  useAuthGuard,
-  useCrossChainAllowlist,
-  useCrossChainCouncilsListOld,
-  useCrossChainWearer,
-  useMediaStyles,
-} from 'hooks';
+import { useAuthGuard, useCrossChainAllowlist, useCrossChainWearer, useMediaStyles } from 'hooks';
 import { flatten, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
 import { HatSignerGateV2 } from 'types';
@@ -18,6 +12,7 @@ import { NETWORKS_PREFIX } from 'utils/src/subgraph/mesh/queries/constants';
 import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
+import { useCrossChainCouncilsListOld } from '../hooks';
 import { CouncilHeaderCard } from './council-header';
 
 // ! DEPRECATED

@@ -105,6 +105,7 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded, totalMaxSupply }:
       }
     });
     const names = map(details, 'data.name');
+    if (names.length === 0) return '';
     return ` for ${join(names, ', ')}`;
   }, [signerHatDetails]);
 

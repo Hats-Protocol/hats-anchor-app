@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 // import Script from 'next/script';
 import { ReactNode } from 'react';
 
+import { Banner } from '../components/banner';
 import { Navbar } from '../components/navbar';
 import Providers from './providers';
 
@@ -32,6 +33,7 @@ const RootLayout = ({ children }: RootLayoutProps) => (
     <body className='font-inter text-black/80'>
       <div className='relative min-h-screen bg-gray-100'>
         <Providers>
+          <Banner />
           <Navbar />
 
           <div className='w-screen'>{children}</div>

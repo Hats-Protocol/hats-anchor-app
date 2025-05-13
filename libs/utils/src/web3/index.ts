@@ -31,10 +31,6 @@ export const viemPublicClient = (chainId: number): PublicClient => {
   }) as PublicClient;
 };
 
-export const viemWalletClient = async (chainId: number) => {
-  return await getWalletClient(wagmiConfig());
-};
-
 export async function createHatsClient(
   chainId: number | undefined,
   walletClient?: WalletClient | undefined,
