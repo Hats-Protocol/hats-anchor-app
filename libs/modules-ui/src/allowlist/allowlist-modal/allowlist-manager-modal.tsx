@@ -1,14 +1,14 @@
 'use client';
 
 // import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { useOverlay, useTreeForm } from 'contexts';
+import { ModalDescription, ModalTitle, useOverlay, useTreeForm } from 'contexts';
 import { useHatDetails, useProfileDetails } from 'hats-hooks';
 import { compact, concat, find, map, pick, reject, toString } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import { useCallback, useMemo, useState } from 'react';
 import { get, useForm } from 'react-hook-form';
 import { AllowlistProfile, ModuleDetails } from 'types';
-import { Link } from 'ui';
+import { Link, VisuallyHidden } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { Hex } from 'viem';
 
@@ -128,6 +128,12 @@ const AllowlistManagerModal = ({
       devInfo={<DevInfo moduleDescriptors={devInfo} />}
       onClose={handleClose}
     >
+      <VisuallyHidden>
+        <ModalTitle>{heading}</ModalTitle>
+        <ModalDescription>
+          This is the allowlist for {hatName}. You can add or remove wearers from the allowlist.
+        </ModalDescription>
+      </VisuallyHidden>
       <ProfileList
         hat={hat}
         heading={heading}

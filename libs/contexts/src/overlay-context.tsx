@@ -27,7 +27,7 @@ const defaultDrawers: AppModals = {
   hat: false,
 };
 
-const MAX_TREES = 3;
+const MAX_TREES = 6;
 
 export const OverlayContext = createContext<OverlayContextProps>({
   setModals: undefined,

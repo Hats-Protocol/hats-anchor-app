@@ -1,3 +1,5 @@
+'use client';
+
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -143,8 +145,6 @@ const AllowlistManager = ({
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   if (!m) return null;
-
-  logger.debug('criteriaModule', { instanceAddress: m.instanceAddress, criteriaModule });
 
   if (isCompliance) {
     return (

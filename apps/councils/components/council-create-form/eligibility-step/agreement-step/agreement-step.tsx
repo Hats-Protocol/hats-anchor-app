@@ -3,7 +3,7 @@
 import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { useCouncilForm } from 'contexts';
 import { Form, MarkdownEditor, RadioCard, RadioCardOption } from 'forms';
-import { filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
+import { compact, filter, find, flatten, get, map, pick, reject, uniq, uniqBy } from 'lodash';
 import { FilePlus, FileText } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
@@ -74,6 +74,7 @@ export function AgreementStep({ onNext }: StepProps) {
   const existingAgreements = useMemo(() => {
     const rawCouncilsWithAgreements = councilsData?.map((council) => {
       return flatten(council.eligibilityRules).find(
+        // TODO ignore councils without eligibility rules?
         (rule) => getKnownEligibilityModule(rule.module.implementationAddress as Hex) === 'agreement',
       );
     });
@@ -83,6 +84,7 @@ export function AgreementStep({ onNext }: StepProps) {
 
     // we want to get the councils that are associated with each agreement
     const agreementsWithCouncilData = councilsWithAgreements.map((agreement) => {
+      if (!agreement) return null;
       return {
         ...agreement,
         councils: councilsData?.filter((council) =>
@@ -91,7 +93,7 @@ export function AgreementStep({ onNext }: StepProps) {
       };
     });
 
-    return agreementsWithCouncilData;
+    return compact(agreementsWithCouncilData);
   }, [councilsData]);
 
   // Extract unique organization managers from existing councils and set to admins if councilsData is undefined (fresh org)
@@ -193,6 +195,7 @@ export function AgreementStep({ onNext }: StepProps) {
 
     return uniqBy(preExistingOptions, 'value');
   }, [councilsData]);
+  console.log('existingAgreements', existingAgreements);
 
   // Create radio options from existing agreements and add the "Create new" option
   const agreementOptions = useMemo(

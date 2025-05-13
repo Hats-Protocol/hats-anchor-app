@@ -13,12 +13,12 @@ export const TERMS = {
   hats: 'roles',
   tree: 'tree',
   trees: 'trees',
+  // pins
   responsibility: 'responsibility',
   responsibilities: 'responsibilities',
   authority: 'authority',
   authorities: 'authorities',
-  // permission: 'permission',
-  // permissions: 'permissions',
+  // controllers
   eligibility: 'eligibility',
   eligibilities: 'eligibilities',
   toggle: 'toggle',
@@ -38,9 +38,10 @@ export const CONFIG: Config = {
   banner: false,
   // modules
   modules: {
-    factory: '0xfE661c01891172046feE16D3a57c3Cf456729efA',
-    // factory: '0x0a3f85fa597B6a967271286aA0724811acDF5CD9', // new factory
-    claimsHatter: 'Multi Claims Hatter', // move to implementation address
+    factoryV6: '0xfE661c01891172046feE16D3a57c3Cf456729efA', // previous factory
+    factoryV7: '0x0a3f85fa597B6a967271286aA0724811acDF5CD9', // new factory, uses nonce
+    claimsHatterV1: '0xB985eA1be961f7c4A4C45504444C02c88c4fdEF9', // mch v1 compatible with factory v6
+    claimsHatterV2: '0xBf931B514DECA60Fd386dEC2DCBd42650c7417d9', // mch v2 compatible with factory v7
   },
   // Hats Protocol Community Hat Agreement v0
   agreementV0: {
@@ -96,8 +97,11 @@ type Config = {
   };
 
   modules: {
-    factory: Hex;
-    claimsHatter: string;
+    factoryV6: Hex;
+    factoryV7: Hex;
+    claimsHatterV1: Hex;
+    claimsHatterV2: Hex;
+    // claimsHatterV3: string; // with hooks
   };
 
   TERMS: {

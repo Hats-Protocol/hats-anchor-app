@@ -42,13 +42,15 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
     stepValidation,
     deployCouncil,
     deployHats,
-    deployModules,
+    // deployModules,
+    deployModulesWithMch,
     deployHsg,
     simulateCouncil,
     isDeploying,
     canEdit,
     deployStatus,
     simulateHats,
+    tree,
     // isLoading,
   } = useCouncilForm();
   const formData = form.getValues();
@@ -174,13 +176,12 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   };
 
   if (some(deployStatus, (value) => value)) {
-    // TODO better check for `firstCouncil`
     return (
       <Deploy
         deployStatus={deployStatus}
-        firstCouncil={!!simulateCouncil?.data}
+        firstCouncil={!tree}
         draftId={draftId}
-        deployModules={deployModules}
+        deployModules={deployModulesWithMch}
         deployHsg={deployHsg}
       />
     );

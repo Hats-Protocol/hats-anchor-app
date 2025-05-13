@@ -36,7 +36,7 @@ const AllowlistForms = ({
   const addressesToAdd = watch('addresses');
   const { openConnectModal } = useConnectModal();
 
-  const { abi, id: moduleId } = pick(moduleInfo, ['abi', 'id']);
+  const { abi, instanceAddress, id: moduleId } = pick(moduleInfo, ['abi', 'instanceAddress', 'id']);
 
   const ownerHat = get(find(moduleParameters, { label: 'Owner Hat' }), 'value');
   const judgeHat = get(find(moduleParameters, { label: 'Arbitrator Hat' }), 'value');
@@ -66,8 +66,8 @@ const AllowlistForms = ({
     setIsLoading(true);
     const removeAddresses = map(updateList, (p) => p.id);
     return writeContractAsync({
-      address: moduleId,
-      abi: abi,
+      address: instanceAddress as Hex,
+      abi,
       functionName: 'removeAccounts',
       args: [removeAddresses],
     })
@@ -103,13 +103,13 @@ const AllowlistForms = ({
   };
 
   const handleSetWearersStanding = useCallback(async () => {
-    if (!moduleInfo.instanceAddress) return;
+    if (!instanceAddress || !abi) return; // TODO error toast?
     setIsLoading(true);
     const standings = map(updateList, () => false); // standing = false
     const addresses = map(updateList, (account) => get(account, 'id'));
     const tx = await writeContractAsync({
-      address: moduleInfo.instanceAddress,
-      abi: moduleInfo.abi,
+      address: instanceAddress as Hex,
+      abi,
       functionName: 'setStandingForAccounts',
       args: [addresses, standings],
     });
@@ -124,8 +124,8 @@ const AllowlistForms = ({
     setUpdateList,
     chainId,
     updateList,
-    moduleInfo.abi,
-    moduleInfo.instanceAddress,
+    abi,
+    instanceAddress,
     // writeContractAsync,
     setUpdating,
   ]);
@@ -137,13 +137,13 @@ const AllowlistForms = ({
   };
 
   const handleAddWearers = useCallback(async () => {
-    if (!moduleInfo.instanceAddress) return;
+    if (!instanceAddress) return;
     setIsLoading(true);
     // TODO catch error
     const addresses = map(addressesToAdd, (account) => get(account, 'address'));
     return writeContractAsync({
-      address: moduleInfo.instanceAddress,
-      abi: moduleInfo.abi,
+      address: instanceAddress as Hex,
+      abi,
       functionName: 'addAccounts',
       args: [addresses],
     })
@@ -168,8 +168,8 @@ const AllowlistForms = ({
     chainId,
     // writeContractAsync,
     // setValue,
-    moduleInfo.abi,
-    moduleInfo.instanceAddress,
+    instanceAddress,
+    abi,
   ]);
 
   return (

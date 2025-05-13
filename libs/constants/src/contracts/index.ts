@@ -7,6 +7,7 @@ export * from './hats-module-interface';
 export * from './hats-modules-factory';
 export * from './hats-signer-gate-v2';
 export * from './multi-claims-hatter-v1';
+export * from './multi-claims-hatter-v2';
 export * from './multicall3';
 export * from './safe';
 export * from './safe-module-factory';

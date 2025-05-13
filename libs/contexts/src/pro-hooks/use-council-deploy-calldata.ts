@@ -1,14 +1,15 @@
-import {
-  HATS_MODULES_FACTORY_ADDRESS,
-  MULTICALL3_ADDRESS,
-  ZODIAC_MODULE_PROXY_FACTORY_ADDRESS,
-} from '@hatsprotocol/constants';
-import { FALLBACK_ADDRESS, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
+'use client';
+
+import { CONFIG } from '@hatsprotocol/config';
+import { MULTICALL3_ADDRESS, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/constants';
+import { FALLBACK_ADDRESS, hatIdDecimalToHex, HATS_V1, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from 'hooks';
 import { pick, toNumber } from 'lodash';
+import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import showdown from 'showdown';
-import { CouncilFormData } from 'types';
+import { CouncilFormData, SupportedChains } from 'types';
 import {
   compileHatCreationData,
   compileHatIds,
@@ -21,21 +22,31 @@ import {
   pinFileToIpfs,
   simulateSafeAddress,
 } from 'utils';
-
-import { useToast } from './use-toast';
+import { hexToNumber } from 'viem';
 
 const converter = new showdown.Converter();
 
 type UseCouncilDeployCalldataProps = {
   formData: CouncilFormData;
   tree: Tree | null | undefined;
+  treeLoading: boolean;
 };
 
-const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataProps) => {
+const useCouncilDeployCalldata = ({ formData, tree, treeLoading }: UseCouncilDeployCalldataProps) => {
   const { toast } = useToast();
 
   // assembling module list and removing if they already exist, but we need to know better if they exist
   // object notation for the requirements may make this easier
+
+  const {
+    instanceAddress,
+    mchV2,
+    isLoading: isLoadingMultiClaimsHatterCheck,
+  } = useMultiClaimsHatterCheck({
+    chainId: toNumber(formData.chain?.value) as SupportedChains,
+    selectedHatId: tree?.id ? hatIdDecimalToHex(treeIdToTopHatId(hexToNumber(tree.id))) : undefined,
+    onchainHats: tree?.hats,
+  });
 
   const computeCalldata = async () => {
     // logger.debug('compiling calldata for council deployment');
@@ -79,9 +90,11 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
       formData,
       hatIds: computedHatIds,
       agreementCid,
+      existingMch: instanceAddress,
+      mchV2,
     })
-      .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs }) => {
-        // logger.debug('MODULES CALLLDATA', !!modulesCalldata, moduleAddresses);
+      .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs, mchArgs, mchCallData }) => {
+        // logger.debug('MODULES CALLDATA', !!modulesCalldata, moduleAddresses);
 
         // compile create hats data
         return compileHatCreationData({
@@ -145,7 +158,7 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
                 };
 
                 const modulesCall = {
-                  target: HATS_MODULES_FACTORY_ADDRESS,
+                  target: CONFIG.modules.factoryV7,
                   allowFailure: false,
                   callData: modulesCalldata,
                 };
@@ -167,11 +180,16 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
 
                 return Promise.resolve({
                   modulesCalldata,
+                  mchArgs: {
+                    ...mchArgs,
+                    mchV2,
+                  },
                   hatsProtocolCallData,
                   transferTopHatCallData,
                   hsgV2Calldata,
                   calls,
                   moduleArgs,
+                  mchCallData,
                   hsgArgs,
                   hatIds: computedHatIds,
                   moduleAddresses,
@@ -195,18 +213,30 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
   };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['council-deploy-calldata', formData, tree],
+    queryKey: ['council-deploy-calldata', { formData, tree, instanceAddress }],
     queryFn: computeCalldata,
-    enabled: !!formData,
+    enabled: !!formData && !treeLoading && !isLoadingMultiClaimsHatterCheck,
   });
+
   // TODO: handle this
-  // @ts-expect-error handle missing keys
-  const { hatsProtocolCallData, calls, moduleArgs, hsgArgs, hatIds, moduleAddresses, hatsToCreate } = pick(data, [
+  const {
+    hatsProtocolCallData,
+    calls,
+    moduleArgs,
+    hsgArgs,
+    hatIds,
+    moduleAddresses,
+    hatsToCreate,
+    mchArgs,
+    mchCallData,
+  } = pick(data as any, [
     'calls', // multicall calldata
     // separate calls
     'hatsProtocolCallData',
     'moduleArgs',
     'hsgArgs',
+    'mchArgs',
+    'mchCallData',
     // computed hat IDs and module addresses
     'hatIds',
     'moduleAddresses',
@@ -218,6 +248,8 @@ const useCouncilDeployCalldata = ({ formData, tree }: UseCouncilDeployCalldataPr
     calls,
     moduleArgs,
     hsgArgs,
+    mchArgs,
+    mchCallData,
     hatIds,
     moduleAddresses,
     hatsToCreate,

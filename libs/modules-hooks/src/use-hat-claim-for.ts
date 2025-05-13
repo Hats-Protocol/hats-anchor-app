@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useToast } from 'hooks';
-import { useWaitForSubgraph } from 'hooks';
+import { useToast, useWaitForSubgraph } from 'hooks';
 import { first, get } from 'lodash';
 import { useMemo } from 'react';
 import { idToIp } from 'shared';
@@ -52,7 +51,7 @@ const useHatClaimFor = ({
 
   const { multiClaimsHatter: claimsHatter } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHat,
+    selectedHatId: selectedHat?.id as Hex | undefined,
     onchainHats,
   });
 

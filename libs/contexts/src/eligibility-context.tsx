@@ -50,10 +50,10 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   hatterIsAdmin: false,
   // current active rule
   activeRule: undefined,
-  setActiveRule: (rule: EligibilityRule | undefined) => {},
+  setActiveRule: (rule: EligibilityRule | undefined) => undefined,
   // in-app eligibility
   isReadyToClaim: {},
-  setIsReadyToClaim: (address: Hex) => {},
+  setIsReadyToClaim: (address: Hex) => undefined,
 });
 
 export const EligibilityContextProvider = ({
@@ -109,7 +109,7 @@ export const EligibilityContextProvider = ({
   const isWearing = balanceOf ? balanceOf > BigInt(0) : false;
 
   const { claimableForHats, hatterIsAdmin } = useMultiClaimsHatterCheck({
-    selectedHat,
+    selectedHatId: selectedHat?.id,
     chainId,
     onchainHats: get(treeDetails, 'hats', []),
   });

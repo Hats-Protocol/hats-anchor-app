@@ -1,5 +1,9 @@
+'use client';
+
+import { deployModuleWithClaimsHatter } from 'hats-utils';
 import { useClipboard } from 'hooks';
 import { Check, Link, RotateCcw } from 'lucide-react';
+import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Button, cn } from 'ui';
 
@@ -137,6 +141,8 @@ const Deploy = ({
     };
   }
 
+  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
   return (
     <div className='space-y-6'>
       <div className='relative flex justify-center border-b border-gray-200 pb-6'>
@@ -199,7 +205,7 @@ const Deploy = ({
                 </div>
               </div>
 
-              {value.deployTx && isActiveStep(deploySteps, deployStatus, key) && (
+              {value.deployTx && (isActiveStep(deploySteps, deployStatus, key) || isDev) && (
                 <Button type='button' variant='outline-blue' rounded='full' onClick={value.deployTx}>
                   <RotateCcw className='h-4 w-4' />
                   {value.deployLabel || 'Deploy'}

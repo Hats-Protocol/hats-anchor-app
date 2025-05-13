@@ -3,7 +3,7 @@ import { useLocalStorage } from 'hooks';
 import { includes, map } from 'lodash';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
-import { logger } from 'utils';
+// import { logger } from 'utils';
 import { Hex } from 'viem';
 
 import { useWearerDetails } from './use-wearer-details';
@@ -36,7 +36,7 @@ export const useBetaFeatures = ({ address }: UseBetaFeaturesProps): UseBetaFeatu
   const betaFeaturesEnabled = useMemo(() => {
     const isEnabled = posthog.isFeatureEnabled('bucket');
     if (isEnabled === undefined) {
-      logger.debug('Beta features flag is undefined, defaulting to false');
+      // logger.debug('Beta features flag is undefined, defaulting to false');
     }
     return isEnabled ?? false;
   }, []);

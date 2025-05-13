@@ -4,7 +4,15 @@ import { map } from 'lodash';
 import { ModuleDetails, SupportedChains } from 'types';
 import { createHatsModulesClient } from 'utils';
 
-const useHatsModules = ({ chainId, editMode }: { chainId: SupportedChains | undefined; editMode?: boolean }) => {
+const useHatsModules = ({
+  chainId,
+  allModules,
+  editMode,
+}: {
+  chainId: SupportedChains | undefined;
+  allModules?: boolean;
+  editMode?: boolean;
+}) => {
   const fetchModules = async () => {
     const hatsClient = await createHatsModulesClient(chainId);
     if (!hatsClient) {
@@ -13,10 +21,6 @@ const useHatsModules = ({ chainId, editMode }: { chainId: SupportedChains | unde
 
     // filter out inactive and meta modules
     const modulesFilter = (module: Module) => {
-      // ! temp workaround
-      if (module.implementationAddress === '0x6AE5a62698f23dB7CAca13FFa7391ac782a94116') {
-        return false;
-      }
       for (let tagIndex = 0; tagIndex < module.tags.length; tagIndex += 1) {
         const tag = module.tags[tagIndex];
         if (tag.value === 'deprecated' || tag.value === 'meta') {
@@ -26,11 +30,11 @@ const useHatsModules = ({ chainId, editMode }: { chainId: SupportedChains | unde
       return true;
     };
 
-    return hatsClient.getModules(modulesFilter);
+    return hatsClient.getModules(allModules ? undefined : modulesFilter);
   };
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['hatsModules', chainId],
+    queryKey: ['hatsModules', { chainId, allModules }],
     queryFn: fetchModules,
     enabled: !!chainId,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes

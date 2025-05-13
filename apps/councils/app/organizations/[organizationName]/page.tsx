@@ -1,4 +1,5 @@
 'use client';
+
 import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useOrganization } from 'hooks';
 import { map, sortBy } from 'lodash';

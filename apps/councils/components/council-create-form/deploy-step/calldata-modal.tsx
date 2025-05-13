@@ -1,3 +1,5 @@
+'use client';
+
 import { MULTICALL3_ADDRESS, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/constants';
 import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
@@ -74,12 +76,14 @@ const DeployCouncilCalldata = ({ deployCouncilCalldata }: { deployCouncilCalldat
 
 const DeploySecondCouncilCalldata = ({
   deployHatsCalldata,
-  deployModulesCalldata,
+  deployMchCalldata,
   deployHsgCalldata,
+  mchArgs,
 }: {
   deployHatsCalldata: Hex | undefined;
-  deployModulesCalldata: Hex | undefined;
+  deployMchCalldata: Hex | undefined;
   deployHsgCalldata: Hex | undefined;
+  mchArgs: { existingMch: Hex };
 }) => {
   return (
     <Accordion type='single'>
@@ -90,12 +94,12 @@ const DeploySecondCouncilCalldata = ({
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value='modules'>
-        <AccordionTrigger>2. Deploy modules</AccordionTrigger>
+        <AccordionTrigger>2. Deploy modules via Claims Hatter</AccordionTrigger>
         <AccordionContent>
           <CallDataCopySection
-            address={HATS_MODULES_FACTORY_ADDRESS}
-            addressLabel='Modules Factory'
-            calldata={deployModulesCalldata}
+            address={mchArgs.existingMch}
+            addressLabel='Claims Hatter'
+            calldata={deployMchCalldata}
             hideMidline
           />
         </AccordionContent>
@@ -117,7 +121,7 @@ const DeploySecondCouncilCalldata = ({
 
 const CalldataModal = ({ topHatWearer }: { topHatWearer: Hex | undefined }) => {
   const { setModals } = useOverlay();
-  const { form, deployCouncilCalldata, deployHatsCalldata, deployModulesCalldata, deployHsgCalldata } =
+  const { form, deployCouncilCalldata, deployHatsCalldata, deployMchCalldata, deployHsgCalldata, mchArgs } =
     useCouncilForm();
   const formData = form.getValues();
   const allWearers = getAllWearers(formData);
@@ -165,8 +169,9 @@ const CalldataModal = ({ topHatWearer }: { topHatWearer: Hex | undefined }) => {
         ) : (
           <DeploySecondCouncilCalldata
             deployHatsCalldata={deployHatsCalldata}
-            deployModulesCalldata={deployModulesCalldata}
+            deployMchCalldata={deployMchCalldata}
             deployHsgCalldata={deployHsgCalldata}
+            mchArgs={mchArgs}
           />
         )}
       </div>

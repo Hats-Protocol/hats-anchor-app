@@ -25,8 +25,8 @@ const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
   42220: graphNetworkUrl('GpKseh3Z4nX2X8W5HjQPp5hpSSxPxsaQ3t1KpEjhvz7t'),
   8453: graphNetworkUrl('FWeAqrp36QYqv9gDWLwr7em8vtvPnPrmRRQgnBb6QbBs'),
   // studio
-  11155111: studioUrl('hats-v1-sepolia', 'v1.1.0'),
-  84532: studioUrl('hats-v1-base-sepolia', 'v0.0.8'),
+  11155111: studioUrl('hats-v1-sepolia', '1.1.3'), // ! NOTE the missing v in this version
+  84532: studioUrl('hats-v1-base-sepolia', 'v0.0.9'),
 };
 
 export const NETWORK_ENDPOINTS: EndpointsConfig = {

@@ -1,7 +1,7 @@
 import { CONFIG } from '@hatsprotocol/config';
 import { checkAndEncodeArgs, ModuleCreationArg, solidityToTypescriptType } from '@hatsprotocol/modules-sdk';
 import { hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { every, forEach, isNaN, map } from 'lodash';
+import { compact, every, forEach, isNaN, map } from 'lodash';
 import { FormValues, ModuleDetails } from 'types';
 import { getDefaultValue, transformInput } from 'utils';
 import { parseUnits } from 'viem';
@@ -35,12 +35,16 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
   values,
   hatId,
   claimabilityType,
+  mchV2,
+  customNonce,
 }: {
   selectedModuleDetails?: ModuleDetails;
   isLocalFormValid: boolean;
   values: FormValues;
   hatId: bigint;
   claimabilityType?: number;
+  mchV2?: boolean; // is compatible with the modules factory v7 (nonce passed)
+  customNonce?: number;
 }) => {
   let encodedImmutableArgs: string | undefined;
   let encodedMutableArgs: string | undefined;
@@ -60,16 +64,17 @@ export const prepareDeployModuleAndRegisterWithClaimsHatterArgs = ({
     encodedMutableArgs = result.encodedMutableArgs || '0x';
   }
 
-  return [
-    CONFIG.modules.factory,
+  const nonce = customNonce ? customNonce : 1;
+  return compact([
+    mchV2 ? CONFIG.modules.factoryV7 : CONFIG.modules.factoryV6,
     selectedModuleDetails?.implementationAddress,
     hatId,
     encodedImmutableArgs,
     encodedMutableArgs,
+    mchV2 ? nonce : undefined,
     hatId,
     claimabilityType,
-    // Nonce,
-  ];
+  ]);
 };
 
 export const processValues = ({

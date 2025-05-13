@@ -25,7 +25,7 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
 
   const { multiClaimsHatter, instanceAddress, claimableHats } = useMultiClaimsHatterCheck({
     chainId,
-    selectedHat,
+    selectedHatId: selectedHat?.id,
     onchainHats,
     storedData,
     editMode,

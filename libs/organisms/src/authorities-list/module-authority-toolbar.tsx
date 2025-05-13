@@ -17,12 +17,23 @@ import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
 import { FiPlusSquare } from 'react-icons/fi';
 import { Authority, LinkObject, ModuleFunction } from 'types';
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link, Tooltip } from 'ui';
-import { explorerUrl, getCustomModuleFunction, getDisabledReason, getHostnameFromURL } from 'utils';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Link,
+  LinkButton,
+  Tooltip,
+} from 'ui';
+import { chainIdToString, explorerUrl, getCustomModuleFunction, getDisabledReason, getHostnameFromURL } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { CustomFunction } from './custom-function';
+
+const PRO_URL = process.env.NEXT_PUBLIC_PRO_URL || 'https://pro.hatsprotocol.xyz';
 
 const ModuleAuthorityToolbar = ({
   authority,
@@ -180,9 +191,19 @@ const ModuleAuthorityToolbar = ({
   const eligibilityModalFlag = false;
   // posthog.isFeatureEnabled('eligibility-modal') ||
   // process.env.NODE_ENV === 'development';
+  const isMultiSigner = size(authority.hsgConfig?.signerHats) > 1;
 
   return (
     <div className='flex flex-wrap gap-2'>
+      {/* TODO this is a bit hacky and deviates from our convention here. In lieu of a full implementation for write functions we'll set this option only */}
+      {authority.hsgConfig?.version === 2 && (
+        <LinkButton
+          href={`${PRO_URL}/councils/${chainIdToString(chainId || null)}:${authority.instanceAddress}/${isMultiSigner ? 'manage' : 'join'}`}
+          size='sm'
+        >
+          <p className='text-sm'>{isMultiSigner ? 'Manage' : 'Claim'} in Pro</p>
+        </LinkButton>
+      )}
       {customFunction && eligibilityModalFlag ? <CustomFunction authority={customFunction} /> : null}
 
       {primaryFunction && (!customFunction || !eligibilityModalFlag) && (

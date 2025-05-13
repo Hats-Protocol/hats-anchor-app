@@ -89,12 +89,12 @@ export const AllowlistEligibilityRule = ({
   const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
 
   if (!selectedHat || !moduleDetails?.instanceAddress) return null;
-  console.log(modals);
 
   if (isEligible) {
     return (
       <>
         <AllowlistManagerModal eligibilityHatId={selectedHat?.id} moduleInfo={moduleDetails} />
+
         <AllowlistModal
           eligibilityHatId={selectedHat?.id}
           moduleInfo={moduleDetails}

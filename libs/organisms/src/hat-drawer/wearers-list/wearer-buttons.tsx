@@ -79,7 +79,7 @@ const WearerButtons = () => {
   });
 
   const { currentHatIsClaimable } = useMultiClaimsHatterCheck({
-    selectedHat,
+    selectedHatId: selectedHat?.id,
     chainId,
     onchainHats,
     editMode: false, // change if used in edit mode

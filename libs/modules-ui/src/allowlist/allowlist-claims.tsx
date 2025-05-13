@@ -149,7 +149,7 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
           )}
         </div>
 
-        {/* using pt-2 (8px) to accomodate the gap-6 (24px) above to be a distance of 32px total */}
+        {/* using pt-2 (8px) to accommodate the gap-6 (24px) above to be a distance of 32px total */}
         <div className='flex flex-col gap-8 pt-2'>
           {/* Council Members Section */}
           <div className='flex flex-col gap-4'>

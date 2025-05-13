@@ -12,8 +12,8 @@ import { MemberAvatar } from 'ui';
 import { logger } from 'utils';
 import { useAccount } from 'wagmi';
 
-import { NextStepButton } from '../../../next-step-button';
-import { findNextInvalidStep, getNextStepButtonText } from '../../utils';
+import { NextStepButton } from '../../next-step-button';
+import { findNextInvalidStep, getNextStepButtonText } from '../utils';
 import { LoadingDetailsStep } from './details-skeletons';
 interface OrganizationOption {
   value: string;

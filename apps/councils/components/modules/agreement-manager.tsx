@@ -1,3 +1,5 @@
+'use client';
+
 import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -45,7 +47,6 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
   const { switchChain } = useSwitchChain();
   const ownerHatId = get(find(get(m, 'liveParameters'), { label: 'Owner Hat' }), 'value') as bigint;
   const isAdminHat = size(split(hatIdDecimalToIp(ownerHatId), '.')) === 2;
-  logger.debug('isAdminHat', { ownerHatId: ownerHatId ? hatIdDecimalToIp(ownerHatId) : undefined, isAdminHat });
 
   const { data: ownerHat } = useHatDetails({
     chainId: chainId as SupportedChains,

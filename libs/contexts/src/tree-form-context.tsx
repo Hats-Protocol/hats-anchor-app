@@ -305,6 +305,7 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
     initialHatIds: _.map(onchainHats, 'id'),
     editMode,
   });
+  // console.log('orgChartTree', orgChartTree);
 
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)

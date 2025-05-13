@@ -1,9 +1,13 @@
+'use client';
+
+import { CONFIG } from '@hatsprotocol/config';
 import {
   HATS_MODULES_FACTORY_ABI,
-  HATS_MODULES_FACTORY_ADDRESS,
   HSG_V2_ADDRESS,
   initialDeployMultiStatus,
   initialDeployStatus,
+  MULTI_CLAIMS_HATTER_V1_ABI,
+  MULTI_CLAIMS_HATTER_V2_ABI,
   MULTICALL3_ABI,
   MULTICALL3_ADDRESS,
   ZODIAC_MODULE_PROXY_FACTORY_ABI,
@@ -12,7 +16,8 @@ import {
 import { hatIdToTreeId, HATS_ABI, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { getAccessToken } from '@privy-io/react-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { concat, find, first, flatten, get, map } from 'lodash';
+import { useToast } from 'hooks';
+import { compact, concat, find, first, flatten, get, map } from 'lodash';
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { SetStateAction, useCallback, useMemo } from 'react';
@@ -30,13 +35,8 @@ import {
   updateCouncilForm,
   viemPublicClient,
 } from 'utils';
-import { encodeFunctionData, Hex, Log, parseEventLogs, TransactionReceipt } from 'viem';
+import { encodeFunctionData, Hex, parseEventLogs, TransactionReceipt } from 'viem';
 import { useAccount, useSimulateContract, useWalletClient } from 'wagmi';
-
-import { useToast } from './use-toast';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LogRecord = Log<any, any, any>;
 
 interface OrganizationResponse {
   organizations: Array<{
@@ -55,6 +55,7 @@ const useCouncilDeploy = ({
   hatsProtocolCallData,
   moduleArgs,
   hsgArgs,
+  mchArgs,
   moduleAddresses,
   handlePendingTx,
   waitForSubgraph,
@@ -68,7 +69,7 @@ const useCouncilDeploy = ({
 
   // after accepted, included, indexed
   const onSuccess = useCallback(
-    async (data: TransactionReceipt | undefined, extraLogs: LogRecord[] = []) => {
+    async (data: TransactionReceipt | undefined, extraLogs: TransactionReceipt['logs'] = []) => {
       if (!data || !draftId) return;
       logger.info('Transaction successful', data);
       // TODO handle hat creation data
@@ -136,7 +137,6 @@ const useCouncilDeploy = ({
       });
       logger.info('council created', council);
       const councilId = get(council, 'createCouncil.id');
-      console.log(formData);
 
       // update council form with council ID
       await updateCouncilForm({
@@ -319,15 +319,17 @@ const useCouncilDeploy = ({
     ] as [Hex[], bigint[], Hex[], Hex[], bigint[]];
   }, [moduleArgs]);
 
+  // TODO this is deprecated
   const simulateModules = useSimulateContract({
     account: address,
-    address: address && moduleArgs && !firstCouncil ? HATS_MODULES_FACTORY_ADDRESS : undefined,
+    address: address && moduleArgs && !firstCouncil ? CONFIG.modules.factoryV6 : undefined,
     abi: HATS_MODULES_FACTORY_ABI,
     functionName: 'batchCreateHatsModule',
     args: localModuleArgs,
     chainId,
   });
 
+  // TODO not used, use deployModulesWithMchFn
   const deployModulesFn = async () => {
     if (!moduleArgs) {
       logger.error('No module args');
@@ -337,7 +339,7 @@ const useCouncilDeploy = ({
     const hash = await walletClient
       ?.writeContract({
         account: address,
-        address: HATS_MODULES_FACTORY_ADDRESS,
+        address: CONFIG.modules.factoryV6,
         abi: HATS_MODULES_FACTORY_ABI,
         functionName: 'batchCreateHatsModule',
         args: [
@@ -377,6 +379,91 @@ const useCouncilDeploy = ({
       hash,
       txChainId: chainId,
       txDescription: 'Deploying Modules & Eligibility Chain',
+      waitForSubgraph,
+      onTxAccepted: () => {
+        setDeployStatus((prev) => ({ ...prev, confirmModulesTx: true }));
+      },
+      onTxIndexed: () => {
+        setDeployStatus((prev) => ({ ...prev, indexModulesTx: true }));
+      },
+      onSuccess: () => {
+        deployHsg();
+        logger.debug('successfully deployed modules');
+      },
+      onError: (error) => {
+        logger.error('Error deploying modules:', error);
+        throw error;
+      },
+    });
+  };
+
+  const localMchArgs = useMemo(() => {
+    if (!mchArgs || !moduleArgs) return undefined;
+    // compact will remove falsey values, nonces should be non-zero
+    return compact([
+      mchArgs.mchV2 ? CONFIG.modules.factoryV7 : CONFIG.modules.factoryV6,
+      moduleArgs.implementations,
+      moduleArgs.moduleHatIds,
+      moduleArgs.immutableArgs,
+      moduleArgs.initArgs,
+      mchArgs.mchV2 ? moduleArgs.saltNonces : undefined, // TODO handle mch v7 with nonces
+      map(mchArgs.claimableHats, (id) => BigInt(id)),
+      mchArgs.claimableTypes,
+    ]) as [Hex, Hex[], bigint[], Hex[], Hex[], bigint[], bigint[], number[]];
+  }, [mchArgs, moduleArgs]);
+
+  const simulateMch = useSimulateContract({
+    account: address,
+    address: address && mchArgs && !firstCouncil ? mchArgs.existingMch : undefined,
+    abi: mchArgs?.mchV2 ? MULTI_CLAIMS_HATTER_V2_ABI : MULTI_CLAIMS_HATTER_V1_ABI,
+    functionName: 'setHatsClaimabilityAndCreateModules',
+    args: localMchArgs ? localMchArgs : undefined,
+    chainId,
+  });
+
+  const deployModulesWithMchFn = async () => {
+    if (!localMchArgs || !mchArgs?.existingMch) {
+      logger.error('No module args or existing mch');
+      throw new Error('No module args or existing mch');
+    }
+
+    const hash = await walletClient
+      ?.writeContract({
+        account: address,
+        address: mchArgs?.existingMch,
+        abi: mchArgs.mchV2 ? MULTI_CLAIMS_HATTER_V2_ABI : MULTI_CLAIMS_HATTER_V1_ABI,
+        functionName: 'setHatsClaimabilityAndCreateModules',
+        args: localMchArgs,
+        chain: chainsMap(chainId),
+      })
+      .catch((err) => {
+        logger.debug('error', err);
+        setDeployStatus(initialDeployMultiStatus); // reset the deploy screen, for reactivating
+        // TODO toast
+      });
+    setDeployStatus((prev) => ({ ...prev, deployModulesTx: true }));
+
+    if (!hash) {
+      logger.error('Failed to create transaction');
+      throw new Error('Failed to create transaction');
+    } else {
+      logger.debug('hash', hash);
+    }
+
+    // store tx in local storage for retrieval later
+    const deployTxs = localStorage.getItem(`deploy-txs-${draftId}`);
+    if (deployTxs) {
+      const deployTxsObj = JSON.parse(deployTxs);
+      deployTxsObj.push(hash);
+      localStorage.setItem(`deploy-txs-${draftId}`, JSON.stringify(deployTxsObj));
+    } else {
+      localStorage.setItem(`deploy-txs-${draftId}`, JSON.stringify([hash]));
+    }
+
+    handlePendingTx?.({
+      hash,
+      txChainId: chainId,
+      txDescription: 'Deploying Modules, Eligibility Chain & Register Hats with MCH',
       waitForSubgraph,
       onTxAccepted: () => {
         setDeployStatus((prev) => ({ ...prev, confirmModulesTx: true }));
@@ -483,16 +570,23 @@ const useCouncilDeploy = ({
     mutationFn: deployHsgFn,
   });
 
+  const { mutateAsync: deployModulesWithMch } = useMutation({
+    mutationFn: deployModulesWithMchFn,
+  });
+
   return {
     deploy: mutateAsync,
     simulateCouncil: simulateFullMulticall,
+    onSuccess,
     multicallCalldata,
     deployHats,
     deployModules,
     deployHsg,
+    deployModulesWithMch,
     simulateHats,
     simulateModules,
     simulateHsg,
+    simulateMch,
     isLoading,
   };
 };
@@ -516,6 +610,13 @@ interface HsgArgs {
   nonce: bigint;
 }
 
+interface MchArgs {
+  claimableHats: bigint[];
+  claimableTypes: number[];
+  existingMch: string;
+  mchV2: boolean;
+}
+
 type UseCouncilDeployProps = {
   formData: CouncilFormData;
   firstCouncil: boolean;
@@ -526,6 +627,7 @@ type UseCouncilDeployProps = {
   hatsProtocolCallData: FnCallData | undefined;
   moduleArgs: ModuleArgs | undefined;
   hsgArgs: HsgArgs | undefined;
+  mchArgs: MchArgs | undefined;
   moduleAddresses: ModulesAddresses | undefined;
   handlePendingTx: HandlePendingTx | undefined;
   waitForSubgraph: AsyncTxHandler;
