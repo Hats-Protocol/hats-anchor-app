@@ -6,7 +6,6 @@ import {
   useAuthGuard,
   useBatchOffchainCouncilDetails,
   useCrossChainAllowlist,
-  useCrossChainCouncilsList,
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
@@ -20,6 +19,7 @@ import { NETWORKS_PREFIX } from 'utils/src/subgraph/mesh/queries/constants';
 import { getAddress, Hex } from 'viem';
 import { useAccount } from 'wagmi';
 
+import { useCrossChainCouncilsList } from '../hooks';
 import { AddCouncilButton } from './add-council-button';
 import { CouncilHeaderCard } from './council-header';
 
@@ -82,7 +82,7 @@ const CouncilListPageOrgs = () => {
     () =>
       !isEmpty(councilsList)
         ? Object.entries(councilsList || {})
-            .filter(([_, councils]) => !isEmpty(councils))
+            .filter(([, councils]) => !isEmpty(councils))
             .flatMap(([key, councils]) => {
               const chainId = prefixToChainId[key];
               return (councils as HatSignerGateV2[]).map((council) => ({

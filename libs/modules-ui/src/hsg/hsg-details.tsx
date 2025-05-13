@@ -81,7 +81,7 @@ export const HSGDetails = ({ selectedHat, hsgConfig, chainId, signerHatsDetails 
       <div className='flex justify-between'>
         <div>Signers</div>
 
-        <div className='flex w-2/3 justify-end gap-2'>
+        <div className='flex w-2/3 justify-end gap-1'>
           {map(signerHatsDetails, (hat, index) => {
             if (!hat.detailsMetadata) return undefined;
             let details: HatDetails | undefined;

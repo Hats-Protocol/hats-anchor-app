@@ -5,7 +5,7 @@ import { compact, concat, filter, find, forEach, get, isEmpty, isEqual, slice, u
 import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AppModals, HandlePendingTxProps, OverlayContextProps, Transaction } from 'types';
+import { AppModals, Banner, HandlePendingTxProps, OverlayContextProps, Transaction } from 'types';
 import { checkTransactionStatus, invalidateAfterTransaction, viemPublicClient } from 'utils';
 import { Hex, TransactionReceipt } from 'viem';
 
@@ -42,6 +42,8 @@ export const OverlayContext = createContext<OverlayContextProps>({
   recentlyVisitedTrees: undefined,
   updateRecentlyVisitedTrees: () => undefined,
   txPending: false,
+  banner: null,
+  setBanner: () => undefined,
 });
 
 interface SavedTree {
@@ -56,6 +58,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
 
   // LOCAL STATE
   // const [txIsPending, setTxIsPending] = useState(false);
+  const [banner, setBanner] = useState<Banner | null>(null);
   const [modals, setModals] = useState<Partial<AppModals>>(defaultModals);
   const [drawers, setDrawers] = useState<Partial<AppModals>>(defaultDrawers);
   const [commandPalette, setCommandPalette] = useState(false);
@@ -283,6 +286,8 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
       txPending,
+      banner,
+      setBanner,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -300,6 +305,8 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       recentlyVisitedTrees,
       updateRecentlyVisitedTrees,
       txPending,
+      banner,
+      setBanner,
     ],
   );
 

@@ -4,6 +4,13 @@ import { Hex } from 'viem';
 import { Transaction } from './misc';
 import { HandlePendingTx } from './transaction';
 
+export interface Banner {
+  icon?: string; // TODO icon currently unused, set based on variant
+  message: string;
+  variant?: 'info' | 'error';
+  error?: Error;
+}
+
 export interface AppModals {
   [key: string]: boolean;
 }
@@ -37,6 +44,8 @@ export interface OverlayContextProps {
   recentlyVisitedTrees: TreeRecord[] | undefined;
   updateRecentlyVisitedTrees: (tree: TreeRecord) => void;
   txPending: boolean;
+  banner: Banner | null;
+  setBanner: Dispatch<SetStateAction<Banner | null>>;
 }
 
 export interface StandaloneOverlayContextProps {

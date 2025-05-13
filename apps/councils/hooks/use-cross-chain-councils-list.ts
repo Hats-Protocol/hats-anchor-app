@@ -1,9 +1,10 @@
 import { chainsList } from '@hatsprotocol/config';
 import { useQuery } from '@tanstack/react-query';
+import { useOverlay } from 'contexts';
 import { gql, GraphQLClient } from 'graphql-request';
-import { compact, concat, every, get, isEmpty, keys, map, some } from 'lodash';
-import { useMemo } from 'react';
-import { NETWORKS_PREFIX, stripSuffix } from 'utils';
+import { compact, concat, every, get, isEmpty, keys, map } from 'lodash';
+import { useEffect, useMemo } from 'react';
+import { logger, NETWORKS_PREFIX, stripSuffix } from 'utils';
 
 const CROSS_CHAIN_COUNCIL_MANAGERS_QUERY = gql`
   query getCrossChainCouncilManagers(
@@ -257,30 +258,38 @@ const meshClient = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphq
 const getCrossChainCouncilManagers = async (hatIdsByNetwork: NetworkAddressList | undefined) => {
   if (!hatIdsByNetwork || every(hatIdsByNetwork, isEmpty)) return null;
 
-  const response = await meshClient.request(CROSS_CHAIN_COUNCIL_MANAGERS_QUERY, {
-    ethHatIds: hatIdsByNetwork.Eth || [],
-    baseHatIds: hatIdsByNetwork.Base || [],
-    sepHatIds: hatIdsByNetwork.Sep || [],
-    opHatIds: hatIdsByNetwork.Op || [],
-    gnoHatIds: hatIdsByNetwork.Gno || [],
-    arbHatIds: hatIdsByNetwork.Arb || [],
-    celoHatIds: hatIdsByNetwork.Celo || [],
-    polHatIds: hatIdsByNetwork.Pol || [],
-    baseSepHatIds: hatIdsByNetwork.BaseSep || [],
-  });
+  return meshClient
+    .request(CROSS_CHAIN_COUNCIL_MANAGERS_QUERY, {
+      ethHatIds: hatIdsByNetwork.Eth || [],
+      baseHatIds: hatIdsByNetwork.Base || [],
+      sepHatIds: hatIdsByNetwork.Sep || [],
+      opHatIds: hatIdsByNetwork.Op || [],
+      gnoHatIds: hatIdsByNetwork.Gno || [],
+      arbHatIds: hatIdsByNetwork.Arb || [],
+      celoHatIds: hatIdsByNetwork.Celo || [],
+      polHatIds: hatIdsByNetwork.Pol || [],
+      baseSepHatIds: hatIdsByNetwork.BaseSep || [],
+    })
+    .then((response) => {
+      const returnObj: NetworkAddressList = {};
+      // consolidate allowListEligibilities and agreementEligibilities by network
+      for (const chainId of keys(chainsList)) {
+        const prefix = NETWORKS_PREFIX[chainId];
+        returnObj[prefix] = concat(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          map((response as any)[`${prefix}_allowListEligibilities`], 'id'),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          map((response as any)[`${prefix}_agreementEligibilities`], 'id'),
+        );
+      }
 
-  const returnObj: NetworkAddressList = {};
-  // consolidate allowListEligibilities and agreementEligibilities by network
-  for (const chainId of keys(chainsList)) {
-    const prefix = NETWORKS_PREFIX[chainId];
-    returnObj[prefix] = concat(
-      map((response as any)[`${prefix}_allowListEligibilities`], 'id'),
-      map((response as any)[`${prefix}_agreementEligibilities`], 'id'),
-    );
-  }
-
-  // suffix is already removed above
-  return returnObj;
+      // suffix is already removed above
+      return Promise.resolve(returnObj);
+    })
+    .catch((error) => {
+      logger.error(error);
+      return Promise.reject(error);
+    });
 };
 
 type NetworkAddressList = Record<string, string[]>;
@@ -325,8 +334,14 @@ const getCrossChainHSG = async (hatIdsByNetwork: Record<string, string[]> | unde
 };
 
 const useCrossChainCouncilsList = ({ hatIdsByNetwork }: { hatIdsByNetwork: Record<string, string[]> }) => {
+  const { setBanner } = useOverlay();
+
   // Get the module managers for each network
-  const { data: modulesByNetwork, isLoading: isModuleManagersLoading } = useQuery({
+  const {
+    data: modulesByNetwork,
+    isLoading: isModuleManagersLoading,
+    error: moduleManagersError,
+  } = useQuery({
     queryKey: ['cross-chain-council-managers', hatIdsByNetwork],
     queryFn: () => getCrossChainCouncilManagers(hatIdsByNetwork),
     enabled: !!hatIdsByNetwork && !every(hatIdsByNetwork, isEmpty),
@@ -335,7 +350,11 @@ const useCrossChainCouncilsList = ({ hatIdsByNetwork }: { hatIdsByNetwork: Recor
   });
 
   // Get the associated hats for each module manager
-  const { data: moduleManagerHats, isLoading: isModuleManagerHatsLoading } = useQuery({
+  const {
+    data: moduleManagerHats,
+    isLoading: isModuleManagerHatsLoading,
+    error: moduleManagerHatsError,
+  } = useQuery({
     queryKey: ['cross-chain-module-manager-hats', modulesByNetwork],
     queryFn: () => getCrossChainModuleManagerHats(modulesByNetwork || undefined),
     enabled: !!modulesByNetwork && !isModuleManagersLoading && !every(modulesByNetwork, isEmpty),
@@ -355,13 +374,49 @@ const useCrossChainCouncilsList = ({ hatIdsByNetwork }: { hatIdsByNetwork: Recor
   }, [moduleManagerHats, hatIdsByNetwork]);
 
   // Get the HSG owners for Hat IDs on each network
-  const { data: councilsList, isLoading: isHSGLoading } = useQuery({
+  const {
+    data: councilsList,
+    isLoading: isHSGLoading,
+    error: councilsListError,
+  } = useQuery({
     queryKey: ['cross-chain-councils-list', consolidatedHatIds],
     queryFn: () => getCrossChainHSG(consolidatedHatIds),
     enabled: !!consolidatedHatIds && !isModuleManagersLoading && !isModuleManagerHatsLoading,
     refetchOnMount: true,
     staleTime: 0,
   });
+
+  useEffect(() => {
+    if (!moduleManagersError && !moduleManagerHatsError && !councilsListError) {
+      setBanner(null);
+      return;
+    }
+
+    if (moduleManagersError) {
+      setBanner({
+        message: 'Error fetching cross-chain councils list',
+        variant: 'error',
+        error: moduleManagersError,
+      });
+      return;
+    }
+    if (moduleManagerHatsError) {
+      setBanner({
+        message: 'Error fetching cross-chain module managers',
+        variant: 'error',
+        error: moduleManagerHatsError,
+      });
+      return;
+    }
+    if (councilsListError) {
+      setBanner({
+        message: 'Error fetching cross-chain councils list',
+        variant: 'error',
+        error: councilsListError,
+      });
+      return;
+    }
+  }, [moduleManagersError, moduleManagerHatsError, councilsListError, setBanner]);
 
   return {
     councilsList,
