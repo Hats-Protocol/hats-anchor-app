@@ -4,6 +4,7 @@ import { useCouncilDetails, useOffchainCouncilDetails, useOrganization } from 'h
 import { capitalize, keys, map } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
+import { useEffect, useState } from 'react';
 import { SupportedChains } from 'types';
 import { cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { parseCouncilSlug } from 'utils';
@@ -18,6 +19,12 @@ const DEV_PAGES = {
 };
 
 const Navbar = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const pathname = usePathname();
   const params = useParams<{ slug?: string; organizationName?: string }>();
   const { slug } = params;
@@ -38,7 +45,6 @@ const Navbar = () => {
   const { data: organization } = useOrganization(isOrganizationRoute ? params.organizationName : undefined);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
-  const isClient = typeof window !== 'undefined';
 
   return (
     <div
