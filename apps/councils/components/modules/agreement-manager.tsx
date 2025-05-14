@@ -170,14 +170,16 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
                 {userIsAdmin && (
                   <div className='relative'>
                     <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
-                      <Button
-                        variant='outline-blue'
-                        rounded='full'
-                        onClick={() => setModals?.({ 'addUser-agreementAdmin': true })}
-                        disabled={isAdminHat}
-                      >
-                        Add Agreement Manager
-                      </Button>
+                      <span className='pointer-events-auto inline-block'>
+                        <Button
+                          variant='outline-blue'
+                          rounded='full'
+                          onClick={() => setModals?.({ 'addUser-agreementAdmin': true })}
+                          disabled={isAdminHat}
+                        >
+                          Add Agreement Manager
+                        </Button>
+                      </span>
                     </Tooltip>
 
                     {isAdminHat && (

@@ -178,14 +178,16 @@ const AllowlistManager = ({
               {currentChainId === chainId ? (
                 <div className='relative'>
                   <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
-                    <Button
-                      variant='outline-blue'
-                      rounded='full'
-                      onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
-                      disabled={isAdminHat}
-                    >
-                      Add Compliance Manager
-                    </Button>
+                    <span className='pointer-events-auto inline-block'>
+                      <Button
+                        variant='outline-blue'
+                        rounded='full'
+                        onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
+                        disabled={isAdminHat}
+                      >
+                        Add Compliance Manager
+                      </Button>
+                    </span>
                   </Tooltip>
 
                   {isAdminHat && (
