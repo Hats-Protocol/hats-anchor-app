@@ -8,7 +8,7 @@ import { capitalize, flatten, get, includes, map, size, some, toNumber } from 'l
 import { useAgreementClaim } from 'modules-hooks';
 import { AgreementContent } from 'molecules';
 import { useMemo } from 'react';
-import { BsCheckCircleFill, BsCheckSquare, BsCheckSquareFill } from 'react-icons/bs';
+import { BsCheckCircleFill, BsCheckSquareFill } from 'react-icons/bs';
 import { EligibilityRule, HatDetails, LabeledModules, ModuleDetails } from 'types';
 import { Button, Card, cn, Tooltip } from 'ui';
 import { fetchIpfs } from 'utils';
@@ -137,12 +137,7 @@ interface AgreementClaimsProps {
   variant?: 'default' | 'councils';
 }
 
-export const AgreementClaims = ({
-  activeModule,
-  labeledModules,
-  showOnMobile = false,
-  variant = 'default',
-}: AgreementClaimsProps) => {
+export const AgreementClaims = ({ activeModule, showOnMobile = false, variant = 'default' }: AgreementClaimsProps) => {
   const { selectedHatDetails, selectedHat, eligibilityRules } = useEligibility();
 
   const { agreement } = useAgreementClaim({

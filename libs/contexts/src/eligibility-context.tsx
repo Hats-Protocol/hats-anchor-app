@@ -50,9 +50,11 @@ export const EligibilityContext = createContext<EligibilityContextProps>({
   hatterIsAdmin: false,
   // current active rule
   activeRule: undefined,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setActiveRule: (rule: EligibilityRule | undefined) => undefined,
   // in-app eligibility
   isReadyToClaim: {},
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setIsReadyToClaim: (address: Hex) => undefined,
 });
 
@@ -108,11 +110,12 @@ export const EligibilityContextProvider = ({
   });
   const isWearing = balanceOf ? balanceOf > BigInt(0) : false;
 
-  const { claimableForHats, hatterIsAdmin } = useMultiClaimsHatterCheck({
+  const { claimableForHats, hatterIsAdmin, instanceAddress, mchV2 } = useMultiClaimsHatterCheck({
     selectedHatId: selectedHat?.id,
     chainId,
     onchainHats: get(treeDetails, 'hats', []),
   });
+  console.log('instance', { instanceAddress, mchV2 });
   const isClaimableFor = useMemo(() => includes(claimableForHats, selectedHat?.id), [claimableForHats, selectedHat]);
 
   const setIsReadyToClaim = useCallback(

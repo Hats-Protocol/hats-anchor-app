@@ -3,7 +3,7 @@ import { ModuleChainClaim } from 'modules-ui';
 import { redirect } from 'next/navigation';
 import { SupportedChains } from 'types';
 import { Alert, AlertDescription, AlertTitle } from 'ui';
-import { parseCouncilSlug } from 'utils';
+import { logger, parseCouncilSlug } from 'utils';
 import { getAddress, type Hex, isAddress } from 'viem';
 
 import { CouncilsDevInfo } from '../../../../components/councils-dev-info';
@@ -64,6 +64,7 @@ const CouncilDetails = async ({ params }: { params: Promise<{ slug: string; page
     // ensure we have a properly formatted hex address
     validatedAddress = getAddress(address) as `0x${string}`;
   } catch (error) {
+    logger.error('Error validating address', error);
     return (
       <ErrorPage
         title='Invalid Address'

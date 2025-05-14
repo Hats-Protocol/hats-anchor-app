@@ -404,7 +404,7 @@ export const compileModuleData = async ({
     args: [implementations, moduleHatIds, immutableArgs, initArgs, saltNonces],
   });
 
-  const claimableTypes = map(claimableHats, () => 2);
+  const claimableTypes = map(claimableHats, () => 2); // TODO handle other claimability type(s)
   const registerAndCreateModulesCalldata = encodeFunctionData({
     abi: mchV2 ? MULTI_CLAIMS_HATTER_V2_ABI : MULTI_CLAIMS_HATTER_V1_ABI,
     functionName: 'setHatsClaimabilityAndCreateModules',

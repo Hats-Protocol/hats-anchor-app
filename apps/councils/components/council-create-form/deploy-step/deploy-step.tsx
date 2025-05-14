@@ -451,7 +451,7 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
                 </Tooltip>
               )}
 
-              <CalldataModal topHatWearer={topHatWearer} />
+              <CalldataModal topHatWearer={topHatWearer} draftId={draftId} />
               <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
             </div>
           </>
