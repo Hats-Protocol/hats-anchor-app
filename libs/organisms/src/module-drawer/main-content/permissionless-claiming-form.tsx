@@ -32,7 +32,7 @@ const PermissionlessClaimingForm = ({ localForm, parentHats }: { localForm: UseF
   });
 
   const isAdmin = useIsAdmin({
-    address: instanceAddress,
+    address: instanceAddress as Hex,
     hatId: selectedHat?.id,
     chainId,
   });

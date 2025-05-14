@@ -2,11 +2,11 @@
 
 import { CONFIG } from '@hatsprotocol/config';
 import { MULTICALL3_ADDRESS, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/constants';
-import { FALLBACK_ADDRESS, hatIdDecimalToHex, HATS_V1, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
+import { FALLBACK_ADDRESS, HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from 'hooks';
-import { pick, toNumber } from 'lodash';
+import { first, get, pick, toNumber } from 'lodash';
 import { useMultiClaimsHatterCheck } from 'modules-hooks';
 import showdown from 'showdown';
 import { CouncilFormData, SupportedChains } from 'types';
@@ -22,7 +22,7 @@ import {
   pinFileToIpfs,
   simulateSafeAddress,
 } from 'utils';
-import { hexToNumber } from 'viem';
+import { Hex } from 'viem';
 
 const converter = new showdown.Converter();
 
@@ -44,7 +44,7 @@ const useCouncilDeployCalldata = ({ formData, tree, treeLoading }: UseCouncilDep
     isLoading: isLoadingMultiClaimsHatterCheck,
   } = useMultiClaimsHatterCheck({
     chainId: toNumber(formData.chain?.value) as SupportedChains,
-    selectedHatId: tree?.id ? hatIdDecimalToHex(treeIdToTopHatId(hexToNumber(tree.id))) : undefined,
+    selectedHatId: tree?.hats ? get(first(tree.hats), 'id') : undefined,
     onchainHats: tree?.hats,
   });
 
@@ -90,7 +90,7 @@ const useCouncilDeployCalldata = ({ formData, tree, treeLoading }: UseCouncilDep
       formData,
       hatIds: computedHatIds,
       agreementCid,
-      existingMch: instanceAddress,
+      existingMch: instanceAddress as Hex,
       mchV2,
     })
       .then(async ({ callData: modulesCalldata, addresses: moduleAddresses, moduleArgs, mchArgs, mchCallData }) => {
@@ -212,8 +212,9 @@ const useCouncilDeployCalldata = ({ formData, tree, treeLoading }: UseCouncilDep
       });
   };
 
+  // TODO move function outside of the hook
   const { data, isLoading, error } = useQuery({
-    queryKey: ['council-deploy-calldata', { formData, tree, instanceAddress }],
+    queryKey: ['council-deploy-calldata', { formData, tree, instanceAddress, mchV2 }],
     queryFn: computeCalldata,
     enabled: !!formData && !treeLoading && !isLoadingMultiClaimsHatterCheck,
   });

@@ -137,7 +137,7 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
       <div className='space-y-4'>
         <div className='space-y-1'>
           {isAdminHat ? (
-            <h2 className='font-medium'>Delegated to Council Managers</h2>
+            <h2 className='font-medium'>Delegated to Organization Managers</h2>
           ) : (
             <h2 className='font-bold'>Agreement Managers</h2>
           )}
@@ -169,7 +169,7 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
 
                 {userIsAdmin && (
                   <div className='relative'>
-                    <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
+                    <Tooltip label={isAdminHat ? 'Soon you can replace the organization managers' : undefined}>
                       <span className='pointer-events-auto inline-block'>
                         <Button
                           variant='outline-blue'

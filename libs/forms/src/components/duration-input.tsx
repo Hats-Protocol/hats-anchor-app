@@ -5,7 +5,7 @@ import { Info } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { RegisterOptions, UseFormReturn } from 'react-hook-form';
 import { FaRegQuestionCircle } from 'react-icons/fa';
-import { BaseSelect, BaseSelectContent, BaseSelectItem, BaseSelectTrigger, Tooltip } from 'ui';
+import { BaseSelect, BaseSelectContent, BaseSelectItem, BaseSelectTrigger, cn, Tooltip } from 'ui';
 
 import { FormControl, FormDescription, FormLabel } from './form';
 import { NumberInput } from './number-input';
@@ -24,7 +24,6 @@ const DurationInput: React.FC<DurationInputProps> = ({
   name,
   localForm,
   placeholder,
-  isRequired,
   formOptions,
   label,
   labelNote,
@@ -57,6 +56,8 @@ const DurationInput: React.FC<DurationInputProps> = ({
     if (!timeUnit) {
       reset({ [`${name}-time-unit`]: defaultTimeUnit, [`${name}-time-value`]: defaultTimeValue });
     }
+    // intentionally not including `reset` in the dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, timeUnit, defaultTimeUnit, defaultTimeValue]);
 
   const getVariantStyles = (variant: DurationInputProps['variant'] = 'default') => {
@@ -66,14 +67,14 @@ const DurationInput: React.FC<DurationInputProps> = ({
           label: 'font-bold normal-case text-base',
           description: 'text-gray-400',
           container: 'flex items-center justify-between w-full',
-          tooltipContainer: 'max-w-md',
+          tooltipContainer: 'max-w-md z-50',
         };
       default:
         return {
           label: 'font-normal uppercase',
           description: '',
           container: 'flex items-center gap-1',
-          tooltipContainer: 'max-w-xs',
+          tooltipContainer: 'max-w-xs z-50',
         };
     }
   };
@@ -94,7 +95,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
                   <Tooltip
                     label={tooltip}
                     delayDuration={100}
-                    className={getVariantStyles(variant).tooltipContainer}
+                    className={cn(getVariantStyles(variant).tooltipContainer)}
                     side={variant === 'councils' ? 'bottom' : 'top'}
                   >
                     {variant === 'councils' ? (
@@ -128,7 +129,7 @@ const DurationInput: React.FC<DurationInputProps> = ({
                 onValueChange={(value: any) => setValue(`${name}-time-unit`, value)}
               >
                 <BaseSelectTrigger className='bg-gray-50'>{timeUnit}</BaseSelectTrigger>
-                <BaseSelectContent>
+                <BaseSelectContent className='z-[100]'>
                   {timeUnits.map(({ unit, value }) => (
                     <BaseSelectItem key={unit} value={unit}>
                       {unit}

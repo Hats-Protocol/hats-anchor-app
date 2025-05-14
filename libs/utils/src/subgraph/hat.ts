@@ -3,6 +3,7 @@ import { AppHat, SupportedChains } from 'types';
 
 import { createSubgraphClient } from '../web3';
 
+// ! currently not used
 export const fetchHatDetails = async (hatId: string | undefined, chainId?: number): Promise<AppHat | null> => {
   if (!hatId || hatId === '0x' || !chainId) return null;
 

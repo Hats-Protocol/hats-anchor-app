@@ -1,13 +1,21 @@
 'use client';
 
 import { MULTICALL3_ADDRESS, ZODIAC_MODULE_PROXY_FACTORY_ADDRESS } from '@hatsprotocol/constants';
-import { HATS_MODULES_FACTORY_ADDRESS } from '@hatsprotocol/modules-sdk';
 import { HATS_V1 } from '@hatsprotocol/sdk-v1-core';
 import { Modal, useCouncilForm, useOverlay } from 'contexts';
 import { useClipboard } from 'hooks';
 import { CopyAddress } from 'icons';
 import { find, map } from 'lodash';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, BaseInput, Button, MemberAvatar } from 'ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  BaseInput,
+  Button,
+  Link,
+  MemberAvatar,
+} from 'ui';
 import { getAllWearers } from 'utils';
 import { Hex } from 'viem';
 
@@ -119,7 +127,7 @@ const DeploySecondCouncilCalldata = ({
   );
 };
 
-const CalldataModal = ({ topHatWearer }: { topHatWearer: Hex | undefined }) => {
+const CalldataModal = ({ topHatWearer, draftId }: { topHatWearer: Hex | undefined; draftId: string }) => {
   const { setModals } = useOverlay();
   const { form, deployCouncilCalldata, deployHatsCalldata, deployMchCalldata, deployHsgCalldata, mchArgs } =
     useCouncilForm();
@@ -127,6 +135,10 @@ const CalldataModal = ({ topHatWearer }: { topHatWearer: Hex | undefined }) => {
   const allWearers = getAllWearers(formData);
   const creator = find(allWearers, { address: formData?.creator });
   const owner = find(allWearers, { address: topHatWearer });
+
+  const onClose = () => {
+    setModals?.({});
+  };
 
   return (
     <Modal name='calldata' title='Deploying via Smart Contract' size='xl'>
@@ -175,16 +187,22 @@ const CalldataModal = ({ topHatWearer }: { topHatWearer: Hex | undefined }) => {
           />
         )}
       </div>
-      <div className='flex h-20 items-center justify-center'>
-        <Button
-          variant='outline-blue'
-          rounded='full'
-          onClick={() => {
-            setModals?.({});
-          }}
-        >
-          OK
+
+      <div className='mt-4 flex justify-center'>
+        <p className='text-sm text-gray-500'>
+          After deploying the council, complete the process by processing the transactions.
+        </p>
+      </div>
+
+      <div className='flex h-20 items-center justify-center gap-4'>
+        <Button variant='outline-blue' rounded='full' onClick={onClose}>
+          Close
         </Button>
+        <Link href={`/councils/new/finish?draftId=${draftId}`}>
+          <Button rounded='full' onClick={onClose}>
+            Finish
+          </Button>
+        </Link>
       </div>
     </Modal>
   );
