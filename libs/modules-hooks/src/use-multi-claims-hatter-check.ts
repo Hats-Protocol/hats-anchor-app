@@ -21,7 +21,7 @@ import {
 } from 'lodash';
 import { useMemo } from 'react';
 import { AppHat, FormData, ModuleDetails, SupportedChains } from 'types';
-import { fetchWearerDetails, NETWORKS_PREFIX } from 'utils';
+import { fetchWearerDetailsMesh, NETWORKS_PREFIX } from 'utils';
 import { Hex } from 'viem';
 
 import { useModuleDetails } from './use-module-details';
@@ -64,7 +64,7 @@ const fetchHattersHelperMesh = async (chainId: number, hats: Hex[]): Promise<App
   const result = await client.request(FETCH_HATTERS_HELPER_MESH(chainId), {
     hatIds: hats,
   });
-  return get(result, `${NETWORKS_PREFIX[chainId]}_hats`) as unknown as Promise<AppHat[]>;
+  return get(result, `${NETWORKS_PREFIX[chainId]}_hats`) as unknown as AppHat[];
 };
 
 const fetchHatters = async (chainId: number | undefined, allHatIds: Hex[] | undefined) => {
@@ -101,7 +101,7 @@ const getHatterHat = async (
   // const storedDataHatIdV2 = get(storedData, `[${claimsHatterV2Index}].id`);
 
   if (address) {
-    const hatterWearer = await fetchWearerDetails(address, chainId);
+    const hatterWearer = await fetchWearerDetailsMesh(address, chainId);
 
     return {
       wearingHat: get(hatterWearer, 'currentHats.[0].id'),
