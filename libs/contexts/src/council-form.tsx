@@ -65,6 +65,7 @@ interface CouncilFormContextType {
   canEdit: boolean;
   availableTokens: TokenInfo[];
   tree: Tree | null | undefined;
+  error: Error | null;
   // deploy data
   hatIds: { [key: string]: bigint };
   moduleAddresses: { [key: string]: string };
