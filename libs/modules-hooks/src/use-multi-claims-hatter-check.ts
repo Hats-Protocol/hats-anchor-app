@@ -2,66 +2,109 @@ import { CONFIG } from '@hatsprotocol/config';
 import { Module } from '@hatsprotocol/modules-sdk';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
+import { GraphQLClient } from 'graphql-request';
 import { useIsAdmin } from 'hats-hooks';
-import { compact, concat, filter, findIndex, first, flatMap, get, includes, isEmpty, map, uniq } from 'lodash';
+import {
+  compact,
+  concat,
+  filter,
+  find,
+  // findIndex,
+  flatMap,
+  flatten,
+  get,
+  includes,
+  isEmpty,
+  map,
+  orderBy,
+  uniq,
+} from 'lodash';
 import { useMemo } from 'react';
 import { AppHat, FormData, ModuleDetails, SupportedChains } from 'types';
-import { createSubgraphClient, fetchWearerDetails } from 'utils';
+import { fetchWearerDetails, NETWORKS_PREFIX } from 'utils';
 import { Hex } from 'viem';
 
 import { useModuleDetails } from './use-module-details';
 import { useModulesDetails } from './use-modules-details';
 
-const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
+// const fetchHattersHelper = async (chainId: number, hats: Hex[]) => {
+//   if (isEmpty(hats)) return [];
+
+//   const subgraphClient = createSubgraphClient();
+//   const res = subgraphClient.getHatsByIds({
+//     chainId,
+//     hatIds: hats.map((hat) => BigInt(hat)),
+//     props: {
+//       claimableBy: { props: {} },
+//       claimableForBy: { props: {} },
+//     },
+//   });
+
+//   return res as unknown as Promise<AppHat[]>;
+// };
+
+const FETCH_HATTERS_HELPER_MESH = (chainId: number) => `
+  query getHatsByIds($hatIds: [ID!]!) {
+    ${NETWORKS_PREFIX[chainId]}_hats(where: { id_in: $hatIds }) {
+      id
+      claimableBy {
+        id
+      }
+      claimableForBy {
+        id
+      }
+    }
+  }
+`;
+
+const fetchHattersHelperMesh = async (chainId: number, hats: Hex[]): Promise<AppHat[]> => {
   if (isEmpty(hats)) return [];
 
-  const subgraphClient = createSubgraphClient();
-  const res = subgraphClient.getHatsByIds({
-    chainId,
-    hatIds: hats.map((hat) => BigInt(hat)),
-    props: {
-      claimableBy: { props: {} },
-      claimableForBy: { props: {} },
-    },
+  const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+  const result = await client.request(FETCH_HATTERS_HELPER_MESH(chainId), {
+    hatIds: hats,
   });
-
-  return res as unknown as Promise<AppHat[]>;
+  return get(result, `${NETWORKS_PREFIX[chainId]}_hats`) as unknown as Promise<AppHat[]>;
 };
 
 const fetchHatters = async (chainId: number | undefined, allHatIds: Hex[] | undefined) => {
   if (!chainId || !allHatIds || isEmpty(allHatIds)) return undefined;
-  const result = await fetchHattersHelper(chainId, allHatIds);
+  const result = await fetchHattersHelperMesh(chainId, allHatIds);
   return result;
 };
 
 const getHatterHat = async (
   claimsHatterData: AppHat[] | undefined,
-  storedModuleDetails: Module[] | undefined,
+  moduleDetails: Module[] | undefined,
   storedData: Partial<FormData>[] | undefined,
   chainId: number | undefined,
 ) => {
   if (!chainId) return {};
 
-  const onchainHatId = first(compact(map(claimsHatterData, 'claimableBy[0].id')));
-
-  const claimsHatterV1Index = findIndex(
-    storedModuleDetails,
-    (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV1,
+  // Should be reliable to get the most recent version
+  const sortedModules = orderBy(moduleDetails, 'version', 'desc');
+  const claimsHatter = find(sortedModules, (result: Module) =>
+    includes([CONFIG.modules.claimsHatterV2, CONFIG.modules.claimsHatterV1], get(result, 'implementationAddress')),
   );
-  const claimsHatterV2Index = findIndex(
-    storedModuleDetails,
-    (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV2,
-  );
-  const storedDataHatId = get(storedData, `[${claimsHatterV1Index}].id`);
-  const storedDataHatIdV3 = get(storedData, `[${claimsHatterV2Index}].id`);
+  const address = claimsHatter?.id;
 
-  const address = onchainHatId || storedDataHatId || storedDataHatIdV3;
+  // const claimsHatterV2Index = findIndex(
+  //   moduleDetails,
+  //   (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV2,
+  // );
+  // const claimsHatterV1Index = findIndex(
+  //   moduleDetails,
+  //   (result: Module) => get(result, 'implementationAddress') === CONFIG.modules.claimsHatterV1,
+  // );
+  // TODO should we be passing these hat IDs here? https://linear.app/hats-protocol/issue/BUILD-123/deploying-a-second-claims-hatter-in-a-tree-complicates-things
+  // const storedDataHatId = get(storedData, `[${claimsHatterV1Index}].id`);
+  // const storedDataHatIdV2 = get(storedData, `[${claimsHatterV2Index}].id`);
 
   if (address) {
-    const result = await fetchWearerDetails(address, chainId);
+    const hatterWearer = await fetchWearerDetails(address, chainId);
 
     return {
-      wearingHat: get(result, 'currentHats.[0].id'),
+      wearingHat: get(hatterWearer, 'currentHats.[0].id'),
       instanceAddress: address,
     };
   }
@@ -94,6 +137,19 @@ const useMultiClaimsHatterCheck = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
+  const allHatters = useMemo(() => {
+    if (!claimsHatterData) return [];
+    return uniq(
+      flatten(
+        map(claimsHatterData, (h) => {
+          return flatten(concat(map(get(h, 'claimableBy'), 'id'), map(get(h, 'claimableForBy'), 'id')));
+        }),
+      ),
+    );
+  }, [claimsHatterData]);
+
+  // console.log('claimsHatterData', claimsHatterData, allHatters);
+
   const claimableHats: Hex[] | undefined = useMemo(() => {
     if (!claimsHatterData) return undefined;
 
@@ -118,7 +174,7 @@ const useMultiClaimsHatterCheck = ({
   );
 
   const { modulesDetails, isLoading: modulesLoading } = useModulesDetails({
-    moduleIds: storedAddresses,
+    moduleIds: concat(allHatters, storedAddresses) as Hex[],
     chainId,
     editMode,
   });
@@ -155,21 +211,21 @@ const useMultiClaimsHatterCheck = ({
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 
-  const { details } = useModuleDetails({
-    address: hatterHat?.instanceAddress,
+  const { details: mchDetails } = useModuleDetails({
+    address: hatterHat?.instanceAddress as Hex,
     chainId,
   });
   const hatterIsAdmin = useIsAdmin({
-    address: hatterHat?.instanceAddress,
+    address: hatterHat?.instanceAddress as Hex,
     hatId: selectedHatId as Hex,
     chainId,
   });
 
   return {
-    multiClaimsHatter: details,
+    multiClaimsHatter: mchDetails,
     wearingHat: hatterHat?.wearingHat,
     instanceAddress: hatterHat?.instanceAddress,
-    mchV2: details?.implementationAddress === CONFIG.modules.claimsHatterV2,
+    mchV2: mchDetails?.implementationAddress === CONFIG.modules.claimsHatterV2,
     hatterIsAdmin,
     currentHatIsClaimable,
     claimableHats: hats,

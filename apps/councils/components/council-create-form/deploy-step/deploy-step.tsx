@@ -427,23 +427,31 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
                         : ''
                   }
                 >
-                  <NextStepButton
-                    // TODO disable if not ready to deploy hats tx or council simulation fails
-                    disabled={
-                      !payer ||
-                      !form.watch('acceptedTerms') ||
-                      isDeploying ||
-                      !canEdit ||
-                      (!simulateCouncil?.data && !simulateHats?.data)
-                    }
-                    onClick={handleDeploy}
-                  >
-                    {simulating ? <p>Loading</p> : isDeploying ? 'Deploying…' : `Deploy Council on ${targetChainName}`}
-                  </NextStepButton>
+                  <span className='pointer-events-auto'>
+                    <NextStepButton
+                      // TODO disable if not ready to deploy hats tx or council simulation fails
+                      disabled={
+                        !payer ||
+                        !form.watch('acceptedTerms') ||
+                        isDeploying ||
+                        !canEdit ||
+                        (!simulateCouncil?.data && !simulateHats?.data)
+                      }
+                      onClick={handleDeploy}
+                    >
+                      {simulating ? (
+                        <p>Loading</p>
+                      ) : isDeploying ? (
+                        'Deploying…'
+                      ) : (
+                        `Deploy Council on ${targetChainName}`
+                      )}
+                    </NextStepButton>
+                  </span>
                 </Tooltip>
               )}
 
-              <CalldataModal topHatWearer={topHatWearer} />
+              <CalldataModal topHatWearer={topHatWearer} draftId={draftId} />
               <PaymentDetailsModal form={form} draftId={draftId} canEdit={canEdit} />
             </div>
           </>

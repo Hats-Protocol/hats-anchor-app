@@ -7,6 +7,7 @@ import { AppHat, HatWearer } from 'types';
 import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '../contract';
+import { logger } from '../logs';
 import { createSubgraphClient, viemPublicClient } from '../web3';
 import { parseMetadata } from './mesh/fetch/utils';
 import { fetchWearerDetailsMesh } from './mesh/fetch/wearer';
@@ -80,6 +81,7 @@ export const fetchWearerDetails = async (address: Hex | string | undefined, chai
       },
     });
   } catch (err) {
+    logger.error('Error fetching wearer details', err);
     return undefined;
   }
 
@@ -101,6 +103,7 @@ export const fetchWearerDetailsForChain = async (address: string | undefined, ch
       return Promise.resolve(withProcessedMetadata);
     })
     .catch((err) => {
+      logger.error('Error fetching wearer details for chain', err);
       return Promise.resolve([]);
     });
 };
@@ -117,7 +120,7 @@ export const fetchWearerDetailsForAllChains = async (address: string | undefined
   });
 };
 
-export const fetchPaginatedWearersForHat = async (hatId: string, chainId: number, page: number = 0) => {
+export const fetchPaginatedWearersForHat = async (hatId: string, chainId: number, page = 0) => {
   const subgraphClient = createSubgraphClient();
 
   const res = await subgraphClient.getWearersOfHatPaginated({

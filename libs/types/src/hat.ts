@@ -56,7 +56,6 @@ export interface AppHat extends HatWithMetadata {
   nearestImage?: string;
   detailsObject?: {
     type: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: HatDetails;
   };
   name?: string;

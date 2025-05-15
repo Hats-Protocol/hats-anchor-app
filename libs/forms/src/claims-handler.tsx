@@ -13,6 +13,7 @@ import { idToIp } from 'shared';
 import { AppHat } from 'types';
 import { Button, Tooltip } from 'ui';
 import { formatAddress } from 'utils';
+import { logger } from 'utils';
 import { Hex } from 'viem/_types/types/misc';
 import { useWriteContract } from 'wagmi';
 
@@ -53,7 +54,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
 
   const hatToMintTo = watch('hatToMintTo');
   const { availableAdmins, hatToMintPended, pendMintHatForHatter } = usePendHatterMint({
-    address: instanceAddress,
+    address: instanceAddress as Hex,
     hatToMintTo: hatToMintTo?.value,
     treeToDisplay,
     selectedHat,
@@ -72,12 +73,13 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
   }));
 
   const onSuccess = () => {
-    console.log('success');
+    // TODO handle success (invalidate queries)
+    logger.info('success');
   };
 
   const registerHat = () => {
     if (!instanceAddress || !selectedHat?.id) {
-      console.log('no instance address or selected hat id', {
+      logger.error('no instance address or selected hat id', {
         instanceAddress,
         selectedHat,
       });
@@ -92,7 +94,6 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
       chainId,
     })
       .then((hash) => {
-        console.log({ hash });
         handlePendingTx?.({
           hash,
           txChainId: chainId,
@@ -102,7 +103,7 @@ const ClaimsHandler = ({ localForm, onOpenModuleDrawer, setIsStandAloneHatterDep
         });
       })
       .catch((error) => {
-        console.log('error', error);
+        logger.error('Error registering hat', error);
       });
   };
 

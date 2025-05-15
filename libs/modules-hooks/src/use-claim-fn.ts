@@ -76,7 +76,7 @@ export const useClaimFn = ({
       .then((result) => {
         return result;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error('Error claiming hat', err));
   }, [claimHatFor, address]);
 
   // TODO handle check which module to enable each hook
@@ -99,7 +99,7 @@ export const useClaimFn = ({
     moduleParameters,
     moduleDetails,
     chainId,
-    mchAddress,
+    mchAddress: mchAddress as Hex,
     onSuccessfulSign: () => {
       setStatus(CLAIM_STATUS.SUCCESS);
       onSuccess?.();

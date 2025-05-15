@@ -93,21 +93,14 @@ const ModuleParamsDevDisplay = ({
   params: ModuleParameter[] | undefined;
   chainId: number;
 }) => {
-  console.log(params);
   const tokenParam = find(params, { displayType: 'erc20' });
   const tokenAddress = tokenParam?.value as Hex;
-  console.log(tokenAddress, tokenParam, chainId);
-  const {
-    data: tokenDecimals,
-    status,
-    error,
-  } = useReadContract({
+  const { data: tokenDecimals } = useReadContract({
     address: tokenAddress,
     abi: erc20Abi,
     functionName: 'decimals',
     chainId,
   });
-  console.log(tokenDecimals, status, error);
 
   return (
     <div className='flex flex-col items-end gap-1'>

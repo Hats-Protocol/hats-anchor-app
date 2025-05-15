@@ -68,6 +68,7 @@ const AllowlistManager = ({
     selectedHat: managerHat,
     chainId: chainId as SupportedChains,
   });
+
   const userIsAdmin = useIsAdmin({ address: userAddress as Hex, hatId: primarySignerHat, chainId });
   // const hatDetails = managerHat?.detailsMetadata;
   // const hatName = hatDetails ? get(JSON.parse(hatDetails), 'data.name') : undefined;
@@ -154,7 +155,7 @@ const AllowlistManager = ({
         <div className='space-y-4'>
           <div className='space-y-1'>
             {isAdminHat ? (
-              <h2 className='font-medium'>Delegated to Council Managers</h2>
+              <h2 className='font-medium'>Delegated to Organization Managers</h2>
             ) : (
               <h2 className='font-bold'>Compliance Managers</h2>
             )}
@@ -178,14 +179,16 @@ const AllowlistManager = ({
               {currentChainId === chainId ? (
                 <div className='relative'>
                   <Tooltip label={isAdminHat ? 'Soon you can replace the council managers' : undefined}>
-                    <Button
-                      variant='outline-blue'
-                      rounded='full'
-                      onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
-                      disabled={isAdminHat}
-                    >
-                      Add Compliance Manager
-                    </Button>
+                    <span className='pointer-events-auto inline-block'>
+                      <Button
+                        variant='outline-blue'
+                        rounded='full'
+                        onClick={() => setModals?.({ 'addUser-complianceAdmin': true })}
+                        disabled={isAdminHat}
+                      >
+                        Add Compliance Manager
+                      </Button>
+                    </span>
                   </Tooltip>
 
                   {isAdminHat && (

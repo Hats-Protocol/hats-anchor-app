@@ -197,15 +197,15 @@ export const ManagePage = ({ slug }: { slug: string }) => {
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
   return (
-    <div className='mx-auto flex gap-4 px-4 pt-10 lg:max-w-[1000px]'>
-      <div className='hidden w-1/5 md:flex'>
+    <div className='mx-auto flex gap-20 px-4 pt-10 lg:max-w-[1000px]'>
+      <div className='hidden w-1/3 justify-end md:flex'>
         <SectionMenu
           sections={menuOptions}
           isLoading={councilDetailsLoading || !councilDetails || eligibilityRulesLoading}
         />
       </div>
 
-      <div className='flex w-full flex-col gap-10 px-2 md:w-4/5 md:px-0'>
+      <div className='flex w-full flex-col gap-10 px-2 md:w-2/3 md:px-0'>
         <div className='flex flex-col gap-4' id='threshold'>
           {typeof window === 'undefined' || councilDetailsLoading ? (
             <div className='flex flex-col gap-6'>

@@ -549,7 +549,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
           }
       }
 
-      logger.debug('payload', payload);
+      // logger.debug('payload', payload);
       const accessToken = await getAccessToken();
       const councilsGraphqlClient = getCouncilsGraphqlClient(accessToken ?? undefined);
 
@@ -603,7 +603,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
             ? JSON.stringify(formData.completedOptionalSteps)
             : JSON.stringify([]),
       };
-      logger.debug('full payload', newPayload);
+      // logger.debug('full payload', newPayload);
 
       // return await councilsGraphqlClient.request(UPDATE_COUNCIL_FORM, newPayload as Partial<CreationForm>);
       // the payload we are sending has the formatting we need

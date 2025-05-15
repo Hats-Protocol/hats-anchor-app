@@ -207,7 +207,7 @@ const useModuleDeploy = ({
   const { writeAsync: deployModuleAndRegisterWithClaimsHatter, isLoading: isLoadingMultiClaimsHatter } =
     useMultiClaimsHatterContractWrite({
       functionName: 'setHatClaimabilityAndCreateModule',
-      address: instanceAddress,
+      address: instanceAddress as Hex,
       enabled: !!instanceAddress && !some(deployModuleAndRegisterWithClaimsHatterArgs, isUndefined),
       args: deployModuleAndRegisterWithClaimsHatterArgs,
       chainId,
