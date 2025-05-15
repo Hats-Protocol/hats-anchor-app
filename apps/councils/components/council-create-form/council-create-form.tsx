@@ -9,6 +9,7 @@ import { logger } from 'utils';
 import { DeployStep } from './deploy-step';
 import { DetailsStep } from './details-step';
 import { AgreementStep, ComplianceStep, ManagementStep, MembersStep, TokensStep } from './eligibility-step';
+import { ErrorPage } from './error-page';
 import { FinishStep } from './finish-step';
 import { SelectionStep } from './select-step';
 import { ThresholdStep } from './threshold-step';
@@ -22,8 +23,38 @@ interface CouncilCreateFormProps {
 
 export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormProps) {
   const router = useRouter();
-  const { persistForm, form, stepValidation, setStepValidation } = useCouncilForm();
+  const { persistForm, form, stepValidation, setStepValidation, error } = useCouncilForm();
 
+  // Show database error if we failed to load the draft data
+  if (error) {
+    // Get the GraphQL error details from the query error
+    const gqlError = (error as { response?: { errors?: { extensions?: { code?: string } }[] } })?.response?.errors?.[0];
+    const errorCode = gqlError?.extensions?.code;
+
+    switch (errorCode) {
+      case 'BAD_REQUEST':
+        return (
+          <ErrorPage
+            title='Invalid Council Draft ID'
+            description='The URL contains an invalid council draft ID format. Please check the URL and try again.'
+          />
+        );
+      case 'NOT_FOUND':
+        return (
+          <ErrorPage
+            title='Council Draft Not Found'
+            description='This council draft does not exist. Please check the URL and try again.'
+          />
+        );
+      default:
+        return (
+          <ErrorPage
+            title='Problem Loading Council Draft'
+            description='We encountered an unexpected error while loading the council draft. Please try again later.'
+          />
+        );
+    }
+  }
   const handleNext = async () => {
     try {
       await persistForm(step, subStep);

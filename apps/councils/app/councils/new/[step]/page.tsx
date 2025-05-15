@@ -6,6 +6,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { Card } from 'ui';
 
 import { CreateFormDevDetails } from '../../../../components/council-create-form/dev-details/council-create-form-dev-details';
+import { ErrorPage } from '../../../../components/council-create-form/error-page';
 import { CouncilCreateForm } from '../../../../components/council-create-form/index';
 import { CreationFormSteps } from '../../../../components/creation-form-steps';
 
@@ -17,6 +18,22 @@ const NewCouncil = () => {
   const subStep = searchParams.get('subStep') || undefined;
 
   useAuthGuard();
+
+  // Early validation of draft ID
+  if (!draftId) {
+    return (
+      <div className='grid-cols-20 grid pb-24 pt-8'>
+        <div className='col-span-10 col-start-3'>
+          <Card className='min-h-[300px] w-full px-16 py-10'>
+            <ErrorPage
+              title='Error Loading Draft'
+              description="The council draft you're trying to access doesn't exist or the draft ID is invalid. Please check the URL and try again."
+            />
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <CouncilFormProvider draftId={draftId}>
