@@ -12,6 +12,6 @@ To test your local instance for a production build run `pnpm councils:build` fro
 
 The build artifacts will be stored in the `{ROOT_DIR}/dist/apps` directory, ready to be deployed. Build cache for libraries is also stored in `{ROOT_DIR}/tmp/` so they don't need to rebuilt each time without changes.
 
-## Development.
+## Development
 
 &nbsp;-

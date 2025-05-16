@@ -5,7 +5,7 @@ import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { filter, find, flatten, get, includes, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
@@ -30,7 +30,6 @@ export const ModuleChainClaimHeader = ({
   chainId,
   labeledModules,
   showJoinButton = false,
-  mobilePosition,
 }: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
   const [isClaimLoading, setIsClaimLoading] = useState(false);
