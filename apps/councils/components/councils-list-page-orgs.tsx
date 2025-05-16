@@ -1,7 +1,10 @@
 'use client';
 
 import { chainsList } from '@hatsprotocol/config';
+import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
+import { useHatsDetails } from 'hats-hooks';
+import { uniqueHats } from 'hats-utils';
 import {
   useAuthGuard,
   useBatchOffchainCouncilDetails,
@@ -9,10 +12,10 @@ import {
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
-import { concat, groupBy, isEmpty, map, orderBy, reject } from 'lodash';
+import { concat, filter, flatten, get, groupBy, isEmpty, map, orderBy, reject } from 'lodash';
 import { CirclePlus } from 'lucide-react';
 import { useMemo } from 'react';
-import { HatSignerGateV2 } from 'types';
+import { AppHat, HatSignerGateV2 } from 'types';
 import { Button, HatDeco, Link } from 'ui';
 import { chainIdToString, slugify } from 'utils';
 import { NETWORKS_PREFIX } from 'utils/src/subgraph/mesh/queries/constants';
@@ -24,6 +27,25 @@ import { AddCouncilButton } from './add-council-button';
 import { CouncilHeaderCard } from './council-header';
 import { CouncilHeaderSkeletons } from './council-header-skeletons';
 import { EmptyCouncilSteps } from './empty-council-steps';
+
+// Create mapping from prefix to chain ID
+const prefixToChainId = Object.entries(NETWORKS_PREFIX).reduce(
+  (acc, [chainId, prefix]) => {
+    acc[prefix] = Number(chainId);
+    return acc;
+  },
+  {} as Record<string, number>,
+);
+
+const filterHatsForCouncil = (hats: Partial<AppHat>[], council: HatSignerGateV2, chainId: number) => {
+  const topHatId = get(council, 'signerHats[0].id');
+  return filter(
+    hats,
+    (hat) =>
+      (map(council.signerHats, 'id')?.includes(hat.id!) || council.ownerHat?.id === hat.id || hat.id === topHatId) &&
+      hat.chainId === chainId,
+  );
+};
 
 const CouncilListPageOrgs = () => {
   const { address: userAddress } = useAccount();
@@ -58,20 +80,19 @@ const CouncilListPageOrgs = () => {
   const { councilsList, isLoading: councilsLoading } = useCrossChainCouncilsList({
     hatIdsByNetwork,
   });
-  console.log('cross-chain councils', crossChainWearerHats, crossChainAllowlistHats);
-
-  // Create mapping from prefix to chain ID
-  const prefixToChainId = useMemo(
-    () =>
-      Object.entries(NETWORKS_PREFIX).reduce(
-        (acc, [chainId, prefix]) => {
-          acc[prefix] = Number(chainId);
-          return acc;
-        },
-        {} as Record<string, number>,
-      ),
-    [],
+  const allHats = flatten(
+    map(hatIdsByNetwork, (hatIds, network) =>
+      hatIds.map((hatId) => ({ id: hatId, chainId: prefixToChainId[network] })),
+    ),
   );
+  const allHatsWithTopHats = flatten(
+    map(allHats, (hat) => [
+      hat,
+      { id: hatIdDecimalToHex(treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(hat.id)))), chainId: hat.chainId },
+    ]),
+  );
+  const uniqueHatsWithTopHats = uniqueHats(allHatsWithTopHats as Partial<AppHat>[]);
+  const { data: allHatsDetails } = useHatsDetails({ hats: uniqueHatsWithTopHats as Partial<AppHat>[] });
 
   // Create a flat list of councils with their chain IDs
   const councilsWithChains = useMemo(
@@ -88,7 +109,7 @@ const CouncilListPageOrgs = () => {
               }));
             })
         : [],
-    [councilsList, prefixToChainId],
+    [councilsList],
   );
 
   // fetch all offchain details in batch -- uses parallel react queries instead of a promise.all -- we can consider optimizing this at the Mesh level instead
@@ -143,7 +164,7 @@ const CouncilListPageOrgs = () => {
             {/* Group by chain within each organization */}
             {Object.entries(groupBy(groupedCouncils[organizationName], 'chainId')).map(([chainId, councils]) => {
               const chainConfig = chainsList[Number(chainId) as keyof typeof chainsList];
-              console.log('councils', chainId, councils);
+
               return (
                 <div key={chainId} className='flex flex-col gap-2 md:gap-4'>
                   <div className='flex flex-col justify-between gap-2 md:flex-row md:items-start md:gap-4'>
@@ -163,7 +184,8 @@ const CouncilListPageOrgs = () => {
                   <div className='flex flex-col gap-2 md:gap-4'>
                     {councils.map((item) => {
                       // const isMHSG = size(item.council?.signerHats) > 1;
-                      console.log('list page', item);
+                      // console.log('list page', item);
+                      const hats = filterHatsForCouncil(allHatsDetails, item.council, item.chainId);
 
                       return (
                         <Link
@@ -178,6 +200,7 @@ const CouncilListPageOrgs = () => {
                             withLinks={false}
                             initialCouncilDetails={item.council}
                             initialOffchainCouncilDetails={item.offchainDetails || undefined}
+                            initialHats={hats}
                             // initialSafeDetails={item.safeDetails || undefined}
                           />
                         </Link>

@@ -8,10 +8,12 @@ const useHatsDetails = ({ hats }: { hats: Partial<AppHat>[] }) => {
 
   const result = useQueries({
     queries: map(hatsByChain, (hats, chainId) => ({
-      queryKey: ['hatDetails', chainId, map(hats, 'id')],
+      queryKey: ['hatsByChainDetails', chainId, map(hats, 'id')],
       queryFn: () => fetchHatsDetailsMesh(compact(map(hats, 'id')), toNumber(chainId)),
     })),
   });
+
+  // TODO would it be wise to cache these to the `hatDetails` cache also?
 
   return {
     data: compact(flatten(result.map((r) => r.data))),

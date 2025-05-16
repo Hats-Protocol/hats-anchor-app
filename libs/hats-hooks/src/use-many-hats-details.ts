@@ -6,6 +6,14 @@ import { fetchHatsDetailsMesh } from 'utils';
 
 // TODO handle as a single cache
 
+/**
+ * Fetches details for a list of hats on a single chain
+ * @param hats
+ * @param initialHats
+ * @param editMode
+ * @param chainId
+ * @returns A list of hats with details and loading state
+ */
 const useManyHatsDetails = ({
   hats,
   initialHats,

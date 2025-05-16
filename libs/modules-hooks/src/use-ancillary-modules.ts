@@ -59,6 +59,8 @@ const fetchChainedModules = async (controllers: Hex[] | undefined, chainId: Supp
   return get(modules, `${NETWORKS_PREFIX[chainId]}_hatsEligibilitiesChains`, []);
 };
 
+// TODO break up to multiple hooks
+// CURRENTLY USES MESH!
 const useAncillaryModules = ({
   id,
   chainId,

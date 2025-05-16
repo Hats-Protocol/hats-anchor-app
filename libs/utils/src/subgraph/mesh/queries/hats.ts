@@ -6,7 +6,7 @@ export function getHatsDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
     query getHats($ids: [ID!]!) {
-      ${networkPrefix}_hats(where: { id_in: $ids }) {
+      ${networkPrefix}_hats(where: { id_in: $ids }, first: 1000) {
         id
         prettyId
         status

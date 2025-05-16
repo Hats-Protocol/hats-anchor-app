@@ -2,6 +2,7 @@
 
 import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useHatsDetails } from 'hats-hooks';
+import { uniqueHats } from 'hats-utils';
 import { useCouncilsDetails, useOrganization } from 'hooks';
 import { concat, flatten, map, size, sortBy } from 'lodash';
 import { useParams } from 'next/navigation';
@@ -13,16 +14,6 @@ import { getAddress } from 'viem';
 import { AddCouncilButton } from './add-council-button';
 import { CouncilHeaderCard } from './council-header';
 import { CouncilHeaderSkeletons } from './council-header-skeletons';
-
-const uniqueHats = (hats: Partial<AppHat>[]) => {
-  return [
-    ...hats
-      .reduce((map, { id, chainId }) => {
-        return map.set(`${id}-${chainId}`, { id, chainId });
-      }, new Map())
-      .values(),
-  ];
-};
 
 const hatWithChainId = (hat: Partial<AppHat> | undefined, chainId: number | undefined) => ({
   ...hat,

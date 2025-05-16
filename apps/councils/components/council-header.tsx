@@ -6,14 +6,14 @@ import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useSafesInfo } from 'hooks';
 import { Safe as SafeIcon } from 'icons';
-import { capitalize, filter, first, get, includes, map, nth, reduce, size, toLower } from 'lodash';
+import { capitalize, filter, find, first, get, includes, map, nth, reduce, size, toLower } from 'lodash';
 import { toNumber } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
+import { AppHat, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
 import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug, slugify } from 'utils';
 import { getAddress, Hex } from 'viem';
@@ -36,6 +36,7 @@ const CouncilHeaderCard = ({
   initialCouncilDetails,
   initialOffchainCouncilDetails,
   initialSafeDetails,
+  initialHats,
 }: {
   chainId?: number;
   address?: string;
@@ -43,8 +44,8 @@ const CouncilHeaderCard = ({
   initialCouncilDetails?: ExtendedHSGV2 | null;
   initialOffchainCouncilDetails?: OffchainCouncilData | null;
   initialSafeDetails?: any;
+  initialHats?: Partial<AppHat>[];
 }) => {
-  console.log('council header', initialCouncilDetails, initialOffchainCouncilDetails, initialSafeDetails, chainId);
   const pathname = usePathname();
   // const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
@@ -69,10 +70,20 @@ const CouncilHeaderCard = ({
     safeAddress: initialCouncilDetails?.safe as Hex,
     chainId: chainId ?? 11155111,
   });
-  console.log('council header', offchainCouncilDetails, safesDetails);
+  // console.log('council header', initialCouncilDetails, offchainCouncilDetails, safesDetails);
 
   // Use mock data if real data is not available
-  const effectiveCouncilDetails = initialCouncilDetails;
+  const effectiveCouncilDetails = {
+    ...initialCouncilDetails,
+    signerHats: map(initialCouncilDetails?.signerHats, (h) => ({
+      ...h,
+      ...find(initialHats, (hat) => hat.id === h.id),
+    })),
+    ownerHat: {
+      ...initialCouncilDetails?.ownerHat,
+      ...find(initialHats, (hat) => hat.id === initialCouncilDetails?.ownerHat?.id),
+    },
+  };
   const effectiveOffchainDetails = offchainCouncilDetails;
   const effectiveSafeDetails = first(safesDetails);
   const effectiveSafeSigners = safeSignersRaw;
@@ -94,12 +105,13 @@ const CouncilHeaderCard = ({
     0,
   );
 
+  const initialTopHat = initialHats ? find(initialHats, (hat) => hat.id === topHatId) : undefined;
   const { data: topHatDetails } = useHatDetails({
     chainId: (chainId ?? 11155111) as SupportedChains,
-    hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
+    hatId: topHatId && !initialTopHat?.id ? hatIdDecimalToHex(topHatId) : undefined,
   });
 
-  const topHatWearerAddress = get(topHatDetails, 'wearers[0].id');
+  const topHatWearerAddress = get(topHatDetails, 'wearers[0].id', get(initialTopHat, 'wearers[0].id'));
   const { data: ensName } = useEnsName({
     address: topHatWearerAddress as Hex,
     chainId: 1,
@@ -123,10 +135,11 @@ const CouncilHeaderCard = ({
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
+  // TODO check impacts of this hook => in uses useHatDetails, useTreeDetails
   const { isReadyToClaim, isWearing } = useEligibility();
 
   // TODO check signers vs hat wearers
-  // TODO better loading state/check
+
   if (!safe) {
     return <Skeleton className='bg-functional-link-primary/10 mx-auto flex min-h-[125px] w-full rounded-lg p-4' />;
   }
