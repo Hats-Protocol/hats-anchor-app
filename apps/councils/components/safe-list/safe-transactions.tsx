@@ -105,7 +105,11 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
 
       // for ETH transfers
       if (tx?.value && tx.value !== '0') {
-        formattedValue = formatUnits(BigInt(tx.value), decimals);
+        formattedValue = formatRoundedDecimals({
+          value: BigInt(tx.value),
+          decimals,
+          rounded: 4,
+        });
       }
       // for ERC20 token transfers
       else if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
@@ -114,6 +118,7 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
           formattedValue = formatRoundedDecimals({
             value: BigInt(parameters[1]?.value || '0'),
             decimals,
+            rounded: 4,
           });
         }
       }
@@ -126,6 +131,7 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
       formattedValue = formatRoundedDecimals({
         value: BigInt(transfer.value),
         decimals: transfer.tokenInfo?.decimals || 18,
+        rounded: 4,
       });
 
       symbol = transfer.tokenInfo?.symbol || 'ETH';
@@ -273,6 +279,7 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
       b.type === 'transaction' ? new Date(b.executionDate || '').getTime() : Number(b.timestamp) * 1000;
     return timestampB - timestampA;
   });
+  logger.info('allActivity', allActivity);
 
   return (
     <div className='w-full space-y-4 px-4 md:px-0'>

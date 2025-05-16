@@ -19,6 +19,7 @@ import {
   filterTokenList,
   formatRoundedDecimals,
   formatTimestamp,
+  logger,
   onlyInboundTransactions,
   onlyOutboundTransactions,
   symbolPriceHandler,
@@ -210,7 +211,7 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
   const filteredSafeTokens = filterTokenList({
     tokenList: safeTokens,
-    approvedTokens,
+    // approvedTokens,
   });
 
   // calculate total safe value in USD using raw values - matching safe-total.tsx implementation
