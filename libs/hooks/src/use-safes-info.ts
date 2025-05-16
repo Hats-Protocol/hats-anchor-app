@@ -10,7 +10,7 @@ const fetchSafesInfoLocal = async ({ safes, chainId }: { safes: Hex[] | undefine
   return fetch(`/api/safe/${chainId}?safes=${safes?.join(',')}`)
     .then((res) => res.json())
     .then((data) => {
-      return data || null;
+      return (data || null) as Hex[] | null;
     })
     .catch((error) => {
       logger.error('fetchSafesInfoLocal', error);

@@ -126,9 +126,10 @@ export const getCrossChainWearerDetails = async (address: string | undefined) =>
     });
 
     // Process each chain's wearer data to include chainId
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const processedData = Object.entries(res).reduce((acc: any, [key, value]) => {
       const chainPrefix = key.split('_')[0]; // TODO consolidate with util
-      const chainId = Object.entries(NETWORKS_PREFIX).find(([_, prefix]) => prefix === chainPrefix)?.[0];
+      const chainId = Object.entries(NETWORKS_PREFIX).find(([, prefix]) => prefix === chainPrefix)?.[0];
 
       if (chainId && value) {
         acc[key] = {

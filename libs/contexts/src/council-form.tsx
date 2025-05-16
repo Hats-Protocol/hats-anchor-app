@@ -16,7 +16,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTreeDetails } from 'hats-hooks';
 import { fetchCouncilDetails, useOrganization, useToast, useWaitForSubgraph } from 'hooks';
-import { compact, concat, find, first, isEmpty, map, toNumber, uniq, values } from 'lodash';
+import { compact, concat, find, first, get, isEmpty, map, toNumber, uniq, values } from 'lodash';
 import { getEligibilityRules } from 'modules-hooks';
 import { useSearchParams } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -251,7 +251,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
     const councilsEligibilityRules = await Promise.all(
       map(fullCouncilData, (council) => {
         return getEligibilityRules({
-          address: council?.signerHats[0].eligibility,
+          address: get(council, 'signerHats[0].eligibility'),
           chainId: council?.chain as SupportedChains,
         });
       }),

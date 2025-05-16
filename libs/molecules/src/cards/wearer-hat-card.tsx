@@ -1,8 +1,13 @@
 'use client';
 
-import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToHex,
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+  hatIdToTreeId,
+  treeIdToTopHatId,
+} from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
-import { getTreeId } from 'hats-utils';
 import { get } from 'lodash';
 import { AppHat, SupportedChains } from 'types';
 import { Card, LazyImage, Link, Skeleton } from 'ui';
@@ -18,7 +23,7 @@ const WearerHatCard = ({ hat, chainId }: { hat: AppHat; chainId: SupportedChains
     data: topHat,
     isLoading: isTopHatLoading,
   } = useHatDetails({
-    hatId: getTreeId(get(hat, 'id'), true),
+    hatId: hatIdDecimalToHex(treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(get(hat, 'id'))))),
     chainId,
   });
 

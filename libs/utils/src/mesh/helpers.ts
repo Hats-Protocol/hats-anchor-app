@@ -17,9 +17,10 @@ const chain = Chain(`${MESH_API_URL}/graphql`);
  * @returns The council data
  */
 export const getCouncilData = async ({ id, chainId }: { id: string; chainId: number }) => {
+  if (!id || !chainId) return Promise.resolve(null);
   const networkPrefix = NETWORKS_PREFIX[chainId];
   // @ts-expect-error how to catch network prefix as key?
-  const result = await chain('query')({
+  return chain('query')({
     [`${networkPrefix}_hatsSignerGateV2S` as string]: [
       { where: { or: [{ id }, { safe: id }] } },
       {
@@ -32,9 +33,15 @@ export const getCouncilData = async ({ id, chainId }: { id: string; chainId: num
         thresholdType: true,
       },
     ],
-  });
-
-  return first(get(result, `${networkPrefix}_hatsSignerGateV2S`, undefined));
+  })
+    .then((result) => {
+      return Promise.resolve(first(get(result, `${networkPrefix}_hatsSignerGateV2S`, null)) || null);
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      return Promise.resolve(null);
+    });
 };
 
 export const getHatsDetails = async ({ ids, chainId }: { ids: string[]; chainId: number }) => {

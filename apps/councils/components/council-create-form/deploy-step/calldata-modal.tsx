@@ -190,7 +190,7 @@ const CalldataModal = ({ topHatWearer, draftId }: { topHatWearer: Hex | undefine
 
       <div className='mt-4 flex justify-center'>
         <p className='text-sm text-gray-500'>
-          After deploying the council, complete the process by processing the transactions.
+          After deploying the council, finalize it by processing the transactions.
         </p>
       </div>
 

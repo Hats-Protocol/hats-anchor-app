@@ -9,6 +9,10 @@ import { useAccount } from 'wagmi';
 // We can also do at the full page level, but if we want server side we'll need another approach
 // We can export the specific states from this, such as isReady and isAuthorized, and add specific UI states to the consuming components if needed
 
+/**
+ * Handles Privy auth state and wallet connection
+ * @returns Auth states and functions
+ */
 export const useAuthGuard = () => {
   const { login, user, authenticated, ready, isModalOpen, logout, linkEmail } = usePrivy();
   const { address: userAddress } = useAccount();

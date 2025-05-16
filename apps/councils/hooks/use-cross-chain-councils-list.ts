@@ -114,6 +114,23 @@ const CROSS_CHAIN_COUNCIL_MANAGERS_QUERY = gql`
   }
 `;
 
+// const HSG_FRAGMENT = gql`
+//   fragment HSG on HatSignerGateV2 {
+//     id
+//     safe
+//     thresholdType
+//     minThreshold
+//     targetThreshold
+//     signerHats {
+//       id
+//       maxSupply
+//     }
+//     ownerHat {
+//       id
+//     }
+//   }
+// `;
+
 const HSG_QUERY = gql`
   query getCrossChainHSGs(
     $ethHatIds: [ID!]
@@ -132,14 +149,28 @@ const HSG_QUERY = gql`
     ) {
       # 1
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
     Op_hatsSignerGateV2S(where: { or: [{ ownerHat_: { id_in: $opHatIds } }, { signerHats_: { id_in: $opHatIds } }] }) {
       # 10
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
@@ -148,7 +179,14 @@ const HSG_QUERY = gql`
     ) {
       # 100
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
@@ -157,7 +195,14 @@ const HSG_QUERY = gql`
     ) {
       # 137
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
@@ -166,7 +211,14 @@ const HSG_QUERY = gql`
     ) {
       # 8453
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
@@ -175,7 +227,14 @@ const HSG_QUERY = gql`
     ) {
       # 42161
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
@@ -184,7 +243,14 @@ const HSG_QUERY = gql`
     ) {
       # 42220
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
@@ -195,7 +261,14 @@ const HSG_QUERY = gql`
     ) {
       # 84532
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }
@@ -204,7 +277,14 @@ const HSG_QUERY = gql`
     ) {
       # 11155111
       id
+      safe
+      thresholdType
+      minThreshold
+      targetThreshold
       signerHats {
+        id
+      }
+      ownerHat {
         id
       }
     }

@@ -8,6 +8,7 @@ export const fetchHatsDetailsMesh = async (hatIds: string[], chainId?: number): 
   const localHats = compact(hatIds);
   if (isEmpty(localHats) || !chainId) return null;
 
+  // TODO mesh client util
   const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
   const query = getHatsDetailsQuery(chainId);
 

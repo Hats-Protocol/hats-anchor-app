@@ -1,4 +1,10 @@
-import { hatIdDecimalToIp, treeIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
+import {
+  hatIdDecimalToIp,
+  hatIdHexToDecimal,
+  hatIdToTreeId,
+  treeIdHexToDecimal,
+  treeIdToTopHatId,
+} from '@hatsprotocol/sdk-v1-core';
 import { Tree } from '@hatsprotocol/sdk-v1-subgraph';
 import {
   compact,
@@ -22,8 +28,6 @@ import {
 import { AppHat, HatWearer, HatWithDepth, SupportedChains } from 'types';
 import { formatAddress, formatScientificWhole, ipfsUrl } from 'utils';
 import { Hex } from 'viem';
-
-import { getTreeId } from './hats';
 
 type OrgChartTypes =
   | 'contract' // has bytecode and we get name back from etherscan
@@ -117,7 +121,6 @@ const mapHat = (
   };
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export async function toTreeStructure({
   treeData,
   hatsData,
@@ -163,7 +166,7 @@ export async function toTreeStructure({
 }
 
 const isHatInParentOfTrees = (hat: AppHat, parentOfTrees: Tree[] | undefined): boolean => {
-  return !!find(parentOfTrees, { id: getTreeId(hat.id) });
+  return !!find(parentOfTrees, { id: treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(hat.id))) });
 };
 
 const isLinkedToHatFunc = (hat: AppHat, linkedToHat: AppHat | null): boolean => {

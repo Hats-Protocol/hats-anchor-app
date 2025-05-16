@@ -8,7 +8,7 @@ import { ErrorPage } from '../error-page';
 function ErrorBoundary({ children }: ErrorBoundaryProps) {
   return (
     <EB
-      FallbackComponent={ErrorPage}
+      FallbackComponent={({ error }) => <ErrorPage error={error} />}
       onError={(error, errorInfo) => {
         // log the error
         console.log('Error caught!');
