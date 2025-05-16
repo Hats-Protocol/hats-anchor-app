@@ -86,12 +86,9 @@ export const ModuleChainClaimHeader = ({
   const completedRules = size(filter(eligibilityRules, (rule) => get(combinedReadyToClaim, rule.address)));
   const isReadyToClaim = completedRules === size(eligibilityRules);
 
-  // Memoize the rule to complete and claim
-  const ruleToCompleteAndClaim = useMemo(() => {
-    if (!address) return undefined;
-    const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v));
-    return find(eligibilityRules, (rule) => get(rule, 'address') === completeToClaim);
-  }, [address, aggregateIsReadyToClaim, eligibilityRules]);
+  // Find the rule that needs to be completed to claim
+  const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v));
+  const ruleToCompleteAndClaim = find(eligibilityRules, (rule) => get(rule, 'address') === completeToClaim);
 
   const {
     handleClaim: originalHandleClaim,
