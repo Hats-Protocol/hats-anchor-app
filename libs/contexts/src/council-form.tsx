@@ -65,6 +65,7 @@ interface CouncilFormContextType {
   canEdit: boolean;
   availableTokens: TokenInfo[];
   tree: Tree | null | undefined;
+  error: Error | null;
   // deploy data
   hatIds: { [key: string]: bigint };
   moduleAddresses: { [key: string]: string };
@@ -310,7 +311,11 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
   );
 
   // persist the form data from the database
-  const { isLoading, data: apiData } = useQuery({
+  const {
+    isLoading,
+    data: apiData,
+    error,
+  } = useQuery({
     queryKey: ['councilForm', draftId],
     queryFn: async () => {
       const accessToken = await getAccessToken();
@@ -318,11 +323,14 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
       return councilsGraphqlClient
         .request<CouncilFormResponse>(GET_COUNCIL_FORM, { id: draftId })
         .then((result) => {
+          if (!result.councilCreationForm) {
+            throw new Error('Council draft not found');
+          }
           return result.councilCreationForm;
         })
         .catch((error) => {
           logger.error('Error fetching council form:', error);
-          throw error;
+          throw error; // Pass through the original error with its structure intact
         });
     },
     enabled: !!draftId,
@@ -682,6 +690,7 @@ export function CouncilFormProvider({ children, draftId }: { children: React.Rea
         canEdit,
         availableTokens,
         tree,
+        error,
         // deploy data
         hatIds,
         moduleAddresses,
