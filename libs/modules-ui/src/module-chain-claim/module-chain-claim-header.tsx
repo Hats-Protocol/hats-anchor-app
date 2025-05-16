@@ -5,7 +5,7 @@ import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { filter, find, flatten, get, includes, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
 import { Button, LinkButton, Tooltip } from 'ui';
@@ -33,7 +33,6 @@ export const ModuleChainClaimHeader = ({
   mobilePosition,
 }: ModuleChainClaimHeaderProps) => {
   const { address } = useAccount();
-
   const [isClaimLoading, setIsClaimLoading] = useState(false);
   const [isVerifyLoading, setIsVerifyLoading] = useState(false);
   const currentChainId = useChainId();
@@ -45,30 +44,54 @@ export const ModuleChainClaimHeader = ({
     chainId: chainId as SupportedChains,
     address: hsgAddress,
   });
+
   const { data: safeDetails } = useSafeDetails({
     safeAddress: councilDetails?.safe,
     chainId: chainId as SupportedChains,
   });
+
   const { data: ensName } = useEnsName({
     address,
     chainId: 1,
   });
+
   const waitForSubgraph = useWaitForSubgraph({ chainId: chainId as SupportedChains });
+
+  // Get eligibility context values with early returns for undefined
   const {
     selectedHat,
-    eligibilityRules: rawEligibilityRules,
-    currentEligibility,
-    isReadyToClaim: aggregateIsReadyToClaim,
+    eligibilityRules: rawEligibilityRules = [],
+    currentEligibility = {},
+    isReadyToClaim: aggregateIsReadyToClaim = {},
     activeRule,
-
-    isWearing,
+    isWearing = false,
   } = useEligibility();
-  const eligibilityRules = flatten(rawEligibilityRules);
+
+  // Early return without UI - useAuthGuard handles this
+  if (!address) return null;
+
   const isSigner = includes(safeDetails, address as Hex);
 
-  // in cases where there's one module to complete the action and claim the hat, it likely has a readyToClaim status
-  const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v)); // TODO check that this is the only one/not already eligible
-  const ruleToCompleteAndClaim = find(eligibilityRules, (rule) => get(rule, 'address') === completeToClaim);
+  // Simplified eligibility calculations
+  const eligibilityRules = flatten(rawEligibilityRules);
+  const currentEligibilityClaim = mapValues(currentEligibility, (v: { eligible: boolean; goodStanding: boolean }) => {
+    return get(v, 'eligible') && get(v, 'goodStanding');
+  });
+
+  const combinedReadyToClaim = {
+    ...currentEligibilityClaim,
+    ...aggregateIsReadyToClaim,
+  };
+
+  const completedRules = size(filter(eligibilityRules, (rule) => get(combinedReadyToClaim, rule.address)));
+  const isReadyToClaim = completedRules === size(eligibilityRules);
+
+  // Memoize the rule to complete and claim
+  const ruleToCompleteAndClaim = useMemo(() => {
+    if (!address) return undefined;
+    const completeToClaim = find(keys(aggregateIsReadyToClaim), (v: string) => get(aggregateIsReadyToClaim, v));
+    return find(eligibilityRules, (rule) => get(rule, 'address') === completeToClaim);
+  }, [address, aggregateIsReadyToClaim, eligibilityRules]);
 
   const {
     handleClaim: originalHandleClaim,
@@ -119,14 +142,6 @@ export const ModuleChainClaimHeader = ({
     originalHandleClaim();
   };
 
-  const currentEligibilityClaim = mapValues(currentEligibility, (v: { eligible: boolean; goodStanding: boolean }) => {
-    return get(v, 'eligible') && get(v, 'goodStanding');
-  });
-  const combinedReadyToClaim = {
-    ...currentEligibilityClaim,
-    ...aggregateIsReadyToClaim,
-  };
-
   const { writeContractAsync } = useWriteContract();
 
   if (!activeRule?.address || !chainId) return null;
@@ -175,9 +190,6 @@ export const ModuleChainClaimHeader = ({
       },
     });
   };
-
-  const completedRules = size(filter(eligibilityRules, (rule) => get(combinedReadyToClaim, rule.address)));
-  const isReadyToClaim = completedRules === size(eligibilityRules);
 
   // TODO handle not connected
 
