@@ -13,7 +13,7 @@ import { createIcon } from 'opepen-standard';
 import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { SupportedChains } from 'types';
+import { ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
 import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug, slugify } from 'utils';
 import { getAddress, Hex } from 'viem';
@@ -33,37 +33,46 @@ const CouncilHeaderCard = ({
   chainId,
   address,
   withLinks = true,
+  initialCouncilDetails,
+  initialOffchainCouncilDetails,
+  initialSafeDetails,
 }: {
   chainId?: number;
   address?: string;
   withLinks?: boolean;
+  initialCouncilDetails?: ExtendedHSGV2 | null;
+  initialOffchainCouncilDetails?: OffchainCouncilData | null;
+  initialSafeDetails?: any;
 }) => {
+  console.log('council header', initialCouncilDetails, initialOffchainCouncilDetails, initialSafeDetails, chainId);
   const pathname = usePathname();
   // const isJoinPage = pathname.includes('/join');
   const isRootPath = pathname === '/';
   const isCouncilsPage = pathname.includes('/councils/');
   const isCouncilPage = pathname.match(/^\/councils\/[^/]+:0x[0-9a-fA-F]{40}$/); // with network name and Ethereum address
 
-  const { data: councilDetails } = useCouncilDetails({
-    chainId: chainId ?? 11155111,
-    address: address ?? '',
-  });
+  // const { data: councilDetails } = useCouncilDetails({
+  //   chainId: chainId ?? 11155111,
+  //   // ! using this in lieu of enabled prop on this hook
+  //   address: initialCouncilDetails?.id ? undefined : (address ?? ''),
+  // });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
-    hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
+    hsg: initialCouncilDetails?.id ? (getAddress(initialCouncilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
-    enabled: !!councilDetails?.id && !!chainId,
+    enabled: initialOffchainCouncilDetails ? false : !!initialCouncilDetails?.id && !!chainId,
   });
   const { data: safesDetails } = useSafesInfo({
     chainId: chainId ?? 11155111,
-    safes: [councilDetails?.safe as unknown as Hex],
+    safes: initialCouncilDetails?.safe ? [initialCouncilDetails?.safe as unknown as Hex] : undefined,
   });
   const { data: safeSignersRaw } = useSafeDetails({
-    safeAddress: councilDetails?.safe as Hex,
+    safeAddress: initialCouncilDetails?.safe as Hex,
     chainId: chainId ?? 11155111,
   });
+  console.log('council header', offchainCouncilDetails, safesDetails);
 
   // Use mock data if real data is not available
-  const effectiveCouncilDetails = councilDetails;
+  const effectiveCouncilDetails = initialCouncilDetails;
   const effectiveOffchainDetails = offchainCouncilDetails;
   const effectiveSafeDetails = first(safesDetails);
   const effectiveSafeSigners = safeSignersRaw;

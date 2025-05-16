@@ -13,6 +13,7 @@ export * from './use-hat-status';
 export * from './use-hat-status-check';
 export * from './use-hat-wearers';
 export * from './use-hats-admin-of';
+export * from './use-hats-details';
 export * from './use-is-admin';
 export * from './use-many-hats-details';
 export * from './use-many-hats-details-field';

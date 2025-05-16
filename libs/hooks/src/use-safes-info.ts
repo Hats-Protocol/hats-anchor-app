@@ -4,13 +4,14 @@ import { logger } from 'utils';
 import { Hex } from 'viem';
 
 const fetchSafesInfoLocal = async ({ safes, chainId }: { safes: Hex[] | undefined; chainId: number | undefined }) => {
+  console.log('fetchSafesInfoLocal', safes, chainId);
   if (!safes || size(compact(safes)) === 0) {
     return null;
   }
   return fetch(`/api/safe/${chainId}?safes=${safes?.join(',')}`)
     .then((res) => res.json())
     .then((data) => {
-      return data || null;
+      return (data || null) as Hex[] | null;
     })
     .catch((error) => {
       logger.error('fetchSafesInfoLocal', error);

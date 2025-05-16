@@ -84,8 +84,8 @@ export interface HatSignerGateV2 extends HatSignerGate {
 }
 
 export interface ExtendedHSGV2 extends HatSignerGateV2 {
-  signerHats: AppHat[];
-  ownerHat: AppHat | undefined;
+  signerHats?: AppHat[] | undefined;
+  ownerHat?: AppHat | undefined;
 }
 
 export interface HatAuthority {

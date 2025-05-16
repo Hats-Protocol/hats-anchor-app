@@ -1,11 +1,10 @@
 'use client';
 
 import { safeUrl } from 'hats-utils';
-import { useCouncilDetails, useSafeDetails } from 'hooks';
+import { useCouncilDetails } from 'hooks';
 import { Safe as SafeIcon } from 'icons';
-import { get } from 'lodash';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import posthog from 'posthog-js';
 import { AiOutlineDollar, AiOutlineSetting, AiOutlineSwap } from 'react-icons/ai';
 import { BsPersonBadge } from 'react-icons/bs';
@@ -14,12 +13,10 @@ import { SupportedChains } from 'types';
 import { cn } from 'ui';
 import { parseCouncilSlug } from 'utils';
 
-export interface CouncilsBottomMenuProps {
-  councilSlug: string;
-}
-
-export const CouncilsBottomMenu = ({ councilSlug }: CouncilsBottomMenuProps) => {
+export const CouncilsBottomMenu = () => {
   const pathname = usePathname();
+  const { slug } = useParams();
+  const councilSlug = decodeURIComponent(slug as string);
   const { chainId, address } = parseCouncilSlug(councilSlug);
 
   const { data: councilDetails } = useCouncilDetails({ chainId: chainId || undefined, address });

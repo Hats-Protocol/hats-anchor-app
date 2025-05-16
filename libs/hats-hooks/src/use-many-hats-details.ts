@@ -24,7 +24,6 @@ const useManyHatsDetails = ({
   const onlyOnchainHatsIds = map(onlyOnchainHats, 'id');
 
   const localHatIds = initialHats ? onlyOnchainHatsIds : compact(hatIds);
-
   const localChainId = chainId || get(first(onlyOnchainHats), 'chainId');
 
   const { data, isLoading } = useQuery({
