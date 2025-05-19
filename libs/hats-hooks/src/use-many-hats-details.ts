@@ -7,6 +7,14 @@ import { fetchHatsDetailsMesh } from 'utils';
 // TODO handle as a single cache
 // ! has paginated hats
 
+/**
+ * Fetches details for a list of hats on a single chain
+ * @param hats
+ * @param initialHats
+ * @param editMode
+ * @param chainId
+ * @returns A list of hats with details and loading state
+ */
 const useManyHatsDetails = ({
   hats,
   initialHats,
@@ -25,7 +33,6 @@ const useManyHatsDetails = ({
   const onlyOnchainHatsIds = map(onlyOnchainHats, 'id');
 
   const localHatIds = initialHats ? onlyOnchainHatsIds : compact(hatIds);
-
   const localChainId = chainId || get(first(onlyOnchainHats), 'chainId');
 
   const { data, isLoading } = useQuery({

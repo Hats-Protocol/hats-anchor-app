@@ -8,6 +8,8 @@ const fetchApprovedSymbols = async () => {
     .then((data) => concat(keys(data), MANUAL_APPROVED_TOKENS));
 };
 
+// Alternatively use `constants/approved-tokens.ts`
+
 const useApprovedTokens = () => {
   return useQuery({
     queryKey: ['approvedTokens'],
