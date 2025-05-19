@@ -1,3 +1,5 @@
+'use client';
+
 import { WearerIcon } from 'icons';
 import { get, includes, map, toLower } from 'lodash';
 import { useCallback } from 'react';

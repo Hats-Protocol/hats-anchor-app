@@ -1,3 +1,5 @@
+'use client';
+
 import { format, formatDistanceToNow } from 'date-fns';
 import { Tooltip } from 'ui';
 

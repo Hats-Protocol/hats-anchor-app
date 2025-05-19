@@ -35,7 +35,7 @@ const CouncilHeaderCard = ({
   withLinks = true,
   initialCouncilDetails,
   initialOffchainCouncilDetails,
-  initialSafeDetails,
+  // initialSafeDetails,
   initialHats,
 }: {
   chainId?: number;
@@ -52,19 +52,26 @@ const CouncilHeaderCard = ({
   const isCouncilsPage = pathname.includes('/councils/');
   const isCouncilPage = pathname.match(/^\/councils\/[^/]+:0x[0-9a-fA-F]{40}$/); // with network name and Ethereum address
 
-  // const { data: councilDetails } = useCouncilDetails({
-  //   chainId: chainId ?? 11155111,
-  //   // ! using this in lieu of enabled prop on this hook
-  //   address: initialCouncilDetails?.id ? undefined : (address ?? ''),
-  // });
+  const { data: councilDetails } = useCouncilDetails({
+    chainId: chainId ?? 11155111,
+    // ! using this in lieu of enabled prop on this hook
+    address: initialCouncilDetails?.id ? undefined : (address ?? ''),
+  });
   const { data: offchainCouncilDetails } = useOffchainCouncilDetails({
-    hsg: initialCouncilDetails?.id ? (getAddress(initialCouncilDetails?.id) as Hex) : undefined,
+    hsg: initialCouncilDetails?.id
+      ? (getAddress(initialCouncilDetails?.id) as Hex)
+      : councilDetails?.id
+        ? (getAddress(councilDetails?.id) as Hex)
+        : undefined,
     chainId: chainId ?? 11155111,
     enabled: initialOffchainCouncilDetails ? false : !!initialCouncilDetails?.id && !!chainId,
   });
   const { data: safesDetails } = useSafesInfo({
     chainId: chainId ?? 11155111,
-    safes: initialCouncilDetails?.safe ? [initialCouncilDetails?.safe as unknown as Hex] : undefined,
+    safes:
+      initialCouncilDetails?.safe || councilDetails?.safe
+        ? [initialCouncilDetails?.safe || (councilDetails?.safe as unknown as Hex)]
+        : undefined,
   });
   const { data: safeSignersRaw } = useSafeDetails({
     safeAddress: initialCouncilDetails?.safe as Hex,
@@ -83,10 +90,17 @@ const CouncilHeaderCard = ({
       ...initialCouncilDetails?.ownerHat,
       ...find(initialHats, (hat) => hat.id === initialCouncilDetails?.ownerHat?.id),
     },
+    ...councilDetails,
   };
   const effectiveOffchainDetails = offchainCouncilDetails;
   const effectiveSafeDetails = first(safesDetails);
   const effectiveSafeSigners = safeSignersRaw;
+  console.log(
+    'effectiveCouncilDetails',
+    effectiveCouncilDetails,
+    offchainCouncilDetails,
+    initialOffchainCouncilDetails,
+  );
 
   // const isMulti = size(effectiveCouncilDetails?.signerHats) > 1;
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
@@ -132,6 +146,7 @@ const CouncilHeaderCard = ({
   const offchainCouncilName = get(effectiveOffchainDetails, 'creationForm.councilName');
   const offchainCouncilDescription = get(effectiveOffchainDetails, 'creationForm.councilDescription');
   const organizationName = get(effectiveOffchainDetails, 'organization.name');
+  console.log('effectiveOffchainDetails', effectiveOffchainDetails, offchainCouncilName, offchainCouncilDescription);
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
