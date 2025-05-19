@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 
 import { NETWORKS_PREFIX } from './constants';
 
+// TODO better pagination on hats
 export function getHatsDetailsQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`

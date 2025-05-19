@@ -140,7 +140,6 @@ export async function toTreeStructure({
     return Promise.resolve(undefined);
   }
   const onlyOnchainHats = filter(hatsData, (hat: AppHat) => includes(initialHatIds, hat?.id));
-
   const mergedHatsData = map(onlyOnchainHats, (hat: AppHat) => {
     const fullHat = find(hatsData, { id: hat.id });
 

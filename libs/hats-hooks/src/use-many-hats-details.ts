@@ -5,6 +5,7 @@ import { AppHat, SupportedChains } from 'types';
 import { fetchHatsDetailsMesh } from 'utils';
 
 // TODO handle as a single cache
+// ! has paginated hats
 
 /**
  * Fetches details for a list of hats on a single chain

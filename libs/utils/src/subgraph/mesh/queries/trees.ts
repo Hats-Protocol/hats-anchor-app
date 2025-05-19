@@ -2,13 +2,14 @@ import { gql } from 'graphql-request';
 
 import { NETWORKS_PREFIX } from './constants';
 
+// TODO better pagination on hats
 export function getTreeQuery(chaindId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chaindId];
   return gql`
     query getTree($id: ID!) {
       ${networkPrefix}_tree(id: $id) {
         id
-        hats {
+        hats(first: 200) {
           id
           prettyId
           status
@@ -159,13 +160,14 @@ export function getTreesPaginatedQuery(chaindId: number): string {
   `;
 }
 
+// TODO better pagination on hats
 export function getTreesByIdQuery(chainId: number): string {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
     query getTreesById($ids: [ID!]!) {
       ${networkPrefix}_trees(where: { id_in: $ids }) {
         id
-        hats {
+        hats(first: 200) { 
           id
           details
           imageUri
