@@ -194,8 +194,7 @@ export function AgreementStep({ onNext }: StepProps) {
     });
 
     return uniqBy(preExistingOptions, 'value');
-  }, [councilsData]);
-  console.log('existingAgreements', existingAgreements);
+  }, [councilsData, adminHatId]);
 
   // Create radio options from existing agreements and add the "Create new" option
   const agreementOptions = useMemo(
@@ -254,7 +253,7 @@ export function AgreementStep({ onNext }: StepProps) {
       {
         value: 'new',
         label: 'Create new Agreement Manager Role',
-        description: 'Agreement Managers control the conetnt of the agreement and adherence',
+        description: 'Agreement Managers control the content of the agreement and adherence',
         onSelect: () => form.setValue('agreementAdmins', []),
       },
     ],

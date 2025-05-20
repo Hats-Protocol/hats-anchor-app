@@ -2,9 +2,11 @@
 
 import { chainsList } from '@hatsprotocol/config';
 import { usePrivy } from '@privy-io/react-auth';
+import { useOverlay } from 'contexts';
 import { useAuthGuard, useCrossChainAllowlist, useCrossChainWearer, useMediaStyles } from 'hooks';
 import { flatten, isEmpty, map, uniq } from 'lodash';
 import { ArrowRightCircle } from 'lucide-react';
+import { useEffect } from 'react';
 import { HatSignerGateV2 } from 'types';
 import { Button, Card, HatDeco, Link, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
 import { chainIdToString, ipfsUrl } from 'utils';
@@ -28,12 +30,17 @@ const EMPTY_COUNCIL_STEPS = [
 const CouncilListPage = () => {
   const { address: userAddress } = useAccount();
   const { user, login, ready: privyReady } = usePrivy();
+  const { setBanner } = useOverlay();
   const { isClient } = useMediaStyles();
   const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 
   // fetch user's hats across all chains
 
-  const { data: crossChainWearerHats, isLoading: crossChainWearerHatsLoading } = useCrossChainWearer({
+  const {
+    data: crossChainWearerHats,
+    isLoading: crossChainWearerHatsLoading,
+    error: crossChainWearerHatsError,
+  } = useCrossChainWearer({
     wearerAddress: isAuthorized ? (userAddress as Hex) : undefined,
   });
 
@@ -74,9 +81,37 @@ const CouncilListPage = () => {
 
   // use real councils data directly from all chains
 
-  const { data: crossChainCouncils, isLoading: crossChainCouncilsLoading } = useCrossChainCouncilsListOld({
+  const {
+    data: crossChainCouncils,
+    isLoading: crossChainCouncilsLoading,
+    error: crossChainCouncilsError,
+  } = useCrossChainCouncilsListOld({
     hatIds: processedHatIds ?? [],
   });
+
+  useEffect(() => {
+    if (!crossChainWearerHatsError && !crossChainCouncilsError) {
+      setBanner(null);
+      return;
+    }
+
+    if (crossChainWearerHatsError) {
+      setBanner({
+        message: 'Error fetching cross-chain wearer hats',
+        variant: 'error',
+        error: crossChainWearerHatsError,
+      });
+      return;
+    }
+    if (crossChainCouncilsError) {
+      setBanner({
+        message: 'Error fetching cross-chain councils',
+        variant: 'error',
+        error: crossChainCouncilsError,
+      });
+      return;
+    }
+  }, [crossChainWearerHatsError, crossChainCouncilsError, setBanner]);
 
   // show loading state until EVERYTHING is ready, including wallet and auth (avoids flash of empty state)
   const isLoading =

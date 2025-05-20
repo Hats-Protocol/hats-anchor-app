@@ -472,19 +472,11 @@ const useCrossChainCouncilsList = ({ hatIdsByNetwork }: { hatIdsByNetwork: Recor
       return;
     }
 
-    if (moduleManagersError) {
+    if (moduleManagersError || moduleManagerHatsError) {
       setBanner({
-        message: 'Error fetching cross-chain councils list',
+        message: 'Error fetching cross-chain manager lists or roles',
         variant: 'error',
-        error: moduleManagersError,
-      });
-      return;
-    }
-    if (moduleManagerHatsError) {
-      setBanner({
-        message: 'Error fetching cross-chain module managers',
-        variant: 'error',
-        error: moduleManagerHatsError,
+        error: moduleManagersError || moduleManagerHatsError || undefined,
       });
       return;
     }

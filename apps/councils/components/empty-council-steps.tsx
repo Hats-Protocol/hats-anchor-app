@@ -57,7 +57,7 @@ const EmptyCouncilSteps = () => {
                 onClick={!user ? () => login() : undefined}
                 className='bg-functional-link-primary'
               >
-                {user && !userAddress ? 'Create a Council' : 'Connect to create a Council'}
+                {user && userAddress ? 'Create a Council' : 'Connect to create a Council'}
                 <ArrowRightCircle className='ml-1 !size-5 text-white' />
               </Button>
             </Link>
