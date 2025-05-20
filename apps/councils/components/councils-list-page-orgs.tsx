@@ -3,6 +3,7 @@
 import { chainsList } from '@hatsprotocol/config';
 import { hatIdDecimalToHex, hatIdHexToDecimal, hatIdToTreeId, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { usePrivy } from '@privy-io/react-auth';
+import { useOverlay } from 'contexts';
 import { useHatsDetails } from 'hats-hooks';
 import { uniqueHats } from 'hats-utils';
 import {
@@ -12,9 +13,9 @@ import {
   useCrossChainWearer,
   useMediaStyles,
 } from 'hooks';
-import { concat, filter, flatten, get, groupBy, isEmpty, map, orderBy, reject } from 'lodash';
+import { compact, concat, filter, flatten, get, groupBy, includes, isEmpty, keys, map, orderBy, reject } from 'lodash';
 import { CirclePlus } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { AppHat, HatSignerGateV2 } from 'types';
 import { Button, HatDeco, Link } from 'ui';
 import { chainIdToString, slugify } from 'utils';
@@ -38,23 +39,29 @@ const prefixToChainId = Object.entries(NETWORKS_PREFIX).reduce(
 );
 
 const filterHatsForCouncil = (hats: Partial<AppHat>[], council: HatSignerGateV2, chainId: number) => {
-  const topHatId = get(council, 'signerHats[0].id');
-  return filter(
-    hats,
-    (hat) =>
-      (map(council.signerHats, 'id')?.includes(hat.id!) || council.ownerHat?.id === hat.id || hat.id === topHatId) &&
-      hat.chainId === chainId,
-  );
+  const topHatId = get(council, 'signerHats[0].id')
+    ? hatIdDecimalToHex(treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(get(council, 'signerHats[0].id') as string))))
+    : undefined;
+
+  return filter(hats, (hat) => {
+    const matchingHats = compact([...map(council.signerHats, 'id'), council.ownerHat?.id, topHatId]);
+    return includes(matchingHats, hat.id) && hat.chainId === chainId;
+  });
 };
 
 const CouncilListPageOrgs = () => {
   const { address: userAddress } = useAccount();
   const { ready: privyReady } = usePrivy();
   const { isClient } = useMediaStyles();
+  const { setBanner } = useOverlay();
   const { isAuthorized, isReady, needsLogin } = useAuthGuard();
 
   // fetch user's hats across all chains
-  const { data: crossChainWearerHats, isLoading: crossChainWearerHatsLoading } = useCrossChainWearer({
+  const {
+    data: crossChainWearerHats,
+    isLoading: crossChainWearerHatsLoading,
+    error: crossChainWearerHatsError,
+  } = useCrossChainWearer({
     wearerAddress: isAuthorized ? (userAddress as Hex) : undefined,
   });
 
@@ -80,17 +87,37 @@ const CouncilListPageOrgs = () => {
   const { councilsList, isLoading: councilsLoading } = useCrossChainCouncilsList({
     hatIdsByNetwork,
   });
+  const councilsHats = useMemo(() => {
+    return flatten(
+      map(keys(councilsList), (key: string) => {
+        // iterate over each network
+        const network = councilsList?.[key];
+        return flatten(
+          // return a list of the signer and owner hats for each council
+          map(network, (council: HatSignerGateV2) =>
+            concat(
+              map(council.signerHats, (h) => ({ id: h.id, chainId: prefixToChainId[key] })),
+              council.ownerHat?.id ? { id: council.ownerHat.id, chainId: prefixToChainId[key] } : [],
+            ),
+          ),
+        );
+      }),
+      // TODO fix this type
+    ) as unknown as { id: string; chainId: number }[];
+  }, [councilsList]);
   const allHats = flatten(
     map(hatIdsByNetwork, (hatIds, network) =>
       hatIds.map((hatId) => ({ id: hatId, chainId: prefixToChainId[network] })),
     ),
   );
+  // include the top hat for each hat in the list (will be filtered for unique hats later)
   const allHatsWithTopHats = flatten(
-    map(allHats, (hat) => [
+    map(concat(allHats, councilsHats), (hat) => [
       hat,
       { id: hatIdDecimalToHex(treeIdToTopHatId(hatIdToTreeId(hatIdHexToDecimal(hat.id)))), chainId: hat.chainId },
     ]),
   );
+  // filter out duplicate hats
   const uniqueHatsWithTopHats = uniqueHats(allHatsWithTopHats as Partial<AppHat>[]);
   const { data: allHatsDetails } = useHatsDetails({ hats: uniqueHatsWithTopHats as Partial<AppHat>[] });
 
@@ -126,6 +153,16 @@ const CouncilListPageOrgs = () => {
 
     return reject(processedList, (item) => !item.offchainDetails);
   }, [councilsWithChains, offchainDetails]);
+
+  useEffect(() => {
+    if (crossChainWearerHatsError) {
+      setBanner({
+        message: 'Error fetching cross-chain councils list',
+        variant: 'error',
+        error: crossChainWearerHatsError,
+      });
+    }
+  }, [crossChainWearerHatsError, setBanner]);
 
   // show loading state until EVERYTHING is ready
   const isLoading =

@@ -9,7 +9,6 @@ import { every, find, get, includes, keys, map, toLower } from 'lodash';
 import { EllipsisVertical } from 'lucide-react';
 import { useCurrentEligibility } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { UseFormReturn } from 'react-hook-form';
 import { BsCheckSquareFill, BsExclamationSquare, BsPencilSquare, BsXOctagonFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar } from 'ui';
@@ -29,7 +28,6 @@ const MemberRow = ({
   eligibilityRules,
   offchainCouncilData,
   councilData,
-  form,
   inAllowlist,
 }: {
   member: CouncilMember;
@@ -39,7 +37,6 @@ const MemberRow = ({
   eligibilityRules: Ruleset[] | undefined;
   offchainCouncilData: OffchainCouncilData | undefined;
   councilData: ExtendedHSGV2 | undefined;
-  form: UseFormReturn;
   inAllowlist: boolean;
 }) => {
   const { setModals } = useOverlay();
@@ -168,15 +165,15 @@ const MemberRow = ({
 
         <div className='flex h-full w-48 items-center justify-center gap-4'>
           <Button variant='outline-blue' rounded='full' onClick={updateMemberStatus}>
-            Status
+            Manage
           </Button>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant='outline-blue' rounded='full'>
+              <Button variant='outline-blue' rounded='full' className='w-8'>
                 <EllipsisVertical />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-32 p-2'>
+            <PopoverContent className='w-32 p-2' align='end'>
               {user && canEdit ? (
                 <Button
                   variant='link'
@@ -184,7 +181,7 @@ const MemberRow = ({
                   onClick={editUser}
                 >
                   <BsPencilSquare className='mr-2' />
-                  Edit
+                  Edit Details
                 </Button>
               ) : (
                 <Button

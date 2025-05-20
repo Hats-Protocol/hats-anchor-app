@@ -22,12 +22,13 @@ export function useOrganization(organizationName: string | undefined) {
     return result.organizations[0] ?? null;
   };
 
+  // TODO re-enable prefetching
   // prefetch the data without triggering a re-render
-  usePrefetchQuery({
-    queryKey,
-    queryFn,
-    staleTime: 0, // always prefetch fresh data
-  });
+  // usePrefetchQuery({
+  //   queryKey,
+  //   queryFn,
+  //   staleTime: 0, // always prefetch fresh data
+  // });
 
   return useQuery({
     queryKey,

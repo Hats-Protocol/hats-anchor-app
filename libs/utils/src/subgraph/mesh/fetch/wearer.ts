@@ -109,7 +109,7 @@ export const getCrossChainAllowlistEligibilities = async (address: string | unde
     return stripSuffix({ object: res });
   } catch (err) {
     logger.error('Error fetching cross-chain allowlist eligibilities:', err);
-    return null;
+    throw err;
   }
 };
 
@@ -143,6 +143,6 @@ export const getCrossChainWearerDetails = async (address: string | undefined) =>
     return processedData as Record<string, { currentHats: { id: string }[] }>;
   } catch (err) {
     logger.error('Error fetching cross-chain wearer details:', err);
-    return null;
+    throw err;
   }
 };
