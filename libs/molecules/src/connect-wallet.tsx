@@ -51,10 +51,9 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
   return (
     <>
       <RainbowConnectButton.Custom>
-        {({ account, chain, openChainModal, openConnectModal, mounted, authenticationStatus }) => {
-          const ready = mounted && authenticationStatus !== 'loading';
-          const connected =
-            ready && account && chain && (!authenticationStatus || authenticationStatus === 'authenticated');
+        {({ account, chain, openChainModal, openConnectModal, mounted }) => {
+          const ready = mounted;
+          const connected = ready && account && chain;
 
           const trackedOpenConnectModal = () => {
             posthog.capture('Opened Wallet Modal', {
