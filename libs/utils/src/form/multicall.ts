@@ -514,7 +514,6 @@ const processImageChangeCallForHat = async ({ hatsClient, hat, returnData }: Pro
   };
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export const processHatForCalls = async (hat: Partial<FormData>, onchainHats?: AppHat[], chainId?: SupportedChains) => {
   const hatsClient = await createHatsClient(chainId);
   if (!hat || !hatsClient || !chainId) return emptyReturnData;
