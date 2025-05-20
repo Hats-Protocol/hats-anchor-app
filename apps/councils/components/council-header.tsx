@@ -74,7 +74,7 @@ const CouncilHeaderCard = ({
         : undefined,
   });
   const { data: safeSignersRaw } = useSafeDetails({
-    safeAddress: initialCouncilDetails?.safe as Hex,
+    safeAddress: (initialCouncilDetails?.safe || councilDetails?.safe) as Hex,
     chainId: chainId ?? 11155111,
   });
   // console.log('council header', initialCouncilDetails, offchainCouncilDetails, safesDetails);
@@ -95,12 +95,7 @@ const CouncilHeaderCard = ({
   const effectiveOffchainDetails = offchainCouncilDetails;
   const effectiveSafeDetails = first(safesDetails);
   const effectiveSafeSigners = safeSignersRaw;
-  console.log(
-    'effectiveCouncilDetails',
-    effectiveCouncilDetails,
-    offchainCouncilDetails,
-    initialOffchainCouncilDetails,
-  );
+  console.log('effectiveSafeSigners', effectiveSafeSigners, safeSignersRaw);
 
   // const isMulti = size(effectiveCouncilDetails?.signerHats) > 1;
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
@@ -146,7 +141,16 @@ const CouncilHeaderCard = ({
   const offchainCouncilName = get(effectiveOffchainDetails, 'creationForm.councilName');
   const offchainCouncilDescription = get(effectiveOffchainDetails, 'creationForm.councilDescription');
   const organizationName = get(effectiveOffchainDetails, 'organization.name');
-  console.log('effectiveOffchainDetails', effectiveOffchainDetails, offchainCouncilName, offchainCouncilDescription);
+
+  // console.log(
+  //   'councilDetails',
+  //   organizationName,
+  //   offchainCouncilName,
+  //   effectiveCouncilDetails,
+  //   councilDetails,
+  //   initialCouncilDetails,
+  //   initialHats,
+  // );
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
@@ -158,6 +162,12 @@ const CouncilHeaderCard = ({
   if (!safe) {
     return <Skeleton className='bg-functional-link-primary/10 mx-auto flex min-h-[125px] w-full rounded-lg p-4' />;
   }
+
+  console.log({
+    threshold: toNumber(get(effectiveCouncilDetails, 'minThreshold')),
+    signers: size(safeSigners),
+    maxSigners: totalMaxSupply,
+  });
 
   return (
     <div

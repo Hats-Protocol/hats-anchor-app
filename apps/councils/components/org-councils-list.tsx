@@ -79,7 +79,6 @@ export const OrgCouncilsList = () => {
     ORDERED_CHAINS.indexOf(council.chainId as SupportedChains),
   );
 
-  // TODO handle different link for MHSG [TEMP]
   return (
     <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-8 md:gap-8 md:px-6'>
       <div className='flex flex-col gap-2 md:gap-4'>
@@ -87,7 +86,7 @@ export const OrgCouncilsList = () => {
           const isMHSG = size(council.signerHats) > 1;
           return (
             <Link
-              key={council.id}
+              key={`${council.chainId}:${council.id}`}
               className='hover:text-foreground/80 w-full text-left text-inherit hover:opacity-80'
               href={`/councils/${chainIdToString(council.chainId)}:${council.id ? getAddress(council.id) : '#'}/${isMHSG ? 'manage' : 'members'}`}
             >

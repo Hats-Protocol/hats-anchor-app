@@ -24,9 +24,6 @@ importers:
       '@eslint/compat':
         specifier: ^1.2.8
         version: 1.2.8(eslint@9.25.1(jiti@1.21.7))
-      '@eslint/eslintrc':
-        specifier: ^3.3.1
-        version: 3.3.1
       '@eslint/js':
         specifier: ^9.24.0
         version: 9.25.1
@@ -382,8 +379,8 @@ importers:
         specifier: ^16.6.0
         version: 16.11.0
       graphql-request:
-        specifier: ^5.1.0
-        version: 5.2.0(encoding@0.1.13)(graphql@16.11.0)
+        specifier: ^7.1.2
+        version: 7.1.2(graphql@16.11.0)
       hats-hooks:
         specifier: workspace:*
         version: link:../../libs/hats-hooks
@@ -814,8 +811,8 @@ importers:
         specifier: ^5.64.2
         version: 5.74.11(react@18.3.1)
       graphql-request:
-        specifier: ^6.1.0
-        version: 6.1.0(encoding@0.1.13)(graphql@16.11.0)
+        specifier: ^7.1.2
+        version: 7.1.2(graphql@16.11.0)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -8741,6 +8738,11 @@ packages:
 
   graphql-request@6.1.0:
     resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
+    peerDependencies:
+      graphql: 14 - 16
+
+  graphql-request@7.1.2:
+    resolution: {integrity: sha512-+XE3iuC55C2di5ZUrB4pjgwe+nIQBuXVIK9J98wrVwojzDW3GMdSBZfxUk8l4j9TieIpjpggclxhNEU9ebGF8w==}
     peerDependencies:
       graphql: 14 - 16
 
@@ -23350,6 +23352,11 @@ snapshots:
       graphql: 16.11.0
     transitivePeerDependencies:
       - encoding
+
+  graphql-request@7.1.2(graphql@16.11.0):
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
+      graphql: 16.11.0
 
   graphql-zeus-core@7.0.5:
     dependencies:

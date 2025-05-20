@@ -1,14 +1,14 @@
 'use client';
 
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { formHatUrl } from 'hats-utils';
+import { anchorHatUrl } from 'hats-utils';
 import { HatIcon } from 'icons';
 import Link from 'next/link';
 import { SupportedChains } from 'types';
-import { Button, Popover, PopoverContent, PopoverTrigger } from 'ui';
+import { Button } from 'ui';
 import { Hex } from 'viem';
 
-import { HatCreateCard } from './hat-create-card';
+// import { HatCreateCard } from './hat-create-card';
 
 const InlineHatCard = ({
   hatId,
@@ -24,7 +24,7 @@ const InlineHatCard = ({
   <div className='relative flex gap-2'>
     {/* <Popover>
       <PopoverTrigger> */}
-    <Link href={formHatUrl({ hatId, chainId })} target='blank' rel='noopener noreferrer'>
+    <Link href={anchorHatUrl({ hatId, chainId })} target='blank' rel='noopener noreferrer'>
       <Button variant='link' className='font-inter text-sm text-black'>
         {hatName || hatIdDecimalToIp(hatIdHexToDecimal(hatId))}
 

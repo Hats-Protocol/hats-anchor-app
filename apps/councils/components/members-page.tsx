@@ -10,7 +10,6 @@ import { filter, find, first, flatten, get, includes, isEmpty, map, pick, split,
 import { useAllowlist, useCallModuleFunction, useEligibilityRules, useErc20Details } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { AppHat, CouncilMember, EligibilityRule, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, Skeleton, Tooltip } from 'ui';
 import { chainsMap, logger, parseCouncilSlug } from 'utils';
@@ -106,7 +105,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
   const { address: userAddress } = useAccount();
   const { user } = usePrivy();
   const queryClient = useQueryClient();
-  const form = useForm();
   const currentChainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { chainId, address } = parseCouncilSlug(slug);
@@ -241,7 +239,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
                 ))}
 
                 <div className='flex h-full w-28 items-center justify-center'>
-                  <p className='text-center'>Council Member</p>
+                  <p className='text-center'>Onboarded</p>
                 </div>
 
                 <div className='flex h-full w-48 items-center justify-center'>
@@ -266,7 +264,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
                       signerHat={primarySignerHat as AppHat}
                       eligibilityRules={eligibilityRules || undefined}
                       offchainCouncilData={offchainCouncilData || undefined}
-                      form={form}
                       councilData={councilDetails || undefined}
                       inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.address))}
                     />

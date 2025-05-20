@@ -32,6 +32,7 @@ const fetchCouncilDetails = async ({
   });
 };
 
+// TODO handle initial data
 const useCouncilDetails = ({ chainId, address }: { chainId: number | undefined; address: string | undefined }) => {
   return useQuery({
     queryKey: ['councilDetails', chainId, address],

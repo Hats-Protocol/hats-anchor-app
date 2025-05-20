@@ -9,7 +9,7 @@ interface ErrorPageProps {
 export const ErrorPage = ({
   title = 'Bummer, there was an issue',
   description = 'Check the console or report in the community channel if you hit an issue',
-  error,
+  // error,
 }: ErrorPageProps) => {
   return (
     <div className='p-20'>

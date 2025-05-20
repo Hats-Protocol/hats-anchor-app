@@ -7,7 +7,7 @@ import { hatIdDecimalToIp, hatIdToTreeId } from '@hatsprotocol/sdk-v1-core';
 import { useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { ModuleAuthorityModal } from 'forms';
 import { useWearerDetails } from 'hats-hooks';
-import { formHatUrl, safeUrl } from 'hats-utils';
+import { anchorHatUrl, safeUrl } from 'hats-utils';
 import { BoxArrowUpRightOut } from 'icons';
 import { capitalize, filter, find, forEach, get, includes, isEmpty, map, size } from 'lodash';
 import { useCallHsgFunction, useCallModuleFunction, useHsgSigner } from 'modules-hooks';
@@ -82,7 +82,7 @@ const ModuleAuthorityToolbar = ({
       if (authority.hsgConfig?.signerHats) {
         forEach(authority.hsgConfig.signerHats, (h: { id: Hex }) => {
           links.push({
-            link: formHatUrl({ hatId: h.id, chainId }),
+            link: anchorHatUrl({ hatId: h.id, chainId }),
             label: `Go to Signer Hat (#${hatIdDecimalToIp(BigInt(h.id))})`,
             icon: FaExternalLinkAlt,
           });
@@ -90,7 +90,7 @@ const ModuleAuthorityToolbar = ({
       }
       if (authority.hsgConfig?.ownerHat) {
         links.push({
-          link: formHatUrl({ hatId: authority.hsgConfig.ownerHat.id, chainId }),
+          link: anchorHatUrl({ hatId: authority.hsgConfig.ownerHat.id, chainId }),
           label: `Go to Owner Hat (#${hatIdDecimalToIp(BigInt(authority.hsgConfig.ownerHat.id))})`,
           icon: FaExternalLinkAlt,
         });

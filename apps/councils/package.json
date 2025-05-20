@@ -27,7 +27,7 @@
     "customerio-node": "^4.1.1",
     "forms": "workspace:*",
     "graphql": "^16.6.0",
-    "graphql-request": "^5.1.0",
+    "graphql-request": "^7.1.2",
     "hats-hooks": "workspace:*",
     "hats-utils": "workspace:*",
     "hooks": "workspace:*",

@@ -5,19 +5,40 @@ import { Hex } from 'viem';
 
 /**
  * Check if a hat is a Top Hat
- * @param hatData - The Hat data
+ * @param hat - The Hat data
  * @returns `true` if the hat is a top hat, `false` otherwise
  */
-export const isTopHat = (hatData: AppHat | null | undefined) =>
-  get(hatData, 'levelAtLocalTree') === 0 && get(hatData, 'admin.id') === get(hatData, 'id');
+export const isTopHat = (hat: AppHat | null | undefined) =>
+  hat && get(hat, 'levelAtLocalTree') === 0 && get(hat, 'admin.id') === get(hat, 'id');
 
-export const isMutable = (hatData?: AppHat) => get(hatData, 'mutable');
+/**
+ * Check if a hat is mutable
+ * @param hat - The Hat data
+ * @returns `true` if the hat is mutable, `false` otherwise
+ */
+export const isMutable = (hat: AppHat | null | undefined) => hat && get(hat, 'mutable');
 
-export const isTopHatOrMutable = (hatData: AppHat) => isTopHat(hatData) || isMutable(hatData);
+/**
+ * Check if a hat is a top hat or mutable
+ * @param hat - The Hat data
+ * @returns `true` if the hat is a top hat or mutable, `false` otherwise
+ */
+export const isTopHatOrMutable = (hat: AppHat | null | undefined) => isTopHat(hat) || isMutable(hat);
 
-export const isMutableNotTopHat = (hatData: AppHat) => isMutable(hatData) && !isTopHat(hatData);
+/**
+ * Check if a hat is mutable and not a top hat
+ * @param hat - The Hat data
+ * @returns `true` if the hat is mutable and not a top hat, `false` otherwise
+ */
+export const isMutableNotTopHat = (hat: AppHat | null | undefined) => isMutable(hat) && !isTopHat(hat);
 
-export const formHatUrl = ({ hatId, chainId }: { hatId: Hex; chainId: SupportedChains | undefined }) => {
+/**
+ * Format a hat URL
+ * @param hatId - The Hat ID
+ * @param chainId - The Chain ID
+ */
+export const anchorHatUrl = ({ hatId, chainId }: { hatId: Hex; chainId: SupportedChains | undefined }) => {
+  if (!hatId || !chainId) return '#';
   const basePath = '/trees';
   const id = BigInt(hatId);
   const treeId = Number(hatIdToTreeId(id));
@@ -26,6 +47,11 @@ export const formHatUrl = ({ hatId, chainId }: { hatId: Hex; chainId: SupportedC
   return `${basePath}/${chainId}/${treeId}?hatId=${hatIp}`;
 };
 
+/**
+ * Filter a list of hats by their ID and chain ID
+ * @param hats - The hats to filter
+ * @returns The unique hats
+ */
 export const uniqueHats = (hats: Partial<AppHat>[]): Partial<AppHat>[] => {
   return [
     ...hats

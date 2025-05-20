@@ -2,7 +2,7 @@
 
 import { hatIdDecimalToIp, hatIdHexToDecimal } from '@hatsprotocol/sdk-v1-core';
 import { SafeInfoResponse } from '@safe-global/api-kit';
-import { formHatUrl, safeUrl } from 'hats-utils';
+import { anchorHatUrl, safeUrl } from 'hats-utils';
 import { get, toLower } from 'lodash';
 import Link from 'next/link';
 import { createIcon } from 'opepen-standard';
@@ -21,12 +21,12 @@ import { SafeTotal } from './safe-total';
 const SafeCard = ({
   hats,
   signerSafe,
-  safeInfo,
+  // safeInfo,
   chainId,
 }: {
   hats: AppHat[] | undefined;
   signerSafe: HatSignerGate;
-  safeInfo: SafeInfoResponse | undefined;
+  safeInfo?: SafeInfoResponse | undefined;
   chainId: number | undefined;
 }) => {
   const safeAddress = get(signerSafe, 'safe');
@@ -105,7 +105,7 @@ const SafeCard = ({
           </Link>
 
           <Link
-            href={formHatUrl({
+            href={anchorHatUrl({
               chainId: chainId as SupportedChains,
               hatId: firstHat.id,
             })}
