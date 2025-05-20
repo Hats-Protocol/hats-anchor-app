@@ -19,14 +19,6 @@ export const useAuthGuard = () => {
   const { data: walletClient } = useWalletClient();
   const hasTriggeredLogin = useRef(false);
   const isMounted = useRef(false);
-  const hadValidWallet = useRef(false);
-
-  // Track if we've had a valid wallet connection
-  useEffect(() => {
-    if (authenticated && user?.wallet && userAddress && walletClient) {
-      hadValidWallet.current = true;
-    }
-  }, [authenticated, user?.wallet, userAddress, walletClient]);
 
   // Handle MetaMask lock state
   useEffect(() => {
