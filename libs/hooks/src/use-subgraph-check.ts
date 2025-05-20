@@ -22,13 +22,14 @@ const fetchSubgraphCheck = async (chainId: number) => {
   if (!chainId || !ancillaryApiUrl) return;
 
   const subgraphApiUrl = NETWORK_ENDPOINTS[chainId].endpoint;
-  const mainSubgraphClient = new GraphQLClient(subgraphApiUrl, { timeout: 5000 });
+  // TODO migrate timeout to abort controller
+  const mainSubgraphClient = new GraphQLClient(subgraphApiUrl);
   const mainSubgraphPromise = mainSubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
     logger.error(err);
     return null;
   });
 
-  const ancillarySubgraphClient = new GraphQLClient(ancillaryApiUrl, { timeout: 5000 });
+  const ancillarySubgraphClient = new GraphQLClient(ancillaryApiUrl);
   const ancillarySubgraphPromise = ancillarySubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
     logger.error(err);
     return null;
