@@ -40,7 +40,7 @@ The build artifacts will be stored in the `{ROOT_DIR}/dist/` directory, ready to
 pnpm serve
 ```
 
-## Deployment.
+## Deployment
 
 Having multiple apps that are at different stages of deploy we can choose when to build based on changes in the specific app repo. If there's no changes in an app it won't be built by the CI/CD process. The simplest change is to add (or remove) an extra new line at the end of this file.
 

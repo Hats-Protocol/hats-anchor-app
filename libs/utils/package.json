@@ -31,7 +31,7 @@
     "customerio-node": "^4.1.1",
     "date-fns": "^2.29.3",
     "graphql": "^16.6.0",
-    "graphql-request": "^5.1.0",
+    "graphql-request": "^7.1.2",
     "lodash": "^4.17.21",
     "multiformats": "^13.0.1",
     "next": "15.3.0",
