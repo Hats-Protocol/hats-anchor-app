@@ -68,6 +68,56 @@ const formatNumberWithCommas = (value: number): string => {
   return new Intl.NumberFormat('en-US').format(value);
 };
 
+type FormattedNumber = {
+  value: string;
+  suffix: 'k' | 'M' | null;
+};
+
+const formatNumberWithK = (value: number, decimals = 2): FormattedNumber => {
+  if (value === 0) return { value: '0', suffix: null };
+
+  // For values >= 1,000,000, format with M
+  if (value >= 1000000) {
+    const inM = value / 1000000;
+    return {
+      value: inM.toFixed(2),
+      suffix: 'M',
+    };
+  }
+
+  // For values >= 1000, format with k
+  if (value >= 1000) {
+    const inK = value / 1000;
+    return {
+      value: new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(inK),
+      suffix: 'k',
+    };
+  }
+
+  // For values < 1000, show specified decimals
+  return {
+    value: value.toFixed(decimals),
+    suffix: null,
+  };
+};
+
+const formatUsdValue = (value: number) => {
+  if (value === 0) return '$0';
+
+  // For values >= 1,000,000, round to nearest million
+  if (value >= 1000000) {
+    const inM = Math.round(value / 1000000);
+    return `~$${inM}M`;
+  }
+
+  // For values < 1,000,000, round to nearest thousand
+  const inK = Math.round(value / 1000);
+  return `~$${inK}k`;
+};
+
 const SafeAssetRow = ({
   token,
   chainId,
@@ -116,42 +166,35 @@ const SafeAssetRow = ({
   const lastInbound = first(inboundTransactions) as unknown as SafeTransaction;
   const lastOutbound = first(outboundTransactions) as unknown as SafeTransaction;
 
+  const formattedBalance = () => {
+    const rawBalance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18)));
+    const formatted = formatNumberWithK(rawBalance, 2);
+    return (
+      <>
+        {formatted.value}
+        {formatted.suffix && <span className='text-gray-500'> {formatted.suffix}</span>}
+      </>
+    );
+  };
+
   const formatTransactionAmount = (tx: SafeTransaction | undefined) => {
     if (!tx) return null;
     const firstTransfer = get(tx, 'transfers.0');
     if (!firstTransfer) return null;
 
     const value = get(firstTransfer, 'value', '0');
-    const symbol = get(firstTransfer, 'tokenInfo.symbol');
-    // Use correct decimals based on token
-    let decimals = get(firstTransfer, 'tokenInfo.decimals');
-    if (decimals === undefined) {
-      // Known token decimals
-      if (symbol === 'USDC') decimals = 6;
-      else if (symbol === 'RARE') decimals = 18;
-      else decimals = 18; // Default for unknown tokens
-    }
+    const decimals = get(firstTransfer, 'tokenInfo.decimals', 18);
 
     try {
-      // Format using formatUnits instead of Number conversion to handle large values
-      const formatted = formatUnits(BigInt(value), decimals);
-      // Parse to float and format with commas if > 10k
-      const numericValue = Number(formatted);
-      const roundedFormatted =
-        numericValue >= 10000 ? formatNumberWithCommas(numericValue.toFixed(2)) : numericValue.toFixed(2);
-
-      logger.info('Formatting transaction amount:', {
-        symbol,
-        value,
-        decimals,
-        formatted,
-        roundedFormatted,
-      });
-
-      return roundedFormatted;
+      const numericValue = Number(formatUnits(BigInt(value), decimals));
+      const formatted = formatNumberWithK(numericValue, 2);
+      return {
+        value: formatted.value,
+        suffix: formatted.suffix,
+      };
     } catch (error) {
       logger.error('Error formatting amount:', error);
-      return '0.00';
+      return { value: '0', suffix: null };
     }
   };
 
@@ -163,10 +206,6 @@ const SafeAssetRow = ({
     backupImage: localTokenImage,
     chainId,
   });
-
-  const formattedBalance = formatNumberWithCommas(
-    Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))),
-  );
 
   return (
     <div className='flex h-16 w-full items-center border-b border-gray-200 px-2 md:px-0'>
@@ -189,19 +228,21 @@ const SafeAssetRow = ({
       <div className='flex flex-1 items-center justify-end gap-12'>
         <div className='w-40 text-right'>
           <p className='font-mono'>
-            <span className='text-gray-500'>{localTokenSymbol}</span> {formattedBalance}
+            <span className='text-gray-500'>{localTokenSymbol}</span> {formattedBalance()}
           </p>
-          {tokenUsdValue > 0 && <p className='text-sm text-gray-500'>~${formatNumberWithCommas(tokenUsdValue)}</p>}
+          {tokenUsdValue > 0 && <p className='text-sm text-gray-500'>{formatUsdValue(tokenUsdValue)}</p>}
         </div>
         <div className='w-40 text-right'>
           {lastInbound ? (
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
-                <span className='font-mono text-black'>+{formatTransactionAmount(lastInbound)}</span>
-                {Number(formatTransactionAmount(lastInbound)) >= 1000 && (
-                  <span className='font-mono text-gray-500'>K</span>
-                )}
+                <span className='font-mono text-black'>
+                  +{formatTransactionAmount(lastInbound)?.value}
+                  {formatTransactionAmount(lastInbound)?.suffix && (
+                    <span className='text-gray-500'> {formatTransactionAmount(lastInbound)?.suffix}</span>
+                  )}
+                </span>
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastInbound, 'executionDate', ''))}</span>
             </div>
@@ -217,10 +258,12 @@ const SafeAssetRow = ({
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
-                <span className='font-mono text-red-600'>-{formatTransactionAmount(lastOutbound)}</span>
-                {Number(formatTransactionAmount(lastOutbound)) >= 1000 && (
-                  <span className='font-mono text-gray-500'>K</span>
-                )}
+                <span className='font-mono text-red-600'>
+                  -{formatTransactionAmount(lastOutbound)?.value}
+                  {formatTransactionAmount(lastOutbound)?.suffix && (
+                    <span className='text-gray-500'> {formatTransactionAmount(lastOutbound)?.suffix}</span>
+                  )}
+                </span>
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastOutbound, 'executionDate', ''))}</span>
             </div>
@@ -286,9 +329,9 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
     const priceId = symbol?.toLowerCase().replace(/[^a-z0-9]/g, '-');
     const price = priceData.find((p: { symbol: string; priceUsd: string }) => p.symbol === priceId?.toUpperCase());
 
-    const usdValue = price?.priceUsd
-      ? toNumber(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))) * toNumber(price.priceUsd)
-      : 0;
+    // Calculate USD value with more precision
+    const balance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18)));
+    const usdValue = price?.priceUsd ? balance * Number(price.priceUsd) : 0;
 
     return {
       token,
