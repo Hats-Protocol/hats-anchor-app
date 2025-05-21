@@ -218,13 +218,13 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
     safeAddress,
     chainId,
   });
-  const { data: prices } = useTokenPrices();
-  const priceData = prices || [];
-
-  const { data: safeTransactions } = useSafeTransactions({
+  const { data: prices, isLoading: pricesLoading } = useTokenPrices();
+  const { data: safeTransactions, isLoading: transactionsLoading } = useSafeTransactions({
     safeAddress,
     chainId,
   });
+
+  const priceData = prices || [];
 
   const filteredSafeTokens = filterTokenList({
     tokenList: safeTokens,
@@ -259,31 +259,12 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
         ? symbolPriceHandler(NETWORK_CURRENCY[chainId])
         : undefined;
 
-    // Convert symbol to CoinGecko ID format
     const priceId = symbol?.toLowerCase().replace(/[^a-z0-9]/g, '-');
     const price = priceData.find((p: { symbol: string; priceUsd: string }) => p.symbol === priceId?.toUpperCase());
-
-    console.log('Price Debug:', {
-      rawSymbol: get(token, 'token.symbol'),
-      processedSymbol: symbol,
-      priceId,
-      pricesAvailable: priceData.length,
-      foundPrice: price,
-      firstFewPrices: priceData.slice(0, 3),
-    });
 
     const usdValue = price?.priceUsd
       ? toNumber(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))) * toNumber(price.priceUsd)
       : 0;
-
-    console.log('Token Debug:', {
-      symbol,
-      balance: token.balance,
-      decimals: get(token, 'token.decimals', 18),
-      priceUsd: price?.priceUsd,
-      calculatedUsdValue: usdValue,
-      totalSafeValue,
-    });
 
     return {
       token,
@@ -297,66 +278,48 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
   if (!chainId) return null;
 
-  if (approvedTokensLoading || safeTokensLoading) {
-    return (
-      <div className='flex flex-col gap-4'>
-        <Skeleton className='h-12 w-full' />
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton className='h-16 w-full' key={index} />
-        ))}
+  const isLoading = approvedTokensLoading || safeTokensLoading || pricesLoading || transactionsLoading;
+
+  const TableHeader = () => (
+    <div className='flex h-14 w-full items-center'>
+      <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
+        <p>Token</p>
       </div>
-    );
-  }
+      <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
+        <div className='w-40'>
+          <p className='text-right font-medium'>Amount</p>
+        </div>
+        <div className='w-40'>
+          <p className='text-right font-medium'>Last in</p>
+        </div>
+        <div className='w-40'>
+          <p className='text-right font-medium'>Last out</p>
+        </div>
+      </div>
+    </div>
+  );
 
-  if (isEmpty(filteredSafeTokens)) {
+  if (isLoading) {
     return (
-      <div className='flex w-full flex-col gap-2 px-4'>
+      <div className='flex w-full flex-col px-4 md:px-0'>
         <div className='relative'>
-          {/* Mobile scroll indicator (same mobile UX as Members Page) */}
           <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden' />
-
           <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
             <div className='min-w-fit'>
-              <div className='flex h-14 w-full items-center'>
-                <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
-                  <p>Token</p>
-                </div>
-                <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
-                  <div className='w-40'>
-                    <p className='text-right font-medium'>Amount</p>
-                  </div>
-                  <div className='w-40'>
-                    <p className='text-right font-medium'>Last in</p>
-                  </div>
-                  <div className='w-40'>
-                    <p className='text-right font-medium'>Last out</p>
-                  </div>
-                </div>
+              <TableHeader />
+              <div className='flex flex-col gap-4'>
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton className='h-16 w-full' key={index} />
+                ))}
               </div>
             </div>
           </div>
         </div>
-
-        <div className='flex w-full flex-col gap-2'>
-          <h2 className='text-base font-bold'>No assets found on Safe</h2>
-          <p className='max-w-[90%] text-sm'>
-            The Safe that was created for this council does not seem to hold any assets. You can copy its address below
-            to transfer funds. If you recently added funds, it may take some time until they show up here.
-          </p>
-        </div>
-        <div className='w-full flex-col items-center gap-8 pt-5 md:flex md:flex-row'>
-          <div className='flex items-center gap-1'>
-            <SafeIcon className='size-4' />
-            <span className='font-mono text-xs md:text-sm'>{safeAddress}</span>
-          </div>
-          <Button variant='link' className='text-functional-link-primary mt-2 md:mt-0' onClick={onCopy}>
-            <CopyAddress className='size-4' />
-            Copy Safe address
-          </Button>
-        </div>
       </div>
     );
   }
+
+  const hasNoAssets = isEmpty(filteredSafeTokens);
 
   return (
     <div className='flex w-full flex-col px-4 md:px-0'>
@@ -366,34 +329,39 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
         <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
           <div className='min-w-fit'>
-            <div className='flex h-14 w-full items-center'>
-              <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
-                <p>Token</p>
-              </div>
-              <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
-                <div className='w-40'>
-                  <p className='text-right font-medium'>Amount</p>
-                </div>
-                <div className='w-40'>
-                  <p className='text-right font-medium'>Last in</p>
-                </div>
-                <div className='w-40'>
-                  <p className='text-right font-medium'>Last out</p>
-                </div>
-              </div>
-            </div>
+            <TableHeader />
 
-            {map(tokenValues, ({ token, usdValue }) => (
-              <SafeAssetRow
-                token={token}
-                chainId={chainId}
-                totalSafeValue={totalSafeValue}
-                tokenUsdValue={usdValue}
-                safeAddress={safeAddress}
-                filteredSafeTokens={filteredSafeTokens}
-                key={token.tokenAddress || 'native currency'}
-              />
-            ))}
+            {!hasNoAssets ? (
+              map(tokenValues, ({ token, usdValue }) => (
+                <SafeAssetRow
+                  token={token}
+                  chainId={chainId}
+                  totalSafeValue={totalSafeValue}
+                  tokenUsdValue={usdValue}
+                  safeAddress={safeAddress}
+                  filteredSafeTokens={filteredSafeTokens}
+                  key={token.tokenAddress || 'native currency'}
+                />
+              ))
+            ) : (
+              <div className='flex w-full flex-col gap-2'>
+                <h2 className='text-base font-bold'>No assets found on Safe</h2>
+                <p className='max-w-[90%] text-sm'>
+                  The Safe that was created for this council does not seem to hold any assets. You can copy its address
+                  below to transfer funds. If you recently added funds, it may take some time until they show up here.
+                </p>
+                <div className='w-full flex-col items-center gap-8 pt-5 md:flex md:flex-row'>
+                  <div className='flex items-center gap-1'>
+                    <SafeIcon className='size-4' />
+                    <span className='font-mono text-xs md:text-sm'>{safeAddress}</span>
+                  </div>
+                  <Button variant='link' className='text-functional-link-primary mt-2 md:mt-0' onClick={onCopy}>
+                    <CopyAddress className='size-4' />
+                    Copy Safe address
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
