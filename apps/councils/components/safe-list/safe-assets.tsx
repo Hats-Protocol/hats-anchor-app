@@ -28,6 +28,15 @@ import {
 import { formatUnits, Hex } from 'viem';
 
 const PercentageCircle = ({ percentage }: { percentage: number }) => {
+  // For 100%, render a full circle
+  if (percentage === 100) {
+    return (
+      <svg width='16' height='16' viewBox='0 0 16 16'>
+        <circle cx='8' cy='8' r='8' fill='#000000' />
+      </svg>
+    );
+  }
+
   const degrees = (percentage / 100) * 360;
   const radians = (degrees * Math.PI) / 180;
 
@@ -54,10 +63,16 @@ const PercentageCircle = ({ percentage }: { percentage: number }) => {
   );
 };
 
+// Helper function to format numbers with commas
+const formatNumberWithCommas = (value: number): string => {
+  return new Intl.NumberFormat('en-US').format(value);
+};
+
 const SafeAssetRow = ({
   token,
   chainId,
   totalSafeValue,
+  tokenUsdValue,
   safeAddress,
 }: {
   token: any;
@@ -81,23 +96,18 @@ const SafeAssetRow = ({
     symbol: toLower(localTokenSymbol),
   });
 
-  // calculate USD value for percentage calculation
-  const tokenDecimals = get(token, 'token.decimals', 18);
-  const symbol = get(token, 'token.symbol')
-    ? symbolPriceHandler(get(token, 'token.symbol'))
-    : chainId
-      ? symbolPriceHandler(NETWORK_CURRENCY[chainId])
-      : undefined;
-  const priceDetails = find(prices, {
-    symbol: toUpper(symbol),
-  });
-
-  const tokenValue = priceDetails
-    ? toNumber(formatUnits(BigInt(token.balance), tokenDecimals)) * toNumber(get(priceDetails, 'priceUsd', 0))
-    : 0;
-
   // calculate percentage based on total value
-  const percentage = totalSafeValue > 0 ? Math.round((tokenValue / totalSafeValue) * 100) : 0;
+  const percentage = totalSafeValue > 0 && tokenUsdValue > 0 ? Math.round((tokenUsdValue / totalSafeValue) * 100) : 0;
+
+  console.log('Percentage Debug:', {
+    tokenUsdValue,
+    totalSafeValue,
+    calculatedPercentage: percentage,
+    symbol: localTokenSymbol,
+    hasPrice: !!find(prices, {
+      symbol: toUpper(symbolPriceHandler(get(token, 'token.symbol') || NETWORK_CURRENCY[chainId])),
+    }),
+  });
 
   // last in, Last out transactions
   const filteredSafeTransactions = filterSafeTransactions(safeTransactions, [get(token, 'token.symbol')]);
@@ -130,7 +140,9 @@ const SafeAssetRow = ({
     chainId,
   });
 
-  const formattedBalance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))).toFixed(2);
+  const formattedBalance = formatNumberWithCommas(
+    Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))),
+  );
 
   return (
     <div className='flex h-16 w-full items-center border-b border-gray-200 px-2 md:px-0'>
@@ -155,7 +167,7 @@ const SafeAssetRow = ({
           <p className='font-mono'>
             <span className='text-gray-500'>{localTokenSymbol}</span> {formattedBalance}
           </p>
-          {tokenValue > 0 && <p className='text-sm text-gray-500'>~${tokenValue.toFixed(2)}</p>}
+          {tokenUsdValue > 0 && <p className='text-sm text-gray-500'>~${formatNumberWithCommas(tokenUsdValue)}</p>}
         </div>
         <div className='w-40 text-right'>
           {lastInbound ? (
@@ -163,7 +175,9 @@ const SafeAssetRow = ({
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
                 <span className='font-mono text-black'>+{formatTransactionAmount(lastInbound)}</span>
-                <span className='font-mono text-gray-500'>k</span>
+                {Number(formatTransactionAmount(lastInbound)) >= 1000 && (
+                  <span className='font-mono text-gray-500'>K</span>
+                )}
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastInbound, 'executionDate', ''))}</span>
             </div>
@@ -180,7 +194,9 @@ const SafeAssetRow = ({
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
                 <span className='font-mono text-red-600'>-{formatTransactionAmount(lastOutbound)}</span>
-                <span className='font-mono text-gray-500'>k</span>
+                {Number(formatTransactionAmount(lastOutbound)) >= 1000 && (
+                  <span className='font-mono text-gray-500'>K</span>
+                )}
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastOutbound, 'executionDate', ''))}</span>
             </div>
@@ -203,6 +219,7 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
     chainId,
   });
   const { data: prices } = useTokenPrices();
+  const priceData = prices || [];
 
   const { data: safeTransactions } = useSafeTransactions({
     safeAddress,
@@ -211,7 +228,7 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
   const filteredSafeTokens = filterTokenList({
     tokenList: safeTokens,
-    // approvedTokens,
+    approvedTokens,
   });
 
   // calculate total safe value in USD using raw values - matching safe-total.tsx implementation
@@ -241,13 +258,32 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
       : chainId
         ? symbolPriceHandler(NETWORK_CURRENCY[chainId])
         : undefined;
-    const price = find(prices, {
-      symbol: toUpper(symbol),
+
+    // Convert symbol to CoinGecko ID format
+    const priceId = symbol?.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const price = priceData.find((p: { symbol: string; priceUsd: string }) => p.symbol === priceId?.toUpperCase());
+
+    console.log('Price Debug:', {
+      rawSymbol: get(token, 'token.symbol'),
+      processedSymbol: symbol,
+      priceId,
+      pricesAvailable: priceData.length,
+      foundPrice: price,
+      firstFewPrices: priceData.slice(0, 3),
     });
 
-    const usdValue = price
+    const usdValue = price?.priceUsd
       ? toNumber(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))) * toNumber(price.priceUsd)
       : 0;
+
+    console.log('Token Debug:', {
+      symbol,
+      balance: token.balance,
+      decimals: get(token, 'token.decimals', 18),
+      priceUsd: price?.priceUsd,
+      calculatedUsdValue: usdValue,
+      totalSafeValue,
+    });
 
     return {
       token,

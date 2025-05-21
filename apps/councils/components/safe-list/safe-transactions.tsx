@@ -13,7 +13,7 @@ import React from 'react';
 import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
 import { MemberAvatar, Skeleton } from 'ui';
 import { formatRoundedDecimals, formatTimestamp, logger, onlyInboundTransactions, tokenImageHandler } from 'utils';
-import { formatUnits, Hex } from 'viem';
+import { Hex } from 'viem';
 
 const TransactionRowWrapper = ({
   children,
