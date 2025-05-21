@@ -1,7 +1,13 @@
 'use client';
 
-import { usePendingSafeTransactions, useSafeRegisteredEvents, useSafeTransactions, useTokenDetails } from 'hooks';
-import { get, isEmpty, map, toLower } from 'lodash';
+import {
+  useApprovedTokens,
+  usePendingSafeTransactions,
+  useSafeRegisteredEvents,
+  useSafeTransactions,
+  useTokenDetails,
+} from 'hooks';
+import { get, includes, isEmpty, map, reject, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import React from 'react';
 import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
@@ -207,6 +213,7 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     hsg: toLower(hsg),
     chainId,
   });
+  const { data: approvedTokens, isLoading: approvedTokensLoading } = useApprovedTokens();
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
@@ -217,9 +224,11 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     isLoadingPending ||
     isLoadingSafe ||
     isLoadingSafeRegisteredEvents ||
+    approvedTokensLoading ||
     safeTransactions === undefined ||
     pendingSafeTransactions === undefined ||
-    safeRegisteredEvents === undefined
+    safeRegisteredEvents === undefined ||
+    approvedTokens === undefined
   ) {
     return (
       <div className='flex w-full flex-col gap-4'>
@@ -246,12 +255,29 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     );
   }
 
+  // Filter function that only removes transactions with non-approved tokens
+  const filterNonApprovedTokenTransactions = (transactions: any[]) => {
+    if (!Array.isArray(transactions)) return [];
+
+    return reject(transactions, (tx) => {
+      // If there are no transfers, keep the transaction
+      if (!tx?.transfers?.length) return false;
+
+      // If any transfer has a non-approved token, filter out the transaction
+      return tx.transfers.some((transfer: any) => {
+        const symbol = get(transfer, 'tokenInfo.symbol');
+        // Keep the transaction if it's a native token transfer (no symbol) or if the token is approved
+        return symbol && !includes(approvedTokens, symbol);
+      });
+    });
+  };
+
   // show pending transactions section
-  const pendingTxs = Array.isArray(pendingSafeTransactions) ? pendingSafeTransactions : [];
+  const pendingTxs = filterNonApprovedTokenTransactions(pendingSafeTransactions);
   const hasPendingTransactions = !isEmpty(pendingTxs);
 
   // show executed transactions and registered events section
-  const recentTxs = Array.isArray(safeTransactions) ? safeTransactions.filter(Boolean) : [];
+  const recentTxs = filterNonApprovedTokenTransactions(safeTransactions);
   const registeredEvents = Array.isArray(safeRegisteredEvents) ? safeRegisteredEvents : [];
 
   const hasRecentActivity = !isEmpty(recentTxs) || !isEmpty(registeredEvents);
