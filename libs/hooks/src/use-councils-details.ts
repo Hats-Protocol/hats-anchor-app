@@ -12,7 +12,8 @@ export const useCouncilsDetails = (councils: Council[]) => {
   const results = useQueries({
     queries: map(councils, (council) => ({
       queryKey: ['councilDetails', { chainId: council.chainId, hsg: council.hsg }],
-      queryFn: async () => getCouncilData({ id: toLower(council.hsg), chainId: council.chainId }),
+      queryFn: async () =>
+        getCouncilData({ id: toLower(council.hsg), chainId: council.chainId }) as Promise<ExtendedHSGV2>,
       enabled: !!council.hsg && !!council.chainId,
       refetchOnMount: true,
       staleTime: 0,

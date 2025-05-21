@@ -55,6 +55,9 @@ export const OrgCouncilsList = () => {
       (hat) => map(council?.signerHats, 'id')?.includes(hat.id) && hat?.chainId === council?.chainId,
     ),
   }));
+  // const { data: offchainDetails } = useBatchOffchainCouncilDetails(
+  //   compact(orgCouncilsWithChain.map(({ id, chainId }) => (id ? { hsg: getAddress(id) as Hex, chainId } : null))),
+  // );
 
   // TODO: Move this into a shared components in either libs or somewhere else in councils -- we now use it in a few places
 
@@ -83,6 +86,7 @@ export const OrgCouncilsList = () => {
     <div className='mx-auto mt-8 flex min-h-screen max-w-[1400px] flex-col gap-6 px-2 md:mt-8 md:gap-8 md:px-6'>
       <div className='flex flex-col gap-2 md:gap-4'>
         {map(sortedCouncils, (council) => {
+          if (!council.id || !council.chainId) return null;
           const isMHSG = size(council.signerHats) > 1;
           return (
             <Link

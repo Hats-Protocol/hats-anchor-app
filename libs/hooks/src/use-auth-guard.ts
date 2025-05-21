@@ -41,11 +41,12 @@ export const useAuthGuard = () => {
   }, [authenticated, user?.email, linkEmail]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || walletClient) return;
 
     if (!isModalOpen && !authenticated) {
       hasTriggeredLogin.current = false;
     }
+    console.log('ready', { ready, authenticated, isModalOpen }, hasTriggeredLogin.current);
 
     const handleAuth = async () => {
       if (!authenticated && !hasTriggeredLogin.current) {

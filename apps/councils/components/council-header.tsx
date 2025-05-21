@@ -95,7 +95,7 @@ const CouncilHeaderCard = ({
   const effectiveOffchainDetails = offchainCouncilDetails;
   const effectiveSafeDetails = first(safesDetails);
   const effectiveSafeSigners = safeSignersRaw;
-  console.log('effectiveSafeSigners', effectiveSafeSigners, safeSignersRaw);
+  // console.log('effectiveSafeSigners', effectiveSafeSigners, safeSignersRaw);
 
   // const isMulti = size(effectiveCouncilDetails?.signerHats) > 1;
   const primarySignerHat = get(effectiveCouncilDetails, 'signerHats[0]');
@@ -163,11 +163,12 @@ const CouncilHeaderCard = ({
     return <Skeleton className='bg-functional-link-primary/10 mx-auto flex min-h-[125px] w-full rounded-lg p-4' />;
   }
 
-  console.log({
-    threshold: toNumber(get(effectiveCouncilDetails, 'minThreshold')),
-    signers: size(safeSigners),
-    maxSigners: totalMaxSupply,
-  });
+  // console.log({
+  //   threshold: toNumber(get(effectiveCouncilDetails, 'minThreshold')),
+  //   signers: size(safeSigners),
+  //   maxSigners: totalMaxSupply,
+  //   signerHats: effectiveCouncilDetails?.signerHats,
+  // });
 
   return (
     <div
