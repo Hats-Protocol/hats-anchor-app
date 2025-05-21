@@ -17,7 +17,6 @@ import { Button, Skeleton } from 'ui';
 import {
   filterSafeTransactions,
   filterTokenList,
-  formatRoundedDecimals,
   formatTimestamp,
   logger,
   onlyInboundTransactions,
@@ -63,59 +62,34 @@ const PercentageCircle = ({ percentage }: { percentage: number }) => {
   );
 };
 
-// Helper function to format numbers with commas
-const formatNumberWithCommas = (value: number): string => {
-  return new Intl.NumberFormat('en-US').format(value);
-};
+const formatNumberWithSuffix = (value: number, showDecimals = true, showKMDecimals = false): string => {
+  if (value === 0) return showDecimals ? '0.00' : '0';
 
-type FormattedNumber = {
-  value: string;
-  suffix: 'k' | 'M' | null;
-};
-
-const formatNumberWithK = (value: number, decimals = 2): FormattedNumber => {
-  if (value === 0) return { value: '0', suffix: null };
-
-  // For values >= 1,000,000, format with M
+  // For millions (1,000,000+)
   if (value >= 1000000) {
     const inM = value / 1000000;
-    return {
-      value: inM.toFixed(2),
-      suffix: 'M',
-    };
+    if (showKMDecimals) {
+      return `${inM.toFixed(1)}M`;
+    }
+    return `${showDecimals ? inM.toFixed(2) : Math.floor(inM)}M`;
   }
 
-  // For values >= 1000, format with k
+  // For thousands (1,000+)
   if (value >= 1000) {
     const inK = value / 1000;
-    return {
-      value: new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(inK),
-      suffix: 'k',
-    };
+    if (showKMDecimals) {
+      return `${inK.toFixed(1)}k`;
+    }
+    return `${showDecimals ? inK.toFixed(2) : Math.floor(inK)}k`;
   }
 
-  // For values < 1000, show specified decimals
-  return {
-    value: value.toFixed(decimals),
-    suffix: null,
-  };
+  // For values < 1000
+  return showDecimals ? value.toFixed(2) : Math.floor(value).toString();
 };
 
 const formatUsdValue = (value: number) => {
-  if (value === 0) return '$0';
-
-  // For values >= 1,000,000, round to nearest million
-  if (value >= 1000000) {
-    const inM = Math.round(value / 1000000);
-    return `~$${inM}M`;
-  }
-
-  // For values < 1,000,000, round to nearest thousand
-  const inK = Math.round(value / 1000);
-  return `~$${inK}k`;
+  if (value === 0) return '~$0';
+  return `~$${formatNumberWithSuffix(value, false, true)}`;
 };
 
 const SafeAssetRow = ({
@@ -168,13 +142,7 @@ const SafeAssetRow = ({
 
   const formattedBalance = () => {
     const rawBalance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18)));
-    const formatted = formatNumberWithK(rawBalance, 2);
-    return (
-      <>
-        {formatted.value}
-        {formatted.suffix && <span className='text-gray-500'> {formatted.suffix}</span>}
-      </>
-    );
+    return formatNumberWithSuffix(rawBalance);
   };
 
   const formatTransactionAmount = (tx: SafeTransaction | undefined) => {
@@ -187,14 +155,10 @@ const SafeAssetRow = ({
 
     try {
       const numericValue = Number(formatUnits(BigInt(value), decimals));
-      const formatted = formatNumberWithK(numericValue, 2);
-      return {
-        value: formatted.value,
-        suffix: formatted.suffix,
-      };
+      return formatNumberWithSuffix(numericValue);
     } catch (error) {
       logger.error('Error formatting amount:', error);
-      return { value: '0', suffix: null };
+      return '0.00';
     }
   };
 
@@ -237,12 +201,7 @@ const SafeAssetRow = ({
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
-                <span className='font-mono text-black'>
-                  +{formatTransactionAmount(lastInbound)?.value}
-                  {formatTransactionAmount(lastInbound)?.suffix && (
-                    <span className='text-gray-500'> {formatTransactionAmount(lastInbound)?.suffix}</span>
-                  )}
-                </span>
+                <span className='font-mono text-black'>+{formatTransactionAmount(lastInbound)}</span>
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastInbound, 'executionDate', ''))}</span>
             </div>
@@ -258,12 +217,7 @@ const SafeAssetRow = ({
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
-                <span className='font-mono text-red-600'>
-                  -{formatTransactionAmount(lastOutbound)?.value}
-                  {formatTransactionAmount(lastOutbound)?.suffix && (
-                    <span className='text-gray-500'> {formatTransactionAmount(lastOutbound)?.suffix}</span>
-                  )}
-                </span>
+                <span className='font-mono text-red-600'>-{formatTransactionAmount(lastOutbound)}</span>
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastOutbound, 'executionDate', ''))}</span>
             </div>

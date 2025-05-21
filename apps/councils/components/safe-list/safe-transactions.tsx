@@ -12,8 +12,33 @@ import posthog from 'posthog-js';
 import React from 'react';
 import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
 import { MemberAvatar, Skeleton } from 'ui';
-import { formatRoundedDecimals, formatTimestamp, logger, onlyInboundTransactions, tokenImageHandler } from 'utils';
-import { Hex } from 'viem';
+import { formatTimestamp, logger, onlyInboundTransactions, tokenImageHandler } from 'utils';
+import { formatUnits, Hex } from 'viem';
+
+const formatNumberWithSuffix = (value: number, showDecimals = true, showKMDecimals = false): string => {
+  if (value === 0) return showDecimals ? '0.00' : '0';
+
+  // For millions (1,000,000+)
+  if (value >= 1000000) {
+    const inM = value / 1000000;
+    if (showKMDecimals) {
+      return `${inM.toFixed(1)}M`;
+    }
+    return `${showDecimals ? inM.toFixed(2) : Math.floor(inM)}M`;
+  }
+
+  // For thousands (1,000+)
+  if (value >= 1000) {
+    const inK = value / 1000;
+    if (showKMDecimals) {
+      return `${inK.toFixed(1)}k`;
+    }
+    return `${showDecimals ? inK.toFixed(2) : Math.floor(inK)}k`;
+  }
+
+  // For values < 1000
+  return showDecimals ? value.toFixed(2) : Math.floor(value).toString();
+};
 
 const TransactionRowWrapper = ({
   children,
@@ -101,7 +126,7 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
   }
 
   try {
-    let formattedValue;
+    let numericValue;
     let symbol;
     let decimals;
 
@@ -111,21 +136,13 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
 
       // for ETH transfers
       if (tx?.value && tx.value !== '0') {
-        formattedValue = formatRoundedDecimals({
-          value: BigInt(tx.value),
-          decimals,
-          rounded: 4,
-        });
+        numericValue = Number(formatUnits(BigInt(tx.value), decimals));
       }
       // for ERC20 token transfers
       else if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
         const parameters = tx?.dataDecoded?.parameters;
         if (parameters && parameters.length > 0) {
-          formattedValue = formatRoundedDecimals({
-            value: BigInt(parameters[1]?.value || '0'),
-            decimals,
-            rounded: 4,
-          });
+          numericValue = Number(formatUnits(BigInt(parameters[1]?.value || '0'), decimals));
         }
       }
     } else {
@@ -134,18 +151,15 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
         return null;
       }
 
-      formattedValue = formatRoundedDecimals({
-        value: BigInt(transfer.value),
-        decimals: transfer.tokenInfo?.decimals || 18,
-        rounded: 4,
-      });
-
+      numericValue = Number(formatUnits(BigInt(transfer.value), transfer.tokenInfo?.decimals || 18));
       symbol = transfer.tokenInfo?.symbol || 'ETH';
     }
 
-    if (!formattedValue) {
+    if (numericValue === undefined) {
       return null;
     }
+
+    const formattedValue = formatNumberWithSuffix(numericValue, true, true);
 
     const isInbound = onlyInboundTransactions([tx], safeAddress).length > 0;
 
@@ -182,7 +196,6 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
     );
   } catch (error) {
     logger.error('Error in TransactionRow:', error);
-
     return null;
   }
 };
