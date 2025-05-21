@@ -210,8 +210,8 @@ const SafeAssetRow = ({
   return (
     <div className='flex h-16 w-full items-center border-b border-gray-200 px-2 md:px-0'>
       {/* Token */}
-      <div className='flex min-w-[200px] items-center gap-4'>
-        <div className='flex min-w-[80px] items-center gap-2'>
+      <div className='flex min-w-[300px] items-center gap-6'>
+        <div className='flex min-w-[100px] items-center gap-2'>
           <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
           <img src={tokenImage} className='h-8 w-8' alt='token image' />
         </div>
@@ -225,14 +225,14 @@ const SafeAssetRow = ({
       </div>
 
       {/* Amount, Last in, Last out */}
-      <div className='flex flex-1 items-center justify-end gap-12'>
-        <div className='w-40 text-right'>
+      <div className='flex flex-1 items-center justify-end gap-16'>
+        <div className='w-48 text-right'>
           <p className='font-mono'>
             <span className='text-gray-500'>{localTokenSymbol}</span> {formattedBalance()}
           </p>
           {tokenUsdValue > 0 && <p className='text-sm text-gray-500'>{formatUsdValue(tokenUsdValue)}</p>}
         </div>
-        <div className='w-40 text-right'>
+        <div className='w-48 text-right'>
           {lastInbound ? (
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
@@ -253,7 +253,7 @@ const SafeAssetRow = ({
             </div>
           )}
         </div>
-        <div className='w-40 text-right'>
+        <div className='w-48 text-right'>
           {lastOutbound ? (
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
@@ -349,17 +349,17 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
   const TableHeader = () => (
     <div className='flex h-14 w-full items-center'>
-      <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
+      <div className='flex h-full min-w-[300px] items-center p-2 md:p-0'>
         <p>Token</p>
       </div>
-      <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
-        <div className='w-40'>
+      <div className='flex flex-1 items-center justify-end gap-16 pr-2'>
+        <div className='w-48'>
           <p className='text-right font-medium'>Amount</p>
         </div>
-        <div className='w-40'>
+        <div className='w-48'>
           <p className='text-right font-medium'>Last in</p>
         </div>
-        <div className='w-40'>
+        <div className='w-48'>
           <p className='text-right font-medium'>Last out</p>
         </div>
       </div>
