@@ -15,7 +15,7 @@ import { MemberAvatar, Skeleton } from 'ui';
 import { formatTimestamp, logger, onlyInboundTransactions, tokenImageHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
 
-const formatNumberWithSuffix = (value: number, showDecimals = true, showKMDecimals = false): string => {
+const formatNumberWithSuffix = (value: number, showDecimals = true, showKMDecimals = false, isEth = false): string => {
   if (value === 0) return showDecimals ? '0.00' : '0';
 
   // For millions (1,000,000+)
@@ -34,6 +34,11 @@ const formatNumberWithSuffix = (value: number, showDecimals = true, showKMDecima
       return `${inK.toFixed(1)}k`;
     }
     return `${showDecimals ? inK.toFixed(2) : Math.floor(inK)}k`;
+  }
+
+  // For small ETH values (< 0.1), show 3 decimal places
+  if (isEth && value < 0.1) {
+    return value.toFixed(3);
   }
 
   // For values < 1000
@@ -159,7 +164,8 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
       return null;
     }
 
-    const formattedValue = formatNumberWithSuffix(numericValue, true, true);
+    const isEth = symbol === 'ETH';
+    const formattedValue = formatNumberWithSuffix(numericValue, true, true, isEth);
 
     const isInbound = onlyInboundTransactions([tx], safeAddress).length > 0;
 
