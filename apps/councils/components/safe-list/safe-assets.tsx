@@ -99,20 +99,20 @@ const SafeAssetRow = ({
   // calculate percentage based on total value
   const percentage = totalSafeValue > 0 && tokenUsdValue > 0 ? Math.round((tokenUsdValue / totalSafeValue) * 100) : 0;
 
-  console.log('Percentage Debug:', {
-    tokenUsdValue,
-    totalSafeValue,
-    calculatedPercentage: percentage,
-    symbol: localTokenSymbol,
-    hasPrice: !!find(prices, {
-      symbol: toUpper(symbolPriceHandler(get(token, 'token.symbol') || NETWORK_CURRENCY[chainId])),
-    }),
-  });
-
   // last in, Last out transactions
   const filteredSafeTransactions = filterSafeTransactions(safeTransactions, [get(token, 'token.symbol')]);
-  const inboundTransactions = onlyInboundTransactions(filteredSafeTransactions, safeAddress);
-  const outboundTransactions = onlyOutboundTransactions(filteredSafeTransactions, safeAddress);
+
+  // Filter out zero-value transactions and then get inbound/outbound
+  const nonZeroTransactions = filteredSafeTransactions?.filter((tx) => {
+    const value = get(tx, 'transfers.0.value', '0');
+    const decimals = get(tx, 'transfers.0.tokenInfo.decimals', 18);
+    // Convert to actual value and check if it would round to 0.00
+    const actualValue = Number(formatUnits(BigInt(value), decimals));
+    return actualValue >= 0.01; // Filter out anything that would show as 0.00
+  });
+
+  const inboundTransactions = onlyInboundTransactions(nonZeroTransactions, safeAddress);
+  const outboundTransactions = onlyOutboundTransactions(nonZeroTransactions, safeAddress);
   const lastInbound = first(inboundTransactions) as unknown as SafeTransaction;
   const lastOutbound = first(outboundTransactions) as unknown as SafeTransaction;
 
@@ -122,13 +122,37 @@ const SafeAssetRow = ({
     if (!firstTransfer) return null;
 
     const value = get(firstTransfer, 'value', '0');
-    const decimals = get(firstTransfer, 'tokenInfo.decimals', 18);
-    return Number(
-      formatRoundedDecimals({
-        value: BigInt(value),
+    const symbol = get(firstTransfer, 'tokenInfo.symbol');
+    // Use correct decimals based on token
+    let decimals = get(firstTransfer, 'tokenInfo.decimals');
+    if (decimals === undefined) {
+      // Known token decimals
+      if (symbol === 'USDC') decimals = 6;
+      else if (symbol === 'RARE') decimals = 18;
+      else decimals = 18; // Default for unknown tokens
+    }
+
+    try {
+      // Format using formatUnits instead of Number conversion to handle large values
+      const formatted = formatUnits(BigInt(value), decimals);
+      // Parse to float and format with commas if > 10k
+      const numericValue = Number(formatted);
+      const roundedFormatted =
+        numericValue >= 10000 ? formatNumberWithCommas(numericValue.toFixed(2)) : numericValue.toFixed(2);
+
+      logger.info('Formatting transaction amount:', {
+        symbol,
+        value,
         decimals,
-      }),
-    ).toFixed(2);
+        formatted,
+        roundedFormatted,
+      });
+
+      return roundedFormatted;
+    } catch (error) {
+      logger.error('Error formatting amount:', error);
+      return '0.00';
+    }
   };
 
   if (!chainId) return null;
