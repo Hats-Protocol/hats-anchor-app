@@ -167,13 +167,13 @@ export function getWearersProfileDetailQuery(chainId: number): string {
 // explicitly query all of the chains
 export function getCrossChainAllowlistEligibilitiesQuery(): string {
   return gql`
-    query GetCrosschainAllowlistHats($address: String!) {
+    query GetCrossChainAllowlistHats($address: String!) {
       Eth_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
         hatId
       }
-      Sep_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
-        hatId
-      }
+      # Sep_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
+      #   hatId
+      # }
       Op_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
         hatId
       }
@@ -183,9 +183,9 @@ export function getCrossChainAllowlistEligibilitiesQuery(): string {
       Base_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
         hatId
       }
-      BaseSep_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
-        hatId
-      }
+      # BaseSep_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
+      #   hatId
+      # }
       Celo_allowListEligibilities(where: { eligibilityData_: { address: $address } }) {
         hatId
       }
@@ -260,40 +260,40 @@ export function getCrossChainWearerDetailsQuery(): string {
           }
         }
       }
-      Sep_wearer(id: $id) {
-        id
-        currentHats(first: 1000) {
-          id
-          prettyId
-          status
-          createdAt
-          details
-          detailsMetadata
-          maxSupply
-          eligibility
-          toggle
-          mutable
-          imageUri
-          nearestImage
-          levelAtLocalTree
-          claimableBy {
-            id
-          }
-          claimableForBy {
-            id
-          }
-          currentSupply
-          tree {
-            id
-          }
-          wearers {
-            id
-          }
-          admin {
-            id
-          }
-        }
-      }
+      # Sep_wearer(id: $id) {
+      #   id
+      #   currentHats(first: 1000) {
+      #     id
+      #     prettyId
+      #     status
+      #     createdAt
+      #     details
+      #     detailsMetadata
+      #     maxSupply
+      #     eligibility
+      #     toggle
+      #     mutable
+      #     imageUri
+      #     nearestImage
+      #     levelAtLocalTree
+      #     claimableBy {
+      #       id
+      #     }
+      #     claimableForBy {
+      #       id
+      #     }
+      #     currentSupply
+      #     tree {
+      #       id
+      #     }
+      #     wearers {
+      #       id
+      #     }
+      #     admin {
+      #       id
+      #     }
+      #   }
+      # }
       Op_wearer(id: $id) {
         id
         currentHats(first: 1000) {
@@ -396,40 +396,40 @@ export function getCrossChainWearerDetailsQuery(): string {
           }
         }
       }
-      BaseSep_wearer(id: $id) {
-        id
-        currentHats(first: 1000) {
-          id
-          prettyId
-          status
-          createdAt
-          details
-          detailsMetadata
-          maxSupply
-          eligibility
-          toggle
-          mutable
-          imageUri
-          nearestImage
-          levelAtLocalTree
-          claimableBy {
-            id
-          }
-          claimableForBy {
-            id
-          }
-          currentSupply
-          tree {
-            id
-          }
-          wearers {
-            id
-          }
-          admin {
-            id
-          }
-        }
-      }
+      # BaseSep_wearer(id: $id) {
+      #   id
+      #   currentHats(first: 1000) {
+      #     id
+      #     prettyId
+      #     status
+      #     createdAt
+      #     details
+      #     detailsMetadata
+      #     maxSupply
+      #     eligibility
+      #     toggle
+      #     mutable
+      #     imageUri
+      #     nearestImage
+      #     levelAtLocalTree
+      #     claimableBy {
+      #       id
+      #     }
+      #     claimableForBy {
+      #       id
+      #     }
+      #     currentSupply
+      #     tree {
+      #       id
+      #     }
+      #     wearers {
+      #       id
+      #     }
+      #     admin {
+      #       id
+      #     }
+      #   }
+      # }
       Celo_wearer(id: $id) {
         id
         currentHats(first: 1000) {

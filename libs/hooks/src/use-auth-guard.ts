@@ -46,7 +46,6 @@ export const useAuthGuard = () => {
     if (!isModalOpen && !authenticated) {
       hasTriggeredLogin.current = false;
     }
-    console.log('ready', { ready, authenticated, isModalOpen }, hasTriggeredLogin.current);
 
     const handleAuth = async () => {
       if (!authenticated && !hasTriggeredLogin.current) {
@@ -68,7 +67,7 @@ export const useAuthGuard = () => {
     return () => {
       isMounted.current = false;
     };
-  }, [ready, authenticated, login, isModalOpen]);
+  }, [ready, authenticated, login, isModalOpen, walletClient]);
 
   // Different auth states
   const isWalletLocked = authenticated && user?.wallet && !userAddress;

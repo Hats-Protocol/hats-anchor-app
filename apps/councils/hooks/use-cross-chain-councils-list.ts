@@ -135,13 +135,12 @@ const HSG_QUERY = gql`
   query getCrossChainHSGs(
     $ethHatIds: [ID!]
     $baseHatIds: [ID!]
-    $sepHatIds: [ID!]
+    # $sepHatIds: [ID!]
     $opHatIds: [ID!]
     $gnoHatIds: [ID!]
     $arbHatIds: [ID!]
     $celoHatIds: [ID!]
-    $polHatIds: [ID!]
-    $baseSepHatIds: [ID!]
+    $polHatIds: [ID!] # $baseSepHatIds: [ID!]
   ) {
     # HSG OWNERS
     Eth_hatsSignerGateV2S(
@@ -256,38 +255,38 @@ const HSG_QUERY = gql`
     }
 
     # testnets
-    BaseSep_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $baseSepHatIds } }, { signerHats_: { id_in: $baseSepHatIds } }] }
-    ) {
-      # 84532
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
-    Sep_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $sepHatIds } }, { signerHats_: { id_in: $sepHatIds } }] }
-    ) {
-      # 11155111
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
+    # BaseSep_hatsSignerGateV2S(
+    #   where: { or: [{ ownerHat_: { id_in: $baseSepHatIds } }, { signerHats_: { id_in: $baseSepHatIds } }] }
+    # ) {
+    #   # 84532
+    #   id
+    #   safe
+    #   thresholdType
+    #   minThreshold
+    #   targetThreshold
+    #   signerHats {
+    #     id
+    #   }
+    #   ownerHat {
+    #     id
+    #   }
+    # }
+    # Sep_hatsSignerGateV2S(
+    #   where: { or: [{ ownerHat_: { id_in: $sepHatIds } }, { signerHats_: { id_in: $sepHatIds } }] }
+    # ) {
+    #   # 11155111
+    #   id
+    #   safe
+    #   thresholdType
+    #   minThreshold
+    #   targetThreshold
+    #   signerHats {
+    #     id
+    #   }
+    #   ownerHat {
+    #     id
+    #   }
+    # }
   }
 `;
 
@@ -295,13 +294,12 @@ const MODULE_MANAGER_HATS_QUERY = gql`
   query getCrossChainModuleManagerHats(
     $ethModules: [String!]
     $baseModules: [String!]
-    $sepModules: [String!]
+    # $sepModules: [String!]
     $opModules: [String!]
     $gnoModules: [String!]
     $arbModules: [String!]
     $celoModules: [String!]
-    $polModules: [String!]
-    $baseSepModules: [String!]
+    $polModules: [String!] # $baseSepModules: [String!]
   ) {
     Eth_hats(where: { eligibility_in: $ethModules }) {
       id
@@ -309,9 +307,9 @@ const MODULE_MANAGER_HATS_QUERY = gql`
     Base_hats(where: { eligibility_in: $baseModules }) {
       id
     }
-    Sep_hats(where: { eligibility_in: $sepModules }) {
-      id
-    }
+    # Sep_hats(where: { eligibility_in: $sepModules }) {
+    #   id
+    # }
     Op_hats(where: { eligibility_in: $opModules }) {
       id
     }
@@ -327,9 +325,9 @@ const MODULE_MANAGER_HATS_QUERY = gql`
     Pol_hats(where: { eligibility_in: $polModules }) {
       id
     }
-    BaseSep_hats(where: { eligibility_in: $baseSepModules }) {
-      id
-    }
+    # BaseSep_hats(where: { eligibility_in: $baseSepModules }) {
+    #   id
+    # }
   }
 `;
 
