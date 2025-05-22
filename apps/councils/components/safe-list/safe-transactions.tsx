@@ -1,13 +1,49 @@
 'use client';
 
-import { usePendingSafeTransactions, useSafeRegisteredEvents, useSafeTransactions, useTokenDetails } from 'hooks';
-import { get, isEmpty, map, toLower } from 'lodash';
+import {
+  useApprovedTokens,
+  usePendingSafeTransactions,
+  useSafeRegisteredEvents,
+  useSafeTransactions,
+  useTokenDetails,
+} from 'hooks';
+import { get, includes, isEmpty, map, reject, toLower } from 'lodash';
 import posthog from 'posthog-js';
 import React from 'react';
 import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
 import { MemberAvatar, Skeleton } from 'ui';
-import { formatRoundedDecimals, formatTimestamp, logger, onlyInboundTransactions, tokenImageHandler } from 'utils';
+import { formatTimestamp, logger, onlyInboundTransactions, tokenImageHandler } from 'utils';
 import { formatUnits, Hex } from 'viem';
+
+const formatNumberWithSuffix = (value: number, showDecimals = true, showKMDecimals = false, isEth = false): string => {
+  if (value === 0) return showDecimals ? '0.00' : '0';
+
+  // For millions (1,000,000+)
+  if (value >= 1000000) {
+    const inM = value / 1000000;
+    if (showKMDecimals) {
+      return `${inM.toFixed(1)}M`;
+    }
+    return `${showDecimals ? inM.toFixed(2) : Math.floor(inM)}M`;
+  }
+
+  // For thousands (1,000+)
+  if (value >= 1000) {
+    const inK = value / 1000;
+    if (showKMDecimals) {
+      return `${inK.toFixed(1)}k`;
+    }
+    return `${showDecimals ? inK.toFixed(2) : Math.floor(inK)}k`;
+  }
+
+  // For small ETH values (< 0.1), show 3 decimal places
+  if (isEth && value < 0.1) {
+    return value.toFixed(3);
+  }
+
+  // For values < 1000
+  return showDecimals ? value.toFixed(2) : Math.floor(value).toString();
+};
 
 const TransactionRowWrapper = ({
   children,
@@ -95,7 +131,7 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
   }
 
   try {
-    let formattedValue;
+    let numericValue;
     let symbol;
     let decimals;
 
@@ -105,16 +141,13 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
 
       // for ETH transfers
       if (tx?.value && tx.value !== '0') {
-        formattedValue = formatUnits(BigInt(tx.value), decimals);
+        numericValue = Number(formatUnits(BigInt(tx.value), decimals));
       }
       // for ERC20 token transfers
       else if (tx?.data && tx.data !== '0x' && tx?.dataDecoded?.method === 'transfer') {
         const parameters = tx?.dataDecoded?.parameters;
         if (parameters && parameters.length > 0) {
-          formattedValue = formatRoundedDecimals({
-            value: BigInt(parameters[1]?.value || '0'),
-            decimals,
-          });
+          numericValue = Number(formatUnits(BigInt(parameters[1]?.value || '0'), decimals));
         }
       }
     } else {
@@ -123,17 +156,16 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
         return null;
       }
 
-      formattedValue = formatRoundedDecimals({
-        value: BigInt(transfer.value),
-        decimals: transfer.tokenInfo?.decimals || 18,
-      });
-
+      numericValue = Number(formatUnits(BigInt(transfer.value), transfer.tokenInfo?.decimals || 18));
       symbol = transfer.tokenInfo?.symbol || 'ETH';
     }
 
-    if (!formattedValue) {
+    if (numericValue === undefined) {
       return null;
     }
+
+    const isEth = symbol === 'ETH';
+    const formattedValue = formatNumberWithSuffix(numericValue, true, true, isEth);
 
     const isInbound = onlyInboundTransactions([tx], safeAddress).length > 0;
 
@@ -170,7 +202,6 @@ const TransactionRow = ({ tx, safeAddress, isPending }: { tx: any; safeAddress: 
     );
   } catch (error) {
     logger.error('Error in TransactionRow:', error);
-
     return null;
   }
 };
@@ -201,6 +232,7 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     hsg: toLower(hsg),
     chainId,
   });
+  const { data: approvedTokens, isLoading: approvedTokensLoading } = useApprovedTokens();
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
@@ -211,9 +243,11 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     isLoadingPending ||
     isLoadingSafe ||
     isLoadingSafeRegisteredEvents ||
+    approvedTokensLoading ||
     safeTransactions === undefined ||
     pendingSafeTransactions === undefined ||
-    safeRegisteredEvents === undefined
+    safeRegisteredEvents === undefined ||
+    approvedTokens === undefined
   ) {
     return (
       <div className='flex w-full flex-col gap-4'>
@@ -240,12 +274,29 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
     );
   }
 
+  // Filter function that only removes transactions with non-approved tokens
+  const filterNonApprovedTokenTransactions = (transactions: any[]) => {
+    if (!Array.isArray(transactions)) return [];
+
+    return reject(transactions, (tx) => {
+      // If there are no transfers, keep the transaction
+      if (!tx?.transfers?.length) return false;
+
+      // If any transfer has a non-approved token, filter out the transaction
+      return tx.transfers.some((transfer: any) => {
+        const symbol = get(transfer, 'tokenInfo.symbol');
+        // Keep the transaction if it's a native token transfer (no symbol) or if the token is approved
+        return symbol && !includes(approvedTokens, symbol);
+      });
+    });
+  };
+
   // show pending transactions section
-  const pendingTxs = Array.isArray(pendingSafeTransactions) ? pendingSafeTransactions : [];
+  const pendingTxs = filterNonApprovedTokenTransactions(pendingSafeTransactions);
   const hasPendingTransactions = !isEmpty(pendingTxs);
 
   // show executed transactions and registered events section
-  const recentTxs = Array.isArray(safeTransactions) ? safeTransactions.filter(Boolean) : [];
+  const recentTxs = filterNonApprovedTokenTransactions(safeTransactions);
   const registeredEvents = Array.isArray(safeRegisteredEvents) ? safeRegisteredEvents : [];
 
   const hasRecentActivity = !isEmpty(recentTxs) || !isEmpty(registeredEvents);
@@ -273,6 +324,7 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
       b.type === 'transaction' ? new Date(b.executionDate || '').getTime() : Number(b.timestamp) * 1000;
     return timestampB - timestampA;
   });
+  logger.info('allActivity', allActivity);
 
   return (
     <div className='w-full space-y-4 px-4 md:px-0'>
