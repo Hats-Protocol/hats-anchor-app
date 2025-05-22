@@ -17,8 +17,8 @@ import { Button, Skeleton } from 'ui';
 import {
   filterSafeTransactions,
   filterTokenList,
-  formatRoundedDecimals,
   formatTimestamp,
+  logger,
   onlyInboundTransactions,
   onlyOutboundTransactions,
   symbolPriceHandler,
@@ -27,6 +27,15 @@ import {
 import { formatUnits, Hex } from 'viem';
 
 const PercentageCircle = ({ percentage }: { percentage: number }) => {
+  // For 100%, render a full circle
+  if (percentage === 100) {
+    return (
+      <svg width='16' height='16' viewBox='0 0 16 16'>
+        <circle cx='8' cy='8' r='8' fill='#000000' />
+      </svg>
+    );
+  }
+
   const degrees = (percentage / 100) * 360;
   const radians = (degrees * Math.PI) / 180;
 
@@ -53,10 +62,41 @@ const PercentageCircle = ({ percentage }: { percentage: number }) => {
   );
 };
 
+const formatNumberWithSuffix = (value: number, showDecimals = true, showKMDecimals = false): string => {
+  if (value === 0) return showDecimals ? '0.00' : '0';
+
+  // For millions (1,000,000+)
+  if (value >= 1000000) {
+    const inM = value / 1000000;
+    if (showKMDecimals) {
+      return `${inM.toFixed(1)}M`;
+    }
+    return `${showDecimals ? inM.toFixed(2) : Math.floor(inM)}M`;
+  }
+
+  // For thousands (1,000+)
+  if (value >= 1000) {
+    const inK = value / 1000;
+    if (showKMDecimals) {
+      return `${inK.toFixed(1)}k`;
+    }
+    return `${showDecimals ? inK.toFixed(2) : Math.floor(inK)}k`;
+  }
+
+  // For values < 1000
+  return showDecimals ? value.toFixed(2) : Math.floor(value).toString();
+};
+
+const formatUsdValue = (value: number) => {
+  if (value === 0) return '~$0';
+  return `~$${formatNumberWithSuffix(value, false, true)}`;
+};
+
 const SafeAssetRow = ({
   token,
   chainId,
   totalSafeValue,
+  tokenUsdValue,
   safeAddress,
 }: {
   token: any;
@@ -80,30 +120,30 @@ const SafeAssetRow = ({
     symbol: toLower(localTokenSymbol),
   });
 
-  // calculate USD value for percentage calculation
-  const tokenDecimals = get(token, 'token.decimals', 18);
-  const symbol = get(token, 'token.symbol')
-    ? symbolPriceHandler(get(token, 'token.symbol'))
-    : chainId
-      ? symbolPriceHandler(NETWORK_CURRENCY[chainId])
-      : undefined;
-  const priceDetails = find(prices, {
-    symbol: toUpper(symbol),
-  });
-
-  const tokenValue = priceDetails
-    ? toNumber(formatUnits(BigInt(token.balance), tokenDecimals)) * toNumber(get(priceDetails, 'priceUsd', 0))
-    : 0;
-
   // calculate percentage based on total value
-  const percentage = totalSafeValue > 0 ? Math.round((tokenValue / totalSafeValue) * 100) : 0;
+  const percentage = totalSafeValue > 0 && tokenUsdValue > 0 ? Math.round((tokenUsdValue / totalSafeValue) * 100) : 0;
 
   // last in, Last out transactions
   const filteredSafeTransactions = filterSafeTransactions(safeTransactions, [get(token, 'token.symbol')]);
-  const inboundTransactions = onlyInboundTransactions(filteredSafeTransactions, safeAddress);
-  const outboundTransactions = onlyOutboundTransactions(filteredSafeTransactions, safeAddress);
+
+  // Filter out zero-value transactions and then get inbound/outbound
+  const nonZeroTransactions = filteredSafeTransactions?.filter((tx) => {
+    const value = get(tx, 'transfers.0.value', '0');
+    const decimals = get(tx, 'transfers.0.tokenInfo.decimals', 18);
+    // Convert to actual value and check if it would round to 0.00
+    const actualValue = Number(formatUnits(BigInt(value), decimals));
+    return actualValue >= 0.01; // Filter out anything that would show as 0.00
+  });
+
+  const inboundTransactions = onlyInboundTransactions(nonZeroTransactions, safeAddress);
+  const outboundTransactions = onlyOutboundTransactions(nonZeroTransactions, safeAddress);
   const lastInbound = first(inboundTransactions) as unknown as SafeTransaction;
   const lastOutbound = first(outboundTransactions) as unknown as SafeTransaction;
+
+  const formattedBalance = () => {
+    const rawBalance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18)));
+    return formatNumberWithSuffix(rawBalance);
+  };
 
   const formatTransactionAmount = (tx: SafeTransaction | undefined) => {
     if (!tx) return null;
@@ -112,12 +152,14 @@ const SafeAssetRow = ({
 
     const value = get(firstTransfer, 'value', '0');
     const decimals = get(firstTransfer, 'tokenInfo.decimals', 18);
-    return Number(
-      formatRoundedDecimals({
-        value: BigInt(value),
-        decimals,
-      }),
-    ).toFixed(2);
+
+    try {
+      const numericValue = Number(formatUnits(BigInt(value), decimals));
+      return formatNumberWithSuffix(numericValue);
+    } catch (error) {
+      logger.error('Error formatting amount:', error);
+      return '0.00';
+    }
   };
 
   if (!chainId) return null;
@@ -129,13 +171,11 @@ const SafeAssetRow = ({
     chainId,
   });
 
-  const formattedBalance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))).toFixed(2);
-
   return (
     <div className='flex h-16 w-full items-center border-b border-gray-200 px-2 md:px-0'>
       {/* Token */}
-      <div className='flex min-w-[200px] items-center gap-4'>
-        <div className='flex min-w-[80px] items-center gap-2'>
+      <div className='flex min-w-[300px] items-center gap-6'>
+        <div className='flex min-w-[100px] items-center gap-2'>
           <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
           <img src={tokenImage} className='h-8 w-8' alt='token image' />
         </div>
@@ -149,20 +189,19 @@ const SafeAssetRow = ({
       </div>
 
       {/* Amount, Last in, Last out */}
-      <div className='flex flex-1 items-center justify-end gap-12'>
-        <div className='w-40 text-right'>
+      <div className='flex flex-1 items-center justify-end gap-16'>
+        <div className='w-48 text-right'>
           <p className='font-mono'>
-            <span className='text-gray-500'>{localTokenSymbol}</span> {formattedBalance}
+            <span className='text-gray-500'>{localTokenSymbol}</span> {formattedBalance()}
           </p>
-          {tokenValue > 0 && <p className='text-sm text-gray-500'>~${tokenValue.toFixed(2)}</p>}
+          {tokenUsdValue > 0 && <p className='text-sm text-gray-500'>{formatUsdValue(tokenUsdValue)}</p>}
         </div>
-        <div className='w-40 text-right'>
+        <div className='w-48 text-right'>
           {lastInbound ? (
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
                 <span className='font-mono text-black'>+{formatTransactionAmount(lastInbound)}</span>
-                <span className='font-mono text-gray-500'>k</span>
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastInbound, 'executionDate', ''))}</span>
             </div>
@@ -173,13 +212,12 @@ const SafeAssetRow = ({
             </div>
           )}
         </div>
-        <div className='w-40 text-right'>
+        <div className='w-48 text-right'>
           {lastOutbound ? (
             <div className='flex flex-col items-end'>
               <div className='flex items-center gap-1'>
                 <span className='font-mono text-gray-500'>{localTokenSymbol}</span>
                 <span className='font-mono text-red-600'>-{formatTransactionAmount(lastOutbound)}</span>
-                <span className='font-mono text-gray-500'>k</span>
               </div>
               <span className='text-sm text-gray-500'>{formatTimestamp(get(lastOutbound, 'executionDate', ''))}</span>
             </div>
@@ -201,12 +239,13 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
     safeAddress,
     chainId,
   });
-  const { data: prices } = useTokenPrices();
-
-  const { data: safeTransactions } = useSafeTransactions({
+  const { data: prices, isLoading: pricesLoading } = useTokenPrices();
+  const { data: safeTransactions, isLoading: transactionsLoading } = useSafeTransactions({
     safeAddress,
     chainId,
   });
+
+  const priceData = prices || [];
 
   const filteredSafeTokens = filterTokenList({
     tokenList: safeTokens,
@@ -240,13 +279,13 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
       : chainId
         ? symbolPriceHandler(NETWORK_CURRENCY[chainId])
         : undefined;
-    const price = find(prices, {
-      symbol: toUpper(symbol),
-    });
 
-    const usdValue = price
-      ? toNumber(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18))) * toNumber(price.priceUsd)
-      : 0;
+    const priceId = symbol?.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const price = priceData.find((p: { symbol: string; priceUsd: string }) => p.symbol === priceId?.toUpperCase());
+
+    // Calculate USD value with more precision
+    const balance = Number(formatUnits(BigInt(token.balance), get(token, 'token.decimals', 18)));
+    const usdValue = price?.priceUsd ? balance * Number(price.priceUsd) : 0;
 
     return {
       token,
@@ -260,66 +299,48 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
   if (!chainId) return null;
 
-  if (approvedTokensLoading || safeTokensLoading) {
-    return (
-      <div className='flex flex-col gap-4'>
-        <Skeleton className='h-12 w-full' />
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton className='h-16 w-full' key={index} />
-        ))}
+  const isLoading = approvedTokensLoading || safeTokensLoading || pricesLoading || transactionsLoading;
+
+  const TableHeader = () => (
+    <div className='flex h-14 w-full items-center'>
+      <div className='flex h-full min-w-[300px] items-center p-2 md:p-0'>
+        <p>Token</p>
       </div>
-    );
-  }
+      <div className='flex flex-1 items-center justify-end gap-16 pr-2'>
+        <div className='w-48'>
+          <p className='text-right font-medium'>Amount</p>
+        </div>
+        <div className='w-48'>
+          <p className='text-right font-medium'>Last in</p>
+        </div>
+        <div className='w-48'>
+          <p className='text-right font-medium'>Last out</p>
+        </div>
+      </div>
+    </div>
+  );
 
-  if (isEmpty(filteredSafeTokens)) {
+  if (isLoading) {
     return (
-      <div className='flex w-full flex-col gap-2 px-4'>
+      <div className='flex w-full flex-col px-4 md:px-0'>
         <div className='relative'>
-          {/* Mobile scroll indicator (same mobile UX as Members Page) */}
           <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden' />
-
           <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
             <div className='min-w-fit'>
-              <div className='flex h-14 w-full items-center'>
-                <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
-                  <p>Token</p>
-                </div>
-                <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
-                  <div className='w-40'>
-                    <p className='text-right font-medium'>Amount</p>
-                  </div>
-                  <div className='w-40'>
-                    <p className='text-right font-medium'>Last in</p>
-                  </div>
-                  <div className='w-40'>
-                    <p className='text-right font-medium'>Last out</p>
-                  </div>
-                </div>
+              <TableHeader />
+              <div className='flex flex-col gap-4'>
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton className='h-16 w-full' key={index} />
+                ))}
               </div>
             </div>
           </div>
         </div>
-
-        <div className='flex w-full flex-col gap-2'>
-          <h2 className='text-base font-bold'>No assets found on Safe</h2>
-          <p className='max-w-[90%] text-sm'>
-            The Safe that was created for this council does not seem to hold any assets. You can copy its address below
-            to transfer funds. If you recently added funds, it may take some time until they show up here.
-          </p>
-        </div>
-        <div className='w-full flex-col items-center gap-8 pt-5 md:flex md:flex-row'>
-          <div className='flex items-center gap-1'>
-            <SafeIcon className='size-4' />
-            <span className='font-mono text-xs md:text-sm'>{safeAddress}</span>
-          </div>
-          <Button variant='link' className='text-functional-link-primary mt-2 md:mt-0' onClick={onCopy}>
-            <CopyAddress className='size-4' />
-            Copy Safe address
-          </Button>
-        </div>
       </div>
     );
   }
+
+  const hasNoAssets = isEmpty(filteredSafeTokens);
 
   return (
     <div className='flex w-full flex-col px-4 md:px-0'>
@@ -329,34 +350,39 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
         <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
           <div className='min-w-fit'>
-            <div className='flex h-14 w-full items-center'>
-              <div className='flex h-full min-w-[200px] items-center p-2 md:p-0'>
-                <p>Token</p>
-              </div>
-              <div className='flex flex-1 items-center justify-end gap-12 pr-2'>
-                <div className='w-40'>
-                  <p className='text-right font-medium'>Amount</p>
-                </div>
-                <div className='w-40'>
-                  <p className='text-right font-medium'>Last in</p>
-                </div>
-                <div className='w-40'>
-                  <p className='text-right font-medium'>Last out</p>
-                </div>
-              </div>
-            </div>
+            <TableHeader />
 
-            {map(tokenValues, ({ token, usdValue }) => (
-              <SafeAssetRow
-                token={token}
-                chainId={chainId}
-                totalSafeValue={totalSafeValue}
-                tokenUsdValue={usdValue}
-                safeAddress={safeAddress}
-                filteredSafeTokens={filteredSafeTokens}
-                key={token.tokenAddress || 'native currency'}
-              />
-            ))}
+            {!hasNoAssets ? (
+              map(tokenValues, ({ token, usdValue }) => (
+                <SafeAssetRow
+                  token={token}
+                  chainId={chainId}
+                  totalSafeValue={totalSafeValue}
+                  tokenUsdValue={usdValue}
+                  safeAddress={safeAddress}
+                  filteredSafeTokens={filteredSafeTokens}
+                  key={token.tokenAddress || 'native currency'}
+                />
+              ))
+            ) : (
+              <div className='flex w-full flex-col gap-2'>
+                <h2 className='text-base font-bold'>No assets found on Safe</h2>
+                <p className='max-w-[90%] text-sm'>
+                  The Safe that was created for this council does not seem to hold any assets. You can copy its address
+                  below to transfer funds. If you recently added funds, it may take some time until they show up here.
+                </p>
+                <div className='w-full flex-col items-center gap-8 pt-5 md:flex md:flex-row'>
+                  <div className='flex items-center gap-1'>
+                    <SafeIcon className='size-4' />
+                    <span className='font-mono text-xs md:text-sm'>{safeAddress}</span>
+                  </div>
+                  <Button variant='link' className='text-functional-link-primary mt-2 md:mt-0' onClick={onCopy}>
+                    <CopyAddress className='size-4' />
+                    Copy Safe address
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
