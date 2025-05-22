@@ -3,7 +3,7 @@
 import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useHatsDetails } from 'hats-hooks';
 import { uniqueHats } from 'hats-utils';
-import { useCouncilsDetails, useOrganization } from 'hooks';
+import { useAuthGuard, useCouncilsDetails, useOrganization } from 'hooks';
 import { concat, flatten, map, size, sortBy } from 'lodash';
 import { useParams } from 'next/navigation';
 import { AppHat, ExtendedHSGV2, SupportedChains } from 'types';
@@ -23,6 +23,8 @@ const hatWithChainId = (hat: Partial<AppHat> | undefined, chainId: number | unde
 export const OrgCouncilsList = () => {
   const params = useParams();
   const organizationName = params.name as string;
+
+  useAuthGuard();
 
   const { data: organization, isLoading, error } = useOrganization(organizationName);
   const councils = map(organization?.councils, (council) => ({
