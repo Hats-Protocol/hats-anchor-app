@@ -41,7 +41,7 @@ export const useAuthGuard = () => {
   }, [authenticated, user?.email, linkEmail]);
 
   useEffect(() => {
-    if (!ready || walletClient) return;
+    if (!ready || walletClient || hasTriggeredLogin.current) return;
 
     if (!isModalOpen && !authenticated) {
       hasTriggeredLogin.current = false;
