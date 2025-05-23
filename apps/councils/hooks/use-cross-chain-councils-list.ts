@@ -2,149 +2,60 @@ import { chainsList } from '@hatsprotocol/config';
 import { useQuery } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { gql, GraphQLClient } from 'graphql-request';
-import { compact, concat, every, get, isEmpty, keys, map } from 'lodash';
+import { compact, concat, every, get, isEmpty, keys, map, reduce, toLower } from 'lodash';
 import { useEffect, useMemo } from 'react';
 import { logger, NETWORKS_PREFIX, stripSuffix } from 'utils';
 
-const CROSS_CHAIN_COUNCIL_MANAGERS_QUERY = gql`
-  query getCrossChainCouncilManagers(
-    $ethHatIds: [ID!]
-    $baseHatIds: [ID!]
-    $sepHatIds: [ID!]
-    $opHatIds: [ID!]
-    $gnoHatIds: [ID!]
-    $arbHatIds: [ID!]
-    $celoHatIds: [ID!]
-    $polHatIds: [ID!]
-    $baseSepHatIds: [ID!]
+const hatIdsVariables = (hatIdsByNetwork: NetworkAddressList) => {
+  return map(keys(hatIdsByNetwork), (network) =>
+    isEmpty(hatIdsByNetwork[network]) ? '' : gql`$${toLower(network)}HatIds: [ID!]`,
+  ).join('\n');
+};
+
+const allowListEligibilities = (hatIdsByNetwork: NetworkAddressList) => {
+  return map(keys(hatIdsByNetwork), (network) => {
+    if (isEmpty(hatIdsByNetwork[network])) return '';
+    return gql`
+      ${network}_allowListEligibilities(
+        where: { or: [{ arbitratorHat_: { id_in: $${toLower(network)}HatIds } }, { ownerHat_: { id_in: $${toLower(network)}HatIds } }] }
+      ) {
+        id
+      }
+    `;
+  }).join('\n');
+};
+
+const agreementEligibilities = (hatIdsByNetwork: NetworkAddressList) => {
+  return map(keys(hatIdsByNetwork), (network) => {
+    if (isEmpty(hatIdsByNetwork[network])) return '';
+    return gql`
+      ${network}_agreementEligibilities(
+        where: { or: [{ arbitratorHat_: { id_in: $${toLower(network)}HatIds } }, { ownerHat_: { id_in: $${toLower(network)}HatIds } }] }
+      ) {
+        id  
+      }
+    `;
+  }).join('\n');
+};
+
+const CROSS_CHAIN_COUNCIL_MANAGERS_QUERY = (hatIdsByNetwork: NetworkAddressList) => gql`
+    query getCrossChainCouncilManagers(
+      ${hatIdsVariables(hatIdsByNetwork)}
   ) {
     # ALLOWLIST MANAGERS
-    Eth_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $ethHatIds } }, { ownerHat_: { id_in: $ethHatIds } }] }
-    ) {
-      id
-    }
-    Base_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $baseHatIds } }, { ownerHat_: { id_in: $baseHatIds } }] }
-    ) {
-      id
-    }
-    Sep_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $sepHatIds } }, { ownerHat_: { id_in: $sepHatIds } }] }
-    ) {
-      id
-    }
-    Op_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $opHatIds } }, { ownerHat_: { id_in: $opHatIds } }] }
-    ) {
-      id
-    }
-    Gno_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $gnoHatIds } }, { ownerHat_: { id_in: $gnoHatIds } }] }
-    ) {
-      id
-    }
-    Arb_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $arbHatIds } }, { ownerHat_: { id_in: $arbHatIds } }] }
-    ) {
-      id
-    }
-    Celo_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $celoHatIds } }, { ownerHat_: { id_in: $celoHatIds } }] }
-    ) {
-      id
-    }
-    Pol_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $polHatIds } }, { ownerHat_: { id_in: $polHatIds } }] }
-    ) {
-      id
-    }
-    BaseSep_allowListEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $baseSepHatIds } }, { ownerHat_: { id_in: $baseSepHatIds } }] }
-    ) {
-      id
-    }
+    ${allowListEligibilities(hatIdsByNetwork)}
 
     # AGREEMENT MANAGERS
-    Eth_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $ethHatIds } }, { ownerHat_: { id_in: $ethHatIds } }] }
-    ) {
-      id
-    }
-    Base_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $baseHatIds } }, { ownerHat_: { id_in: $baseHatIds } }] }
-    ) {
-      id
-    }
-    Op_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $opHatIds } }, { ownerHat_: { id_in: $opHatIds } }] }
-    ) {
-      id
-    }
-    Gno_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $gnoHatIds } }, { ownerHat_: { id_in: $gnoHatIds } }] }
-    ) {
-      id
-    }
-    Sep_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $sepHatIds } }, { ownerHat_: { id_in: $sepHatIds } }] }
-    ) {
-      id
-    }
-    Arb_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $arbHatIds } }, { ownerHat_: { id_in: $arbHatIds } }] }
-    ) {
-      id
-    }
-    Celo_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $celoHatIds } }, { ownerHat_: { id_in: $celoHatIds } }] }
-    ) {
-      id
-    }
-    Pol_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $polHatIds } }, { ownerHat_: { id_in: $polHatIds } }] }
-    ) {
-      id
-    }
-    BaseSep_agreementEligibilities(
-      where: { or: [{ arbitratorHat_: { id_in: $baseSepHatIds } }, { ownerHat_: { id_in: $baseSepHatIds } }] }
-    ) {
-      id
-    }
+    ${agreementEligibilities(hatIdsByNetwork)}
   }
 `;
 
-// const HSG_FRAGMENT = gql`
-//   fragment HSG on HatSignerGateV2 {
-//     id
-//     safe
-//     thresholdType
-//     minThreshold
-//     targetThreshold
-//     signerHats {
-//       id
-//       maxSupply
-//     }
-//     ownerHat {
-//       id
-//     }
-//   }
-// `;
-
-const HSG_QUERY = gql`
-  query getCrossChainHSGs(
-    $ethHatIds: [ID!]
-    $baseHatIds: [ID!]
-    # $sepHatIds: [ID!]
-    $opHatIds: [ID!]
-    $gnoHatIds: [ID!]
-    $arbHatIds: [ID!]
-    $celoHatIds: [ID!]
-    $polHatIds: [ID!] # $baseSepHatIds: [ID!]
-  ) {
-    # HSG OWNERS
-    Eth_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $ethHatIds } }, { signerHats_: { id_in: $ethHatIds } }] }
+const hsgOwnersSigners = (hatIdsByNetwork: NetworkAddressList) => {
+  return map(keys(hatIdsByNetwork), (network) => {
+    if (isEmpty(hatIdsByNetwork[network])) return '';
+    return gql`
+     ${network}_hatsSignerGateV2S(
+      where: { or: [{ ownerHat_: { id_in: $${toLower(network)}HatIds } }, { signerHats_: { id_in: $${toLower(network)}HatIds } }] }
     ) {
       # 1
       id
@@ -159,175 +70,41 @@ const HSG_QUERY = gql`
         id
       }
     }
-    Op_hatsSignerGateV2S(where: { or: [{ ownerHat_: { id_in: $opHatIds } }, { signerHats_: { id_in: $opHatIds } }] }) {
-      # 10
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
-    Gno_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $gnoHatIds } }, { signerHats_: { id_in: $gnoHatIds } }] }
-    ) {
-      # 100
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
-    Pol_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $polHatIds } }, { signerHats_: { id_in: $polHatIds } }] }
-    ) {
-      # 137
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
-    Base_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $baseHatIds } }, { signerHats_: { id_in: $baseHatIds } }] }
-    ) {
-      # 8453
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
-    Arb_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $arbHatIds } }, { signerHats_: { id_in: $arbHatIds } }] }
-    ) {
-      # 42161
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
-    Celo_hatsSignerGateV2S(
-      where: { or: [{ ownerHat_: { id_in: $celoHatIds } }, { signerHats_: { id_in: $celoHatIds } }] }
-    ) {
-      # 42220
-      id
-      safe
-      thresholdType
-      minThreshold
-      targetThreshold
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
+    `;
+  }).join('\n');
+};
 
-    # testnets
-    # BaseSep_hatsSignerGateV2S(
-    #   where: { or: [{ ownerHat_: { id_in: $baseSepHatIds } }, { signerHats_: { id_in: $baseSepHatIds } }] }
-    # ) {
-    #   # 84532
-    #   id
-    #   safe
-    #   thresholdType
-    #   minThreshold
-    #   targetThreshold
-    #   signerHats {
-    #     id
-    #   }
-    #   ownerHat {
-    #     id
-    #   }
-    # }
-    # Sep_hatsSignerGateV2S(
-    #   where: { or: [{ ownerHat_: { id_in: $sepHatIds } }, { signerHats_: { id_in: $sepHatIds } }] }
-    # ) {
-    #   # 11155111
-    #   id
-    #   safe
-    #   thresholdType
-    #   minThreshold
-    #   targetThreshold
-    #   signerHats {
-    #     id
-    #   }
-    #   ownerHat {
-    #     id
-    #   }
-    # }
+const HSG_QUERY = (hatIdsByNetwork: NetworkAddressList) => gql`
+  query getCrossChainHSGs(
+    ${hatIdsVariables(hatIdsByNetwork)}
+  ) {
+    # HSG OWNERS AND SIGNERS
+    ${hsgOwnersSigners(hatIdsByNetwork)}
   }
 `;
 
-const MODULE_MANAGER_HATS_QUERY = gql`
+const modulesByNetworkVariables = (modulesByNetwork: NetworkAddressList) => {
+  return map(keys(modulesByNetwork), (network) =>
+    isEmpty(modulesByNetwork[network]) ? '' : gql`$${toLower(network)}Modules: [String!]`,
+  ).join('\n');
+};
+
+const moduleManagerHats = (modulesByNetwork: NetworkAddressList) => {
+  return map(keys(modulesByNetwork), (network) => {
+    if (isEmpty(modulesByNetwork[network])) return '';
+    return gql`
+      ${network}_hats(where: { eligibility_in: $${toLower(network)}Modules }) {
+        id
+      }
+    `;
+  }).join('\n');
+};
+
+const MODULE_MANAGER_HATS_QUERY = (modulesByNetwork: NetworkAddressList) => gql`
   query getCrossChainModuleManagerHats(
-    $ethModules: [String!]
-    $baseModules: [String!]
-    # $sepModules: [String!]
-    $opModules: [String!]
-    $gnoModules: [String!]
-    $arbModules: [String!]
-    $celoModules: [String!]
-    $polModules: [String!] # $baseSepModules: [String!]
+    ${modulesByNetworkVariables(modulesByNetwork)}
   ) {
-    Eth_hats(where: { eligibility_in: $ethModules }) {
-      id
-    }
-    Base_hats(where: { eligibility_in: $baseModules }) {
-      id
-    }
-    # Sep_hats(where: { eligibility_in: $sepModules }) {
-    #   id
-    # }
-    Op_hats(where: { eligibility_in: $opModules }) {
-      id
-    }
-    Gno_hats(where: { eligibility_in: $gnoModules }) {
-      id
-    }
-    Arb_hats(where: { eligibility_in: $arbModules }) {
-      id
-    }
-    Celo_hats(where: { eligibility_in: $celoModules }) {
-      id
-    }
-    Pol_hats(where: { eligibility_in: $polModules }) {
-      id
-    }
-    # BaseSep_hats(where: { eligibility_in: $baseSepModules }) {
-    #   id
-    # }
+    ${moduleManagerHats(modulesByNetwork)}
   }
 `;
 
@@ -336,18 +113,20 @@ const meshClient = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphq
 const getCrossChainCouncilManagers = async (hatIdsByNetwork: NetworkAddressList | undefined) => {
   if (!hatIdsByNetwork || every(hatIdsByNetwork, isEmpty)) return null;
 
+  const managersQuery = CROSS_CHAIN_COUNCIL_MANAGERS_QUERY(hatIdsByNetwork);
+
+  const variables = reduce(
+    hatIdsByNetwork,
+    (acc, value, key) => {
+      if (isEmpty(value)) return acc;
+      acc[`${key}HatIds`] = value;
+      return acc;
+    },
+    {} as Record<string, string[]>,
+  );
+
   return meshClient
-    .request(CROSS_CHAIN_COUNCIL_MANAGERS_QUERY, {
-      ethHatIds: hatIdsByNetwork.Eth || [],
-      baseHatIds: hatIdsByNetwork.Base || [],
-      sepHatIds: hatIdsByNetwork.Sep || [],
-      opHatIds: hatIdsByNetwork.Op || [],
-      gnoHatIds: hatIdsByNetwork.Gno || [],
-      arbHatIds: hatIdsByNetwork.Arb || [],
-      celoHatIds: hatIdsByNetwork.Celo || [],
-      polHatIds: hatIdsByNetwork.Pol || [],
-      baseSepHatIds: hatIdsByNetwork.BaseSep || [],
-    })
+    .request(managersQuery, variables)
     .then((response) => {
       const returnObj: NetworkAddressList = {};
       // consolidate allowListEligibilities and agreementEligibilities by network
@@ -375,17 +154,18 @@ type NetworkAddressList = Record<string, string[]>;
 const getCrossChainModuleManagerHats = async (modulesByNetwork: NetworkAddressList | undefined) => {
   if (!modulesByNetwork || every(modulesByNetwork, isEmpty)) return null;
 
-  const response = await meshClient.request(MODULE_MANAGER_HATS_QUERY, {
-    ethModules: modulesByNetwork.Eth || [],
-    baseModules: modulesByNetwork.Base || [],
-    sepModules: modulesByNetwork.Sep || [],
-    opModules: modulesByNetwork.Op || [],
-    gnoModules: modulesByNetwork.Gno || [],
-    arbModules: modulesByNetwork.Arb || [],
-    celoModules: modulesByNetwork.Celo || [],
-    polModules: modulesByNetwork.Pol || [],
-    baseSepModules: modulesByNetwork.BaseSep || [],
-  });
+  const modulesQuery = MODULE_MANAGER_HATS_QUERY(modulesByNetwork);
+  const variables = reduce(
+    modulesByNetwork,
+    (acc, value, key) => {
+      if (isEmpty(value)) return acc;
+      acc[`${toLower(key)}Modules`] = value;
+      return acc;
+    },
+    {} as Record<string, string[]>,
+  );
+
+  const response = await meshClient.request(modulesQuery, variables);
 
   return stripSuffix({
     object: response as Record<string, unknown[]>,
@@ -396,17 +176,19 @@ const getCrossChainModuleManagerHats = async (modulesByNetwork: NetworkAddressLi
 const getCrossChainHSG = async (hatIdsByNetwork: Record<string, string[]> | undefined) => {
   if (!hatIdsByNetwork || every(hatIdsByNetwork, isEmpty)) return null;
 
-  const response = await meshClient.request(HSG_QUERY, {
-    ethHatIds: hatIdsByNetwork.Eth || [],
-    baseHatIds: hatIdsByNetwork.Base || [],
-    sepHatIds: hatIdsByNetwork.Sep || [],
-    opHatIds: hatIdsByNetwork.Op || [],
-    gnoHatIds: hatIdsByNetwork.Gno || [],
-    arbHatIds: hatIdsByNetwork.Arb || [],
-    celoHatIds: hatIdsByNetwork.Celo || [],
-    polHatIds: hatIdsByNetwork.Pol || [],
-    baseSepHatIds: hatIdsByNetwork.BaseSep || [],
-  });
+  const hsgQuery = HSG_QUERY(hatIdsByNetwork);
+
+  const variables = reduce(
+    hatIdsByNetwork,
+    (acc, value, key) => {
+      if (isEmpty(value)) return acc;
+      acc[`${toLower(key)}HatIds`] = value;
+      return acc;
+    },
+    {} as Record<string, string[]>,
+  );
+
+  const response = await meshClient.request(hsgQuery, variables);
 
   return stripSuffix({ object: response as Record<string, string[]> });
 };
