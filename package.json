@@ -54,7 +54,7 @@
     "@testing-library/react": "16.1.0",
     "@types/d3": "^7.4.3",
     "@types/d3-org-chart": "^3.1.2",
-    "@types/lodash": "^4.17.15",
+    "@types/lodash": "^4.17.19",
     "@types/node": "20.14.2",
     "@types/papaparse": "^5.3.15",
     "@types/react": "18.3.1",
@@ -78,11 +78,13 @@
     "eslint-plugin-tsdoc": "^0.4.0",
     "globals": "^15.12.0",
     "graphql-zeus": "^7.0.3",
+    "import-in-the-middle": "^1.14.2",
     "next": "15.3.0",
     "nx": "20.4.5",
     "postcss": "^8.5.1",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "require-in-the-middle": "^7.5.2",
     "storybook": "^8.5.1",
     "swc-loader": "0.1.15",
     "tailwind-merge": "^2.6.0",
@@ -92,7 +94,7 @@
     "ts-node": "10.9.1",
     "tslib": "^2.8.1",
     "tsup": "^8.3.6",
-    "typescript": "5.7.3",
+    "typescript": "5.8.3",
     "typescript-eslint": "^8.29.0"
   },
   "resolutions": {
@@ -107,6 +109,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
+      "@reown/appkit",
       "@sentry/cli",
       "@swc/core",
       "bigint-buffer",
@@ -117,11 +120,10 @@
       "nx",
       "secp256k1",
       "sharp",
+      "unrs-resolver",
       "utf-8-validate"
     ],
     "overrides": {}
   },
-  "dependencies": {
-    "@hatsprotocol/sdk-v1-core": "link:../sdk-v1-core/packages/core"
-  }
+  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }
