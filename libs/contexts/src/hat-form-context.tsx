@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 'use client';
 
 import { EMPTY_FORM_VALUES, FALLBACK_ADDRESS, MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
@@ -305,7 +306,7 @@ export const HatFormContextProvider = ({ children }: { children: ReactNode }) =>
 
   // form actions
   const handleSave = useCallback(
-    (sendToast: boolean = true) => {
+    (sendToast = true) => {
       const matchingHat = find(storedData, ['id', selectedHat?.id]);
 
       const dirtyValues = getDirtyFields(
