@@ -1,5 +1,4 @@
-import { isEmpty } from 'lodash';
-import { reject } from 'lodash';
+import { isEmpty, reject } from 'lodash';
 import { NextRequest } from 'next/server';
 import { fetchSafesInfo } from 'utils';
 import { Hex, isAddress } from 'viem';

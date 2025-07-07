@@ -22,7 +22,7 @@
     "@privy-io/react-auth": "2.17.3",
     "@radix-ui/react-toast": "^1.2.5",
     "@tanstack/react-query": "^5.81.5",
-    "graphql": "^16.6.0",
+    "graphql": "16.6.0",
     "graphql-request": "^7.1.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.471.0",
