@@ -139,7 +139,8 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     safeAddress: councilDetails?.safe as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
-  const signers = filter(safeSigners, (signer) => includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)));
+  const allHatWearers = map(flatten(concat(map(councilDetails?.signerHats, 'wearers'))), 'id');
+  const signers = filter(safeSigners, (signer) => includes(allHatWearers, toLower(signer)));
   const totalMaxSupply = reduce(map(councilDetails?.signerHats, 'maxSupply'), (acc, curr) => acc + toNumber(curr), 0);
 
   const menuOptions = concat(
