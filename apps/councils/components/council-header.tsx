@@ -6,7 +6,21 @@ import { useHatDetails } from 'hats-hooks';
 import { safeUrl } from 'hats-utils';
 import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useSafesInfo } from 'hooks';
 import { Safe as SafeIcon } from 'icons';
-import { capitalize, filter, find, first, get, includes, map, nth, reduce, size, toLower } from 'lodash';
+import {
+  capitalize,
+  concat,
+  filter,
+  find,
+  first,
+  flatten,
+  get,
+  includes,
+  map,
+  nth,
+  reduce,
+  size,
+  toLower,
+} from 'lodash';
 import { toNumber } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
@@ -105,9 +119,8 @@ const CouncilHeaderCard = ({
     : undefined;
   const signerHatDetails = handleHatDetails(get(primarySignerHat, 'detailsMetadata') as string | undefined);
   const safe = effectiveSafeDetails;
-  const safeSigners = filter(effectiveSafeSigners, (signer) =>
-    includes(map(primarySignerHat?.wearers, 'id'), toLower(signer)),
-  );
+  const allHatWearers = map(flatten(concat(map(effectiveCouncilDetails?.signerHats, 'wearers'))), 'id');
+  const safeSigners = filter(effectiveSafeSigners, (signer) => includes(allHatWearers, toLower(signer)));
   const totalMaxSupply = reduce(
     map(effectiveCouncilDetails?.signerHats, 'maxSupply'),
     (acc, curr) => acc + toNumber(curr),
