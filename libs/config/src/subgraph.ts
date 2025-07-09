@@ -3,13 +3,13 @@ import { DEFAULT_ENDPOINTS_CONFIG } from '@hatsprotocol/sdk-v1-subgraph';
 import { mapValues } from 'lodash';
 import { SupportedChains } from 'types';
 
-const NETWORK_ENDPOINT = 'https://gateway-arbitrum.network.thegraph.com/api';
 const STUDIO_ENDPOINT = 'https://api.studio.thegraph.com';
 const STUDIO_ID = '55784';
+const GATEWAY_URL = 'https://gateway.thegraph.com/api';
 
 const SUBGRAPH_KEY = process.env.NEXT_PUBLIC_SUBGRAPH_NETWORK_KEY;
-const graphNetworkUrl = (id: string) => {
-  return `${NETWORK_ENDPOINT}/${SUBGRAPH_KEY}/subgraphs/id/${id}`;
+const gatewayNetworkUrl = (id: string) => {
+  return `${GATEWAY_URL}/subgraphs/id/${id}`;
 };
 const studioUrl = (name: string, version: string) => {
   return `${STUDIO_ENDPOINT}/query/${STUDIO_ID}/${name}/${version}`;
@@ -17,21 +17,24 @@ const studioUrl = (name: string, version: string) => {
 
 const LOCAL_NETWORK_ENDPOINTS: { [key in SupportedChains]: string } = {
   // network
-  1: graphNetworkUrl('AtrhAMCcVfPbmejxTez3G59Kdfu5tMFoiPsTUjdCzpKx'),
-  100: graphNetworkUrl('2VPQUuAeS9Xy8VtinpjHRJEMnZS1sqzFQyCHAys1wb5n'),
-  137: graphNetworkUrl('7MxsRb1p4UQNET8AgrWd93h3GUgeQ7NWrk5SHLEPCxBP'),
-  42161: graphNetworkUrl('4CiXQPjzKshBbyK2dgJiknTNWcj8cGUJsopTsXfm5HEk'),
-  10: graphNetworkUrl('9nmXXk3ysDVY4sFygWQNQknwiJLCPnrUNzDRw8bxw61q'),
-  42220: graphNetworkUrl('GpKseh3Z4nX2X8W5HjQPp5hpSSxPxsaQ3t1KpEjhvz7t'),
-  8453: graphNetworkUrl('FWeAqrp36QYqv9gDWLwr7em8vtvPnPrmRRQgnBb6QbBs'),
-  // studio
-  11155111: studioUrl('hats-v1-sepolia', '1.1.3'), // ! NOTE the missing v in this version
+  1: gatewayNetworkUrl('AtrhAMCcVfPbmejxTez3G59Kdfu5tMFoiPsTUjdCzpKx'),
+  100: gatewayNetworkUrl('2VPQUuAeS9Xy8VtinpjHRJEMnZS1sqzFQyCHAys1wb5n'),
+  137: gatewayNetworkUrl('7MxsRb1p4UQNET8AgrWd93h3GUgeQ7NWrk5SHLEPCxBP'),
+  42161: gatewayNetworkUrl('4CiXQPjzKshBbyK2dgJiknTNWcj8cGUJsopTsXfm5HEk'),
+  10: gatewayNetworkUrl('9nmXXk3ysDVY4sFygWQNQknwiJLCPnrUNzDRw8bxw61q'),
+  42220: gatewayNetworkUrl('GpKseh3Z4nX2X8W5HjQPp5hpSSxPxsaQ3t1KpEjhvz7t'),
+  8453: gatewayNetworkUrl('FWeAqrp36QYqv9gDWLwr7em8vtvPnPrmRRQgnBb6QbBs'),
+  // testnets
+  11155111: gatewayNetworkUrl('GphqDnDUibK3keP5vNSDgnKxidvLKtdM7j9FA1Lpe6sX'),
   84532: studioUrl('hats-v1-base-sepolia', 'v0.0.9'),
 };
 
 export const NETWORK_ENDPOINTS: EndpointsConfig = {
   ...DEFAULT_ENDPOINTS_CONFIG,
-  ...mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint: string) => ({ endpoint })),
+  ...mapValues(LOCAL_NETWORK_ENDPOINTS, (endpoint: string) => ({
+    endpoint,
+    authToken: SUBGRAPH_KEY,
+  })),
 };
 
 export const ANCILLARY_API_URL: {

@@ -14,8 +14,6 @@ import { TransactionsPage } from '../../../../components/transactions-page';
 
 export const dynamic = 'force-dynamic';
 
-//TODO: Add 'transactions' page back in when they are done -- we have tickets for this
-//TODO: Add 'transactions' page back in when they are done -- we have tickets for this
 //TODO: Refine the ErrorPage UI -- we can also add a global error page at some point
 const VALID_PAGES = ['transactions', 'assets', 'join', 'manage', 'members', 'dev'];
 
