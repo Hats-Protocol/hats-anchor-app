@@ -21,7 +21,7 @@
     "@hatsprotocol/hsg-sdk": "^0.0.15",
     "@hatsprotocol/modules-sdk": "^1.5.1",
     "@hatsprotocol/sdk-v1-core": "^0.12.4",
-    "@hatsprotocol/sdk-v1-subgraph": "^1.1.0",
+    "@hatsprotocol/sdk-v1-subgraph": "^1.1.2",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
@@ -51,7 +51,7 @@
     "types": "workspace:*",
     "ui": "workspace:*",
     "utils": "workspace:*",
-    "viem": "2.28.0",
+    "viem": "2.31.7",
     "wagmi": "^2.15.0"
   }
 }

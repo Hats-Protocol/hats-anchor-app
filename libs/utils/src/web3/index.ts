@@ -53,7 +53,9 @@ export function createSubgraphClient(): HatsSubgraphClient {
     return new HatsSubgraphClient({});
   }
 
-  return new HatsSubgraphClient({ config: NETWORK_ENDPOINTS });
+  return new HatsSubgraphClient({
+    config: NETWORK_ENDPOINTS,
+  });
 }
 
 export async function createHatsModulesClient(
