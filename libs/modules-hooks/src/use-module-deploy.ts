@@ -78,9 +78,6 @@ const useModuleDeploy = ({
   const incrementWearers = values?.incrementWearers as string | undefined;
   const isPermissionlesslyClaimable = values?.isPermissionlesslyClaimable;
   const claimabilityType = values?.initialClaimabilityType as number | undefined;
-  // const claimsHatterModule = find(modules, {
-  //   implementationAddress: CONFIG.modules.claimsHatterV1,
-  // });
   const claimsHatterV2 = find(modules, {
     implementationAddress: CONFIG.modules.claimsHatterV2,
   });
@@ -214,6 +211,7 @@ const useModuleDeploy = ({
       handlePendingTx,
       afterSuccess: onlyModuleDeploySuccess,
       hatId: selectedHat?.id,
+      mchV2,
     });
 
   const onlyClaimsHatterDeploySuccess = useCallback(
