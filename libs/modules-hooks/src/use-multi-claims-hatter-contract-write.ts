@@ -20,6 +20,7 @@ interface ContractInteractionProps {
   handlePendingTx: HandlePendingTx | undefined;
   hatId?: Hex;
   afterSuccess?: (newInstance: Hex | null) => void;
+  mchV2?: boolean;
 }
 
 const useMultiClaimsHatterContractWrite = ({
@@ -30,7 +31,7 @@ const useMultiClaimsHatterContractWrite = ({
   args,
   handlePendingTx,
   afterSuccess,
-  // hatId,
+  mchV2 = false,
 }: ContractInteractionProps) => {
   const [isLoadingMultiClaimsHatter, setIsLoadingMultiClaimsHatter] = useState(false);
   const { toast } = useToast();
@@ -40,7 +41,7 @@ const useMultiClaimsHatterContractWrite = ({
 
   const { modules } = useHatsModules({ chainId, allModules: true });
   const mchV1 = find(modules, { implementationAddress: CONFIG.modules.claimsHatterV1 });
-  const mchV2 = find(modules, { implementationAddress: CONFIG.modules.claimsHatterV2 });
+  const mchV2Module = find(modules, { implementationAddress: CONFIG.modules.claimsHatterV2 });
   const { writeContractAsync } = useWriteContract();
 
   const onSuccess = async (receipt: TransactionReceipt | undefined) => {
@@ -69,14 +70,14 @@ const useMultiClaimsHatterContractWrite = ({
 
   const writeAsync = async () => {
     setIsLoadingMultiClaimsHatter(true);
-    if (!address || !chainId || (!mchV1?.abi && !mchV2?.abi) || chainId !== userChainId || !functionName) {
+    if (!address || !chainId || (!mchV1?.abi && !mchV2Module?.abi) || chainId !== userChainId || !functionName) {
       return;
     }
 
     return writeContractAsync({
       address,
       chainId: Number(chainId),
-      abi: (mchV2?.abi || mchV1?.abi) as Abi,
+      abi: (mchV2 ? mchV2Module?.abi : mchV1?.abi) as Abi,
       functionName,
       args,
     })

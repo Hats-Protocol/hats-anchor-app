@@ -138,7 +138,7 @@ function MemberStatusModal({
   currentEligibility,
   offchainCouncilData,
   councilData,
-  afterSuccess,
+  // afterSuccess,
   selectedHat,
 }: UserStatusModalProps) {
   const [loading, setLoading] = useState(false);
@@ -160,7 +160,7 @@ function MemberStatusModal({
     }),
   );
   const isWearer = includes(map(get(selectedHat, 'wearers'), 'id'), toLower(user?.address));
-  const isSigner = includes(safeOwners, user?.address);
+  const isSigner = includes(map(safeOwners, toLower), toLower(user?.address));
   const isEligibleSigner = isEligible && isSigner && isWearer;
 
   const labeledModules = useMemo(() => {

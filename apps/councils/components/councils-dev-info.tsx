@@ -17,7 +17,15 @@ import { posthog } from 'posthog-js';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton, Switch } from 'ui';
-import { explorerUrl, formatAddress, getCouncilsGraphqlClient, hatLink, parseCouncilSlug, UPDATE_COUNCIL } from 'utils';
+import {
+  currentThreshold,
+  explorerUrl,
+  formatAddress,
+  getCouncilsGraphqlClient,
+  hatLink,
+  parseCouncilSlug,
+  UPDATE_COUNCIL,
+} from 'utils';
 import { getAddress, Hex } from 'viem';
 
 import { EligibilityRulesDevInfo } from './eligibility-rules-dev-info';
@@ -158,6 +166,10 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
             </div>
           ),
         },
+        {
+          label: 'Current Threshold',
+          descriptor: <div>{currentThreshold(councilDetails, safeSigners)}</div>,
+        },
         ownerHat && {
           label: 'Owner Hat',
           descriptor: (
@@ -175,7 +187,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
           ),
         },
       ]),
-    [councilDetails, chainId, ownerHat, topHatId],
+    [councilDetails, chainId, ownerHat, safeSigners, topHatId],
   );
 
   const safeSignersInfo = useMemo(() => {

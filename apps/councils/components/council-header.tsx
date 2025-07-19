@@ -29,7 +29,7 @@ import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { AppHat, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, Link, LinkButton, OblongAvatar, Skeleton } from 'ui';
-import { chainsMap, explorerUrl, formatAddress, parseCouncilSlug, slugify } from 'utils';
+import { chainsMap, currentThreshold, explorerUrl, formatAddress, parseCouncilSlug, slugify } from 'utils';
 import { getAddress, Hex } from 'viem';
 import { useEnsAvatar, useEnsName } from 'wagmi';
 
@@ -176,13 +176,6 @@ const CouncilHeaderCard = ({
     return <Skeleton className='bg-functional-link-primary/10 mx-auto flex min-h-[125px] w-full rounded-lg p-4' />;
   }
 
-  // console.log({
-  //   threshold: toNumber(get(effectiveCouncilDetails, 'minThreshold')),
-  //   signers: size(safeSigners),
-  //   maxSigners: totalMaxSupply,
-  //   signerHats: effectiveCouncilDetails?.signerHats,
-  // });
-
   return (
     <div
       className={cn(
@@ -237,7 +230,10 @@ const CouncilHeaderCard = ({
             )}
             <div className='hidden md:block'>
               <SignersIndicator
-                threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
+                threshold={currentThreshold(
+                  effectiveCouncilDetails as ExtendedHSGV2,
+                  Array(totalMaxSupply).fill('0x0'),
+                )}
                 signers={size(safeSigners)}
                 maxSigners={totalMaxSupply}
               />
@@ -245,7 +241,10 @@ const CouncilHeaderCard = ({
             {(!isWearing || isRootPath || !isReadyToClaim) && (
               <div className='md:hidden'>
                 <SignersIndicator
-                  threshold={toNumber(get(effectiveCouncilDetails, 'minThreshold'))}
+                  threshold={currentThreshold(
+                    effectiveCouncilDetails as ExtendedHSGV2,
+                    Array(totalMaxSupply).fill('0x0'),
+                  )}
                   signers={size(safeSigners)}
                   maxSigners={totalMaxSupply}
                 />
@@ -261,15 +260,16 @@ const CouncilHeaderCard = ({
           <div className='flex items-center gap-2'>
             <div className='flex items-center'>
               <div>
-                {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
-                  ? get(effectiveCouncilDetails, 'minThreshold')
-                  : `Pending ${get(effectiveCouncilDetails, 'minThreshold')}`}{' '}
+                {(() => {
+                  // Create mock signers array with totalMaxSupply length for consistent threshold calculation
+                  const mockMaxSigners = Array(totalMaxSupply).fill('0x0');
+                  const maxThreshold = currentThreshold(effectiveCouncilDetails as ExtendedHSGV2, mockMaxSigners);
+                  return size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
+                    ? maxThreshold
+                    : `Pending ${maxThreshold}`;
+                })()}{' '}
               </div>
-              <div>
-                {size(safeSigners) >= toNumber(get(effectiveCouncilDetails, 'minThreshold'))
-                  ? `/${size(safeSigners)}`
-                  : `/${totalMaxSupply}`}
-              </div>
+              <div>{`/${totalMaxSupply}`}</div>
             </div>
             {withLinks ? (
               <Link

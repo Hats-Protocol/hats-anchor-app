@@ -1,6 +1,6 @@
 import { compact, concat, get, includes, toNumber, uniqBy } from 'lodash';
-import { CouncilFormData, OffchainCouncilData } from 'types';
-import { getAddress, Hex } from 'viem';
+import { CouncilFormData, ExtendedHSGV2, OffchainCouncilData } from 'types';
+import { Address, getAddress, Hex } from 'viem';
 
 import { chainStringToId } from '../chains';
 import { GET_COUNCIL_BY_HSG, getCouncilsGraphqlClient } from '../councils-gql';
@@ -140,4 +140,20 @@ export const getBatchOffchainCouncilData = async ({
       logger.error('Error fetching offchain council data', error);
       return null;
     });
+};
+
+export const currentThreshold = (
+  councilDetails: ExtendedHSGV2 | null | undefined,
+  safeSigners: Address[] | null | undefined,
+) => {
+  if (!councilDetails) return 0;
+  if (councilDetails?.thresholdType === 'ABSOLUTE') {
+    return Number(councilDetails?.minThreshold);
+  }
+  const targetThreshold = Number(councilDetails?.targetThreshold);
+  if (!targetThreshold || isNaN(targetThreshold)) return 0;
+  const thresholdPercentage = targetThreshold / 10000; // convert to percentage, base 10000
+  if (!safeSigners || safeSigners.length === 0) return 0;
+  const localThreshold = thresholdPercentage * safeSigners.length;
+  return Math.round(localThreshold);
 };

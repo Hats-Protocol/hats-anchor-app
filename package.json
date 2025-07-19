@@ -24,7 +24,8 @@
     "organisms": "pnpm --filter organisms",
     "ui": "pnpm --filter ui",
     "utils": "pnpm --filter utils",
-    "ui:storybook": "nx run ui:storybook"
+    "ui:storybook": "nx run ui:storybook",
+    "clean": "rm -rf dist tmp"
   },
   "private": true,
   "devDependencies": {
