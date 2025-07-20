@@ -19,6 +19,7 @@ import { MemberAvatar } from 'ui';
 import {
   chainsMap,
   createHatsClient,
+  currentThreshold,
   formatAddress,
   getAllWearers,
   getKnownEligibilityModule,
@@ -219,7 +220,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
 
               <div className='mt-2'>
                 <SignersIndicator
-                  threshold={toNumber(get(councilDetails, 'minThreshold'))}
+                  threshold={currentThreshold(councilDetails, signers)}
                   signers={size(signers)}
                   maxSigners={totalMaxSupply}
                 />
