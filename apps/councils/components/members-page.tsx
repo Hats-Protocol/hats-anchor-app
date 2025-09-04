@@ -18,6 +18,7 @@ import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
 import { AddUserModal } from './add-user-modal';
 import { MemberRow } from './member-row';
+import { RoleTable } from './role-table';
 
 interface Erc20Details {
   userBalance: bigint;
@@ -113,11 +114,17 @@ const MembersPage = ({ slug }: { slug: string }) => {
     chainId: chainId ?? 11155111,
     address,
   });
-  const primarySignerHat = get(councilDetails, 'signerHats[0]');
+  const signerHats = get(councilDetails, 'signerHats', []);
+  const primarySignerHat = get(signerHats, '[0]');
+  const isMultiHatSignerGroup = signerHats.length > 1;
+
+  // Load eligibility rules for the primary signer hat (maintains backward compatibility)
   const { data: eligibilityRules, isLoading: eligibilityRulesLoading } = useEligibilityRules({
     address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,
   });
+
+  // For MHSG councils, we'll load additional eligibility rules dynamically per hat in the render
   const { data: offchainCouncilData } = useOffchainCouncilDetails({
     hsg: councilDetails?.id ? (getAddress(councilDetails?.id) as Hex) : undefined,
     chainId: chainId ?? 11155111,
@@ -216,66 +223,83 @@ const MembersPage = ({ slug }: { slug: string }) => {
         <div className='pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden' />
 
         <div className='scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 overflow-x-scroll pb-4'>
-          <div className='min-w-fit'>
-            <div className='flex h-14 items-center justify-between'>
-              <div className='flex items-center'>
-                <div className='flex h-full w-[250px] items-center p-2'>
-                  <p>Council Member</p>
-                </div>
-              </div>
-
-              <div className='flex items-center'>
-                <div className='flex h-full w-28 items-center justify-center'>
-                  <p className='text-center'>Appointed</p>
-                </div>
-
-                {map(remainingModules, (rule) => (
-                  <ModuleDisplay
-                    key={rule.address}
-                    rule={rule}
-                    chainId={chainId as SupportedChains}
-                    offchainCouncilData={offchainCouncilData}
-                  />
-                ))}
-
-                <div className='flex h-full w-28 items-center justify-center'>
-                  <p className='text-center'>Onboarded</p>
-                </div>
-
-                <div className='flex h-full w-48 items-center justify-center'>
-                  <p className='text-center'>Manager Controls</p>
-                </div>
-              </div>
+          {isMultiHatSignerGroup ? (
+            // Multi-Hat Signer Group: Show separate table for each role
+            <div className='space-y-8'>
+              {map(signerHats, (hat: AppHat) => (
+                <RoleTable
+                  key={hat.id}
+                  signerHat={hat}
+                  chainId={chainId as SupportedChains}
+                  offchainCouncilData={offchainCouncilData}
+                  councilDetails={councilDetails}
+                  showRoleHeader={true}
+                />
+              ))}
             </div>
+          ) : (
+            // Single-Hat Council: Show original single table
+            <div className='min-w-fit'>
+              <div className='flex h-14 items-center justify-between'>
+                <div className='flex items-center'>
+                  <div className='flex h-full w-[250px] items-center p-2'>
+                    <p>Council Member</p>
+                  </div>
+                </div>
 
-            {!isEmpty(allowlist) ? (
-              <>
-                {map(allowlist, (member: CouncilMember) => {
-                  const offchainDetails = find(get(offchainCouncilData, 'creationForm.members'), {
-                    address: getAddress(member.address),
-                  });
+                <div className='flex items-center'>
+                  <div className='flex h-full w-28 items-center justify-center'>
+                    <p className='text-center'>Appointed</p>
+                  </div>
 
-                  return (
-                    <MemberRow
-                      key={member.address}
-                      member={{ ...member, ...offchainDetails }}
-                      remainingModules={remainingModules}
+                  {map(remainingModules, (rule) => (
+                    <ModuleDisplay
+                      key={rule.address}
+                      rule={rule}
                       chainId={chainId as SupportedChains}
-                      signerHat={primarySignerHat as AppHat}
-                      eligibilityRules={eligibilityRules || undefined}
-                      offchainCouncilData={offchainCouncilData || undefined}
-                      councilData={councilDetails || undefined}
-                      inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.address))}
+                      offchainCouncilData={offchainCouncilData}
                     />
-                  );
-                })}
-              </>
-            ) : (
-              <div className='flex h-20 items-center justify-center gap-4'>
-                <p>No members found</p>
+                  ))}
+
+                  <div className='flex h-full w-28 items-center justify-center'>
+                    <p className='text-center'>Onboarded</p>
+                  </div>
+
+                  <div className='flex h-full w-48 items-center justify-center'>
+                    <p className='text-center'>Manager Controls</p>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+
+              {!isEmpty(allowlist) ? (
+                <>
+                  {map(allowlist, (member: CouncilMember) => {
+                    const offchainDetails = find(get(offchainCouncilData, 'creationForm.members'), {
+                      address: getAddress(member.address),
+                    });
+
+                    return (
+                      <MemberRow
+                        key={member.address}
+                        member={{ ...member, ...offchainDetails }}
+                        remainingModules={remainingModules}
+                        chainId={chainId as SupportedChains}
+                        signerHat={primarySignerHat as AppHat}
+                        eligibilityRules={eligibilityRules || undefined}
+                        offchainCouncilData={offchainCouncilData || undefined}
+                        councilData={councilDetails || undefined}
+                        inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.address))}
+                      />
+                    );
+                  })}
+                </>
+              ) : (
+                <div className='flex h-20 items-center justify-center gap-4'>
+                  <p>No members found</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
