@@ -27,12 +27,16 @@ import { safe } from 'wagmi/connectors';
 
 import { getRpcUrl } from './chains-server';
 
-const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
-if (!WC_PROJECT_ID && typeof window !== 'undefined') {
-  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
-}
+const getWCProjectId = () => {
+  const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
+  if (!WC_PROJECT_ID && typeof window !== 'undefined') {
+    throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
+  }
+  return WC_PROJECT_ID;
+};
 
 const getConnectors = () => {
+  const WC_PROJECT_ID = getWCProjectId();
   if (!WC_PROJECT_ID) {
     console.warn('NEXT_PUBLIC_WC_PROJECT_ID not set, wallet connections may not work properly');
     return [];

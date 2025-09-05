@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "node --env-file=../../.env.local ../../node_modules/next/dist/bin/next dev --turbo",
     "build": "next build",
     "serve": "next start",
     "lint": "eslint . --fix",

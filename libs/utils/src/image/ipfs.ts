@@ -1,4 +1,4 @@
-import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/config';
+import { getGatewayToken, getGatewayUrl } from '@hatsprotocol/config';
 import { AUTHORITY_PLATFORMS, AUTHORITY_TYPES, GUILD_PLATFORMS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { find, get, keys, pick, startsWith, toLower, toString, trim } from 'lodash';
@@ -23,7 +23,7 @@ export const ipfsUrl = (hash: string | undefined, publicGateway?: boolean) => {
   }
   if (!localHash) return ''; // Adverse affect of empty string?
   if (publicGateway) return `https://ipfs.io/ipfs/${localHash}`;
-  return `${GATEWAY_URL}${localHash}?pinataGatewayToken=${GATEWAY_TOKEN}`;
+  return `${getGatewayUrl()}${localHash}?pinataGatewayToken=${getGatewayToken()}`;
 };
 
 export const pinJson = async (data: object, metadata: object, token: string) => {

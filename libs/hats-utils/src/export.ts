@@ -1,4 +1,4 @@
-import { GATEWAY_TOKEN, GATEWAY_URL } from '@hatsprotocol/config';
+import { getGatewayToken, getGatewayUrl } from '@hatsprotocol/config';
 import { DEFAULT_HAT, MUTABILITY, TRIGGER_OPTIONS } from '@hatsprotocol/constants';
 import { hatIdDecimalToIp, hatIdHexToDecimal, treeIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { Wearer } from '@hatsprotocol/sdk-v1-subgraph';
@@ -203,8 +203,8 @@ const prepareExportTree = (data: any[]): HatExport[] => {
     let imageUrl = hat.imageUri;
     // ! don't want to export image URL with our gateway and token string on it
     if (imageUrl.startsWith('https://')) {
-      imageUrl = imageUrl.replace(`${GATEWAY_URL}`, 'ipfs://');
-      imageUrl = imageUrl.replace(`?pinataGatewayToken=${GATEWAY_TOKEN}`, '');
+      imageUrl = imageUrl.replace(`${getGatewayUrl()}`, 'ipfs://');
+      imageUrl = imageUrl.replace(`?pinataGatewayToken=${getGatewayToken()}`, '');
     }
 
     return {

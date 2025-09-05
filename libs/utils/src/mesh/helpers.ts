@@ -1,14 +1,23 @@
+import { GraphQLClient } from 'graphql-request';
 import { first, get } from 'lodash';
 
 import { NETWORKS_PREFIX } from '../subgraph/mesh/queries/';
 import { Chain } from './zeus';
-const MESH_API_URL = process.env.NEXT_PUBLIC_MESH_API;
-if (!MESH_API_URL && typeof window !== 'undefined') {
-  throw new Error('NEXT_PUBLIC_MESH_API is not set');
-}
+export const getMeshApiUrl = () => {
+  const MESH_API_URL = process.env.NEXT_PUBLIC_MESH_API;
+  if (!MESH_API_URL && typeof window !== 'undefined') {
+    throw new Error('NEXT_PUBLIC_MESH_API is not set');
+  }
+  return MESH_API_URL;
+};
+
+export const createMeshClient = () => {
+  return new GraphQLClient(`${getMeshApiUrl()}/graphql` as string);
+};
 
 // Create a Chain client instance with the endpoint
 const getChain = () => {
+  const MESH_API_URL = getMeshApiUrl();
   if (!MESH_API_URL) {
     throw new Error('NEXT_PUBLIC_MESH_API is not set');
   }
