@@ -140,7 +140,7 @@ const RoleTable = ({
     <div className='mb-8'>
       {showRoleHeader && (
         <div className='mb-4'>
-          <h3 className='text-lg font-semibold'>{signerHat.details?.name || `Role ${signerHat.id}`}</h3>
+          <h3 className='text-lg font-semibold'>{signerHat.detailsObject?.data?.name || `Role ${signerHat.id}`}</h3>
         </div>
       )}
 

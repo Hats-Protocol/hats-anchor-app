@@ -27,7 +27,7 @@
     "icons": "workspace:*",
     "lodash": "^4.17.21",
     "molecules": "workspace:*",
-    "next": "15.3.0",
+    "next": "15.5.2",
     "organisms": "workspace:*",
     "posthog-js": "^1.235.6",
     "react": "18.3.1",

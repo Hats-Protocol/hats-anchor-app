@@ -81,7 +81,7 @@
     "graphql": "16.6.0",
     "graphql-zeus": "^7.0.3",
     "import-in-the-middle": "^1.14.2",
-    "next": "15.3.0",
+    "next": "15.5.2",
     "nx": "20.4.5",
     "postcss": "^8.5.1",
     "prettier": "^3.6.2",

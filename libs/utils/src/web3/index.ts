@@ -11,7 +11,7 @@ import { wagmiConfig } from './chains';
 import { chainsMap, getRpcUrl } from './chains-server';
 
 const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
-if (!WC_PROJECT_ID) {
+if (!WC_PROJECT_ID && typeof window !== 'undefined') {
   throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
 }
 
@@ -89,7 +89,7 @@ export async function createHatsModulesClient(
 
       return Promise.resolve(hatsModulesClient);
     })
-    .catch(async (e) => {
+    .catch(async () => {
       const modulesClient = new HatsModulesClient({
         publicClient,
       });
@@ -114,7 +114,7 @@ export async function createHatsSignerGateClient(
     });
 
     return hatsModulesClient as HatsSignerGateClient;
-  } catch (e) {
+  } catch {
     // expect an error when not connected to a wallet
     return new HatsSignerGateClient({
       publicClient,
