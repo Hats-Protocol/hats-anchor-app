@@ -7,7 +7,7 @@ import { useHatDetails } from 'hats-hooks';
 import { filter, find, flatten, get, includes, isEmpty, map, pick, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useEligibilityRules, useErc20Details } from 'modules-hooks';
 import posthog from 'posthog-js';
-import { AppHat, CouncilMember, EligibilityRule, ExtendedHSGV2, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
+import { AppHat, CouncilMember, EligibilityRule, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { formatUnits, getAddress, Hex, zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
@@ -100,16 +100,14 @@ interface RoleTableProps {
   showRoleHeader?: boolean;
 }
 
-const RoleTable = ({ 
-  signerHat, 
-  chainId, 
-  offchainCouncilData, 
+const RoleTable = ({
+  signerHat,
+  chainId,
+  offchainCouncilData,
   councilDetails,
-  showRoleHeader = false 
+  showRoleHeader = false,
 }: RoleTableProps) => {
   const { address: userAddress } = useAccount();
-  const { user } = usePrivy();
-  const queryClient = useQueryClient();
 
   const { data: eligibilityRules, isLoading: eligibilityRulesLoading } = useEligibilityRules({
     address: toLower(get(signerHat, 'eligibility')) as Hex,
@@ -133,21 +131,6 @@ const RoleTable = ({
   );
 
   const selectionModule = find(flatten(eligibilityRules), (rule) => toLower(rule.address) === toLower(allowlistModule));
-  const addAccount = find(get(selectionModule, 'module.writeFunctions'), {
-    functionName: 'addAccount',
-  });
-
-  const allowlistManagerHatId = get(
-    find(get(selectionModule, 'liveParams'), {
-      label: 'Owner Hat',
-    }),
-    'value',
-  ) as bigint;
-  const { data: allowlistManagerHat } = useHatDetails({
-    chainId,
-    hatId: allowlistManagerHatId ? hatIdDecimalToHex(allowlistManagerHatId) : undefined,
-  });
-  const userIsAllowlistManager = includes(map(get(allowlistManagerHat, 'wearers'), 'id'), toLower(userAddress));
 
   if (eligibilityRulesLoading) {
     return null; // Let parent handle loading state
@@ -160,7 +143,7 @@ const RoleTable = ({
           <h3 className='text-lg font-semibold'>{signerHat.details?.name || `Role ${signerHat.id}`}</h3>
         </div>
       )}
-      
+
       <div className='min-w-fit'>
         <div className='flex h-14 items-center justify-between'>
           <div className='flex items-center'>

@@ -226,16 +226,17 @@ const MembersPage = ({ slug }: { slug: string }) => {
           {isMultiHatSignerGroup ? (
             // Multi-Hat Signer Group: Show separate table for each role
             <div className='space-y-8'>
-              {map(signerHats, (hat: AppHat) => (
-                <RoleTable
-                  key={hat.id}
-                  signerHat={hat}
-                  chainId={chainId as SupportedChains}
-                  offchainCouncilData={offchainCouncilData}
-                  councilDetails={councilDetails}
-                  showRoleHeader={true}
-                />
-              ))}
+              {councilDetails &&
+                map(signerHats, (hat: AppHat) => (
+                  <RoleTable
+                    key={hat.id}
+                    signerHat={hat}
+                    chainId={chainId as SupportedChains}
+                    offchainCouncilData={offchainCouncilData}
+                    councilDetails={councilDetails}
+                    showRoleHeader={true}
+                  />
+                ))}
             </div>
           ) : (
             // Single-Hat Council: Show original single table
