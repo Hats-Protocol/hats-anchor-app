@@ -1,15 +1,14 @@
 'use client';
 
-import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
-import { usePrivy } from '@privy-io/react-auth';
-import { useQueryClient } from '@tanstack/react-query';
+import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { filter, find, flatten, get, includes, isEmpty, map, pick, split, toLower } from 'lodash';
-import { useAllowlist, useCallModuleFunction, useEligibilityRules, useErc20Details } from 'modules-hooks';
+import { useAllowlist, useEligibilityRules, useErc20Details, useHatWearingEligibility } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { AppHat, CouncilMember, EligibilityRule, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
+import { Link } from 'ui';
+import { formatAddress, hatLink } from 'utils';
 import { formatUnits, getAddress, Hex, zeroAddress } from 'viem';
-import { useAccount } from 'wagmi';
 
 import { MemberRow } from './member-row';
 
@@ -107,8 +106,12 @@ const RoleTable = ({
   councilDetails,
   showRoleHeader = false,
 }: RoleTableProps) => {
-  const { address: userAddress } = useAccount();
+  const { data: hatData, details: hatDetails } = useHatDetails({
+    chainId,
+    hatId: signerHat.id ? hatIdDecimalToHex(BigInt(signerHat.id)) : undefined,
+  });
 
+  // Load eligibility rules specific to this hat (not shared across roles)
   const { data: eligibilityRules, isLoading: eligibilityRulesLoading } = useEligibilityRules({
     address: toLower(get(signerHat, 'eligibility')) as Hex,
     chainId,
@@ -116,21 +119,56 @@ const RoleTable = ({
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
 
-  // support selected module or only module
-  const allowlistModule = offchainCouncilData?.membersSelectionModule || get(signerHat, 'eligibility');
+  // Get hat wearers for this specific role
+  const hatWearers = hatData?.wearers || [];
+
+  // Convert hat wearers to the expected CouncilMember format
+  const roleMembers = map(hatWearers, (wearer) => ({
+    id: wearer.id,
+    eligible: true,
+    badStanding: false,
+  }));
+
+  // Get first module in eligibility chain or the only module
+  const flattenedRules = flatten(eligibilityRules);
+  const firstModule = flattenedRules[0];
+  const firstModuleAddress = firstModule?.address;
+
+  // Check if first module is an allowlist module
   const { data: rawAllowlist } = useAllowlist({
-    id: allowlistModule,
+    id: firstModuleAddress,
     chainId,
   });
   const filteredAllowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
-  const allowlist = isDev ? rawAllowlist : filteredAllowlist;
 
-  const remainingModules = filter(
-    flatten(eligibilityRules), // TODO hardcoded "flatten" outer Rulesets
-    (rule) => toLower(rule.address) !== toLower(allowlistModule),
+  // Check if first module is a hat wearing eligibility module
+  console.log('firstModule', firstModule);
+  const isHatWearingModule = firstModule?.module?.id.includes('hat-wearing');
+  const { data: rawHatWearingEligibility } = useHatWearingEligibility({
+    id: isHatWearingModule ? firstModuleAddress : undefined,
+    chainId,
+  });
+  console.log('rawHatWearingEligibility', rawHatWearingEligibility);
+  const filteredHatWearingEligibility = filter(
+    rawHatWearingEligibility,
+    (member) => member.eligible && !member.badStanding,
   );
 
-  const selectionModule = find(flatten(eligibilityRules), (rule) => toLower(rule.address) === toLower(allowlistModule));
+  // Determine which eligibility list to use for "Appointed" status
+  let appointedList: CouncilMember[] = [];
+  if (rawAllowlist && rawAllowlist.length > 0) {
+    // Allowlist module takes precedence
+    appointedList = isDev ? rawAllowlist : filteredAllowlist;
+  } else if (rawHatWearingEligibility && rawHatWearingEligibility.length > 0) {
+    // Hat wearing eligibility as fallback
+    appointedList = isDev ? rawHatWearingEligibility : filteredHatWearingEligibility;
+  }
+
+  // Use hat wearers for display, but use appointment list for "Appointed" status when available
+  const allowlist = roleMembers.length > 0 ? roleMembers : appointedList;
+
+  // Remove the first module from remaining modules since it's used for "Appointed" status
+  const remainingModules = filter(flattenedRules, (rule) => toLower(rule.address) !== toLower(firstModuleAddress));
 
   if (eligibilityRulesLoading) {
     return null; // Let parent handle loading state
@@ -140,7 +178,11 @@ const RoleTable = ({
     <div className='mb-8'>
       {showRoleHeader && (
         <div className='mb-4'>
-          <h3 className='text-lg font-semibold'>{signerHat.detailsObject?.data?.name || `Role ${signerHat.id}`}</h3>
+          <h3 className='text-lg font-semibold'>
+            {hatDetails?.name ||
+              signerHat.detailsObject?.data?.name ||
+              `Role ${hatIdDecimalToHex(BigInt(signerHat.id))}`}
+          </h3>
         </div>
       )}
 
@@ -180,20 +222,25 @@ const RoleTable = ({
           <>
             {map(allowlist, (member: CouncilMember) => {
               const offchainDetails = find(get(offchainCouncilData, 'creationForm.members'), {
-                address: getAddress(member.address),
+                address: getAddress(member.id),
               });
 
               return (
                 <MemberRow
-                  key={member.address}
-                  member={{ ...member, ...offchainDetails }}
+                  key={member.id}
+                  // ? member row expects address also
+                  member={{ ...member, address: member.id, ...offchainDetails }}
                   remainingModules={remainingModules}
                   chainId={chainId}
                   signerHat={signerHat}
                   eligibilityRules={eligibilityRules || undefined}
                   offchainCouncilData={offchainCouncilData}
                   councilData={councilDetails}
-                  inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.address))}
+                  inAllowlist={includes(map(filteredAllowlist, 'address'), toLower(member.id))}
+                  inHatWearingEligibility={includes(map(filteredHatWearingEligibility, 'address'), toLower(member.id))}
+                  firstModule={firstModule}
+                  firstModuleIsAllowlist={!!rawAllowlist && rawAllowlist.length > 0}
+                  firstModuleIsHatWearing={!!rawHatWearingEligibility && rawHatWearingEligibility.length > 0}
                 />
               );
             })}
@@ -204,6 +251,134 @@ const RoleTable = ({
           </div>
         )}
       </div>
+
+      {/* Dev debugging information */}
+      {isDev && (
+        <div className='mt-4 rounded-lg bg-gray-100 p-4 text-xs'>
+          <h4 className='mb-2 font-semibold'>
+            🔍 Debug - ID:{' '}
+            <Link href={hatLink({ chainId, hatId: signerHat.id })}>{hatIdDecimalToIp(BigInt(signerHat.id))}</Link>
+          </h4>
+
+          <div className='grid grid-cols-2 gap-4'>
+            {/* Left Column - Full Role Information */}
+            <div>
+              <h5 className='mb-2 font-semibold text-blue-600'>Full Role Information</h5>
+              <p>
+                <strong>Hat Eligibility:</strong> {get(signerHat, 'eligibility')}
+              </p>
+              <p>
+                <strong>Hat Wearers Count:</strong> {hatWearers?.length || 0}
+              </p>
+
+              {eligibilityRules && (
+                <div className='mt-3'>
+                  <p>
+                    <strong>All Eligibility Modules:</strong>
+                  </p>
+                  <ul className='ml-4'>
+                    {flatten(eligibilityRules).map((rule, idx) => (
+                      <li key={idx}>
+                        {idx === 0 ? '🎯 ' : '• '}
+                        {formatAddress(rule.address)} - {rule.module?.name} ({rule.module?.id})
+                        {idx === 0 ? ' (Appointed)' : ''}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {hatWearers && hatWearers.length > 0 && (
+                <div className='mt-3'>
+                  <p>
+                    <strong>All Hat Wearers:</strong>
+                  </p>
+                  <ul className='ml-4'>
+                    {hatWearers.map((wearer, idx) => (
+                      <li key={idx}>• {wearer.id}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Right Column - First/Appointed Module Information */}
+            <div>
+              <h5 className='mb-2 font-semibold text-green-600'>Appointed Module (First Module)</h5>
+              <p>
+                <strong>Module Address:</strong> {firstModule?.address || 'None'}
+              </p>
+              <p>
+                <strong>Module Type:</strong> {firstModule?.module?.name || 'Unknown'} (
+                {firstModule?.module?.id || 'N/A'})
+              </p>
+
+              {/* Allowlist Module Information */}
+              {rawAllowlist && rawAllowlist.length > 0 && (
+                <>
+                  <p>
+                    <strong>Is Allowlist Module:</strong> Yes
+                  </p>
+                  <p>
+                    <strong>Raw Allowlist Count:</strong> {rawAllowlist?.length || 0}
+                  </p>
+                  <p>
+                    <strong>Filtered Allowlist Count:</strong> {filteredAllowlist?.length || 0}
+                  </p>
+                  <div className='mt-3'>
+                    <p>
+                      <strong>Allowlist Members:</strong>
+                    </p>
+                    <ul className='ml-4'>
+                      {rawAllowlist.map((member, idx) => (
+                        <li key={idx}>
+                          • {member.address} - Eligible: {member.eligible ? 'Yes' : 'No'}, Bad Standing:{' '}
+                          {member.badStanding ? 'Yes' : 'No'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+
+              {/* Hat Wearing Eligibility Module Information */}
+              {rawHatWearingEligibility && rawHatWearingEligibility.length > 0 && (
+                <>
+                  <p>
+                    <strong>Is Hat Wearing Module:</strong> Yes
+                  </p>
+                  <p>
+                    <strong>Raw Hat Wearing Count:</strong> {rawHatWearingEligibility?.length || 0}
+                  </p>
+                  <p>
+                    <strong>Filtered Hat Wearing Count:</strong> {filteredHatWearingEligibility?.length || 0}
+                  </p>
+                  <div className='mt-3'>
+                    <p>
+                      <strong>Hat Wearing Eligible Members:</strong>
+                    </p>
+                    <ul className='ml-4'>
+                      {rawHatWearingEligibility.map((member, idx) => (
+                        <li key={idx}>
+                          • {member.address} - Eligible: {member.eligible ? 'Yes' : 'No'}, Bad Standing:{' '}
+                          {member.badStanding ? 'Yes' : 'No'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+
+              {/* No appointment module */}
+              {!firstModule && (
+                <p className='text-gray-500'>
+                  <em>No appointment module detected</em>
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

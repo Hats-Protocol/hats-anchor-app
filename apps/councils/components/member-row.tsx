@@ -10,7 +10,7 @@ import { EllipsisVertical } from 'lucide-react';
 import { useCurrentEligibility } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsExclamationSquare, BsPencilSquare, BsXOctagonFill } from 'react-icons/bs';
-import { AppHat, CouncilMember, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
+import { AppHat, CouncilMember, EligibilityRule, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar } from 'ui';
 import { Popover, PopoverContent, PopoverTrigger } from 'ui';
 import { getAllWearers } from 'utils';
@@ -29,6 +29,10 @@ const MemberRow = ({
   offchainCouncilData,
   councilData,
   inAllowlist,
+  inHatWearingEligibility,
+  firstModule,
+  firstModuleIsAllowlist,
+  firstModuleIsHatWearing,
 }: {
   member: CouncilMember;
   remainingModules: Ruleset | undefined;
@@ -38,6 +42,10 @@ const MemberRow = ({
   offchainCouncilData: OffchainCouncilData | undefined;
   councilData: ExtendedHSGV2 | undefined;
   inAllowlist: boolean;
+  inHatWearingEligibility?: boolean;
+  firstModule?: EligibilityRule;
+  firstModuleIsAllowlist: boolean;
+  firstModuleIsHatWearing?: boolean;
 }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
@@ -89,7 +97,7 @@ const MemberRow = ({
       className={cn(
         'flex h-16 justify-between border-b border-gray-200',
         isDev && !offChainDetails && 'bg-sky-50',
-        isDev && !inAllowlist && 'bg-gray-200',
+        isDev && !inAllowlist && !inHatWearingEligibility && 'bg-gray-200',
       )}
     >
       <div className='flex items-center'>
@@ -107,17 +115,69 @@ const MemberRow = ({
 
       <div className='flex items-center'>
         <div className='flex h-full w-28 items-center justify-center gap-1'>
-          {inAllowlist ? (
-            <>
-              <p className='text-functional-success'>Yes</p>
-              <BsCheckSquareFill className='text-functional-success' />
-            </>
-          ) : (
-            <>
-              <p className='text-destructive'>No</p>
-              <BsXOctagonFill className='text-destructive' />
-            </>
-          )}
+          {(() => {
+            // If first module is an allowlist, check if member is in allowlist
+            if (firstModuleIsAllowlist) {
+              return inAllowlist ? (
+                <>
+                  <p className='text-functional-success'>Yes</p>
+                  <BsCheckSquareFill className='text-functional-success' />
+                </>
+              ) : (
+                <>
+                  <p className='text-destructive'>No</p>
+                  <BsXOctagonFill className='text-destructive' />
+                </>
+              );
+            }
+
+            // If first module is a hat wearing eligibility module, check if member is in hat wearing eligibility
+            if (firstModuleIsHatWearing) {
+              return inHatWearingEligibility ? (
+                <>
+                  <p className='text-functional-success'>Yes</p>
+                  <BsCheckSquareFill className='text-functional-success' />
+                </>
+              ) : (
+                <>
+                  <p className='text-destructive'>No</p>
+                  <BsXOctagonFill className='text-destructive' />
+                </>
+              );
+            }
+
+            // If first module exists but is neither allowlist nor hat wearing, check eligibility in that module
+            if (firstModule) {
+              const firstModuleEligibility = get(currentEligibility, firstModule.address);
+              const isEligibleInFirstModule =
+                get(firstModuleEligibility, 'eligible') && get(firstModuleEligibility, 'goodStanding');
+
+              return isEligibleInFirstModule ? (
+                <>
+                  <p className='text-functional-success'>Yes</p>
+                  <BsCheckSquareFill className='text-functional-success' />
+                </>
+              ) : (
+                <>
+                  <p className='text-destructive'>No</p>
+                  <BsXOctagonFill className='text-destructive' />
+                </>
+              );
+            }
+
+            // Fallback to previous logic (check both allowlist and hat wearing eligibility)
+            return inAllowlist || inHatWearingEligibility ? (
+              <>
+                <p className='text-functional-success'>Yes</p>
+                <BsCheckSquareFill className='text-functional-success' />
+              </>
+            ) : (
+              <>
+                <p className='text-destructive'>No</p>
+                <BsXOctagonFill className='text-destructive' />
+              </>
+            );
+          })()}
         </div>
 
         {map(remainingModules, (rule) => {

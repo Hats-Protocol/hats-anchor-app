@@ -89,12 +89,11 @@ export const OrgCouncilsList = () => {
       <div className='flex flex-col gap-2 md:gap-4'>
         {map(sortedCouncils, (council) => {
           if (!council.id || !council.chainId) return null;
-          const isMHSG = size(council.signerHats) > 1;
           return (
             <Link
               key={`${council.chainId}:${council.id}`}
               className='hover:text-foreground/80 w-full text-left text-inherit hover:opacity-80'
-              href={`/councils/${chainIdToString(council.chainId)}:${council.id ? getAddress(council.id) : '#'}/${isMHSG ? 'manage' : 'members'}`}
+              href={`/councils/${chainIdToString(council.chainId)}:${council.id ? getAddress(council.id) : '#'}/members`}
             >
               <CouncilHeaderCard
                 chainId={council.chainId}
