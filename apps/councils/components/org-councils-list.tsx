@@ -4,7 +4,7 @@ import { ORDERED_CHAINS } from '@hatsprotocol/config';
 import { useHatsDetails } from 'hats-hooks';
 import { uniqueHats } from 'hats-utils';
 import { useAuthGuard, useCouncilsDetails, useOrganization } from 'hooks';
-import { concat, flatten, map, size, sortBy } from 'lodash';
+import { concat, flatten, map, sortBy } from 'lodash';
 import { useParams } from 'next/navigation';
 import { AppHat, ExtendedHSGV2, SupportedChains } from 'types';
 import { ErrorPage, HatDeco, Link } from 'ui';

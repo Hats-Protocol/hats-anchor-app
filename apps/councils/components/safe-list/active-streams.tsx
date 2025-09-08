@@ -3,6 +3,7 @@
 import { useTreasury } from 'contexts';
 import { useSuperfluidStreams } from 'hooks';
 import { isEmpty, map, toLower } from 'lodash';
+import { Stream } from 'types';
 import { formatAddress, formatRoundedDecimals } from 'utils';
 import { Hex } from 'viem';
 
@@ -23,7 +24,7 @@ const ActiveStreams = ({ safeAddress }: { safeAddress: Hex }) => {
 
   return (
     <div className='flex flex-col gap-4'>
-      {map(streams, (stream: any) => (
+      {map(streams, (stream: Stream) => (
         <div className='flex items-center justify-between gap-2'>
           <p className='max-w-[60px] text-sm'>Inbound Stream</p>
 

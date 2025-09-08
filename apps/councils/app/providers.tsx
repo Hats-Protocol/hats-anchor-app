@@ -44,7 +44,8 @@ if (typeof window !== 'undefined') {
   posthog.init(POSTHOG_KEY, {
     api_host: '/ingest', // || 'https://app.posthog.com',
     // Enable debug mode in development
-    loaded: (p: { debug: () => void }) => {
+    // loaded: (p: { debug: () => void }) => {
+    loaded: () => {
       // if (process.env.NODE_ENV === 'development') p.debug();
     },
     ui_host: 'https://app.posthog.com',

@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { filter, get, isEmpty } from 'lodash';
-import { SupportedChains } from 'types';
+import { Stream, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
 const SUPERFLUID_SUBGRAPH_URL: {
@@ -65,5 +65,6 @@ export const fetchSuperfluidStreams = async ({
   const streams = get(result, 'streams');
   const activeStreams = filter(streams, (stream: any) => stream.currentFlowRate > 0);
 
-  return activeStreams;
+  // TODO fix this coerce
+  return activeStreams as unknown as Stream[];
 };

@@ -57,7 +57,6 @@ const useHatWearingEligibility = ({
   id: string | undefined;
   chainId: SupportedChains | undefined;
 }) => {
-  console.log({ id, chainId });
   // First, fetch the criterion hat ID from the eligibility module
   const criterionHatQuery = useQuery({
     queryKey: ['hatWearingEligibility', { id, chainId }],

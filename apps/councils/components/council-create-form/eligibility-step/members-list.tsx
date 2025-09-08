@@ -22,30 +22,30 @@ interface MemberCardProps {
   onEdit: (member: CouncilMember) => void;
 }
 
-interface AdminUser {
-  id: string;
-  name: string;
-  address: string;
-  email: string;
-}
+// interface AdminUser {
+//   id: string;
+//   name: string;
+//   address: string;
+//   email: string;
+// }
 
-interface CouncilCreationForm {
-  id: string;
-  creator: string;
-  chain: number;
-  councilName: string;
-  members: AdminUser[];
-  admins: AdminUser[];
-}
+// interface CouncilCreationForm {
+//   id: string;
+//   creator: string;
+//   chain: number;
+//   councilName: string;
+//   members: AdminUser[];
+//   admins: AdminUser[];
+// }
 
-interface Council {
-  id: string;
-  chain: number;
-  treeId: number;
-  hsg: string;
-  deployed: boolean;
-  creationForm: CouncilCreationForm;
-}
+// interface Council {
+//   id: string;
+//   chain: number;
+//   treeId: number;
+//   hsg: string;
+//   deployed: boolean;
+//   creationForm: CouncilCreationForm;
+// }
 
 export function MembersList({ members, form, canEdit = true, onEdit, loading = false }: MembersListProps) {
   if (loading) {

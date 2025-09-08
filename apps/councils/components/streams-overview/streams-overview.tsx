@@ -25,7 +25,7 @@ const StreamsOverview = () => {
           <div className='flex justify-center'>
             <h2 className='text-2xl font-bold'>Active Streams</h2>
 
-            {map(streams, (stream: any) => {
+            {map(streams, (stream) => {
               return (
                 <div className='flex justify-between' key={`${stream.currentFlowRate}-${stream.receiver.id}`}>
                   <p>to {formatAddress(stream.receiver.id)}</p>

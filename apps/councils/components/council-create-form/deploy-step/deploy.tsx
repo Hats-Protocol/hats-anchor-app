@@ -1,6 +1,5 @@
 'use client';
 
-import { deployModuleWithClaimsHatter } from 'hats-utils';
 import { useClipboard } from 'hooks';
 import { Check, Link, RotateCcw } from 'lucide-react';
 import posthog from 'posthog-js';

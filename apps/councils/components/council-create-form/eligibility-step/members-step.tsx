@@ -1,10 +1,10 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
-import { useOrganization } from 'hooks';
+// import { useOrganization } from 'hooks';
 import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { CouncilMember, EligibilityRequirements, StepProps } from 'types';
+import { CouncilMember, StepProps } from 'types';
 import { Button, Skeleton } from 'ui';
 
 import { NextStepButton } from '../../next-step-button';
@@ -19,14 +19,14 @@ export function MembersStep({ onNext }: StepProps) {
   const [isMutating, setIsMutating] = useState(false);
   const requirements = form.watch('eligibilityRequirements');
   const members = form.watch('members') || [];
-  const organizationName = form.watch('organizationName') || '';
-  const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
-  const { data: organization, isFetching } = useOrganization(orgName);
+  // const organizationName = form.watch('organizationName') || '';
+  // const orgName = typeof organizationName === 'string' ? organizationName : organizationName.value;
+  // const { data: organization, isFetching } = useOrganization(orgName);
 
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
 
   // show loading state during mutation or while fetching updated data
-  const isLoadingList = isMutating || (isFetching && !isLoading);
+  const isLoadingList = isMutating || !isLoading;
 
   if (isLoading) {
     return (

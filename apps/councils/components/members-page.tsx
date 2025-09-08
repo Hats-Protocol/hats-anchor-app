@@ -12,7 +12,7 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import { AppHat, CouncilMember, EligibilityRule, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, Skeleton, Tooltip } from 'ui';
-import { chainsMap, logger, parseCouncilSlug } from 'utils';
+import { chainsMap, parseCouncilSlug } from 'utils';
 import { formatUnits, getAddress, Hex, zeroAddress } from 'viem';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
@@ -143,7 +143,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
   });
   const filteredAllowlist = filter(rawAllowlist, (member) => member.eligible && !member.badStanding);
   const allowlist = isDev ? rawAllowlist : filteredAllowlist;
-  logger.debug('Selection Allowlist', allowlist);
 
   const remainingModules = filter(
     flatten(eligibilityRules), // TODO hardcoded "flatten" outer Rulesets

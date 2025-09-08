@@ -64,6 +64,7 @@ const CouncilListPage = () => {
       ? flatten(
           Object.entries(crossChainAllowlistHats || {})
             .filter(([key]) => key.endsWith('_allowListEligibilities'))
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .map(([_, chainData]) => chainData as string[]),
         )
       : [];
@@ -290,6 +291,7 @@ const CouncilListPage = () => {
 
     // group councils by chain
     const councilsByChain = Object.entries(crossChainCouncils || {})
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .filter(([_, councils]) => !isEmpty(councils))
       .map(([key, councils]) => {
         const chainId = prefixToChainId[key];

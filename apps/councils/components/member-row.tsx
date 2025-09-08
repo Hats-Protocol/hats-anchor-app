@@ -31,8 +31,6 @@ const MemberRow = ({
   inAllowlist,
   inHatWearingEligibility,
   firstModule,
-  firstModuleIsAllowlist,
-  firstModuleIsHatWearing,
 }: {
   member: CouncilMember;
   remainingModules: Ruleset | undefined;
@@ -44,8 +42,6 @@ const MemberRow = ({
   inAllowlist: boolean;
   inHatWearingEligibility?: boolean;
   firstModule?: EligibilityRule;
-  firstModuleIsAllowlist: boolean;
-  firstModuleIsHatWearing?: boolean;
 }) => {
   const { setModals } = useOverlay();
   const { address: userAddress } = useAccount();
@@ -91,6 +87,9 @@ const MemberRow = ({
   const fullMember = { ...member, ...offChainDetails };
 
   const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+
+  const firstModuleIsAllowlist = firstModule?.module?.id.includes('allowlist');
+  const firstModuleIsHatWearing = firstModule?.module?.id.includes('hat-wearing');
 
   return (
     <div

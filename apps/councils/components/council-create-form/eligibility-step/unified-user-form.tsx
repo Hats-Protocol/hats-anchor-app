@@ -9,16 +9,7 @@ import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { CouncilFormData, CouncilMember } from 'types';
 import { Button, cn } from 'ui';
-import {
-  chainsMap,
-  CREATE_USER,
-  getChainId,
-  getCouncilsGraphqlClient,
-  getOrganizationByName,
-  isValidEmail,
-  logger,
-  UPDATE_USER,
-} from 'utils';
+import { chainsMap, CREATE_USER, getChainId, getCouncilsGraphqlClient, isValidEmail, logger, UPDATE_USER } from 'utils';
 import { isAddress } from 'viem';
 
 import { NextStepButton } from '../../next-step-button';
@@ -74,7 +65,7 @@ export function UnifiedUserForm({
   onClose,
   canEdit = true,
   className,
-  hideAddressButtons = false,
+  // hideAddressButtons = false,
   onMutationStateChange,
 }: UnifiedUserFormProps) {
   const selectedChain = parentForm.watch('chain')?.value;
@@ -206,7 +197,7 @@ export function UnifiedUserForm({
       } else {
         await createUserMutation.mutateAsync(data);
       }
-    } catch (error) {
+    } catch {
       // Error handling is done in mutation callbacks
     }
   };

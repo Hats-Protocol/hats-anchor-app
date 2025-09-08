@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, FormDescription, Input } from 'forms';
 import { useTokenDetails } from 'hooks';
-import { capitalize, compact, get, includes, keys, map, reject, toLower, toNumber } from 'lodash';
+import { get, includes, toLower, toNumber } from 'lodash';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
@@ -16,8 +16,6 @@ import {
   getCouncilsGraphqlClient,
   isValidEmail,
   logger,
-  sendTelegramMessage,
-  tgFormatAddress,
   tokenImageHandler,
   UPDATE_PAYER,
 } from 'utils';
@@ -122,20 +120,20 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
       const url = includes(window.location.origin, 'localhost') ? PRO_URL : window.location.origin;
 
       if (!parentForm.getValues('payer')) {
-        const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} \\| `;
-        const councilLink = `[View Council](${url}/councils/new/payment?draftId=${draftId}) 💰`;
-        const userKeys = reject(keys(userData), (key) => key === 'id');
-        const userDetails = compact(
-          map(userKeys, (key) => {
-            if (key === 'address' && get(userData, 'address')) {
-              return `\n> Address: ${tgFormatAddress(get(userData, 'address'))}`;
-            }
-            if (get(userData, key)) {
-              return `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}`;
-            }
-            return undefined;
-          }),
-        );
+        // const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} \\| `;
+        // const councilLink = `[View Council](${url}/councils/new/payment?draftId=${draftId}) 💰`;
+        // const userKeys = reject(keys(userData), (key) => key === 'id');
+        // const userDetails = compact(
+        //   map(userKeys, (key) => {
+        //     if (key === 'address' && get(userData, 'address')) {
+        //       return `\n> Address: ${tgFormatAddress(get(userData, 'address'))}`;
+        //     }
+        //     if (get(userData, key)) {
+        //       return `\n> ${capitalize(key)}: ${get(userData, key).replace('.', '\\.')}`;
+        //     }
+        //     return undefined;
+        //   }),
+        // );
 
         // TODO re-enable, this is currently failing without the API endpoint
         // await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
