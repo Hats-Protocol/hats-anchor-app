@@ -8,10 +8,10 @@ export const fetchHatsDetailsMesh = async (hatIds: string[], chainId?: number): 
   const localHats = compact(hatIds);
   if (isEmpty(localHats) || !chainId) return null;
 
-  const client = createMeshClient();
-  const query = getHatsDetailsQuery(chainId);
-
   try {
+    const client = createMeshClient();
+    const query = getHatsDetailsQuery(chainId);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const res: any = await client.request(query, {
       ids: localHats,

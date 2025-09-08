@@ -28,6 +28,7 @@ const createSuperfluidClient = (chainId: number) => {
 const INBOUND_STREAMS_QUERY = `
   query InboundStreams($addresses: [ID!]) {
     streams(where: {receiver_: {id_in: $addresses}}) {
+      id
       receiver {
         id
       }

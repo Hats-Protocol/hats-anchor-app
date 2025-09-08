@@ -52,7 +52,6 @@ const getConnectors = () => {
         groupName: 'All',
         wallets: [
           injectedWallet,
-          safeWallet,
           argentWallet,
           braveWallet,
           walletConnectWallet,

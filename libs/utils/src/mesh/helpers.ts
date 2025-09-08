@@ -12,7 +12,11 @@ export const getMeshApiUrl = () => {
 };
 
 export const createMeshClient = () => {
-  return new GraphQLClient(`${getMeshApiUrl()}/graphql` as string);
+  const meshApiUrl = getMeshApiUrl();
+  if (!meshApiUrl) {
+    throw new Error('MESH_API_URL is not set');
+  }
+  return new GraphQLClient(`${meshApiUrl}/graphql`);
 };
 
 // Create a Chain client instance with the endpoint

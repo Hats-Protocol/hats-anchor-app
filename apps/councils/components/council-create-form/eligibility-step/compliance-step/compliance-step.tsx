@@ -259,8 +259,7 @@ export function ComplianceStep({ onNext }: StepProps) {
         onSelect: () => form.setValue('complianceAdmins', []),
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [organizationManagers, form],
+    [organizationManagers, form, complianceAdminGroups],
   );
   logger.info('complianceManagerOptions', complianceManagerOptions);
   // Show loading state during mutation or while fetching updated data

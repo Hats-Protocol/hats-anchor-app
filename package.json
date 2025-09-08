@@ -25,7 +25,19 @@
     "ui": "pnpm --filter ui",
     "utils": "pnpm --filter utils",
     "ui:storybook": "nx run ui:storybook",
-    "clean": "rm -rf dist tmp"
+    "clean": "rm -rf dist tmp",
+    "typecheck": "nx run-many --target=typecheck --all",
+    "typecheck:anchor": "nx run hats-anchor-app:typecheck",
+    "typecheck:claims": "nx run hats-claims-app:typecheck", 
+    "typecheck:councils": "nx run hats-councils-app:typecheck",
+    "typecheck:utils": "nx run utils:typecheck",
+    "typecheck:ui": "nx run ui:typecheck",
+    "typecheck:contexts": "nx run contexts:typecheck",
+    "typecheck:forms": "nx run forms:typecheck",
+    "typecheck:molecules": "nx run molecules:typecheck",
+    "typecheck:organisms": "nx run organisms:typecheck",
+    "typecheck:hooks": "nx run hooks:typecheck",
+    "typecheck:types": "nx run types:typecheck"
   },
   "private": true,
   "devDependencies": {
@@ -107,6 +119,9 @@
     "picocolors": "1.1.1",
     "posthog-js": "1.235.6",
     "viem": "2.31.7"
+  },
+  "engines": {
+    "node": ">=20.6"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

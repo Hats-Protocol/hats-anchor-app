@@ -1,4 +1,5 @@
 export interface Stream {
+  id: string;
   receiver: {
     id: string;
   };

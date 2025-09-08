@@ -1,7 +1,7 @@
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
 import { gql } from 'graphql-request';
-import { useHatDetails, useHatWearers } from 'hats-hooks';
+import { useHatDetails } from 'hats-hooks';
 import { get, map, toLower } from 'lodash';
 import { SupportedChains } from 'types';
 import { ancillarySubgraphClient } from 'utils';
@@ -71,7 +71,6 @@ const useHatWearingEligibility = ({
   const { data: hat, isLoading: isHatWearersLoading } = useHatDetails({
     hatId: criterionHatIdHex,
     chainId: chainId as SupportedChains,
-    // enabled: !!criterionHatIdHex && !!chainId,
   });
 
   // Convert hat wearers to the expected format similar to allowlist

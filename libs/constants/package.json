@@ -21,7 +21,6 @@
     "@hatsprotocol/sdk-v1-subgraph": "^1.1.2",
     "icons": "workspace:*",
     "lodash": "^4.17.21",
-    "next": "15.5.2",
     "react-icons": "^4.7.1",
     "types": "workspace:*",
     "viem": "2.31.7"

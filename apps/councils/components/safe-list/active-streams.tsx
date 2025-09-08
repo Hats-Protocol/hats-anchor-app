@@ -25,7 +25,7 @@ const ActiveStreams = ({ safeAddress }: { safeAddress: Hex }) => {
   return (
     <div className='flex flex-col gap-4'>
       {map(streams, (stream: Stream) => (
-        <div className='flex items-center justify-between gap-2'>
+        <div key={stream.id} className='flex items-center justify-between gap-2'>
           <p className='max-w-[60px] text-sm'>Inbound Stream</p>
 
           <div className='flex flex-col items-center'>

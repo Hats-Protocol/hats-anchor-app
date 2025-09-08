@@ -26,7 +26,7 @@ export function MembersStep({ onNext }: StepProps) {
   const nextStep = findNextInvalidStep(stepValidation, 'selection', 'members', requirements);
 
   // show loading state during mutation or while fetching updated data
-  const isLoadingList = isMutating || !isLoading;
+  const isLoadingList = isMutating || isLoading;
 
   if (isLoading) {
     return (
