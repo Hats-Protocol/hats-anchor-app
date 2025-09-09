@@ -8,7 +8,7 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
-import { Button, LinkButton, Tooltip } from 'ui';
+import { Button, cn, LinkButton, Tooltip } from 'ui';
 import { chainIdToString, logger, sendTelegramMessage, tgCouncilLink, tgFormatAddress, tgWearerLink } from 'utils';
 import { Hex } from 'viem';
 import { useAccount, useChainId, useEnsName, useSwitchChain, useWriteContract } from 'wagmi';
@@ -70,6 +70,7 @@ export const ModuleChainClaimHeader = ({
   if (!address) return null;
 
   const isSigner = includes(safeDetails, address as Hex);
+  const isMHSG = size(councilDetails?.signerHats) > 1;
 
   // Simplified eligibility calculations
   const eligibilityRules = flatten(rawEligibilityRules);
@@ -223,7 +224,7 @@ export const ModuleChainClaimHeader = ({
 
       <div className='hidden md:block'>
         <div className='flex flex-col gap-4 md:flex-row md:justify-between'>
-          <h2 className='pb-6 text-xl font-bold md:text-2xl'>
+          <h2 className={cn('pb-6', isMHSG ? 'text-md' : 'text-xl font-bold md:text-2xl')}>
             Satisfy these {size(eligibilityRules)} requirements to{' '}
             {!showJoinButton ? 'claim this role' : 'become a council member'}
           </h2>

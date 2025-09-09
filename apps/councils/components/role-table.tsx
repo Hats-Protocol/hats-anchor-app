@@ -7,7 +7,7 @@ import { useAllowlist, useEligibilityRules, useErc20Details, useHatWearingEligib
 import posthog from 'posthog-js';
 import { AppHat, CouncilMember, EligibilityRule, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Link } from 'ui';
-import { formatAddress, hatLink } from 'utils';
+import { eligibilityRuleToModuleDetails, formatAddress, getKnownEligibilityModule, hatLink } from 'utils';
 import { formatUnits, getAddress, Hex, zeroAddress } from 'viem';
 
 import { MemberRow } from './member-row';
@@ -84,6 +84,20 @@ const ModuleDisplay = ({
     );
   }
 
+  // Check if this is a known module by using the same logic as claims
+  const moduleDetails = eligibilityRuleToModuleDetails(rule);
+  const knownModule = moduleDetails?.implementationAddress
+    ? getKnownEligibilityModule(moduleDetails.implementationAddress as Hex)
+    : undefined;
+
+  if (!knownModule) {
+    return (
+      <div className='flex h-full w-28 items-center justify-center'>
+        <p className='text-center'>Unknown</p>
+      </div>
+    );
+  }
+
   return (
     <div className='flex h-full w-28 items-center justify-center'>
       <p className='text-center'>{split(rule.module.name, ' ')[0]}</p>
@@ -154,9 +168,25 @@ const RoleTable = ({
     (member) => member.eligible && !member.badStanding,
   );
 
+  // Determine labeled modules context (similar to member-status-modal)
+  const labeledModules = {
+    selection: get(offchainCouncilData, 'membersSelectionModule', '0x') as Hex,
+    criteria: get(offchainCouncilData, 'membersCriteriaModule', '0x') as Hex,
+  };
+
+  // Check if first module should be treated as "Appointed" based on context
+  // Similar logic to allowlist-status-manager for masking
+  const shouldShowFirstModuleAsAppointed =
+    firstModule &&
+    (firstModule.address === labeledModules?.selection ||
+      (!firstModule.address || firstModule.address === labeledModules?.criteria
+        ? false // Don't show criteria module as appointed
+        : flattenedRules.length === 1 || // Single module - show as appointed
+          flattenedRules[0] === firstModule)); // First in chain - show as appointed
+
   // Determine which eligibility list to use for "Appointed" status
   let appointedList: CouncilMember[] = [];
-  if (rawAllowlist && rawAllowlist.length > 0) {
+  if (shouldShowFirstModuleAsAppointed && rawAllowlist && rawAllowlist.length > 0) {
     // Allowlist module takes precedence - map to CouncilMember format
     const sourceList = isDev ? rawAllowlist : filteredAllowlist;
     appointedList = map(sourceList, (member) => ({
@@ -164,7 +194,7 @@ const RoleTable = ({
       address: member.address || member.id,
       email: '', // Default empty email for allowlist members
     }));
-  } else if (rawHatWearingEligibility && rawHatWearingEligibility.length > 0) {
+  } else if (shouldShowFirstModuleAsAppointed && rawHatWearingEligibility && rawHatWearingEligibility.length > 0) {
     // Hat wearing eligibility as fallback - map to CouncilMember format
     const sourceList = isDev ? rawHatWearingEligibility : filteredHatWearingEligibility;
     appointedList = map(sourceList, (member) => ({
@@ -177,8 +207,10 @@ const RoleTable = ({
   // Use hat wearers for display, but use appointment list for "Appointed" status when available
   const allowlist = roleMembers.length > 0 ? roleMembers : appointedList;
 
-  // Remove the first module from remaining modules since it's used for "Appointed" status
-  const remainingModules = filter(flattenedRules, (rule) => toLower(rule.address) !== toLower(firstModuleAddress));
+  // Remove the first module from remaining modules only if it's being shown as "Appointed" status
+  const remainingModules = shouldShowFirstModuleAsAppointed
+    ? filter(flattenedRules, (rule) => toLower(rule.address) !== toLower(firstModuleAddress))
+    : flattenedRules;
 
   if (eligibilityRulesLoading) {
     return null; // Let parent handle loading state
@@ -205,9 +237,11 @@ const RoleTable = ({
           </div>
 
           <div className='flex items-center'>
-            <div className='flex h-full w-28 items-center justify-center'>
-              <p className='text-center'>Appointed</p>
-            </div>
+            {shouldShowFirstModuleAsAppointed && (
+              <div className='flex h-full w-28 items-center justify-center'>
+                <p className='text-center'>Appointed</p>
+              </div>
+            )}
 
             {map(remainingModules, (rule) => (
               <ModuleDisplay

@@ -11,3 +11,12 @@ export const parseMetadata = (hat: Hat): AppHat => {
     metadataType: get(JSON.parse(detailsMetadata), 'type'),
   };
 };
+
+export const parseDetailsObject = (hat: AppHat | undefined): AppHat | undefined => {
+  if (!hat?.detailsMetadata) return hat;
+
+  return {
+    ...hat,
+    detailsObject: JSON.parse(hat.detailsMetadata),
+  };
+};

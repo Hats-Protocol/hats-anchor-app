@@ -1,16 +1,14 @@
 'use client';
 
-import { ModuleParameter } from '@hatsprotocol/modules-sdk';
+import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
-import { concat, find, first, flatten, get, map, pick } from 'lodash';
-import { useErc20Details } from 'modules-hooks';
-import { useSubscriptionClaim } from 'modules-hooks';
+import { concat, find, first, flatten, get, map, pick, size } from 'lodash';
+import { useErc20Details, useSubscriptionClaim } from 'modules-hooks';
 import posthog from 'posthog-js';
 import { Fragment, ReactNode, useCallback, useEffect } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule, LabeledModules } from 'types';
-import { cn } from 'ui';
-import { Button } from 'ui';
+import { Button, cn } from 'ui';
 import { formatUnits, Hex } from 'viem';
 
 interface Erc20Details {
@@ -63,14 +61,23 @@ const EligibilityStatus = ({
   );
 };
 
-const getYesNoForRule = (rule: EligibilityRule, labeledModules: LabeledModules | undefined) => {
+const getYesNoForRule = (
+  rule: EligibilityRule,
+  labeledModules: LabeledModules | undefined,
+  eligibilityRules: Ruleset[] | undefined,
+) => {
   if (rule.module.id.includes('allowlist')) {
-    if (labeledModules?.selection === rule.address) {
+    const onlyModule = size(flatten(eligibilityRules)) === 1;
+    const firstModule = first(flatten(eligibilityRules));
+    const firstModuleIsAllowlist = firstModule?.module?.id.includes('allowlist');
+    const currentRuleIsAllowlist = rule.address === firstModule?.address && firstModuleIsAllowlist;
+    if (labeledModules?.selection === rule.address || onlyModule || currentRuleIsAllowlist) {
       return { yes: 'Appointed', no: 'Not Selected' };
     }
     if (labeledModules?.criteria === rule.address) {
       return { yes: 'Compliant', no: 'Not Compliant' };
     }
+    return { yes: 'Selected', no: 'Not Selected' };
   }
   if (rule.module.id.includes('public-lock-v14')) {
     return { yes: 'Paid', no: 'Not Paid' };
@@ -83,11 +90,11 @@ const getYesNoForRule = (rule: EligibilityRule, labeledModules: LabeledModules |
 };
 
 const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperButtonProps) => {
-  const { currentEligibility, activeRule, setActiveRule, isReadyToClaim, chainId } = useEligibility();
+  const { currentEligibility, activeRule, setActiveRule, isReadyToClaim, chainId, eligibilityRules } = useEligibility();
   const isEligible =
     get(currentEligibility, `[${rule.address}].eligible`) && get(currentEligibility, `[${rule.address}].goodStanding`);
 
-  const yesNoForRule = getYesNoForRule(rule, labeledModules); // use yes/no from rule if available
+  const yesNoForRule = getYesNoForRule(rule, labeledModules, eligibilityRules); // use yes/no from rule if available
 
   // TODO handle has key but 0 allowance
   const { hasAllowance } = useSubscriptionClaim({
@@ -144,7 +151,7 @@ interface WrapperButtonProps {
 }
 
 const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButtonProps) => {
-  const { chainId } = useEligibility();
+  const { chainId, eligibilityRules } = useEligibility();
 
   const isErc20 = rule.module.id.includes('erc20');
   const tokenParam = isErc20 ? (find(rule.liveParams, { displayType: 'erc20' }) as ModuleParameter) : undefined;
@@ -159,7 +166,12 @@ const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButton
     chainId,
   });
 
-  if (rule.address === get(labeledModules, 'selection')) {
+  const onlyModule = size(flatten(eligibilityRules)) === 1;
+  const firstModule = first(flatten(eligibilityRules));
+  const firstModuleIsAllowlist = firstModule?.module?.id.includes('allowlist');
+  const currentRuleIsAllowlist = rule.address === firstModule?.address && firstModuleIsAllowlist;
+
+  if (rule.address === get(labeledModules, 'selection') || onlyModule || currentRuleIsAllowlist) {
     return (
       <WrapperButton rule={rule} labeledModules={labeledModules}>
         Appointed
@@ -199,7 +211,7 @@ const ModuleChainClaimButton = ({ rule, labeledModules }: ModuleChainClaimButton
       );
     }
 
-    // fallback incase something goes wrong with the token details fetch
+    // fallback in-case something goes wrong with the token details fetch
     return (
       <WrapperButton rule={rule} labeledModules={labeledModules}>
         ERC20

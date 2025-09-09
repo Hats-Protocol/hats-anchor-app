@@ -46,6 +46,8 @@ pnpm councils <command>    # Run commands in councils app
 pnpm ui <command>          # Run commands in ui lib
 ```
 
+Use build command for type checking.
+
 ## Architecture
 
 ### Nx Monorepo Structure
