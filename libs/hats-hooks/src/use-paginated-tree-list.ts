@@ -6,10 +6,10 @@ import { fetchPaginatedTreesMesh } from 'utils';
 const usePaginatedTreeList = ({ chainId, perPage = 40, enabled = true, initialData }: UsePaginatedTreeListProps) => {
   const { data, fetchNextPage, isLoading, hasNextPage, isFetchingNextPage, error } = useInfiniteQuery({
     queryKey: ['treeList', chainId, perPage],
+    queryFn: ({ pageParam }) => fetchPaginatedTreesMesh(chainId, pageParam, perPage),
     getNextPageParam: (returnData: Tree[] | undefined, allPages: (Tree[] | undefined)[]) => {
       return eq(size(returnData), perPage) ? size(allPages) : undefined;
     },
-    queryFn: ({ pageParam }) => fetchPaginatedTreesMesh(chainId, pageParam, perPage),
     initialPageParam: 0,
     initialData: initialData ? { pages: [initialData], pageParams: [0] } : undefined,
     enabled,
