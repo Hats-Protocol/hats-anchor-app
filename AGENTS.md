@@ -21,20 +21,23 @@ pnpm install
 # Generate GraphQL client (REQUIRED before build)
 pnpm generate
 
+# ! each app has it's own namespace and uses the respective app-specific commands
+# frontend/anchor is the default app namespace
+
 # Development
-pnpm dev                    # Start Anchor app (localhost:4200)
-pnpm claims:dev            # Start Claims app
-pnpm councils:dev          # Start Councils app
+pnpm dev                   # Start Anchor app (localhost:4200)
+pnpm claims dev            # Start Claims app
+pnpm councils dev          # Start Councils app
 
 # Build
 pnpm build                 # Build Anchor app
-pnpm claims:build          # Build Claims app
-pnpm councils:build        # Build Councils app
+pnpm claims build          # Build Claims app
+pnpm councils build        # Build Councils app
 
 # Testing and Linting
 pnpm test                  # Run tests across workspace
-nx run <project>:lint      # Lint specific project
-nx run <project>:test      # Test specific project
+nx run claims lint         # Lint specific project
+nx run councils test      # Test specific project
 
 # Package management shortcuts
 pnpm anchor <command>      # Run commands in frontend app

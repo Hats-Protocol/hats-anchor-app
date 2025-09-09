@@ -66,4 +66,5 @@ export interface StatusManagerProps {
   chainId: number;
   labeledModules: LabeledModules | undefined;
   currentEligibility: CurrentEligibility | undefined;
+  isFirstInChain?: boolean;
 }
