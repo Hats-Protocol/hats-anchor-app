@@ -11,6 +11,7 @@ export * from './use-current-eligibility';
 export * from './use-eligibility-rules';
 export * from './use-hat-claim-by';
 export * from './use-hat-claim-for';
+export * from './use-hat-wearing-eligibility';
 export * from './use-hats-modules';
 export * from './use-hats-signer-gates-metadata';
 export * from './use-hsg-deploy';

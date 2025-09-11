@@ -57,6 +57,7 @@ const CouncilHeaderCard = ({
   withLinks?: boolean;
   initialCouncilDetails?: ExtendedHSGV2 | null;
   initialOffchainCouncilDetails?: OffchainCouncilData | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialSafeDetails?: any;
   initialHats?: Partial<AppHat>[];
 }) => {

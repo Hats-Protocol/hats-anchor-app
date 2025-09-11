@@ -19,6 +19,7 @@ const LINKS = [
 const MULTI_LINKS = [
   { label: 'Transactions', href: 'transactions' },
   { label: 'Assets', href: 'assets' },
+  { label: 'Members', href: 'members' },
   { label: 'Manage', href: 'manage' },
 ];
 

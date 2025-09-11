@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, useCouncilForm, useOverlay } from 'contexts';
+import { Modal, useOverlay } from 'contexts';
 import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CouncilMember } from 'types';

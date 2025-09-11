@@ -28,7 +28,7 @@ const fetchContractData = async (chainId: number, address: Hex) =>
     });
 
 // Using GET request so automatically cached via Next
-export async function GET(request: Request, { params }: { params: Promise<{ chainId: string; address: Hex }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ chainId: string; address: string }> }) {
   const { chainId: initialChainId, address } = await params;
   const chainId = toNumber(initialChainId);
 
@@ -46,7 +46,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ chai
   }
 
   try {
-    const data = await fetchContractData(chainId, address);
+    const data = await fetchContractData(chainId, address as Hex);
     logger.debug(address, omit(get(data, 'result[0]'), ['ABI', 'SourceCode']));
 
     // force error if not verified

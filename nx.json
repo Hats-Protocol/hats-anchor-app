@@ -27,6 +27,15 @@
         "{workspaceRoot}/.eslintignore",
         "{workspaceRoot}/eslint.config.js"
       ]
+    },
+    "typecheck": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^production"],
+      "executor": "nx:run-script",
+      "options": {
+        "script": "tsc --noEmit"
+      }
     }
   },
   "namedInputs": {

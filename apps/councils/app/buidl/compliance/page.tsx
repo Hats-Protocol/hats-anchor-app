@@ -9,6 +9,7 @@ const Compliance = () => {
   const { handleSubmit } = form;
 
   const onSubmit = (data: FieldValues) => {
+    // eslint-disable-next-line no-console
     console.log(data);
   };
 

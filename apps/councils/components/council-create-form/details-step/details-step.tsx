@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { StepProps } from 'types';
 import { MemberAvatar } from 'ui';
-import { logger } from 'utils';
+// import { logger } from 'utils';
 import { useAccount } from 'wagmi';
 
 import { NextStepButton } from '../../next-step-button';

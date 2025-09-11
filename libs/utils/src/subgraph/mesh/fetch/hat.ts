@@ -1,18 +1,17 @@
-import { GraphQLClient } from 'graphql-request';
 import { compact, isEmpty, map } from 'lodash';
 import { AppHat, HatWithMetadata } from 'types';
 
+import { createMeshClient } from '../../../mesh/helpers';
 import { getHatsDetailsQuery, NETWORKS_PREFIX } from '../queries';
 
 export const fetchHatsDetailsMesh = async (hatIds: string[], chainId?: number): Promise<AppHat[] | null> => {
   const localHats = compact(hatIds);
   if (isEmpty(localHats) || !chainId) return null;
 
-  // TODO mesh client util
-  const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
-  const query = getHatsDetailsQuery(chainId);
-
   try {
+    const client = createMeshClient();
+    const query = getHatsDetailsQuery(chainId);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const res: any = await client.request(query, {
       ids: localHats,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const DISABLE_POSTHOG = process.env.DISABLE_POSTHOG ? process.env.DISABLE_POSTHOG === 'true' : true;
+// const DISABLE_POSTHOG = process.env.DISABLE_POSTHOG ? process.env.DISABLE_POSTHOG === 'true' : true;
 
 // Valid pages that can appear after /councils/[slug]/
 const VALID_PAGES = ['transactions', 'join', 'manage', 'members', 'dev', 'assets'];
@@ -36,16 +36,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    const [_, slug, basePath, ...extraSegments] = parts;
-
-    console.log({
-      pathname,
-      parts,
-      slug,
-      basePath,
-      extraSegments,
-      isValidPage: VALID_PAGES.includes(basePath),
-    });
+    const [, slug, basePath, ...extraSegments] = parts;
 
     // If we have a valid base page and extra segments, redirect to the base page
     if (VALID_PAGES.includes(basePath) && extraSegments.length > 0) {

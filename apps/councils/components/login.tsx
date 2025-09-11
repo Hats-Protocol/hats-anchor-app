@@ -55,7 +55,7 @@ const Login = () => {
       await switchChain(config, { chainId: targetChainId });
       toast({ title: `Successfully switched to ${targetChain}` });
     } catch (error: unknown) {
-      console.error('Failed to switch network:', error);
+      // console.error('Failed to switch network:', error);
 
       // Handle wallet errors based on error properties
       if (typeof error === 'object' && error !== null) {
@@ -154,6 +154,7 @@ const Login = () => {
                     size='sm'
                     variant='outline'
                     onClick={() => {
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                       unlinkEmail(user.email!.address);
                     }}
                   >

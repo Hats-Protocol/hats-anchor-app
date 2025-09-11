@@ -51,6 +51,7 @@ export const FinishStep = () => {
     localForm.reset({
       multipleTx: 'false',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
