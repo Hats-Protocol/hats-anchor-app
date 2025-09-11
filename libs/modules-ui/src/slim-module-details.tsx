@@ -64,7 +64,7 @@ export const SlimModuleDetails = ({ type }: { type: string }) => {
 
   const onSubmit = (values: any) => {
     if (!moduleDetails?.implementationAddress) return;
-    // eslint-disable-next-line no-console
+
     callModuleFunction({
       moduleId: moduleDetails.implementationAddress,
       instance: controllerAddress,

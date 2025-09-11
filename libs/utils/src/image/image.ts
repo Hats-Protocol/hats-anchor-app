@@ -1,4 +1,4 @@
-import { CONFIG, GATEWAY_TOKEN } from '@hatsprotocol/config';
+import { CONFIG, getGatewayToken } from '@hatsprotocol/config';
 import _ from 'lodash';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,14 +53,14 @@ export const formatImageUrl = (url?: string) => {
     return url;
   }
   if (_.startsWith(url, 'ipfs://')) {
-    return `${CONFIG.ipfsGateway}${url?.slice(7)}?pinataGatewayToken=${GATEWAY_TOKEN}`;
+    return `${CONFIG.ipfsGateway}${url?.slice(7)}?pinataGatewayToken=${getGatewayToken()}`;
   }
   if (_.startsWith(url, 'https://ipfs.io/ipfs/')) {
     const ipfsHash = url?.slice(21);
     const ipfsHashSplit = ipfsHash?.split('?')[0];
     const ipfsHashSplit2 = ipfsHashSplit?.split(',')[0];
     const ipfsHashSplit3 = ipfsHashSplit2?.split('&')[0];
-    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${GATEWAY_TOKEN}`;
+    return `${CONFIG.ipfsGateway}${ipfsHashSplit3}?pinataGatewayToken=${getGatewayToken()}`;
   }
 
   return null;

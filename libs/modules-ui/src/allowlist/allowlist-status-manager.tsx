@@ -22,6 +22,7 @@ const AllowlistStatusManager = ({
   chainId,
   labeledModules,
   currentEligibility,
+  isFirstInChain,
 }: StatusManagerProps) => {
   const { address: userAddress } = useAccount();
   const currentChainId = useChainId();
@@ -54,19 +55,28 @@ const AllowlistStatusManager = ({
   let sublabel = isEligible ? 'This account was added to the Allowlist' : 'This account is not on the Allowlist';
   let action = isEligible ? 'Remove from Allowlist' : 'Add to Allowlist';
 
+  // Primary detection: use labeledModules (for councils context)
   if (rule.address === labeledModules?.selection) {
     label = 'Appointed Council Member';
     sublabel = isEligible
       ? 'This account was appointed by a Council Manager'
       : 'This account was previously a Council Member';
     action = isEligible ? 'Revoke Appointment' : 'Appoint Member'; // re-adding is available in dev mode
-  }
-  if (rule.address === labeledModules?.criteria) {
+  } else if (rule.address === labeledModules?.criteria) {
     label = 'Passed Compliance Check';
     sublabel = isEligible
       ? 'This Member has passed compliance checks'
       : 'This Member has not passed compliance checks, so they can not be on the Council right now';
     action = isEligible ? 'Revoke Compliance' : 'Mark Compliant';
+  } else if (isFirstInChain || (labeledModules && rule.address !== labeledModules?.criteria)) {
+    // Fallback detection: use appointment terminology for:
+    // 1. First module in chain (position-based)
+    // 2. Any allowlist module in council context that's not explicitly a criteria module
+    label = 'Appointed Council Member';
+    sublabel = isEligible
+      ? 'This account was appointed by a Council Manager'
+      : 'This account was previously a Council Member';
+    action = isEligible ? 'Revoke Appointment' : 'Appoint Member';
   }
 
   const handleAllowlistUpdate = async () => {

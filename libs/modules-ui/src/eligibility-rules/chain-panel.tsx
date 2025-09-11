@@ -65,7 +65,9 @@ const ChainPanel = ({
     moduleParameters: subscriptionRule?.liveParams,
     chainId,
     handlePendingTx: undefined,
-    setStatus: () => {},
+    setStatus: () => {
+      // Empty implementation for status updates
+    },
   });
 
   const isEligible = every(keys(currentEligibility), (moduleAddress) => {

@@ -249,7 +249,7 @@ function MemberStatusModal({
           <p className='text-sm font-medium'>Take Action</p>
         </div>
 
-        {map(flatten(eligibilityRules), (rule) => (
+        {map(flatten(eligibilityRules), (rule, index) => (
           <MemberStatusManager
             key={rule.address}
             rule={rule}
@@ -258,6 +258,7 @@ function MemberStatusModal({
             chainId={chainId}
             labeledModules={labeledModules}
             currentEligibility={currentEligibility}
+            isFirstInChain={index === 0}
           />
         ))}
 

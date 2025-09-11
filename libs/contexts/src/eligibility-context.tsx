@@ -110,12 +110,11 @@ export const EligibilityContextProvider = ({
   });
   const isWearing = balanceOf ? balanceOf > BigInt(0) : false;
 
-  const { claimableForHats, hatterIsAdmin, instanceAddress, mchV2 } = useMultiClaimsHatterCheck({
+  const { claimableForHats, hatterIsAdmin } = useMultiClaimsHatterCheck({
     selectedHatId: selectedHat?.id,
     chainId,
     onchainHats: get(treeDetails, 'hats', []),
   });
-  console.log('instance', { instanceAddress, mchV2 });
   const isClaimableFor = useMemo(() => includes(claimableForHats, selectedHat?.id), [claimableForHats, selectedHat]);
 
   const setIsReadyToClaim = useCallback(
@@ -130,6 +129,11 @@ export const EligibilityContextProvider = ({
 
     setActiveRule(first(flatten(eligibilityRules)));
   }, [eligibilityRules, activeRule]);
+
+  // Reset activeRule when hatId changes (role selection)
+  useEffect(() => {
+    setActiveRule(first(flatten(eligibilityRules)));
+  }, [hatId, eligibilityRules]);
 
   const value = useMemo(
     () => ({

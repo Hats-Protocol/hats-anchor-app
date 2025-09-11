@@ -72,7 +72,7 @@ const MailForm = ({
     setIsLoading(true);
 
     const receivers = getReceivers(offchainCouncilDetails, mailForm.receivers);
-    console.log('receivers', receivers);
+    // console.log('receivers', receivers);
     if (!receivers || isEmpty(receivers)) {
       toast({
         title: 'Error',

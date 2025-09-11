@@ -40,7 +40,7 @@ export function AgreementStep({ onNext }: StepProps) {
 
   // grabs from the eligibilityRequirements object
   const eligibilityRequirements = form.watch('eligibilityRequirements');
-  const { content, existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
+  const { existingId, existingAdmins } = pick(eligibilityRequirements.agreement, [
     'content',
     'existingId',
     'existingAdmins',
@@ -194,6 +194,7 @@ export function AgreementStep({ onNext }: StepProps) {
     });
 
     return uniqBy(preExistingOptions, 'value');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [councilsData, adminHatId]);
 
   // Create radio options from existing agreements and add the "Create new" option
@@ -257,6 +258,7 @@ export function AgreementStep({ onNext }: StepProps) {
         onSelect: () => form.setValue('agreementAdmins', []),
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [organizationManagers, form],
   );
 

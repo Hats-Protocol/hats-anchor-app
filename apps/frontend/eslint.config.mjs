@@ -4,8 +4,10 @@ import globals from 'globals';
 
 import baseConfig from '../../eslint.config.mjs';
 
-// TODO add react-hooks plugin
 export default [
+  {
+    ignores: ['node_modules/**', '.next/**', 'dist/**', '.nx/**', 'coverage/**'],
+  },
   ...baseConfig,
   reactPlugin.configs.flat.recommended,
   reactHooksPlugin.configs['recommended-latest'],
@@ -17,8 +19,11 @@ export default [
       ...reactPlugin.configs.flat.recommended.languageOptions,
       globals: { ...globals.serviceworker, ...globals.browser },
     },
-    ...reactPlugin.configs.flat.recommended,
-
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     rules: {
       'react/jsx-filename-extension': [2, { extensions: ['.ts', '.tsx'] }],
       'react/function-component-definition': [2, { namedComponents: ['arrow-function', 'function-declaration'] }],

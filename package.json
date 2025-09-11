@@ -25,7 +25,19 @@
     "ui": "pnpm --filter ui",
     "utils": "pnpm --filter utils",
     "ui:storybook": "nx run ui:storybook",
-    "clean": "rm -rf dist tmp"
+    "clean": "rm -rf dist tmp",
+    "typecheck": "nx run-many --target=typecheck --all",
+    "typecheck:anchor": "nx run hats-anchor-app:typecheck",
+    "typecheck:claims": "nx run hats-claims-app:typecheck",
+    "typecheck:councils": "nx run hats-councils-app:typecheck",
+    "typecheck:utils": "nx run utils:typecheck",
+    "typecheck:ui": "nx run ui:typecheck",
+    "typecheck:contexts": "nx run contexts:typecheck",
+    "typecheck:forms": "nx run forms:typecheck",
+    "typecheck:molecules": "nx run molecules:typecheck",
+    "typecheck:organisms": "nx run organisms:typecheck",
+    "typecheck:hooks": "nx run hooks:typecheck",
+    "typecheck:types": "nx run types:typecheck"
   },
   "private": true,
   "devDependencies": {
@@ -81,7 +93,7 @@
     "graphql": "16.6.0",
     "graphql-zeus": "^7.0.3",
     "import-in-the-middle": "^1.14.2",
-    "next": "15.3.0",
+    "next": "15.5.2",
     "nx": "20.4.5",
     "postcss": "^8.5.1",
     "prettier": "^3.6.2",
@@ -108,6 +120,9 @@
     "posthog-js": "1.235.6",
     "viem": "2.31.7"
   },
+  "engines": {
+    "node": ">=20.6"
+  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
@@ -127,5 +142,5 @@
     ],
     "overrides": {}
   },
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "packageManager": "pnpm@10.15.1+sha512.34e538c329b5553014ca8e8f4535997f96180a1d0f614339357449935350d924e22f8614682191264ec33d1462ac21561aff97f6bb18065351c162c7e8f6de67"
 }

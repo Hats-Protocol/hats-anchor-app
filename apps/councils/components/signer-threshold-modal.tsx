@@ -86,7 +86,7 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
         maxMembers,
       });
     }
-  }, [thresholdType]);
+  }, [thresholdType, min, maxMembers, reset]);
 
   const onSubmit = (data: SignerThresholdData) => {
     setIsLoading(true);

@@ -1,13 +1,13 @@
 'use client';
 
 import { useCouncilForm } from 'contexts';
-import { some, toLower } from 'lodash';
+// import { some, toLower } from 'lodash';
 import { SquarePen, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, CouncilMember } from 'types';
 import { Button, MemberAvatar, Skeleton } from 'ui';
-import { logger } from 'utils';
+// import { logger } from 'utils';
 import { useAccount } from 'wagmi';
 
 export interface AdminsListProps {
@@ -19,7 +19,7 @@ export interface AdminsListProps {
   loading?: boolean;
 }
 
-export function AdminsList({ name, admins, form, canEdit = true, onEdit, loading = false }: AdminsListProps) {
+export function AdminsList({ admins, form, canEdit = true, onEdit, loading = false }: AdminsListProps) {
   const { watch } = form;
   const creator = watch('creator');
 
@@ -75,8 +75,8 @@ function AdminCard({ admin, form, canEdit = true, isCreator, onEdit }: AdminCard
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Check if the connected user is in the existing admin list
-  const admins = councilsData?.[0]?.creationForm?.admins || [];
-  const isConnectedUserExistingAdmin = some(admins, (m) => toLower(m.address) === toLower(connectedAddress));
+  // const admins = councilsData?.[0]?.creationForm?.admins || [];
+  // const isConnectedUserExistingAdmin = some(admins, (m) => toLower(m.address) === toLower(connectedAddress));
 
   // Check if the connected user is the creator of the form
   const isConnectedUserCreator = form.getValues('creator')?.toLowerCase() === connectedAddress?.toLowerCase();

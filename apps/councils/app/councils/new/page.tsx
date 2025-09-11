@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 
 import { usePrivy } from '@privy-io/react-auth';
@@ -8,6 +9,8 @@ import { Suspense } from 'react';
 import { Skeleton } from 'ui';
 import { CREATE_COUNCIL_FORM, CREATE_USER, getCouncilsGraphqlClient, logger } from 'utils';
 import { useChainId } from 'wagmi';
+
+// TODO fix non-null assertion
 
 const NewCouncilContent = () => {
   const router = useRouter();

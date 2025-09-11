@@ -3,7 +3,7 @@
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useEligibility } from 'contexts';
 import { useAllWearers, useHatDetails } from 'hats-hooks';
-import { filter, find, get, includes, isEmpty, map, toLower } from 'lodash';
+import { filter, find, first, flatten, get, includes, isEmpty, map, size, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import { DevInfo } from 'molecules';
 import posthog from 'posthog-js';
@@ -58,10 +58,16 @@ interface AllowlistClaimsProps {
   activeModule: ModuleDetails;
   labeledModules: LabeledModules | undefined;
   showOnMobile?: boolean;
+  isMultiRole?: boolean;
 }
 
-export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = false }: AllowlistClaimsProps) => {
-  const { chainId, isEligibilityRulesLoading } = useEligibility();
+export const AllowlistClaims = ({
+  activeModule,
+  labeledModules,
+  showOnMobile = false,
+  isMultiRole = false,
+}: AllowlistClaimsProps) => {
+  const { chainId, isEligibilityRulesLoading, eligibilityRules } = useEligibility();
   const { data: allowlistData, isLoading: isAllowlistLoading } = useAllowlist({
     id: activeModule.instanceAddress,
     chainId,
@@ -90,6 +96,8 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
   });
 
   const { address } = useAccount();
+  const onlyModule = size(flatten(eligibilityRules)) === 1;
+  const firstModuleIsAllowlist = first(flatten(eligibilityRules))?.module?.id.includes('allowlist');
 
   const devInfo = useMemo(() => {
     return [
@@ -114,12 +122,29 @@ export const AllowlistClaims = ({ activeModule, labeledModules, showOnMobile = f
     return <Skeleton className='h-[500px] w-full' />;
   }
 
+  // Create dynamic copy based on isMultiRole
+  const dynamicSelectionCopy = {
+    ...ALLOWLIST_COPY.selection,
+    heading: isMultiRole ? 'Be appointed to the role' : 'Be appointed to the council',
+    subheading: isMultiRole
+      ? 'Contact the Role Managers to be selected'
+      : 'Contact the Council Managers to be selected',
+    allowedLabel: isMultiRole ? 'Role Members' : 'Council Members',
+    allowedSublabel: isMultiRole
+      ? 'Members who have been appointed to the role'
+      : 'Members who have been appointed to the council',
+    admin: isMultiRole ? 'Role Manager' : 'Council Manager',
+    adminLabel: isMultiRole ? 'Manages the role' : 'Manages the council',
+  };
+
   let copy = ALLOWLIST_COPY.allowlist;
 
   if (activeModule.instanceAddress === labeledModules?.selection) {
-    copy = ALLOWLIST_COPY.selection;
+    copy = dynamicSelectionCopy;
   } else if (activeModule.instanceAddress === labeledModules?.criteria) {
     copy = ALLOWLIST_COPY.compliance;
+  } else if (onlyModule || firstModuleIsAllowlist) {
+    copy = dynamicSelectionCopy;
   }
 
   return (

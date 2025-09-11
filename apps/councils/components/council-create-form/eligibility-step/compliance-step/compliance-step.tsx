@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { FiUserPlus } from 'react-icons/fi';
 import { IconType } from 'react-icons/lib';
-import { CouncilData, CouncilFormData, CouncilMember, StepProps } from 'types';
+import { CouncilData, CouncilMember, StepProps } from 'types';
 import { Button } from 'ui';
 import { getKnownEligibilityModule, logger } from 'utils';
 import { Hex } from 'viem';
@@ -38,7 +38,7 @@ export function ComplianceStep({ onNext }: StepProps) {
   const { existingId, existingAdmins } = pick(eligibilityRequirements.compliance, ['existingId', 'existingAdmins']);
   logger.info('existingId', existingAdmins);
 
-  logger.info('eligibilityRequirments compliance', eligibilityRequirements);
+  logger.info('eligibilityRequirements compliance', eligibilityRequirements);
   const complianceAdmins = form.watch('complianceAdmins') || [];
   logger.info('complianceAdmins', complianceAdmins);
 
@@ -112,7 +112,7 @@ export function ComplianceStep({ onNext }: StepProps) {
   const treeId = councilsData?.[0]?.treeId;
   const adminHatId = getAdminHatId(treeId);
 
-  // TODO: handle the setValue more robustly incase the agreementAdmins is not set on the first council (line 125)
+  // TODO: handle the setValue more robustly in-case the agreementAdmins is not set on the first council (line 125)
   // Create radio options from existing agreements and add the "Create new" option
   const complianceModuleOptions = useMemo(
     () => [
@@ -147,6 +147,7 @@ export function ComplianceStep({ onNext }: StepProps) {
         },
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [existingComplianceModules, adminHatId, form],
   );
 
@@ -238,6 +239,7 @@ export function ComplianceStep({ onNext }: StepProps) {
     });
 
     return uniqBy(preExistingOptions, 'value');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [councilsData]);
 
   const complianceManagerOptions = useMemo(
@@ -257,38 +259,35 @@ export function ComplianceStep({ onNext }: StepProps) {
         onSelect: () => form.setValue('complianceAdmins', []),
       },
     ],
-    [organizationManagers, form],
+    [organizationManagers, form, complianceAdminGroups],
   );
   logger.info('complianceManagerOptions', complianceManagerOptions);
   // Show loading state during mutation or while fetching updated data
   const isLoadingList = isMutating || isLoading;
 
-  const submitForm = useCallback(
-    async (data: Partial<CouncilFormData>) => {
-      // Get current council form values
-      // const currentValues = councilFormGetValues();
-      const currentValues = form.getValues();
+  const submitForm = useCallback(async () => {
+    // Get current council form values
+    // const currentValues = councilFormGetValues();
+    const currentValues = form.getValues();
 
-      // Merge the local form's eligibility requirements with existing council form data
-      // preserving existing fields like 'required'
-      // const mergedValues = {
-      //   ...currentValues,
-      //   eligibilityRequirements: {
-      //     ...currentValues.eligibilityRequirements,
-      //     compliance: {
-      //       ...currentValues.eligibilityRequirements?.compliance,
-      //       ...data.eligibilityRequirements?.compliance,
-      //     },
-      //   },
-      // };
+    // Merge the local form's eligibility requirements with existing council form data
+    // preserving existing fields like 'required'
+    // const mergedValues = {
+    //   ...currentValues,
+    //   eligibilityRequirements: {
+    //     ...currentValues.eligibilityRequirements,
+    //     compliance: {
+    //       ...currentValues.eligibilityRequirements?.compliance,
+    //       ...data.eligibilityRequirements?.compliance,
+    //     },
+    //   },
+    // };
 
-      // Reset council form with merged values
-      // councilFormReset(mergedValues);
-      form.reset(currentValues);
-      onNext();
-    },
-    [form, onNext],
-  );
+    // Reset council form with merged values
+    // councilFormReset(mergedValues);
+    form.reset(currentValues);
+    onNext();
+  }, [form, onNext]);
 
   // Set initial selection to first existing agreement if available
   useEffect(() => {

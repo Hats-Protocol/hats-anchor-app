@@ -13,7 +13,17 @@ import { Button, Skeleton } from 'ui';
 import { erc20Abi, formatUnits, Hex } from 'viem';
 import { useReadContracts } from 'wagmi';
 
-const Erc20StatusManager = ({ rule, user, selectedHat, chainId, currentEligibility }: StatusManagerProps) => {
+const Erc20StatusManager = ({
+  rule,
+  user,
+  selectedHat,
+  chainId,
+  currentEligibility,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  labeledModules,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isFirstInChain,
+}: StatusManagerProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const { setModals, handlePendingTx } = useOverlay();

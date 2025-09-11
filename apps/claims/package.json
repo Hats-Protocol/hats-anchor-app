@@ -3,9 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "node --env-file=../../.env.local ../../node_modules/next/dist/bin/next dev --turbo",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint ."
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.0.19",
@@ -26,7 +28,7 @@
     "lodash": "^4.17.21",
     "molecules": "workspace:*",
     "organisms": "workspace:*",
-    "next": "15.3.0",
+    "next": "15.5.2",
     "posthog-js": "^1.235.6",
     "react": "18.3.1",
     "react-datepicker": "^4.17.0",

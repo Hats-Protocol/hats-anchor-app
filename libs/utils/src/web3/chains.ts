@@ -27,40 +27,50 @@ import { safe } from 'wagmi/connectors';
 
 import { getRpcUrl } from './chains-server';
 
-const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
-if (!WC_PROJECT_ID) {
-  throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
-}
+const getWCProjectId = () => {
+  const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
+  if (!WC_PROJECT_ID && typeof window !== 'undefined') {
+    throw new Error('NEXT_PUBLIC_WC_PROJECT_ID is not set');
+  }
+  return WC_PROJECT_ID;
+};
 
-const connectors = connectorsForWallets(
-  [
+const getConnectors = () => {
+  const WC_PROJECT_ID = getWCProjectId();
+  if (!WC_PROJECT_ID) {
+    console.warn('NEXT_PUBLIC_WC_PROJECT_ID not set, wallet connections may not work properly');
+    return [];
+  }
+
+  return connectorsForWallets(
+    [
+      {
+        groupName: 'Recommended',
+        wallets: [coinbaseWallet, rainbowWallet],
+      },
+      {
+        groupName: 'All',
+        wallets: [
+          injectedWallet,
+          argentWallet,
+          braveWallet,
+          walletConnectWallet,
+          dawnWallet,
+          frameWallet,
+          ledgerWallet,
+          metaMaskWallet,
+          rabbyWallet,
+          uniswapWallet,
+          zerionWallet,
+        ],
+      },
+    ],
     {
-      groupName: 'Recommended',
-      wallets: [coinbaseWallet, rainbowWallet],
+      appName: 'Hats App',
+      projectId: WC_PROJECT_ID,
     },
-    {
-      groupName: 'All',
-      wallets: [
-        injectedWallet,
-        safeWallet,
-        argentWallet,
-        braveWallet,
-        walletConnectWallet,
-        dawnWallet,
-        frameWallet,
-        ledgerWallet,
-        metaMaskWallet,
-        rabbyWallet,
-        uniswapWallet,
-        zerionWallet,
-      ],
-    },
-  ],
-  {
-    appName: 'Hats App',
-    projectId: WC_PROJECT_ID,
-  },
-);
+  );
+};
 
 const transports = () => {
   const localTransports: { [key: string]: Transport } = {};
@@ -78,7 +88,7 @@ export const wagmiConfig = (overrideChains?: (Chain | ExtendedChain)[]) => {
   }
 
   return createConfig({
-    connectors: concat(connectors, safe()),
+    connectors: concat(getConnectors(), safe()),
     chains: chains as unknown as readonly [Chain, ...Chain[]],
     transports: transports(),
     ssr: true,

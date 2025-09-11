@@ -6,6 +6,7 @@ import { AppTree } from 'types';
 import { Hex } from 'viem';
 
 import { logger } from '../../../logs';
+import { createMeshClient } from '../../../mesh/helpers';
 import { stripSuffix } from '../../mesh';
 import {
   getCrossChainWearerDetailsQuery,
@@ -22,7 +23,7 @@ export const fetchWearerDetailsMesh = async (address: Hex | string | undefined, 
   let wearer: Wearer | undefined;
 
   try {
-    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+    const client = createMeshClient();
     const query = getWearerDetailsQuery(chainId);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,7 +46,7 @@ export const fetchWearerDetailsMesh = async (address: Hex | string | undefined, 
 export const fetchWearersProfileDetails = async (addresses: string[] | undefined, chainId: number | undefined) => {
   if (!addresses || !chainId) return null;
 
-  const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+  const client = createMeshClient();
 
   const query = getWearersProfileDetailQuery(chainId);
 
@@ -68,7 +69,7 @@ export const fetchWearerTrees = async ({
   if (!chainId || !wearer) return [];
 
   try {
-    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+    const client = createMeshClient();
 
     const query = getWearerTreesQuery(chainId);
 
@@ -98,7 +99,7 @@ export const getCrossChainAllowlistEligibilities = async (address: string | unde
   if (!address) return null;
 
   try {
-    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+    const client = createMeshClient();
     const query = getCrossChainAllowlistEligibilitiesQuery();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -117,7 +118,7 @@ export const getCrossChainWearerDetails = async (address: string | undefined) =>
   if (!address) return null;
 
   try {
-    const client = new GraphQLClient(`${process.env.NEXT_PUBLIC_MESH_API}/graphql` as string);
+    const client = createMeshClient();
     const query = getCrossChainWearerDetailsQuery();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

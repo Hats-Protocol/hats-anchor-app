@@ -1,14 +1,32 @@
+import { GraphQLClient } from 'graphql-request';
 import { first, get } from 'lodash';
 
 import { NETWORKS_PREFIX } from '../subgraph/mesh/queries/';
 import { Chain } from './zeus';
-const MESH_API_URL = process.env.NEXT_PUBLIC_MESH_API;
-if (!MESH_API_URL) {
-  throw new Error('NEXT_PUBLIC_MESH_API is not set');
-}
+export const getMeshApiUrl = () => {
+  const MESH_API_URL = process.env.NEXT_PUBLIC_MESH_API;
+  if (!MESH_API_URL && typeof window !== 'undefined') {
+    throw new Error('NEXT_PUBLIC_MESH_API is not set');
+  }
+  return MESH_API_URL;
+};
+
+export const createMeshClient = () => {
+  const meshApiUrl = getMeshApiUrl();
+  if (!meshApiUrl) {
+    throw new Error('MESH_API_URL is not set');
+  }
+  return new GraphQLClient(`${meshApiUrl}/graphql`);
+};
 
 // Create a Chain client instance with the endpoint
-const chain = Chain(`${MESH_API_URL}/graphql`);
+const getChain = () => {
+  const MESH_API_URL = getMeshApiUrl();
+  if (!MESH_API_URL) {
+    throw new Error('NEXT_PUBLIC_MESH_API is not set');
+  }
+  return Chain(`${MESH_API_URL}/graphql`);
+};
 
 /**
  * Fetch council data from Ancillary subgraph via the Mesh API
@@ -20,7 +38,7 @@ export const getCouncilData = async ({ id, chainId }: { id: string; chainId: num
   if (!id || !chainId) return Promise.resolve(null);
   const networkPrefix = NETWORKS_PREFIX[chainId];
   // @ts-expect-error how to catch network prefix as key?
-  return chain('query')({
+  return getChain()('query')({
     [`${networkPrefix}_hatsSignerGateV2S` as string]: [
       { where: { or: [{ id }, { safe: id }] } },
       {
@@ -47,7 +65,7 @@ export const getCouncilData = async ({ id, chainId }: { id: string; chainId: num
 export const getHatsDetails = async ({ ids, chainId }: { ids: string[]; chainId: number }) => {
   const networkPrefix = NETWORKS_PREFIX[chainId];
   // @ts-expect-error how to catch network prefix as key?
-  const result = await chain('query')({
+  const result = await getChain()('query')({
     [`${networkPrefix}_hats`]: [
       // ts-expect-error subgraphError is not included in schema but expected by type
       { where: { id_in: ids } },

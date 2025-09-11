@@ -15,7 +15,18 @@ import { Button } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
-const AgreementStatusManager = ({ rule, user, chainId, currentEligibility }: StatusManagerProps) => {
+const AgreementStatusManager = ({
+  rule,
+  user,
+  chainId,
+  currentEligibility,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  selectedHat,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  labeledModules,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isFirstInChain,
+}: StatusManagerProps) => {
   const { address: userAddress } = useAccount();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();

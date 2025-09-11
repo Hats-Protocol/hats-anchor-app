@@ -16,19 +16,12 @@ const LINKS = [
   { label: 'Manage', href: 'manage' },
 ];
 
-const MULTI_LINKS = [
-  { label: 'Transactions', href: 'transactions' },
-  { label: 'Assets', href: 'assets' },
-  { label: 'Manage', href: 'manage' },
-];
-
 const CouncilButtons = () => {
   const pathname = usePathname();
   const slug = nth(pathname.split('/'), 2);
   const { chainId, address } = parseCouncilSlug(slug as string);
 
   const { data: councilDetails } = useCouncilDetails({ chainId: chainId || undefined, address });
-  const isMulti = size(councilDetails?.signerHats) > 1;
   const primarySignerHat = get(councilDetails, 'signerHats[0]');
 
   const { data: signers } = useSafeDetails({
@@ -40,7 +33,7 @@ const CouncilButtons = () => {
   const isTxAssets = posthog.isFeatureEnabled('tx-assets') || process.env.NODE_ENV !== 'production';
 
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
-  const links = [...(isMulti ? MULTI_LINKS : LINKS), ...devLink];
+  const links = [...LINKS, ...devLink];
 
   // ! ButtonGroup is not compatible with LinkButton
 
@@ -51,7 +44,8 @@ const CouncilButtons = () => {
         const isLast = i === links.length - 1;
 
         // TODO check that signers are still active wearers/eligible
-        if (href === 'join' && size(signers) === toNumber(primarySignerHat?.maxSupply)) {
+        // In dev mode, always show join button; in prod, hide when council is full
+        if (href === 'join' && !isDev && size(signers) === toNumber(primarySignerHat?.maxSupply)) {
           return null;
         }
 

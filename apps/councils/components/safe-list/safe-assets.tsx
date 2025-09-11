@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { NETWORK_CURRENCY, OVERRIDE_TOKEN_IMAGE } from '@hatsprotocol/config';
@@ -106,7 +107,7 @@ const SafeAssetRow = ({
   safeAddress: Hex;
   filteredSafeTokens: any[];
 }) => {
-  const { data: prices } = useTokenPrices();
+  // const { data: prices } = useTokenPrices();
   const { data: safeTransactions } = useSafeTransactions({
     safeAddress,
     chainId,
@@ -240,10 +241,10 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
     chainId,
   });
   const { data: prices, isLoading: pricesLoading } = useTokenPrices();
-  const { data: safeTransactions, isLoading: transactionsLoading } = useSafeTransactions({
-    safeAddress,
-    chainId,
-  });
+  // const { data: safeTransactions, isLoading: transactionsLoading } = useSafeTransactions({
+  //   safeAddress,
+  //   chainId,
+  // });
 
   const priceData = prices || [];
 
@@ -299,7 +300,7 @@ const SafeAssets = ({ safeAddress, chainId }: { safeAddress: Hex; chainId: numbe
 
   if (!chainId) return null;
 
-  const isLoading = approvedTokensLoading || safeTokensLoading || pricesLoading || transactionsLoading;
+  const isLoading = approvedTokensLoading || safeTokensLoading || pricesLoading;
 
   const TableHeader = () => (
     <div className='flex h-14 w-full items-center'>
