@@ -14,6 +14,7 @@ import posthog from 'posthog-js';
 import { useState } from 'react';
 import { idToIp } from 'shared';
 import { CouncilMember, EligibilityRule, OffchainCouncilData, SupportedChains } from 'types';
+import { AppHat } from 'types';
 import { Button, cn, Skeleton } from 'ui';
 import { MemberAvatar } from 'ui';
 import {
@@ -87,6 +88,109 @@ const SectionMenu = ({ sections, isLoading }: { sections: { value: string; label
   );
 };
 
+// Component for managing modules for a specific role in MHSG councils
+const RoleModuleManager = ({
+  signerHat,
+  chainId,
+  offchainCouncilDetails,
+  slug,
+}: {
+  signerHat: AppHat;
+  chainId: number;
+  offchainCouncilDetails: OffchainCouncilData | undefined;
+  slug: string;
+}) => {
+  const { details: hatDetails } = useHatDetails({
+    chainId: chainId as SupportedChains,
+    hatId: signerHat.id ? hatIdDecimalToHex(BigInt(signerHat.id)) : undefined,
+  });
+
+  const { data: eligibilityRules, isLoading: eligibilityRulesLoading } = useEligibilityRules({
+    address: toLower(signerHat.eligibility) as Hex,
+    chainId: chainId as SupportedChains,
+  });
+
+  const allowlistModule = offchainCouncilDetails?.membersSelectionModule || signerHat.eligibility;
+  const allRules = flatten(eligibilityRules) as EligibilityRule[];
+  const rulesWithoutSelectionModule = filter(allRules, (rule) => toLower(rule.address) !== toLower(allowlistModule));
+
+  // For MHSG councils, we want to show the allowlist/selection module management
+  const selectionModuleRule = find(allRules, (rule) => toLower(rule.address) === toLower(allowlistModule));
+
+  // Check if this role only has hat-wearing eligibility (no direct admin operations)
+  const isOnlyHatWearing = allRules.length === 1 && allRules[0]?.module?.id.includes('hat-wearing');
+
+  if (eligibilityRulesLoading) {
+    return (
+      <div className='space-y-6'>
+        <div className='flex flex-col gap-6'>
+          <Skeleton className='h-10 w-1/4' />
+          <Skeleton className='h-14 w-1/2' />
+        </div>
+      </div>
+    );
+  }
+
+  // Always show the role header, and check if we have modules to manage (including selection module)
+  const hasAdditionalModules = rulesWithoutSelectionModule.length > 0;
+  const hasSelectionModule = !!selectionModuleRule && !isOnlyHatWearing;
+
+  return (
+    <div className='space-y-6'>
+      <div className='border-l-4 border-blue-500 pl-4'>
+        <h3 className='text-lg font-semibold'>
+          {hatDetails?.name || signerHat.detailsObject?.data.name || signerHat.name || `Role ${signerHat.prettyId}`}
+        </h3>
+        <p className='text-muted-foreground text-sm'>
+          {isOnlyHatWearing
+            ? 'This role is filled by holders of another role. No admin operations.'
+            : hasSelectionModule || hasAdditionalModules
+              ? 'Manage eligibility criteria and modules for this role'
+              : 'No eligibility modules configured for this role'}
+        </p>
+      </div>
+
+      {/* Show special message for hat-wearing only roles */}
+      {isOnlyHatWearing && (
+        <div className='rounded-lg p-4'>
+          <h4 className='mb-2 font-medium'>Role Holding Eligibility</h4>
+          <p className='text-sm text-gray-500'>
+            This role is automatically filled by members who hold another specific hat/role. To manage who can fill this
+            role, you need to manage the eligibility of the criterion hat that this role depends on.
+          </p>
+        </div>
+      )}
+
+      {/* Show allowlist/selection module management */}
+      {hasSelectionModule && (
+        <ModuleManager
+          rule={selectionModuleRule!}
+          chainId={chainId}
+          key={`${signerHat.id}-${selectionModuleRule!.address}`}
+          primarySignerHat={signerHat.id}
+          criteriaModule={offchainCouncilDetails?.membersCriteriaModule as Hex}
+          offchainCouncilDetails={offchainCouncilDetails}
+          slug={slug}
+        />
+      )}
+
+      {/* Show additional modules (criteria, compliance, etc.) */}
+      {hasAdditionalModules &&
+        map(rulesWithoutSelectionModule, (rule) => (
+          <ModuleManager
+            rule={rule}
+            chainId={chainId}
+            key={`${signerHat.id}-${rule.address}`}
+            primarySignerHat={signerHat.id}
+            criteriaModule={offchainCouncilDetails?.membersCriteriaModule as Hex}
+            offchainCouncilDetails={offchainCouncilDetails}
+            slug={slug}
+          />
+        ))}
+    </div>
+  );
+};
+
 export const ManagePage = ({ slug }: { slug: string }) => {
   const { chainId, address } = parseCouncilSlug(slug);
   const { setModals, handlePendingTx } = useOverlay();
@@ -110,9 +214,13 @@ export const ManagePage = ({ slug }: { slug: string }) => {
   });
   const allWearers = getAllWearers(offchainCouncilDetails?.creationForm || undefined);
 
-  const primarySignerHat = get(councilDetails, 'signerHats[0]');
+  const signerHats = get(councilDetails, 'signerHats', []);
+  const primarySignerHat = get(signerHats, '[0]');
+  const isMultiHatSignerGroup = signerHats.length > 1;
   const ownerHat = get(councilDetails, 'ownerHat');
   const topHatId = ownerHat?.id && treeIdToTopHatId(hatIdToTreeId(BigInt(ownerHat.id)));
+
+  // Load eligibility rules for the primary signer hat (maintains backward compatibility)
   const { data: eligibilityRules, isLoading: eligibilityRulesLoading } = useEligibilityRules({
     address: toLower(get(primarySignerHat, 'eligibility')) as Hex,
     chainId: (chainId ?? 11155111) as SupportedChains,
@@ -126,6 +234,33 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     chainId: (chainId ?? 11155111) as SupportedChains,
     hatId: topHatId ? hatIdDecimalToHex(topHatId) : undefined,
   });
+
+  // Load hat details for each signer hat to get proper names for menu
+  // We need to call useHatDetails for each hat individually to follow Rules of Hooks
+  const signerHat1Details = useHatDetails({
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    hatId: signerHats[0]?.id ? hatIdDecimalToHex(BigInt(signerHats[0].id)) : undefined,
+  });
+  const signerHat2Details = useHatDetails({
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    hatId: signerHats[1]?.id ? hatIdDecimalToHex(BigInt(signerHats[1].id)) : undefined,
+  });
+  const signerHat3Details = useHatDetails({
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    hatId: signerHats[2]?.id ? hatIdDecimalToHex(BigInt(signerHats[2].id)) : undefined,
+  });
+  const signerHat4Details = useHatDetails({
+    chainId: (chainId ?? 11155111) as SupportedChains,
+    hatId: signerHats[3]?.id ? hatIdDecimalToHex(BigInt(signerHats[3].id)) : undefined,
+  });
+
+  // Create lookup for hat details by hat ID
+  const signerHatDetailsLookup = {
+    [signerHats[0]?.id]: signerHat1Details.details,
+    [signerHats[1]?.id]: signerHat2Details.details,
+    [signerHats[2]?.id]: signerHat3Details.details,
+    [signerHats[3]?.id]: signerHat4Details.details,
+  };
   const userIsTopHat = !!find(topHatDetails?.wearers, { id: toLower(userAddress) });
   const { wearers: ownerHatWearers } = useAllWearers({
     selectedHat: ownerHat,
@@ -144,7 +279,9 @@ export const ManagePage = ({ slug }: { slug: string }) => {
   const signers = filter(safeSigners, (signer) => includes(allHatWearers, toLower(signer)));
   const totalMaxSupply = reduce(map(councilDetails?.signerHats, 'maxSupply'), (acc, curr) => acc + toNumber(curr), 0);
 
-  const menuOptions = concat(
+  // For single-hat councils, use existing logic
+  // For multi-hat councils, generate role-specific menu options
+  const baseMenuOptions = concat(
     DEFAULT_SECTIONS,
     map(filterRulesWithoutAdmin(rulesWithoutSelectionModule), (rule) => ({
       value: rule.address,
@@ -154,6 +291,21 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     })),
     OWNER_SECTIONS,
   );
+
+  // For MHSG councils, show roles instead of individual modules
+  const mhsgMenuOptions = concat(
+    DEFAULT_SECTIONS,
+    map(signerHats, (hat, index) => {
+      const hatDetails = signerHatDetailsLookup[hat.id];
+      return {
+        value: `role-${hat.id}`,
+        label: hatDetails?.name || hat.detailsObject?.data?.name || hat.name || `Role ${index + 1}`,
+      };
+    }),
+    OWNER_SECTIONS,
+  );
+
+  const menuOptions = isMultiHatSignerGroup ? mhsgMenuOptions : baseMenuOptions;
 
   const addManagerLoading = useState(false);
   const [, setAddManagerLoading] = addManagerLoading;
@@ -324,17 +476,36 @@ export const ManagePage = ({ slug }: { slug: string }) => {
         </div>
 
         {/* MANAGERS CAN MANAGE OTHER MODULES */}
-        {map(rulesWithoutSelectionModule, (rule) => (
-          <ModuleManager
-            rule={rule}
-            chainId={chainId ?? 11155111}
-            key={rule.address}
-            primarySignerHat={primarySignerHat?.id}
-            criteriaModule={offchainCouncilDetails?.membersCriteriaModule as Hex}
-            offchainCouncilDetails={offchainCouncilDetails || undefined}
-            slug={slug}
-          />
-        ))}
+        {isMultiHatSignerGroup ? (
+          // Multi-Hat Signer Group: Show separate module management for each role
+          <div className='space-y-12'>
+            {map(signerHats, (hat) => (
+              <div key={hat.id} id={`role-${hat.id}`}>
+                <RoleModuleManager
+                  signerHat={hat}
+                  chainId={chainId ?? 11155111}
+                  offchainCouncilDetails={offchainCouncilDetails || undefined}
+                  slug={slug}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Single-Hat Council: Use existing single module management
+          <>
+            {map(rulesWithoutSelectionModule, (rule) => (
+              <ModuleManager
+                rule={rule}
+                chainId={chainId ?? 11155111}
+                key={rule.address}
+                primarySignerHat={primarySignerHat?.id}
+                criteriaModule={offchainCouncilDetails?.membersCriteriaModule as Hex}
+                offchainCouncilDetails={offchainCouncilDetails || undefined}
+                slug={slug}
+              />
+            ))}
+          </>
+        )}
 
         {(councilDetailsLoading || eligibilityRulesLoading) && (
           <div className='space-y-6'>
