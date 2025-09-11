@@ -28,7 +28,7 @@
     "clean": "rm -rf dist tmp",
     "typecheck": "nx run-many --target=typecheck --all",
     "typecheck:anchor": "nx run hats-anchor-app:typecheck",
-    "typecheck:claims": "nx run hats-claims-app:typecheck", 
+    "typecheck:claims": "nx run hats-claims-app:typecheck",
     "typecheck:councils": "nx run hats-councils-app:typecheck",
     "typecheck:utils": "nx run utils:typecheck",
     "typecheck:ui": "nx run ui:typecheck",

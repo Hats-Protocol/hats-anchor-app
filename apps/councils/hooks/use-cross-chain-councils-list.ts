@@ -65,9 +65,17 @@ const hsgOwnersSigners = (hatIdsByNetwork: NetworkAddressList) => {
       targetThreshold
       signerHats {
         id
+        details
+        detailsMetadata
+        maxSupply
+        nearestImage
       }
       ownerHat {
         id
+        details
+        detailsMetadata
+        maxSupply
+        nearestImage
       }
     }
     `;

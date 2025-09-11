@@ -30,10 +30,11 @@ const fetchContractData = async (chainId: number, address: Hex) =>
 // Using GET request so automatically cached via Next
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ chainId: string; address: Hex }> },
+  { params }: { params: Promise<{ chainId: string; address: string }> },
 ): Promise<Response> {
   const localParams = await params;
   const { chainId: initialChainId, address } = pick(localParams, ['chainId', 'address']);
+  const hexAddress = address as Hex;
   const chainId = toNumber(initialChainId);
 
   if (!chainId || !address) {
@@ -45,13 +46,13 @@ export async function GET(
     return Response.json({ error: 'Chain not supported' }, { status: 400 });
   }
 
-  if (toLower(address) === FALLBACK_ADDRESS) {
+  if (toLower(hexAddress) === FALLBACK_ADDRESS) {
     return Response.json({ ContractName: 'Fallback Zero' }, { status: 201 });
   }
 
   try {
-    const data = await fetchContractData(chainId, address);
-    logger.debug(address, omit(get(data, 'result[0]'), ['ABI', 'SourceCode']));
+    const data = await fetchContractData(chainId, hexAddress);
+    logger.debug(hexAddress, omit(get(data, 'result[0]'), ['ABI', 'SourceCode']));
 
     // force error if not verified
     if (get(data, 'result[0].ABI') === 'Contract source code not verified') {

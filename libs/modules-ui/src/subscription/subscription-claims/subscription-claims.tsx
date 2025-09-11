@@ -47,7 +47,7 @@ export const SubscriptionClaims = () => {
       <Card className='border-[#2D3748] p-4'>
         <h2 className='text-lg font-medium'>Subscribe</h2>
 
-        <p>Can't install instance params</p>
+        <p>Can&apos;t install instance params</p>
       </Card>
     );
   }
@@ -131,10 +131,10 @@ export const SubscriptionClaims = () => {
             <div className='space-y-2'>
               <h3 className='text-lg font-medium'>Claim your Hat now</h3>
 
-              <p>You've enabled a {durationText.adjective} withdrawal of the subscription fee.</p>
+              <p>You&apos;ve enabled a {durationText.adjective} withdrawal of the subscription fee.</p>
               <p>You can now claim this Hat and pay the first {durationText.noun}.</p>
               <p>
-                Anytime you'd like, you can adjust the authorized amount to control the potential duration of your
+                Anytime you&apos;d like, you can adjust the authorized amount to control the potential duration of your
                 subscription.
               </p>
             </div>
