@@ -42,6 +42,7 @@ export const fetchManyWearerDetails = async (wearerIds: Hex[], chainId: number):
   });
 };
 
+// TODO migrate to use Mesh API
 export const fetchWearerDetails = async (address: Hex | string | undefined, chainId: number | undefined) => {
   const subgraphClient = createSubgraphClient();
   if (!address || !chainId) return undefined;

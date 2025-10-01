@@ -14,6 +14,8 @@ const keyIcons: { [key: string]: string } = {
   hats: 'UserPlusIcon',
 };
 
+// TODO Migrate to use Mesh API
+
 const processForCommandPalette = (key: string, record: any) => {
   const { id: recordId, network } = _.pick(record, ['id', 'network']);
   const { id: networkId, name: networkName } = network || {};
