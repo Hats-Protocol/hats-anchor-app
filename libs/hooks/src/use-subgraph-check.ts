@@ -1,62 +1,30 @@
-import { ANCILLARY_API_URL, NETWORK_ENDPOINTS } from '@hatsprotocol/config';
 import { useQuery } from '@tanstack/react-query';
-import { gql, GraphQLClient } from 'graphql-request';
-import { get, last, split, toNumber } from 'lodash';
-import { SupportedChains } from 'types';
-import { logger, viemPublicClient } from 'utils';
 
-const OUT_OF_SYNC_THRESHOLD = 50;
+interface SubgraphCheckResult {
+  mainSubgraph: number | undefined;
+  mainSubgraphOutOfSync: boolean;
+  mainVersion: string | undefined;
+  ancillarySubgraph: number | undefined;
+  ancillarySubgraphOutOfSync: boolean;
+  ancillaryVersion: string | undefined;
+  chain: number;
+}
 
-const SUBGRAPH_BLOCK_QUERY = gql`
-  query SubgraphBlockQuery {
-    _meta {
-      block {
-        number
-      }
+const fetchSubgraphCheck = async (chainId: number): Promise<SubgraphCheckResult | undefined> => {
+  if (!chainId) return;
+
+  try {
+    const response = await fetch(`/api/subgraph-check/${chainId}`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch subgraph check:', error);
+    throw error;
   }
-`;
-
-const fetchSubgraphCheck = async (chainId: number) => {
-  const ancillaryApiUrl = ANCILLARY_API_URL[chainId as SupportedChains];
-  if (!chainId || !ancillaryApiUrl) return;
-
-  const subgraphApiUrl = NETWORK_ENDPOINTS[chainId].endpoint;
-  // TODO migrate timeout to abort controller
-  const mainSubgraphClient = new GraphQLClient(subgraphApiUrl);
-  const mainSubgraphPromise = mainSubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
-    logger.error(err);
-    return null;
-  });
-
-  const ancillarySubgraphClient = new GraphQLClient(ancillaryApiUrl);
-  const ancillarySubgraphPromise = ancillarySubgraphClient.request(SUBGRAPH_BLOCK_QUERY).catch((err) => {
-    logger.error(err);
-    return null;
-  });
-
-  const chainPromise = viemPublicClient(chainId).getBlock();
-
-  const [mainSubgraph, ancillarySubgraph, chain] = await Promise.all([
-    mainSubgraphPromise,
-    ancillarySubgraphPromise,
-    chainPromise,
-  ]);
-
-  const chainNumber = toNumber(get(chain, 'number').toString());
-  const mainSubgraphNumber = get(mainSubgraph, '_meta.block.number');
-  const ancillarySubgraphNumber = get(ancillarySubgraph, '_meta.block.number');
-
-  return {
-    mainSubgraph: mainSubgraphNumber,
-    mainSubgraphOutOfSync: mainSubgraphNumber && chain && chainNumber - mainSubgraphNumber > OUT_OF_SYNC_THRESHOLD,
-    mainVersion: last(split(subgraphApiUrl, '/')),
-    ancillarySubgraph: ancillarySubgraphNumber,
-    ancillarySubgraphOutOfSync:
-      ancillarySubgraphNumber && chain && chainNumber - ancillarySubgraphNumber > OUT_OF_SYNC_THRESHOLD,
-    ancillaryVersion: last(split(ancillaryApiUrl, '/')),
-    chain: chainNumber,
-  };
 };
 
 const useSubgraphCheck = (chainId: number) => {
