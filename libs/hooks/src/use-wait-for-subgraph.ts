@@ -1,5 +1,3 @@
-import { NETWORK_ENDPOINTS } from '@hatsprotocol/config';
-import { gql, GraphQLClient } from 'graphql-request';
 import { get, toNumber, toString } from 'lodash';
 import { TransactionReceipt } from 'viem';
 
@@ -7,27 +5,15 @@ import { useToast } from './use-toast';
 
 const SUBGRAPH_WAIT_TIMEOUT = 20_000; // 20 seconds
 
-const quickSubgraphClient = (chainId: number) => {
-  const networkEndpoint = NETWORK_ENDPOINTS[chainId];
-  const client = new GraphQLClient(get(networkEndpoint, 'endpoint'));
-  return client;
-};
-
 const fetchSubgraphBlockNumber = async (chainId: number) => {
-  const subgraphClient = quickSubgraphClient(chainId);
+  const response = await fetch(`/api/subgraph-check/${chainId}`);
 
-  const query = gql`
-    query {
-      _meta {
-        block {
-          number
-        }
-      }
-    }
-  `;
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
 
-  const data = await subgraphClient.request(query);
-  return get(data, '_meta.block.number', null);
+  const data = await response.json();
+  return get(data, 'mainSubgraph', null);
 };
 
 const useWaitForSubgraph = ({
@@ -46,6 +32,7 @@ const useWaitForSubgraph = ({
   const waitForBlock = async (data: TransactionReceipt | undefined) =>
     new Promise((resolve, reject) => {
       const blockNumber = toNumber(toString(get(data, 'blockNumber')));
+      let lastSeenSubgraphBlock: number | null = null;
 
       const checkBlockHandler = async () => {
         if (!chainId || !blockNumber) {
@@ -54,6 +41,8 @@ const useWaitForSubgraph = ({
 
         return fetchSubgraphBlockNumber(chainId)
           .then((subgraphBlockNumber) => {
+            lastSeenSubgraphBlock = subgraphBlockNumber;
+
             if (!subgraphBlockNumber || subgraphBlockNumber < blockNumber) {
               return;
             }
@@ -89,7 +78,16 @@ const useWaitForSubgraph = ({
 
       setTimeout(() => {
         clearInterval(intervalId);
-        return reject(new Error('Subgraph wait timeout'));
+
+        const timeoutMessage = `Subgraph wait timeout - waiting for block ${blockNumber}${lastSeenSubgraphBlock ? `, last seen block ${lastSeenSubgraphBlock}` : ''}`;
+
+        toast({
+          title: 'Subgraph sync timeout',
+          description: `Waited ${waitTimeout / 1000}s for subgraph to reach block ${blockNumber}. Last seen: ${lastSeenSubgraphBlock || 'unknown'}`,
+          variant: 'destructive',
+        });
+
+        return reject(new Error(timeoutMessage));
       }, waitTimeout);
     });
 
