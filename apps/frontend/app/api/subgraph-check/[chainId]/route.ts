@@ -42,7 +42,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ chai
     }
 
     const subgraphApiUrl = NETWORK_ENDPOINTS[chainId].endpoint;
-    const authToken = process.env.NEXT_PUBLIC_SUBGRAPH_NETWORK_KEY;
+    const authToken = process.env.SUBGRAPH_NETWORK_KEY;
 
     const mainSubgraphClient = new GraphQLClient(subgraphApiUrl, {
       headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},

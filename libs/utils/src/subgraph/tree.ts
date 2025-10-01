@@ -3,6 +3,8 @@ import { mapWithChainId } from 'shared';
 
 import { createSubgraphClient } from '../web3';
 
+// TODO migrate to use Mesh API
+
 export const fetchTreeDetails = async (treeId: string | null | undefined, chainId: number): Promise<Tree | null> => {
   if (!treeId) {
     return null;
@@ -75,7 +77,7 @@ export const fetchTreeDetails = async (treeId: string | null | undefined, chainI
     });
 };
 
-export const fetchPaginatedTrees = async (chainId: number, page: number = 0, perPage: number = 40) => {
+export const fetchPaginatedTrees = async (chainId: number, page = 0, perPage = 40) => {
   const subgraphClient = createSubgraphClient();
 
   const res = await subgraphClient.getTreesPaginated({
