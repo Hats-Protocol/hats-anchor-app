@@ -14,7 +14,6 @@ import {
   metaMaskWallet,
   rabbyWallet,
   rainbowWallet,
-  safeWallet,
   uniswapWallet,
   walletConnectWallet,
   zerionWallet,
@@ -36,8 +35,14 @@ const getWCProjectId = () => {
 };
 
 const getConnectors = () => {
+  // Skip connector initialization during SSR to prevent browser API access
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
   const WC_PROJECT_ID = getWCProjectId();
   if (!WC_PROJECT_ID) {
+    // eslint-disable-next-line no-console
     console.warn('NEXT_PUBLIC_WC_PROJECT_ID not set, wallet connections may not work properly');
     return [];
   }

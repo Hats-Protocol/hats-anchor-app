@@ -500,6 +500,9 @@ importers:
       forms:
         specifier: workspace:*
         version: link:../../libs/forms
+      graphql-request:
+        specifier: ^7.1.2
+        version: 7.2.0(graphql@16.6.0)
       hats-hooks:
         specifier: workspace:*
         version: link:../../libs/hats-hooks
