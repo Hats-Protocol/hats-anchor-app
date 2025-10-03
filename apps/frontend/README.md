@@ -44,4 +44,4 @@ pnpm serve
 
 Having multiple apps that are at different stages of deploy we can choose when to build based on changes in the specific app repo. If there's no changes in an app it won't be built by the CI/CD process. The simplest change is to add (or remove) an extra new line at the end of this file .
 
-[//]: # 'DEPLOY_MARKERR'
+[//]: # 'DEPLOY_MARKER'

@@ -41,9 +41,10 @@ const useWaitForSubgraph = ({
 
         return fetchSubgraphBlockNumber(chainId)
           .then((subgraphBlockNumber) => {
-            lastSeenSubgraphBlock = subgraphBlockNumber;
+            const subgraphBlock = toNumber(toString(subgraphBlockNumber));
+            lastSeenSubgraphBlock = subgraphBlock;
 
-            if (!subgraphBlockNumber || subgraphBlockNumber < blockNumber) {
+            if (!subgraphBlock || subgraphBlock < blockNumber) {
               return;
             }
 
