@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useToast } from 'hooks';
 import { compact, concat, filter, find, forEach, get, isEmpty, isEqual, slice, uniqWith } from 'lodash';
 import { useRouter } from 'next/navigation';
@@ -55,6 +56,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
   // HOOKS
   const { toast } = useToast();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // LOCAL STATE
   // const [txIsPending, setTxIsPending] = useState(false);
@@ -216,6 +218,25 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       });
       await invalidateAfterTransaction(txChainId, hash);
 
+      // Invalidate React Query cache after backend cache is cleared
+      // Use refetchType: 'all' to force refetch even if data is considered fresh
+      await queryClient.invalidateQueries({
+        queryKey: ['treeDetails'],
+        refetchType: 'all'
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['hatDetails'],
+        refetchType: 'all'
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['orgChartTree'],
+        refetchType: 'all'
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['wearerDetails'],
+        refetchType: 'all'
+      });
+
       if (sendSuccessToast && successToastData) {
         // this toast is specifically the one that shows when the transaction is successful
         // we still need to wait for the subgraph to show true "success"
@@ -226,7 +247,6 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
       }
 
       onSuccess?.(txReceipt);
-      // TODO handle queryClient invalidations here
 
       if (clearModals) {
         setModals(defaultModals);
@@ -238,7 +258,7 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
 
       return Promise.resolve(txReceipt);
     },
-    [addTransaction, toast, updateTransactionStatus, router],
+    [addTransaction, toast, updateTransactionStatus, router, queryClient],
   );
 
   const txPending = useMemo(() => {

@@ -9,9 +9,20 @@ export const invalidateAfterTransaction = async (networkId: number, transactionI
     body: JSON.stringify({
       transactionId,
       networkId: networkId.toString(),
+      waitForCompletion: true, // Wait for cache invalidation to complete
     }),
   })
-    .then((res) => Promise.resolve(res)) // response is not json, but "success" text
+    .then(async (res) => {
+      if (res.ok) {
+        const data = await res.json();
+        // Log if we had to wait
+        if (data.waitedMs) {
+          logger.info(`Cache invalidation completed after ${data.waitedMs}ms for tx ${transactionId}`);
+        }
+        return data;
+      }
+      return Promise.resolve(res);
+    })
     .catch((e) => {
       logger.error('Error invalidating transaction', e);
       return Promise.resolve(undefined);
