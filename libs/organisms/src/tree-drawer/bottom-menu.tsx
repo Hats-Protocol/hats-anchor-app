@@ -119,12 +119,10 @@ const BottomMenu = ({
                         allCalls,
                         (hat: { hatChanges: AppHat; calls: { functionName: string }[]; hatId: string }) => {
                           if (isEmpty(keys(hat.hatChanges))) return null;
-                          console.log(hat);
+                          const hatId = hat.hatChanges.id || hat.hatId;
                           return (
-                            <div className='flex flex-col gap-1' key={hat.hatChanges.id}>
-                              <h3 className='text-sm font-medium'>
-                                {hatIdDecimalToIp(hatIdHexToDecimal(hat.hatChanges.id))}
-                              </h3>
+                            <div className='flex flex-col gap-1' key={hatId}>
+                              <h3 className='text-sm font-medium'>{hatIdDecimalToIp(hatIdHexToDecimal(hatId))}</h3>
                               {map(hat.calls, (call) => (
                                 <p className='text-sm'>-- {call.functionName}</p>
                               ))}
