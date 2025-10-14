@@ -1,184 +1,15 @@
-import { ANCILLARY_API_URL } from '@hatsprotocol/config';
-import { gql, GraphQLClient } from 'graphql-request';
-import { map, toLower } from 'lodash';
-import { get } from 'lodash';
+import { get, map, toLower } from 'lodash';
 import { ElectionsAuthority, HatAuthorityResponse, HatElectionResponse, HatSignerGateV2, SupportedChains } from 'types';
 import { Hex } from 'viem';
 
-const HSG_V1_FRAGMENT = gql`
-  fragment HsgV1 on HatsSignerGate {
-    id
-    type
-    safe
-    minThreshold
-    targetThreshold
-    maxSigners
-    signerHats {
-      id
-    }
-    ownerHat {
-      id
-    }
-  }
-`;
-
-const HSG_V2_FRAGMENT = gql`
-  fragment HsgV2 on HatsSignerGateV2 {
-    id
-    safe
-    thresholdType
-    minThreshold
-    targetThreshold
-    signerHats {
-      id
-    }
-    ownerHat {
-      id
-    }
-  }
-`;
-
-const MODULES_QUERY = gql`
-  query GetModuleAuthorities($id: ID!) {
-    hatAuthority(id: $id) {
-      allowListOwner {
-        id
-        hatId
-      }
-      allowListArbitrator {
-        id
-        hatId
-      }
-      electionsAdmin {
-        id
-        hatId
-      }
-      electionsBallotBox {
-        id
-        hatId
-      }
-      eligibilityTogglePassthrough {
-        id
-        hatId
-      }
-      hatsAccount1ofN {
-        id
-        accountOfHat {
-          id
-        }
-        operations {
-          id
-          hatsAccount
-          signer
-          to
-          value
-          callData
-          operationType
-        }
-      }
-      hsgOwner {
-        ...HsgV1
-      }
-      hsgSigner {
-        ...HsgV1
-      }
-      hsgV2Owner {
-        ...HsgV2
-      }
-      hsgV2Signer {
-        ...HsgV2
-      }
-      jokeraceAdmin {
-        id
-        hatId
-      }
-      stakingJudge {
-        id
-        hatId
-      }
-      stakingRecipient {
-        id
-        hatId
-      }
-      agreementOwner {
-        id
-        hatId
-      }
-      agreementArbitrator {
-        id
-        hatId
-      }
-    }
-  }
-  ${HSG_V1_FRAGMENT}
-  ${HSG_V2_FRAGMENT}
-`;
-
-export const HSG_SIGNER_QUERY = gql`
-  query GetHsgSigner($ids: [ID]!) {
-    hatsSignerGateV2S(where: { signerHats_: { id_in: $ids } }) {
-      id
-      type
-      safe
-      minThreshold
-      targetThreshold
-      maxSigners
-      signerHats {
-        id
-      }
-      ownerHat {
-        id
-      }
-    }
-  }
-`;
-
-const ELECTION_QUERY = gql`
-  query GetElectionAuthorities($id: ID!) {
-    hatsElectionEligibility(id: $id) {
-      id
-      hatId
-      adminHat {
-        id
-      }
-      ballotBoxHat {
-        id
-      }
-      terms {
-        id
-        termStartedAt
-        termEnd
-        electionCompletedAt
-        electedAccounts
-      }
-      currentTerm {
-        id
-        termStartedAt
-        termEnd
-        electionCompletedAt
-        electedAccounts
-      }
-    }
-  }
-`;
-
-const ALLOWLIST_QUERY = gql`
-  query GetAllowlistEligibility($address: String!) {
-    allowListEligibilityDatas(where: { address: $address }) {
-      allowListEligibility {
-        hatId
-      }
-    }
-  }
-`;
-
-export const ancillarySubgraphClient = (chainId: SupportedChains) => {
-  const url = ANCILLARY_API_URL[chainId];
-  if (url) {
-    return new GraphQLClient(url);
-  }
-  return undefined;
-};
+import { createMeshClient } from '../mesh/helpers';
+import {
+  getAllowlistEntriesQuery,
+  getElectionAuthoritiesQuery,
+  getHsgSignersQuery,
+  getModuleAuthoritiesQuery,
+  NETWORKS_PREFIX,
+} from './mesh/queries';
 
 export const fetchAncillaryModules = async (
   id: string,
@@ -187,13 +18,16 @@ export const fetchAncillaryModules = async (
   if (!id || !chainId) return null;
 
   try {
-    const client = ancillarySubgraphClient(chainId);
-    if (!client) return null;
-    const response = await client.request<HatAuthorityResponse>(MODULES_QUERY, {
-      id,
-    });
+    const client = createMeshClient();
+    const query = getModuleAuthoritiesQuery(chainId);
 
-    return response.hatAuthority ? response : null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await client.request(query, { id });
+
+    const networkPrefix = NETWORKS_PREFIX[chainId];
+    const hatAuthority = response[`${networkPrefix}_hatAuthority`];
+
+    return hatAuthority ? { hatAuthority } : null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);
@@ -205,13 +39,14 @@ export const fetchElectionData = async (id: string, chainId: SupportedChains): P
   if (!id) return null;
 
   try {
-    const client = ancillarySubgraphClient(chainId);
-    if (!client) return null;
-    const response = await client.request<HatElectionResponse>(ELECTION_QUERY, {
-      id,
-    });
+    const client = createMeshClient();
+    const query = getElectionAuthoritiesQuery(chainId);
 
-    return response?.hatsElectionEligibility || null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await client.request(query, { id });
+
+    const networkPrefix = NETWORKS_PREFIX[chainId];
+    return response?.[`${networkPrefix}_hatsElectionEligibility`] || null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);
@@ -229,13 +64,14 @@ export const fetchHsgSigners = async ({
   if (!hatIds || !chainId) return null;
 
   try {
-    const client = ancillarySubgraphClient(chainId);
-    if (!client) return null;
-    const response: any = await client.request(HSG_SIGNER_QUERY, {
-      ids: hatIds,
-    });
+    const client = createMeshClient();
+    const query = getHsgSignersQuery(chainId);
 
-    return (response?.hatsSignerGates as HatSignerGateV2[]) || null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await client.request(query, { ids: hatIds });
+
+    const networkPrefix = NETWORKS_PREFIX[chainId];
+    return (response?.[`${networkPrefix}_hatsSignerGateV2S`] as HatSignerGateV2[]) || null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);
@@ -246,21 +82,22 @@ export const fetchHsgSigners = async ({
 export const fetchAllowlistEntries = async (address: string, chainId: SupportedChains): Promise<any | null> => {
   if (!address || !chainId) return null;
 
-  const client = ancillarySubgraphClient(chainId);
-  if (!client) return null;
+  try {
+    const client = createMeshClient();
+    const query = getAllowlistEntriesQuery(chainId);
 
-  return client
-    .request<any>(ALLOWLIST_QUERY, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await client.request(query, {
       address: toLower(address),
-    })
-    .then((response) => {
-      const allowlistEntries = map(get(response, 'allowListEligibilityDatas'), 'allowListEligibility');
-
-      return allowlistEntries || null;
-    })
-    .catch((error) => {
-      // eslint-disable-next-line no-console
-      console.error('Error fetching ancillary modules:', error);
-      return null;
     });
+
+    const networkPrefix = NETWORKS_PREFIX[chainId];
+    const allowlistEntries = map(get(response, `${networkPrefix}_allowListEligibilityDatas`), 'allowListEligibility');
+
+    return allowlistEntries || null;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching ancillary modules:', error);
+    return null;
+  }
 };
