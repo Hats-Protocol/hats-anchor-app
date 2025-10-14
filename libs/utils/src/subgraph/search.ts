@@ -7,14 +7,13 @@ import { idToIp } from 'shared';
 import { AppHat, AppTree } from 'types';
 import { hexToNumber } from 'viem';
 
-import { createSubgraphClient } from '../web3';
+import { createMeshClient } from '../mesh/helpers';
+import { getCrossChainSearchQuery, NETWORKS_PREFIX } from './mesh/queries';
 
 const keyIcons: { [key: string]: string } = {
   trees: 'UserGroupIcon',
   hats: 'UserPlusIcon',
 };
-
-// TODO Migrate to use Mesh API
 
 const processForCommandPalette = (key: string, record: any) => {
   const { id: recordId, network } = _.pick(record, ['id', 'network']);
@@ -55,51 +54,59 @@ const processForCommandPalette = (key: string, record: any) => {
 export const searchQueryResult = async (search: string | undefined) => {
   if (!search) return { trees: [], hats: [] };
 
-  const subgraphClient = createSubgraphClient();
+  try {
+    const meshClient = createMeshClient();
+    const query = getCrossChainSearchQuery();
 
-  const promises = _.map(_.keys(chainsList), (chainId: number) =>
-    subgraphClient
-      .searchTreesHatsWearers({
-        chainId,
-        search,
-        treeProps: {},
-        hatProps: {
-          prettyId: true,
-        },
-        wearerProps: {},
-      })
-      // eslint-disable-next-line no-console
-      .catch((e) => console.error(e)),
-  );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await meshClient.request(query, {
+      searchId: search,
+      searchString: search,
+    });
 
-  const result = await Promise.all(promises);
+    // Parse the response and organize by chain
+    const allNetworkResults: { trees: any[]; hats: AppHat[] } = {
+      trees: [],
+      hats: [],
+    };
 
-  // sort
-  const allNetworkResults: { trees: any[]; hats: AppHat[] } = {
-    trees: [],
-    hats: [],
-  };
-  _.forEach(result, (network: unknown, i: number) => {
-    const localNetwork = _.get(network, 'trees') as Tree[] | undefined;
-    allNetworkResults.trees = _.concat(
-      _.map(localNetwork, (tree: Tree) => ({
-        ...tree,
-        network: _.values(chainsList)[i],
-      })),
-      allNetworkResults?.trees || [],
+    // Iterate through each network prefix and extract results
+    _.forEach(Object.entries(NETWORKS_PREFIX), ([chainIdStr, prefix]) => {
+      const chainId = parseInt(chainIdStr);
+      const network = _.values(chainsList).find((chain) => chain.id === chainId);
+
+      if (!network) return;
+
+      // Extract trees for this network
+      const trees = _.get(response, `${prefix}_trees`, []) as Tree[];
+      allNetworkResults.trees = _.concat(
+        _.map(trees, (tree: Tree) => ({
+          ...tree,
+          network,
+        })),
+        allNetworkResults.trees,
+      );
+
+      // Extract hats for this network
+      const hats = _.get(response, `${prefix}_hats`, []) as AppHat[];
+      allNetworkResults.hats = _.concat(
+        _.map(hats, (hat: AppHat) => ({
+          ...hat,
+          treeId: _.get(hat, 'tree.id'),
+          network,
+        })),
+        allNetworkResults.hats,
+      );
+    });
+
+    // TODO sort these results
+
+    return _.mapValues(allNetworkResults, (o: { trees: AppTree[]; hats: AppHat[] }, k: string) =>
+      _.map(o, (r: AppHat | AppTree) => processForCommandPalette(k, r)),
     );
-    allNetworkResults.hats = _.concat(
-      _.map(_.get(network, 'hats'), (hat: AppHat) => ({
-        ...hat,
-        treeId: _.get(hat, 'tree.id'),
-        network: _.values(chainsList)[i],
-      })),
-      allNetworkResults?.hats || [],
-    );
-  });
-  // TODO sort these results
-
-  return _.mapValues(allNetworkResults, (o: { trees: AppTree[]; hats: AppHat[] }, k: string) =>
-    _.map(o, (r: AppHat | AppTree) => processForCommandPalette(k, r)),
-  );
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Error in cross-chain search:', e);
+    return { trees: [], hats: [] };
+  }
 };

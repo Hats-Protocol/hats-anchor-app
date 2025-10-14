@@ -1,24 +1,9 @@
 import { hatIdDecimalToHex } from '@hatsprotocol/sdk-v1-core';
 import { useQuery } from '@tanstack/react-query';
-import { gql } from 'graphql-request';
 import { useHatDetails } from 'hats-hooks';
 import { get, map, toLower } from 'lodash';
 import { SupportedChains } from 'types';
-import { ancillarySubgraphClient } from 'utils';
-
-const HAT_WEARING_ELIGIBILITY_QUERY = gql`
-  query GetHatWearingEligibility($id: ID!) {
-    hatWearingEligibility(id: $id) {
-      criterionHat
-    }
-  }
-`;
-
-interface HatWearingEligibilityResponse {
-  hatWearingEligibility: {
-    criterionHat: string;
-  } | null;
-}
+import { createMeshClient, getHatWearingEligibilityQuery, NETWORKS_PREFIX } from 'utils';
 
 const fetchHatWearingEligibility = async ({
   id,
@@ -30,15 +15,13 @@ const fetchHatWearingEligibility = async ({
   if (!id || !chainId) return null;
 
   try {
-    // TODO migrate to mesh
-    const client = ancillarySubgraphClient(chainId);
-    if (!client) return null;
+    const client = createMeshClient();
+    const query = getHatWearingEligibilityQuery(chainId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await client.request(query, { id: toLower(id) });
 
-    const response = await client.request<HatWearingEligibilityResponse>(HAT_WEARING_ELIGIBILITY_QUERY, {
-      id: toLower(id),
-    });
-
-    const criterionHat = get(response, 'hatWearingEligibility.criterionHat');
+    const networkPrefix = NETWORKS_PREFIX[chainId];
+    const criterionHat = get(response, `${networkPrefix}_hatWearingEligibility.criterionHat`);
 
     if (!criterionHat) return null;
 

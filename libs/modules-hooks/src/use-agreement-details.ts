@@ -1,20 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { gql } from 'graphql-request';
 import { get, toLower } from 'lodash';
 import { HatAuthorityResponse, SupportedChains } from 'types';
-import { ancillarySubgraphClient } from 'utils';
-
-const AGREEMENT_QUERY = gql`
-  query GetModuleAuthorities($id: ID!) {
-    agreementEligibility(id: $id) {
-      agreements(orderBy: graceEndTime, orderDirection: desc, first: 1) {
-        graceEndTime
-        signers
-      }
-      badStandings
-    }
-  }
-`;
+import { createMeshClient, getAgreementEligibilityQuery, NETWORKS_PREFIX } from 'utils';
 
 const fetchAgreementEligibility = async ({
   id,
@@ -26,11 +13,16 @@ const fetchAgreementEligibility = async ({
   if (!id || !chainId) return null;
 
   try {
-    const client = ancillarySubgraphClient(chainId);
-    if (!client) return null;
-    const response = await client.request<HatAuthorityResponse>(AGREEMENT_QUERY, { id: toLower(id) });
+    const client = createMeshClient();
+    const query = getAgreementEligibilityQuery(chainId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await client.request(query, { id: toLower(id) });
+
+    const networkPrefix = NETWORKS_PREFIX[chainId];
     // only returning "last" (most recent) agreement
-    return get(response, 'agreementEligibility') ? get(response, 'agreementEligibility') : null;
+    return get(response, `${networkPrefix}_agreementEligibility`)
+      ? get(response, `${networkPrefix}_agreementEligibility`)
+      : null;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching ancillary modules:', error);

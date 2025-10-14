@@ -241,7 +241,7 @@ const ModuleAuthorityToolbar = ({
         )}
         {(!isEmpty(otherFunctions) || !isEmpty(otherLinks)) && (
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
               <Button variant='outline-blue' size='sm' className='text-sm'>
                 More
                 <FaEllipsisV className='text-functional-link-primary ml-1 size-2' />

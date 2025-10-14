@@ -1,20 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { gql } from 'graphql-request';
 import { get, map, toLower } from 'lodash';
 import { HatAuthorityResponse, SupportedChains } from 'types';
-import { ancillarySubgraphClient } from 'utils';
-
-const ALLOWLIST_QUERY = gql`
-  query GetModuleAuthorities($id: ID!) {
-    allowListEligibility(id: $id) {
-      eligibilityData {
-        address
-        eligible
-        badStanding
-      }
-    }
-  }
-`;
+import { createMeshClient, getAllowlistEligibilityQuery, NETWORKS_PREFIX } from 'utils';
 
 interface RawAllowlist {
   address: string;
@@ -26,11 +13,13 @@ const fetchAllowlist = async ({ id, chainId }: { id: string | undefined; chainId
   if (!id || !chainId) return null;
 
   try {
-    const client = ancillarySubgraphClient(chainId);
-    if (!client) return null;
-    const response = await client.request<HatAuthorityResponse>(ALLOWLIST_QUERY, { id: toLower(id) });
+    const client = createMeshClient();
+    const query = getAllowlistEligibilityQuery(chainId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await client.request(query, { id: toLower(id) });
 
-    const result = get(response, 'allowListEligibility.eligibilityData') as RawAllowlist[] | undefined;
+    const networkPrefix = NETWORKS_PREFIX[chainId];
+    const result = get(response, `${networkPrefix}_allowListEligibility.eligibilityData`) as RawAllowlist[] | undefined;
 
     if (!result) return null;
 

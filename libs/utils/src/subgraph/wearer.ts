@@ -8,7 +8,9 @@ import { Hex } from 'viem';
 
 import { checkAddressIsContract } from '../contract';
 import { logger } from '../logs';
-import { createSubgraphClient, viemPublicClient } from '../web3';
+import { viemPublicClient } from '../web3';
+import { createMeshClient } from '../mesh/helpers';
+import { getPaginatedWearersForHatQuery, NETWORKS_PREFIX } from './mesh/queries';
 import { parseMetadata } from './mesh/fetch/utils';
 import { fetchWearerDetailsMesh } from './mesh/fetch/wearer';
 
@@ -42,54 +44,8 @@ export const fetchManyWearerDetails = async (wearerIds: Hex[], chainId: number):
   });
 };
 
-// TODO migrate to use Mesh API
 export const fetchWearerDetails = async (address: Hex | string | undefined, chainId: number | undefined) => {
-  const subgraphClient = createSubgraphClient();
-  if (!address || !chainId) return undefined;
-
-  let res: Wearer | undefined;
-  try {
-    res = await subgraphClient.getWearer({
-      chainId,
-      wearerAddress: address as Hex,
-      props: {
-        currentHats: {
-          props: {
-            prettyId: true,
-            status: true,
-            createdAt: true,
-            details: true,
-            maxSupply: true,
-            eligibility: true,
-            toggle: true,
-            mutable: true,
-            imageUri: true,
-            levelAtLocalTree: true,
-            claimableBy: { props: {} },
-            claimableForBy: { props: {} },
-            currentSupply: true,
-            tree: {},
-            wearers: { props: {} },
-            admin: {},
-            events: {
-              props: { timestamp: true, transactionID: true },
-            },
-          },
-          filters: {
-            first: 1000,
-          },
-        },
-      },
-    });
-  } catch (err) {
-    logger.error('Error fetching wearer details', err);
-    return undefined;
-  }
-
-  return {
-    ...res,
-    currentHats: mapWithChainId(res.currentHats, chainId),
-  };
+  return fetchWearerDetailsMesh(address, chainId);
 };
 
 export const fetchWearerDetailsForChain = async (address: string | undefined, chainId: number) => {
@@ -122,17 +78,20 @@ export const fetchWearerDetailsForAllChains = async (address: string | undefined
 };
 
 export const fetchPaginatedWearersForHat = async (hatId: string, chainId: number, page = 0) => {
-  const subgraphClient = createSubgraphClient();
+  const client = createMeshClient();
+  const query = getPaginatedWearersForHatQuery(chainId);
 
-  const res = await subgraphClient.getWearersOfHatPaginated({
-    chainId,
-    hatId: BigInt(hatId),
-    props: {},
-    page,
-    perPage: wearersPerPage,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const res: any = await client.request(query, {
+    hatId,
+    first: wearersPerPage,
+    skip: page * wearersPerPage,
   });
 
-  const wearersWithDetails = await fetchManyWearerDetails(map(res, 'id') as Hex[], chainId);
+  const networkPrefix = NETWORKS_PREFIX[chainId];
+  const wearers = get(res, `${networkPrefix}_hat.wearers`, []);
+
+  const wearersWithDetails = await fetchManyWearerDetails(map(wearers, 'id') as Hex[], chainId);
 
   return wearersWithDetails;
 };
