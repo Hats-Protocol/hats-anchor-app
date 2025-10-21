@@ -28,7 +28,7 @@ const useHatDetailsField = (
       const result = await fetchDetailsIpfs(detailsField);
       return result;
     },
-    enabled: !!detailsField && isIpfs,
+    enabled: !!detailsField,
     staleTime: editMode ? Infinity : 1000 * 60 * 15, // 15 minutes
   });
 

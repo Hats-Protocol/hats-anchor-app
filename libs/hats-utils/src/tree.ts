@@ -145,9 +145,23 @@ export async function toTreeStructure({
 
     if (!fullHat) return undefined;
 
+    // Handle detailsObject: prefer detailsMetadata, fallback to plain text details
+    let detailsObject;
+    if (fullHat?.detailsMetadata) {
+      detailsObject = JSON.parse(fullHat.detailsMetadata);
+    } else if (fullHat?.details && !fullHat.details.startsWith('ipfs://')) {
+      // Plain text details
+      detailsObject = {
+        type: 'text',
+        data: { name: fullHat.details },
+      };
+    } else {
+      detailsObject = {};
+    }
+
     return {
       ...fullHat,
-      detailsObject: JSON.parse(fullHat?.detailsMetadata || '{}'),
+      detailsObject,
       imageUrl: ipfsUrl(fullHat?.nearestImage),
       nearestImageUrl: fullHat?.nearestImage, // TODO migrate to nearestImageUrl to avoid confusion with existing usage of imageUrl and icon.jpeg fallbacks
     };
