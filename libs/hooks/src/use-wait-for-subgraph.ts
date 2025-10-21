@@ -49,6 +49,7 @@ const useWaitForSubgraph = ({
             }
 
             clearInterval(intervalId);
+            clearTimeout(timeoutId);
 
             toast({
               title: 'Subgraph updated!',
@@ -64,6 +65,7 @@ const useWaitForSubgraph = ({
               variant: 'destructive',
             });
             clearInterval(intervalId);
+            clearTimeout(timeoutId);
             return reject(e);
           });
       };
@@ -77,7 +79,7 @@ const useWaitForSubgraph = ({
         });
       }
 
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         clearInterval(intervalId);
 
         const timeoutMessage = `Subgraph wait timeout - waiting for block ${blockNumber}${lastSeenSubgraphBlock ? `, last seen block ${lastSeenSubgraphBlock}` : ''}`;

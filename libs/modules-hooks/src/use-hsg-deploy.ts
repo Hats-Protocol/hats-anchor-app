@@ -4,9 +4,9 @@ import { first, get, map, size } from 'lodash';
 import { useCallback, useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { HandlePendingTx } from 'types';
-import { createHatsSignerGateClient, wagmiConfig } from 'utils';
+import { createHatsSignerGateClient } from 'utils';
 import { Hex, maxUint256 } from 'viem';
-import { getWalletClient } from 'wagmi/actions';
+import { useAccount, useWalletClient } from 'wagmi';
 
 // type DeployType = 'hsgAndSafe' | 'mhsgAndSafe' | 'hsg' | 'mhsg';
 
@@ -18,6 +18,8 @@ const DEPLOY_TYPE = {
 };
 
 const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onError }: UseHsgDeployProps) => {
+  const { isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient({ chainId });
   const waitForSubgraph = useWaitForSubgraph({ chainId });
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -119,34 +121,57 @@ const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onErr
   // DEPLOY FUNCTIONS
 
   const deployHsgAndSafe = useCallback(async () => {
-    const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig());
-
-    if (!client || !walletClient?.account) {
-      // eslint-disable-next-line no-console
-      console.log('No client or account found');
+    if (!isConnected || !walletClient?.account) {
+      toast({
+        title: 'Wallet not connected',
+        description: 'Please connect your wallet to continue',
+        variant: 'destructive',
+      });
+      onError();
       return;
     }
 
-    return client
-      .deployHatsSignerGateAndSafe({
-        account: walletClient.account,
-        ownerHatId,
-        signersHatId: first(signersHatIds) as bigint,
-        ...thresholds,
-        maxSigners,
-      })
-      .then((result) => {
-        handlePendingTx?.({
-          hash: result.transactionHash as Hex,
-          txChainId: chainId,
-          txDescription: 'Deployed Hats Signer Gate and Safe', // TODO add for hat, et al
-          waitForSubgraph,
-          onSuccess,
+    try {
+      const client = await createHatsSignerGateClient(chainId, walletClient);
+
+      if (!client) {
+        // eslint-disable-next-line no-console
+        console.log('No client found');
+        toast({
+          title: 'Error',
+          description: 'Failed to create HSG client',
+          variant: 'destructive',
         });
-      })
-      .catch(handleError);
+        onError();
+        return;
+      }
+
+      return client
+        .deployHatsSignerGateAndSafe({
+          account: walletClient.account,
+          ownerHatId,
+          signersHatId: first(signersHatIds) as bigint,
+          ...thresholds,
+          maxSigners,
+        })
+        .then((result) => {
+          handlePendingTx?.({
+            hash: result.transactionHash as Hex,
+            txChainId: chainId,
+            txDescription: 'Deployed Hats Signer Gate and Safe',
+            waitForSubgraph,
+            onSuccess,
+          });
+        })
+        .catch(handleError);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error in deployHsgAndSafe', error);
+      handleError(error as Error);
+    }
   }, [
+    isConnected,
+    walletClient,
     chainId,
     ownerHatId,
     signersHatIds,
@@ -156,38 +181,63 @@ const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onErr
     waitForSubgraph,
     onSuccess,
     handleError,
+    toast,
+    onError,
   ]);
 
   const deployHsgOnly = useCallback(async () => {
-    const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig());
-
-    if (!client || !walletClient?.account) {
-      // eslint-disable-next-line no-console
-      console.log('No client or address found');
+    if (!isConnected || !walletClient?.account) {
+      toast({
+        title: 'Wallet not connected',
+        description: 'Please connect your wallet to continue',
+        variant: 'destructive',
+      });
+      onError();
       return;
     }
 
-    return client
-      .deployHatsSignerGate({
-        account: walletClient.account,
-        ownerHatId,
-        signersHatId: first(signersHatIds) as bigint,
-        ...thresholds,
-        maxSigners,
-        safe: safeAddress,
-      })
-      .then((result) => {
-        handlePendingTx?.({
-          hash: result.transactionHash as Hex,
-          txChainId: chainId,
-          txDescription: 'Deployed Hats Signer Gate', // TODO add for hat, et al
-          waitForSubgraph,
-          onSuccess,
+    try {
+      const client = await createHatsSignerGateClient(chainId, walletClient);
+
+      if (!client) {
+        // eslint-disable-next-line no-console
+        console.log('No client found');
+        toast({
+          title: 'Error',
+          description: 'Failed to create HSG client',
+          variant: 'destructive',
         });
-      })
-      .catch(handleError);
+        onError();
+        return;
+      }
+
+      return client
+        .deployHatsSignerGate({
+          account: walletClient.account,
+          ownerHatId,
+          signersHatId: first(signersHatIds) as bigint,
+          ...thresholds,
+          maxSigners,
+          safe: safeAddress,
+        })
+        .then((result) => {
+          handlePendingTx?.({
+            hash: result.transactionHash as Hex,
+            txChainId: chainId,
+            txDescription: 'Deployed Hats Signer Gate',
+            waitForSubgraph,
+            onSuccess,
+          });
+        })
+        .catch(handleError);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error in deployHsgOnly', error);
+      handleError(error as Error);
+    }
   }, [
+    isConnected,
+    walletClient,
     chainId,
     ownerHatId,
     signersHatIds,
@@ -198,36 +248,62 @@ const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onErr
     onSuccess,
     safeAddress,
     handleError,
+    toast,
+    onError,
   ]);
 
   const deployMhsgAndSafe = useCallback(async () => {
-    const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig());
-
-    if (!client || !walletClient?.account) {
-      // eslint-disable-next-line no-console
-      console.log('No client or address found');
+    if (!isConnected || !walletClient?.account) {
+      toast({
+        title: 'Wallet not connected',
+        description: 'Please connect your wallet to continue',
+        variant: 'destructive',
+      });
+      onError();
       return;
     }
-    return client
-      .deployMultiHatsSignerGateAndSafe({
-        account: walletClient.account,
-        ownerHatId,
-        signersHatIds,
-        ...thresholds,
-        maxSigners,
-      })
-      .then((result) => {
-        handlePendingTx?.({
-          hash: result.transactionHash as Hex,
-          txChainId: chainId,
-          txDescription: 'Deployed Multi-Hats Signer Gate and Safe', // TODO add for hat, et al
-          waitForSubgraph,
-          onSuccess,
+
+    try {
+      const client = await createHatsSignerGateClient(chainId, walletClient);
+
+      if (!client) {
+        // eslint-disable-next-line no-console
+        console.log('No client found');
+        toast({
+          title: 'Error',
+          description: 'Failed to create HSG client',
+          variant: 'destructive',
         });
-      })
-      .catch(handleError);
+        onError();
+        return;
+      }
+
+      return client
+        .deployMultiHatsSignerGateAndSafe({
+          account: walletClient.account,
+          ownerHatId,
+          signersHatIds,
+          ...thresholds,
+          maxSigners,
+        })
+        .then((result) => {
+          handlePendingTx?.({
+            hash: result.transactionHash as Hex,
+            txChainId: chainId,
+            txDescription: 'Deployed Multi-Hats Signer Gate and Safe',
+            waitForSubgraph,
+            onSuccess,
+          });
+        })
+        .catch(handleError);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error in deployMhsgAndSafe', error);
+      handleError(error as Error);
+    }
   }, [
+    isConnected,
+    walletClient,
     chainId,
     ownerHatId,
     signersHatIds,
@@ -237,37 +313,63 @@ const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onErr
     waitForSubgraph,
     onSuccess,
     handleError,
+    toast,
+    onError,
   ]);
 
   const deployMhsgOnly = useCallback(async () => {
-    const client = await createHatsSignerGateClient(chainId);
-    const walletClient = await getWalletClient(wagmiConfig());
-
-    if (!client || !walletClient?.account) {
-      // eslint-disable-next-line no-console
-      console.log('No client or address found');
+    if (!isConnected || !walletClient?.account) {
+      toast({
+        title: 'Wallet not connected',
+        description: 'Please connect your wallet to continue',
+        variant: 'destructive',
+      });
+      onError();
       return;
     }
-    return client
-      .deployMultiHatsSignerGate({
-        account: walletClient.account,
-        ownerHatId,
-        signersHatIds,
-        ...thresholds,
-        maxSigners,
-        safe: safeAddress,
-      })
-      .then((result) => {
-        handlePendingTx?.({
-          hash: result.transactionHash as Hex,
-          txChainId: chainId,
-          txDescription: 'Deployed Multi-Hats Signer Gate', // TODO add for hat, et al
-          waitForSubgraph,
-          onSuccess,
+
+    try {
+      const client = await createHatsSignerGateClient(chainId, walletClient);
+
+      if (!client) {
+        // eslint-disable-next-line no-console
+        console.log('No client found');
+        toast({
+          title: 'Error',
+          description: 'Failed to create HSG client',
+          variant: 'destructive',
         });
-      })
-      .catch(handleError);
+        onError();
+        return;
+      }
+
+      return client
+        .deployMultiHatsSignerGate({
+          account: walletClient.account,
+          ownerHatId,
+          signersHatIds,
+          ...thresholds,
+          maxSigners,
+          safe: safeAddress,
+        })
+        .then((result) => {
+          handlePendingTx?.({
+            hash: result.transactionHash as Hex,
+            txChainId: chainId,
+            txDescription: 'Deployed Multi-Hats Signer Gate',
+            waitForSubgraph,
+            onSuccess,
+          });
+        })
+        .catch(handleError);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Error in deployMhsgOnly', error);
+      handleError(error as Error);
+    }
   }, [
+    isConnected,
+    walletClient,
     chainId,
     ownerHatId,
     signersHatIds,
@@ -278,6 +380,8 @@ const useHsgDeploy = ({ chainId, afterSuccess, localForm, handlePendingTx, onErr
     onSuccess,
     safeAddress,
     handleError,
+    toast,
+    onError,
   ]);
 
   const deployHsg = async () => {
