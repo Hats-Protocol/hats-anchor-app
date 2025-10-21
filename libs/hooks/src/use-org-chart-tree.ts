@@ -24,11 +24,26 @@ const useOrgChartTree = ({
   const [hatsHashes, setHatsHashes] = useState<unknown[]>();
 
   const localHatsData = map(hatsData, (hat) => {
-    if (get(hat, 'detailsMetadata') === null) return hat;
+    const detailsMetadata = get(hat, 'detailsMetadata');
+
+    // If no detailsMetadata, try to create one from plain text details field
+    if (!detailsMetadata || detailsMetadata === null) {
+      const plainDetails = get(hat, 'details');
+      if (plainDetails && !plainDetails.startsWith('ipfs://')) {
+        return {
+          ...hat,
+          detailsObject: {
+            type: 'text',
+            data: { name: plainDetails },
+          },
+        };
+      }
+      return hat;
+    }
 
     return {
       ...hat,
-      detailsObject: JSON.parse(get(hat, 'detailsMetadata') as string),
+      detailsObject: JSON.parse(detailsMetadata as string),
     };
   });
 

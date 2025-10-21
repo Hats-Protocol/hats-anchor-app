@@ -155,6 +155,12 @@ export const urlToIpfsUri = (url: string) => {
 
 export const fetchDetailsIpfs = async (detailsField: string | undefined) => {
   if (!detailsField) return null;
+
+  // If details field is plain text (not IPFS), return it directly
+  if (!detailsField.startsWith('ipfs://')) {
+    return { details: detailsField, data: detailsField };
+  }
+
   const url = ipfsUrl(detailsField?.slice(7));
   if (!url) return null;
 

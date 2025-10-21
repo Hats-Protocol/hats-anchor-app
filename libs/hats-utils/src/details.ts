@@ -20,6 +20,13 @@ export const handleNestedDetails = (data: unknown): DetailsData | undefined => {
     detailsData = get(data, 'data.data');
   } else if (includesKeys(get(data, 'data.data.data'), ['data', 'type'])) {
     detailsData = get(data, 'data.data.data');
+  } else if (typeof get(data, 'data') === 'string') {
+    // Handle plain text details field
+    const plainText = get(data, 'data') as unknown as string;
+    detailsData = {
+      type: 'text',
+      data: { name: plainText } as HatDetails,
+    };
   }
   return detailsData;
 };

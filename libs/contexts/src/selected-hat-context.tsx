@@ -81,7 +81,14 @@ const SelectedHatContextContent = ({ children }: { children: ReactNode }) => {
   const selectedHat = useMemo(() => {
     return find(orgChartTree, { id: hatId });
   }, [orgChartTree, hatId]) as AppHat | undefined;
-  const selectedHatDetails = useMemo(() => get(selectedHat, 'detailsObject.data'), [selectedHat]);
+  const selectedHatDetails = useMemo(() => {
+    const details = get(selectedHat, 'detailsObject.data');
+    // Fallback to plain text details if detailsObject.data is not available
+    if (!details && selectedHat?.details && !selectedHat.details.startsWith('ipfs://')) {
+      return { name: selectedHat.details };
+    }
+    return details;
+  }, [selectedHat]);
   const isDraft = useMemo(() => !includes(map(onchainHats, 'id'), selectedHat?.id), [onchainHats, selectedHat]);
   const hatNotInTree = useMemo(() => !includes(map(orgChartTree, 'id'), selectedHat?.id), [orgChartTree, selectedHat]);
 
