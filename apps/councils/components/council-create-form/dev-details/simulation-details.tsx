@@ -6,7 +6,6 @@ import { useCouncilForm } from 'contexts';
 import { useSimulateTransaction } from 'hooks';
 import { compact, get, pick } from 'lodash';
 import { DevInfo } from 'molecules';
-import posthog from 'posthog-js';
 import { BaseTextarea, Button, Link } from 'ui';
 import { explorerUrl, formatAddress } from 'utils';
 import { zeroAddress } from 'viem';
@@ -142,7 +141,7 @@ export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) 
     tree,
   } = useCouncilForm();
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const isDev = false || process.env.NODE_ENV === 'development';
 
   if (!isDev || !chainId) return null;
 

@@ -5,7 +5,6 @@ import { hatIdDecimalToIp, hatIdHexToDecimal, hatIdToTreeId } from '@hatsprotoco
 import { useToast } from 'hooks';
 import { CopyAddress } from 'icons';
 import { get, map } from 'lodash';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { AppHat, SupportedChains } from 'types';
 import { Button, Link } from 'ui';
@@ -34,7 +33,7 @@ const HatDevDetails = ({
     return hatIdDecimalToIp(hatIdHexToDecimal(selectedHat.id));
   }, [selectedHat]);
 
-  const isDev = posthog.isFeatureEnabled('dev'); // || process.env.NODE_ENV !== 'production';
+  const isDev = false; // || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

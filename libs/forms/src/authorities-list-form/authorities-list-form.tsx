@@ -4,7 +4,6 @@ import { Modal, useHatForm, useOverlay, useSelectedHat, useTreeForm } from 'cont
 import { Safe } from 'icons';
 import { get, pick, some } from 'lodash';
 import Link from 'next/link';
-import posthog from 'posthog-js';
 import { ReactNode, useState } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { IconType } from 'react-icons';
@@ -68,7 +67,7 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
     setModals?.({ 'authorities-edit': true });
   };
 
-  const hsgEnabled = posthog.isFeatureEnabled('hsg-deploy') || process.env.NODE_ENV !== 'production';
+  const hsgEnabled = false || process.env.NODE_ENV !== 'production';
 
   if (!localForm || !hatForm) return null;
 

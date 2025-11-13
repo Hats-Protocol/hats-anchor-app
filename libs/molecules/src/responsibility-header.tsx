@@ -2,7 +2,6 @@
 
 import { useMediaStyles } from 'hooks';
 import { pick } from 'lodash';
-import posthog from 'posthog-js';
 import { BsBoxArrowUpRight, BsCheck2Square } from 'react-icons/bs';
 import { Authority } from 'types';
 import { Button, cn, Link, Tooltip } from 'ui';
@@ -52,17 +51,7 @@ const ResponsibilityHeader = ({
       </div>
       {!isMobile && (currentLink || link) && (
         // TODO convert to text
-        <Link
-          href={currentLink || link || ''}
-          isExternal
-          onClick={() => {
-            posthog.capture('Clicked Responsibility Link', {
-              responsibility: label,
-              link: currentLink || link,
-              label: hostname,
-            });
-          }}
-        >
+        <Link href={currentLink || link || ''} isExternal onClick={() => {}}>
           <Tooltip label={hostname}>
             <Button
               variant='link'

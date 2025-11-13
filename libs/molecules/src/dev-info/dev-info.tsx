@@ -1,5 +1,4 @@
 import { isEmpty, map } from 'lodash';
-import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { cn } from 'ui';
@@ -15,7 +14,7 @@ export interface DevInfoUnit {
 }
 
 export const DevInfo = ({ title, devInfos }: DevInfoProps) => {
-  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const devFlag = false || process.env.NODE_ENV !== 'production';
 
   if (!devInfos || isEmpty(devInfos) || !devFlag) return null;
 

@@ -5,7 +5,6 @@ import { useAdminOfHats, useMulticallManyHats } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import { filter, includes, map, some } from 'lodash';
 import { NetworkSwitcher } from 'molecules';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsChevronDoubleRight, BsXSquare } from 'react-icons/bs';
 import { IoExitOutline } from 'react-icons/io5';
@@ -78,10 +77,6 @@ const TopMenu = () => {
   };
 
   const confirmReset = () => {
-    posthog.capture('Reset Tree Changes', {
-      tree_id: treeId,
-      chain_id: chainId,
-    });
     resetTree?.();
     setModals?.({});
   };

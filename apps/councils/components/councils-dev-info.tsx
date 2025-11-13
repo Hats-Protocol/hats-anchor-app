@@ -13,7 +13,6 @@ import { useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useToast 
 import { compact, get, map, reduce, size, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
 import { DevInfo } from 'molecules';
-import { posthog } from 'posthog-js';
 import { useMemo } from 'react';
 import { SupportedChains } from 'types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn, Link, Skeleton, Switch } from 'ui';
@@ -206,7 +205,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     );
   }, [safeSigners, chainId]);
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   if (!chainId || !isDev) return null;
 

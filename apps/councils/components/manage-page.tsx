@@ -10,7 +10,6 @@ import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { concat, filter, find, flatten, get, includes, map, reduce, reject, size, toLower, toNumber } from 'lodash';
 import { useEligibilityRules } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { useState } from 'react';
 import { idToIp } from 'shared';
 import { CouncilMember, EligibilityRule, OffchainCouncilData, SupportedChains } from 'types';
@@ -336,19 +335,12 @@ export const ManagePage = ({ slug }: { slug: string }) => {
         //   `New council manager added: ${tgFormatAddress(user.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
         // );
 
-        posthog.capture('Added Council Manager', {
-          councilId: offchainCouncilDetails?.id,
-          chainId,
-          type: 'admin',
-          userAddress: user.address,
-        });
-
         setModals?.({});
       },
     });
   };
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   return (
     <div className='mx-auto flex gap-20 px-4 pt-10 lg:max-w-[1000px]'>

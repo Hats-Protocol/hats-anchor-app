@@ -7,7 +7,6 @@ import { translateDrafts } from 'hats-utils';
 import { useLocalStorage, useOrgChartTree, useSelectedHatDisclosure, useTreeSnapshotSpaces } from 'hooks';
 import _, { toNumber } from 'lodash';
 import { usePathname, useSearchParams } from 'next/navigation';
-import posthog from 'posthog-js';
 import {
   createContext,
   Dispatch,
@@ -508,11 +507,6 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
       setOrgChartHats(_.concat(onchainHats, drafts));
     }
     if (!hatId) {
-      posthog.capture('Opened Tree Drawer', {
-        chain_id: chainId,
-        tree_id: treeId,
-        edit_mode: true,
-      });
       onOpenTreeDrawer?.();
     }
     const url = urlFromQueryParams({

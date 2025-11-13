@@ -22,7 +22,6 @@
     "@tanstack/react-query": "^5.81.5",
     "graphql-request": "^7.1.2",
     "lodash": "^4.17.21",
-    "posthog-js": "1.285.1",
     "react-hook-form": "^7.54.2",
     "viem": "2.31.7",
     "wagmi": "^2.15.0"

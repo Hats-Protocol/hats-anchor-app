@@ -4,7 +4,6 @@ import { useEligibility, useOverlay } from 'contexts';
 import { useCouncilDetails, useSafeDetails, useWaitForSubgraph } from 'hooks';
 import { filter, find, flatten, get, includes, keys, mapValues, size } from 'lodash';
 import { useClaimFn } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppHat, LabeledModules, ModuleDetails, SupportedChains } from 'types';
@@ -119,7 +118,6 @@ export const ModuleChainClaimHeader = ({
         setIsVerifyLoading(false);
       }, 1000);
 
-      posthog.capture('Claimed Hat', {
         chainId,
         councilAddress: hsgAddress,
         hatId: selectedHat?.id,
@@ -179,7 +177,6 @@ export const ModuleChainClaimHeader = ({
         queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
 
         setIsClaimLoading(false);
-        posthog.capture('Claimed Signer', {
           chainId,
           councilAddress: hsgAddress,
           wearerAddress: address,

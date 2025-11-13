@@ -8,7 +8,6 @@ import { useHatDetails } from 'hats-hooks';
 import { useAuthGuard, useCouncilDetails, useOffchainCouncilDetails } from 'hooks';
 import { filter, find, first, flatten, get, includes, isEmpty, map, pick, split, toLower } from 'lodash';
 import { useAllowlist, useCallModuleFunction, useEligibilityRules, useErc20Details } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { useState } from 'react';
 import { AppHat, CouncilMember, EligibilityRule, ModuleFunction, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, Skeleton, Tooltip } from 'ui';
@@ -133,7 +132,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   useAuthGuard();
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   // support selected module or only module
   const allowlistModule = offchainCouncilData?.membersSelectionModule || get(primarySignerHat, 'eligibility');
@@ -185,13 +184,6 @@ const MembersPage = ({ slug }: { slug: string }) => {
         setModals?.({});
         queryClient.invalidateQueries({ queryKey: ['offchainCouncilData'] });
         queryClient.invalidateQueries({ queryKey: ['allowlistDetails'] });
-
-        posthog.capture('Added Council User', {
-          councilId: offchainCouncilData?.id,
-          chainId,
-          type: 'member',
-          userAddress: user?.address,
-        });
       },
     });
   };

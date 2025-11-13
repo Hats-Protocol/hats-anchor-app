@@ -10,7 +10,6 @@ import { useClipboard, useToast } from 'hooks';
 import { compact, concat, find, get, map, toLower, uniq } from 'lodash';
 import { useHatsModules, useMultiClaimsHatterCheck } from 'modules-hooks';
 import { HatFormAccordion } from 'molecules';
-import posthog from 'posthog-js';
 import { useState } from 'react';
 import { BsKey, BsListUl } from 'react-icons/bs';
 import { FaCopy } from 'react-icons/fa';
@@ -51,7 +50,7 @@ const EditMode = () => {
     setDrawers?.({ [toLower(type) || 'eligibility']: true });
   };
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   const migrateMchV2 = async () => {
     const mchModule = find(modules, { implementationAddress: CONFIG.modules.claimsHatterV2 });

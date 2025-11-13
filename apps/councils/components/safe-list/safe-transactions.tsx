@@ -9,7 +9,6 @@ import {
   useTokenDetails,
 } from 'hooks';
 import { get, includes, isEmpty, map, reject, toLower } from 'lodash';
-import posthog from 'posthog-js';
 import React from 'react';
 import { BsArrowDownLeftCircle, BsArrowUpRightCircle } from 'react-icons/bs';
 import { MemberAvatar, Skeleton } from 'ui';
@@ -235,7 +234,7 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
   });
   const { data: approvedTokens, isLoading: approvedTokensLoading } = useApprovedTokens();
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

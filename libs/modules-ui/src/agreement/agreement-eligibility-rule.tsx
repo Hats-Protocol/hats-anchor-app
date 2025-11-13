@@ -7,7 +7,6 @@ import { useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { flatten, get, size } from 'lodash';
 import { useCurrentEligibility } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { Button, Link } from 'ui';
@@ -67,7 +66,7 @@ export const AgreementEligibilityRule = ({
     modalName += modalSuffix;
   }
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV !== 'production';
+  const eligibilityModalFlag = false || process.env.NODE_ENV !== 'production';
 
   if (!moduleDetails?.instanceAddress) return null;
 

@@ -6,7 +6,6 @@ import { safeUrl } from 'hats-utils';
 import { useToast } from 'hooks';
 import { compact, find, get, isEmpty, map, size } from 'lodash';
 import { ExternalLink } from 'lucide-react';
-import { posthog } from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
@@ -187,7 +186,7 @@ const MailForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offchainCouncilDetails, councilDetails]);
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

@@ -3,7 +3,6 @@
 import { MAIL_FORMS } from '@hatsprotocol/config';
 import { Form, Input } from 'forms';
 import { map } from 'lodash';
-import { posthog } from 'posthog-js';
 import { useForm } from 'react-hook-form';
 
 import { MailForm } from './mail-form';
@@ -16,7 +15,7 @@ interface MailFormsData {
 const MailForms = () => {
   const localForm = useForm<MailFormsData>();
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

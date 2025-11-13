@@ -2,7 +2,6 @@
 
 import { useCouncilForm } from 'contexts';
 import { useRouter } from 'next/navigation';
-import posthog from 'posthog-js';
 import type { StepValidation } from 'types';
 import { logger } from 'utils';
 
@@ -67,7 +66,6 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
       } else {
         router.push(`/councils/new/${nextStep.step}?draftId=${draftId}`);
       }
-      posthog.capture('Advanced Council Form', {
         step,
         subStep,
       });

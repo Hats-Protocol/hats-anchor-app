@@ -7,7 +7,6 @@ import { useMulticallCallData } from 'hats-hooks';
 import { editHasUpdates } from 'hats-utils';
 import { useClipboard, useSimulateTransaction } from 'hooks';
 import { get, isEmpty, keys, map } from 'lodash';
-import posthog from 'posthog-js';
 import { useCallback } from 'react';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { FiCopy } from 'react-icons/fi';
@@ -69,11 +68,10 @@ const BottomMenu = ({
   });
 
   const openCalldataMenu = () => {
-    posthog.capture('Opened Transaction Calldata Menu');
     setAccordionIndex(isExpanded ? [] : ['bottom-menu']);
   };
 
-  const enableSimulation = posthog.isFeatureEnabled('simulation') || process.env.NODE_ENV !== 'production';
+  const enableSimulation = false || process.env.NODE_ENV !== 'production';
 
   const handleSimulateTopHat = useCallback(() => {
     if (!topHatWearer) return;
@@ -86,7 +84,7 @@ const BottomMenu = ({
     handleSimulate(address);
   }, [handleSimulate, address]);
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
   logger.debug('tree drawer bottom menu', { allCalls });
 
   return (

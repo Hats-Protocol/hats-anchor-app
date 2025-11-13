@@ -3,7 +3,6 @@
 import { useOverlay } from 'contexts';
 import { find, pick } from 'lodash';
 import { useStakingDetails } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { Button } from 'ui';
 import { ModuleDetailsHandler } from 'utils';
@@ -42,7 +41,7 @@ export const StakingEligibilityRule = ({
   const isEligible = stakeBalance && stakeBalance >= (amountParam?.value as bigint);
 
   const eligibilityModalFlag =
-    posthog.isFeatureEnabled('staking-eligibility-modal') || process.env.NODE_ENV !== 'production';
+    false || process.env.NODE_ENV !== 'production';
 
   if (!moduleDetails) return null;
 

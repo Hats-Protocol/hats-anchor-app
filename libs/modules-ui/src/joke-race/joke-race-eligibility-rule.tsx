@@ -4,7 +4,6 @@ import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { get, includes, toLower, toNumber } from 'lodash';
 import { useJokeRace } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { Button, Link } from 'ui';
@@ -42,7 +41,7 @@ export const JokeRaceEligibilityRule = ({
   });
   const isEligible = includes(get(wearerStatus, 'eligibleWearers'), wearer);
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV !== 'production';
+  const eligibilityModalFlag = false || process.env.NODE_ENV !== 'production';
 
   // TODO fetch contest from JokeRace subgraph
   if (!moduleDetails) return null;

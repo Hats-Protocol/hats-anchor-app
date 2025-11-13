@@ -4,7 +4,6 @@ import { hatIdDecimalToHex, hatIdDecimalToIp } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { filter, find, flatten, get, includes, isEmpty, map, pick, split, toLower } from 'lodash';
 import { useAllowlist, useEligibilityRules, useErc20Details, useHatWearingEligibility } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { AppHat, CouncilMember, EligibilityRule, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Link } from 'ui';
 import { eligibilityRuleToModuleDetails, formatAddress, getKnownEligibilityModule, hatLink } from 'utils';
@@ -131,7 +130,7 @@ const RoleTable = ({
     chainId,
   });
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   // Get hat wearers for this specific role
   const hatWearers = hatData?.wearers || [];

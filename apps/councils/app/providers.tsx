@@ -15,7 +15,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { OverlayContextProvider } from 'contexts';
 import { values } from 'lodash';
 import { Toaster } from 'molecules';
-import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { privyConfig } from 'utils';
 
@@ -30,27 +29,10 @@ declare global {
   }
 }
 
-const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-if (!POSTHOG_KEY) {
-  throw new Error('POSTHOG_KEY is required');
-}
 // const INTERCOM_APP_ID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID;
 // if (!INTERCOM_APP_ID) {
 //   throw new Error('INTERCOM_APP_ID is required');
 // }
-
-// Check that PostHog is client-side (used to handle Next.js SSR)
-if (typeof window !== 'undefined') {
-  posthog.init(POSTHOG_KEY, {
-    api_host: '/ingest', // || 'https://app.posthog.com',
-    // Enable debug mode in development
-    // loaded: (p: { debug: () => void }) => {
-    loaded: () => {
-      // if (process.env.NODE_ENV === 'development') p.debug();
-    },
-    ui_host: 'https://app.posthog.com',
-  });
-}
 
 const queryClient = new QueryClient({
   defaultOptions: {

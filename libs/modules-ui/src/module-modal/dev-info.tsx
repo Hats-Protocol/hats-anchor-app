@@ -1,5 +1,4 @@
 import { isEmpty, map } from 'lodash';
-import posthog from 'posthog-js';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { Hex } from 'viem';
@@ -15,7 +14,7 @@ interface ModuleDescriptor {
 }
 
 export const DevInfo = ({ moduleDescriptors }: DevInfoProps) => {
-  const devFlag = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const devFlag = false || process.env.NODE_ENV !== 'production';
 
   if (!moduleDescriptors || isEmpty(moduleDescriptors) || !devFlag) return null;
 

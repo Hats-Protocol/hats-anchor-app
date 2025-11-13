@@ -11,7 +11,6 @@ import { anchorHatUrl, safeUrl } from 'hats-utils';
 import { BoxArrowUpRightOut } from 'icons';
 import { capitalize, filter, find, forEach, get, includes, isEmpty, map, size } from 'lodash';
 import { useCallHsgFunction, useCallModuleFunction, useHsgSigner } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { useMemo, useState } from 'react';
 import { IconType } from 'react-icons';
 import { FaEllipsisV, FaExternalLinkAlt } from 'react-icons/fa';
@@ -181,15 +180,10 @@ const ModuleAuthorityToolbar = ({
 
   if (!authority || !isExpanded) return null;
 
-  const trackSafeClick = () => {
-    posthog.capture('Viewed Safe', {
-      chain_id: chainId,
-      safe: authority.hsgConfig?.safe,
-    });
-  };
+  const trackSafeClick = () => {};
 
   const eligibilityModalFlag = false;
-  // posthog.isFeatureEnabled('eligibility-modal') ||
+  // false ||
   // process.env.NODE_ENV === 'development';
   const isMultiSigner = size(authority.hsgConfig?.signerHats) > 1;
 
@@ -213,11 +207,6 @@ const ModuleAuthorityToolbar = ({
             size='sm'
             className='text-sm'
             onClick={() => {
-              posthog.capture('Called Module Function', {
-                type: 'Primary',
-                function: primaryFunction.label,
-                authority: authority.label,
-              });
               handleFunctionCall(primaryFunction);
             }}
           >
@@ -263,11 +252,6 @@ const ModuleAuthorityToolbar = ({
                   <Tooltip label={localDisabledReason} key={`${func.label}-${i}`}>
                     <DropdownMenuItem
                       onClick={() => {
-                        posthog.capture('Called Module Function', {
-                          type: 'Other',
-                          function: func.label,
-                          authority: authority.label,
-                        });
                         if (func.isCustom) func.onClick();
                         else handleFunctionCall(func);
                       }}

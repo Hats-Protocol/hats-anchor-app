@@ -8,7 +8,6 @@ import { currentHsgThreshold } from 'hats-utils';
 import { useMediaStyles, useSafeDetails } from 'hooks';
 import { BoxArrowUpRightOut } from 'icons';
 import { find, get, includes, join, keys, map, pick, reject, toLower } from 'lodash';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Authority, HatWearer } from 'types';
 import { cn, IconHandler, Link, Tooltip } from 'ui';
@@ -152,13 +151,7 @@ const AuthorityHeader = ({ authority, editingItem, isExpanded, totalMaxSupply }:
           isExternal
           href={localLink}
           className='block'
-          onClick={() => {
-            posthog.capture('Clicked Authority Link', {
-              authority: label,
-              link: localLink,
-              label: getHostnameLabel(getHostnameFromURL(localLink)),
-            });
-          }}
+          onClick={() => {}}
         >
           <Tooltip label={getHostnameFromURL(localLink)}>
             <div className='text-functional-link-primary flex items-center gap-1'>

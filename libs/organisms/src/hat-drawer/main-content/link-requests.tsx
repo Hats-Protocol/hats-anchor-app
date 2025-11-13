@@ -3,7 +3,6 @@
 import { Modal, useOverlay, useSelectedHat, useTreeForm } from 'contexts';
 import { HatLinkRequestApproveForm } from 'forms';
 import { some } from 'lodash';
-import posthog from 'posthog-js';
 import { useState } from 'react';
 import { prettyIdToIp } from 'shared';
 import { Button } from 'ui';
@@ -25,7 +24,7 @@ const LinkRequests = () => {
     setModals?.({ linkResponse: true });
   };
 
-  const enableLinking = posthog.isFeatureEnabled('linking');
+  const enableLinking = false;
 
   if (
     !some(linkRequestFromTree, (linkRequest) => linkRequest?.requestedLinkToHat?.id === selectedHat?.id) ||

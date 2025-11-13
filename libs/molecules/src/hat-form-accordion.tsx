@@ -1,7 +1,6 @@
 'use client';
 
 import { isEmpty } from 'lodash';
-import posthog from 'posthog-js';
 import React, { useState } from 'react';
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from 'react-icons/ai';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from 'ui';
@@ -10,11 +9,6 @@ const HatFormAccordion = ({ title, subtitle, dirtyFieldsList, open = false, chil
   const [isOpen, setIsOpen] = useState(open);
 
   const handleToggle = () => {
-    posthog.capture('Toggled Hat Form', {
-      title,
-      dirty_fields: dirtyFieldsList,
-      is_open: !isOpen,
-    });
     setIsOpen(!isOpen);
   };
 

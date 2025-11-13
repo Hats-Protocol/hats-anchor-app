@@ -5,7 +5,6 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useToast } from 'hooks';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
-import posthog from 'posthog-js';
 import { useEffect, useMemo, useState } from 'react';
 import { Button, cn, OblongAvatar, Popover, PopoverContent, PopoverTrigger, Skeleton } from 'ui';
 import { chainsMap, formatAddress } from 'utils';
@@ -41,7 +40,6 @@ const Login = () => {
     if (!user || ensNameLoading) return;
     const name = ensName || user.email?.address?.split('@')?.[0];
 
-    posthog.identify(user?.wallet?.address as Hex, { email: user?.email?.address }, { name });
   }, [user, ensName, ensNameLoading]);
 
   const { toast } = useToast();

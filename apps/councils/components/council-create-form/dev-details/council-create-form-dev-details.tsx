@@ -5,7 +5,6 @@ import { useCouncilForm } from 'contexts';
 import { useTreeDetails } from 'hats-hooks';
 import { compact, get, includes, isEmpty, keys, map } from 'lodash';
 import { DevInfo } from 'molecules';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Link } from 'ui';
 import { hatLink, slugify } from 'utils';
@@ -57,7 +56,7 @@ const CreateFormDevDetails = () => {
     typeof form.watch('organizationName') === 'object'
       ? (form.watch('organizationName') as { value: string; label: string })?.value
       : (form.watch('organizationName') as string);
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV === 'development';
+  const isDev = false || process.env.NODE_ENV === 'development';
   const treeId = get(organization, 'councils.0.treeId');
   const { data: tree } = useTreeDetails({ treeId: isDev ? Number(treeId) : undefined, chainId });
   const existingHatIds = tree?.hats?.map((hat) => hat.id) || [];

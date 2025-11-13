@@ -10,7 +10,6 @@ overrides:
   bs58: ^6.0.0
   express: 4.20.0
   picocolors: 1.1.1
-  posthog-js: 1.235.6
   viem: 2.31.7
 
 importers:
@@ -284,9 +283,6 @@ importers:
       organisms:
         specifier: workspace:*
         version: link:../../libs/organisms
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -413,9 +409,6 @@ importers:
       opepen-standard:
         specifier: ^1.0.1
         version: 1.0.1
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -527,9 +520,6 @@ importers:
       organisms:
         specifier: workspace:*
         version: link:../../libs/organisms
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -650,9 +640,6 @@ importers:
       next:
         specifier: 15.5.2
         version: 15.5.2(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react-hook-form:
         specifier: ^7.50.1
         version: 7.60.0(react@18.3.1)
@@ -758,9 +745,6 @@ importers:
       papaparse:
         specifier: ^5.4.1
         version: 5.5.3
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -821,9 +805,6 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react-hook-form:
         specifier: ^7.54.2
         version: 7.60.0(react@18.3.1)
@@ -890,9 +871,6 @@ importers:
       lucide-react:
         specifier: ^0.471.0
         version: 0.471.2(react@18.3.1)
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react-hook-form:
         specifier: ^7.54.2
         version: 7.60.0(react@18.3.1)
@@ -991,9 +969,6 @@ importers:
       next:
         specifier: 15.5.2
         version: 15.5.2(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1084,9 +1059,6 @@ importers:
       opepen-standard:
         specifier: ^1.0.1
         version: 1.0.1
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1195,9 +1167,6 @@ importers:
       next:
         specifier: 15.5.2
         version: 15.5.2(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.2)
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1369,9 +1338,6 @@ importers:
       opepen-standard:
         specifier: ^1.0.1
         version: 1.0.1
-      posthog-js:
-        specifier: 1.235.6
-        version: 1.235.6
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -7826,9 +7792,6 @@ packages:
   core-js-compat@3.44.0:
     resolution: {integrity: sha512-JepmAj2zfl6ogy34qfWtcE7nHKAJnKsQFRn++scjVS2bZFllwptzw61BZcZFYBPpUznLfAvh0LGhxKppk04ClA==}
 
-  core-js@3.46.0:
-    resolution: {integrity: sha512-vDMm9B0xnqqZ8uSBpZ8sNtRtOdmfShrvT6h2TuQGLs0Is+cR0DYbj/KWP6ALVNbWPpqA/qPLoOuppJN07humpA==}
-
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
@@ -9019,9 +8982,6 @@ packages:
 
   fetch-retry@6.0.0:
     resolution: {integrity: sha512-BUFj1aMubgib37I3v4q78fYo63Po7t4HUPTpQ6/QE6yK6cIQrP+W43FYToeTEyg5m2Y7eFUtijUuAv/PDlWuag==}
-
-  fflate@0.4.8:
-    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
 
   figures@3.2.0:
     resolution: {integrity: sha512-yaduQFRKLXYOGgEn6AZau90j3ggSOyiqXU0F9JZfeXYhNa+Jk4X+s45A2zg5jns87GAFa34BBm2kXw4XpNcbdg==}
@@ -11977,17 +11937,6 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  posthog-js@1.235.6:
-    resolution: {integrity: sha512-zQE5WCjOas6FY9lUfGn61Tj4n87kNsN9M9/XfEO3lPHffoFFIBO8OVEpe6EMUaSVfBG4GpaB5EoyvX1Hi0tIPA==}
-    peerDependencies:
-      '@rrweb/types': 2.0.0-alpha.17
-      rrweb-snapshot: 2.0.0-alpha.17
-    peerDependenciesMeta:
-      '@rrweb/types':
-        optional: true
-      rrweb-snapshot:
-        optional: true
-
   preact@10.27.2:
     resolution: {integrity: sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg==}
 
@@ -14048,9 +13997,6 @@ packages:
   web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
-
-  web-vitals@4.2.4:
-    resolution: {integrity: sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw==}
 
   webextension-polyfill@0.10.0:
     resolution: {integrity: sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==}
@@ -23348,8 +23294,6 @@ snapshots:
     dependencies:
       browserslist: 4.25.1
 
-  core-js@3.46.0: {}
-
   core-util-is@1.0.3: {}
 
   corser@2.0.1: {}
@@ -24803,8 +24747,6 @@ snapshots:
       web-streams-polyfill: 3.3.3
 
   fetch-retry@6.0.0: {}
-
-  fflate@0.4.8: {}
 
   figures@3.2.0:
     dependencies:
@@ -28490,13 +28432,6 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-js@1.235.6:
-    dependencies:
-      core-js: 3.46.0
-      fflate: 0.4.8
-      preact: 10.27.2
-      web-vitals: 4.2.4
-
   preact@10.27.2: {}
 
   prelude-ls@1.2.1: {}
@@ -31029,8 +30964,6 @@ snapshots:
   web-namespaces@2.0.1: {}
 
   web-streams-polyfill@3.3.3: {}
-
-  web-vitals@4.2.4: {}
 
   webextension-polyfill@0.10.0: {}
 

@@ -3,7 +3,6 @@
 import { useOverlay } from 'contexts';
 import { filter, get, includes, map, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { AppModals, ModuleDetails, SupportedChains } from 'types';
 import { Button } from 'ui';
@@ -86,7 +85,7 @@ export const AllowlistEligibilityRule = ({
   const moduleEligibility = moduleDetails?.instanceAddress && get(wearerEligibility, moduleDetails.instanceAddress);
   const isEligible = (moduleEligibility?.eligible && moduleEligibility?.goodStanding) || isIncludedInAllowlist;
 
-  const eligibilityModalFlag = posthog.isFeatureEnabled('eligibility-modal') || process.env.NODE_ENV === 'development';
+  const eligibilityModalFlag = false || process.env.NODE_ENV === 'development';
 
   if (!selectedHat || !moduleDetails?.instanceAddress) return null;
 
