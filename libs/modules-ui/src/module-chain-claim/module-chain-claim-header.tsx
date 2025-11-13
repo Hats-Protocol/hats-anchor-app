@@ -117,12 +117,6 @@ export const ModuleChainClaimHeader = ({
       setTimeout(() => {
         setIsVerifyLoading(false);
       }, 1000);
-
-        chainId,
-        councilAddress: hsgAddress,
-        hatId: selectedHat?.id,
-        wearerAddress: address,
-      });
     },
     onError: () => {
       setIsVerifyLoading(false);
@@ -177,10 +171,6 @@ export const ModuleChainClaimHeader = ({
         queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
 
         setIsClaimLoading(false);
-          chainId,
-          councilAddress: hsgAddress,
-          wearerAddress: address,
-        });
       },
     });
   };

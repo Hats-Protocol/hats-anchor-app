@@ -106,10 +106,6 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
 
   const handleClick = () => {
     setActiveRule(rule);
-      moduleId: rule.module.id,
-      moduleAddress: rule.address,
-      chainId,
-    });
   };
 
   // TODO use an existing token value for the colors
