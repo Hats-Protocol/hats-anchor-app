@@ -17,7 +17,8 @@ const EventHistory = ({ type, count }: { type: 'tree' | 'hat'; count?: number })
   const { isClient } = useMediaStyles();
   const [isOpen, setIsOpen] = useState(false);
 
-  let events = type === 'tree' ? treeEvents : selectedHat?.events;
+  let events =
+    type === 'tree' ? treeEvents : treeEvents?.filter((event) => event.hat?.id === selectedHat?.id);
   if (count) {
     events = take(events, count);
   }

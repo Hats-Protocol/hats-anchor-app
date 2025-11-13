@@ -2,9 +2,12 @@ import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { TreeFormContextProvider } from 'contexts';
 import { first, get, toNumber } from 'lodash';
 import { Metadata } from 'next';
-import { TreePage, TreePageMobile } from 'organisms';
+import dynamic from 'next/dynamic';
 // import { SearchParamsProps } from 'types';
 import { fetchHatsDetailsMesh, logger } from 'utils';
+
+const TreePage = dynamic(() => import('organisms').then((mod) => ({ default: mod.TreePage })));
+const TreePageMobile = dynamic(() => import('organisms').then((mod) => ({ default: mod.TreePageMobile })));
 
 const TreeDetails = async ({ params }: TreeDetailsProps) => {
   const { chainId, treeId } = await params;

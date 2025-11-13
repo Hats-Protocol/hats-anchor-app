@@ -1,6 +1,8 @@
 import { SelectedHatContextProvider, TreeFormContextProvider } from 'contexts';
-import { HatDetailsChanges } from 'organisms';
+import dynamic from 'next/dynamic';
 // import { SearchParamsProps } from 'types';
+
+const HatDetailsChanges = dynamic(() => import('organisms').then((mod) => ({ default: mod.HatDetailsChanges })));
 
 const HatDetails = () => (
   <TreeFormContextProvider>
