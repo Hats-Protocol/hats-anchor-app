@@ -247,39 +247,12 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
   );
 
   // *********************
-  // * ONCHAIN TREE (ONCHAIN HATS)
+  // * TREE TO DISPLAY (ORG CHART HATS)
   // *********************
 
   const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({
     id,
   })) as unknown as object[];
-
-  const { data: onchainHatDetails } = useManyHatsDetails({
-    hats: mapWithChainId(onchainIds, chainId),
-    initialHats: mapWithChainId(onchainIds, chainId),
-    editMode,
-  });
-
-  const { data: onchainWearers } = useTreeWearers({
-    hats: onchainHatDetails,
-    chainId,
-    editMode,
-  });
-
-  const { orgChartTree: onchainTree } = useOrgChartTree({
-    treeData,
-    chainId,
-    hatsData: onchainHatDetails,
-    draftHats,
-    orgChartWearers: onchainWearers,
-    initialHatIds: _.map(onchainHats, 'id'),
-    editMode,
-    onchain: true,
-  });
-
-  // *********************
-  // * TREE TO DISPLAY (ORG CHART HATS)
-  // *********************
 
   const { data: hatDetails } = useManyHatsDetails({
     hats: mapWithChainId(_.compact(_.concat(orgChartHats, onchainLinkedHats)), chainId),
@@ -303,6 +276,18 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
     editMode,
   });
   // console.log('orgChartTree', orgChartTree);
+
+  // *********************
+  // * ONCHAIN TREE (COMPUTED FROM ORG CHART TREE)
+  // *********************
+
+  // Derive onchainTree by filtering orgChartTree to only include onchain hats
+  // This eliminates duplicate mesh requests
+  const onchainTree = useMemo(() => {
+    if (!orgChartTree) return undefined;
+    const onchainHatIds = _.map(onchainHats, 'id');
+    return orgChartTree.filter((hat) => _.includes(onchainHatIds, hat.id));
+  }, [orgChartTree, onchainHats]);
 
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
