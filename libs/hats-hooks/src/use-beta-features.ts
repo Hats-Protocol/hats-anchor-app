@@ -1,7 +1,6 @@
 import { CONFIG } from '@hatsprotocol/config';
 import { useLocalStorage } from 'hooks';
 import { includes, map } from 'lodash';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 // import { logger } from 'utils';
 import { Hex } from 'viem';
@@ -21,7 +20,7 @@ interface UseBetaFeaturesResult {
 }
 
 /**
- * Hook to manage beta features access based on wearing the Community Member Hat, PostHog flags, and user preferences
+ * Hook to manage beta features access based on wearing the Community Member Hat and user preferences
  * @param address - The user's wallet address
  * @returns Object containing beta features state and controls
  */
@@ -32,14 +31,8 @@ export const useBetaFeatures = ({ address }: UseBetaFeaturesProps): UseBetaFeatu
     chainId: 10,
   });
 
-  // Get PostHog bucket feature flag, defaulting to false if undefined
-  const betaFeaturesEnabled = useMemo(() => {
-    const isEnabled = posthog.isFeatureEnabled('bucket');
-    if (isEnabled === undefined) {
-      // logger.debug('Beta features flag is undefined, defaulting to false');
-    }
-    return isEnabled ?? false;
-  }, []);
+  // Beta features are always enabled
+  const betaFeaturesEnabled = true;
 
   // Manage local storage state
   const [showBetaFeatures, setShowBetaFeatures] = useLocalStorage<boolean>('showBetaFeatures', false);

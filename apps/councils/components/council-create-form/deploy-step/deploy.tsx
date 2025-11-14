@@ -2,7 +2,6 @@
 
 import { useClipboard } from 'hooks';
 import { Check, Link, RotateCcw } from 'lucide-react';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { Button, cn } from 'ui';
 
@@ -140,7 +139,7 @@ const Deploy = ({
     };
   }
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   return (
     <div className='space-y-6'>

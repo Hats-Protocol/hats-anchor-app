@@ -4,7 +4,6 @@ import { ModuleParameter, Ruleset } from '@hatsprotocol/modules-sdk';
 import { useEligibility } from 'contexts';
 import { concat, find, first, flatten, get, map, pick, size } from 'lodash';
 import { useErc20Details, useSubscriptionClaim } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { Fragment, ReactNode, useCallback, useEffect } from 'react';
 import { BsArrowRight, BsCheckSquare, BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { EligibilityRule, LabeledModules } from 'types';
@@ -107,11 +106,6 @@ const WrapperButton = ({ rule, customYesNo, labeledModules, children }: WrapperB
 
   const handleClick = () => {
     setActiveRule(rule);
-    posthog.capture('Viewed Module Requirements', {
-      moduleId: rule.module.id,
-      moduleAddress: rule.address,
-      chainId,
-    });
   };
 
   // TODO use an existing token value for the colors

@@ -4,7 +4,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useOverlay } from 'contexts';
 import { useHatContractWrite } from 'hats-hooks';
 import { useDebounce, useWaitForSubgraph } from 'hooks';
-import posthog from 'posthog-js';
 import { useForm } from 'react-hook-form';
 import { SupportedChains } from 'types';
 import { Button } from 'ui';
@@ -53,11 +52,6 @@ const CouncilTransferForm = ({ hatId, topHatWearerAddress, chainId }: CouncilTra
     handleSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
       queryClient.invalidateQueries({ queryKey: ['offchainCouncilDetails'] });
-      posthog.capture('Transferred Council', {
-        chainId,
-        hatId,
-        newWearerAddress,
-      });
     },
   });
 

@@ -8,7 +8,6 @@ import { useSafeDetails } from 'hooks';
 import { every, find, get, includes, keys, map, toLower } from 'lodash';
 import { EllipsisVertical } from 'lucide-react';
 import { useCurrentEligibility } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsExclamationSquare, BsPencilSquare, BsXOctagonFill } from 'react-icons/bs';
 import { AppHat, CouncilMember, EligibilityRule, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar } from 'ui';
@@ -86,7 +85,7 @@ const MemberRow = ({
   const offChainDetails = find(offchainWearers, { address: member.address });
   const fullMember = { ...member, ...offChainDetails };
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   const firstModuleIsAllowlist = firstModule?.module?.id.includes('allowlist');
   const firstModuleIsHatWearing = firstModule?.module?.id.includes('hat-wearing');

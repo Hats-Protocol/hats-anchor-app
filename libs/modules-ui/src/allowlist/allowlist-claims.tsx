@@ -6,7 +6,6 @@ import { useAllWearers, useHatDetails } from 'hats-hooks';
 import { filter, find, first, flatten, get, includes, isEmpty, map, size, toLower } from 'lodash';
 import { useAllowlist } from 'modules-hooks';
 import { DevInfo } from 'molecules';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LabeledModules, ModuleDetails } from 'types';
@@ -116,7 +115,7 @@ export const AllowlistClaims = ({
     map(allowlist || [], (wearer) => toLower(wearer?.id)),
     toLower(address),
   );
-  const isDev = posthog.isFeatureEnabled('dev');
+  const isDev = false;
 
   if (isEligibilityRulesLoading || isAllowlistLoading) {
     return <Skeleton className='h-[500px] w-full' />;

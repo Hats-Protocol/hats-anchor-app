@@ -7,7 +7,6 @@ import { useHatContractWrite, useHatMakeImmutable, useHatStatusCheck, useWearerD
 import { handleExportBranch, isWearingAdminHat } from 'hats-utils';
 import { useClipboard, useToast, useWaitForSubgraph } from 'hooks';
 import { map } from 'lodash';
-import posthog from 'posthog-js';
 import { FaCopy, FaDoorOpen, FaEllipsisV, FaExclamationCircle, FaLink, FaLock, FaPowerOff } from 'react-icons/fa';
 import { TbChartDots3 } from 'react-icons/tb';
 import { idToIp } from 'shared';
@@ -112,7 +111,7 @@ const MoreMenu = () => {
       toast,
     });
 
-  const enableLinking = posthog.isFeatureEnabled('linking');
+  const enableLinking = false;
 
   if (!selectedHat) return null;
 

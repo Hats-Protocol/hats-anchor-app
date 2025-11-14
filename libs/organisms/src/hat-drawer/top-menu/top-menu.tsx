@@ -7,7 +7,6 @@ import { useWearerDetails } from 'hats-hooks';
 import { isTopHat } from 'hats-utils';
 import { useMediaStyles } from 'hooks';
 import { filter, find, isEmpty, keys, map, omit } from 'lodash';
-import posthog from 'posthog-js';
 import { BsArrowLeft, BsXSquare } from 'react-icons/bs';
 import { FiSave } from 'react-icons/fi';
 import { AppHat } from 'types';
@@ -44,21 +43,10 @@ const TopMenu = ({ returnToList }: TopMenuProps) => {
   if (!selectedHat || isMobile) return null;
 
   const closeHatDrawer = () => {
-    posthog.capture('Closed Hat Drawer', {
-      chain_id: chainId,
-      hat_id: selectedHat?.id,
-      edit_mode: false,
-    });
     onCloseHatDrawer?.();
   };
 
   const handleReturnToList = () => {
-    posthog.capture('Closed Hat Drawer', {
-      chain_id: chainId,
-      hat_id: selectedHat.id,
-      edit_mode: true,
-      has_changes: hatHasChanges,
-    });
     onSave(false);
     returnToList?.();
   };

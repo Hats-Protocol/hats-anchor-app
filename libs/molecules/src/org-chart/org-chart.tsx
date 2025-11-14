@@ -13,7 +13,6 @@ import { useWearerDetails } from 'hats-hooks';
 import { calculateNextChildId, isTopHatOrMutable } from 'hats-utils';
 import { find, get, includes, isEmpty, isUndefined, map } from 'lodash';
 import { useSearchParams } from 'next/navigation';
-import posthog from 'posthog-js';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { idToIp, ipToHatId } from 'shared';
@@ -182,15 +181,6 @@ function OrgChartComponent() {
               // always node not found or parent node
             } else {
               // don't center here
-              posthog.capture('Opened Hat Drawer', {
-                chain_id: chainId,
-                hat_id: data.data.id,
-                tree_id: '',
-                hat_name: '',
-                draft: false,
-                edit_mode: editMode,
-                from: 'Org Chart',
-              });
               onOpenHatDrawer?.(data.data.id);
               onCloseTreeDrawer?.();
             }
@@ -552,10 +542,6 @@ function OrgChartComponent() {
         <Tooltip label={!isEmpty(collapsedNodes) ? `Show full tree to ${compact ? 'expand' : 'compact'} view` : ''}>
           <Button
             onClick={() => {
-              posthog.capture('Toggled Compact View', {
-                compact,
-              });
-
               toggleCompact();
               handleSetCompact?.(compact);
             }}
@@ -569,9 +555,6 @@ function OrgChartComponent() {
         <Tooltip label={!isEmpty(collapsedNodes) ? 'Show full tree to flip view' : ''}>
           <Button
             onClick={() => {
-              posthog.capture('Toggled Flip View', {
-                flipped,
-              });
               toggleFlip();
               handleFlipChart?.(flipped);
               setTimeout(() => {

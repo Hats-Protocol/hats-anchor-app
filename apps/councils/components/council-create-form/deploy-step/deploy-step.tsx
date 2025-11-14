@@ -9,7 +9,6 @@ import { Currency, DocumentChecks } from 'icons';
 import { concat, find, get, map, some, toNumber, uniqBy } from 'lodash';
 import { FileText, GemIcon, Link } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import posthog from 'posthog-js';
 import { useCallback, useMemo } from 'react';
 import { BsPersonCheck } from 'react-icons/bs';
 import { CouncilFormData, EligibilityRequirement, SupportedChains } from 'types';
@@ -98,12 +97,6 @@ export const DeployStep = ({ draftId }: { draftId: string }) => {
   };
 
   const handleDeploy = useCallback(async () => {
-    posthog.capture('Initiated Council Deployment', {
-      councilName: formData.councilName,
-      organizationName: (formData.organizationName as unknown as { value: string }).value,
-      chain: chainsMap(toNumber(formData.chain?.value))?.name,
-    });
-
     // TODO better check for if first council deploy
     if (simulateCouncil?.data) {
       deployCouncil();

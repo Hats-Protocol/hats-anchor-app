@@ -7,7 +7,6 @@ import { useOverlay } from 'contexts';
 import { useAllWearers, useHatDetails, useIsAdmin } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, isEmpty, map, size, split, toLower } from 'lodash';
-import posthog from 'posthog-js';
 import { useState } from 'react';
 import { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar, Tooltip } from 'ui';
@@ -101,7 +100,6 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
                 // );
 
                 if (offchainCouncilDetails?.hsg) {
-                  posthog.capture('Added Agreement Manager', {
                     chainId,
                     councilAddress: getAddress(offchainCouncilDetails.hsg),
                     moduleAddress: m.instanceAddress,
@@ -126,7 +124,7 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
       });
   };
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   if (!m) return null;
 

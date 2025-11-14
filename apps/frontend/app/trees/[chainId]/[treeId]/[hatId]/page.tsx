@@ -1,18 +1,12 @@
 import { hatIdDecimalToHex, hatIdIpToDecimal } from '@hatsprotocol/sdk-v1-core';
-import { SelectedHatContextProvider, TreeFormContextProvider } from 'contexts';
 import { first, get, split, toNumber } from 'lodash';
 import { Metadata } from 'next';
-import { HatDrawer } from 'organisms';
 // import { SearchParamsProps } from 'types';
 import { fetchHatsDetailsMesh, logger } from 'utils';
 
-const HatDetails = () => (
-  <TreeFormContextProvider>
-    <SelectedHatContextProvider>
-      <HatDrawer />
-    </SelectedHatContextProvider>
-  </TreeFormContextProvider>
-);
+import { HatDetailsClient } from './hat-details-client';
+
+const HatDetails = () => <HatDetailsClient />;
 
 interface HatDetailsProps {
   // extends SearchParamsProps {

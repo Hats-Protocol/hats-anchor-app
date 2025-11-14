@@ -8,7 +8,6 @@ import { safeUrl } from 'hats-utils';
 import { useSafeDetails, useToast, useWaitForSubgraph } from 'hooks';
 import { every, find, flatten, get, has, includes, map, size, toLower } from 'lodash';
 import { AgreementStatusManager, AllowlistStatusManager, Erc20StatusManager } from 'modules-ui';
-import posthog from 'posthog-js';
 import { useMemo, useState } from 'react';
 import { AiOutlineMail } from 'react-icons/ai';
 import { BsCheckSquareFill, BsExclamationSquare, BsXOctagonFill } from 'react-icons/bs';
@@ -193,12 +192,6 @@ function MemberStatusModal({
         });
         queryClient.invalidateQueries({ queryKey: ['safeDetails'] });
         queryClient.invalidateQueries({ queryKey: ['currentEligibility'] });
-        posthog.capture('Removed Council Signer', {
-          councilId: offchainCouncilData?.id,
-          chainId,
-          userLabel,
-          userAddress: user?.address,
-        });
       },
     });
   };

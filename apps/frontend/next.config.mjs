@@ -11,8 +11,6 @@ const nextConfig = {
   },
   // distDir: '../../dist/apps/frontend/.next',
   reactStrictMode: false,
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
   eslint: {
     dirs: [
       'app',

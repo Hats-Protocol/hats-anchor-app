@@ -19,7 +19,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'hooks';
 import { compact, concat, find, first, flatten, get, map } from 'lodash';
 import { useRouter } from 'next/navigation';
-import posthog from 'posthog-js';
 import { SetStateAction, useCallback, useMemo } from 'react';
 import { Dispatch } from 'react';
 import { AsyncTxHandler, Call, CouncilFormData, DeployStatus, HandlePendingTx, ModulesAddresses } from 'types';
@@ -147,13 +146,6 @@ const useCouncilDeploy = ({
       logger.debug('council form updated with council id:', draftId, councilId);
 
       setDeployStatus((prev) => ({ ...prev, updateMetadata: true }));
-
-      posthog.capture('Council Deployed', {
-        councilName: formData.councilName,
-        organizationName: formData.organizationName,
-        chain: chainsMap(chainId)?.name,
-        hsgAddress,
-      });
 
       // clear cached data
       queryClient.invalidateQueries({ queryKey: ['organization'] });

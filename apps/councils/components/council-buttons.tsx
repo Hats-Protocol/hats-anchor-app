@@ -4,7 +4,6 @@ import { useCouncilDetails, useSafeDetails } from 'hooks';
 import { get, map, nth, size, toNumber } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import posthog from 'posthog-js';
 import { Button, cn } from 'ui';
 import { parseCouncilSlug } from 'utils';
 
@@ -29,8 +28,8 @@ const CouncilButtons = () => {
     safeAddress: get(councilDetails, 'safe'),
   });
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
-  const isTxAssets = posthog.isFeatureEnabled('tx-assets') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isTxAssets = false || process.env.NODE_ENV !== 'production';
 
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
   const links = [...LINKS, ...devLink];

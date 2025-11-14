@@ -5,7 +5,6 @@ import { useCouncilDetails } from 'hooks';
 import { Safe as SafeIcon } from 'icons';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
-import posthog from 'posthog-js';
 import { AiOutlineDollar, AiOutlineSetting, AiOutlineSwap } from 'react-icons/ai';
 import { BsPersonBadge } from 'react-icons/bs';
 import { HiCog } from 'react-icons/hi';
@@ -21,8 +20,8 @@ export const CouncilsBottomMenu = () => {
 
   const { data: councilDetails } = useCouncilDetails({ chainId: chainId || undefined, address });
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
-  const isTxAssets = posthog.isFeatureEnabled('tx-assets') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isTxAssets = false || process.env.NODE_ENV !== 'production';
 
   // Define menu items based on the Figma design
   const menuItems = [

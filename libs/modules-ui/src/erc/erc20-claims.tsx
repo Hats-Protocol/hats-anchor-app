@@ -5,7 +5,6 @@ import { useEligibility } from 'contexts';
 import { find, get, pick } from 'lodash';
 import { useErc20Details } from 'modules-hooks';
 import { DevInfo } from 'molecules';
-import { posthog } from 'posthog-js';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LuBarChart2, LuWallet } from 'react-icons/lu';
@@ -92,7 +91,7 @@ export const Erc20Claims = ({
     ];
   }, [activeModule.instanceAddress, chainId, tokenParam?.value]);
 
-  const isDev = posthog.isFeatureEnabled('dev');
+  const isDev = false;
 
   if (isEligibilityRulesLoading || isErc20Loading) {
     return (

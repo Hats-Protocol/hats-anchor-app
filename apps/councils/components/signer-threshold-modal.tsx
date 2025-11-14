@@ -7,7 +7,6 @@ import { Modal, useOverlay } from 'contexts';
 import { Form, SignerThresholdSubForm } from 'forms';
 import { useWaitForSubgraph } from 'hooks';
 import { get, size, toNumber, toString } from 'lodash';
-import posthog from 'posthog-js';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppHat, HatSignerGateV2 } from 'types';
@@ -111,12 +110,6 @@ function SignerThresholdModal({ signer, signerHat, chainId }: SignerThresholdMod
           onSuccess: () => {
             // invalidate queries
             queryClient.invalidateQueries({ queryKey: ['councilDetails'] });
-
-            posthog.capture('Updated Threshold', {
-              chainId,
-              councilAddress: signer.id,
-              thresholdConfig: JSON.stringify({ thresholdType, min, target }),
-            });
             setIsLoading(false);
             setModals?.({});
           },

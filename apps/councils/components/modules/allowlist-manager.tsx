@@ -7,7 +7,6 @@ import { useOverlay } from 'contexts';
 import { useAllWearers, useHatDetails, useIsAdmin } from 'hats-hooks';
 import { useToast, useWaitForSubgraph } from 'hooks';
 import { find, get, map, size, split } from 'lodash';
-import posthog from 'posthog-js';
 import { useState } from 'react';
 import type { CouncilMember, ModuleDetails, OffchainCouncilData, SupportedChains } from 'types';
 import { Button, cn, MemberAvatar, Tooltip } from 'ui';
@@ -118,7 +117,6 @@ const AllowlistManager = ({
                 // );
 
                 if (offchainCouncilDetails?.hsg) {
-                  posthog.capture('Added Allowlist Manager', {
                     councilId: offchainCouncilDetails.hsg,
                     chainId,
                     type: isCompliance ? 'allowlistAdmin' : 'complianceAdmin',
@@ -143,7 +141,7 @@ const AllowlistManager = ({
       });
   };
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   if (!m) return null;
 

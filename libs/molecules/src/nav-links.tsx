@@ -5,7 +5,6 @@ import { hatIdDecimalToHex, treeIdToTopHatId } from '@hatsprotocol/sdk-v1-core';
 import { useHatDetails } from 'hats-hooks';
 import { capitalize, get, includes, isNaN, keys, map, startsWith } from 'lodash';
 import { usePathname } from 'next/navigation';
-import posthog from 'posthog-js';
 import { Button, cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
 import { containsUpperCase, getPathParams } from 'utils';
 import { useAccount, useChainId } from 'wagmi';
@@ -40,7 +39,7 @@ const NavLinks = () => {
   const textDetails = !startsWith(get(topHat, 'details'), 'ipfs://') ? get(topHat, 'details') : undefined;
   const tabName = get(details, 'name', textDetails);
 
-  const devMode = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const devMode = false || process.env.NODE_ENV !== 'production';
 
   return (
     <>

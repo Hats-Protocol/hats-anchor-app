@@ -8,7 +8,6 @@ import { useAdminOfHats } from 'hats-hooks';
 import { getProposedChangesCount, handleExportBranch, isTopHatOrMutable } from 'hats-utils';
 import { useMediaStyles, useToast } from 'hooks';
 import { filter, first, get, gt, includes, last, map, startsWith } from 'lodash';
-import posthog from 'posthog-js';
 import { AiOutlineDownload, AiOutlineUpload } from 'react-icons/ai';
 import { BsChevronRight } from 'react-icons/bs';
 import { AppHat } from 'types';
@@ -118,14 +117,6 @@ const MainContent = ({ isExpanded }: { isExpanded: boolean }) => {
           }
 
           const handleHatClick = () => {
-            posthog.capture('Opened Hat Drawer', {
-              chain_id: chainId,
-              hat_id: hatId,
-              hat_name: displayName,
-              draft,
-              edit_mode: editMode,
-              from: 'Tree Drawer',
-            });
             onCloseTreeDrawer?.();
             onOpenHatDrawer?.(hat.id);
           };

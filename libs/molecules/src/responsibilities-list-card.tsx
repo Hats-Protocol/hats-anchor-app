@@ -1,7 +1,6 @@
 'use client';
 
 import { includes, pick } from 'lodash';
-import posthog from 'posthog-js';
 import { BsBoxArrowUpRight } from 'react-icons/bs';
 import { DetailsItem } from 'types';
 import { AccordionContent, AccordionItem, AccordionTrigger, Button, cn, Link, Markdown, Tooltip } from 'ui';
@@ -28,15 +27,7 @@ const ResponsibilitiesListCard = ({
     );
   }
 
-  const handleToggle = () => {
-    posthog.capture('Toggled Responsibility', {
-      label,
-      description,
-      link,
-      image_url: imageUrl,
-      is_open: expanded,
-    });
-  };
+  const handleToggle = () => {};
 
   return (
     <AccordionItem
@@ -74,13 +65,7 @@ const ResponsibilitiesListCard = ({
                   <Button
                     className='border-functional-link-primary text-functional-link-primary hover:bg-functional-link-primary/10'
                     variant='outline'
-                    onClick={() => {
-                      posthog.capture('Clicked Responsibility Link', {
-                        authority: label,
-                        link,
-                        label: hostname,
-                      });
-                    }}
+                    onClick={() => {}}
                     size='sm'
                   >
                     <p className='size-sm'>{hostname}</p>

@@ -5,7 +5,6 @@ import { Modal, useOverlay } from 'contexts';
 import { useMediaStyles } from 'hooks';
 import { toLower } from 'lodash';
 import { createIcon } from 'opepen-standard';
-import posthog from 'posthog-js';
 import { useEffect, useMemo } from 'react';
 import { Button, OblongAvatar, Skeleton } from 'ui';
 import { formatAddress } from 'utils';
@@ -34,18 +33,11 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
   }, [address]);
 
   const openAccountModal = () => {
-    posthog.capture('Opened Account Modal', { chain_id: chainId });
     setModals?.({ account: true });
   };
 
   useEffect(() => {
     if (!address || !chainId) return;
-
-    posthog.identify(toLower(address), {
-      alias: ensName,
-      // check community hat wearer
-      // check is HL team member
-    });
   }, [address, ensName, chainId]);
 
   return (
@@ -56,17 +48,10 @@ const ConnectWallet = ({ hideProfileButton = false }: ConnectWalletProps) => {
           const connected = ready && account && chain;
 
           const trackedOpenConnectModal = () => {
-            posthog.capture('Opened Wallet Modal', {
-              is_connected: false,
-            });
             openConnectModal();
           };
 
           const trackedOpenChainModal = () => {
-            posthog.capture('Opened Chain Modal', {
-              is_connected: connected,
-              chain_id: chain?.id,
-            });
             openChainModal();
           };
 

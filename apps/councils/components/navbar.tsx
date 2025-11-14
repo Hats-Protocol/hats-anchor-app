@@ -3,7 +3,6 @@
 import { useCouncilDetails, useOffchainCouncilDetails, useOrganization } from 'hooks';
 import { capitalize, keys, map } from 'lodash';
 import { useParams, usePathname } from 'next/navigation';
-import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { SupportedChains } from 'types';
 import { cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Link } from 'ui';
@@ -44,7 +43,7 @@ const Navbar = () => {
 
   const { data: organization } = useOrganization(isOrganizationRoute ? params.organizationName : undefined);
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   return (
     <div

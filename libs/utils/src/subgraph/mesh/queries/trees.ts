@@ -3,8 +3,8 @@ import { gql } from 'graphql-request';
 import { NETWORKS_PREFIX } from './constants';
 
 // TODO better pagination on hats
-export function getTreeQuery(chaindId: number): string {
-  const networkPrefix = NETWORKS_PREFIX[chaindId];
+export function getTreeQuery(chainId: number): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
     query getTree($id: ID!) {
       ${networkPrefix}_tree(id: $id) {
@@ -137,8 +137,8 @@ export function getTreeQuery(chaindId: number): string {
   `;
 }
 
-export function getTreesPaginatedQuery(chaindId: number): string {
-  const networkPrefix = NETWORKS_PREFIX[chaindId];
+export function getTreesPaginatedQuery(chainId: number): string {
+  const networkPrefix = NETWORKS_PREFIX[chainId];
   return gql`
     query getPaginatedTrees($skip: Int!, $first: Int!) {
       ${networkPrefix}_trees(skip: $skip, first: $first) {

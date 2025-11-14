@@ -6,7 +6,6 @@ import { DurationInput, Form, MarkdownEditor } from 'forms';
 // import { useToast } from 'hooks';
 import { find } from 'lodash';
 import { useAgreementClaim, useCallModuleFunction } from 'modules-hooks';
-import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import showdown from 'showdown';
@@ -65,12 +64,6 @@ function UpdateAgreementModal({
         // invalidate agreement claim query
         queryClient.invalidateQueries({ queryKey: ['agreement'] });
         setModals?.({});
-        posthog.capture('Updated Agreement', {
-          chainId,
-          moduleAddress: moduleDetails.instanceAddress,
-          agreementHash,
-          gracePeriod: data.gracePeriod,
-        });
       },
       onDecline: () => {
         setIsLoading(false);

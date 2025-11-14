@@ -1,30 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// const DISABLE_POSTHOG = process.env.DISABLE_POSTHOG ? process.env.DISABLE_POSTHOG === 'true' : true;
-
 // Valid pages that can appear after /councils/[slug]/
 const VALID_PAGES = ['transactions', 'join', 'manage', 'members', 'dev', 'assets'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // Handle PostHog ingestion
-  if (pathname.startsWith('/ingest/')) {
-    const url = request.nextUrl.clone();
-    const hostname = url.pathname.startsWith('/ingest/static/') ? 'us-assets.i.posthog.com' : 'us.i.posthog.com';
-    const requestHeaders = new Headers(request.headers);
-
-    requestHeaders.set('host', hostname);
-
-    url.protocol = 'https';
-    url.hostname = hostname;
-    url.port = '443';
-    url.pathname = url.pathname.replace(/^\/ingest/, '');
-
-    return NextResponse.rewrite(url, {
-      headers: requestHeaders,
-    });
-  }
 
   // Handle councils routing
   if (pathname.startsWith('/councils/')) {
@@ -65,5 +45,5 @@ export function middleware(request: NextRequest) {
 
 // Configure which paths the middleware will run on
 export const config = {
-  matcher: ['/ingest/:path*', '/councils/:path*'],
+  matcher: ['/councils/:path*'],
 };

@@ -4,7 +4,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage, useToast } from 'hooks';
 import { compact, concat, filter, find, forEach, get, isEmpty, isEqual, slice, uniqWith } from 'lodash';
 import { useRouter } from 'next/navigation';
-import posthog from 'posthog-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppModals, Banner, HandlePendingTxProps, OverlayContextProps, Transaction } from 'types';
 import { checkTransactionStatus, invalidateAfterTransaction, viemPublicClient } from 'utils';
@@ -126,7 +125,6 @@ export const OverlayContextProvider = ({ children }: { children: ReactNode }) =>
   );
 
   const trackOpenCommandPalette = useCallback(() => {
-    posthog.capture('Toggled Command Palette', { is_open: commandPalette });
     setCommandPalette(!commandPalette);
   }, [commandPalette]);
 

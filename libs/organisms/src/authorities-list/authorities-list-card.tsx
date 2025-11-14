@@ -8,7 +8,6 @@ import { BoxArrowUpRightOut, CheckCircle } from 'icons';
 import { get, includes, map, pick, size, sum, toNumber } from 'lodash';
 import { HSGDetails, ModuleCardDetails } from 'modules-ui';
 import { AuthorityHeader } from 'molecules';
-import posthog from 'posthog-js';
 import { BsInfoCircle } from 'react-icons/bs';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { Authority, AuthorityType } from 'types';
@@ -81,12 +80,7 @@ const AuthoritiesListCard = ({
     tooltipInfo = `Connected onchain via the ${label}`; //  module for Hat #${hatIdDecimalToIp(BigInt(hatId))}
   }
 
-  const handleToggle = () => {
-    posthog.capture('Toggled Authority', {
-      label,
-      is_open: expanded,
-    });
-  };
+  const handleToggle = () => {};
 
   if (authority?.label === 'Loading...') {
     return <Skeleton className='h-6' />;
@@ -159,14 +153,7 @@ const AuthoritiesListCard = ({
                     <Button
                       variant='outline'
                       className='border-functional-link-primary'
-                      onClick={() => {
-                        posthog.capture('Clicked Authority Link', {
-                          authority: label,
-                          link,
-                          link_name: linkName || linkHostName,
-                          is_gate: false,
-                        });
-                      }}
+                      onClick={() => {}}
                       size='sm'
                     >
                       {linkName || linkHostName}
@@ -176,14 +163,7 @@ const AuthoritiesListCard = ({
                     <Button
                       variant='outline'
                       className='border-functional-link-primary'
-                      onClick={() => {
-                        posthog.capture('Clicked Authority Link', {
-                          authority: label,
-                          link,
-                          label: linkName || linkHostName,
-                          is_gate: false,
-                        });
-                      }}
+                      onClick={() => {}}
                       aria-label='Authority Link'
                       size='sm'
                     >
@@ -198,14 +178,7 @@ const AuthoritiesListCard = ({
                     variant='outline'
                     className='border-functional-link-primary'
                     size='sm'
-                    onClick={() => {
-                      posthog.capture('Clicked Authority Link', {
-                        authority: label,
-                        link,
-                        link_name: linkName || linkHostName,
-                        is_gate: true,
-                      });
-                    }}
+                    onClick={() => {}}
                   >
                     {gateHostName}
                     <FaExternalLinkAlt className='ml-1 size-2' />

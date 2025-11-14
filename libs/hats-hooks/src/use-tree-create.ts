@@ -1,5 +1,4 @@
 import { useWaitForSubgraph } from 'hooks';
-import posthog from 'posthog-js';
 import { HandlePendingTx } from 'types';
 import { useAccount, useEnsAddress } from 'wagmi';
 
@@ -27,7 +26,6 @@ const useTreeCreate = ({
 
   function handleSuccess() {
     if (!lastTopHatId) return;
-    posthog.capture('Created New Tree', { chainId, tree_id: lastTopHatId + 1 });
   }
 
   const { writeAsync, isLoading } = useHatContractWrite({

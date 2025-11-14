@@ -6,7 +6,6 @@ import { useOverlay } from 'contexts';
 import { useWearersEligibilityStatus } from 'hats-hooks';
 import { useMediaStyles } from 'hooks';
 import { get, includes, toLower } from 'lodash';
-import posthog from 'posthog-js';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { SupportedChains } from 'types';
 import { Button, Link } from 'ui';
@@ -38,7 +37,7 @@ export const ElectionEligibilityRule = ({
   const hatId = get(selectedHat, 'id', '0');
 
   const eligibilityModalFlag =
-    posthog.isFeatureEnabled('election-eligibility-modal') || process.env.NODE_ENV !== 'production';
+    false || process.env.NODE_ENV !== 'production';
 
   let modalName = 'electionManager';
   if (modalSuffix) {

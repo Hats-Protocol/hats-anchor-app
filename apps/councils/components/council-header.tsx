@@ -24,7 +24,6 @@ import {
 import { toNumber } from 'lodash';
 import { usePathname } from 'next/navigation';
 import { createIcon } from 'opepen-standard';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { AppHat, ExtendedHSGV2, OffchainCouncilData, SupportedChains } from 'types';
@@ -166,7 +165,7 @@ const CouncilHeaderCard = ({
   //   initialHats,
   // );
 
-  const isDev = posthog.isFeatureEnabled('dev') || process.env.NODE_ENV !== 'production';
+  const isDev = false || process.env.NODE_ENV !== 'production';
 
   // TODO check impacts of this hook => in uses useHatDetails, useTreeDetails
   const { isReadyToClaim, isWearing } = useEligibility();

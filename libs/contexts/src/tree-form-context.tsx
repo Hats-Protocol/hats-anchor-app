@@ -2,12 +2,11 @@
 
 import { DEFAULT_HAT } from '@hatsprotocol/constants';
 import { HatsEvent } from '@hatsprotocol/sdk-v1-subgraph';
-import { useManyHatsDetails, useTreeDetails, useTreeWearers } from 'hats-hooks';
+import { useTreeDetails, useTreeWearers } from 'hats-hooks';
 import { translateDrafts } from 'hats-utils';
 import { useLocalStorage, useOrgChartTree, useSelectedHatDisclosure, useTreeSnapshotSpaces } from 'hooks';
 import _, { toNumber } from 'lodash';
 import { usePathname, useSearchParams } from 'next/navigation';
-import posthog from 'posthog-js';
 import {
   createContext,
   Dispatch,
@@ -20,7 +19,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { mapWithChainId } from 'shared';
 import { AppHat, FormData, HatDetails, HatWearer, LinkRequest, SnapshotSpace, SupportedChains } from 'types';
 import {
   generateLocalStorageKey,
@@ -223,16 +221,11 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
 
   const treeEvents = _.get(treeData, 'events');
 
-  const { data: onchainLinkedHats } = useManyHatsDetails({
-    hats: mapWithChainId(
-      _.map(linkedHatIds, (id: Hex) => ({ id })),
-      chainId || 1,
-    ),
-    initialHats: _.map(linkedHatIds, (id: Hex) => ({ id })),
-  });
+  // Use tree hats directly as onchain hats (no longer fetching linked hats separately)
   const onchainHats = useMemo(() => {
-    return _.compact(_.concat(_.get(treeData, 'hats'), onchainLinkedHats));
-  }, [treeData, onchainLinkedHats]);
+    return _.get(treeData, 'hats') as AppHat[] | undefined;
+  }, [treeData]);
+
   const linkRequestFromTree = _.get(treeData, 'linkRequestFromTree') as unknown as LinkRequest[]; // TODO check this type, SDK type says it should be a Tree[]
 
   // get difference between onchain hats and org chart hats
@@ -247,45 +240,37 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
   );
 
   // *********************
-  // * ONCHAIN TREE (ONCHAIN HATS)
-  // *********************
-
-  const onchainIds = _.map(onchainHats, ({ id }: { id: Hex }) => ({
-    id,
-  })) as unknown as object[];
-
-  const { data: onchainHatDetails } = useManyHatsDetails({
-    hats: mapWithChainId(onchainIds, chainId),
-    initialHats: mapWithChainId(onchainIds, chainId),
-    editMode,
-  });
-
-  const { data: onchainWearers } = useTreeWearers({
-    hats: onchainHatDetails,
-    chainId,
-    editMode,
-  });
-
-  const { orgChartTree: onchainTree } = useOrgChartTree({
-    treeData,
-    chainId,
-    hatsData: onchainHatDetails,
-    draftHats,
-    orgChartWearers: onchainWearers,
-    initialHatIds: _.map(onchainHats, 'id'),
-    editMode,
-    onchain: true,
-  });
-
-  // *********************
   // * TREE TO DISPLAY (ORG CHART HATS)
   // *********************
 
-  const { data: hatDetails } = useManyHatsDetails({
-    hats: mapWithChainId(_.compact(_.concat(orgChartHats, onchainLinkedHats)), chainId),
-    initialHats: mapWithChainId(onchainIds, chainId),
-    editMode,
-  });
+  // Process tree hats to include detailsObject (no duplicate fetch needed)
+  const hatDetails = useMemo(() => {
+    if (!onchainHats) return undefined;
+
+    return _.map(onchainHats, (hat) => {
+      const detailsMetadata = _.get(hat, 'detailsMetadata');
+
+      // If no detailsMetadata, try to create one from plain text details field
+      if (!detailsMetadata || detailsMetadata === null) {
+        const plainDetails = _.get(hat, 'details');
+        if (plainDetails && !plainDetails.startsWith('ipfs://')) {
+          return {
+            ...hat,
+            detailsObject: {
+              type: 'text',
+              data: { name: plainDetails },
+            },
+          };
+        }
+        return hat;
+      }
+
+      return {
+        ...hat,
+        detailsObject: JSON.parse(detailsMetadata as string),
+      };
+    }) as AppHat[];
+  }, [onchainHats]);
 
   const { data: orgChartWearers } = useTreeWearers({
     hats: hatDetails,
@@ -303,6 +288,18 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
     editMode,
   });
   // console.log('orgChartTree', orgChartTree);
+
+  // *********************
+  // * ONCHAIN TREE (COMPUTED FROM ORG CHART TREE)
+  // *********************
+
+  // Derive onchainTree by filtering orgChartTree to only include onchain hats
+  // This eliminates duplicate mesh requests
+  const onchainTree = useMemo(() => {
+    if (!orgChartTree) return undefined;
+    const onchainHatIds = _.map(onchainHats, 'id');
+    return orgChartTree.filter((hat) => _.includes(onchainHatIds, hat.id));
+  }, [orgChartTree, onchainHats]);
 
   // *********************
   // * TREE TOGGLE (INACTIVE HATS + OVERRIDE WITH CURRENT IMAGE AND NAME)
@@ -520,14 +517,9 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
         onchainHats: orgChartTree || undefined,
         drafts: localDraftHats,
       });
-      setOrgChartHats(_.concat(onchainHats, drafts));
+      setOrgChartHats(_.concat(onchainHats, _.compact(drafts)) as AppHat[]);
     }
     if (!hatId) {
-      posthog.capture('Opened Tree Drawer', {
-        chain_id: chainId,
-        tree_id: treeId,
-        edit_mode: true,
-      });
       onOpenTreeDrawer?.();
     }
     const url = urlFromQueryParams({
@@ -653,7 +645,7 @@ const TreeFormContextContent = ({ children }: { children: ReactNode }) => {
           treeId,
           drafts: localDraftHats,
         });
-        setOrgChartHats(_.concat(onchainHats, drafts));
+        setOrgChartHats(_.concat(onchainHats, _.compact(drafts)) as AppHat[]);
       }
     },
     [chainId, treeId, onchainHats, setStoredData],

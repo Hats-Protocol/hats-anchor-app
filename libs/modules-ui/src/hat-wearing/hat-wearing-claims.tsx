@@ -5,7 +5,6 @@ import { useHatDetails } from 'hats-hooks';
 import { filter, first, flatten, includes, isEmpty, map, size, toLower } from 'lodash';
 import { useEligibilityRules, useHatWearingEligibility } from 'modules-hooks';
 import { DevInfo } from 'molecules';
-import posthog from 'posthog-js';
 import { useMemo } from 'react';
 import { BsCheckSquareFill, BsFillXOctagonFill } from 'react-icons/bs';
 import { LabeledModules, ModuleDetails } from 'types';
@@ -120,7 +119,7 @@ export const HatWearingEligibilityClaims = ({
     map(eligibleWearers || [], (wearer) => toLower(wearer?.id)),
     toLower(address),
   );
-  const isDev = posthog.isFeatureEnabled('dev');
+  const isDev = false;
 
   if (isEligibilityRulesLoading || isHatWearingEligibilityLoading) {
     return <Skeleton className='h-[500px] w-full' />;
