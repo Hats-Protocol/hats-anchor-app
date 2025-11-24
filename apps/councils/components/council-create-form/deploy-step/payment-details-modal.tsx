@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Modal, useOverlay } from 'contexts';
 import { AddressInput, Form, FormDescription, Input } from 'forms';
 import { useTokenDetails } from 'hooks';
-import { get, includes, toLower, toNumber } from 'lodash';
+import { get, toLower, toNumber } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import type { CouncilFormData, SupportedChains } from 'types';
@@ -28,14 +28,11 @@ interface PaymentDetailsModalProps {
   canEdit?: boolean;
 }
 
-const PRO_URL = 'https://hats-pro.vercel.app';
-
 export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true }: PaymentDetailsModalProps) {
   const [loading, setLoading] = useState(false);
   const selectedChain = parentForm.watch('chain')?.value;
   const chainId = toNumber(selectedChain);
   const { modals, setModals } = useOverlay();
-  const councilName = parentForm.watch('councilName');
   const { getAccessToken } = usePrivy();
 
   const { data: tokenData } = useTokenDetails({
@@ -116,8 +113,6 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         id: draftId,
         payer: userData,
       });
-      const url = includes(window.location.origin, 'localhost') ? PRO_URL : window.location.origin;
-
       if (!parentForm.getValues('payer')) {
         // const message = `💰 Invoice details added for *${councilName}* on ${chainsMap(chainId)?.name} \\| `;
         // const councilLink = `[View Council](${url}/councils/new/payment?draftId=${draftId}) 💰`;
@@ -133,15 +128,10 @@ export function PaymentDetailsModal({ form: parentForm, draftId, canEdit = true 
         //     return undefined;
         //   }),
         // );
-
         // TODO re-enable, this is currently failing without the API endpoint
         // await sendTelegramMessage(`${message} ${councilLink} ${userDetails.join('')}`).catch((error) => {
         //   logger.error('Error sending telegram message:', error);
         // });
-          councilName,
-          chain: chainsMap(chainId)?.name,
-          url,
-        });
       }
 
       parentForm.setValue('payer', userData);

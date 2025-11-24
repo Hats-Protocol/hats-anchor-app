@@ -141,7 +141,7 @@ export const SimulationDetails = ({ chainId }: { chainId: number | undefined }) 
     tree,
   } = useCouncilForm();
 
-  const isDev = false || process.env.NODE_ENV === 'development';
+  const isDev = process.env.NODE_ENV === 'development';
 
   if (!isDev || !chainId) return null;
 

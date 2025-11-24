@@ -1,22 +1,4 @@
 import { composePlugins, withNx } from '@nx/next';
-import { withSentryConfig } from '@sentry/nextjs';
-
-const SENTRY_WEBPACK_PLUGIN_OPTIONS = {
-  silent: true, // Can be used to suppress logs
-
-  org: process.env.NEXT_PUBLIC_SENTRY_ORG,
-  project: process.env.NEXT_PUBLIC_SENTRY_PROJECT,
-};
-
-const SENTRY_OPTIONS = {
-  // Sentry Next.js options here
-  // widenClientFileUpload: true,
-  // transpileClientSDK: true,
-  // tunnelRoute: '/monitoring',
-  // hideSourceMaps: true,
-  disableLogger: true, // Reduce bundle size
-  // automaticVercelMonitors: true,
-};
 
 /**
  * @type {import('next').NextConfig}
@@ -60,15 +42,9 @@ const nextConfig = {
   },
 };
 
-// Use withSentryConfig to wrap the next config
-const sentryEnhancedConfig = (passedConfig) =>
-  withSentryConfig(passedConfig, SENTRY_WEBPACK_PLUGIN_OPTIONS, SENTRY_OPTIONS);
-
 const plugins = [
   // Add more Next.js plugins to this list if needed.
   withNx,
-  // Sentry should be the last plugin to wrap all others
-  sentryEnhancedConfig,
 ];
 
 export default composePlugins(...plugins)(nextConfig);

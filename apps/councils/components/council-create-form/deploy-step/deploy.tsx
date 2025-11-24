@@ -139,7 +139,7 @@ const Deploy = ({
     };
   }
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   return (
     <div className='space-y-6'>

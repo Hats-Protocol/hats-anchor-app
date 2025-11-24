@@ -28,8 +28,8 @@ const CouncilButtons = () => {
     safeAddress: get(councilDetails, 'safe'),
   });
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
-  const isTxAssets = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
+  const isTxAssets = process.env.NODE_ENV !== 'production';
 
   const devLink = isDev ? [{ label: 'Dev', href: 'dev' }] : [];
   const links = [...LINKS, ...devLink];

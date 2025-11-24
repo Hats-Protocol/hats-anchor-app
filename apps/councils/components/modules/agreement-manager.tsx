@@ -99,14 +99,6 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
                 //   `New agreement manager added: ${tgFormatAddress(data.address)} https://pro.hatsprotocol.xyz/council/${slug}/manage`,
                 // );
 
-                if (offchainCouncilDetails?.hsg) {
-                    chainId,
-                    councilAddress: getAddress(offchainCouncilDetails.hsg),
-                    moduleAddress: m.instanceAddress,
-                    userAddress: data.address,
-                  });
-                }
-
                 setModals?.({});
               },
             });
@@ -124,7 +116,7 @@ const AgreementManager = ({ m, chainId, offchainCouncilDetails, primarySignerHat
       });
   };
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   if (!m) return null;
 

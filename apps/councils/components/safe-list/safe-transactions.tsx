@@ -234,7 +234,7 @@ const SafeTransactions = ({ hsg, safeAddress, chainId }: { hsg: Hex; safeAddress
   });
   const { data: approvedTokens, isLoading: approvedTokensLoading } = useApprovedTokens();
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

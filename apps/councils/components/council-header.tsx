@@ -165,7 +165,7 @@ const CouncilHeaderCard = ({
   //   initialHats,
   // );
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   // TODO check impacts of this hook => in uses useHatDetails, useTreeDetails
   const { isReadyToClaim, isWearing } = useEligibility();

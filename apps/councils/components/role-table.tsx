@@ -130,7 +130,7 @@ const RoleTable = ({
     chainId,
   });
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   // Get hat wearers for this specific role
   const hatWearers = hatData?.wearers || [];

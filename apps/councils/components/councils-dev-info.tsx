@@ -205,7 +205,7 @@ const CouncilsDevInfo = ({ slug }: { slug: string }) => {
     );
   }, [safeSigners, chainId]);
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   if (!chainId || !isDev) return null;
 

@@ -43,7 +43,7 @@ const Navbar = () => {
 
   const { data: organization } = useOrganization(isOrganizationRoute ? params.organizationName : undefined);
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   return (
     <div

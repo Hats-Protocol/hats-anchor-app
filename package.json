@@ -126,7 +126,6 @@
     "onlyBuiltDependencies": [
       "@parcel/watcher",
       "@reown/appkit",
-      "@sentry/cli",
       "@swc/core",
       "bigint-buffer",
       "bufferutil",

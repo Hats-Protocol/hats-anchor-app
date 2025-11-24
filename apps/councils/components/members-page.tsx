@@ -132,7 +132,7 @@ const MembersPage = ({ slug }: { slug: string }) => {
 
   useAuthGuard();
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   // support selected module or only module
   const allowlistModule = offchainCouncilData?.membersSelectionModule || get(primarySignerHat, 'eligibility');

@@ -20,7 +20,6 @@
     "@privy-io/react-auth": "2.17.3",
     "@privy-io/wagmi": "1.0.5",
     "@safe-global/api-kit": "^2.4.3",
-    "@sentry/nextjs": "9.15.0",
     "@swc/helpers": "0.5.11",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-query-devtools": "^5.81.5",
