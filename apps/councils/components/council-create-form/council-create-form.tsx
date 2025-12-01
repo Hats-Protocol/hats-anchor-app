@@ -66,9 +66,6 @@ export function CouncilCreateForm({ step, subStep, draftId }: CouncilCreateFormP
       } else {
         router.push(`/councils/new/${nextStep.step}?draftId=${draftId}`);
       }
-        step,
-        subStep,
-      });
     } catch (error) {
       logger.error('Failed to save form data:', error);
       setStepValidation(step as keyof StepValidation, false);

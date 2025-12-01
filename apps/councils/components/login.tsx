@@ -38,8 +38,6 @@ const Login = () => {
 
   useEffect(() => {
     if (!user || ensNameLoading) return;
-    const name = ensName || user.email?.address?.split('@')?.[0];
-
   }, [user, ensName, ensNameLoading]);
 
   const { toast } = useToast();

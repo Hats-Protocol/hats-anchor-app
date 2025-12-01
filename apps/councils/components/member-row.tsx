@@ -85,7 +85,7 @@ const MemberRow = ({
   const offChainDetails = find(offchainWearers, { address: member.address });
   const fullMember = { ...member, ...offChainDetails };
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   const firstModuleIsAllowlist = firstModule?.module?.id.includes('allowlist');
   const firstModuleIsHatWearing = firstModule?.module?.id.includes('hat-wearing');

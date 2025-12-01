@@ -15,7 +15,7 @@ interface MailFormsData {
 const MailForms = () => {
   const localForm = useForm<MailFormsData>();
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   if (!isDev) return null;
 

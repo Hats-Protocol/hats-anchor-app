@@ -116,14 +116,6 @@ const AllowlistManager = ({
                 //   `New ${isCompliance ? 'allowlist' : 'compliance'} manager added: ${data.name} (${tgFormatAddress(data.address)}) https://pro.hatsprotocol.xyz/council/${slug}`,
                 // );
 
-                if (offchainCouncilDetails?.hsg) {
-                    councilId: offchainCouncilDetails.hsg,
-                    chainId,
-                    type: isCompliance ? 'allowlistAdmin' : 'complianceAdmin',
-                    userAddress: data.address,
-                  });
-                }
-
                 setModals?.({});
               },
             });
@@ -141,7 +133,7 @@ const AllowlistManager = ({
       });
   };
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   if (!m) return null;
 

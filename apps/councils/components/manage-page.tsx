@@ -340,7 +340,7 @@ export const ManagePage = ({ slug }: { slug: string }) => {
     });
   };
 
-  const isDev = false || process.env.NODE_ENV !== 'production';
+  const isDev = process.env.NODE_ENV !== 'production';
 
   return (
     <div className='mx-auto flex gap-20 px-4 pt-10 lg:max-w-[1000px]'>
