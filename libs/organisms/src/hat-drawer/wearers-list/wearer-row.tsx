@@ -9,12 +9,13 @@ import { CodeIcon, CopyAddress, WearerIcon } from 'icons';
 import { get, toLower } from 'lodash';
 import { useModuleDetails } from 'modules-hooks';
 import { TooltipWrapper } from 'molecules';
+import { useEffect, useRef, useState } from 'react';
 import { idToIp } from 'shared';
 import { ControllerData } from 'types';
 import { Button, cn, Link, OblongAvatar, Tooltip } from 'ui';
 import { formatAddress, isSameAddress } from 'utils';
 import { Hex } from 'viem';
-import { useAccount, useChainId, useEnsAvatar } from 'wagmi';
+import { useAccount, useChainId, useEnsAvatar, useEnsName } from 'wagmi';
 
 const WearerRow = ({
   wearer,
@@ -35,9 +36,38 @@ const WearerRow = ({
     },
   });
 
-  const { data: ensAvatar } = useEnsAvatar({
+  // Lazy load ENS data only when component is visible in viewport
+  const ensRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ensRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const { data: lazyEnsName } = useEnsName({
+    address: wearer.id as Hex,
     chainId: 1,
-    name: wearer?.ensName || undefined,
+    query: { enabled: isVisible && !!wearer.id },
+  });
+
+  const { data: ensAvatar } = useEnsAvatar({
+    name: lazyEnsName || wearer?.ensName || undefined,
+    chainId: 1,
+    query: { enabled: isVisible && !!(lazyEnsName || wearer?.ensName) },
   });
 
   const hatId = selectedHat?.id || '0x';
@@ -105,12 +135,13 @@ const WearerRow = ({
     color = 'text-informative-code';
   }
 
-  const displayName = get(wearer, 'ensName') || controllerName || formatAddress(get(wearer, 'id'));
+  // Use lazy-loaded ENS name if available, fall back to pre-populated ensName or controller name
+  const displayName = lazyEnsName || get(wearer, 'ensName') || controllerName || formatAddress(get(wearer, 'id'));
   const wearerNameIsAddress = displayName === formatAddress(wearer.id);
   const Icon = controllerIcon || icon;
 
   return (
-    <div className='flex w-full items-center justify-between' key={wearer.id}>
+    <div ref={ensRef} className='flex w-full items-center justify-between' key={wearer.id}>
       <Link href={`/wearers/${wearer.id}`} className=''>
         <Tooltip label={!wearerNameIsAddress ? wearer.id : undefined}>
           <div className={cn('flex items-center gap-2 pr-1', bgColor)}>

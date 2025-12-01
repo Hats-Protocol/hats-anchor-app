@@ -75,3 +75,4 @@ dist-ssr
 # libs/utils/src/mesh/zeus
 **/storybook-static
 /.cursor
+.github/instructions/nx.instructions.md
