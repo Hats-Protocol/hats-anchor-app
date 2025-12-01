@@ -80,7 +80,13 @@ const getConnectors = () => {
 const transports = () => {
   const localTransports: { [key: string]: Transport } = {};
   each(chainsList, (chain, chainId) => {
-    localTransports[chainId as keyof typeof localTransports] = http(getRpcUrl(toNumber(chainId)) as string);
+    localTransports[chainId as keyof typeof localTransports] = http(getRpcUrl(toNumber(chainId)) as string, {
+      batch: {
+        // Batch multiple RPC calls into single multicall requests
+        // This reduces the number of requests to the RPC provider
+        wait: 50, // Wait 50ms to collect calls before batching
+      },
+    });
   });
 
   return localTransports;
