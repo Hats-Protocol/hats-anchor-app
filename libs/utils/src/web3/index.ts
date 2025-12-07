@@ -29,8 +29,18 @@ declare global {
 export const viemPublicClient = (chainId: number): PublicClient => {
   return createPublicClient({
     chain: chainsMap(chainId),
-    batch: { multicall: true },
-    transport: http(getRpcUrl(chainId) as string, { batch: true }),
+    batch: {
+      multicall: {
+        batchSize: 1024,
+        wait: 50,
+      },
+    },
+    transport: http(getRpcUrl(chainId) as string, {
+      batch: {
+        batchSize: 100,
+        wait: 50,
+      },
+    }),
   }) as PublicClient;
 };
 
