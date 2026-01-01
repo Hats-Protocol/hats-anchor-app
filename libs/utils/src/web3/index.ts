@@ -26,6 +26,53 @@ declare global {
   }
 }
 
+const hatsModulesClientCache = new Map<string, HatsModulesClient>();
+const hatsModulesClientPrepareCache = new Map<string, Promise<HatsModulesClient>>();
+
+const getHatsModulesCacheKey = (chainId: number, walletClient?: WalletClient) => {
+  const walletAddress = walletClient?.account?.address;
+  return `${chainId}:${walletAddress || 'readonly'}`;
+};
+
+const getPreparedHatsModulesClient = async ({
+  chainId,
+  walletClient,
+}: {
+  chainId: number;
+  walletClient?: WalletClient;
+}): Promise<HatsModulesClient> => {
+  const cacheKey = getHatsModulesCacheKey(chainId, walletClient);
+  const cachedClient = hatsModulesClientCache.get(cacheKey);
+  if (cachedClient) {
+    return cachedClient;
+  }
+
+  const inFlight = hatsModulesClientPrepareCache.get(cacheKey);
+  if (inFlight) {
+    return inFlight;
+  }
+
+  const client = new HatsModulesClient({
+    publicClient: viemPublicClient(chainId),
+    walletClient,
+  });
+
+  const preparePromise = client
+    .prepare()
+    .then(() => {
+      hatsModulesClientCache.set(cacheKey, client);
+      hatsModulesClientPrepareCache.delete(cacheKey);
+      return client;
+    })
+    .catch((error) => {
+      hatsModulesClientPrepareCache.delete(cacheKey);
+      throw error;
+    });
+
+  hatsModulesClientPrepareCache.set(cacheKey, preparePromise);
+  return preparePromise;
+};
+
 export const viemPublicClient = (chainId: number): PublicClient => {
   return createPublicClient({
     chain: chainsMap(chainId),
@@ -77,39 +124,14 @@ export async function createHatsModulesClient(
 ): Promise<HatsModulesClient | null> {
   if (!chainId) return Promise.resolve(null);
 
-  const publicClient = viemPublicClient(chainId);
-
   if (walletClient) {
-    const client = new HatsModulesClient({
-      publicClient,
-      walletClient,
-    });
-    await client.prepare();
-
-    return Promise.resolve(client);
+    return getPreparedHatsModulesClient({ chainId, walletClient });
   }
 
   return getWalletClient(wagmiConfig())
-    .then(async (walletClient) => {
-      const hatsModulesClient = new HatsModulesClient({
-        publicClient,
-        walletClient,
-      });
-
-      // Will look up all modules in registry but can be configured to
-      // handle a specific module if passed as argument
-      await hatsModulesClient.prepare();
-
-      return Promise.resolve(hatsModulesClient);
-    })
+    .then((resolvedWalletClient) => getPreparedHatsModulesClient({ chainId, walletClient: resolvedWalletClient }))
     .catch(async () => {
-      const modulesClient = new HatsModulesClient({
-        publicClient,
-      });
-
-      await modulesClient.prepare();
-
-      return Promise.resolve(modulesClient);
+      return getPreparedHatsModulesClient({ chainId });
     });
 }
 
