@@ -29,11 +29,18 @@ declare global {
 const hatsModulesClientCache = new Map<string, HatsModulesClient>();
 const hatsModulesClientPrepareCache = new Map<string, Promise<HatsModulesClient>>();
 
+/**
+ * Builds a stable cache key for HatsModulesClient instances.
+ * Uses the wallet address when available to avoid mixing readonly and signer clients.
+ */
 const getHatsModulesCacheKey = (chainId: number, walletClient?: WalletClient) => {
   const walletAddress = walletClient?.account?.address;
   return `${chainId}:${walletAddress || 'readonly'}`;
 };
 
+/**
+ * Returns a prepared HatsModulesClient, reusing cached instances and de-duping prepares.
+ */
 const getPreparedHatsModulesClient = async ({
   chainId,
   walletClient,
@@ -128,6 +135,8 @@ export async function createHatsModulesClient(
     return getPreparedHatsModulesClient({ chainId, walletClient });
   }
 
+  // Keep existing behavior: attempt to resolve a wallet client if one is available,
+  // otherwise fall back to a readonly client.
   return getWalletClient(wagmiConfig())
     .then((resolvedWalletClient) => getPreparedHatsModulesClient({ chainId, walletClient: resolvedWalletClient }))
     .catch(async () => {
