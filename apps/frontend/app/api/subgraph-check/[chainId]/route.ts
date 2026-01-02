@@ -60,7 +60,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ chai
       return null;
     });
 
-    const chainPromise = viemPublicClient(chainId).getBlock();
+    const chainPromise = viemPublicClient(chainId).getBlockNumber();
 
     const [mainSubgraph, ancillarySubgraph, chain] = await Promise.all([
       mainSubgraphPromise,
@@ -68,7 +68,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ chai
       chainPromise,
     ]);
 
-    const chainNumber = toNumber(get(chain, 'number').toString());
+    const chainNumber = toNumber(chain?.toString());
     const mainSubgraphNumber = get(mainSubgraph, '_meta.block.number');
     const ancillarySubgraphNumber = get(ancillarySubgraph, '_meta.block.number');
 
