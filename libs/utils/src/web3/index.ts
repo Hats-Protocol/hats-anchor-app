@@ -28,6 +28,7 @@ declare global {
 
 const hatsModulesClientCache = new Map<string, HatsModulesClient>();
 const hatsModulesClientPrepareCache = new Map<string, Promise<HatsModulesClient>>();
+const viemPublicClientCache = new Map<number, PublicClient>();
 
 /**
  * Builds a stable cache key for HatsModulesClient instances.
@@ -80,8 +81,16 @@ const getPreparedHatsModulesClient = async ({
   return preparePromise;
 };
 
+/**
+ * Reuses a viem public client per chain to avoid repeated RPC client setup.
+ */
 export const viemPublicClient = (chainId: number): PublicClient => {
-  return createPublicClient({
+  const cached = viemPublicClientCache.get(chainId);
+  if (cached) {
+    return cached;
+  }
+
+  const client = createPublicClient({
     chain: chainsMap(chainId),
     batch: {
       multicall: {
@@ -96,6 +105,9 @@ export const viemPublicClient = (chainId: number): PublicClient => {
       },
     }),
   }) as PublicClient;
+
+  viemPublicClientCache.set(chainId, client);
+  return client;
 };
 
 export async function createHatsClient(
