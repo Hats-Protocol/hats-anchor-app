@@ -26,6 +26,10 @@ interface SubgraphCheckResult {
   chain: number;
 }
 
+/**
+ * Returns chain and subgraph block heights for a given chainId.
+ * Compares subgraph block numbers against the latest chain height to flag out-of-sync status.
+ */
 export async function GET(request: Request, { params }: { params: Promise<{ chainId: string }> }): Promise<Response> {
   try {
     const { chainId: chainIdStr } = await params;
