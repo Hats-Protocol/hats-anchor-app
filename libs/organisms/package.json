@@ -39,7 +39,7 @@
     "icons": "workspace:*",
     "lodash": "^4.17.21",
     "molecules": "workspace:*",
-    "next": "15.5.9",
+    "next": "15.2.8",
     "react": "^18.3.1",
     "react-hook-form": "^7.50.1",
     "react-icons": "^4.7.1",
