@@ -25,15 +25,17 @@ const DeactivationForm = () => {
   const [allCalls, setAllCalls] = useState<any[]>([]);
 
   const hasSelectedHats = !isEmpty(filter(Object.keys(watch()), (key) => key.startsWith('hat-')));
+  const chainId = watch('chainId')?.value ? toNumber(watch('chainId').value) : undefined;
   const { data: treeDetails } = useTreeDetails({
-    chainId: watch('chainId'),
+    chainId,
     treeId: watch('treeId'),
   });
 
   const topHatWearer = get(treeDetails, 'hats[0].wearers[0].id');
 
   const onSubmit = async (data: any) => {
-    const hatsClient = await createHatsClient(toNumber(watch('chainId')));
+    if (!chainId) return;
+    const hatsClient = await createHatsClient(chainId);
 
     // get the hat ids
     const hats = Object.keys(data).filter((key) => key.startsWith('hat-'));
@@ -74,7 +76,8 @@ const DeactivationForm = () => {
   const onSendTx = useCallback(async () => {
     console.log(watch('wearer'), topHatWearer, address);
     if (!walletClient) return; // TODO catch these issues, toasts
-    const hatsClient = await createHatsClient(toNumber(watch('chainId')), walletClient);
+    if (!chainId) return;
+    const hatsClient = await createHatsClient(chainId, walletClient);
 
     if (!hatsClient || isEmpty(allCalls)) return;
 

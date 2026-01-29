@@ -11,7 +11,7 @@ export const fetchTreeDetailsMesh = async (
   treeId: string | null | undefined,
   chainId: number,
 ): Promise<Tree | null> => {
-  if (!treeId) {
+  if (!treeId || !NETWORKS_PREFIX[chainId]) {
     return null;
   }
 
