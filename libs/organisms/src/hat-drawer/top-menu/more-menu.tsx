@@ -210,7 +210,7 @@ const MoreMenu = () => {
                   </Tooltip>
                 )}
 
-                {isAdminUser && isSameAddress(selectedHat?.toggle, address) && (
+                {isSameAddress(selectedHat?.toggle, address) && (
                   <Tooltip
                     label={getDisabledReason({
                       isNotConnected: !address,
