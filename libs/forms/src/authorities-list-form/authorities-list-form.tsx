@@ -15,7 +15,6 @@ import { AuthoritiesForm } from './authorities-form';
 import { AuthoritiesFormItem } from './authorities-form-item';
 
 interface AuthoritiesFormListProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formName: string;
   title: string;
   subtitle?: string | ReactNode;
@@ -67,7 +66,7 @@ const AuthoritiesListForm = ({ formName, title, Icon, subtitle, label }: Authori
     setModals?.({ 'authorities-edit': true });
   };
 
-  const hsgEnabled = false || process.env.NODE_ENV !== 'production';
+  const hsgEnabled = true || process.env.NODE_ENV !== 'production';
 
   if (!localForm || !hatForm) return null;
 
